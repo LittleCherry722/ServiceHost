@@ -366,3 +366,12 @@ $("#tab2_content").addClass("hide");
 $("#tab3_content").addClass("hide");
 }
 
+//resize canvas to fit into screen
+$(function() {
+	$("#graph_bv_outer").css("height", window.innerHeight - 526);
+	
+	$(window).resize(function() {
+		$("#graph_bv_outer").css("height", window.innerHeight - 526);
+	});
+});
+
