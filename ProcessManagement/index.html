@@ -330,6 +330,8 @@
 										<div class="onecolumn">
 										<input type="button" name="neu" value="Add new node" style="width:190px" onClick="gv_graph.createNode();"/>
 										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="button" onClick="gv_graph.connectNodes();" value="connect node" />
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 										<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
 										
 										
