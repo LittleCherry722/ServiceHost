@@ -41,7 +41,7 @@ var PM = {
  },
  
  NoticeDialog : function(title, text, okAction){
-	PM.Dialog(title, text, [
+	PM.Dialog(title || "Notice", text, [
 		{
 			id : "okBtn",
 			name : "Ok",
@@ -53,7 +53,7 @@ var PM = {
  },
  
  YesNoDialog : function(title, text, yesAction, noAction){
-	PM.Dialog(title, text, [
+	PM.Dialog(title || "Confirmation prompt", text || "Do you really want to proceed?", [
 		{
 			id : "yesBtn",
 			name : "Yes",

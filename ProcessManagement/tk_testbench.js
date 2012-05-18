@@ -1,12 +1,11 @@
 // new Objects
-gv_graph.addSubject("employee", "Employee");
-gv_graph.addSubject("manager", "Manager");
-gv_graph.addSubject("hr", "Human\nResources");
-
+gv_graph.addSubject("Employee", "Employee");
+gv_graph.addSubject("Manager", "Manager");
+gv_graph.addSubject("HR", "Human\nResources");
 var gt_behav = null;
 
 // employee
-gt_behav = gv_graph.getBehavior("employee");
+gt_behav = gv_graph.getBehavior("Employee");
 
 gt_behav.addNode("start", "fill out vacation request", "start");
 gt_behav.addNode("s1", "S");
@@ -27,7 +26,7 @@ gt_behav.addEdge("act3", "start", "");
 
 
 // manager
-gt_behav = gv_graph.getBehavior("manager");
+gt_behav = gv_graph.getBehavior("Manager");
 
 gt_behav.addNode("rcv1", "R", "start");
 gt_behav.addNode("act1", "review\nvacation\nrequest");
@@ -45,7 +44,7 @@ gt_behav.addEdge("s3", "end", "approved\nvacation\nrequest", "hr");
 
 
 // hr
-gt_behav = gv_graph.getBehavior("hr");
+gt_behav = gv_graph.getBehavior("HR");
 
 gt_behav.addNode("rcv1", "R", "start");
 gt_behav.addNode("act1", "archive\nvacation request");
