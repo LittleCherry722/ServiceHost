@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v0.8
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2012 Johannes Decher, Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 //Variablen
 var processName = false; //aktueller Prozessname
 
@@ -9,7 +22,7 @@ for (var x = 0; x < groups.length; ++x) {
 	var responsibles = getResponsiblesForUserForGroup(getUserID(storage.get("loggedin_user")), getGroupID(groups[x]), getProcessID(processName));
 	if (responsibles.length == 0) insert += "<tr><td align=\"center\">" + groups[x] + "</td><td></td><td align=\"center\"></td></tr>";
 	for (var i = 0; i < responsibles.length; ++i) {
-		insert += "<tr><td align=\"center\">" + groups[x] + "</td><td align=\"center\">" + getUserName(responsibles[i]) + "</td><td align=\"center\"><a style=\"cursor:pointer\" onclick=\"removeResponsibleForUserForGroup("+getUserID(storage.get("loggedin_user"))+ ","+getGroupID(groups[x])+","+responsibles[i]+","+getProcessID(processName)+");showverantwortliche();\" >Delete</a></td></tr>";
+		insert += "<tr><td align=\"center\">" + groups[x] + "</td><td align=\"center\">" + getUserName(responsibles[i]) + "</td><td align=\"center\"><a style=\"cursor:pointer\" onclick=\"removeResponsibleForUserForGroup("+getUserID(storage.get("loggedin_user"))+ ","+getGroupID(groups[x])+","+responsibles[i]+","+getProcessID(processName)+");showverantwortliche();\" >L&ouml;schen</a></td></tr>";
 	}
 }
 document.getElementById('responsibles').innerHTML = insert;

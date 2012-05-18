@@ -1,3 +1,14 @@
+<!-- S-BPM Groupware v0.8
+   -
+   - http://www.tk.informatik.tu-darmstadt.de/
+   -
+   - Copyright 2012 Johannes Decher, Telecooperation Group @ TU Darmstadt
+   - Contact: Stephan.Borgert@cs.tu-darmstadt.de
+   -
+   - This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+   
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> 
 <html> 
 <head> 
@@ -36,7 +47,7 @@ var users = getAllUsers();
 var insert = "";
 for (var i = 0; i < users.length; ++i) {
 	if(users[i] != parent.storage.get("loggedin_user"))
-		insert += "<tr><td>" + users[i] + "</td><td><a style=\"cursor:pointer\" onClick=\"deleteUser('"+users[i]+"');showUsersToDelete();\">Delete</a></td></tr>";
+		insert += "<tr><td>" + users[i] + "</td><td><a style=\"cursor:pointer\" onClick=\"deleteUser('"+users[i]+"');showUsersToDelete();\">L&ouml;schen</a></td></tr>";
 }
 document.getElementById('deleteUsers').innerHTML = insert;
 }

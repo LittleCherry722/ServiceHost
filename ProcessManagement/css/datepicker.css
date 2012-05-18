@@ -1,3 +1,12 @@
+/*!
+ * jQuery UI Datepicker
+ *
+ * Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
+ *
+ * http://docs.jquery.com/UI/Datepicker#theming
+ */
 /* Datepicker
 ----------------------------------*/
 .ui-datepicker { width: 210px; padding: 5px 0 5px 0; font-weight: bold; border-top: 1px solid #ffffff; background: #bfc6cf; border-top: 2px solid #999999; display:none; text-shadow:0 1px 0 #ebebeb; }

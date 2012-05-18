@@ -1,9 +1,36 @@
 <?php
-$link = mysql_connect("localhost", "root", "") or die("Keine Verbindung möglich: " . mysql_error());
-$dbname = "tkprojekt";
-if (!mysql_select_db($dbname)){
-	mysql_query("CREATE DATABASE `". $dbname ."`");
-	mysql_select_db($dbname) or die ("Couldnt create DB! " . mysql_error());
+
+/*
+ * S-BPM Groupware v0.8
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2012 Thorsten Jacobi, Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+include_once 'db.config.php';
+
+$link = mysql_connect($dbConfig["host"], $dbConfig["user"], $dbConfig["pass"]) or die("Can't connect: " . mysql_error());
+
+$dbSelectStatus	= mysql_select_db($dbConfig["database"]);
+
+$dbInitialize	= !$dbSelectStatus;
+
+if ($dbSelectStatus)
+{
+	// check if correct number of tables has been created
+	$tableQuery = mysql_query("SHOW TABLES FROM `" . $dbConfig["database"] . "`");
+	$dbInitialize = $dbInitialize || mysql_num_rows($tableQuery) < 8;
+}
+
+if ($dbInitialize){
+	mysql_query("CREATE DATABASE `". $dbConfig["database"] ."`");
+	mysql_select_db($dbConfig["database"]) or die ("Can't create DB! " . mysql_error());
 	
 	mysql_query("CREATE TABLE IF NOT EXISTS `groups` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
