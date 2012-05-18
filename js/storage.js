@@ -1,3 +1,8 @@
+/*
+ * Author: Mathias Schäfer <zapperlott@gmail.com>
+ * http://aktuell.de.selfhtml.org/artikel/javascript/wertuebergabe/
+ */
+
 var storage = new function () {
 	/* --------- Private Properties --------- */
 

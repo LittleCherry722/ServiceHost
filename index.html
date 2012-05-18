@@ -1,3 +1,14 @@
+<!-- S-BPM Groupware v0.8
+-
+- http://www.tk.informatik.tu-darmstadt.de/
+-
+- Copyright 2012 Johannes Decher, Telecooperation Group @ TU Darmstadt
+- Contact: Stephan.Borgert@cs.tu-darmstadt.de
+-
+- This Source Code Form is subject to the terms of the Mozilla Public
+- License, v. 2.0. If a copy of the MPL was not distributed with this file,
+- You can obtain one at http://mozilla.org/MPL/2.0/.  -->
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 	<head>
@@ -43,10 +54,10 @@
 			<div id="header">
 
 				<div id="logo">
-					<h1 style="float:left">Process Management</h1>
+					<h2 style="float:left">Process</h2><h1>Management</h1>
 				</div>
 				<div id="account_info">
-					<img src="images/icons/icon_online.png" alt="Online" class="mid_align"/>
+					<img src="images/icons/user_48.png" width="16px" height="16px" alt="Online" class="mid_align"/>
 					Hello <a href="#">
 					<script>
 						document.write(storage.get("loggedin_user"))
@@ -64,26 +75,23 @@
 				<a href="javascript:;" id="hide_menu">&laquo;</a>
 				<ul id="main_menu">
 					<li>
-						<a href=""><img src="images/icons/home.png" alt="Home"/>Home</a>
+						<a href=""><img src="images/icons/home_48.png" width="16px" height="16px" alt="Home"/>Home</a>
 					</li>
 					<li>
-						<a href=""><img src="images/icons/new.png" alt="Processes"/>Process Management</a>
+						<a href=""><img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>Process Management</a>
 						<ul>
 							<li>
-								<a id="newProcess" href="new_process.html">Create new process</a>
+								<a id="newProcess" href="new_process.html">Create new procesn</a>
 							</li>
 							<!-- <li><a id="deleteProcess" href="deleteProcess.html">Delete existing process</a></li> -->
 							<li>
 								<a id="overviewProcesses" href="overviewProcess.html">View existing processes</a>
 							</li>
-							<li>
-								<a id="loadProcess" href="loadProcess.html">Load process</a>
-							</li>
-
+							<!-- <li><a id="loadProcess" href="loadProcess.html">Load process</a></li> -->
 						</ul>
 					</li>
 					<li>
-						<a href=""><img src="images/icons/icon_online.png" alt="Processes"/>User Management</a>
+						<a href=""><img src="images/icons/user_48.png" width="16px" height="16px" alt="User"/>User Management</a>
 						<ul>
 							<li>
 								<a id="newUser" href="new_user.html">Create new user</a>
@@ -106,11 +114,10 @@
 						</ul>
 					</li>
 					<li id="save" style="display:none">
-						<a id="save" href="" onclick="GraphSpeichern();"><img src="images/icons/save.png"/>Save process</a>
+						<a id="save" href="" onclick="GraphSpeichern();"><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process</a>
 					</li>
-
 					<li>
-						<a href=""><img src="images/icons/e-mail.png" alt="Messages"/>Messages</a>
+						<a href=""><img src="images/icons/mail_48.png" width="16px" height="16px" alt="Messages"/>Messages</a>
 						<ul>
 							<li>
 								<a id="MSGInbox" href="MSGInbox.html">Inbox</a>
@@ -121,7 +128,7 @@
 						</ul>
 					</li>
 					<li>
-						<a href=""><img src="images/icons/start.png" height="16" width="16" alt="Execution"/>Execution</a>
+						<a href=""><img src="images/icons/arrow_right_48.png" height="16" width="16" alt="Execution"/>Execution</a>
 						<ul>
 							<li>
 								<a id="newInstance" href="newInstance.html">Start process</a>
@@ -249,8 +256,9 @@
 									<div class="twocolumn">
 										<div class="column_left">
 											<div class="header">
-												<span>Node/Edge information</span>
+												<span>Node/Edge informatino</span>
 											</div>
+											<br class="clear"/>
 											<div class="content">
 												<div id="node" style="display:none">
 													<div class="twocolumninfo">
@@ -369,7 +377,6 @@
 													<input type="button" onClick="gv_graph.connectNodes();" value="connect node" />
 													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 													<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
-
 												</div>
 
 											</div>
@@ -439,11 +446,11 @@
 														</div>
 														<div class="column_right2" align="center">
 															<p>
-																<input type="button" onClick="gv_graph.updateEdge();" value="Update edge" />
+																<input type="button" onClick="gv_graph.updateEdge();" value="update edge" />
 															</p>
 															<br class="clear"/>
 															<p>
-																<input type="button" onClick="gv_graph.deleteEdge();" value="Remove edge" />
+																<input type="button" onClick="gv_graph.deleteEdge();" value="remove edge" />
 															</p>
 														</div>
 													</div>
@@ -459,8 +466,7 @@
 												<div class="onecolumn">
 													<input type="button" name="neu" value="Add new node" style="width:190px" onClick="gv_graph.createNode();"/>
 													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-													<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
-												</div>
+													<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />												</div>
 
 											</div>
 										</div>
@@ -474,7 +480,7 @@
 									<br class="clear"/>
 									<h2 id="tab3_user" style="color:#525252;font-size:14px"></h2>
 									<br class="clear"/>
-									<a id="responsibleForloggedinUser" href="responsibleForloggedinUser.html">Add person in charge</a>
+									<a id="responsibleForloggedinUser" href="responsibleForloggedinUser.html">Verantwortlichen hinzufügen</a>
 									<br class="clear"/>
 									<br class="clear"/>
 									<div class="onecolumn">
