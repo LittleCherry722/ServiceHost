@@ -45,6 +45,7 @@ if ($dbInitialize){
   `instanceID` int(11) NOT NULL,
   `read` tinyint(1) NOT NULL,
   `data` blob NOT NULL,
+  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
 
