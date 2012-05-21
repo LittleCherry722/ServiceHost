@@ -1,5 +1,7 @@
 use sbpm_groupware;
 
+START TRANSACTION WITH CONSISTENT SNAPSHOT;
+
 TRUNCATE TABLE groups;
 TRUNCATE TABLE process;
 TRUNCATE TABLE process_graphs;
@@ -37,3 +39,5 @@ INSERT INTO `relation` (`userID`, `groupID`, `responsibleID`, `processID`) VALUE
 (0, 1, 2, 1),
 (0, 2, 4, 1),
 (0, 3, 6, 1);
+
+COMMIT;
