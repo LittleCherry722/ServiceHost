@@ -37,6 +37,7 @@ $(function() {
 		$(this).addClass("active");
 		$(".tab_content").addClass("hide");
 		$("#tab1_content").removeClass("hide");
+		gf_clickedCVbehavior();	// load internal behavior
 		});
 	$("#tab2").click(function(){
 		$(this).parent().parent().find("td input").removeClass("active");

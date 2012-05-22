@@ -49,14 +49,14 @@ var gv_elements = {
  */
 function gf_clickedCVbehavior (graphId)
 {
-	if (gf_isset(graphId))
+	if (!gf_isset(graphId))
 	{
-		gv_graph.drawBehavior(graphId);
-		
-		// additional code
-		// showGraph("bv");
-		showtab1();
+		graphId = gv_graph.selectedSubject;
 	}
+	
+	gv_graph.drawBehavior(graphId);
+	
+	showtab1();
 }
 
 /*
