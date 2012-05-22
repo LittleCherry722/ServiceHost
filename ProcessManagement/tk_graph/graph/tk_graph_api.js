@@ -48,12 +48,7 @@ var gv_elements = {
  * function called when an object in the communication view has been doubleClicked -> load the corresponding behavioral view
  */
 function gf_clickedCVbehavior (graphId)
-{
-	if (!gf_isset(graphId))
-	{
-		graphId = gv_graph.selectedSubject;
-	}
-	
+{	
 	gv_graph.drawBehavior(graphId);
 	
 	showtab1();
@@ -797,6 +792,11 @@ function GFcommunication ()
 	 */
 	this.drawBehavior = function (id)
 	{
+		if (!gf_isset(id))
+		{
+			id = this.selectedNode;
+		}
+		
 		var gt_behavior = this.getBehavior(id);
 		
 		if (gt_behavior != null)
