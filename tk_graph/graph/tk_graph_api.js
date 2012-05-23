@@ -569,6 +569,11 @@ function GFbehavior (name)
 	 */
 	this.selectNode = function (id)
 	{
+		if (!gf_isset(this.nodes["n" + id]) && gf_isset(this.nodeIDs[id]))
+		{
+			id = this.nodeIDs[id];
+		}
+		
 		if (gf_isset(this.nodes["n" + id]))
 		{
 			if (this.clickMode == "connect" && this.startNode != null)
