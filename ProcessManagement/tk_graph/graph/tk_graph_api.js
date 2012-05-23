@@ -15,6 +15,7 @@
  *	functions for handling the graph
  */
 var gv_graph = new GFcommunication();
+var gv_macros = new Array();
 
 // array containing the name of the used elements
 var gv_elements = {
@@ -43,6 +44,40 @@ var gv_elements = {
 	inputNodeType2End:		"ge_type2_end",
 	inputNodeType2Action:	"ge_type2_action",
 };
+
+function gf_createMacro (id, text, type, type2, connect)
+{
+	if (gf_isset(id, type, text, connect) && !gf_isset(this.gv_macros[id]))
+	{
+		connect = connect === true ? true : false;
+		gv_macros[id] = {id: id, type: type, type2: type2, text: text, connect: connect};
+	}
+}
+
+function gf_callMacro (id)
+{
+	if (gf_isset(gv_macros[id]))
+	{
+		var gt_macro = gv_macros[id];
+		
+		if (gt_macro.connect)
+			gv_graph.connectNodes();
+			
+		var gt_nodeId = gv_graph.createNode();
+		var gt_behavior = gv_graph.getBehavior(gv_graph.selectedSubject);
+		
+		
+		if (gt_behavior != null)
+		{
+			gt_behavior.selectedNode = gt_nodeId;
+			gt_behavior.updateNode("n" + gt_nodeId, gt_macro.text, gt_macro.type, gt_macro.type2);
+		}
+	}
+}
+
+gf_createMacro("newSendNode", "", "normal", "s", true);
+gf_createMacro("newReceiveNode", "", "normal", "r", true);
+gf_createMacro("newActionNode", "internal action", "normal", "", true);
 
 /*
  * function called when an object in the communication view has been doubleClicked -> load the corresponding behavioral view
@@ -534,8 +569,10 @@ function GFbehavior (name)
 	 */
 	this.createNode = function ()
 	{
-		gf_clickedBVnode(this.addNode("", "new"));
+		var gt_nodeId = this.addNode("", "new")
+		gf_clickedBVnode(gt_nodeId);
 		this.draw();
+		return gt_nodeId;
 	}
 	
 	/*
@@ -1015,7 +1052,7 @@ function GFcommunication ()
 		{
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
-				this.getBehavior(this.selectedSubject).createNode();
+				return this.getBehavior(this.selectedSubject).createNode();
 			}
 		}
 	}
