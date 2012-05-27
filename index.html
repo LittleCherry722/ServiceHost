@@ -234,7 +234,7 @@
 												<input type="button" id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:208px"/>
 												</td>
 												<td>
-												<input type="button" id="tab1" name="tab1" class="middle_switch" value="Internal behaviour" style="width:144px"/>
+												<input type="button" id="tab1" name="tab1" class="middle_switch" value="Internal behavior" style="width:144px"/>
 												</td>
 												<td>
 												<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
@@ -251,8 +251,6 @@
 								<!-- begin tab1 -->
 								<div id="tab1_content" class="tab_content hide">
 									<div id="graph_bv_outer" style="overflow:auto; height:700px; min-width:665px;">
-										<canvas id="graph_bv" width="10000" height="6000" style="border:0px solid #000000;"></canvas>
-										<!--<script type="text/javascript" src="tk_testbench.js"></script>-->
 									</div>
 									<div class="twocolumn">
 										<div class="column_left">
@@ -390,10 +388,8 @@
 								<!-- begin tab2 -->
 								<div id="tab2_content" class="tab_content hide">
 									<div id="graph_cv_outer"style="overflow:auto;min-width:656px;height:550px">
-										<canvas id="graph_cv" width="3000" height="500" style="border:0px solid #000000;"></canvas>
-
-										<!--<script type="text/javascript" src="tk_testbench.js"></script>-->
 									</div>
+									<script>gv_graph.init();</script>
 									<div class="twocolumn">
 										<div class="column_left">
 											<div class="header">

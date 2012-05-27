@@ -14,40 +14,216 @@
 /**
  * Styles (can be edited, added, deleted)
  */
-
-var gv_cv_style_rrLabel = {
-		fgColor: "#000000",
-		bgColor: false,
-		borderColor: false,
-		borderWidth: 0,
-		textAlign: "center",
-		textVAlign: "middle",
-		minHeight: 70,
-		width: 120
-};
-
-var gv_cv_style_msgLabel = {
-		fgColor: "#0000FF",
-		bgColor: "#C0FFFF",
-		borderColor: "#0000FF",
-		borderWidth: 1,
-		textAlign: "left",
-		textVAlign: "middle",
-		liSymbol: "\u2055 ",
-		lineSpacing: 3
-};
-
 var gv_cv_style_arrow = {
-		borderColor: "#0000FF",
-		borderWidth: 2
+	/*
+	 * Arrow
+	 */
+	arrowHeadType: "classic",			// possible values: classic, block, open, oval, diamond, none
+	arrowHeadLength: "long",			// possible values: long, short, medium
+	arrowHeadWidth: "wide",				// possible values: wide, narrow, medium
+	arrowColor: "#000000",				// any hex-color-value
+	arrowColorDeactivated: "#0000FF",	// any hex-color-value
+	arrowColorSelected: "#0000FF",		// any hex-color-value
+	arrowLinecap: "square",				// possible values: butt, square, round
+	arrowLinejoin: "bevel",				// possible values: bevel, round, miter
+	arrowMiterLimit: 0,					// any number
+	arrowOpacity: 1.0,					// floating number
+	arrowOpacityDeactivated: 1.0,		// floating number
+	arrowOpacitySelected: 1.0,			// floating number
+	arrowStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleDeactivated: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowWidth: 2,						// pixels
+	arrowWidthDeactivated: 2,			// pixels
+	arrowWidthSelected: 2,				// pixels
+	
+	/*
+	 * Border
+	 */
+	borderColor: "#000000",				// any hex-color-value
+	borderColorDeactivated: "#0000FF",	// any hex-color-value
+	borderColorSelected: "#0000FF",		// any hex-color-value
+	borderOpacity: 1.0,					// floating number
+	borderOpacityDeactivated: 1.0,		// floating number
+	borderOpacitySelected: 1.0,			// floating number
+	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderWidth: 1,						// pixels
+	borderWidthDeactivated: 1,			// pixels
+	borderWidthSelected: 1,				// pixels
+
+	/*
+	 * Background
+	 */		
+	bgColor: "#C0FFFF",					// any hex-color-value
+	bgColorDeactivated: "#C0FFFF",		// any hex-color-value
+	bgColorSelected: "#C0FFFF",			// any hex-color-value
+	bgOpacity: 1.0,						// floating number
+	bgOpacityDeactivated: 1.0,			// floating number
+	bgOpacitySelected: 1.0,				// floating number
+	opacity: 1.0,						// floating number
+	opacityDeactivated: 1.0,			// floating number
+	opacitySelected: 1.0,				// floating number
+	
+	/*
+	 * Text
+	 */
+	fontColor: "#000000",				// any hex-color-value
+	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelected: "#000000",		// any hex-color-value
+	fontOpacity: 1.0,					// floating number
+	fontOpacityDeactivated: 1.0,		// floating number
+	fontOpacitySelected: 1.0,			// floating number
+	fontFamily: "Verdana, sans-serif",	// any font
+	fontSize: 12,						// pixels
+	fontWeight: "normal",				// possible values: normal, bold
+	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelected: "normal",		// possible values: normal, bold
+	paddingBottom: 5,					// pixels
+	paddingLeft: 5,						// pixels
+	paddingRight: 5,					// pixels
+	paddingTop: 5,						// pixels
+	textAlign: "left",					// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
+	
+	/*
+	 * Misc
+	 */
+	liSymbol: "\u2022 ",				// any unicode
+	rectangleRadius: 0,					// radius for rounded rectangles
+	width: 0,							// int
+	height: 0,							// int
+	minWidth: 0,						// int
+	minHeight: 0						// int
+};
+
+var gv_cv_style_roundedRectangleExternal = {
+	// TODO
+};
+
+var gv_cv_style_roundedRectangleMulti = {
+	/*
+	 * Border
+	 */
+	borderColor: "#000000",				// any hex-color-value
+	borderColorDeactivated: "#000000",	// any hex-color-value
+	borderColorSelected: "#0000FF",		// any hex-color-value
+	borderOpacity: 1.0,					// floating number
+	borderOpacityDeactivated: 0.5,		// floating number
+	borderOpacitySelected: 1.0,			// floating number
+	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderWidth: 1,						// pixels
+	borderWidthDeactivated: 1,			// pixels
+	borderWidthSelected: 3,				// pixels
+
+	/*
+	 * Background
+	 */		
+	bgColor: "#999999",					// any hex-color-value
+	bgColorDeactivated: "#999999",		// any hex-color-value
+	bgColorSelected: "#999999",			// any hex-color-value
+	bgOpacity: 1.0,						// floating number
+	bgOpacityDeactivated: 0.5,			// floating number
+	bgOpacitySelected: 1.0,				// floating number
+	opacity: 1.0,						// floating number
+	opacityDeactivated: 0.5,			// floating number
+	opacitySelected: 1.0,				// floating number
+	
+	/*
+	 * Text
+	 */
+	fontColor: "#000000",				// any hex-color-value
+	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelected: "#0000FF",		// any hex-color-value
+	fontOpacity: 1.0,					// floating number
+	fontOpacityDeactivated: 0.5,		// floating number
+	fontOpacitySelected: 1.0,			// floating number
+	fontFamily: "Arial",				// any font
+	fontSize: 12,						// pixels
+	fontWeight: "normal",				// possible values: normal, bold
+	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelected: "bold",			// possible values: normal, bold
+	// paddingBottom: 5,				// pixels
+	// paddingLeft: 5,					// pixels
+	// paddingRight: 5,					// pixels
+	// paddingTop: 5,					// pixels
+	textAlign: "middle",				// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
+	
+	/*
+	 * Misc
+	 */
+	rectangleRadius: 15,				// radius for rounded rectangles
+	width: 120,							// int
+	height: 200							// int
+};
+
+var gv_cv_style_roundedRectangleSingle = {
+	/*
+	 * Border
+	 */
+	borderColor: "#000000",				// any hex-color-value
+	borderColorDeactivated: "#000000",	// any hex-color-value
+	borderColorSelected: "#0000FF",		// any hex-color-value
+	borderOpacity: 1.0,					// floating number
+	borderOpacityDeactivated: 0.5,		// floating number
+	borderOpacitySelected: 1.0,			// floating number
+	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderWidth: 1,						// pixels
+	borderWidthDeactivated: 1,			// pixels
+	borderWidthSelected: 3,				// pixels
+
+	/*
+	 * Background
+	 */		
+	bgColor: "#999999",					// any hex-color-value
+	bgColorDeactivated: "#999999",		// any hex-color-value
+	bgColorSelected: "#999999",			// any hex-color-value
+	bgOpacity: 1.0,						// floating number
+	bgOpacityDeactivated: 0.5,			// floating number
+	bgOpacitySelected: 1.0,				// floating number
+	opacity: 1.0,						// floating number
+	opacityDeactivated: 0.5,			// floating number
+	opacitySelected: 1.0,				// floating number
+	
+	/*
+	 * Text
+	 */
+	fontColor: "#000000",				// any hex-color-value
+	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelected: "#0000FF",		// any hex-color-value
+	fontOpacity: 1.0,					// floating number
+	fontOpacityDeactivated: 0.5,		// floating number
+	fontOpacitySelected: 1.0,			// floating number
+	fontFamily: "Arial",				// any font
+	fontSize: 12,						// pixels
+	fontWeight: "normal",				// possible values: normal, bold
+	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelected: "bold",			// possible values: normal, bold
+	// paddingBottom: 5,				// pixels
+	// paddingLeft: 5,					// pixels
+	// paddingRight: 5,					// pixels
+	// paddingTop: 5,					// pixels
+	textAlign: "middle",				// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
+	
+	/*
+	 * Misc
+	 */
+	rectangleRadius: 15,				// radius for rounded rectangles
+	width: 120,							// int
+	height: 200							// int
 };
 
 /**
  * do not delete any piece of information below this line; only edit the values
  */
 var gv_cv_arrow = {
-		styleText: gv_cv_style_msgLabel,
-		styleArrow: gv_cv_style_arrow,
 		correctionH: 25,
 		correctionV: 50,
 		arrowSpace: 20,
@@ -58,24 +234,23 @@ var gv_cv_arrow = {
 		rout: true,
 		rin: true,
 		bout: true,
-		bin: true
+		bin: true,
+		style: gv_cv_style_arrow
 };
 
-var gv_cv_roundedRect = {
+var gv_cv_roundedRectangle = {
 		arrowCorrectionV: 50,
 		arrowCorrectionH: 25,
 		height: 200,
 		width: 120,
 		radius: 10,
-		bgColor: "#CCCCCC",
-		borderColor: "#000000",
-		borderColorSelected: "#FF9900",
-		borderWidth: 4,
-		style: gv_cv_style_rrLabel,
 		textPosY: -60,
 		linePosY: -20,
 		lineWidth: 2,
 		startX: 80,
 		startY: 150,
-		distance: 275
+		distance: 275,
+		styleSingle: gv_cv_style_roundedRectangleSingle,
+		styleMulti: gv_cv_style_roundedRectangleMulti,
+		styleExternal: gv_cv_style_roundedRectangleExternal
 };

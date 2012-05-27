@@ -13,6 +13,9 @@
 
 var gv_filePrefix = "tk_graph";
 
+// include Raphael
+gf_includeJS("raphael-min.js");
+
 // include libs
 gf_includeJS("graph/tk_graph.js");
 gf_includeJS("graph/tk_graph_bv.js");

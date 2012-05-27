@@ -14,6 +14,991 @@
 // graphid that will be set on gv_xx_ctx.ga_id to identify the ctx
 var gv_graphID	= 0;
 
+var gv_objects_edges = new Array();
+var gv_objects_nodes = new Array();
+
+function gf_initPaper ()
+{
+	gv_objects_edges = new Array();
+	gv_objects_nodes = new Array();
+	gv_paper.clear();
+}
+
+function gf_deselectEdges ()
+{
+	for (edgeId in gv_objects_edges)
+	{
+		gv_objects_edges[edgeId].deselect();
+	}
+}
+
+function gf_deselectNodes ()
+{
+	for (nodeId in gv_objects_nodes)
+	{
+		gv_objects_nodes[nodeId].deselect();
+	}
+}
+
+function gf_getStrokeDasharray (strokeStyle)
+{
+	if (gf_isset(strokeStyle))
+	{
+		strokeStyle = strokeStyle.toLowerCase();
+		
+		if (strokeStyle == "dotted")
+			return ".";
+			
+		if (strokeStyle == "dashed")
+			return "-";
+			
+		if (strokeStyle == "solid" || strokeStyle == "double")
+			return " ";
+			
+		if (strokeStyle == "none")
+			return "none";
+			
+		return strokeStyle;
+	}
+	return " ";
+}
+
+function gf_paperClickEdge (id)
+{	
+	if (gf_isset(id) && gf_isset(gv_objects_edges[id]))
+	{
+		gf_deselectEdges();
+		gf_deselectNodes();
+		gv_objects_edges[id].select();
+		gf_clickedBVedge(id);
+	}
+}
+
+function gf_paperClickNodeB (id)
+{
+	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
+	{
+		gf_deselectEdges();
+		gf_deselectNodes();
+		gv_objects_nodes[id].select();
+		gf_clickedBVnode(id);
+	}
+}
+
+function gf_paperClickNodeC (id)
+{
+	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
+	{
+		gf_deselectEdges();
+		gf_deselectNodes();
+		gv_objects_nodes[id].select();
+		gf_clickedCVnode(id);
+	}
+}
+
+function gf_paperDblClickNodeC (id)
+{
+	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
+	{
+		// gf_deselectEdges();
+		// gf_deselectNodes();
+		// gv_objects_nodes[id].select();
+		// gf_clickedCVbehavior(id);
+		gf_paperClickNodeC(id);
+		showtab1();
+	}
+}
+
+		/*
+		 * status dependent styles
+		 * 
+		 * arrowColor
+		 * arrowOpacity
+		 * arrowStyle
+		 * arrowWidth
+		 * borderColor
+		 * borderOpacity
+		 * borderStyle
+		 * borderWidth
+		 * bacColor
+		 * bgOpacity
+		 * opacity
+		 * fontColor
+		 * fontOpacity
+		 * fontWeight
+		 */
+
+// TODO: edges and nodes in bv must also be prefixed with the graphID -- really?
+// TODO: id must contain the graph (like "bv_e42" --> "bv_man_e42")
+function GFpath (startx, starty, endx, endy, shape, text, id)
+{
+	this.edgeCenter	= {x: 0, y: 0};
+	this.path		= gv_paper.path("M0,0L0,0");
+	this.pathStr	= "";
+	
+	this.shape		= "I";
+	this.firstLine	= "v";
+	this.space1		= 0;
+	this.space2		= 0;
+	
+	this.id = "";
+	
+	this.label = new GFlabel(0, 0, text, "roundedrectangle", id, true);
+	
+	this.positionEnd = {x: 0, y: 0};
+	this.positionStart = {x: 0, y: 0};
+	
+	/*
+	 * common attributes
+	 */
+	this.deactive = false;
+	this.selected = false;
+	this.style = gv_defaultStyle;
+	
+	/*
+	 * common functions
+	 */
+	this.click = function ()
+	{
+		id = this.id;
+		this.path.click(function () {gf_paperClickEdge(id); });
+		this.label.click("bv");
+	}
+	
+	this.activate = function ()
+	{
+		this.deactive = false;
+		this.label.activate();
+		this.refreshStyle();
+	}
+	
+	this.deactivate = function ()
+	{
+		this.deactive = true;
+		this.label.deactivate();
+		this.refreshStyle();
+	}
+		
+	this.deselect = function ()
+	{
+		this.selected = false;
+		this.label.deselect();
+		this.refreshStyle();
+	}
+	
+	this.select = function ()
+	{
+		this.selected = true;
+		this.label.select();
+		this.refreshStyle();
+	}
+	
+	this.hide = function ()
+	{
+		this.path.hide();
+		this.label.hide();
+	}
+	
+	this.show = function ()
+	{
+		this.path.show();
+		this.label.show();
+	}
+	
+	this.readStyle = function (key, type)
+	{
+		return gf_getStyleValue(this.style, key, type)
+	}
+	
+	this.refreshStyle = function ()
+	{		
+		/*
+		 * status dependent styles
+		 */
+		var statusDependent = "";
+		if (this.selected === true)
+		{
+			statusDependent = "Selected";
+		}
+		else if (this.deactive === true)
+		{
+			statusDependent = "Deactivated";
+		}
+		
+		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("arrowStyle" + statusDependent, ""));
+		var strokeWidth		= strokeDasharray == "none" ? 0 : this.readStyle("arrowWidth" + statusDependent, "int");
+				
+		this.path.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
+		this.path.attr("stroke-dasharray", strokeDasharray);
+		this.path.attr("stroke-opacity", this.readStyle("arrowOpacity" + statusDependent, "float"));
+		this.path.attr("stroke-width", strokeWidth);
+		this.path.attr("stroke", this.readStyle("arrowColor" + statusDependent, ""));
+		
+		this.path.attr("arrow-end", this.readStyle("arrowHeadType", "") + "-" + this.readStyle("arrowHeadWidth", "") + "-" + this.readStyle("arrowHeadLength", ""));
+		
+		this.path.attr("stroke-linecap", this.readStyle("arrowLinecap", ""));
+		this.path.attr("stroke-linejoin", this.readStyle("arrowLinejoin", ""));
+		// this.path.attr("stroke-miterlimit", this.readStyle("arrowMiterLimit", "int"));
+	}
+	
+	this.setStyle = function (style)
+	{
+		this.style = gf_mergeStyles(gv_defaultStyle, style);
+		this.label.setStyle(style);
+		this.refreshStyle();
+	}
+	
+	/*
+	 * Path specific functions
+	 */
+	// I, L, U, Z, G, C, S, UI, ZU, SI
+	this.calculateShape = function (x1, y1, x2, y2, shape, firstLine, space1, space2)
+	{
+		var cPath	= "";
+		var cX		= 0;
+		var cY		= 0;
+		
+		if (gf_isset(x1, x2, y1, y2, shape))
+		{
+			shape = shape.toUpperCase();
+			
+			firstLine	= gf_isset(firstLine) && firstLine.toLowerCase() == "h" ? "h" : "v";
+			space1		= gf_isset(space1) ? space1 : 0;
+			space2		= gf_isset(space2) ? space2 : 0;
+			
+			var diffX	= Math.round(x1 - x2);
+			var diffY	= Math.round(y1 - y2);
+			var absDiffX	= Math.abs(diffX);
+			var absDiffY	= Math.abs(diffY);
+			
+			var rcX		= Math.round((x1 + x2) / 2);
+			var rcY		= Math.round((y1 + y2) / 2);
+			
+			if (absDiffX > 0 || absDiffY > 0)
+			{
+				if (shape == "I" && absDiffX > 0 && absDiffY > 0)
+				{
+					shape = "L";
+				}
+								
+				if (shape == "I")
+				{
+					cX		= rcX;
+					cY		= rcY;
+					cPath	= absDiffX > absDiffY ? "H" + x2 : "V" + y2;
+				}
+				else if (shape == "L")
+				{
+					cX		= firstLine == "v" ? x1 : x2;
+					cY		= firstLine == "h" ? y1 : y2;
+	
+					// an L shaped arrow consists of two I shaped arrows
+					var part1 = this.calculateShape(x1, y1, cX, cY, "I");
+					var part2 = this.calculateShape(cX, cY, x2, y2, "I");
+					
+					cPath = part1.path + part2.path;
+				}
+				else if (shape == "Z")
+				{
+					cX		= rcX;
+					cY		= rcY;
+					
+					var part1 = this.calculateShape(x1, y1, cX, cY, "L", firstLine);
+					var part2 = this.calculateShape(cX, cY, x2, y2, "L", firstLine == "h" ? "v" : "h");
+					
+					cPath = part1.path + part2.path;
+				}
+				else if (shape == "U")
+				{
+					var tx	= space1 < 0 ? Math.min(x1, x2) : Math.max(x1, x2);
+					var ty	= space1 < 0 ? Math.min(y1, y2) : Math.max(y1, y2);
+					
+					cX		= firstLine == "h" ? tx + space1 : rcX;
+					cY		= firstLine == "v" ? ty + space1 : rcY;
+	
+					var part1 = this.calculateShape(x1, y1, cX, cY, "L", firstLine);
+					var part2 = this.calculateShape(cX, cY, x2, y2, "L", firstLine == "h" ? "v" : "h");
+					
+					cPath = part1.path + part2.path;
+				}
+				else if (shape == "G")
+				{
+					// firstLine: v => space1: u | d ; space2: l | r
+					// firstLine: h => space1: l | r ; space2: u | d
+	
+					if (firstLine == "v")
+					{
+						if (x1 < x2 && y1 < y2 && space1 > 0 && space2 < 0) space2 *= -1;
+						if (x1 > x2 && y1 > y2 && space1 < 0 && space2 > 0) space2 *= -1;
+						if (x1 > x2 && y1 < y2 && space1 > 0 && space2 > 0) space2 *= -1;
+						if (x1 < x2 && y1 > y2 && space1 < 0 && space2 < 0) space2 *= -1;
+						
+						cX = space2 < 0 ? Math.min(x1, x2) + space2 : Math.max(x1, x2) + space2;
+						cY = space1 < 0 ? Math.min(y1, y2) + space1 : Math.max(y1, y2) + space1;
+					}
+					else
+					{
+						if (x1 < x2 && y1 < y2 && space1 > 0 && space2 < 0) space2 *= -1;
+						if (x1 > x2 && y1 > y2 && space1 < 0 && space2 > 0) space2 *= -1;
+						if (x1 > x2 && y1 < y2 && space1 < 0 && space2 < 0) space2 *= -1;
+						if (x1 < x2 && y1 > y2 && space1 > 0 && space2 > 0) space2 *= -1;
+						
+						cX = space1 < 0 ? Math.min(x1, x2) + space1 : Math.max(x1, x2) + space1;
+						cY = space2 < 0 ? Math.min(y1, y2) + space2 : Math.max(y1, y2) + space2;
+					}
+	
+					var part1 = this.calculateShape(x1, y1, cX, cY, "L", firstLine);
+					var part2 = this.calculateShape(cX, cY, x2, y2, "L", firstLine);
+					
+					cPath = part1.path + part2.path;
+				}
+				else if (shape == "C")
+				{
+					
+					// TODO: check
+					
+					cX = firstLine == "v" ? x1 + space2 : rcX;
+					cY = firstLine == "h" ? y1 + space2 : rcY;
+	
+					space1	= firstLine == "v" && y1 < y2 ? 0 - space1 : space1;
+					space1	= firstLine == "h" && x1 < x2 ? 0 - space1 : space1;
+	
+					var part1 = this.calculateShape(x1, y1, cX, cY, "U", firstLine, space1);
+					var part2 = this.calculateShape(cX, cY, x2, y2, "U", firstLine, 0 - space1);
+					
+					cPath = part1.path + part2.path;
+				}
+				else if (shape == "S")
+				{
+					var cX = rcX;
+					var cY = rcY;
+					
+					var part1 = this.calculateShape(x1, y1, cX, cY, "U", firstLine, space1);
+					var part2 = this.calculateShape(cX, cY, x2, y2, "U", firstLine, 0 - space1);
+					
+					cPath = part1.path + part2.path;
+				}
+				else if (shape == "UI")
+				{
+					var tx = x2;
+					var ty = y2;
+					
+					if (firstLine == "v")
+					{
+						if (x1 > x2)
+							tx += Math.abs(space2);
+						else
+							tx -= Math.abs(space2);
+					}
+					else
+					{
+						if (y1 > y2)
+							ty += Math.abs(space2);
+						else
+							ty -= Math.abs(space2);	
+					}
+					
+					var part1 = this.calculateShape(x1, y1, tx, ty, "U", firstLine, space1);
+					var part2 = this.calculateShape(tx, ty, x2, y2, "I");
+					
+					cX		= part1.x;
+					cY		= part1.y;
+					cPath	= part1.path + part2.path;
+				}
+				else if (shape == "ZU")
+				{
+					cX = firstLine == "h" ? rcX + space1 : x1;
+					cY = firstLine == "v" ? rcY + space1 : y1;
+				
+					var zFirst = false;
+					
+					if (firstLine == "v")
+					{		
+						cX = space2 > 0 ? Math.max(x1, x2) + space2 : Math.min(x1, x2) + space2;
+						
+						zFirst = (y1 < y2 && space1 > 0) || (y1 > y2 && space1 < 0);
+					}
+					else
+					{
+						cY = space2 > 0 ? Math.max(y1, y2) + space2 : Math.min(y1, y2) + space2;
+						
+						zFirst = (x1 < x2 && space1 > 0) || (x1 > x2 && space1 < 0);
+					}
+					
+					var part1 = null;
+					var part2 = null;
+					
+					if (zFirst)
+					{
+						part1 = this.calculateShape(x1, y1, cX, cY, "Z", firstLine);
+						part2 = this.calculateShape(cX, cY, x2, y2, "U", firstLine, space1);
+					}
+					else
+					{
+						part1 = this.calculateShape(x1, y1, cX, cY, "U", firstLine, space1);
+						part2 = this.calculateShape(cX, cY, x2, y2, "Z", firstLine);
+					}
+					
+					cPath = part1.path + part2.path;
+				}
+				else if (shape == "SI")
+				{
+					var tx = firstLine == "h" ? x2 : (x1 < x2 ? x2 + Math.abs(space1) : x2 - Math.abs(space1));
+					var ty = firstLine == "v" ? y2 : (y1 < y2 ? y2 + Math.abs(space1) : y2 - Math.abs(space1));
+					
+					var part1 = this.calculateShape(x1, y1, tx, ty, "S", firstLine, space2);
+					var part2 = this.calculateShape(tx, ty, x2, y2, "I");
+					
+					cX		= part1.x;
+					cY		= part1.y;
+					cPath	= part1.path + part2.path;
+				}
+				else
+				{
+					// unknown shape: draw "L" shape
+					this.calculateShape(x1, y1, x2, y2, "L");
+				}
+			}
+		}
+		
+		return {path: cPath, x: cX, y: cY};
+	}
+	
+	this.checkIntersection = function (labelsOnly)
+	{
+		
+		if (!gf_isset(labelsOnly) || labelsOnly !== true)
+			labelsOnly = false;
+			
+		var thisLabelPath	= this.label.toPath();
+		
+		for (objId in gv_objects_edges)
+		{
+			if (objId != this.id)
+			{
+				var tObject	= gv_objects_edges[objId];
+				
+				var interPoints1	= labelsOnly ? new Array() : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
+				var interPoints2	= Raphael.pathIntersection(this.pathStr, tObject.label.toPath());
+				var interPoints3	= new Array(); // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.pathStr);
+				var interPoints4	= new Array(); // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.label.toPath());
+				
+				if (interPoints1.length > 0 || interPoints2.length > 0 || interPoints3.length > 0 || interPoints4.length > 0)
+				{
+					return true;					
+				}
+			}
+		}
+		
+		for (objId in gv_objects_nodes)
+		{
+			var tObject	= gv_objects_nodes[objId];
+			
+			var interPoints1	= labelsOnly ? new Array() : Raphael.pathIntersection(this.pathStr, tObject.toPath());
+			var interPoints2	= new Array(); // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.toPath());
+			
+			if (interPoints1.length > 0 || interPoints2.length > 0)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	this.getPositionEnd = function ()
+	{
+		return this.positionEnd;
+	}
+	
+	this.getPositionStart = function ()
+	{
+		return this.positionStart;
+	}
+	
+	this.setFirstLine = function (firstLine)
+	{
+		this.firstLine = firstLine;
+	}
+	
+	this.setPositionEnd = function (x, y)
+	{
+		if (gf_isset(x, y))
+		{
+			this.positionEnd = {x: Math.round(x), y: Math.round(y)};
+		}	
+	}
+	
+	this.setPositionStart = function (x, y)
+	{
+		if (gf_isset(x, y))
+		{
+			this.positionStart = {x: Math.round(x), y: Math.round(y)};
+		}
+	}
+	
+	// I, L, U, Z, G, C, S, UI, ZU, SI
+	this.setShape = function (shape)
+	{
+		this.shape = shape;
+		this.updatePath();		
+	}
+	
+	this.setSpace1 = function (space1)
+	{
+		this.space1 = space1;
+	}
+	
+	this.setSpace2 = function (space2)
+	{
+		this.space2 = space2;
+	}
+	
+	this.setText = function (text)
+	{
+		this.label.setText(text);
+	}
+	
+	this.updatePath = function ()
+	{
+		var x1 = this.positionStart.x;
+		var y1 = this.positionStart.y;
+		var x2 = this.positionEnd.x;
+		var y2 = this.positionEnd.y;
+		
+		var shape	= this.shape;
+			
+		var newPath	= this.calculateShape(x1, y1, x2, y2, shape, this.firstLine, this.space1, this.space2);
+		
+		this.pathStr	= "M" + x1 + "," + y1 + newPath.path;
+		this.path.attr("path", this.pathStr);
+		
+		this.edgeCenter.x	= newPath.x;
+		this.edgeCenter.y	= newPath.y;
+		
+		this.label.setPosition(newPath.x, newPath.y);
+	}
+	
+	this.draw = function (path)
+	{
+		// if line-style == double: draw twice;
+	}
+	
+	this.id = id;
+	
+	this.setPositionStart(startx, starty);
+	this.setPositionEnd(endx, endy);
+	this.setShape(shape);
+	this.refreshStyle();
+	this.setText(text);
+	
+	gv_objects_edges[id] = this;
+}
+
+function GFlabel (x, y, text, shape, id, belongsToPath)
+{
+	
+	this.belongsToPath = false;
+	
+	this.x = 0;
+	this.y = 0;	
+	
+	this.id = "";
+	
+	this.multiRR	= new Array();
+	this.multiRR[3]	= gv_paper.rect(0, 0, 0, 0, 0);
+	this.multiRR[2]	= gv_paper.rect(0, 0, 0, 0, 0);
+	this.multiRR[1]	= gv_paper.rect(0, 0, 0, 0, 0);
+	this.rectangle	= gv_paper.rect(0, 0, 0, 0, 0);
+	this.ellipse	= gv_paper.ellipse(0, 0, 0, 0);
+	this.text		= gv_paper.text(0, 0, "");
+	
+	this.bboxObj	= this.rectangle;
+	
+	this.shape		= "rectangle";
+	
+	/*
+	 * common attributes
+	 */
+	this.deactive = false;
+	this.selected = false;
+	this.style = gv_defaultStyle;
+	
+	/*
+	 * common functions
+	 */
+	// graph: cv | bv -> either use gf_clickedCVnode or gf_clickedBVnode (on edge: gf_clickedBVedge)
+	this.click = function (graph)
+	{
+		if (gf_isset(graph))
+		{
+			graph = graph.toLowerCase();
+			id = this.id;
+			
+			if (graph == "cv")
+			{
+				this.rectangle.click(function () {gf_paperClickNodeC(id); });
+				this.ellipse.click(function () {gf_paperClickNodeC(id); });
+				this.text.click(function () {gf_paperClickNodeC(id); });
+				
+				this.rectangle.dblclick(function () {gf_paperDblClickNodeC(id); });
+				this.ellipse.dblclick(function () {gf_paperDblClickNodeC(id); });
+				this.text.dblclick(function () {gf_paperDblClickNodeC(id); });
+				
+				for (rrId in this.multiRR)
+	 			{
+	 				this.multiRR[rrId].click(function () {gf_paperClickNodeC(id);});
+	 				this.multiRR[rrId].dblclick(function () {gf_paperDblClickNodeC(id); });
+	 			}
+			}
+			else if (graph == "bv")
+			{
+				if (this.belongsToPath)
+				{
+					this.rectangle.click(function () {gf_paperClickEdge(id); });
+					this.ellipse.click(function () {gf_paperClickEdge(id); });
+					this.text.click(function () {gf_paperClickEdge(id); });
+				}
+				else
+				{
+					this.rectangle.click(function () {gf_paperClickNodeB(id); });
+					this.ellipse.click(function () {gf_paperClickNodeB(id); });
+					this.text.click(function () {gf_paperClickNodeB(id); });
+				}
+			}
+		}
+	}
+	
+	this.activate = function ()
+	{
+		this.deactive = false;
+		this.refreshStyle();
+	}
+	
+	this.deactivate = function ()
+	{
+		this.deactive = true;
+		this.refreshStyle();
+	}
+		
+	this.deselect = function ()
+	{
+		this.selected = false;
+		this.refreshStyle();
+	}
+	
+	this.select = function ()
+	{
+		this.selected = true;
+		this.refreshStyle();
+	}
+	
+	this.hide = function ()
+	{
+		this.hideObjects();
+		this.text.hide();
+	}
+	
+	this.hideObjects = function ()
+	{
+		for (rrId in this.multiRR)
+ 		{
+			this.multiRR[rrId].hide();
+		}
+		this.rectangle.hide();
+		this.ellipse.hide();
+	}
+	
+	this.show = function ()
+	{
+		this.setShape(this.shape);
+		this.text.show();
+	}
+	
+	this.readStyle = function (key, type)
+	{
+		return gf_getStyleValue(this.style, key, type)
+	}
+	
+	this.refreshStyle = function ()
+	{
+		
+		/*
+		 * status dependent styles
+		 */
+		var statusDependent = "";
+		if (this.selected === true)
+		{
+			statusDependent = "Selected";	
+		}
+		else if (this.deactive === true)
+		{
+			statusDependent = "Deactivated";
+		}
+		
+		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("borderStyle" + statusDependent, ""));
+		var strokeWidth		= strokeDasharray == "none" ? 0 : this.readStyle("borderWidth" + statusDependent, "int");
+		
+		// rectangle
+		this.rectangle.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
+		this.rectangle.attr("stroke-opacity", this.readStyle("borderOpacity" + statusDependent, "float"));
+		this.rectangle.attr("stroke-width", strokeWidth);
+		this.rectangle.attr("stroke-dasharray", strokeDasharray);
+		this.rectangle.attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
+		this.rectangle.attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
+		this.rectangle.attr("fill", this.readStyle("bgColor" + statusDependent, ""))
+		
+		// rr1-3
+		for (rrId in this.multiRR)
+	 	{
+			this.multiRR[rrId].attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
+			this.multiRR[rrId].attr("stroke-opacity", this.readStyle("borderOpacity" + statusDependent, "float"));
+			this.multiRR[rrId].attr("stroke-width", strokeWidth);
+			this.multiRR[rrId].attr("stroke-dasharray", strokeDasharray);
+			this.multiRR[rrId].attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
+			this.multiRR[rrId].attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
+			this.multiRR[rrId].attr("fill", this.readStyle("bgColor" + statusDependent, ""))
+		}
+		
+		// ellipse
+		this.ellipse.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
+		this.ellipse.attr("stroke-opacity", this.readStyle("borderOpacity" + statusDependent, "float"));
+		this.ellipse.attr("stroke-width", strokeWidth);
+		this.ellipse.attr("stroke-dasharray", strokeDasharray);
+		this.ellipse.attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
+		this.ellipse.attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
+		this.ellipse.attr("fill", this.readStyle("bgColor" + statusDependent, ""))
+		
+		// text
+		this.text.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
+		this.text.attr("fill-opacity", this.readStyle("fontOpacity" + statusDependent, "float"));
+		this.text.attr("fill", this.readStyle("fontColor" + statusDependent, ""));
+		this.text.attr("font-weight", this.readStyle("fontWeight" + statusDependent, ""));
+		this.text.attr("font-size", this.readStyle("fontSize", "int"));
+		this.text.attr("font-family", this.readStyle("fontFamily", ""));
+		
+		// textAlign: "left",	// TODO / remove?
+		// textVAlign: "top",	// TODO / remove?
+		
+		this.updateBoundaries();
+	}
+	
+	this.setStyle = function (style)
+	{
+		this.style = gf_mergeStyles(gv_defaultStyle, style);
+		this.refreshStyle();
+	}
+	
+	this.getBoundaries = function ()
+	{
+		var bbox = {x: 0, y: 0, top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0};
+		
+		if (this.shape == "roundedrectanglemulti")
+		{
+			var bbox1	= this.rectangle.getBBox();
+			var bbox2	= this.multiRR[3].getBBox();
+			
+			bbox.top	= Math.round(bbox2.y);
+			bbox.bottom	= Math.round(bbox1.y2);
+			bbox.left	= Math.round(bbox1.x);
+			bbox.right	= Math.round(bbox2.x2);
+			bbox.width	= Math.round(bbox.right) - Math.round(bbox.left);
+			bbox.height	= Math.round(bbox.bottom) - Math.round(bbox.top);
+			bbox.x		= Math.round(bbox1.x) + Math.round(bbox1.width / 2);
+			bbox.y		= Math.round(bbox1.y) + Math.round(bbox1.height / 2);
+		}
+		else
+		{
+			var bbox1	= this.bboxObj.getBBox();
+			
+			bbox.top	= Math.round(bbox1.y);
+			bbox.bottom	= Math.round(bbox1.y2);
+			bbox.left	= Math.round(bbox1.x);
+			bbox.right	= Math.round(bbox1.x2);
+			bbox.width	= Math.round(bbox1.width);
+			bbox.height	= Math.round(bbox1.height);
+			bbox.x		= Math.round(bbox1.x) + Math.round(bbox1.width / 2);
+			bbox.y		= Math.round(bbox1.y) + Math.round(bbox1.height / 2);
+		}
+		
+		return bbox;
+	}
+	
+	this.setBoundaries = function ()
+	{
+		// TODO
+	}
+	
+	this.getPosition = function ()
+	{
+		return {x: this.x, y: this.y};
+	}
+	
+	this.setPosition = function (x, y)
+	{
+		if (gf_isset(x, y))
+		{
+			this.x = x;
+			this.y = y;
+			this.updateBoundaries();
+		}
+	}
+	
+	/*
+	 * label specific
+	 */	
+	this.replaceNewline = function (text)
+	{
+		return text.replace(/<br>|<br \/>|<br\/>|\r\n|\r|\n/gi, "\n").replace(/<li>|<li \/>|<li\/>/gi, this.readStyle("liSymbol", ""));
+	}
+	 
+	// shape: circle | rect || roundedRectangle
+	this.setShape = function (shape)
+	{
+		
+		if (gf_isset(shape))
+		{
+			shape = shape.toLowerCase();
+			
+			this.hideObjects();
+			
+			if (!(this.text.attr("text") == "" && this.belongsToPath === true))
+			{
+				if (shape == "circle" || shape == "ellipse")
+				{
+					this.shape		= shape;
+					this.bboxObj	= this.ellipse;
+					this.ellipse.show();
+				}
+				else if (shape == "rectangle" || shape == "roundedrectangle")
+				{
+					this.shape		= shape;
+					this.bboxObj	= this.rectangle;
+					this.rectangle.show();
+				}
+				else if (shape == "roundedrectanglemulti")
+				{
+					this.shape		= shape;
+					
+					for (rrId in this.multiRR)
+		 			{
+						this.multiRR[rrId].show();
+					}
+					this.rectangle.show();
+				}
+				
+				this.refreshStyle();
+			}
+		}
+		
+	}
+	
+	this.setText = function (text)
+	{
+		this.text.attr("text", this.replaceNewline(text));
+		this.refreshStyle();
+	}
+	
+	this.toPath = function ()
+	{
+		var gt_bbox = this.getBoundaries();
+		
+		return "M" + gt_bbox.left + "," + gt_bbox.top + "H" + gt_bbox.right + "V" + gt_bbox.bottom + "H" + gt_bbox.left + "Z";
+	}
+	
+	this.updateBoundaries = function ()
+	{
+		
+		// TODO: some more options like apply padding and move the text according to the new position
+		
+		this.text.attr("x", this.x);
+		this.text.attr("y", this.y);
+		
+		var paddingLeft		= this.readStyle("paddingLeft", "int");
+		var paddingRight	= this.readStyle("paddingRight", "int");
+		var paddingTop		= this.readStyle("paddingTop", "int");
+		var paddingBottom	= this.readStyle("paddingBottom", "int");
+		var styleWidth		= this.readStyle("width", "int");
+		var styleHeight		= this.readStyle("height", "int");		
+		
+		
+		// apply the width and height information
+		var width	= Math.round(this.text.getBBox().width);
+		var height	= Math.round(this.text.getBBox().height);
+		var width2	= styleWidth > 0 ? styleWidth : Math.max(width + paddingLeft + paddingRight, this.readStyle("minWidth", "int"));
+		var height2	= styleHeight > 0 ? styleHeight : Math.max(height + paddingTop + paddingBottom, this.readStyle("minHeight", "int"));
+		var left	= this.text.getBBox().x;
+		var top		= this.text.getBBox().y;
+		var radiusx	= Math.round(width2 / 2);
+		var radiusy	= Math.round(height2 / 2);
+		var radius	= Math.max(radiusx, radiusy);
+		var rectR	= this.shape == "roundedrectangle" || this.shape == "roundedrectanglemulti" ? this.readStyle("rectangleRadius", "int") : 0;
+		
+		if (this.shape == "circle")
+		{
+			this.ellipse.attr("cx", this.x);
+			this.ellipse.attr("cy", this.y);
+			this.ellipse.attr("rx", radius);
+			this.ellipse.attr("ry", radius);
+		}
+		else if (this.shape == "ellipse")
+		{
+			this.ellipse.attr("cx", this.x);
+			this.ellipse.attr("cy", this.y);
+			this.ellipse.attr("rx", radiusx);
+			this.ellipse.attr("ry", radiusy);
+		}
+		else if (this.shape == "roundedrectangle" || this.shape == "rectangle" || this.shape == "roundedrectanglemulti")
+		{
+			this.rectangle.attr("x", this.x - radiusx);
+	 		this.rectangle.attr("y", this.y - radiusy);
+	 		this.rectangle.attr("width", width2);
+	 		this.rectangle.attr("height", height2);
+	 		this.rectangle.attr("r", rectR);
+		}
+		
+		if (this.shape == "roundedrectanglemulti")
+		{
+			var rrOverlap = 5;
+			 		
+	 		for (rrId in this.multiRR)
+	 		{
+				this.multiRR[rrId].attr("x", this.x - radiusx + rrId * rrOverlap);
+		 		this.multiRR[rrId].attr("y", this.y - radiusy - rrId * rrOverlap);
+		 		this.multiRR[rrId].attr("width", width2);
+		 		this.multiRR[rrId].attr("height", height2);
+		 		this.multiRR[rrId].attr("r", rectR);
+	 		}			
+		}
+	}
+	
+	this.x = x;
+	this.y = y;
+	
+	this.id = id;
+	
+	if (gf_isset(belongsToPath) && belongsToPath === true)
+	{
+		this.belongsToPath = true;
+	}
+	
+	this.setText(text);
+	this.setShape(shape);
+	
+	if (!this.belongsToPath)
+		gv_objects_nodes[id] = this;
+	
+	/*
+	var subjectRect = paper.rect(gt_cv_rrLeft, gt_cv_rrTop, gv_cv_roundedRect.width, gv_cv_roundedRect.height, gv_cv_roundedRect.radius);
+	subjectRect.click(function () {gf_clickedCVnode(gt_cv_id)});
+	*/
+	
+	// TODO: needs id (eg "bv_man_n21")
+}
+
+// var gv_path = new GFpath();
+// gv_path.mergePath();
+
 /*
  * function to check if a variable / array-index is set
  */
@@ -68,6 +1053,7 @@ function gf_count (gt_array)
  */
 function gf_splitText (gt_text)
 {
+	// TODO: instead of split only replace; method will not be necessary any more
 	return gt_text.split(/<br>|<br \/>|<br\/>|\r\n|\r|\n/gi);
 }
 
@@ -96,27 +1082,6 @@ function gf_elementExists ()
 	}
 	
 	return true;
-}
-
-/*
- * retrieves the x and y coordinates of a mouse click
- */
-function gf_getClickPosition (gt_event, gt_canvasElem, gt_clickPosition)
-{
-	var gt_canvasLeft	= gt_canvasElem.offsetLeft;
-	var gt_canvasTop	= gt_canvasElem.offsetTop;
-	
-	var gt_canvasBorderLeft	= gf_isset(gt_canvasElem.style.borderLeftWidth) ? parseInt(gt_canvasElem.style.borderLeftWidth) : 0;
-	var gt_canvasBorderTop	= gf_isset(gt_canvasElem.style.borderTopWidth)  ? parseInt(gt_canvasElem.style.borderTopWidth)  : 0;
-	
-	var gt_windowOffsetX	= gf_isset(window.pageXOffset) ? window.pageXOffset : 0;
-	var gt_windowOffsetY	= gf_isset(window.pageYOffset) ? window.pageYOffset : 0;
-	
-	var gt_mousePositionX	= gt_event.clientX;
-	var gt_mousePositionY	= gt_event.clientY;
-	
-	gt_clickPosition.x = gt_mousePositionX + gt_windowOffsetX - gt_canvasLeft - gt_canvasBorderLeft;
-	gt_clickPosition.y = gt_mousePositionY + gt_windowOffsetY - gt_canvasTop  - gt_canvasBorderTop;
 }
 
 /*
@@ -161,6 +1126,9 @@ function gf_getStyleValue (gt_style, gt_key, gt_type)
 	if (gt_type == "int")
 		return 0;
 	
+	if (gt_type == "float")
+		return 0;
+	
 	return "";
 }
 
@@ -191,470 +1159,4 @@ function gf_objectHasAttribute (gt_object, gt_attribute)
 	}
 	
 	return true;
-}
-
-/*
- * DRAWING FUNCTIONS
- */
-
-/*
- * draws a label at a given position with the given text and style
- */
-function gf_drawLabel (gt_ctx, gt_posx, gt_posy, gt_text, gt_style, gt_selected)
-{
-	if (!gf_isset(gt_style))
-		gt_style = gv_defaultStyle;
-	
-	if (!gf_isset(gt_selected) || gt_selected != true)
-		gt_selected = false;
-	
-	if (gf_isset(gt_ctx, gt_posx, gt_posy, gt_text))
-	{
-		// read relevant style information
-		var gt_font			= gf_getStyleValue(gt_style, "font");
-		var gt_fontSize		= gf_getStyleValue(gt_style, "fontSize");
-		var gt_liSymbol		= gf_getStyleValue(gt_style, "liSymbol");
-		var gt_textAlign	= gf_getStyleValue(gt_style, "textAlign");
-		var gt_textVAlign	= gf_getStyleValue(gt_style, "textVAlign");
-		
-		var gt_paddingTop		= gf_getStyleValue(gt_style, "paddingTop");
-		var gt_paddingLeft		= gf_getStyleValue(gt_style, "paddingLeft");
-		var gt_paddingRight		= gf_getStyleValue(gt_style, "paddingRight");
-		var gt_paddingBottom	= gf_getStyleValue(gt_style, "paddingBottom");
-		var gt_lineSpacing		= gf_getStyleValue(gt_style, "lineSpacing");
-				
-		var gt_bgColor		= gf_getStyleValue(gt_style, "bgColor");
-		var gt_fgColor		= gf_getStyleValue(gt_style, "fgColor");
-		var gt_borderColor	= gt_selected ? gf_getStyleValue(gt_style, "borderColorSelected") : gf_getStyleValue(gt_style, "borderColor");
-		var gt_borderWidth	= gf_getStyleValue(gt_style, "borderWidth");
-		
-		var gt_fixedWidth	= gf_getStyleValue(gt_style, "width");
-		var gt_fixedHeight	= gf_getStyleValue(gt_style, "height");
-		var gt_minWidth		= gf_getStyleValue(gt_style, "minWidth");
-		var gt_minHeight	= gf_getStyleValue(gt_style, "minHeight");
-		
-		// add the list-symbol to list entries
-		var gt_textArray	= gf_isArray(gt_text) ? gt_text : gf_splitText(gt_text.replace(/<li>/g, gt_liSymbol));
-		
-		var gt_width		= 0;
-		var gt_height		= 0;
-		var gt_tmpWidth		= 0;
-		var gt_tmpText		= "";
-		var gt_textHeight	= 0;
-		
-		var gt_top		= 0;
-		var gt_left		= 0;
-		var gt_textx	= 0;
-		var gt_texty	= 0;
-		
-		gt_ctx.font			= gt_fontSize + "px " + gt_font;
-		gt_ctx.textBaseline = "top";
-		
-		// calculate maxWidth
-		for (var gt_t in gt_textArray)
-		{
-			gt_tmpText	= gt_textArray[gt_t];
-			gt_tmpWidth	= gt_ctx.measureText(gt_tmpText).width;
-		
-			if (gt_fixedWidth > 0 && gt_tmpWidth > gt_fixedWidth)
-				gt_textArray[gt_t] = null;
-			
-			if (gt_tmpWidth > gt_width)
-				gt_width = gt_tmpWidth;
-		}
-		
-		gt_textHeight	= (gt_fontSize * gt_textArray.length) + (gt_lineSpacing * (gt_textArray.length - 1));
-		gt_width		= gt_width + gt_paddingLeft + gt_paddingRight;
-		gt_height		= gt_textHeight + gt_paddingBottom + gt_paddingTop;
-
-		if (gt_fixedHeight > 0 && gt_height > gt_fixedHeight)
-			gt_textVAlign = "top";
-		
-		if (gt_minWidth > gt_width)
-			gt_width = gt_minWidth;
-		
-		if (gt_minHeight > gt_height)
-			gt_height = gt_minHeight;
-		
-		if (gt_fixedWidth > 0)
-			gt_width = gt_fixedWidth;
-		
-		if (gt_fixedHeight > 0)
-			gt_height = gt_fixedHeight;
-		
-		gt_top	= gt_posy - Math.round(gt_height / 2);
-		gt_left	= gt_posx - Math.round(gt_width / 2);
-		
-		gt_ctx.beginPath();
-		gt_ctx.rect(gt_left, gt_top, gt_width, gt_height)
-		gt_ctx.closePath();
-		
-		if (gt_borderColor !== false && gt_borderWidth > 0)
-		{
-			gt_ctx.lineWidth	= gt_borderWidth;
-			gt_ctx.strokeStyle	= gt_borderColor;
-			gt_ctx.stroke();
-		}
-		
-		if (gt_bgColor !== false)
-		{
-			gt_ctx.fillStyle	= gt_bgColor;
-			gt_ctx.fill();
-		}
-		
-		if (gt_fgColor !== false)
-		{
-			gt_ctx.fillStyle	= gt_fgColor;
-			gt_ctx.textAlign	= gt_textAlign;
-			
-			if (gt_textVAlign == "bottom")
-			{
-				gt_texty = gt_top + gt_height - gt_paddingBottom - gt_textHeight;
-			}
-			else if (gt_textVAlign == "middle")
-			{
-				gt_texty = gt_posy - gt_textHeight / 2;
-			}
-			else
-			{
-				gt_texty = gt_top + gt_paddingTop;	// default is top
-			}
-			
-			if (gt_textAlign == "right")
-			{
-				gt_textx = gt_left + gt_width - gt_paddingRight;
-			}
-			else if (gt_textAlign == "left")
-			{
-				gt_textx = gt_left + gt_paddingLeft;
-			}
-			else
-			{
-				gt_textx = gt_posx;		// default is center
-			}
-			
-			// draw all lines of text
-			for (var gt_t in gt_textArray)
-			{
-				if (gt_fixedHeight > 0 && (gt_texty + gt_fontSize - gt_top) > gt_fixedHeight)
-					break;
-				
-				gt_tmpText = gt_textArray[gt_t];
-				gt_ctx.fillText(gt_tmpText, gt_textx, gt_texty);
-				gt_texty += gt_fontSize + gt_lineSpacing;
-			}
-		}
-		
-		return {width: gt_width, height: gt_height, stroke: gt_borderWidth, left: gt_left, top: gt_top};
-	}
-	
-	return {width: 0, height: 0, stroke: 0, left: 0, top: 0};
-}
-
-/*
- * draws an I shaped arrow (one single line)
- */
-function gf_drawArrowI (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width)
-{
-	gt_ctx.beginPath();
-	gt_ctx.moveTo(gt_startx, gt_starty);
-	gt_ctx.lineTo(gt_endx, gt_endy);
-	gt_ctx.closePath();
-	
-	gt_ctx.lineWidth	= gt_width;
-	gt_ctx.strokeStyle	= gt_color;
-	gt_ctx.stroke();
-	
-	var gt_l	= gt_startx < gt_endx ? gt_startx - gt_width/2 - 2 : gt_endx - gt_width/2 - 2;
-	var gt_t	= gt_starty < gt_endy ? gt_starty - gt_width/2 - 2 : gt_endy - gt_width/2 - 2;
-	var gt_r	= gt_startx > gt_endx ? gt_startx + gt_width/2 + 2 : gt_endx + gt_width/2 + 2;
-	var gt_b	= gt_starty > gt_endy ? gt_starty + gt_width/2 + 2 : gt_endy + gt_width/2 + 2;
-	
-	// if the arrow is drawn on the behavioral view canvas: add click and store line (for intersection checks)
-	if (gt_graph == "bv")
-	{
-		gf_bv_storeClick(gt_id, "e", gt_l, gt_t, gt_r, gt_b);
-		gf_bv_storeLine(gt_startx, gt_starty, gt_endx, gt_endy);
-	}
-	
-	return {x: (gt_startx + gt_endx)/2, y: (gt_starty + gt_endy)/2};	// label center
-}
-
-/*
- * draws an L shaped arrow
- */
-function gf_drawArrowL (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine)
-{
-	var gt_x2	= gt_firstLine == "v" ? gt_startx : gt_endx;
-	var gt_y2	= gt_firstLine == "h" ? gt_starty : gt_endy;
-	
-	// an L shaped arrow consists of two I shaped arrows
-	gf_drawArrowI (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width);
-	gf_drawArrowI (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width);
-	
-	return {x: gt_x2, y: gt_y2};	// label center
-}
-
-/*
- * draws a Z shaped arrow
- */
-function gf_drawArrowZ (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine)
-{
-	var gt_x2	= (gt_startx + gt_endx) / 2;
-	var gt_y2	= (gt_starty + gt_endy) / 2;
-	
-	gf_drawArrowL (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine);
-	gf_drawArrowL (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine == "h" ? "v" : "h");
-	
-	return {x: gt_x2, y: gt_y2};	// label center
-}
-
-/*
- * draws an U shaped arrow
- */
-function gf_drawArrowU (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, gt_space)
-{
-	var gt_x1 = gt_space < 0 ? Math.min(gt_startx, gt_endx) : Math.max(gt_startx, gt_endx);
-	var gt_y1 = gt_space < 0 ? Math.min(gt_starty, gt_endy) : Math.max(gt_starty, gt_endy);
-	
-	var gt_x2 = gt_firstLine == "h" ? gt_x1 + gt_space : (gt_startx + gt_endx) / 2;
-	var gt_y2 = gt_firstLine == "v" ? gt_y1 + gt_space : (gt_starty + gt_endy) / 2;
-	
-	gf_drawArrowL (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine);
-	gf_drawArrowL (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine == "h" ? "v" : "h");
-	
-	return {x: gt_x2, y: gt_y2};	// label center
-}
-
-/*
- * draws a G shaped arrow
- */
-function gf_drawArrowG (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, gt_space1, gt_space2)
-{	
-	
-	// firstLine: v => space1: u | d ; space2: l | r
-	// firstLine: h => space1: l | r ; space2: u | d
-	
-	var gt_x2 = 0;
-	var gt_y2 = 0;
-	
-	if (gt_firstLine == "v")
-	{
-		if (gt_startx < gt_endx && gt_starty < gt_endy && gt_space1 > 0 && gt_space2 < 0) gt_space2 *= -1;
-		if (gt_startx > gt_endx && gt_starty > gt_endy && gt_space1 < 0 && gt_space2 > 0) gt_space2 *= -1;
-		if (gt_startx > gt_endx && gt_starty < gt_endy && gt_space1 > 0 && gt_space2 > 0) gt_space2 *= -1;
-		if (gt_startx < gt_endx && gt_starty > gt_endy && gt_space1 < 0 && gt_space2 < 0) gt_space2 *= -1;
-		
-		gt_x2 = gt_space2 < 0 ? Math.min(gt_startx, gt_endx) + gt_space2 : Math.max(gt_startx, gt_endx) + gt_space2;
-		gt_y2 = gt_space1 < 0 ? Math.min(gt_starty, gt_endy) + gt_space1 : Math.max(gt_starty, gt_endy) + gt_space1;
-	}
-	else
-	{
-		if (gt_startx < gt_endx && gt_starty < gt_endy && gt_space1 > 0 && gt_space2 < 0) gt_space2 *= -1;
-		if (gt_startx > gt_endx && gt_starty > gt_endy && gt_space1 < 0 && gt_space2 > 0) gt_space2 *= -1;
-		if (gt_startx > gt_endx && gt_starty < gt_endy && gt_space1 < 0 && gt_space2 < 0) gt_space2 *= -1;
-		if (gt_startx < gt_endx && gt_starty > gt_endy && gt_space1 > 0 && gt_space2 > 0) gt_space2 *= -1;
-		
-		gt_x2 = gt_space1 < 0 ? Math.min(gt_startx, gt_endx) + gt_space1 : Math.max(gt_startx, gt_endx) + gt_space1;
-		gt_y2 = gt_space2 < 0 ? Math.min(gt_starty, gt_endy) + gt_space2 : Math.max(gt_starty, gt_endy) + gt_space2;
-	}
-	
-	gf_drawArrowL (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine);
-	gf_drawArrowL (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine);
-	
-	return {x: gt_x2, y: gt_y2};	// label center	
-}
-
-/*
- * draws a C shaped arrow
- */
-function gf_drawArrowC (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, gt_space1, gt_space2)
-{
-	var gt_x2 = gt_firstLine == "v" ? gt_startx + gt_space2 : (gt_startx + gt_endx) / 2;
-	var gt_y2 = gt_firstLine == "h" ? gt_starty + gt_space2 : (gt_starty + gt_endy) / 2;
-	
-	gt_space1	= gt_firstLine == "v" && gt_starty < gt_endy ? 0 - gt_space1 : gt_space1;
-	gt_space1	= gt_firstLine == "h" && gt_startx < gt_endx ? 0 - gt_space1 : gt_space1;
-	
-	gf_drawArrowU (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine, gt_space1);
-	gf_drawArrowU (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, 0-gt_space1);
-	
-	return {x: gt_x2, y: gt_y2};	// label center
-}
-
-/*
- * draws an S shaped arrow
- */
-function gf_drawArrowS (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, gt_space)
-{
-	var gt_x2 = (gt_startx + gt_endx) / 2;
-	var gt_y2 = (gt_starty + gt_endy) / 2;
-	
-	gf_drawArrowU (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine, gt_space);
-	gf_drawArrowU (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, 0-gt_space);
-	
-	return {x: gt_x2, y: gt_y2};	// label center
-}
-
-/*
- * draws an U shaped arrow connected with another I shaped arrow
- */
-function gf_drawArrowUI (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, gt_space1, gt_space2)
-{
-	
-	var gt_x2 = gt_endx;
-	var gt_y2 = gt_endy;
-	
-	var gt_labelCenter = {x: 0, y: 0};
-	
-	if (gt_firstLine == "v")
-	{
-		if (gt_startx > gt_endx)
-			gt_x2 += Math.abs(gt_space2);
-		else
-			gt_x2 -= Math.abs(gt_space2);
-	}
-	else
-	{
-		if (gt_starty > gt_endy)
-			gt_y2 += Math.abs(gt_space2);
-		else
-			gt_y2 -= Math.abs(gt_space2);	
-	}
-
-	gt_labelCenter	= gf_drawArrowU (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine, gt_space1);
-					  gf_drawArrowI (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width);
-	
-	return {x: gt_labelCenter.x, y: gt_labelCenter.y};	// label center
-}
-
-/*
- * draws a Z shaped arrow connected with a U
- */
-function gf_drawArrowZU (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, gt_space1, gt_space2)
-{
-	var gt_x2 = gt_firstLine == "h" ? (gt_startx + gt_endx) / 2 + gt_space1 : gt_startx;
-	var gt_y2 = gt_firstLine == "v" ? (gt_starty + gt_endy) / 2 + gt_space1 : gt_starty;
-
-	var gt_firstZ = false;
-	
-	if (gt_firstLine == "v")
-	{		
-		gt_x2 = gt_space2 > 0 ? Math.max(gt_startx, gt_endx) + gt_space2 : Math.min(gt_startx, gt_endx) + gt_space2;
-		
-		gt_firstZ = (gt_starty < gt_endy && gt_space1 > 0) || (gt_starty > gt_endy && gt_space1 < 0);
-	}
-	else
-	{
-		gt_y2 = gt_space2 > 0 ? Math.max(gt_starty, gt_endy) + gt_space2 : Math.min(gt_starty, gt_endy) + gt_space2;
-		
-		gt_firstZ = (gt_startx < gt_endx && gt_space1 > 0) || (gt_startx > gt_endx && gt_space1 < 0);
-	}
-	
-	if (gt_firstZ)
-	{
-		gf_drawArrowZ (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine);
-		gf_drawArrowU (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, gt_space1);	
-	}
-	else
-	{
-		gf_drawArrowU (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine, gt_space1);
-		gf_drawArrowZ (gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine);	
-	}
-	
-	return {x: gt_x2, y: gt_y2};	// label center
-}
-
-/*
- * draws an S shaped arrow connected with another I shaped arrow
- */
-function gf_drawArrowSI (gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_endx, gt_endy, gt_color, gt_width, gt_firstLine, gt_space1, gt_space2)
-{
-	var gt_x2 = gt_firstLine == "h" ? gt_endx : (gt_startx < gt_endx ? gt_endx + Math.abs(gt_space1) : gt_endx - Math.abs(gt_space1));
-	var gt_y2 = gt_firstLine == "v" ? gt_endy : (gt_starty < gt_endy ? gt_endy + Math.abs(gt_space1) : gt_endy - Math.abs(gt_space1));
-	
-	var gt_labelCenter	= {x: 0, y: 0};
-	
-	gt_labelCenter	= gf_drawArrowS(gt_ctx, gt_graph, gt_id, gt_startx, gt_starty, gt_x2, gt_y2, gt_color, gt_width, gt_firstLine, gt_space2);
-					  gf_drawArrowI(gt_ctx, gt_graph, gt_id, gt_x2, gt_y2, gt_endx, gt_endy, gt_color, gt_width);
-
-	return {x: gt_labelCenter.x, y: gt_labelCenter.y};	// label center
-}
-
-/*
- * draws the head of an arrow
- */
-function gf_drawArrowHead (gt_ctx, gt_object, gt_position, gt_color, gt_correction)
-{
-	if (gf_isset(gt_object, gt_ctx))
-	{
-		
-		if (!gf_isset(gt_position))
-			gt_position = "b";
-		
-		if (!gf_isset(gt_color))
-			gt_color = "#000000";
-		
-		var gt_posx			= 0;
-		var gt_posy			= 0;
-		
-		// gt_position = (t)op | (b)ottom | (l)eft | (r)ight
-		if (gt_position == "l")
-		{
-			gt_posx			= gt_object.l;
-			gt_posy			= gt_object.y;
-		}
-		else if (gt_position == "r")
-		{
-			gt_posx			= gt_object.r;
-			gt_posy			= gt_object.y;
-		}
-		else if (gt_position == "b")
-		{
-			gt_posx			= gt_object.x;
-			gt_posy			= gt_object.b;
-		}
-		else
-		{
-			gt_posx			= gt_object.x;
-			gt_posy			= gt_object.t;
-		}
-		
-		if (gf_isset(gt_correction))
-		{
-			if (gt_position == "t" || gt_position == "b")
-			{
-				gt_posx += gt_correction;
-			}
-			
-			if (gt_position == "l" || gt_position == "r")
-			{
-				gt_posy += gt_correction;
-			}
-		}
-		
-		var gt_rotate = 0;
-			gt_rotate = gt_position == "l" ?  Math.PI / 2	: gt_rotate;
-			gt_rotate = gt_position == "r" ? -Math.PI / 2	: gt_rotate;
-			gt_rotate = gt_position == "t" ?  Math.PI		: gt_rotate;
-		
-		var gt_width	= gf_isset(gv_arrowHead) ? gv_arrowHead.width  : 11;
-		var gt_length	= gf_isset(gv_arrowHead) ? gv_arrowHead.length : 14;
-			
-		gt_ctx.save();
-		gt_ctx.fillStyle = gt_color;
-		gt_ctx.translate(gt_posx, gt_posy);
-		gt_ctx.rotate(gt_rotate);
-		
-		gt_ctx.beginPath();
-		gt_ctx.moveTo(0, 0);
-		gt_ctx.lineTo(gt_width / 2, gt_length);
-		gt_ctx.lineTo(0, gt_length * 0.8)
-		gt_ctx.lineTo(-gt_width / 2, gt_length)
-		gt_ctx.lineTo(0, 0);
-		gt_ctx.closePath();
-		
-		gt_ctx.fill();
-		gt_ctx.restore();
-	}
 }

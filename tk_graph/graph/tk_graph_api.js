@@ -27,12 +27,14 @@ var gv_elements = {
 	inputEdgeTarget:	"ge_edge_target",
 	inputEdgeMessage:	"ge_edge_message",
 	inputEdgeMessageO:	"ge_edge_message_outer",
+	inputEdgeOuter:		"edge",
 	inputSubjectText:	"ge_cv_text",
 	inputSubjectId:		"ge_cv_id",
 	inputNodeText:		"ge_text",
 	inputNodeId:		"ge_id",
 	inputNodeType:		"ge_type",
 	inputNodeType2:		"ge_type2",
+	inputNodeOuter:		"node",
 	
 	// select elements
 	inputNodeTypeNormal:	"ge_type_normal",
@@ -44,6 +46,10 @@ var gv_elements = {
 	inputNodeType2End:		"ge_type2_end",
 	inputNodeType2Action:	"ge_type2_action",
 };
+
+var gv_cv_paper = null;
+var gv_bv_paper = null;
+var gv_paper = null;
 
 function gf_createMacro (id, text, type, type2, connect)
 {
@@ -83,10 +89,13 @@ gf_createMacro("newActionNode", "internal action", "normal", "", true);
  * function called when an object in the communication view has been doubleClicked -> load the corresponding behavioral view
  */
 function gf_clickedCVbehavior (graphId)
-{	
+{
 	gv_graph.drawBehavior(graphId);
 	
-	showtab1();
+	if (gf_isset(graphId))
+	{
+		showtab1();
+	}
 }
 
 /*
@@ -511,7 +520,7 @@ function GFbehavior (name)
 			}
 		}
 		
-		gf_bv_drawGraph(gv_elements.graphBV, this.name);
+		gf_bv_drawGraph(this.name);
 	}
 	
 	// functions for GUI
@@ -640,7 +649,7 @@ function GFbehavior (name)
 				this.selectNothing();
 				this.selectedNode = id;
 			}
-			this.draw();
+			// this.draw();
 		}
 	}
 	
@@ -653,7 +662,7 @@ function GFbehavior (name)
 		{
 			this.selectNothing();
 			this.selectedEdge = id;
-			this.draw();
+			// this.draw();
 		}
 	}
 	
@@ -953,7 +962,7 @@ function GFcommunication ()
 			}
 		}
 		
-		gf_cv_drawGraph(gv_elements.graphCV)
+		gf_cv_drawGraph();
 	}
 	
 	/*
@@ -967,6 +976,9 @@ function GFcommunication ()
 	{
 		if (view == "cv")
 		{
+			gv_paper = gv_cv_paper;		// TODO: remove?
+			document.getElementById(gv_elements.graphCVouter).style.display="block";
+			
 			this.selectedSubject	= null;
 			this.selectedNode		= null;
 			this.selectedEdge		= null;
@@ -975,6 +987,9 @@ function GFcommunication ()
 		}
 		else if (view == "bv")
 		{
+			gv_paper = gv_bv_paper;		// TODO: remove?
+			document.getElementById(gv_elements.graphBVouter).style.display="block";
+			
 			this.selectedSubject = this.loadedSubject;
 			
 			if (gf_isset(this.subjects[this.selectedSubject]))
@@ -983,6 +998,13 @@ function GFcommunication ()
 			}
 		}
 		this.clickMode = null;
+	}
+	
+	this.init = function ()
+	{
+		gv_cv_paper = Raphael(gv_elements.graphCVouter, gv_paperSizes.cv_width, gv_paperSizes.cv_height);
+		gv_bv_paper = Raphael(gv_elements.graphBVouter, gv_paperSizes.bv_width, gv_paperSizes.bv_height);
+		gv_paper = gv_cv_paper;
 	}
 	
 	/*
@@ -1106,7 +1128,8 @@ function GFcommunication ()
 				if (this.loadedSubject == this.selectedNode)
 				{
 					this.loadedSubject = null;
-					gf_bv_init(gv_elements.graphBV);
+					gv_paper = gv_bv_paper;
+					gf_initPaper();
 				}
 					
 				if (this.selectedSubject == this.selectedNode)
@@ -1215,6 +1238,9 @@ function GFcommunication ()
 				document.getElementById(gv_elements.inputEdgeText).value	= gt_edge.getText();
 				document.getElementById(gv_elements.inputEdgeText).readOnly	= false;
 				document.getElementById(gv_elements.inputEdgeMessageO).style.display = "none";
+		
+				document.getElementById(gv_elements.inputNodeOuter).style.display = "none";
+				document.getElementById(gv_elements.inputEdgeOuter).style.display = "block";
 				
 				var gt_select_target		= document.getElementById(gv_elements.inputEdgeTarget).options;
 				var gt_select_message		= document.getElementById(gv_elements.inputEdgeMessage).options;
@@ -1307,6 +1333,9 @@ function GFcommunication ()
 		else
 		{
 			this.loadInformation(true);
+			document.getElementById(gv_elements.inputNodeOuter).style.display = "block";
+			document.getElementById(gv_elements.inputEdgeOuter).style.display = "none";
+		
 			if (this.selectedSubject == null)
 			{
 				if (this.selectedNode != null && gf_isset(this.subjects[this.selectedNode]))
@@ -1408,8 +1437,6 @@ function GFcommunication ()
 	 */
 	this.selectNode = function (id)
 	{
-		document.getElementById("node").style.display = "block";
-		document.getElementById("edge").style.display = "none";
 		if (this.selectedSubject == null)
 		{			
 			if (gf_isset(this.subjects[id]))
@@ -1422,7 +1449,7 @@ function GFcommunication ()
 				{
 					this.selectNothing();
 					this.selectedNode = id;
-					this.draw();
+					// this.draw();
 				}
 			}
 		}
@@ -1433,7 +1460,6 @@ function GFcommunication ()
 				this.getBehavior(this.selectedSubject).selectNode(id);
 			}
 		}
-		
 		this.loadInformation();
 	}
 	
@@ -1442,8 +1468,6 @@ function GFcommunication ()
 	 */
 	this.selectEdge = function (id)
 	{
-		document.getElementById("node").style.display = "none";
-		document.getElementById("edge").style.display = "block";
 		if (this.selectedSubject == null)
 		{			
 			// not available in cv
@@ -1483,48 +1507,52 @@ function GFcommunication ()
 				var gt_text = document.getElementById(gv_elements.inputSubjectText).value;
 				var gt_id = document.getElementById(gv_elements.inputSubjectId).value;
 				
-				gt_subject.setText(gt_text);
-				
-				
-				// update references to this subject
-				if (this.selectedNode != gt_id && !gf_isset(this.subjects[gt_id]))
+				if (gt_text.replace(" ", "") != "" && gt_id.replace(" ", "") != "")
 				{
-					gt_subject.setId(gt_id);
+				
+					gt_subject.setText(gt_text);
 					
-					delete this.subjects[this.selectedNode];
-
-					for (var gt_subId in this.subjects)
+					
+					// update references to this subject
+					if (this.selectedNode != gt_id && !gf_isset(this.subjects[gt_id]))
 					{
-						var gt_edges = this.subjects[gt_subId].getBehavior().getEdges();
+						gt_subject.setId(gt_id);
 						
-						for (var gt_edgeId in gt_edges)
+						delete this.subjects[this.selectedNode];
+	
+						for (var gt_subId in this.subjects)
 						{
-							var gt_edge = gt_edges[gt_edgeId];
-							if (gt_edge.getRelatedSubject() == this.selectedNode)
-								gt_edge.setRelatedSubject(gt_id);
+							var gt_edges = this.subjects[gt_subId].getBehavior().getEdges();
+							
+							for (var gt_edgeId in gt_edges)
+							{
+								var gt_edge = gt_edges[gt_edgeId];
+								if (gt_edge.getRelatedSubject() == this.selectedNode)
+									gt_edge.setRelatedSubject(gt_id);
+							}
+						}
+						
+						gt_subject.getBehavior().name = gt_id;
+						this.subjects[gt_id] = gt_subject;
+						this.selectNode(gt_id);
+						
+						if (this.loadedSubject == this.selectedNode)
+						{
+							this.loadedSubject = gt_id;
+						}
+						
+						if (this.selectedSubject == this.selectedNode)
+						{
+							this.selectedSubject = gt_id;
+						}
+						
+						if (this.loadedSubject != null && gf_isset(this.subjects[this.loadedSubject]))
+						{
+							this.subjects[this.loadedSubject].getBehavior().draw();
 						}
 					}
-					
-					gt_subject.getBehavior().name = gt_id;
-					this.subjects[gt_id] = gt_subject;
-					this.selectNode(gt_id);
-					
-					if (this.loadedSubject == this.selectedNode)
-					{
-						this.loadedSubject = gt_id;
-					}
-					
-					if (this.selectedSubject == this.selectedNode)
-					{
-						this.selectedSubject = gt_id;
-					}
-					
-					if (this.loadedSubject != null && gf_isset(this.subjects[this.loadedSubject]))
-					{
-						this.subjects[this.loadedSubject].getBehavior().draw();
-					}
+					this.draw();
 				}
-				this.draw();
 			}
 		}
 		

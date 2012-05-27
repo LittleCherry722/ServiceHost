@@ -15,11 +15,6 @@
  * graph file for communication view
  */
 
-var gv_cv_canvas	= null;
-var gv_cv_ctx		= null;
-var gv_cv_clickPos	= {x: 0, y: 0};
-var gv_cv_objects	= new Array();
-
 var gv_cv_nodes	= new Array();
 var gv_cv_edges	= new Array();
 
@@ -54,10 +49,12 @@ function gf_cv_addMessage (start, end, text)
 /*
  * main function for drawing the graph
  */
-function gf_cv_drawGraph (gt_cv_canvasElem)
+function gf_cv_drawGraph ()
 {
-	// init the canvas element
-	gf_cv_init(gt_cv_canvasElem);
+	// init the paper
+	gv_paper = gv_cv_paper;
+	gf_initPaper();
+	
 	gv_cv_objects = new Array();
 
 	// initialize the variables and clear the arrays
@@ -71,8 +68,8 @@ function gf_cv_drawGraph (gt_cv_canvasElem)
 	var gt_cv_subjectsVisited	= new Array();
 		
 	// determine the starting point
-	var gt_cv_x = gv_cv_roundedRect.startX;
-	var gt_cv_y = Math.round(gv_cv_canvas.height/2);
+	var gt_cv_x = gv_cv_roundedRectangle.startX;
+	var gt_cv_y = Math.round(gv_paperSizes.cv_height/2);
 	
 	// 0. place the subjects
 	// 0.0 sort subjects alphabetically
@@ -89,13 +86,13 @@ function gf_cv_drawGraph (gt_cv_canvasElem)
 		for (var gt_cv_end in gt_cv_messages[gt_cv_start])
 		{
 			if (!gf_isset(gt_cv_msgCounter[gt_cv_start]))
-				gt_cv_msgCounter[gt_cv_start] = {in: 0, out: 0, inout: 0};
+				gt_cv_msgCounter[gt_cv_start] = {msgIn: 0, msgOut: 0, inout: 0};
 			
 			if (!gf_isset(gt_cv_msgCounter[gt_cv_end]))
-				gt_cv_msgCounter[gt_cv_end] = {in: 0, out: 0, inout: 0};
+				gt_cv_msgCounter[gt_cv_end] = {msgIn: 0, msgOut: 0, inout: 0};
 			
-			gt_cv_msgCounter[gt_cv_start].out++;
-			gt_cv_msgCounter[gt_cv_end].in++;
+			gt_cv_msgCounter[gt_cv_start].msgOut++;
+			gt_cv_msgCounter[gt_cv_end].msgIn++;
 			
 			if (gf_isset(gt_cv_interactions[gt_cv_end]) && gf_isset(gt_cv_interactions[gt_cv_end][gt_cv_start]))
 			{
@@ -124,8 +121,8 @@ function gf_cv_drawGraph (gt_cv_canvasElem)
 			
 			var gt_cv_subject	= gt_cv_subjects[gt_cv_subjectId];
 			var gt_cv_subjId	= gt_cv_subject.id;
-			var gt_cv_outCount	= gf_isset(gt_cv_msgCounter[gt_cv_subjId]) ? gt_cv_msgCounter[gt_cv_subjId].out : 0;
-			var gt_cv_inCount	= gf_isset(gt_cv_msgCounter[gt_cv_subjId]) ? gt_cv_msgCounter[gt_cv_subjId].in : 0;
+			var gt_cv_outCount	= gf_isset(gt_cv_msgCounter[gt_cv_subjId]) ? gt_cv_msgCounter[gt_cv_subjId].msgOut : 0;
+			var gt_cv_inCount	= gf_isset(gt_cv_msgCounter[gt_cv_subjId]) ? gt_cv_msgCounter[gt_cv_subjId].msgIn : 0;
 			
 			var gt_cv_mlUpdate	= false; // gt_cv_mlSubject == null;
 			
@@ -196,7 +193,7 @@ function gf_cv_drawGraph (gt_cv_canvasElem)
 		var gt_cv_subjectId = gt_cv_subjectsSorted[gt_cv_ssId];
 		
 		gf_cv_drawRoundedRectangle(gt_cv_x, gt_cv_y, gt_cv_subjects[gt_cv_subjectId].id, gt_cv_subjects[gt_cv_subjectId].text, gt_cv_subjects[gt_cv_subjectId].selected);
-		gt_cv_x += gv_cv_roundedRect.distance;
+		gt_cv_x += gv_cv_roundedRectangle.distance;
 	}
 	
 	// 2. draw the messages
@@ -222,178 +219,23 @@ function gf_cv_sortSubjectsByIdCI (obj1, obj2)
 }
 
 /*
- * initializes the canvas
- */
-function gf_cv_init (gt_cv_canvasElem)
-{
-	if (gf_elementExists(gt_cv_canvasElem))
-	{
-		gv_cv_canvas	= document.getElementById(gt_cv_canvasElem);
-		gv_cv_ctx		= gv_cv_canvas.getContext("2d");
-		
-		gv_cv_ctx.clearRect(0, 0, gv_cv_canvas.width, gv_cv_canvas.height);
-		
-		if (gv_cv_canvas.addEventListener)
-		{
-			gv_cv_canvas.addEventListener("click", gf_cv_onClick, false);
-			gv_cv_canvas.addEventListener("dblclick", gf_cv_onDblClick, false);
-		}
-		else if (document.attachEvent)
-		{
-			gv_cv_canvas.attachEvent("onclick", gf_cv_onClick);
-			gv_cv_canvas.attachEvent("ondblclick", gf_cv_onDblClick);
-		}
-	}
-}
-
-/*
- * reads a click / dblClick event
- */
-function gf_cv_onClick (gt_cv_event, gt_cv_double)
-{
-	if (!gf_isset(gt_cv_double) || gt_cv_double != true)
-		gt_cv_double = false;
-	
-	// read click position and add the canvas' offset
-	gf_getClickPosition(gt_cv_event, gv_cv_canvas, gv_cv_clickPos);
-	gv_cv_clickPos.x += document.getElementById(gv_elements.graphCVouter).scrollLeft;
-
-	// cycle to all objects to get the object that has been clicked
-	for (var gt_cv_objectID in gv_cv_objects)
-	{
-		var gt_cv_object = gv_cv_objects[gt_cv_objectID];
-		
-		if (	gv_cv_clickPos.x >= gt_cv_object.l &&
-				gv_cv_clickPos.x <= gt_cv_object.r &&
-				gv_cv_clickPos.y >= gt_cv_object.t &&
-				gv_cv_clickPos.y <= gt_cv_object.b)
-		{
-			if (gt_cv_object.id != "")
-			{
-				
-				if (gt_cv_double == true)
-				{
-					gf_clickedCVbehavior(gt_cv_object.id);	
-				}
-				else
-				{
-					gf_clickedCVnode(gt_cv_object.id);					
-				}
-			}
-			break;
-		}
-	}
-}
-
-/*
- * double click event
- */
-function gf_cv_onDblClick (gt_cv_event)
-{
-	gf_cv_onClick(gt_cv_event, true);
-}
-
-/*
- * stores the clickable area of an object
- */
-function gf_cv_storeClick (gt_cv_id, gt_cv_type, gt_cv_l, gt_cv_t, gt_cv_r, gt_cv_b)
-{
-	gv_cv_clicks[gv_cv_clicks.length] = {
-			id:		gt_cv_id,
-			type:	gt_cv_type,
-			l:		gt_cv_l,
-			t:		gt_cv_t,
-			r:		gt_cv_r,
-			b:		gt_cv_b
-	};
-}
-
-/*
- * stores an object
- */
-function gf_cv_storeObject (gt_cv_id, gt_cv_x, gt_cv_y, gt_cv_width, gt_cv_height, gt_cv_stroke)
-{		
-	// x: x, y: y, w: width, h: height, l: left, r: right, t: top, b: bottom, s: stroke
-	gt_cv_width		+= gt_cv_stroke;
-	gt_cv_height	+= gt_cv_stroke;
-	gt_cv_width		 = Math.round(gt_cv_width/2);
-	gt_cv_height	 = Math.round(gt_cv_height/2);
-	
-	gv_cv_objects[gt_cv_id] = {
-			id: gt_cv_id,
-			 x: gt_cv_x,
-			 y: gt_cv_y,
-			 w: gt_cv_width,
-			 h: gt_cv_height,
-			 l: gt_cv_x - gt_cv_width,
-			 r: gt_cv_x + gt_cv_width,
-			 t: gt_cv_y - gt_cv_height,
-			 b: gt_cv_y + gt_cv_height,
-			 s: gt_cv_stroke
-	};
-}
-
-/*
- * DRAWING FUNCTIONS
- */
-
-/*
  * draws a rounded rectangle as a representation for a subject
  */
 function gf_cv_drawRoundedRectangle (gt_cv_posx, gt_cv_posy, gt_cv_id, gt_cv_text, gt_cv_selected)
 {
-	if (!gf_isset(gt_cv_selected) || gt_cv_selected != true)
-		gt_cv_selected = false;
 	
-	// read settings
-	var gt_cv_width			= gv_cv_roundedRect.width;
-	var gt_cv_height		= gv_cv_roundedRect.height;
-	var gt_cv_radius		= gv_cv_roundedRect.radius;
-	var gt_cv_bgColor		= gv_cv_roundedRect.bgColor;
-	var gt_cv_borderColor	= gt_cv_selected ? gv_cv_roundedRect.borderColorSelected : gv_cv_roundedRect.borderColor;
-	var gt_cv_borderWidth	= gv_cv_roundedRect.borderWidth;
-	var gt_cv_style			= gv_cv_roundedRect.style;
-	var gt_cv_linePosY		= gv_cv_roundedRect.linePosY;
-	var gt_cv_lineWidth		= gv_cv_roundedRect.lineWidth;
-	var gt_cv_textPosY		= gv_cv_roundedRect.textPosY;
+	var gt_cv_rect	= new GFlabel(gt_cv_posx, gt_cv_posy, gt_cv_text, "roundedrectangle", gt_cv_id);	// TODO: Multi
 	
-	var gt_cv_lengthH	= gt_cv_width - 2 * gt_cv_radius;
-	var gt_cv_lengthV	= gt_cv_height - 2 * gt_cv_radius;
-	
-	var gt_cv_left	= gt_cv_posx - gt_cv_width / 2;
-	var gt_cv_top	= gt_cv_posy - gt_cv_height / 2;
-	
-	// draw the rectangle
-	gv_cv_ctx.beginPath();
-	gv_cv_ctx.moveTo(gt_cv_left + gt_cv_radius, gt_cv_top);
-	gv_cv_ctx.lineTo(gt_cv_left + gt_cv_lengthH + gt_cv_radius, gt_cv_top);
-	gv_cv_ctx.arc(gt_cv_left + gt_cv_lengthH + gt_cv_radius, gt_cv_top + gt_cv_radius, gt_cv_radius, 1.5 * Math.PI, 0.0 * Math.PI, false);
-	gv_cv_ctx.lineTo(gt_cv_left + gt_cv_width, gt_cv_top + gt_cv_lengthV + gt_cv_radius);
-	gv_cv_ctx.arc(gt_cv_left + gt_cv_lengthH + gt_cv_radius, gt_cv_top + gt_cv_lengthV + gt_cv_radius, gt_cv_radius, 0.0 * Math.PI, 0.5 * Math.PI, false);
-	gv_cv_ctx.lineTo(gt_cv_left + gt_cv_radius, gt_cv_top + gt_cv_height);
-	gv_cv_ctx.arc(gt_cv_left + gt_cv_radius, gt_cv_top + gt_cv_lengthV + gt_cv_radius, gt_cv_radius, 0.5 * Math.PI, 1.0 * Math.PI, false);
-	gv_cv_ctx.lineTo(gt_cv_left, gt_cv_top + gt_cv_radius);
-	gv_cv_ctx.arc(gt_cv_left + gt_cv_radius, gt_cv_top + gt_cv_radius, gt_cv_radius, 1.0 * Math.PI, 1.5 * Math.PI, false);
-	gv_cv_ctx.closePath();
-	
-	gv_cv_ctx.fillStyle		= gt_cv_bgColor;
-	gv_cv_ctx.strokeStyle	= gt_cv_borderColor;
-	gv_cv_ctx.lineWidth		= gt_cv_borderWidth;
-	gv_cv_ctx.stroke();
-	gv_cv_ctx.fill();
+	if (gf_isset(gt_cv_selected) && gt_cv_selected === true)
+		gt_cv_rect.select();
 		
-	// text
-	gf_drawLabel (gv_cv_ctx, gt_cv_posx, gt_cv_posy + gt_cv_textPosY, gt_cv_text, gt_cv_style);
+	gt_cv_rect.setStyle(gv_cv_roundedRectangle.styleSingle);		// TODO: Multi + External
+	gt_cv_rect.click("cv");
 	
-	gv_cv_ctx.beginPath();
-	gv_cv_ctx.moveTo(gt_cv_left, gt_cv_posy + gt_cv_linePosY);
-	gv_cv_ctx.lineTo(gt_cv_left + gt_cv_width, gt_cv_posy + gt_cv_linePosY);
-	gv_cv_ctx.closePath();
-	
-	gv_cv_ctx.lineWidth = gt_cv_lineWidth;
-	gv_cv_ctx.stroke();
-	
-	gf_cv_storeObject(gt_cv_id, gt_cv_posx, gt_cv_posy, gt_cv_width, gt_cv_height, gt_cv_borderWidth);
+	// TODO: remove random and use some real function to determine whether a node is deactivated or not
+	// var num = Math.random();
+	// if (num < 0.5)
+	// gt_cv_rect.deactivate();
 }
 
 /*
@@ -401,16 +243,11 @@ function gf_cv_drawRoundedRectangle (gt_cv_posx, gt_cv_posy, gt_cv_id, gt_cv_tex
  */
 function gf_cv_drawArrow (gt_cv_objStart, gt_cv_objEnd, gt_cv_text)
 {
-	if (!gf_isset(gv_cv_objects[gt_cv_objStart], gv_cv_objects[gt_cv_objEnd], gt_cv_text))
+	if (!gf_isset(gv_objects_nodes[gt_cv_objStart], gv_objects_nodes[gt_cv_objEnd], gt_cv_text))
 		return false;
-
-	var gt_cv_styleArrow	= gf_isset(gv_cv_arrow.styleArrow)	? gv_cv_arrow.styleArrow	: gv_defaultStyle;
-	var gt_cv_styleText		= gf_isset(gv_cv_arrow.styleText)	? gv_cv_arrow.styleText		: gv_defaultStyle;
-	
-	var gt_cv_arrowWidth	= gf_getStyleValue(gt_cv_styleArrow, "borderWidth");
-	var gt_cv_arrowColor	= gf_getStyleValue(gt_cv_styleArrow, "borderColor");
-	
-	var gt_cv_arrowSpace	= gv_arrowHead.length + 10;
+		
+	var gt_cv_objectStart	= gv_objects_nodes[gt_cv_objStart].getBoundaries();
+	var gt_cv_objectEnd		= gv_objects_nodes[gt_cv_objEnd].getBoundaries();
 	
 	var gt_cv_startx			= 0;
 	var gt_cv_starty			= 0;
@@ -419,11 +256,10 @@ function gf_cv_drawArrow (gt_cv_objStart, gt_cv_objEnd, gt_cv_text)
 	var gt_cv_headCorrection	= 0;
 	var gt_cv_direction			= "r";
 	var gt_cv_arrowUspace		= 0;
+		
+	var gt_cv_orgDistance	= gv_cv_roundedRectangle.distance;
 	
-	var gt_cv_labelCenter	= {x: 0, y: 0};
-	
-	var gt_cv_orgDistance	= gv_cv_roundedRect.distance;
-	var gt_cv_distance		= gv_cv_objects[gt_cv_objStart].x - gv_cv_objects[gt_cv_objEnd].x;
+	var gt_cv_distance		= gt_cv_objectStart.x - gt_cv_objectEnd.x;
 	var gt_cv_arrowType		= "I";
 	
 	// end subject is on the right of the start subject
@@ -432,69 +268,66 @@ function gf_cv_drawArrow (gt_cv_objStart, gt_cv_objEnd, gt_cv_text)
 		gt_cv_distance	= Math.abs(gt_cv_distance);
 		
 		if (gt_cv_distance > gt_cv_orgDistance)
-		{
-			gt_cv_direction	= "t";
-			
-			gt_cv_startx	= gv_cv_objects[gt_cv_objStart].x + gv_cv_roundedRect.arrowCorrectionH;
-			gt_cv_endx		= gv_cv_objects[gt_cv_objEnd].x - gv_cv_roundedRect.arrowCorrectionH;
-			gt_cv_starty	= gv_cv_objects[gt_cv_objStart].t;
-			gt_cv_endy		= gv_cv_objects[gt_cv_objEnd].t;
+		{			
+			gt_cv_startx	= gt_cv_objectStart.x + gv_cv_roundedRectangle.arrowCorrectionH;
+			gt_cv_endx		= gt_cv_objectEnd.x - gv_cv_roundedRectangle.arrowCorrectionH;
+			gt_cv_starty	= gt_cv_objectStart.top;
+			gt_cv_endy		= gt_cv_objectEnd.top;
 			gt_cv_arrowType	= "U";
 			
 			gt_cv_arrowUspace	= 0 - (Math.round(gt_cv_distance/gt_cv_orgDistance) - 1) * 25;
 			
-			gt_cv_headCorrection	= 0 - gv_cv_roundedRect.arrowCorrectionH;
+			gt_cv_headCorrection	= 0 - gv_cv_roundedRectangle.arrowCorrectionH;
 		}
 		else if (gt_cv_distance == gt_cv_orgDistance)
-		{
-			gt_cv_direction	= "l";
-			
-			gt_cv_startx	= gv_cv_objects[gt_cv_objStart].r;
-			gt_cv_endx		= gv_cv_objects[gt_cv_objEnd].l;
-			gt_cv_starty	= gv_cv_objects[gt_cv_objStart].y - gv_cv_roundedRect.arrowCorrectionV;
-			gt_cv_endy		= gv_cv_objects[gt_cv_objEnd].y - gv_cv_roundedRect.arrowCorrectionV;
+		{			
+			gt_cv_startx	= gt_cv_objectStart.right;
+			gt_cv_endx		= gt_cv_objectEnd.left;
+			gt_cv_starty	= gt_cv_objectStart.y - gv_cv_roundedRectangle.arrowCorrectionV;
+			gt_cv_endy		= gt_cv_objectEnd.y - gv_cv_roundedRectangle.arrowCorrectionV;
 
-			gt_cv_headCorrection	= 0 - gv_cv_roundedRect.arrowCorrectionV;
+			gt_cv_headCorrection	= 0 - gv_cv_roundedRectangle.arrowCorrectionV;
 		}
 	}
 	else
 	{
 		if (gt_cv_distance > gt_cv_orgDistance)
-		{
-			gt_cv_direction	= "b";
-			
-			gt_cv_startx	= gv_cv_objects[gt_cv_objStart].x - gv_cv_roundedRect.arrowCorrectionH;
-			gt_cv_endx		= gv_cv_objects[gt_cv_objEnd].x + gv_cv_roundedRect.arrowCorrectionH;
-			gt_cv_starty	= gv_cv_objects[gt_cv_objStart].b;
-			gt_cv_endy		= gv_cv_objects[gt_cv_objEnd].b;
+		{			
+			gt_cv_startx	= gt_cv_objectStart.x - gv_cv_roundedRectangle.arrowCorrectionH;
+			gt_cv_endx		= gt_cv_objectEnd.x + gv_cv_roundedRectangle.arrowCorrectionH;
+			gt_cv_starty	= gt_cv_objectStart.bottom;
+			gt_cv_endy		= gt_cv_objectEnd.bottom;
 			gt_cv_arrowType	= "U";
 			
 			gt_cv_arrowUspace	= (Math.round(gt_cv_distance/gt_cv_orgDistance) - 1) * 25;
 			
-			gt_cv_headCorrection	= gv_cv_roundedRect.arrowCorrectionH;
+			gt_cv_headCorrection	= gv_cv_roundedRectangle.arrowCorrectionH;
 		}
 		else if (gt_cv_distance == gt_cv_orgDistance)
-		{
-			gt_cv_direction	= "r";
+		{			
+			gt_cv_startx	= gt_cv_objectStart.left;
+			gt_cv_endx		= gt_cv_objectEnd.right;
+			gt_cv_starty	= gt_cv_objectStart.y + gv_cv_roundedRectangle.arrowCorrectionV;
+			gt_cv_endy		= gt_cv_objectEnd.y + gv_cv_roundedRectangle.arrowCorrectionV;
 			
-			gt_cv_startx	= gv_cv_objects[gt_cv_objStart].l;
-			gt_cv_endx		= gv_cv_objects[gt_cv_objEnd].r;
-			gt_cv_starty	= gv_cv_objects[gt_cv_objStart].y + gv_cv_roundedRect.arrowCorrectionV;
-			gt_cv_endy		= gv_cv_objects[gt_cv_objEnd].y + gv_cv_roundedRect.arrowCorrectionV;
-			
-			gt_cv_headCorrection	= gv_cv_roundedRect.arrowCorrectionV;
+			gt_cv_headCorrection	= gv_cv_roundedRectangle.arrowCorrectionV;
 		}
 	}
 	
-	if (gt_cv_arrowType == "I")
+	var gt_cv_path = new GFpath(gt_cv_startx, gt_cv_starty, gt_cv_endx, gt_cv_endy, gt_cv_arrowType, gt_cv_text, "doesNotMatter" + Math.random());
+		gt_cv_path.setStyle(gv_cv_arrow.style);
+		gt_cv_path.setSpace1(gt_cv_arrowUspace);
+		gt_cv_path.setFirstLine("v");
+		gt_cv_path.updatePath();
+		
+	if (gt_cv_arrowType == "U")
 	{
-		gt_cv_labelCenter	= gf_drawArrowI(gv_cv_ctx, "cv", 0, gt_cv_startx, gt_cv_starty, gt_cv_endx, gt_cv_endy, gt_cv_arrowColor, gt_cv_arrowWidth);	
+		var gt_cv_p_c = 2;
+		while (gt_cv_path.checkIntersection(true) && gt_cv_p_c < 10)
+		{
+			gt_cv_path.setSpace1(gt_cv_arrowUspace * gt_cv_p_c);
+			gt_cv_path.updatePath();
+			gt_cv_p_c++;
+		}
 	}
-	else if (gt_cv_arrowType == "U")
-	{
-		gt_cv_labelCenter	= gf_drawArrowU(gv_cv_ctx, "cv", 0, gt_cv_startx, gt_cv_starty, gt_cv_endx, gt_cv_endy, gt_cv_arrowColor, gt_cv_arrowWidth, "v", gt_cv_arrowUspace);
-	}
-	
-	gf_drawArrowHead(gv_cv_ctx, gv_cv_objects[gt_cv_objEnd], gt_cv_direction, gt_cv_arrowColor, gt_cv_headCorrection);
-	gf_drawLabel(gv_cv_ctx, gt_cv_labelCenter.x, gt_cv_labelCenter.y, gt_cv_text, gt_cv_styleText);
 }

@@ -15,26 +15,96 @@
  * do NOT delete any line in this file; only edit the values
  */
 
+var gv_paperSizes	= {
+	bv_width: 5000,
+	bv_height: 6000,
+	cv_width: 2000,
+	cv_height: 540
+};
+
 var gv_arrowHead	= {width: 11, length: 14};
 
 var gv_defaultStyle	= {
-		fgColor: "#000000",
-		bgColor: "#C0FFFF",
-		borderColor: "#000000",
-		borderColorSelected: "#0000FF",
-		borderWidth: 1,
-		fontSize: 12,
-		font: "Verdana, sans-serif",
-		textAlign: "left",
-		textVAlign: "top",
-		liSymbol: "\u2022 ",
-		paddingLeft: 5,
-		paddingRight: 5,
-		paddingTop: 5,
-		paddingBottom: 5,
-		lineSpacing: 2,
-		width: 0,
-		height: 0,
-		minWidth: 0,
-		minHeight: 0
+	
+	/*
+	 * Arrow
+	 */
+	arrowHeadType: "none",				// possible values: classic, block, open, oval, diamond, none
+	arrowHeadLength: "long",			// possible values: long, short, medium
+	arrowHeadWidth: "wide",				// possible values: wide, narrow, medium
+	arrowColor: "#000000",				// any hex-color-value
+	arrowColorDeactivated: "#0000FF",	// any hex-color-value
+	arrowColorSelected: "#0000FF",		// any hex-color-value
+	arrowLinecap: "square",				// possible values: butt, square, round
+	arrowLinejoin: "bevel",				// possible values: bevel, round, miter
+	arrowMiterLimit: 0,					// any number
+	arrowOpacity: 1.0,					// floating number
+	arrowOpacityDeactivated: 1.0,		// floating number
+	arrowOpacitySelected: 1.0,			// floating number
+	arrowStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleDeactivated: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowWidth: 1,						// pixels
+	arrowWidthDeactivated: 1,			// pixels
+	arrowWidthSelected: 1,				// pixels
+	
+	/*
+	 * Border
+	 */
+	borderColor: "#000000",				// any hex-color-value
+	borderColorDeactivated: "#0000FF",	// any hex-color-value
+	borderColorSelected: "#0000FF",		// any hex-color-value
+	borderOpacity: 1.0,					// floating number
+	borderOpacityDeactivated: 1.0,		// floating number
+	borderOpacitySelected: 1.0,			// floating number
+	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderWidth: 1,						// pixels
+	borderWidthDeactivated: 1,			// pixels
+	borderWidthSelected: 1,				// pixels
+
+	/*
+	 * Background
+	 */		
+	bgColor: "#C0FFFF",					// any hex-color-value
+	bgColorDeactivated: "#C0FFFF",		// any hex-color-value
+	bgColorSelected: "#C0FFFF",			// any hex-color-value
+	bgOpacity: 1.0,						// floating number
+	bgOpacityDeactivated: 1.0,			// floating number
+	bgOpacitySelected: 1.0,				// floating number
+	opacity: 1.0,						// floating number
+	opacityDeactivated: 1.0,			// floating number
+	opacitySelected: 1.0,				// floating number
+	
+	/*
+	 * Text
+	 */
+	fontColor: "#000000",				// any hex-color-value
+	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelected: "#000000",		// any hex-color-value
+	fontOpacity: 1.0,					// floating number
+	fontOpacityDeactivated: 1.0,		// floating number
+	fontOpacitySelected: 1.0,			// floating number
+	fontFamily: "Verdana, sans-serif",	// any font
+	fontSize: 12,						// pixels
+	fontWeight: "normal",				// possible values: normal, bold
+	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelected: "normal",		// possible values: normal, bold
+	paddingBottom: 5,					// pixels
+	paddingLeft: 5,						// pixels
+	paddingRight: 5,					// pixels
+	paddingTop: 5,						// pixels
+	textAlign: "left",					// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
+	
+	/*
+	 * Misc
+	 */
+	liSymbol: "\u2022 ",				// any unicode
+	rectangleRadius: 0,					// radius for rounded rectangles
+	width: 0,							// int
+	height: 0,							// int
+	minWidth: 0,						// int
+	minHeight: 0						// int
 };
