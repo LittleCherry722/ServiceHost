@@ -22,3 +22,18 @@ key('c', function() {
 	gv_graph.connectNodes();
 });
 
+//Insert new sendnode
+key('1', function() {
+	gf_callMacro('newSendNode');
+});
+
+//Insert new sendnode
+key('2', function() {
+	gf_callMacro('newReceiveNode');
+});
+
+
+//Insert new sendnode
+key('3', function() {
+	gf_callMacro('newActionNode');
+});
