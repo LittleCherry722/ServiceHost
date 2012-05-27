@@ -27,13 +27,13 @@ key('1', function() {
 	gf_callMacro('newSendNode');
 });
 
-//Insert new sendnode
+//Insert new receivenode
 key('2', function() {
 	gf_callMacro('newReceiveNode');
 });
 
 
-//Insert new sendnode
+//Insert new actionnode
 key('3', function() {
 	gf_callMacro('newActionNode');
 });
