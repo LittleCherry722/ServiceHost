@@ -242,6 +242,7 @@ function ProzessLaden(name) {
 		classes: [,"ok"],
 		autohide: true
 	});
+	$("input[id=tab2]").trigger("click");  
 }
 
 function drawGraph(graph) {
