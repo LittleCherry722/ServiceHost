@@ -425,6 +425,8 @@ function showtab1() {
 	$("#tab1").addClass("active");
 	$(".tab_content").addClass("hide");
 	$("#tab1_content").removeClass("hide");
+	
+	gf_clickedCVbehavior();
 
 	$('#graph_bv_outer').scrollTo({
 		left : '50%',

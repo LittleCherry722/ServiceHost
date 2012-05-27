@@ -14,9 +14,6 @@
 /**
  * graph file for behavior view
  */
-var gv_bv_canvas	= null;
-var gv_bv_ctx		= null;
-var gv_bv_clickPos	= {x: 0, y: 0};
 var gv_bv_objects	= new Array();
 var gv_bv_lines		= new Array();
 
@@ -126,12 +123,14 @@ function gf_bv_addEdge (gt_bv_subject, gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_t
 /*
  * main function for drawing the graph
  */
-function gf_bv_drawGraph (gt_bv_canvasElem, gt_bv_subject)
+function gf_bv_drawGraph (gt_bv_subject)
 {
 	if (gf_isset(gv_bv_graphs[gt_bv_subject]))
 	{
-		// init the canvas element
-		gf_bv_init(gt_bv_canvasElem);
+		
+		// init the paper
+		gv_paper = gv_bv_paper;
+		gf_initPaper();
 		
 		// clear arrays
 		gv_bv_objects 		= new Array();
@@ -152,7 +151,7 @@ function gf_bv_drawGraph (gt_bv_canvasElem, gt_bv_subject)
 		var gt_bv_distanceX = gv_bv_nodeSettings.distanceX;
 		var gt_bv_distanceY = gv_bv_nodeSettings.distanceY;
 		
-		var gt_bv_x = (gv_bv_canvas.width - gt_bv_startNodes*gt_bv_distanceX)/2 + gv_bv_nodeSettings.startX;
+		var gt_bv_x = Math.round(gv_paperSizes.bv_width/2) + gv_bv_nodeSettings.startX;
 		var gt_bv_y = gv_bv_nodeSettings.startY;
 		
 		var gt_bv_mostLeft	= gt_bv_x;
@@ -175,6 +174,7 @@ function gf_bv_drawGraph (gt_bv_canvasElem, gt_bv_subject)
 
 		// 2 set nodes connected by edges (starting with the start nodes)
 		var gt_bv_rescueCount = 10000;
+		// var gt_bv_rescueCount = 10;
 		while (gt_bv_nodeSet.count > 0 && gt_bv_rescueCount > 0)
 		{
 			for (var gt_bv_node in gt_bv_nodeSet.nodes)
@@ -347,114 +347,6 @@ function gf_bv_editObjectPort (gt_bv_id, gt_bv_port, gt_bv_flag)
 }
 
 /*
- * initializes a new graph
- */
-function gf_bv_init (gt_bv_canvasElem)
-{		
-	if (gf_elementExists(gt_bv_canvasElem))
-	{
-		// initialize canvas
-		gv_bv_canvas	= document.getElementById(gt_bv_canvasElem);
-		gv_bv_ctx		= gv_bv_canvas.getContext("2d");
-		
-		gv_bv_ctx.clearRect(0, 0, gv_bv_canvas.width, gv_bv_canvas.height);
-		
-		if (gv_bv_canvas.addEventListener)
-		{
-			gv_bv_canvas.addEventListener("click", gf_bv_onClick, false);
-		}
-		else if (document.attachEvent)
-		{
-			gv_bv_canvas.attachEvent("onclick", gf_bv_onClick);
-		}
-	}
-}
-
-/*
- * reads a click event
- */
-function gf_bv_onClick (gt_bv_event)
-{
-	// retrieve the mouse's click position
-	gf_getClickPosition(gt_bv_event, gv_bv_canvas, gv_bv_clickPos);
-
-	// add canvas's offset to the click positon
-	gv_bv_clickPos.x += document.getElementById(gv_elements.graphBVouter).scrollLeft;
-	gv_bv_clickPos.y += document.getElementById(gv_elements.graphBVouter).scrollTop;
-	
-	// cycle through all nodes and edges to check which node / edge has been clicked
-	for (var gt_bv_clickId in gv_bv_clicks)
-	{
-		var gt_bv_click = gv_bv_clicks[gt_bv_clickId];
-		
-		if (	gv_bv_clickPos.x >= gt_bv_click.l &&
-				gv_bv_clickPos.x <= gt_bv_click.r &&
-				gv_bv_clickPos.y >= gt_bv_click.t &&
-				gv_bv_clickPos.y <= gt_bv_click.b)
-		{
-			// check if a node or edge has been clicked and call the corresponding function at the API
-			if (gt_bv_click.type == "n")
-			{
-				gf_clickedBVnode(gt_bv_click.id);
-			}
-			else if (gt_bv_click.type == "e")
-			{
-				gf_clickedBVedge(gt_bv_click.id);
-			}
-			break;
-		}
-	}
-}
-
-/*
- * store the click-area of any node or edge
- */
-function gf_bv_storeClick (gt_bv_id, gt_bv_type, gt_bv_l, gt_bv_t, gt_bv_r, gt_bv_b)
-{
-	gv_bv_clicks[gv_bv_clicks.length] = {
-			id:		gt_bv_id,
-			type:	gt_bv_type,
-			l:		gt_bv_l,
-			t:		gt_bv_t,
-			r:		gt_bv_r,
-			b:		gt_bv_b
-	};
-}
-
-/*
- * stores an object
- */
-function gf_bv_storeObject (gt_bv_id, gt_bv_x, gt_bv_y, gt_bv_width, gt_bv_height, gt_bv_stroke)
-{		
-		
-	// x: x, y: y, w: width, h: height, l: left, r: right, t: top, b: bottom, s: stroke
-	gt_bv_width		+= gt_bv_stroke;
-	gt_bv_height	+= gt_bv_stroke;
-	gt_bv_width		 = Math.round(gt_bv_width/2);
-	gt_bv_height	 = Math.round(gt_bv_height/2);
-	
-	gt_bv_l		= gt_bv_x - gt_bv_width;
-	gt_bv_t		= gt_bv_y - gt_bv_height;
-	gt_bv_r		= gt_bv_x + gt_bv_width;
-	gt_bv_b		= gt_bv_y + gt_bv_height;
-	
-	gv_bv_objects[gt_bv_id] = {
-			id: gt_bv_id,
-			 x: gt_bv_x,
-			 y: gt_bv_y,
-			 w: gt_bv_width,
-			 h: gt_bv_height,
-			 l: gt_bv_l,
-			 r: gt_bv_r,
-			 t: gt_bv_t,
-			 b: gt_bv_b,
-			 s: gt_bv_stroke
-	};
-	
-	gf_bv_storeClick(gt_bv_id, "n", gt_bv_l, gt_bv_t, gt_bv_r, gt_bv_b);
-}
-
-/*
  * DRAWING FUNCTIONS
  */
 
@@ -463,13 +355,6 @@ function gf_bv_storeObject (gt_bv_id, gt_bv_x, gt_bv_y, gt_bv_width, gt_bv_heigh
  */
 function gf_bv_drawNode (gt_bv_posx, gt_bv_posy, gt_bv_id, gt_bv_text, gt_bv_type, gt_bv_selected)
 {
-	
-	if (!gf_isset(gt_bv_selected) || gt_bv_selected != true)
-		gt_bv_selected = false;
-	
-	var gt_bv_object	= {width: 0, height: 0, stroke: 0};
-	var gt_bv_style		= {};
-	
 	if (!gf_isset(gt_bv_type))
 		gt_bv_type = "normal";
 
@@ -478,7 +363,9 @@ function gf_bv_drawNode (gt_bv_posx, gt_bv_posy, gt_bv_id, gt_bv_text, gt_bv_typ
 	
 	if (gt_bv_text == "")
 		gt_bv_type = "end";
-	
+		
+	var gt_bv_shape = "rectangle";
+		
 	if (gf_isset(gt_bv_posx, gt_bv_posy, gt_bv_id))
 	{
 		// if the node is an end, receive or send node -> draw a circle
@@ -498,7 +385,7 @@ function gf_bv_drawNode (gt_bv_posx, gt_bv_posy, gt_bv_id, gt_bv_text, gt_bv_typ
 				gt_bv_style = gv_bv_circleNode.style;
 			}
 			
-			gt_bv_object = gf_bv_drawCircle(gt_bv_posx, gt_bv_posy, gt_bv_text, gt_bv_style, gt_bv_selected);
+			gt_bv_shape	= "circle";
 		}
 		
 		// if the node is an internal action -> draw a rectangle
@@ -513,71 +400,23 @@ function gf_bv_drawNode (gt_bv_posx, gt_bv_posy, gt_bv_id, gt_bv_text, gt_bv_typ
 				gt_bv_style = gv_bv_rectNode.style;
 			}
 			
-			gt_bv_object = gf_drawLabel(gv_bv_ctx, gt_bv_posx, gt_bv_posy, gt_bv_text, gt_bv_style, gt_bv_selected);
+			gt_bv_shape	= "roundedrectangle";
 		}
-		
-		gf_bv_storeObject(gt_bv_id, gt_bv_posx, gt_bv_posy, gt_bv_object.width, gt_bv_object.height, gt_bv_object.stroke);
 	}
-}
-
-/*
- * draws a circle (end / receive / send)
- */
-function gf_bv_drawCircle (gt_bv_posx, gt_bv_posy, gt_bv_text, gt_bv_style, gt_bv_selected)
-{
-	if (!gf_isset(gt_bv_style))
-		gt_bv_style = gv_defaultStyle;
+		
+	var gt_bv_rect	= new GFlabel(gt_bv_posx, gt_bv_posy, gt_bv_text, gt_bv_shape, gt_bv_id);
 	
-	if (!gf_isset(gt_bv_selected) || gt_bv_selected != true)
-		gt_bv_selected = false;
+	if (gf_isset(gt_bv_selected) && gt_bv_selected === true)
+		gt_bv_rect.select();
+		
+	gt_bv_rect.setStyle(gt_bv_style);
+	gt_bv_rect.click("bv");
 	
-	if (gf_isset(gt_bv_posx, gt_bv_posy, gt_bv_text))
-	{	
-		// read relevant style information
-		var gt_bv_font			= gf_getStyleValue(gt_bv_style, "font");
-		var gt_bv_fontSize		= gf_getStyleValue(gt_bv_style, "fontSize");
-		var gt_bv_paddingTop	= gf_getStyleValue(gt_bv_style, "paddingTop");
-		var gt_bv_paddingBottom	= gf_getStyleValue(gt_bv_style, "paddingBottom");
-				
-		var gt_bv_bgColor		= gf_getStyleValue(gt_bv_style, "bgColor");
-		var gt_bv_fgColor		= gf_getStyleValue(gt_bv_style, "fgColor");
-		var gt_bv_borderColor	= gt_bv_selected ? gf_getStyleValue(gt_bv_style, "borderColorSelected") : gf_getStyleValue(gt_bv_style, "borderColor");
-		var gt_bv_borderWidth	= gf_getStyleValue(gt_bv_style, "borderWidth");
-		
-		var gt_bv_height	= gt_bv_fontSize + gt_bv_paddingTop + gt_bv_paddingBottom;
-		var gt_bv_width		= gt_bv_height;
-
-		gv_bv_ctx.font			= gt_bv_fontSize + "px " + gt_bv_font;
-		gv_bv_ctx.textBaseline	= "middle";
-		gv_bv_ctx.textAlign		= "center";
-		
-		gv_bv_ctx.beginPath();
-		gv_bv_ctx.arc(gt_bv_posx, gt_bv_posy, gt_bv_height / 2, 0, 2 * Math.PI, true);
-		gv_bv_ctx.closePath();
-		
-		if (gt_bv_borderColor !== false && gt_bv_borderWidth > 0)
-		{
-			gv_bv_ctx.lineWidth		= gt_bv_borderWidth;
-			gv_bv_ctx.strokeStyle	= gt_bv_borderColor;
-			gv_bv_ctx.stroke();
-		}
-		
-		if (gt_bv_bgColor !== false)
-		{
-			gv_bv_ctx.fillStyle	= gt_bv_bgColor;
-			gv_bv_ctx.fill();
-		}
-		
-		if (gt_bv_fgColor !== false && gt_bv_text != "")
-		{
-			gv_bv_ctx.fillStyle	= gt_bv_fgColor;
-			gv_bv_ctx.fillText(gt_bv_text, gt_bv_posx, gt_bv_posy + 1);
-		}
-
-		return {width: gt_bv_width, height: gt_bv_height, stroke: gt_bv_borderWidth};
-	}
+	// TODO: remove random and use some real function to determine whether a node is deactivated or not
+	// var num = Math.random();
+	// if (num < 0.5)
+	// gt_bv_rect.deactivate();	
 	
-	return {width: 0, height: 0, stroke: 0};
 }
 
 /*
@@ -585,27 +424,12 @@ function gf_bv_drawCircle (gt_bv_posx, gt_bv_posy, gt_bv_text, gt_bv_style, gt_b
  */
 function gf_bv_drawArrow (gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_text, gt_bv_selected)
 {
-	if (!gf_isset(gv_bv_objects[gt_bv_start], gv_bv_objects[gt_bv_end], gt_bv_text))
-		return false;
-	
-	if (!gf_isset(gt_bv_selected) || gt_bv_selected != true)
-		gt_bv_selected = false;
-	
-	
-	var gt_bv_objStart	= gv_bv_objects[gt_bv_start];
-	var gt_bv_objEnd	= gv_bv_objects[gt_bv_end];
-	
-	var gt_bv_styleArrow	= gf_isset(gv_bv_arrow.styleArrow)	? gv_bv_arrow.styleArrow	: gv_defaultStyle;
-	var gt_bv_styleText		= gf_isset(gv_bv_arrow.styleText)	? gv_bv_arrow.styleText		: gv_defaultStyle;
+	if (!gf_isset(gv_objects_nodes[gt_bv_start], gv_objects_nodes[gt_bv_end], gt_bv_text))
+		return false;		
 		
-	var gt_bv_arrowWidth	= gf_getStyleValue(gt_bv_styleArrow, "borderWidth");
-	var gt_bv_arrowColor	= gt_bv_selected ? gf_getStyleValue(gt_bv_styleArrow, "borderColorSelected") : gf_getStyleValue(gt_bv_styleArrow, "borderColor");
-		
-	if (gt_bv_text == "timeout")
-		gt_bv_arrowWidth *= 2;
+	var gt_bv_objStart	= gv_objects_nodes[gt_bv_start].getBoundaries();
+	var gt_bv_objEnd	= gv_objects_nodes[gt_bv_end].getBoundaries();
 	
-	var gt_bv_arrowSpace	= gv_arrowHead.length + 10;
-		
 	var gt_bv_firstLine			= "v";
 	var gt_bv_endLine			= "v";
 	var gt_bv_startx			= 0;
@@ -623,16 +447,17 @@ function gf_bv_drawArrow (gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_text, gt_bv_se
 	
 	var gt_bv_o	= "";
 	var gt_bv_i	= "";
-		
-	var gt_bv_labelCenter	= {x: 0, y: 0};
-
+	
 	var gt_bv_space1	= 0;
 	var gt_bv_space2	= 0;
 	var gt_bv_minLength	= 999999999;
 	var gt_bv_shape		= "I";
 	
-	gt_bv_headCorrection = 0;
+	var mapPorts		= {t: "top", b: "bottom", r: "right", l: "left"};
 	
+	var gt_bv_edge	= new GFpath(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_shape, gt_bv_text, gt_bv_id);
+		gt_bv_edge.hide();
+		
 	// cycle through all port combinations at startObject and endObject to determine the shape of the arrow and the ports to use
 	for (var gt_bv_out in gv_bv_ports)
 	{
@@ -644,19 +469,58 @@ function gf_bv_drawArrow (gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_text, gt_bv_se
 				gt_bv_o	= gt_bv_out;
 				gt_bv_i	= gt_bv_in;
 				
-				gt_bv_startx	= gt_bv_o == "l" || gt_bv_o == "r" ? gt_bv_objStart[gt_bv_o]	: gt_bv_objStart.x;
-				gt_bv_starty	= gt_bv_o == "t" || gt_bv_o == "b" ? gt_bv_objStart[gt_bv_o]	: gt_bv_objStart.y;
-				gt_bv_endx		= gt_bv_i == "l" || gt_bv_i == "r" ? gt_bv_objEnd[gt_bv_i]		: gt_bv_objEnd.x;
-				gt_bv_endy		= gt_bv_i == "t" || gt_bv_i == "b" ? gt_bv_objEnd[gt_bv_i]		: gt_bv_objEnd.y;
+				gt_bv_startx	= gt_bv_o == "l" || gt_bv_o == "r" ? gt_bv_objStart[mapPorts[gt_bv_o]]	: gt_bv_objStart.x;
+				gt_bv_starty	= gt_bv_o == "t" || gt_bv_o == "b" ? gt_bv_objStart[mapPorts[gt_bv_o]]	: gt_bv_objStart.y;
+				gt_bv_endx		= gt_bv_i == "l" || gt_bv_i == "r" ? gt_bv_objEnd[mapPorts[gt_bv_i]]	: gt_bv_objEnd.x;
+				gt_bv_endy		= gt_bv_i == "t" || gt_bv_i == "b" ? gt_bv_objEnd[mapPorts[gt_bv_i]]	: gt_bv_objEnd.y;
 				
 				// calculate the arrow shape that fits best for this port combination
 				var gt_bv_arrowShape	= gf_bv_getArrowShape(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_o, gt_bv_i);
 				
 				var gt_bv_setAsMin	= false;
 				
+				// correction to avoid intersection problems
+				var gt_bv_x1	= gt_bv_startx;
+				var gt_bv_y1	= gt_bv_starty;
+				var gt_bv_x2	= gt_bv_endx;
+				var gt_bv_y2	= gt_bv_endy;
+				
+				if (gt_bv_o == "l")
+					gt_bv_x1 -= 5;
+					
+				if (gt_bv_o == "r")
+					gt_bv_x1 += 5;
+					
+				if (gt_bv_o == "t")
+					gt_bv_y1 -= 5;
+					
+				if (gt_bv_o == "b")
+					gt_bv_y1 += 5;
+				
+				if (gt_bv_i == "l")
+					gt_bv_x2 -= 5;
+					
+				if (gt_bv_i == "r")
+					gt_bv_x2 += 5;
+					
+				if (gt_bv_i == "t")
+					gt_bv_y2 -= 5;
+					
+				if (gt_bv_i == "b")
+					gt_bv_y2 += 5;
+				
+				// update edge
+				gt_bv_edge.setPositionStart(gt_bv_x1, gt_bv_y1);
+				gt_bv_edge.setPositionEnd(gt_bv_x2, gt_bv_y2);
+				gt_bv_edge.setFirstLine(gt_bv_arrowShape.firstLine);
+				gt_bv_edge.setSpace1(gt_bv_arrowShape.space1);
+				gt_bv_edge.setSpace2(gt_bv_arrowShape.space2);
+				gt_bv_edge.setShape(gt_bv_arrowShape.shape);
+				
 				// check if the new arrow would fit better than the currently best
-				if (!gt_bv_arrowShape.intersects)
+				if (!gt_bv_edge.checkIntersection())
 				{
+					
 					if (gt_bv_arrowShape.shape == "L" && gt_bv_o == "b")
 						gt_bv_arrowShape.length += gv_bv_nodeSettings.arrowSpace;
 					
@@ -714,107 +578,25 @@ function gf_bv_drawArrow (gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_text, gt_bv_se
 	gt_bv_firstLine	= gt_bv_posStart == "l" || gt_bv_posStart == "r" 	? "h" : "v";
 	gt_bv_endLine	= gt_bv_posEnd == "l" 	|| gt_bv_posEnd == "r" 		? "h" : "v";
 	
-	gt_bv_startx	= gt_bv_firstLine == "h"	? gt_bv_objStart[gt_bv_posStart]	: gt_bv_objStart.x;
-	gt_bv_starty	= gt_bv_firstLine == "v"	? gt_bv_objStart[gt_bv_posStart]	: gt_bv_objStart.y;
-	gt_bv_endx		= gt_bv_endLine == "h"		? gt_bv_objEnd[gt_bv_posEnd]		: gt_bv_objEnd.x;
-	gt_bv_endy		= gt_bv_endLine == "v"		? gt_bv_objEnd[gt_bv_posEnd]		: gt_bv_objEnd.y;
+	gt_bv_startx	= gt_bv_firstLine == "h"	? gt_bv_objStart[mapPorts[gt_bv_posStart]]	: gt_bv_objStart.x;
+	gt_bv_starty	= gt_bv_firstLine == "v"	? gt_bv_objStart[mapPorts[gt_bv_posStart]]	: gt_bv_objStart.y;
+	gt_bv_endx		= gt_bv_endLine == "h"		? gt_bv_objEnd[mapPorts[gt_bv_posEnd]]		: gt_bv_objEnd.x;
+	gt_bv_endy		= gt_bv_endLine == "v"		? gt_bv_objEnd[mapPorts[gt_bv_posEnd]]		: gt_bv_objEnd.y;
 	
-	// reduce arrow length to give the arrow head enough space
-	if (gt_bv_posEnd == "t")
-		gt_bv_endy	-= 0.75 * gv_arrowHead.length;
-
-	if (gt_bv_posEnd == "b")
-		gt_bv_endy	+= 0.75 * gv_arrowHead.length;
-
-	if (gt_bv_posEnd == "l")
-		gt_bv_endx	-= 0.75 * gv_arrowHead.length;
-
-	if (gt_bv_posEnd == "r")
-		gt_bv_endx	+= 0.75 * gv_arrowHead.length;
+	gt_bv_edge.setPositionStart(gt_bv_startx, gt_bv_starty);
+	gt_bv_edge.setPositionEnd(gt_bv_endx, gt_bv_endy);
 	
-	// change arrow start to correct width of arrow (only necessary in Firefox on Linux)
-	if (	navigator.appCodeName == "Mozilla" && navigator.appVersion.substr(0,3) == "5.0" &&
-			navigator.platform.substr(0,5) == "Linux" && navigator.userAgent.indexOf("Firefox") > 0)
-	{
-		if (gt_bv_posEnd == "t")
-			gt_bv_endy	-= 0.5 * gt_bv_arrowWidth;
+	gt_bv_edge.setFirstLine(gt_bv_firstLine);
+	gt_bv_edge.setSpace1(gt_bv_space1);
+	gt_bv_edge.setSpace2(gt_bv_space2);
+	gt_bv_edge.setShape(gt_bv_shape);
+	// gt_bv_edge.updatePath();
+	gt_bv_edge.setStyle(gv_bv_arrow.style);
+	gt_bv_edge.show();
+	gt_bv_edge.click();
 	
-		if (gt_bv_posEnd == "b")
-			gt_bv_endy	+= 0.5 * gt_bv_arrowWidth;
-	
-		if (gt_bv_posEnd == "l")
-			gt_bv_endx	-= 0.5 * gt_bv_arrowWidth;
-	
-		if (gt_bv_posEnd == "r")
-			gt_bv_endx	+= 0.5 * gt_bv_arrowWidth;
-			
-		if (gt_bv_posStart == "t")
-			gt_bv_starty	-= 0.5 * gt_bv_arrowWidth;
-	
-		if (gt_bv_posStart == "b")
-			gt_bv_starty	+= 0.5 * gt_bv_arrowWidth;
-	
-		if (gt_bv_posStart == "l")
-			gt_bv_startx	-= 0.5 * gt_bv_arrowWidth;
-	
-		if (gt_bv_posStart == "r")
-			gt_bv_startx	+= 0.5 * gt_bv_arrowWidth;
-	}
-	
-	// draw the arrow
-	if (gt_bv_shape == "I")
-	{
-		gt_bv_labelCenter	= gf_drawArrowI(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth);
-	}
-	else if (gt_bv_shape == "L")
-	{
-		gt_bv_labelCenter	= gf_drawArrowL(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth, gt_bv_firstLine);
-	}
-	else if (gt_bv_shape == "Z")
-	{
-		gt_bv_labelCenter	= gf_drawArrowZ(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth, gt_bv_firstLine);
-	}
-	else if (gt_bv_shape == "U")
-	{
-		gt_bv_labelCenter	= gf_drawArrowU(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth, gt_bv_firstLine, gt_bv_space1);
-	}
-	else if (gt_bv_shape == "G")
-	{
-		gt_bv_labelCenter	= gf_drawArrowG(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth, gt_bv_firstLine, gt_bv_space1, gt_bv_space2);
-	}
-	else if (gt_bv_shape == "C")
-	{
-		gt_bv_labelCenter	= gf_drawArrowC(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth, gt_bv_firstLine, gt_bv_space1, gt_bv_space2);
-	}
-	else if (gt_bv_shape == "S")
-	{
-		gt_bv_labelCenter	= gf_drawArrowS(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth, gt_bv_firstLine, gt_bv_space1);
-	}
-	else if (gt_bv_shape == "UI")
-	{
-		gt_bv_labelCenter	= gf_drawArrowUI(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth, gt_bv_firstLine, gt_bv_space1, gt_bv_space2);
-	}
-	else if (gt_bv_shape == "ZU")
-	{
-		gt_bv_labelCenter	= gf_drawArrowZU(gv_bv_ctx, "bv", gt_bv_id, gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_arrowColor, gt_bv_arrowWidth, gt_bv_firstLine, gt_bv_space1, gt_bv_space2);
-	}
-	
-	// draw the arrow head
-	gf_drawArrowHead(gv_bv_ctx, gt_bv_objEnd, gt_bv_posEnd, gt_bv_arrowColor, gt_bv_headCorrection);
-	
-	// draw the arrow's label
-	if (gt_bv_text != "")
-	{
-		var gt_bv_clickLabel = gf_drawLabel(gv_bv_ctx, gt_bv_labelCenter.x, gt_bv_labelCenter.y, gt_bv_text, gt_bv_styleText);
-		
-		var gt_bv_clickL	= gt_bv_clickLabel.left - gt_bv_clickLabel.stroke/2;
-		var gt_bv_clickT	= gt_bv_clickLabel.top - gt_bv_clickLabel.stroke/2;
-		var gt_bv_clickR	= gt_bv_clickLabel.left + gt_bv_clickLabel.width + gt_bv_clickLabel.stroke/2;
-		var gt_bv_clickB	= gt_bv_clickLabel.top + gt_bv_clickLabel.height + gt_bv_clickLabel.stroke/2;
-		
-		gf_bv_storeClick(gt_bv_id, "e", gt_bv_clickL, gt_bv_clickT, gt_bv_clickR, gt_bv_clickB);
-		gf_bv_storeLineObject(gt_bv_clickL, gt_bv_clickT, gt_bv_clickR, gt_bv_clickB);
-	}
+	if (gf_isset(gt_bv_selected) && gt_bv_selected === true)
+		gt_bv_edge.select();
 }
 
 /*
@@ -835,8 +617,8 @@ function gf_bv_getArrowShape (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy
 	
 	// gv_bv_nodeSettings.distanceX | gv_bv_nodeSettings.distanceY; gv_bv_nodeSettings.arrowSpace
 	
-	var gt_bv_diffXreal	= gt_bv_startx - gt_bv_endx;
-	var gt_bv_diffYreal	= gt_bv_starty - gt_bv_endy;
+	var gt_bv_diffXreal	= Math.round(gt_bv_startx) - Math.round(gt_bv_endx);
+	var gt_bv_diffYreal	= Math.round(gt_bv_starty) - Math.round(gt_bv_endy);
 	var gt_bv_diffX		= Math.abs(gt_bv_diffXreal);
 	var gt_bv_diffY		= Math.abs(gt_bv_diffYreal);
 	
@@ -852,12 +634,10 @@ function gf_bv_getArrowShape (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy
 			gt_bv_shape 		= "ZU";
 			gt_bv_space2		= gt_bv_startPos == "l" || gt_bv_startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
 			gt_bv_length		+= 2 * gv_bv_nodeSettings.arrowSpace;
-			gt_bv_intersects	= gf_bv_intersectsZU(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1, gt_bv_space2);
 		}
 		else
 		{
 			gt_bv_shape			= "U";
-			gt_bv_intersects	= gf_bv_intersectsU(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1);
 		}
 	}
 	
@@ -877,7 +657,6 @@ function gf_bv_getArrowShape (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy
 			if (gt_bv_diffX == 0 || gt_bv_diffY == 0)
 			{
 				gt_bv_shape			= "I";
-				gt_bv_intersects	= gf_bv_intersectsI(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy);
 			}
 			else
 			{
@@ -886,12 +665,10 @@ function gf_bv_getArrowShape (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy
 					gt_bv_shape			= "S";
 					gt_bv_length		+= 4 * gv_bv_nodeSettings.arrowSpace;
 					gt_bv_space1		= gt_bv_startPos == "l" || gt_bv_startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
-					gt_bv_intersects	= gf_bv_intersectsS(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1);
 				}
 				else
 				{
 					gt_bv_shape			= "Z";
-					gt_bv_intersects	= gf_bv_intersectsZ(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine);
 				}
 			}
 		}
@@ -900,7 +677,6 @@ function gf_bv_getArrowShape (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy
 			gt_bv_shape			= "C";
 			gt_bv_length		+= 6 * gv_bv_nodeSettings.arrowSpace;
 			gt_bv_space2		= gt_bv_startPos == "l" || gt_bv_startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
-			gt_bv_intersects	= gf_bv_intersectsC(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1, gt_bv_space2);
 		}
 	}
 	else
@@ -917,12 +693,10 @@ function gf_bv_getArrowShape (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy
 				gt_bv_shape			= "UI";
 				gt_bv_length		+= 2 * gv_bv_nodeSettings.arrowSpace;
 				gt_bv_space1		= gt_bv_startPos == "l" || gt_bv_startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
-				gt_bv_intersects	= gf_bv_intersectsUI(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1, gt_bv_space2);
 			}
 			else
 			{
 				gt_bv_shape			= "L";
-				gt_bv_intersects	= gf_bv_intersectsL(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine);
 			}
 		}
 		else
@@ -931,373 +705,8 @@ function gf_bv_getArrowShape (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy
 			gt_bv_length		+= 4 * gv_bv_nodeSettings.arrowSpace;
 			gt_bv_space1		= gt_bv_startPos == "l" || gt_bv_startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
 			gt_bv_space2		= gt_bv_startPos == "l" || gt_bv_startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
-			gt_bv_intersects	= gf_bv_intersectsG(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1, gt_bv_space2);
 		}
 	}
 	
-	return {shape: gt_bv_shape, length: gt_bv_length, space1: gt_bv_space1, space2: gt_bv_space2, intersects: gt_bv_intersects};
-}
-
-/*
- * INTERSECTIONS
- */
-
-/*
- * stores a line to be checked for intersections
- */
-function gf_bv_storeLine (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy)
-{	
-	gv_bv_lines[gv_bv_lines.length] = {	start:	{x: gt_bv_startx,	y: gt_bv_starty},
-										end:	{x: gt_bv_endx,		y: gt_bv_endy}};
-}
-
-/*
- * stores an object to be checked for intersections
- */
-function gf_bv_storeLineObject (gt_bv_l, gt_bv_t, gt_bv_r, gt_bv_b)
-{
-	gf_bv_storeLine(gt_bv_l, gt_bv_t, gt_bv_r, gt_bv_t);
-	gf_bv_storeLine(gt_bv_r, gt_bv_t, gt_bv_r, gt_bv_b);
-	gf_bv_storeLine(gt_bv_l, gt_bv_b, gt_bv_r, gt_bv_b);
-	gf_bv_storeLine(gt_bv_l, gt_bv_t, gt_bv_l, gt_bv_b);
-}
-
-/*
- * checks intersections
- */
-function gf_bv_intersects (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy)
-{
-	var gt_bv_intersects	= false;
-	var gt_bv_pointStart	= {x: gt_bv_startx,		y: gt_bv_starty};
-	var gt_bv_pointEnd		= {x: gt_bv_endx,		y: gt_bv_endy};
-	
-	for (var gt_bv_id in gv_bv_lines)
-	{
-		gt_bv_intersects		= gf_bv_intersectLineSegments(gt_bv_pointStart, gt_bv_pointEnd, gv_bv_lines[gt_bv_id].start, gv_bv_lines[gt_bv_id].end);
-		if (gt_bv_intersects)
-		{
-			return true;
-		}
-	}
-	
-	for (var gt_bv_id in gv_bv_objects)
-	{
-		var gt_bv_object = gv_bv_objects[gt_bv_id];
-		
-		gt_bv_intersects		= gt_bv_intersects || gf_bv_intersectLineSegments(gt_bv_pointStart, gt_bv_pointEnd, {x: gt_bv_object.l, y: gt_bv_object.t}, {x: gt_bv_object.r, y: gt_bv_object.t});
-		gt_bv_intersects		= gt_bv_intersects || gf_bv_intersectLineSegments(gt_bv_pointStart, gt_bv_pointEnd, {x: gt_bv_object.r, y: gt_bv_object.t}, {x: gt_bv_object.r, y: gt_bv_object.b});
-		gt_bv_intersects		= gt_bv_intersects || gf_bv_intersectLineSegments(gt_bv_pointStart, gt_bv_pointEnd, {x: gt_bv_object.l, y: gt_bv_object.b}, {x: gt_bv_object.r, y: gt_bv_object.b});
-		gt_bv_intersects		= gt_bv_intersects || gf_bv_intersectLineSegments(gt_bv_pointStart, gt_bv_pointEnd, {x: gt_bv_object.r, y: gt_bv_object.b}, {x: gt_bv_object.l, y: gt_bv_object.b});
-		
-		if (gt_bv_intersects)
-		{
-			return true;
-		}
-	}
-	
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections for an I shaped arrow
- */
-function gf_bv_intersectsI (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy)
-{
-	return gf_bv_intersects(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy);
-}
-
-/*
- * checks intersections for an L shaped arrow
- */
-function gf_bv_intersectsL (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine)
-{
-	var gt_bv_intersects	= false;
-	
-	var gt_bv_x2	= gt_bv_firstLine == "v" ? gt_bv_startx : gt_bv_endx;
-	var gt_bv_y2	= gt_bv_firstLine == "h" ? gt_bv_starty : gt_bv_endy;
-	
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsI(gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2);
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsI(gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy);
-	
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections for a Z shaped arrow
- */
-function gf_bv_intersectsZ (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine)
-{
-	var gt_bv_intersects	= false;
-	
-	var gt_bv_x2	= (gt_bv_startx + gt_bv_endx) / 2;
-	var gt_bv_y2	= (gt_bv_starty + gt_bv_endy) / 2;
-	
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsL (gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2, gt_bv_firstLine);
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsL (gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy, gt_bv_firstLine == "h" ? "v" : "h");
-
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections for an U shaped arrow
- */
-function gf_bv_intersectsU (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space)
-{
-	var gt_bv_intersects	= false;
-	
-	var gt_bv_x1 = gt_bv_space < 0 ? Math.min(gt_bv_startx, gt_bv_endx) : Math.max(gt_bv_startx, gt_bv_endx);
-	var gt_bv_y1 = gt_bv_space < 0 ? Math.min(gt_bv_starty, gt_bv_endy) : Math.max(gt_bv_starty, gt_bv_endy);
-	
-	var gt_bv_x2 = gt_bv_firstLine == "h" ? gt_bv_x1 + gt_bv_space : (gt_bv_startx + gt_bv_endx) / 2;
-	var gt_bv_y2 = gt_bv_firstLine == "v" ? gt_bv_y1 + gt_bv_space : (gt_bv_starty + gt_bv_endy) / 2;
-	
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsL (gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2, gt_bv_firstLine);
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsL (gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy, gt_bv_firstLine == "h" ? "v" : "h");
-
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections for a G shaped arrow
- */
-function gf_bv_intersectsG (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1, gt_bv_space2)
-{	
-	var gt_bv_intersects	= false;
-		
-	// firstLine: v => space1: u | d ; space2: l | r
-	// firstLine: h => space1: l | r ; space2: u | d
-	
-	var gt_bv_x2 = 0;
-	var gt_bv_y2 = 0;
-	
-	if (gt_bv_firstLine == "v")
-	{
-		if (gt_bv_startx < gt_bv_endx && gt_bv_starty < gt_bv_endy && gt_bv_space1 > 0 && gt_bv_space2 < 0) gt_bv_space2 *= -1;
-		if (gt_bv_startx > gt_bv_endx && gt_bv_starty > gt_bv_endy && gt_bv_space1 < 0 && gt_bv_space2 > 0) gt_bv_space2 *= -1;
-		if (gt_bv_startx > gt_bv_endx && gt_bv_starty < gt_bv_endy && gt_bv_space1 > 0 && gt_bv_space2 > 0) gt_bv_space2 *= -1;
-		if (gt_bv_startx < gt_bv_endx && gt_bv_starty > gt_bv_endy && gt_bv_space1 < 0 && gt_bv_space2 < 0) gt_bv_space2 *= -1;
-		
-		gt_bv_x2 = gt_bv_space2 < 0 ? Math.min(gt_bv_startx, gt_bv_endx) + gt_bv_space2 : Math.max(gt_bv_startx, gt_bv_endx) + gt_bv_space2;
-		gt_bv_y2 = gt_bv_space1 < 0 ? Math.min(gt_bv_starty, gt_bv_endy) + gt_bv_space1 : Math.max(gt_bv_starty, gt_bv_endy) + gt_bv_space1;
-	}
-	else
-	{
-		if (gt_bv_startx < gt_bv_endx && gt_bv_starty < gt_bv_endy && gt_bv_space1 > 0 && gt_bv_space2 < 0) gt_bv_space2 *= -1;
-		if (gt_bv_startx > gt_bv_endx && gt_bv_starty > gt_bv_endy && gt_bv_space1 < 0 && gt_bv_space2 > 0) gt_bv_space2 *= -1;
-		if (gt_bv_startx > gt_bv_endx && gt_bv_starty < gt_bv_endy && gt_bv_space1 < 0 && gt_bv_space2 < 0) gt_bv_space2 *= -1;
-		if (gt_bv_startx < gt_bv_endx && gt_bv_starty > gt_bv_endy && gt_bv_space1 > 0 && gt_bv_space2 > 0) gt_bv_space2 *= -1;
-		
-		gt_bv_x2 = gt_bv_space1 < 0 ? Math.min(gt_bv_startx, gt_bv_endx) + gt_bv_space1 : Math.max(gt_bv_startx, gt_bv_endx) + gt_bv_space1;
-		gt_bv_y2 = gt_bv_space2 < 0 ? Math.min(gt_bv_starty, gt_bv_endy) + gt_bv_space2 : Math.max(gt_bv_starty, gt_bv_endy) + gt_bv_space2;
-	}
-	
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsL (gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2, gt_bv_firstLine);
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsL (gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy, gt_bv_firstLine);
-
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections for a C shaped arrow
- */
-function gf_bv_intersectsC (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1, gt_bv_space2)
-{
-	var gt_bv_intersects	= false;
-	
-	var gt_bv_x2 = gt_bv_firstLine == "v" ? gt_bv_startx + gt_bv_space2 : (gt_bv_startx + gt_bv_endx) / 2;
-	var gt_bv_y2 = gt_bv_firstLine == "h" ? gt_bv_starty + gt_bv_space2 : (gt_bv_starty + gt_bv_endy) / 2;
-	
-	gt_bv_space1	= gt_bv_firstLine == "v" && gt_bv_starty < gt_bv_endy ? 0 - gt_bv_space1 : gt_bv_space1;
-	gt_bv_space1	= gt_bv_firstLine == "h" && gt_bv_startx < gt_bv_endx ? 0 - gt_bv_space1 : gt_bv_space1;
-	
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsU (gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2, gt_bv_firstLine, gt_bv_space1);
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsU (gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, 0-gt_bv_space1);
-
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections for an S shaped arrow
- */
-function gf_bv_intersectsS (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space)
-{
-	var gt_bv_intersects	= false;
-	
-	var gt_bv_x2 = (gt_bv_startx + gt_bv_endx) / 2;
-	var gt_bv_y2 = (gt_bv_starty + gt_bv_endy) / 2;
-	
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsU (gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2, gt_bv_firstLine, gt_bv_space);
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsU (gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, 0-gt_bv_space);
-
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections for an UI shaped arrow
- */
-function gf_bv_intersectsUI (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1, gt_bv_space2)
-{
-	var gt_bv_intersects	= false;
-		
-	var gt_bv_x2 = gt_bv_endx;
-	var gt_bv_y2 = gt_bv_endy;
-	
-	var gt_bv_labelCenter = {x: 0, y: 0};
-	
-	if (gt_bv_firstLine == "v")
-	{
-		if (gt_bv_startx > gt_bv_endx)
-			gt_bv_x2 += Math.abs(gt_bv_space2);
-		else
-			gt_bv_x2 -= Math.abs(gt_bv_space2);
-	}
-	else
-	{
-		if (gt_bv_starty > gt_bv_endy)
-			gt_bv_y2 += Math.abs(gt_bv_space2);
-		else
-			gt_bv_y2 -= Math.abs(gt_bv_space2);	
-	}
-
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsU (gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2, gt_bv_firstLine, gt_bv_space1);
-	gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsI (gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy);
-
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections for a ZU shaped arrow
- */
-function gf_bv_intersectsZU (gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1, gt_bv_space2)
-{
-	var gt_bv_intersects	= false;
-	
-	var gt_bv_x2 = gt_bv_firstLine == "h" ? (gt_bv_startx + gt_bv_endx) / 2 + gt_bv_space1 : gt_bv_startx;
-	var gt_bv_y2 = gt_bv_firstLine == "v" ? (gt_bv_starty + gt_bv_endy) / 2 + gt_bv_space1 : gt_bv_starty;
-
-	var gt_bv_firstZ = false;
-	
-	if (gt_bv_firstLine == "v")
-	{		
-		gt_bv_x2 = gt_bv_space2 > 0 ? Math.max(gt_bv_startx, gt_bv_endx) + gt_bv_space2 : Math.min(gt_bv_startx, gt_bv_endx) + gt_bv_space2;
-		
-		gt_bv_firstZ = (gt_bv_starty < gt_bv_endy && gt_bv_space1 > 0) || (gt_bv_starty > gt_bv_endy && gt_bv_space1 < 0);
-	}
-	else
-	{
-		gt_bv_y2 = gt_bv_space2 > 0 ? Math.max(gt_bv_starty, gt_bv_endy) + gt_bv_space2 : Math.min(gt_bv_starty, gt_bv_endy) + gt_bv_space2;
-		
-		gt_bv_firstZ = (gt_bv_startx < gt_bv_endx && gt_bv_space1 > 0) || (gt_bv_startx > gt_bv_endx && gt_bv_space1 < 0);
-	}
-	
-	if (gt_bv_firstZ)
-	{
-		gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsZ (gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2, gt_bv_firstLine);
-		gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsU (gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy, gt_bv_firstLine, gt_bv_space1);	
-	}
-	else
-	{
-		gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsU (gt_bv_startx, gt_bv_starty, gt_bv_x2, gt_bv_y2, gt_bv_firstLine, gt_bv_space1);
-		gt_bv_intersects = gt_bv_intersects || gf_bv_intersectsZ (gt_bv_x2, gt_bv_y2, gt_bv_endx, gt_bv_endy, gt_bv_firstLine);	
-	}
-
-	return gt_bv_intersects;
-}
-
-/*
- * checks intersections between two line segments
- */
-function gf_bv_intersectLineSegments (gt_bv_pointStart1, gt_bv_pointEnd1, gt_bv_pointStart2, gt_bv_pointEnd2)
-{
-	
-	var gt_bv_allowSame	= true;
-	
-	var gt_bv_intersection		= gf_bv_intersectionStraightLines(gt_bv_pointStart1, gt_bv_pointEnd1, gt_bv_pointStart2, gt_bv_pointEnd2);
-	var gt_bv_intersects		= !gt_bv_intersection.parallel && gt_bv_intersection.s < 1 && gt_bv_intersection.s > 0 && gt_bv_intersection.t < 1 && gt_bv_intersection.t > 0;
-	var gt_bv_isSame			= !gt_bv_allowSame && gt_bv_intersection.same;
-	
-	return gt_bv_isSame || gt_bv_intersects;
-}
-
-/*
- * checks intersections between two straights (two straights intersect if they are not parallel)
- */
-function gf_bv_intersectStraightLines (gt_bv_pointStart1, gt_bv_pointEnd1, gt_bv_pointStart2, gt_bv_pointEnd2)
-{
-	return !gf_bv_intersectionStraightLines(gt_bv_pointStart1, gt_bv_pointEnd1, gt_bv_pointStart2, gt_bv_pointEnd2).parallel;
-}
-
-/*
- * calculates intersections between two straights / "identity" for two line segments
- */
-function gf_bv_intersectionStraightLines (gt_bv_pointStart1, gt_bv_pointEnd1, gt_bv_pointStart2, gt_bv_pointEnd2)
-{
-
-	var gt_bv_s		= 0;
-	var gt_bv_t		= 0;
-	var gt_bv_parallel	= true;		// parallel lines
-	var gt_bv_same		= false;	// same line
-	
-	if (gf_objectHasAttribute([gt_bv_pointStart1, gt_bv_pointEnd1, gt_bv_pointStart2, gt_bv_pointEnd2], ["x", "y"]))
-	{
-		
-		var gt_bv_points = {1: gt_bv_pointStart1, 2: gt_bv_pointEnd1, 3: gt_bv_pointStart2, 4: gt_bv_pointEnd2};
-		
-		var gt_bv_p = new Array();
-		
-		var gt_bv_div = 1;
-		
-		for (var gt_bv_i in gt_bv_points)
-		{
-			for (var gt_bv_j in gt_bv_points)
-			{
-				// store x_{gt_i} * y_{gt_j}
-				gt_bv_p[gt_bv_i + "," + gt_bv_j] = gt_bv_points[gt_bv_i].x * gt_bv_points[gt_bv_j].y;
-			}
-		}
-		
-		gt_bv_div = gt_bv_p["2,4"] + gt_bv_p["1,3"] + gt_bv_p["4,1"] + gt_bv_p["3,2"] - gt_bv_p["1,4"] - gt_bv_p["2,3"] - gt_bv_p["4,2"] - gt_bv_p["3,1"];
-		
-		if (gt_bv_div != 0)
-		{
-			gt_bv_s = (gt_bv_p["4,1"] + gt_bv_p["3,4"] + gt_bv_p["1,3"] - gt_bv_p["4,3"] - gt_bv_p["1,4"] - gt_bv_p["3,1"]) / gt_bv_div;
-			gt_bv_t = (gt_bv_p["2,3"] + gt_bv_p["1,2"] + gt_bv_p["3,1"] - gt_bv_p["2,1"] - gt_bv_p["1,3"] - gt_bv_p["3,2"]) / (gt_bv_div * -1);
-			gt_bv_parallel = false;
-		}
-		else
-		{
-			// check if two parallel straights are the "same" (either start or end point of second straight is on straight 1)
-			var gt_bv_divX		= gt_bv_pointEnd1.x - gt_bv_pointStart1.x;
-			var gt_bv_divY		= gt_bv_pointEnd1.y - gt_bv_pointStart1.y;
-			var gt_bv_diffX1	= gt_bv_pointStart2.x - gt_bv_pointStart1.x;
-			var gt_bv_diffY1	= gt_bv_pointStart2.y - gt_bv_pointStart1.y;
-			var gt_bv_diffX2	= gt_bv_pointEnd2.x - gt_bv_pointStart1.x;
-			var gt_bv_diffY2	= gt_bv_pointEnd2.y - gt_bv_pointStart1.y;
-			
-			if (gt_bv_divX == 0 && gt_bv_diffX1 == 0)
-			{
-				if (gt_bv_divY >= 0 && gt_bv_diffY1 >= 0 || gt_bv_divY < 0 && gt_bv_diffY1 < 0)
-				{
-					gt_bv_same = gt_bv_same || Math.abs(gt_bv_diffY1) <= Math.abs(gt_bv_divY);
-				}
-				if (gt_bv_divY >= 0 && gt_bv_diffY2 >= 0 || gt_bv_divY < 0 && gt_bv_diffY2 < 0)
-				{
-					gt_bv_same = gt_bv_same || Math.abs(gt_bv_diffY2) <= Math.abs(gt_bv_divY);
-				}
-			}
-			else if (gt_bv_divY == 0 && gt_bv_diffY1 == 0)
-			{
-				if (gt_bv_divX >= 0 && gt_bv_diffX1 >= 0 || gt_bv_divX < 0 && gt_bv_diffX1 < 0)
-				{
-					gt_bv_same = gt_bv_same || Math.abs(gt_bv_diffX1) <= Math.abs(gt_bv_divX);
-				}
-				if (gt_bv_divX >= 0 && gt_bv_diffX2 >= 0 || gt_bv_divX < 0 && gt_bv_diffX2 < 0)
-				{
-					gt_bv_same = gt_bv_same || Math.abs(gt_bv_diffX2) <= Math.abs(gt_bv_divX);
-				}
-			}
-		}
-	}
-	
-	return {s: gt_bv_s, t: gt_bv_t, parallel: gt_bv_parallel, same: gt_bv_same};
+	return {shape: gt_bv_shape, length: gt_bv_length, space1: gt_bv_space1, space2: gt_bv_space2, intersects: gt_bv_intersects, firstLine: gt_bv_firstLine};
 }
