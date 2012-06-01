@@ -15,10 +15,7 @@
  * graph file for communication view
  */
 
-var gv_cv_nodes	= new Array();
-var gv_cv_edges	= new Array();
-
-var gv_cv_graph = {subjects: new Array(), messages: new Array()};
+var gv_cv_graph = {subjects: {}, messages: {}};
 
 /*
  * called by API: adds a subject to the graph
@@ -37,7 +34,7 @@ function gf_cv_addSubject (gt_cv_id, gt_cv_text, gt_cv_selected)
 function gf_cv_addMessage (start, end, text)
 {
 	if (!gf_isset(gv_cv_graph.messages[start]))
-		gv_cv_graph.messages[start] = new Array();
+		gv_cv_graph.messages[start] = {};
 	
 	gv_cv_graph.messages[start][end] = text;
 }
@@ -54,18 +51,16 @@ function gf_cv_drawGraph ()
 	// init the paper
 	gv_paper = gv_cv_paper;
 	gf_initPaper();
-	
-	gv_cv_objects = new Array();
 
 	// initialize the variables and clear the arrays
-	var gt_cv_subjects = new Array();
+	var gt_cv_subjects = [];
 	var gt_cv_messages = gv_cv_graph.messages;
 	
-	var gt_cv_msgCounter	= new Array();
-	var gt_cv_interactions	= new Array();
-	var gt_cv_nextNodes		= new Array();
-	var gt_cv_subjectsSorted	= new Array();
-	var gt_cv_subjectsVisited	= new Array();
+	var gt_cv_msgCounter	= {};
+	var gt_cv_interactions	= {};
+	var gt_cv_nextNodes		= [];
+	var gt_cv_subjectsSorted	= [];
+	var gt_cv_subjectsVisited	= {};
 		
 	// determine the starting point
 	var gt_cv_x = gv_cv_roundedRectangle.startX;
@@ -75,7 +70,7 @@ function gf_cv_drawGraph ()
 	// 0.0 sort subjects alphabetically
 	for (var gt_cv_subjectId in gv_cv_graph.subjects)
 	{
-		gt_cv_nextNodes[gt_cv_subjects.length] = gt_cv_subjects.length;
+		gt_cv_nextNodes[gt_cv_nextNodes.length] = gt_cv_subjects.length;
 		gt_cv_subjects[gt_cv_subjects.length] = gv_cv_graph.subjects[gt_cv_subjectId];
 	}
 	gt_cv_subjects.sort(gf_cv_sortSubjectsByIdCI);
@@ -102,7 +97,7 @@ function gf_cv_drawGraph ()
 			else
 			{
 				if (!gf_isset(gt_cv_interactions[gt_cv_start]))
-					gt_cv_interactions[gt_cv_start] = new Array();
+					gt_cv_interactions[gt_cv_start] = {};
 				
 				gt_cv_interactions[gt_cv_start][gt_cv_end] = true;
 			}
@@ -158,7 +153,7 @@ function gf_cv_drawGraph ()
 			
 			// get neighbors
 			gt_cv_nextNodes.length = 0;
-			gt_cv_nextNodes = new Array();
+			gt_cv_nextNodes = [];
 			
 			if (gt_cv_mlCount > 0 && gt_cv_mlCount < 9999)
 			{

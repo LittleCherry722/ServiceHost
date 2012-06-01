@@ -14,13 +14,16 @@
 // graphid that will be set on gv_xx_ctx.ga_id to identify the ctx
 var gv_graphID	= 0;
 
-var gv_objects_edges = new Array();
-var gv_objects_nodes = new Array();
+var gv_objects_edges = {};
+var gv_objects_nodes = {};
+
+var gv_node_parents		= {};	// relation: node => parent
+var gv_node_children	= {};	// relation: node => [children]
 
 function gf_initPaper ()
 {
-	gv_objects_edges = new Array();
-	gv_objects_nodes = new Array();
+	gv_objects_edges = {};
+	gv_objects_nodes = {};
 	gv_paper.clear();
 }
 
@@ -109,6 +112,116 @@ function gf_paperDblClickNodeC (id)
 	}
 }
 
+function gf_getParentNode (id)
+{
+	if (gf_isset(id))
+	{
+		if (gf_isset(gv_node_parents["n" + id]))
+		{
+			return gv_node_parents["n" + id];
+		}
+	}
+	
+	return null;
+}
+
+function gf_getChildNodes (id)
+{
+	if (gf_isset(id))
+	{
+		if (gf_isset(gv_node_children["n" + id]) && gf_isArray(gv_node_children["n" + id]))
+		{
+			return gv_node_children["n" + id];
+		}
+	}
+	
+	return [];
+}
+
+function gf_getNodeLeft ()
+{
+	var gt_selectedNode	= gv_graph.getSelectedNode();
+	if (gt_selectedNode != null)
+	{
+		var gt_parent	= gf_getParentNode(gt_selectedNode);
+		
+		if (gt_parent != null)
+		{
+			var gt_children	= gf_getChildNodes(gt_parent);
+
+			if (gt_children.length > 0)
+			{
+				// get own ID in array
+				var gt_ownID	= 0;
+				for (gt_i = 0; gt_i < gt_children.length; gt_i++)
+				{
+					if (gt_children[gt_i] == gt_selectedNode)
+						gt_ownID = gt_i;
+				}
+				
+				var gt_nextID	= (gt_ownID < 1) ? gt_children.length - 1 : gt_ownID - 1;
+				gf_paperClickNodeB(gt_children[gt_nextID]);
+			}		
+		}
+	}
+}
+
+function gf_getNodeRight ()
+{
+	var gt_selectedNode	= gv_graph.getSelectedNode();
+	if (gt_selectedNode != null)
+	{
+		var gt_parent	= gf_getParentNode(gt_selectedNode);
+		
+		if (gt_parent != null)
+		{
+			var gt_children	= gf_getChildNodes(gt_parent);
+
+			if (gt_children.length > 0)
+			{	
+				// get own ID in array
+				var gt_ownID	= 0;
+				for (gt_i = 0; gt_i < gt_children.length; gt_i++)
+				{
+					if (gt_children[gt_i] == gt_selectedNode)
+						gt_ownID = gt_i;
+				}
+				
+				var gt_nextID	= (gt_ownID >= gt_children.length - 1) ? 0 : gt_ownID + 1;
+				gf_paperClickNodeB(gt_children[gt_nextID]);
+			}		
+		}
+	}
+}
+
+function gf_getNodePrevious ()
+{
+	var gt_selectedNode	= gv_graph.getSelectedNode();
+	if (gt_selectedNode != null)
+	{
+		var gt_parent	= gf_getParentNode(gt_selectedNode);
+		
+		if (gt_parent != null)
+		{
+			gf_paperClickNodeB(gt_parent);
+		}
+	}
+}
+
+function gf_getNodeNext ()
+{
+	var gt_selectedNode	= gv_graph.getSelectedNode();
+	if (gt_selectedNode != null)
+	{
+		var gt_children	= gf_getChildNodes(gt_selectedNode);
+		
+		if (gt_children.length > 0)
+		{
+			gf_paperClickNodeB(gt_children[0]);
+		}
+	}
+}
+
 		/*
 		 * status dependent styles
 		 * 
@@ -128,8 +241,6 @@ function gf_paperDblClickNodeC (id)
 		 * fontWeight
 		 */
 
-// TODO: edges and nodes in bv must also be prefixed with the graphID -- really?
-// TODO: id must contain the graph (like "bv_e42" --> "bv_man_e42")
 function GFpath (startx, starty, endx, endy, shape, text, id)
 {
 	this.edgeCenter	= {x: 0, y: 0};
@@ -478,10 +589,10 @@ function GFpath (startx, starty, endx, endy, shape, text, id)
 			{
 				var tObject	= gv_objects_edges[objId];
 				
-				var interPoints1	= labelsOnly ? new Array() : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
+				var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
 				var interPoints2	= Raphael.pathIntersection(this.pathStr, tObject.label.toPath());
-				var interPoints3	= new Array(); // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.pathStr);
-				var interPoints4	= new Array(); // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.label.toPath());
+				var interPoints3	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.pathStr);
+				var interPoints4	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.label.toPath());
 				
 				if (interPoints1.length > 0 || interPoints2.length > 0 || interPoints3.length > 0 || interPoints4.length > 0)
 				{
@@ -494,8 +605,8 @@ function GFpath (startx, starty, endx, endy, shape, text, id)
 		{
 			var tObject	= gv_objects_nodes[objId];
 			
-			var interPoints1	= labelsOnly ? new Array() : Raphael.pathIntersection(this.pathStr, tObject.toPath());
-			var interPoints2	= new Array(); // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.toPath());
+			var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.toPath());
+			var interPoints2	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.toPath());
 			
 			if (interPoints1.length > 0 || interPoints2.length > 0)
 			{
@@ -605,7 +716,7 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 	
 	this.id = "";
 	
-	this.multiRR	= new Array();
+	this.multiRR	= [];
 	this.multiRR[3]	= gv_paper.rect(0, 0, 0, 0, 0);
 	this.multiRR[2]	= gv_paper.rect(0, 0, 0, 0, 0);
 	this.multiRR[1]	= gv_paper.rect(0, 0, 0, 0, 0);
@@ -987,17 +1098,7 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 	
 	if (!this.belongsToPath)
 		gv_objects_nodes[id] = this;
-	
-	/*
-	var subjectRect = paper.rect(gt_cv_rrLeft, gt_cv_rrTop, gv_cv_roundedRect.width, gv_cv_roundedRect.height, gv_cv_roundedRect.radius);
-	subjectRect.click(function () {gf_clickedCVnode(gt_cv_id)});
-	*/
-	
-	// TODO: needs id (eg "bv_man_n21")
 }
-
-// var gv_path = new GFpath();
-// gv_path.mergePath();
 
 /*
  * function to check if a variable / array-index is set
