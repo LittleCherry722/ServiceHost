@@ -14,17 +14,10 @@
 /**
  * graph file for behavior view
  */
-var gv_bv_objects	= new Array();
-var gv_bv_lines		= new Array();
 
-var gv_bv_objectPorts	= new Array();
+var gv_bv_objectPorts	= {};
 
-var gv_bv_nodes	= new Array();		// contains id, text, position, width, height (all information stored in objcts)
-var gv_bv_edges	= new Array();		// contains id, text, startObject, endObject, positionAtStartNode (t,b,l,r), positionAtEndNode (t,b,l,r), shape (U, Z, I, ... incl. firstLine, space|space1,2; -shape: for drawing: switch start- and end-point)
-
-var gv_bv_graphs = new Array();		// array of {nodes: new Array(), edges: new Array()};
-
-var gv_bv_clicks = new Array();		// array of (type: e | n, id: id, l: left, t: top, r: right, b: bottom}
+var gv_bv_graphs = {};				// array of {nodes: Array(), edges: Array()};
 
 var gv_bv_ports			= {t: "t", b: "b", r: "r", l: "l"};
 var gv_bv_portSettings	= {t: "io", b: "io", r: "io", l: "io"};
@@ -34,7 +27,7 @@ var gv_bv_portSettings	= {t: "io", b: "io", r: "io", l: "io"};
  */
 function gf_bv_addSubject (gt_bv_subject)
 {
-	gv_bv_graphs[gt_bv_subject]	= {nodes: new Array(), edges: new Array(), startNodes: new Array(), nodeCount: 0, startNodeCount: 0};
+	gv_bv_graphs[gt_bv_subject]	= {nodes: {}, edges: {}, startNodes: {}, nodeCount: 0, startNodeCount: 0};
 }
 
 /*
@@ -97,7 +90,7 @@ function gf_bv_addEdge (gt_bv_subject, gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_t
 		var gt_bv_graph = gv_bv_graphs[gt_bv_subject];
 		
 		if (!gf_isset(gt_bv_graph.edges[gt_bv_start]))
-			gt_bv_graph.edges[gt_bv_start] = new Array();
+			gt_bv_graph.edges[gt_bv_start] = [];
 		
 		// store the edge
 		gt_bv_graph.edges[gt_bv_start][gt_bv_graph.edges[gt_bv_start].length] = {	start:		gt_bv_start,
@@ -133,17 +126,17 @@ function gf_bv_drawGraph (gt_bv_subject)
 		gf_initPaper();
 		
 		// clear arrays
-		gv_bv_objects 		= new Array();
-		gv_bv_clicks 		= new Array();
-		gv_bv_objectPorts	= new Array();
-		gv_bv_lines			= new Array();
+		gv_bv_objectPorts	= {};
+		
+		gv_node_parents		= {};
+		gv_node_children	= {};
 		
 		// read the object's port settings from the config file
 		gf_bv_readPortSettings();
 		
 		// retrieve the graph and clear the nodeSet
 		var gt_bv_graph		= gv_bv_graphs[gt_bv_subject];
-		var gt_bv_nodeSet	= {count: 0, nodes: new Array()};
+		var gt_bv_nodeSet	= {count: 0, nodes: {}};
 		
 		var gt_bv_startNodes	= gt_bv_graph.startNodeCount;
 			gt_bv_startNodes	= gt_bv_startNodes > 0 ? gt_bv_startNodes - 1 : 0;
@@ -170,6 +163,8 @@ function gf_bv_drawGraph (gt_bv_subject)
 			gt_bv_nodeSet.count++;
 			
 			gt_bv_x += gt_bv_distanceX + gt_bv_edgesOut * gt_bv_distanceX/2;
+			
+			gv_node_children["n" + gt_bv_startNode] = [];
 		}
 
 		// 2 set nodes connected by edges (starting with the start nodes)
@@ -207,6 +202,12 @@ function gf_bv_drawGraph (gt_bv_subject)
 								// mostLeft
 								if (gt_bv_graph.nodes[gt_bv_edge.end].posx < gt_bv_mostLeft)
 									gt_bv_mostLeft = gt_bv_graph.nodes[gt_bv_edge.end].posx;
+									
+								if (!gf_isset(gv_node_children["n" + gt_bv_edge.start]))
+									gv_node_children["n" + gt_bv_edge.start] = [];
+									
+								gv_node_parents["n" + gt_bv_edge.end]	= gt_bv_edge.start;
+								gv_node_children["n" + gt_bv_edge.start][gv_node_children["n" + gt_bv_edge.start].length] = gt_bv_edge.end;
 							}
 							
 							gt_bv_nodeSet.nodes[gt_bv_edge.end] = gt_bv_edge.end;

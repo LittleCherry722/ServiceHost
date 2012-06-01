@@ -15,7 +15,7 @@
  *	functions for handling the graph
  */
 var gv_graph = new GFcommunication();
-var gv_macros = new Array();
+var gv_macros = {};
 
 // array containing the name of the used elements
 var gv_elements = {
@@ -389,12 +389,12 @@ function GFbehavior (name)
 	/**
 	 * attributes
 	 */
-	this.edges	= new Array();
-	this.nodes	= new Array();
+	this.edges	= {};
+	this.nodes	= {};
 	this.name	= name;
 	
 	// only used on creating the initial graph
-	this.nodeIDs = new Array();
+	this.nodeIDs = {};
 	
 	this.nodeCounter = 0;
 	this.edgeCounter = 0;
@@ -529,8 +529,8 @@ function GFbehavior (name)
 	 */
 	this.clearGraph = function ()
 	{
-		this.edges	= new Array();
-		this.nodes	= new Array();
+		this.edges	= {};
+		this.nodes	= {};
 		
 		this.nodeCounter = 0;
 		this.edgeCounter = 0;
@@ -795,8 +795,8 @@ function GFcommunication ()
 		}
 	}
 	
-	this.messages	= new Array();	// 3-dim Array [from][to][]
-	this.subjects	= new Array();
+	this.messages	= {};	// 3-dim Array [from][to][]
+	this.subjects	= {};
 	
 	this.selectedSubject	= null;
 	this.selectedNode		= null;
@@ -814,12 +814,12 @@ function GFcommunication ()
 	{
 		if (!gf_isset(this.messages[from]))
 		{
-			this.messages[from] = new Array();
+			this.messages[from] = {};
 		}
 		
 		if (!gf_isset(this.messages[from][to]))
 		{
-			this.messages[from][to] = new Array();	
+			this.messages[from][to] = [];	
 		}
 		
 		this.messages[from][to][this.messages[from][to].length]	= message;
@@ -832,6 +832,7 @@ function GFcommunication ()
 	{
 		if (gf_isset(id, title))
 		{
+			
 			var gt_subject = new this.Subject(id, title);
 			
 			this.subjects[id] = gt_subject;
@@ -877,7 +878,7 @@ function GFcommunication ()
 		{
 			return this.messages[from][to];
 		}
-		return new Array();
+		return [];
 	}
 	
 	/*
@@ -912,7 +913,7 @@ function GFcommunication ()
 	this.draw = function ()
 	{		
 		// clear messages
-		this.messages = new Array();
+		this.messages = {};
 		
 		// load messages from behavior
 		for (var gt_bi in this.subjects)
@@ -938,7 +939,7 @@ function GFcommunication ()
 		}
 		
 		// clear graph
-		gv_cv_graph = {subjects: new Array(), messages: new Array()};
+		gv_cv_graph = {subjects: {}, messages: {}};
 		
 		// add subjects
 		for (var gt_sid in this.subjects)
@@ -1020,7 +1021,7 @@ function GFcommunication ()
 				this.getBehavior(this.loadedSubject).clearGraph();
 			}
 			
-			this.subjects	= new Array();
+			this.subjects	= {};
 			
 			this.selectedSubject	= null;
 			this.selectedNode		= null;
@@ -1156,6 +1157,22 @@ function GFcommunication ()
 		}
 	}
 	
+	this.getSelectedNode = function ()
+	{
+		if (this.selectedSubject == null)
+		{			
+			// ignore
+		}
+		else
+		{
+			if (gf_isset(this.subjects[this.selectedSubject]))
+			{
+				return this.getBehavior(this.selectedSubject).selectedNode;
+			}
+		}
+		return null;
+	}	
+	
 	/*
 	 * fill message selection with available messages
 	 */
@@ -1163,7 +1180,7 @@ function GFcommunication ()
 	{
 		var gt_selectedTarget	= document.getElementById(gv_elements.inputEdgeTarget).value;
 		var gt_select_message	= document.getElementById(gv_elements.inputEdgeMessage).options;
-		var gt_messagesArray	= new Array();
+		var gt_messagesArray	= [];
 		
 		gt_select_message.length	= 0;
 		
@@ -1276,7 +1293,7 @@ function GFcommunication ()
 					gt_select_target.add(gt_option);
 					
 					// read the subjects that can be related
-					var gt_subjectArray = new Array();
+					var gt_subjectArray = {};
 					for (var gt_sid in this.subjects)
 					{
 						if (gt_sid != this.selectedSubject)
@@ -1373,7 +1390,7 @@ function GFcommunication ()
 	 */
 	this.save = function ()
 	{
-		var gt_array = new Array();
+		var gt_array = {};
 		
 		// transform subjects and the related behaviors
 		for (var gt_sid in this.subjects)
@@ -1383,8 +1400,8 @@ function GFcommunication ()
 			var gt_behav = this.subjects[gt_sid].getBehavior();
 			var gt_nodes = gt_behav.getNodes();
 			var gt_edges = gt_behav.getEdges();
-			var gt_newNodes = new Array();
-			var gt_newEdges = new Array();
+			var gt_newNodes = new Array();	// TODO: replace by {} ?
+			var gt_newEdges = new Array();	// TODO: replace by {} ?
 			
 			// transform the behavior's nodes
 			for (var gt_nid in gt_nodes)

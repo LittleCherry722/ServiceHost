@@ -99,7 +99,62 @@ var gv_cv_style_arrow = {
 };
 
 var gv_cv_style_roundedRectangleExternal = {
-	// TODO
+	/*
+	 * Border
+	 */
+	borderColor: "#AA0000",				// any hex-color-value
+	borderColorDeactivated: "#AA0000",	// any hex-color-value
+	borderColorSelected: "#0000FF",		// any hex-color-value
+	borderOpacity: 1.0,					// floating number
+	borderOpacityDeactivated: 0.5,		// floating number
+	borderOpacitySelected: 1.0,			// floating number
+	borderStyle: "- ",					// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleDeactivated: "- ",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelected: "- ",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderWidth: 2,						// pixels
+	borderWidthDeactivated: 2,			// pixels
+	borderWidthSelected: 2,				// pixels
+
+	/*
+	 * Background
+	 */		
+	bgColor: "#FF9999",					// any hex-color-value
+	bgColorDeactivated: "#FF9999",		// any hex-color-value
+	bgColorSelected: "#FF9999",			// any hex-color-value
+	bgOpacity: 1.0,						// floating number
+	bgOpacityDeactivated: 0.5,			// floating number
+	bgOpacitySelected: 1.0,				// floating number
+	opacity: 1.0,						// floating number
+	opacityDeactivated: 0.5,			// floating number
+	opacitySelected: 1.0,				// floating number
+	
+	/*
+	 * Text
+	 */
+	fontColor: "#CC0000",				// any hex-color-value
+	fontColorDeactivated: "#CC0000",	// any hex-color-value
+	fontColorSelected: "#0000FF",		// any hex-color-value
+	fontOpacity: 1.0,					// floating number
+	fontOpacityDeactivated: 0.5,		// floating number
+	fontOpacitySelected: 1.0,			// floating number
+	fontFamily: "Times New Roman",		// any font
+	fontSize: 16,						// pixels
+	fontWeight: "normal",				// possible values: normal, bold
+	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelected: "bold",			// possible values: normal, bold
+	// paddingBottom: 5,				// pixels
+	// paddingLeft: 5,					// pixels
+	// paddingRight: 5,					// pixels
+	// paddingTop: 5,					// pixels
+	textAlign: "middle",				// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
+	
+	/*
+	 * Misc
+	 */
+	rectangleRadius: 15,				// radius for rounded rectangles
+	width: 120,							// int
+	height: 200							// int
 };
 
 var gv_cv_style_roundedRectangleMulti = {
