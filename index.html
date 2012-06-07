@@ -247,11 +247,10 @@
 
 							<br class="clear"/>
 							<div class="content">
-								
+
 								<!-- begin tab1 -->
 								<div id="tab1_content" class="tab_content hide">
-									<div id="graph_bv_outer" style="overflow:auto; height:700px; min-width:665px;">
-									</div>
+									<div id="graph_bv_outer" style="overflow:auto; height:700px; min-width:665px;"></div>
 									<div class="twocolumn">
 										<div class="column_left">
 											<div class="header">
@@ -263,13 +262,23 @@
 													<div class="twocolumninfo">
 														<div class="column_left2">
 															<p>
+																<label>Type:</label>
+																<br/>
+																<select id="ge_type2" style="width:200px">
+																	<option value="R" id="ge_type2_R">receive</option>
+																	<option value="S" id="ge_type2_S">send</option>
+																	<option value="action" id="ge_type2_action">action</option>
+																	<option value="end" id="ge_type2_end">end</option>
+																</select>
+															</p>
+															<p>
 																<label>Text:</label>
 																<br/>
 																<textarea id="ge_text" style="resize:none;width:200px"></textarea>
 															</p>
 															<br class="clear"/>
 															<p>
-																<label>ID:</label>
+																<label>Assigned Role:</label>
 																<br/>
 																<input type="text" id="ge_id" value="" style="width:200px"/>
 															</p>
@@ -281,17 +290,6 @@
 																	<option value="normal" id="ge_type_normal">normal node</option>
 																	<option value="start" id="ge_type_start">start node</option>
 																	<option value="end" id="ge_type_end">end node</option>
-																</select>
-															</p>
-															<br class="clear"/>
-															<p>
-																<label>Type2:</label>
-																<br/>
-																<select id="ge_type2" style="width:200px">
-																	<option value="R" id="ge_type2_R">receive</option>
-																	<option value="S" id="ge_type2_S">send</option>
-																	<option value="action" id="ge_type2_action">action</option>
-																	<option value="end" id="ge_type2_end">end</option>
 																</select>
 															</p>
 															<br class="clear"/>
@@ -373,7 +371,7 @@
 												<div class="onecolumn">
 													<input type="button" name="neu" value="Add new node" style="width:190px" onClick="gv_graph.createNode();"/>
 													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-													<input type="button" onClick="gv_graph.connectNodes();" value="connect node" />
+													<input type="button" onClick="gv_graph.connectNodes();" value="Connect node" />
 													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 													<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
 												</div>
@@ -387,9 +385,10 @@
 
 								<!-- begin tab2 -->
 								<div id="tab2_content" class="tab_content hide">
-									<div id="graph_cv_outer"style="overflow:auto;min-width:656px;height:550px">
-									</div>
-									<script>gv_graph.init();</script>
+									<div id="graph_cv_outer"style="overflow:auto;min-width:656px;height:550px"></div>
+									<script>
+										gv_graph.init();
+									</script>
 									<div class="twocolumn">
 										<div class="column_left">
 											<div class="header">
@@ -407,7 +406,7 @@
 															</p>
 															<br class="clear"/>
 															<p>
-																<label>ID:</label>
+																<label>Assigned Role:</label>
 																<br/>
 																<select id="ge_cv_id" style="width:200px"></select>
 
@@ -463,7 +462,8 @@
 												<div class="onecolumn">
 													<input type="button" name="neu" value="Add new node" style="width:190px" onClick="gv_graph.createNode();"/>
 													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-													<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />												</div>
+													<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
+												</div>
 
 											</div>
 										</div>
@@ -477,7 +477,7 @@
 									<br class="clear"/>
 									<h2 id="tab3_user" style="color:#525252;font-size:14px"></h2>
 									<br class="clear"/>
-									<a id="responsibleForloggedinUser" href="responsibleForloggedinUser.html">Verantwortlichen hinzufügen</a>
+									<a id="responsibleForloggedinUser" href="responsibleForloggedinUser.html">Add person in charge</a>
 									<br class="clear"/>
 									<br class="clear"/>
 									<div class="onecolumn">
