@@ -37,3 +37,24 @@ key('2', function() {
 key('3', function() {
 	gf_callMacro('newActionNode');
 });
+
+//moving through graph with arrow keys
+key('5', function() {
+	alert("prev");
+	gf_getNodePrevious();
+});
+
+key('6', function() {
+	alert("next");
+	gf_getNodeNext();
+});
+
+key('7', function() {
+	alert("left");
+	gf_getNodeLeft();
+});
+
+key('8', function() {
+	alert("right");
+	gf_getNodeRight();
+});

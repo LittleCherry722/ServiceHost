@@ -109,7 +109,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					newUser(fancyreturn1);
 			}
 		});
@@ -126,7 +126,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					newGroup(fancyreturn1);
 			}
 		});
@@ -143,7 +143,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					newProcess(fancyreturn1);
 			}
 		});
@@ -160,7 +160,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					ProzessLaden(fancyreturn1);
 			}
 		});
@@ -192,7 +192,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					user_to_group(fancyreturn1, fancyreturn2);
 			}
 		});
@@ -209,7 +209,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					addResponsible(fancyreturn2, fancyreturn1);
 			}
 		});
@@ -272,7 +272,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					newInstance(fancyreturn1);
 			}
 		});
@@ -289,7 +289,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					resumeInstanceMessage(fancyreturn1)
 			}
 		});
@@ -306,7 +306,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false) {
+				if (fancyreturn1 != false) {
 					drawHistory(loadInstanceData(fancyreturn1));
 					document.getElementById("welcome").style.display = "none";
 					document.getElementById('ausfuehrung').style.display = 'block';
@@ -328,7 +328,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false) {
+				if (fancyreturn1 != false) {
 					drawHistory(loadInstanceData(fancyreturn1));
 					document.getElementById("welcome").style.display = "none";
 					document.getElementById('ausfuehrung').style.display = 'block';
@@ -351,7 +351,7 @@ $(document).ready(function() {
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
 				writeSumActiveInstances();
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					resumeInstance(fancyreturn1);
 			}
 		});
@@ -368,7 +368,7 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false) {
+				if (fancyreturn1 != false) {
 					drawHistory(loadInstanceData(fancyreturn1));
 					document.getElementById("welcome").style.display = "none";
 					document.getElementById('ausfuehrung').style.display = 'block';
@@ -405,8 +405,21 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 && fancyreturn1 != false)
+				if (fancyreturn1 && fancyreturn1 != false)
 					ProzessLaden(fancyreturn1);
+			}
+		});
+
+		$('#ge_type2').change(function(e) {
+			var val = $('#ge_type2').val();
+			if (val == "R" || val == "S" || val == "end") {
+				$('#ge_type').attr('disabled', 'disabled');
+				$('#ge_id').attr('disabled', 'disabled');
+				$('#ge_text').attr('disabled', 'disabled');
+			} else {
+				$('#ge_type').removeAttr('disabled');
+				$('#ge_id').removeAttr('disabled');
+				$('#ge_text').removeAttr('disabled');
 			}
 		});
 
@@ -425,7 +438,7 @@ function showtab1() {
 	$("#tab1").addClass("active");
 	$(".tab_content").addClass("hide");
 	$("#tab1_content").removeClass("hide");
-	
+
 	gf_clickedCVbehavior();
 
 	$('#graph_bv_outer').scrollTo({
