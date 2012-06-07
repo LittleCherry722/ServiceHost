@@ -40,22 +40,18 @@ key('3', function() {
 
 //moving through graph with arrow keys
 key('up', function() {
-	alert("prev");
 	gf_getNodePrevious();
 });
 
 key('down', function() {
-	alert("next");
 	gf_getNodeNext();
 });
 
 key('left', function() {
-	alert("left");
 	gf_getNodeLeft();
 });
 
 key('right', function() {
-	alert("right");
 	gf_getNodeRight();
 });
 
