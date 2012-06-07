@@ -39,22 +39,43 @@ key('3', function() {
 });
 
 //moving through graph with arrow keys
-key('5', function() {
+key('up', function() {
 	alert("prev");
 	gf_getNodePrevious();
 });
 
-key('6', function() {
+key('down', function() {
 	alert("next");
 	gf_getNodeNext();
 });
 
-key('7', function() {
+key('left', function() {
 	alert("left");
 	gf_getNodeLeft();
 });
 
-key('8', function() {
+key('right', function() {
 	alert("right");
 	gf_getNodeRight();
 });
+
+
+//prevent scrolling on the SVG
+//var keys = [];
+window.addEventListener("keydown",
+    function(e){
+       // keys[e.keyCode] = true;
+        if(!(document.activeElement.tagName === "TEXTAREA" || document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "SELECT")) {
+        switch(e.keyCode){
+            case 37: case 39: case 38:  case 40: // Arrow keys
+            case 32: e.preventDefault(); break; // Space
+            default: break; // do not block other keys
+        }
+        }
+    },
+false);
+window.addEventListener('keyup',
+    function(e){
+    //    keys[e.keyCode] = false;
+    },
+false);
