@@ -410,6 +410,21 @@ $(document).ready(function() {
 			}
 		});
 
+		$("input#help-button").fancybox({
+			'padding' : '0px',
+			'scrolling' : 'no',
+			'height' : '60',
+			'width' : '40',
+			'transitionIn' : 'elastic',
+			'transitionOut' : 'elastic',
+			'type' : 'iframe',
+			'overlayColor' : '#333333',
+			'modal' : true,
+			'overlayOpacity' : '0.6',
+			'onClosed' : function() {
+			}
+		});
+
 		$('#ge_type2').change(function(e) {
 			var val = $('#ge_type2').val();
 			if (val == "R" || val == "S" || val == "end") {
