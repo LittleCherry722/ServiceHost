@@ -54,6 +54,7 @@ $(document).ready(function() {
 			$(".tab_content").addClass("hide");
 			$("#tab1_content").removeClass("hide");
 			gf_clickedCVbehavior();
+			updateListOfSubjects();
 			// load internal behavior
 		});
 		$("#tab2").click(function() {
