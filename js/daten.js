@@ -165,69 +165,36 @@ showverantwortliche();
 
 function GraphSpeichern() {
 
-var graph=gv_graph.save();
-
-var savegraph = new Array(); 
- 
-for (key in graph){  
-     var subject = JSON.parse("{}"); 
-     subject['id']   = graph[key]['id'];  
-     subject['name'] = graph[key]['name'];  
-  
-     var nodes   = new Array();//JSON.parse("{}"); 
-     var edges   = new Array();//JSON.parse("{}"); 
+    var graphAsJSON = gv_graph.saveToJSON();
+    
+    var startSubjects = [];
+    
+    for (var subject in gv_graph.subjects)
+        startSubjects.push(getGroupID(subject));
+    
+    var startSubjectsAsJSON = JSON.stringify(startSubjects);
+    
       
-     for (node in graph[key]['nodes']){  
-          var snode = JSON.parse("{}"); 
- 
-          snode['id']    = graph[key]['nodes'][node]['id'];  
-          snode['text']  = graph[key]['nodes'][node]['text'].replace(/\n/gi, "<br>");
-          snode['start'] = graph[key]['nodes'][node]['start'];
-          snode['end']   = graph[key]['nodes'][node]['end'];
-          snode['type']  = graph[key]['nodes'][node]['type'];
-  
-          nodes.push(snode);  
-     }  
-  
-     for (edge in graph[key]['edges']){  
-          var sedge = JSON.parse("{}"); 
-  
-          sedge['start']  = graph[key]['edges'][edge]['start'];  
-          sedge['end']    = graph[key]['edges'][edge]['end'];  
-          sedge['text']   = graph[key]['edges'][edge]['text'].replace(/\n/gi, "<br>");  
-          sedge['target'] = graph[key]['edges'][edge]['target'];  
-  
-          edges.push(sedge);  
-     }  
-  
-     subject['nodes'] = nodes;  
-     subject['edges'] = edges;  
-  
-  
-     savegraph.push(subject);  
-}
-  
-if(saveGraph(getProcessID(processName), savegraph)) {
-	$("#freeow").freeow("Save process", "Process \"" + processName +"\" successfully saved.", {
-		classes: [,"ok"],
-		autohide: true
-	});
-}
-else {
-	$("#freeow").freeow("Save process", "Process \"" + processName + "\" could not be saved.", {
-		classes: [,"error"],
-		autohide: true
-	});
-}
+    if(saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
+    	$("#freeow").freeow("Save process", "Process \"" + processName +"\" successfully saved.", {
+    		classes: [,"ok"],
+    		autohide: true
+    	});
+    } else {
+    	$("#freeow").freeow("Save process", "Process \"" + processName + "\" could not be saved.", {
+    		classes: [,"error"],
+    		autohide: true
+    	});
+    }
 
 }
 
 function ProzessLaden(name) {
 
-	graph = loadGraph(getProcessID(name));
+    gv_graph.clearGraph();
 
-	gv_graph.clearGraph();
-	drawGraph(graph);
+	gv_graph.loadFromJSON(loadGraph(getProcessID(name)));
+
 	processName = name;
 	document.getElementById("welcome").style.display = "none";
 	document.getElementById('ausfuehrung').style.display = 'none';
@@ -268,31 +235,6 @@ function updateListOfSubjects(){
 	
 }
 
-function drawGraph(graph) {
-
-var gt_behav = null;
-
-for(key in graph) {
-
-	gv_graph.addSubject(graph[key].id, graph[key].name);
-	gt_behav = gv_graph.getBehavior(graph[key].id);
-	for(var i = 0; i < graph[key].nodes.length; ++i) {
-		if(graph[key].nodes[i].start)
-			gt_behav.addNode(graph[key].nodes[i].id, graph[key].nodes[i].text.replace(/<br>/gi,"\n"), "start");
-		else if (graph[key].nodes[i].end)
-			gt_behav.addNode(graph[key].nodes[i].id, graph[key].nodes[i].text.replace(/<br>/gi,"\n"), "end");
-		else
-			gt_behav.addNode(graph[key].nodes[i].id, graph[key].nodes[i].text.replace(/<br>/gi,"\n"), "");
-	}
-	
-	for(var x = 0; x < graph[key].edges.length; ++x)
-		gt_behav.addEdge(graph[key].edges[x].start,graph[key].edges[x].end, graph[key].edges[x].text.replace(/<br>/gi,"\n"), graph[key].edges[x].target);
-
-}
-gv_graph.draw();
-}
-
-
 function addHistory(data, userid, subjectid, node){ 
      if(typeof(data[userid]) == 'undefined') data[userid] = JSON.parse("{}"); 
      if(typeof(data[userid]['history']) == 'undefined') data[userid]['history'] = new Array(); 
@@ -330,6 +272,9 @@ function findStartNodesForGroup(graph, subjectid){
 	return ret;
 }
 
+/**
+ * @return all edges which starts in node
+ */
 function findNodeEdges(graph, subjectid, node){
 
 	var ret = new Array();
@@ -386,12 +331,14 @@ function drawHistory(data) {
 }
 
 function selectNextNode(subjectid, nodeid, msgtext){
-	//alert(subjectid +"->"+ nodeid);
+	alert(subjectid +"->"+ nodeid);
 	var data = storage.get("instancedata");
 	drawHistory(data);
 	
 	var node = findNode(storage.get("instancegraph"), subjectid, nodeid);
 	addHistory(storage.get("instancedata"), storage.get("userid"),subjectid, node);	// < aktuelle node
+	
+	// TODO the current node is known here -> highlight it in canvas
 	
 	saveInstanceData(storage.get("instanceid"), storage.get("instancedata")); // speichern
 	var insert = "";
@@ -445,8 +392,7 @@ function selectNextNode(subjectid, nodeid, msgtext){
 						TableInsert += "<option>"+ getUserName(users[x]) +"</option>";
 					}
 					TableInsert += "</select></td><td align=\"center\"><input type=\"button\" value=\""+ nodeedges[i].text.replace(/<br>/gi, " ") +"\" onClick=\"if (sendTextMessage('"+ buttonText +"', getUserID(this.form.receive_user"+i+".options[this.form.receive_user"+i+".selectedIndex].value))) selectNextNode('"+ subjectid +"','"+ nodeedges[i]['end'] +"');\" /></td></tr>"
-				}
-				else {
+				} else {
 					for(var x = 0; x < receiver.length; x++)
 						TableInsert += "<tr><td align=\"center\">"+ nodeedges[i].target + "</td><td align=\"center\">"+ getUserName(receiver[x]) +"</td><td align=\"center\"><input type=\"button\" value=\""+buttonText.replace(/<br>/gi, " ")+"\" onClick=\"if (sendTextMessage('"+ buttonText +"','"+ receiver[x] +"')) selectNextNode('"+ subjectid +"','"+ nodeedges[i]['end'] +"');\" /></tr>";
 				}

@@ -171,31 +171,19 @@ function loadGraph(processid){
 	return syncQuery(db_directory + "process.php", {"processid" : processid, "action" : "load"}, "", function (json){
 		if (json["code"] == "ok"){
 			try {
-				var ret = JSON.parse(json["graph"]);
-				return ret;
+				return json["graph"];
 			}catch (e){
-				return JSON.parse("{}");
+				return "{}";
 			}
 		}else{
-			return JSON.parse("{}");
+			return "{}";
 		}
 	});
 }
-function saveGraph(processid, graph){
-    var subjects = new Array();;
-      
-     for (key in graph){   
-          for (node in graph[key]['nodes']){   
-               if ((graph[key]['nodes'][node]['start']) && (graph[key]['nodes'][node]['type'] != "receive")){ 
-                    subjects.push(getGroupID(graph[key]['id'])); 
-                    break; 
-               } 
-          } 
-    }
-
-	return syncQuery(db_directory + "process.php", {"processid" : processid, "action" : "save", "graph" : JSON.stringify(graph), "subjects" : JSON.stringify(subjects)}, false, function (json){
+function saveGraph(processid, graphAsJSON, startSubjectsAsJSON){
+	return syncQuery(db_directory + "process.php", {"processid" : processid, "action" : "save", "graph" : graphAsJSON, "subjects" : startSubjectsAsJSON}, false, function (json){
 		if (json["code"] == "ok")
-			return true;});
+			return true;});	
 }
 
 // instances

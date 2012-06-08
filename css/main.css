@@ -42,6 +42,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 #header a:active{color:#000;text-decoration:none;text-shadow:0 0 0 transparent;}
 #logo{width:290px;float:left;margin:8px 0 0 20px;}
 #account_info{width:450px;float:left;text-align:left;margin:16px 35px 0 0;}
+#misc{width:450px;float:left;text-align:left;margin:16px 35px 0 0;}
 #tud_logo{width:100px;height:40px;margin:5px 0px 0 0;padding:0px 0px 0 0px;float:right;}
 
 a{color:#1F92FF;text-decoration:none;text-shadow:0 0 0 transparent;}
