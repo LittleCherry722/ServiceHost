@@ -31,7 +31,6 @@ var gv_elements = {
 	inputSubjectText:	"ge_cv_text",
 	inputSubjectId:		"ge_cv_id",
 	inputNodeText:		"ge_text",
-	inputNodeId:		"ge_id",
 	inputNodeType:		"ge_type",
 	inputNodeType2:		"ge_type2",
 	inputNodeOuter:		"node",
@@ -76,14 +75,14 @@ function gf_callMacro (id)
 		if (gt_behavior != null)
 		{
 			gt_behavior.selectedNode = gt_nodeId;
-			gt_behavior.updateNode("n" + gt_nodeId, gt_macro.text, gt_macro.type, gt_macro.type2);
+			gt_behavior.updateNode(gt_macro.text, gt_macro.type, gt_macro.type2);
 		}
 	}
 }
 
-gf_createMacro("newSendNode", "", "normal", "s", true);
-gf_createMacro("newReceiveNode", "", "normal", "r", true);
-gf_createMacro("newActionNode", "internal action", "normal", "", true);
+gf_createMacro("newSendNode", "", "normal", "send", true);
+gf_createMacro("newReceiveNode", "", "normal", "receive", true);
+gf_createMacro("newActionNode", "internal action", "normal", "action", true);
 
 /*
  * function called when an object in the communication view has been doubleClicked -> load the corresponding behavioral view
@@ -122,6 +121,16 @@ function gf_clickedBVedge (edgeId)
 	gv_graph.selectEdge(edgeId);
 }
 
+function gf_deactivateEdge ()
+{
+	gv_graph.deactivateEdge();	
+}
+
+function gf_deactivateNode ()
+{
+	gv_graph.deactivateNode();
+}
+
 /*
  * function to call the gv_graph's loadEdgeMessages() function
  */
@@ -146,246 +155,6 @@ function gf_setEdgeMessage ()
  */
 function GFbehavior (name)
 {
-	
-	/**
-	 * internal classes
-	 */
-	
-	/*
-	 * Node class
-	 */
-	this.Node = function (id, text, type)
-	{
-		this.id		= "";
-		this.text	= "";
-		this.type	= "normal";	// normal, start, end
-		
-		/*
-		 * returns the id of this node
-		 */
-		this.getId = function ()
-		{
-			return this.id;
-		}
-		
-		/*
-		 * returns the text of this node
-		 */
-		this.getText = function ()
-		{
-			return this.text;
-		}
-		
-		/*
-		 * returns the type (start, end, normal) of this node
-		 */
-		this.getType = function ()
-		{
-			return this.type.toLowerCase();
-		}
-		
-		/*
-		 * sets the id of this node
-		 */
-		this.setId = function (id)
-		{
-			if (gf_isset(id))
-			{
-				this.id = id;
-			}
-		}
-		
-		/*
-		 * sets the text of this node
-		 */
-		this.setText = function (text)
-		{
-			if (gf_isset(text))
-			{
-				if (text == "s")
-					text = "S";
-				
-				if (text == "r")
-					text = "R";
-				
-				var gt_text = text.toLowerCase();
-				
-				if (gt_text == "end")
-				{
-					text = "end";
-					this.type = "end";
-				}
-				
-				if (gt_text == "r" || gt_text == "s")
-				{
-					if (this.type != "start")
-					{
-						this.type = "normal";
-					}
-				}
-				
-				this.text = text;
-			}
-		}
-		
-		/*
-		 * sets the type (normal, start, end) of this node
-		 */
-		this.setType = function (type)
-		{
-			if (gf_isset(type))
-			{
-				type = type.toLowerCase();
-				
-				if (type == "start" || type == "end")
-				{
-					if (type == "end")
-					{
-						this.text = "end";
-					}
-					this.type = type;
-				}
-				else
-				{
-					this.type = "normal";
-				}
-			}
-		}
-		
-		/*
-		 * sets the second type (send, receive, action, end) of this node
-		 */
-		this.setType2 = function (type)
-		{
-			if (gf_isset(type))
-			{
-				type = type.toLowerCase();
-				
-				if (type == "r" || type == "s" || type == "end")
-				{
-					this.setText(type);
-				}
-			}
-		}
-		
-		// init
-		this.setText(text);
-		this.setId(id);
-		this.setType(type);
-	}
-	
-	/*
-	 * Edge class
-	 */
-	this.Edge = function (parent, start, end, text, relatedSubject)
-	{
-		if (!gf_isset(start) || parseInt(start) != start)
-			start = 0;
-		
-		if (!gf_isset(end) || parseInt(end) != end)
-			end = 0;
-		
-		if (!gf_isset(text))
-			text = "";
-		
-		if (!gf_isset(relatedSubject))
-			relatedSubject = null;
-		
-		this.parent	= parent;
-		this.end	= end;
-		this.start	= start;
-		this.text	= text;
-		this.relatedSubject	= relatedSubject;
-		
-		/*
-		 * returns the id of the end-node of this edge
-		 */
-		this.getEnd = function ()
-		{
-			return this.end;
-		}
-		
-		/*
-		 * returns the id of the start-node of this edge
-		 */
-		this.getStart = function ()
-		{
-			return this.start;
-		}
-		
-		/*
-		 * returns the id of the related subject (the subject a message is sent to / received from) or null, if no subject is related
-		 */
-		this.getRelatedSubject = function ()
-		{
-			var startNode		= this.parent.getNode(this.start);
-			var relatedSubject	= this.relatedSubject;
-			
-			if (startNode == null || (startNode.getText().toLowerCase() != "r" && startNode.getText().toLowerCase() != "s"))
-			{
-				relatedSubject = null;
-			}
-			
-			return relatedSubject;
-		}
-		
-		/*
-		 * returns the text of this edge
-		 */
-		this.getText = function ()
-		{
-			return this.text;
-		}
-		
-		/*
-		 * sets the id of the end node of this edge
-		 */
-		this.setEnd = function (end)
-		{
-			if (gf_isset(end) && parseInt(end) == end)
-				this.end = end;
-		}
-		
-		/*
-		 * sets the id of the start node of this edge
-		 */
-		this.setStart = function (start)
-		{
-			if (gf_isset(start) && parseInt(start) == start)
-				this.start = start;
-		}
-		
-		/*
-		 * sets the related subject (subject a message is sent to / received from)
-		 */
-		this.setRelatedSubject = function (relatedSubject)
-		{
-			var startNode		= this.parent.getNode(this.start);
-			
-			if (gf_isset(relatedSubject) && relatedSubject != "" && startNode != null && (startNode.getText().toLowerCase() == "r" || startNode.getText().toLowerCase() == "s"))
-				this.relatedSubject = relatedSubject;
-		}
-		
-		/*
-		 * sets the text of this edge
-		 */
-		this.setText = function (text)
-		{
-			if (gf_isset(text))
-				this.text = text;
-		}
-		
-		/*
-		 * returns a string containing the edge's text and the name of the related subjects (if one) in brackets
-		 */
-		this.textToString = function ()
-		{
-			var startNode		= this.parent.getNode(this.start);
-			
-			return this.text + (this.getRelatedSubject() != null ? "\n(" + (startNode.getText().toLowerCase() == "r" ? "from" : "to") + ": " + this.relatedSubject + ")" : "");
-		}
-	}
-	
 	/**
 	 * attributes
 	 */
@@ -408,7 +177,7 @@ function GFbehavior (name)
 	/*
 	 * adds an edge to this graph
 	 */
-	this.addEdge = function (start, end, text, relatedSubject)
+	this.addEdge = function (start, end, text, relatedSubject, deactivated)
 	{
 		if (parseInt(start) != start && gf_isset(this.nodeIDs[start]))
 			start = this.nodeIDs[start];
@@ -416,10 +185,13 @@ function GFbehavior (name)
 		if (parseInt(end) != end && gf_isset(this.nodeIDs[end]))
 			end = this.nodeIDs[end];
 		
-		var gt_edge = new this.Edge(this, start, end, text, relatedSubject);
+		var gt_edge = new GFedge(this, start, end, text, relatedSubject);
 				
 		if (gt_edge != null)
 		{
+			if (deactivated === true)
+				gt_edge.deactivate();
+			
 			this.edges["e" + this.edgeCounter++] = gt_edge;
 		}
  	}
@@ -427,17 +199,29 @@ function GFbehavior (name)
 	/*
 	 * adds a node to this graph
 	 */
-	this.addNode = function (id, text, type)
+	this.addNode = function (id, text, type, start, end, deactivated)
 	{
 		if (!gf_isset(id) || id == "")
 		{
 			id = "n" + this.nodeCounter;
 		}
 		
-		var gt_node	= new this.Node(id, text, type);
+		if (!gf_isset(type) || type == "")
+			type = "action";
+		
+		var gt_node	= new GFnode(id, text, type);
 
 		if (gt_node.getId() != "")
 			this.nodeIDs[gt_node.getId()] = this.nodeCounter;
+			
+		if (gf_isset(start) && start === true)
+			gt_node.setStart(true);
+			
+		if (gf_isset(end) && end === true)
+			gt_node.setEnd(true);
+			
+		if (gf_isset(deactivated) && deactivated === true)
+			gt_node.deactivate();
 		
 		this.nodes["n" + this.nodeCounter++] = gt_node;
 		
@@ -504,7 +288,7 @@ function GFbehavior (name)
 		for (var gt_nid in this.nodes)
 		{
 			var gt_node = this.nodes[gt_nid];
-			gf_bv_addNode(this.name, gt_nid.substr(1), gt_node.getText(), gt_node.getType(), this.selectedNode == gt_nid.substr(1));
+			gf_bv_addNode(this.name, gt_nid.substr(1), gt_node, this.selectedNode == gt_nid.substr(1));
 		}
 		
 		// add all edges to the graph
@@ -516,7 +300,7 @@ function GFbehavior (name)
 						
 			if (gf_isset(this.nodes["n" + gt_start], this.nodes["n" + gt_end]))
 			{
-				gf_bv_addEdge(this.name, gt_eid.substr(1), gt_start, gt_end, gt_edge.textToString(), this.selectedEdge == gt_eid.substr(1));
+				gf_bv_addEdge(this.name, gt_eid.substr(1), gt_start, gt_end, gt_edge, this.selectedEdge == gt_eid.substr(1));
 			}
 		}
 		
@@ -582,6 +366,44 @@ function GFbehavior (name)
 		gf_clickedBVnode(gt_nodeId);
 		this.draw();
 		return gt_nodeId;
+	}
+	
+	this.deactivateEdge = function ()
+	{
+		var gt_edgeId	= this.selectedEdge;
+			
+		if (gt_edgeId != null)
+		{
+			if (this.edges["e" + gt_edgeId].isDeactivated())
+			{
+				this.edges["e" + gt_edgeId].activate();
+				gv_objects_edges[gt_edgeId].activate();
+			}
+			else
+			{
+				this.edges["e" + gt_edgeId].deactivate();
+				gv_objects_edges[gt_edgeId].deactivate();
+			}
+		}
+	}
+	
+	this.deactivateNode = function ()
+	{
+		var gt_nodeId	= this.selectedNode;
+			
+		if (gt_nodeId != null)
+		{
+			if (this.nodes["n" + gt_nodeId].isDeactivated())
+			{
+				this.nodes["n" + gt_nodeId].activate();
+				gv_objects_nodes[gt_nodeId].activate();
+			}
+			else
+			{
+				this.nodes["n" + gt_nodeId].deactivate();
+				gv_objects_nodes[gt_nodeId].deactivate();
+			}
+		}
 	}
 	
 	/*
@@ -699,17 +521,17 @@ function GFbehavior (name)
 	/*
 	 * updates the selected node's information
 	 */
-	this.updateNode = function (id, text, type, type2)
+	this.updateNode = function (text, startEnd, type)
 	{
 		
-		if (this.selectedNode != null && gf_isset(this.nodes["n" + this.selectedNode], id, text, type, type2))
+		if (this.selectedNode != null && gf_isset(this.nodes["n" + this.selectedNode], text, startEnd, type))
 		{
 			gt_node = this.nodes["n" + this.selectedNode];
 			
-			gt_node.setId(id);
 			gt_node.setText(text);
 			gt_node.setType(type);
-			gt_node.setType2(type2);
+			gt_node.setStart(startEnd == "start");
+			gt_node.setEnd(startEnd == "end");
 			
 			this.draw();
 		}
@@ -722,79 +544,7 @@ function GFbehavior (name)
  * @returns
  */
 function GFcommunication ()
-{
-	
-	/**
-	 * internal classes
-	 */
-	
-	/*
-	 * Subject class
-	 */
-	this.Subject = function (id, text)
-	{
-		if (!gf_isset(text))
-			text = "";
-		
-		this.id			= id;
-		this.text		= text;
-		this.behavior	= new GFbehavior(id);
-		
-		/*
-		 * returns the behavioral graph of this subject
-		 */
-		this.getBehavior = function ()
-		{
-			return this.behavior;
-		}
-		
-		/*
-		 * returns the id of this subject
-		 */
-		this.getId = function ()
-		{
-			return this.id;
-		}
-		
-		/*
-		 * returns the text of this subject
-		 */
-		this.getText = function ()
-		{
-			return this.text;
-		}
-		
-		/*
-		 * sets the id of this subject
-		 */
-		this.setId = function (id)
-		{
-			if (gf_isset(id))
-			{
-				this.id = id;
-			}
-		}
-		
-		/*
-		 * sets the text of this subject
-		 */
-		this.setText = function (text)
-		{
-			if (gf_isset(text))
-			{
-				this.text = text;
-			}
-		}
-		
-		/*
-		 * returns the text of this subject with it's id (in brackets)
-		 */
-		this.textToString = function ()
-		{
-			return this.text + "\n(" + this.id + ")";
-		}
-	}
-	
+{	
 	this.messages	= {};	// 3-dim Array [from][to][]
 	this.subjects	= {};
 	
@@ -828,12 +578,18 @@ function GFcommunication ()
 	/*
 	 * adds a subject to the communication view
 	 */
-	this.addSubject = function (id, title)
+	this.addSubject = function (id, title, type, deactivated)
 	{
 		if (gf_isset(id, title))
 		{
 			
-			var gt_subject = new this.Subject(id, title);
+			if (!gf_isset(type))
+				type = "single";
+			
+			var gt_subject = new GFsubject(id, title, type);
+				
+			if (gf_isset(deactivated) && deactivated === true)
+				gt_subject.deactivate();
 			
 			this.subjects[id] = gt_subject;
 		}
@@ -930,7 +686,7 @@ function GFcommunication ()
 				
 				if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "")
 				{
-					if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.text == "S")
+					if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
 					{
 						this.addMessage(gt_bi, gt_relatedSubject, gt_text);
 					}
@@ -944,7 +700,7 @@ function GFcommunication ()
 		// add subjects
 		for (var gt_sid in this.subjects)
 		{
-			gf_cv_addSubject (gt_sid, this.subjects[gt_sid].textToString(), this.selectedNode == gt_sid);
+			gf_cv_addSubject (this.subjects[gt_sid], this.selectedNode == gt_sid);
 		}
 		
 		for (var gt_fromId in this.messages)
@@ -1080,6 +836,50 @@ function GFcommunication ()
 		}
 	}
 	
+	this.deactivateEdge = function ()
+	{
+		if (this.selectedSubject == null)
+		{
+			// does not exist in cv
+		}
+		else
+		{
+			if (gf_isset(this.subjects[this.selectedSubject]))
+			{
+				this.getBehavior(this.selectedSubject).deactivateEdge();
+			}
+		}
+	}
+	
+	this.deactivateNode = function ()
+	{
+		if (this.selectedSubject == null)
+		{
+			var gt_nodeId	= this.selectedNode;
+			
+			if (gt_nodeId != null)
+			{
+				if (this.subjects[gt_nodeId].isDeactivated())
+				{
+					this.subjects[gt_nodeId].activate();
+					gv_objects_nodes[gt_nodeId].activate();
+				}
+				else
+				{
+					this.subjects[gt_nodeId].deactivate();
+					gv_objects_nodes[gt_nodeId].deactivate();
+				}
+			}
+		}
+		else
+		{			
+			if (gf_isset(this.subjects[this.selectedSubject]))
+			{
+				this.getBehavior(this.selectedSubject).deactivateNode();
+			}
+		}
+	}
+	
 	/*
 	 * calls deleteEdge() of the selected subject's behavior
 	 */
@@ -1211,7 +1011,7 @@ function GFcommunication ()
 				
 				if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "")
 				{
-					if (gf_isset(this.subjects[gt_relatedSubject]) && gt_relatedSubject == this.selectedSubject && gt_startNode.text == "S")
+					if (gf_isset(this.subjects[gt_relatedSubject]) && gt_relatedSubject == this.selectedSubject && gt_startNode.getType() == "send")
 					{
 						gt_messagesArray[gt_messagesArray.length]	= gt_text;
 					}
@@ -1265,9 +1065,9 @@ function GFcommunication ()
 				gt_select_message.length	= 0;
 				
 				// create the drop down menu to select the related subject (only for receive and send nodes)
-				if (gt_node.getText().toLowerCase() == "s" || gt_node.getText().toLowerCase() == "r")
+				if (gt_node.getType() == "send" || gt_node.getType() == "receive")
 				{
-					if (gt_node.getText().toLowerCase() == "r")
+					if (gt_node.getType() == "receive")
 					{
 						document.getElementById(gv_elements.inputEdgeText).readOnly				= true;
 						document.getElementById(gv_elements.inputEdgeTarget).onchange			= gf_edgeMessage;
@@ -1293,12 +1093,15 @@ function GFcommunication ()
 					gt_select_target.add(gt_option);
 					
 					// read the subjects that can be related
-					var gt_subjectArray = {};
+					var gt_subjectArray = [];
+					var gt_subjectArrayIDs	= [];
+					
 					for (var gt_sid in this.subjects)
 					{
 						if (gt_sid != this.selectedSubject)
 						{
-							gt_subjectArray[gt_sid] = this.subjects[gt_sid].getText() + " (" + gt_sid + ")";
+							gt_subjectArrayIDs[gt_subjectArray.length]	= gt_sid;
+							gt_subjectArray[gt_subjectArray.length]		= this.subjects[gt_sid].getText() + " (" + gt_sid + ")";
 						}
 					}
 					
@@ -1309,14 +1112,15 @@ function GFcommunication ()
 					for (var gt_sid in gt_subjectArray)
 					{						
 						var gt_option = document.createElement("option");
-						gt_option.text = gt_subjectArray[gt_sid];
-						gt_option.value = gt_sid;
-						gt_option.id = gv_elements.inputEdgeTarget + "_" + gt_sid;
+						var gt_subjID = gt_subjectArray[gt_sid];
+						gt_option.text = gt_subjID;
+						gt_option.value = gt_subjectArrayIDs[gt_sid];
+						gt_option.id = gv_elements.inputEdgeTarget + "_" + gt_subjID;
 						gt_select_target.add(gt_option);
 						
 						if (gt_sid == gt_edge.getRelatedSubject())
 						{
-							document.getElementById(gv_elements.inputEdgeTarget + "_" + gt_sid).selected = true;
+							document.getElementById(gv_elements.inputEdgeTarget + "_" + gt_subjID).selected = true;
 						}
 					}
 					
@@ -1337,7 +1141,6 @@ function GFcommunication ()
 		if (gf_isset(clear) && clear == true)
 		{
 			document.getElementById(gv_elements.inputNodeText).value = "";
-			document.getElementById(gv_elements.inputNodeId).value = "";
 			document.getElementById(gv_elements.inputNodeType).value = "";
 			document.getElementById(gv_elements.inputNodeType2).value = "";
 			
@@ -1346,9 +1149,13 @@ function GFcommunication ()
 
 			document.getElementById(gv_elements.inputEdgeText).value = "";
 			document.getElementById(gv_elements.inputEdgeTarget).options.length = 0;
+			
 		}
 		else
 		{
+			
+				// TODO: subject types
+			
 			this.loadInformation(true);
 			document.getElementById(gv_elements.inputNodeOuter).style.display = "block";
 			document.getElementById(gv_elements.inputEdgeOuter).style.display = "none";
@@ -1367,19 +1174,19 @@ function GFcommunication ()
 			{
 				if (gf_isset(this.subjects[this.selectedSubject]))
 				{
+					
 					var gt_node = this.getBehavior(this.selectedSubject).getNode();
 					document.getElementById(gv_elements.inputNodeText).value = gt_node.getText();
-					document.getElementById(gv_elements.inputNodeId).value = gt_node.getId();
 					
 					// clear selection
-					document.getElementById(gv_elements.inputNodeTypeNormal).selected = gt_node.getType() == "normal";
-					document.getElementById(gv_elements.inputNodeTypeStart).selected = gt_node.getType() == "start";
-					document.getElementById(gv_elements.inputNodeTypeEnd).selected = gt_node.getType() == "end";
+					document.getElementById(gv_elements.inputNodeTypeNormal).selected = !gt_node.isStart() && !gt_node.isEnd();
+					document.getElementById(gv_elements.inputNodeTypeStart).selected = gt_node.isStart();
+					document.getElementById(gv_elements.inputNodeTypeEnd).selected = gt_node.isEnd();
 
-					document.getElementById(gv_elements.inputNodeType2R).selected = gt_node.getText() == "R";
-					document.getElementById(gv_elements.inputNodeType2S).selected = gt_node.getText() == "S";
-					document.getElementById(gv_elements.inputNodeType2End).selected = gt_node.getText() == "end";
-					document.getElementById(gv_elements.inputNodeType2Action).selected = (gt_node.getText() != "S" && gt_node.getText() != "R" && gt_node.getText() != "end");
+					document.getElementById(gv_elements.inputNodeType2R).selected = gt_node.getType() == "receive";
+					document.getElementById(gv_elements.inputNodeType2S).selected = gt_node.getType() == "send";
+					document.getElementById(gv_elements.inputNodeType2End).selected = gt_node.isEnd();
+					document.getElementById(gv_elements.inputNodeType2Action).selected = !gt_node.isEnd() && gt_node.getType() == "action";
 				}
 			}
 		}
@@ -1390,12 +1197,19 @@ function GFcommunication ()
 	 */
 	this.save = function ()
 	{
-		var gt_array = {};
+		var gt_array = [];
+		
+		var gt_arrayIndex	= 0;
 		
 		// transform subjects and the related behaviors
 		for (var gt_sid in this.subjects)
 		{
-			gt_array[gt_sid] = {id: gt_sid, name: this.subjects[gt_sid].getText()};
+			gt_arrayIndex = gt_array.length;
+			
+			gt_array[gt_arrayIndex] = {	id: gt_sid,
+										name: this.subjects[gt_sid].getText(),
+										type: this.subjects[gt_sid].getType(),
+										deactivated: this.subjects[gt_sid].isDeactivated()};
 			
 			var gt_behav = this.subjects[gt_sid].getBehavior();
 			var gt_nodes = gt_behav.getNodes();
@@ -1407,13 +1221,13 @@ function GFcommunication ()
 			for (var gt_nid in gt_nodes)
 			{
 				var gt_node = gt_nodes[gt_nid];
-				var gt_type = gt_node.getText().toLowerCase() == "r" ? "receive" : (gt_node.getText().toLowerCase() == "s" ? "send" : (gt_node.getType() == "end" ? "end" : "action"));
 				gt_newNodes[gt_nid.substr(1)] = {
 						id:		gt_node.getId(),
 						text:	gt_node.getText(),
-						start:	gt_node.getType() == "start",
-						end:	gt_node.getType() == "end",
-						type:	gt_type
+						start:	gt_node.isStart(),
+						end:	gt_node.isEnd(),
+						type:	gt_node.getType(),
+						deactivated: gt_node.isDeactivated()
 				};
 			}
 
@@ -1436,14 +1250,15 @@ function GFcommunication ()
 								start:	gt_edgeStartNode.getId(),
 								end:	gt_edgeEndNode.getId(),
 								text:	gt_edge.getText(),
-								target: gt_relatedSubject == null ? "" : gt_relatedSubject
+								target: gt_relatedSubject == null ? "" : gt_relatedSubject,
+								deactivated: gt_edge.isDeactivated()
 						};
 					}
 				}
 			}
 			
-			gt_array[gt_sid].nodes = gt_newNodes;
-			gt_array[gt_sid].edges = gt_newEdges;
+			gt_array[gt_arrayIndex].nodes = gt_newNodes;
+			gt_array[gt_arrayIndex].edges = gt_newEdges;
 		}
 		
 		return gt_array;
@@ -1466,6 +1281,7 @@ function GFcommunication ()
 				{
 					this.selectNothing();
 					this.selectedNode = id;
+					updateListOfSubjects();	// custom code
 					// this.draw();
 				}
 			}
@@ -1524,6 +1340,8 @@ function GFcommunication ()
 				var gt_text = document.getElementById(gv_elements.inputSubjectText).value;
 				var gt_id = document.getElementById(gv_elements.inputSubjectId).value;
 				
+				// TODO: subject type (single, multi, external)
+				
 				if (gt_text.replace(" ", "") != "" && gt_id.replace(" ", "") != "")
 				{
 				
@@ -1580,11 +1398,16 @@ function GFcommunication ()
 			{
 				// read the fields' values and pass to the bv
 				var gt_text	= document.getElementById(gv_elements.inputNodeText).value;
-				var gt_id	= document.getElementById(gv_elements.inputNodeId).value;
 				var gt_type	= document.getElementById(gv_elements.inputNodeType).value;
-				var gt_type2 = document.getElementById(gv_elements.inputNodeType2).value;
+				var gt_type2 = document.getElementById(gv_elements.inputNodeType2).value.toLowerCase();
 				
-				this.getBehavior(this.selectedSubject).updateNode(gt_id, gt_text, gt_type, gt_type2);
+				if (gt_type2 == "r")
+					gt_type2 = "receive";
+					
+				if (gt_type2 == "s")
+					gt_type2 = "send";
+				
+				this.getBehavior(this.selectedSubject).updateNode(gt_text, gt_type, gt_type2);
 				this.loadInformation();
 			}
 		}
@@ -1612,4 +1435,431 @@ function GFcommunication ()
 			}
 		}
 	}
+	
+	
+	this.loadFromJSON = function (jsonString)
+	{
+		var gt_jsonObject = JSON.parse(jsonString);
+		
+		// 1. create subjects (replace <br /> by \n)
+		for (var gt_subjectId in gt_jsonObject)
+		{
+			var gt_subject = gt_jsonObject[gt_subjectId];
+			
+			gv_graph.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_subject.deactivated);
+		}
+		
+		// 2. add nodes + edges
+		for (var gt_subjectId in gt_jsonObject)
+		{
+			var gt_subject	= gt_jsonObject[gt_subjectId];
+			var gt_behav	= gv_graph.getBehavior(gt_subject.id);
+			
+			if (gt_behav != null)
+			{
+				// 2.1 nodes
+				for (var gt_nodeId in gt_subject.nodes)
+				{
+					var gt_node	= gt_subject.nodes[gt_nodeId];
+					gt_behav.addNode(gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+				}
+				
+				// 2.2 edges
+				for (var gt_edgeId in gt_subject.edges)
+				{
+					var gt_edge = gt_subject.edges[gt_edgeId];
+					gt_behav.addEdge(gt_edge.start, gt_edge.end, gf_replaceNewline(gt_edge.text), gt_edge.target, gt_edge.deactivated);
+				}
+			}
+		}	
+	}
+	
+	this.saveToJSON = function ()
+	{
+		return JSON.stringify(this.save()).replace(/\\n/gi, "<br />");
+	}
+}
+
+/*
+ * Edge class
+ */
+GFedge = function (parent, start, end, text, relatedSubject)
+{
+	if (!gf_isset(start) || parseInt(start) != start)
+		start = 0;
+	
+	if (!gf_isset(end) || parseInt(end) != end)
+		end = 0;
+	
+	if (!gf_isset(text))
+		text = "";
+	
+	if (!gf_isset(relatedSubject))
+		relatedSubject = null;
+	
+	this.parent	= parent;
+	this.end	= end;
+	this.start	= start;
+	this.text	= text;
+	this.relatedSubject	= relatedSubject;
+	this.deactivated	= false;
+	
+	this.activate = function ()
+	{
+		this.deactivated = false;
+	}
+	
+	this.deactivate = function ()
+	{
+		this.deactivated = true;
+	}
+	
+	/*
+	 * returns the id of the end-node of this edge
+	 */
+	this.getEnd = function ()
+	{
+		return this.end;
+	}
+	
+	/*
+	 * returns the id of the start-node of this edge
+	 */
+	this.getStart = function ()
+	{
+		return this.start;
+	}
+	
+	/*
+	 * returns the id of the related subject (the subject a message is sent to / received from) or null, if no subject is related
+	 */
+	this.getRelatedSubject = function ()
+	{
+		var startNode		= this.parent.getNode(this.start);
+		var relatedSubject	= this.relatedSubject;
+		
+		if (startNode == null || (startNode.getType() != "receive" && startNode.getType() != "send"))
+		{
+			relatedSubject = null;
+		}
+		
+		return relatedSubject;
+	}
+	
+	/*
+	 * returns the text of this edge
+	 */
+	this.getText = function ()
+	{
+		return this.text;
+	}
+	
+	this.isDeactivated = function ()
+	{
+		return this.deactivated === true;
+	}
+	
+	/*
+	 * sets the id of the end node of this edge
+	 */
+	this.setEnd = function (end)
+	{
+		if (gf_isset(end) && parseInt(end) == end)
+			this.end = end;
+	}
+	
+	/*
+	 * sets the id of the start node of this edge
+	 */
+	this.setStart = function (start)
+	{
+		if (gf_isset(start) && parseInt(start) == start)
+			this.start = start;
+	}
+	
+	/*
+	 * sets the related subject (subject a message is sent to / received from)
+	 */
+	this.setRelatedSubject = function (relatedSubject)
+	{
+		var startNode		= this.parent.getNode(this.start);
+		
+		if (gf_isset(relatedSubject) && relatedSubject != "" && startNode != null && (startNode.getType() == "receive" || startNode.getType() == "send"))
+			this.relatedSubject = relatedSubject;
+	}
+	
+	/*
+	 * sets the text of this edge
+	 */
+	this.setText = function (text)
+	{
+		if (gf_isset(text))
+			this.text = text;
+	}
+	
+	/*
+	 * returns a string containing the edge's text and the name of the related subjects (if one) in brackets
+	 */
+	this.textToString = function ()
+	{
+		var startNode		= this.parent.getNode(this.start);
+		
+		return this.text + (this.getRelatedSubject() != null ? "\n(" + (startNode.getType() == "receive" ? "from" : "to") + ": " + this.relatedSubject + ")" : "");
+	}
+}
+
+/*
+ * Node class
+ */
+GFnode = function (id, text, type)
+{
+	this.id		= "";
+	this.text	= "";
+	this.type	= "action";		// send, receive, action (default), ...
+	this.start	= false;
+	this.end	= false;
+	this.deactivated	= false;
+	
+	this.activate = function ()
+	{
+		this.deactivated = false;
+	}
+	
+	this.deactivate = function ()
+	{
+		this.deactivated = true;
+	}
+	
+	/*
+	 * returns the id of this node
+	 */
+	this.getId = function ()
+	{
+		return this.id;
+	}
+	
+	this.getShape = function ()
+	{
+		var type	= this.type.toLowerCase();
+		var shape	= "roundedrectangle";
+		
+		if (this.isEnd())
+			type = "end";
+		
+		if (gf_isset(gv_nodeTypes[type]) && gf_isset(gv_nodeTypes[type].shape))
+		{
+			shape	= gv_nodeTypes[type].shape.toLowerCase();
+		}
+		return shape;
+	}
+	
+	/*
+	 * returns the text of this node
+	 */
+	this.getText = function ()
+	{
+		return this.text;
+	}
+	
+	this.getTextGraph = function ()
+	{
+		var type	= this.type.toLowerCase();
+		var text	= this.text;
+		
+		if (this.isEnd())
+			type = "end";
+		
+		if (gf_isset(gv_nodeTypes[type]) && gf_isset(gv_nodeTypes[type].text))
+		{
+			text	= gv_nodeTypes[type].text;
+		}
+		return text;
+	}
+	
+	/*
+	 * returns the type (send, receive, action, ...) of this node
+	 */
+	this.getType = function ()
+	{
+		return this.type.toLowerCase();
+	}
+	
+	this.isDeactivated = function ()
+	{
+		return this.deactivated === true;
+	}
+	
+	this.isEnd = function ()
+	{
+		return this.end === true;
+	}
+	
+	this.isStart = function ()
+	{
+		return this.start === true;
+	}
+	
+	this.setEnd = function (end)
+	{
+		if (gf_isset(end))
+		{
+			this.end = end === true;
+		}
+	}
+	
+	/*
+	 * sets the id of this node
+	 */
+	this.setId = function (id)
+	{
+		if (gf_isset(id))
+		{
+			this.id = id;
+		}
+	}
+	
+	this.setStart = function (start)
+	{
+		if (gf_isset(start))
+		{
+			this.start = start === true;
+		}
+	}
+	
+	/*
+	 * sets the text of this node
+	 */
+	this.setText = function (text)
+	{
+		if (gf_isset(text))
+		{
+			this.text = text;
+		}
+	}
+	
+	/*
+	 * sets the type (send, receive, action, ...) of this node
+	 */
+	this.setType = function (type)
+	{
+		if (gf_isset(type))
+		{
+			type = type.toLowerCase();
+			
+			this.type = type;
+		}
+	}
+	
+	// init
+	this.setText(text);
+	this.setId(id);
+	this.setType(type);
+}
+
+/*
+ * Subject class
+ */
+// TODO: add function to set process to be loaded on dblClick on external subject
+GFsubject = function (id, text, type)
+{
+	if (!gf_isset(text))
+		text = "";
+		
+	if (!gf_isset(type))
+		type = "single";		// single, multi, external
+	
+	this.id			= id;
+	this.text		= text;
+	this.type		= type;
+	this.behavior	= new GFbehavior(id);
+	this.deactivated	= false;
+	
+	this.activate = function ()
+	{
+		this.deactivated = false;
+	}
+	
+	this.deactivate = function ()
+	{
+		this.deactivated = true;
+	}
+	
+	/*
+	 * returns the behavioral graph of this subject
+	 */
+	this.getBehavior = function ()
+	{
+		return this.behavior;
+	}
+	
+	/*
+	 * returns the id of this subject
+	 */
+	this.getId = function ()
+	{
+		return this.id;
+	}
+	
+	/*
+	 * returns the text of this subject
+	 */
+	this.getText = function ()
+	{
+		return this.text;
+	}
+	
+	this.getType = function ()
+	{
+		return this.type;
+	}
+	
+	this.isDeactivated = function ()
+	{
+		return this.deactivated === true;
+	}
+	
+	/*
+	 * sets the id of this subject
+	 */
+	this.setId = function (id)
+	{
+		if (gf_isset(id))
+		{
+			this.id = id;
+		}
+	}
+	
+	/*
+	 * sets the text of this subject
+	 */
+	this.setText = function (text)
+	{
+		if (gf_isset(text))
+		{
+			this.text = text;
+		}
+	}
+	
+	this.setType = function (type)
+	{
+		if (gf_isset(type))
+		{
+			type = type.toLowerCase();
+			if (type == "single" || type == "multi" || type == "external")
+			{
+				this.type = type;
+			}
+		}
+	}
+	
+	/*
+	 * returns the text of this subject with it's id (in brackets)
+	 */
+	this.textToString = function ()
+	{
+		return this.text + "\n(" + this.id + ")";
+	}
+	
+	// set the type
+	this.setType(type);
 }
