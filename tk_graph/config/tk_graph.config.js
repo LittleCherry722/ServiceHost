@@ -22,7 +22,12 @@ var gv_paperSizes	= {
 	cv_height: 540
 };
 
-var gv_arrowHead	= {width: 11, length: 14};
+var gv_nodeTypes	= {
+	action: {shape: "roundedrectangle", text: null},
+	send: {shape: "circle", text: "S"},
+	receive: {shape: "circle", text: "R"},
+	end: {shape: "circle", text: ""}
+};
 
 var gv_defaultStyle	= {
 	

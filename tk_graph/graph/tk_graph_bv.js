@@ -38,26 +38,22 @@ function gf_bv_addSubject (gt_bv_subject)
  * - "" for end
  * - any other text for internal actions
  */
-function gf_bv_addNode (gt_bv_subject, gt_bv_id, gt_bv_text, gt_bv_type, gt_bv_selected)
+function gf_bv_addNode (gt_bv_subject, gt_bv_id, gt_bv_node, gt_bv_selected)
 {
 	if (!gf_isset(gv_bv_graphs[gt_bv_subject]))
 		gf_bv_addSubject(gt_bv_subject);
+		
+	if (!gf_isset(gt_bv_id) || !gf_isset(gt_bv_node))
+		return false;
 	
 	var gt_bv_graph = gv_bv_graphs[gt_bv_subject];
-	
-	if (!gf_isset(gt_bv_text) || gt_bv_text.toLowerCase() == "end")
-		gt_bv_text = "";
-	
-	if (!gf_isset(gt_bv_type))
-		gt_bv_type = "normal";
 	
 	if (!gf_isset(gt_bv_selected) || gt_bv_selected != true)
 		gt_bv_selected = false;
 	
 	// add node
 	gt_bv_graph.nodes[gt_bv_id] = {	id:			gt_bv_id,
-									text:		gt_bv_text,
-									type:		gt_bv_type,
+									node:		gt_bv_node,
 									visited:	false,
 									posx:		0,
 									posy:		0,
@@ -69,7 +65,7 @@ function gf_bv_addNode (gt_bv_subject, gt_bv_id, gt_bv_text, gt_bv_type, gt_bv_s
 	gt_bv_graph.nodeCount++;
 	
 	// add node to startNodes
-	if (gt_bv_type == "start")
+	if (gt_bv_node.isStart())
 	{
 		gt_bv_graph.startNodes[gt_bv_id] = true;
 		gt_bv_graph.startNodeCount++;
@@ -79,9 +75,9 @@ function gf_bv_addNode (gt_bv_subject, gt_bv_id, gt_bv_text, gt_bv_type, gt_bv_s
 /*
  * called by the API: adds an edge to a subject
  */
-function gf_bv_addEdge (gt_bv_subject, gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_text, gt_bv_selected)
+function gf_bv_addEdge (gt_bv_subject, gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_edge, gt_bv_selected)
 {
-	if (gf_isset(gv_bv_graphs[gt_bv_subject]) && gf_isset(gv_bv_graphs[gt_bv_subject].nodes[gt_bv_start], gv_bv_graphs[gt_bv_subject].nodes[gt_bv_end]))
+	if (gf_isset(gv_bv_graphs[gt_bv_subject], gt_bv_edge) && gf_isset(gv_bv_graphs[gt_bv_subject].nodes[gt_bv_start], gv_bv_graphs[gt_bv_subject].nodes[gt_bv_end]))
 	{	
 		
 		if (!gf_isset(gt_bv_selected) || gt_bv_selected != true)
@@ -95,13 +91,13 @@ function gf_bv_addEdge (gt_bv_subject, gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_t
 		// store the edge
 		gt_bv_graph.edges[gt_bv_start][gt_bv_graph.edges[gt_bv_start].length] = {	start:		gt_bv_start,
 																					end:		gt_bv_end,
-																					text:		gt_bv_text,
+																					edge:		gt_bv_edge,
 																					id:			gt_bv_id,
 																					visited:	false,
 																					selected:	gt_bv_selected
 																					};
 		
-		if (gt_bv_graph.nodes[gt_bv_end].type != "start" || gt_bv_graph.nodes[gt_bv_start].type != "start")
+		if (!gt_bv_graph.nodes[gt_bv_end].node.isStart() || !gt_bv_graph.nodes[gt_bv_start].node.isStart())
 		{
 			gt_bv_graph.nodes[gt_bv_start].edgesOut++;
 			gt_bv_graph.nodes[gt_bv_end].edgesIn++;
@@ -239,7 +235,7 @@ function gf_bv_drawGraph (gt_bv_subject)
 		{
 			var gt_bv_node = gv_bv_graphs[gt_bv_subject].nodes[gt_bv_nodeId];
 			
-			gf_bv_drawNode(gt_bv_node.posx, gt_bv_node.posy, gt_bv_node.id, gt_bv_node.text, gt_bv_node.type, gt_bv_node.selected);
+			gf_bv_drawNode(gt_bv_node);
 			
 			gf_bv_addObjectPort(gt_bv_node.id);
 		}
@@ -252,7 +248,7 @@ function gf_bv_drawGraph (gt_bv_subject)
 				var gt_bv_edge = gv_bv_graphs[gt_bv_subject].edges[gt_bv_nodeId][gt_bv_edgeId];
 
 				// perhaps add a space if edgesOut > 1
-				gf_bv_drawArrow(gt_bv_edge.id, gt_bv_edge.start, gt_bv_edge.end, gt_bv_edge.text, gt_bv_edge.selected);
+				gf_bv_drawArrow(gt_bv_edge);
 			}
 		}
 	}
@@ -354,78 +350,61 @@ function gf_bv_editObjectPort (gt_bv_id, gt_bv_port, gt_bv_flag)
 /*
  * draws a node
  */
-function gf_bv_drawNode (gt_bv_posx, gt_bv_posy, gt_bv_id, gt_bv_text, gt_bv_type, gt_bv_selected)
+function gf_bv_drawNode (gt_bv_node)
 {
-	if (!gf_isset(gt_bv_type))
-		gt_bv_type = "normal";
-
-	if (!gf_isset(gt_bv_text))
-		gt_bv_text = "";
+	var gt_bv_style	= null;
 	
-	if (gt_bv_text == "")
-		gt_bv_type = "end";
-		
-	var gt_bv_shape = "rectangle";
-		
-	if (gf_isset(gt_bv_posx, gt_bv_posy, gt_bv_id))
+	if (gt_bv_node.node.getShape() == "circle")
 	{
-		// if the node is an end, receive or send node -> draw a circle
-		if (gt_bv_text == "S" || gt_bv_text == "R" || gt_bv_text == "")	// send, receive, end
+		if (gt_bv_node.node.isStart())
 		{
-			if (gt_bv_type == "start")
-			{
-				gt_bv_style = gf_mergeStyles(gv_bv_circleNode.style, gv_bv_circleNode.styleStart);
-			}
-			else if (gt_bv_type == "end")
-			{
-				gt_bv_style = gf_mergeStyles(gv_bv_circleNode.style, gv_bv_circleNode.styleEnd);
-				gt_bv_text = "";
-			}
-			else
-			{
-				gt_bv_style = gv_bv_circleNode.style;
-			}
-			
-			gt_bv_shape	= "circle";
+			gt_bv_style = gf_mergeStyles(gv_bv_circleNode.style, gv_bv_circleNode.styleStart);
 		}
-		
-		// if the node is an internal action -> draw a rectangle
+		else if (gt_bv_node.node.isEnd())
+		{
+			gt_bv_style = gf_mergeStyles(gv_bv_circleNode.style, gv_bv_circleNode.styleEnd);
+		}
 		else
 		{
-			if (gt_bv_type == "start")
-			{
-				gt_bv_style = gf_mergeStyles(gv_bv_rectNode.style, gv_bv_rectNode.styleStart);
-			}
-			else
-			{
-				gt_bv_style = gv_bv_rectNode.style;
-			}
-			
-			gt_bv_shape	= "roundedrectangle";
+			gt_bv_style = gv_bv_circleNode.style;
+		}
+	}
+	else
+	{
+		if (gt_bv_node.node.isStart())
+		{
+			gt_bv_style = gf_mergeStyles(gv_bv_rectNode.style, gv_bv_rectNode.styleStart);
+		}
+		else
+		{
+			gt_bv_style = gv_bv_rectNode.style;
 		}
 	}
 		
-	var gt_bv_rect	= new GFlabel(gt_bv_posx, gt_bv_posy, gt_bv_text, gt_bv_shape, gt_bv_id);
+	var gt_bv_rect	= new GFlabel(gt_bv_node.posx, gt_bv_node.posy, gt_bv_node.node.getTextGraph(), gt_bv_node.node.getShape(), gt_bv_node.id);
 	
-	if (gf_isset(gt_bv_selected) && gt_bv_selected === true)
+	if (gt_bv_node.node.isDeactivated())
+		gt_bv_rect.deactivate();
+			
+	if (gf_isset(gt_bv_node.selected) && gt_bv_node.selected === true)
 		gt_bv_rect.select();
 		
 	gt_bv_rect.setStyle(gt_bv_style);
-	gt_bv_rect.click("bv");
-	
-	// TODO: remove random and use some real function to determine whether a node is deactivated or not
-	// var num = Math.random();
-	// if (num < 0.5)
-	// gt_bv_rect.deactivate();	
-	
+	gt_bv_rect.click("bv");	
 }
 
 /*
  * draws an arrow between two objects
  */
-function gf_bv_drawArrow (gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_text, gt_bv_selected)
+function gf_bv_drawArrow (gt_bv_edgeData)
 {
-	if (!gf_isset(gv_objects_nodes[gt_bv_start], gv_objects_nodes[gt_bv_end], gt_bv_text))
+	if (!gf_isset(gt_bv_edgeData))
+		return false;
+		
+	var gt_bv_start	= gt_bv_edgeData.start;
+	var gt_bv_end	= gt_bv_edgeData.end;
+	
+	if (!gf_isset(gv_objects_nodes[gt_bv_start], gv_objects_nodes[gt_bv_end]))
 		return false;		
 		
 	var gt_bv_objStart	= gv_objects_nodes[gt_bv_start].getBoundaries();
@@ -456,7 +435,7 @@ function gf_bv_drawArrow (gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_text, gt_bv_se
 	
 	var mapPorts		= {t: "top", b: "bottom", r: "right", l: "left"};
 	
-	var gt_bv_edge	= new GFpath(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_shape, gt_bv_text, gt_bv_id);
+	var gt_bv_edge	= new GFpath(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_shape, gt_bv_edgeData.edge.textToString(), gt_bv_edgeData.id);
 		gt_bv_edge.hide();
 		
 	// cycle through all port combinations at startObject and endObject to determine the shape of the arrow and the ports to use
@@ -596,7 +575,10 @@ function gf_bv_drawArrow (gt_bv_id, gt_bv_start, gt_bv_end, gt_bv_text, gt_bv_se
 	gt_bv_edge.show();
 	gt_bv_edge.click();
 	
-	if (gf_isset(gt_bv_selected) && gt_bv_selected === true)
+	if (gt_bv_edgeData.edge.isDeactivated())
+		gt_bv_edge.deactivate();
+	
+	if (gf_isset(gt_bv_edgeData.selected) && gt_bv_edgeData.selected === true)
 		gt_bv_edge.select();
 }
 

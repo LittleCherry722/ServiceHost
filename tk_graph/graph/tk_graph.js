@@ -103,10 +103,6 @@ function gf_paperDblClickNodeC (id)
 {
 	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
 	{
-		// gf_deselectEdges();
-		// gf_deselectNodes();
-		// gv_objects_nodes[id].select();
-		// gf_clickedCVbehavior(id);
 		gf_paperClickNodeC(id);
 		showtab1();
 	}
@@ -738,7 +734,6 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 	/*
 	 * common functions
 	 */
-	// graph: cv | bv -> either use gf_clickedCVnode or gf_clickedBVnode (on edge: gf_clickedBVedge)
 	this.click = function (graph)
 	{
 		if (gf_isset(graph))
@@ -960,7 +955,7 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 	 */	
 	this.replaceNewline = function (text)
 	{
-		return text.replace(/<br>|<br \/>|<br\/>|\r\n|\r|\n/gi, "\n").replace(/<li>|<li \/>|<li\/>/gi, this.readStyle("liSymbol", ""));
+		return gf_replaceNewline(text).replace(/<li>|<li \/>|<li\/>/gi, this.readStyle("liSymbol", ""));
 	}
 	 
 	// shape: circle | rect || roundedRectangle
@@ -1150,12 +1145,11 @@ function gf_count (gt_array)
 }
 
 /*
- * splits a text by all common new-line indicators (like <br>, \n) and returns the resulting array
+ * replaces newline characters with \n
  */
-function gf_splitText (gt_text)
+function gf_replaceNewline (gt_text)
 {
-	// TODO: instead of split only replace; method will not be necessary any more
-	return gt_text.split(/<br>|<br \/>|<br\/>|\r\n|\r|\n/gi);
+	return gt_text.replace(/<br>|<br \/>|<br\/>|\r\n|\r|\n/gi, "\n");
 }
 
 /*

@@ -20,12 +20,12 @@ var gv_cv_graph = {subjects: {}, messages: {}};
 /*
  * called by API: adds a subject to the graph
  */
-function gf_cv_addSubject (gt_cv_id, gt_cv_text, gt_cv_selected)
+function gf_cv_addSubject (gt_cv_subject, gt_cv_selected)
 {
 	if (!gf_isset(gt_cv_selected) || gt_cv_selected != true)
 		gt_cv_selected = false;
 	
-	gv_cv_graph.subjects[gt_cv_id] = {text: gt_cv_text, selected: gt_cv_selected, id: gt_cv_id};
+	gv_cv_graph.subjects[gt_cv_subject.getId()] = {subject: gt_cv_subject, selected: gt_cv_selected};
 }
 
 /*
@@ -115,7 +115,7 @@ function gf_cv_drawGraph ()
 			var gt_cv_subjectId = gt_cv_nextNodes[gt_cv_nnIndex];
 			
 			var gt_cv_subject	= gt_cv_subjects[gt_cv_subjectId];
-			var gt_cv_subjId	= gt_cv_subject.id;
+			var gt_cv_subjId	= gt_cv_subject.subject.getId();
 			var gt_cv_outCount	= gf_isset(gt_cv_msgCounter[gt_cv_subjId]) ? gt_cv_msgCounter[gt_cv_subjId].msgOut : 0;
 			var gt_cv_inCount	= gf_isset(gt_cv_msgCounter[gt_cv_subjId]) ? gt_cv_msgCounter[gt_cv_subjId].msgIn : 0;
 			
@@ -159,8 +159,8 @@ function gf_cv_drawGraph ()
 			{
 				for (var gt_cv_subjectId in gt_cv_subjects)
 				{
-					var gt_cv_endId		= gt_cv_subjects[gt_cv_subjectId].id;
-					var gt_cv_startId	= gt_cv_subjects[gt_cv_mlSubject].id;
+					var gt_cv_endId		= gt_cv_subjects[gt_cv_subjectId].subject.getId();
+					var gt_cv_startId	= gt_cv_subjects[gt_cv_mlSubject].subject.getId();
 					
 					if (gt_cv_mlSubject != gt_cv_subjectId && gf_isset(gt_cv_messages[gt_cv_startId][gt_cv_endId]) && !gf_isset(gt_cv_subjectsVisited[gt_cv_subjectId]))
 					{
@@ -187,7 +187,7 @@ function gf_cv_drawGraph ()
 	{
 		var gt_cv_subjectId = gt_cv_subjectsSorted[gt_cv_ssId];
 		
-		gf_cv_drawRoundedRectangle(gt_cv_x, gt_cv_y, gt_cv_subjects[gt_cv_subjectId].id, gt_cv_subjects[gt_cv_subjectId].text, gt_cv_subjects[gt_cv_subjectId].selected);
+		gf_cv_drawRoundedRectangle(gt_cv_x, gt_cv_y, gt_cv_subjects[gt_cv_subjectId].subject, gt_cv_subjects[gt_cv_subjectId].selected);
 		gt_cv_x += gv_cv_roundedRectangle.distance;
 	}
 	
@@ -206,9 +206,9 @@ function gf_cv_drawGraph ()
  */
 function gf_cv_sortSubjectsByIdCI (obj1, obj2)
 {
-	if (obj1.id.toLowerCase() > obj2.id.toLowerCase())
+	if (obj1.subject.getId().toLowerCase() > obj2.subject.getId().toLowerCase())
 		return 1;
-	if (obj1.id.toLowerCase() < obj2.id.toLowerCase())
+	if (obj1.subject.getId().toLowerCase() < obj2.subject.getId().toLowerCase())
 		return -1;
 	return 0;
 }
@@ -216,21 +216,33 @@ function gf_cv_sortSubjectsByIdCI (obj1, obj2)
 /*
  * draws a rounded rectangle as a representation for a subject
  */
-function gf_cv_drawRoundedRectangle (gt_cv_posx, gt_cv_posy, gt_cv_id, gt_cv_text, gt_cv_selected)
+function gf_cv_drawRoundedRectangle (gt_cv_posx, gt_cv_posy, gt_cv_subject, gt_cv_selected)
 {
 	
-	var gt_cv_rect	= new GFlabel(gt_cv_posx, gt_cv_posy, gt_cv_text, "roundedrectangle", gt_cv_id);	// TODO: Multi
+	var gt_cv_shape	= gt_cv_subject.getType() == "multi" ? "roundedrectanglemulti" : "roundedrectangle";
+	
+	var gt_cv_rect	= new GFlabel(gt_cv_posx, gt_cv_posy, gt_cv_subject.textToString(), gt_cv_shape, gt_cv_subject.getId());
+		
+	if (gt_cv_subject.getType() == "multi")
+	{
+		gt_cv_rect.setStyle(gv_cv_roundedRectangle.styleMulti);
+	}
+	else if (gt_cv_subject.getType() == "external")
+	{
+		gt_cv_rect.setStyle(gv_cv_roundedRectangle.styleExternal);	
+	}
+	else
+	{
+		gt_cv_rect.setStyle(gv_cv_roundedRectangle.styleSingle);	
+	}
+	
+	gt_cv_rect.click("cv");
+	
+	if (gt_cv_subject.isDeactivated())
+		gt_cv_rect.deactivate();
 	
 	if (gf_isset(gt_cv_selected) && gt_cv_selected === true)
 		gt_cv_rect.select();
-		
-	gt_cv_rect.setStyle(gv_cv_roundedRectangle.styleSingle);		// TODO: Multi + External
-	gt_cv_rect.click("cv");
-	
-	// TODO: remove random and use some real function to determine whether a node is deactivated or not
-	// var num = Math.random();
-	// if (num < 0.5)
-	// gt_cv_rect.deactivate();
 }
 
 /*
