@@ -242,7 +242,30 @@ function ProzessLaden(name) {
 		classes: [,"ok"],
 		autohide: true
 	});
+	updateListOfSubjects();
 	$("input[id=tab2]").trigger("click");  
+
+}
+
+function updateListOfSubjects(){
+	var html = "";
+	
+	for(var subject in gv_graph.subjects){
+		
+		
+
+	if (""+subject == gv_graph.selectedNode){
+
+		html += "<option selected id=\""+subject+"\">"+subject+"</option>";
+		
+	}
+	else{
+		html += "<option id=\""+subject+"\">"+subject+"</option>";
+
+	}
+}
+	$('#slctSbj').html(html);
+	
 }
 
 function drawGraph(graph) {

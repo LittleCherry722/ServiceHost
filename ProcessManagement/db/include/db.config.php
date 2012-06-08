@@ -15,7 +15,7 @@
 
 	$dbConfig	= array (
 		"host"		=> "localhost",
-		"user"		=> "sbpm_groupware",
+		"user"		=> "root",
 		"pass"		=> "",
 		"database"	=> "sbpm_groupware"	
 	);
