@@ -235,6 +235,14 @@ function updateListOfSubjects(){
 	
 }
 
+function goToInternalBehaviorOf(subject){
+	gv_graph.selectedSubject = null; 
+	gf_clickedCVnode(subject);
+	showtab1();
+
+}
+
+
 function addHistory(data, userid, subjectid, node){ 
      if(typeof(data[userid]) == 'undefined') data[userid] = JSON.parse("{}"); 
      if(typeof(data[userid]['history']) == 'undefined') data[userid]['history'] = new Array(); 
