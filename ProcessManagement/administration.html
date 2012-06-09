@@ -1,0 +1,50 @@
+<script>
+var ViewModel = function() {
+    
+    var self = this;
+
+	self.tabs = ["General", "User", "Group", "Debug"];
+    self.tab = ko.observable();
+    self.content = ko.observable();
+    
+    self.goToTab = function(tab) { 
+
+        self.tab(tab);
+        
+        $.get('include/administration/'+tab.toLowerCase()+'.html', function(data){
+            self.content(data)
+        });
+    }
+    
+    self.tab("General");
+};
+ 
+ko.applyBindings(new ViewModel());
+</script>
+
+<div id="content2">
+
+	<!-- header -->
+	<div id="header2">
+
+		<div id="logo2">
+		<h3>Administration</h3>
+		</div>
+	</div>
+	<!-- End header -->
+	<div style="margin:10px">
+
+        <div style="width: 100px; height: 400px; float: left; border-right: 1px dotted #2F4E85;">
+            <ul class="folders" data-bind="foreach: tabs">
+                <li data-bind="text: $data, 
+                               css: { selected: $data == $root.tab() },
+                               click: $root.goToTab"></li>
+            </ul>
+        </div>
+
+        <div data-bind="html: content" style="width: 500px; height: 400px; float: left;">
+            default
+        </div>
+	</div>
+	
+</div>
