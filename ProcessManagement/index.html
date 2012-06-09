@@ -306,7 +306,7 @@
 															</p>
 															<br class="clear"/>
 															<p>
-																<input type="button" onClick="gf_deactivateNode();" value="de-/activate node" />
+																<input type="button" onClick="gf_deactivateNode();" value="De-/Activate node" />
 															</p>
 
 														</div>
@@ -344,7 +344,7 @@
 															</p>
 															<br class="clear"/>
 															<p>
-																<input type="button" onClick="gf_deactivateEdge();" value="de-/activate edge" />
+																<input type="button" onClick="gf_deactivateEdge();" value="De-/Activate edge" />
 															</p>
 														</div>
 													</div>
@@ -431,10 +431,16 @@
 															<p>
 																<input type="button" onClick="gv_graph.deleteNode();" value="Delete node" />
 															</p>
+															<br class="clear"/>
+															<p>
+																<input type="button" onClick="gf_deactivateNode();" value="De-/Activate node" />
+															</p>
+
 														</div>
 													</div>
 												</div>
 												<div id="edge" style="display:none">
+													<!-- Edges can't be selected in subject view -->
 													<div class="twocolumninfo">
 														<div class="column_left2">
 															<p>
@@ -452,11 +458,15 @@
 														</div>
 														<div class="column_right2" align="center">
 															<p>
-																<input type="button" onClick="gv_graph.updateEdge();" value="update edge" />
+																<input type="button" onClick="gv_graph.updateEdge();" value="Update edge" />
 															</p>
 															<br class="clear"/>
 															<p>
-																<input type="button" onClick="gv_graph.deleteEdge();" value="remove edge" />
+																<input type="button" onClick="gv_graph.deleteEdge();" value="Remove edge" />
+															</p>
+															<br class="clear"/>
+															<p>
+																<input type="button" onClick="gf_deactivateEdge();" value="De-/Activate edge" />
 															</p>
 														</div>
 													</div>
