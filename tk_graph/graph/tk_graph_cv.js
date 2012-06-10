@@ -49,8 +49,7 @@ function gf_cv_addMessage (start, end, text)
 function gf_cv_drawGraph ()
 {
 	// init the paper
-	gv_paper = gv_cv_paper;
-	gf_initPaper();
+	gf_paperChangeView("cv");
 
 	// initialize the variables and clear the arrays
 	var gt_cv_subjects = [];

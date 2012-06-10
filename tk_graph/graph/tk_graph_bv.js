@@ -118,8 +118,7 @@ function gf_bv_drawGraph (gt_bv_subject)
 	{
 		
 		// init the paper
-		gv_paper = gv_bv_paper;
-		gf_initPaper();
+		gf_paperChangeView("bv");
 		
 		// clear arrays
 		gv_bv_objectPorts	= {};
@@ -250,6 +249,19 @@ function gf_bv_drawGraph (gt_bv_subject)
 				// perhaps add a space if edgesOut > 1
 				gf_bv_drawArrow(gt_bv_edge);
 			}
+		}
+		
+		var ioTop	= false;		
+		// check tin and tout of startnodes
+		for (var gt_bv_startNode in gt_bv_graph.startNodes)
+		{			
+			ioTop	= ioTop || gf_bv_checkObjectPort (gt_bv_startNode, "t", "i") === false || gf_bv_checkObjectPort (gt_bv_startNode, "t", "o") === false
+		}
+		
+		if (ioTop)
+		{
+			gv_originalViewBox.y -= 0;
+			gf_paperZoomReset();
 		}
 	}
 }

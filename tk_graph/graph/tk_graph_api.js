@@ -763,7 +763,7 @@ function GFcommunication ()
 	{
 		if (view == "cv")
 		{
-			gv_paper = gv_cv_paper;		// TODO: remove?
+			gf_paperChangeView("cv");
 			if (gf_elementExists(gv_elements.graphCVouter))
 			{
 				document.getElementById(gv_elements.graphCVouter).style.display="block";				
@@ -777,7 +777,7 @@ function GFcommunication ()
 		}
 		else if (view == "bv")
 		{
-			gv_paper = gv_bv_paper;		// TODO: remove?
+			gf_paperChangeView("bv");
 			if (gf_elementExists(gv_elements.graphBVouter))
 			{
 				document.getElementById(gv_elements.graphBVouter).style.display="block";				
@@ -799,7 +799,8 @@ function GFcommunication ()
 			gv_cv_paper = Raphael(gv_elements.graphCVouter, gv_paperSizes.cv_width, gv_paperSizes.cv_height);
 		if (gf_elementExists(gv_elements.graphBVouter))
 			gv_bv_paper = Raphael(gv_elements.graphBVouter, gv_paperSizes.bv_width, gv_paperSizes.bv_height);
-		gv_paper = gv_cv_paper;
+			
+		gf_paperChangeView("cv");
 	}
 	
 	/*
@@ -967,8 +968,7 @@ function GFcommunication ()
 				if (this.loadedSubject == this.selectedNode)
 				{
 					this.loadedSubject = null;
-					gv_paper = gv_bv_paper;
-					gf_initPaper();
+					gf_paperChangeView("bv");
 				}
 					
 				if (this.selectedSubject == this.selectedNode)
