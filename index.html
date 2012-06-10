@@ -42,7 +42,7 @@
 		<script type="text/javascript" src="js/keymaster.min.js"></script>
 		<script type="text/javascript" src="js/shortcuts.js"></script>
 		<script type="text/javascript" src="js/chosen.jquery.min.js"></script>
-		
+
 		<script>
 			$(function() {
 				$("#column_left").draggable();
@@ -68,17 +68,17 @@
 						document.write(storage.get("loggedin_user"))
 					</script></a> (<a id="newMSG" href="newMSG.html"></a>)
 				</div>
-				
+
 				<div id="misc">
-				    <div id="menu">
-    				    <a id="administration" href="administration.html">Administration</a>
-    				     | 
-    				    <a href="start.html">Logout</a>
-				    </div>
-				    
-				    <div id="img">
-				        <a href="http://www.tu-darmstadt.de"><img src="images/tu_darmstadt_web.png" alt="TU-Darmstadt" /></a>
-				    </div>
+					<div id="menu">
+						<a id="administration" href="administration.html">Administration</a>
+						|
+						<a href="start.html">Logout</a>
+					</div>
+
+					<div id="img">
+						<a href="http://www.tu-darmstadt.de"><img src="images/tu_darmstadt_web.png" alt="TU-Darmstadt" /></a>
+					</div>
 				</div>
 			</div>
 			<!-- End header -->
@@ -247,10 +247,7 @@
 												<td>
 												<input type="button" id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:208px"/>
 												</td>
-												<td>
-												<!--<input type="button" id="tab1" name="tab1" class="middle_switch" value="Internal behavior" style="width:144px"/> -->
-												<select id="slctSbj" data-placeholder="Select Internal Behavior"  onchange="goToInternalBehaviorOf($('#slctSbj option:selected').text());" class="middle_switch chzn-select" style="width:144px" tabindex="1" ></select>
-												</td>
+												<td><!--<input type="button" id="tab1" name="tab1" class="middle_switch" value="Internal behavior" style="width:144px"/> --><select id="slctSbj" data-placeholder="Select Internal Behavior"  onchange="goToInternalBehaviorOf($('#slctSbj option:selected').text());" class="middle_switch chzn-select" style="width:144px" tabindex="1" ></select></td>
 												<td>
 												<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
 												</td>
@@ -452,6 +449,26 @@
 															</p>
 
 														</div>
+														<div class="column_right2" align="left">
+															<p>
+																Subject type:
+															</p>
+															<br class="clear"/>
+															<p>
+																<input type="radio" id="ge_cv_type_single" name="ge_cv_type" />
+																Single
+															</p>
+															<p>
+																<input type="radio" id="ge_cv_type_multi" name="ge_cv_type" />
+																Multi
+															</p>
+
+															<p>
+																<input type="radio" id="ge_cv_type_external" name="ge_cv_type" />
+																External
+															</p>
+
+														</div>
 													</div>
 												</div>
 												<div id="edge" style="display:none">
@@ -558,9 +575,9 @@
 			writeSumActiveInstances();
 			//gv_graph.draw();
 		</script>
-		              		<script type="text/javascript">
-          $(".chzn-select").chosen();
-        </script>
+		<script type="text/javascript">
+			$(".chzn-select").chosen();
+		</script>
 
 	</body>
 </html>
