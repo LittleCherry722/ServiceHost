@@ -121,6 +121,7 @@ else {
 		document.getElementById("graph").style.display = "block";
 		document.getElementById('process_name').innerHTML = "Process: " + name;
 		document.getElementById("save").style.display = "block";
+		document.getElementById("saveAs").style.display = "block";
 		document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + storage.get("loggedin_user");
 		processName = name;
 		showverantwortliche();
@@ -189,6 +190,24 @@ function GraphSpeichern() {
 
 }
 
+function GraphSpeichernAls(newName) {
+
+	
+	var graphAsJSON = gv_graph.saveToJSON();
+    
+    var startSubjects = [];
+    
+    for (var subject in gv_graph.subjects)
+        startSubjects.push(getGroupID(subject));
+    
+    var startSubjectsAsJSON = JSON.stringify(startSubjects);
+		
+	createProcess(newName);
+	
+	saveGraph(getProcessID(newName), graphAsJSON, startSubjectsAsJSON);
+}
+
+
 function ProzessLaden(name) {
 
     gv_graph.clearGraph();
@@ -201,6 +220,7 @@ function ProzessLaden(name) {
 	document.getElementById("graph").style.display = "block";
 	document.getElementById('process_name').innerHTML = "Process: " + processName;
 	document.getElementById("save").style.display = "block";
+	document.getElementById("saveAs").style.display = "block";
 	document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + storage.get("loggedin_user");
 	shownothing();
 	showverantwortliche();
