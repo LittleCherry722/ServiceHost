@@ -115,6 +115,9 @@ $(document).ready(function() {
 			}
 		});
 
+
+
+
         $("a#administration").fancybox({
             'padding' : '0px',
             'scrolling' : 'no',
@@ -129,6 +132,23 @@ $(document).ready(function() {
             'onClosed' : function() {
                 if(fancyreturn1 != false)
                     newGroup(fancyreturn1);
+            }
+        });
+
+        $("a#saveAs").fancybox({
+            'padding' : '0px',
+            'scrolling' : 'no',
+            'width' : '50',
+            'height' : '40',
+            'transitionIn' : 'elastic',
+            'transitionOut' : 'elastic',
+            'type' : 'iframe',
+            'overlayColor' : '#333333',
+            'modal' : true,
+            'overlayOpacity' : '0.6',
+            'onClosed' : function() {
+                if(fancyreturn1 != false)
+                    GraphSpeichernAls(fancyreturn1);
             }
         });
 
