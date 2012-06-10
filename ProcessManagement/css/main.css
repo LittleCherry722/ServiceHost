@@ -442,7 +442,7 @@ a#show_menu:hover {
 	margin: 20px 0 20px 0;
 }
 .column_left2, .column_right2 {
-	width: 49%;
+	width: 33%;
 	background: #fff;
 	float: left
 }
