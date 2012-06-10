@@ -248,8 +248,8 @@
 												<input type="button" id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:208px"/>
 												</td>
 												<td>
-												<input type="button" id="tab1" name="tab1" class="middle_switch" value="Internal behavior" style="width:144px"/>
-												<select id="slctSbj" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').text());"></select>
+												<!--<input type="button" id="tab1" name="tab1" class="middle_switch" value="Internal behavior" style="width:144px"/> -->
+												<select id="slctSbj" data-placeholder="Select Internal Behavior"  onchange="goToInternalBehaviorOf($('#slctSbj option:selected').text());" class="middle_switch chzn-select" style="width:144px" tabindex="1" ></select>
 												</td>
 												<td>
 												<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
@@ -558,6 +558,9 @@
 			writeSumActiveInstances();
 			//gv_graph.draw();
 		</script>
+		              		<script type="text/javascript">
+          $(".chzn-select").chosen();
+        </script>
 
 	</body>
 </html>
