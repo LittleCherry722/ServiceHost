@@ -11,8 +11,12 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-// graphid that will be set on gv_xx_ctx.ga_id to identify the ctx
-var gv_graphID	= 0;
+var gv_graphID	= "cv";
+var gv_bgRect	= null;
+var gv_currentViewBox	= {width: 0, height: 0, x: 0, y: 0, zoom: 1};
+var gv_originalViewBox	= {width: 0, height: 0, x: 0, y: 0, zoom: 1};
+
+var gv_mousePositionStart	= {x: 0, y: 0};
 
 var gv_objects_edges = {};
 var gv_objects_nodes = {};
@@ -25,6 +29,178 @@ function gf_initPaper ()
 	gv_objects_edges = {};
 	gv_objects_nodes = {};
 	gv_paper.clear();
+	
+	gv_bgRect = gv_paper.rect(-gv_paperSizes[gv_graphID + "_width"] * 5, -gv_paperSizes[gv_graphID + "_height"] * 5, gv_paperSizes[gv_graphID + "_width"] * 11, gv_paperSizes[gv_graphID + "_height"] * 11).attr({"opacity": 0, "fill": "#FF0000"}).drag(gf_paperDragMove, gf_paperDragStart, gf_paperDragEnd);
+	$(gv_bgRect.node).bind('mousewheel', function(event, delta)
+	{
+	
+		if (event.shiftKey)
+		{
+			var gt_paperPos	= gf_paperMousePosition(event);
+			var gt_speed	= 2;
+		
+			if (delta > 0)
+				gf_paperZoomIn(gt_speed, gt_paperPos);
+			else
+				gf_paperZoomOut(gt_speed, gt_paperPos);
+				
+			event.preventDefault();
+		}
+    });
+    
+    $(gv_paper.canvas).mousemove(function(event)
+    {
+    	if (event.shiftKey)
+		{
+			gv_bgRect.toFront();
+		}
+		else
+		{
+			gv_bgRect.toBack();
+		}
+    });
+}
+
+function gf_paperMousePosition (event)
+{
+	var gt_graphOuter	= gv_elements["graph" + gv_graphID.toUpperCase() + "outer"];
+	var gt_outerOffset	= $('#' + gt_graphOuter).offset();
+	var gt_outerScroll	= {left: $('#' + gt_graphOuter).scrollLeft(), top: $('#' + gt_graphOuter).scrollTop()};
+	var gt_windowOffsetX	= gf_isset(window.pageXOffset) ? window.pageXOffset : 0;
+	var gt_windowOffsetY	= gf_isset(window.pageYOffset) ? window.pageYOffset : 0;
+	var	gt_endPosX		= event.pageX ? event.pageX : event.clientX;
+	var	gt_endPosY		= event.pageY ? event.pageY : event.clientY;
+	
+	var gt_origX		= gv_currentViewBox.x + gt_outerOffset.left + gt_outerScroll.left + gt_windowOffsetX + gv_currentViewBox.width/2;
+	var gt_origY		= gv_currentViewBox.y + gt_outerOffset.top + gt_outerScroll.top + gt_windowOffsetY + gv_currentViewBox.height/2;
+	
+	return {x: gt_endPosX - gt_origX, y: gt_endPosY - gt_origY};
+}
+
+function gf_paperChangeView (view)
+{
+	if (view == "bv")
+	{
+		gv_graphID	= "bv";
+		gv_paper	= gv_bv_paper;
+	}
+	else
+	{
+		gv_graphID	= "cv";
+		gv_paper	= gv_cv_paper;	
+	}
+	
+	gv_originalViewBox.width	= gv_paperSizes[gv_graphID + "_width"];
+	gv_originalViewBox.height	= gv_paperSizes[gv_graphID + "_height"];
+	gv_originalViewBox.x		= 0;
+	gv_originalViewBox.y		= 0;
+	
+	gf_initPaper();
+	gf_paperZoomReset();
+}
+
+function gf_paperZoomReset ()
+{
+	gv_currentViewBox.width		= gv_originalViewBox.width;
+	gv_currentViewBox.height	= gv_originalViewBox.height;
+	gv_currentViewBox.x			= gv_originalViewBox.x;
+	gv_currentViewBox.y			= gv_originalViewBox.y;
+	gv_currentViewBox.zoom		= gv_originalViewBox.zoom;
+	
+	gv_paper.setViewBox(gv_originalViewBox.x, gv_originalViewBox.y, gv_originalViewBox.width, gv_originalViewBox.height, false);
+}
+
+function gf_paperZoomIn (zoomFactor, zoomPosition)
+{	
+	if (!gf_isset(zoomFactor))
+		zoomFactor = 2;
+	
+	gv_currentViewBox.width		= gv_currentViewBox.width/zoomFactor;
+	gv_currentViewBox.height	= gv_currentViewBox.height/zoomFactor;
+	
+	/*
+	if (gf_isset(zoomPosition))
+	{
+		gv_currentViewBox.x			= gv_currentViewBox.x - zoomPosition.x - (gv_currentViewBox.width/2);
+		gv_currentViewBox.y			= gv_currentViewBox.y + 0*zoomPosition.y + (gv_currentViewBox.height/2);
+	}
+	else
+	{
+		*/
+		gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x + (gv_currentViewBox.width/2);
+		gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y + (gv_currentViewBox.height/2) : gv_currentViewBox.y;
+		/*
+	}
+	*/
+	
+	gv_currentViewBox.zoom		= gv_currentViewBox.zoom * zoomFactor;
+	gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);	
+}
+
+function gf_paperZoomOut (zoomFactor, zoomPosition)
+{
+	if (!gf_isset(zoomFactor))
+		zoomFactor = 2;
+		
+	/*
+	if (gf_isset(zoomPosition))
+	{
+		gv_currentViewBox.x			= gv_currentViewBox.x - zoomPosition.x + (gv_currentViewBox.width/2);
+		gv_currentViewBox.y			= gv_currentViewBox.y - zoomPosition.y - (gv_currentViewBox.height/2);
+	}
+	else
+	{*/
+		gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x - (gv_currentViewBox.width/2);
+		gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y - (gv_currentViewBox.height/2) : gv_currentViewBox.y;
+		/*
+	}*/
+	
+	gv_currentViewBox.width		= gv_currentViewBox.width*zoomFactor;
+	gv_currentViewBox.height	= gv_currentViewBox.height*zoomFactor;
+	gv_currentViewBox.zoom		= gv_currentViewBox.zoom / zoomFactor;
+	gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);	
+}
+
+function gf_paperDragStart ()
+{
+	if (event.shiftKey)
+	{
+		// back up current mouse position
+		gt_event = event ? event : window.event;
+		gv_mousePositionStart.x = gt_event.pageX ? gt_event.pageX : gt_event.clientX;
+		gv_mousePositionStart.y = gt_event.pageY ? gt_event.pageY : gt_event.clientY;
+	}
+}
+
+function gf_paperDragMove ()
+{
+	if (event.shiftKey)
+	{
+		gt_event	= event ? event : window.event;
+		gt_endPosX	= gt_event.pageX ? gt_event.pageX : gt_event.clientX;
+		gt_endPosY	= gt_event.pageY ? gt_event.pageY : gt_event.clientY;
+		
+		gt_diffX	= gv_mousePositionStart.x - gt_endPosX;
+		gt_diffY	= gv_mousePositionStart.y - gt_endPosY;
+		
+		gv_paper.setViewBox(gv_currentViewBox.x + gt_diffX, gv_currentViewBox.y + gt_diffY, gv_currentViewBox.width, gv_currentViewBox.height, false);
+	}
+}
+
+function gf_paperDragEnd ()
+{
+	if (event.shiftKey)
+	{
+		gt_event	= event ? event : window.event;
+		gt_endPosX	= gt_event.pageX ? gt_event.pageX : gt_event.clientX;
+		gt_endPosY	= gt_event.pageY ? gt_event.pageY : gt_event.clientY;
+		
+		gt_diffX	= gv_mousePositionStart.x - gt_endPosX;
+		gt_diffY	= gv_mousePositionStart.y - gt_endPosY;
+		
+		gv_currentViewBox.x	= gv_currentViewBox.x + gt_diffX;
+		gv_currentViewBox.y	= gv_currentViewBox.y + gt_diffY;
+	}
 }
 
 function gf_deselectEdges ()
@@ -745,11 +921,11 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 			{
 				this.rectangle.click(function () {gf_paperClickNodeC(id); });
 				this.ellipse.click(function () {gf_paperClickNodeC(id); });
-				this.text.click(function () {gf_paperClickNodeC(id); });
+				// this.text.click(function () {gf_paperClickNodeC(id); });
 				
 				this.rectangle.dblclick(function () {gf_paperDblClickNodeC(id); });
 				this.ellipse.dblclick(function () {gf_paperDblClickNodeC(id); });
-				this.text.dblclick(function () {gf_paperDblClickNodeC(id); });
+				// this.text.dblclick(function () {gf_paperDblClickNodeC(id); });
 				
 				for (rrId in this.multiRR)
 	 			{
@@ -763,15 +939,16 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 				{
 					this.rectangle.click(function () {gf_paperClickEdge(id); });
 					this.ellipse.click(function () {gf_paperClickEdge(id); });
-					this.text.click(function () {gf_paperClickEdge(id); });
+					// this.text.click(function () {gf_paperClickEdge(id); });
 				}
 				else
 				{
 					this.rectangle.click(function () {gf_paperClickNodeB(id); });
 					this.ellipse.click(function () {gf_paperClickNodeB(id); });
-					this.text.click(function () {gf_paperClickNodeB(id); });
+					// this.text.click(function () {gf_paperClickNodeB(id); });
 				}
 			}
+			$(this.text.node).css("pointer-events", "none");
 		}
 	}
 	

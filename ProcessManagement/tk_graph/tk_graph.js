@@ -14,7 +14,10 @@
 var gv_filePrefix = "tk_graph";
 
 // include Raphael
-gf_includeJS("raphael-min.js");
+gf_includeJS("thirdparty/raphael-min.js");
+
+// include jQuery MouseWheel
+gf_includeJS("thirdparty/jquery.mousewheel.min.js");
 
 // include libs
 gf_includeJS("graph/tk_graph.js");
