@@ -260,7 +260,7 @@ function gf_bv_drawGraph (gt_bv_subject)
 		
 		if (ioTop)
 		{
-			gv_originalViewBox.y -= 0;
+			gv_originalViewBox.y -= 100;
 			gf_paperZoomReset();
 		}
 	}
