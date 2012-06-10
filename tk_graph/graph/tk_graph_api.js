@@ -44,6 +44,11 @@ var gv_elements = {
 	inputNodeType2S:		"ge_type2_S",
 	inputNodeType2End:		"ge_type2_end",
 	inputNodeType2Action:	"ge_type2_action",
+	
+	// subject types
+	inputSubjectTypeSingle:		"ge_cv_type_single",
+	inputSubjectTypeMulti:		"ge_cv_type_multi",
+	inputSubjectTypeExternal:	"ge_cv_type_external"
 };
 
 var gv_cv_paper = null;
@@ -144,7 +149,10 @@ function gf_edgeMessage ()
  */
 function gf_setEdgeMessage ()
 {
-	document.getElementById(gv_elements.inputEdgeText).value = document.getElementById(gv_elements.inputEdgeMessage).value;
+	if (gf_elementExists(gv_elements.inputEdgeText, gv_elements.inputEdgeMessage))
+	{
+		document.getElementById(gv_elements.inputEdgeText).value = document.getElementById(gv_elements.inputEdgeMessage).value;
+	}
 }
 
 /**
@@ -734,24 +742,30 @@ function GFcommunication ()
 		if (view == "cv")
 		{
 			gv_paper = gv_cv_paper;		// TODO: remove?
-			document.getElementById(gv_elements.graphCVouter).style.display="block";
+			if (gf_elementExists(gv_elements.graphCVouter))
+			{
+				document.getElementById(gv_elements.graphCVouter).style.display="block";				
 			
-			this.selectedSubject	= null;
-			this.selectedNode		= null;
-			this.selectedEdge		= null;
-			this.loadInformation(true);
-			this.draw();
+				this.selectedSubject	= null;
+				this.selectedNode		= null;
+				this.selectedEdge		= null;
+				this.loadInformation(true);
+				this.draw();
+			}
 		}
 		else if (view == "bv")
 		{
 			gv_paper = gv_bv_paper;		// TODO: remove?
-			document.getElementById(gv_elements.graphBVouter).style.display="block";
-			
-			this.selectedSubject = this.loadedSubject;
-			
-			if (gf_isset(this.subjects[this.selectedSubject]))
+			if (gf_elementExists(gv_elements.graphBVouter))
 			{
-				this.getBehavior(this.selectedSubject).selectNothing();
+				document.getElementById(gv_elements.graphBVouter).style.display="block";				
+			
+				this.selectedSubject = this.loadedSubject;
+				
+				if (gf_isset(this.subjects[this.selectedSubject]))
+				{
+					this.getBehavior(this.selectedSubject).selectNothing();
+				}
 			}
 		}
 		this.clickMode = null;
@@ -759,8 +773,10 @@ function GFcommunication ()
 	
 	this.init = function ()
 	{
-		gv_cv_paper = Raphael(gv_elements.graphCVouter, gv_paperSizes.cv_width, gv_paperSizes.cv_height);
-		gv_bv_paper = Raphael(gv_elements.graphBVouter, gv_paperSizes.bv_width, gv_paperSizes.bv_height);
+		if (gf_elementExists(gv_elements.graphCVouter))
+			gv_cv_paper = Raphael(gv_elements.graphCVouter, gv_paperSizes.cv_width, gv_paperSizes.cv_height);
+		if (gf_elementExists(gv_elements.graphBVouter))
+			gv_bv_paper = Raphael(gv_elements.graphBVouter, gv_paperSizes.bv_width, gv_paperSizes.bv_height);
 		gv_paper = gv_cv_paper;
 	}
 	
@@ -978,6 +994,9 @@ function GFcommunication ()
 	 */
 	this.loadEdgeMessages = function ()
 	{
+		if (!gf_elementExists(gv_elements.inputEdgeTarget, gv_elements.inputEdgeMessage))
+			return false;
+			
 		var gt_selectedTarget	= document.getElementById(gv_elements.inputEdgeTarget).value;
 		var gt_select_message	= document.getElementById(gv_elements.inputEdgeMessage).options;
 		var gt_messagesArray	= [];
@@ -1028,7 +1047,7 @@ function GFcommunication ()
 				gt_option.id = gv_elements.inputEdgeMessage + "_" + gt_mid;
 				gt_select_message.add(gt_option);
 				
-				if (gt_messagesArray[gt_mid].replace("\\n", "") == document.getElementById(gv_elements.inputEdgeText).value.replace("\\n", ""))
+				if (gf_elementExists(gv_elements.inputEdgeText) && gt_messagesArray[gt_mid].replace("\\n", "") == document.getElementById(gv_elements.inputEdgeText).value.replace("\\n", ""))
 				{
 					document.getElementById(gv_elements.inputEdgeMessage + "_" + gt_mid).selected = true;
 				}
@@ -1052,26 +1071,42 @@ function GFcommunication ()
 				var gt_edge = this.getBehavior(this.selectedSubject).getEdge();
 				var gt_node = this.getBehavior(this.selectedSubject).getNode(gt_edge.getStart());
 				
-				document.getElementById(gv_elements.inputEdgeText).value	= gt_edge.getText();
-				document.getElementById(gv_elements.inputEdgeText).readOnly	= false;
-				document.getElementById(gv_elements.inputEdgeMessageO).style.display = "none";
-		
-				document.getElementById(gv_elements.inputNodeOuter).style.display = "none";
-				document.getElementById(gv_elements.inputEdgeOuter).style.display = "block";
+				if (gf_elementExists(gv_elements.inputEdgeText))
+				{
+					document.getElementById(gv_elements.inputEdgeText).value	= gt_edge.getText();
+					document.getElementById(gv_elements.inputEdgeText).readOnly	= false;					
+				}
 				
-				var gt_select_target		= document.getElementById(gv_elements.inputEdgeTarget).options;
-				var gt_select_message		= document.getElementById(gv_elements.inputEdgeMessage).options;
-				gt_select_target.length		= 0;
-				gt_select_message.length	= 0;
+				if (gf_elementExists(gv_elements.inputEdgeMessageO))
+					document.getElementById(gv_elements.inputEdgeMessageO).style.display = "none";
+		
+				if (gf_elementExists(gv_elements.inputNodeOuter))
+					document.getElementById(gv_elements.inputNodeOuter).style.display = "none";
+				
+				if (gf_elementExists(gv_elements.inputEdgeOuter))
+					document.getElementById(gv_elements.inputEdgeOuter).style.display = "block";
+				
+				var gt_select_target		= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).options : null;
+				var gt_select_message		= gf_elementExists(gv_elements.inputEdgeMessage) ? document.getElementById(gv_elements.inputEdgeMessage).options : null;
+				
+				if (gt_select_target != null)
+					gt_select_target.length		= 0;
+					
+				if (gt_select_message != null)
+					gt_select_message.length	= 0;
 				
 				// create the drop down menu to select the related subject (only for receive and send nodes)
-				if (gt_node.getType() == "send" || gt_node.getType() == "receive")
+				if ((gt_node.getType() == "send" || gt_node.getType() == "receive") && gt_select_target != null && gt_select_message != null)
 				{
 					if (gt_node.getType() == "receive")
 					{
-						document.getElementById(gv_elements.inputEdgeText).readOnly				= true;
+						if (gf_elementExists(gv_elements.inputEdgeText))
+							document.getElementById(gv_elements.inputEdgeText).readOnly				= true;
+							
+						if (gf_elementExists(gv_elements.inputEdgeMessageO))
+							document.getElementById(gv_elements.inputEdgeMessageO).style.display	= "block";
+							
 						document.getElementById(gv_elements.inputEdgeTarget).onchange			= gf_edgeMessage;
-						document.getElementById(gv_elements.inputEdgeMessageO).style.display	= "block";
 						document.getElementById(gv_elements.inputEdgeMessage).onchange			= gf_setEdgeMessage;
 					}
 					else
@@ -1140,34 +1175,52 @@ function GFcommunication ()
 	{		
 		if (gf_isset(clear) && clear == true)
 		{
-			document.getElementById(gv_elements.inputNodeText).value = "";
-			document.getElementById(gv_elements.inputNodeType).value = "";
-			document.getElementById(gv_elements.inputNodeType2).value = "";
+			if (gf_elementExists(gv_elements.inputNodeText))
+				document.getElementById(gv_elements.inputNodeText).value = "";
+			if (gf_elementExists(gv_elements.inputNodeType))
+				document.getElementById(gv_elements.inputNodeType).value = "";
+			if (gf_elementExists(gv_elements.inputNodeType2))
+				document.getElementById(gv_elements.inputNodeType2).value = "";
 			
-			document.getElementById(gv_elements.inputSubjectText).value = "";
-			document.getElementById(gv_elements.inputSubjectId).value = "";
+			if (gf_elementExists(gv_elements.inputSubjectText))
+				document.getElementById(gv_elements.inputSubjectText).value = "";
+			if (gf_elementExists(gv_elements.inputSubjectId))
+				document.getElementById(gv_elements.inputSubjectId).value = "";
 
-			document.getElementById(gv_elements.inputEdgeText).value = "";
-			document.getElementById(gv_elements.inputEdgeTarget).options.length = 0;
+			if (gf_elementExists(gv_elements.inputEdgeText))
+				document.getElementById(gv_elements.inputEdgeText).value = "";
+			if (gf_elementExists(gv_elements.inputEdgeTarget))
+				document.getElementById(gv_elements.inputEdgeTarget).options.length = 0;
 			
 		}
 		else
-		{
-			
-				// TODO: subject types
-			
+		{			
 			this.loadInformation(true);
-			document.getElementById(gv_elements.inputNodeOuter).style.display = "block";
-			document.getElementById(gv_elements.inputEdgeOuter).style.display = "none";
+			if (gf_elementExists(gv_elements.inputNodeOuter))
+				document.getElementById(gv_elements.inputNodeOuter).style.display = "block";
+			if (gf_elementExists(gv_elements.inputEdgeOuter))
+				document.getElementById(gv_elements.inputEdgeOuter).style.display = "none";
 		
 			if (this.selectedSubject == null)
 			{
 				if (this.selectedNode != null && gf_isset(this.subjects[this.selectedNode]))
 				{
-					var gt_subject = this.subjects[this.selectedNode];					
+					var gt_subject = this.subjects[this.selectedNode];		
 					
-					document.getElementById(gv_elements.inputSubjectText).value = gt_subject.getText();
-					document.getElementById(gv_elements.inputSubjectId).value = gt_subject.getId();	
+					if (gf_elementExists(gv_elements.inputSubjectText))
+						document.getElementById(gv_elements.inputSubjectText).value = gt_subject.getText();
+						
+					if (gf_elementExists(gv_elements.inputSubjectId))
+						document.getElementById(gv_elements.inputSubjectId).value = gt_subject.getId();
+						
+					if (gf_elementExists(gv_elements.inputSubjectTypeSingle) && gt_subject.getType() == "single")
+						document.getElementById(gv_elements.inputSubjectTypeSingle).checked = true;
+				
+					if (gf_elementExists(gv_elements.inputSubjectTypeMulti) && gt_subject.getType() == "multi")
+						document.getElementById(gv_elements.inputSubjectTypeMulti).checked = true;
+					
+					if (gf_elementExists(gv_elements.inputSubjectTypeExternal) && gt_subject.getType() == "external")
+						document.getElementById(gv_elements.inputSubjectTypeExternal).checked = true;
 				}
 			}
 			else
@@ -1176,17 +1229,26 @@ function GFcommunication ()
 				{
 					
 					var gt_node = this.getBehavior(this.selectedSubject).getNode();
-					document.getElementById(gv_elements.inputNodeText).value = gt_node.getText();
+					
+					if (gf_elementExists(gv_elements.inputNodeText))
+						document.getElementById(gv_elements.inputNodeText).value = gt_node.getText();
 					
 					// clear selection
-					document.getElementById(gv_elements.inputNodeTypeNormal).selected = !gt_node.isStart() && !gt_node.isEnd();
-					document.getElementById(gv_elements.inputNodeTypeStart).selected = gt_node.isStart();
-					document.getElementById(gv_elements.inputNodeTypeEnd).selected = gt_node.isEnd();
+					if (gf_elementExists(gv_elements.inputNodeTypeNormal))
+						document.getElementById(gv_elements.inputNodeTypeNormal).selected = !gt_node.isStart() && !gt_node.isEnd();
+					if (gf_elementExists(gv_elements.inputNodeTypeStart))
+						document.getElementById(gv_elements.inputNodeTypeStart).selected = gt_node.isStart();
+					if (gf_elementExists(gv_elements.inputNodeTypeEnd))
+						document.getElementById(gv_elements.inputNodeTypeEnd).selected = gt_node.isEnd();
 
-					document.getElementById(gv_elements.inputNodeType2R).selected = gt_node.getType() == "receive";
-					document.getElementById(gv_elements.inputNodeType2S).selected = gt_node.getType() == "send";
-					document.getElementById(gv_elements.inputNodeType2End).selected = gt_node.isEnd();
-					document.getElementById(gv_elements.inputNodeType2Action).selected = !gt_node.isEnd() && gt_node.getType() == "action";
+					if (gf_elementExists(gv_elements.inputNodeType2R))
+						document.getElementById(gv_elements.inputNodeType2R).selected = gt_node.getType() == "receive";
+					if (gf_elementExists(gv_elements.inputNodeType2S))
+						document.getElementById(gv_elements.inputNodeType2S).selected = gt_node.getType() == "send";
+					if (gf_elementExists(gv_elements.inputNodeType2End))
+						document.getElementById(gv_elements.inputNodeType2End).selected = gt_node.isEnd();
+					if (gf_elementExists(gv_elements.inputNodeType2Action))
+						document.getElementById(gv_elements.inputNodeType2Action).selected = !gt_node.isEnd() && gt_node.getType() == "action";
 				}
 			}
 		}
@@ -1337,16 +1399,26 @@ function GFcommunication ()
 			{
 				var gt_subject = this.subjects[this.selectedNode];					
 				
-				var gt_text = document.getElementById(gv_elements.inputSubjectText).value;
-				var gt_id = document.getElementById(gv_elements.inputSubjectId).value;
+				var gt_text = gf_elementExists(gv_elements.inputSubjectText) ? document.getElementById(gv_elements.inputSubjectText).value : "";
+				var gt_id = gf_elementExists(gv_elements.inputSubjectId) ? document.getElementById(gv_elements.inputSubjectId).value : "";
 				
-				// TODO: subject type (single, multi, external)
+				var gt_type	= gt_subject.getType();
+				
+				if (gf_elementExists(gv_elements.inputSubjectTypeSingle) && document.getElementById(gv_elements.inputSubjectTypeSingle).checked === true)
+					gt_type = "single";
+				
+				if (gf_elementExists(gv_elements.inputSubjectTypeMulti) && document.getElementById(gv_elements.inputSubjectTypeMulti).checked === true)
+					gt_type = "multi";
+				
+				if (gf_elementExists(gv_elements.inputSubjectTypeExternal) && document.getElementById(gv_elements.inputSubjectTypeExternal).checked === true)
+					gt_type = "external";
+				
 				
 				if (gt_text.replace(" ", "") != "" && gt_id.replace(" ", "") != "")
 				{
 				
 					gt_subject.setText(gt_text);
-					
+					gt_subject.setType(gt_type);					
 					
 					// update references to this subject
 					if (this.selectedNode != gt_id && !gf_isset(this.subjects[gt_id]))
@@ -1397,9 +1469,9 @@ function GFcommunication ()
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
 				// read the fields' values and pass to the bv
-				var gt_text	= document.getElementById(gv_elements.inputNodeText).value;
-				var gt_type	= document.getElementById(gv_elements.inputNodeType).value;
-				var gt_type2 = document.getElementById(gv_elements.inputNodeType2).value.toLowerCase();
+				var gt_text	= gf_elementExists(gv_elements.inputNodeText) ? document.getElementById(gv_elements.inputNodeText).value : "";
+				var gt_type	= gf_elementExists(gv_elements.inputNodeType) ? document.getElementById(gv_elements.inputNodeType).value : "";
+				var gt_type2 = gf_elementExists(gv_elements.inputNodeType2) ? document.getElementById(gv_elements.inputNodeType2).value.toLowerCase() : "";
 				
 				if (gt_type2 == "r")
 					gt_type2 = "receive";
@@ -1427,8 +1499,8 @@ function GFcommunication ()
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
 				// read information from fields and pass to bv
-				var gt_text				= document.getElementById(gv_elements.inputEdgeText).value;
-				var gt_relatedSubject	= document.getElementById(gv_elements.inputEdgeTarget).value;
+				var gt_text				= gf_elementExists(gv_elements.inputEdgeText) ? document.getElementById(gv_elements.inputEdgeText).value : "";
+				var gt_relatedSubject	= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
 				
 				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_relatedSubject);
 				this.loadInformationEdge();
@@ -1538,7 +1610,7 @@ GFedge = function (parent, start, end, text, relatedSubject)
 		var startNode		= this.parent.getNode(this.start);
 		var relatedSubject	= this.relatedSubject;
 		
-		if (startNode == null || (startNode.getType() != "receive" && startNode.getType() != "send"))
+		if (startNode == null || (startNode.getType() != "receive" && startNode.getType() != "send") || relatedSubject == "")
 		{
 			relatedSubject = null;
 		}
@@ -1810,7 +1882,7 @@ GFsubject = function (id, text, type)
 	
 	this.getType = function ()
 	{
-		return this.type;
+		return this.type.toLowerCase();
 	}
 	
 	this.isDeactivated = function ()
