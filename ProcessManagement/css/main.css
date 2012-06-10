@@ -589,3 +589,10 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	right: 3px;
 	top: 3px;
 }
+
+#reset-button {
+	margin-right: 0;
+	position: absolute;
+	right: 68px;
+	top: 3px;
+}
