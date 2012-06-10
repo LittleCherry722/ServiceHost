@@ -19,8 +19,8 @@ var gv_macros = {};
 
 // array containing the name of the used elements
 var gv_elements = {
-	graphBV:			"graph_bv",
-	graphCV:			"graph_cv",
+	graphBV:			"graph_bv",		// TODO: remove
+	graphCV:			"graph_cv",		// TODO: remove
 	graphBVouter:		"graph_bv_outer",
 	graphCVouter:		"graph_cv_outer",
 	inputEdgeText:		"ge_edge_text",
@@ -99,6 +99,28 @@ function gf_clickedCVbehavior (graphId)
 	if (gf_isset(graphId))
 	{
 		showtab1();
+	}
+}
+
+function gf_showInternalBehavior (jsonProcess, subject, node)
+{
+	gv_graph.init();
+	gv_graph.loadFromJSON(jsonProcess);
+	
+	gv_graph.selectedSubject = null;
+	
+	var gt_behav = gv_graph.getBehavior(subject);
+	
+	if (gt_behav != null)
+	{
+		if (gf_isset(gt_behav.nodeIDs[node]))
+		{
+			var gt_nodeId = gt_behav.nodeIDs[node];
+		
+			gf_clickedCVnode(subject);
+			showtab1();
+			gf_paperClickNodeB(gt_nodeId);
+		}	
 	}
 }
 
