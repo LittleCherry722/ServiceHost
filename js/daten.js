@@ -215,7 +215,7 @@ function ProzessLaden(name) {
 }
 
 function updateListOfSubjects(){
-	var html = "";
+	var html = "<option></option>";
 	
 	for(var subject in gv_graph.subjects){
 		
@@ -232,8 +232,12 @@ function updateListOfSubjects(){
 	}
 }
 	$('#slctSbj').html(html);
+	$("#slctSbj").trigger("liszt:updated");
 	
 }
+
+
+
 
 function goToInternalBehaviorOf(subject){
 	gv_graph.selectedSubject = null; 
