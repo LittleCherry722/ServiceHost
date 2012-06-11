@@ -1,20 +1,27 @@
-/*body{font-family:Arial;font-size:12px;color:#363636;text-shadow:0 1px 0 #fff;background:#f7f7f7}*/
 
-.fancybox-content h1 {
+body {
+	font-family: Arial;
+	font-size: 12px;
+	color: #363636;
+	text-shadow: 0 1px 0 #fff;
+	background: #f7f7f7
+}
+
+h1 {
 	margin: 0;
 	padding: 0;
 	font-size: 24px;
 	font-weight: bold;
 	margin-bottom: 10px;
 }
-.fancybox-content h2 {
+h2 {
 	margin: 0;
 	padding: 0;
 	font-size: 18px;
 	font-weight: bold;
 	margin-bottom: 1px;
 }
-.fancybox-content h3 {
+h3 {
 	margin: 0;
 	padding: 0;
 	font-size: 16px;
@@ -22,7 +29,7 @@
 	margin-bottom: 1px;
 	color: #F1F1F1
 }
-.fancybox-content h4 {
+h4 {
 	margin: 0;
 	padding: 0;
 	font-size: 14px;
@@ -30,27 +37,102 @@
 	margin-bottom: 10px;
 }
 
-.fancybox-content #header2 {
-	width: 400px;
+#header2 {
+	width: 100%;
 	height: 50px;
 	background: #353c42;
 	text-shadow: 1px 0 0 #666;
 	color: #ccc;
 	margin: 0;
 	padding: 0;
-	background-image: url(images/bg_header.png);
+	background-image: url(../images/bg_header.png);
 	background-repeat: repeat-x;
 }
 
-.fancybox-content #logo2 {
+#logo2 {
 	width: 240px;
 	float: left;
 	margin: 15px 0 0 10px;
 }
 
-.fancybox-content #content2 {
+#content2 {
 	width: 400px;
 	text-align: left;
 	margin: 0;
 	padding: 0
+}
+
+#content {
+	width: 100%;
+	text-align: left;
+	margin: 0;
+	padding: 0
+}
+
+#content_wide {
+	width: 800px;
+	height: 500px;
+	text-align: left;
+	margin: 0;
+	padding: 0;
+}
+
+#content_wide #inner_content {
+	margin: 10px;
+	width: 100%;
+	height: 430px;
+}
+
+#left {
+	width: 100px;
+	float: left;
+	border-right: 1px dotted #4B4F5D;
+	height: inherit;
+}
+
+#left li {
+	cursor: pointer;
+	padding: 7px;
+}
+
+#left li a{
+	color: #4B4F5D;
+}
+
+#left li.selected {
+	background-color: #4B4F5D;
+}
+
+#left li.selected a {
+	color: #FFFFFF;
+}
+
+#right {
+	margin: 10px;
+	width: auto;
+	float: left;
+	height: 100%;
+}
+
+#right .inline{
+	height: 23px;
+	line-height: 23px;
+	vertical-align: 10px;
+}
+
+#right .button{
+	height: 30px;
+	line-height: 15px;
+	vertical-align: 11px;
+	margin: 0 5px;
+}
+
+#right select{
+	width: 300px;
+}
+
+#buttons {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
 }

@@ -83,6 +83,7 @@ if ($dbInitialize){
 	mysql_query("CREATE TABLE IF NOT EXISTS `users` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
+  `active` BOOLEAN NOT NULL DEFAULT  '1',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;");
 
@@ -98,6 +99,7 @@ NULL , 'Admin'
 	mysql_query("CREATE TABLE IF NOT EXISTS `users_x_groups` (
   `userID` int(11) NOT NULL,
   `groupID` int(11) NOT NULL,
+  `active` BOOLEAN NOT NULL DEFAULT  '1',
   PRIMARY KEY (`userID`,`groupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
 }

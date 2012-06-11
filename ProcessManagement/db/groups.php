@@ -67,11 +67,46 @@ if (isset($_REQUEST['action'])){
 			$return['users'] = $users;
 			$return['code']   = "ok";
 		}
-	}elseif ($_REQUEST['action'] == "getallgroups"){
+	}elseif (isset($_REQUEST['groups'])){
+		
+		/*
+		 * 	users = [
+		 * 		{id, name, active, roles : [roleId1, ...]},
+		 * 		...
+		 * 	]
+		 */
+		$groups = json_decode($_REQUEST['groups']);
+		
+		if ($_REQUEST['action'] == 'save') {
+			
+			foreach ($groups as $group){
+				// insert/update group
+				mysql_query("INSERT INTO `groups` (`ID`,`name`) VALUES ('" . $group->id . ", " . $group->name . "') ON DUPLICATE KEY UPDATE name = " . $group->name . ", active = " . $group->active);
+			
+			}
+
+			$result = mysql_query("SELECT * FROM `groups`");
+			$groups = array();
+			while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
+				array_push($groups, $group);
+			}
+			$return['groups'] = $groups;
+			$return['code']   = "ok";	
+		}
+
+	}elseif ($_REQUEST['action'] == "getallgroups"){ // deprecated
 		$result = mysql_query("SELECT * FROM `groups`");
 		$groups = array();
 		while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
 			array_push($groups, $group['name']);
+		}
+		$return['groups'] = $groups;
+		$return['code']   = "ok";
+	}elseif ($_REQUEST['action'] == "getall"){
+		$result = mysql_query("SELECT * FROM `groups`");
+		$groups = array();
+		while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
+			array_push($groups, $group);
 		}
 		$return['groups'] = $groups;
 		$return['code']   = "ok";
