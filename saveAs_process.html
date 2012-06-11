@@ -43,6 +43,36 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 <script type="text/javascript" src="js/custom.js"></script>
 <script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="text/javascript" src="js/storage.js"></script>
+<script type="text/javascript" src="js/knockout-2.1.0.min.js"></script>
+<script type="text/javascript" src="js/jquery.freeow.js"></script>
+<script type="text/javascript" src="db/db.js"></script>
+<script type="text/javascript" src="tk_graph/tk_graph.js"></script>
+<script type="text/javascript" src="js/daten.js"></script>
+<script type="text/javascript" src="js/daten2.js"></script>
+<script type="text/javascript" src="js/storage.js"></script>
+<script type="text/javascript" src="js/jquery.scrollTo-min.js"></script>
+<script type="text/javascript" src="js/dialog.js"></script>
+<script type="text/javascript" src="js/keymaster.min.js"></script>
+<script type="text/javascript" src="js/shortcuts.js"></script>
+<script type="text/javascript" src="js/chosen.jquery.min.js"></script>
+
+<script type="text/javascript" >
+	function saveCheck(process) {
+		if(process.value == '' | process.value == null) {
+			alert("Pleace enter a name!");
+		} else {
+			if(getProcessID(process.value) > 0) {
+				if(confirm("The process already exists. Do you want to overwrite it?")) {
+					parent.fancyreturn1 = process.value;
+					parent.$.fancybox.close();
+				}
+			} else {
+				parent.fancyreturn1 = process.value;
+				parent.$.fancybox.close();
+			}
+		}
+	}
+		</script>
 
 </head>
 <body>
@@ -59,11 +89,12 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 	<!-- End header -->
 	<div style="margin:10px; width:270px">
 		<br class="clear"/>
-		Save This Process As
+		Save this process as:
 		<br class="clear"/>
 		<br class="clear"/>
 		<br class="clear"/>
-		<form onsubmit="if(this.new_process.value != '') {parent.fancyreturn1=this.new_process.value;parent.$.fancybox.close();}">
+		<!-- if(this.new_process.value != '') {parent.fancyreturn1=this.new_process.value;parent.$.fancybox.close();}-->
+		<form id="saveForm" onsubmit="saveCheck(this.new_process);">
 		<p>
 			<label>Name:</label><br/>
 			<input type="text" id="new_process" style="width:273px"/>
@@ -81,5 +112,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		</form>
 	</div>
 
+
+</div>
 </body>
 </html>
