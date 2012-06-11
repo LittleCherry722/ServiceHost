@@ -204,7 +204,19 @@ function GraphSpeichernAls(newName) {
 		
 	createProcess(newName);
 	
-	saveGraph(getProcessID(newName), graphAsJSON, startSubjectsAsJSON);
+	//saveGraph(getProcessID(newName), graphAsJSON, startSubjectsAsJSON);
+	
+	    if(saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
+    	$("#freeow").freeow("Save process", "Process \"" + newName +"\" successfully saved.", {
+    		classes: [,"ok"],
+    		autohide: true
+    	});
+    } else {
+    	$("#freeow").freeow("Save process", "Process \"" + newName + "\" could not be saved.", {
+    		classes: [,"error"],
+    		autohide: true
+    	});
+    }
 }
 
 
