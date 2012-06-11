@@ -11,6 +11,44 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+var db_directory = "db/";
+
+var DB = {
+    syncQuery : function(url, data, defaultreturn, successfunction ){
+        var ret = defaultreturn;
+        $.ajax({
+          url: db_directory + url,
+          data: data,
+          cache: false,
+          async: false,
+          success: function(data){
+            if (data != "")
+                ret = successfunction(JSON.parse(data));
+          },
+          error : function(err){
+              console.log(err);
+          }
+        });
+        return ret;
+    },
+    defaultIDReturn : function(json){
+        if ((json["code"] == "added") || (json["code"] == "ok"))
+            return json["id"];
+        return 0;
+    },
+    defaultRemoveReturn : function(json){
+        if (json["code"] == "removed")
+            return true;
+        return false;
+    },
+    defaultOKReturnBoolean : function(json){
+        if (json["code"] == "ok")
+            return true;
+        return false;
+    }
+};
+
+
 // wrapper for sync queries
 function syncQuery(url, data, defaultreturn, successfunction ){
 	var ret = defaultreturn;
@@ -19,10 +57,10 @@ function syncQuery(url, data, defaultreturn, successfunction ){
 	  data: data,
 	  cache: false,
 	  async: false,
-	  success: function(html){
+	  success: function(data){
 		//alert(html);
 		if (html != "")
-			ret = successfunction(JSON.parse(html));
+			ret = successfunction(JSON.parse(data));
 	  }
 	});
 	return ret;
@@ -44,8 +82,6 @@ function defaultOKReturnBoolean(json){
 		return true;
 	return false;
 }
-
-var db_directory = "db/";
 
 // add/remove users
 function createUser(name){

@@ -115,23 +115,21 @@ $(document).ready(function() {
 			}
 		});
 
-
-
-
         $("a#administration").fancybox({
-            'padding' : '0px',
+            'padding' : '0',
             'scrolling' : 'no',
-            'width' : '50',
-            'height' : '40',
+            'width' : '80',
+            'height' : '50',
+            'autoScale' : false,
             'transitionIn' : 'elastic',
             'transitionOut' : 'elastic',
-            'type' : 'ajax',
+            'type' : 'iframe',
             'overlayColor' : '#333333',
             'modal' : true,
             'overlayOpacity' : '0.6',
             'onClosed' : function() {
-                if(fancyreturn1 != false)
-                    newGroup(fancyreturn1);
+
+
             }
         });
 
