@@ -13,7 +13,7 @@
 
 var gv_graphID	= "cv";
 var gv_bgRect	= null;
-var gv_currentViewBox	= {width: 0, height: 0, x: 0, y: 0, zoom: 1};
+var gv_currentViewBox	= {width: 0, height: 0, x: 0, y: 0, zoom: 1, origX: 0, origY: 0, mx: 0, my: 0};
 var gv_originalViewBox	= {width: 0, height: 0, x: 0, y: 0, zoom: 1};
 
 var gv_mousePositionStart	= {x: 0, y: 0};
@@ -71,10 +71,13 @@ function gf_paperMousePosition (event)
 	var	gt_endPosX		= event.pageX ? event.pageX : event.clientX;
 	var	gt_endPosY		= event.pageY ? event.pageY : event.clientY;
 	
-	var gt_origX		= gv_currentViewBox.x + gt_outerOffset.left + gt_outerScroll.left + gt_windowOffsetX + gv_currentViewBox.width/2;
-	var gt_origY		= gv_currentViewBox.y + gt_outerOffset.top + gt_outerScroll.top + gt_windowOffsetY + gv_currentViewBox.height/2;
+	var gt_origX		= 0; //gv_currentViewBox.x + gt_outerOffset.left + gv_currentViewBox.width/2;
+	var gt_origY		= 0; //gv_currentViewBox.y + gt_outerOffset.top + gv_currentViewBox.height/2;
 	
-	return {x: gt_endPosX - gt_origX, y: gt_endPosY - gt_origY};
+	var gt_mouseX		= gt_endPosX + gt_outerScroll.left - gt_outerOffset.left;
+	var gt_mouseY		= gt_endPosY + gt_outerScroll.top - gt_outerOffset.top;
+	
+	return {x: gt_mouseX, y: gt_mouseY};
 }
 
 function gf_paperChangeView (view)
@@ -105,7 +108,11 @@ function gf_paperZoomReset ()
 	gv_currentViewBox.height	= gv_originalViewBox.height;
 	gv_currentViewBox.x			= gv_originalViewBox.x;
 	gv_currentViewBox.y			= gv_originalViewBox.y;
+	gv_currentViewBox.origX		= gv_originalViewBox.x;
+	gv_currentViewBox.origY		= gv_originalViewBox.y;
 	gv_currentViewBox.zoom		= gv_originalViewBox.zoom;
+	gv_currentViewBox.mx		= null;
+	gv_currentViewBox.my		= null;
 	
 	gv_paper.setViewBox(gv_originalViewBox.x, gv_originalViewBox.y, gv_originalViewBox.width, gv_originalViewBox.height, false);
 }
@@ -114,27 +121,49 @@ function gf_paperZoomIn (zoomFactor, zoomPosition)
 {	
 	if (!gf_isset(zoomFactor))
 		zoomFactor = 2;
+		
+	var gt_oldWidth		= gv_currentViewBox.width;
+	var gt_oldHeight	= gv_currentViewBox.height;
+	var gt_newWidth		= gv_currentViewBox.width/zoomFactor;
+	var gt_newHeight	= gv_currentViewBox.height/zoomFactor;
 	
-	gv_currentViewBox.width		= gv_currentViewBox.width/zoomFactor;
-	gv_currentViewBox.height	= gv_currentViewBox.height/zoomFactor;
+	var gt_diffWidth	= gt_oldWidth - gt_newWidth;
+	var gt_diffHeight	= gt_oldHeight - gt_newHeight;
 	
-	/*
+	var gt_mouseDiffX1	= 0;
+	var gt_mouseDiffY1	= 0;
+	var gt_mouseDiffX2	= 0;
+	var gt_mouseDiffY2	= 0;
+	
 	if (gf_isset(zoomPosition))
 	{
-		gv_currentViewBox.x			= gv_currentViewBox.x - zoomPosition.x - (gv_currentViewBox.width/2);
-		gv_currentViewBox.y			= gv_currentViewBox.y + 0*zoomPosition.y + (gv_currentViewBox.height/2);
+		/*
+		gt_mouseDiffX1	= zoomPosition.x - gv_currentViewBox.x;
+		gt_mouseDiffY1	= zoomPosition.y - gv_currentViewBox.y;
+		
+		gt_mouseDiffX2	= gt_mouseDiffX1 / zoomFactor;
+		gt_mouseDiffY2	= gt_mouseDiffY1 / zoomFactor;
+		
+		gv_currentViewBox.x		= gv_currentViewBox.x + gt_mouseDiffX1 - gt_mouseDiffX2;
+		gv_currentViewBox.y		= gv_currentViewBox.y + gt_mouseDiffY1 - gt_mouseDiffY2;
+		*/
+		
+		gt_mouseDiffX1	= zoomPosition.x / gv_currentViewBox.zoom;
+		gt_mouseDiffY1	= zoomPosition.y / gv_currentViewBox.zoom;
+		
+		gv_currentViewBox.x		= gv_currentViewBox.x + gt_mouseDiffX1 * (1 - 1 / zoomFactor);
+		gv_currentViewBox.y		= gv_currentViewBox.y + gt_mouseDiffY1 * (1 - 1 / zoomFactor);
 	}
 	else
 	{
-		*/
-		gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x + (gv_currentViewBox.width/2);
-		gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y + (gv_currentViewBox.height/2) : gv_currentViewBox.y;
-		/*
+		gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x + (gt_diffWidth/2);
+		gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y + (gt_diffHeight/2) : gv_currentViewBox.y;
 	}
-	*/
 	
+	gv_currentViewBox.width		= gt_newWidth;
+	gv_currentViewBox.height	= gt_newHeight;
 	gv_currentViewBox.zoom		= gv_currentViewBox.zoom * zoomFactor;
-	gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);	
+	gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);
 }
 
 function gf_paperZoomOut (zoomFactor, zoomPosition)
@@ -142,18 +171,32 @@ function gf_paperZoomOut (zoomFactor, zoomPosition)
 	if (!gf_isset(zoomFactor))
 		zoomFactor = 2;
 		
-	/*
+	var gt_oldWidth		= gv_currentViewBox.width;
+	var gt_oldHeight	= gv_currentViewBox.height;
+	var gt_newWidth		= gv_currentViewBox.width*zoomFactor;
+	var gt_newHeight	= gv_currentViewBox.height*zoomFactor;
+	
+	var gt_diffWidth	= gt_oldWidth - gt_newWidth;
+	var gt_diffHeight	= gt_oldHeight - gt_newHeight;
+	
+	var gt_mouseDiffX1	= 0;
+	var gt_mouseDiffY1	= 0;
+	var gt_mouseDiffX2	= 0;
+	var gt_mouseDiffY2	= 0;
+	
 	if (gf_isset(zoomPosition))
 	{
-		gv_currentViewBox.x			= gv_currentViewBox.x - zoomPosition.x + (gv_currentViewBox.width/2);
-		gv_currentViewBox.y			= gv_currentViewBox.y - zoomPosition.y - (gv_currentViewBox.height/2);
+		gt_mouseDiffX1	= zoomPosition.x / gv_currentViewBox.zoom;
+		gt_mouseDiffY1	= zoomPosition.y / gv_currentViewBox.zoom;
+		
+		gv_currentViewBox.x		= gv_currentViewBox.x + gt_mouseDiffX1 * (1 - 1 * zoomFactor);
+		gv_currentViewBox.y		= gv_currentViewBox.y + gt_mouseDiffY1 * (1 - 1 * zoomFactor);
 	}
 	else
-	{*/
-		gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x - (gv_currentViewBox.width/2);
-		gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y - (gv_currentViewBox.height/2) : gv_currentViewBox.y;
-		/*
-	}*/
+	{
+		gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x + (gt_diffWidth/2);
+		gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y + (gt_diffHeight/2) : gv_currentViewBox.y;
+	}
 	
 	gv_currentViewBox.width		= gv_currentViewBox.width*zoomFactor;
 	gv_currentViewBox.height	= gv_currentViewBox.height*zoomFactor;
@@ -180,8 +223,8 @@ function gf_paperDragMove ()
 		gt_endPosX	= gt_event.pageX ? gt_event.pageX : gt_event.clientX;
 		gt_endPosY	= gt_event.pageY ? gt_event.pageY : gt_event.clientY;
 		
-		gt_diffX	= gv_mousePositionStart.x - gt_endPosX;
-		gt_diffY	= gv_mousePositionStart.y - gt_endPosY;
+		gt_diffX	= (gv_mousePositionStart.x - gt_endPosX) / gv_currentViewBox.zoom;
+		gt_diffY	= (gv_mousePositionStart.y - gt_endPosY) / gv_currentViewBox.zoom;
 		
 		gv_paper.setViewBox(gv_currentViewBox.x + gt_diffX, gv_currentViewBox.y + gt_diffY, gv_currentViewBox.width, gv_currentViewBox.height, false);
 	}
@@ -195,8 +238,8 @@ function gf_paperDragEnd ()
 		gt_endPosX	= gt_event.pageX ? gt_event.pageX : gt_event.clientX;
 		gt_endPosY	= gt_event.pageY ? gt_event.pageY : gt_event.clientY;
 		
-		gt_diffX	= gv_mousePositionStart.x - gt_endPosX;
-		gt_diffY	= gv_mousePositionStart.y - gt_endPosY;
+		gt_diffX	= (gv_mousePositionStart.x - gt_endPosX) / gv_currentViewBox.zoom;
+		gt_diffY	= (gv_mousePositionStart.y - gt_endPosY) / gv_currentViewBox.zoom;
 		
 		gv_currentViewBox.x	= gv_currentViewBox.x + gt_diffX;
 		gv_currentViewBox.y	= gv_currentViewBox.y + gt_diffY;
