@@ -59,7 +59,7 @@ function syncQuery(url, data, defaultreturn, successfunction ){
 	  async: false,
 	  success: function(data){
 		//alert(html);
-		if (html != "")
+		if (data != "")
 			ret = successfunction(JSON.parse(data));
 	  }
 	});
