@@ -31,14 +31,11 @@ var gv_elements = {
 	inputSubjectText:	"ge_cv_text",
 	inputSubjectId:		"ge_cv_id",
 	inputNodeText:		"ge_text",
-	inputNodeType:		"ge_type",
 	inputNodeType2:		"ge_type2",
 	inputNodeOuter:		"node",
 	
 	// select elements
-	inputNodeTypeNormal:	"ge_type_normal",
 	inputNodeTypeStart:		"ge_type_start",
-	inputNodeTypeEnd:		"ge_type_end",
 		
 	inputNodeType2R:		"ge_type2_R",
 	inputNodeType2S:		"ge_type2_S",
@@ -1199,8 +1196,6 @@ function GFcommunication ()
 		{
 			if (gf_elementExists(gv_elements.inputNodeText))
 				document.getElementById(gv_elements.inputNodeText).value = "";
-			if (gf_elementExists(gv_elements.inputNodeType))
-				document.getElementById(gv_elements.inputNodeType).value = "";
 			if (gf_elementExists(gv_elements.inputNodeType2))
 				document.getElementById(gv_elements.inputNodeType2).value = "";
 			
@@ -1256,12 +1251,8 @@ function GFcommunication ()
 						document.getElementById(gv_elements.inputNodeText).value = gt_node.getText();
 					
 					// clear selection
-					if (gf_elementExists(gv_elements.inputNodeTypeNormal))
-						document.getElementById(gv_elements.inputNodeTypeNormal).selected = !gt_node.isStart() && !gt_node.isEnd();
 					if (gf_elementExists(gv_elements.inputNodeTypeStart))
-						document.getElementById(gv_elements.inputNodeTypeStart).selected = gt_node.isStart();
-					if (gf_elementExists(gv_elements.inputNodeTypeEnd))
-						document.getElementById(gv_elements.inputNodeTypeEnd).selected = gt_node.isEnd();
+						document.getElementById(gv_elements.inputNodeTypeStart).checked = gt_node.isStart();
 
 					if (gf_elementExists(gv_elements.inputNodeType2R))
 						document.getElementById(gv_elements.inputNodeType2R).selected = gt_node.getType() == "receive";
@@ -1491,15 +1482,22 @@ function GFcommunication ()
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
 				// read the fields' values and pass to the bv
-				var gt_text	= gf_elementExists(gv_elements.inputNodeText) ? document.getElementById(gv_elements.inputNodeText).value : "";
-				var gt_type	= gf_elementExists(gv_elements.inputNodeType) ? document.getElementById(gv_elements.inputNodeType).value : "";
-				var gt_type2 = gf_elementExists(gv_elements.inputNodeType2) ? document.getElementById(gv_elements.inputNodeType2).value.toLowerCase() : "";
+				var gt_text		= gf_elementExists(gv_elements.inputNodeText) ? document.getElementById(gv_elements.inputNodeText).value : "";
+				var gt_isStart	= gf_elementExists(gv_elements.inputNodeTypeStart) && document.getElementById(gv_elements.inputNodeTypeStart).checked;
+				var gt_type2 	= gf_elementExists(gv_elements.inputNodeType2) ? document.getElementById(gv_elements.inputNodeType2).value.toLowerCase() : "";
+				var gt_type		= "normal";
 				
 				if (gt_type2 == "r")
 					gt_type2 = "receive";
 					
 				if (gt_type2 == "s")
 					gt_type2 = "send";
+					
+				if (gt_isStart === true)
+					gt_type = "start";					
+
+				if (gt_type2 == "end")
+					gt_type	= "end";
 				
 				this.getBehavior(this.selectedSubject).updateNode(gt_text, gt_type, gt_type2);
 				this.loadInformation();
