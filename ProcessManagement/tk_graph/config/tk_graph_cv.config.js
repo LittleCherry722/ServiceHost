@@ -104,15 +104,19 @@ var gv_cv_style_roundedRectangleExternal = {
 	 */
 	borderColor: "#AA0000",				// any hex-color-value
 	borderColorDeactivated: "#AA0000",	// any hex-color-value
+	borderColorSelDeactive: "#0000FF",	// any hex-color-value
 	borderColorSelected: "#0000FF",		// any hex-color-value
 	borderOpacity: 1.0,					// floating number
 	borderOpacityDeactivated: 0.5,		// floating number
+	borderOpacitySelDeactive: 1.0,		// floating number
 	borderOpacitySelected: 1.0,			// floating number
 	borderStyle: "- ",					// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleDeactivated: "- ",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelDeactive: "- ",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleSelected: "- ",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderWidth: 2,						// pixels
 	borderWidthDeactivated: 2,			// pixels
+	borderWidthSelDeactive: 2,			// pixels
 	borderWidthSelected: 2,				// pixels
 
 	/*
@@ -120,12 +124,15 @@ var gv_cv_style_roundedRectangleExternal = {
 	 */		
 	bgColor: "#FF9999",					// any hex-color-value
 	bgColorDeactivated: "#FF9999",		// any hex-color-value
+	bgColorSelDeactive: "#FF9999",		// any hex-color-value
 	bgColorSelected: "#FF9999",			// any hex-color-value
 	bgOpacity: 1.0,						// floating number
 	bgOpacityDeactivated: 0.5,			// floating number
+	bgOpacitySelDeactive: 0.75,			// floating number
 	bgOpacitySelected: 1.0,				// floating number
 	opacity: 1.0,						// floating number
 	opacityDeactivated: 0.5,			// floating number
+	opacitySelDeactive: 0.75,			// floating number
 	opacitySelected: 1.0,				// floating number
 	
 	/*
@@ -133,14 +140,17 @@ var gv_cv_style_roundedRectangleExternal = {
 	 */
 	fontColor: "#CC0000",				// any hex-color-value
 	fontColorDeactivated: "#CC0000",	// any hex-color-value
+	fontColorSelDeactive: "#0000FF",	// any hex-color-value
 	fontColorSelected: "#0000FF",		// any hex-color-value
 	fontOpacity: 1.0,					// floating number
 	fontOpacityDeactivated: 0.5,		// floating number
+	fontOpacitySelDeactive: 0.75,		// floating number
 	fontOpacitySelected: 1.0,			// floating number
 	fontFamily: "Times New Roman",		// any font
 	fontSize: 16,						// pixels
 	fontWeight: "normal",				// possible values: normal, bold
 	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelDeactive: "bold",		// possible values: normal, bold
 	fontWeightSelected: "bold",			// possible values: normal, bold
 	// paddingBottom: 5,				// pixels
 	// paddingLeft: 5,					// pixels
@@ -163,15 +173,19 @@ var gv_cv_style_roundedRectangleMulti = {
 	 */
 	borderColor: "#000000",				// any hex-color-value
 	borderColorDeactivated: "#000000",	// any hex-color-value
+	borderColorSelDeactive: "#0000FF",	// any hex-color-value
 	borderColorSelected: "#0000FF",		// any hex-color-value
 	borderOpacity: 1.0,					// floating number
 	borderOpacityDeactivated: 0.5,		// floating number
+	borderOpacitySelDeactive: 1.0,		// floating number
 	borderOpacitySelected: 1.0,			// floating number
 	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelDeactive: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
-	borderWidth: 1,						// pixels
-	borderWidthDeactivated: 1,			// pixels
+	borderWidth: 2,						// pixels
+	borderWidthDeactivated: 2,			// pixels
+	borderWidthSelDeactive: 3,			// pixels
 	borderWidthSelected: 3,				// pixels
 
 	/*
@@ -179,12 +193,15 @@ var gv_cv_style_roundedRectangleMulti = {
 	 */		
 	bgColor: "#999999",					// any hex-color-value
 	bgColorDeactivated: "#999999",		// any hex-color-value
+	bgColorSelDeactive: "#999999",		// any hex-color-value
 	bgColorSelected: "#999999",			// any hex-color-value
 	bgOpacity: 1.0,						// floating number
 	bgOpacityDeactivated: 0.5,			// floating number
+	bgOpacitySelDeactive: 0.75,			// floating number
 	bgOpacitySelected: 1.0,				// floating number
 	opacity: 1.0,						// floating number
 	opacityDeactivated: 0.5,			// floating number
+	opacitySelDeactive: 0.75,			// floating number
 	opacitySelected: 1.0,				// floating number
 	
 	/*
@@ -192,14 +209,17 @@ var gv_cv_style_roundedRectangleMulti = {
 	 */
 	fontColor: "#000000",				// any hex-color-value
 	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelDeactive: "#0000FF",	// any hex-color-value
 	fontColorSelected: "#0000FF",		// any hex-color-value
 	fontOpacity: 1.0,					// floating number
 	fontOpacityDeactivated: 0.5,		// floating number
+	fontOpacitySelDeactive: 0.75,		// floating number
 	fontOpacitySelected: 1.0,			// floating number
 	fontFamily: "Arial",				// any font
 	fontSize: 12,						// pixels
 	fontWeight: "normal",				// possible values: normal, bold
 	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelDeactive: "bold",		// possible values: normal, bold
 	fontWeightSelected: "bold",			// possible values: normal, bold
 	// paddingBottom: 5,				// pixels
 	// paddingLeft: 5,					// pixels
@@ -222,15 +242,19 @@ var gv_cv_style_roundedRectangleSingle = {
 	 */
 	borderColor: "#000000",				// any hex-color-value
 	borderColorDeactivated: "#000000",	// any hex-color-value
+	borderColorSelDeactive: "#0000FF",	// any hex-color-value
 	borderColorSelected: "#0000FF",		// any hex-color-value
 	borderOpacity: 1.0,					// floating number
 	borderOpacityDeactivated: 0.5,		// floating number
+	borderOpacityDeactivated: 1.0,		// floating number
 	borderOpacitySelected: 1.0,			// floating number
 	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelDeactive: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
-	borderWidth: 1,						// pixels
-	borderWidthDeactivated: 1,			// pixels
+	borderWidth: 2,						// pixels
+	borderWidthDeactivated: 2,			// pixels
+	borderWidthSelDeactive: 3,			// pixels
 	borderWidthSelected: 3,				// pixels
 
 	/*
@@ -238,12 +262,15 @@ var gv_cv_style_roundedRectangleSingle = {
 	 */		
 	bgColor: "#999999",					// any hex-color-value
 	bgColorDeactivated: "#999999",		// any hex-color-value
+	bgColorSelDeactive: "#999999",		// any hex-color-value
 	bgColorSelected: "#999999",			// any hex-color-value
 	bgOpacity: 1.0,						// floating number
 	bgOpacityDeactivated: 0.5,			// floating number
+	bgOpacitySelDeactive: 0.75,			// floating number
 	bgOpacitySelected: 1.0,				// floating number
 	opacity: 1.0,						// floating number
 	opacityDeactivated: 0.5,			// floating number
+	opacitySelDeactive: 0.75,			// floating number
 	opacitySelected: 1.0,				// floating number
 	
 	/*
@@ -251,14 +278,17 @@ var gv_cv_style_roundedRectangleSingle = {
 	 */
 	fontColor: "#000000",				// any hex-color-value
 	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelDeactive: "#0000FF",	// any hex-color-value
 	fontColorSelected: "#0000FF",		// any hex-color-value
 	fontOpacity: 1.0,					// floating number
 	fontOpacityDeactivated: 0.5,		// floating number
+	fontOpacitySelDeactive: 0.75,		// floating number
 	fontOpacitySelected: 1.0,			// floating number
 	fontFamily: "Arial",				// any font
 	fontSize: 12,						// pixels
 	fontWeight: "normal",				// possible values: normal, bold
 	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelDeactive: "bold",		// possible values: normal, bold
 	fontWeightSelected: "bold",			// possible values: normal, bold
 	// paddingBottom: 5,				// pixels
 	// paddingLeft: 5,					// pixels
