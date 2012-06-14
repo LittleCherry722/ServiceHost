@@ -25,18 +25,22 @@ var gv_bv_style_edge = {
 	arrowHeadWidth: "wide",				// possible values: wide, narrow, medium
 	arrowColor: "#666666",				// any hex-color-value
 	arrowColorDeactivated: "#666666",	// any hex-color-value
+	arrowColorSelDeactive: "#0000FF",	// any hex-color-value
 	arrowColorSelected: "#0000FF",		// any hex-color-value
 	arrowLinecap: "square",				// possible values: butt, square, round
 	arrowLinejoin: "bevel",				// possible values: bevel, round, miter
 	arrowMiterLimit: 0,					// any number
 	arrowOpacity: 1.0,					// floating number
-	arrowOpacityDeactivated: 0.3,		// floating number
+	arrowOpacityDeactivated: 0.4,		// floating number
+	arrowOpacitySelDeactive: 0.7,		// floating number
 	arrowOpacitySelected: 1.0,			// floating number
 	arrowStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	arrowStyleDeactivated: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleSelDeactive: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	arrowStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	arrowWidth: 2,						// pixels
 	arrowWidthDeactivated: 2,			// pixels
+	arrowWidthSelDeactive: 2,			// pixels
 	arrowWidthSelected: 2,				// pixels
 	
 	/*
@@ -44,15 +48,19 @@ var gv_bv_style_edge = {
 	 */
 	borderColor: "#666666",				// any hex-color-value
 	borderColorDeactivated: "#666666",	// any hex-color-value
+	borderColorSelDeactive: "#0000FF",	// any hex-color-value
 	borderColorSelected: "#0000FF",		// any hex-color-value
 	borderOpacity: 1.0,					// floating number
-	borderOpacityDeactivated: 0.3,		// floating number
+	borderOpacityDeactivated: 0.4,		// floating number
+	borderOpacitySelDeactive: 0.7,		// floating number
 	borderOpacitySelected: 1.0,			// floating number
 	borderStyle: ".",					// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelDeactive: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderWidth: 2,						// pixels
 	borderWidthDeactivated: 2,			// pixels
+	borderWidthSelDeactive: 2,			// pixels
 	borderWidthSelected: 2,				// pixels
 
 	/*
@@ -60,12 +68,15 @@ var gv_bv_style_edge = {
 	 */		
 	bgColor: "#F0FFFF",					// any hex-color-value
 	bgColorDeactivated: "#F0FFFF",		// any hex-color-value
+	bgColorSelDeactive: "#F0FFFF",		// any hex-color-value
 	bgColorSelected: "#F0FFFF",			// any hex-color-value
 	bgOpacity: 1.0,						// floating number
-	bgOpacityDeactivated: 0.3,			// floating number
+	bgOpacityDeactivated: 0.4,			// floating number
+	bgOpacitySelDeactive: 0.7,			// floating number
 	bgOpacitySelected: 1.0,				// floating number
 	opacity: 1.0,						// floating number
-	opacityDeactivated: 0.3,			// floating number
+	opacityDeactivated: 0.4,			// floating number
+	opacitySelDeactive: 0.7,			// floating number
 	opacitySelected: 1.0,				// floating number
 	
 	/*
@@ -73,14 +84,17 @@ var gv_bv_style_edge = {
 	 */
 	fontColor: "#000000",				// any hex-color-value
 	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelDeactive: "#0000FF",	// any hex-color-value
 	fontColorSelected: "#0000FF",		// any hex-color-value
 	fontOpacity: 1.0,					// floating number
-	fontOpacityDeactivated: 0.3,		// floating number
+	fontOpacityDeactivated: 0.4,		// floating number
+	fontOpacitySelDeactive: 0.7,		// floating number
 	fontOpacitySelected: 1.0,			// floating number
 	fontFamily: "Verdana, sans-serif",	// any font
 	fontSize: 12,						// pixels
 	fontWeight: "normal",				// possible values: normal, bold
 	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelDeactive: "normal",	// possible values: normal, bold
 	fontWeightSelected: "normal",		// possible values: normal, bold
 	// paddingBottom: 5,					// pixels
 	// paddingLeft: 5,						// pixels
@@ -106,15 +120,19 @@ var gv_bv_style_circleNode = {
 	 */
 	borderColor: "#666666",				// any hex-color-value
 	borderColorDeactivated: "#666666",	// any hex-color-value
+	borderColorSelDeactive: "#0000FF",	// any hex-color-value
 	borderColorSelected: "#0000FF",		// any hex-color-value
 	borderOpacity: 1.0,					// floating number
-	borderOpacityDeactivated: 0.3,		// floating number
+	borderOpacityDeactivated: 0.4,		// floating number
+	borderOpacitySelDeactive: 0.7,		// floating number
 	borderOpacitySelected: 1.0,			// floating number
 	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelDeactive: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderWidth: 2,						// pixels
 	borderWidthDeactivated: 2,			// pixels
+	borderWidthSelDeactive: 2,			// pixels
 	borderWidthSelected: 2,				// pixels
 
 	/*
@@ -122,12 +140,15 @@ var gv_bv_style_circleNode = {
 	 */		
 	bgColor: "#90FFFF",					// any hex-color-value
 	bgColorDeactivated: "#90FFFF",		// any hex-color-value
+	bgColorSelDeactive: "#90FFFF",		// any hex-color-value
 	bgColorSelected: "#90FFFF",			// any hex-color-value
 	bgOpacity: 1.0,						// floating number
-	bgOpacityDeactivated: 0.3,			// floating number
+	bgOpacityDeactivated: 0.4,			// floating number
+	bgOpacitySelDeactive: 0.7,			// floating number
 	bgOpacitySelected: 1.0,				// floating number
 	opacity: 1.0,						// floating number
-	opacityDeactivated: 0.3,			// floating number
+	opacityDeactivated: 0.4,			// floating number
+	opacitySelDeactive: 0.7,			// floating number
 	opacitySelected: 1.0,				// floating number
 	
 	/*
@@ -135,14 +156,17 @@ var gv_bv_style_circleNode = {
 	 */
 	fontColor: "#000000",				// any hex-color-value
 	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelDeactive: "#0000FF",	// any hex-color-value
 	fontColorSelected: "#0000FF",		// any hex-color-value
 	fontOpacity: 1.0,					// floating number
-	fontOpacityDeactivated: 0.3,		// floating number
+	fontOpacityDeactivated: 0.4,		// floating number
+	fontOpacitySelDeactive: 0.7,		// floating number
 	fontOpacitySelected: 1.0,			// floating number
 	fontFamily: "Verdana, sans-serif",	// any font
 	fontSize: 12,						// pixels
 	fontWeight: "normal",				// possible values: normal, bold
 	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelDeactive: "bold",	// possible values: normal, bold
 	fontWeightSelected: "bold",			// possible values: normal, bold
 	// paddingBottom: 5,					// pixels
 	// paddingLeft: 5,						// pixels
@@ -168,6 +192,7 @@ var gv_bv_style_circleNodeStart = {
 	 */
 	borderWidth: 3,						// pixels
 	borderWidthDeactivated: 3,			// pixels
+	borderWidthSelDeactive: 4,			// pixels
 	borderWidthSelected: 4				// pixels
 };
 
@@ -178,6 +203,7 @@ var gv_bv_style_circleNodeEnd = {
 	 */
 	borderWidth: 3,						// pixels
 	borderWidthDeactivated: 3,			// pixels
+	borderWidthSelDeactive: 4,			// pixels
 	borderWidthSelected: 4,				// pixels
 
 	/*
@@ -185,6 +211,7 @@ var gv_bv_style_circleNodeEnd = {
 	 */		
 	bgColor: "#C0DDDD",					// any hex-color-value
 	bgColorDeactivated: "#C0DDDD",		// any hex-color-value
+	bgColorSelDeactive: "#C0DDDD",		// any hex-color-value
 	bgColorSelected: "#C0DDDD"			// any hex-color-value
 };
 
@@ -194,15 +221,19 @@ var gv_bv_style_rectNode = {
 	 */
 	borderColor: "#666666",				// any hex-color-value
 	borderColorDeactivated: "#666666",	// any hex-color-value
+	borderColorSelDeactive: "#0000FF",	// any hex-color-value
 	borderColorSelected: "#0000FF",		// any hex-color-value
 	borderOpacity: 1.0,					// floating number
-	borderOpacityDeactivated: 0.3,		// floating number
+	borderOpacityDeactivated: 0.4,		// floating number
+	borderOpacitySelDeactive: 0.7,		// floating number
 	borderOpacitySelected: 1.0,			// floating number
 	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelDeactive: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderWidth: 2,						// pixels
 	borderWidthDeactivated: 2,			// pixels
+	borderWidthSelDeactive: 2,			// pixels
 	borderWidthSelected: 2,				// pixels
 
 	/*
@@ -210,12 +241,15 @@ var gv_bv_style_rectNode = {
 	 */		
 	bgColor: "#90FFFF",					// any hex-color-value
 	bgColorDeactivated: "#90FFFF",		// any hex-color-value
+	bgColorSelDeactive: "#90FFFF",		// any hex-color-value
 	bgColorSelected: "#90FFFF",			// any hex-color-value
 	bgOpacity: 1.0,						// floating number
-	bgOpacityDeactivated: 0.3,			// floating number
+	bgOpacityDeactivated: 0.4,			// floating number
+	bgOpacitySelDeactive: 0.7,			// floating number
 	bgOpacitySelected: 1.0,				// floating number
 	opacity: 1.0,						// floating number
-	opacityDeactivated: 0.3,			// floating number
+	opacityDeactivated: 0.4,			// floating number
+	opacitySelDeactive: 0.7,			// floating number
 	opacitySelected: 1.0,				// floating number
 	
 	/*
@@ -223,14 +257,17 @@ var gv_bv_style_rectNode = {
 	 */
 	fontColor: "#000000",				// any hex-color-value
 	fontColorDeactivated: "#000000",	// any hex-color-value
+	fontColorSelDeactive: "#0000FF",	// any hex-color-value
 	fontColorSelected: "#0000FF",		// any hex-color-value
 	fontOpacity: 1.0,					// floating number
-	fontOpacityDeactivated: 0.3,		// floating number
+	fontOpacityDeactivated: 0.4,		// floating number
+	fontOpacitySelDeactive: 0.7,		// floating number
 	fontOpacitySelected: 1.0,			// floating number
 	fontFamily: "Verdana, sans-serif",	// any font
 	fontSize: 12,						// pixels
 	fontWeight: "normal",				// possible values: normal, bold
 	fontWeightDeactivated: "normal",	// possible values: normal, bold
+	fontWeightSelDeactive: "normal",	// possible values: normal, bold
 	fontWeightSelected: "normal",		// possible values: normal, bold
 	// paddingBottom: 5,					// pixels
 	// paddingLeft: 5,						// pixels
@@ -257,6 +294,7 @@ var gv_bv_style_rectNodeStart = {
 	 */
 	borderWidth: 3,						// pixels
 	borderWidthDeactivated: 3,			// pixels
+	borderWidthSelDeactive: 4,			// pixels
 	borderWidthSelected: 4				// pixels
 };
 

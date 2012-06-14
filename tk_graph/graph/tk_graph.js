@@ -542,7 +542,11 @@ function GFpath (startx, starty, endx, endy, shape, text, id)
 		 * status dependent styles
 		 */
 		var statusDependent = "";
-		if (this.selected === true)
+		if (this.selected === true && this.deactive === true)
+		{
+			statusDependent = "SelDeactive";
+		}
+		else if (this.selected === true)
 		{
 			statusDependent = "Selected";
 		}
@@ -964,11 +968,9 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 			{
 				this.rectangle.click(function () {gf_paperClickNodeC(id); });
 				this.ellipse.click(function () {gf_paperClickNodeC(id); });
-				// this.text.click(function () {gf_paperClickNodeC(id); });
 				
 				this.rectangle.dblclick(function () {gf_paperDblClickNodeC(id); });
 				this.ellipse.dblclick(function () {gf_paperDblClickNodeC(id); });
-				// this.text.dblclick(function () {gf_paperDblClickNodeC(id); });
 				
 				for (rrId in this.multiRR)
 	 			{
@@ -982,13 +984,11 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 				{
 					this.rectangle.click(function () {gf_paperClickEdge(id); });
 					this.ellipse.click(function () {gf_paperClickEdge(id); });
-					// this.text.click(function () {gf_paperClickEdge(id); });
 				}
 				else
 				{
 					this.rectangle.click(function () {gf_paperClickNodeB(id); });
 					this.ellipse.click(function () {gf_paperClickNodeB(id); });
-					// this.text.click(function () {gf_paperClickNodeB(id); });
 				}
 			}
 			$(this.text.node).css("pointer-events", "none");
@@ -1053,7 +1053,11 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 		 * status dependent styles
 		 */
 		var statusDependent = "";
-		if (this.selected === true)
+		if (this.selected === true && this.deactive === true)
+		{
+			statusDependent = "SelDeactive";
+		}
+		else if (this.selected === true)
 		{
 			statusDependent = "Selected";	
 		}
