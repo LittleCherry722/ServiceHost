@@ -283,8 +283,8 @@ var gv_bv_style_rectNode = {
 	rectangleRadius: 4,					// radius for rounded rectangles
 	width: 0,							// int
 	height: 0,							// int
-	minWidth: 0,						// int
-	minHeight: 0						// int
+	minWidth: 50,						// int
+	minHeight: 24						// int
 };
 
 // only set difference to normal rectNode
