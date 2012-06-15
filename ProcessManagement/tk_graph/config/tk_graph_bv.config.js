@@ -100,8 +100,9 @@ var gv_bv_style_edge = {
 	// paddingLeft: 5,						// pixels
 	// paddingRight: 5,					// pixels
 	// paddingTop: 5,						// pixels
-	// textAlign: "left",					// possible values: left, right, middle
-	// textVAlign: "top",					// possible values: top, bottom, middle
+	textAlign: "middle",				// possible values: left, right, middle
+	textAlignLi: "middle",				// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
 	
 	/*
 	 * Misc
@@ -172,8 +173,9 @@ var gv_bv_style_circleNode = {
 	// paddingLeft: 5,						// pixels
 	// paddingRight: 5,					// pixels
 	// paddingTop: 5,						// pixels
-	// textAlign: "left",					// possible values: left, right, middle
-	// textVAlign: "top",					// possible values: top, bottom, middle
+	textAlign: "middle",				// possible values: left, right, middle
+	textAlignLi: "middle",				// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
 	
 	/*
 	 * Misc
@@ -273,8 +275,9 @@ var gv_bv_style_rectNode = {
 	// paddingLeft: 5,						// pixels
 	// paddingRight: 5,					// pixels
 	// paddingTop: 5,						// pixels
-	// textAlign: "left",					// possible values: left, right, middle
-	// textVAlign: "top",					// possible values: top, bottom, middle
+	textAlign: "middle",				// possible values: left, right, middle
+	textAlignLi: "middle",				// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
 	
 	/*
 	 * Misc

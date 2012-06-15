@@ -48,7 +48,19 @@ function gf_initPaper ()
 		}
     });
     
-    $(gv_paper.canvas).mousemove(function(event)
+    $(gv_paper.canvas).keydown(function(event)
+    {
+    	if (event.shiftKey)
+		{
+			gv_bgRect.toFront();
+		}
+		else
+		{
+			gv_bgRect.toBack();
+		}
+    });
+    
+    $(gv_paper.canvas).keyup(function(event)
     {
     	if (event.shiftKey)
 		{
@@ -283,6 +295,23 @@ function gf_getStrokeDasharray (strokeStyle)
 		return strokeStyle;
 	}
 	return " ";
+}
+
+function gf_getTextPosition (textAlign, textVAlign)
+{
+	var align	= "middle";
+	var valign	= "middle";
+	
+	if (gf_isset(textAlign))
+	{
+		if (textAlign.toLowerCase() == "left")
+			align = "start";
+			
+		if (textAlign.toLowerCase() == "right")
+			align = "end";
+	}
+	
+	return {align: align, valign: valign};
 }
 
 function gf_paperClickEdge (id)
@@ -934,6 +963,7 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 	this.y = 0;	
 	
 	this.id = "";
+	this.textAlignAttribute	= "textAlign";
 	
 	this.multiRR	= [];
 	this.multiRR[3]	= gv_paper.rect(0, 0, 0, 0, 0);
@@ -1068,6 +1098,7 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 		
 		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("borderStyle" + statusDependent, ""));
 		var strokeWidth		= strokeDasharray == "none" ? 0 : this.readStyle("borderWidth" + statusDependent, "int");
+		var textAlign		= gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align;
 		
 		// rectangle
 		this.rectangle.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
@@ -1106,8 +1137,8 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 		this.text.attr("font-weight", this.readStyle("fontWeight" + statusDependent, ""));
 		this.text.attr("font-size", this.readStyle("fontSize", "int"));
 		this.text.attr("font-family", this.readStyle("fontFamily", ""));
+		this.text.attr("text-anchor", textAlign);
 		
-		// textAlign: "left",	// TODO / remove?
 		// textVAlign: "top",	// TODO / remove?
 		
 		this.updateBoundaries();
@@ -1176,7 +1207,17 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 	
 	/*
 	 * label specific
-	 */	
+	 */		
+	this.getTextAlignAttribute = function (text)
+	{
+		this.textAlignAttribute	= "textAlign";
+		
+		if (text.search(/<li>|<li \/>|<li\/>/gi) > -1)
+		{
+			this.textAlignAttribute += "Li";
+		}
+	}
+	
 	this.replaceNewline = function (text)
 	{
 		return gf_replaceNewline(text).replace(/<li>|<li \/>|<li\/>/gi, this.readStyle("liSymbol", ""));
@@ -1225,6 +1266,7 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 	
 	this.setText = function (text)
 	{
+		this.getTextAlignAttribute(text);
 		this.text.attr("text", this.replaceNewline(text));
 		this.refreshStyle();
 	}
@@ -1241,7 +1283,18 @@ function GFlabel (x, y, text, shape, id, belongsToPath)
 		
 		// TODO: some more options like apply padding and move the text according to the new position
 		
-		this.text.attr("x", this.x);
+		var textX	= this.x;
+		
+		if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "start")
+		{
+			textX	= this.x - this.text.getBBox().width / 2;
+		}
+		else if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "end")
+		{
+			textX	= this.x + this.text.getBBox().width / 2;
+		}
+		
+		this.text.attr("x", textX);
 		this.text.attr("y", this.y);
 		
 		var paddingLeft		= this.readStyle("paddingLeft", "int");
