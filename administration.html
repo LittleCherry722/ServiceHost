@@ -43,61 +43,14 @@
 
 </head>
 <body>
+   
+<script type="text/html" id="general"></script>
+<script type="text/html" id="users"></script>
+<script type="text/html" id="roles"></script>
+<script type="text/html" id="debug"></script>
+  
 <div id="content_wide">
-
-<script type="text/html" id="generalTempl">
     
-    general template
-    
-</script>    
-<script type="text/html" id="usersTempl">
-
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Roles</th>
-                <th />
-                <th />
-            </tr>
-        </thead>
-        <tbody data-bind="foreach: {data : data().users, afterRender : $root.initChosen}">
-            <tr>
-                <td><input class="inline" data-bind='value: name' /></td>
-                <td><select data-bind='options: $parent.options(), value: roles' class="chzn-select" multiple /></td>
-                <td><input type="button" class="button" value="Details" data-bind='click: $parent.showDetails' /></td>
-                <td><input type="button" class="button" value="Delete" data-bind='click: $parent.deleteUser' /></td>
-            </tr>
-        </tbody>
-    </table>
-    
-</script>
-<script type="text/html" id="rolesTempl">
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th />
-                <th />
-            </tr>
-        </thead>
-        <tbody data-bind='foreach: data().roles'>
-            <tr>
-                <td><input class="inline"  data-bind='value: name' /></td>
-                <td><a href='#' class="button" data-bind='click: $parent.showDetails'>Details</a></td>
-                <td><a href='#' class="button" data-bind='click: $parent.deleteRole'>Delete</a></td>
-            </tr>
-        </tbody>
-    </table>
-    
-</script>   
-<script type="text/html" id="debugTempl">
-    
-    debug template
-    
-</script>  
-
     <!-- header -->
     <div id="header2">
 
