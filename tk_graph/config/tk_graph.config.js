@@ -114,7 +114,8 @@ var gv_defaultStyle	= {
 	paddingLeft: 5,						// pixels
 	paddingRight: 5,					// pixels
 	paddingTop: 5,						// pixels
-	textAlign: "left",					// possible values: left, right, middle
+	textAlign: "middle",				// possible values: left, right, middle
+	textAlignLi: "left",				// possible values: left, right, middle
 	textVAlign: "top",					// possible values: top, bottom, middle
 	
 	/*
