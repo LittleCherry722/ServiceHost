@@ -279,6 +279,8 @@ function goToInternalBehaviorOf(subject){
 }
 
 
+
+
 function addHistory(data, userid, subjectid, node){ 
      if(typeof(data[userid]) == 'undefined') data[userid] = JSON.parse("{}"); 
      if(typeof(data[userid]['history']) == 'undefined') data[userid]['history'] = new Array(); 
