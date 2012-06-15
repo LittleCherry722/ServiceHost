@@ -11,26 +11,23 @@ var ViewModel = function() {
         'Debug'   : new DebugViewModel() 
     });
     
-    self.goToTab = function(tab) { 
-
-        self.subsites()[tab].init();
-
-        self.tab(tab);
+    self.init = function(){
         
-        console.log(tab);
+        //preselect the general tab
+        self.goToTab("General");
         
     }
-       
-    self.preloadTemplates = function(){
-        for(var svm in self.subsites()){
-            $.get({url: 'include/administration/'+self.subsites()[svm].name.toLowerCase()+'.tmpl',
-                   success: function(template){
-                        $('body').prepend(template);
-                   }
-                  });
-        }
-    };
- 
+    
+    self.goToTab = function(tab) { 
+
+        // load the selected tabs model & ui
+        self.subsites()[tab].init();
+
+        // set the tab for highlighting
+        self.tab(tab);
+             
+    }
+
     self.subsite = function(){
         return self.subsites()[self.tab()];
     }
@@ -47,17 +44,18 @@ var ViewModel = function() {
         $(elements).find('.chzn-select').chosen();
     }
     
-    self.goToTab("General");
-    // self.preloadTemplates();
+    self.init();
+    console.log("ViewModel for administration initialized.");
 };
  
  
-var SubViewModel = function(name, template){
+var SubViewModel = function(name){
 
+    // thats the extending class' context
     var self = this;
 
     self.name = name;
-    self.template = template;
+    self.template = name.toLowerCase();
     self.data = ko.observable("");
     
     self.init = function(){
@@ -67,7 +65,9 @@ var SubViewModel = function(name, template){
 
 }
 
-
+/**
+ * extends SubViewModel 
+ */
 var GeneralViewModel = function(){
         
     var self = this;
@@ -81,11 +81,13 @@ var GeneralViewModel = function(){
         Utilities.unimplError("save");
     }
 
-    SubViewModel.call(self, "General", "generalTempl");
+    SubViewModel.call(self, "General");
 
 }
 
-
+/**
+ * extends SubViewModel 
+ */
 var UserViewModel = function(){
        
     var self = this;
@@ -94,9 +96,7 @@ var UserViewModel = function(){
     
     self.loadModel = function(){
         self.data({users : UserService.getAll()});
-        
-        console.log(self.data());
-        
+
         if(self.options().length < 1){
             var roles = RoleService.getAll();
             
@@ -110,9 +110,11 @@ var UserViewModel = function(){
     }
     
     self.deleteUser = function(user){
+        
         UserService.del(user.name);   
         
         self.data().users.remove(user);
+        
     }
     
     self.save = function(){
@@ -124,10 +126,13 @@ var UserViewModel = function(){
         });
     }
     
-    SubViewModel.call(self, "Users", "usersTempl");
+    SubViewModel.call(self, "Users");
     
 }
 
+/**
+ * extends SubViewModel 
+ */
 var RoleViewModel = function(){
     
     var self = this;
@@ -141,9 +146,11 @@ var RoleViewModel = function(){
     }
     
     self.deleteRole = function(role){
+        
         RoleService.del(role.name);   
         
         self.data().roles.remove(role);
+        
     }
     
     self.save = function(){
@@ -155,27 +162,29 @@ var RoleViewModel = function(){
         });
     }
 
-    SubViewModel.call(self, "Roles", "rolesTempl");
+    SubViewModel.call(self, "Roles");
     
 }
 
+/**
+ * extends SubViewModel 
+ */
 var DebugViewModel = function(){
 
     var self = this;
     
     self.loadModel = function(){
-        Utilities.unimplError("load model.");
+        // no model until now
     }
 
     self.save = function(){
         return false;
     }
 
-    SubViewModel.call(self, "Debug", "debugTempl");
+    SubViewModel.call(self, "Debug");
     
 }
 
 var VM = new ViewModel();
 
-console.log("Applying bindings.");
 ko.applyBindings(VM);

@@ -1,0 +1,16 @@
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th />
+                <th />
+            </tr>
+        </thead>
+        <tbody data-bind='foreach: data().roles'>
+            <tr>
+                <td><input class="inline"  data-bind='value: name' /></td>
+                <td><a href='#' class="button" data-bind='click: $parent.showDetails'>Details</a></td>
+                <td><a href='#' class="button" data-bind='click: $parent.deleteRole'>Delete</a></td>
+            </tr>
+        </tbody>
+    </table>

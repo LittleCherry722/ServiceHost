@@ -1,0 +1,18 @@
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roles</th>
+                <th />
+                <th />
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: {data : data().users, afterRender : $root.initChosen}">
+            <tr>
+                <td><input class="inline" data-bind='value: name' /></td>
+                <td><select data-bind='options: $parent.options(), value: roles' class="chzn-select" multiple /></td>
+                <td><input type="button" class="button" value="Details" data-bind='click: $parent.showDetails' /></td>
+                <td><input type="button" class="button" value="Delete" data-bind='click: $parent.deleteUser' /></td>
+            </tr>
+        </tbody>
+    </table>
