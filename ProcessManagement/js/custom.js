@@ -63,12 +63,16 @@ $(document).ready(function() {
 			$(".tab_content").addClass("hide");
 			$("#tab2_content").removeClass("hide");
 			gv_graph.changeView('cv');
+						updateListOfSubjects();
 		});
 		$("#tab3").click(function() {
 			$(this).parent().parent().find("td input").removeClass("active");
 			$(this).addClass("active");
 			$(".tab_content").addClass("hide");
 			$("#tab3_content").removeClass("hide");
+
+			gv_graph.selectedNode = null;
+			updateListOfSubjects();
 		});
 
 		$("#instance_tab1").click(function() {
@@ -486,6 +490,7 @@ function callFancyBox(my_href) {
 
 function showtab1() {
 	$("#tab2").removeClass("active");
+	$("#tab3").removeClass("active");
 	$("#tab1").addClass("active");
 	$(".tab_content").addClass("hide");
 	$("#tab1_content").removeClass("hide");
