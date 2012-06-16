@@ -249,29 +249,36 @@ function ProzessLaden(name) {
 function updateListOfSubjects(){
 	var html = "<option></option>";
 	
+	
+	
+	
+	
 	for(var subject in gv_graph.subjects){
 		
 		
 
 	if (""+subject == gv_graph.selectedNode){
 
-		html += "<option selected id=\""+subject+"\">"+subject+"</option>";
+		html += "<option selected id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
 		
 	}
 	else{
-		html += "<option id=\""+subject+"\">"+subject+"</option>";
+		html += "<option id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
 
 	}
 }
+
+
 	$('#slctSbj').html(html);
 	$("#slctSbj").trigger("liszt:updated");
-	
+
 }
 
 
 
 
 function goToInternalBehaviorOf(subject){
+	//alert(subject);
 	gv_graph.selectedSubject = null; 
 	gf_clickedCVnode(subject);
 	showtab1();
