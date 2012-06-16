@@ -480,6 +480,21 @@ $(document).ready(function() {
 				$('#ge_text').removeAttr('disabled');
 			}
 		});
+		
+		$('#ge_cv_id').change(function(e) {
+			var val = $('#ge_cv_id').val();
+			if (val == undefined) {
+				$('#ge_cv_text').attr('disabled', 'disabled');
+				$('#AssignRoleWarning').show();
+				
+			} else {
+				$('#ge_cv_text').removeAttr('disabled');
+				$('#AssignRoleWarning').hide();
+
+			}
+		});
+
+		$('#ge_cv_id').change();
 
 	});
 

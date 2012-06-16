@@ -34,6 +34,8 @@ var groups = getAllGroups();
 for(var i = 0; i < groups.length; ++i)
 	insert += "<option>" + groups[i] +"</option>";
 document.getElementById('ge_cv_id').innerHTML = insert;
+//Fire change event for listeners
+$('#ge_cv_id').change();
 }
 
 function writeSumMsgs() {

@@ -596,3 +596,7 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	right: 68px;
 	top: 3px;
 }
+
+.warning {
+	color: #CD0A0A;
+}
