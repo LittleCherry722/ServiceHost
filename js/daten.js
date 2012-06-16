@@ -282,11 +282,12 @@ function updateListOfSubjects(){
 
 function goToInternalBehaviorOf(subject){
 	//alert(subject);
-	updateListOfSubjects();
+
 	gv_graph.selectedSubject = null; 
 	gf_clickedCVnode(subject);
 	showtab1();
-
+	updateListOfSubjects();
+	
 }
 
 

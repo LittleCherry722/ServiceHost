@@ -17,6 +17,11 @@
 		<!-- Title -->
 		<title>S-BPM Groupware</title>
 
+		<!-- Favicon -->
+		<link rel="icon" href="images/icons/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon" />
+
+
 		<!-- stylesheets -->
 		<link href="css/main.css" rel="stylesheet" type="text/css" media="all">
 		<link href="css/datepicker.css" rel="stylesheet" type="text/css" media="all">
@@ -252,7 +257,10 @@
 												<input type="button" id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:208px"/>
 												</td>
 
-												<td><select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="width:144px" tabindex="1" ></select></td>
+												<td>
+													<div id="seltSbjDiv" style="">
+													<select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; margin-top: 20px;" tabindex="1" ></select></td>
+												</div>
 												<td>
 												<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
 												</td>
