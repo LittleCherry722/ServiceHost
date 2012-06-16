@@ -48,19 +48,7 @@ function gf_initPaper ()
 		}
     });
     
-    $(gv_paper.canvas).keydown(function(event)
-    {
-    	if (event.shiftKey)
-		{
-			gv_bgRect.toFront();
-		}
-		else
-		{
-			gv_bgRect.toBack();
-		}
-    });
-    
-    $(gv_paper.canvas).keyup(function(event)
+    $(gv_paper.canvas).bind("mousemove", function (event)
     {
     	if (event.shiftKey)
 		{

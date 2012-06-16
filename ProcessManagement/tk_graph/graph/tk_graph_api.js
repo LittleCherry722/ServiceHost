@@ -170,7 +170,18 @@ function gf_setEdgeMessage ()
 {
 	if (gf_elementExists(gv_elements.inputEdgeText, gv_elements.inputEdgeMessage))
 	{
-		document.getElementById(gv_elements.inputEdgeText).value = document.getElementById(gv_elements.inputEdgeMessage).value;
+		var gt_message	= document.getElementById(gv_elements.inputEdgeMessage).value;
+		
+		if (gt_message == "##createNewMsg##")
+		{
+			document.getElementById(gv_elements.inputEdgeText).readOnly	= false;
+			document.getElementById(gv_elements.inputEdgeText).value 	= "";	
+		}
+		else
+		{
+			document.getElementById(gv_elements.inputEdgeText).readOnly	= true;
+			document.getElementById(gv_elements.inputEdgeText).value 	= gt_message;
+		}
 	}
 }
 
@@ -1026,16 +1037,53 @@ function GFcommunication ()
 		{
 			
 			var gt_option = document.createElement("option");
-			gt_option.text = "please select";
-			gt_option.value = "";
-			gt_option.id = gv_elements.inputEdgeTarget + "_00000.0";
-			gt_select_message.add(gt_option);
+				gt_option.text = "please select";
+				gt_option.value = "";
+				gt_option.id = gv_elements.inputEdgeTarget + "_00000.0";
+				gt_select_message.add(gt_option);
 			
-			var gt_option = document.createElement("option");
-			gt_option.text = "----------------------------";
-			gt_option.value = "";
-			gt_option.id = gv_elements.inputEdgeTarget + "_00000.1";
-			gt_select_message.add(gt_option);
+				gt_option = document.createElement("option");
+				gt_option.text = "----------------------------";
+				gt_option.value = "";
+				gt_option.id = gv_elements.inputEdgeTarget + "_00000.1";
+				gt_select_message.add(gt_option);
+			
+				gt_option = document.createElement("option");
+				gt_option.text = "create a new message";
+				gt_option.value = "##createNewMsg##";
+				gt_option.id = gv_elements.inputEdgeTarget + "_00000.2";
+				gt_select_message.add(gt_option);
+			
+				gt_option = document.createElement("option");
+				gt_option.text = "----------------------------";
+				gt_option.value = "";
+				gt_option.id = gv_elements.inputEdgeTarget + "_00000.3";
+				gt_select_message.add(gt_option);
+				
+			var gt_curEdge			= null;
+			var gt_curEdgeID		= null;
+			var gt_curStartNode		= null;
+			var gt_curStartNodeType	= "receive";
+			var gt_tmpStartNodeType	= "send";
+			
+			if (this.getBehavior(this.selectedSubject) != null)
+			{
+				gt_curEdgeID	= this.getBehavior(this.selectedSubject).selectedEdge;
+				if (gt_curEdgeID != null)
+				{
+					gt_curEdge	= this.getBehavior(this.selectedSubject).getEdges()["e" + gt_curEdgeID];
+					if (gt_curEdge != null)
+					{
+						gt_curStartNode	= this.getBehavior(this.selectedSubject).getNode(gt_curEdge.getStart());
+						if (gt_curStartNode != null)
+						{
+							gt_curStartNodeType	= gt_curStartNode.getType();						
+						}
+					}
+				}
+			}
+			
+			gt_tmpStartNodeType	= gt_curStartNodeType == "send" ? "receive" : "send";
 			
 			var gt_behav = this.getBehavior(gt_selectedTarget);
 			var gt_edges = gt_behav.getEdges();
@@ -1049,7 +1097,7 @@ function GFcommunication ()
 				
 				if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "")
 				{
-					if (gf_isset(this.subjects[gt_relatedSubject]) && gt_relatedSubject == this.selectedSubject && gt_startNode.getType() == "send")
+					if (gf_isset(this.subjects[gt_relatedSubject]) && gt_relatedSubject == this.selectedSubject && gt_startNode.getType() == gt_tmpStartNodeType)
 					{
 						gt_messagesArray[gt_messagesArray.length]	= gt_text;
 					}
@@ -1060,7 +1108,7 @@ function GFcommunication ()
 			
 			for (var gt_mid in gt_messagesArray)
 			{
-				var gt_option = document.createElement("option");
+				gt_option = document.createElement("option");
 				gt_option.text = gt_messagesArray[gt_mid];
 				gt_option.value = gt_messagesArray[gt_mid];
 				gt_option.id = gv_elements.inputEdgeMessage + "_" + gt_mid;
@@ -1116,23 +1164,12 @@ function GFcommunication ()
 				
 				// create the drop down menu to select the related subject (only for receive and send nodes)
 				if ((gt_node.getType() == "send" || gt_node.getType() == "receive") && gt_select_target != null && gt_select_message != null)
-				{
-					if (gt_node.getType() == "receive")
-					{
-						if (gf_elementExists(gv_elements.inputEdgeText))
-							document.getElementById(gv_elements.inputEdgeText).readOnly				= true;
-							
-						if (gf_elementExists(gv_elements.inputEdgeMessageO))
-							document.getElementById(gv_elements.inputEdgeMessageO).style.display	= "block";
-							
-						document.getElementById(gv_elements.inputEdgeTarget).onchange			= gf_edgeMessage;
-						document.getElementById(gv_elements.inputEdgeMessage).onchange			= gf_setEdgeMessage;
-					}
-					else
-					{
-						document.getElementById(gv_elements.inputEdgeTarget).onchange	= null;
-						document.getElementById(gv_elements.inputEdgeMessage).onchange	= null;
-					}
+				{		
+					if (gf_elementExists(gv_elements.inputEdgeMessageO))
+						document.getElementById(gv_elements.inputEdgeMessageO).style.display	= "block";
+						
+					document.getElementById(gv_elements.inputEdgeTarget).onchange			= gf_edgeMessage;
+					document.getElementById(gv_elements.inputEdgeMessage).onchange			= gf_setEdgeMessage;
 					
 					var gt_option = document.createElement("option");
 					gt_option.text = "please select";
@@ -1148,14 +1185,12 @@ function GFcommunication ()
 					
 					// read the subjects that can be related
 					var gt_subjectArray = [];
-					var gt_subjectArrayIDs	= [];
 					
 					for (var gt_sid in this.subjects)
 					{
 						if (gt_sid != this.selectedSubject)
 						{
-							gt_subjectArrayIDs[gt_subjectArray.length]	= gt_sid;
-							gt_subjectArray[gt_subjectArray.length]		= this.subjects[gt_sid].getText() + " (" + gt_sid + ")";
+							gt_subjectArray[gt_subjectArray.length]		= this.subjects[gt_sid].getText() + " (" + gt_sid + ")##;##" + gt_sid;
 						}
 					}
 					
@@ -1165,11 +1200,12 @@ function GFcommunication ()
 					// add the subjects as options to the select field
 					for (var gt_sid in gt_subjectArray)
 					{						
-						var gt_option = document.createElement("option");
-						var gt_subjID = gt_subjectArray[gt_sid];
-						gt_option.text = gt_subjID;
-						gt_option.value = gt_subjectArrayIDs[gt_sid];
-						gt_option.id = gv_elements.inputEdgeTarget + "_" + gt_subjID;
+						var gt_option		= document.createElement("option");
+						var gt_subjArray	= gt_subjectArray[gt_sid].split("##;##");
+						var gt_subjID		= gt_subjArray[1];
+						gt_option.text	= gt_subjArray[0];
+						gt_option.value = gt_subjID;
+						gt_option.id	= gv_elements.inputEdgeTarget + "_" + gt_subjID;
 						gt_select_target.add(gt_option);
 						
 						if (gt_sid == gt_edge.getRelatedSubject())
@@ -1569,6 +1605,20 @@ function GFcommunication ()
 	this.saveToJSON = function ()
 	{
 		return JSON.stringify(this.save()).replace(/\\n/gi, "<br />");
+	}
+	
+	this.saveToPDF = function ()
+	{
+		// TODO
+	}
+	
+	this.saveToSVG = function ()
+	{
+		// TODO
+		// start with the most left and highest element, not with 0/0 and end with the most right and lowest element, not with width/height  
+		
+		// var uriContent	= "data:image/svg+xml," + encodeURIComponent(svg);
+		// var newWindow	= window.open(uriContent, "test window");
 	}
 }
 
