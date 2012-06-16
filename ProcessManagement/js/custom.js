@@ -183,8 +183,11 @@ $(document).ready(function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if (fancyreturn1 != false)
+				if (fancyreturn1 != false) {
 					newProcess(fancyreturn1);
+					$("#tab2").trigger('click');	
+				}
+					
 			}
 		});
 
