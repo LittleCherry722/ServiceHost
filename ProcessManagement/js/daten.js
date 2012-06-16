@@ -248,17 +248,18 @@ function ProzessLaden(name) {
 
 }
 
+function clearListOfSubjects(){
+	$(".chzn-select").val('').trigger("liszt:updated");
+	$(".chzn-select").html('').trigger("liszt:updated");
+}
+
 function updateListOfSubjects(){
+	
+	clearListOfSubjects();
 	var html = "<option></option>";
 	
-	
-	
-	
-	
 	for(var subject in gv_graph.subjects){
-		
-		
-
+	
 	if (""+subject == gv_graph.selectedNode){
 
 		html += "<option selected id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
@@ -281,6 +282,7 @@ function updateListOfSubjects(){
 
 function goToInternalBehaviorOf(subject){
 	//alert(subject);
+	updateListOfSubjects();
 	gv_graph.selectedSubject = null; 
 	gf_clickedCVnode(subject);
 	showtab1();

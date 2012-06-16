@@ -63,7 +63,7 @@ $(document).ready(function() {
 			$(".tab_content").addClass("hide");
 			$("#tab2_content").removeClass("hide");
 			gv_graph.changeView('cv');
-						updateListOfSubjects();
+			updateListOfSubjects();
 		});
 		$("#tab3").click(function() {
 			$(this).parent().parent().find("td input").removeClass("active");
