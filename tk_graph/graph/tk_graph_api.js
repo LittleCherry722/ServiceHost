@@ -1017,7 +1017,19 @@ function GFcommunication ()
 			}
 		}
 		return null;
-	}	
+	}
+	
+	this.getSubjectNames = function ()
+	{
+		var gt_subjectNames	= [];
+		
+		for (var gt_sid in this.subjects)
+		{
+			gt_subjectNames[gt_subjectNames.length]		= gf_replaceNewline(this.subjects[gt_sid].getText()).replace(/\n/gi, " ");
+		}
+		
+		return gt_subjectNames;
+	}
 	
 	/*
 	 * fill message selection with available messages
