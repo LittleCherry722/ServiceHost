@@ -251,7 +251,7 @@
 												<td>
 												<input type="button" id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:208px"/>
 												</td>
-												
+
 												<td><select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="width:144px" tabindex="1" ></select></td>
 												<td>
 												<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
@@ -301,19 +301,19 @@
 
 															<br class="clear"/>
 															<p>
-														
-																	<p>
+
+															<p>
 																<input type="checkbox" id="ge_type_start" name="ge_type_start" />
 																Startnode
 															</p>
-																<br/>
-																<!---
-																<select id="ge_type" style="width:200px">
-																	<option value="normal" id="ge_type_normal">normal node</option>
-																	<option value="start" id="ge_type_start">start node</option>
-																	<option value="end" id="ge_type_end">end node</option>
-																</select>
-																-->
+															<br/>
+															<!---
+															<select id="ge_type" style="width:200px">
+															<option value="normal" id="ge_type_normal">normal node</option>
+															<option value="start" id="ge_type_start">start node</option>
+															<option value="end" id="ge_type_end">end node</option>
+															</select>
+															-->
 															</p>
 
 															<br class="clear"/>
@@ -447,6 +447,9 @@
 													<div class="twocolumninfo">
 														<div class="column_left2">
 															<p>
+																<label class="warning" id="AssignRoleWarning">You have to assign a role before you can enter a text.</label>
+																<br>
+
 																<label>Text:</label>
 																<br/>
 																<textarea id="ge_cv_text" style="resize:none;width:200px"></textarea>
@@ -601,9 +604,8 @@
 			//gv_graph.draw();
 		</script>
 		<script type="text/javascript">
-			$(".chzn-select").chosen(); 
+			$(".chzn-select").chosen();
 		</script>
-
 
 	</body>
 </html>
