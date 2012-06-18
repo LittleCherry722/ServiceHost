@@ -398,7 +398,8 @@ function GCgraphcv ()
 	 */
 	this.init = function ()
 	{
-		this.gv_graph = {subjects: {}, messages: {}}
+		this.subjects = {};
+		this.messages = {};
 	}
 	
 	/**

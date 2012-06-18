@@ -21,13 +21,12 @@
 function GCbehavior (name)
 {
 	/**
-	 * Either set to null or to "connect".
-	 * When clickMode is set to "connect" and a new node is created it will automatically be connected to the previously selected node with the new node as the target node.
+	 * When connectMode is set to true and a new node is created it will automatically be connected to the previously selected node with the new node as the target node.
 	 * 
-	 * @see GCbehavior.connectNoes(), GCbehavior.createNode()
-	 * @type {String}
+	 * @see GCbehavior.connectNodes(), GCbehavior.createNode()
+	 * @type boolean
 	 */
-	this.clickMode	= null;
+	this.connectMode	= false;
 	
 	/**
 	 * Initialized with 0.
@@ -210,7 +209,7 @@ function GCbehavior (name)
 		
 		this.selectedNode	= null;
 		this.selectedEdge	= null;
-		this.clickMode		= null;
+		this.connectMode	= false;
 		
 		this.startNode		= null;
 		
@@ -218,23 +217,23 @@ function GCbehavior (name)
 	}
 	
 	/**
-	 * When connectNodes() is called clickMode is toggled.
-	 * When clickMode is set to "connect" the clickMode is changed to null.
-	 * When it is null clickMode is set to "connect" and the currently selected node is backed up as the startNode.
+	 * When connectNodes() is called connectMode is toggled.
+	 * When connectMode is set to true the connectMode is changed to false.
+	 * When it is false connectMode is set to true and the currently selected node is backed up as the startNode.
 	 * 
 	 * @returns {void}
 	 */
 	this.connectNodes = function ()
 	{
-		if (this.clickMode == "connect")
+		if (this.connectMode === true)
 		{
-			this.clickMode	= null;
-			this.startNode	= null;
+			this.connectMode	= false;
+			this.startNode		= null;
 		}
 		else
 		{
-			this.clickMode	= "connect";
-			this.startNode	= this.selectedNode;
+			this.connectMode	= true;
+			this.startNode		= this.selectedNode;
 		}
 	}
 	
@@ -487,9 +486,9 @@ function GCbehavior (name)
 	}
 	
 	/**
-	 * When clickMode is set to "connect" a new edge is created from the node with the id stored in startNode to the node with the given id,
+	 * When connectMode is set to true a new edge is created from the node with the id stored in startNode to the node with the given id,
 	 * but only when no edge already exists from startNode to id.
-	 * When clickMode is set to null the current selection is cleared using GCbehavior.selectNothing() and selectedNode is set to id.
+	 * When connectMode is set to false the current selection is cleared using GCbehavior.selectNothing() and selectedNode is set to id.
 	 * 
 	 * @param {int} id The id of the node
 	 * @returns {void}
@@ -503,8 +502,8 @@ function GCbehavior (name)
 		
 		if (gf_isset(this.nodes["n" + id]))
 		{
-			// on clickMode == "connect" -> create a new edge
-			if (this.clickMode == "connect" && this.startNode != null)
+			// on connectMode == true -> create a new edge
+			if (this.connectMode === true && this.startNode != null)
 			{
 				// no edge from the startNode to itself
 				if (this.startNode != id)
@@ -538,7 +537,7 @@ function GCbehavior (name)
 	}
 	
 	/**
-	 * Resets selectedEdge, selectedNode and clickMode to null.
+	 * Resets selectedEdge, selectedNode and connectMode to false.
 	 * 
 	 * @returns {void}
 	 */
@@ -546,7 +545,7 @@ function GCbehavior (name)
 	{
 		this.selectedEdge	= null;
 		this.selectedNode	= null;
-		this.clickMode		= null;
+		this.connectMode	= false;
 	}
 	
 	/**
