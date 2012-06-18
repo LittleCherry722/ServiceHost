@@ -15,9 +15,10 @@
 
 include("include/dbconnect.php");
 
-
 if (isset($_REQUEST['action'])){
 	$return = array();
+
+	error_log(isset($_REQUEST['groupid']));
 
 	if (isset($_REQUEST['groupname'])){
 		
@@ -27,15 +28,6 @@ if (isset($_REQUEST['action'])){
 				mysql_query("INSERT INTO `groups` (`name`) VALUES ('". $_REQUEST['groupname'] ."');");
 				$return['id']   = mysql_insert_id();
 				$return['code'] = "added";
-			}else{
-				$return['code'] = "error";
-			}
-		}elseif ($_REQUEST['action'] == 'remove'){
-			if (mysql_num_rows($groupsq) > 0){
-				while ($group = mysql_fetch_array($groupsq, MYSQL_ASSOC))
-					mysql_query("DELETE FROM `users_x_groups` WHERE `groupID` LIKE '". $group['ID'] ."'");
-				mysql_query("DELETE FROM `groups` WHERE `name` LIKE '". $_REQUEST['groupname'] ."'");
-				$return['code'] = "removed";
 			}else{
 				$return['code'] = "error";
 			}
@@ -66,6 +58,18 @@ if (isset($_REQUEST['action'])){
 			}
 			$return['users'] = $users;
 			$return['code']   = "ok";
+		}elseif ($_REQUEST['action'] == 'remove'){
+	
+				mysql_query("DELETE FROM `users_x_groups` WHERE `groupID` = '". $_REQUEST['groupid'] ."'");
+				
+				mysql_query("DELETE FROM `groups` WHERE `ID` = '". $_REQUEST['groupid'] ."'");
+				
+				if(mysql_affected_rows() > 0){
+					$return['code'] = "removed";
+				}else{
+					$return['code'] = "error";
+				}
+				
 		}
 	}elseif (isset($_REQUEST['groups'])){
 		
@@ -74,15 +78,18 @@ if (isset($_REQUEST['action'])){
 		 * 		{id, name, active, roles : [roleId1, ...]},
 		 * 		...
 		 * 	]
-		 */
-		$groups = json_decode($_REQUEST['groups']);
+		 */		 
+		$groups = $_REQUEST['groups'];
 		
 		if ($_REQUEST['action'] == 'save') {
 			
 			foreach ($groups as $group){
-				// insert/update group
-				mysql_query("INSERT INTO `groups` (`ID`,`name`) VALUES ('" . $group->id . ", " . $group->name . "') ON DUPLICATE KEY UPDATE name = " . $group->name . ", active = " . $group->active);
+																	
+				$groupid = intval($group['ID']) > 0 ? $group['ID'] : "";
 			
+				// insert/update group
+				mysql_query("INSERT INTO `groups` (`ID`,`name`) VALUES ('" . $groupid . "', '" . $group['name'] . "') ON DUPLICATE KEY UPDATE name = '" . $group['name'] . "', active = " . $group['active']);
+
 			}
 
 			$result = mysql_query("SELECT * FROM `groups`");

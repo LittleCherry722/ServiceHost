@@ -20,6 +20,9 @@ var ViewModel = function() {
     
     self.goToTab = function(tab) { 
 
+        if(tab == self.tab())
+            return;
+
         // load the selected tabs model & ui
         self.subsites()[tab].init();
 
@@ -56,7 +59,7 @@ var SubViewModel = function(name){
 
     self.name = name;
     self.template = name.toLowerCase();
-    self.data = ko.observable("");
+    self.data = ko.observableArray();
     
     self.init = function(){
         console.log("loading model.");
@@ -73,12 +76,11 @@ var GeneralViewModel = function(){
     var self = this;
        
     self.loadModel = function(){
-        self.data({name : "jens", attribut : "test"});
-        Utilities.unimplError("loadModel");
+        //Utilities.unimplError("loadModel");
     }
     
     self.save = function(){
-        Utilities.unimplError("save");
+        //Utilities.unimplError("save");
     }
 
     SubViewModel.call(self, "General");
@@ -95,10 +97,12 @@ var UserViewModel = function(){
     self.options = ko.observableArray();
     
     self.loadModel = function(){
-        self.data({users : UserService.getAll()});
-
+        ko.mapping.fromJS(SBPM.Service.User.getAll(), self.data);
+        
+        console.log(SBPM.Service.User.getAll());
+        
         if(self.options().length < 1){
-            var roles = RoleService.getAll();
+            var roles = SBPM.Service.Role.getAll();
             
             for(var i in roles)
                 self.options.push(roles[i].name);
@@ -110,17 +114,27 @@ var UserViewModel = function(){
     }
     
     self.deleteUser = function(user){
-        
-        UserService.del(user.name);   
-        
-        self.data().users.remove(user);
-        
+        if(SBPM.Service.User.remove(user.id()))
+             self.loadModel();
+    }
+    
+    self.createUser = function(){
+        var data = self.data();
+        data.push({id: 0, name: "", roles: "", active: 1});
+        self.data(data);
     }
     
     self.save = function(){
-        self.data({users : UserService.saveAll(self.data)});
+
+        for(var i in self.data())
+            if(self.data()[i].name == "")
+                self.data().removeAll(self.data()[i]);   
         
-        $("#freeow").freeow("Users", "Changes have been saved.", {
+        console.log(self.data());
+        
+        ko.mapping.fromJS(SBPM.Service.User.saveAll(ko.toJS(self.data())), self.data);
+        
+        parent.$("#freeow").freeow(self.name, "The current tab has been saved.", {
             classes: [,"ok"],
             autohide: true
         });
@@ -138,25 +152,30 @@ var RoleViewModel = function(){
     var self = this;
     
     self.loadModel = function(){
-        self.data({roles : RoleService.getAll()});
-    }
-    
-    self.showDetails = function(role){
-        
+        self.data(ko.mapping.fromJS(SBPM.Service.Role.getAll()));
     }
     
     self.deleteRole = function(role){
-        
-        RoleService.del(role.name);   
-        
-        self.data().roles.remove(role);
-        
+        if(SBPM.Service.Role.remove(role.ID))
+            self.loadModel();
+    }
+    
+    self.createRole = function(){ // TODO why push by itself doesnt work?
+        var data = self.data();
+        data.push({ID: 0, name: "", active: 1});
+        self.data(data);
     }
     
     self.save = function(){
-        self.data({roles: RoleService.saveAll(self.data)});
         
-        $("#freeow").freeow("Roles", "Changes have been saved.", {
+        for(var i in self.data())
+            if(self.data()[i].name == "")
+                self.data().removeAll(self.data()[i]);
+
+        self.data(SBPM.Service.Role.saveAll(ko.toJS(self.data())));
+        //ko.mapping.fromJS(SBPM.Service.Role.saveAll(self.data()), self.data);
+        
+        parent.$("#freeow").freeow("Roles", "The current tab has been saved.", {
             classes: [,"ok"],
             autohide: true
         });
@@ -173,8 +192,24 @@ var DebugViewModel = function(){
 
     var self = this;
     
+    self.test = 1;
+    
     self.loadModel = function(){
-        // no model until now
+    }
+
+    self.createUsers = function(){
+        if(SBPM.Service.Debug.createUsers(name))
+            ;
+    }
+
+    self.createProcess1 = function(){
+        if(SBPM.Service.Debug.createProcess("applicationforleave"))
+            ;
+    }
+    
+    self.createProcess2 = function(){
+        if(SBPM.Service.Debug.createProcess("asyncmsg"))
+            ;
     }
 
     self.save = function(){

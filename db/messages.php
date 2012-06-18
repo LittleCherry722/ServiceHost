@@ -45,9 +45,7 @@ switch ($action){
 		if ($read       >= 0) $query .= ($query ==""? "" : " AND ") . "`read` LIKE '". $read ."'";
 		if ($msgid      >= 0) $query .= ($query ==""? "" : " AND ") . "`ID` LIKE '". $msgid ."'";
 		
-		$query = "SELECT * FROM `messages`". ($query == "" ? "" : " WHERE ". $query ." GROUP BY `instanceID` ORDER BY `date`;");
-
-		error_log($query);
+		$query = "SELECT * FROM `messages`". ($query == "" ? "" : " WHERE ". $query );
 
 		$result = mysql_query($query);
 		$msgs = array();

@@ -1,6 +1,12 @@
-var Authenticaion = {
+SBPM.Service.Authenticaion = {
+    _default : {
+        endpoint : "auth.php"
+    },
+    query : function(param, defaultvalue, callback){
+        return SBPM.DB.syncQuery(this._default.endpoint, param, defaultvalue, callback);
+    },
     login : function(name, password) {
-        return syncQuery(db_directory + "auth.php", {
+        return this.query({
             "username" : name,
             "password" : password,
             "action" : "login"
@@ -12,3 +18,4 @@ var Authenticaion = {
         Utilities.unimplError(arguments.callee.name);
     }
 }
+

@@ -13,7 +13,11 @@
 
 var db_directory = "db/";
 
-var DB = {
+var SBPM = {
+    Service : {}
+};
+
+SBPM.DB = {    
     syncQuery : function(url, data, defaultreturn, successfunction ){
         var ret = defaultreturn;
         $.ajax({
@@ -21,9 +25,11 @@ var DB = {
           data: data,
           cache: false,
           async: false,
-          success: function(data){
-            if (data != "")
-                ret = successfunction(JSON.parse(data));
+          success: function(dataAsJson){
+          
+            if (dataAsJson !== ""){
+                ret = successfunction(jQuery.parseJSON(dataAsJson),dataAsJson);
+            }
           },
           error : function(err){
               console.log(err);
