@@ -19,10 +19,19 @@ gf_includeJS("thirdparty/raphael-min.js");
 // include jQuery MouseWheel
 gf_includeJS("thirdparty/jquery.mousewheel.min.js");
 
+// include classes
+gf_includeJS("graph/classes/behavior.class.js");
+gf_includeJS("graph/classes/communication.class.js");
+gf_includeJS("graph/classes/edge.class.js");
+gf_includeJS("graph/classes/graphbv.class.js");
+gf_includeJS("graph/classes/graphcv.class.js");
+gf_includeJS("graph/classes/label.class.js");
+gf_includeJS("graph/classes/node.class.js");
+gf_includeJS("graph/classes/path.class.js");
+gf_includeJS("graph/classes/subject.class.js");
+
 // include libs
 gf_includeJS("graph/tk_graph.js");
-gf_includeJS("graph/tk_graph_bv.js");
-gf_includeJS("graph/tk_graph_cv.js");
 gf_includeJS("graph/tk_graph_api.js");
 
 // include configs

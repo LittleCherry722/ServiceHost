@@ -15,6 +15,11 @@
  * do NOT delete any line in this file; only edit the values
  */
 
+// predefined macros
+gf_createMacro("newSendNode", "", "normal", "send", true);
+gf_createMacro("newReceiveNode", "", "normal", "receive", true);
+gf_createMacro("newActionNode", "internal action", "normal", "action", true);
+
 var gv_paperSizes	= {
 	bv_width: 5000,
 	bv_height: 6000,
@@ -28,6 +33,25 @@ var gv_nodeTypes	= {
 	receive: {shape: "circle", text: "R"},
 	end: {shape: "circle", text: ""}
 };
+
+/*
+ * status dependent styles
+ * 
+ * arrowColor
+ * arrowOpacity
+ * arrowStyle
+ * arrowWidth
+ * borderColor
+ * borderOpacity
+ * borderStyle
+ * borderWidth
+ * bgColor
+ * bgOpacity
+ * opacity
+ * fontColor
+ * fontOpacity
+ * fontWeight
+ */
 
 var gv_defaultStyle	= {
 	
