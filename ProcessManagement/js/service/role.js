@@ -1,24 +1,51 @@
-var RoleService = {
+SBPM.Service.Role = {
+    _default : {
+        endpoint : "groups.php"
+    },
+    query : function(param, defaultvalue, callback){
+        return SBPM.DB.syncQuery(this._default.endpoint, param, defaultvalue, callback);
+    },
+    /**
+     *get all roles 
+     */
     getAll : function() {
-        return DB.syncQuery("groups.php", {
+        return this.query({
             "action" : "getall"
-        }, {}, function(json) {
+            }, {}, function(json) {
             if (json["code"] == "ok")
                 return json["groups"];
         });
     },
+    /**
+     * 
+     * @param {Object} roleId
+     */
     getById : function(roleId) {
-
+        Utilities.unimplError(arguments.callee.name);
     },
-    del : function(role) {
-        return syncQuery(db_directory + "users.php", {
-            "username" : name,
+    /**
+     * 
+     * @param {Object} roleName
+     */
+    getByName : function(roleName) {
+        Utilities.unimplError(arguments.callee.name);
+    },
+    /**
+     * 
+     * @param {Object} role
+     */
+    remove : function(roleId) {
+        return this.query({
+            "groupid" : roleId,
             "action" : "remove"
-        }, false, defaultRemoveReturn);
-
+        }, false, SBPM.DB.defaultRemoveReturn);
     },
+    /**
+     * 
+     * @param {Object} roles
+     */
     saveAll : function(roles) {
-        return DB.syncQuery("groups.php", {
+        return this.query({
             "action" : "save",
             "groups" : roles
         }, {}, function(json) {

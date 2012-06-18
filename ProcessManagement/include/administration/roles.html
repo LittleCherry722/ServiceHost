@@ -6,11 +6,12 @@
                 <th />
             </tr>
         </thead>
-        <tbody data-bind='foreach: data().roles'>
+        <tbody data-bind='foreach: data()'>
             <tr>
                 <td><input class="inline"  data-bind='value: name' /></td>
-                <td><a href='#' class="button" data-bind='click: $parent.showDetails'>Details</a></td>
-                <td><a href='#' class="button" data-bind='click: $parent.deleteRole'>Delete</a></td>
+                <td><input type="button" class="button" value="Delete" data-bind='click: $parent.deleteRole' /></td>
             </tr>
         </tbody>
     </table>
+
+<input type="button" class="button" value="Create Role" data-bind='click: createRole' />

@@ -28,15 +28,6 @@ if (isset($_REQUEST['action'])) {
 			} else {
 				$return['code'] = "error";
 			}
-		} elseif ($_REQUEST['action'] == 'remove') {
-			if (mysql_num_rows($usersq) > 0) {
-				while ($user = mysql_fetch_array($usersq, MYSQL_ASSOC))
-					mysql_query("DELETE FROM `users_x_groups` WHERE `userID` LIKE '" . $user['ID'] . "'");
-				mysql_query("DELETE FROM `users` WHERE `name` LIKE '" . $_REQUEST['username'] . "'");
-				$return['code'] = "removed";
-			} else {
-				$return['code'] = "error";
-			}
 		} elseif ($_REQUEST['action'] == "getid") {
 			if (mysql_num_rows($usersq) == 1) {
 				$line = mysql_fetch_array($usersq, MYSQL_ASSOC);
@@ -54,37 +45,44 @@ if (isset($_REQUEST['action'])) {
 		 * 		...
 		 * 	]
 		 */
-		$users = json_decode($_REQUEST['users']);
+		$users = $_REQUEST['users'];
 		
 		if ($_REQUEST['action'] == 'save') {
 			
 			foreach ($users as $user) {
+
+				error_log(var_export($user, true));
+
 				// insert/update user
-				mysql_query("INSERT INTO `users` (`ID`,`name`) VALUES ('" . $user->id . ", " . $user->name . "') ON DUPLICATE KEY UPDATE name = " . $user->name . ", active = " . $user->active);
+				mysql_query("INSERT INTO `users` (`ID`,`name`) VALUES ('" . $user['id'] . ", " . $user['name'] . "') ON DUPLICATE KEY UPDATE name = " . $user['name'] . ", active = " . $user['active']);
 				
 				// remove the user as responsible since he is not active any longer
-				if($user->active == 0)
-					mysql_query("DELETE FROM `relation` WHERE `responsibleID` = " . $user->id);
+				if($user['active'] == 0)
+					mysql_query("DELETE FROM `relation` WHERE `responsibleID` = " . $user['id']);
 								
 				// remove all his role assignments
-				mysql_query("DELETE FROM `users_x_groups` WHERE `userID` = " . $user->id);
-				
+				mysql_query("DELETE FROM `users_x_groups` WHERE `userID` = " . $user['id']);
+
 				// recreate the assignments
-				foreach ($user->roles as $role) 
-					mysql_query("INSERT INTO `users_x_groups` (`userID`,`groupID`) VALUES ('" . $user->id. ", " . $role->id . "')");	
+				foreach ($user['roles'] as $role) 
+					if($role != "")
+						mysql_query("INSERT INTO `users_x_groups` (`userID`,`groupID`) 
+									VALUES (" . $user['id'] . ", (SELECT groups.id FROM groups WHERE groups.name = '" . $role . "'))");	
 			}
 					
-			$result = mysql_query("SELECT users.id, GROUP_CONCAT( groups.id SEPARATOR  ',' ) AS roles 
+			
+					
+			$result = mysql_query("SELECT users.id, users.name, GROUP_CONCAT( groups.name SEPARATOR  ',' ) AS roles, users.active
 									FROM users_x_groups 
-									JOIN users ON users.id = users_x_groups.userID 
-									JOIN groups ON groups.id = users_x_groups.groupID 
+									RIGHT JOIN users ON users.id = users_x_groups.userID 
+									LEFT JOIN groups ON groups.id = users_x_groups.groupID 
 									GROUP BY users.id");
 			$users = array();
 			while ($user = mysql_fetch_array($result, MYSQL_ASSOC)) {
 				$user['roles'] = explode(",", $user['roles']);
 				array_push($users, $user);
 			}
-			
+
 			$return['users'] = $users;
 			$return['code'] = "ok";
 		}
@@ -100,7 +98,22 @@ if (isset($_REQUEST['action'])) {
 			} else {
 				$return['code'] = "error";
 			}
-		}
+		} elseif ($_REQUEST['action'] == 'remove') {
+
+			mysql_query("DELETE FROM `users_x_groups` WHERE `userID` = " . $_REQUEST['userid']);
+			
+			mysql_query("DELETE FROM `users` WHERE `id` = " . $_REQUEST['userid']);
+		
+			mysql_query("DELETE FROM `relation` WHERE `responsibleID` = " . $_REQUEST['userid']);
+		
+							error_log(mysql_error($link));
+		
+			if (mysql_affected_rows($link) > 0) {
+				$return['code'] = "removed";
+			} else {
+				$return['code'] = "error";
+			}
+		} 
 	} elseif ($_REQUEST['action'] == "getallusers") { // deprecated
 		$result = mysql_query("SELECT * FROM `users`");
 		$users = array();
@@ -110,17 +123,17 @@ if (isset($_REQUEST['action'])) {
 		$return['users'] = $users;
 		$return['code'] = "ok";
 	} elseif ($_REQUEST['action'] == "getall") {
-		$result = mysql_query("SELECT users.id, users.name, GROUP_CONCAT( groups.name SEPARATOR  ',' ) AS roles 
+		$result = mysql_query("SELECT users.id, users.name, GROUP_CONCAT( groups.name SEPARATOR  ',' ) AS roles, users.active
 								FROM users_x_groups 
-								JOIN users ON users.id = users_x_groups.userID 
-								JOIN groups ON groups.id = users_x_groups.groupID 
+								RIGHT JOIN users ON users.id = users_x_groups.userID 
+								LEFT JOIN groups ON groups.id = users_x_groups.groupID 
 								GROUP BY users.id");
 		$users = array();
 		while ($user = mysql_fetch_array($result, MYSQL_ASSOC)) {
 			$user['roles'] = explode(",", $user['roles']);
 			array_push($users, $user);
 		}
-		error_log(json_encode($users));
+		
 		$return['users'] = $users;
 		$return['code'] = "ok";
 	}

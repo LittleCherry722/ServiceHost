@@ -136,3 +136,8 @@ h4 {
 	right: 10px;
 	bottom: 10px;
 }
+
+.table-text {
+	font-size: 130%;
+	vertical-align: middle;
+}
