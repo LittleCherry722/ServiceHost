@@ -879,6 +879,9 @@ function GCcommunication ()
 					gt_behav.addEdge(gt_edge.start, gt_edge.end, gf_replaceNewline(gt_edge.text), gt_edge.target, gt_edge.deactivated);
 				}
 			}
+			
+			// set the nodeCounter to avoid problems with new nodes
+			gt_behav.nodeCounter = gt_subject.nodeCounter;
 		}	
 	}
 	
@@ -1146,8 +1149,9 @@ function GCcommunication ()
 				}
 			}
 			
-			gt_array[gt_arrayIndex].nodes = gt_newNodes;
-			gt_array[gt_arrayIndex].edges = gt_newEdges;
+			gt_array[gt_arrayIndex].nodes		= gt_newNodes;
+			gt_array[gt_arrayIndex].edges		= gt_newEdges;
+			gt_array[gt_arrayIndex].nodeCounter	= gt_behav.nodeCounter;
 		}
 		
 		return gt_array;
