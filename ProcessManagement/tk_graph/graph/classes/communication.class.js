@@ -1103,14 +1103,14 @@ function GCcommunication ()
 			var gt_behav = this.subjects[gt_sid].getBehavior();
 			var gt_nodes = gt_behav.getNodes();
 			var gt_edges = gt_behav.getEdges();
-			var gt_newNodes = new Array();	// TODO: replace by {} ?
-			var gt_newEdges = new Array();	// TODO: replace by {} ?
+			var gt_newNodes = [];
+			var gt_newEdges = [];
 			
 			// transform the behavior's nodes
 			for (var gt_nid in gt_nodes)
-			{
+			{				
 				var gt_node = gt_nodes[gt_nid];
-				gt_newNodes[gt_nid.substr(1)] = {
+				gt_newNodes[gt_newNodes.length] = {
 						id:		gt_node.getId(),
 						text:	gt_node.getText(),
 						start:	gt_node.isStart(),
@@ -1135,7 +1135,7 @@ function GCcommunication ()
 					
 					if (gt_edgeStartNode != null && gt_edgeEndNode != null)
 					{
-						gt_newEdges[gt_eid.substr(1)] = {
+						gt_newEdges[gt_newEdges.length] = {
 								start:	gt_edgeStartNode.getId(),
 								end:	gt_edgeEndNode.getId(),
 								text:	gt_edge.getText(),
