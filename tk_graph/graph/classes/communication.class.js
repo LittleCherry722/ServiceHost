@@ -62,7 +62,7 @@ function GCcommunication ()
 	 * An array of GCsubjects.
 	 * This array contains all subjects of the graph.
 	 * 
-	 * @type Objects
+	 * @type GCsubject[]
 	 */
 	this.subjects	= {};
 	
@@ -224,6 +224,113 @@ function GCcommunication ()
 				this.getBehavior(this.selectedSubject).connectNodes();
 			}
 		}
+	}
+	
+	/**
+	 * Creates a new process from a table containing subjects and messages sent between those subjects.
+	 * 
+	 * @param {String[]} subjects An array of subject names.
+	 * @param {Object[]} messages A list of messages containing the attributes "message", "sender" (id of sender subject), "receiver" (id of receiver subject).
+	 * @returns {void}
+	 */
+	this.createFromTable = function (subjects, messages)
+	{
+		this.init();
+		
+		// create the subjects
+		for (var gt_subjectId in subjects)
+		{
+			var gt_subjectName	= subjects[gt_subjectId];
+			this.addSubject(gt_subjectName.toLowerCase(), gt_subjectName, "single", false);
+		}
+		
+		// create the internal behaviors
+		for (var gt_subjectId in subjects)
+		{
+			var gt_subjectName	= subjects[gt_subjectId].toLowerCase();
+			var gt_behav		= this.getBehavior(gt_subjectName);
+			
+			// get messages
+			var gt_msgS	= [];
+			var gt_msgR	= [];
+			
+			for (var gt_msgId in messages)
+			{
+				var gt_msg	= messages[gt_msgId];
+				if (gf_objectHasAttribute(gt_msg, ["message", "sender", "receiver"]))
+				{
+					if (gt_msg.sender != gt_msg.receiver)
+					{
+						if (gt_msg.sender == gt_subjectName)
+						{
+							gt_msgS[gt_msgS.length] = gt_msgId;
+						}
+						
+						if (gt_msg.receiver == gt_subjectName)
+						{
+							gt_msgR[gt_msgR.length] = gt_msgId;
+						}
+					}
+				}
+			}
+			
+			// create the start node
+			gt_behav.addNode("start", "What to do?", "action", true, false, false);
+			
+			// create nodes for sent messages
+			if (gt_msgS.length > 0)
+			{
+				// add action node
+				gt_behav.addNode("send", "create msg", "action", false, false, false);
+				
+				// add edges to start node
+				gt_behav.addEdge("start", "send", "send", null, false);
+				gt_behav.addEdge("send", "start", "cancel", null, false);
+				
+				// add sent messages
+				for (var gt_msId in gt_msgS)
+				{
+					var gt_msgId	= gt_msgS[gt_msId];
+					var gt_msg		= messages[gt_msgId];
+					
+					gt_behav.addNode("sM" + gt_msgId, "", "send", false, false, false);
+					
+					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, false);
+					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, false); 
+				}
+			}
+			
+			// create the end node
+			gt_behav.addNode("end", "", "end", false, true, false);
+			
+			// connect start and end
+			gt_behav.addEdge("start", "end", "end process", null, false);
+			
+			// create nodes for received messages
+			if (gt_msgR.length > 0)
+			{
+				// add receive node
+				gt_behav.addNode("rcv", "", "receive", false, false, false);
+				
+				// add edges to start node
+				gt_behav.addEdge("start", "rcv", "receive", null, false);
+				gt_behav.addEdge("rcv", "start", "cancel", null, false);
+				
+				// add received messages
+				for (var gt_mrId in gt_msgR)
+				{
+					var gt_msgId	= gt_msgR[gt_mrId];
+					var gt_msg		= messages[gt_msgId];
+					
+					gt_behav.addNode("actM" + gt_msgId, "reaction msg " + gt_msgId, "action", false, false, false);
+					
+					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, false);
+					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, false); 
+				}
+			}
+		}
+		
+		this.draw();
 	}
 	
 	/**

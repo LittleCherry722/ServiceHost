@@ -618,5 +618,5 @@ function gf_paperMousePosition (event)
  */
 function gf_replaceNewline (text)
 {
-	return text.replace(/<br>|<br \/>|<br\/>|\r\n|\r|\n/gi, "\n");
+	return text.replace(/<br>|<br \/>|<br\/>|\r\n|\r|\\n|\n/gi, "\n");
 }
