@@ -24,7 +24,7 @@ var gv_paperSizes	= {
 	bv_width: 5000,
 	bv_height: 6000,
 	cv_width: 2000,
-	cv_height: 540
+	cv_height: 520
 };
 
 var gv_nodeTypes	= {
