@@ -107,6 +107,9 @@ function GCcommunication ()
 	{
 		if (gf_isset(id, title))
 		{
+			// initialize the canvas
+			this.init();
+			
 			// the default subject type is "single"
 			if (!gf_isset(type))
 				type = "single";
@@ -235,7 +238,9 @@ function GCcommunication ()
 	 */
 	this.createFromTable = function (subjects, messages)
 	{
+		// initialize the canvas
 		this.init();
+		this.clearGraph();
 		
 		// create the subjects
 		for (var gt_subjectId in subjects)
@@ -330,6 +335,7 @@ function GCcommunication ()
 			}
 		}
 		
+		// draw the graph
 		this.draw();
 	}
 	
@@ -713,16 +719,19 @@ function GCcommunication ()
 	 */
 	this.init = function ()
 	{
-		// create the Raphael Paper object for the communication view
-		if (gf_elementExists(gv_elements.graphCVouter))
-			gv_cv_paper = Raphael(gv_elements.graphCVouter, gv_paperSizes.cv_width, gv_paperSizes.cv_height);
-			
-		// create the Raphael Paper object for the behavioral view
-		if (gf_elementExists(gv_elements.graphBVouter))
-			gv_bv_paper = Raphael(gv_elements.graphBVouter, gv_paperSizes.bv_width, gv_paperSizes.bv_height);
-			
-		// load the communication view
-		gf_paperChangeView("cv");
+		if (gv_bv_paper == null && gv_cv_paper == null)
+		{
+			// create the Raphael Paper object for the communication view
+			if (gf_elementExists(gv_elements.graphCVouter))
+				gv_cv_paper = Raphael(gv_elements.graphCVouter, gv_paperSizes.cv_width, gv_paperSizes.cv_height);
+				
+			// create the Raphael Paper object for the behavioral view
+			if (gf_elementExists(gv_elements.graphBVouter))
+				gv_bv_paper = Raphael(gv_elements.graphBVouter, gv_paperSizes.bv_width, gv_paperSizes.bv_height);
+				
+			// load the communication view
+			this.changeView("cv");
+		}
 	}
 	
 	/**
@@ -882,7 +891,10 @@ function GCcommunication ()
 			
 			// set the nodeCounter to avoid problems with new nodes
 			gt_behav.nodeCounter = gt_subject.nodeCounter;
-		}	
+		}
+		
+		// draw the graph
+		this.draw();
 	}
 	
 	/**

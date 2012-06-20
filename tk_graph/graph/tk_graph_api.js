@@ -593,10 +593,7 @@ function gf_setEdgeMessage ()
  * @returns {void}
  */
 function gf_showInternalBehavior (jsonProcess, subject, node)
-{
-	// initialize the graph
-	gv_graph.init();
-	
+{	
 	// load the process
 	gv_graph.loadFromJSON(jsonProcess);
 	
