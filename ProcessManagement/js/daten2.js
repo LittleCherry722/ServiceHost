@@ -13,60 +13,59 @@
 
 function resumeInstance(instanceid){
 	// set the instance
-	storage.set("instanceid", instanceid);
-	storage.set("instanceProcessID", getProcessIDforInstance(instanceid));
+	SBPM.Storage.set("instanceid", instanceid);
+	SBPM.Storage.set("instanceProcessID", getProcessIDforInstance(instanceid));
 	// get the data
-	storage.set("instancedata", loadInstanceData(instanceid));
+	SBPM.Storage.set("instancedata", loadInstanceData(instanceid));
 	// get the graph
-	storage.set("instancegraph", loadInstanceGraph(instanceid));
-	storage.set("userid", getUserID(storage.get("loggedin_user")));
+	SBPM.Storage.set("instancegraph", loadInstanceGraph(instanceid));
+	SBPM.Storage.set("userid", getUserID(SBPM.Storage.get("loggedin_user")));
 
-	var data = storage.get("instancedata");
+	var data = SBPM.Storage.get("instancedata");
 	
 	document.getElementById("welcome").style.display = "none";
 	document.getElementById('ausfuehrung').style.display = 'block';
 	document.getElementById("graph").style.display = "none";
-	document.getElementById('instance_from_process').innerHTML = "Instance of process: " + getProcessName(storage.get("instanceProcessID"));
+	document.getElementById('instance_from_process').innerHTML = "Instance of process: " + getProcessName(SBPM.Storage.get("instanceProcessID"));
 	document.getElementById("abortInstanceButton").style.display = "block";
 	
 	//delete last
-	var count = data[storage.get("userid")]['history'].length;
+	var count = data[SBPM.Storage.get("userid")]['history'].length;
 	if (count > 0){
-		var last = data[storage.get("userid")]['history'][count-1];
-		data[storage.get("userid")]['history'].pop();
+		var last = data[SBPM.Storage.get("userid")]['history'][count-1];
+		data[SBPM.Storage.get("userid")]['history'].pop();
 		/*if (count ==1)
-			delete data[storage.get("userid")]['history'];*/
-		selectNextNode(data[storage.get("userid")]['subjectid'], last['nodeid']);
+			delete data[SBPM.Storage.get("userid")]['history'];*/
+		selectNextNode(data[SBPM.Storage.get("userid")]['subjectid'], last['nodeid']);
 	}
 }
 
 function resumeInstanceMessage(msgid){
 
 	setMessageRead(msgid);
-	writeSumMsgs();
 	writeSumActiveInstances();
 	
 	var msg = getMessage(msgid);
 	var data = JSON.parse(msg['data']);
 	
 	// set the instance
-	storage.set("instanceid", msg['instanceid']);
-	storage.set("instanceProcessID", getProcessIDforInstance(msg['instanceid']));
+	SBPM.Storage.set("instanceid", msg['instanceid']);
+	SBPM.Storage.set("instanceProcessID", getProcessIDforInstance(msg['instanceid']));
 	// get the data
-	storage.set("instancedata", loadInstanceData(storage.get("instanceid")));
+	SBPM.Storage.set("instancedata", loadInstanceData(SBPM.Storage.get("instanceid")));
 	// get the graph
-	storage.set("instancegraph", loadInstanceGraph(storage.get("instanceid")));
-	storage.set("userid", getUserID(storage.get("loggedin_user")));
+	SBPM.Storage.set("instancegraph", loadInstanceGraph(SBPM.Storage.get("instanceid")));
+	SBPM.Storage.set("userid", getUserID(SBPM.Storage.get("loggedin_user")));
 	
 	document.getElementById("welcome").style.display = "none";
 	document.getElementById('ausfuehrung').style.display = 'block';
 	document.getElementById("graph").style.display = "none";
-	document.getElementById('instance_from_process').innerHTML = "Instance of process: " + getProcessName(storage.get("instanceProcessID"));
+	document.getElementById('instance_from_process').innerHTML = "Instance of process: " + getProcessName(SBPM.Storage.get("instanceProcessID"));
 	
 	var insert = "<tr><td align=\"center\">Startknoten w&auml;hlen</td><td align=\"center\">";
 	insert += "<table class=\"data\" width=\"60%\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:40%\">Subjekt</th><th style=\"width:60%\">Knoten</th></tr></thead><tbody>";
 	
-	var g = storage.get("instancegraph");
+	var g = SBPM.Storage.get("instancegraph");
 	var target = -1; var subjectid = "";
 	for (group in g){
 		for (edge in g[group]['edges']){
@@ -89,8 +88,8 @@ function resumeInstanceMessage(msgid){
 	insert += "</tbody></table>";
 	document.getElementById('instance_history').innerHTML = insert;
 
-	addHistoryMessage(storage.get("instancedata"), storage.get("userid"), msg, data, false);
-	saveInstanceData(storage.get("instanceid"), storage.get("instancedata")); // speichern
+	addHistoryMessage(SBPM.Storage.get("instancedata"), SBPM.Storage.get("userid"), msg, data, false);
+	saveInstanceData(SBPM.Storage.get("instanceid"), SBPM.Storage.get("instancedata")); // speichern
 
 	selectNextNode(subjectid, target, data['text']);
 }

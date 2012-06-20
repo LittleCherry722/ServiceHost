@@ -24,6 +24,8 @@ $from       = (isset($_REQUEST['from']))       ? $_REQUEST['from']       : -1;
 $to         = (isset($_REQUEST['to']))         ? $_REQUEST['to']         : -1;
 $data       = (isset($_REQUEST['data']))       ? $_REQUEST['data']       : "{}"; 
 $read       = (isset($_REQUEST['read']))       ? $_REQUEST['read']       : -1; 
+$userid		= (isset($_REQUEST['userid']))     ? $_REQUEST['userid']     : -1; 
+
 
 $return = array();
 
@@ -65,7 +67,21 @@ switch ($action){
 	case "setread":
 		if ($msgid < 0) break;
 		
-		mysql_query("UPDATE `messages` SET `read` = '1' WHERE `ID` LIKE '". $msgid ."'");
+		mysql_query("UPDATE `messages` SET `read` = 1 WHERE `ID` = ". $msgid);
+		$error = false;
+		break;
+	case "count":
+		if($userid < 0) 
+			break;
+		
+		$result = mysql_query("SELECT count(*) AS count FROM messages WHERE messages.read = 0 AND messages.to = ".$userid);
+		
+		$count = mysql_fetch_array($result, MYSQL_ASSOC);
+		
+		error_log(var_export($count, true));
+		
+		$return['count'] = $count['count']['count'];
+		
 		$error = false;
 		break;
 }
