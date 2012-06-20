@@ -34,6 +34,7 @@
 <script type="text/javascript" src="tk_graph/tk_graph.js"></script>
 <script type="text/javascript" src="js/daten.js"></script>
 <script type="text/javascript" src="js/storage.js"></script>
+<script type="text/javascript" src="js/service/authentication.js"></script>
 
 </head>
 <body class="login">
@@ -49,12 +50,12 @@
 		<div id="login_body_window">
 			<div class="inner">
 				<h2 style="float:left;color:#525252">Process</h2><h1 style="color:#525252">Management</h1>
-				<form onSubmit="if(einloggen(this.username.value) == true) {location.href='index.html'; return false;}" id="form_login" name="form_login">
+				<form onSubmit="if(einloggen(this.username.value, this.password.value) == true) {location.href='index.html'; return false;}" id="form_login" name="form_login">
 					<p>
 						<input type="text" id="username" name="username" style="width:285px;color:#828282" title="Username" onblur="if (this.value=='') {this.value='Username'; this.style.color='#828282'}" onfocus="if (this.value=='Username') {this.value=''; this.style.color='#000'}" value="Username"/>
 					</p>
 					<p>
-						<input type="password" id="password" name="password" style="width:285px;color:#828282" title="******" onblur="if (this.value=='') {this.value='******'; this.style.color='#828282'}" onfocus="if (this.value=='******') {this.value=''; this.style.color='#000'}" value="******"/>
+						<input type="password" id="password" name="password" style="width:285px;color:#828282" title="******" onblur="if (this.value=='') {this.value='******'; this.style.color='#828282'}" onfocus="if (this.value=='******') {this.value=''; this.style.color='#000'}" value=""/>
 					</p>
 					<p style="margin-top:50px">
 						<input type="submit" id="submit" name="submit" value="Login" class="Login" style="margin-right:5px"/>

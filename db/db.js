@@ -337,11 +337,6 @@ function getMessage(msgid){
 	});
 }
 
-// login/relog/logout
-function login(name){
-	return syncQuery(db_directory + "auth.php", {"username" : name, "action" : "login"}, {}, function (json){
-		return json;});
-}
 function isLogedIn(){
 	return syncQuery(db_directory + "auth.php", {}, false, function (json){
 		if (json["code"] != "no login")

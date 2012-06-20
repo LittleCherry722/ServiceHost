@@ -3,7 +3,7 @@
  * http://aktuell.de.selfhtml.org/artikel/javascript/wertuebergabe/
  */
 
-var storage = new function () {
+SBPM.Storage = new function () {
 	/* --------- Private Properties --------- */
 
 	var dataContainer = {};

@@ -1,8 +1,8 @@
-SBPM.Service.Authenticaion = {
+SBPM.Service.Authentication = {
     _default : {
         endpoint : "auth.php"
     },
-    query : function(param, defaultvalue, callback){
+    query : function(param, defaultvalue, callback) {
         return SBPM.DB.syncQuery(this._default.endpoint, param, defaultvalue, callback);
     },
     login : function(name, password) {
@@ -14,7 +14,7 @@ SBPM.Service.Authenticaion = {
             return json;
         });
     },
-    logout : function(userId){
+    logout : function(userId) {
         Utilities.unimplError(arguments.callee.name);
     }
 }

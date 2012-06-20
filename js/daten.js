@@ -19,10 +19,10 @@ function showverantwortliche() {
 var groups = getAllGroups();
 var insert = "";
 for (var x = 0; x < groups.length; ++x) {
-	var responsibles = getResponsiblesForUserForGroup(getUserID(storage.get("loggedin_user")), getGroupID(groups[x]), getProcessID(processName));
+	var responsibles = getResponsiblesForUserForGroup(getUserID(SBPM.Storage.get("loggedin_user")), getGroupID(groups[x]), getProcessID(processName));
 	if (responsibles.length == 0) insert += "<tr><td align=\"center\">" + groups[x] + "</td><td></td><td align=\"center\"></td></tr>";
 	for (var i = 0; i < responsibles.length; ++i) {
-		insert += "<tr><td align=\"center\">" + groups[x] + "</td><td align=\"center\">" + getUserName(responsibles[i]) + "</td><td align=\"center\"><a style=\"cursor:pointer\" onclick=\"removeResponsibleForUserForGroup("+getUserID(storage.get("loggedin_user"))+ ","+getGroupID(groups[x])+","+responsibles[i]+","+getProcessID(processName)+");showverantwortliche();\" >L&ouml;schen</a></td></tr>";
+		insert += "<tr><td align=\"center\">" + groups[x] + "</td><td align=\"center\">" + getUserName(responsibles[i]) + "</td><td align=\"center\"><a style=\"cursor:pointer\" onclick=\"removeResponsibleForUserForGroup("+getUserID(SBPM.Storage.get("loggedin_user"))+ ","+getGroupID(groups[x])+","+responsibles[i]+","+getProcessID(processName)+");showverantwortliche();\" >L&ouml;schen</a></td></tr>";
 	}
 }
 document.getElementById('responsibles').innerHTML = insert;
@@ -38,36 +38,26 @@ document.getElementById('ge_cv_id').innerHTML = insert;
 $('#ge_cv_id').change();
 }
 
-function writeSumMsgs() {
-var msgs = getMessages(-1, -1, getUserID(parent.storage.get("loggedin_user")), 0);
-if(msgs.length > 1)
-	document.getElementById('newMSG').innerHTML = msgs.length + " new messages";
-else if(msgs.length == 1)
-	document.getElementById('newMSG').innerHTML = msgs.length + " new messages";
-else
-	document.getElementById('newMSG').innerHTML = "no new messages";
-	
-window.setTimeout("writeSumMsgs()", 120000);
-}
-
 function writeSumActiveInstances() {
-var inst = getAllInstancesForUser(getUserID(storage.get("loggedin_user")));
+var inst = getAllInstancesForUser(getUserID(SBPM.Storage.get("loggedin_user")));
 var result = 0;
 for (var i = 0; i < inst.length; ++i) {
 	var data = loadInstanceData(inst[i]);
-	if(typeof(data[getUserID(storage.get("loggedin_user"))]) == 'undefined') {result++;}
-	else if(!data[getUserID(storage.get("loggedin_user"))]['done']) result++;
+	if(typeof(data[getUserID(SBPM.Storage.get("loggedin_user"))]) == 'undefined') {result++;}
+	else if(!data[getUserID(SBPM.Storage.get("loggedin_user"))]['done']) result++;
 }
 document.getElementById('runningInstances').innerHTML = "Running instances (" +result+")";
 }
 
-function einloggen(name) {
-code = login(name);
-if(code['code'] == 'ok') {
-	storage.set("loggedin_user", name);
-	storage.set("userid", getUserID(name));
-	return true;
-}
+function einloggen(name, password) {
+    var user = SBPM.Service.Authentication.login(name, password);
+      
+    if(user['code'] == 'ok') {
+        SBPM.Storage.set("user", user);
+    	SBPM.Storage.set("loggedin_user", user.name);
+    	SBPM.Storage.set("userid", user.id);
+    	return true;
+    }
 }
 
 function newUser(name) {
@@ -124,7 +114,7 @@ else {
 		document.getElementById('process_name').innerHTML = "Process: " + name;
 		document.getElementById("save").style.display = "block";
 		document.getElementById("saveAs").style.display = "block";
-		document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + storage.get("loggedin_user");
+		document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + SBPM.Storage.get("loggedin_user");
 		processName = name;
 		showverantwortliche();
 		setSubjectIDs();
@@ -151,7 +141,7 @@ else {
 
 function addResponsible(user, group) {
 
-if(createResponsibleForUserForGroup(getUserID(storage.get("loggedin_user")), getGroupID(group), getUserID(user), getProcessID(processName))) {
+if(createResponsibleForUserForGroup(getUserID(SBPM.Storage.get("loggedin_user")), getGroupID(group), getUserID(user), getProcessID(processName))) {
 		$("#freeow").freeow("Person in charge", "User \"" + user +"\" was added as person in charge for group \"" + group + "\".", {
 		classes: [,"ok"],
 		autohide: true
@@ -235,7 +225,7 @@ function ProzessLaden(name) {
 	document.getElementById('process_name').innerHTML = "Process: " + processName;
 	document.getElementById("save").style.display = "block";
 	document.getElementById("saveAs").style.display = "block";
-	document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + storage.get("loggedin_user");
+	document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + SBPM.Storage.get("loggedin_user");
 	shownothing();
 	showverantwortliche();
 	setSubjectIDs();
@@ -304,7 +294,7 @@ function addHistory(data, userid, subjectid, node){
      entry['type']   = "node"; 
  
      data[userid]['history'].push(entry); 
-     data[storage.get("userid")]['subjectid'] = subjectid; 
+     data[SBPM.Storage.get("userid")]['subjectid'] = subjectid; 
 }
 
 
@@ -365,23 +355,23 @@ function findNode(graph, subjectid, nodeid){
 
 function drawHistory(data) {
 	var insert = "";
-	if((typeof(data[storage.get("userid")]) != 'undefined') && (typeof(data[storage.get("userid")]['history']) != 'undefined')) {
-		for(var i = 0; i < data[storage.get("userid")]['history'].length; i++) {
-			if (data[storage.get("userid")].history[i].type == "node"){
-				var text = data[storage.get("userid")].history[i].text;
-				if(data[storage.get("userid")].history[i].text == "S") text = "Message sent";
-				if(data[storage.get("userid")].history[i].text == "R") text = "Wait for messages";
+	if((typeof(data[SBPM.Storage.get("userid")]) != 'undefined') && (typeof(data[SBPM.Storage.get("userid")]['history']) != 'undefined')) {
+		for(var i = 0; i < data[SBPM.Storage.get("userid")]['history'].length; i++) {
+			if (data[SBPM.Storage.get("userid")].history[i].type == "node"){
+				var text = data[SBPM.Storage.get("userid")].history[i].text;
+				if(data[SBPM.Storage.get("userid")].history[i].text == "S") text = "Message sent";
+				if(data[SBPM.Storage.get("userid")].history[i].text == "R") text = "Wait for messages";
 				insert += "<tr><td align=\"center\">"+ (i+1) +"<td align=\"center\">"+ text +"</td></tr>";
-			}else if (data[storage.get("userid")].history[i].type == "rcv"){
+			}else if (data[SBPM.Storage.get("userid")].history[i].type == "rcv"){
 				//insert += "<tr><td align=\"center\">"+ (i+1) +"<td align=\"center\"> [RVC]MSG !!! </td></tr>"
 				insert += "<tr><td align=\"center\">"+ (i+1) +"</td><td align=\"center\">Message received<br><br>";
 				insert += "<table class=\"data\" style=\"width:600px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:30%\">Von</th><th style=\"width:30%\">Typ</th><th style=\"width:40%\">Message</th></tr></thead><tbody>";
-				insert += "<tr><td align=\"center\">"+getUserName(data[storage.get("userid")].history[i]['from'])+"</td><td align=\"center\">"+data[storage.get("userid")].history[i]['msgtype']+"</td><td><pre style=\"float:left\">"+data[storage.get("userid")].history[i]['text']+"</pre></td></tr></tbody></table></td></tr>";
-			}else if (data[storage.get("userid")].history[i].type == "snd"){
+				insert += "<tr><td align=\"center\">"+getUserName(data[SBPM.Storage.get("userid")].history[i]['from'])+"</td><td align=\"center\">"+data[SBPM.Storage.get("userid")].history[i]['msgtype']+"</td><td><pre style=\"float:left\">"+data[SBPM.Storage.get("userid")].history[i]['text']+"</pre></td></tr></tbody></table></td></tr>";
+			}else if (data[SBPM.Storage.get("userid")].history[i].type == "snd"){
 				//insert += "<tr><td align=\"center\">"+ (i+1) +"<td align=\"center\"> [SND]MSG !!! </td></tr>";
 				insert += "<tr><td align=\"center\">"+ (i+1) +"</td><td align=\"center\">Message sent<br><br>";
 				insert += "<table class=\"data\" style=\"width:600px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:30%\">An</th><th style=\"width:30%\">Typ</th><th style=\"width:40%\">Message</th></tr></thead><tbody>";
-				insert += "<tr><td align=\"center\">"+getUserName(data[storage.get("userid")].history[i]['to'])+"</td><td align=\"center\">"+data[storage.get("userid")].history[i]['msgtype']+"</td><td><pre style=\"float:left\">"+data[storage.get("userid")].history[i]['text']+"</pre></td></tr></tbody></table></td></tr>";
+				insert += "<tr><td align=\"center\">"+getUserName(data[SBPM.Storage.get("userid")].history[i]['to'])+"</td><td align=\"center\">"+data[SBPM.Storage.get("userid")].history[i]['msgtype']+"</td><td><pre style=\"float:left\">"+data[SBPM.Storage.get("userid")].history[i]['text']+"</pre></td></tr></tbody></table></td></tr>";
 			}
 		}
 	}
@@ -390,44 +380,44 @@ function drawHistory(data) {
 
 function selectNextNode(subjectid, nodeid, msgtext){
 	alert(subjectid +"->"+ nodeid);
-	var data = storage.get("instancedata");
+	var data = SBPM.Storage.get("instancedata");
 	drawHistory(data);
 	
-	var node = findNode(storage.get("instancegraph"), subjectid, nodeid);
-	addHistory(storage.get("instancedata"), storage.get("userid"),subjectid, node);	// < aktuelle node
+	var node = findNode(SBPM.Storage.get("instancegraph"), subjectid, nodeid);
+	addHistory(SBPM.Storage.get("instancedata"), SBPM.Storage.get("userid"),subjectid, node);	// < aktuelle node
 	
 	// TODO the current node is known here -> highlight it in canvas
 	
-	saveInstanceData(storage.get("instanceid"), storage.get("instancedata")); // speichern
+	saveInstanceData(SBPM.Storage.get("instanceid"), SBPM.Storage.get("instancedata")); // speichern
 	var insert = "";
 	
 	// node anzeigen
 	//alert(JSON.stringify(node));
 	if (node['type'] == "action") {
-		insert += "<tr><td align=\"center\">"+storage.get("instancedata")[storage.get("userid")]['history'].length +"</td><td align=\"center\">"+ node['text'] +"<br><br>";
+		insert += "<tr><td align=\"center\">"+SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length +"</td><td align=\"center\">"+ node['text'] +"<br><br>";
 		insert += "<table class=\"data\" style=\"width:200px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:100%\">Next</th></tr></thead><tbody id=\"TableContent\"></tbody></table>";
 		document.getElementById('instance_history').innerHTML += insert;
 	}
 	else if (node['type'] == "send"){
-		insert += "<tr><td align=\"center\">"+ storage.get("instancedata")[storage.get("userid")]['history'].length +"</td><td align=\"center\"><p><label>"+"Nachricht:" /*"+ data[storage.get("userid")].history[storage.get("instancedata")[storage.get("userid")]['history'].length-1].text +":*/ +"</label><br><textarea id=\"tosend\" style=\"resize:none;height:100px;width:600px\"></textarea><br><br><br>";
+		insert += "<tr><td align=\"center\">"+ SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length +"</td><td align=\"center\"><p><label>"+"Nachricht:" /*"+ data[SBPM.Storage.get("userid")].history[SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length-1].text +":*/ +"</label><br><textarea id=\"tosend\" style=\"resize:none;height:100px;width:600px\"></textarea><br><br><br>";
 		insert += "<form><table class=\"data\" style=\"width:600px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:30%\">Group</th><th style=\"width:50%\">Person in charge</th><th style=\"width:20%\">Send</th></tr></thead><tbody id=\"TableContent\"></tbody></table>";
 		document.getElementById('instance_history').innerHTML += insert;
 	}
 	else if (node['type'] == "receive") {
-		insert += "<tr><td align=\"center\">"+storage.get("instancedata")[storage.get("userid")]['history'].length +"</td><td align=\"center\">Wait for messages:<br><br>";
+		insert += "<tr><td align=\"center\">"+SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length +"</td><td align=\"center\">Wait for messages:<br><br>";
 		insert += "<table class=\"data\" style=\"width:400px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:50%\">Von (Gruppe)</th><th style=\"width:50%\">Typ</th></tr></thead><tbody id=\"TableContent\"></tbody></table>";
 		document.getElementById('instance_history').innerHTML += insert;
 	}
 	else if (node['type'] == "end"){
-		insert += "<tr><td align=\"center\">"+storage.get("instancedata")[storage.get("userid")]['history'].length +"</td><td align=\"center\">"+ node['text'] +"<br><br><b>Instance stopped.</b>";
+		insert += "<tr><td align=\"center\">"+SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length +"</td><td align=\"center\">"+ node['text'] +"<br><br><b>Instance stopped.</b>";
 		document.getElementById('instance_history').innerHTML += insert + "</td></tr>";
-		storage.get("instancedata")[storage.get("userid")]['done'] = true;
-		saveInstanceData(storage.get("instanceid"), storage.get("instancedata")); // speichern
+		SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['done'] = true;
+		saveInstanceData(SBPM.Storage.get("instanceid"), SBPM.Storage.get("instancedata")); // speichern
 		document.getElementById("abortInstanceButton").style.display = "none";
 		return;
 	}
 	// nachfolger finden
-	var nodeedges = findNodeEdges(storage.get("instancegraph"), subjectid, node);
+	var nodeedges = findNodeEdges(SBPM.Storage.get("instancegraph"), subjectid, node);
 	//alert(JSON.stringify(nodeedges));
 	
 	// option(en) anzeigen
@@ -442,7 +432,7 @@ function selectNextNode(subjectid, nodeid, msgtext){
 		else {
 			if ( nodeedges[i]['target'] != ""){
 				var receiver = "";
-				receiver = getResponsiblesForUserForGroup(storage.get("userid"), getGroupID(nodeedges[i].target), storage.get("instanceProcessID"));
+				receiver = getResponsiblesForUserForGroup(SBPM.Storage.get("userid"), getGroupID(nodeedges[i].target), SBPM.Storage.get("instanceProcessID"));
 				if(receiver == "") {
 					var users = getallusersforgroup(getGroupID(nodeedges[i].target));
 					TableInsert += "<tr><td align=\"center\">"+ nodeedges[i].target + "</td><td align=\"center\"><select id=\"receive_user"+i+"\">";
@@ -470,26 +460,26 @@ function sendTextMessage(type, receiver){
 	var data = JSON.parse("{}");
 	data['type'] = type;
 	data['text'] = document.getElementById('tosend').value;
-	var msgid = sendMessage(storage.get("instanceid"), storage.get("userid"), receiver, data);
-	addHistoryMessage(storage.get("instancedata"), storage.get("userid"), getMessage(msgid), data, true);
+	var msgid = sendMessage(SBPM.Storage.get("instanceid"), SBPM.Storage.get("userid"), receiver, data);
+	addHistoryMessage(SBPM.Storage.get("instancedata"), SBPM.Storage.get("userid"), getMessage(msgid), data, true);
 	return true;
 }
 
 function newInstance(name) {
 
 	// create the instance
-	storage.set("instanceid", createInstance(getProcessID(name)));
+	SBPM.Storage.set("instanceid", createInstance(getProcessID(name)));
 	//instanceID        = createInstance(getProcessID(name));
-	storage.set("instanceProcessID", getProcessID(name));
+	SBPM.Storage.set("instanceProcessID", getProcessID(name));
 	// get the data
 	//var data          = loadInstanceData(instanceID);
-	storage.set("instancedata", loadInstanceData(storage.get("instanceid")));
+	SBPM.Storage.set("instancedata", loadInstanceData(SBPM.Storage.get("instanceid")));
 	// get the graph
 	//var instancegraph = loadInstanceGraph(instanceID);
-	storage.set("instancegraph", loadInstanceGraph(storage.get("instanceid")));
+	SBPM.Storage.set("instancegraph", loadInstanceGraph(SBPM.Storage.get("instanceid")));
 	// get our groups
-	storage.set("userid", getUserID(storage.get("loggedin_user")));
-	var groups = getAllGroupsForUser(storage.get("userid"));
+	SBPM.Storage.set("userid", getUserID(SBPM.Storage.get("loggedin_user")));
+	var groups = getAllGroupsForUser(SBPM.Storage.get("userid"));
 
 	document.getElementById("welcome").style.display = "none";
 	document.getElementById('ausfuehrung').style.display = 'block';
@@ -501,7 +491,7 @@ function newInstance(name) {
 	insert += "<table class=\"data\" width=\"60%\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:40%\">Subjekt</th><th style=\"width:60%\">Node</th></tr></thead><tbody>";
 	for (group in groups){
 		var groupid = groups[group];
-		var nodes = findStartNodesForGroup(storage.get("instancegraph"), groupid);
+		var nodes = findStartNodesForGroup(SBPM.Storage.get("instancegraph"), groupid);
 		for (i = 0; i < nodes.length; i++){					
 			insert += "<tr><td align=\"center\">" + getGroupName(groupid) + "</td><td align=\"center\"><input type=\"button\" value=\""+ nodes[i].text +"\" onClick=\"selectNextNode('"+ groupid +"','"+ nodes[i].id +"');writeSumActiveInstances();\"/></td></tr>";
 		}
@@ -511,7 +501,7 @@ function newInstance(name) {
 }
 
 function abortInstance(){
-deleteInstance(storage.get("instanceid"));
+deleteInstance(SBPM.Storage.get("instanceid"));
 $("#freeow").freeow("Instanz abbrechen", "Instance aborted.", {
 	classes: [,"ok"],
 	autohide: true

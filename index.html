@@ -11,588 +11,92 @@
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-		<!-- Title -->
-		<title>S-BPM Groupware</title>
+        <!-- Title -->
+        <title>S-BPM Groupware</title>
 
-		<!-- Favicon -->
-		<link rel="icon" href="images/icons/favicon.ico" type="image/x-icon" />
-		<link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon" />
+        <!-- Favicon -->
+        <link rel="icon" href="images/icons/favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="images/icons/favicon.ico" type="image/x-icon" />
+
+        <!-- stylesheets -->
+        <link href="css/main.css" rel="stylesheet" type="text/css" media="all">
+        <link href="css/datepicker.css" rel="stylesheet" type="text/css" media="all">
+        <link href="fancybox/jquery.fancybox-1.3.4.css" rel="stylesheet" type="text/css" media="screen" />
+        <link href="css/freeow.css" rel="stylesheet" type="text/css" media="all" />
+        <link href="css/chosen.css" rel="stylesheet" type="text/css" media="all" />
+
+        <!-- javascript -->
+        <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+        <script type="text/javascript" src="js/chosen.jquery.min.js"></script>
+        <script type="text/javascript" src="js/jquery.freeow.js"></script>
+        <script type="text/javascript" src="js/jquery.scrollTo-min.js"></script>
+        <script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+
+        <script type="text/javascript" src="js/knockout-2.1.0.min.js"></script>
+        <script type="text/javascript" src="js/knockout.mapping-latest.js"></script>
+
+        <script type="text/javascript" src="js/custom.js"></script>
+        <script type="text/javascript" src="db/db.js"></script>
+        <script type="text/javascript" src="tk_graph/tk_graph.js"></script>
+        <script type="text/javascript" src="js/daten.js"></script>
+        <script type="text/javascript" src="js/daten2.js"></script>
+        <script type="text/javascript" src="js/storage.js"></script>
+        <script type="text/javascript" src="js/dialog.js"></script>
+        <script type="text/javascript" src="js/keymaster.min.js"></script>
+        <script type="text/javascript" src="js/shortcuts.js"></script>
+
+        <script type="text/javascript" src="js/utilities.js"></script> 
+               
+        <script type="text/javascript" src="js/service/messages.js"></script>    
+        <script type="text/javascript" src="js/viewmodel/init.js"></script>      
+
+        <script>
+            $(function() {
+                $("#column_left").draggable();
+                $("#column_right").draggable();
+            });
+        </script>
+    </head>
+    <body>
+        
+        <script type="text/html" id="menu"></script>
+        <script type="text/html" id="header"></script>
+        <script type="text/html" id="content"></script>
+        <script type="text/html" id="subjectview"></script>
+        <script type="text/html" id="internalview"></script>
+        <script type="text/html" id="chargeview"></script>
+        
+        <div id="freeow" class="freeow freeow-top-right"></div>
+        <div id="dialog" ></div>
+        <div class="content_wrapper">
+
+            <!-- header -->
+            <div id="header" data-bind="template: { name: 'header', data: headerVM }"></div>
+            <!-- End header -->
+
+            <!--left panel -->
+            <div id="left_menu" data-bind="template: { name: 'menu', data: menuVM }">
+
+                
+
+            </div>
+            <!-- End left panel -->
+
+            <!-- Begin content -->
+            <div id="content" data-bind="template: { name: 'content', data: contentVM }">
 
 
-		<!-- stylesheets -->
-		<link href="css/main.css" rel="stylesheet" type="text/css" media="all">
-		<link href="css/datepicker.css" rel="stylesheet" type="text/css" media="all">
-		<link href="fancybox/jquery.fancybox-1.3.4.css" rel="stylesheet" type="text/css" media="screen" />
-		<link href="css/freeow.css" rel="stylesheet" type="text/css" media="all" />
-		<link href="css/chosen.css" rel="stylesheet" type="text/css" media="all" />
 
-		<!-- javascript -->
-		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
-		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
-		<script type="text/javascript" src="js/knockout-2.1.0.min.js"></script>
-		<script type="text/javascript" src="js/custom.js"></script>
-		<script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-		<script type="text/javascript" src="js/jquery.freeow.js"></script>
-		<script type="text/javascript" src="db/db.js"></script>
-		<script type="text/javascript" src="tk_graph/tk_graph.js"></script>
-		<script type="text/javascript" src="js/daten.js"></script>
-		<script type="text/javascript" src="js/daten2.js"></script>
-		<script type="text/javascript" src="js/storage.js"></script>
-		<script type="text/javascript" src="js/jquery.scrollTo-min.js"></script>
-		<script type="text/javascript" src="js/dialog.js"></script>
-		<script type="text/javascript" src="js/keymaster.min.js"></script>
-		<script type="text/javascript" src="js/shortcuts.js"></script>
-		<script type="text/javascript" src="js/chosen.jquery.min.js"></script>
+            </div>
+            <!-- end content -->
 
-		<script>
-			$(function() {
-				$("#column_left").draggable();
-				$("#column_right").draggable();
-			});
-		</script>
-	</head>
-	<body>
-		<div id="freeow" class="freeow freeow-top-right"></div>
-		<div id="dialog" ></div>
-		<div class="content_wrapper">
+        </div>
+        <!-- end contetn-wrapper -->
 
-			<!-- header -->
-			<div id="header">
-
-				<div id="logo">
-					<h1 style="float:left">S-BPM Groupware v0.9</h1>
-				</div>
-				<div id="account_info">
-					<img src="images/icons/user_48.png" width="16px" height="16px" alt="Online" class="mid_align"/>
-					Hello <a href="#">
-					<script>
-						document.write(storage.get("loggedin_user"))
-					</script></a> (<a id="newMSG" href="newMSG.html"></a>)
-				</div>
-
-				<div id="misc">
-					<div id="menu">
-						<a id="administration" href="administration.html">Administration</a>
-						|
-						<a href="start.html">Logout</a>
-					</div>
-
-					<div id="img">
-						<a href="http://www.tu-darmstadt.de"><img src="images/tu_darmstadt_web.png" alt="TU-Darmstadt" /></a>
-						<a href="http://www.tk.informatik.tu-darmstadt.de/"><img src="images/tk_HintergrundWeiss_Web.png" alt="Telecooperation Group" /></a>
-					</div>
-				</div>
-			</div>
-			<!-- End header -->
-
-			<!--left panel -->
-			<a href="javascript:;" id="show_menu">&raquo;</a>
-			<div id="left_menu">
-				<a href="javascript:;" id="hide_menu">&laquo;</a>
-				<ul id="main_menu">
-					<li>
-						<a href=""><img src="images/icons/home_48.png" width="16px" height="16px" alt="Home"/>Home</a>
-					</li>
-					<li>
-						<a href=""><img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>Process Management</a>
-						<ul>
-							<li>
-								<a id="newProcess" href="new_process.html">Create new process</a>
-							</li>
-							<!-- <li><a id="deleteProcess" href="deleteProcess.html">Delete existing process</a></li> -->
-							<li>
-								<a id="overviewProcesses" href="overviewProcess.html">View existing processes</a>
-							</li>
-							<!-- <li><a id="loadProcess" href="loadProcess.html">Load process</a></li> -->
-						</ul>
-					</li>
-					<li id="save" style="display:none">
-						<a id="save" href="" onclick="GraphSpeichern();"><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process</a>
-					</li>
-					<li id="saveAs" style="display:none">
-						<a id="saveAs" href="saveAs_process.html"><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process As</a>
-					</li>
-					<li>
-						<a href=""><img src="images/icons/mail_48.png" width="16px" height="16px" alt="Messages"/>Messages</a>
-						<ul>
-							<li>
-								<a id="MSGInbox" href="MSGInbox.html">Inbox</a>
-							</li>
-							<li>
-								<a id="MSGOutbox" href="MSGOutbox.html">Outbox</a>
-							</li>
-						</ul>
-					</li>
-					<li>
-						<a href=""><img src="images/icons/arrow_right_48.png" height="16" width="16" alt="Execution"/>Execution</a>
-						<ul>
-							<li>
-								<a id="newInstance" href="newInstance.html">Start process</a>
-							</li>
-							<li>
-								<a id="runningInstances" href="runningInstances.html">Running instances</a>
-							</li>
-							<li>
-								<a id="history" href="history.html">History</a>
-							</li>
-						</ul>
-					</li>
-				</ul>
-
-				<br class="clear"/>
-				<br class="clear"/>
-				<br class="clear"/>
-
-				<!-- Begin left panel calendar -->
-				<div id="calendar"></div>
-				<!-- End left panel calendar -->
-
-			</div>
-			<!-- End left panel -->
-
-			<!-- Begin content -->
-			<div id="content">
-				<div class="inner">
-					<br class="clear"/>
-
-					<div id="welcome" style="display:block">
-						<h3 style="color:#525252">S-BPM Groupware v0.9</h3>
-						<br class="clear"/>
-						<br class="clear"/>
-						Please load a process or create a new one.
-					</div>
-
-					<div id="ausfuehrung" style="display:none">
-						<h2 id="instance_from_process" style="color:#525252"></h2>
-						<div class="onecolumn">
-							<div class="header">
-								<div class="switch" style="width:320px">
-									<table width="320px" cellpadding="0" cellspacing="0">
-										<tbody>
-											<tr>
-												<td>
-												<input type="button" id="instance_tab1" name="tab1" class="left_switch active" value="Course" style="width:120px"/>
-												</td>
-												<td>
-												<input type="button" id="instance_tab2" name="tab2" class="right_switch" value="Show graph of instance" style="width:200px"/>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</div>
-							<br class="clear"/>
-							<div class="content">
-								<div id="instance_tab1_content" class="tab_content active">
-									<br class="clear"/>
-									<div id="abortInstanceButton" style="display:block">
-										<input type="button" name="instanz_abbrechen" value="Stop instance" onclick="abortInstance();" style="width:150px"/>
-									</div>
-									<br class="clear"/>
-									<br class="clear"/>
-									<div class="onecolumn">
-										<table class="data2" width="100%" cellpadding="0" cellspacing="0">
-											<thead>
-												<tr>
-													<th style="width:20%"> Step </th>
-													<th style="width:80%"> Action </th>
-												</tr>
-											</thead>
-											<tbody id="instance_history">
-
-											</tbody>
-										</table>
-									</div>
-								</div>
-								<div id="instance_tab2_content" class="tab_content hide">
-									<br class="clear"/>
-									<!--
-									<div id="graph_bv_outer" style="overflow:auto; height:700px; min-width:665px;">
-									<canvas id="graph_bv" width="10000" height="6000" style="border:0px solid #000000;"></canvas>
-									<!--<script type="text/javascript" src="tk_testbench.js"></script>-->
-								</div>
-							</div>
-						</div>
-					</div>
-					<!-- end ausfuehrung -->
-
-					<div id="graph" style="display:none">
-						<h2 id="process_name" style="color:#525252"></h2>
-						<!-- Begin graph window -->
-						<div class="onecolumn">
-							<div class="header">
-								<input id="reset-button" type="button" onClick="gf_paperZoomReset();" value="Reset zoom" />
-								<input id="help-button" type="button" href="help.html" value="Help" />
-								<div class="switch" style="width:357px">
-									<table width="357px" cellpadding="0" cellspacing="0">
-										<tbody>
-											<tr>
-												<td>
-												<input type="button" id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:208px"/>
-												</td>
-
-												<td style="" >
-													<div id="seltSbjDiv" style="">
-													<select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; " tabindex="1" ></select>
-												</div>
-												</td>
-												<td>
-												<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
-												</td>
-											</tr>
-										</tbody>
-
-									</table>
-
-								</div>
-							</div>
-
-							<br class="clear"/>
-							<div class="content">
-
-								<!-- begin tab1 -->
-								<div id="tab1_content" class="tab_content hide">
-									<div id="graph_bv_outer" style="overflow:auto; height:700px; min-width:665px;"></div>
-									<div class="twocolumn">
-										<div class="column_left">
-											<div class="header">
-												<span>Node/Edge information</span>
-											</div>
-											<br class="clear"/>
-											<div class="content">
-												<div id="node" style="display:none">
-													<div class="twocolumninfo">
-														<div class="column_left2">
-															<p>
-																<label>Type:</label>
-																<br/>
-																<select id="ge_type2" style="width:200px">
-																	<option value="R" id="ge_type2_R">receive</option>
-																	<option value="S" id="ge_type2_S">send</option>
-																	<option value="action" id="ge_type2_action">action</option>
-																	<option value="end" id="ge_type2_end">end</option>
-																</select>
-															</p>
-															<br class="clear"/>
-															<p>
-																<label>Label:</label>
-																<br/>
-																<textarea id="ge_text" style="resize:none;width:200px"></textarea>
-															</p>
-
-															<input type="hidden" id="ge_id" value="" style="width:200px"/>
-
-															<br class="clear"/>
-															<p>
-
-															<p>
-																<input type="checkbox" id="ge_type_start" name="ge_type_start" />
-																Startnode
-															</p>
-															<br/>
-															<!---
-															<select id="ge_type" style="width:200px">
-															<option value="normal" id="ge_type_normal">normal node</option>
-															<option value="start" id="ge_type_start">start node</option>
-															<option value="end" id="ge_type_end">end node</option>
-															</select>
-															-->
-															</p>
-
-															<br class="clear"/>
-
-														</div>
-														<div class="column_right2" align="center">
-															<p>
-																<input type="button" onClick="gv_graph.updateNode();" value="Update node" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gv_graph.deleteNode();" value="Delete node" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gf_deactivateNode();" value="De-/Activate node" />
-															</p>
-
-														</div>
-														<div class="column_right2" align="center">
-															<p>
-																<input type="button" onClick="gf_callMacro('newSendNode');" value="Insert send node" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gf_callMacro('newActionNode');" value="Insert action node" />
-															</p>
-														</div>
-													</div>
-												</div>
-												<div id="edge" style="display:none">
-													<div class="twocolumninfo">
-														<div class="column_left2">
-															<p>
-																<label>Text:</label>
-																<br/>
-																<textarea id="ge_edge_text" style="resize:none;width:200px"></textarea>
-															</p>
-															<br class="clear"/>
-															<p>
-																<label>Related Subject::</label>
-																<br/>
-																<select id="ge_edge_target" style="width:200px"></select>
-															</p>
-															<br class="clear"/>
-															<div id="ge_edge_message_outer" style="display:none;">
-																message:
-																<br/>
-																<select id="ge_edge_message" style="width:200px"></select>
-															</div>
-															<br class="clear"/>
-														</div>
-														<div class="column_right2" align="center">
-															<p>
-																<input type="button" onClick="gv_graph.updateEdge();" value="Update edge" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gv_graph.deleteEdge();" value="Remove edge" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gf_deactivateEdge();" value="De-/Activate edge" />
-															</p>
-														</div>
-
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="column_right">
-											<div class="header">
-												<span>Graph settings</span>
-											</div>
-											<br class="clear"/>
-											<div class="content">
-												<!--
-												<table class="data" width="100%" cellpadding="0" cellspacing="0">
-												<thead>
-												<tr>
-												<th style="width:33%">
-												<input type="button" name="neu" value="Neuen Knoten hinzufügen" style="width:190px" onClick="gv_graph.createNode();"/>
-												</th>
-												<th style="width:33%">
-												<input type="button" onClick="gv_graph.connectNodes();" value="connect node" />
-												</th>
-
-												<th style="width:33%">
-												<input type="button" onClick="gv_graph.clearGraph();" value="clear graph" />
-												</th>
-												</tr>
-
-												</thead>
-												<tbody>
-												</tbody>
-												</table>
-												-->
-												<div class="onecolumn">
-													<input type="button" name="neu" value="Add new node" style="width:190px" onClick="gv_graph.createNode();"/>
-													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-													<input type="button" onClick="gv_graph.connectNodes();" value="Connect node" />
-													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-													<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
-												</div>
-
-											</div>
-										</div>
-									</div>
-									<br class="clear"/>
-								</div>
-								<!-- end tab1 -->
-
-								<!-- begin tab2 -->
-								<div id="tab2_content" class="tab_content hide">
-									<div id="graph_cv_outer"style="overflow:auto;min-width:656px;height:550px"></div>
-									<script>
-										gv_graph.init();
-									</script>
-									<div class="twocolumn">
-										<div class="column_left">
-											<div class="header">
-												<span>Node/Edge information</span>
-											</div>
-											<br class="clear"/>
-											<div class="content">
-												<div id="node" style="display:block">
-													<div class="twocolumninfo">
-														<div class="column_left2">
-															<p>
-																<label class="warning" id="AssignRoleWarning">You have to assign a role before you can enter a text.</label>
-																<br>
-
-																<label>Text:</label>
-																<br/>
-																<textarea id="ge_cv_text" style="resize:none;width:200px"></textarea>
-															</p>
-															<br class="clear"/>
-															<p>
-																<label>Assigned Role:</label>
-																<br/>
-																<select id="ge_cv_id" style="width:200px"></select>
-
-															</p>
-															<br class="clear"/>
-														</div>
-														<div class="column_right2" align="center">
-															<p>
-																<input type="button" onClick="gv_graph.updateNode();" value="Update node" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gv_graph.deleteNode();" value="Delete node" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gf_deactivateNode();" value="De-/Activate node" />
-															</p>
-
-														</div>
-														<div class="column_right2" align="left">
-															<p>
-																Subject type:
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="radio" id="ge_cv_type_single" name="ge_cv_type" />
-																Single
-															</p>
-															<p>
-																<input type="radio" id="ge_cv_type_multi" name="ge_cv_type" />
-																Multi
-															</p>
-
-															<p>
-																<input type="radio" id="ge_cv_type_external" name="ge_cv_type" />
-																External
-															</p>
-
-														</div>
-													</div>
-												</div>
-												<div id="edge" style="display:none">
-													<!-- Edges can't be selected in subject view -->
-													<div class="twocolumninfo">
-														<div class="column_left2">
-															<p>
-																<label>Text:</label>
-																<br/>
-																<textarea id="ge_edge_text" style="resize:none"></textarea>
-															</p>
-															<br class="clear"/>
-															<p>
-																<label>Related Subject::</label>
-																<br/>
-																<select id="ge_edge_target"></select>
-															</p>
-															<br class="clear"/>
-														</div>
-														<div class="column_right2" align="center">
-															<p>
-																<input type="button" onClick="gv_graph.updateEdge();" value="Update edge" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gv_graph.deleteEdge();" value="Remove edge" />
-															</p>
-															<br class="clear"/>
-															<p>
-																<input type="button" onClick="gf_deactivateEdge();" value="De-/Activate edge" />
-															</p>
-														</div>
-													</div>
-												</div>
-											</div>
-										</div>
-										<div class="column_right">
-											<div class="header">
-												<span>Graph settings</span>
-											</div>
-											<br class="clear"/>
-											<div class="content">
-												<div class="onecolumn">
-													<input type="button" name="neu" value="Add new node" style="width:190px" onClick="gv_graph.createNode();"/>
-													&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-													<input type="button" onClick="PM.YesNoDialog('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
-												</div>
-
-											</div>
-										</div>
-									</div>
-									<br class="clear"/>
-								</div>
-								<!-- end tab2 -->
-
-								<!-- begin tab3 -->
-								<div id="tab3_content" class="tab_content hide">
-									<br class="clear"/>
-									<h2 id="tab3_user" style="color:#525252;font-size:14px"></h2>
-									<br class="clear"/>
-									<a id="responsibleForloggedinUser" href="responsibleForloggedinUser.html">Add person in charge</a>
-									<br class="clear"/>
-									<br class="clear"/>
-									<div class="onecolumn">
-										<table class="data" width="100%" cellpadding="0" cellspacing="0">
-											<thead>
-												<tr>
-													<th style="width:35%">Group name</th>
-													<th style="width:35%">Person in charge</th>
-													<th style="width:30%">Delete</th>
-													<!--
-													<th style="width:17%">Edit</th>
-													<th style="width:16%">Delete</th>
-													-->
-												</tr>
-											</thead>
-											<tbody id="responsibles">
-												<script>
-													showverantwortliche();
-												</script>
-											</tbody>
-										</table>
-									</div>
-								</div>
-								<!-- end tab3 -->
-							</div>
-							<!-- end tab content -->
-
-						</div>
-						<!-- end onecolumn -->
-
-					</div>
-					<!-- end graph window -->
-				</div>
-				<!-- end inner -->
-			</div>
-			<!-- end content -->
-
-		</div>
-		<!-- end contetn-wrapper -->
-
-		<script>
-			writeSumMsgs();
-			writeSumActiveInstances();
-			//gv_graph.draw();
-		</script>
-		<script type="text/javascript">
-			$(".chzn-select").chosen();
-		</script>
-
-	</body>
+    </body>
 </html>
 

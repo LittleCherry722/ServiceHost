@@ -19,21 +19,20 @@ include("include/dbconnect.php");
 
 $return = array();
 if (isset($_REQUEST['username'])){
-	$result = mysql_query("SELECT * FROM `users` WHERE `name` LIKE '". $_REQUEST['username'] ."'");
+
+	$result = mysql_query("SELECT users.id, users.name, GROUP_CONCAT( groups.name SEPARATOR  ',' ) AS roles, users.active
+									FROM users_x_groups 
+									RIGHT JOIN users ON users.id = users_x_groups.userID 
+									LEFT JOIN groups ON groups.id = users_x_groups.groupID 
+									WHERE users.name = '".mysql_escape_string($_REQUEST['username'])."'
+									GROUP BY users.id");
 	if (mysql_num_rows($result) == 1){
-		$line = mysql_fetch_array($result, MYSQL_ASSOC);
-		$_SESSION['user']   = $line['name'];
-		$_SESSION['userid'] = $line['ID'];
+		$user = mysql_fetch_array($result, MYSQL_ASSOC);
+		$_SESSION['user']   = $user['name'];
+		$_SESSION['userid'] = $user['id'];
 		$return['code'] = 'ok';
-		$return['user']   = $_SESSION['user'];
-		$return['userid'] = $_SESSION['userid'];
-		
-		$result2 = mysql_query("SELECT * FROM `users_x_groups` WHERE `userID` LIKE '". $_SESSION['userid'] ."'");
-		$groups = array();
-		while ($group = mysql_fetch_array($result2, MYSQL_ASSOC)){
-			array_push($groups, $group['groupID']);
-		}
-		$return['groups'] = $groups;
+		$user['roles'] = explode(",", $user['roles']);
+		$return['user'] = $user;
 	}else{
 		$_SESSION['user'] = '';
 		$return['code'] = 'not found';
