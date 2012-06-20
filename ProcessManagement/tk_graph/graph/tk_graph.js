@@ -483,6 +483,25 @@ function gf_objectHasAttribute (gt_object, gt_attribute)
 }
 
 /**
+ * Calculate the center position relative to the top left corner of the paper.
+ *  
+ * @private
+ * @returns {Object}
+ */
+function gf_paperCenterPosition ()
+{
+	var gt_graphOuter	= gv_elements["graph" + gv_graphID.toUpperCase() + "outer"];
+	var gt_outerScroll	= {left: $('#' + gt_graphOuter).scrollLeft(), top: $('#' + gt_graphOuter).scrollTop()};
+	var	gt_dimensions	= {width: $('#' + gt_graphOuter).width(), height: $('#' + gt_graphOuter).height()}
+	
+	// calculate the mouse position
+	var gt_centerX		= gt_dimensions.width/2 + gt_outerScroll.left;
+	var gt_centerY		= gt_dimensions.height/2 + gt_outerScroll.top;
+	
+	return {x: gt_centerX, y: gt_centerY};
+}
+
+/**
  * Change the reference of gv_paper depending on the currently selected graph.
  * Initialize the paper and reset the zoom.
  * 

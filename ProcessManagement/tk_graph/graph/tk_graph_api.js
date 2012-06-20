@@ -440,7 +440,10 @@ function gf_paperDragStart ()
 function gf_paperZoomIn (zoomFactor, zoomPosition)
 {	
 	if (!gf_isset(zoomFactor))
-		zoomFactor = 2;
+		zoomFactor = 1.25;
+		
+	if (!gf_isset(zoomPosition))
+		zoomPosition = gf_paperCenterPosition()
 		
 	// the dimension of the current view box
 	var gt_oldWidth		= gv_currentViewBox.width;
@@ -493,7 +496,10 @@ function gf_paperZoomIn (zoomFactor, zoomPosition)
 function gf_paperZoomOut (zoomFactor, zoomPosition)
 {
 	if (!gf_isset(zoomFactor))
-		zoomFactor = 2;
+		zoomFactor = 1.25;
+		
+	if (!gf_isset(zoomPosition))
+		zoomPosition = gf_paperCenterPosition()
 		
 	// the dimension of the current view box
 	var gt_oldWidth		= gv_currentViewBox.width;
