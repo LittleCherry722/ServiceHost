@@ -142,7 +142,11 @@ function GCcommunication ()
 			gf_paperChangeView("cv");
 			if (gf_elementExists(gv_elements.graphCVouter))
 			{
-				document.getElementById(gv_elements.graphCVouter).style.display = "block";				
+				if (gf_elementExists(gv_elements.graphBVouter))
+					document.getElementById(gv_elements.graphBVouter).style.display = "none";
+				
+				document.getElementById(gv_elements.graphCVouter).style.display = "block";
+				$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '50%'}, 0);
 			
 				this.selectedSubject	= null;
 				this.selectedNode		= null;
@@ -157,9 +161,11 @@ function GCcommunication ()
 			gf_paperChangeView("bv");
 			if (gf_elementExists(gv_elements.graphBVouter))
 			{
-				document.getElementById(gv_elements.graphBVouter).style.display = "block";				
-			
-				this.selectedSubject = this.loadedSubject;
+				if (gf_elementExists(gv_elements.graphCVouter))
+					document.getElementById(gv_elements.graphCVouter).style.display = "none";
+					
+				document.getElementById(gv_elements.graphBVouter).style.display = "block";
+				$('#' + gv_elements.graphBVouter).scrollTo( {left: '50%', top: '0px'}, 0);
 				
 				if (gf_isset(this.subjects[this.selectedSubject]))
 				{
@@ -600,6 +606,7 @@ function GCcommunication ()
 		
 		if (gt_behavior != null)
 		{
+			this.changeView("bv");
 			gt_behavior.draw();
 			this.selectedSubject = id;
 			this.loadedSubject = id;
@@ -1245,7 +1252,11 @@ function GCcommunication ()
 			{
 				this.selectNothing();
 				this.selectedNode = id;
-				updateListOfSubjects();	// custom code
+				
+				if (gf_functionExists("updateListOfSubjects"))
+				{
+					updateListOfSubjects();	// custom code
+				}
 			}
 		}
 		

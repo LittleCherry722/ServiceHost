@@ -157,6 +157,31 @@ function gf_elementExists ()
 }
 
 /**
+ * Checks if the given function(s) exists.
+ * You can pass any number of function names to this method.
+ * If at least one of the functions is not present this method returns false.
+ * 
+ * @private
+ * @param {String} function Any number of function names.
+ * @returns {boolean} False when at least one of the functions is not present.
+ */
+function gf_functionExists ()
+{
+	var gt_argv = arguments;
+	var gt_argc = gt_argv.length;
+
+	for (var gt_i = 0; gt_i < gt_argc; gt_i++)
+	{
+		if (typeof gt_argv[gt_i] !== 'function')
+		{
+			return false
+		}
+	}
+	
+	return true;
+}
+
+/**
  * Retrieve the ids of the children of the node with the given id.
  * 
  * @private
