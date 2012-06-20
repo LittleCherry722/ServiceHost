@@ -1,5 +1,5 @@
 /*
- * S-BPM Groupware v0.8
+ * S-BPM Groupware v0.9
  *
  * http://www.tk.informatik.tu-darmstadt.de/
  *
@@ -12,10 +12,16 @@
  */
 
 
-/**
+/*
  * Styles (can be edited, added, deleted)
  */
 
+/**
+ * Default style set for edges between two nodes.
+ * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
+ * 
+ * @type Object
+ */
 var gv_bv_style_edge = {
 	/*
 	 * Arrow
@@ -115,6 +121,12 @@ var gv_bv_style_edge = {
 	minHeight: 0						// int
 };
 
+/**
+ * Default style set for normal circle nodes.
+ * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
+ * 
+ * @type Object
+ */
 var gv_bv_style_circleNode = {	
 	/*
 	 * Border
@@ -187,7 +199,12 @@ var gv_bv_style_circleNode = {
 	minHeight: 24						// int
 };
 
-// only set difference to normal circleNode
+/**
+ * Default style set for circle shaped start nodes.
+ * The given attributes overwrite the values of the gv_bv_style_circleNode style set.
+ * 
+ * @type Object
+ */
 var gv_bv_style_circleNodeStart = {
 	/*
 	 * Border
@@ -198,7 +215,12 @@ var gv_bv_style_circleNodeStart = {
 	borderWidthSelected: 4				// pixels
 };
 
-// only set difference to normal circleNode
+/**
+ * Default style set for end nodes.
+ * The given attributes overwrite the values of the gv_bv_style_circleNode style set.
+ * 
+ * @type Object
+ */
 var gv_bv_style_circleNodeEnd = {	
 	/*
 	 * Border
@@ -217,6 +239,12 @@ var gv_bv_style_circleNodeEnd = {
 	bgColorSelected: "#C0DDDD"			// any hex-color-value
 };
 
+/**
+ * Default style set for rectangular nodes.
+ * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
+ * 
+ * @type Object
+ */
 var gv_bv_style_rectNode = {
 	/*
 	 * Border
@@ -290,7 +318,12 @@ var gv_bv_style_rectNode = {
 	minHeight: 24						// int
 };
 
-// only set difference to normal rectNode
+/**
+ * Default style set for rectangular start nodes.
+ * The given attributes overwrite the values of the gv_bv_style_rectNode style set.
+ * 
+ * @type Object
+ */
 var gv_bv_style_rectNodeStart = {
 	/*
 	 * Border
@@ -301,41 +334,59 @@ var gv_bv_style_rectNodeStart = {
 	borderWidthSelected: 4				// pixels
 };
 
-/**
+/*
  * do not delete any piece of information below this line; only edit the values
  */
+
+/**
+ * Port settings
+ * 
+ * @type Object
+ */
 var gv_bv_arrow = {
-		style: gv_bv_style_edge,
-		correctionH: 0,
-		correctionV: 5,
-		arrowSpace: 20,
-		tout: true,
-		tin: true,
-		lout: true,
-		lin: true,
-		rout: true,
-		rin: true,
-		bout: true,
-		bin: true
+		style: gv_bv_style_edge,	// Style set to use for edges
+		tout: true,					// Allow outgoing edges on the top of a node (true | false)
+		tin: true,					// Allow incoming edges on the top of a node (true | false)
+		lout: true,					// Allow outgoing edges on the left of a node (true | false)
+		lin: true,					// Allow incoming edges on the left of a node (true | false)
+		rout: true,					// Allow outgoing edges on the right of a node (true | false)
+		rin: true,					// Allow incoming edges on the right of a node (true | false)
+		bout: true,					// Allow outgoing edges on the bottom of a node (true | false)
+		bin: true					// Allow incoming edges on the bottom of a node (true | false)
 };
 
+/**
+ * Style sets for circle nodes.
+ * 
+ * @type Object
+ */
 var gv_bv_circleNode = {
-		style: gv_bv_style_circleNode,
-		styleStart: gv_bv_style_circleNodeStart,
-		styleEnd: gv_bv_style_circleNodeEnd
+		style: gv_bv_style_circleNode,				// style set for circle nodes
+		styleStart: gv_bv_style_circleNodeStart,	// style set for circle start nodes
+		styleEnd: gv_bv_style_circleNodeEnd			// style set for end nodes
 };
 
+/**
+ * Style sets for rectangular nodes.
+ * 
+ * @type Object
+ */
 var gv_bv_rectNode = {
-		style: gv_bv_style_rectNode,
-		styleStart: gv_bv_style_rectNodeStart
+		style: gv_bv_style_rectNode,				// style set for rectangular nodes
+		styleStart: gv_bv_style_rectNodeStart		// style set for rectangular start nodes
 };
 
+/**
+ * Settings for the automated layouting algorithm.
+ * 
+ * @type Object
+ */
 var gv_bv_nodeSettings = {
-		distanceX: 220,
-		distanceY: 150,
-		startX: 0,
-		startY: 50,
-		startNewX: 150,
-		startNewY: 50,
-		arrowSpace: 75
+		distanceX: 220,		// The distance between two nodes (x-axis)
+		distanceY: 150,		// The distance between two nodes (y-axis)
+		startX: 0,			// The x-ordinate of the starting position of the graph.
+		startY: 50,			// The y-ordinate of the starting position of the graph.
+		startNewX: 150,		// The x-ordinate of the starting position of unconnected nodes.
+		startNewY: 50,		// The y-ordinate of the starting position of unconnected nodes.
+		arrowSpace: 75		// Space needed for calculation
 };

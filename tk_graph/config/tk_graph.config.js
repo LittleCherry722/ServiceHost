@@ -1,5 +1,5 @@
 /*
- * S-BPM Groupware v0.8
+ * S-BPM Groupware v0.9
  *
  * http://www.tk.informatik.tu-darmstadt.de/
  *
@@ -11,26 +11,52 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/**
+/*
  * do NOT delete any line in this file; only edit the values
  */
 
-// predefined macros
+/*
+ * predefined macros
+ */
+// creates a macro with the ID "newSendNode" that will insert a new send node into the graph and connect it with the currently selected node
 gf_createMacro("newSendNode", "", "normal", "send", true);
+
+// creates a macro with the ID "newReceiveNode" that will insert a new receive node into the graph and connect it with the currently selected node
 gf_createMacro("newReceiveNode", "", "normal", "receive", true);
+
+// creates a macro with the ID "newActionNode" that will insert a new action node into the graph and connect it with the currently selected node
 gf_createMacro("newActionNode", "internal action", "normal", "action", true);
 
+/**
+ * Contains the dimensions of both canvas elements.
+ * Edit these lines in order to fit the canvas elements to your page.
+ * 
+ * @type Object
+ */
 var gv_paperSizes	= {
-	bv_width: 5000,
-	bv_height: 6000,
-	cv_width: 2000,
-	cv_height: 520
+	bv_width: 5000,		// width of the canvas for the behavioral view
+	bv_height: 6000,	// height of the canvas for the behavioral view
+	cv_width: 2000,		// width of the canvas for the communication view
+	cv_height: 520		// height of the canvas for the communication view
 };
 
+/**
+ * Contains some information about the node types in the behavioral view.
+ * This is the node's shape and its default text.
+ * 
+ * @type Object
+ */
 var gv_nodeTypes	= {
+	// action node will be displayed as a rounded rectangle containing the text defined in the node
 	action: {shape: "roundedrectangle", text: null},
+	
+	// a send node will be displayed as a circle containing an "S" to mark it as a send node
 	send: {shape: "circle", text: "S"},
+	
+	// a receive node will be displayed as a circle containing an "R" to mark it as a receive node
 	receive: {shape: "circle", text: "R"},
+	
+	// an end node will be displayed as a circle without text
 	end: {shape: "circle", text: ""}
 };
 
@@ -41,18 +67,24 @@ var gv_nodeTypes	= {
  * arrowOpacity
  * arrowStyle
  * arrowWidth
+ * bgColor
+ * bgOpacity
  * borderColor
  * borderOpacity
  * borderStyle
  * borderWidth
- * bgColor
- * bgOpacity
- * opacity
  * fontColor
  * fontOpacity
  * fontWeight
+ * opacity
  */
 
+/**
+ * Default style set.
+ * Please see a reference at <a href="https://sbpm-groupware.atlassian.net/wiki/display/SBPM/tk_graph+%28v0.9%29+documentation#tkgraphv09documentation-Mainconfiguration">Atlassian</a>.
+ * 
+ * @type Object
+ */
 var gv_defaultStyle	= {
 	
 	/*
