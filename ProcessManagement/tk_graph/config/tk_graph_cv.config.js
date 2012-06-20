@@ -1,5 +1,5 @@
 /*
- * S-BPM Groupware v0.8
+ * S-BPM Groupware v0.9
  *
  * http://www.tk.informatik.tu-darmstadt.de/
  *
@@ -11,8 +11,15 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/**
+/*
  * Styles (can be edited, added, deleted)
+ */
+
+/**
+ * Default style set for edges between two subjects.
+ * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
+ * 
+ * @type Object
  */
 var gv_cv_style_arrow = {
 	/*
@@ -99,6 +106,12 @@ var gv_cv_style_arrow = {
 	minHeight: 0						// int
 };
 
+/**
+ * Default style set for external subjects.
+ * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
+ * 
+ * @type Object
+ */
 var gv_cv_style_roundedRectangleExternal = {
 	/*
 	 * Border
@@ -169,6 +182,12 @@ var gv_cv_style_roundedRectangleExternal = {
 	height: 200							// int
 };
 
+/**
+ * Default style set for multi subjects.
+ * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
+ * 
+ * @type Object
+ */
 var gv_cv_style_roundedRectangleMulti = {
 	/*
 	 * Border
@@ -239,6 +258,12 @@ var gv_cv_style_roundedRectangleMulti = {
 	height: 200							// int
 };
 
+/**
+ * Default style set for single subjects.
+ * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
+ * 
+ * @type Object
+ */
 var gv_cv_style_roundedRectangleSingle = {
 	/*
 	 * Border
@@ -309,37 +334,43 @@ var gv_cv_style_roundedRectangleSingle = {
 	height: 200							// int
 };
 
-/**
+/*
  * do not delete any piece of information below this line; only edit the values
  */
+
+/**
+ * Configuration of edges between subjects.
+ * 
+ * @type Object
+ */
 var gv_cv_arrow = {
-		correctionH: 25,
-		correctionV: 50,
-		arrowSpace: 20,
-		tout: true,
-		tin: true,
-		lout: true,
-		lin: true,
-		rout: true,
-		rin: true,
-		bout: true,
-		bin: true,
-		style: gv_cv_style_arrow
+		style: gv_cv_style_arrow	// style set to use
 };
 
+/**
+ * Configuration of subject nodes.
+ * 
+ * @type Object
+ */
 var gv_cv_roundedRectangle = {
+		// an edge's vertical position in pixels relative to the center of the subject node
 		arrowCorrectionV: 50,
+		
+		// an edge's horizontal position in pixels relative to the center of the subject node
 		arrowCorrectionH: 25,
-		height: 200,
-		width: 120,
-		radius: 10,
-		textPosY: -60,
-		linePosY: -20,
-		lineWidth: 2,
+		
+		// offset to left border of canvas
 		startX: 80,
-		startY: 150,
+		
+		// distance between two subject nodes in pixels (measured from center to center)
 		distance: 275,
+		
+		// references style of the node of a single subject
 		styleSingle: gv_cv_style_roundedRectangleSingle,
+		
+		// references style of the node of a multi subject
 		styleMulti: gv_cv_style_roundedRectangleMulti,
+		
+		// references style of the node of an external subject
 		styleExternal: gv_cv_style_roundedRectangleExternal
 };
