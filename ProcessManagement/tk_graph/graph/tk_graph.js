@@ -222,6 +222,46 @@ function gf_getParentNode (id)
 }
 
 /**
+ * Determines the type of the selected element.
+ * Returns "none" when no element is selected.
+ * 
+ * @private
+ * @returns {String} Type of selected element. Either "node", "edge" or "none".
+ */
+function gf_getSelectedElementType ()
+{
+	var gt_type	= "none";
+	
+	if (gv_graph.selectedSubject == null)
+	{
+		if (gv_graph.selectedNode != null)
+		{
+			gt_type = "node";
+		}
+	}
+	
+	// when a behavior is shown, call its clearGraph() method
+	else
+	{
+		if (gf_isset(gv_graph.subjects[gv_graph.selectedSubject]))
+		{
+			var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
+			
+			if (gt_behav.selectedNode != null)
+			{
+				gt_type = "node";
+			}
+			if (gt_behav.selectedEdge != null)
+			{
+				gt_type = "edge";
+			}
+		}
+	}
+	
+	return gt_type;
+}
+
+/**
  * Maps the border-style attribute of a style set to Raphael's stroke-dasharray.
  * 
  * @private
@@ -666,7 +706,8 @@ function gf_replaceNewline (text)
 }
 
 /**
- * ASDF
+ * Load the internal behavior and mark it in the GUI.
+ * When no appropriate function is defined to mark the active graph in the GUI the behavioral view is loaded without further action.
  * 
  * @private
  * @returns {void}

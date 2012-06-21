@@ -615,15 +615,15 @@ function GCcommunication ()
 	};
 	
 	/**
-	 * Returns the id of the node currently selected in the behavioral view.
+	 * Returns the id of the node currently selected depending on the current view.
 	 * 
-	 * @returns {int} The id of the selectedNode of the currently active internal behavior or null, when no internal behavior is loaded.
+	 * @returns {int} The id of the selectedNode of the currently active view or null.
 	 */
 	this.getSelectedNode = function ()
 	{
 		if (this.selectedSubject == null)
 		{			
-			// ignore
+			return this.selectedNode;
 		}
 		else
 		{
@@ -633,6 +633,23 @@ function GCcommunication ()
 			}
 		}
 		return null;
+	};
+	
+	/**
+	 * Returns the IDs of all subjects of the graph.
+	 * 
+	 * @returns {String[]} An array of all subject IDs.
+	 */
+	this.getSubjectIDs = function ()
+	{
+		var gt_subjectIDs	= [];
+		
+		for (var gt_sid in this.subjects)
+		{
+			gt_subjectIDs[gt_subjectIDs.length]		= gt_sid;
+		}
+		
+		return gt_subjectIDs;
 	};
 	
 	/**
@@ -650,6 +667,16 @@ function GCcommunication ()
 		}
 		
 		return gt_subjectNames;
+	};
+	
+	/**
+	 * Returns the subjects of the graph.
+	 * 
+	 * @returns {String[]} An array of all subjects.
+	 */
+	this.getSubjects = function ()
+	{
+		return this.subjects;
 	};
 	
 	/**
@@ -841,14 +868,14 @@ function GCcommunication ()
 		{
 			var gt_subject = gt_jsonObject[gt_subjectId];
 			
-			gv_graph.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_subject.deactivated);
+			this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_subject.deactivated);
 		}
 		
 		// 2. add nodes + edges
 		for (var gt_subjectId in gt_jsonObject)
 		{
 			var gt_subject	= gt_jsonObject[gt_subjectId];
-			var gt_behav	= gv_graph.getBehavior(gt_subject.id);
+			var gt_behav	= this.getBehavior(gt_subject.id);
 			
 			if (gt_behav != null)
 			{
