@@ -133,6 +133,48 @@ function gf_callMacro (id)
 }
 
 /**
+ * Switches between the behavioral view and the communication view.
+ * 
+ * @see GCcommunication.changeView()
+ * @param {String} view The view to load. Possible values are "cv" and "bv".
+ * @returns {void}
+ */
+function gf_changeView (view)
+{
+	gv_graph.changeView(view);
+}
+
+/**
+ * Empties a graph.
+ * Depending on the shown graph this clears an internal behavior or the complete graph.
+ * 
+ * @see GCcommunication.clearGraph()
+ * @returns {void}
+ */
+function gf_clearGraph ()
+{
+	gv_graph.clearGraph();
+}
+
+/**
+ * Deselect all nodes and edges.
+ * Call the selectNothing() method of all bv graphs and the cv graph.
+ * 
+ * @returns {void}
+ */
+function gf_clearSelection ()
+{
+	gf_deselectEdges();
+	gf_deselectNodes();
+	gv_graph.selectNothing();
+	
+	for (var gt_subjId in gv_graph.subjects)
+	{
+		gv_graph.subjects[gt_subjId].getBehavior().selectNothing();
+	}
+}
+
+/**
  * This method is called internally to select an edge within the behavioral view.
  * It is linked to the onClick event of the edge elements of the graph.
  * 
@@ -191,6 +233,30 @@ function gf_clickedCVnode (nodeId)
 }
 
 /**
+ * Activate the connectMode to connect two nodes in an internal behavior.
+ * 
+ * @see GCcommunication.connectNodes()
+ * @returns {void}
+ */
+function gf_connectNodes ()
+{
+	gv_graph.connectNodes();
+}
+
+/**
+ * Creates a new process from a table containing subjects and messages sent between those subjects.
+ * 
+ * @see GCcommunication.createFromTable()
+ * @param {String[]} subjects An array of subject names.
+ * @param {Object[]} messages A list of messages containing the attributes "message", "sender" (id of sender subject), "receiver" (id of receiver subject).
+ * @returns {void}
+ */
+function gf_createFromTable (subjects, messages)
+{
+	gv_graph.createFromTable(subjects, messages);
+}
+
+/**
  * This method adds a new macro to the gv_macro array.
  * You can execute the macro by calling gf_callMacro(id).
  * 
@@ -211,9 +277,21 @@ function gf_createMacro (id, text, type, type2, connect)
 }
 
 /**
+ * Insert a new node into the current graph.
+ * 
+ * @see GCcommunication.createNode()
+ * @returns {void}
+ */
+function gf_createNode ()
+{
+	gv_graph.createNode();
+}
+
+/**
  * This method de- / activates the currently selected edge.
  * 
  * @see GCcommunication.deactivateEdge()
+ * @deprecated
  * @returns {void}
  */
 function gf_deactivateEdge ()
@@ -222,14 +300,49 @@ function gf_deactivateEdge ()
 }
 
 /**
+ * This method de- / activates the currently selected element.
+ * 
+ * @see GCcommunication.deactivateEdge()
+ * @see GCcommunication.deactivateNode()
+ * @returns {void}
+ */
+function gf_deactivateElement ()
+{
+	gv_graph.deactivateEdge();	
+	gv_graph.deactivateNode();
+}
+
+/**
  * This method de- / activates the currently selected node.
  * 
  * @see GCcommunication.deactivateNode()
+ * @deprecated
  * @returns {void}
  */
 function gf_deactivateNode ()
 {
 	gv_graph.deactivateNode();
+}
+
+/**
+ * Deletes the selected element.
+ * 
+ * @see GCcommunication.deleteEdge()
+ * @see GCcommunication.deleteNode()
+ * @returns {void}
+ */
+function gf_deleteElement ()
+{
+	var gt_type	= gf_getSelectedElementType();
+	
+	if (gt_type == "node")
+	{
+		gv_graph.deleteNode();
+	}
+	else if (gt_type == "edge")
+	{
+		gv_graph.deleteEdge();	
+	}
 }
 
 /**
@@ -358,7 +471,63 @@ function gf_getNodeRight ()
 			}		
 		}
 	}
-}	
+}
+
+/**
+ * Returns the id of the node currently selected depending on the current view.
+ *  
+ * @see GCcommunication.getSelectedNode()
+ * @returns {int} The id of the selectedNode of the currently active view or null.
+ */
+function gf_getSelectedNode ()
+{
+	return gv_graph.getSelectedNode();
+}
+
+/**
+ * Returns the IDs of all subjects of the graph.
+ * 
+ * @see GCcommunication.getSubjectIDs()
+ * @returns {String[]} An array of all subject IDs.
+ */
+function gf_getSubjectIDs ()
+{
+	return gv_graph.getSubjectIDs();
+}
+
+/**
+ * Returns the names of all subjects of the graph.
+ * 
+ * @see GCcommunication.getSubjectNames()
+ * @returns {String[]} An array of all subject names.
+ */
+function gf_getSubjectNames ()
+{
+	return gv_graph.getSubjectNames();
+}
+
+/**
+ * Returns the subjects of the graph.
+ * 
+ * @see GCcommunication.getSubjects()
+ * @returns {String[]} An array of all subjects.
+ */
+function gf_getSubjects ()
+{
+	return gv_graph.getSubjects();
+}
+
+/**
+ * Loads a process graph from a given JSON representation stored in the database.
+ * 
+ * @see GCcommunication.loadFromJSON()
+ * @param {String} jsonString The JSON representation of a process.
+ * @returns {void}
+ */
+function gf_loadGraph (jsonString)
+{
+	gv_graph.loadFromJSON(jsonString);
+}
 
 /**
  * Stop the drag operation and update the position of the current view box.
@@ -563,6 +732,50 @@ function gf_paperZoomReset ()
 }
 
 /**
+ * Save the graph in the given format.
+ * When format is left empty this method will return the graph as an object.
+ * Formats "pdf" and "svg" are currently not supported.
+ * 
+ * @see GCcommunication.save()
+ * @see GCcommunication.saveToJSON()
+ * @see GCcommunication.saveToPDF()
+ * @see GCcommunication.saveToSVG()
+ * @param {String} format The format to save the graph in. Possible values: "json" (save as JSON string), "pdf", "svg", "object" (default: json)
+ * @returns {String | Object} The graph in the given format.
+ */
+function gf_saveGraph (format)
+{
+	if (!gf_isset(format))
+		format = "json";
+		
+	format	= format.toLowerCase();
+	
+	// save as an object
+	if (format == "object")
+	{
+		return gv_graph.save();
+	}
+	
+	// save to PDF
+	else if (format == "pdf")
+	{
+		return gv_graph.saveToPDF();
+	}
+	
+	// save to SVG
+	else if (format == "svg")
+	{
+		return gv_graph.saveToSVG();
+	}
+	
+	// save as JSON string
+	else
+	{
+		return gv_graph.saveToJSON();
+	}
+}
+
+/**
  * This is called onChange of gv_elements.inputEdgeMessage.
  * It updates the value of gv_elements.inputEdgeText with the selected message so the edge can be updated correctly.
  * 
@@ -620,5 +833,26 @@ function gf_showInternalBehavior (jsonProcess, subject, node)
 			// mark the currently selected node
 			gf_paperClickNodeB(gt_nodeId);
 		}	
+	}
+}
+
+/**
+ * Updates the selected element.
+ * 
+ * @see GCcommunication.updateEdge()
+ * @see GCcommunication.updateNode()
+ * @returns {void}
+ */
+function gf_updateElement ()
+{
+	var gt_type	= gf_getSelectedElementType();
+	
+	if (gt_type == "node")
+	{
+		gv_graph.updateNode();
+	}
+	else if (gt_type == "edge")
+	{
+		gv_graph.updateEdge();	
 	}
 }
