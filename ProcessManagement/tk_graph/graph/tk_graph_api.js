@@ -173,7 +173,14 @@ function gf_clickedCVbehavior (graphId)
 	
 	if (gf_isset(graphId))
 	{
-		showtab1();
+		if (gf_functionExists("showtab1"))
+		{
+			showtab1();	
+		}
+		else
+		{
+			gf_clickedCVbehavior();
+		}
 	}
 }
 
@@ -267,7 +274,7 @@ function gf_getNodeLeft ()
 			{
 				// get own ID in array
 				var gt_ownID	= 0;
-				for (gt_i = 0; gt_i < gt_children.length; gt_i++)
+				for (var gt_i = 0; gt_i < gt_children.length; gt_i++)
 				{
 					if (gt_children[gt_i] == gt_selectedNode)
 						gt_ownID = gt_i;
@@ -346,7 +353,7 @@ function gf_getNodeRight ()
 			{	
 				// get own ID in array
 				var gt_ownID	= 0;
-				for (gt_i = 0; gt_i < gt_children.length; gt_i++)
+				for (var gt_i = 0; gt_i < gt_children.length; gt_i++)
 				{
 					if (gt_children[gt_i] == gt_selectedNode)
 						gt_ownID = gt_i;
@@ -443,7 +450,7 @@ function gf_paperZoomIn (zoomFactor, zoomPosition)
 		zoomFactor = 1.25;
 		
 	if (!gf_isset(zoomPosition))
-		zoomPosition = gf_paperCenterPosition()
+		zoomPosition = gf_paperCenterPosition();
 		
 	// the dimension of the current view box
 	var gt_oldWidth		= gv_currentViewBox.width;
@@ -499,7 +506,7 @@ function gf_paperZoomOut (zoomFactor, zoomPosition)
 		zoomFactor = 1.25;
 		
 	if (!gf_isset(zoomPosition))
-		zoomPosition = gf_paperCenterPosition()
+		zoomPosition = gf_paperCenterPosition();
 		
 	// the dimension of the current view box
 	var gt_oldWidth		= gv_currentViewBox.width;

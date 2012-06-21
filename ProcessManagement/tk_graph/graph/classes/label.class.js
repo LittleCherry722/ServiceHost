@@ -146,7 +146,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.deactive = false;
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Activate the event handlers for click and dblClick on this object depending on the current graph.
@@ -193,7 +193,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 			}
 			$(this.text.node).css("pointer-events", "none");
 		}
-	}
+	};
 	
 	/**
 	 * Deactivate the label and update its look.
@@ -204,7 +204,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.deactive = true;
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Deselect the label and update its look.
@@ -215,7 +215,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.selected = false;
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Returns the boundaries of this label.
@@ -268,7 +268,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		}
 		
 		return bbox;
-	}
+	};
 	
 	/**
 	 * Returns the coordinates of this label.
@@ -278,7 +278,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	this.getPosition = function ()
 	{
 		return {x: this.x, y: this.y};
-	}
+	};
 		
 	/**
 	 * Update the value of the textAlignAttribute depending on the new text of this label.
@@ -294,7 +294,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		{
 			this.textAlignAttribute += "Li";
 		}
-	}
+	};
 	
 	/**
 	 * Hide the element.
@@ -306,7 +306,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.hideObjects();
 		this.text.hide();
-	}
+	};
 	
 	/**
 	 * Hide all Raphael Elements of this label.
@@ -321,7 +321,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		}
 		this.rectangle.hide();
 		this.ellipse.hide();
-	}
+	};
 	
 	/**
 	 * Initialize the Raphael Elements of this label.
@@ -339,7 +339,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		this.text		= gv_paper.text(0, 0, "");
 		
 		this.bboxObj	= this.rectangle;
-	}
+	};
 	
 	/**
 	 * Read a value from the style set.
@@ -350,8 +350,8 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 */
 	this.readStyle = function (key, type)
 	{
-		return gf_getStyleValue(this.style, key, type)
-	}
+		return gf_getStyleValue(this.style, key, type);
+	};
 	
 	/**
 	 * Update the style information of all Raphael elements belonging to this label.
@@ -389,7 +389,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		this.rectangle.attr("stroke-dasharray", strokeDasharray);
 		this.rectangle.attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
 		this.rectangle.attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
-		this.rectangle.attr("fill", this.readStyle("bgColor" + statusDependent, ""))
+		this.rectangle.attr("fill", this.readStyle("bgColor" + statusDependent, ""));
 		
 		// apply rr1-3 style information
 		for (rrId in this.multiRR)
@@ -400,7 +400,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 			this.multiRR[rrId].attr("stroke-dasharray", strokeDasharray);
 			this.multiRR[rrId].attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
 			this.multiRR[rrId].attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
-			this.multiRR[rrId].attr("fill", this.readStyle("bgColor" + statusDependent, ""))
+			this.multiRR[rrId].attr("fill", this.readStyle("bgColor" + statusDependent, ""));
 		}
 		
 		// apply ellipse style information
@@ -410,7 +410,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		this.ellipse.attr("stroke-dasharray", strokeDasharray);
 		this.ellipse.attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
 		this.ellipse.attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
-		this.ellipse.attr("fill", this.readStyle("bgColor" + statusDependent, ""))
+		this.ellipse.attr("fill", this.readStyle("bgColor" + statusDependent, ""));
 		
 		// apply text style information
 		this.text.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
@@ -424,7 +424,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		// textVAlign: "top",	// TODO / remove?
 		
 		this.updateBoundaries();
-	}
+	};
 	
 	/**
 	 * Replace all new line characters and the li identifieres by \n and the liSymbol defined in the style set.
@@ -435,7 +435,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	this.replaceNewline = function (text)
 	{
 		return gf_replaceNewline(text).replace(/<li>|<li \/>|<li\/>/gi, this.readStyle("liSymbol", ""));
-	}
+	};
 	
 	/**
 	 * Select the label and update its look.
@@ -446,7 +446,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.selected = true;
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Moves the label to the given position.
@@ -462,7 +462,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 			this.y = y;
 			this.updateBoundaries();
 		}
-	}
+	};
 	
 	/**
 	 * Update the shape of the label.
@@ -507,8 +507,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 				this.refreshStyle();
 			}
 		}
-		
-	}
+	};
 	
 	/**
 	 * Loads a new style set and calls the refreshStyle method.
@@ -520,7 +519,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.style = gf_mergeStyles(gv_defaultStyle, style);
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Set a new text to the label.
@@ -533,7 +532,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		this.getTextAlignAttribute(text);
 		this.text.attr("text", this.replaceNewline(text));
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Show the label.
@@ -544,7 +543,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.setShape(this.shape);
 		this.text.show();
-	}
+	};
 	
 	/**
 	 * Returns a path representation of the label's boundareis.
@@ -557,7 +556,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		var gt_bbox = this.getBoundaries();
 		
 		return "M" + gt_bbox.left + "," + gt_bbox.top + "H" + gt_bbox.right + "V" + gt_bbox.bottom + "H" + gt_bbox.left + "Z";
-	}
+	};
 	
 	/**
 	 * Update the boundaries of the Raphael Elements that are associated with this label depending on the information stored in this label.
@@ -597,8 +596,6 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		var height	= Math.round(this.text.getBBox().height);
 		var width2	= styleWidth > 0 ? styleWidth : Math.max(width + paddingLeft + paddingRight, this.readStyle("minWidth", "int"));
 		var height2	= styleHeight > 0 ? styleHeight : Math.max(height + paddingTop + paddingBottom, this.readStyle("minHeight", "int"));
-		var left	= this.text.getBBox().x;
-		var top		= this.text.getBBox().y;
 		var radiusx	= Math.round(width2 / 2);
 		var radiusy	= Math.round(height2 / 2);
 		var radius	= Math.max(radiusx, radiusy);
@@ -640,7 +637,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		 		this.multiRR[rrId].attr("r", rectR);
 	 		}			
 		}
-	}
+	};
 	
 	// initialize the label
 	this.init();
@@ -656,7 +653,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	if (gf_isset(belongsToPath) && belongsToPath === true)
 	{
 		this.belongsToPath = true;
-	}
+	};
 	
 	// set the text
 	this.setText(text);

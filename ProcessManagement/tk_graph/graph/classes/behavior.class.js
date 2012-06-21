@@ -136,7 +136,7 @@ function GCbehavior (name)
 			// store the edge
 			this.edges["e" + this.edgeCounter++] = gt_edge;
 		}
- 	}
+ 	};
 	
 	/**
 	 * Creates a new GCnode and stores it in the nodes array.
@@ -190,7 +190,7 @@ function GCbehavior (name)
 		
 		// return the node's ID
 		return this.nodeCounter - 1;
-	}
+ 	};
 	
 	/**
 	 * Clears the current behavioral view.
@@ -214,7 +214,7 @@ function GCbehavior (name)
 		this.startNode		= null;
 		
 		this.draw();
-	}
+ 	};
 	
 	/**
 	 * When connectNodes() is called connectMode is toggled.
@@ -235,7 +235,7 @@ function GCbehavior (name)
 			this.connectMode	= true;
 			this.startNode		= this.selectedNode;
 		}
-	}
+ 	};
 	
 	/**
 	 * This method creates a new edge from the node with the id given in parameter start to the node with the id given in parameter end by calling the addEdge (start, end, text, relatedSubject) method with an empty text and without a relatedSubject.
@@ -252,7 +252,7 @@ function GCbehavior (name)
 			this.addEdge(start, end, "");
 			this.draw();
 		}
-	}
+ 	};
 	
 	/**
 	 * Calls addNode(id, text, type) where id is an empty string, so addNode() will calculate a new id, and text is "new".
@@ -264,7 +264,7 @@ function GCbehavior (name)
 	this.createNode = function ()
 	{
 		// create the node
-		var gt_nodeId = this.addNode("", "new")
+		var gt_nodeId = this.addNode("", "new");
 		
 		// select the inserted node
 		gf_clickedBVnode(gt_nodeId);
@@ -274,7 +274,7 @@ function GCbehavior (name)
 		
 		// return the node's id
 		return gt_nodeId;
-	}
+ 	};
 	
 	/**
 	 * De- / activates the currently selected edge depending on its current deactivation status.
@@ -307,7 +307,7 @@ function GCbehavior (name)
 				gv_objects_edges[gt_edgeId].deactivate();
 			}
 		}
-	}
+ 	};
 	
 	/**
 	 * De- / activates the currently selected node depending on its current deactivation status.
@@ -340,7 +340,7 @@ function GCbehavior (name)
 				gv_objects_nodes[gt_nodeId].deactivate();
 			}
 		}
-	}
+ 	};
 	
 	/**
 	 * Removes the edge with the given id from the behavioral view.
@@ -358,7 +358,7 @@ function GCbehavior (name)
 		if (gf_isset(this.edges["e" + id]))
 			delete this.edges["e" + id];
 		this.draw();
-	}
+ 	};
 	
 	/**
 	 * Removes the node with the given id from the behavioral view.
@@ -376,7 +376,7 @@ function GCbehavior (name)
 		if (gf_isset(this.nodes["n" + id]))
 			delete this.nodes["n" + id];
 		this.draw();
-	}
+ 	};
 	
 	/**
 	 * Draws the graph of this behavior.
@@ -387,7 +387,7 @@ function GCbehavior (name)
 	{
 		// convert all data to gv_bv_graphs[name]
 		
-		gv_graph_bv.deleteSubject(this.name)
+		gv_graph_bv.deleteSubject(this.name);
 		
 		gv_graph_bv.addSubject(this.name);
 		
@@ -412,7 +412,7 @@ function GCbehavior (name)
 		}
 		
 		gv_graph_bv.drawGraph(this.name);
-	}
+ 	};
 	
 	/**
 	 * Returns the GCedge with the given id.
@@ -431,7 +431,7 @@ function GCbehavior (name)
 		if (gf_isset(this.edges["e" + id]))
 			return this.edges["e" + id];
 		return null;
-	}
+ 	};
 	
 	/**
 	 * Returns the edges array.
@@ -441,7 +441,7 @@ function GCbehavior (name)
 	this.getEdges = function ()
 	{
 		return this.edges;
-	}
+ 	};
 	
 	/**
 	 * Returns the GCnode with the given internal id (not the database id).
@@ -458,7 +458,7 @@ function GCbehavior (name)
 		if (gf_isset(this.nodes["n" + id]))
 			return this.nodes["n" + id];
 		return null;
-	}
+ 	};
 	
 	/**
 	 * Returns the nodes array.
@@ -468,7 +468,7 @@ function GCbehavior (name)
 	this.getNodes = function ()
 	{
 		return this.nodes;
-	}
+ 	};
 	
 	/**
 	 * Clears the current selection by calling GCbehavior.selectNothing() and updates selectedEdge with given id.
@@ -483,7 +483,7 @@ function GCbehavior (name)
 			this.selectNothing();
 			this.selectedEdge = id;
 		}
-	}
+ 	};
 	
 	/**
 	 * When connectMode is set to true a new edge is created from the node with the id stored in startNode to the node with the given id,
@@ -534,7 +534,7 @@ function GCbehavior (name)
 				this.selectedNode = id;
 			}
 		}
-	}
+ 	};
 	
 	/**
 	 * Resets selectedEdge, selectedNode and connectMode to false.
@@ -546,7 +546,7 @@ function GCbehavior (name)
 		this.selectedEdge	= null;
 		this.selectedNode	= null;
 		this.connectMode	= false;
-	}
+ 	};
 	
 	/**
 	 * Updates the information of the edge with the id stored in selectedEdge by calling the setText (text) and setRelatedSubject (relatedSubject) methods of GCedge.
@@ -571,7 +571,7 @@ function GCbehavior (name)
 			
 			this.draw();
 		}
-	}
+ 	};
 	
 	/**
 	 * Updates the information of the node with the id that is stored in selectedNode by calling the setText (text), setType (type), setStart (start) and the setEnd (end) methods of GCnode.
@@ -596,5 +596,5 @@ function GCbehavior (name)
 			
 			this.draw();
 		}
-	}
+ 	};
 }

@@ -149,7 +149,7 @@ function gf_elementExists ()
 	{
 		if (document.getElementById(gt_argv[gt_i]) === null)
 		{
-			return false
+			return false;
 		}
 	}
 	
@@ -172,9 +172,9 @@ function gf_functionExists ()
 
 	for (var gt_i = 0; gt_i < gt_argc; gt_i++)
 	{
-		if (typeof gt_argv[gt_i] !== 'function')
+		if (typeof window[gt_argv[gt_i]] !== 'function')
 		{
-			return false
+			return false;
 		}
 	}
 	
@@ -492,7 +492,7 @@ function gf_paperCenterPosition ()
 {
 	var gt_graphOuter	= gv_elements["graph" + gv_graphID.toUpperCase() + "outer"];
 	var gt_outerScroll	= {left: $('#' + gt_graphOuter).scrollLeft(), top: $('#' + gt_graphOuter).scrollTop()};
-	var	gt_dimensions	= {width: $('#' + gt_graphOuter).width(), height: $('#' + gt_graphOuter).height()}
+	var	gt_dimensions	= {width: $('#' + gt_graphOuter).width(), height: $('#' + gt_graphOuter).height()};
 	
 	// calculate the mouse position
 	var gt_centerX		= gt_dimensions.width/2 + gt_outerScroll.left;
@@ -627,7 +627,14 @@ function gf_paperDblClickNodeC (id)
 		gf_paperClickNodeC(id);
 		
 		// call the showtab1 method to load the internal behavior
-		showtab1();
+		if (gf_functionExists("showtab1"))
+		{
+			showtab1();	
+		}
+		else
+		{
+			gf_clickedCVbehavior();
+		}
 	}
 }
 

@@ -92,7 +92,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	this.activate = function ()
 	{
 		this.deactivated = false;
-	}
+	};
 	
 	/**
 	 * Deactivates an edge.
@@ -102,7 +102,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	this.deactivate = function ()
 	{
 		this.deactivated = true;
-	}
+	};
 	
 	/**
 	 * Returns the id of the edge's end node.
@@ -112,7 +112,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	this.getEnd = function ()
 	{
 		return this.end;
-	}
+	};
 	
 	/**
 	 * Returns the related subject.
@@ -131,7 +131,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 		}
 		
 		return relatedSubject;
-	}
+	};
 	
 	/**
 	 * Returns the id of the the start node.
@@ -141,7 +141,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	this.getStart = function ()
 	{
 		return this.start;
-	}
+	};
 	
 	/**
 	 * Returns the label of this edge.
@@ -151,7 +151,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	this.getText = function ()
 	{
 		return this.text;
-	}
+	};
 	
 	/**
 	 * Returns the deactivate status of this edge.
@@ -161,7 +161,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	this.isDeactivated = function ()
 	{
 		return this.deactivated === true;
-	}
+	};
 	
 	/**
 	 * Sets the id of the target node.
@@ -173,7 +173,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	{
 		if (gf_isset(end) && parseInt(end) == end)
 			this.end = end;
-	}
+	};
 	
 	/**
 	 * Sets the related subject.
@@ -188,7 +188,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 		
 		if (gf_isset(relatedSubject) && relatedSubject != "" && startNode != null && (startNode.getType() == "receive" || startNode.getType() == "send"))
 			this.relatedSubject = relatedSubject;
-	}
+	};
 	
 	/**
 	 * Sets the id of the start node.
@@ -200,7 +200,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	{
 		if (gf_isset(start) && parseInt(start) == start)
 			this.start = start;
-	}
+	};
 	
 	/**
 	 * Sets the label of the edge.
@@ -212,7 +212,7 @@ function GCedge (parent, start, end, text, relatedSubject)
 	{
 		if (gf_isset(text))
 			this.text = text;
-	}
+	};
 	
 	/**
 	 * Returns the label of the edge including the reference to the related subject (if any).
@@ -238,5 +238,5 @@ function GCedge (parent, start, end, text, relatedSubject)
 		var startNode		= this.parent.getNode(this.start);
 		
 		return this.text + (this.getRelatedSubject() != null ? "\n(" + (startNode.getType() == "receive" ? "from" : "to") + ": " + this.relatedSubject + ")" : "");
-	}
+	};
 }
