@@ -20,14 +20,6 @@
 function GCcommunication ()
 {	
 	/**
-	 * Id of the subject whose internal behavior is currently loaded.
-	 * This is used as a backup when a behavioral view is loaded but a different subject is selected in the communication view.
-	 * 
-	 * @type String
-	 */
-	this.loadedSubject		= null;
-	
-	/**
 	 * Array of messages between subjects.
 	 * This array is only used by GCcommunication.draw () which collects all messages sent between subjects and stores them into the messages array in the following form:
 	 * messages[fromSubjectId][toSubjectId][lastIndex] = messageText
@@ -129,7 +121,7 @@ function GCcommunication ()
 	/**
 	 * Switches between the behavioral view and the communication view.
 	 * When view is set to "cv" (communication view) all edges and nodes are deselected, the input fields are cleared and the graph is redrawn.
-	 * When view is set to "bv" (behavioral view) the internal behavior of the subject stored in loadedSubject is loaded and the input fields are cleared.
+	 * When view is set to "bv" (behavioral view) the internal behavior of the subject stored in selectedSubject is loaded and the input fields are cleared.
 	 * 
 	 * @param {String} view The view to load. Possible values are "cv" and "bv".
 	 * @returns {void}
@@ -187,16 +179,10 @@ function GCcommunication ()
 		if (this.selectedSubject == null)
 		{
 			
-			if (gf_isset(this.subjects[this.loadedSubject]))
-			{
-				this.getBehavior(this.loadedSubject).clearGraph();
-			}
-			
 			this.subjects	= {};
 			
 			this.selectedSubject	= null;
 			this.selectedNode		= null;
-			this.loadedSubject		= null;
 			
 			this.nodeCounter		= 0;
 			
@@ -490,21 +476,10 @@ function GCcommunication ()
 							delete gt_edges[gt_edgeId];
 					}
 				}
-				
-				if (this.loadedSubject == this.selectedNode)
-				{
-					this.loadedSubject = null;
-					gf_paperChangeView("bv");
-				}
 					
 				if (this.selectedSubject == this.selectedNode)
 				{
 					this.selectedSubject = null;
-				}
-				
-				if (this.loadedSubject != null && gf_isset(this.subjects[this.loadedSubject]))
-				{
-					this.subjects[this.loadedSubject].getBehavior().draw();
 				}
 				this.selectedNode = null;
 				
@@ -587,7 +562,6 @@ function GCcommunication ()
 	
 	/**
 	 * Draws the behavior of the subject with the given id by calling the GCbehavior.draw() method of the behavior.
-	 * The attribute loadedSubject is set to the given id.
 	 * 
 	 * @param {String} [id] The id of the subject to load the internal behavior for.
 	 * @returns {void}
@@ -607,7 +581,6 @@ function GCcommunication ()
 			this.changeView("bv");
 			gt_behavior.draw();
 			this.selectedSubject = id;
-			this.loadedSubject = id;
 		}
 	};
 	
@@ -1374,19 +1347,9 @@ function GCcommunication ()
 						this.subjects[gt_id] = gt_subject;
 						this.selectNode(gt_id);
 						
-						if (this.loadedSubject == this.selectedNode)
-						{
-							this.loadedSubject = gt_id;
-						}
-						
 						if (this.selectedSubject == this.selectedNode)
 						{
 							this.selectedSubject = gt_id;
-						}
-						
-						if (this.loadedSubject != null && gf_isset(this.subjects[this.loadedSubject]))
-						{
-							this.subjects[this.loadedSubject].getBehavior().draw();
 						}
 					}
 					this.draw();
