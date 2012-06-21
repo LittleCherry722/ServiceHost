@@ -626,15 +626,8 @@ function gf_paperDblClickNodeC (id)
 		// call the gf_paperClickNodeC method to select the node.
 		gf_paperClickNodeC(id);
 		
-		// call the showtab1 method to load the internal behavior
-		if (gf_functionExists("showtab1"))
-		{
-			showtab1();	
-		}
-		else
-		{
-			gf_clickedCVbehavior();
-		}
+		// call the gf_toggleBV method to load the internal behavior
+		gf_toggleBV();
 	}
 }
 
@@ -670,4 +663,22 @@ function gf_paperMousePosition (event)
 function gf_replaceNewline (text)
 {
 	return text.replace(/<br>|<br \/>|<br\/>|\r\n|\r|\\n|\n/gi, "\n");
+}
+
+/**
+ * ASDF
+ * 
+ * @private
+ * @returns {void}
+ */
+function gf_toggleBV ()
+{
+	if (gf_functionExists("showtab1"))
+	{
+		showtab1();	
+	}
+	else
+	{
+		gf_clickedCVbehavior();
+	}	
 }
