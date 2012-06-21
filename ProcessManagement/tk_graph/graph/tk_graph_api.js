@@ -173,14 +173,7 @@ function gf_clickedCVbehavior (graphId)
 	
 	if (gf_isset(graphId))
 	{
-		if (gf_functionExists("showtab1"))
-		{
-			showtab1();	
-		}
-		else
-		{
-			gf_clickedCVbehavior();
-		}
+		gf_toggleBV();
 	}
 }
 
@@ -598,7 +591,7 @@ function gf_setEdgeMessage ()
 /**
  * Using this method an internal behavior can be loaded for a given subject with the current step being marked.
  * This draws the corresponding graph and marks the current step by selecting the node.
- * All you need to provide is a div element with the id "graph_bv_outer" and access to the function "showtab1()".
+ * All you need to provide is a div element with the id "graph_bv_outer".
  * 
  * @param {String} jsonProcess The complete process graph in JSON format.
  * @param {String} subject  The currently active subject.
@@ -622,7 +615,7 @@ function gf_showInternalBehavior (jsonProcess, subject, node)
 		
 			// draw the graph for the internal behavior
 			gf_clickedCVnode(subject);
-			showtab1();
+			gf_toggleBV();
 			
 			// mark the currently selected node
 			gf_paperClickNodeB(gt_nodeId);
