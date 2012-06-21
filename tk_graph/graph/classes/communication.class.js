@@ -92,7 +92,7 @@ function GCcommunication ()
 		
 		// add the message to the messages array
 		this.messages[sender][receiver][this.messages[sender][receiver].length]	= message;
-	}
+	};
 	
 	/**
 	 * Creates a new Subject with the given id, title and type and stores it to the subjects array.
@@ -124,7 +124,7 @@ function GCcommunication ()
 			// add the subject to the subjects array
 			this.subjects[id] = gt_subject;
 		}
-	}
+	};
 	
 	/**
 	 * Switches between the behavioral view and the communication view.
@@ -173,7 +173,7 @@ function GCcommunication ()
 				}
 			}
 		}
-	}
+	};
 	
 	/**
 	 * When the selectedSubject attribute is set the GCbehavior.clearGraph() method of the corresponding behavior is called.
@@ -211,7 +211,7 @@ function GCcommunication ()
 				this.getBehavior(this.selectedSubject).clearGraph();
 			}
 		}
-	}
+	};
 	
 	/**
 	 * When selectedSubject is set the GCbehavior.connectNodes() method of the loaded internal behavior is called.
@@ -233,7 +233,7 @@ function GCcommunication ()
 				this.getBehavior(this.selectedSubject).connectNodes();
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Creates a new process from a table containing subjects and messages sent between those subjects.
@@ -343,7 +343,7 @@ function GCcommunication ()
 		
 		// draw the graph
 		this.draw();
-	}
+	};
 	
 	/**
 	 * When selectedSubject is set the GCbehavior.createNode() method of the corresponding internal behavior is called.
@@ -368,7 +368,7 @@ function GCcommunication ()
 				return this.getBehavior(this.selectedSubject).createNode();
 			}
 		}
-	}
+	};
 	
 	/**
 	 * De- / activate the currently selected edge in the behavioral view.
@@ -390,7 +390,7 @@ function GCcommunication ()
 				this.getBehavior(this.selectedSubject).deactivateEdge();
 			}
 		}
-	}
+	};
 	
 	/**
 	 * De- / activate the currently selected node (either in the communication view or the behavioral view).
@@ -436,7 +436,7 @@ function GCcommunication ()
 				this.getBehavior(this.selectedSubject).deactivateNode();
 			}
 		}
-	}
+	};
 	
 	/**
 	 * When a subject is selected the GCbehavior.deleteEdge(id) method of its behavior is called and the input fields for the edge are cleared.
@@ -459,7 +459,7 @@ function GCcommunication ()
 				this.loadInformation(true);
 			}
 		}
-	}
+	};
 	
 	/**
 	 * When a subject is selected the GCbehavior.deleteNode(id) method of its behavior is called and the input fields for nodes are cleared.
@@ -474,9 +474,7 @@ function GCcommunication ()
 		if (this.selectedSubject == null)
 		{
 			if (this.selectedNode != null)
-			{
-				var gt_subject = this.subjects[this.selectedNode];
-				
+			{				
 				// remove references to this subject
 				delete this.subjects[this.selectedNode];
 
@@ -523,7 +521,7 @@ function GCcommunication ()
 				this.loadInformation(true);
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Draws the graph for the subject-interaction-view.
@@ -585,7 +583,7 @@ function GCcommunication ()
 		}
 		
 		gv_graph_cv.drawGraph();
-	}
+	};
 	
 	/**
 	 * Draws the behavior of the subject with the given id by calling the GCbehavior.draw() method of the behavior.
@@ -611,7 +609,7 @@ function GCcommunication ()
 			this.selectedSubject = id;
 			this.loadedSubject = id;
 		}
-	}
+	};
 	
 	/**
 	 * Returns the behavior of the subject with the given id or null if the subject does not exist.
@@ -624,7 +622,7 @@ function GCcommunication ()
 		if (gf_isset(this.subjects[id]))
 			return this.subjects[id].getBehavior();
 		return null;
-	}
+	};
 	
 	/**
 	 * Returns the messages that are sent from the subject with the id that is passes in the sender parameter, to the subject whose id is passed in the receiver parameter.
@@ -632,7 +630,7 @@ function GCcommunication ()
 	 * 
 	 * @param {String} sender The id of the sender subject.
 	 * @param {String} receiver The id of the receiver subject.
-	 * @returns {Object}
+	 * @returns {Array}
 	 */
 	this.getMessages = function (sender, receiver)
 	{
@@ -641,7 +639,7 @@ function GCcommunication ()
 			return this.messages[sender][receiver];
 		}
 		return [];
-	}
+	};
 	
 	/**
 	 * Returns the id of the node currently selected in the behavioral view.
@@ -662,7 +660,7 @@ function GCcommunication ()
 			}
 		}
 		return null;
-	}
+	};
 	
 	/**
 	 * Returns the names of all subjects of the graph.
@@ -679,7 +677,7 @@ function GCcommunication ()
 		}
 		
 		return gt_subjectNames;
-	}
+	};
 	
 	/**
 	 * Calls GCcommunication.getMessages(sender, receiver) and implodes the resulting array to a string.
@@ -717,7 +715,7 @@ function GCcommunication ()
 		}
 		
 		return gt_implodedMessages;
-	}
+	};
 	
 	/**
 	 * Initialize the GCcommunication instance.
@@ -739,7 +737,7 @@ function GCcommunication ()
 			// load the communication view
 			this.changeView("cv");
 		}
-	}
+	};
 	
 	/**
 	 * When a relatedSubject is selected from a drop down this method is called.
@@ -853,7 +851,7 @@ function GCcommunication ()
 				}
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Loads a process graph from a given JSON representation stored in the database.
@@ -902,7 +900,7 @@ function GCcommunication ()
 		
 		// draw the graph
 		this.draw();
-	}
+	};
 	
 	/**
 	 * When clear is set to true all input fields are emptied.
@@ -994,7 +992,7 @@ function GCcommunication ()
 				}
 			}
 		}
-	}
+	};
 	
 	/**
 	 * When a subject is selected the information about the currently selected edge at the behavioral view is loaded and filled into the input fields.
@@ -1099,12 +1097,12 @@ function GCcommunication ()
 				}
 			}
 		}
-	}
+	};
 	
 	/**
 	 * This method returns an array containing the whole graph.
 	 * 
-	 * @returns {Object} A simplified representation of the graph.
+	 * @returns {Array} A simplified representation of the graph.
 	 */
 	this.save = function ()
 	{
@@ -1174,7 +1172,7 @@ function GCcommunication ()
 		}
 		
 		return gt_array;
-	}
+	};
 	
 	/**
 	 * Returns the complete graph in JSON format.
@@ -1184,7 +1182,7 @@ function GCcommunication ()
 	this.saveToJSON = function ()
 	{
 		return JSON.stringify(this.save()).replace(/\\n/gi, "<br />");
-	}
+	};
 	
 	/**
 	 * This method is not available at the moment.
@@ -1195,7 +1193,7 @@ function GCcommunication ()
 	this.saveToPDF = function ()
 	{
 		// TODO
-	}
+	};
 	
 	/**
 	 * This method is not available at the moment.
@@ -1210,7 +1208,7 @@ function GCcommunication ()
 		
 		// var uriContent	= "data:image/svg+xml," + encodeURIComponent(svg);
 		// var newWindow	= window.open(uriContent, "test window");
-	}
+	};
 	
 	/**
 	 * When selectedSubject is set the GCbehavior.selectEdge(id) method of the currently active behavior is called and
@@ -1232,8 +1230,8 @@ function GCcommunication ()
 				this.getBehavior(this.selectedSubject).selectEdge(id);
 				this.loadInformationEdge();
 			}
-		}		
-	}
+		}
+	};
 	
 	/**
 	 * When a subject is selected the id will be passed to the GCbehavior.selectNode(id) method of the current behavior.
@@ -1269,7 +1267,7 @@ function GCcommunication ()
 			}
 		}
 		this.loadInformation();
-	}
+	};
 	
 	/**
 	 * Clears the selectedEdge and selectedNode of the communication view.
@@ -1280,7 +1278,7 @@ function GCcommunication ()
 	{
 		this.selectedNode	= null;
 		this.loadEdgeMessages();
-	}
+	};
 	
 	/**
 	 * When selectedSubject is set the information from the input fields is loaded and passed to the GCbehavior.updateEdge(text, relatedSubject) method of the current behavior.
@@ -1307,7 +1305,7 @@ function GCcommunication ()
 				this.loadInformationEdge();
 			}
 		}
-	}
+	};
 	
 	/**
 	 * When selectedSubject is set the input fields are read and the information is passed to the GCbehavior.updateNode(text, startEnd, type) method of the current behavior.
@@ -1423,5 +1421,5 @@ function GCcommunication ()
 				this.loadInformation();
 			}
 		}
-	}
+	};
 }

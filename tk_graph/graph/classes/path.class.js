@@ -141,7 +141,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		this.deactive = false;
 		this.label.activate();
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Calculate the path for the given parameters.
@@ -292,8 +292,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 				// calculate the path for a S shaped path
 				else if (shape == "S")
 				{
-					var cX = rcX;
-					var cY = rcY;
+					cX = rcX;
+					cY = rcY;
 					
 					var part1 = this.calculateShape(x1, y1, cX, cY, "U", firstLine, space1);
 					var part2 = this.calculateShape(cX, cY, x2, y2, "U", firstLine, 0 - space1);
@@ -390,7 +390,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		}
 		
 		return {path: cPath, x: cX, y: cY};
-	}
+	};
 	
 	/**
 	 * Check if the path intersects with another path or a label on this paper.
@@ -404,7 +404,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		if (!gf_isset(labelsOnly) || labelsOnly !== true)
 			labelsOnly = false;
 			
-		var thisLabelPath	= this.label.toPath();
+		// var thisLabelPath	= this.label.toPath();
 		
 		// check whether the path intersects with other paths or with their labels
 		for (objId in gv_objects_edges)
@@ -444,7 +444,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		}
 		
 		return false;
-	}
+	};
 	
 	/**
 	 * Activate the event handlers for click and dblClick on the path and its label.
@@ -456,7 +456,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		id = this.id;
 		this.path.click(function () {gf_paperClickEdge(id); });
 		this.label.click("bv");
-	}
+	};
 	
 	/**
 	 * Deactivate the path and its label and update its look.
@@ -468,7 +468,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		this.deactive = true;
 		this.label.deactivate();
 		this.refreshStyle();
-	}	
+	};	
 	
 	/**
 	 * Deselect the path and its label and update its look.
@@ -480,7 +480,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		this.selected = false;
 		this.label.deselect();
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Returns the end point of the path.
@@ -490,7 +490,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.getPositionEnd = function ()
 	{
 		return this.positionEnd;
-	}
+	};
 	
 	/**
 	 * Returns the starting point of the path.
@@ -500,7 +500,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.getPositionStart = function ()
 	{
 		return this.positionStart;
-	}
+	};
 	
 	/**
 	 * Hide the path and its label.
@@ -511,7 +511,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	{
 		this.path.hide();
 		this.label.hide();
-	}
+	};
 		
 	/**
 	 * Initialize the Raphael Elements of this path.
@@ -522,7 +522,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	{
 		this.path	= gv_paper.path("M0,0L0,0");
 		this.label	= new GClabel(0, 0, text, "roundedrectangle", id, true);
-	}
+	};
 	
 	/**
 	 * Read a value from the style set.
@@ -533,8 +533,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	 */
 	this.readStyle = function (key, type)
 	{
-		return gf_getStyleValue(this.style, key, type)
-	}
+		return gf_getStyleValue(this.style, key, type);
+	};
 	
 	/**
 	 * Update the style information of all Raphael elements belonging to this path.
@@ -574,7 +574,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		
 		this.path.attr("stroke-linecap", this.readStyle("arrowLinecap", ""));
 		this.path.attr("stroke-linejoin", this.readStyle("arrowLinejoin", ""));
-	}
+	};
 	
 	/**
 	 * Select the path and its label and update its look.
@@ -586,7 +586,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		this.selected = true;
 		this.label.select();
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Set the firstLine of this path.
@@ -597,7 +597,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.setFirstLine = function (firstLine)
 	{
 		this.firstLine = firstLine;
-	}
+	};
 	
 	/**
 	 * Update the end position of the path.
@@ -611,8 +611,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		if (gf_isset(x, y))
 		{
 			this.positionEnd = {x: Math.round(x), y: Math.round(y)};
-		}	
-	}
+		}
+	};
 	
 	/**
 	 * Update the starting position of the path.
@@ -627,7 +627,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		{
 			this.positionStart = {x: Math.round(x), y: Math.round(y)};
 		}
-	}
+	};
 	
 	/**
 	 * Update the shape of the path.
@@ -638,8 +638,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.setShape = function (shape)
 	{
 		this.shape = shape;
-		this.updatePath();		
-	}
+		this.updatePath();
+	};
 	
 	/**
 	 * Update space1 of the path.
@@ -650,7 +650,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.setSpace1 = function (space1)
 	{
 		this.space1 = space1;
-	}
+	};
 	
 	/**
 	 * Update space2 of the path.
@@ -661,7 +661,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.setSpace2 = function (space2)
 	{
 		this.space2 = space2;
-	}
+	};
 	
 	/**
 	 * Loads a new style set and calls the refreshStyle method.
@@ -674,7 +674,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		this.style = gf_mergeStyles(gv_defaultStyle, style);
 		this.label.setStyle(style);
 		this.refreshStyle();
-	}
+	};
 	
 	/**
 	 * Update the text of the path's label.
@@ -685,7 +685,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.setText = function (text)
 	{
 		this.label.setText(text);
-	}
+	};
 	
 	/**
 	 * Show the path and its label.
@@ -696,7 +696,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	{
 		this.path.show();
 		this.label.show();
-	}
+	};
 	
 	/**
 	 * Update the path.
@@ -724,7 +724,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		
 		// move the label to the center of the label
 		this.label.setPosition(newPath.x, newPath.y);
-	}
+	};
 
 	// set the id
 	this.id = id;

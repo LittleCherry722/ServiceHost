@@ -100,7 +100,7 @@ function GCgraphbv ()
 				gt_bv_graph.nodes[end].edgesIn++;
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Adds a node to a subject.
@@ -144,7 +144,7 @@ function GCgraphbv ()
 		{
 			gt_bv_graph.startNodes[id] = true;
 		}
-	}
+	};
 	
 	/**
 	 * Store the available ports of the corresponding object.
@@ -159,7 +159,7 @@ function GCgraphbv ()
 									b: this.portSettings.b, bc: 0,
 									l: this.portSettings.l, lc: 0,
 									r: this.portSettings.r, rc: 0};
-	}
+	};
 	
 	/**
 	 * Adds a subject to the graph.
@@ -171,7 +171,7 @@ function GCgraphbv ()
 	this.addSubject = function (subject)
 	{
 		this.graphs[subject]	= {nodes: {}, edges: {}, startNodes: {}, nodeCount: 0};
-	}
+	};
 	
 	/**
 	 * Checks if an object's port is available for an incoming / outgoing edge (flag).
@@ -201,7 +201,7 @@ function GCgraphbv ()
 			}
 		}
 		return false;
-	}
+	};
 	
 	/**
 	 * Delete a subject from the graph.
@@ -216,7 +216,7 @@ function GCgraphbv ()
 		{
 			delete this.graphs[subject];
 		}
-	}
+	};
 	
 	/**
 	 * Draws an edge between two nodes.
@@ -249,14 +249,9 @@ function GCgraphbv ()
 		var gt_bv_starty			= 0;
 		var gt_bv_endx				= 0;
 		var gt_bv_endy				= 0;
-		var gt_bv_headCorrection	= 0;
 			
-		var gt_bv_minDist	= 999999999;
 		var gt_bv_posStart	= "b";
 		var gt_bv_posEnd	= "t";
-		var gt_bv_tmpDist	= 0;
-		var gt_bv_tmpDistX	= 0;
-		var gt_bv_tmpDistY	= 0;
 		
 		var gt_bv_o	= "";
 		var gt_bv_i	= "";
@@ -427,7 +422,7 @@ function GCgraphbv ()
 		// apply the selection status to the path
 		if (gf_isset(edgeData.selected) && edgeData.selected === true)
 			gt_bv_edge.select();
-	}
+	};
 	
 	/**
 	 * Draws the graph for the given subject.
@@ -471,7 +466,7 @@ function GCgraphbv ()
 			{
 				// position the start node depending on the number of children
 				var gt_bv_edgesOut	= gt_bv_graph.nodes[gt_bv_startNode].edgesOut;
-					gt_bv_edgesOut	= gt_bv_edgesOut > 0 ? gt_bv_edgesOut - 1 : 0
+					gt_bv_edgesOut	= gt_bv_edgesOut > 0 ? gt_bv_edgesOut - 1 : 0;
 				
 				gt_bv_graph.nodes[gt_bv_startNode].posx		= gt_bv_x + gt_bv_edgesOut * gt_bv_distanceX/2;
 				gt_bv_graph.nodes[gt_bv_startNode].posy		= gt_bv_y;
@@ -508,7 +503,7 @@ function GCgraphbv ()
 							{
 								// draw node
 								var gt_bv_edgesOut	= gt_bv_graph.nodes[gt_bv_edge.start].edgesOut;
-									gt_bv_edgesOut	= gt_bv_edgesOut > 0 ? gt_bv_edgesOut - 1 : 0
+									gt_bv_edgesOut	= gt_bv_edgesOut > 0 ? gt_bv_edgesOut - 1 : 0;
 							
 								if (gt_bv_graph.nodes[gt_bv_edge.end].visited == false)
 								{
@@ -580,7 +575,7 @@ function GCgraphbv ()
 			// check tin and tout of startnodes
 			for (var gt_bv_startNode in gt_bv_graph.startNodes)
 			{			
-				ioTop	= ioTop || this.checkObjectPort (gt_bv_startNode, "t", "i") === false || this.checkObjectPort (gt_bv_startNode, "t", "o") === false
+				ioTop	= ioTop || this.checkObjectPort (gt_bv_startNode, "t", "i") === false || this.checkObjectPort (gt_bv_startNode, "t", "o") === false;
 			}
 			
 			// move the canvas down when one of the start nodes has an incoming or and outgoing edge at the top
@@ -590,7 +585,7 @@ function GCgraphbv ()
 				gf_paperZoomReset();
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Draws a node.
@@ -647,7 +642,7 @@ function GCgraphbv ()
 		// apply the style
 		gt_bv_rect.setStyle(gt_bv_style);
 		gt_bv_rect.click("bv");	
-	}
+	};
 	
 	/**
 	 * Updates the port setting of an object (blocks a port for incoming / outgoing edges).
@@ -674,7 +669,7 @@ function GCgraphbv ()
 				this.objectPorts[id][port + "c"]++;
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Determine which arrow shape would fit best.
@@ -704,7 +699,6 @@ function GCgraphbv ()
 		var gt_bv_space2	= 0;
 		
 		var gt_bv_firstLine	= startPos == "l" || startPos == "r" 	? "h" : "v";
-		var gt_bv_endLine	= endPos == "l" || endPos == "r" 		? "h" : "v";
 		
 		// gv_bv_nodeSettings.distanceX | gv_bv_nodeSettings.distanceY; gv_bv_nodeSettings.arrowSpace
 		
@@ -821,7 +815,7 @@ function GCgraphbv ()
 		}
 		
 		return {shape: gt_bv_shape, length: gt_bv_length, space1: gt_bv_space1, space2: gt_bv_space2, firstLine: gt_bv_firstLine};
-	}
+	};
 	
 	/**
 	 * Read the configuration file and determine which ports (top, bottom, left, right) of an object are set to allow incoming / outgoing / both / none edges.
@@ -866,5 +860,5 @@ function GCgraphbv ()
 		this.portSettings.b = gt_bv_b;
 		this.portSettings.l = gt_bv_l;
 		this.portSettings.r = gt_bv_r;
-	}
+	};
 }

@@ -52,7 +52,7 @@ function GCgraphcv ()
 			this.messages[sender] = {};
 		
 		this.messages[sender][receiver] = text;
-	}
+	};
 	
 	/**
 	 * Adds a subject to the graph.
@@ -69,7 +69,7 @@ function GCgraphcv ()
 			selected = false;
 		
 		this.subjects[subject.getId()] = {subject: subject, selected: selected};
-	}
+	};
 	
 	/**
 	 * The main function for drawing the graph.
@@ -229,7 +229,7 @@ function GCgraphcv ()
 				gv_graph_cv.drawMessage(gt_cv_start, gt_cv_end, gt_cv_messages[gt_cv_start][gt_cv_end]);
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Displays a message sent from one subject to another.
@@ -253,8 +253,6 @@ function GCgraphcv ()
 		var gt_cv_starty			= 0;
 		var gt_cv_endx				= 0;
 		var gt_cv_endy				= 0;
-		var gt_cv_headCorrection	= 0;
-		var gt_cv_direction			= "r";
 		var gt_cv_arrowUspace		= 0;
 			
 		var gt_cv_orgDistance	= gv_cv_roundedRectangle.distance;
@@ -278,8 +276,6 @@ function GCgraphcv ()
 				gt_cv_arrowType	= "U";
 				
 				gt_cv_arrowUspace	= 0 - (Math.round(gt_cv_distance/gt_cv_orgDistance) - 1) * 25;
-				
-				gt_cv_headCorrection	= 0 - gv_cv_roundedRectangle.arrowCorrectionH;
 			}
 			
 			// when sender and receiver are direct neighbors: draw an I shaped arrow
@@ -291,8 +287,6 @@ function GCgraphcv ()
 				// move the arrow ends out of the middle
 				gt_cv_starty	= gt_cv_objectStart.y - gv_cv_roundedRectangle.arrowCorrectionV;
 				gt_cv_endy		= gt_cv_objectEnd.y - gv_cv_roundedRectangle.arrowCorrectionV;
-	
-				gt_cv_headCorrection	= 0 - gv_cv_roundedRectangle.arrowCorrectionV;
 			}
 		}
 		
@@ -310,8 +304,6 @@ function GCgraphcv ()
 				gt_cv_arrowType	= "U";
 				
 				gt_cv_arrowUspace	= (Math.round(gt_cv_distance/gt_cv_orgDistance) - 1) * 25;
-				
-				gt_cv_headCorrection	= gv_cv_roundedRectangle.arrowCorrectionH;
 			}
 			
 			// when sender and receiver are direct neighbors: draw an I shaped arrow
@@ -323,8 +315,6 @@ function GCgraphcv ()
 				// move the arrow ends out of the middle
 				gt_cv_starty	= gt_cv_objectStart.y + gv_cv_roundedRectangle.arrowCorrectionV;
 				gt_cv_endy		= gt_cv_objectEnd.y + gv_cv_roundedRectangle.arrowCorrectionV;
-				
-				gt_cv_headCorrection	= gv_cv_roundedRectangle.arrowCorrectionV;
 			}
 		}
 		
@@ -346,7 +336,7 @@ function GCgraphcv ()
 				gt_cv_p_c++;
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Displays a subject.
@@ -388,7 +378,7 @@ function GCgraphcv ()
 		// apply the selection status to the rectangle
 		if (gf_isset(selected) && selected === true)
 			gt_cv_rect.select();
-	}
+	};
 	
 	/**
 	 * Initialize the canvas.
@@ -400,7 +390,7 @@ function GCgraphcv ()
 	{
 		this.subjects = {};
 		this.messages = {};
-	}
+	};
 	
 	/**
 	 * Function to be passed as parameter for array.sort() to sort the objects in the given array by name.
@@ -417,5 +407,5 @@ function GCgraphcv ()
 		if (obj1.subject.getId().toLowerCase() < obj2.subject.getId().toLowerCase())
 			return -1;
 		return 0;
-	}
+	};
 }

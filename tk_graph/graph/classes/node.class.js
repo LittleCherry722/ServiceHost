@@ -81,7 +81,7 @@ function GCnode (id, text, type)
 	this.activate = function ()
 	{
 		this.deactivated = false;
-	}
+	};
 	
 	/**
 	 * Deactivates the node.
@@ -91,7 +91,7 @@ function GCnode (id, text, type)
 	this.deactivate = function ()
 	{
 		this.deactivated = true;
-	}
+	};
 	
 	/**
 	 * Returns the id of this node.
@@ -101,7 +101,7 @@ function GCnode (id, text, type)
 	this.getId = function ()
 	{
 		return this.id;
-	}
+	};
 	
 	/**
 	 * Returns the shape of this node.
@@ -123,7 +123,7 @@ function GCnode (id, text, type)
 			shape	= gv_nodeTypes[type].shape.toLowerCase();
 		}
 		return shape;
-	}
+	};
 	
 	/**
 	 * Returns the value of the node's text attribute.
@@ -133,7 +133,7 @@ function GCnode (id, text, type)
 	this.getText = function ()
 	{
 		return this.text;
-	}
+	};
 	
 	/**
 	 * Returns the node's label depending on its type.
@@ -154,7 +154,7 @@ function GCnode (id, text, type)
 			text	= gv_nodeTypes[type].text;
 		}
 		return text;
-	}
+	};
 	
 	/**
 	 * Returns the node's type.
@@ -165,7 +165,7 @@ function GCnode (id, text, type)
 	this.getType = function ()
 	{
 		return this.type.toLowerCase();
-	}
+	};
 	
 	/**
 	 * Returns the deactivation status of this node.
@@ -175,7 +175,7 @@ function GCnode (id, text, type)
 	this.isDeactivated = function ()
 	{
 		return this.deactivated === true;
-	}
+	};
 	
 	/**
 	 * Returns true if this node is an end node.
@@ -185,7 +185,7 @@ function GCnode (id, text, type)
 	this.isEnd = function ()
 	{
 		return this.end === true;
-	}
+	};
 	
 	/**
 	 * Returns true if this node is an start node.
@@ -195,7 +195,7 @@ function GCnode (id, text, type)
 	this.isStart = function ()
 	{
 		return this.start === true;
-	}
+	};
 	
 	/**
 	 * Mark this node as end node.
@@ -209,7 +209,7 @@ function GCnode (id, text, type)
 		{
 			this.end = end === true;
 		}
-	}
+	};
 	
 	/**
 	 * Update the id attribute of this node.
@@ -223,7 +223,7 @@ function GCnode (id, text, type)
 		{
 			this.id = id;
 		}
-	}
+	};
 	
 	/**
 	 * Mark this node as start node.
@@ -237,7 +237,7 @@ function GCnode (id, text, type)
 		{
 			this.start = start === true;
 		}
-	}
+	};
 	
 	/**
 	 * Update the node's text attribute.
@@ -251,7 +251,7 @@ function GCnode (id, text, type)
 		{
 			this.text = text;
 		}
-	}
+	};
 	
 	/**
 	 * Update the node's type. Possible values are: "send", "receive", "end", "action".
@@ -267,7 +267,7 @@ function GCnode (id, text, type)
 			
 			this.type = type;
 		}
-	}
+	};
 	
 	// init
 	this.setText(text);

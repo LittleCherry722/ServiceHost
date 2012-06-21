@@ -77,7 +77,7 @@ function GCsubject (id, text, type)
 	this.activate = function ()
 	{
 		this.deactivated = false;
-	}
+	};
 	
 	/**
 	 * Deactivates a subject.
@@ -87,7 +87,7 @@ function GCsubject (id, text, type)
 	this.deactivate = function ()
 	{
 		this.deactivated = true;
-	}
+	};
 	
 	/**
 	 * Returns the behavior of the subject.
@@ -97,7 +97,7 @@ function GCsubject (id, text, type)
 	this.getBehavior = function ()
 	{
 		return this.behavior;
-	}
+	};
 	
 	/**
 	 * Returns the id of the subject.
@@ -107,7 +107,7 @@ function GCsubject (id, text, type)
 	this.getId = function ()
 	{
 		return this.id;
-	}
+	};
 	
 	/**
 	 * Returns the label of the subject.
@@ -117,7 +117,7 @@ function GCsubject (id, text, type)
 	this.getText = function ()
 	{
 		return this.text;
-	}
+	};
 	
 	/**
 	 * Returns the type of the subject.
@@ -127,7 +127,7 @@ function GCsubject (id, text, type)
 	this.getType = function ()
 	{
 		return this.type.toLowerCase();
-	}
+	};
 	
 	/**
 	 * Returns the deactivate status of this subject.
@@ -137,7 +137,7 @@ function GCsubject (id, text, type)
 	this.isDeactivated = function ()
 	{
 		return this.deactivated === true;
-	}
+	};
 	
 	/**
 	 * Updates the id of this subject with the given id.
@@ -151,7 +151,7 @@ function GCsubject (id, text, type)
 		{
 			this.id = id;
 		}
-	}
+	};
 	
 	/**
 	 * Updates the label of this node with the given text.
@@ -165,7 +165,7 @@ function GCsubject (id, text, type)
 		{
 			this.text = text;
 		}
-	}
+	};
 	
 	/**
 	 * Updates the type of this subject.
@@ -183,7 +183,7 @@ function GCsubject (id, text, type)
 				this.type = type;
 			}
 		}
-	}
+	};
 	
 	/**
 	 * Returns the label and the id of this subject as one string.
@@ -200,7 +200,7 @@ function GCsubject (id, text, type)
 	this.textToString = function ()
 	{
 		return this.text + "\n(" + this.id + ")";
-	}
+	};
 	
 	// set the type
 	this.setType(type);
