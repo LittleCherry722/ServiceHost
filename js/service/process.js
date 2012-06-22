@@ -1,8 +1,8 @@
 SBPM.Service.Process = {
 	afterRender : function(){
-//alert("process");
-$("#goSbjView").css("border-width" , "5px");
-				$(".chzn-select").chosen();
+
+$("#slctSbj").chosen();
+
 	},
 	
 	

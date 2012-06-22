@@ -63,6 +63,7 @@
 		<script type="text/javascript" src="js/service/role.js"></script>
 		<script type="text/javascript" src="js/service/user.js"></script>
 		<script type="text/javascript" src="js/service/home.js"></script>
+		<script type="text/javascript" src="js/service/menu.js"></script>	
 		
 		<script>
 			$(function() {
@@ -90,11 +91,11 @@
 			<!-- End header -->
 			<div id="headAndLeft">
 				<!--left panel -->
-				<div id="left_menu" data-bind="template: { name: 'menu', data: menuVM }"></div>
+				<div id="left_menu" data-bind="template: { name: 'menu', data: menuVM , afterRender : SBPM.Service.Menu.afterRender}"></div>
 				<!-- End left panel -->
 
 				<!-- Begin content -->
-				<div id="main" data-bind="template: { name: SBPM.VM.activeMainView().name, data: SBPM.VM.activeMainView().data , afterRender : SBPM.VM.activeMainView().afterRender()}  "></div>
+				<div id="main" data-bind="template: { name: SBPM.VM.activeMainView().name, data: SBPM.VM.activeMainView().data , afterRender : SBPM.VM.activeMainView().afterRender}  "></div>
 				<!-- end content -->
 			</div>
 		</div>
