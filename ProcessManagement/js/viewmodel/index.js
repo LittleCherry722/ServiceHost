@@ -63,7 +63,6 @@ var ViewModel = function() {
 		self.internalVM.init();
 		self.chargeView.init();
 
-
 	}
 
 	self.init();
