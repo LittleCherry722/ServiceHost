@@ -21,7 +21,7 @@ var ViewModel = function() {
 		name : "processView",
 		data : self.processVM,
 		word : "Process",
-				afterRender : SBPM.Service.Process.afterRender
+		afterRender : SBPM.Service.Process.afterRender
 	}]);
 
 	self.activeMainViewIndex = ko.observable(0);
@@ -33,17 +33,17 @@ var ViewModel = function() {
 		name : "subjectView",
 		data : self.subjectVM,
 		word : "Subject-Interaction-View",
-				afterRender : null
+		afterRender : SBPM.Service.Process.subjectAfterRender
 	}, {
 		name : "internalView",
 		data : self.internalVM,
 		word : "Internal-Behavior-View",
-				afterRender : null
+		afterRender : SBPM.Service.Process.internalAfterRender
 	}, {
 		name : "chargeView",
 		data : self.chargeView,
 		word : "Person in charge",
-				afterRender : null
+		afterRender : SBPM.Service.Process.chargeAfterRender
 
 	}]);
 
@@ -104,7 +104,7 @@ var HeaderViewModel = function() {
 
 		self.messageCount(SBPM.Service.Message.countNewMessages(SBPM.Storage.get("user").id));
 
-		setTimeout(initMessageCheck, 1000);
+		setTimeout(initMessageCheck, 120000);
 	}
 
 }
@@ -133,7 +133,6 @@ var SubjectViewModel = function() {
 	self.init = function() {
 		console.log("init Subject VM");
 
-		
 	}
 }
 var InternalViewModel = function() {
