@@ -3,6 +3,11 @@ var Utilities = {
         var url = window.location.pathname;
         var filename = url.substring(url.lastIndexOf('/')+1);
 
+        console.log(url);
+
+        if(filename === "")
+            return "index";
+
         if(noExt)
             filename = filename.replace(/\.(html|htm)/, "");
 
