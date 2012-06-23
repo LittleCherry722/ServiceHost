@@ -85,7 +85,7 @@ member of the options object when calling freeow().
 /* Icons */
 .freeow .error .icon   { background-image: url(../images/freeow/error-icon.png); }
 .freeow .ok .icon { background-image: url(../images/freeow/ok-icon.png); }
-
+.freeow .notice .icon { background-image: url(../images/freeow/notice-icon.png); }
 
 /* Specific Styles ---------------------------------------------------------- */
 

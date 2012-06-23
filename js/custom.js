@@ -288,21 +288,6 @@ $(document).ready(function() {
 			}
 		});
 
-		$("a#YesNo").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'no',
-			'width' : '30',
-			'height' : '20',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-			}
-		});
-
 		$("a#newInstance").fancybox({
 			'padding' : '0px',
 			'scrolling' : 'auto',
