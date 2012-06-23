@@ -108,6 +108,7 @@ else {
 		autohide: true
 	});
 	if(processName == false) {
+		
 		document.getElementById("welcome").style.display = "none";
 		document.getElementById('ausfuehrung').style.display = 'none';
 		document.getElementById("graph").style.display = "block";
@@ -119,6 +120,7 @@ else {
 		showverantwortliche();
 		setSubjectIDs();
 		//gv_graph.clearGraph();
+		
 	}
 }
 }

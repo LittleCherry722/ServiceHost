@@ -22,7 +22,7 @@
 
 								<td style="" >
 								<div id="seltSbjDiv" style="">
-									<select id="slctSbj" data-placeholder="Select Internal Behavior" onclick="SBPM.VM.activeProcessViewIndex(1);" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; " tabindex="1" ></select>
+									<select id="slctSbj" data-placeholder="Select Internal Behavior" onclick="SBPM.Service.Process.showInternalView();" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; " tabindex="1" ></select>
 								</div></td>
 								<td>
 								<input type="button" id="goChargeView" name="goChargeView" class="right_switch" onclick="SBPM.VM.activeProcessViewIndex(2);" value="Person in charge" style="width:135px"/>
