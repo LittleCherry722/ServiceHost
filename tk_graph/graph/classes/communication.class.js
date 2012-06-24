@@ -506,10 +506,10 @@ function GCcommunication ()
 	 */	
 	this.draw = function ()
 	{
-		if (gv_graph_cv == null)
+		if (gv_cv_paper == null)
 			this.init();
 			
-		if (gv_graph_cv != null)
+		if (gv_cv_paper != null)
 		{
 			// clear messages
 			this.messages = {};
@@ -905,7 +905,7 @@ function GCcommunication ()
 		}
 		
 		// draw the graph
-		if (gv_graph_cv != null)
+		if (gv_cv_paper != null)
 			this.draw();
 	};
 	
