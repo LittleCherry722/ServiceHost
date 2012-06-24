@@ -194,10 +194,10 @@ var SubjectViewModel = function() {
 	
 	self.afterRender = function() {
 		console.log("subject afterRender");
-		gv_graph.init();
-		gf_paperChangeView("cv");
-		updateListOfSubjects();
-		gv_graph.draw();
+		// gv_graph.init();
+		// gf_paperChangeView("cv");
+		// updateListOfSubjects();
+		// gv_graph.draw();
 	}
 	
 }
@@ -221,8 +221,8 @@ var InternalViewModel = function() {
 	
 	self.afterRender = function() {
 		console.log("internal afterRender");
-		gf_clickedCVbehavior();
-		updateListOfSubjects();
+		// gf_clickedCVbehavior();
+		// updateListOfSubjects();
 	}
 	
 }
@@ -247,9 +247,9 @@ var chargeViewModel = function() {
 	
 	self.afterRender = function() {
 		console.log("charge afterRender");
-		showverantwortliche();
-		gv_graph.selectedNode = null;
-		updateListOfSubjects();
+		// showverantwortliche();
+		// gv_graph.selectedNode = null;
+		// updateListOfSubjects();
 
 	}
 	
