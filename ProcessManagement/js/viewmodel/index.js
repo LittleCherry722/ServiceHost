@@ -8,49 +8,6 @@ var ViewModel = function() {
 	self.headerVM = new HeaderViewModel();
 	self.processVM = new ProcessViewModel();
 	self.homeVM = new HomeViewModel();
-	self.subjectVM = new SubjectViewModel();
-	self.internalVM = new InternalViewModel();
-	self.chargeView = new ChargeViewModel();
-
-	self.mainViews = ko.observable([{
-		name : "homeView",
-		data : self.homeVM,
-		word : "Home",
-		afterRender : SBPM.Service.Home.afterRender
-	}, {
-		name : "processView",
-		data : self.processVM,
-		word : "Process",
-		afterRender : SBPM.Service.Process.afterRender
-	}]);
-
-	self.activeMainViewIndex = ko.observable(0);
-	self.activeMainView = ko.computed(function() {
-		return self.mainViews()[self.activeMainViewIndex()]
-	});
-
-	self.processViews = ko.observable([{
-		name : "subjectView",
-		data : self.subjectVM,
-		word : "Subject-Interaction-View",
-		afterRender : SBPM.Service.Process.subjectAfterRender
-	}, {
-		name : "internalView",
-		data : self.internalVM,
-		word : "Internal-Behavior-View",
-		afterRender : SBPM.Service.Process.internalAfterRender
-	}, {
-		name : "chargeView",
-		data : self.chargeView,
-		word : "Person in charge",
-		afterRender : SBPM.Service.Process.chargeAfterRender
-
-	}]);
-
-	self.activeProcessViewIndex = ko.observable(0);
-	self.activeProcessView = ko.computed(function() {
-		return self.processViews()[self.activeProcessViewIndex()]
-	});
 
 	self.init = function() {
 		console.log("init vms");
@@ -59,20 +16,34 @@ var ViewModel = function() {
 		self.headerVM.init();
 		self.homeVM.init();
 		self.processVM.init();
-		self.subjectVM.init();
-		self.internalVM.init();
-		self.chargeView.init();
 
 	}
 
 	self.init();
+	self.mainViews = ko.observable([{
+		name : "homeView",
+		data : self.homeVM,
+		word : "Home",
+		afterRender : self.homeVM.afterRender
+	}, {
+		name : "processView",
+		data : self.processVM,
+		word : "Process",
+		afterRender : self.processVM.afterRender
+	}]);
+
+	self.activeViewIndex = ko.observable(0);
+	self.activeView = ko.computed(function() {
+		return self.mainViews()[self.activeViewIndex()]
+	});
+
 }
 var MenuViewModel = function() {
 
 	var self = this;
 
 	self.init = function() {
-		console.log("init mvm");
+		console.log("init Menu VM");
 		$("#main_menu").accordion({
 			collapsible : true,
 			autoHeight : false
@@ -87,7 +58,7 @@ var HeaderViewModel = function() {
 	self.messageCount = ko.observable(0);
 
 	self.init = function() {
-		console.log("init hvm");
+		console.log("init Header VM");
 
 		if(SBPM.Storage.get("user")) {
 			self.userName(SBPM.Storage.get("user").name);
@@ -108,22 +79,64 @@ var HeaderViewModel = function() {
 	}
 
 }
-var ProcessViewModel = function() {
-
-	var self = this;
-
-	self.init = function() {
-		console.log("init Process VM");
-		$(".chzn-select").chosen();
-
-	}
-}
 var HomeViewModel = function() {
 
 	var self = this;
 
 	self.init = function() {
 		console.log("init Home VM");
+	}
+	self.afterRender = function() {
+		console.log("home afterRender");
+	}
+}
+var ProcessViewModel = function() {
+
+	var self = this;
+	
+	self.subjectVM = new SubjectViewModel();
+	self.internalVM = new InternalViewModel();
+	self.chargeVM = new chargeViewModel();
+	
+	self.init = function() {
+		console.log("init Process VM");
+		self.subjectVM.init();
+		self.internalVM.init();
+		self.chargeVM.init();
+	}
+
+	self.processViews = ko.observable([{
+		name : "subjectView",
+		data : self.subjectVM,
+		word : "Subject-Interaction-View",
+		afterRender : self.subjectVM.afterRender
+	}, {
+		name : "internalView",
+		data : self.internalVM,
+		word : "Internal-Behavior-View",
+		afterRender : self.internalVM.afterRender
+	}, {
+		name : "chargeView",
+		data : self.chargeVM,
+		word : "Person in charge",
+		afterRender : self.chargeVM.afterRender
+
+	}]);
+
+	self.activeViewIndex = ko.observable(0);
+	self.activeView = ko.computed(function() {
+		return self.processViews()[self.activeViewIndex()]
+	});
+
+	self.afterRender = function() {
+		$("#slctSbj").chosen();
+		console.log("process afterRender");
+	}
+	self.showProcess = function(processName){
+		self.subjectVM.showView();
+		SBPM.Service.Process.loadProcess(processName);
+		
+		
 	}
 }
 var SubjectViewModel = function() {
@@ -134,6 +147,20 @@ var SubjectViewModel = function() {
 		console.log("init Subject VM");
 
 	}
+
+	self.showView = function() {
+		SBPM.VM.activeViewIndex(1);
+		SBPM.VM.processVM.activeViewIndex(0);
+	}
+	self.afterRender = function() {
+		console.log("subject afterRender");
+		gv_graph.init();
+		gf_paperChangeView("cv");
+		updateListOfSubjects();
+
+		gv_graph.draw();
+
+	}
 }
 var InternalViewModel = function() {
 
@@ -142,8 +169,18 @@ var InternalViewModel = function() {
 	self.init = function() {
 		console.log("init Internal VM");
 	}
+	self.showView = function() {
+		SBPM.VM.activeViewIndex(1);
+		SBPM.VM.processVM.activeViewIndex(1);
+	}
+	self.afterRender = function() {
+		console.log("internal afterRender");
+		gf_clickedCVbehavior();
+		updateListOfSubjects();
+
+	}
 }
-var ChargeViewModel = function() {
+var chargeViewModel = function() {
 
 	var self = this;
 
@@ -151,5 +188,15 @@ var ChargeViewModel = function() {
 		console.log("init Charge VM");
 
 	}
-}
+	self.showView = function() {
+		SBPM.VM.activeViewIndex(1);
+		SBPM.VM.processVM.activeViewIndex(2);
+	}
+	self.afterRender = function() {
+		console.log("charge afterRender");
+		showverantwortliche();
+		gv_graph.selectedNode = null;
+		updateListOfSubjects();
 
+	}
+}
