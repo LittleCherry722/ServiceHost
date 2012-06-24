@@ -60,40 +60,6 @@ function einloggen(name, password) {
     }
 }
 
-function newUser(name) {
-
-if(createUser(name) == 0) {
-	$("#freeow").freeow("Create new user", "Could not create user \"" + name +"\".", {
-		classes: [,"error"],
-		autohide: true
-	});
-}
-else {
-	$("#freeow").freeow("Create user", "User \"" + name + "\" successfully created.", {
-		classes: [,"ok"],
-		autohide: true
-	});
-}
-}
-
-function newGroup(name) {
-
-if(createGroup(name) == 0) {
-	$("#freeow").freeow("Create group", "Could not create group \"" + name +"\".", {
-		classes: [,"error"],
-		autohide: true
-	});
-}
-else {
-	$("#freeow").freeow("Create group", "Group \"" + name + "\" successfully created", {
-		classes: [,"ok"],
-		autohide: true
-	});
-}
-showverantwortliche();
-setSubjectIDs();
-}
-
 function newProcess(name) {
 
 if(createProcess(name) == 0) {
@@ -122,22 +88,6 @@ else {
 		//gv_graph.clearGraph();
 		
 	}
-}
-}
-
-function user_to_group(user, group) {
-
-if(addUserToGroup(getUserID(user), getGroupID(group)) != 0) {
-	$("#freeow").freeow("Group assignment", "User \"" + user +"\" could not be assigned to group \"" + group + "\".", {
-		classes: [,"error"],
-		autohide: true
-	});
-}
-else {
-	$("#freeow").freeow("Group assignment", "User \"" + user +"\" successfully assigned to group \"" + group + "\".", {
-		classes: [,"ok"],
-		autohide: true
-	});
 }
 }
 

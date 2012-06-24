@@ -14,7 +14,12 @@
 var db_directory = "db/";
 
 var SBPM = {
-    Service : {}
+    Service : {},
+    Utilities: {},
+    VM : {},
+    Dialog : {},
+    Notification : {},
+    Graph : {}
 };
 
 SBPM.DB = {    
@@ -87,37 +92,6 @@ function defaultOKReturnBoolean(json){
 	if (json["code"] == "ok")
 		return true;
 	return false;
-}
-
-// add/remove users
-function createUser(name){
-	return syncQuery(db_directory + "users.php", {"username" : name, "action" : "add"}, 0, defaultIDReturn);
-}
-
-function deleteUser(name){
-	return syncQuery(db_directory + "users.php", {"username" : name, "action" : "remove"}, false, defaultRemoveReturn);
-}
-
-// add/remove groups
-function createGroup(name){
-	return syncQuery(db_directory + "groups.php", {"groupname" : name, "action" : "add"}, 0, defaultIDReturn);
-}
-
-function deleteGroup(name){
-	return syncQuery(db_directory + "groups.php", {"groupname" : name, "action" : "remove"}, false, defaultRemoveReturn);
-}
-
-// add/remove users to group
-function addUserToGroup(userid, groupid){
-	return syncQuery(db_directory + "usersgroups.php", {"userid" : userid, "groupid" : groupid, "action" : "addgroup"}, 0, defaultIDReturn);
-}
-function removeUserFromGroup(userid, groupid){
-	return syncQuery(db_directory + "usersgroups.php", {"userid" : userid, "groupid" : groupid, "action" : "removegroup"}, false, defaultRemoveReturn);
-}
-function getAllGroupsForUser(userid){
-	return syncQuery(db_directory + "usersgroups.php", {"userid" : userid, "action" : "getgroups"}, {}, function (json){
-		if (json["code"] == "ok")
-			return json["groups"];});
 }
 
 // add/remove relationships

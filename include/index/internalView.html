@@ -1,4 +1,5 @@
 <div id="graph_bv_outer" style="overflow:auto; height:700px; min-width:665px;"></div>
+
 <div class="twocolumn">
     <div class="column_left">
         <div class="header">
@@ -6,17 +7,14 @@
         </div>
         <br class="clear"/>
         <div class="content">
-            <div id="node" style="display:none">
+            <div id="node">
                 <div class="twocolumninfo">
                     <div class="column_left2">
                         <p>
                             <label>Type:</label>
                             <br/>
-                            <select id="ge_type2" style="width:200px">
-                                <option value="R" id="ge_type2_R">receive</option>
-                                <option value="S" id="ge_type2_S">send</option>
-                                <option value="action" id="ge_type2_action">action</option>
-                                <option value="end" id="ge_type2_end">end</option>
+                            <select id="ge_type2"  style="width:200px">
+
                             </select>
                         </p>
                         <br class="clear"/>
@@ -29,20 +27,12 @@
                         <input type="hidden" id="ge_id" value="" style="width:200px"/>
 
                         <br class="clear"/>
-                        <p>
 
+                        <p>
                         <p>
                             <input type="checkbox" id="ge_type_start" name="ge_type_start" />
                             Startnode
                         </p>
-                        <br/>
-                        <!---
-                        <select id="ge_type" style="width:200px">
-                        <option value="normal" id="ge_type_normal">normal node</option>
-                        <option value="start" id="ge_type_start">start node</option>
-                        <option value="end" id="ge_type_end">end node</option>
-                        </select>
-                        -->
                         </p>
 
                         <br class="clear"/>
@@ -50,34 +40,34 @@
                     </div>
                     <div class="column_right2" align="center">
                         <p>
-                            <input type="button" onClick="gv_graph.updateNode();" value="Update node" />
+                            <input type="button" onclick="gv_graph.updateNode();" value="Update node" />
                         </p>
                         <br class="clear"/>
                         <p>
-                            <input type="button" onClick="gv_graph.deleteNode();" value="Delete node" />
+                            <input type="button" onclick="gv_graph.deleteNode();" value="Delete node" />
                         </p>
                         <br class="clear"/>
                         <p>
-                            <input type="button" onClick="gf_deactivateNode();" value="De-/Activate node" />
+                            <input type="button" onclick="gf_deactivateNode();" value="De-/Activate node" />
                         </p>
 
                     </div>
                     <div class="column_right2" align="center">
                         <p>
-                            <input type="button" onClick="gf_callMacro('newSendNode');" value="Insert send node" />
+                            <input type="button" onclick="gf_callMacro('newSendNode');" value="Insert send node" />
                         </p>
                         <br class="clear"/>
                         <p>
-                            <input type="button" onClick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
+                            <input type="button" onclick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
                         </p>
                         <br class="clear"/>
                         <p>
-                            <input type="button" onClick="gf_callMacro('newActionNode');" value="Insert action node" />
+                            <input type="button" onclick="gf_callMacro('newActionNode');" value="Insert action node" />
                         </p>
                     </div>
                 </div>
             </div>
-            <div id="edge" style="display:none">
+            <div id="edge" >
                 <div class="twocolumninfo">
                     <div class="column_left2">
                         <p>
@@ -101,15 +91,15 @@
                     </div>
                     <div class="column_right2" align="center">
                         <p>
-                            <input type="button" onClick="gv_graph.updateEdge();" value="Update edge" />
+                            <input type="button" onclick="gv_graph.updateEdge();" value="Update edge" />
                         </p>
                         <br class="clear"/>
                         <p>
-                            <input type="button" onClick="gv_graph.deleteEdge();" value="Remove edge" />
+                            <input type="button" onclick="gv_graph.deleteEdge();" value="Remove edge" />
                         </p>
                         <br class="clear"/>
                         <p>
-                            <input type="button" onClick="gf_deactivateEdge();" value="De-/Activate edge" />
+                            <input type="button" onclick="gf_deactivateEdge();" value="De-/Activate edge" />
                         </p>
                     </div>
 
@@ -123,33 +113,12 @@
         </div>
         <br class="clear"/>
         <div class="content">
-            <!--
-            <table class="data" width="100%" cellpadding="0" cellspacing="0">
-            <thead>
-            <tr>
-            <th style="width:33%">
-            <input type="button" name="neu" value="Neuen Knoten hinzufügen" style="width:190px" onClick="gv_graph.createNode();"/>
-            </th>
-            <th style="width:33%">
-            <input type="button" onClick="gv_graph.connectNodes();" value="connect node" />
-            </th>
-
-            <th style="width:33%">
-            <input type="button" onClick="gv_graph.clearGraph();" value="clear graph" />
-            </th>
-            </tr>
-
-            </thead>
-            <tbody>
-            </tbody>
-            </table>
-            -->
             <div class="onecolumn">
-                <input type="button" name="neu" value="Add new node" style="width:190px" onClick="gv_graph.createNode();"/>
+                <input type="button" name="neu" value="Add new node" style="width:190px" onclick="gv_graph.createNode();"/>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="button" onClick="gv_graph.connectNodes();" value="Connect node" />
+                <input type="button" onclick="gv_graph.connectNodes();" value="Connect node" />
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="button" onClick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
+                <input type="button" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
             </div>
 
         </div>
