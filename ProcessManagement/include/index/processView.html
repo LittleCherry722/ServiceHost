@@ -43,7 +43,7 @@
             <!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
 			<div id="processContent" >
                 <div id="tab2_content" class="tab_content" data-bind="template: { name: subjectVM.name, data: subjectVM, afterRender: subjectVM.afterRender }"></div>
-			    <div id="tab1_content" class="tab_content" data-bind="template: { name: 'internalView', data: internalVM, afterRender: internalVM.afterRender }"></div>
+			    <div id="tab1_content" class="tab_content" data-bind="template: { name: internalVM.name, data: internalVM, afterRender: internalVM.afterRender }"></div>
 			    <div id="tab3_content" class="tab_content" data-bind="template: { name: chargeVM.name, data: chargeVM, afterRender: chargeVM.afterRender }"></div>
 			</div>
 			

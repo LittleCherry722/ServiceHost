@@ -498,8 +498,6 @@ function callFancyBox(my_href) {
 }
 
 function showtab1() {
-    console.log("HIDE TABS: showtab1");
-    console.log(arguments);
 	$("#tab2").removeClass("active");
 	$("#tab3").removeClass("active");
 	$("#tab1").addClass("active");
@@ -515,8 +513,6 @@ function showtab1() {
 }
 
 function shownothing() {
-    console.log("HIDE TABS: shownothing");
-    console.log(arguments);
 	$("#tab1").removeClass("active");
 	$("#tab2").removeClass("active");
 	$("#tab3").removeClass("active");
