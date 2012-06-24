@@ -216,6 +216,8 @@ function GraphSpeichernAls(newName) {
 
 function ProzessLaden(name) {
 
+    console.log(arguments.callee);
+
     gv_graph.clearGraph();
 
 	gv_graph.loadFromJSON(loadGraph(getProcessID(name)));
@@ -246,6 +248,8 @@ function clearListOfSubjects(){
 }
 
 function updateListOfSubjects(){
+	
+	console.log(gv_graph.subjects);
 	
 	clearListOfSubjects();
 	var html = "<option></option>";

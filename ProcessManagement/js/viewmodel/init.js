@@ -13,10 +13,7 @@ $(document).ready(function(){
     scriptTags.each(function(idx){
         // and load each
         $(this).load("include/"+Utilities.getFilename(true)+"/"+$(this).attr('id')+".html", function(data){
-              
-                                	console.log(data);
-                    	
-              
+
             // if the last template is loaded init and bind ViewModel to dom
             if(scriptTags.length == i++){
                 

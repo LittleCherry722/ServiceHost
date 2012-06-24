@@ -14,21 +14,22 @@
 				<input id="help-button" type="button" href="help.html" value="Help" />
 				<div class="switch" style="width:357px">
 					<table width="357px" cellpadding="0" cellspacing="0">
-						<tbody>
-							<tr>
-								<td>
-								<input type="button" id="goSbjView" name="goSbjView" class="left_switch"  onclick="SBPM.VM.processVM.activeViewIndex(0);" value="Subject-Interaction-View" style="width:208px"/>
-								</td>
+                        <tbody>
+                            <tr>
+                                <td>
+                                <input type="button" id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:208px"/>
+                                </td>
 
-								<td style="" >
-								<div id="seltSbjDiv" style="">
-									<select id="slctSbj" data-placeholder="Select Internal Behavior" onclick="SBPM.VM.processVM.activeViewIndex(1);" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; " tabindex="1" ></select>
-								</div></td>
-								<td>
-								<input type="button" id="goChargeView" name="goChargeView" class="right_switch" onclick="SBPM.VM.processVM.activeViewIndex(2);" value="Person in charge" style="width:135px"/>
-								</td>
-							</tr>
-						</tbody>
+                                <td style="" >
+                                    <div id="seltSbjDiv" style="">
+                                       <select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; " tabindex="1" ></select>
+                                    </div>
+                                </td>
+                                <td>
+                                <input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
+                                </td>
+                            </tr>
+                        </tbody>
 
 					</table>
 
@@ -36,7 +37,18 @@
 			</div>
 
 			<br class="clear"/>
-			<div id="processContent" data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}"></div>
+			
+			<p data-bind="text: internalVM.name"></p>
+			
+            <!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
+			<div id="processContent" >
+                <div id="tab2_content" class="tab_content" data-bind="template: { name: subjectVM.name, data: subjectVM, afterRender: subjectVM.afterRender }"></div>
+			    <div id="tab1_content" class="tab_content" data-bind="template: { name: 'internalView', data: internalVM, afterRender: internalVM.afterRender }"></div>
+			    <div id="tab3_content" class="tab_content" data-bind="template: { name: chargeVM.name, data: chargeVM, afterRender: chargeVM.afterRender }"></div>
+			</div>
+			
+			
+			
 		</div>
 	</div>
 	

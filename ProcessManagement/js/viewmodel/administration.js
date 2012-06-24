@@ -99,8 +99,6 @@ var UserViewModel = function(){
     self.loadModel = function(){
         ko.mapping.fromJS(SBPM.Service.User.getAll(), self.data);
         
-        console.log(SBPM.Service.User.getAll());
-        
         if(self.options().length < 1){
             var roles = SBPM.Service.Role.getAll();
             
@@ -130,14 +128,12 @@ var UserViewModel = function(){
             if(self.data()[i].name == "")
                 self.data().removeAll(self.data()[i]);   
         
-        console.log(self.data());
+        var data = SBPM.Service.User.saveAll(ko.toJS(self.data()));
         
-        ko.mapping.fromJS(SBPM.Service.User.saveAll(ko.toJS(self.data())), self.data);
+        ko.mapping.fromJS(data, self.data);
         
-        parent.$("#freeow").freeow(self.name, "The current tab has been saved.", {
-            classes: [,"ok"],
-            autohide: true
-        });
+        // show a positive notification
+        SBPM.Notification.Info(self.name, "The current tab has been saved.");
     }
     
     SubViewModel.call(self, "Users");
