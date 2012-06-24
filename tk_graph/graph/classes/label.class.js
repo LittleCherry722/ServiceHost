@@ -15,6 +15,7 @@
  * Creates a Raphael ellipse or rect and contains some information about that element.
  * This represents a label in either the behavioral view or the communication view.
  * 
+ * @private
  * @class creates a Raphael ellipse or rect
  * @param {int} x The x ordinate of the top left corner of this element.
  * @param {int} y The y ordinate of the top left corner of this element.

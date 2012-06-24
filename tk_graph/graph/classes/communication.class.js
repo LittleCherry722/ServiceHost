@@ -505,59 +505,65 @@ function GCcommunication ()
 	 * @returns {void}
 	 */	
 	this.draw = function ()
-	{		
-		// clear messages
-		this.messages = {};
-		
-		// load messages from behavior
-		for (var gt_bi in this.subjects)
+	{
+		if (gv_graph_cv == null)
+			this.init();
+			
+		if (gv_graph_cv != null)
 		{
-			var gt_behav = this.getBehavior(gt_bi);
-			var gt_edges = gt_behav.getEdges();
-			for (var gt_eid in gt_edges)
+			// clear messages
+			this.messages = {};
+			
+			// load messages from behavior
+			for (var gt_bi in this.subjects)
 			{
-				var gt_edge					= gt_edges[gt_eid];
-				var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
-				var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
-				var gt_relatedSubject		= gt_edge.getRelatedSubject();
-				var gt_text					= gt_edge.getText();
-				
-				if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "")
+				var gt_behav = this.getBehavior(gt_bi);
+				var gt_edges = gt_behav.getEdges();
+				for (var gt_eid in gt_edges)
 				{
-					if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
-					{
-						this.addMessage(gt_bi, gt_relatedSubject, gt_text);
-					}
-				}
-			}
-		}
-		
-		// clear graph
-		gv_graph_cv.init();
-		
-		// add subjects
-		for (var gt_sid in this.subjects)
-		{
-			gv_graph_cv.addSubject (this.subjects[gt_sid], this.selectedNode == gt_sid);
-		}
-		
-		for (var gt_fromId in this.messages)
-		{
-			for (var gt_toId in this.messages[gt_fromId])
-			{
-				if (gt_fromId != gt_toId)
-				{
-					var gt_text = this.implodeMessages(gt_fromId, gt_toId);
+					var gt_edge					= gt_edges[gt_eid];
+					var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
+					var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
+					var gt_relatedSubject		= gt_edge.getRelatedSubject();
+					var gt_text					= gt_edge.getText();
 					
-					if (gt_text != "")
+					if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "")
 					{
-						gv_graph_cv.addMessage (gt_fromId, gt_toId, gt_text);
+						if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
+						{
+							this.addMessage(gt_bi, gt_relatedSubject, gt_text);
+						}
 					}
 				}
 			}
+			
+			// clear graph
+			gv_graph_cv.init();
+			
+			// add subjects
+			for (var gt_sid in this.subjects)
+			{
+				gv_graph_cv.addSubject (this.subjects[gt_sid], this.selectedNode == gt_sid);
+			}
+			
+			for (var gt_fromId in this.messages)
+			{
+				for (var gt_toId in this.messages[gt_fromId])
+				{
+					if (gt_fromId != gt_toId)
+					{
+						var gt_text = this.implodeMessages(gt_fromId, gt_toId);
+						
+						if (gt_text != "")
+						{
+							gv_graph_cv.addMessage (gt_fromId, gt_toId, gt_text);
+						}
+					}
+				}
+			}
+			
+			gv_graph_cv.drawGraph();
 		}
-		
-		gv_graph_cv.drawGraph();
 	};
 	
 	/**
@@ -899,7 +905,8 @@ function GCcommunication ()
 		}
 		
 		// draw the graph
-		this.draw();
+		if (gv_graph_cv != null)
+			this.draw();
 	};
 	
 	/**

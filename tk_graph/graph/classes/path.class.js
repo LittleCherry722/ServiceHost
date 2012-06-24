@@ -15,6 +15,7 @@
  * Creates a Raphael path and contains some information about that path.
  * This represents an edge in the behavioral view.
  * 
+ * @private
  * @class creates a Raphael path
  * @param {int} startx The x ordinate of the starting point.
  * @param {int} starty The y ordinate of the starting point.

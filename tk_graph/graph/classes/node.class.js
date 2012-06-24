@@ -14,6 +14,7 @@
 /**
  * The node class represents a node in a behavioral view.
  * 
+ * @private
  * @class represents a node in a behavioral view
  * @param {String} id The id of the node.
  * @param {String} text The label of the node.
