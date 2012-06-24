@@ -3,8 +3,6 @@ var Utilities = {
         var url = window.location.pathname;
         var filename = url.substring(url.lastIndexOf('/')+1);
 
-        console.log(url);
-
         if(filename === "")
             return "index";
 
@@ -17,3 +15,5 @@ var Utilities = {
         console.log("Function '"+callee+"' was called which is not implemented yet.");
     }
 }
+
+SBPM.Utilities = Utilities;

@@ -96,7 +96,7 @@
 				<!-- End left panel -->
 
 				<!-- Begin content -->
-				<div id="main" data-bind="template: { name: SBPM.VM.activeView().name, data: SBPM.VM.activeView().data , afterRender : SBPM.VM.activeView().afterRender}  "></div>
+				<div id="main" data-bind="template: { name: activeView().name, data: activeView(), afterRender : activeView().afterRender}  "></div>
 				<!-- end content -->
 			</div>
 		</div>
