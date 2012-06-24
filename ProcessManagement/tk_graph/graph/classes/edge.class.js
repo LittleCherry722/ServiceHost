@@ -14,6 +14,7 @@
 /**
  * The class GCedge contains all information about an edge between two nodes on the behavioral view.
  * 
+ * @private
  * @class represents an edge in the graph
  * @param {GCbehavior} parent The parent instance of GCbehavior.
  * @param {int} start The id of the start node.

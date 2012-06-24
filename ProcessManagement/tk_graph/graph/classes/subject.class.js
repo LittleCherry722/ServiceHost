@@ -14,6 +14,7 @@
 /**
  * The representation of a subject in the communication view.
  * 
+ * @private
  * @class represents a Subject in the communication view
  * @param {String} id The id of the subject.
  * @param {String} text The label of the subject.
