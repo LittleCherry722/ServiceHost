@@ -741,7 +741,8 @@ function GCcommunication ()
 				gv_bv_paper = Raphael(gv_elements.graphBVouter, gv_paperSizes.bv_width, gv_paperSizes.bv_height);
 				
 			// load the communication view
-			this.changeView("cv");
+			if (gv_cv_paper != null)
+				this.changeView("cv");
 		}
 	};
 	
@@ -905,8 +906,7 @@ function GCcommunication ()
 		}
 		
 		// draw the graph
-		if (gv_cv_paper != null)
-			this.draw();
+		this.draw();
 	};
 	
 	/**
