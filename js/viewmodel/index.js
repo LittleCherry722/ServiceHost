@@ -100,27 +100,9 @@ var MenuViewModel = function() {
             'overlayOpacity' : '0.6',
             'onClosed' : function() {
                 if(fancyreturn1 != false) {
-                    console.log(123);
-                    //newProcess(fancyreturn1);
+                    SBPM.Service.Process.newProcess(fancyreturn1);
                 }
 
-            }
-        });
-
-        $("a#responsibleForloggedinUser").fancybox({
-            'padding' : '0px',
-            'scrolling' : 'no',
-            'width' : '30',
-            'height' : '37',
-            'transitionIn' : 'elastic',
-            'transitionOut' : 'elastic',
-            'type' : 'iframe',
-            'overlayColor' : '#333333',
-            'modal' : true,
-            'overlayOpacity' : '0.6',
-            'onClosed' : function() {
-                if(fancyreturn1 != false)
-                    addResponsible(fancyreturn2, fancyreturn1);
             }
         });
 
@@ -287,8 +269,10 @@ var HeaderViewModel = function() {
 		setTimeout(initMessageCheck, 120000);
 	}
 
-    function afterRender(){
-        
+    self.afterRender = function(){
+
+        console.log($("a#administration"));
+
         $("a#administration").fancybox({
             'padding' : '0',
             'scrolling' : 'no',
@@ -334,6 +318,8 @@ var HomeViewModel = function() {
 var ProcessViewModel = function() {
 
 	var self = this;
+	
+	self.processName = ko.observable();
 	
     self.name = "processView";
     self.label = "Process";
@@ -411,6 +397,7 @@ var ProcessViewModel = function() {
 	
 	self.showProcess = function(processName){
 		self.subjectVM.showView();
+		self.processName(processName);
 		SBPM.Service.Process.loadProcess(processName);
 	}
 	self.arrayOfSubjects = ko.observableArray();
@@ -507,6 +494,24 @@ var chargeViewModel = function() {
 	
 	self.afterRender = function() {
 		console.log("charge afterRender");
+		
+        $("a#responsibleForloggedinUser").fancybox({
+            'padding' : '0px',
+            'scrolling' : 'no',
+            'width' : '30',
+            'height' : '37',
+            'transitionIn' : 'elastic',
+            'transitionOut' : 'elastic',
+            'type' : 'iframe',
+            'overlayColor' : '#333333',
+            'modal' : true,
+            'overlayOpacity' : '0.6',
+            'onClosed' : function() {
+                if(fancyreturn1 != false)
+                    addResponsible(fancyreturn2, fancyreturn1);
+            }
+        });
+		
 		// showverantwortliche();
 		// gv_graph.selectedNode = null;
 		// updateListOfSubjects();
