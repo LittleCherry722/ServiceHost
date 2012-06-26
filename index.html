@@ -58,13 +58,10 @@
 		<script type="text/javascript" src="js/service/authentication.js"></script>
 		<script type="text/javascript" src="js/service/debug.js"></script>
 		<script type="text/javascript" src="js/service/instance.js"></script>
-		<script type="text/javascript" src="js/service/main.js"></script>
 		<script type="text/javascript" src="js/service/messages.js"></script>
 		<script type="text/javascript" src="js/service/process.js"></script>
 		<script type="text/javascript" src="js/service/role.js"></script>
 		<script type="text/javascript" src="js/service/user.js"></script>
-		<script type="text/javascript" src="js/service/home.js"></script>
-		<script type="text/javascript" src="js/service/menu.js"></script>	
 		
 		<script>
 			$(function() {
@@ -92,7 +89,7 @@
 			<!-- End header -->
 			<div id="headAndLeft">
 				<!--left panel -->
-				<div id="left_menu" data-bind="template: { name: 'menu', data: menuVM , afterRender : SBPM.Service.Menu.afterRender}"></div>
+				<div id="left_menu" data-bind="template: { name: 'menu', data: menuVM , afterRender : menuVM.afterRender}"></div>
 				<!-- End left panel -->
 
 				<!-- Begin content -->
