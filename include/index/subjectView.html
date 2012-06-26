@@ -1,115 +1,68 @@
-<div id="graph_cv_outer" style="overflow:auto;min-width:656px;height:550px"></div>
+<div id="graph_bv_outer" style="overflow:auto; height:700px; width: 700px; float: left;"></div>
 
-<div class="twocolumn">
-    <div class="column_left">
-        <div class="header">
-            <span>Node/Edge information</span>
-        </div>
-        <br class="clear"/>
-        <div class="content">
-            <div id="node" >
-                <div class="twocolumninfo">
-                    <div class="column_left2">
-                        <p>
-                            <label class="warning" id="AssignRoleWarning">You have to assign a role before you can enter a text.</label>
-                            <br>
+<div class="graphmenu">
+	<div class="graphsettings">
+		<span id="graphmenuheader">Subject settings</span>
+		<br/>
+		<label class="warning" id="AssignRoleWarning">You have to assign a role before you can enter a text.</label>
+		<br/>
+		<label class="graphsectionheader">Text:</label>
+		<br/>
+		<input id="ge_cv_text" style="width:140px">
+		</input>
+		<br/>
+		<label class="graphsectionheader">Assigned Role:</label>
+		<br/>
+		<select id="ge_cv_id" style="width:140px"></select>
+		<br/>
+		<label class="graphsectionheader">Node functions:</label>
+		<br/>
+		<input type="button" class="graphmenubutton" onClick="gv_graph.createNode();" value="Add subject" />
+		<br/>
+		<input type="button" class="graphmenubutton" onClick="gv_graph.updateNode();" value="Update subject" />
+		<br/>
+		<input type="button" class="graphmenubutton" onClick="gv_graph.deleteNode();" value="Delete subject" />
+		<br/>
+		<input type="button" class="graphmenubutton" onClick="gf_deactivateNode();" value="De-/Activate subject" />
+		<br/>
+		<div class="graphsectionheader" id="subjectType">
+			<label class="graphsectionheader">Subject type:</label>
+			<br/>
+			<input type="radio" class="subjectradiobutton" "ge_cv_type_single" name="ge_cv_type" />
+			Single
+			<br/>
+			<input type="radio" class="subjectradiobutton" id="ge_cv_type_multi" name="ge_cv_type" />
+			Multi
+			<br/>
+			<input type="radio" class="subjectradiobutton" id="ge_cv_type_external" name="ge_cv_type" />
+			External
+			<br/>
+		</div>
 
-                            <label>Text:</label>
-                            <br/>
-                            <textarea id="ge_cv_text" style="resize:none;width:200px"></textarea>
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <label>Assigned Role:</label>
-                            <br/>
-                            <select id="ge_cv_id" style="width:200px"></select>
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
+		<br/>
 
-                        </p>
-                        <br class="clear"/>
-                    </div>
-                    <div class="column_right2" align="center">
-                        <p>
-                            <input type="button" onClick="gv_graph.updateNode();" value="Update node" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onClick="gv_graph.deleteNode();" value="Delete node" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onClick="gf_deactivateNode();" value="De-/Activate node" />
-                        </p>
-
-                    </div>
-                    <div class="column_right2" align="left">
-                        <p>
-                            Subject type:
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="radio" id="ge_cv_type_single" name="ge_cv_type" />
-                            Single
-                        </p>
-                        <p>
-                            <input type="radio" id="ge_cv_type_multi" name="ge_cv_type" />
-                            Multi
-                        </p>
-
-                        <p>
-                            <input type="radio" id="ge_cv_type_external" name="ge_cv_type" />
-                            External
-                        </p>
-
-                    </div>
-                </div>
-            </div>
-            <div id="edge" >
-                <!-- Edges can't be selected in subject view -->
-                <div class="twocolumninfo">
-                    <div class="column_left2">
-                        <p>
-                            <label>Text:</label>
-                            <br/>
-                            <textarea id="ge_edge_text" style="resize:none"></textarea>
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <label>Related Subject::</label>
-                            <br/>
-                            <select id="ge_edge_target"></select>
-                        </p>
-                        <br class="clear"/>
-                    </div>
-                    <div class="column_right2" align="center">
-                        <p>
-                            <input type="button" onClick="gv_graph.updateEdge();" value="Update edge" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onClick="gv_graph.deleteEdge();" value="Remove edge" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onClick="gf_deactivateEdge();" value="De-/Activate edge" />
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="column_right">
-        <div class="header">
-            <span>Graph settings</span>
-        </div>
-        <br class="clear"/>
-        <div class="content">
-            <div class="onecolumn">
-                <input type="button" name="neu" value="Add new node" style="width:190px" onClick="gv_graph.createNode();"/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="button" onClick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
-            </div>
-
-        </div>
-    </div>
+	</div>
+	<br/>
+	<div class="nodesettings">
+		<span id="graphmenuheader">Edge settings</span>
+		<br/>
+		<label class="graphsectionheader">Text:</label>
+		<br/>
+		<input id="ge_edge_text" style="width: 140px;">
+		</input>
+		<br/>
+		<label class="graphsectionheader">Related Subject:</label>
+		<br/>
+		<select id="ge_edge_target" style="width: 140px;"></select>
+		<br/>
+		<input type="button" class="graphmenubutton" onClick="gv_graph.updateEdge();" value="Update edge" />
+		<br/>
+		<input type="button" class="graphmenubutton" onClick="gv_graph.deleteEdge();" value="Remove edge" />
+		<br/>
+		<input type="button" class="graphmenubutton" onClick="gf_deactivateEdge();" value="De-/Activate edge" />
+		<br/>
+	</div>
 </div>
-<br class="clear"/>
+

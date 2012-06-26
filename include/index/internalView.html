@@ -1,127 +1,75 @@
-<div id="graph_bv_outer" style="overflow:auto; height:700px; min-width:665px;"></div>
+<div id="graph_cv_outer" style="overflow:auto; height:700px; width: 700px; float: left;"></div>
 
-<div class="twocolumn">
-    <div class="column_left">
-        <div class="header">
-            <span>Node/Edge information</span>
-        </div>
-        <br class="clear"/>
-        <div class="content">
-            <div id="node">
-                <div class="twocolumninfo">
-                    <div class="column_left2">
-                        <p>
-                            <label>Type:</label>
-                            <br/>
-                            <select id="ge_type2"  style="width:200px">
+<div class="graphmenu">
+	<div class="graphsettings">
+			<span id="graphmenuheader">Graph settings</span>
+		<br/>
+		<label class="graphsectionheader">Add nodes:</label>
+		<br/>
+		<input type="button" class="graphmenubutton" value="Add new node" onclick="gv_graph.createNode();"/>
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gf_callMacro('newSendNode');" value="Insert send node" />
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gf_callMacro('newActionNode');" value="Insert action node" />
+		<br/>
+		<label class="graphsectionheader">Node functions:</label>
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gv_graph.updateNode();" value="Update node" />
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate node" />
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete node" />
+		<br/>
+		<label class="graphsectionheader">Edge functions:</label>
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gv_graph.connectNodes();" value="Connect node" />
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gv_graph.updateEdge();" value="Update edge" />
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gv_graph.deleteEdge();" value="Remove edge" />
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate edge" />
+		<br/>
+		<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
+		<br/>
 
-                            </select>
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <label>Label:</label>
-                            <br/>
-                            <textarea id="ge_text" style="resize:none;width:200px"></textarea>
-                        </p>
+	</div>
+	<br/>
+	<div class="nodesettings">
+			<span id="graphmenuheader">Node/Edge settings</span>
+		<br/>
 
-                        <input type="hidden" id="ge_id" value="" style="width:200px"/>
-
-                        <br class="clear"/>
-
-                        <p>
-                        <p>
-                            <input type="checkbox" id="ge_type_start" name="ge_type_start" />
-                            Startnode
-                        </p>
-                        </p>
-
-                        <br class="clear"/>
-
-                    </div>
-                    <div class="column_right2" align="center">
-                        <p>
-                            <input type="button" onclick="gv_graph.updateNode();" value="Update node" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onclick="gv_graph.deleteNode();" value="Delete node" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onclick="gf_deactivateNode();" value="De-/Activate node" />
-                        </p>
-
-                    </div>
-                    <div class="column_right2" align="center">
-                        <p>
-                            <input type="button" onclick="gf_callMacro('newSendNode');" value="Insert send node" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onclick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onclick="gf_callMacro('newActionNode');" value="Insert action node" />
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div id="edge" >
-                <div class="twocolumninfo">
-                    <div class="column_left2">
-                        <p>
-                            <label>Text:</label>
-                            <br/>
-                            <textarea id="ge_edge_text" style="resize:none;width:200px"></textarea>
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <label>Related Subject::</label>
-                            <br/>
-                            <select id="ge_edge_target" style="width:200px"></select>
-                        </p>
-                        <br class="clear"/>
-                        <div id="ge_edge_message_outer" style="display:none;">
-                            message:
-                            <br/>
-                            <select id="ge_edge_message" style="width:200px"></select>
-                        </div>
-                        <br class="clear"/>
-                    </div>
-                    <div class="column_right2" align="center">
-                        <p>
-                            <input type="button" onclick="gv_graph.updateEdge();" value="Update edge" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onclick="gv_graph.deleteEdge();" value="Remove edge" />
-                        </p>
-                        <br class="clear"/>
-                        <p>
-                            <input type="button" onclick="gf_deactivateEdge();" value="De-/Activate edge" />
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="column_right">
-        <div class="header">
-            <span>Graph settings</span>
-        </div>
-        <br class="clear"/>
-        <div class="content">
-            <div class="onecolumn">
-                <input type="button" name="neu" value="Add new node" style="width:190px" onclick="gv_graph.createNode();"/>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="button" onclick="gv_graph.connectNodes();" value="Connect node" />
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="button" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
-            </div>
-
-        </div>
-    </div>
+		<label class="graphsectionheader">Type:</label>
+		<input type="checkbox" id="ge_type_start" name="ge_type_start" />
+		<label  class="graphsectionheader">Startnode</label>
+		<br/>
+		<select id="ge_type2"  style="width:140px">
+			<br/>
+		</select>
+		<br/>
+		<label class="graphsectionheader">Label:</label>
+		<br/>
+		<input id="ge_text" style="width:140px">
+		</input>
+		<br/>
+		<input type="hidden" id="ge_id" value="" style="width:140px"/>
+		<br/>
+		<label class="graphsectionheader">Text:</label>
+		<br/>
+		<textarea id="ge_edge_text" style="width:140px"></textarea>
+		<br/>
+		<label class="graphsectionheader">Related Subject:</label>
+		<br/>
+		<select id="ge_edge_target" style="width:140px"></select>
+		<br/>
+		<div id="ge_edge_message_outer" style="display:none;">
+			<label class="graphsectionheader">Message:</label>
+			<br/>
+			<select id="ge_edge_message" style="width:140px"></select>
+		</div>
+		<br class="clear"/>
+	</div>
 </div>
-<br class="clear"/>
+

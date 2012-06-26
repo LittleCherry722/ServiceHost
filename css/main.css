@@ -679,6 +679,7 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 .graphsectionheader {
 	text-align: left;
 	font-weight: bold;
+	margin-top: 3px;
 }
 
 #graphmenudivide {
