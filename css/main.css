@@ -330,9 +330,9 @@ a#show_menu:hover {
 }
 
 #main {
-	margin-left: 245px;
+	margin-left: 215px;
 	padding: 0;
-	min-width: 700px;
+	min-width: 650px;
 }
 #content .inner {
 	float: left;
@@ -340,7 +340,7 @@ a#show_menu:hover {
 }
 .onecolumn {
 	float: left;
-	width: 100%;
+	width: 99%;
 	background: #fff;
 	border: 1px solid #cdcdcd;
 	margin: 0 0 20px 0;
@@ -584,15 +584,15 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 #help-button {
 	margin-right: 0;
 	position: absolute;
-	right: 3px;
-	top: 3px;
+	right: 6px;
+	top: 10px;
 }
 
 #reset-button {
 	margin-right: 0;
 	position: absolute;
 	right: 68px;
-	top: 3px;
+	top: 10px;
 }
 
 .warning {
