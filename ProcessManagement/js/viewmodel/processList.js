@@ -6,8 +6,6 @@ var ViewModel = function(){
     
     self.init = function(){
         self.processes(SBPM.Service.Process.getAllProcesses());
-        
-        console.log(self.processes());
     }
     
     self.load = function(process){
@@ -16,7 +14,10 @@ var ViewModel = function(){
     }
     
     self.remove = function(process){
-        SBPM.Service.Process.deleteProcess(process);
+        if(SBPM.Service.Process.deleteProcess(process))
+            self.processes().remove(process);
+        else
+            parent.SBPM.Notification.Info(Error, "Deleting the process failed.");
     }
     
     self.close = function(){

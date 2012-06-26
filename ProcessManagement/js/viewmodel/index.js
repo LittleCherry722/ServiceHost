@@ -97,8 +97,8 @@ var MenuViewModel = function() {
             'overlayOpacity' : '0.6',
             'onClosed' : function() {
                 if(fancyreturn1 != false) {
-                    newProcess(fancyreturn1);
-                    $("#tab2").trigger('click');
+                    console.log(123);
+                    //newProcess(fancyreturn1);
                 }
 
             }
@@ -373,17 +373,6 @@ var ProcessViewModel = function() {
 		
 		console.log($("#tab1"));
 		
-		$("#tab1").click(function() {
-            console.log("tab1 clicked");
-            
-            $(this).parent().parent().find("td input").removeClass("active");
-            $(this).addClass("active");
-            $(".tab_content").addClass("hide");
-            $("#tab1_content").removeClass("hide");
-            gf_clickedCVbehavior();
-            updateListOfSubjects();
-            // load internal behavior
-        });
         $("#tab2").click(function() {
             console.log("tab2 clicked");
             
@@ -394,6 +383,7 @@ var ProcessViewModel = function() {
             gv_graph.changeView('cv');
             updateListOfSubjects();
         });
+        
         $("#tab3").click(function() {
             console.log("tab3 clicked");
             
@@ -404,6 +394,15 @@ var ProcessViewModel = function() {
 
             gv_graph.selectedNode = null;
             updateListOfSubjects();
+        });
+        
+        //resize canvas to fit into screen
+        $("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
+        $("#graph_bv_outer").css("height", window.innerHeight - 124);
+        console.log("asd");
+        $(window).resize(function() {
+            $("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
+            $("#graph_bv_outer").css("height", window.innerHeight - 124);
         });
         
 	}
