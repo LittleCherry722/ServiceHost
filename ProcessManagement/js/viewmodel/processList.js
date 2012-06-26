@@ -14,10 +14,13 @@ var ViewModel = function(){
     }
     
     self.remove = function(process){
-        if(SBPM.Service.Process.deleteProcess(process))
+        if(SBPM.Service.Process.deleteProcess(process)){
             self.processes().removeAll(process);
-        else
+            self.init();
+        }else
             parent.SBPM.Notification.Info("Error", "Deleting the process failed.");
+            
+        
     }
     
     self.close = function(){

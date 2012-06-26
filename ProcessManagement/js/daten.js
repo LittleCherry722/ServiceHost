@@ -78,7 +78,8 @@ else {
 	if(processName == false) {
 		
 		document.getElementById("welcome").style.display = "none";
-		document.getElementById('ausfuehrung').style.display = 'none';
+		//document.getElementById('ausfuehrung').style.display = 'none';
+		console.log("add ausfuehrung here again");
 		document.getElementById("graph").style.display = "block";
 		document.getElementById('process_name').innerHTML = "Process: " + name;
 		document.getElementById("save").style.display = "block";
