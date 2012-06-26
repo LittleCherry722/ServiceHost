@@ -56,11 +56,14 @@ var MenuViewModel = function() {
 
 	self.init = function() {
 		console.log("init Menu VM");
-		
-		$("#main_menu").accordion({
-			collapsible : true,
-			autoHeight : false
-		});
+	}
+	
+	self.afterRender = function(){
+	    
+        $("#main_menu").accordion({
+            collapsible : true,
+            autoHeight : false
+        });
         
         $("#calendar").datepicker({
             nextText : "&raquo;",
@@ -251,6 +254,7 @@ var MenuViewModel = function() {
             'modal' : true,
             'overlayOpacity' : '0.6'
         });
+        
 	}
 }
 
@@ -264,23 +268,6 @@ var HeaderViewModel = function() {
 
 	self.init = function() {
 		console.log("init Header VM");
-
-        $("a#administration").fancybox({
-            'padding' : '0',
-            'scrolling' : 'no',
-            'width' : '80',
-            'height' : '50',
-            'autoScale' : false,
-            'transitionIn' : 'elastic',
-            'transitionOut' : 'elastic',
-            'type' : 'iframe',
-            'overlayColor' : '#333333',
-            'modal' : true,
-            'overlayOpacity' : '0.6',
-            'onClosed' : function() {
-
-            }
-        });
 
 		if(SBPM.Storage.get("user")) {
 			self.userName(SBPM.Storage.get("user").name);
@@ -299,6 +286,27 @@ var HeaderViewModel = function() {
 
 		setTimeout(initMessageCheck, 120000);
 	}
+
+    function afterRender(){
+        
+        $("a#administration").fancybox({
+            'padding' : '0',
+            'scrolling' : 'no',
+            'width' : '80',
+            'height' : '50',
+            'autoScale' : false,
+            'transitionIn' : 'elastic',
+            'transitionOut' : 'elastic',
+            'type' : 'iframe',
+            'overlayColor' : '#333333',
+            'modal' : true,
+            'overlayOpacity' : '0.6',
+            'onClosed' : function() {
+
+            }
+        });
+        
+    }
 
 }
 
@@ -334,22 +342,7 @@ var ProcessViewModel = function() {
 	
 	self.init = function() {
 		console.log("init Process VM");
-		
-        $("input#help-button").fancybox({
-            'padding' : '0px',
-            'scrolling' : 'no',
-            'height' : '60',
-            'width' : '40',
-            'transitionIn' : 'elastic',
-            'transitionOut' : 'elastic',
-            'type' : 'iframe',
-            'overlayColor' : '#333333',
-            'modal' : true,
-            'overlayOpacity' : '0.6',
-            'onClosed' : function() {
-            }
-        });
-		
+
 		self.subjectVM.init();
 		self.internalVM.init();
 		self.chargeVM.init();
@@ -394,6 +387,22 @@ var ProcessViewModel = function() {
 
             gv_graph.selectedNode = null;
             updateListOfSubjects();
+        });
+        
+                
+        $("input#help-button").fancybox({
+            'padding' : '0px',
+            'scrolling' : 'no',
+            'height' : '60',
+            'width' : '40',
+            'transitionIn' : 'elastic',
+            'transitionOut' : 'elastic',
+            'type' : 'iframe',
+            'overlayColor' : '#333333',
+            'modal' : true,
+            'overlayOpacity' : '0.6',
+            'onClosed' : function() {
+            }
         });
         
 	}
