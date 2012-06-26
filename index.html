@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html> 
 
 <!-- S-BPM Groupware v0.9
 -
@@ -85,7 +85,7 @@
 		<div class="content_wrapper">
 
 			<!-- header -->
-			<div id="header" data-bind="template: { name: 'header', data: headerVM }"></div>
+			<div id="header" data-bind="template: { name: 'header', data: headerVM , afterRender : headerVM.afterRender}"></div>
 			<!-- End header -->
 			<div id="headAndLeft">
 				<!--left panel -->
