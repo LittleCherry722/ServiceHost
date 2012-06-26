@@ -325,7 +325,9 @@ var HomeViewModel = function() {
 	self.afterRender = function() {
 		console.log("home afterRender");
 	}
-	
+	self.showView = function() {
+		SBPM.VM.activeViewIndex(0);
+	}
 }
 
 
@@ -411,7 +413,7 @@ var ProcessViewModel = function() {
 		self.subjectVM.showView();
 		SBPM.Service.Process.loadProcess(processName);
 	}
-	
+	self.arrayOfSubjects = ko.observableArray();
 }
 
 
