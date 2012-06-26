@@ -396,15 +396,6 @@ var ProcessViewModel = function() {
             updateListOfSubjects();
         });
         
-        //resize canvas to fit into screen
-        $("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
-        $("#graph_bv_outer").css("height", window.innerHeight - 124);
-        console.log("asd");
-        $(window).resize(function() {
-            $("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
-            $("#graph_bv_outer").css("height", window.innerHeight - 124);
-        });
-        
 	}
 	
 	self.showProcess = function(processName){
@@ -434,6 +425,15 @@ var SubjectViewModel = function() {
 	
 	self.afterRender = function() {
 		console.log("subject afterRender");
+		
+        //resize canvas to fit into screen
+        $("#graph_cv_outer").css("width", window.innerWidth - 190 - 245);
+        $("#graph_cv_outer").css("height", window.innerHeight - 124);
+        console.log("asd");
+        $(window).resize(function() {
+            $("#graph_cv_outer").css("width", window.innerWidth - 190 - 245);
+            $("#graph_cv_outer").css("height", window.innerHeight - 124);
+        });
 		// gv_graph.init();
 		// gf_paperChangeView("cv");
 		// updateListOfSubjects();
@@ -461,6 +461,16 @@ var InternalViewModel = function() {
 	
 	self.afterRender = function() {
 		console.log("internal afterRender");
+		
+        //resize canvas to fit into screen
+        $("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
+        $("#graph_bv_outer").css("height", window.innerHeight - 124);
+        console.log("asd");
+        $(window).resize(function() {
+            $("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
+            $("#graph_bv_outer").css("height", window.innerHeight - 124);
+        });
+		
 		// gf_clickedCVbehavior();
 		// updateListOfSubjects();
 	}
