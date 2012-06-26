@@ -711,3 +711,17 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	background-color: #c00;
 	color: #fff;
 }
+
+#zoominbutton {
+	margin-right: 0;
+	position: absolute;
+	right: 272px;
+	top: 10px;
+}
+
+#zoomoutbutton {
+	margin-right: 0;
+	position: absolute;
+	right: 178px;
+	top: 10px;
+}
