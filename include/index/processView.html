@@ -21,7 +21,7 @@
                                 </td>
 
                                 <td style="" >
-                                    <div id="seltSbjDiv" style="">
+                                    <div class="tab-dropdown">
                                        <select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; " tabindex="1" ></select>
                                     </div>
                                 </td>
@@ -37,8 +37,6 @@
 			</div>
 
 			<br class="clear"/>
-			
-			<p data-bind="text: internalVM.name"></p>
 			
             <!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
 			<div id="processContent" >
