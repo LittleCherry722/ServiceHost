@@ -427,12 +427,11 @@ var SubjectViewModel = function() {
 		console.log("subject afterRender");
 		
         //resize canvas to fit into screen
-        $("#graph_cv_outer").css("width", window.innerWidth - 190 - 245);
-        $("#graph_cv_outer").css("height", window.innerHeight - 124);
-        console.log("asd");
+        $("#graph_cv_outer").css("width", window.innerWidth - 175 - 235);
+        $("#graph_cv_outer").css("height", window.innerHeight - 125);
         $(window).resize(function() {
-            $("#graph_cv_outer").css("width", window.innerWidth - 190 - 245);
-            $("#graph_cv_outer").css("height", window.innerHeight - 124);
+              $("#graph_cv_outer").css("width", window.innerWidth - 175 - 235);
+            $("#graph_cv_outer").css("height", window.innerHeight - 125);
         });
 		// gv_graph.init();
 		// gf_paperChangeView("cv");
