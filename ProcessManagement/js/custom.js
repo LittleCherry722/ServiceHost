@@ -45,9 +45,10 @@ function shownothing() {
 
 //resize canvas to fit into screen
 $(function() {
-	$("#graph_bv_outer").css("height", window.innerHeight - 526);
-
+	$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
+	$("#graph_bv_outer").css("height", window.innerHeight - 124);
 	$(window).resize(function() {
-		$("#graph_bv_outer").css("height", window.innerHeight - 526);
+		$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
+		$("#graph_bv_outer").css("height", window.innerHeight - 124);
 	});
 });
