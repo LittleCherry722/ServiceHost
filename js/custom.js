@@ -20,9 +20,11 @@ function callFancyBox(my_href) {
 }
 
 function showtab1() {
+    
+    console.log("showtab1");
+    
 	$("#tab2").removeClass("active");
 	$("#tab3").removeClass("active");
-	$("#tab1").addClass("active");
 	$(".tab_content").addClass("hide");
 	$("#tab1_content").removeClass("hide");
 
@@ -35,20 +37,9 @@ function showtab1() {
 }
 
 function shownothing() {
-	$("#tab1").removeClass("active");
 	$("#tab2").removeClass("active");
 	$("#tab3").removeClass("active");
 	$("#tab1_content").addClass("hide");
 	$("#tab2_content").addClass("hide");
 	$("#tab3_content").addClass("hide");
 }
-
-//resize canvas to fit into screen
-$(function() {
-	$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
-	$("#graph_bv_outer").css("height", window.innerHeight - 100);
-	$(window).resize(function() {
-		$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
-		$("#graph_bv_outer").css("height", window.innerHeight - 100);
-	});
-});

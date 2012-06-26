@@ -62,6 +62,8 @@ function einloggen(name, password) {
 
 function newProcess(name) {
 
+console.log("Create PROCESS");
+
 if(createProcess(name) == 0) {
 	$("#freeow").freeow("Create process", "Could not create process \"" + name +"\".", {
 		classes: [,"error"],
