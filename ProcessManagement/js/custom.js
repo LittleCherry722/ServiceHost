@@ -427,7 +427,7 @@ $(document).ready(function() {
 			}
 		});
 
-		$("a#overviewProcesses").fancybox({
+		$("a#processList").fancybox({
 			'padding' : '0px',
 			'scrolling' : 'auto',
 			'width' : '60',
@@ -437,11 +437,7 @@ $(document).ready(function() {
 			'type' : 'iframe',
 			'overlayColor' : '#333333',
 			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-				if (fancyreturn1 && fancyreturn1 != false)
-					ProzessLaden(fancyreturn1);
-			}
+			'overlayOpacity' : '0.6'
 		});
 
 		$("input#help-button").fancybox({

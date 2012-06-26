@@ -1,25 +1,25 @@
 SBPM.Service.Process = {
 	newProcess : function(processName) {
-if(this.createProcess(processName) == 0) {
-	$("#freeow").freeow("Create process", "Could not create process \"" + processName +"\".", {
-		classes: [,"error"],
-		autohide: true
-	});
-} 
-else {
-	$("#freeow").freeow("Create process", "Process \"" + processName + "\" successfully created.", {
-		classes: [,"ok"],
-		autohide: true
-	});
-
-
-
-
-		//showverantwortliche();
-		//setSubjectIDs();
-
-
-}
+        if(this.createProcess(processName) == 0) {
+        	$("#freeow").freeow("Create process", "Could not create process \"" + processName +"\".", {
+        		classes: [,"error"],
+        		autohide: true
+        	});
+        } 
+        else {
+        	$("#freeow").freeow("Create process", "Process \"" + processName + "\" successfully created.", {
+        		classes: [,"ok"],
+        		autohide: true
+        	});
+        
+        
+        
+        
+        		//showverantwortliche();
+        		//setSubjectIDs();
+        
+        
+        }
 	},
 
 	loadProcess : function(processName) {
