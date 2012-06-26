@@ -491,16 +491,13 @@ table.data2 tr td {
 input[type=submit], input[type=button] {
 	background: url(../images/bg_button_tab.png);
 	background-repeat: repeat-x;
-	margin: 0;
 	border: 1px solid #999;
 	font-weight: bold;
-	padding: 5px 10px 7px 10px;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	-moz-box-shadow: 0 1px 2px #444;
 	-webkit-box-shadow: 0 1px 2px #444;
 	box-shadow: 0 1px 2px #444;
-	text-shadow: 1px 0 0 #ccc;
 	color: #333;
 }
 input[type=button].right_switch {
@@ -565,6 +562,7 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	background: url(../images/bg_tab_over.png) repeat-x;
 	text-shadow: 0 0 0 #999;
 }
+
 #dialog-header {
 	width: 100%;
 	height: 50px;
@@ -599,4 +597,101 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 
 .warning {
 	color: #CD0A0A;
+}
+
+.graphmenu {
+	top: 0px;
+	right: 0px;
+	position: relative;
+	margin: 5px;
+	width: 150px;
+	max-width: 150px;
+	float: right;
+	text-align: center;
+}
+
+.graphsettings {
+	background: #D1D1D1;
+	float: none;
+	border: #363636;
+	border-style: solid;
+	border-width: 1px;
+}
+
+.nodesettings {
+	background: #D1D1D1;
+	float: none;
+	border: #363636;
+	border-style: solid;
+	border-width: 1px;
+}
+
+.graphmenubutton {
+	width: 140px;
+	margin: 2px;
+	font-size: 12px;
+	height: 20px;
+	padding: 0px;
+}
+/*
+ .graphmenubutton {
+ border-top: 1px solid #d0d2d4;
+ background: #535454;
+
+ background: -webkit-gradient(linear, left top, left bottom, from(#676e73), to(#535454));
+ background: -webkit-linear-gradient(top, #676e73, #535454);
+ background: -moz-linear-gradient(top, #676e73, #535454);
+ background: -ms-linear-gradient(top, #676e73, #535454);
+ background: -o-linear-gradient(top, #676e73, #535454);
+
+ padding: 5px 10px;
+ margin: 2px;
+ -webkit-border-radius: 8px;
+ -moz-border-radius: 8px;
+ border-radius: 8px;
+ -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+ -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+ box-shadow: rgba(0,0,0,1) 0 1px 0;
+ text-shadow: rgba(0,0,0,.4) 0 1px 0;
+ color: white;
+ font-size: 14px;
+ text-decoration: none;
+ vertical-align: middle;
+ width: 140px;
+ max-width: 140px;
+ height: 28px;
+ }
+ .graphmenubutton:hover {
+ border-top-color: #404040;
+ background: #404040;
+ color: #ccc;
+ }
+ .graphmenubutton:active {
+ border-top-color: #545454;
+ background: #545454;
+ }
+ */
+#graphmenuheader {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.graphsectionheader {
+	text-align: left;
+	font-weight: bold;
+}
+
+#graphmenudivide {
+	border-bottom-style: dotted;
+	border-top-style: dotted;
+	border-color: #000000;
+}
+
+.subjectradiobutton {
+	text-align: left;
+}
+
+#subjectType {
+	margin-left: 30px;
+	text-align: left;
 }
