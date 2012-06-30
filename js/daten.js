@@ -202,7 +202,7 @@ function clearListOfSubjects(){
 */
 function updateListOfSubjects(){
 	
-	console.log(gv_graph.subjects);
+	//console.log(gv_graph.subjects);
 	
 	clearListOfSubjects();
 	var html = "<option></option>";

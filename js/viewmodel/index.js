@@ -320,7 +320,7 @@ var ProcessViewModel = function() {
 	});
 	self.name = "processView";
 	self.label = "Process";
-
+ 
 	self.subjectVM = new SubjectViewModel();
 	self.internalVM = new InternalViewModel();
 	self.chargeVM = new chargeViewModel();
@@ -394,6 +394,7 @@ var ProcessViewModel = function() {
 		self.subjectVM.showView();
 		self.processName(processName);
 		SBPM.Service.Process.loadProcess(processName);
+		$("#tab2").addClass("active");
 	}
 }
 var SubjectViewModel = function() {
@@ -411,6 +412,7 @@ var SubjectViewModel = function() {
 	self.showView = function() {
 		SBPM.VM.activeViewIndex(1);
 		SBPM.VM.processVM.activeViewIndex(0);
+		
 	}
 
 	self.afterRender = function() {
