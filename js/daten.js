@@ -59,7 +59,7 @@ function einloggen(name, password) {
     	return true;
     }
 }
-
+/*
 function newProcess(name) {
 
 console.log("Create PROCESS");
@@ -93,7 +93,7 @@ else {
 	}
 }
 }
-
+*/
 function addResponsible(user, group) {
 
 if(createResponsibleForUserForGroup(getUserID(SBPM.Storage.get("loggedin_user")), getGroupID(group), getUserID(user), getProcessID(processName))) {
@@ -110,7 +110,7 @@ else {
 }
 showverantwortliche();
 }
-
+/*
 function GraphSpeichern() {
 
     var graphAsJSON = gv_graph.saveToJSON();
@@ -165,8 +165,8 @@ function GraphSpeichernAls(newName) {
     	});
     }
 }
-
-
+*/
+/*
 function ProzessLaden(name) {
 
     console.log(arguments.callee);
@@ -199,7 +199,7 @@ function clearListOfSubjects(){
 	$(".chzn-select").val('').trigger("liszt:updated");
 	$(".chzn-select").html('').trigger("liszt:updated");
 }
-
+*/
 function updateListOfSubjects(){
 	
 	console.log(gv_graph.subjects);

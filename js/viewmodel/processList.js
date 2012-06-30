@@ -10,15 +10,17 @@ var ViewModel = function(){
     
     self.load = function(process){
         parent.SBPM.VM.processVM.showProcess(process);
+
         self.close();
+
     }
     
     self.remove = function(process){
         if(SBPM.Service.Process.deleteProcess(process)){
-            self.processes().removeAll(process);
+          
             self.init();
         }else
-            parent.SBPM.Notification.Info("Error", "Deleting the process failed.");
+            parent.SBPM.Notification.Error("Error", "Deleting the process failed.");
             
         
     }

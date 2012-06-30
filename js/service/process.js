@@ -1,37 +1,84 @@
 SBPM.Service.Process = {
 	newProcess : function(processName) {
-        if(this.createProcess(processName) == 0) {
-        	$("#freeow").freeow("Create process", "Could not create process \"" + processName +"\".", {
-        		classes: [,"error"],
-        		autohide: true
-        	});
+		console.log("newProcess " + processName);
+        if(this.createProcess(processName) == false) {
+        	SBPM.Notification.Error('Create process',"Could not create process \"" + processName +'"\.')
         } 
         else {
-        	$("#freeow").freeow("Create process", "Process \"" + processName + "\" successfully created.", {
-        		classes: [,"ok"],
-        		autohide: true
-        	});
-        
-        
-        
-        
-        		//showverantwortliche();
-        		//setSubjectIDs();
-        
-        
-        }
+        	SBPM.Notification.Info("Create process", "Process \"" + processName + "\" successfully created.")
+                }
 	},
+
+
+	processExists : function(name){
+		if(name == '' | name == null)  return null;
+		else{
+		return getProcessID(name) > 0;
+		}
+	},
+
 
 	loadProcess : function(processName) {
 
 		gf_loadGraph(loadGraph(getProcessID(processName)));
 
 	},
-	saveAsProcess : function(processName) {
+	saveAsProcess : function(newName) {
+		
+			var graphAsJSON = gv_graph.saveToJSON();
+    
+    var startSubjects = [];
+    
+    for (var subject in gv_graph.subjects)
+        startSubjects.push(getGroupID(subject));
+    
+    var startSubjectsAsJSON = JSON.stringify(startSubjects);
+		
+	this.createProcess(newName);
 
+	    if(this.saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
+    	$("#freeow").freeow("Save process", "Process \"" + newName +"\" successfully saved.", {
+    		classes: [,"ok"],
+    		autohide: true
+    	});
+    	this.loadProcess(newName);
+    } else {
+    	$("#freeow").freeow("Save process", "Process \"" + newName + "\" could not be saved.", {
+    		classes: [,"error"],
+    		autohide: true
+    	});
+    }
+		
+		
+console.log("saveAs "+ newName);
 	},
 	saveProcess : function() {
-
+		    var graphAsJSON = gv_graph.saveToJSON();
+    
+    var startSubjects = [];
+    
+    for (var subject in gv_graph.subjects)
+        startSubjects.push(getGroupID(subject));
+    
+    var startSubjectsAsJSON = JSON.stringify(startSubjects);
+    
+      
+    if(this.saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
+    	$("#freeow").freeow("Save process", "Process \"" + processName +"\" successfully saved.", {
+    		classes: [,"ok"],
+    		autohide: true
+    	});
+    } else {
+    	$("#freeow").freeow("Save process", "Process \"" + processName + "\" could not be saved.", {
+    		classes: [,"error"],
+    		autohide: true
+    	});
+    }
+		
+		
+		
+		
+console.log("save");
 	},
 	// create/remove process
 createProcess : function (processname){

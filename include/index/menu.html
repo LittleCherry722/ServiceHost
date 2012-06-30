@@ -9,7 +9,7 @@
 						<a href=""><img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>Process Management</a>
 						<ul>
 							<li>
-								<a id="newProcess" href="new_process.html">Create new process</a>
+								<a id="newProcess" href="newProcess.html">Create new process</a>
 							</li>
 							<!-- <li><a id="deleteProcess" href="deleteProcess.html">Delete existing process</a></li> -->
 							<li>
@@ -18,11 +18,11 @@
 							<!-- <li><a id="loadProcess" href="loadProcess.html">Load process</a></li> -->
 						</ul>
 					</li>
-					<li id="save" style="display:none">
-						<a id="save" href="" onclick="GraphSpeichern();"><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process</a>
+					<li id="save" data-bind= "visible: SBPM.VM.activeViewIndex() == 1" >
+						<a id="save" href=""  ><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process</a>
 					</li>
-					<li id="saveAs" style="display:none">
-						<a id="saveAs" href="saveAs_process.html"><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process As</a>
+					<li id="saveAs" data-bind= "visible: SBPM.VM.activeViewIndex() == 1">
+						<a id="saveAs" href="saveAsProcess.html"><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process As</a>
 					</li>
 					<li>
 						<a href=""><img src="images/icons/mail_48.png" width="16px" height="16px" alt="Messages"/>Messages</a>
