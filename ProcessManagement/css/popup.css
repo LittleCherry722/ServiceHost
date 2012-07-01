@@ -141,3 +141,38 @@ h4 {
 	font-size: 130%;
 	vertical-align: middle;
 }
+
+.datatable {
+	width: 100%;
+	padding: 2px;
+	margin: 0;
+	border-collapse : collapse; 
+}
+
+.datatable td {	
+	padding: 4px 2px;
+}
+
+.datatable tr {	
+	width: inherit;
+}
+
+.scrollable {
+	display: block;
+	overflow: auto;
+}
+
+.datatable tr:nth-child(1n+1) {
+	background-color: #EAECED;
+	color: #000;
+}
+
+.datatable tr:nth-child(2n+2) {
+	background-color: #F7F7F7;
+	color: #000;
+}
+
+.datatable tr:hover {
+	background-color: #4C535B;
+	color: #fff;
+}

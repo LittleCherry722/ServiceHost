@@ -222,7 +222,7 @@ var MenuViewModel = function() {
 		$("a#processList").fancybox({
 			'padding' : '0px',
 			'scrolling' : 'auto',
-			'width' : '60',
+			'width' : '40',
 			'height' : '50',
 			'transitionIn' : 'elastic',
 			'transitionOut' : 'elastic',
