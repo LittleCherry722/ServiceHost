@@ -697,21 +697,6 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	text-align: left;
 }
 
-.datatable table tr:nth-child(1n+2) {
-	background-color: #AAAAAA;
-	color: #000;
-}
-
-.datatable table tr:nth-child(2n+3) {
-	background-color: #C6CACB;
-	color: #000;
-}
-
-.datatable table tr:hover {
-	background-color: #c00;
-	color: #fff;
-}
-
 #zoominbutton {
 	margin-right: 0;
 	position: absolute;
