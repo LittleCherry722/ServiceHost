@@ -72,6 +72,19 @@ var MenuViewModel = function() {
 			});
 		});
 
+        $("#hide_menu").click(function(){
+            $("#left_menu").hide();
+            $("#show_menu").show();$("body").addClass("nobg");
+            $("#content").css("marginLeft",35);
+        });
+    
+        $("#show_menu").click(function(){
+            $("#left_menu").show();
+            $(this).hide();
+            $("body").removeClass("nobg");
+            $("#content").css("marginLeft",245);
+        });
+
 		$("a#saveAs").fancybox({
 			'padding' : '0px',
 			'scrolling' : 'no',
