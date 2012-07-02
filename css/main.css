@@ -371,7 +371,7 @@ a#show_menu:hover {
 	width: 99%;
 	background: #fff;
 	border: 1px solid #cdcdcd;
-	margin: 0 0 20px 0;
+	margin: 0;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	-moz-box-shadow: 0 1px 2px #ccc;
