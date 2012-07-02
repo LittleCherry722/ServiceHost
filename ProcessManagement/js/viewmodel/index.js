@@ -452,11 +452,11 @@ var InternalViewModel = function() {
 		
 		//resize canvas to fit into screen
 		$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
-		$("#graph_bv_outer").css("height", window.innerHeight - 124);
+		$("#graph_bv_outer").css("height", window.innerHeight - 170);
 
 		$(window).resize(function() {
 			$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
-			$("#graph_bv_outer").css("height", window.innerHeight - 124);
+			$("#graph_bv_outer").css("height", window.innerHeight - 170);
 		});
 
 		// gf_clickedCVbehavior();

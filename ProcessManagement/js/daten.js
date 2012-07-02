@@ -195,12 +195,13 @@ function ProzessLaden(name) {
 	$("input[id=tab2]").trigger("click");  
 
 }
+*/
 
 function clearListOfSubjects(){
 	$(".chzn-select").val('').trigger("liszt:updated");
 	$(".chzn-select").html('').trigger("liszt:updated");
 }
-*/
+
 function updateListOfSubjects(){
 	
 	//console.log(gv_graph.subjects);
