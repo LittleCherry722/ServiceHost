@@ -13,7 +13,7 @@ var ViewModel = function() {
 
 			self.close();
 			parent.SBPM.VM.processVM.showProcess(process);
-
+            parent.SBPM.VM.menuVM.init();
 		} else {
 			console.log("may exists");
 			if(SBPM.Service.Process.processExists(process) == true) {
@@ -38,6 +38,4 @@ var ViewModel = function() {
 
 	console.log("ViewModel for newProcess initialized.");
 }
-var VM = new ViewModel();
-
 
