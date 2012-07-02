@@ -53,6 +53,10 @@ SBPM.Storage = new function () {
 
 	this.get = function (name) {
 		var returnValue = dataContainer[name];
+		
+		if(returnValue && returnValue[0] == "{")
+		  returnValue = JSON.parse(returnValue);
+		
 		return returnValue;
 	};
 
