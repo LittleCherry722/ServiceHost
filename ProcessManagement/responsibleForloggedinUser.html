@@ -61,7 +61,7 @@ function showUsers(group) {
 var users = getallusersforgroup(getGroupID(group));
 var insert = "";
 for (var i = 0; i < users.length; ++i) {
-	if(users[i] != storage.get("loggedin_user"))
+	if(users[i] != parent.SBPM.Storage.get("loggedin_user"))
 		insert += "<option>" + getUserName(users[i]) + "</option>";
 }
 document.getElementById('users').innerHTML = insert;
@@ -84,7 +84,7 @@ document.getElementById('users').innerHTML = insert;
 	<!-- End header -->
 	<div style="margin:10px; width:270px">
 		<br class="clear"/>
-		Add person in charge for <script>document.write(parent.storage.get("loggedin_user"));</script>.
+		Add person in charge for <script>document.write(parent.SBPM.Storage.get("user").name);</script>.
 		<br class="clear"/>
 		<br class="clear"/>
 		<br class="clear"/>
