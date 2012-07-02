@@ -17,6 +17,7 @@ include("include/dbconnect.php");
 
 $userid   = (isset($_REQUEST['userid'])) ? $_REQUEST['userid'] : -1;
 $subjects = (isset($_REQUEST['subjects'])) ? $_REQUEST['subjects'] : -1;
+$limit = (isset($_REQUEST['limit'])) ? "LIMIT 0,".$_REQUEST['limit'] : "";
 
 if (isset($_REQUEST['action'])){
 	$return = array();
@@ -86,7 +87,7 @@ if (isset($_REQUEST['action'])){
 			}
 		}
 	}elseif ($_REQUEST['action'] == "getallprocesses"){
-		$result = mysql_query("SELECT * FROM `process`");
+		$result = mysql_query("SELECT * FROM `process` ".mysql_escape_string($limit));
 		$processes = array();
 		while ($process = mysql_fetch_array($result, MYSQL_ASSOC)){
 			array_push($processes, $process['name']);
@@ -94,7 +95,7 @@ if (isset($_REQUEST['action'])){
 		$return['processes'] = $processes;
 		$return['code']   = "ok";
 	}elseif ($_REQUEST['action'] == "getallprocessesids"){
-		$result = mysql_query("SELECT * FROM `process`");
+		$result = mysql_query("SELECT * FROM `process` ".mysql_escape_string($limit));
 		$processes = array();
 		while ($process = mysql_fetch_array($result, MYSQL_ASSOC)){
 			array_push($processes, $process['ID']);

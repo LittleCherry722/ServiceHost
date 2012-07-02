@@ -99,13 +99,13 @@ getProcessName : function (processid){
 getProcessID : function (processname){
 	return SBPM.DB.syncQuery("process.php", {"processname" : processname, "action" : "getid"}, 0, defaultIDReturn);
 },
-getAllProcesses : function (){
-	return SBPM.DB.syncQuery("process.php", {"action" : "getallprocesses"}, "", function (json){
+getAllProcesses : function (limit){
+	return SBPM.DB.syncQuery("process.php", {"action" : "getallprocesses", "limit" : limit}, "", function (json){
 		if (json["code"] == "ok")
 			return json["processes"];});
 },
-getAllProcessesIDs : function (){
-	return SBPM.DB.syncQuery("process.php", {"action" : "getallprocessesids"}, "", function (json){
+getAllProcessesIDs : function (limit){
+	return SBPM.DB.syncQuery("process.php", {"action" : "getallprocessesids", "limit" : limit}, "", function (json){
 		if (json["code"] == "ok")
 			return json["ids"];});
 },
