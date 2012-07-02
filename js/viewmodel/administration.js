@@ -14,7 +14,7 @@ var ViewModel = function() {
     self.init = function(){
         
         //preselect the general tab
-        self.goToTab("General");
+        self.goToTab("Users");
         
     }
     
@@ -48,7 +48,6 @@ var ViewModel = function() {
     }
     
     self.init();
-    console.log("ViewModel for administration initialized.");
 };
  
  
@@ -59,10 +58,9 @@ var SubViewModel = function(name){
 
     self.name = name;
     self.template = name.toLowerCase();
-    self.data = ko.observableArray();
+    self.data = ko.mapping.fromJS([]);
     
     self.init = function(){
-        console.log("loading model.");
         self.loadModel();
     }
 
@@ -97,10 +95,13 @@ var UserViewModel = function(){
     self.options = ko.observableArray();
     
     self.loadModel = function(){
+        
         ko.mapping.fromJS(SBPM.Service.User.getAll(), self.data);
         
         if(self.options().length < 1){
             var roles = SBPM.Service.Role.getAll();
+            
+            console.log(roles);
             
             for(var i in roles)
                 self.options.push(roles[i].name);
@@ -124,9 +125,13 @@ var UserViewModel = function(){
     
     self.save = function(){
 
+        console.log(self.data());
+
         for(var i in self.data())
             if(self.data()[i].name == "")
-                self.data().removeAll(self.data()[i]);   
+                self.data.remove(self.data()[i]);   
+        
+        console.log(self.data());
         
         var data = SBPM.Service.User.saveAll(ko.toJS(self.data()));
         
@@ -148,7 +153,7 @@ var RoleViewModel = function(){
     var self = this;
     
     self.loadModel = function(){
-        self.data(ko.mapping.fromJS(SBPM.Service.Role.getAll()));
+        ko.mapping.fromJS(SBPM.Service.Role.getAll(), self.data);
     }
     
     self.deleteRole = function(role){
@@ -194,18 +199,31 @@ var DebugViewModel = function(){
     }
 
     self.createUsers = function(){
-        if(SBPM.Service.Debug.createUsers(name))
-            ;
+        if(SBPM.Service.Debug.createUsers())
+            SBPM.Notification.Info("Information", "Test case created successfully.");
+        else
+            SBPM.Notification.Error("Information", "Creating test case failed.");
+    }
+    
+    self.clearDatabase = function(){
+        if(SBPM.Service.Debug.clearDatabase())
+            SBPM.Notification.Info("Information", "Test case created successfully.");
+        else
+            SBPM.Notification.Error("Information", "Creating test case failed.");
     }
 
     self.createProcess1 = function(){
         if(SBPM.Service.Debug.createProcess("applicationforleave"))
-            ;
+            SBPM.Notification.Info("Information", "Test case created successfully.");
+        else
+            SBPM.Notification.Error("Information", "Creating test case failed.");
     }
     
     self.createProcess2 = function(){
         if(SBPM.Service.Debug.createProcess("asyncmsg"))
-            ;
+            SBPM.Notification.Info("Information", "Test case created successfully.");
+        else
+            SBPM.Notification.Error("Information", "Creating test case failed.");
     }
 
     self.save = function(){
@@ -215,7 +233,3 @@ var DebugViewModel = function(){
     SubViewModel.call(self, "Debug");
     
 }
-
-var VM = new ViewModel();
-
-ko.applyBindings(VM);

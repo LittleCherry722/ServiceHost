@@ -142,6 +142,12 @@ h4 {
 	vertical-align: middle;
 }
 
+
+.scrollable {
+	display: block;
+	overflow: auto;
+}
+
 .datatable {
 	width: 100%;
 	padding: 2px;
@@ -149,30 +155,35 @@ h4 {
 	border-collapse : collapse; 
 }
 
-.datatable td {	
-	padding: 4px 2px;
-}
-
 .datatable tr {	
 	width: inherit;
 }
 
-.scrollable {
-	display: block;
-	overflow: auto;
+.datatable th{
+	font-weight: bold;
+	font-size: 120%;
+	line-height: 28px;
+	padding-left: 4px;
+	background-color: #BFC6CF;
+	color: #000;
 }
 
-.datatable tr:nth-child(1n+1) {
+.datatable td {	
+	padding: 4px 2px;
+	vertical-align: middle;
+}
+
+.datatable tr:nth-child(1n+2) {
 	background-color: #EAECED;
 	color: #000;
 }
 
-.datatable tr:nth-child(2n+2) {
+.datatable tr:nth-child(2n+3) {
 	background-color: #F7F7F7;
 	color: #000;
 }
 
-.datatable tr:hover {
+.datatable .hover tr:hover {
 	background-color: #4C535B;
 	color: #fff;
 }
