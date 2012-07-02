@@ -27,16 +27,18 @@ var ViewModel = function() {
 		self.headerVM = new HeaderViewModel();
 		self.processVM = new ProcessViewModel();
 		self.homeVM = new HomeViewModel();
+		self.executionVM = new ExecutionViewModel();
 
 		self.menuVM.init();
 		self.headerVM.init();
 		self.homeVM.init();
 		self.processVM.init();
+		self.executionVM.init();
 
 	}
 
 	self.init();
-	self.mainViews = [self.homeVM, self.processVM];
+	self.mainViews = [self.homeVM, self.processVM, self.executionVM];
 
 	self.activeView = function() {
 		return self.mainViews[self.activeViewIndex()]
@@ -45,9 +47,9 @@ var ViewModel = function() {
 var MenuViewModel = function() {
 
 	var self = this;
-	    
+
 	self.recentProcesses = ko.observableArray();
-    self.maxRecent = 5;
+	self.maxRecent = 5;
 
 	self.init = function() {
 		self.recentProcesses(SBPM.Service.Process.getAllProcesses(self.maxRecent));
@@ -72,18 +74,19 @@ var MenuViewModel = function() {
 			});
 		});
 
-        $("#hide_menu").click(function(){
-            $("#left_menu").hide();
-            $("#show_menu").show();$("body").addClass("nobg");
-            $("#content").css("marginLeft",35);
-        });
-    
-        $("#show_menu").click(function(){
-            $("#left_menu").show();
-            $(this).hide();
-            $("body").removeClass("nobg");
-            $("#content").css("marginLeft",245);
-        });
+		$("#hide_menu").click(function() {
+			$("#left_menu").hide();
+			$("#show_menu").show();
+			$("body").addClass("nobg");
+			$("#content").css("marginLeft", 35);
+		});
+
+		$("#show_menu").click(function() {
+			$("#left_menu").show();
+			$(this).hide();
+			$("body").removeClass("nobg");
+			$("#content").css("marginLeft", 245);
+		});
 
 		$("a#saveAs").fancybox({
 			'padding' : '0px',
@@ -257,8 +260,8 @@ var HeaderViewModel = function() {
 
 	self.init = function() {
 		if(SBPM.Storage.get("user")) {
-		    console.log("User: "+SBPM.Storage.get("user"));
-		    
+			console.log("User: " + SBPM.Storage.get("user"));
+
 			self.userName(SBPM.Storage.get("user").name);
 			messageCheck();
 		}
@@ -330,7 +333,7 @@ var ProcessViewModel = function() {
 	});
 	self.name = "processView";
 	self.label = "Process";
- 
+
 	self.subjectVM = new SubjectViewModel();
 	self.internalVM = new InternalViewModel();
 	self.chargeVM = new chargeViewModel();
@@ -354,7 +357,7 @@ var ProcessViewModel = function() {
 
 	self.afterRender = function() {
 		$("#slctSbj").chosen();
-		
+
 		$("#tab2").click(function() {
 			console.log("tab2 clicked");
 
@@ -410,13 +413,13 @@ var SubjectViewModel = function() {
 	self.label = "Subject-Interaction-View";
 
 	self.init = function() {
-		
+
 	}
 
 	self.showView = function() {
 		SBPM.VM.activeViewIndex(1);
 		SBPM.VM.processVM.activeViewIndex(0);
-		
+
 	}
 
 	self.afterRender = function() {
@@ -449,7 +452,7 @@ var InternalViewModel = function() {
 	}
 
 	self.afterRender = function() {
-		
+
 		//resize canvas to fit into screen
 		$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
 		$("#graph_bv_outer").css("height", window.innerHeight - 170);
@@ -503,3 +506,70 @@ var chargeViewModel = function() {
 
 	}
 }
+
+var ExecutionViewModel = function() {
+
+	var self = this;
+	self.name = "executionView";
+	self.lable = "Execution";
+
+	self.courseVM = new CourseViewModel();
+	self.instanceVM = new InstanceViewModel();
+
+	self.init = function() {
+
+	self.courseVM.init();
+	self.instanceVM.init();
+	}
+	self.afterRender = function() {
+	}
+	self.showView = function() {
+		SBPM.VM.activeViewIndex(2);
+	}
+
+	self.executionViews = [self.courseVM, self.instanceVM];
+
+	self.activeViewIndex = ko.observable(0);
+	self.activeView = function() {
+		return self.executionViews[self.activeViewIndex()];
+	};
+}
+
+var CourseViewModel = function() {
+	
+	var self = this;
+	self.name = "courseView";
+	self.lable = "Course";
+	
+	self.init = function() {
+
+	}
+	self.afterRender = function() {
+	}
+	self.showView = function() {
+		SBPM.VM.executionVM.activeViewIndex(0);
+	}
+	self.activateTab= function() {
+		$("#instance_tab1").addClass("active");
+		$("#instance_tab2").removeClass("active");
+	}
+}
+
+var InstanceViewModel = function() {
+	var self = this;
+	self.name = "instanceView";
+	self.lable = "Instance";
+	self.init = function() {
+
+	}
+	self.afterRender = function() {
+	}
+	self.showView = function() {
+		SBPM.VM.executionVM.activeViewIndex(1);
+	}
+		self.activateTab= function() {
+		$("#instance_tab1").removeClass("active");
+		$("#instance_tab2").addClass("active");
+	}
+}
+
