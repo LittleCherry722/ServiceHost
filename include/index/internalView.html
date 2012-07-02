@@ -6,29 +6,29 @@
 		<br/>
 		<label class="graphsectionheader">Add nodes:</label>
 		<br/>
-		<input type="button" class="graphmenubutton" value="Add new node" onclick="gv_graph.createNode();"/>
+		<input type="button" id="CreateNodeButton" class="graphmenubutton" value="Add new node" onclick="gv_graph.createNode();"/>
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gf_callMacro('newSendNode');" value="Insert send node" />
+		<input type="button" id="InsertSendNodeButton" class="graphmenubutton" onclick="gf_callMacro('newSendNode');" value="Insert send node" />
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
+		<input type="button" id="InsertReceiveButton" class="graphmenubutton" onclick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gf_callMacro('newActionNode');" value="Insert action node" />
+		<input type="button" id="InsertActionNodeButton" class="graphmenubutton" onclick="gf_callMacro('newActionNode');" value="Insert action node" />
 		<br/>
 		<label class="graphsectionheader">Node functions:</label>
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gv_graph.updateNode();" value="Update node" />
+		<input type="button" id="UpdateNodeButton" class="graphmenubutton" onclick="gv_graph.updateNode();" value="Update node" />
 		<br/>
 		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate node" />
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete node" />
+		<input type="button" id="DeleteNodeButton" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete node" />
 		<br/>
 		<label class="graphsectionheader">Edge functions:</label>
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gv_graph.connectNodes();" value="Connect node" />
+		<input type="button" id="ConnectNodeButton" class="graphmenubutton" onclick="gv_graph.connectNodes();" value="Connect node" />
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gv_graph.updateEdge();" value="Update edge" />
+		<input type="button" id="UpdateEdgeButton" class="graphmenubutton" onclick="gv_graph.updateEdge();" value="Update edge" />
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gv_graph.deleteEdge();" value="Remove edge" />
+		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" onclick="gv_graph.deleteEdge();" value="Remove edge" />
 		<br/>
 		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate edge" />
 		<br/>

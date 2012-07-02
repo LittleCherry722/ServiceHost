@@ -130,7 +130,7 @@ var MenuViewModel = function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					newInstance(fancyreturn1);
 			}
 		});
@@ -147,7 +147,7 @@ var MenuViewModel = function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					resumeInstanceMessage(fancyreturn1)
 			}
 		});
@@ -164,7 +164,7 @@ var MenuViewModel = function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false) {
+				if (fancyreturn1 != false) {
 					drawHistory(loadInstanceData(fancyreturn1));
 					document.getElementById("welcome").style.display = "none";
 					document.getElementById('ausfuehrung').style.display = 'block';
@@ -186,7 +186,7 @@ var MenuViewModel = function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false) {
+				if (fancyreturn1 != false) {
 					drawHistory(loadInstanceData(fancyreturn1));
 					document.getElementById("welcome").style.display = "none";
 					document.getElementById('ausfuehrung').style.display = 'block';
@@ -209,7 +209,7 @@ var MenuViewModel = function() {
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
 				writeSumActiveInstances();
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					resumeInstance(fancyreturn1);
 			}
 		});
@@ -226,7 +226,7 @@ var MenuViewModel = function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false) {
+				if (fancyreturn1 != false) {
 					drawHistory(loadInstanceData(fancyreturn1));
 					document.getElementById("welcome").style.display = "none";
 					document.getElementById('ausfuehrung').style.display = 'block';
@@ -259,6 +259,7 @@ var HeaderViewModel = function() {
 	self.messageCount = ko.observable(0);
 
 	self.init = function() {
+
 		if(SBPM.Storage.get("user")) {
 			console.log("User: " + SBPM.Storage.get("user"));
 
@@ -324,7 +325,7 @@ var ProcessViewModel = function() {
 	//console.log(self.objectOfSubjects());
 	self.arrayOfSubjects = ko.observableArray();
 	self.compSubjects = ko.computed(function() {
-		for(subject in self.objectOfSubjects()) {
+		for (subject in self.objectOfSubjects()) {
 			//console.log(subject);
 			self.arrayOfSubjects.push(subject);
 		}
@@ -434,6 +435,81 @@ var SubjectViewModel = function() {
 		// gf_paperChangeView("cv");
 		// updateListOfSubjects();
 		// gv_graph.draw();
+		var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
+		var qtipPositionAt = 'right top';
+		var qtipPositionMy = 'left bottom';
+		$('#AddSubjectButton').qtip({
+			content : {
+				text : 'Macro\n: Press "A"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+		$('#UpdateSubjectButton').qtip({
+			content : {
+				text : 'Macro\n: Press "U"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+		$('#DeleteSubjectButton').qtip({
+			content : {
+				text : 'Macro\n: Press "D"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+			$('#DeleteSubjectButton').qtip({
+			content : {
+				text : 'Macro\n: Press "D"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
 	}
 }
 var InternalViewModel = function() {
@@ -464,6 +540,171 @@ var InternalViewModel = function() {
 
 		// gf_clickedCVbehavior();
 		// updateListOfSubjects();
+				var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
+		var qtipPositionAt = 'right top';
+		var qtipPositionMy = 'left bottom';
+		$('#CreateNodeButton').qtip({
+			content : {
+				text : 'Macro\n: Press "A"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+			$('#InsertSendNodeButton').qtip({
+			content : {
+				text : 'Macro\n: Press "1"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+			$('#InsertReceiveButton').qtip({
+			content : {
+				text : 'Macro\n: Press "2"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+			$('#InsertActionNodeButton').qtip({
+			content : {
+				text : 'Macro\n: Press "3"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+			$('#UpdateNodeButton').qtip({
+			content : {
+				text : 'Macro\n: Press "U"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+			$('#DeleteNodeButton').qtip({
+			content : {
+				text : 'Macro\n: Press "D"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+				$('#ConnectNodeButton').qtip({
+			content : {
+				text : 'Macro\n: Press "C"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+				$('#UpdateEdgeButton').qtip({
+			content : {
+				text : 'Macro\n: Press "U"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
+				$('#DeleteEdgeButton').qtip({
+			content : {
+				text : 'Macro\n: Press "D"'
+			},
+			position : {
+				at : qtipPositionAt,
+				my : qtipPositionMy,
+				viewport : $(window),
+				adjust : {
+					method : 'mouse',
+					x : 0,
+					y : 0
+				}
+			},
+			style : {
+				classes : qtipStyle
+			}
+		});
 	}
 }
 var chargeViewModel = function() {
@@ -495,7 +736,7 @@ var chargeViewModel = function() {
 			'modal' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
-				if(fancyreturn1 != false)
+				if (fancyreturn1 != false)
 					addResponsible(fancyreturn2, fancyreturn1);
 			}
 		});
