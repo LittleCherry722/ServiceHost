@@ -38,5 +38,4 @@ var ViewModel = function() {
 
 	console.log("ViewModel for saveAsProcess initialized.");
 }
-var VM = new ViewModel();
 
