@@ -193,12 +193,11 @@ var DebugViewModel = function(){
 
     var self = this;
     
-    self.test = 1;
-    
     self.loadModel = function(){
     }
 
     self.createUsers = function(){
+        console.log("createUsers");
         if(SBPM.Service.Debug.createUsers())
             SBPM.Notification.Info("Information", "Test case created successfully.");
         else
@@ -206,6 +205,7 @@ var DebugViewModel = function(){
     }
     
     self.clearDatabase = function(){
+        console.log("clearDatabase");
         if(SBPM.Service.Debug.clearDatabase())
             SBPM.Notification.Info("Information", "Test case created successfully.");
         else
@@ -213,14 +213,8 @@ var DebugViewModel = function(){
     }
 
     self.createProcess1 = function(){
+        console.log("createProcess1");
         if(SBPM.Service.Debug.createProcess("applicationforleave"))
-            SBPM.Notification.Info("Information", "Test case created successfully.");
-        else
-            SBPM.Notification.Error("Information", "Creating test case failed.");
-    }
-    
-    self.createProcess2 = function(){
-        if(SBPM.Service.Debug.createProcess("asyncmsg"))
             SBPM.Notification.Info("Information", "Test case created successfully.");
         else
             SBPM.Notification.Error("Information", "Creating test case failed.");
