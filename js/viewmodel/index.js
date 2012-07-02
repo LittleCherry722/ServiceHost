@@ -257,6 +257,8 @@ var HeaderViewModel = function() {
 
 	self.init = function() {
 		if(SBPM.Storage.get("user")) {
+		    console.log("User: "+SBPM.Storage.get("user"));
+		    
 			self.userName(SBPM.Storage.get("user").name);
 			messageCheck();
 		}
@@ -267,9 +269,6 @@ var HeaderViewModel = function() {
 	});
 
 	function messageCheck() {
-		console.log(SBPM.Storage.get("user").id);
-		console.log(SBPM.Service.Message.countNewMessages(SBPM.Storage.get("user").id));
-
 		self.messageCount(SBPM.Service.Message.countNewMessages(SBPM.Storage.get("user").id));
 
 		setTimeout(messageCheck, 120000);

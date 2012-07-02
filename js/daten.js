@@ -50,10 +50,11 @@ document.getElementById('runningInstances').innerHTML = "Running instances (" +r
 }
 
 function einloggen(name, password) {
-    var user = SBPM.Service.Authentication.login(name, password);
+    var json = SBPM.Service.Authentication.login(name, password);
+    var user = json['user'];
       
-    if(user['code'] == 'ok') {
-        SBPM.Storage.set("user", user);
+    if(json['code'] == 'ok') {
+        SBPM.Storage.set("user", JSON.stringify(json['user']));
     	SBPM.Storage.set("loggedin_user", user.name);
     	SBPM.Storage.set("userid", user.id);
     	return true;

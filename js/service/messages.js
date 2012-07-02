@@ -1,6 +1,6 @@
 SBPM.Service.Message = {
     _default : {
-        endpoint : "groups.php"
+        endpoint : "messages.php"
     },
     query : function(param, defaultvalue, callback){
         return SBPM.DB.syncQuery(this._default.endpoint, param, defaultvalue, callback);
@@ -11,7 +11,7 @@ SBPM.Service.Message = {
             "userid" : userId
             }, {}, function(json) {
             if (json["code"] == "ok")
-                return json["count"];
+                return json["count"] ? json["count"] : 0;
         });
     }
 }
