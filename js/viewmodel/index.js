@@ -3,8 +3,6 @@ var ViewModel = function() {
 	var self = this;
 
 	self.init = function() {
-		console.log("init vms");
-
 		$("#dialog").dialog({
 			autoOpen : false,
 			modal : true,
@@ -47,9 +45,12 @@ var ViewModel = function() {
 var MenuViewModel = function() {
 
 	var self = this;
+	    
+	self.recentProcesses = ko.observableArray();
+    self.maxRecent = 5;
 
 	self.init = function() {
-		console.log("init Menu VM");
+		self.recentProcesses(SBPM.Service.Process.getAllProcesses(self.maxRecent));
 	}
 
 	self.afterRender = function() {
@@ -242,11 +243,9 @@ var HeaderViewModel = function() {
 	self.messageCount = ko.observable(0);
 
 	self.init = function() {
-		console.log("init Header VM");
-
 		if(SBPM.Storage.get("user")) {
 			self.userName(SBPM.Storage.get("user").name);
-			initMessageCheck();
+			messageCheck();
 		}
 	}
 
@@ -254,12 +253,13 @@ var HeaderViewModel = function() {
 		return self.messageCount() < 1 ? "no new messages" : self.messageCount() + " new messages ";
 	});
 
-	function initMessageCheck() {
+	function messageCheck() {
+		console.log(SBPM.Storage.get("user").id);
 		console.log(SBPM.Service.Message.countNewMessages(SBPM.Storage.get("user").id));
 
 		self.messageCount(SBPM.Service.Message.countNewMessages(SBPM.Storage.get("user").id));
 
-		setTimeout(initMessageCheck, 120000);
+		setTimeout(messageCheck, 120000);
 	}
 
 
@@ -292,11 +292,9 @@ var HomeViewModel = function() {
 	self.label = "Home";
 
 	self.init = function() {
-		console.log("init Home VM");
 	}
 
 	self.afterRender = function() {
-		console.log("home afterRender");
 	}
 	self.showView = function() {
 		SBPM.VM.activeViewIndex(0);
@@ -326,8 +324,6 @@ var ProcessViewModel = function() {
 	self.chargeVM = new chargeViewModel();
 
 	self.init = function() {
-		console.log("init Process VM");
-
 		self.subjectVM.init();
 		self.internalVM.init();
 		self.chargeVM.init();
@@ -346,10 +342,7 @@ var ProcessViewModel = function() {
 
 	self.afterRender = function() {
 		$("#slctSbj").chosen();
-		console.log("process afterRender");
-
-		console.log($("#tab1"));
-
+		
 		$("#tab2").click(function() {
 			console.log("tab2 clicked");
 
@@ -405,8 +398,7 @@ var SubjectViewModel = function() {
 	self.label = "Subject-Interaction-View";
 
 	self.init = function() {
-		console.log("init Subject VM");
-
+		
 	}
 
 	self.showView = function() {
@@ -416,8 +408,6 @@ var SubjectViewModel = function() {
 	}
 
 	self.afterRender = function() {
-		console.log("subject afterRender");
-
 		//resize canvas to fit into screen
 		$("#graph_cv_outer").css("width", window.innerWidth - 175 - 235);
 		$("#graph_cv_outer").css("height", window.innerHeight - 125);
@@ -439,7 +429,6 @@ var InternalViewModel = function() {
 	self.label = "Internal-Behavior-View";
 
 	self.init = function() {
-		console.log("init Internal VM");
 	}
 
 	self.showView = function() {
@@ -448,8 +437,7 @@ var InternalViewModel = function() {
 	}
 
 	self.afterRender = function() {
-		console.log("internal afterRender");
-
+		
 		//resize canvas to fit into screen
 		$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
 		$("#graph_bv_outer").css("height", window.innerHeight - 124);
@@ -471,7 +459,6 @@ var chargeViewModel = function() {
 	self.label = "Person in charge";
 
 	self.init = function() {
-		console.log("init Charge VM");
 
 	}
 
@@ -481,8 +468,6 @@ var chargeViewModel = function() {
 	}
 
 	self.afterRender = function() {
-		console.log("charge afterRender");
-
 		$("a#responsibleForloggedinUser").fancybox({
 			'padding' : '0px',
 			'scrolling' : 'no',

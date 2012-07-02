@@ -12,9 +12,16 @@
 								<a id="newProcess" href="newProcess.html">Create new process</a>
 							</li>
 							<!-- <li><a id="deleteProcess" href="deleteProcess.html">Delete existing process</a></li> -->
-							<li>
-								<a id="processList" href="processList.html">View existing processes</a>
-							</li>
+                            <li>
+                                <a id="processList" href="processList.html">View existing processes</a>
+                            </li>
+                            <li>
+                                <ul data-bind="foreach: recentProcesses">
+                                    <li>
+                                        <a data-bind="{text: $data, click: SBPM.VM.processVM.showProcess}"></a>
+                                    </li>
+                                </ul>
+                            </li>
 							<!-- <li><a id="loadProcess" href="loadProcess.html">Load process</a></li> -->
 						</ul>
 					</li>
