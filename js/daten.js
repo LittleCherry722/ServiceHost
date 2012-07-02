@@ -166,8 +166,6 @@ function GraphSpeichernAls(newName) {
     	});
     }
 }
-*/
-/*
 function ProzessLaden(name) {
 
     console.log(arguments.callee);
@@ -196,6 +194,7 @@ function ProzessLaden(name) {
 
 }
 */
+
 
 function clearListOfSubjects(){
 	$(".chzn-select").val('').trigger("liszt:updated");

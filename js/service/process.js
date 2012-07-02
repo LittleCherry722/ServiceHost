@@ -6,7 +6,8 @@ SBPM.Service.Process = {
         } 
         else {
         	SBPM.Notification.Info("Create process", "Process \"" + processName + "\" successfully created.")
-                }
+        }
+
 	},
 
 
@@ -22,10 +23,13 @@ SBPM.Service.Process = {
 
 		gf_loadGraph(loadGraph(getProcessID(processName)));
 
+    showverantwortliche();
+    setSubjectIDs();
+
 	},
 	saveAsProcess : function(newName) {
 		
-			var graphAsJSON = gv_graph.saveToJSON();
+		var graphAsJSON = gv_graph.saveToJSON();
     
     var startSubjects = [];
     
