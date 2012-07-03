@@ -429,7 +429,6 @@ var SubjectViewModel = function() {
 		$("#graph_cv_outer").css("height", window.innerHeight - 145);
 		$("#show_menu").click(function() {
 			$(window).trigger('resize');
-			console.log("showmenuclicked")
 		});
 		$("#hide_menu").click(function() {
 			$(window).trigger('resize');
@@ -438,7 +437,6 @@ var SubjectViewModel = function() {
 			if ($("#show_menu").css("display") == "none") {
 				$("#graph_cv_outer").css("width", window.innerWidth - 170 - 245);
 				$("#graph_cv_outer").css("height", window.innerHeight - 145);
-				console.log("resize fired");
 			} else {
 				$("#graph_cv_outer").css("width", window.innerWidth - 195);
 				$("#graph_cv_outer").css("height", window.innerHeight - 185);
@@ -548,7 +546,6 @@ var InternalViewModel = function() {
 		$("#graph_bv_outer").css("height", window.innerHeight - 145);
 		$("#show_menu").click(function() {
 			$(window).trigger('resize');
-			console.log("showmenuclicked")
 		});
 		$("#hide_menu").click(function() {
 			$(window).trigger('resize');
