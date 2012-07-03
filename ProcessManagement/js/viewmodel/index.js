@@ -131,7 +131,7 @@ var MenuViewModel = function() {
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
 				if (fancyreturn1 != false)
-					newInstance(fancyreturn1);
+					SBPM.Service.Instance.newInstance(fancyreturn1);
 			}
 		});
 
@@ -795,8 +795,13 @@ var ExecutionViewModel = function() {
 	self.activeView = function() {
 		return self.executionViews[self.activeViewIndex()];
 	};
+
+	
+	
+
 }
 var CourseViewModel = function() {
+
 
 	var self = this;
 	self.name = "courseView";
@@ -814,6 +819,10 @@ var CourseViewModel = function() {
 		$("#instance_tab1").addClass("active");
 		$("#instance_tab2").removeClass("active");
 	}
+	
+
+	
+	
 }
 var InstanceViewModel = function() {
 	var self = this;

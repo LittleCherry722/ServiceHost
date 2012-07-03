@@ -424,7 +424,7 @@ function sendTextMessage(type, receiver){
 	addHistoryMessage(SBPM.Storage.get("instancedata"), SBPM.Storage.get("userid"), getMessage(msgid), data, true);
 	return true;
 }
-
+/*
 function newInstance(name) {
 
 	// create the instance
@@ -459,7 +459,7 @@ function newInstance(name) {
 	insert += "</tbody></table>";
 	document.getElementById('instance_history').innerHTML = insert;
 }
-
+*/
 function abortInstance(){
 deleteInstance(SBPM.Storage.get("instanceid"));
 $("#freeow").freeow("Instanz abbrechen", "Instance aborted.", {
