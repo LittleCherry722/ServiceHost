@@ -39,12 +39,14 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 </style>
 
 <!-- javascript -->
+<script type="text/javascript" src="db/db.js"></script>
+<script type="text/javascript" src="js/storage.js"></script>
+
 <script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript" src="js/custom.js"></script>
 <script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<script type="text/javascript" src="js/storage.js"></script>
-<script type="text/javascript" src="db/db.js"></script>
+
 
 
 </head>
@@ -76,14 +78,17 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 			</thead>
 			<tbody>
 			<script>
-			var processes = getAllStartableProcessIDs(getUserID(parent.storage.get("loggedin_user")));
+			
+	
+			
+			var processes = parent.SBPM.Service.Process.getAllStartableProcessIDs(parent.SBPM.Storage.get("user").id);
 				for (var i = 0; i < processes.length; ++i) {
 					document.write("<tr>");
 					document.write("<td>");
-					document.write(getProcessName(processes[i]));
+					document.write(parent.SBPM.Service.Process.getProcessName(processes[i]));
 					document.write("</td>");
 					document.write("<td>");
-					document.write("<a href=\"\" onclick=\"parent.fancyreturn1=getProcessName(processes["+i+"]);parent.$.fancybox.close();\">Start</a>");
+					document.write("<a href=\"\" onclick=\"parent.fancyreturn1=parent.SBPM.Service.Process.getProcessName(processes["+i+"]);parent.$.fancybox.close();\">Start</a>");
 					document.write("</td>");
 					document.write("</tr>");
 				}

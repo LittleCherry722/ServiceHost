@@ -52,5 +52,16 @@ SBPM.Service.Role = {
             if (json["code"] == "ok")
                 return json["groups"];
         });
+    },
+    
+    getRolesByUser : function(name){
+    	return this.query({
+    		//To Do
+    		
     }
+    )
+    
+    
+    
+}
 }
