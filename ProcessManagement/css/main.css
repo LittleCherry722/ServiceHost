@@ -21,6 +21,13 @@ html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pr
 	font-family: inherit;
 	vertical-align: baseline;
 }
+div {
+	vertical-align: middle;
+}
+
+.tab-dropdown {
+	margin-top:2px;
+}
 body {
 	font-family: Arial;
 	font-size: 12px;
@@ -362,7 +369,7 @@ a#show_menu:hover {
 	margin-left: 15px;
 	margin-top: 15px;
 	padding: 0;
-	min-width: 650px;
+	min-width: 1000px;
 	float:left;
 }
 #content .inner {
@@ -401,13 +408,19 @@ a#show_menu:hover {
 	font-weight: bold;
 	padding: 0px 0 0 0px;
 	float: left;
-	width: auto;
+	width: 100%;
 	cursor: n-resize;
 }
-.onecolumn .header .switch {
+/*
+.onecolumn .header {
 	float: left;
 	margin-left: 15px;
 	padding: 5px 0 0 0;
+}*/
+.switch {
+	float: left;
+	margin-left: 15px;
+	padding: 10px 0 0 0;
 }
 .onecolumn .content {
 	background: url(../images/bg_ip.png) repeat-x;
