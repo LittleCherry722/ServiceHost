@@ -68,10 +68,10 @@ var MenuViewModel = function() {
 		});
 
 		$("a#save").click(function() {
-			SBPM.Dialog.YesNo('Warning', 'Do you really want to save this process?', function() {
+			alert("save");
 				SBPM.Service.Process.saveProcess();
-				parent.$.fancybox.close();
-			});
+				
+			
 		});
 
 		$("#hide_menu").click(function() {
