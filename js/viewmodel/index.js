@@ -260,7 +260,7 @@ var HeaderViewModel = function() {
 
 	self.init = function() {
 
-		if(SBPM.Storage.get("user")) {
+		if (SBPM.Storage.get("user")) {
 			console.log("User: " + SBPM.Storage.get("user"));
 
 			self.userName(SBPM.Storage.get("user").name);
@@ -425,12 +425,26 @@ var SubjectViewModel = function() {
 
 	self.afterRender = function() {
 		//resize canvas to fit into screen
-		$("#graph_cv_outer").css("width", window.innerWidth - 175 - 235);
-		$("#graph_cv_outer").css("height", window.innerHeight - 125);
-		$(window).resize(function() {
-			$("#graph_cv_outer").css("width", window.innerWidth - 175 - 235);
-			$("#graph_cv_outer").css("height", window.innerHeight - 125);
+		$("#graph_cv_outer").css("width", window.innerWidth - 170 - 245);
+		$("#graph_cv_outer").css("height", window.innerHeight - 145);
+		$("#show_menu").click(function() {
+			$(window).trigger('resize');
+			console.log("showmenuclicked")
 		});
+		$("#hide_menu").click(function() {
+			$(window).trigger('resize');
+		});
+		$(window).resize(function() {
+			if ($("#show_menu").css("display") == "none") {
+				$("#graph_cv_outer").css("width", window.innerWidth - 170 - 245);
+				$("#graph_cv_outer").css("height", window.innerHeight - 145);
+				console.log("resize fired");
+			} else {
+				$("#graph_cv_outer").css("width", window.innerWidth - 195);
+				$("#graph_cv_outer").css("height", window.innerHeight - 185);
+		}
+		});
+
 		// gv_graph.init();
 		// gf_paperChangeView("cv");
 		// updateListOfSubjects();
@@ -492,7 +506,7 @@ var SubjectViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-			$('#DeleteSubjectButton').qtip({
+		$('#DeleteSubjectButton').qtip({
 			content : {
 				text : 'Macro\n: Press "D"'
 			},
@@ -530,17 +544,28 @@ var InternalViewModel = function() {
 	self.afterRender = function() {
 
 		//resize canvas to fit into screen
-		$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
-		$("#graph_bv_outer").css("height", window.innerHeight - 170);
-
+		$("#graph_bv_outer").css("width", window.innerWidth - 170 - 245);
+		$("#graph_bv_outer").css("height", window.innerHeight - 145);
+		$("#show_menu").click(function() {
+			$(window).trigger('resize');
+			console.log("showmenuclicked")
+		});
+		$("#hide_menu").click(function() {
+			$(window).trigger('resize');
+		});
 		$(window).resize(function() {
-			$("#graph_bv_outer").css("width", window.innerWidth - 190 - 245);
-			$("#graph_bv_outer").css("height", window.innerHeight - 170);
+			if ($("#show_menu").css("display") == "none") {
+				$("#graph_bv_outer").css("width", window.innerWidth - 170 - 245);
+				$("#graph_bv_outer").css("height", window.innerHeight - 145);
+			} else {
+				$("#graph_bv_outer").css("width", window.innerWidth - 195);
+				$("#graph_bv_outer").css("height", window.innerHeight - 185);
+			}
 		});
 
 		// gf_clickedCVbehavior();
 		// updateListOfSubjects();
-				var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
+		var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
 		var qtipPositionAt = 'right top';
 		var qtipPositionMy = 'left bottom';
 		$('#CreateNodeButton').qtip({
@@ -561,7 +586,7 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-			$('#InsertSendNodeButton').qtip({
+		$('#InsertSendNodeButton').qtip({
 			content : {
 				text : 'Macro\n: Press "1"'
 			},
@@ -579,7 +604,7 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-			$('#InsertReceiveButton').qtip({
+		$('#InsertReceiveButton').qtip({
 			content : {
 				text : 'Macro\n: Press "2"'
 			},
@@ -597,7 +622,7 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-			$('#InsertActionNodeButton').qtip({
+		$('#InsertActionNodeButton').qtip({
 			content : {
 				text : 'Macro\n: Press "3"'
 			},
@@ -615,7 +640,7 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-			$('#UpdateNodeButton').qtip({
+		$('#UpdateNodeButton').qtip({
 			content : {
 				text : 'Macro\n: Press "U"'
 			},
@@ -633,7 +658,7 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-			$('#DeleteNodeButton').qtip({
+		$('#DeleteNodeButton').qtip({
 			content : {
 				text : 'Macro\n: Press "D"'
 			},
@@ -651,7 +676,7 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-				$('#ConnectNodeButton').qtip({
+		$('#ConnectNodeButton').qtip({
 			content : {
 				text : 'Macro\n: Press "C"'
 			},
@@ -669,7 +694,7 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-				$('#UpdateEdgeButton').qtip({
+		$('#UpdateEdgeButton').qtip({
 			content : {
 				text : 'Macro\n: Press "U"'
 			},
@@ -687,7 +712,7 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
-				$('#DeleteEdgeButton').qtip({
+		$('#DeleteEdgeButton').qtip({
 			content : {
 				text : 'Macro\n: Press "D"'
 			},
@@ -747,7 +772,6 @@ var chargeViewModel = function() {
 
 	}
 }
-
 var ExecutionViewModel = function() {
 
 	var self = this;
@@ -759,8 +783,8 @@ var ExecutionViewModel = function() {
 
 	self.init = function() {
 
-	self.courseVM.init();
-	self.instanceVM.init();
+		self.courseVM.init();
+		self.instanceVM.init();
 	}
 	self.afterRender = function() {
 	}
@@ -775,13 +799,12 @@ var ExecutionViewModel = function() {
 		return self.executionViews[self.activeViewIndex()];
 	};
 }
-
 var CourseViewModel = function() {
-	
+
 	var self = this;
 	self.name = "courseView";
 	self.lable = "Course";
-	
+
 	self.init = function() {
 
 	}
@@ -790,12 +813,11 @@ var CourseViewModel = function() {
 	self.showView = function() {
 		SBPM.VM.executionVM.activeViewIndex(0);
 	}
-	self.activateTab= function() {
+	self.activateTab = function() {
 		$("#instance_tab1").addClass("active");
 		$("#instance_tab2").removeClass("active");
 	}
 }
-
 var InstanceViewModel = function() {
 	var self = this;
 	self.name = "instanceView";
@@ -808,7 +830,7 @@ var InstanceViewModel = function() {
 	self.showView = function() {
 		SBPM.VM.executionVM.activeViewIndex(1);
 	}
-		self.activateTab= function() {
+	self.activateTab = function() {
 		$("#instance_tab1").removeClass("active");
 		$("#instance_tab2").addClass("active");
 	}
