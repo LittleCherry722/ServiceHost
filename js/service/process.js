@@ -56,6 +56,9 @@ SBPM.Service.Process = {
 		
 console.log("saveAs "+ newName);
 	},
+	
+	
+	
 	saveProcess : function() {
 		    var graphAsJSON = gv_graph.saveToJSON();
     
@@ -66,6 +69,8 @@ console.log("saveAs "+ newName);
     
     var startSubjectsAsJSON = JSON.stringify(startSubjects);
     
+     //ToDo processName aus Storage oder gv_graph
+    var processName =  SBPM.VM.processVM.processName();
       
     if(this.saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
     	$("#freeow").freeow("Save process", "Process \"" + processName +"\" successfully saved.", {
