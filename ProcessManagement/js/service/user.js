@@ -47,6 +47,20 @@ SBPM.Service.User = {
         });
     },
     /**
+     * gets a list of roles by a user id
+     * 
+     * @param {int} userId 
+     */
+    getRoleByUserId : function(userId) {
+        return this.query({
+            "action" : "getallgroupsbyuserid",
+            "userid" : userId
+        }, {}, function(data) {           
+            if (data["code"] == "ok")
+                return data["groups"];
+        });
+    },
+    /**
      * deletes a user by his ID
      *
      * @param {int} userId
