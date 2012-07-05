@@ -25,6 +25,13 @@ var SBPM = {
     Graph : {}
 };
 
+// turn off debug messages
+if(!SBPM.Constant.DEBUG){
+    window.console = {
+        log : function(){}
+    }
+}
+
 SBPM.DB = {    
     syncQuery : function(url, data, defaultreturn, successfunction ){
         var ret = defaultreturn;
