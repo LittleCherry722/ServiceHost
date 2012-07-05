@@ -47,6 +47,9 @@ SBPM.Storage = new function () {
 	/* --------- Public Methods --------- */
 
 	this.set = function (name, value) {
+	    if(value && typeof value == "object")
+	       value = JSON.stringify(value);
+	    
 		dataContainer[name] = value;
 		write();
 	};
