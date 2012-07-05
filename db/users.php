@@ -109,9 +109,9 @@ if (isset($_REQUEST['action'])) {
 			} else {
 				$return['code'] = "error";
 			}
-		} elseif ($_REQUEST['action'] == 'getallgroups'){
+		} elseif ($_REQUEST['action'] == 'getallgroupsbyuserid'){
 
-			$result = mysql_query("SELECT groups.id, group.name, groups.active
+			$result = mysql_query("SELECT groups.id, groups.name, groups.active
 								FROM users_x_groups 
 								RIGHT JOIN users ON users.id = users_x_groups.userID 
 								LEFT JOIN groups ON groups.id = users_x_groups.groupID
