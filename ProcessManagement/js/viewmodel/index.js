@@ -832,6 +832,7 @@ var InstanceViewModel = function() {
 
 	}
 	self.afterRender = function() {
+		gf_showInternalBehavior(SBPM.Service.Process.loadGraph("1"), "Manager", "n1");
 	}
 	self.showView = function() {
 		SBPM.VM.executionVM.activeViewIndex(1);
