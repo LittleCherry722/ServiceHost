@@ -121,6 +121,7 @@ var UserViewModel = function(){
         var data = self.data();
         data.push({id: 0, name: "", roles: "", active: 1});
         self.data(data);
+        $(".scrollable input.inline").last().focus()
     }
     
     self.save = function(){
@@ -165,6 +166,8 @@ var RoleViewModel = function(){
         var data = self.data();
         data.push({ID: 0, name: "", active: 1});
         self.data(data);
+        $(".scrollable input.inline").last().focus()
+
     }
     
     self.save = function(){
