@@ -51,8 +51,6 @@ if (isset($_REQUEST['action'])) {
 			
 			foreach ($users as $user) {
 
-				error_log(var_export($user, true));
-
 				// insert/update user
 				mysql_query("INSERT INTO `users` (`ID`,`name`) VALUES ('" . $user['id'] . ", " . $user['name'] . "') ON DUPLICATE KEY UPDATE name = " . $user['name'] . ", active = " . $user['active']);
 				
@@ -106,14 +104,29 @@ if (isset($_REQUEST['action'])) {
 		
 			mysql_query("DELETE FROM `relation` WHERE `responsibleID` = " . $_REQUEST['userid']);
 		
-							error_log(mysql_error($link));
-		
 			if (mysql_affected_rows($link) > 0) {
 				$return['code'] = "removed";
 			} else {
 				$return['code'] = "error";
 			}
-		} 
+		} elseif ($_REQUEST['action'] == 'getallgroups'){
+
+			$result = mysql_query("SELECT groups.id, group.name, groups.active
+								FROM users_x_groups 
+								RIGHT JOIN users ON users.id = users_x_groups.userID 
+								LEFT JOIN groups ON groups.id = users_x_groups.groupID
+								WHERE users.id = ".$_REQUEST['userid']);
+			
+			$groups = array();
+			
+			while ($group = mysql_fetch_array($result, MYSQL_ASSOC)) {
+				array_push($groups, $group['name']);
+			}
+			
+			$return['groups'] = $groups;
+			$return['code'] = "ok";
+
+		}
 	} elseif ($_REQUEST['action'] == "getallusers") { // deprecated
 		$result = mysql_query("SELECT * FROM `users`");
 		$users = array();
