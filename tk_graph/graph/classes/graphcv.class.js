@@ -63,12 +63,15 @@ function GCgraphcv ()
 	 * @param {boolean} selected When set to true the subject will be selected.
 	 * @returns {void}
 	 */
-	this.addSubject = function (subject, selected)
+	this.addSubject = function (subject, selected, callback)
 	{
 		if (!gf_isset(selected) || selected != true)
 			selected = false;
 		
 		this.subjects[subject.getId()] = {subject: subject, selected: selected};
+		
+		if(callback && typeof callback == "function")
+		  callback();
 	};
 	
 	/**
@@ -77,7 +80,7 @@ function GCgraphcv ()
 	 * @private
 	 * @returns {void}
 	 */
-	this.drawGraph = function ()
+	this.drawGraph = function (callback)
 	{
 		// init the paper
 		gf_paperChangeView("cv");
@@ -229,6 +232,9 @@ function GCgraphcv ()
 				gv_graph_cv.drawMessage(gt_cv_start, gt_cv_end, gt_cv_messages[gt_cv_start][gt_cv_end]);
 			}
 		}
+		
+        if(callback && typeof callback == "function")
+          callback();
 	};
 	
 	/**

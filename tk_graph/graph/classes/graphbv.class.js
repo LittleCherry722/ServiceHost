@@ -71,7 +71,7 @@ function GCgraphbv ()
 	 * @param {boolean} selected When set to true the edge will be selected.
 	 * @returns{void}
 	 */
-	this.addEdge = function (subject, id, start, end, edge, selected)
+	this.addEdge = function (subject, id, start, end, edge, selected, callback)
 	{
 		if (gf_isset(this.graphs[subject], edge) && gf_isset(this.graphs[subject].nodes[start], this.graphs[subject].nodes[end]))
 		{	
@@ -99,6 +99,9 @@ function GCgraphbv ()
 				gt_bv_graph.nodes[start].edgesOut++;
 				gt_bv_graph.nodes[end].edgesIn++;
 			}
+			
+            if(callback && typeof callback == "function")
+              callback();
 		}
 	};
 	
@@ -112,7 +115,7 @@ function GCgraphbv ()
 	 * @param {boolean} selected When set to true the node will be selected.
 	 * @returns {void}
 	 */
-	this.addNode = function (subject, id, node, selected)
+	this.addNode = function (subject, id, node, selected, callback)
 	{
 		// add a new subject when it is not already set
 		if (!gf_isset(this.graphs[subject]))
@@ -144,6 +147,9 @@ function GCgraphbv ()
 		{
 			gt_bv_graph.startNodes[id] = true;
 		}
+		
+        if(callback && typeof callback == "function")
+          callback();
 	};
 	
 	/**
@@ -168,9 +174,12 @@ function GCgraphbv ()
 	 * @param {String} subject The id of the subject to add.
 	 * @returns {void}
 	 */
-	this.addSubject = function (subject)
+	this.addSubject = function (subject, callback)
 	{
 		this.graphs[subject]	= {nodes: {}, edges: {}, startNodes: {}, nodeCount: 0};
+	
+        if(callback && typeof callback == "function")
+          callback();
 	};
 	
 	/**
@@ -210,11 +219,14 @@ function GCgraphbv ()
 	 * @param {String} subject The id of the subject to remove.
 	 * @returns {void}
 	 */
-	this.deleteSubject = function (subject)
+	this.deleteSubject = function (subject, callback)
 	{
 		if (gf_isset(this.graphs[subject]))
 		{
 			delete this.graphs[subject];
+			
+            if(callback && typeof callback == "function")
+              callback();
 		}
 	};
 	
@@ -431,7 +443,7 @@ function GCgraphbv ()
 	 * @param {String} subject The id of the subject.
 	 * @returns {void}
 	 */
-	this.drawGraph = function (subject)
+	this.drawGraph = function (subject, callback)
 	{
 		if (gf_isset(this.graphs[subject]))
 		{
@@ -584,6 +596,9 @@ function GCgraphbv ()
 				gv_originalViewBox.y -= 100;
 				gf_paperZoomReset();
 			}
+        		
+            if(callback && typeof callback == "function")
+              callback();
 		}
 	};
 	
