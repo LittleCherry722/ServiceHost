@@ -14,6 +14,9 @@
 var db_directory = "db/";
 
 var SBPM = {
+    Constant : {
+        DEBUG : true
+    },
     Service : {},
     Utilities: {},
     VM : {},
