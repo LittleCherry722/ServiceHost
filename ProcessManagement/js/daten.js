@@ -268,7 +268,10 @@ function findStartNodesForGroup(graph, subjectid){
 	var ret = new Array();
 
 	for (group in graph){
+		console.log("group: " + group + " groupID: " + graph[group]['id'])
 		if (getGroupID(graph[group]['id']) == subjectid){
+					//if (graph[group]['id'] == subjectid){
+
 			for (node in graph[group]['nodes']){  
 				if (graph[group]['nodes'][node]['start']){
 					ret.push((graph[group]['nodes'][node]));
@@ -343,7 +346,7 @@ function selectNextNode(subjectid, nodeid, msgtext){
 	var data = SBPM.Storage.get("instancedata");
 	drawHistory(data);
 	
-	var node = findNode(SBPM.Storage.get("instancegraph"), subjectid, nodeid);
+	var node = findNode(JSON.parse(SBPM.Storage.get("instancegraph")), subjectid, nodeid);
 	addHistory(SBPM.Storage.get("instancedata"), SBPM.Storage.get("userid"),subjectid, node);	// < aktuelle node
 	
 	// TODO the current node is known here -> highlight it in canvas
@@ -377,7 +380,7 @@ function selectNextNode(subjectid, nodeid, msgtext){
 		return;
 	}
 	// nachfolger finden
-	var nodeedges = findNodeEdges(SBPM.Storage.get("instancegraph"), subjectid, node);
+	var nodeedges = findNodeEdges(JSON.parse(SBPM.Storage.get("instancegraph")), subjectid, node);
 	//alert(JSON.stringify(nodeedges));
 	
 	// option(en) anzeigen

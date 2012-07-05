@@ -120,7 +120,7 @@ if (isset($_REQUEST['action'])) {
 			$groups = array();
 			
 			while ($group = mysql_fetch_array($result, MYSQL_ASSOC)) {
-				array_push($groups, $group['name']);
+				array_push($groups, $group);
 			}
 			
 			$return['groups'] = $groups;
