@@ -1,145 +1,141 @@
 SBPM.Service.Process = {
-	newProcess : function(processName) {
-		console.log("newProcess " + processName);
-        if(this.createProcess(processName) == false) {
-        	SBPM.Notification.Error('Create process',"Could not create process \"" + processName +'"\.')
-        } 
-        else {
-        	SBPM.Notification.Info("Create process", "Process \"" + processName + "\" successfully created.")
-        }
+    _default : {
+        endpoint : "process.php"
+    },
+    query : function(param, defaultvalue, callback) {
+        return SBPM.DB.syncQuery(this._default.endpoint, param, defaultvalue, callback);
+    },
+    processExists : function(name) {
+        return name && name.length > 0 && SBPM.Service.Process.getProcessID(name) > 0;
+    },
+    saveProcess : function(name, forceOverwrite, saveAs, context) {
 
-	},
+        if(!context)
+            context = parent;
+ 
+        // try to set another default name
+        name = name || context.SBPM.VM.processVM.processName();
 
+        if (!name)
+            return false;
 
-	processExists : function(name){
-		if(name == '' | name == null)  return null;
-		else{
-		return getProcessID(name) > 0;
-		}
-	},
+        var graphAsJSON = context.gv_graph.saveToJSON();
 
+        var startSubjects = [];
 
-	loadProcess : function(processName) {
+        for (var subject in context.gv_graph.subjects)
+            startSubjects.push(SBPM.Service.Role.getByName(subject));
 
-		gf_loadGraph(loadGraph(getProcessID(processName)));
+        var startSubjectsAsJSON = JSON.stringify(startSubjects);
 
-    showverantwortliche();
-    setSubjectIDs();
+        var id;
 
-	},
-	saveAsProcess : function(newName) {
-		
-		var graphAsJSON = gv_graph.saveToJSON();
-    
-    var startSubjects = [];
-    
-    for (var subject in gv_graph.subjects)
-        startSubjects.push(getGroupID(subject));
-    
-    var startSubjectsAsJSON = JSON.stringify(startSubjects);
-		
-	this.createProcess(newName);
+        if(saveAs){
+            // if process already exists
+            if(!forceOverwrite && this.processExists(name))
+                return {code:"duplicated"}; // return error code
+            
+            id = this.createProcess(name, forceOverwrite);
+        } else
+            if(!this.processExists(name))
+                id = this.createProcess(name);
 
-	    if(this.saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
-    	$("#freeow").freeow("Save process", "Process \"" + newName +"\" successfully saved.", {
-    		classes: [,"ok"],
-    		autohide: true
-    	});
-    	this.loadProcess(newName);
-    } else {
-    	$("#freeow").freeow("Save process", "Process \"" + newName + "\" could not be saved.", {
-    		classes: [,"error"],
-    		autohide: true
-    	});
-    }
-		
-		
-console.log("saveAs "+ newName);
-	},
-	
-	
-	
-	saveProcess : function() {
-		    var graphAsJSON = gv_graph.saveToJSON();
-    
-    var startSubjects = [];
-    
-    for (var subject in gv_graph.subjects)
-        startSubjects.push(getGroupID(subject));
-    
-    var startSubjectsAsJSON = JSON.stringify(startSubjects);
-    
-     //ToDo processName aus Storage oder gv_graph
-    var processName =  SBPM.VM.processVM.processName();
-      
-    if(this.saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
-    	$("#freeow").freeow("Save process", "Process \"" + processName +"\" successfully saved.", {
-    		classes: [,"ok"],
-    		autohide: true
-    	});
-    } else {
-    	$("#freeow").freeow("Save process", "Process \"" + processName + "\" could not be saved.", {
-    		classes: [,"error"],
-    		autohide: true
-    	});
-    }
-		
-		
-		
-		
-console.log("save");
-	},
-	// create/remove process
-createProcess : function (processname){
-	return SBPM.DB.syncQuery("process.php", {"processname" : processname, "action" : "new"}, 0, defaultIDReturn);
-},
-deleteProcess : function (processname){
-	return SBPM.DB.syncQuery("process.php", {"processname" : processname, "action" : "remove"}, false, defaultRemoveReturn);
-},
-deleteProcessByID : function (processid){
-	return SBPM.DB.syncQuery("process.php", {"processid" : processid, "action" : "remove"}, false, defaultRemoveReturn);
-},
-// get processes
-getProcessName : function (processid){
-	return SBPM.DB.syncQuery("process.php", {"processid" : processid, "action" : "getname"}, "", function (json){
-		if (json["code"] == "ok")
-			return json["name"];});
-},
-getProcessID : function (processname){
-	return SBPM.DB.syncQuery("process.php", {"processname" : processname, "action" : "getid"}, 0, defaultIDReturn);
-},
-getAllProcesses : function (limit){
-	return SBPM.DB.syncQuery("process.php", {"action" : "getallprocesses", "limit" : limit}, "", function (json){
-		if (json["code"] == "ok")
-			return json["processes"];});
-},
-getAllProcessesIDs : function (limit){
-	return SBPM.DB.syncQuery("process.php", {"action" : "getallprocessesids", "limit" : limit}, "", function (json){
-		if (json["code"] == "ok")
-			return json["ids"];});
-},
-getAllStartableProcessIDs : function (userid){
-	return SBPM.DB.syncQuery("process.php", {"action" : "getallstartable", "userid" : userid}, "", function (json){
-		if (json["code"] == "ok")
-			return json["ids"];});
-},
-// load/save graph
-loadGraph : function (processid){
-	return SBPM.DB.syncQuery("process.php", {"processid" : processid, "action" : "load"}, "", function (json){
-		if (json["code"] == "ok"){
-			try {
-				return json["graph"];
-			}catch (e){
-				return "{}";
-			}
-		}else{
-			return "{}";
-		}
-	});
-},
-saveGraph : function (processid, graphAsJSON, startSubjectsAsJSON){
-	return SBPM.DB.syncQuery("process.php", {"processid" : processid, "action" : "save", "graph" : graphAsJSON, "subjects" : startSubjectsAsJSON}, false, function (json){
-		if (json["code"] == "ok")
-			return true;});	
-},
+        return this.query({
+            "processid" : id || this.getProcessID(name),
+            "action" : "save",
+            "graph" : graphAsJSON,
+            "subjects" : startSubjectsAsJSON
+        }, false, defaultOKReturnBoolean);
+    },
+    // create/remove process
+    createProcess : function(processname, forceOverwrite) {
+        // if the process should be overwritten
+        if (forceOverwrite)
+            this.deleteProcess(processname);
+
+        return this.query({
+            "processname" : processname,
+            "action" : "new"
+        }, 0, SBPM.DB.defaultIDReturn);
+    },
+    deleteProcess : function(processname) {
+        return this.query({
+            "processname" : processname,
+            "action" : "remove"
+        }, false, SBPM.DB.defaultRemoveReturn);
+    },
+    deleteProcessByID : function(processid) {
+        return this.query({
+            "processid" : processid,
+            "action" : "remove"
+        }, false, SBPM.DB.defaultRemoveReturn);
+    },
+    // get processes
+    getProcessName : function(processid) {
+        return this.query({
+            "processid" : processid,
+            "action" : "getname"
+        }, "", function(json) {
+            if (json["code"] == "ok")
+                return json["name"];
+        });
+    },
+    getProcessID : function(processname) {
+        return this.query({
+            "processname" : processname,
+            "action" : "getid"
+        }, 0, defaultIDReturn);
+    },
+    getAllProcesses : function(limit) {
+        return this.query({
+            "action" : "getallprocesses",
+            "limit" : limit
+        }, "", function(json) {
+            if (json["code"] == "ok")
+                return json["processes"];
+        });
+    },
+    getAllProcessesIDs : function(limit) {
+        return this.query({
+            "action" : "getallprocessesids",
+            "limit" : limit
+        }, "", function(json) {
+            if (json["code"] == "ok")
+                return json["ids"];
+        });
+    },
+    getAllStartableProcessIDs : function(userid) {
+        return this.query({
+            "action" : "getallstartable",
+            "userid" : userid
+        }, "", function(json) {
+            if (json["code"] == "ok")
+                return json["ids"];
+        });
+    },
+    // load/save graph
+    loadGraph : function(processid) {
+        return this.query({
+            "processid" : processid,
+            "action" : "load"
+        }, "", function(json) {
+            if (json["code"] == "ok") {
+                try {
+                    return json["graph"];
+                } catch (e) {
+                    return "{}";
+                }
+            } else {
+                return "{}";
+            }
+        });
+    },
+    saveGraph : function(processid, graphAsJSON, startSubjectsAsJSON) {
+        return this.query({
+            "processid" : processid,
+            "action" : "save",
+            "graph" : graphAsJSON,
+            "subjects" : startSubjectsAsJSON
+        }, false, SBPM.DB.defaultOKReturnBoolean);
+    },
 }

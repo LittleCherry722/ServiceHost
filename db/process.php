@@ -68,7 +68,7 @@ if (isset($_REQUEST['action'])){
 		}elseif ( ($_REQUEST['action'] == 'save') && isset($_REQUEST['graph']) && ($subjects != "-1") ){
 			$graph = $_REQUEST['graph'];
 			mysql_query("INSERT INTO `process_graphs` (`graph`) VALUES ('". $graph ."')");
-			mysql_query("UPDATE `process` SET `graphID` = '". mysql_insert_id() ."', `startSubjects` = '". $subjects ."' WHERE `ID` LIKE '". $_REQUEST['processid'] ."'");
+			mysql_query("UPDATE `process` SET `graphID` = '". mysql_insert_id() ."', `startSubjects` = '". $subjects ."' WHERE `ID` = ". $_REQUEST['processid'] );	
 			$return['code'] = "ok";
 		}elseif ($_REQUEST['action'] == 'load'){
 			if (mysql_num_rows($procs) == 1){
