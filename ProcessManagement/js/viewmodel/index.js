@@ -297,6 +297,7 @@ var HeaderViewModel = function() {
 			'type' : 'iframe',
 			'overlayColor' : '#333333',
 			'modal' : true,
+			'enableEscapeButton' : true,
 			'overlayOpacity' : '0.6',
 			'onClosed' : function() {
 
@@ -610,6 +611,9 @@ var InternalViewModel = function() {
 				$("#graph_bv_outer").css("height", window.innerHeight - 185);
 			}
 		});
+
+        // TODO WORKAROUND - Why isnt it working in internalView.html???
+        $('#ge_type2').html('<option value="R" id="ge_type2_R">receive</option><option value="S" id="ge_type2_S">send</option><option value="action" id="ge_type2_action">action</option><option value="end" id="ge_type2_end">end</option>');
 
 		// gf_clickedCVbehavior();
 		// updateListOfSubjects();
