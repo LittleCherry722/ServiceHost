@@ -224,7 +224,8 @@ function updateListOfSubjects(){
 
 	$('#slctSbj').html(html);
 	$("#slctSbj").trigger("liszt:updated");
-
+	//Workaround, Chosen fails to reset, can't select same internal behavior twice through dropdown. Fix: add click listner to every chosen option (not native select option).
+$(".active-result").click(function(){goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'))})
 }
 
 

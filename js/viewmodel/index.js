@@ -454,7 +454,7 @@ var ProcessViewModel = function() {
 	    }
 	    
 
-		
+		updateListOfSubjects();
 		return processId;
 	}
 }
