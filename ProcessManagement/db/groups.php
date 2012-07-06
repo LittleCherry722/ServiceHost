@@ -22,26 +22,50 @@ if (isset($_REQUEST['action'])){
 
 	if (isset($_REQUEST['groupname'])){
 		
-		$groupsq = mysql_query("SELECT * FROM `groups` WHERE `name` LIKE '". $_REQUEST['groupname'] ."'");
-		if ($_REQUEST['action'] == 'add'){
-			if (mysql_num_rows($groupsq) == 0){
-				mysql_query("INSERT INTO `groups` (`name`) VALUES ('". $_REQUEST['groupname'] ."');");
-				$return['id']   = mysql_insert_id();
-				$return['code'] = "added";
-			}else{
-				$return['code'] = "error";
-			}
-		}elseif ($_REQUEST['action'] == "getid"){
-			if (mysql_num_rows($groupsq) == 1){
-				$line = mysql_fetch_array($groupsq, MYSQL_ASSOC);
-				$return['id']   = $line['ID'];
+		if ($_REQUEST['action'] == 'getbyname'){
+			$result = mysql_query("SELECT * FROM `groups` WHERE `name` = '". $_REQUEST['groupname'] ."'");
+			
+			if (mysql_num_rows($result) == 1){
+				$line = mysql_fetch_array($result, MYSQL_ASSOC);
+				$return['group']   = $line;
 				$return['code'] = "ok";
 			}else{
 				$return['code'] = "error";
 			}
+		}else{
+		
+			$groupsq = mysql_query("SELECT * FROM `groups` WHERE `name` LIKE '". $_REQUEST['groupname'] ."'");
+			if ($_REQUEST['action'] == 'add'){
+				if (mysql_num_rows($groupsq) == 0){
+					mysql_query("INSERT INTO `groups` (`name`) VALUES ('". $_REQUEST['groupname'] ."');");
+					$return['id']   = mysql_insert_id();
+					$return['code'] = "added";
+				}else{
+					$return['code'] = "error";
+				}
+			}elseif ($_REQUEST['action'] == "getid"){
+				if (mysql_num_rows($groupsq) == 1){
+					$line = mysql_fetch_array($groupsq, MYSQL_ASSOC);
+					$return['id']   = $line['ID'];
+					$return['code'] = "ok";
+				}else{
+					$return['code'] = "error";
+				}
+			}
+		
 		}
 	}elseif (isset($_REQUEST['groupid'])){
-		if ($_REQUEST['action'] == "getname"){
+		if ($_REQUEST['action'] == 'getbyid'){
+			$result = mysql_query("SELECT * FROM `groups` WHERE `id` = '". $_REQUEST['groupid'] ."'");
+			
+			if (mysql_num_rows($result) == 1){
+				$line = mysql_fetch_array($result, MYSQL_ASSOC);
+				$return['group']   = $line;
+				$return['code'] = "ok";
+			}else{
+				$return['code'] = "error";
+			}
+		}elseif ($_REQUEST['action'] == "getname"){
 			$result = mysql_query("SELECT * FROM `groups` WHERE `ID` LIKE '". $_REQUEST['groupid'] ."'");
 			if (mysql_num_rows($result) > 0){
 				$line = mysql_fetch_array($result, MYSQL_ASSOC);

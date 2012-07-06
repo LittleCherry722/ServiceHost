@@ -33,7 +33,7 @@ var Dialog = function() {
             name : "Ok",
             action : okAction ||
             function() {
-                parent.$.fancybox.close();
+                $.fancybox.close();
             }
 
         }]);
@@ -45,7 +45,7 @@ var Dialog = function() {
             name : "Yes",
             action : yesAction ||
             function() {
-                parent.$.fancybox.close();
+                $.fancybox.close();
             }
 
         }, {
@@ -53,7 +53,7 @@ var Dialog = function() {
             name : "No",
             action : noAction ||
             function() {
-                parent.$.fancybox.close();
+                $.fancybox.close();
             }
 
         }]);

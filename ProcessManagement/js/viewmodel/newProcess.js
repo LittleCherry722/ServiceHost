@@ -6,29 +6,33 @@ var ViewModel = function() {
 		var process = self.processName();
 		console.log("createCheck " + process);
 
-		if(SBPM.Service.Process.processExists(process) == false) {
-			console.log("exists not");
+        if(!process || process.length < 1){
+            SBPM.Notification.Warning('Warning', 'Please enter a name for the process!');
+            return;
+        }
 
-			SBPM.Service.Process.newProcess(process);
-
-			self.close();
+        // if process name does not exist
+		if(!SBPM.Service.Process.processExists(process)) {
+		    
+			// load a new process
 			parent.SBPM.VM.processVM.showProcess(process);
+			
+			// update list of recent processes
             parent.SBPM.VM.menuVM.init();
-		} else {
-			console.log("may exists");
-			if(SBPM.Service.Process.processExists(process) == true) {
-				console.log("exists");
-				SBPM.Dialog.YesNo('Warning', 'Process already exists. Do you want to overwrite it?', function() {
-					SBPM.Service.Process.deleteProcess(process);
-					SBPM.Service.Process.newProcess(process);
-					self.close();
-					parent.SBPM.VM.processVM.showProcess(process);
+            
+            // close layer
+            self.close();
+            
+		} else { // otherwise ask the user to keep the given name anyhow
+		    
+			SBPM.Dialog.YesNo('Warning', 'Process\' name already exists. Do you want to proceed with the given name?', 
+			function() { // yes
+			    
+			    // close the newProcess layer
+				self.close();
+				
+			});
 
-				});
-			} else {
-				console.log("empty");
-				SBPM.Dialog.Notice('Empty', 'Please enter a name for the process!');
-			}
 		}
 	}
 

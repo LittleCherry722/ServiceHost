@@ -68,10 +68,15 @@ var MenuViewModel = function() {
 		});
 
 		$("a#save").click(function() {
-			alert("save");
-				SBPM.Service.Process.saveProcess();
-				
-			
+		    
+		    if(SBPM.Service.Process.saveProcess()){
+		      // reload recent processes
+		      self.init();
+		      
+		      SBPM.Notification.Info("Information", "Process successfully created.");
+		    }else
+		      SBPM.Notification.Info("Error", "Could not create process.");
+
 		});
 
 		$("#hide_menu").click(function() {
@@ -400,10 +405,56 @@ var ProcessViewModel = function() {
 	}
 
 	self.showProcess = function(processName) {
-		self.subjectVM.showView();
-		self.processName(processName);
-		SBPM.Service.Process.loadProcess(processName);
-		$("#tab2").addClass("active");
+	    
+	    try{
+            
+            gv_graph.clearGraph();
+            
+            var processId = SBPM.Service.Process.getProcessID(processName);
+            
+            self.subjectVM.showView();
+            
+            /* processId:
+             *  0    -> new process
+             *  1..n -> old process
+             */
+            if(processId > 0){
+            
+                var graphAsJson = SBPM.Service.Process.loadGraph(processId);
+                
+                console.log("load graph: "+graphAsJson);
+                
+                gv_graph.loadFromJSON(graphAsJson);
+            
+            }else{
+                
+                console.log("load empty graph");
+                
+                gv_graph.loadFromJSON("{}");
+                
+            }
+            
+            self.processName(processName);
+            
+            
+            
+            // TODO replace this DEPRECATED CALLS!
+            showverantwortliche();
+            setSubjectIDs(); 
+            $("#tab2").addClass("active");
+            // TODO END
+            
+            SBPM.Notification.Info("Information", "Process \""+processName+"\" successfully loaded.");
+    	        
+	    }catch(e){
+	        
+	        SBPM.Notification.Error("Error", "Could not load process \""+processName+"\".");
+	        
+	    }
+	    
+
+		
+		return processId;
 	}
 }
 var SubjectViewModel = function() {

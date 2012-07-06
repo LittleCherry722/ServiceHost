@@ -6,30 +6,53 @@ var ViewModel = function() {
 		var process = self.processName();
 		console.log("saveAsCheck " + process);
 
-		if(SBPM.Service.Process.processExists(process) == false) {
-			console.log("exists not");
+        if(!process || process.length < 1){
+            SBPM.Notification.Warning('Warning', 'Please enter a name for the process!');
+            return;
+        }
 
-			SBPM.Service.Process.newProcess(process);
+        console.log("saveAsProcess: "+process);
 
-			self.close();
-			parent.SBPM.VM.processVM.showProcess(process);
+        var result = SBPM.Service.Process.saveProcess(process, false, true);
 
-		} else {
-			console.log("may exists");
-			if(SBPM.Service.Process.processExists(process) == true) {
-				console.log("exists");
-				SBPM.Dialog.YesNo('Warning', 'Process already exists. Do you want to overwrite it?', function() {
-					SBPM.Service.Process.deleteProcess(process);
-					SBPM.Service.Process.newProcess(process);
-					self.close();
-					parent.SBPM.VM.processVM.showProcess(process);
+		if(result) {
 
-				});
-			} else {
-				console.log("empty");
-				SBPM.Dialog.Notice('Empty', 'Please enter a name for the process!');
-			}
-		}
+            if(result['code'] == "duplicated") { 
+            
+                SBPM.Dialog.YesNo('Warning', 'Process\' name already exists. Do you want to overwrite the process?', function() {
+                    
+                    // overwrite the existing process
+                    SBPM.Service.Process.saveProcess(process, true, true);
+                                        
+                    // reload recent processes
+                    parent.SBPM.VM.menuVM.init();
+            
+                    // close the layer
+                    self.close();
+                    
+                });
+            
+            } else {
+                
+                // set the new name
+                self.processName(process);
+        
+                // reload recent processes
+                parent.SBPM.VM.menuVM.init();
+    
+                // close the layer
+                self.close();
+            
+                SBPM.Notification.Info("Information", "Process successfully created.");             
+                
+            }
+
+            // load the new process
+            parent.SBPM.VM.processVM.processName(process);
+
+		} else 
+            SBPM.Notification.Error("Error", "Could not create process.");
+		
 	}
 
 	self.close = function() {
