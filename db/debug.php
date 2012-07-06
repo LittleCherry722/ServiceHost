@@ -30,6 +30,7 @@ switch ($action){
 			mysql_query("TRUNCATE TABLE users_x_groups"); 
 			mysql_query("TRUNCATE TABLE process;"); 
 			mysql_query("TRUNCATE TABLE process_gtaphs;"); 
+			mysql_query("TRUNCATE TABLE process_instance");
 			mysql_query("TRUNCATE TABLE relation;"); 
 			mysql_query("TRUNCATE TABLE messages;"); 			
 			
@@ -85,8 +86,22 @@ switch ($action){
 			mysql_query("TRUNCATE TABLE users_x_groups"); 
 			mysql_query("TRUNCATE TABLE process;"); 
 			mysql_query("TRUNCATE TABLE process_gtaphs;"); 
+			mysql_query("TRUNCATE TABLE process_instance");
 			mysql_query("TRUNCATE TABLE relation;"); 
 			mysql_query("TRUNCATE TABLE messages;"); 	
+			
+		break;
+		
+	case "rebuild":	
+	
+			mysql_query("DROP TABLE groups"); 
+			mysql_query("DROP TABLE users"); 
+			mysql_query("DROP TABLE users_x_groups"); 
+			mysql_query("DROP TABLE process;"); 
+			mysql_query("DROP TABLE process_gtaphs;"); 
+			mysql_query("DROP TABLE process_instance");
+			mysql_query("DROP TABLE relation;"); 
+			mysql_query("DROP TABLE messages;"); 	
 			
 		break;
 }

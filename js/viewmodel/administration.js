@@ -271,7 +271,7 @@ var DebugViewModel = function(){
         if(SBPM.Service.Debug.createUsers())
             parent.location.reload();
         else
-            SBPM.Notification.Error("Information", "Creating test case failed.");
+            SBPM.Notification.Error("Error", "Creating test case failed.");
     }
     
     self.clearDatabase = function(){
@@ -279,7 +279,7 @@ var DebugViewModel = function(){
         if(SBPM.Service.Debug.clearDatabase())
             parent.location.reload();
         else
-            SBPM.Notification.Error("Information", "Creating test case failed.");        
+            SBPM.Notification.Error("Error", "Creating test case failed.");        
     }
 
     self.createProcess1 = function(){
@@ -287,7 +287,15 @@ var DebugViewModel = function(){
         if(SBPM.Service.Debug.createProcess("applicationforleave")){
             parent.location.reload();
         } else
-            SBPM.Notification.Error("Information", "Creating test case failed."); 
+            SBPM.Notification.Error("Error", "Creating test case failed."); 
+    }
+
+    self.rebuildDatabase = function(){
+        console.log("clearDatabase");
+        if(SBPM.Service.Debug.rebuildDatabase())
+            parent.location.reload();
+        else
+            SBPM.Notification.Error("Error", "Creating test case failed.");    
     }
 
     self.save = function(){
