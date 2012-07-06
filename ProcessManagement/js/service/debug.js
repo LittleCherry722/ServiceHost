@@ -15,6 +15,11 @@ SBPM.Service.Debug = {
             "action" : "clear",
         }, {}, SBPM.DB.defaultOKReturnBoolean);
     },
+    rebuildDatabase : function() {
+        return this.query({
+            "action" : "rebuild",
+        }, {}, SBPM.DB.defaultOKReturnBoolean);
+    },
     createProcess : function($process) {
         return this.query({
             "action" : "process",
