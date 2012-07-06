@@ -52,7 +52,7 @@ if (isset($_REQUEST['action'])) {
 			foreach ($users as $user) {
 
 				// insert/update user
-				mysql_query("INSERT INTO `users` (`ID`,`name`) VALUES ('" . $user['id'] . ", " . $user['name'] . "') ON DUPLICATE KEY UPDATE name = " . $user['name'] . ", active = " . $user['active']);
+				mysql_query("INSERT INTO `users` (`ID`,`name`) VALUES (" . $user['id'] . ", '" . $user['name'] . "') ON DUPLICATE KEY UPDATE name = '" . $user['name'] . "', active = " . $user['active']);
 				
 				// remove the user as responsible since he is not active any longer
 				if($user['active'] == 0)
@@ -98,13 +98,16 @@ if (isset($_REQUEST['action'])) {
 			}
 		} elseif ($_REQUEST['action'] == 'remove') {
 
+
 			mysql_query("DELETE FROM `users_x_groups` WHERE `userID` = " . $_REQUEST['userid']);
 			
 			mysql_query("DELETE FROM `users` WHERE `id` = " . $_REQUEST['userid']);
 		
-			mysql_query("DELETE FROM `relation` WHERE `responsibleID` = " . $_REQUEST['userid']);
+			$affectedRows = mysql_affected_rows($link);
 		
-			if (mysql_affected_rows($link) > 0) {
+			mysql_query("DELETE FROM `relation` WHERE `responsibleID` = " . $_REQUEST['userid']);		
+		
+			if ($affectedRows > 0) {
 				$return['code'] = "removed";
 			} else {
 				$return['code'] = "error";

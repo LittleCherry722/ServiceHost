@@ -40,7 +40,15 @@ var ViewModel = function() {
     }
     
     self.save = function(){
-        return self.subsite().save();
+        for(var site in self.subsites())
+             // save all tabs
+             self.subsites()[site].save();
+        
+        
+         // and re-init the current tab
+         self.subsite().init();
+
+        SBPM.Notification.Info("Information", "The administration has been saved.");  
     }
     
     self.initChosen = function(elements){
@@ -92,20 +100,52 @@ var UserViewModel = function(){
        
     var self = this;
     
+    var initialized = false;
+    
     self.options = ko.observableArray();
     
     self.loadModel = function(){
         
+        if(initialized)
+            return;
+        
         ko.mapping.fromJS(SBPM.Service.User.getAll(), self.data);
         
-        if(self.options().length < 1){
-            var roles = SBPM.Service.Role.getAll();
-            
-            console.log(roles);
-            
-            for(var i in roles)
-                self.options.push(roles[i].name);
-        }
+        var roles = SBPM.Service.Role.getAll();
+        self.options.removeAll();
+        for(var i in roles)
+            self.options.push(roles[i].name);
+        $('.chzn-select').trigger("liszt:updated");
+
+        key('c', function() {
+            self.createUser();
+        });
+        
+        var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
+        var qtipPositionAt = 'right top';
+        var qtipPositionMy = 'left bottom';
+        
+        $('#usersBtn').focus();
+        $('#usersBtn').qtip({
+            content : {
+                text : 'Create new role\n: Press "c"'
+            },
+            position : {
+                at : qtipPositionAt,
+                my : qtipPositionMy,
+                viewport : $(window),
+                adjust : {
+                    method : 'mouse',
+                    x : 0,
+                    y : 0
+                }
+            },
+            style : {
+                classes : qtipStyle
+            }
+        });
+        
+        initialized = true;
     }
     
     self.showDetails = function(user){
@@ -114,7 +154,7 @@ var UserViewModel = function(){
     
     self.deleteUser = function(user){
         if(SBPM.Service.User.remove(user.id()))
-             self.loadModel();
+             self.data.remove(user);
     }
     
     self.createUser = function(){
@@ -126,20 +166,15 @@ var UserViewModel = function(){
     
     self.save = function(){
 
-        console.log(self.data());
-
         for(var i in self.data())
             if(self.data()[i].name == "")
                 self.data.remove(self.data()[i]);   
-        
-        console.log(self.data());
         
         var data = SBPM.Service.User.saveAll(ko.toJS(self.data()));
         
         ko.mapping.fromJS(data, self.data);
         
-        // show a positive notification
-        SBPM.Notification.Info(self.name, "The current tab has been saved.");
+        initialized = false;
     }
     
     SubViewModel.call(self, "Users");
@@ -153,13 +188,48 @@ var RoleViewModel = function(){
     
     var self = this;
     
+    var initialized = false;
+    
     self.loadModel = function(){
+        
+        if(initialized)
+            return;
+        
         ko.mapping.fromJS(SBPM.Service.Role.getAll(), self.data);
+        
+        key('c', function() {
+            self.createUser();
+        });
+        
+        var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
+        var qtipPositionAt = 'right top';
+        var qtipPositionMy = 'left bottom';
+        
+        $('#rolesBtn').qtip({
+            content : {
+                text : 'Create new role\n: Press "c"'
+            },
+            position : {
+                at : qtipPositionAt,
+                my : qtipPositionMy,
+                viewport : $(window),
+                adjust : {
+                    method : 'mouse',
+                    x : 0,
+                    y : 0
+                }
+            },
+            style : {
+                classes : qtipStyle
+            }
+        });
+        
+        initialized = true;
     }
     
     self.deleteRole = function(role){
         if(SBPM.Service.Role.remove(role.ID))
-            self.loadModel();
+            self.data.remove(role);
     }
     
     self.createRole = function(){ // TODO why push by itself doesnt work?
@@ -174,15 +244,12 @@ var RoleViewModel = function(){
         
         for(var i in self.data())
             if(self.data()[i].name == "")
-                self.data().removeAll(self.data()[i]);
+                self.data.remove(self.data()[i]);
 
         self.data(SBPM.Service.Role.saveAll(ko.toJS(self.data())));
         //ko.mapping.fromJS(SBPM.Service.Role.saveAll(self.data()), self.data);
-        
-        parent.$("#freeow").freeow("Roles", "The current tab has been saved.", {
-            classes: [,"ok"],
-            autohide: true
-        });
+
+        initialized = false;
     }
 
     SubViewModel.call(self, "Roles");
@@ -202,7 +269,7 @@ var DebugViewModel = function(){
     self.createUsers = function(){
         console.log("createUsers");
         if(SBPM.Service.Debug.createUsers())
-            SBPM.Notification.Info("Information", "Test case created successfully.");
+            parent.location.reload();
         else
             SBPM.Notification.Error("Information", "Creating test case failed.");
     }
@@ -210,17 +277,17 @@ var DebugViewModel = function(){
     self.clearDatabase = function(){
         console.log("clearDatabase");
         if(SBPM.Service.Debug.clearDatabase())
-            SBPM.Notification.Info("Information", "Test case created successfully.");
+            parent.location.reload();
         else
-            SBPM.Notification.Error("Information", "Creating test case failed.");
+            SBPM.Notification.Error("Information", "Creating test case failed.");        
     }
 
     self.createProcess1 = function(){
         console.log("createProcess1");
-        if(SBPM.Service.Debug.createProcess("applicationforleave"))
-            SBPM.Notification.Info("Information", "Test case created successfully.");
-        else
-            SBPM.Notification.Error("Information", "Creating test case failed.");
+        if(SBPM.Service.Debug.createProcess("applicationforleave")){
+            parent.location.reload();
+        } else
+            SBPM.Notification.Error("Information", "Creating test case failed."); 
     }
 
     self.save = function(){
