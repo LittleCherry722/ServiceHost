@@ -25,7 +25,7 @@ function showtab1() {
     
 	$("#tab2").removeClass("active");
 	$("#tab3").removeClass("active");
-	$(".tab_content").addClass("hide");
+	//$(".tab_content").addClass("hide");
 	$("#tab1_content").removeClass("hide");
 	$("#instance_tab2_content").removeClass("hide");
 

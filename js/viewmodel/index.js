@@ -1032,7 +1032,8 @@ var InstanceViewModel = function() {
 
 	}
 	self.afterRender = function() {
-		gf_showInternalBehavior(SBPM.Service.Process.loadGraph("1"), "Manager", "n1");
+		
+		gf_showInternalBehavior(SBPM.Service.Process.loadGraph(getProcessIDforInstance(SBPM.Storage.get("userid"))), getGroupName(getGroupIDforResponsibleUser(SBPM.Storage.get("userid"),getProcessIDforInstance(SBPM.Storage.get("instanceid"))).groups[0]).toLowerCase(), SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history[SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history.length-1].nodeid);
 	}
 	self.showView = function() {
 		SBPM.VM.executionVM.activeViewIndex(1);
