@@ -21,27 +21,7 @@ newInstance : function(name) {
 	
 	SBPM.Storage.set("userid", getUserID(SBPM.Storage.get("loggedin_user")));
 	
-	SBPM.VM.executionVM.showView();
-	
-	var groups = SBPM.Service.User.getRoleByUserId(SBPM.Storage.get("user").id);
-/*
-	document.getElementById("welcome").style.display = "none";
-	document.getElementById('ausfuehrung').style.display = 'block';
-	document.getElementById("graph").style.display = "none";
-	document.getElementById('instance_from_process').innerHTML = "Instance of process: " + name;
-	document.getElementById("abortInstanceButton").style.display = "block";
-	*/
-	var insert = "<tr><td align=\"center\">Startknoten w&auml;hlen</td><td align=\"center\">";
-	insert += "<table class=\"data\" width=\"60%\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:40%\">Subjekt</th><th style=\"width:60%\">Node</th></tr></thead><tbody>";
-	for (group in groups){
-		var groupid = groups[group].id;
-		var nodes = findStartNodesForGroup(JSON.parse(SBPM.Storage.get("instancegraph")), groupid);
-		for (i = 0; i < nodes.length; i++){					
-			insert += "<tr><td align=\"center\">" + getGroupName(groupid) + "</td><td align=\"center\"><input type=\"button\" value=\""+ nodes[i].text +"\" onClick=\"selectNextNode('"+ groupid +"','"+ nodes[i].id +"');writeSumActiveInstances();\"/></td></tr>";
-		}
-	}
-	insert += "</tbody></table>";
-	document.getElementById('instance_history').innerHTML = insert;
+
 	
 },
 
