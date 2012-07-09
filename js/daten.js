@@ -14,6 +14,10 @@
 //Variablen
 var processName = false; //aktueller Prozessname
 
+function testphp(){
+	 return error_log("false"=="false");
+}
+
 
 function showverantwortliche() {
 var groups = getAllGroups();
@@ -224,8 +228,8 @@ function updateListOfSubjects(){
 
 	$('#slctSbj').html(html);
 	$("#slctSbj").trigger("liszt:updated");
-	//Workaround, Chosen fails to reset, can't select same internal behavior twice through dropdown. Fix: add click listner to every chosen option (not native select option).
-$(".active-result").click(function(){goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'))})
+	//Workaround, Chosen fails to reset, can't select same internal behavior twice with dropdown. Fix: add click listener to every chosen option (not native select option).
+$(".active-result").click(function(){goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'))});
 }
 
 
@@ -320,109 +324,13 @@ function findNode(graph, subjectid, nodeid){
 	return null;
 }
 
-function drawHistory(data) {
-	var insert = "";
-	if((typeof(data[SBPM.Storage.get("userid")]) != 'undefined') && (typeof(data[SBPM.Storage.get("userid")]['history']) != 'undefined')) {
-		for(var i = 0; i < data[SBPM.Storage.get("userid")]['history'].length; i++) {
-			if (data[SBPM.Storage.get("userid")].history[i].type == "node"){
-				var text = data[SBPM.Storage.get("userid")].history[i].text;
-				if(data[SBPM.Storage.get("userid")].history[i].text == "S") text = "Message sent";
-				if(data[SBPM.Storage.get("userid")].history[i].text == "R") text = "Wait for messages";
-				insert += "<tr><td align=\"center\">"+ (i+1) +"<td align=\"center\">"+ text +"</td></tr>";
-			}else if (data[SBPM.Storage.get("userid")].history[i].type == "rcv"){
-				//insert += "<tr><td align=\"center\">"+ (i+1) +"<td align=\"center\"> [RVC]MSG !!! </td></tr>"
-				insert += "<tr><td align=\"center\">"+ (i+1) +"</td><td align=\"center\">Message received<br><br>";
-				insert += "<table class=\"data\" style=\"width:600px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:30%\">Von</th><th style=\"width:30%\">Typ</th><th style=\"width:40%\">Message</th></tr></thead><tbody>";
-				insert += "<tr><td align=\"center\">"+getUserName(data[SBPM.Storage.get("userid")].history[i]['from'])+"</td><td align=\"center\">"+data[SBPM.Storage.get("userid")].history[i]['msgtype']+"</td><td><pre style=\"float:left\">"+data[SBPM.Storage.get("userid")].history[i]['text']+"</pre></td></tr></tbody></table></td></tr>";
-			}else if (data[SBPM.Storage.get("userid")].history[i].type == "snd"){
-				//insert += "<tr><td align=\"center\">"+ (i+1) +"<td align=\"center\"> [SND]MSG !!! </td></tr>";
-				insert += "<tr><td align=\"center\">"+ (i+1) +"</td><td align=\"center\">Message sent<br><br>";
-				insert += "<table class=\"data\" style=\"width:600px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:30%\">An</th><th style=\"width:30%\">Typ</th><th style=\"width:40%\">Message</th></tr></thead><tbody>";
-				insert += "<tr><td align=\"center\">"+getUserName(data[SBPM.Storage.get("userid")].history[i]['to'])+"</td><td align=\"center\">"+data[SBPM.Storage.get("userid")].history[i]['msgtype']+"</td><td><pre style=\"float:left\">"+data[SBPM.Storage.get("userid")].history[i]['text']+"</pre></td></tr></tbody></table></td></tr>";
-			}
-		}
-	}
-	document.getElementById('instance_history').innerHTML = insert;
-}
 
-function selectNextNode(subjectid, nodeid, msgtext){
-	alert(subjectid +"->"+ nodeid);
-	var data = SBPM.Storage.get("instancedata");
-	drawHistory(data);
-	
-	var node = findNode(JSON.parse(SBPM.Storage.get("instancegraph")), subjectid, nodeid);
-	console.log("BEFORE ADD HISTORY");
-	addHistory(SBPM.Storage.get("instancedata"), SBPM.Storage.get("userid"),subjectid, node);	// < aktuelle node
-	
-	// TODO the current node is known here -> highlight it in canvas
-	
-	saveInstanceData(SBPM.Storage.get("instanceid"), SBPM.Storage.get("instancedata")); // speichern
-	var insert = "";
-	
-	// node anzeigen
-	//alert(JSON.stringify(node));
-	if (node['type'] == "action") {
-		insert += "<tr><td align=\"center\">"+SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length +"</td><td align=\"center\">"+ node['text'] +"<br><br>";
-		insert += "<table class=\"data\" style=\"width:200px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:100%\">Next</th></tr></thead><tbody id=\"TableContent\"></tbody></table>";
-		document.getElementById('instance_history').innerHTML += insert;
-	}
-	else if (node['type'] == "send"){
-		insert += "<tr><td align=\"center\">"+ SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length +"</td><td align=\"center\"><p><label>"+"Nachricht:" /*"+ data[SBPM.Storage.get("userid")].history[SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length-1].text +":*/ +"</label><br><textarea id=\"tosend\" style=\"resize:none;height:100px;width:600px\"></textarea><br><br><br>";
-		insert += "<form><table class=\"data\" style=\"width:600px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:30%\">Group</th><th style=\"width:50%\">Person in charge</th><th style=\"width:20%\">Send</th></tr></thead><tbody id=\"TableContent\"></tbody></table>";
-		document.getElementById('instance_history').innerHTML += insert;
-	}
-	else if (node['type'] == "receive") {
-		insert += "<tr><td align=\"center\">"+SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length +"</td><td align=\"center\">Wait for messages:<br><br>";
-		insert += "<table class=\"data\" style=\"width:400px\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:50%\">Von (Gruppe)</th><th style=\"width:50%\">Typ</th></tr></thead><tbody id=\"TableContent\"></tbody></table>";
-		document.getElementById('instance_history').innerHTML += insert;
-	}
-	else if (node['type'] == "end"){
-		insert += "<tr><td align=\"center\">"+SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['history'].length +"</td><td align=\"center\">"+ node['text'] +"<br><br><b>Instance stopped.</b>";
-		document.getElementById('instance_history').innerHTML += insert + "</td></tr>";
-		SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")]['done'] = true;
-		saveInstanceData(SBPM.Storage.get("instanceid"), SBPM.Storage.get("instancedata")); // speichern
-		document.getElementById("abortInstanceButton").style.display = "none";
-		return;
-	}
-	// nachfolger finden
-	var nodeedges = findNodeEdges(JSON.parse(SBPM.Storage.get("instancegraph")), subjectid, node);
-	//alert(JSON.stringify(nodeedges));
-	
-	// option(en) anzeigen
-	var TableInsert = "";
-	for (i = 0; i < nodeedges.length; i++){
-		var buttonText = nodeedges[i]['text'];
-		if(buttonText == "") buttonText = "Weiter";
-		// schreiben anpassen
-		if (node['type'] == "receive"){
-			TableInsert += "<tr><td align=\"center\">"+ nodeedges[i]['target'] +"</td><td align=\"center\">"+ buttonText + "</td></tr>";
-		}
-		else {
-			if ( nodeedges[i]['target'] != ""){
-				var receiver = "";
-				receiver = getResponsiblesForUserForGroup(SBPM.Storage.get("userid"), getGroupID(nodeedges[i].target), SBPM.Storage.get("instanceProcessID"));
-				if(receiver == "") {
-					var users = getallusersforgroup(getGroupID(nodeedges[i].target));
-					TableInsert += "<tr><td align=\"center\">"+ nodeedges[i].target + "</td><td align=\"center\"><select id=\"receive_user"+i+"\">";
-					for(var x = 0; x < users.length; x++) {
-						TableInsert += "<option>"+ getUserName(users[x]) +"</option>";
-					}
-					TableInsert += "</select></td><td align=\"center\"><input type=\"button\" value=\""+ nodeedges[i].text.replace(/<br>/gi, " ") +"\" onClick=\"if (sendTextMessage('"+ buttonText +"', getUserID(this.form.receive_user"+i+".options[this.form.receive_user"+i+".selectedIndex].value))) selectNextNode('"+ subjectid +"','"+ nodeedges[i]['end'] +"');\" /></td></tr>"
-				} else {
-					for(var x = 0; x < receiver.length; x++)
-						TableInsert += "<tr><td align=\"center\">"+ nodeedges[i].target + "</td><td align=\"center\">"+ getUserName(receiver[x]) +"</td><td align=\"center\"><input type=\"button\" value=\""+buttonText.replace(/<br>/gi, " ")+"\" onClick=\"if (sendTextMessage('"+ buttonText +"','"+ receiver[x] +"')) selectNextNode('"+ subjectid +"','"+ nodeedges[i]['end'] +"');\" /></tr>";
-				}
-				
-			}
 
-			else
-				TableInsert += "<tr><td align=\"center\"><input type=\"button\" value=\""+ buttonText +"\" onClick=\"selectNextNode('"+ subjectid +"','"+ nodeedges[i]['end'] +"');\" /></td></tr>";
-		}
-	}
 
-	document.getElementById('TableContent').innerHTML += TableInsert;
-	
-}
+
+
+
+
 
 function sendTextMessage(type, receiver){
 	var data = JSON.parse("{}");
@@ -468,15 +376,5 @@ function newInstance(name) {
 	document.getElementById('instance_history').innerHTML = insert;
 }
 */
-function abortInstance(){
-deleteInstance(SBPM.Storage.get("instanceid"));
-$("#freeow").freeow("Instanz abbrechen", "Instance aborted.", {
-	classes: [,"ok"],
-	autohide: true
-});
-writeSumActiveInstances();
-document.getElementById("welcome").style.display = "block";
-document.getElementById('ausfuehrung').style.display = 'none';
-document.getElementById("graph").style.display = "none";
-}
+
 
