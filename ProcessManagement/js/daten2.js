@@ -22,13 +22,14 @@ function resumeInstance(instanceid){
 	SBPM.Storage.set("userid", getUserID(SBPM.Storage.get("loggedin_user")));
 
 	var data = SBPM.Storage.get("instancedata");
-	
+	/*
 	document.getElementById("welcome").style.display = "none";
 	document.getElementById('ausfuehrung').style.display = 'block';
 	document.getElementById("graph").style.display = "none";
+	
 	document.getElementById('instance_from_process').innerHTML = "Instance of process: " + getProcessName(SBPM.Storage.get("instanceProcessID"));
 	document.getElementById("abortInstanceButton").style.display = "block";
-	
+*/
 	//delete last
 	var count = data[SBPM.Storage.get("userid")]['history'].length;
 	if (count > 0){
@@ -36,7 +37,7 @@ function resumeInstance(instanceid){
 		data[SBPM.Storage.get("userid")]['history'].pop();
 		/*if (count ==1)
 			delete data[SBPM.Storage.get("userid")]['history'];*/
-		selectNextNode(data[SBPM.Storage.get("userid")]['subjectid'], last['nodeid']);
+		SBPM.VM.executionVM.selectNextNode(data[SBPM.Storage.get("userid")]['subjectid'], last['nodeid']);
 	}
 }
 
