@@ -121,6 +121,11 @@ function getResponsiblesForUser(userid, processid){
 		if (json["code"] == "ok")
 			return json;});
 }
+function getGroupIDforResponsibleUser(userid, processid){
+	return syncQuery(db_directory + "usersgroups.php", {"userid" : userid, "action" : "getgroupIDforuser", "processid" : processid}, false, function (json){
+		if (json["code"] == "ok")
+			return json;});
+}
 
 // get ID's
 function getUserID(name){

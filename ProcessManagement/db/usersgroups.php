@@ -64,6 +64,14 @@ if (isset($_REQUEST['userid']) && isset($_REQUEST['action'])){
 		$return['users'] = $users;
 		$return['groups'] = $groups;
 		$return['code']   = "ok";
+	} elseif ($_REQUEST['action'] == "getgroupIDforuser" && $_REQUEST['processid'] >= 0){
+		$result = mysql_query("SELECT * FROM `relation` WHERE `responsibleID` LIKE '". $_REQUEST['userid'] ."' AND `processID` LIKE '" . $_REQUEST['processid'] ."'");
+		$groups = array();
+		while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
+			array_push($groups, $group['groupID']);
+		}
+		$return['groups'] = $groups;
+		$return['code']   = "ok";
 	}
 	
 	
