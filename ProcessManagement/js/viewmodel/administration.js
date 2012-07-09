@@ -40,19 +40,42 @@ var ViewModel = function() {
     }
     
     self.save = function(){
+        var success = true;
+        
         for(var site in self.subsites())
              // save all tabs
-             self.subsites()[site].save();
+             success = success && self.subsites()[site].save();
         
         
          // and re-init the current tab
          self.subsite().init();
 
-        SBPM.Notification.Info("Information", "The administration has been saved.");  
+        if(success)
+            SBPM.Notification.Info("Information", "The administration has been saved.");  
+        else
+            SBPM.Notification.Error("Error", "An Error occured while saving the administration."); 
     }
     
-    self.initChosen = function(elements){
+    self.initUI = function(elements){
         $(elements).find('.chzn-select').chosen();
+
+        $(elements).find('.slider').slider({
+            min : 1,
+            max : 256,
+            value : 8,
+            slide : function(event, ui) {
+                var input = $(this).parent().prev();
+
+                // change value
+                input.val(ui.value);
+                
+                // populate changed value to knockout
+                input.change();
+            },
+            create : function(event, ui) {
+                $(this).slider( "option", "value", $(event.target).parent().prev().val() );
+            }
+        });
     }
     
     self.init();
@@ -67,6 +90,7 @@ var SubViewModel = function(name){
     self.name = name;
     self.template = name.toLowerCase();
     self.data = ko.mapping.fromJS([]);
+    self.initialized = false;
     
     self.init = function(){
         self.loadModel();
@@ -82,11 +106,26 @@ var GeneralViewModel = function(){
     var self = this;
        
     self.loadModel = function(){
-        //Utilities.unimplError("loadModel");
+        
+        if(self.initialized)
+            return;
+        
+        ko.mapping.fromJS(SBPM.Service.Configuration.read(), self.data);
+        
+        console.log(ko.toJS(self.data()));
+        
+        self.initialized = true;
     }
     
     self.save = function(){
-        //Utilities.unimplError("save");
+        var success = SBPM.Service.Configuration.write(ko.toJS(self.data()));
+        
+        // if(success)
+            // SBPM.Storage.set('configuration', ko.toJS(self.data()));
+            
+        self.initialized = false;
+        
+        return success;
     }
 
     SubViewModel.call(self, "General");
@@ -100,13 +139,11 @@ var UserViewModel = function(){
        
     var self = this;
     
-    var initialized = false;
-    
     self.options = ko.observableArray();
     
     self.loadModel = function(){
         
-        if(initialized)
+        if(self.initialized)
             return;
         
         ko.mapping.fromJS(SBPM.Service.User.getAll(), self.data);
@@ -145,7 +182,7 @@ var UserViewModel = function(){
             }
         });
         
-        initialized = true;
+        self.initialized = true;
     }
     
     self.showDetails = function(user){
@@ -159,7 +196,7 @@ var UserViewModel = function(){
     
     self.createUser = function(){
         var data = self.data();
-        data.push({id: 0, name: "", roles: "", active: 1});
+        data.push({id: 0, name: "", roles: "", active: 1, inputpoolsize : 8});
         self.data(data);
         $(".scrollable input.inline").last().focus()
     }
@@ -170,11 +207,13 @@ var UserViewModel = function(){
             if(self.data()[i].name == "")
                 self.data.remove(self.data()[i]);   
         
-        var data = SBPM.Service.User.saveAll(ko.toJS(self.data()));
+        var toSaveData = ko.toJS(self.data());
         
-        ko.mapping.fromJS(data, self.data);
+        ko.mapping.fromJS(SBPM.Service.User.saveAll(toSaveData), self.data);
         
-        initialized = false;
+        self.initialized = false;
+    
+        return true;
     }
     
     SubViewModel.call(self, "Users");
@@ -188,11 +227,9 @@ var RoleViewModel = function(){
     
     var self = this;
     
-    var initialized = false;
-    
     self.loadModel = function(){
         
-        if(initialized)
+        if(self.initialized)
             return;
         
         ko.mapping.fromJS(SBPM.Service.Role.getAll(), self.data);
@@ -224,7 +261,7 @@ var RoleViewModel = function(){
             }
         });
         
-        initialized = true;
+        self.initialized = true;
     }
     
     self.deleteRole = function(role){
@@ -246,10 +283,13 @@ var RoleViewModel = function(){
             if(self.data()[i].name == "")
                 self.data.remove(self.data()[i]);
 
-        self.data(SBPM.Service.Role.saveAll(ko.toJS(self.data())));
-        //ko.mapping.fromJS(SBPM.Service.Role.saveAll(self.data()), self.data);
+        var toSaveData = ko.toJS(self.data());
 
-        initialized = false;
+       ko.mapping.fromJS(SBPM.Service.Role.saveAll(toSaveData), self.data);
+
+        self.initialized = false;
+
+        return true;
     }
 
     SubViewModel.call(self, "Roles");
@@ -299,7 +339,7 @@ var DebugViewModel = function(){
     }
 
     self.save = function(){
-        return false;
+        return true;
     }
 
     SubViewModel.call(self, "Debug");
