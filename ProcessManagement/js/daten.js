@@ -256,6 +256,9 @@ function addHistory(data, userid, subjectid, node){
  
      data[userid]['history'].push(entry); 
      data[SBPM.Storage.get("userid")]['subjectid'] = subjectid; 
+     //console.log(data);
+     SBPM.Storage.set("instancedata", data);
+
 }
 
 
@@ -348,6 +351,7 @@ function selectNextNode(subjectid, nodeid, msgtext){
 	drawHistory(data);
 	
 	var node = findNode(JSON.parse(SBPM.Storage.get("instancegraph")), subjectid, nodeid);
+	console.log("BEFORE ADD HISTORY");
 	addHistory(SBPM.Storage.get("instancedata"), SBPM.Storage.get("userid"),subjectid, node);	// < aktuelle node
 	
 	// TODO the current node is known here -> highlight it in canvas
