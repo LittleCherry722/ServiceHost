@@ -1,21 +1,29 @@
-<div style="height: 390px; width: 560px;" class="scrollable">
+<div style="height: 390px; width: 670px;" class="scrollable">
     <table class="datatable">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Roles</th>
-<!--             <th /> -->
-            <th />
-        </tr>
-    </thead>
-    <tbody data-bind="foreach: {data : data(), afterRender : $root.initChosen}">
-        <tr>
-            <td><input class="inline" data-bind='value: name' /></td>
-            <td><select data-bind='options: $parent.options(), selectedOptions: roles, onchange: $parent.changeRoles' class="chzn-select" multiple /></td>
-<!--             <td><input type="button" class="button" value="Details" data-bind='click: $parent.showDetails' /></td> -->
-            <td><input type="button" class="button" value="Delete" data-bind='click: $parent.deleteUser' /></td>
-        </tr>
-    </tbody>
-</table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roles</th>
+                <th>Pool Size</th>
+    <!--             <th /> -->
+                <th></th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: {data : data(), afterRender : $root.initUI}">
+            <tr>
+                <td><input class="inline" data-bind='value: name' /></td>
+                <td><select data-bind='options: $parent.options(), selectedOptions: roles, onchange: $parent.changeRoles' class="chzn-select" multiple /></td>
+    <!--             <td><input type="button" class="button" value="Details" data-bind='click: $parent.showDetails' /></td> -->
+                <td>
+                    <input class="readonly" style="float: left; width: 25px; text-align: right;" data-bind='{value: inputpoolsize}' maxlength="3" readonly/>
+                    <div style="float: left; width: 80px; margin: 5px 0 0 10px;">
+                        <div class="slider"></div>
+                    </div>
+                </td>
+                <td><input type="button" class="button" value="Delete" data-bind='click: $parent.deleteUser' /></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 <input id="usersBtn" type="button" class="button" value="Create User" data-bind='click: createUser' />

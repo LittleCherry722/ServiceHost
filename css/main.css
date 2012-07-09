@@ -754,3 +754,8 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	right: 178px;
 	top: 10px;
 }
+
+.readonly {
+	border: 0;
+	background-color: inherit;
+}

@@ -52,7 +52,7 @@ if (isset($_REQUEST['action'])) {
 			foreach ($users as $user) {
 
 				// insert/update user
-				mysql_query("INSERT INTO `users` (`ID`,`name`) VALUES (" . $user['id'] . ", '" . $user['name'] . "') ON DUPLICATE KEY UPDATE name = '" . $user['name'] . "', active = " . $user['active']);
+				mysql_query("INSERT INTO `users` (`ID`,`name`, `inputpoolsize`) VALUES (" . $user['id'] . ", '" . $user['name'] . "', " . $user['inputpoolsize'] . ") ON DUPLICATE KEY UPDATE name = '" . $user['name'] . "', active = " . $user['active'] . ", inputpoolsize=" . $user['inputpoolsize']);
 				
 				// remove the user as responsible since he is not active any longer
 				if($user['active'] == 0)
@@ -70,7 +70,7 @@ if (isset($_REQUEST['action'])) {
 					
 			
 					
-			$result = mysql_query("SELECT users.id, users.name, GROUP_CONCAT( groups.name SEPARATOR  ',' ) AS roles, users.active
+			$result = mysql_query("SELECT users.id, users.name, GROUP_CONCAT( groups.name SEPARATOR  ',' ) AS roles, users.inputpoolsize, users.active
 									FROM users_x_groups 
 									RIGHT JOIN users ON users.id = users_x_groups.userID 
 									LEFT JOIN groups ON groups.id = users_x_groups.groupID 
@@ -139,7 +139,7 @@ if (isset($_REQUEST['action'])) {
 		$return['users'] = $users;
 		$return['code'] = "ok";
 	} elseif ($_REQUEST['action'] == "getall") {
-		$result = mysql_query("SELECT users.id, users.name, GROUP_CONCAT( groups.name SEPARATOR  ',' ) AS roles, users.active
+		$result = mysql_query("SELECT users.id, users.name, GROUP_CONCAT( groups.name SEPARATOR  ',' ) AS roles, users.inputpoolsize, users.active
 								FROM users_x_groups 
 								RIGHT JOIN users ON users.id = users_x_groups.userID 
 								LEFT JOIN groups ON groups.id = users_x_groups.groupID 
