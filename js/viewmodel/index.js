@@ -912,14 +912,12 @@ $("#freeow").freeow("Instanz abbrechen", "Instance aborted.", {
 	autohide: true
 });
 writeSumActiveInstances();
-document.getElementById("welcome").style.display = "block";
-document.getElementById('ausfuehrung').style.display = 'none';
-document.getElementById("graph").style.display = "none";
+location.reload();
 }
 
 
  self.selectNextNode = function(subjectid, nodeid, msgtext){
-	alert(subjectid +"->"+ nodeid);
+	//alert(subjectid +"->"+ nodeid);
 	var data = SBPM.Storage.get("instancedata");
 	SBPM.VM.executionVM.drawHistory(data);
 	
@@ -1033,7 +1031,9 @@ var InstanceViewModel = function() {
 	}
 	self.afterRender = function() {
 		
-		gf_showInternalBehavior(SBPM.Service.Process.loadGraph(getProcessIDforInstance(SBPM.Storage.get("userid"))), getGroupName(getGroupIDforResponsibleUser(SBPM.Storage.get("userid"),getProcessIDforInstance(SBPM.Storage.get("instanceid"))).groups[0]).toLowerCase(), SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history[SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history.length-1].nodeid);
+		gf_showInternalBehavior(SBPM.Service.Process.loadGraph(getProcessIDforInstance(SBPM.Storage.get("userid"))),
+		 getGroupName(getGroupIDforResponsibleUser(SBPM.Storage.get("userid"),getProcessIDforInstance(SBPM.Storage.get("instanceid"))).groups[0]).toLowerCase(),
+		  SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history[SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history.length-1].nodeid);
 	}
 	self.showView = function() {
 		SBPM.VM.executionVM.activeViewIndex(1);
