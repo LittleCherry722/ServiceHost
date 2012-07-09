@@ -32,6 +32,21 @@ if ($dbInitialize){
 	mysql_query("CREATE DATABASE `". $dbConfig["database"] ."`");
 	mysql_select_db($dbConfig["database"]) or die ("Can't create DB! " . mysql_error());
 	
+	mysql_query("CREATE TABLE IF NOT EXISTS `configuration` (
+  `key` varchar(64) NOT NULL,
+  `label` varchar(64) NOT NULL,
+  `value` varchar(128) NOT NULL,
+  UNIQUE KEY `key` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
+	
+	mysql_query("INSERT INTO  `sbpm_groupware`.`configuration` (
+					`key` ,
+					`label` ,
+					`value`
+					)
+				 VALUES (
+					'inputpool.size.default',  'default size of an input pool',  '8'");
+	
 	mysql_query("CREATE TABLE IF NOT EXISTS `groups` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
@@ -84,7 +99,8 @@ if ($dbInitialize){
 	mysql_query("CREATE TABLE IF NOT EXISTS `users` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
-  `active` BOOLEAN NOT NULL DEFAULT  '1',
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `inputpoolsize` smallint(6) NOT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;");
 
