@@ -324,7 +324,7 @@ var DebugViewModel = function(){
 
     self.createProcess1 = function(){
         console.log("createProcess1");
-        if(SBPM.Service.Debug.createProcess("applicationforleave")){
+        if(SBPM.Service.Debug.createProcess("travelapplication")){
             parent.location.reload();
         } else
             SBPM.Notification.Error("Error", "Creating test case failed."); 

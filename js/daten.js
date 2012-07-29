@@ -276,7 +276,7 @@ function findStartNodesForGroup(graph, subjectid){
 	var ret = new Array();
 
 	for (group in graph){
-		console.log("group: " + group + " groupID: " + graph[group]['id'])
+		//console.log("group: " + group + " groupID: " + graph[group]['id'])
 		if (getGroupID(graph[group]['id']) == subjectid){
 					//if (graph[group]['id'] == subjectid){
 
