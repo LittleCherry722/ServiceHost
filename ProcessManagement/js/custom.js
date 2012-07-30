@@ -14,12 +14,14 @@
 var fancyreturn1, fancyreturn2 = false;
 
 function callFancyBox(my_href) {
+	console.log("Deprecated: custom.js");
 	var j1 = document.getElementById("hiddenclicker");
 	j1.href = my_href;
 	$('#hiddenclicker').trigger('click');
 }
 
 function showtab1() {
+	console.log("Deprecated: custom.js");
     
     console.log("showtab1");
     
@@ -38,6 +40,7 @@ function showtab1() {
 }
 
 function shownothing() {
+	console.log("Deprecated: custom.js");
 	$("#tab2").removeClass("active");
 	$("#tab3").removeClass("active");
 	$("#tab1_content").addClass("hide");
