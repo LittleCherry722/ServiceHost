@@ -327,17 +327,17 @@ var ProcessViewModel = function() {
 	var self = this;
 
 	self.processName = ko.observable();
-	self.objectOfSubjects = ko.observable(gv_graph.subjects);
-	//console.log(self.objectOfSubjects());
+/**	self.objectOfSubjects = ko.observable(gv_graph.subjects);
 	self.arrayOfSubjects = ko.observableArray();
 	self.compSubjects = ko.computed(function() {
 		for (subject in self.objectOfSubjects()) {
-			//console.log(subject);
 			self.arrayOfSubjects.push(subject);
 		}
 		return self.arrayOfSubjects();
 
 	});
+	
+	*/
 	self.name = "processView";
 	self.label = "Process";
 
@@ -349,8 +349,7 @@ var ProcessViewModel = function() {
 		self.subjectVM.init();
 		self.internalVM.init();
 		self.chargeVM.init();
-		//console.log(gv_graph.subjects);
-		//console.log(self.arrayOfSubjects);
+
 
 	}
 
@@ -852,6 +851,8 @@ var ExecutionViewModel = function() {
 	}
 
 self.newInstance = function (name){
+	 	SBPM.Storage.set("inctanceStepSubjectID",null);
+ 		SBPM.Storage.set("inctanceStepNodeID",null);
 		SBPM.Service.Instance.newInstance(name);
 		self.showView();
 	
@@ -881,10 +882,12 @@ self.newInstance = function (name){
 			}
 		}
 	}
-	document.getElementById('instance_history').innerHTML = insert;
+	$('#instance_history').html(insert);
 }
-	self.drawInstanceState = function (){
-		var groups = SBPM.Service.User.getRoleByUserId(SBPM.Storage.get("user").id);
+
+
+self.drawInstanceState = function () {
+			var groups = SBPM.Service.User.getRoleByUserId(SBPM.Storage.get("user").id);
 /*
 	document.getElementById("welcome").style.display = "none";
 	document.getElementById('ausfuehrung').style.display = 'block';
@@ -895,14 +898,17 @@ self.newInstance = function (name){
 	var insert = "<tr><td align=\"center\">Startknoten w&auml;hlen</td><td align=\"center\">";
 	insert += "<table class=\"data\" width=\"60%\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:40%\">Subjekt</th><th style=\"width:60%\">Node</th></tr></thead><tbody>";
 	for (group in groups){
+		
 		var groupid = groups[group].id;
+		
 		var nodes = findStartNodesForGroup(JSON.parse(SBPM.Storage.get("instancegraph")), groupid);
-		for (i = 0; i < nodes.length; i++){					
+		for (i = 0; i < nodes.length; i++){
+							
 			insert += "<tr><td align=\"center\">" + getGroupName(groupid) + "</td><td align=\"center\"><input type=\"button\" value=\""+ nodes[i].text +"\" onClick=\"SBPM.VM.executionVM.selectNextNode('"+ groupid +"','"+ nodes[i].id +"');writeSumActiveInstances();\"/></td></tr>";
 		}
 	}
 	insert += "</tbody></table>";
-	document.getElementById('instance_history').innerHTML = insert;
+	$('#instance_history').html(insert);
 }
 
 self.abortInstance = function (){
@@ -917,7 +923,7 @@ location.reload();
 
 
  self.selectNextNode = function(subjectid, nodeid, msgtext){
-	//alert(subjectid +"->"+ nodeid);
+
 	var data = SBPM.Storage.get("instancedata");
 	SBPM.VM.executionVM.drawHistory(data);
 	
@@ -1010,8 +1016,20 @@ var CourseViewModel = function() {
 	}
 	self.showView = function() {
 		SBPM.VM.executionVM.activeViewIndex(0);
-		SBPM.VM.executionVM.drawHistory(loadInstanceData(SBPM.Storage.get("instanceid")));
-		SBPM.VM.executionVM.drawInstanceState();
+		
+		
+		
+		if(SBPM.Storage.get("inctanceStepNodeID")==null ||SBPM.Storage.get("inctanceStepSubjectID")==null ){
+			SBPM.VM.executionVM.drawHistory(loadInstanceData(SBPM.Storage.get("instanceid")));
+		}
+		else{
+			SBPM.VM.executionVM.selectNextNode(SBPM.Storage.get("inctanceStepSubjectID"),SBPM.Storage.get("inctanceStepNodeID"));
+		}
+		
+		
+		
+		
+		
 	}
 	self.activateTab = function() {
 		$("#instance_tab1").addClass("active");
