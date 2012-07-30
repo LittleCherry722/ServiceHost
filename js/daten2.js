@@ -12,6 +12,7 @@
  */
 
 function resumeInstance(instanceid){
+	console.log("Deprecated: daten2.js");
 	// set the instance
 	SBPM.Storage.set("instanceid", instanceid);
 	SBPM.Storage.set("instanceProcessID", getProcessIDforInstance(instanceid));
@@ -42,6 +43,7 @@ function resumeInstance(instanceid){
 }
 
 function resumeInstanceMessage(msgid){
+	console.log("Deprecated: daten2.js");
 
 	setMessageRead(msgid);
 	writeSumActiveInstances();
@@ -97,6 +99,7 @@ function resumeInstanceMessage(msgid){
 
 
 function addHistoryMessage(data, userid, msg, msgdata, isSend){
+	console.log("Deprecated: daten2.js");
 	if(typeof(data[userid]) == 'undefined') data[userid] = JSON.parse("{}");
 	if(typeof(data[userid]['history']) == 'undefined') data[userid]['history'] = new Array();
 

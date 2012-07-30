@@ -15,11 +15,15 @@
 var processName = false; //aktueller Prozessname
 
 function testphp(){
+
+console.log("Deprecated: daten.js");	
+	
 	 return error_log("false"=="false");
 }
 
 
 function showverantwortliche() {
+	console.log("Deprecated: daten.js");
 var groups = getAllGroups();
 var insert = "";
 for (var x = 0; x < groups.length; ++x) {
@@ -33,6 +37,7 @@ document.getElementById('responsibles').innerHTML = insert;
 }
 
 function setSubjectIDs() {
+	console.log("Deprecated: daten.js");
 var insert ="";
 var groups = getAllGroups();
 for(var i = 0; i < groups.length; ++i)
@@ -43,6 +48,7 @@ $('#ge_cv_id').change();
 }
 
 function writeSumActiveInstances() {
+	console.log("Deprecated: daten.js");
 var inst = getAllInstancesForUser(getUserID(SBPM.Storage.get("loggedin_user")));
 var result = 0;
 for (var i = 0; i < inst.length; ++i) {
@@ -54,6 +60,7 @@ document.getElementById('runningInstances').innerHTML = "Running instances (" +r
 }
 
 function einloggen(name, password) {
+	console.log("Deprecated: daten.js");
     var json = SBPM.Service.Authentication.login(name, password);
     var user = json['user'];
       
@@ -100,6 +107,7 @@ else {
 }
 */
 function addResponsible(user, group) {
+	console.log("Deprecated: daten.js");
 
 if(createResponsibleForUserForGroup(getUserID(SBPM.Storage.get("loggedin_user")), getGroupID(group), getUserID(user), getProcessID(processName))) {
 		$("#freeow").freeow("Person in charge", "User \"" + user +"\" was added as person in charge for group \"" + group + "\".", {
@@ -201,11 +209,13 @@ function ProzessLaden(name) {
 
 
 function clearListOfSubjects(){
+	console.log("Deprecated: daten.js");
 	$(".chzn-select").val('').trigger("liszt:updated");
 	$(".chzn-select").html('').trigger("liszt:updated");
 }
 
 function updateListOfSubjects(){
+	console.log("Deprecated: daten.js");
 	
 	//console.log(gv_graph.subjects);
 	
@@ -236,6 +246,7 @@ $(".active-result").click(function(){goToInternalBehaviorOf($('#slctSbj option:s
 
 
 function goToInternalBehaviorOf(subject){
+	console.log("Deprecated: daten.js");
 	//alert(subject);
 
 	gv_graph.selectedSubject = null; 
@@ -249,6 +260,7 @@ function goToInternalBehaviorOf(subject){
 
 
 function addHistory(data, userid, subjectid, node){ 
+	console.log("Deprecated: daten.js");
      if(typeof(data[userid]) == 'undefined') data[userid] = JSON.parse("{}"); 
      if(typeof(data[userid]['history']) == 'undefined') data[userid]['history'] = new Array(); 
  
@@ -267,11 +279,13 @@ function addHistory(data, userid, subjectid, node){
 
 
 function setUserState(data, userid, node, done){
+	console.log("Deprecated: daten.js");
 	data[userid]['position'] = node['id'];
 	data[userid]['done']     = done;
 }
 
 function findStartNodesForGroup(graph, subjectid){
+	console.log("Deprecated: daten.js");
 	//alert("findStartNodesForGroup: "+ JSON.stringify(subjectid) +" in "+ JSON.stringify(graph));
 	var ret = new Array();
 
@@ -295,6 +309,7 @@ function findStartNodesForGroup(graph, subjectid){
  * @return all edges which starts in node
  */
 function findNodeEdges(graph, subjectid, node){
+	console.log("Deprecated: daten.js");
 
 	var ret = new Array();
 
@@ -312,6 +327,8 @@ function findNodeEdges(graph, subjectid, node){
 }
 
 function findNode(graph, subjectid, nodeid){
+	console.log("Deprecated: daten.js");
+	
 	for (group in graph){
 		if (getGroupID(graph[group]['id']) == subjectid){
 			for (node in graph[group]['nodes']){  
@@ -333,6 +350,7 @@ function findNode(graph, subjectid, nodeid){
 
 
 function sendTextMessage(type, receiver){
+	console.log("Deprecated: daten.js");
 	var data = JSON.parse("{}");
 	data['type'] = type;
 	data['text'] = document.getElementById('tosend').value;
