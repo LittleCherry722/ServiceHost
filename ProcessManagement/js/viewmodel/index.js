@@ -1015,6 +1015,7 @@ var CourseViewModel = function() {
 	self.afterRender = function() {
 	}
 	self.showView = function() {
+		SBPM.VM.activeViewIndex(2);
 		SBPM.VM.executionVM.activeViewIndex(0);
 		
 		
@@ -1054,6 +1055,7 @@ var InstanceViewModel = function() {
 		  SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history[SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history.length-1].nodeid);
 	}
 	self.showView = function() {
+		SPBM.VM.activeViewIndex(2);
 		SBPM.VM.executionVM.activeViewIndex(1);
 	}
 	self.activateTab = function() {
