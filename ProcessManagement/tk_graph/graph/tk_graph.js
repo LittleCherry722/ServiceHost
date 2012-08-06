@@ -379,7 +379,7 @@ function gf_initPaper ()
 		{
 			// calculate the mouse position
 			var gt_paperPos	= gf_paperMousePosition(event);
-			var gt_speed	= 1.25;
+			var gt_speed	= gv_zoomSettings.wheel;
 		
 			// zoom in / out depending on the mousewheel direction
 			if (delta > 0)

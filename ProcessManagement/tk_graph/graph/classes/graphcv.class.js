@@ -61,6 +61,7 @@ function GCgraphcv ()
 	 * @private
 	 * @param {GCsubject} subject A complete GCsubject.
 	 * @param {boolean} selected When set to true the subject will be selected.
+	 * @param {String} Callback function [optional].
 	 * @returns {void}
 	 */
 	this.addSubject = function (subject, selected, callback)
@@ -70,14 +71,18 @@ function GCgraphcv ()
 		
 		this.subjects[subject.getId()] = {subject: subject, selected: selected};
 		
-		if(callback && typeof callback == "function")
-		  callback();
+		// call the callback function (if one)
+		if (gf_isset(callback) && typeof callback == "function")
+		{
+			callback();
+		}
 	};
 	
 	/**
 	 * The main function for drawing the graph.
 	 * 
 	 * @private
+	 * @param {String} Callback function [optional].
 	 * @returns {void}
 	 */
 	this.drawGraph = function (callback)
@@ -233,8 +238,11 @@ function GCgraphcv ()
 			}
 		}
 		
-        if(callback && typeof callback == "function")
-          callback();
+		// call the callback function (if one)
+        if (gf_isset(callback) && typeof callback == "function")
+        {
+        	callback();
+        }
 	};
 	
 	/**

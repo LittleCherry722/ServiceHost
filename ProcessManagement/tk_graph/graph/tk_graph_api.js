@@ -149,10 +149,16 @@ function gf_changeView (view)
  * Depending on the shown graph this clears an internal behavior or the complete graph.
  * 
  * @see GCcommunication.clearGraph()
+ * @param {boolean} When set to true the whole process will be cleared - not matter if the communication or the behavioral view is selected.
  * @returns {void}
  */
-function gf_clearGraph ()
+function gf_clearGraph (wholeProcess)
 {
+	if (gf_isset(wholeProcess) && wholeProcess === true)
+	{
+		gv_graph.changeView("cv");
+	}
+	
 	gv_graph.clearGraph();
 }
 
@@ -609,50 +615,55 @@ function gf_paperDragStart ()
 function gf_paperZoomIn (zoomFactor, zoomPosition)
 {	
 	if (!gf_isset(zoomFactor))
-		zoomFactor = 1.25;
+		zoomFactor = gv_zoomSettings.zoomIn;
 		
 	if (!gf_isset(zoomPosition))
 		zoomPosition = gf_paperCenterPosition();
 		
-	// the dimension of the current view box
-	var gt_oldWidth		= gv_currentViewBox.width;
-	var gt_oldHeight	= gv_currentViewBox.height;
-	
-	// the dimension of the view box after the zoom
-	var gt_newWidth		= gv_currentViewBox.width/zoomFactor;
-	var gt_newHeight	= gv_currentViewBox.height/zoomFactor;
-	
-	// calculate the difference between the current and the new dimensions
-	var gt_diffWidth	= gt_oldWidth - gt_newWidth;
-	var gt_diffHeight	= gt_oldHeight - gt_newHeight;
-	
-	// when the zoom position is set
-	if (gf_isset(zoomPosition))
-	{		
-		// adapt the mouse position to the current zoom level
-		var gt_mouseDiffX	= zoomPosition.x / gv_currentViewBox.zoom;
-		var gt_mouseDiffY	= zoomPosition.y / gv_currentViewBox.zoom;
-		
-		// update the position of the view box
-		gv_currentViewBox.x		= gv_currentViewBox.x + gt_mouseDiffX * (1 - 1 / zoomFactor);
-		gv_currentViewBox.y		= gv_currentViewBox.y + gt_mouseDiffY * (1 - 1 / zoomFactor);
-	}
-	else
+	// check if zoomLevel already hit zoomLimit	
+	if (gv_currentViewBox.zoom * zoomFactor <= gv_zoomSettings.max)
 	{
-		// update the position of the view box
-		gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x + (gt_diffWidth/2);
-		gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y + (gt_diffHeight/2) : gv_currentViewBox.y;
+		
+		// the dimension of the current view box
+		var gt_oldWidth		= gv_currentViewBox.width;
+		var gt_oldHeight	= gv_currentViewBox.height;
+		
+		// the dimension of the view box after the zoom
+		var gt_newWidth		= gv_currentViewBox.width/zoomFactor;
+		var gt_newHeight	= gv_currentViewBox.height/zoomFactor;
+		
+		// calculate the difference between the current and the new dimensions
+		var gt_diffWidth	= gt_oldWidth - gt_newWidth;
+		var gt_diffHeight	= gt_oldHeight - gt_newHeight;
+		
+		// when the zoom position is set
+		if (gf_isset(zoomPosition))
+		{		
+			// adapt the mouse position to the current zoom level
+			var gt_mouseDiffX	= zoomPosition.x / gv_currentViewBox.zoom;
+			var gt_mouseDiffY	= zoomPosition.y / gv_currentViewBox.zoom;
+			
+			// update the position of the view box
+			gv_currentViewBox.x		= gv_currentViewBox.x + gt_mouseDiffX * (1 - 1 / zoomFactor);
+			gv_currentViewBox.y		= gv_currentViewBox.y + gt_mouseDiffY * (1 - 1 / zoomFactor);
+		}
+		else
+		{
+			// update the position of the view box
+			gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x + (gt_diffWidth/2);
+			gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y + (gt_diffHeight/2) : gv_currentViewBox.y;
+		}
+		
+		// set the new dimensions
+		gv_currentViewBox.width		= gt_newWidth;
+		gv_currentViewBox.height	= gt_newHeight;
+		
+		// update the zoom level
+		gv_currentViewBox.zoom		= gv_currentViewBox.zoom * zoomFactor;
+		
+		// apply the new settings
+		gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);
 	}
-	
-	// set the new dimensions
-	gv_currentViewBox.width		= gt_newWidth;
-	gv_currentViewBox.height	= gt_newHeight;
-	
-	// update the zoom level
-	gv_currentViewBox.zoom		= gv_currentViewBox.zoom * zoomFactor;
-	
-	// apply the new settings
-	gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);
 }
 
 /**
@@ -665,50 +676,55 @@ function gf_paperZoomIn (zoomFactor, zoomPosition)
 function gf_paperZoomOut (zoomFactor, zoomPosition)
 {
 	if (!gf_isset(zoomFactor))
-		zoomFactor = 1.25;
+		zoomFactor = gv_zoomSettings.zoomOut;
 		
 	if (!gf_isset(zoomPosition))
 		zoomPosition = gf_paperCenterPosition();
-		
-	// the dimension of the current view box
-	var gt_oldWidth		= gv_currentViewBox.width;
-	var gt_oldHeight	= gv_currentViewBox.height;
 	
-	// the dimension of the view box after the zoom
-	var gt_newWidth		= gv_currentViewBox.width*zoomFactor;
-	var gt_newHeight	= gv_currentViewBox.height*zoomFactor;
-	
-	// calculate the diff between the current and the new dimensions
-	var gt_diffWidth	= gt_oldWidth - gt_newWidth;
-	var gt_diffHeight	= gt_oldHeight - gt_newHeight;
-	
-	// when the zoom position is set
-	if (gf_isset(zoomPosition))
+	// check if zoomLevel already hit zoomLimit	
+	if (gv_currentViewBox.zoom / zoomFactor >= gv_zoomSettings.min)
 	{
-		// adapt the mouse position to the current zoom level
-		var gt_mouseDiffX	= zoomPosition.x / gv_currentViewBox.zoom;
-		var gt_mouseDiffY	= zoomPosition.y / gv_currentViewBox.zoom;
 		
-		// update the position of the view box
-		gv_currentViewBox.x		= gv_currentViewBox.x + gt_mouseDiffX * (1 - 1 * zoomFactor);
-		gv_currentViewBox.y		= gv_currentViewBox.y + gt_mouseDiffY * (1 - 1 * zoomFactor);
+		// the dimension of the current view box
+		var gt_oldWidth		= gv_currentViewBox.width;
+		var gt_oldHeight	= gv_currentViewBox.height;
+		
+		// the dimension of the view box after the zoom
+		var gt_newWidth		= gv_currentViewBox.width*zoomFactor;
+		var gt_newHeight	= gv_currentViewBox.height*zoomFactor;
+		
+		// calculate the diff between the current and the new dimensions
+		var gt_diffWidth	= gt_oldWidth - gt_newWidth;
+		var gt_diffHeight	= gt_oldHeight - gt_newHeight;
+		
+		// when the zoom position is set
+		if (gf_isset(zoomPosition))
+		{
+			// adapt the mouse position to the current zoom level
+			var gt_mouseDiffX	= zoomPosition.x / gv_currentViewBox.zoom;
+			var gt_mouseDiffY	= zoomPosition.y / gv_currentViewBox.zoom;
+			
+			// update the position of the view box
+			gv_currentViewBox.x		= gv_currentViewBox.x + gt_mouseDiffX * (1 - 1 * zoomFactor);
+			gv_currentViewBox.y		= gv_currentViewBox.y + gt_mouseDiffY * (1 - 1 * zoomFactor);
+		}
+		else
+		{
+			// update the position of the view box
+			gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x + (gt_diffWidth/2);
+			gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y + (gt_diffHeight/2) : gv_currentViewBox.y;
+		}
+		
+		// set the new dimensions
+		gv_currentViewBox.width		= gv_currentViewBox.width*zoomFactor;
+		gv_currentViewBox.height	= gv_currentViewBox.height*zoomFactor;
+		
+		// update the zoom level
+		gv_currentViewBox.zoom		= gv_currentViewBox.zoom / zoomFactor;
+		
+		// apply the new settings
+		gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);
 	}
-	else
-	{
-		// update the position of the view box
-		gv_currentViewBox.x			= gv_graphID == "cv" ? gv_currentViewBox.x : gv_currentViewBox.x + (gt_diffWidth/2);
-		gv_currentViewBox.y			= gv_graphID == "cv" ? gv_currentViewBox.y + (gt_diffHeight/2) : gv_currentViewBox.y;
-	}
-	
-	// set the new dimensions
-	gv_currentViewBox.width		= gv_currentViewBox.width*zoomFactor;
-	gv_currentViewBox.height	= gv_currentViewBox.height*zoomFactor;
-	
-	// update the zoom level
-	gv_currentViewBox.zoom		= gv_currentViewBox.zoom / zoomFactor;
-	
-	// apply the new settings
-	gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);	
 }
 
 /**

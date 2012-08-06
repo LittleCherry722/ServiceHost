@@ -37,7 +37,7 @@ var gv_paperSizes	= {
 	bv_width: 5000,		// width of the canvas for the behavioral view
 	bv_height: 6000,	// height of the canvas for the behavioral view
 	cv_width: 2000,		// width of the canvas for the communication view
-	cv_height: 520		// height of the canvas for the communication view
+	cv_height: 500		// height of the canvas for the communication view
 };
 
 /**
@@ -59,6 +59,29 @@ var gv_nodeTypes	= {
 	// an end node will be displayed as a circle without text
 	end: {shape: "circle", text: ""}
 };
+
+/**
+ * Settings for zoom.
+ * Contains zoom-limits (min and max) and default zoomSpeed.
+ * 
+ * @type Object
+ */
+var gv_zoomSettings	= {
+	// min zoom level (can't zoom out further)
+	min: 0.25,
+	
+	// max zoom level (can't zoom in further)
+	max: 4,
+	
+	// default zoomFactor (zoom in)
+	zoomIn: 1.25,
+	
+	// default zoomFactor (zoom out)
+	zoomOut: 1.25,
+	
+	// default zoomFactor (mousewheel)
+	wheel: 1.25
+}
 
 /*
  * status dependent styles
