@@ -28,12 +28,14 @@ var ViewModel = function() {
 		self.processVM = new ProcessViewModel();
 		self.homeVM = new HomeViewModel();
 		self.executionVM = new ExecutionViewModel();
+		
 
 		self.menuVM.init();
 		self.headerVM.init();
 		self.homeVM.init();
 		self.processVM.init();
 		self.executionVM.init();
+		
 
 	}
 
@@ -322,6 +324,10 @@ var HomeViewModel = function() {
 		SBPM.VM.activeViewIndex(0);
 	}
 }
+
+
+
+
 var ProcessViewModel = function() {
 
 	var self = this;
@@ -344,12 +350,13 @@ var ProcessViewModel = function() {
 	self.subjectVM = new SubjectViewModel();
 	self.internalVM = new InternalViewModel();
 	self.chargeVM = new chargeViewModel();
+	self.quickVM = new QuickViewModel();
 
 	self.init = function() {
 		self.subjectVM.init();
 		self.internalVM.init();
 		self.chargeVM.init();
-
+		self.quickVM.init();
 
 	}
 
@@ -823,6 +830,98 @@ var chargeViewModel = function() {
 
 	}
 }
+
+
+var QuickViewModel = function() {
+	var self= this;
+	
+	self.name ="quickView";
+	self.label ="Quick Creation";
+	self.display = ko.observable(false);
+	
+	
+	self.init = function() {
+				
+	}
+	
+	self.showView = function() {
+		SBPM.VM.activeViewIndex(1);
+		self.display(1);
+	}
+	
+	
+	
+	self.addSubject = function(element) {
+		if(element.value != "") {
+			self.readSubjects();
+		}
+	}
+
+	self.readSubjects = function() {
+		for( m = 1; m <= 10; m++) {
+			for( s = 1; s <= 2; s++) {
+				var name = "m" + m + "s" + s;
+				var sel = document.getElementById(name).options;
+				sel.length = 0;
+
+				var opt = document.createElement("option");
+				opt.text = "";
+				opt.value = "";
+				opt.id = name + "_00000.0";
+				sel.add(opt);
+
+				for( si = 1; si <= 5; si++) {
+					var subj = document.getElementById("s" + si).value;
+					if(subj != "") {
+						opt = document.createElement("option");
+						opt.text = subj;
+						opt.value = subj.toLowerCase();
+						opt.id = name + "_" + subj.toLowerCase();
+						sel.add(opt);
+					}
+				}
+			}
+		}
+	}
+
+	self.createProcessFromTable = function() {
+		var subjs = [];
+
+		for( s = 1; s <= 5; s++) {
+			var val = document.getElementById("s" + s).value;
+			if(val.replace(" ", "") != "") {
+				subjs[subjs.length] = val;
+			}
+		}
+
+		var msgs = [];
+
+		for( m = 1; m <= 10; m++) {
+			var msg = document.getElementById("m" + m).value;
+			var s1 = document.getElementById("m" + m + "s1").value;
+			var s2 = document.getElementById("m" + m + "s2").value;
+
+			if(msg.replace(" ", "") != "" && s1 != "" && s2 != "") {
+				msgs[msgs.length] = {
+					message : msg,
+					sender : s1,
+					receiver : s2
+				};
+			}
+		}
+
+		gf_createFromTable(subjs, msgs);
+        updateListOfSubjects();
+	}
+
+	
+	
+	
+	
+	
+}
+
+
 var ExecutionViewModel = function() {
 
 	var self = this;
