@@ -134,11 +134,15 @@ function GCcommunication ()
 			gf_paperChangeView("cv");
 			if (gf_elementExists(gv_elements.graphCVouter))
 			{
-				if (gf_elementExists(gv_elements.graphBVouter))
-					document.getElementById(gv_elements.graphBVouter).style.display = "none";
 				
-				document.getElementById(gv_elements.graphCVouter).style.display = "block";
-				$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '50%'}, 0);
+				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.changeView))
+				{
+					window[gv_functions.communication.changeView]("cv");
+				}
+				else
+				{
+					gf_guiChangeView("cv");
+				}
 			
 				this.selectedSubject	= null;
 				this.selectedNode		= null;
@@ -153,11 +157,14 @@ function GCcommunication ()
 			gf_paperChangeView("bv");
 			if (gf_elementExists(gv_elements.graphBVouter))
 			{
-				if (gf_elementExists(gv_elements.graphCVouter))
-					document.getElementById(gv_elements.graphCVouter).style.display = "none";
-					
-				document.getElementById(gv_elements.graphBVouter).style.display = "block";
-				$('#' + gv_elements.graphBVouter).scrollTo( {left: '50%', top: '0px'}, 0);
+				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.changeView))
+				{
+					window[gv_functions.communication.changeView]("bv");
+				}
+				else
+				{
+					gf_guiChangeView("bv");
+				}
 				
 				if (gf_isset(this.subjects[this.selectedSubject]))
 				{
@@ -755,108 +762,13 @@ function GCcommunication ()
 	 */
 	this.loadEdgeMessages = function ()
 	{
-		// if either the element gv_elements.inputEdgeTarget or the element gv_elements.inputEdgeMessage does not exist, cancel the method call
-		if (!gf_elementExists(gv_elements.inputEdgeTarget, gv_elements.inputEdgeMessage))
-			return false;
-			
-		var gt_selectedTarget	= document.getElementById(gv_elements.inputEdgeTarget).value;
-		var gt_select_message	= document.getElementById(gv_elements.inputEdgeMessage).options;
-		var gt_messagesArray	= [];
-		
-		gt_select_message.length	= 0;
-		
-		if (gt_selectedTarget != "" && gt_selectedTarget != this.selectedSubject)
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.loadEdgeMessages))
 		{
-			
-			// create some entries to guide the user
-			var gt_option = document.createElement("option");
-				gt_option.text = "please select";
-				gt_option.value = "";
-				gt_option.id = gv_elements.inputEdgeTarget + "_00000.0";
-				gt_select_message.add(gt_option);
-			
-				gt_option = document.createElement("option");
-				gt_option.text = "----------------------------";
-				gt_option.value = "";
-				gt_option.id = gv_elements.inputEdgeTarget + "_00000.1";
-				gt_select_message.add(gt_option);
-			
-				gt_option = document.createElement("option");
-				gt_option.text = "create a new message";
-				gt_option.value = "##createNewMsg##";
-				gt_option.id = gv_elements.inputEdgeTarget + "_00000.2";
-				gt_select_message.add(gt_option);
-			
-				gt_option = document.createElement("option");
-				gt_option.text = "----------------------------";
-				gt_option.value = "";
-				gt_option.id = gv_elements.inputEdgeTarget + "_00000.3";
-				gt_select_message.add(gt_option);
-				
-			var gt_curEdge			= null;
-			var gt_curEdgeID		= null;
-			var gt_curStartNode		= null;
-			var gt_curStartNodeType	= "receive";
-			var gt_tmpStartNodeType	= "send";
-			
-			// determine the type of the start node of the current edge
-			if (this.getBehavior(this.selectedSubject) != null)
-			{
-				gt_curEdgeID	= this.getBehavior(this.selectedSubject).selectedEdge;
-				if (gt_curEdgeID != null)
-				{
-					gt_curEdge	= this.getBehavior(this.selectedSubject).getEdges()["e" + gt_curEdgeID];
-					if (gt_curEdge != null)
-					{
-						gt_curStartNode	= this.getBehavior(this.selectedSubject).getNode(gt_curEdge.getStart());
-						if (gt_curStartNode != null)
-						{
-							gt_curStartNodeType	= gt_curStartNode.getType();						
-						}
-					}
-				}
-			}
-			
-			// when the current edge's start node is a receive node, the messages sent by the other object have to be loaded; when it is a send node, the messages received by the other subject have to be loaded  
-			gt_tmpStartNodeType	= gt_curStartNodeType == "send" ? "receive" : "send";
-			
-			// load the messages sent / received from subject gt_selectedTarget depending on the type of the startNode of the currently selected edge
-			var gt_behav = this.getBehavior(gt_selectedTarget);
-			var gt_edges = gt_behav.getEdges();
-			for (var gt_eid in gt_edges)
-			{
-				var gt_edge					= gt_edges[gt_eid];
-				var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
-				var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
-				var gt_relatedSubject		= gt_edge.getRelatedSubject();
-				var gt_text					= gt_edge.getText();
-				
-				if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "")
-				{
-					if (gf_isset(this.subjects[gt_relatedSubject]) && gt_relatedSubject == this.selectedSubject && gt_startNode.getType() == gt_tmpStartNodeType)
-					{
-						gt_messagesArray[gt_messagesArray.length]	= gt_text;
-					}
-				}
-			}
-			
-			// sort the messages alphabetically
-			gt_messagesArray.sort();
-			
-			// add the messages to the select field
-			for (var gt_mid in gt_messagesArray)
-			{
-				gt_option = document.createElement("option");
-				gt_option.text = gt_messagesArray[gt_mid];
-				gt_option.value = gt_messagesArray[gt_mid];
-				gt_option.id = gv_elements.inputEdgeMessage + "_" + gt_mid;
-				gt_select_message.add(gt_option);
-				
-				if (gf_elementExists(gv_elements.inputEdgeText) && gt_messagesArray[gt_mid].replace("\\n", "") == document.getElementById(gv_elements.inputEdgeText).value.replace("\\n", ""))
-				{
-					document.getElementById(gv_elements.inputEdgeMessage + "_" + gt_mid).selected = true;
-				}
-			}
+			window[gv_functions.communication.loadEdgeMessages]();
+		}
+		else
+		{
+			gf_guiLoadEdgeMessages();
 		}
 	};
 	
@@ -923,31 +835,28 @@ function GCcommunication ()
 		// empty all input fields
 		if (gf_isset(clear) && clear == true)
 		{
-			if (gf_elementExists(gv_elements.inputNodeText))
-				document.getElementById(gv_elements.inputNodeText).value = "";
-			if (gf_elementExists(gv_elements.inputNodeType2))
-				document.getElementById(gv_elements.inputNodeType2).value = "";
-			
-			if (gf_elementExists(gv_elements.inputSubjectText))
-				document.getElementById(gv_elements.inputSubjectText).value = "";
-			if (gf_elementExists(gv_elements.inputSubjectId))
-				document.getElementById(gv_elements.inputSubjectId).value = "";
-
-			if (gf_elementExists(gv_elements.inputEdgeText))
-				document.getElementById(gv_elements.inputEdgeText).value = "";
-			if (gf_elementExists(gv_elements.inputEdgeTarget))
-				document.getElementById(gv_elements.inputEdgeTarget).options.length = 0;
-			
+			if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.clearInputFields))
+			{
+				window[gv_functions.communication.clearInputFields]();
+			}
+			else
+			{
+				gf_guiClearInputFields();
+			}
 		}
 		
 		// load the information of a selected node
 		else
 		{			
 			this.loadInformation(true);
-			if (gf_elementExists(gv_elements.inputNodeOuter))
-				document.getElementById(gv_elements.inputNodeOuter).style.display = "block";
-			if (gf_elementExists(gv_elements.inputEdgeOuter))
-				document.getElementById(gv_elements.inputEdgeOuter).style.display = "none";
+			if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.toggleNEForms))
+			{
+				window[gv_functions.communication.toggleNEForms]("n");
+			}
+			else
+			{
+				gf_guiToggleNEForms("n");
+			}
 		
 			// when the communication view is shown load the information of the currently selected subject-node
 			if (this.selectedSubject == null)
@@ -956,20 +865,14 @@ function GCcommunication ()
 				{
 					var gt_subject = this.subjects[this.selectedNode];		
 					
-					if (gf_elementExists(gv_elements.inputSubjectText))
-						document.getElementById(gv_elements.inputSubjectText).value = gt_subject.getText();
-						
-					if (gf_elementExists(gv_elements.inputSubjectId))
-						document.getElementById(gv_elements.inputSubjectId).value = gt_subject.getId();
-						
-					if (gf_elementExists(gv_elements.inputSubjectTypeSingle) && gt_subject.getType() == "single")
-						document.getElementById(gv_elements.inputSubjectTypeSingle).checked = true;
-				
-					if (gf_elementExists(gv_elements.inputSubjectTypeMulti) && gt_subject.getType() == "multi")
-						document.getElementById(gv_elements.inputSubjectTypeMulti).checked = true;
-					
-					if (gf_elementExists(gv_elements.inputSubjectTypeExternal) && gt_subject.getType() == "external")
-						document.getElementById(gv_elements.inputSubjectTypeExternal).checked = true;
+					if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.displaySubject))
+					{
+						window[gv_functions.communication.displaySubject](gt_subject);
+					}
+					else
+					{
+						gf_guiDisplaySubject(gt_subject);
+					}
 				}
 			}
 			
@@ -978,24 +881,16 @@ function GCcommunication ()
 			{
 				if (gf_isset(this.subjects[this.selectedSubject]))
 				{
-					
 					var gt_node = this.getBehavior(this.selectedSubject).getNode();
 					
-					if (gf_elementExists(gv_elements.inputNodeText))
-						document.getElementById(gv_elements.inputNodeText).value = gt_node.getText();
-					
-					// clear selection
-					if (gf_elementExists(gv_elements.inputNodeTypeStart))
-						document.getElementById(gv_elements.inputNodeTypeStart).checked = gt_node.isStart();
-
-					if (gf_elementExists(gv_elements.inputNodeType2R))
-						document.getElementById(gv_elements.inputNodeType2R).selected = gt_node.getType() == "receive";
-					if (gf_elementExists(gv_elements.inputNodeType2S))
-						document.getElementById(gv_elements.inputNodeType2S).selected = gt_node.getType() == "send";
-					if (gf_elementExists(gv_elements.inputNodeType2End))
-						document.getElementById(gv_elements.inputNodeType2End).selected = gt_node.isEnd();
-					if (gf_elementExists(gv_elements.inputNodeType2Action))
-						document.getElementById(gv_elements.inputNodeType2Action).selected = !gt_node.isEnd() && gt_node.getType() == "action";
+					if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.displayNode))
+					{
+						window[gv_functions.communication.displayNode](gt_node);
+					}
+					else
+					{
+						gf_guiDisplayNode(gt_node);
+					}
 				}
 			}
 		}
@@ -1018,89 +913,26 @@ function GCcommunication ()
 		{
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
-				var gt_edge = this.getBehavior(this.selectedSubject).getEdge();
-				var gt_node = this.getBehavior(this.selectedSubject).getNode(gt_edge.getStart());
-				
-				if (gf_elementExists(gv_elements.inputEdgeText))
+				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.toggleNEForms))
 				{
-					document.getElementById(gv_elements.inputEdgeText).value	= gt_edge.getText();
-					document.getElementById(gv_elements.inputEdgeText).readOnly	= false;					
+					window[gv_functions.communication.toggleNEForms]("e");
+				}
+				else
+				{
+					gf_guiToggleNEForms("e");
 				}
 				
-				if (gf_elementExists(gv_elements.inputEdgeMessageO))
-					document.getElementById(gv_elements.inputEdgeMessageO).style.display = "none";
-		
-				if (gf_elementExists(gv_elements.inputNodeOuter))
-					document.getElementById(gv_elements.inputNodeOuter).style.display = "none";
+				var gt_edge = this.getBehavior(this.selectedSubject).getEdge();
+				var gt_node = this.getBehavior(this.selectedSubject).getNode(gt_edge.getStart());
+				var gt_type	= gf_isset(gt_node) ? gt_node.getType() : "";
 				
-				if (gf_elementExists(gv_elements.inputEdgeOuter))
-					document.getElementById(gv_elements.inputEdgeOuter).style.display = "block";
-				
-				var gt_select_target		= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).options : null;
-				var gt_select_message		= gf_elementExists(gv_elements.inputEdgeMessage) ? document.getElementById(gv_elements.inputEdgeMessage).options : null;
-				
-				if (gt_select_target != null)
-					gt_select_target.length		= 0;
-					
-				if (gt_select_message != null)
-					gt_select_message.length	= 0;
-				
-				// create the drop down menu to select the related subject (only for receive and send nodes)
-				if ((gt_node.getType() == "send" || gt_node.getType() == "receive") && gt_select_target != null && gt_select_message != null)
-				{		
-					if (gf_elementExists(gv_elements.inputEdgeMessageO))
-						document.getElementById(gv_elements.inputEdgeMessageO).style.display	= "block";
-						
-					document.getElementById(gv_elements.inputEdgeTarget).onchange			= gf_edgeMessage;
-					document.getElementById(gv_elements.inputEdgeMessage).onchange			= gf_setEdgeMessage;
-					
-					var gt_option = document.createElement("option");
-					gt_option.text = "please select";
-					gt_option.value = "";
-					gt_option.id = gv_elements.inputEdgeTarget + "_00000.0";
-					gt_select_target.add(gt_option);
-					
-					var gt_option = document.createElement("option");
-					gt_option.text = "----------------------------";
-					gt_option.value = "";
-					gt_option.id = gv_elements.inputEdgeTarget + "_00000.1";
-					gt_select_target.add(gt_option);
-					
-					// read the subjects that can be related
-					var gt_subjectArray = [];
-					
-					for (var gt_sid in this.subjects)
-					{
-						if (gt_sid != this.selectedSubject)
-						{
-							gt_subjectArray[gt_subjectArray.length]		= this.subjects[gt_sid].getText() + " (" + gt_sid + ")##;##" + gt_sid;
-						}
-					}
-					
-					// sort the subjects
-					gt_subjectArray.sort();
-					
-					// add the subjects as options to the select field
-					for (var gt_sid in gt_subjectArray)
-					{						
-						var gt_option		= document.createElement("option");
-						var gt_subjArray	= gt_subjectArray[gt_sid].split("##;##");
-						var gt_subjID		= gt_subjArray[1];
-						gt_option.text	= gt_subjArray[0];
-						gt_option.value = gt_subjID;
-						gt_option.id	= gv_elements.inputEdgeTarget + "_" + gt_subjID;
-						gt_select_target.add(gt_option);
-						
-						if (gt_sid == gt_edge.getRelatedSubject())
-						{
-							document.getElementById(gv_elements.inputEdgeTarget + "_" + gt_subjID).selected = true;
-						}
-					}
-					
-					/*
-					 * read available messages
-					 */
-					this.loadEdgeMessages();
+				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.displayEdge))
+				{
+					window[gv_functions.communication.displayEdge](gt_edge, gt_type);
+				}
+				else
+				{
+					gf_guiDisplayEdge(gt_edge, gt_type);
 				}
 			}
 		}
@@ -1258,9 +1090,9 @@ function GCcommunication ()
 				this.selectNothing();
 				this.selectedNode = id;
 				
-				if (gf_functionExists("updateListOfSubjects"))
+				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.updateListOfSubjects))
 				{
-					updateListOfSubjects();	// custom code
+					window[gv_functions.communication.updateListOfSubjects]();
 				}
 			}
 		}
@@ -1305,8 +1137,18 @@ function GCcommunication ()
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
 				// read information from fields and pass to bv
-				var gt_text				= gf_elementExists(gv_elements.inputEdgeText) ? document.getElementById(gv_elements.inputEdgeText).value : "";
-				var gt_relatedSubject	= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
+				var gt_values	= {};
+				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.readEdge))
+				{
+					gt_values	= window[gv_functions.communication.readEdge]();
+				}
+				else
+				{
+					gt_values	= gf_guiReadEdge();
+				}
+				
+				var gt_text				= gf_isset(gt_values.text)				? gt_values.text			: "";
+				var gt_relatedSubject	= gf_isset(gt_values.relatedSubject)	? gt_values.relatedSubject	: "";
 				
 				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_relatedSubject);
 				this.loadInformationEdge();
@@ -1330,21 +1172,23 @@ function GCcommunication ()
 			if (this.selectedNode != null && gf_isset(this.subjects[this.selectedNode]))
 			{
 				var gt_subject = this.subjects[this.selectedNode];					
+								
+				var gt_values	= {};
+					
+				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.readSubject))
+				{
+					gt_values	= window[gv_functions.communication.readSubject]();
+				}
+				else
+				{
+					gt_values	= gf_guiReadSubject();
+				}
 				
-				var gt_text = gf_elementExists(gv_elements.inputSubjectText) ? document.getElementById(gv_elements.inputSubjectText).value : "";
-				var gt_id = gf_elementExists(gv_elements.inputSubjectId) ? document.getElementById(gv_elements.inputSubjectId).value : "";
+				var gt_text	= gf_isset(gt_values.text)	? gt_values.text	: "";
+				var gt_id	= gf_isset(gt_values.id)	? gt_values.id		: "";
+				var gt_type	= gf_isset(gt_values.type)	? gt_values.type	: "";
 				
-				var gt_type	= gt_subject.getType();
-				
-				if (gf_elementExists(gv_elements.inputSubjectTypeSingle) && document.getElementById(gv_elements.inputSubjectTypeSingle).checked === true)
-					gt_type = "single";
-				
-				if (gf_elementExists(gv_elements.inputSubjectTypeMulti) && document.getElementById(gv_elements.inputSubjectTypeMulti).checked === true)
-					gt_type = "multi";
-				
-				if (gf_elementExists(gv_elements.inputSubjectTypeExternal) && document.getElementById(gv_elements.inputSubjectTypeExternal).checked === true)
-					gt_type = "external";
-				
+					gt_type	= gt_type != "" ? gt_type : gt_subject.getType();
 				
 				// allow the change of the label even though the id is emtpy
 				if (gt_id.replace(" ", "") == "")
@@ -1397,10 +1241,21 @@ function GCcommunication ()
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
 				// read the fields' values and pass to the bv
-				var gt_text		= gf_elementExists(gv_elements.inputNodeText) ? document.getElementById(gv_elements.inputNodeText).value : "";
-				var gt_isStart	= gf_elementExists(gv_elements.inputNodeTypeStart) && document.getElementById(gv_elements.inputNodeTypeStart).checked;
-				var gt_type2 	= gf_elementExists(gv_elements.inputNodeType2) ? document.getElementById(gv_elements.inputNodeType2).value.toLowerCase() : "";
+				var gt_values	= {};
+					
+				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.readNode))
+				{
+					gt_values	= window[gv_functions.communication.readNode]();
+				}
+				else
+				{
+					gt_values	= gf_guiReadNode();
+				}
+
 				var gt_type		= "normal";
+				var gt_text		= gf_isset(gt_values.text)		? gt_values.text	: "";
+				var gt_isStart	= gf_isset(gt_values.isStart)	? gt_values.isStart	: false;
+				var gt_type2	= gf_isset(gt_values.type2)		? gt_values.type2	: "";
 				
 				if (gt_type2 == "r")
 					gt_type2 = "receive";

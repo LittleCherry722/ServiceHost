@@ -72,7 +72,7 @@ function GCgraphcv ()
 		this.subjects[subject.getId()] = {subject: subject, selected: selected};
 		
 		// call the callback function (if one)
-		if (gf_isset(callback) && typeof callback == "function")
+		if (gf_isset(callback) && gf_functionExists(callback))
 		{
 			callback();
 		}
@@ -239,7 +239,7 @@ function GCgraphcv ()
 		}
 		
 		// call the callback function (if one)
-        if (gf_isset(callback) && typeof callback == "function")
+        if (gf_isset(callback) && gf_functionExists(callback))
         {
         	callback();
         }

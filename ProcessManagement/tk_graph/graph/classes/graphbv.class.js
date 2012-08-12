@@ -102,7 +102,7 @@ function GCgraphbv ()
 			}
 			
 			// call the callback function (if one)
-            if (gf_isset(callback) && typeof callback == "function")
+            if (gf_isset(callback) && gf_functionExists(callback))
             {
             	callback();
             }
@@ -154,7 +154,7 @@ function GCgraphbv ()
 		}
 		
 		// call the callback function (if one)
-        if (gf_isset(callback) && typeof callback == "function")
+        if (gf_isset(callback) && gf_functionExists(callback))
         {
         	callback();
         }
@@ -188,7 +188,7 @@ function GCgraphbv ()
 		this.graphs[subject]	= {nodes: {}, edges: {}, startNodes: {}, nodeCount: 0};
 	
 		// call the callback function (if one)
-        if (gf_isset(callback) && typeof callback == "function")
+        if (gf_isset(callback) && gf_functionExists(callback))
         {
         	callback();
         }
@@ -239,7 +239,7 @@ function GCgraphbv ()
 			delete this.graphs[subject];
 			
 			// call the callback function (if one)
-            if (gf_isset(callback) && typeof callback == "function")
+            if (gf_isset(callback) && gf_functionExists(callback))
             {
             	callback();
             }
@@ -615,7 +615,7 @@ function GCgraphbv ()
 			}
         		
         	// call the callback function (if one)
-            if (gf_isset(callback) && typeof callback == "function")
+            if (gf_isset(callback) && gf_functionExists(callback))
             {
             	callback();
             }

@@ -15,6 +15,14 @@
  * do NOT delete any line in this file; only edit the values
  */
 
+/**
+ * When set to true the tk_graph library will alter attributes of DOM Elements; when set to false the proper GUI has to make all changes
+ * 
+ * @type boolean
+ */
+gv_standAlone	= false;
+
+
 /*
  * predefined macros
  */

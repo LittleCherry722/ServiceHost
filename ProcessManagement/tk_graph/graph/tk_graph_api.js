@@ -37,41 +37,6 @@ var gv_graph_bv	= new GCgraphbv();
 var gv_graph_cv	= new GCgraphcv();
 
 /**
- * This object contains a list of all DOM elements used within the API.
- * Do not change the indexes of the array as they are referred to in the API.
- * But you should adapt the values to the actual IDs of the elements on the page.
- * 
- * @type Object
- */
-var gv_elements = {
-	graphBVouter:		"graph_bv_outer",
-	graphCVouter:		"graph_cv_outer",
-	inputEdgeText:		"ge_edge_text",
-	inputEdgeTarget:	"ge_edge_target",
-	inputEdgeMessage:	"ge_edge_message",
-	inputEdgeMessageO:	"ge_edge_message_outer",
-	inputEdgeOuter:		"edge",
-	inputSubjectText:	"ge_cv_text",
-	inputSubjectId:		"ge_cv_id",
-	inputNodeText:		"ge_text",
-	inputNodeType2:		"ge_type2",
-	inputNodeOuter:		"node",
-	
-	// select elements
-	inputNodeTypeStart:		"ge_type_start",
-		
-	inputNodeType2R:		"ge_type2_R",
-	inputNodeType2S:		"ge_type2_S",
-	inputNodeType2End:		"ge_type2_end",
-	inputNodeType2Action:	"ge_type2_action",
-	
-	// subject types
-	inputSubjectTypeSingle:		"ge_cv_type_single",
-	inputSubjectTypeMulti:		"ge_cv_type_multi",
-	inputSubjectTypeExternal:	"ge_cv_type_external"
-};
-
-/**
  * The tk_graph library provides methods to create macros for adding new nodes to the graph of the behavioral view.
  * These macros are stored in the gv_macros object.
  * 
@@ -480,6 +445,90 @@ function gf_getNodeRight ()
 }
 
 /**
+ * Returns the type and the id of the currently selected element as an object.
+ * The object contains two attributes, type and id, where id is the id of the element and type is either "subject", "node" or "edge".
+ * 
+ * @returns {Object} Type and ID of selected element or null if no element is selected.
+ */
+function gf_getSelectedElement ()
+{
+	var gt_result = {type: "", id: ""};
+	
+	if (gv_graph.selectedSubject == null)
+	{
+		if (gv_graph.selectedNode != null)
+		{
+			gt_result.type	= "subject";
+			gt_result.id	= gv_graph.selectedNode;
+		}
+	}
+	
+	// when a behavior is shown
+	else
+	{
+		if (gf_isset(gv_graph.subjects[gv_graph.selectedSubject]))
+		{
+			var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
+			
+			if (gt_behav.selectedNode != null)
+			{
+				gt_result.type	= "node";
+				gt_result.id	= gt_behav.selectedNode;
+			}
+			if (gt_behav.selectedEdge != null)
+			{
+				gt_result.type	= "edge";
+				gt_result.id	= gt_behav.selectedEdge;
+			}
+		}
+	}
+	
+	if (gt_result.type == "")
+		gt_result	= null;
+	
+	return gt_result;
+}
+
+/**
+ * Determines the type of the selected element.
+ * Returns "none" when no element is selected.
+ * 
+ * @returns {String} Type of selected element. Either "node", "edge" or "none".
+ */
+function gf_getSelectedElementType ()
+{
+	var gt_type	= "none";
+	
+	if (gv_graph.selectedSubject == null)
+	{
+		if (gv_graph.selectedNode != null)
+		{
+			gt_type = "node";
+		}
+	}
+	
+	// when a behavior is shown
+	else
+	{
+		if (gf_isset(gv_graph.subjects[gv_graph.selectedSubject]))
+		{
+			var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
+			
+			if (gt_behav.selectedNode != null)
+			{
+				gt_type = "node";
+			}
+			if (gt_behav.selectedEdge != null)
+			{
+				gt_type = "edge";
+			}
+		}
+	}
+	
+	return gt_type;
+}
+
+/**
  * Returns the id of the node currently selected depending on the current view.
  *  
  * @see GCcommunication.getSelectedNode()
@@ -792,6 +841,22 @@ function gf_saveGraph (format)
 }
 
 /**
+ * Sets the IDs of the divs that will hold the canvases for the behavioral view and the communication view.
+ * 
+ * @param {String} ID of the div that will hold the canvas vor the behavioral view.
+ * @param {String} ID of the div that will hold the canvas vor the communication view.
+ * @returns {void}
+ */
+function gf_setDivs (bv, cv)
+{
+	if (gf_isset(bv, cv))
+	{
+		gv_elements.graphBVouter	= bv;
+		gv_elements.graphCVouter	= cv;
+	}
+}
+
+/**
  * This is called onChange of gv_elements.inputEdgeMessage.
  * It updates the value of gv_elements.inputEdgeText with the selected message so the edge can be updated correctly.
  * 
@@ -799,21 +864,13 @@ function gf_saveGraph (format)
  */
 function gf_setEdgeMessage ()
 {
-	if (gf_elementExists(gv_elements.inputEdgeText, gv_elements.inputEdgeMessage))
+	if (!gf_isStandAlone() && gf_functionExists(gv_functions.general.toggleEdgeMessages))
 	{
-		var gt_message	= document.getElementById(gv_elements.inputEdgeMessage).value;
-		
-		// when the entry "##createNewMsg##" is selected -> unlock the textarea and let the user define a new message
-		if (gt_message == "##createNewMsg##")
-		{
-			document.getElementById(gv_elements.inputEdgeText).readOnly	= false;
-			document.getElementById(gv_elements.inputEdgeText).value 	= "";	
-		}
-		else
-		{
-			document.getElementById(gv_elements.inputEdgeText).readOnly	= true;
-			document.getElementById(gv_elements.inputEdgeText).value 	= gt_message;
-		}
+		window[gv_functions.general.toggleEdgeMessages]();
+	}
+	else
+	{
+		gf_guiSetEdgeMessage();
 	}
 }
 

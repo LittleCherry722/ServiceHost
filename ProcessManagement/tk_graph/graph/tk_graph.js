@@ -178,7 +178,7 @@ function gf_functionExists ()
 		}
 	}
 	
-	return true;
+	return gt_argc > 0;
 }
 
 /**
@@ -219,46 +219,6 @@ function gf_getParentNode (id)
 	}
 	
 	return null;
-}
-
-/**
- * Determines the type of the selected element.
- * Returns "none" when no element is selected.
- * 
- * @private
- * @returns {String} Type of selected element. Either "node", "edge" or "none".
- */
-function gf_getSelectedElementType ()
-{
-	var gt_type	= "none";
-	
-	if (gv_graph.selectedSubject == null)
-	{
-		if (gv_graph.selectedNode != null)
-		{
-			gt_type = "node";
-		}
-	}
-	
-	// when a behavior is shown, call its clearGraph() method
-	else
-	{
-		if (gf_isset(gv_graph.subjects[gv_graph.selectedSubject]))
-		{
-			var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
-			
-			if (gt_behav.selectedNode != null)
-			{
-				gt_type = "node";
-			}
-			if (gt_behav.selectedEdge != null)
-			{
-				gt_type = "edge";
-			}
-		}
-	}
-	
-	return gt_type;
 }
 
 /**
@@ -458,6 +418,17 @@ function gf_isset ()
 }
 
 /**
+ * Returns true when the tk_graph library is set to standAlone.
+ * 
+ * @private
+ * @return {boolean} True when the tk_graph library's gv_standAlone is set to true; false otherwise.
+ */
+function gf_isStandAlone ()
+{
+	return gv_standAlone === true;
+}
+
+/**
  * Merge two or more style sets.
  * The attributes of the sets are merged together into one style set.
  * The method can take any number of style sets.
@@ -598,8 +569,21 @@ function gf_paperClickEdge (id)
 		// call the select method on the clicked edge
 		gv_objects_edges[id].select();
 		
+		// hook
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.edgeClickedHook))
+		{
+			window[gv_functions.events.edgeClickedHook](id);
+		}
+		
 		// call the gf_clickedBVedge method
-		gf_clickedBVedge(id);
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.edgeClicked))
+		{
+			window[gv_functions.events.edgeClicked](id);
+		}
+		else
+		{
+			gf_clickedBVedge(id);
+		}
 	}
 }
 
@@ -622,8 +606,21 @@ function gf_paperClickNodeB (id)
 		// call the select method on the clicked node
 		gv_objects_nodes[id].select();
 		
+		// hook
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.nodeClickedHook))
+		{
+			window[gv_functions.events.nodeClickedHook](id);
+		}
+		
 		// call the gf_clickedBVnode method
-		gf_clickedBVnode(id);
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.nodeClicked))
+		{
+			window[gv_functions.events.nodeClicked](id);
+		}
+		else
+		{
+			gf_clickedBVnode(id);
+		}
 	}
 }
 
@@ -646,8 +643,22 @@ function gf_paperClickNodeC (id)
 		// call the select method on the clicked node
 		gv_objects_nodes[id].select();
 		
+		
+		// hook
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectClickedHook))
+		{
+			window[gv_functions.events.subjectClickedHook](id);
+		}
+		
 		// call the gf_clickedCVnode method
-		gf_clickedCVnode(id);
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectClicked))
+		{
+			window[gv_functions.events.subjectClicked](id);
+		}
+		else
+		{
+			gf_clickedCVnode(id);
+		}
 	}
 }
 
@@ -663,11 +674,25 @@ function gf_paperDblClickNodeC (id)
 {
 	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
 	{
-		// call the gf_paperClickNodeC method to select the node.
-		gf_paperClickNodeC(id);
+		// hook
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedHook))
+		{
+			window[gv_functions.events.subjectDblClickedHook](id);
+		}
 		
-		// call the gf_toggleBV method to load the internal behavior
-		gf_toggleBV();
+		// call the gf_clickedCVnode method
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClicked))
+		{
+			window[gv_functions.events.subjectDblClicked](id);
+		}
+		else
+		{
+			// call the gf_paperClickNodeC method to select the node.
+			gf_paperClickNodeC(id);
+			
+			// call the gf_toggleBV method to load the internal behavior
+			gf_toggleBV();
+		}
 	}
 }
 
@@ -714,9 +739,9 @@ function gf_replaceNewline (text)
  */
 function gf_toggleBV ()
 {
-	if (gf_functionExists("showtab1"))
+	if (!gf_isStandAlone() && gf_functionExists(gv_functions.general.changeViewBV))
 	{
-		showtab1();	
+		window[gv_functions.general.changeViewBV]();
 	}
 	else
 	{
