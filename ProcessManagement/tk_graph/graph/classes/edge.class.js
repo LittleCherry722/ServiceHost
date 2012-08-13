@@ -236,8 +236,9 @@ function GCedge (parent, start, end, text, relatedSubject)
 	 */
 	this.textToString = function ()
 	{
-		var startNode		= this.parent.getNode(this.start);
+		var gt_startNode		= this.parent.getNode(this.start);
+		var gt_relatedSubject	= gf_isset(gv_graph.subjects[this.relatedSubject]) ? gv_graph.subjects[this.relatedSubject].getText() : this.relatedSubject;
 		
-		return this.text + (this.getRelatedSubject() != null ? "\n(" + (startNode.getType() == "receive" ? "from" : "to") + ": " + this.relatedSubject + ")" : "");
+		return this.text + (this.getRelatedSubject() != null ? "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")" : "");
 	};
 }

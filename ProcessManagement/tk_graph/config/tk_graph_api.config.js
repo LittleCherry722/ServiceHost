@@ -70,6 +70,14 @@ var gv_functions	= {
 		changeView:			"",
 		
 		/**
+		 * hook called when changing the view
+		 * 
+		 * @param {String} view Either "bv" or "cv" depending on the selected view
+		 * @returns {void}
+		 */
+		changeViewHook:		"",
+		
+		/**
 		 * clear the input fields for nodes and edges
 		 * 
 		 * @see GCcommunication::loadInformation(true), gf_guiClearInputFields()

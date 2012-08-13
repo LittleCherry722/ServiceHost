@@ -128,6 +128,12 @@ function GCcommunication ()
 	 */
 	this.changeView = function (view)
 	{
+		// hook
+		if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.changeViewHook))
+		{
+			window[gv_functions.communication.changeViewHook](view);
+		}
+		
 		// change to the communication view
 		if (view == "cv")
 		{
