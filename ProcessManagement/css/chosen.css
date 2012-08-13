@@ -1,5 +1,7 @@
 /* @group Base */
 .chzn-container {
+	margin-top: 0px;
+  height: 30px;
   font-size: 12px;
   position: relative;
   display: inline-block;
@@ -18,12 +20,14 @@
   -o-box-shadow     : 0 4px 5px rgba(0,0,0,.15);
   box-shadow        : 0 4px 5px rgba(0,0,0,.15);
   z-index: 1010;
+  vertical-align: middle;
 }
 /* @end */
 
 /* @group Single Chosen */
 .chzn-container-single .chzn-single {
-  background-color: #ffffff;
+  /*background-color: #ffffff;*/
+  /*
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0 );   
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(20%, #ffffff), color-stop(50%, #f6f6f6), color-stop(52%, #eeeeee), color-stop(100%, #f4f4f4));
   background-image: -webkit-linear-gradient(top, #ffffff 20%, #f6f6f6 50%, #eeeeee 52%, #f4f4f4 100%);
@@ -41,18 +45,19 @@
   -webkit-box-shadow: 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
   -moz-box-shadow   : 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
   box-shadow        : 0 0 3px #ffffff inset, 0 1px 1px rgba(0,0,0,0.1);
+  */
   display: block;
   overflow: hidden;
   white-space: nowrap;
   position: relative;
-  height: 26px;
-  line-height: 24px;
+  height: 30px;
+  line-height: 30px;
   padding: 0 0 0 8px;
   color: #444444;
   text-decoration: none;
 }
 .chzn-container-single .chzn-default {
-  color: #999;
+  /*color: #999;*/
 }
 .chzn-container-single .chzn-single span {
   margin-right: 26px;
@@ -82,7 +87,7 @@
 .chzn-container-single .chzn-single div {
   position: absolute;
   right: 0;
-  top: 0;
+  top: 3px;
   display: block;
   height: 100%;
   width: 18px;
@@ -101,7 +106,7 @@
   z-index: 1010;
 }
 .chzn-container-single .chzn-search input {
-  background: #fff url('../images/chosen/chosen-sprite.png') no-repeat 100% -22px;
+  background: url('../images/chosen/chosen-sprite.png') no-repeat 100% -22px;
   background: url('../images/chosen/chosen-sprite.png') no-repeat 100% -22px, -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(1%, #eeeeee), color-stop(15%, #ffffff));
   background: url('../images/chosen/chosen-sprite.png') no-repeat 100% -22px, -webkit-linear-gradient(top, #eeeeee 1%, #ffffff 15%);
   background: url('../images/chosen/chosen-sprite.png') no-repeat 100% -22px, -moz-linear-gradient(top, #eeeeee 1%, #ffffff 15%);
@@ -132,7 +137,7 @@
 
 /* @group Multi Chosen */
 .chzn-container-multi .chzn-choices {
-  background-color: #fff;
+  /*background-color: #fff;*/
   background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(1%, #eeeeee), color-stop(15%, #ffffff));
   background-image: -webkit-linear-gradient(top, #eeeeee 1%, #ffffff 15%);
   background-image: -moz-linear-gradient(top, #eeeeee 1%, #ffffff 15%);
@@ -307,11 +312,13 @@
 
 /* @group Active  */
 .chzn-container-active .chzn-single {
+	/*
   -webkit-box-shadow: 0 0 5px rgba(0,0,0,.3);
   -moz-box-shadow   : 0 0 5px rgba(0,0,0,.3);
   -o-box-shadow     : 0 0 5px rgba(0,0,0,.3);
   box-shadow        : 0 0 5px rgba(0,0,0,.3);
   border: 1px solid #5897fb;
+  */
 }
 .chzn-container-active .chzn-single-with-drop {
   border: 1px solid #aaa;
@@ -342,11 +349,13 @@
   background-position: -18px 1px;
 }
 .chzn-container-active .chzn-choices {
+	/*
   -webkit-box-shadow: 0 0 5px rgba(0,0,0,.3);
   -moz-box-shadow   : 0 0 5px rgba(0,0,0,.3);
   -o-box-shadow     : 0 0 5px rgba(0,0,0,.3);
   box-shadow        : 0 0 5px rgba(0,0,0,.3);
   border: 1px solid #5897fb;
+  */
 }
 .chzn-container-active .chzn-choices .search-field input {
   color: #111 !important;
