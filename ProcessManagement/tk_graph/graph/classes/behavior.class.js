@@ -1,5 +1,5 @@
 /**
- * S-BPM Groupware v0.9
+ * S-BPM Groupware v1.0
  *
  * http://www.tk.informatik.tu-darmstadt.de/
  *
