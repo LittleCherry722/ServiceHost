@@ -191,6 +191,9 @@ function gf_guiDisplaySubject (subject)
 	if (gf_elementExists(gv_elements.inputSubjectId))
 		document.getElementById(gv_elements.inputSubjectId).value = subject.getId();
 		
+	if (gf_elementExists(gv_elements.inputSubjectInputPool))
+		document.getElementById(gv_elements.inputSubjectInputPool).value = subject.getInputPool();
+		
 	if (gf_elementExists(gv_elements.inputSubjectTypeSingle) && subject.getType() == "single")
 		document.getElementById(gv_elements.inputSubjectTypeSingle).checked = true;
 
@@ -363,10 +366,11 @@ function gf_guiReadNode ()
  */
 function gf_guiReadSubject ()
 {
-	var gt_result	= {text: "", id: "", type: ""};
+	var gt_result	= {text: "", id: "", type: "", inputPool: ""};
 	
-	var gt_text	= gf_elementExists(gv_elements.inputSubjectText)	? document.getElementById(gv_elements.inputSubjectText).value	: "";
-	var gt_id	= gf_elementExists(gv_elements.inputSubjectId)		? document.getElementById(gv_elements.inputSubjectId).value		: "";
+	var gt_text			= gf_elementExists(gv_elements.inputSubjectText)		? document.getElementById(gv_elements.inputSubjectText).value		: "";
+	var gt_id			= gf_elementExists(gv_elements.inputSubjectId)			? document.getElementById(gv_elements.inputSubjectId).value			: "";
+	var gt_inputPool	= gf_elementExists(gv_elements.inputSubjectInputPool)	? document.getElementById(gv_elements.inputSubjectInputPool).value	: "";
 	
 	var gt_type	= "";
 	
@@ -379,9 +383,10 @@ function gf_guiReadSubject ()
 	if (gf_elementExists(gv_elements.inputSubjectTypeExternal)	&& document.getElementById(gv_elements.inputSubjectTypeExternal).checked	=== true)
 		gt_type = "external";
 		
-	gt_result.text	= gt_text;
-	gt_result.id	= gt_id;
-	gt_result.type	= gt_type;
+	gt_result.text		= gt_text;
+	gt_result.id		= gt_id;
+	gt_result.type		= gt_type;
+	gt_result.inputPool	= gt_inputPool;
 	
 	return gt_result;
 }

@@ -19,9 +19,10 @@
  * @param {String} id The id of the subject.
  * @param {String} text The label of the subject.
  * @param {String} type The type of the subject. Possible values: "sungle", "multi", "external" (default: "single")
+ * @param {int} inputPool The size of the input pool (-1 for infinite)
  * @returns {void}
  */
-function GCsubject (id, text, type)
+function GCsubject (id, text, type, inputPool)
 {
 	// TODO: add function to set process to be loaded on dblClick on external subject
 	
@@ -32,6 +33,10 @@ function GCsubject (id, text, type)
 	// if no type is given set it to "single"
 	if (!gf_isset(type))
 		type = "single";		// single, multi, external
+		
+	// set a default for the size of the input-pool
+	if (!gf_isset(inputPool))
+		inputPool = -1;
 	
 	/**
 	 * The internal behavior of this subject.
@@ -54,6 +59,13 @@ function GCsubject (id, text, type)
 	 * @type String
 	 */
 	this.id			= id;
+	
+	/**
+	 * The size of the subject's input pool
+	 * 
+	 * @type int
+	 */
+	this.inputPool	= -1;
 	
 	/**
 	 * The label of the subject.
@@ -111,6 +123,16 @@ function GCsubject (id, text, type)
 	};
 	
 	/**
+	 * Returns the size of the subject's input-pool.
+	 * 
+	 * @returns {int} The size of the subject's input-pool.
+	 */
+	this.getInputPool = function ()
+	{
+		return this.inputPool;
+	};
+	
+	/**
 	 * Returns the label of the subject.
 	 * 
 	 * @returns {String} The label of the subject.
@@ -151,6 +173,22 @@ function GCsubject (id, text, type)
 		if (gf_isset(id))
 		{
 			this.id = id;
+		}
+	};
+	
+	/**
+	 * Updates the size of the subject's input-pool.
+	 * 
+	 * @param {int} inputPool The size of the subject's input-pool.
+	 * @returns {void}
+	 */
+	this.setInputPool = function (inputPool)
+	{
+		if (gf_isset(inputPool))
+		{
+			var gt_val	= parseInt(inputPool);
+			
+			this.inputPool = isNaN(gt_val) ? -1 : gt_val;
 		}
 	};
 	
@@ -200,9 +238,13 @@ function GCsubject (id, text, type)
 	 */
 	this.textToString = function ()
 	{
-		return this.text + "\n(" + this.id + ")";
+		var gt_inputPool	= this.getInputPool() >= 0 ? this.getInputPool() : "\u221e";
+		return this.text + "\n(" + this.id + ")\n \n[InputPool: " + gt_inputPool + "]";
 	};
 	
 	// set the type
 	this.setType(type);
+	
+	// set the input-pool size
+	this.setInputPool(inputPool);
 }

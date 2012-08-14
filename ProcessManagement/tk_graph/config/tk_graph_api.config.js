@@ -19,18 +19,19 @@
  * @type Object
  */
 var gv_elements = {
-	graphBVouter:		"graph_bv_outer",
-	graphCVouter:		"graph_cv_outer",
-	inputEdgeText:		"ge_edge_text",
-	inputEdgeTarget:	"ge_edge_target",
-	inputEdgeMessage:	"ge_edge_message",
-	inputEdgeMessageO:	"ge_edge_message_outer",
-	inputEdgeOuter:		"edge",
-	inputSubjectText:	"ge_cv_text",
-	inputSubjectId:		"ge_cv_id",
-	inputNodeText:		"ge_text",
-	inputNodeType2:		"ge_type2",
-	inputNodeOuter:		"node",
+	graphBVouter:			"graph_bv_outer",
+	graphCVouter:			"graph_cv_outer",
+	inputEdgeText:			"ge_edge_text",
+	inputEdgeTarget:		"ge_edge_target",
+	inputEdgeMessage:		"ge_edge_message",
+	inputEdgeMessageO:		"ge_edge_message_outer",
+	inputEdgeOuter:			"edge",
+	inputSubjectText:		"ge_cv_text",
+	inputSubjectId:			"ge_cv_id",
+	inputSubjectInputPool:	"ge_cv_inputPool",
+	inputNodeText:			"ge_text",
+	inputNodeType2:			"ge_type2",
+	inputNodeOuter:			"node",
 	
 	// select elements
 	inputNodeTypeStart:		"ge_type_start",
@@ -140,8 +141,8 @@ var gv_functions	= {
 		/**
 		 * read input fields (subject) and returns an object with the values
 		 * 
-		 * @see GCcommunication::updateSubject(), gf_guiReadSubject()
-		 * @returns {Object} Indizes: text, id, type
+		 * @see GCcommunication::updateNode(), gf_guiReadSubject()
+		 * @returns {Object} Indizes: text, id, type, inputPool
 		 */
 		readSubject:		"",
 		

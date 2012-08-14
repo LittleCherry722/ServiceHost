@@ -93,9 +93,10 @@ function GCcommunication ()
 	 * @param {String} title The label of the subject.
 	 * @param {String} type The type of the subject. Possible values are "single", "multi", "external". (default: "single")
 	 * @param {boolean} deactivated The deactivation status of the subject.
+	 * @param {int} inputPool The size of the subject's input-pool
 	 * @returns {void}
 	 */
-	this.addSubject = function (id, title, type, deactivated)
+	this.addSubject = function (id, title, type, deactivated, inputPool)
 	{
 		if (gf_isset(id, title))
 		{
@@ -107,7 +108,7 @@ function GCcommunication ()
 				type = "single";
 			
 			// create the subject
-			var gt_subject = new GCsubject(id, title, type);
+			var gt_subject = new GCsubject(id, title, type, inputPool);
 				
 			// apply the deactivation status to the subject
 			if (gf_isset(deactivated) && deactivated === true)
@@ -793,7 +794,10 @@ function GCcommunication ()
 		{
 			var gt_subject = gt_jsonObject[gt_subjectId];
 			
-			this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_subject.deactivated);
+			// provide compatibility to previous versions:
+			var gt_inputPool	= gf_isset(gt_subject.inputPool) ? gt_subject.inputPool : -1;
+			
+			this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_subject.deactivated, gt_inputPool);
 		}
 		
 		// 2. add nodes + edges
@@ -963,7 +967,8 @@ function GCcommunication ()
 			gt_array[gt_arrayIndex] = {	id: gt_sid,
 										name: this.subjects[gt_sid].getText(),
 										type: this.subjects[gt_sid].getType(),
-										deactivated: this.subjects[gt_sid].isDeactivated()};
+										deactivated: this.subjects[gt_sid].isDeactivated(),
+										inputPool: this.subjects[gt_sid].getInputPool()};
 			
 			var gt_behav = this.subjects[gt_sid].getBehavior();
 			var gt_nodes = gt_behav.getNodes();
@@ -1190,9 +1195,10 @@ function GCcommunication ()
 					gt_values	= gf_guiReadSubject();
 				}
 				
-				var gt_text	= gf_isset(gt_values.text)	? gt_values.text	: "";
-				var gt_id	= gf_isset(gt_values.id)	? gt_values.id		: "";
-				var gt_type	= gf_isset(gt_values.type)	? gt_values.type	: "";
+				var gt_text			= gf_isset(gt_values.text)		? gt_values.text		: "";
+				var gt_id			= gf_isset(gt_values.id)		? gt_values.id			: "";
+				var gt_type			= gf_isset(gt_values.type)		? gt_values.type		: "";
+				var gt_inputPool	= gf_isset(gt_values.inputPool)	? gt_values.inputPool	: "";
 				
 					gt_type	= gt_type != "" ? gt_type : gt_subject.getType();
 				
@@ -1206,7 +1212,8 @@ function GCcommunication ()
 				{
 				
 					gt_subject.setText(gt_text);
-					gt_subject.setType(gt_type);					
+					gt_subject.setType(gt_type);
+					gt_subject.setInputPool(gt_inputPool);
 					
 					// update references to this subject
 					if (this.selectedNode != gt_id && !gf_isset(this.subjects[gt_id]))
