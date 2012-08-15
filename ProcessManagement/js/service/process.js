@@ -58,6 +58,11 @@ SBPM.Service.Process = {
             "action" : "new"
         }, 0, SBPM.DB.defaultIDReturn);
     },
+    
+    createProcessFromTable : function(subjects,messages){
+    			gf_createFromTable(subjects, messages);
+        //updateListOfSubjects();
+    },
     deleteProcess : function(processname) {
         return this.query({
             "processname" : processname,
