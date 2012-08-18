@@ -435,7 +435,13 @@ function GCgraphbv ()
 		gt_bv_edge.setShape(gt_bv_shape);
 		
 		// update the style
-		gt_bv_edge.setStyle(gv_bv_arrow.style);
+		var gt_bv_edgeStyle	= gv_bv_arrow.style;
+		if (edgeData.edge.getType() == "timeout")
+			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleTimeout);
+		if (edgeData.edge.getType() == "message")
+			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleMessage);
+			
+		gt_bv_edge.setStyle(gt_bv_edgeStyle)
 		
 		// show the path as it now is complete
 		gt_bv_edge.show();
@@ -446,6 +452,9 @@ function GCgraphbv ()
 		// apply the deactivation status to the path
 		if (edgeData.edge.isDeactivated())
 			gt_bv_edge.deactivate();
+		
+		// apply the optional status to the path
+		gt_bv_edge.setOptional(edgeData.edge.isOptional());
 		
 		// apply the selection status to the path
 		if (gf_isset(edgeData.selected) && edgeData.selected === true)

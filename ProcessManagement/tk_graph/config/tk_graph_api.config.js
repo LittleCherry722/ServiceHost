@@ -23,6 +23,8 @@ var gv_elements = {
 	graphCVouter:			"graph_cv_outer",
 	inputEdgeText:			"ge_edge_text",
 	inputEdgeTarget:		"ge_edge_target",
+	inputEdgeTimeout:		"ge_edge_timeout",
+	inputEdgeTimeoutEx:		"ge_edge_timeoutExample",
 	inputEdgeMessage:		"ge_edge_message",
 	inputEdgeMessageO:		"ge_edge_message_outer",
 	inputEdgeOuter:			"edge",
@@ -44,7 +46,12 @@ var gv_elements = {
 	// subject types
 	inputSubjectTypeSingle:		"ge_cv_type_single",
 	inputSubjectTypeMulti:		"ge_cv_type_multi",
-	inputSubjectTypeExternal:	"ge_cv_type_external"
+	inputSubjectTypeExternal:	"ge_cv_type_external",
+	
+	// edge types
+	inputEdgeTypeLabel:			"ge_edge_type_label",
+	inputEdgeTypeMessage:		"ge_edge_type_message",
+	inputEdgeTypeTimeout:		"ge_edge_type_timeout"
 };
 
 /**
@@ -126,7 +133,7 @@ var gv_functions	= {
 		 * read input fields (edge) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateEdge(), gf_guiReadEdge()
-		 * @returns {Object} Indizes: xxxxxxx
+		 * @returns {Object} Indizes: text, relatedSubject, type, timeout
 		 */
 		readEdge:			"",
 		

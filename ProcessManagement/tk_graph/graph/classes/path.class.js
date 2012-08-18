@@ -67,6 +67,14 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.label	= null;
 	
 	/**
+	 * Optional flag.
+	 * Whe it is set to true the path will be displayed as an optional path.
+	 * 
+	 * @type boolean
+	 */
+	this.optional	= false;
+	
+	/**
 	 * A Raphael Path.
 	 * 
 	 * @see Paper.path() at the <a href="http://raphaeljs.com/reference.html#Paper.path">Raphael documentation</a>
@@ -526,6 +534,16 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	};
 	
 	/**
+	 * Returns true when the path is set to be optional.
+	 * 
+	 * @returns {boolean} True when the path is set to be optional.
+	 */
+	this.isOptional = function ()
+	{
+		return this.optional === true;
+	};
+	
+	/**
 	 * Read a value from the style set.
 	 * 
 	 * @param {String} key The key to read from the style set.
@@ -548,17 +566,17 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		 * status dependent styles
 		 */
 		var statusDependent = "";
-		if (this.selected === true && this.deactive === true)
+		if (this.optional === true)
 		{
-			statusDependent = "SelDeactive";
+			statusDependent += "Opt";
 		}
-		else if (this.selected === true)
+		if (this.selected === true)
 		{
-			statusDependent = "Selected";
+			statusDependent += "Sel";
 		}
-		else if (this.deactive === true)
+		if (this.deactive === true)
 		{
-			statusDependent = "Deactivated";
+			statusDependent += "Deact";
 		}
 		
 		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("arrowStyle" + statusDependent, ""));
@@ -598,6 +616,18 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.setFirstLine = function (firstLine)
 	{
 		this.firstLine = firstLine;
+	};
+	
+	/**
+	 * Set the optional flag to the path.
+	 * 
+	 * @param {boolean} optional When set to true the path will be set to be optional.
+	 */
+	this.setOptional = function (optional)
+	{
+		this.optional = gf_isset(optional) && optional === true;
+		this.label.setOptional(this.optional);
+		this.refreshStyle();
 	};
 	
 	/**

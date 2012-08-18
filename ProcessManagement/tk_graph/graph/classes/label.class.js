@@ -76,6 +76,14 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	this.multiRR	= [];
 	
 	/**
+	 * Optional flag.
+	 * Whe it is set to true the path will be displayed as an optional label.
+	 * 
+	 * @type boolean
+	 */
+	this.optional	= false;
+	
+	/**
 	 * A Raphael rect.
 	 * 
 	 * @see Paper.rect() at the <a href="http://raphaeljs.com/reference.html#Paper.rect">Raphael documentation</a>
@@ -343,6 +351,16 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	};
 	
 	/**
+	 * Returns true when the label is set to be optional.
+	 * 
+	 * @returns {boolean} True when the label is set to be optional.
+	 */
+	this.isOptional = function ()
+	{
+		return this.optional === true;
+	};
+	
+	/**
 	 * Read a value from the style set.
 	 * 
 	 * @param {String} key The key to read from the style set.
@@ -366,17 +384,17 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		 * status dependent styles
 		 */
 		var statusDependent = "";
-		if (this.selected === true && this.deactive === true)
+		if (this.optional === true)
 		{
-			statusDependent = "SelDeactive";
+			statusDependent += "Opt";
 		}
-		else if (this.selected === true)
+		if (this.selected === true)
 		{
-			statusDependent = "Selected";	
+			statusDependent += "Sel";
 		}
-		else if (this.deactive === true)
+		if (this.deactive === true)
 		{
-			statusDependent = "Deactivated";
+			statusDependent += "Deact";
 		}
 		
 		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("borderStyle" + statusDependent, ""));
@@ -446,6 +464,17 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	this.select = function ()
 	{
 		this.selected = true;
+		this.refreshStyle();
+	};
+	
+	/**
+	 * Set the optional flag to the label.
+	 * 
+	 * @param {boolean} optional When set to true the label will be set to be optional.
+	 */
+	this.setOptional = function (optional)
+	{
+		this.optional = gf_isset(optional) && optional === true;
 		this.refreshStyle();
 	};
 	

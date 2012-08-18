@@ -125,78 +125,134 @@ var gv_defaultStyle	= {
 	arrowHeadLength: "long",			// possible values: long, short, medium
 	arrowHeadWidth: "wide",				// possible values: wide, narrow, medium
 	arrowColor: "#000000",				// any hex-color-value
-	arrowColorDeactivated: "#0000FF",	// any hex-color-value
-	arrowColorSelDeactive: "#0000FF",	// any hex-color-value
-	arrowColorSelected: "#0000FF",		// any hex-color-value
+	arrowColorDeact: "#0000FF",			// any hex-color-value
+	arrowColorOpt: "#0000FF",			// any hex-color-value
+	arrowColorOptDeact: "#0000FF",		// any hex-color-value
+	arrowColorOptSel: "#0000FF",		// any hex-color-value
+	arrowColorOptSelDeact: "#0000FF",	// any hex-color-value
+	arrowColorSel: "#0000FF",			// any hex-color-value
+	arrowColorSelDeact: "#0000FF",		// any hex-color-value
 	arrowLinecap: "square",				// possible values: butt, square, round
 	arrowLinejoin: "bevel",				// possible values: bevel, round, miter
 	arrowMiterLimit: 0,					// any number
 	arrowOpacity: 1.0,					// floating number
-	arrowOpacityDeactivated: 1.0,		// floating number
-	arrowOpacitySelDeactive: 1.0,		// floating number
-	arrowOpacitySelected: 1.0,			// floating number
+	arrowOpacityDeact: 1.0,				// floating number
+	arrowOpacityOpt: 1.0,				// floating number
+	arrowOpacityOptDeact: 1.0,			// floating number
+	arrowOpacityOptSel: 1.0,			// floating number
+	arrowOpacityOptSelDeact: 1.0,		// floating number
+	arrowOpacitySel: 1.0,				// floating number
+	arrowOpacitySelDeact: 1.0,			// floating number
 	arrowStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
-	arrowStyleDeactivated: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
-	arrowStyleSelDeactive: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
-	arrowStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleDeact: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleOpt: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleOptDeact: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleOptSel: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleOptSelDeact: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleSel: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleSelDeact: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	arrowWidth: 1,						// pixels
-	arrowWidthDeactivated: 1,			// pixels
-	arrowWidthSelDeactive: 1,			// pixels
-	arrowWidthSelected: 1,				// pixels
+	arrowWidthDeact: 1,					// pixels
+	arrowWidthOpt: 1,					// pixels
+	arrowWidthOptDeact: 1,				// pixels
+	arrowWidthOptSel: 1,				// pixels
+	arrowWidthOptSelDeact: 1,			// pixels
+	arrowWidthSel: 1,					// pixels
+	arrowWidthSelDeact: 1,				// pixels
 	
 	/*
 	 * Border
 	 */
 	borderColor: "#000000",				// any hex-color-value
-	borderColorDeactivated: "#0000FF",	// any hex-color-value
-	borderColorSelDeactive: "#0000FF",	// any hex-color-value
-	borderColorSelected: "#0000FF",		// any hex-color-value
+	borderColorDeact: "#0000FF",		// any hex-color-value
+	borderColorOpt: "#0000FF",			// any hex-color-value
+	borderColorOptDeact: "#0000FF",		// any hex-color-value
+	borderColorOptSel: "#0000FF",		// any hex-color-value
+	borderColorOptSelDeact: "#0000FF",	// any hex-color-value
+	borderColorSel: "#0000FF",			// any hex-color-value
+	borderColorSelDeact: "#0000FF",		// any hex-color-value
 	borderOpacity: 1.0,					// floating number
-	borderOpacityDeactivated: 1.0,		// floating number
-	borderOpacitySelDeactive: 1.0,		// floating number
-	borderOpacitySelected: 1.0,			// floating number
+	borderOpacityDeact: 1.0,			// floating number
+	borderOpacityOpt: 1.0,				// floating number
+	borderOpacityOptDeact: 1.0,			// floating number
+	borderOpacityOptSel: 1.0,			// floating number
+	borderOpacityOptSelDeact: 1.0,		// floating number
+	borderOpacitySel: 1.0,				// floating number
+	borderOpacitySelDeact: 1.0,			// floating number
 	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
-	borderStyleDeactivated: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
-	borderStyleSelDeactive: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
-	borderStyleSelected: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleDeact: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleOpt: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleOptDeact: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleOptSel: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleOptSelDeact: "solid",	// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSel: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSelDeact: "solid",		// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
 	borderWidth: 1,						// pixels
-	borderWidthDeactivated: 1,			// pixels
-	borderWidthSelDeactive: 1,			// pixels
-	borderWidthSelected: 1,				// pixels
+	borderWidthDeact: 1,				// pixels
+	borderWidthOpt: 1,					// pixels
+	borderWidthOptDeact: 1,				// pixels
+	borderWidthOptSel: 1,				// pixels
+	borderWidthOptSelDeact: 1,			// pixels
+	borderWidthSel: 1,					// pixels
+	borderWidthSelDeact: 1,				// pixels
 
 	/*
 	 * Background
 	 */		
 	bgColor: "#C0FFFF",					// any hex-color-value
-	bgColorDeactivated: "#C0FFFF",		// any hex-color-value
-	bgColorSelDeactive: "#C0FFFF",		// any hex-color-value
-	bgColorSelected: "#C0FFFF",			// any hex-color-value
+	bgColorDeact: "#C0FFFF",			// any hex-color-value
+	bgColorOpt: "#C0FFFF",				// any hex-color-value
+	bgColorOptDeact: "#C0FFFF",			// any hex-color-value
+	bgColorOptSel: "#C0FFFF",			// any hex-color-value
+	bgColorOptSelDeact: "#C0FFFF",		// any hex-color-value
+	bgColorSel: "#C0FFFF",				// any hex-color-value
+	bgColorSelDeact: "#C0FFFF",			// any hex-color-value
 	bgOpacity: 1.0,						// floating number
-	bgOpacityDeactivated: 1.0,			// floating number
-	bgOpacitySelDeactive: 1.0,			// floating number
-	bgOpacitySelected: 1.0,				// floating number
+	bgOpacityDeact: 1.0,				// floating number
+	bgOpacityOpt: 1.0,					// floating number
+	bgOpacityOptDeact: 1.0,				// floating number
+	bgOpacityOptSel: 1.0,				// floating number
+	bgOpacityOptSelDeact: 1.0,			// floating number
+	bgOpacitySel: 1.0,					// floating number
+	bgOpacitySelDeact: 1.0,				// floating number
 	opacity: 1.0,						// floating number
-	opacityDeactivated: 1.0,			// floating number
-	opacitySelDeactive: 1.0,			// floating number
-	opacitySelected: 1.0,				// floating number
+	opacityDeact: 1.0,					// floating number
+	opacityOpt: 1.0,					// floating number
+	opacityOptDeact: 1.0,				// floating number
+	opacityOptSel: 1.0,					// floating number
+	opacityOptSelDeact: 1.0,			// floating number
+	opacitySel: 1.0,					// floating number
+	opacitySelDeact: 1.0,				// floating number
 	
 	/*
 	 * Text
 	 */
 	fontColor: "#000000",				// any hex-color-value
-	fontColorDeactivated: "#000000",	// any hex-color-value
-	fontColorSelDeactive: "#000000",	// any hex-color-value
-	fontColorSelected: "#000000",		// any hex-color-value
+	fontColorDeact: "#000000",			// any hex-color-value
+	fontColorOpt: "#000000",			// any hex-color-value
+	fontColorOptDeact: "#000000",		// any hex-color-value
+	fontColorOptSel: "#000000",			// any hex-color-value
+	fontColorOptSelDeact: "#000000",	// any hex-color-value
+	fontColorSel: "#000000",			// any hex-color-value
+	fontColorSelDeact: "#000000",		// any hex-color-value
 	fontOpacity: 1.0,					// floating number
-	fontOpacityDeactivated: 1.0,		// floating number
-	fontOpacitySelDeactive: 1.0,		// floating number
-	fontOpacitySelected: 1.0,			// floating number
+	fontOpacityDeact: 1.0,				// floating number
+	fontOpacityOpt: 1.0,				// floating number
+	fontOpacityOptDeact: 1.0,			// floating number
+	fontOpacityOptSel: 1.0,				// floating number
+	fontOpacityOptSelDeact: 1.0,		// floating number
+	fontOpacitySel: 1.0,				// floating number
+	fontOpacitySelDeact: 1.0,			// floating number
 	fontFamily: "Verdana, sans-serif",	// any font
 	fontSize: 12,						// pixels
 	fontWeight: "normal",				// possible values: normal, bold
-	fontWeightDeactivated: "normal",	// possible values: normal, bold
-	fontWeightSelDeactive: "normal",	// possible values: normal, bold
-	fontWeightSelected: "normal",		// possible values: normal, bold
+	fontWeightDeact: "normal",			// possible values: normal, bold
+	fontWeightOpt: "normal",			// possible values: normal, bold
+	fontWeightOptDeact: "normal",		// possible values: normal, bold
+	fontWeightOptSel: "normal",			// possible values: normal, bold
+	fontWeightOptSelDeact: "normal",	// possible values: normal, bold
+	fontWeightSel: "normal",			// possible values: normal, bold
+	fontWeightSelDeact: "normal",		// possible values: normal, bold
 	paddingBottom: 5,					// pixels
 	paddingLeft: 5,						// pixels
 	paddingRight: 5,					// pixels

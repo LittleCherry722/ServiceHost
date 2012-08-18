@@ -92,11 +92,11 @@ function GCcommunication ()
 	 * @param {String} id The id of the subject.
 	 * @param {String} title The label of the subject.
 	 * @param {String} type The type of the subject. Possible values are "single", "multi", "external". (default: "single")
-	 * @param {boolean} deactivated The deactivation status of the subject.
 	 * @param {int} inputPool The size of the subject's input-pool
+	 * @param {boolean} deactivated The deactivation status of the subject.
 	 * @returns {void}
 	 */
-	this.addSubject = function (id, title, type, deactivated, inputPool)
+	this.addSubject = function (id, title, type, inputPool, deactivated)
 	{
 		if (gf_isset(id, title))
 		{
@@ -252,7 +252,7 @@ function GCcommunication ()
 		for (var gt_subjectId in subjects)
 		{
 			var gt_subjectName	= subjects[gt_subjectId];
-			this.addSubject(gt_subjectName.toLowerCase(), gt_subjectName, "single", false);
+			this.addSubject(gt_subjectName.toLowerCase(), gt_subjectName, "single", -1, false);
 		}
 		
 		// create the internal behaviors
@@ -295,8 +295,8 @@ function GCcommunication ()
 				gt_behav.addNode("send", "create msg", "action", false, false, false);
 				
 				// add edges to start node
-				gt_behav.addEdge("start", "send", "send", null, false);
-				gt_behav.addEdge("send", "start", "cancel", null, false);
+				gt_behav.addEdge("start", "send", "send", null, "label", false, false);
+				gt_behav.addEdge("send", "start", "cancel", null, "label", false, false);
 				
 				// add sent messages
 				for (var gt_msId in gt_msgS)
@@ -306,8 +306,8 @@ function GCcommunication ()
 					
 					gt_behav.addNode("sM" + gt_msgId, "", "send", false, false, false);
 					
-					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, false);
-					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, false); 
+					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, "label", false, false);
+					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, "message", false, false); 
 				}
 			}
 			
@@ -315,7 +315,7 @@ function GCcommunication ()
 			gt_behav.addNode("end", "", "end", false, true, false);
 			
 			// connect start and end
-			gt_behav.addEdge("start", "end", "end process", null, false);
+			gt_behav.addEdge("start", "end", "end process", null, "label", false, false);
 			
 			// create nodes for received messages
 			if (gt_msgR.length > 0)
@@ -324,8 +324,8 @@ function GCcommunication ()
 				gt_behav.addNode("rcv", "", "receive", false, false, false);
 				
 				// add edges to start node
-				gt_behav.addEdge("start", "rcv", "receive", null, false);
-				gt_behav.addEdge("rcv", "start", "cancel", null, false);
+				gt_behav.addEdge("start", "rcv", "receive", null, "label", false, false);
+				gt_behav.addEdge("rcv", "start", "cancel", null, "label", false, false);
 				
 				// add received messages
 				for (var gt_mrId in gt_msgR)
@@ -335,8 +335,8 @@ function GCcommunication ()
 					
 					gt_behav.addNode("actM" + gt_msgId, "reaction msg " + gt_msgId, "action", false, false, false);
 					
-					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, false);
-					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, false); 
+					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, "message", false, false);
+					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, "label", false, false); 
 				}
 			}
 		}
@@ -797,7 +797,7 @@ function GCcommunication ()
 			// provide compatibility to previous versions:
 			var gt_inputPool	= gf_isset(gt_subject.inputPool) ? gt_subject.inputPool : -1;
 			
-			this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_subject.deactivated, gt_inputPool);
+			this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_inputPool, gt_subject.deactivated);
 		}
 		
 		// 2. add nodes + edges
@@ -819,7 +819,7 @@ function GCcommunication ()
 				for (var gt_edgeId in gt_subject.edges)
 				{
 					var gt_edge = gt_subject.edges[gt_edgeId];
-					gt_behav.addEdge(gt_edge.start, gt_edge.end, gf_replaceNewline(gt_edge.text), gt_edge.target, gt_edge.deactivated);
+					gt_behav.addEdge(gt_edge.start, gt_edge.end, gf_replaceNewline(gt_edge.text), gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
 				}
 			}
 			
@@ -1008,9 +1008,11 @@ function GCcommunication ()
 						gt_newEdges[gt_newEdges.length] = {
 								start:	gt_edgeStartNode.getId(),
 								end:	gt_edgeEndNode.getId(),
-								text:	gt_edge.getText(),
+								text:	gt_edge.getText(true),
+								type:	gt_edge.getType(),
 								target: gt_relatedSubject == null ? "" : gt_relatedSubject,
-								deactivated: gt_edge.isDeactivated()
+								deactivated:	gt_edge.isDeactivated(),
+								optional:		gt_edge.isOptional()
 						};
 					}
 				}
@@ -1160,8 +1162,10 @@ function GCcommunication ()
 				
 				var gt_text				= gf_isset(gt_values.text)				? gt_values.text			: "";
 				var gt_relatedSubject	= gf_isset(gt_values.relatedSubject)	? gt_values.relatedSubject	: "";
+				var gt_type				= gf_isset(gt_values.type)				? gt_values.type			: "label";
+				var gt_timeout			= gf_isset(gt_values.timeout)			? gt_values.timeout			: "";
 				
-				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_relatedSubject);
+				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout);
 				this.loadInformationEdge();
 			}
 		}

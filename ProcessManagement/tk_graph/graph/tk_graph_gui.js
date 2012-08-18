@@ -59,11 +59,23 @@ function gf_guiClearInputFields ()
 		document.getElementById(gv_elements.inputSubjectText).value = "";
 	if (gf_elementExists(gv_elements.inputSubjectId))
 		document.getElementById(gv_elements.inputSubjectId).value = "";
+	if (gf_elementExists(gv_elements.inputSubjectInputPool))
+		document.getElementById(gv_elements.inputSubjectInputPool).value = "";
 
 	if (gf_elementExists(gv_elements.inputEdgeText))
 		document.getElementById(gv_elements.inputEdgeText).value = "";
 	if (gf_elementExists(gv_elements.inputEdgeTarget))
 		document.getElementById(gv_elements.inputEdgeTarget).options.length = 0;
+	if (gf_elementExists(gv_elements.inputEdgeTimeout))
+		document.getElementById(gv_elements.inputEdgeTimeout).value = "";
+	if (gf_elementExists(gv_elements.inputEdgeTimeoutEx))
+		document.getElementById(gv_elements.inputEdgeTimeoutEx).innerHTML = "";
+	if (gf_elementExists(gv_elements.inputEdgeTypeLabel))
+		document.getElementById(gv_elements.inputEdgeTypeLabel).checked = false;
+	if (gf_elementExists(gv_elements.inputEdgeTypeMessage))
+		document.getElementById(gv_elements.inputEdgeTypeMessage).checked = false;
+	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
+		document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = false;
 }
 
 /**
@@ -80,6 +92,33 @@ function gf_guiDisplayEdge (edge, startType)
 	{
 		document.getElementById(gv_elements.inputEdgeText).value	= edge.getText();
 		document.getElementById(gv_elements.inputEdgeText).readOnly	= false;					
+	}
+	
+	if (gf_elementExists(gv_elements.inputEdgeTimeout))
+	{
+		document.getElementById(gv_elements.inputEdgeTimeout).value	= edge.getTimer("timestamp") > 0 ? edge.getTimer() : "";					
+	}
+	
+	if (gf_elementExists(gv_elements.inputEdgeTimeoutEx))
+	{
+		document.getElementById(gv_elements.inputEdgeTimeoutEx).innerHTML	= "(example: " + edge.getTimer("example") + ")";					
+	}
+	
+	// mark type
+	if (edge.getType() == "timeout")
+	{
+		if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
+			document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = true;
+	}
+	else if (edge.getType() == "message")
+	{
+		if (gf_elementExists(gv_elements.inputEdgeTypeMessage))
+			document.getElementById(gv_elements.inputEdgeTypeMessage).checked = true;
+	}
+	else
+	{
+		if (gf_elementExists(gv_elements.inputEdgeTypeLabel))
+			document.getElementById(gv_elements.inputEdgeTypeLabel).checked = true;
 	}
 	
 	var gt_select_target		= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).options : null;
@@ -322,17 +361,28 @@ function gf_guiLoadEdgeMessages ()
  * Read the values for the selected edge from the input fields.
  * 
  * @see GCcommunication::updateEdge()
- * @returns {Object} Indizes: text, relatedSubject
+ * @returns {Object} Indizes: text, relatedSubject, type, timeout
  */
 function gf_guiReadEdge ()
 {
-	var gt_result	= {text: "", relatedSubject: ""};
+	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: ""};
 	
 	var gt_text				= gf_elementExists(gv_elements.inputEdgeText) ? document.getElementById(gv_elements.inputEdgeText).value : "";
 	var gt_relatedSubject	= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
+	var gt_timeout			= gf_elementExists(gv_elements.inputEdgeTimeout) ? document.getElementById(gv_elements.inputEdgeTimeout).value : "";
+	
+	var gt_type				= "label";
+	
+	if (gf_elementExists(gv_elements.inputEdgeTypeMessage) && document.getElementById(gv_elements.inputEdgeTypeMessage).checked)
+		gt_type	= "message";
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout) && document.getElementById(gv_elements.inputEdgeTypeTimeout).checked)
+		gt_type	= "timeout";
 	
 	gt_result.text				= gt_text;
 	gt_result.relatedSubject	= gt_relatedSubject;
+	gt_result.timeout			= gt_timeout;
+	gt_result.type				= gt_type;
 	
 	return gt_result;
 }

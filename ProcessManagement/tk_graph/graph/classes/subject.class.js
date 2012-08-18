@@ -188,7 +188,7 @@ function GCsubject (id, text, type, inputPool)
 		{
 			var gt_val	= parseInt(inputPool);
 			
-			this.inputPool = isNaN(gt_val) ? -1 : gt_val;
+			this.inputPool = isNaN(gt_val) || gt_val < 0 ? -1 : gt_val;
 		}
 	};
 	

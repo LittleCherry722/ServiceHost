@@ -111,10 +111,12 @@ function GCbehavior (name)
 	 * @param {int} end The id of the end node.
 	 * @param {String} text The label of this edge. When this edge's start node is either a send or receive node this can also be a message type.
 	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
+	 * @param {String} type The edge's type (message, timeout, label).
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
+	 * @param {boolean} [optional] The optional status of the edge. (default: false)
 	 * @returns {void}  
 	 */
-	this.addEdge = function (start, end, text, relatedSubject, deactivated)
+	this.addEdge = function (start, end, text, relatedSubject, type, deactivated, optional)
 	{
 		// read the startNode from nodeIDs when it is not numeric
 		if (parseInt(start) != start && gf_isset(this.nodeIDs[start]))
@@ -125,13 +127,16 @@ function GCbehavior (name)
 			end = this.nodeIDs[end];
 		
 		// create a new edge
-		var gt_edge = new GCedge(this, start, end, text, relatedSubject);
+		var gt_edge = new GCedge(this, start, end, text, relatedSubject, type);
 				
 		if (gt_edge != null)
 		{
 			// apply the deactivation status to the edge
 			if (deactivated === true)
 				gt_edge.deactivate();
+				
+			// apply the status for optional edges
+			gt_edge.setOptional(optional);
 			
 			// store the edge
 			this.edges["e" + this.edgeCounter++] = gt_edge;
@@ -238,7 +243,7 @@ function GCbehavior (name)
  	};
 	
 	/**
-	 * This method creates a new edge from the node with the id given in parameter start to the node with the id given in parameter end by calling the addEdge (start, end, text, relatedSubject) method with an empty text and without a relatedSubject.
+	 * This method creates a new edge from the node with the id given in parameter start to the node with the id given in parameter end by calling the addEdge (start, end, text, relatedSubject, type) method with an empty text and without a relatedSubject.
 	 * The graph is redrawn.
 	 * 
 	 * @param {String} start The id of the start node.
@@ -249,7 +254,7 @@ function GCbehavior (name)
 	{
 		if (gf_isset(start, end))
 		{
-			this.addEdge(start, end, "");
+			this.addEdge(start, end, "", null, "label");
 			this.draw();
 		}
  	};
@@ -553,16 +558,24 @@ function GCbehavior (name)
 	 * Redraws the graph.
 	 * 
 	 * @param {String} text The new text of the edge.
+	 * @param {String} text The new type of the edge.
 	 * @param {String} relatedSubject The relatedSubject of the edge.
+	 * @param {String} timeout The timeout of the edge.
 	 * @returns {void}
 	 */
-	this.updateEdge = function (text, relatedSubject)
+	this.updateEdge = function (text, type, relatedSubject, timeout)
 	{
-		if (this.selectedEdge != null && gf_isset(this.edges["e" + this.selectedEdge], text))
+		if (this.selectedEdge != null && gf_isset(this.edges["e" + this.selectedEdge], text, type))
 		{
 			gt_edge = this.edges["e" + this.selectedEdge];
 			
 			gt_edge.setText(text);
+			gt_edge.setType(type);
+			
+			if (type == "timeout" && gf_isset(timeout))
+			{
+				gt_edge.setTimer(timeout);
+			}
 			
 			if (gf_isset(relatedSubject))
 			{

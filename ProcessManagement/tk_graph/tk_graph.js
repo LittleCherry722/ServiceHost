@@ -32,6 +32,7 @@ gf_includeJS("graph/classes/label.class.js");
 gf_includeJS("graph/classes/node.class.js");
 gf_includeJS("graph/classes/path.class.js");
 gf_includeJS("graph/classes/subject.class.js");
+gf_includeJS("graph/classes/time.class.js");
 
 // include libs
 gf_includeJS("graph/tk_graph.js");
