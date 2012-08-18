@@ -83,7 +83,7 @@ var gv_functions	= {
 		 * @param {String} view Either "bv" or "cv" depending on the selected view
 		 * @returns {void}
 		 */
-		changeViewHook:		"",
+		changeViewHook:		"mViewChanged",
 		
 		/**
 		 * clear the input fields for nodes and edges
@@ -192,7 +192,7 @@ var gv_functions	= {
 		 * @param {int} ID The id of the clicked edge.
 		 * @returns {void}
 		 */
-		edgeClickedHook:		"",
+		edgeClickedHook:		"mEdgeClicked",
 		
 		/**
 		 * called when a node is clicked
@@ -210,7 +210,7 @@ var gv_functions	= {
 		 * @param {int} ID The id of the clicked node.
 		 * @returns {void}
 		 */
-		nodeClickedHook:		"",
+		nodeClickedHook:		"mNodeClicked",
 		
 		/**
 		 * called when a subject is clicked

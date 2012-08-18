@@ -778,3 +778,8 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 .menu-table {
 	vertical-align: middle;
 }
+
+#rightMenuTrigger {
+	cursor: s-resize;
+	text-decoration: underline;
+}

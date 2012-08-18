@@ -788,6 +788,16 @@ var InternalViewModel = function() {
 				classes : qtipStyle
 			}
 		});
+		$("#rightMenuTrigger").click(function() {
+			if($("#RightMenuDiv").is(":visible")) {
+			$("#RightMenuDiv").hide();
+			$("#rightMenuTrigger").html("Show")
+			} else {
+			$("#RightMenuDiv").show();
+			$("#rightMenuTrigger").html("Hide")
+			}
+		});
+	
 	}
 }
 var chargeViewModel = function() {

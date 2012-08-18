@@ -1,7 +1,7 @@
 <div id="graph_cv_outer" style="overflow:auto; height:700px; width: 800px; float: left;"></div>
 
 <div class="graphmenu">
-	<div class="graphsettings">
+	<div class="graphsettings" id="subjectMenu">
 		<span id="graphmenuheader">Subject settings</span>
 		<br/>
 		<label class="warning" id="AssignRoleWarning">You have to assign a role before you can enter a text.</label>
@@ -15,6 +15,10 @@
 		<br/>
 		<select id="ge_cv_id" style="width:140px">
 		</select>
+		<br/>
+		<label class="graphsectionheader">Input Pool:</label>
+		<br/>
+		<input type="text" id="ge_cv_inputPool" name="ge_cv_inputPool" style="width:140px"/>
 		<br/>
 		<label class="graphsectionheader">Node functions:</label>
 		<br/>
@@ -45,25 +49,6 @@
 		<br/>
 
 	</div>
-	<br/>
-	<div class="nodesettings">
-		<span id="graphmenuheader">Edge settings</span>
-		<br/>
-		<label class="graphsectionheader">Text:</label>
-		<br/>
-		<input id="ge_edge_text" style="width: 140px;">
-		</input>
-		<br/>
-		<label class="graphsectionheader">Related Subject:</label>
-		<br/>
-		<select id="ge_edge_target" style="width: 140px;"></select>
-		<br/>
-		<input type="button" class="graphmenubutton" onClick="gv_graph.updateEdge();" value="Update edge" />
-		<br/>
-		<input type="button" class="graphmenubutton" onClick="gv_graph.deleteEdge();" value="Remove edge" />
-		<br/>
-		<input type="button" class="graphmenubutton" onClick="gf_deactivateEdge();" value="De-/Activate edge" />
-		<br/>
-	</div>
+	
 </div>
 
