@@ -569,6 +569,29 @@ function GCbehavior (name)
 		{
 			gt_edge = this.edges["e" + this.selectedEdge];
 			
+			// read current settings
+			var gt_curRelatedSubject	= gt_edge.getRelatedSubject();
+			var gt_curType				= gt_edge.getType();
+			var gt_curText				= gt_edge.getText();
+			var gt_tmpEdge				= null;
+			
+			// update message on relatedSubject
+			if (	gt_curType == type && type == "message" &&
+					gt_curRelatedSubject != null && (gt_curRelatedSubject == relatedSubject || relatedSubject == "") && gf_isset(gv_graph.subjects[gt_curRelatedSubject]) &&
+					gt_curText != text)
+			{
+				var gt_behav		= gv_graph.getBehavior(gt_curRelatedSubject);
+				var gt_subjEdges	= gt_behav.getEdges();
+				for (var gt_tmpEdgeID in gt_subjEdges)
+				{
+					gt_tmpEdge	= gt_subjEdges[gt_tmpEdgeID];
+					if (gt_tmpEdge.getType() == "message" && gt_tmpEdge.getText() == gt_curText && gt_tmpEdge.getRelatedSubject() == gv_graph.selectedSubject)
+					{
+						gt_tmpEdge.setText(text);
+					}
+				}
+			}
+			
 			gt_edge.setText(text);
 			gt_edge.setType(type);
 			
