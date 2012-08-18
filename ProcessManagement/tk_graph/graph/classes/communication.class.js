@@ -540,8 +540,9 @@ function GCcommunication ()
 					var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
 					var gt_relatedSubject		= gt_edge.getRelatedSubject();
 					var gt_text					= gt_edge.getText();
+					var gt_type					= gt_edge.getType();
 					
-					if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "")
+					if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "message")
 					{
 						if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
 						{

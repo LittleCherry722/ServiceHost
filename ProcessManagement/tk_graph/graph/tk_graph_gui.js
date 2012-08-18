@@ -23,6 +23,12 @@ function gf_guiChangeView (view)
 {
 	if (gf_isset(view))
 	{
+		if (gf_elementExists(gv_elements.graphBVouter))
+			$('#' + gv_elements.graphBVouter).scrollTo( {left: '0px', top: '0px'}, 0);
+			
+		if (gf_elementExists(gv_elements.graphCVouter))
+			$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '0px'}, 0);
+			
 		if (view == "cv")
 		{
 			if (gf_elementExists(gv_elements.graphBVouter))
