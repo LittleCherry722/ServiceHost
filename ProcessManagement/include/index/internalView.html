@@ -2,23 +2,23 @@
 
 <div class="graphmenu">
 	<div class="graphsettings">
-		<span id="graphmenuheader">Graph settings</span> <span id="rightMenuTrigger">Hide</span>
+		<span id="graphmenuheader">Graph settings</span><span id="rightMenuTrigger">Hide</span>
 		<br/>
 		<div id="RightMenuDiv">
-		<label class="graphsectionheader">Add nodes:</label>
-		<br/>
-		<input type="button" id="CreateNodeButton" class="graphmenubutton" value="Add new node" onclick="gv_graph.createNode();"/>
-		<br/>
-		<input type="button" id="InsertSendNodeButton" class="graphmenubutton" onclick="gf_callMacro('newSendNode');" value="Insert send node" />
-		<br/>
-		<input type="button" id="InsertReceiveButton" class="graphmenubutton" onclick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
-		<br/>
-		<input type="button" id="InsertActionNodeButton" class="graphmenubutton" onclick="gf_callMacro('newActionNode');" value="Insert action node" />
-		<br/>
-		<br/>
-		<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
-		<br/>
-	</div>
+			<label class="graphsectionheader">Add nodes:</label>
+			<br/>
+			<input type="button" id="CreateNodeButton" class="graphmenubutton" value="Add new node" onclick="gv_graph.createNode();"/>
+			<br/>
+			<input type="button" id="InsertSendNodeButton" class="graphmenubutton" onclick="gf_callMacro('newSendNode');" value="Insert send node" />
+			<br/>
+			<input type="button" id="InsertReceiveButton" class="graphmenubutton" onclick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
+			<br/>
+			<input type="button" id="InsertActionNodeButton" class="graphmenubutton" onclick="gf_callMacro('newActionNode');" value="Insert action node" />
+			<br/>
+			<br/>
+			<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
+			<br/>
+		</div>
 	</div>
 	<br/>
 	<div class="graphsettings" id="EdgeFunctions">
@@ -26,21 +26,25 @@
 		<br/>
 		<label class="graphsectionheader">Text:</label>
 		<br/>
-		<textarea id="ge_edge_text" style="width: 140px;"></textarea>						
+		<textarea id="ge_edge_text" style="width: 140px;"></textarea>								
 		</input>
  <br/>
 		<label class="graphsectionheader">Related Subject:</label>
 		<br/>
 		<select id="ge_edge_target" style="width: 140px;"></select>
 		<br/>
-		<label align="left"  class="graphsectionheader">Label:</label>
-		<input type="radio" id="ge_edge_type_label" name="ge_edge_type" />
-		<br/>
-		<label align="left"  class="graphsectionheader">Message:</label>
-		<input type="radio" id="ge_edge_type_message" name="ge_edge_type" />
-		<br/>
-		<label align="left" class="graphsectionheader">Timeout:</label>
-		<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
+		<div id="internalRadioMenu">
+			<input type="radio" id="ge_edge_type_label" name="ge_edge_type" />
+			<label align="left"  class="graphsectionheader">Label</label>
+			<br/>
+
+			<input type="radio" id="ge_edge_type_message" name="ge_edge_type" />
+			<label align="left"  class="graphsectionheader">Message</label>
+			<br/>
+
+			<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
+			<label align="left" class="graphsectionheader">Timeout</label>
+		</div>
 		<br/>
 		<label class="graphsectionheader">Timeout:</label>
 		<br/>
@@ -65,7 +69,7 @@
 		<br/>
 		<label class="graphsectionheader">Label:</label>
 		<br/>
-		<textarea id="ge_text" style="width:140px"></textarea>								
+		<textarea id="ge_text" style="width:140px"></textarea>										
 		</input>
  <br/>
 		<input type="hidden" id="ge_id" value="" style="width:140px"/>
