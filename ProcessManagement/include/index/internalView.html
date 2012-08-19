@@ -57,6 +57,7 @@
 		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate edge" />
 		<br/>
 	</div>
+
 	<div class="nodesettings" id="NodeFunctions">
 		<span id="graphmenuheader">Node settings</span>
 		<br/>
@@ -75,12 +76,6 @@
 		<input type="hidden" id="ge_id" value="" style="width:140px"/>
 		<label class="graphsectionheader">Text:</label>
 		<br/>
-		<textarea id="ge_edge_text" style="width:140px"></textarea>
-		<br/>
-		<label class="graphsectionheader">Related Subject:</label>
-		<br/>
-		<select id="ge_edge_target" style="width:140px"></select>
-		<br/>
 		<input type="button" id="UpdateNodeButton" class="graphmenubutton" onclick="gv_graph.updateNode();" value="Update node" />
 		<br/>
 		<input type="button" id="ConnectNodeButton" class="graphmenubutton" onclick="gv_graph.connectNodes();" value="Connect node" />
@@ -90,5 +85,6 @@
 		<input type="button" id="DeleteNodeButton" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete node" />
 		<br/>
 	</div>
+
 </div>
 
