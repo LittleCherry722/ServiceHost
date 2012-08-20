@@ -27,10 +27,8 @@ var ViewModel = function() {
 			parent.SBPM.VM.processVM.showProcess(process);
 			
 			if(self.quickVM.displayTable()){
-				console.log("from Table");
-				console.log(self.quickVM.subjects());
-				console.log(self.quickVM.messages());
 				self.quickVM.createProcessFromTable(self.quickVM.subjects(),self.quickVM.messages());
+		
 			}
 			
 			
@@ -181,10 +179,8 @@ self.cleanMessages();
 });
 
 self.createProcessFromTable = function(sub,mes){
-	console.log("createProcessFromTabel");
-	console.log(sub);
-	console.log(mes);
-	SBPM.Service.Process.createProcessFromTable(sub,mes)
+	
+	parent.SBPM.Service.Process.createProcessFromTable(sub,mes);
 }	
 
 
