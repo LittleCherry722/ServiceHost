@@ -186,11 +186,12 @@ function GCcommunication ()
 	 * When no subject is selected all attributes of GCcommunication are reset to their default values.
 	 * The whole process is emptied.
 	 * 
+	 * @param {boolean} wholeProcess Optional parameter to clear the whole process instead of the current view.
 	 * @returns {void}
 	 */
-	this.clearGraph = function ()
+	this.clearGraph = function (wholeProcess)
 	{
-		if (this.selectedSubject == null)
+		if (this.selectedSubject == null || (gf_isset(wholeProcess) && wholeProcess === true))
 		{
 			
 			this.subjects	= {};
@@ -246,7 +247,7 @@ function GCcommunication ()
 	{
 		// initialize the canvas
 		this.init();
-		this.clearGraph();
+		this.clearGraph(true);
 		
 		// create the subjects
 		for (var gt_subjectId in subjects)

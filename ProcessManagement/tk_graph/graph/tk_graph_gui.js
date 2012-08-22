@@ -23,19 +23,14 @@ function gf_guiChangeView (view)
 {
 	if (gf_isset(view))
 	{
-		if (gf_elementExists(gv_elements.graphBVouter))
-			$('#' + gv_elements.graphBVouter).scrollTo( {left: '0px', top: '0px'}, 0);
-			
-		if (gf_elementExists(gv_elements.graphCVouter))
-			$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '0px'}, 0);
-			
 		if (view == "cv")
 		{
 			if (gf_elementExists(gv_elements.graphBVouter))
 				document.getElementById(gv_elements.graphBVouter).style.display = "none";
 			
 			document.getElementById(gv_elements.graphCVouter).style.display = "block";
-			$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '50%'}, 0);
+			$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '0px'});
+			$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '50%'});
 		}
 		else
 		{
@@ -43,7 +38,8 @@ function gf_guiChangeView (view)
 				document.getElementById(gv_elements.graphCVouter).style.display = "none";
 				
 			document.getElementById(gv_elements.graphBVouter).style.display = "block";
-			$('#' + gv_elements.graphBVouter).scrollTo( {left: '50%', top: '0px'}, 0);
+			$('#' + gv_elements.graphBVouter).scrollTo( {left: '0px', top: '0px'});
+			$('#' + gv_elements.graphBVouter).scrollTo( {left: '50%', top: '0px'});
 		}
 	}
 }

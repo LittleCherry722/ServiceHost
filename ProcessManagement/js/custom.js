@@ -32,11 +32,13 @@ function showtab1() {
 	$("#instance_tab2_content").removeClass("hide");
 
 	gf_clickedCVbehavior();
-
+	
+	/*
 	$('#graph_bv_outer').scrollTo({
 		left : '50%',
 		top : '0px'
 	}, 0);
+	*/
 }
 
 function shownothing() {
