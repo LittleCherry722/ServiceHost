@@ -72,10 +72,8 @@ function gf_guiClearInputFields ()
 		document.getElementById(gv_elements.inputEdgeTimeout).value = "";
 	if (gf_elementExists(gv_elements.inputEdgeTimeoutEx))
 		document.getElementById(gv_elements.inputEdgeTimeoutEx).innerHTML = "";
-	if (gf_elementExists(gv_elements.inputEdgeTypeLabel))
-		document.getElementById(gv_elements.inputEdgeTypeLabel).checked = false;
-	if (gf_elementExists(gv_elements.inputEdgeTypeMessage))
-		document.getElementById(gv_elements.inputEdgeTypeMessage).checked = false;
+	if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
+		document.getElementById(gv_elements.inputEdgeTypeCondition).checked = false;
 	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
 		document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = false;
 }
@@ -112,15 +110,10 @@ function gf_guiDisplayEdge (edge, startType)
 		if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
 			document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = true;
 	}
-	else if (edge.getType() == "message")
-	{
-		if (gf_elementExists(gv_elements.inputEdgeTypeMessage))
-			document.getElementById(gv_elements.inputEdgeTypeMessage).checked = true;
-	}
 	else
 	{
-		if (gf_elementExists(gv_elements.inputEdgeTypeLabel))
-			document.getElementById(gv_elements.inputEdgeTypeLabel).checked = true;
+		if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
+			document.getElementById(gv_elements.inputEdgeTypeCondition).checked = true;
 	}
 	
 	var gt_select_target		= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).options : null;
@@ -178,7 +171,7 @@ function gf_guiDisplayEdge (edge, startType)
 			gt_option.id	= gv_elements.inputEdgeTarget + "_" + gt_subjID;
 			gt_select_target.add(gt_option);
 			
-			if (gt_sid == edge.getRelatedSubject())
+			if (gt_subjID == edge.getRelatedSubject())
 			{
 				document.getElementById(gv_elements.inputEdgeTarget + "_" + gt_subjID).selected = true;
 			}
@@ -373,11 +366,8 @@ function gf_guiReadEdge ()
 	var gt_relatedSubject	= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
 	var gt_timeout			= gf_elementExists(gv_elements.inputEdgeTimeout) ? document.getElementById(gv_elements.inputEdgeTimeout).value : "";
 	
-	var gt_type				= "label";
+	var gt_type				= "exitcondition";
 	
-	if (gf_elementExists(gv_elements.inputEdgeTypeMessage) && document.getElementById(gv_elements.inputEdgeTypeMessage).checked)
-		gt_type	= "message";
-		
 	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout) && document.getElementById(gv_elements.inputEdgeTypeTimeout).checked)
 		gt_type	= "timeout";
 	

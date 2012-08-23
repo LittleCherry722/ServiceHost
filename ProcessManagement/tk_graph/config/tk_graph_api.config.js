@@ -49,8 +49,7 @@ var gv_elements = {
 	inputSubjectTypeExternal:	"ge_cv_type_external",
 	
 	// edge types
-	inputEdgeTypeLabel:			"ge_edge_type_label",
-	inputEdgeTypeMessage:		"ge_edge_type_message",
+	inputEdgeTypeCondition:		"ge_edge_type_condition",
 	inputEdgeTypeTimeout:		"ge_edge_type_timeout"
 };
 

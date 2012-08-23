@@ -296,8 +296,8 @@ function GCcommunication ()
 				gt_behav.addNode("send", "create msg", "action", false, false, false);
 				
 				// add edges to start node
-				gt_behav.addEdge("start", "send", "send", null, "label", false, false);
-				gt_behav.addEdge("send", "start", "cancel", null, "label", false, false);
+				gt_behav.addEdge("start", "send", "send", null, "exitcondition", false, false);
+				gt_behav.addEdge("send", "start", "cancel", null, "exitcondition", false, false);
 				
 				// add sent messages
 				for (var gt_msId in gt_msgS)
@@ -307,8 +307,8 @@ function GCcommunication ()
 					
 					gt_behav.addNode("sM" + gt_msgId, "", "send", false, false, false);
 					
-					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, "label", false, false);
-					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, "message", false, false); 
+					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, "exitcondition", false, false);
+					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, "exitcondition", false, false); 
 				}
 			}
 			
@@ -316,7 +316,7 @@ function GCcommunication ()
 			gt_behav.addNode("end", "", "end", false, true, false);
 			
 			// connect start and end
-			gt_behav.addEdge("start", "end", "end process", null, "label", false, false);
+			gt_behav.addEdge("start", "end", "end process", null, "exitcondition", false, false);
 			
 			// create nodes for received messages
 			if (gt_msgR.length > 0)
@@ -325,8 +325,8 @@ function GCcommunication ()
 				gt_behav.addNode("rcv", "", "receive", false, false, false);
 				
 				// add edges to start node
-				gt_behav.addEdge("start", "rcv", "receive", null, "label", false, false);
-				gt_behav.addEdge("rcv", "start", "cancel", null, "label", false, false);
+				gt_behav.addEdge("start", "rcv", "receive", null, "exitcondition", false, false);
+				gt_behav.addEdge("rcv", "start", "cancel", null, "exitcondition", false, false);
 				
 				// add received messages
 				for (var gt_mrId in gt_msgR)
@@ -336,8 +336,8 @@ function GCcommunication ()
 					
 					gt_behav.addNode("actM" + gt_msgId, "reaction msg " + gt_msgId, "action", false, false, false);
 					
-					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, "message", false, false);
-					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, "label", false, false); 
+					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, "exitcondition", false, false);
+					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, "exitcondition", false, false); 
 				}
 			}
 		}
@@ -543,7 +543,7 @@ function GCcommunication ()
 					var gt_text					= gt_edge.getText();
 					var gt_type					= gt_edge.getType();
 					
-					if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "message")
+					if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
 					{
 						if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
 						{

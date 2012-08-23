@@ -21,7 +21,7 @@
  * @param {int} end The id of the end node.
  * @param {String} text The label of the edge.
  * @param {String} relatedSubject The id of the subject that is the sender or a receiver of the currently selected message.
- * @param {String} type The type of the edge. Either "message", "label" or "timeout".
+ * @param {String} type The type of the edge. Either "exitcondition" or "timeout".
  * @returns {void}
  */
 function GCedge (parent, start, end, text, relatedSubject, type)
@@ -102,11 +102,11 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	
 	/**
 	 * The type of the edge.
-	 * This can either be a message, a label or a timeout.
+	 * This can either be an exitcondition or a timeout.
 	 * 
 	 * @type String
 	 */
-	this.type	= "label";
+	this.type	= "exitcondition";
 	
 	/**
 	 * Activates an edge.
@@ -203,11 +203,18 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	/**
 	 * Returns the type of the edge.
 	 * 
-	 * @returns {String} The type of the edge. Currently the following types are possible: timeout, message, label
+	 * @returns {String} The type of the edge. Currently the following types are possible: timeout, exitcondition (default)
 	 */
 	this.getType = function ()
 	{
-		return this.type;
+		if (this.type == "timeout")
+		{
+			return this.type;
+		}
+		else
+		{
+			return "exitcondition";
+		}
 	};
 	
 	/**
@@ -308,9 +315,9 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	
 	/**
 	 * Sets the current type of the edge.
-	 * Possible types are "message" (edges that have a send or a receive node as the starting node), "timeout" (a timeout edge), "label" (all other edges).
+	 * Possible types are "exitcondition" (like messages), "timeout" (a timeout edge).
 	 * 
-	 * @param {String} type The type of the edge. This can be "message", "label" or "timeout".
+	 * @param {String} type The type of the edge. This can be "exitCondition" or "timeout".
 	 * @returns {void}
 	 */
 	this.setType = function (type)
@@ -318,7 +325,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		if (gf_isset(type))
 		{
 			type = type.toLowerCase();
-			if (type == "message" || type == "label" || type == "timeout")
+			if (type == "exitcondition" || type == "timeout")
 			{
 				this.type = type;
 			}
@@ -361,19 +368,14 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			return "Timeout" + "\n(" + this.timer.getTimeString("unit") + ")";
 		}
 		
-		// return message
-		else if (this.type == "message")
+		// return exit condition
+		else
 		{
 			var gt_startNode		= this.parent.getNode(this.start);
 			var gt_relatedSubject	= this.relatedSubject != null ? this.relatedSubject : "";
 				gt_relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].getText() : gt_relatedSubject;
-			return this.text + "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")";
-		}
-		
-		// return label
-		else
-		{
-			return this.text;
+			// return this.text + "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")";
+			return this.text + (this.getRelatedSubject() != null ? "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")" : "");
 		}
 		
 		/*

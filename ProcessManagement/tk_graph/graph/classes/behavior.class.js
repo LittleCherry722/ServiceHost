@@ -111,7 +111,7 @@ function GCbehavior (name)
 	 * @param {int} end The id of the end node.
 	 * @param {String} text The label of this edge. When this edge's start node is either a send or receive node this can also be a message type.
 	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
-	 * @param {String} type The edge's type (message, timeout, label).
+	 * @param {String} type The edge's type (exitcondition, timeout).
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
 	 * @param {boolean} [optional] The optional status of the edge. (default: false)
 	 * @returns {void}  
@@ -576,7 +576,7 @@ function GCbehavior (name)
 			var gt_tmpEdge				= null;
 			
 			// update message on relatedSubject
-			if (	gt_curType == type && type == "message" &&
+			if (	gt_curType == type && type == "exitcondition" &&
 					gt_curRelatedSubject != null && (gt_curRelatedSubject == relatedSubject || relatedSubject == "") && gf_isset(gv_graph.subjects[gt_curRelatedSubject]) &&
 					gt_curText != text)
 			{
@@ -585,7 +585,7 @@ function GCbehavior (name)
 				for (var gt_tmpEdgeID in gt_subjEdges)
 				{
 					gt_tmpEdge	= gt_subjEdges[gt_tmpEdgeID];
-					if (gt_tmpEdge.getType() == "message" && gt_tmpEdge.getText() == gt_curText && gt_tmpEdge.getRelatedSubject() == gv_graph.selectedSubject)
+					if (gt_tmpEdge.getType() == "exitcondition" && gt_tmpEdge.getText() == gt_curText && gt_tmpEdge.getRelatedSubject() == gv_graph.selectedSubject)
 					{
 						gt_tmpEdge.setText(text);
 					}

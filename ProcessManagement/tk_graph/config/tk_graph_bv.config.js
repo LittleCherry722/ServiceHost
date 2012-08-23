@@ -178,16 +178,6 @@ var gv_bv_style_edge = {
 };
 
 /**
- * Additional style set for message-edges.
- * The given attributes overwrite the values of the default edge style set gv_bv_style_edge.
- * 
- * @type Object
- */
-var gv_bv_style_edgeMessage = {
-	
-};
-
-/**
  * Additional style set for timeout-edges.
  * The given attributes overwrite the values of the default edge style set gv_bv_style_edge.
  * 
@@ -485,7 +475,6 @@ var gv_bv_style_rectNodeStart = {
  */
 var gv_bv_arrow = {
 		style: gv_bv_style_edge,					// Style set to use for edges
-		styleMessage: gv_bv_style_edgeMessage,		// Additional style set to use for message edges
 		styleTimeout: gv_bv_style_edgeTimeout,		// Additional style set to use for timeout edges
 		tout: true,									// Allow outgoing edges on the top of a node (true | false)
 		tin: true,									// Allow incoming edges on the top of a node (true | false)
