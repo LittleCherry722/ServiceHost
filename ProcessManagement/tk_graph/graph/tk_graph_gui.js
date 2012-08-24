@@ -76,6 +76,11 @@ function gf_guiClearInputFields ()
 		document.getElementById(gv_elements.inputEdgeTypeCondition).checked = false;
 	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
 		document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = false;
+		
+	if (gf_elementExists(gv_elements.inputEdgeTargetO))
+		document.getElementById(gv_elements.inputEdgeTargetO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeMessageO))
+		document.getElementById(gv_elements.inputEdgeMessageO).style.display = "none";
 }
 
 /**
@@ -104,6 +109,11 @@ function gf_guiDisplayEdge (edge, startType)
 		document.getElementById(gv_elements.inputEdgeTimeoutEx).innerHTML	= "(example: " + edge.getTimer("example") + ")";					
 	}
 	
+	if (gf_elementExists(gv_elements.inputEdgeTargetO))
+		document.getElementById(gv_elements.inputEdgeTargetO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeMessageO))
+		document.getElementById(gv_elements.inputEdgeMessageO).style.display = "none";
+	
 	// mark type
 	if (edge.getType() == "timeout")
 	{
@@ -128,8 +138,11 @@ function gf_guiDisplayEdge (edge, startType)
 	// create the drop down menu to select the related subject (only for receive and send nodes)
 	if ((startType == "send" || startType == "receive") && gt_select_target != null && gt_select_message != null)
 	{		
-		if (gf_elementExists(gv_elements.inputEdgeMessageO))
-			document.getElementById(gv_elements.inputEdgeMessageO).style.display	= "block";
+		
+		if (gf_elementExists(gv_elements.inputEdgeTargetO))
+			document.getElementById(gv_elements.inputEdgeTargetO).style.display = "block";
+		//if (gf_elementExists(gv_elements.inputEdgeMessageO))
+		//	document.getElementById(gv_elements.inputEdgeMessageO).style.display	= "block";
 			
 		document.getElementById(gv_elements.inputEdgeTarget).onchange			= gf_edgeMessage;
 		document.getElementById(gv_elements.inputEdgeMessage).onchange			= gf_setEdgeMessage;
@@ -250,7 +263,6 @@ function gf_guiLoadEdgeMessages ()
 	if (!gf_elementExists(gv_elements.inputEdgeTarget, gv_elements.inputEdgeMessage))
 		return false;
 		
-		
 	var gt_selectedTarget	= document.getElementById(gv_elements.inputEdgeTarget).value;
 	var gt_select_message	= document.getElementById(gv_elements.inputEdgeMessage).options;
 	var gt_messagesArray	= [];
@@ -259,6 +271,9 @@ function gf_guiLoadEdgeMessages ()
 	
 	if (gt_selectedTarget != "" && gt_selectedTarget != gv_graph.selectedSubject)
 	{
+		
+		if (gf_elementExists(gv_elements.inputEdgeMessageO))
+			document.getElementById(gv_elements.inputEdgeMessageO).style.display	= "block";
 		
 		// create some entries to guide the user
 		var gt_option = document.createElement("option");

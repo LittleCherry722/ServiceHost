@@ -23,6 +23,7 @@ var gv_elements = {
 	graphCVouter:			"graph_cv_outer",
 	inputEdgeText:			"ge_edge_text",
 	inputEdgeTarget:		"ge_edge_target",
+	inputEdgeTargetO:		"ge_edge_target_outer",
 	inputEdgeTimeout:		"ge_edge_timeout",
 	inputEdgeTimeoutEx:		"ge_edge_timeoutExample",
 	inputEdgeMessage:		"ge_edge_message",

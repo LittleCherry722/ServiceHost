@@ -29,21 +29,21 @@
 		<textarea id="ge_edge_text" style="width: 140px;"></textarea>								
 		</input>
  <br/>
-		<label class="graphsectionheader">Related Subject:</label>
-		<br/>
-		<select id="ge_edge_target" style="width: 140px;"></select>
-		<br/>
-		<label class="graphsectionheader">Message:</label>
-		<br/>
-		<select id="ge_edge_message" style="width: 140px;"></select>
+ 		<div id="ge_edge_target_outer" style="display:none;">
+			<label class="graphsectionheader">Related Subject:</label>
+			<br/>
+			<select id="ge_edge_target" style="width: 140px;"></select>
+			<br/>
+			<div id="ge_edge_message_outer" style="display:none;">
+				<label class="graphsectionheader">Message:</label>
+				<br/>
+				<select id="ge_edge_message" style="width: 140px;"></select>
+			</div>
+		</div>
 		<br/>
 		<div id="internalRadioMenu">
-			<input type="radio" id="ge_edge_type_label" name="ge_edge_type" />
-			<label align="left"  class="graphsectionheader">Label</label>
-			<br/>
-
-			<input type="radio" id="ge_edge_type_message" name="ge_edge_type" />
-			<label align="left"  class="graphsectionheader">Message</label>
+			<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
+			<label align="left"  class="graphsectionheader">Exit Condition</label>
 			<br/>
 
 			<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
