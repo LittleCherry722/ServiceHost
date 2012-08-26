@@ -392,6 +392,9 @@ var ProcessViewModel = function() {
 
 			gv_graph.selectedNode = null;
 			updateListOfSubjects();
+			$("#zoominbutton").hide();
+			$("#zoomoutbutton").hide();
+			$("#reset-button").hide();
 		});
 
 		$("input#help-button").fancybox({
@@ -414,12 +417,15 @@ var ProcessViewModel = function() {
 	self.showProcess = function(processName) {
 	    
 	    try{
-            
-            gv_graph.clearGraph();
+            $("#tab2").click();
+           
+            gv_graph.clearGraph(true);
             
             var processId = SBPM.Service.Process.getProcessID(processName);
             
             self.subjectVM.showView();
+            
+            gv_graph.clearGraph();
             
             /* processId:
              *  0    -> new process
@@ -580,6 +586,21 @@ var SubjectViewModel = function() {
 				classes : qtipStyle
 			}
 		});
+		
+				 $( document ).ready( function() { 
+
+      $("#ge_cv_id").bind( "change", function() {
+      	     if($("#ge_cv_id").val() == null || $("#ge_cv_id").val() == "") {
+
+           	$("#AssignRoleWarning").show();
+      } else {
+      	$("#AssignRoleWarning").hide();
+      }
+
+  });
+	
+	
+	});
 	}
 }
 var InternalViewModel = function() {
@@ -797,7 +818,20 @@ var InternalViewModel = function() {
 			$("#rightMenuTrigger").html("Hide")
 			}
 		});
-	
+		
+		 $( document ).ready( function() { 
+
+      $("#internalRadioMenu :input" ).bind( "change", function() {
+      	     if($("#ge_edge_type_timeout").is(":checked")) {
+
+           	$("#timeoutdiv").show();
+      } else {
+      	$("#timeoutdiv").hide();
+      }
+
+  });
+
+	});
 	}
 }
 var chargeViewModel = function() {

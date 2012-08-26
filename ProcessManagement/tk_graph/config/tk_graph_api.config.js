@@ -101,7 +101,7 @@ var gv_functions	= {
 		 * @param {String} startType Type of the edge's start node.
 		 * @returns {void}
 		 */
-		displayEdge:		"",
+		displayEdge:		"mDisplayEdge",
 		
 		/**
 		 * displays the information of the selected node
@@ -228,7 +228,7 @@ var gv_functions	= {
 		 * @param {String} ID The id of the clicked subject.
 		 * @returns {void}
 		 */
-		subjectClickedHook:		"",
+		subjectClickedHook:		"mSubjectClicked",
 		
 		/**
 		 * called when a subject is double-clicked
@@ -246,7 +246,7 @@ var gv_functions	= {
 		 * @param {String} ID The id of the double-clicked subject.
 		 * @returns {void}
 		 */
-		subjectDblClickedHook:	""
+		subjectDblClickedHook:	"mSubjectClicked"
 	},
 	
 	/*

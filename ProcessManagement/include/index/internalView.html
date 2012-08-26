@@ -2,34 +2,34 @@
 
 <div class="graphmenu">
 	<div class="graphsettings">
-		<span id="graphmenuheader">Graph settings</span> <span id="rightMenuTrigger">Hide</span>
+		<span id="graphmenuheader">Behavior settings</span><span id="rightMenuTrigger">Hide</span>
 		<br/>
 		<div id="RightMenuDiv">
-			<label class="graphsectionheader">Add nodes:</label>
+			<label class="graphsectionheader">Add states:</label>
 			<br/>
-			<input type="button" id="CreateNodeButton" class="graphmenubutton" value="Add new node" onclick="gv_graph.createNode();"/>
+			<input type="button" id="CreateNodeButton" class="graphmenubutton" value="Add new state" onclick="gv_graph.createNode();"/>
 			<br/>
-			<input type="button" id="InsertSendNodeButton" class="graphmenubutton" onclick="gf_callMacro('newSendNode');" value="Insert send node" />
+			<input type="button" id="InsertSendNodeButton" class="graphmenubutton" onclick="gf_callMacro('newSendNode');" value="Insert send state" />
 			<br/>
-			<input type="button" id="InsertReceiveButton" class="graphmenubutton" onclick="gf_callMacro('newReceiveNode');" value="Insert receive node" />
+			<input type="button" id="InsertReceiveButton" class="graphmenubutton" onclick="gf_callMacro('newReceiveNode');" value="Insert receive state" />
 			<br/>
-			<input type="button" id="InsertActionNodeButton" class="graphmenubutton" onclick="gf_callMacro('newActionNode');" value="Insert action node" />
+			<input type="button" id="InsertActionNodeButton" class="graphmenubutton" onclick="gf_callMacro('newActionNode');" value="Insert action state" />
 			<br/>
 			<br/>
-			<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
+			<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the behavior?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear behavior" />
 			<br/>
 		</div>
 	</div>
 	<br/>
 	<div class="graphsettings" id="EdgeFunctions">
-		<span id="graphmenuheader">Edge settings</span>
+		<span id="graphmenuheader">Transition settings</span>
 		<br/>
 		<label class="graphsectionheader">Text:</label>
 		<br/>
-		<textarea id="ge_edge_text" style="width: 140px;"></textarea>								
+		<textarea id="ge_edge_text" style="width: 140px;"></textarea>												
 		</input>
  <br/>
- 		<div id="ge_edge_target_outer" style="display:none;">
+		<div id="ge_edge_target_outer" style="display:none;">
 			<label class="graphsectionheader">Related Subject:</label>
 			<br/>
 			<select id="ge_edge_target" style="width: 140px;"></select>
@@ -50,44 +50,46 @@
 			<label align="left" class="graphsectionheader">Timeout</label>
 		</div>
 		<br/>
-		<label class="graphsectionheader">Timeout:</label>
+		<div id="timeoutdiv">
+			<label class="graphsectionheader">Timeout:</label>
+			<br/>
+			<input type="text" id="ge_edge_timeout" value="" align="right" style="width: 140px;" />
+			<div id="ge_edge_timeoutExample"></div>
+		</div>
 		<br/>
-		<input type="text" id="ge_edge_timeout" value="" align="right" style="width: 140px;" />
-		<div id="ge_edge_timeoutExample"></div>
+		<input type="button" id="UpdateEdgeButton" class="graphmenubutton" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<br/>
-		<input type="button" id="UpdateEdgeButton" class="graphmenubutton" onclick="gv_graph.updateEdge();" value="Update edge" />
+		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" onclick="gv_graph.deleteEdge();" value="Remove transition" />
 		<br/>
-		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" onclick="gv_graph.deleteEdge();" value="Remove edge" />
-		<br/>
-		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate edge" />
+		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate transition" />
 		<br/>
 	</div>
 
 	<div class="nodesettings" id="NodeFunctions">
-		<span id="graphmenuheader">Node settings</span>
+		<span id="graphmenuheader">State settings</span>
 		<br/>
 
 		<label class="graphsectionheader">Type:</label>
 		<input type="checkbox" id="ge_type_start" name="ge_type_start" />
-		<label  class="graphsectionheader">Startnode</label>
+		<label  class="graphsectionheader">Startstate</label>
 		<br/>
 		<select id="ge_type2"  style="width:140px"></select>
 		<br/>
-		<label class="graphsectionheader">Label:</label>
+		<label class="graphsectionheader">Service:</label>
 		<br/>
-		<textarea id="ge_text" style="width:140px"></textarea>										
+		<textarea id="ge_text" style="width:140px"></textarea>														
 		</input>
  <br/>
 		<input type="hidden" id="ge_id" value="" style="width:140px"/>
 		<label class="graphsectionheader">Text:</label>
 		<br/>
-		<input type="button" id="UpdateNodeButton" class="graphmenubutton" onclick="gv_graph.updateNode();" value="Update node" />
+		<input type="button" id="UpdateNodeButton" class="graphmenubutton" onclick="gv_graph.updateNode();" value="Update state" />
 		<br/>
-		<input type="button" id="ConnectNodeButton" class="graphmenubutton" onclick="gv_graph.connectNodes();" value="Connect node" />
+		<input type="button" id="ConnectNodeButton" class="graphmenubutton" onclick="gv_graph.connectNodes();" value="Connect state" />
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate node" />
+		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate state" />
 		<br/>
-		<input type="button" id="DeleteNodeButton" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete node" />
+		<input type="button" id="DeleteNodeButton" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete state" />
 		<br/>
 	</div>
 
