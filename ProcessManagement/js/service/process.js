@@ -61,7 +61,7 @@ SBPM.Service.Process = {
     
     createProcessFromTable : function(subjects,messages){
     			gf_createFromTable(subjects, messages);
-        //updateListOfSubjects();
+        updateListOfSubjects();
     },
     deleteProcess : function(processname) {
         return this.query({

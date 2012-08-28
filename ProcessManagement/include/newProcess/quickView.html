@@ -1,129 +1,188 @@
-<div id="quick" style=" height:200px; width: 1150px;  border-width:1px;  border-style:solid;  border-color:black;">
-<div style="float:left; width:250px;">
-	<table id="table">
-		<tr>
-			<th> &nbsp; </th>
-			<th> Subject Name </th>
-		</tr>
-		<tr>
-			<td>Subject 1</td>
-			<td>
-			<input type="text" id="s1" data-bind="value: subjectS1" />
-			</td>
-		</tr>
-		<tr>
-			<td>Subject 2</td>
-			<td>
-			<input type="text" id="s2" data-bind="value: subjectS2" />
-			</td>
-		</tr>
-		<tr>
-			<td>Subject 3</td>
-			<td>
-			<input type="text" id="s3" data-bind="value: subjectS3" />
-			</td>
-		</tr>
-		<tr>
-			<td>Subject 4</td>
-			<td>
-			<input type="text" id="s4" data-bind="value: subjectS4" />
-			</td>
-		</tr>
-		<tr>
-			<td>Subject 5</td>
-			<td>
-			<input type="text" id="s5" data-bind="value: subjectS5" />
-			</td>
-		</tr>
-	</table>
-	<input type="button" value="Create Process" onClick="createProcessFromTable();" />
+<div id="quick" style=" height:200px; width: 1150px;  border-width:1px;  border-style:solid;  border-color:black;" data-bind="visible:false">
+	<div style="float:left; width:250px;">
+		<table id="table">
+			<tr>
+				<th> &nbsp; </th>
+				<th> Subject Name </th>
+			</tr>
+			<tr>
+				<td>Subject 1</td>
+				<td>
+				<input type="text" id="s1" data-bind="value: subjectS1" />
+				</td>
+			</tr>
+			<tr>
+				<td>Subject 2</td>
+				<td>
+				<input type="text" id="s2" data-bind="value: subjectS2" />
+				</td>
+			</tr>
+			<tr>
+				<td>Subject 3</td>
+				<td>
+				<input type="text" id="s3" data-bind="value: subjectS3" />
+				</td>
+			</tr>
+			<tr>
+				<td>Subject 4</td>
+				<td>
+				<input type="text" id="s4" data-bind="value: subjectS4" />
+				</td>
+			</tr>
+			<tr>
+				<td>Subject 5</td>
+				<td>
+				<input type="text" id="s5" data-bind="value: subjectS5" />
+				</td>
+			</tr>
+		</table>
+
+	</div>
+	<div style="float:left; width:450px;">
+		<table>
+			<tr>
+				<th> Sender </th>
+				<th> Message </th>
+				<th> Receiver </th>
+			</tr>
+			<tr>
+				<td><select id="m1s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m1s1, value: m1s1"></select></td>
+				<td>
+				<input type="text" id="m1" data-bind="value: m1"/>
+				</td>
+				<td><select id="m1s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m1s2"></select></td>
+			</tr>
+			<tr>
+				<td><select id="m2s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m2s1"></select></td>
+				<td>
+				<input type="text" id="m2" data-bind="value: m2"/>
+				</td>
+				<td><select id="m2s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m2s2"></select></td>
+			</tr>
+			<tr>
+				<td><select id="m3s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m3s1"></select></td>
+				<td>
+				<input type="text" id="m3" data-bind="value: m3"/>
+				</td>
+				<td><select id="m3s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m3s2"></select></td>
+			</tr>
+			<tr>
+				<td><select id="m4s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m4s1"></select></td>
+				<td>
+				<input type="text" id="m4" data-bind="value: m4"/>
+				</td>
+				<td><select id="m4s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m4s2"></select></td>
+			</tr>
+			<tr>
+				<td><select id="m5s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m5s1"></select></td>
+				<td>
+				<input type="text" id="m5" data-bind="value: m5"/>
+				</td>
+				<td><select id="m5s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m5s2"></select></td>
+			</tr>
+		</table>
+	</div>
+	<div style="float:left; width:450px;">
+		<table>
+			<tr>
+				<th> Sender </th>
+				<th> Message </th>
+				<th> Receiver </th>
+			</tr>
+			<tr>
+				<td><select id="m6s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m6s1"></select></td>
+				<td>
+				<input type="text" id="m6" data-bind="value: m6"/>
+				</td>
+				<td><select id="m6s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m6s2"></select></td>
+			</tr>
+			<tr>
+				<td><select id="m7s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m7s1"></select></td>
+				<td>
+				<input type="text" id="m7" data-bind="value: m7"/>
+				</td>
+				<td><select id="m7s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m7s2"></select></td>
+			</tr>
+			<tr>
+				<td><select id="m8s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m8s1"></select></td>
+				<td>
+				<input type="text" id="m8" data-bind="value: m8"/>
+				</td>
+				<td><select id="m8s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m8s2"></select></td>
+			</tr>
+			<tr>
+				<td><select id="m9s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m9s1"></select></td>
+				<td>
+				<input type="text" id="m9" data-bind="value: m9"/>
+				</td>
+				<td><select id="m9s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m9s2"></select></td>
+			</tr>
+			<tr>
+				<td><select id="m10s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m10s1"></select></td>
+				<td>
+				<input type="text" id="m10" data-bind="value: m10"/>
+				</td>
+				<td><select id="m10s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m10s2"></select></td>
+			</tr>
+		</table>
+	</div>
 </div>
-<div style="float:left; width:450px;">
-	<table>
-		<tr>
-			<th> Sender </th>
-			<th> Message </th>
-			<th> Receiver </th>
-		</tr>
-		<tr>
-			<td><select id="m1s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m1s1, value: m1s1"></select></td>
-			<td>
-			<input type="text" id="m1" data-bind="value: m1"/>
-			</td>
-			<td><select id="m1s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m1s2"></select></td>
-		</tr>
-		<tr>
-			<td><select id="m2s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m2s1"></select></td>
-			<td>
-			<input type="text" id="m2" data-bind="value: m2"/>
-			</td>
-			<td><select id="m2s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m2s2"></select></td>
-		</tr>
-		<tr>
-			<td><select id="m3s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m3s1"></select></td>
-			<td>
-			<input type="text" id="m3" data-bind="value: m3"/>
-			</td>
-			<td><select id="m3s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m3s2"></select></td>
-		</tr>
-		<tr>
-			<td><select id="m4s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m4s1"></select></td>
-			<td>
-			<input type="text" id="m4" data-bind="value: m4"/>
-			</td>
-			<td><select id="m4s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m4s2"></select></td>
-		</tr>
-		<tr>
-			<td><select id="m5s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m5s1"></select></td>
-			<td>
-			<input type="text" id="m5" data-bind="value: m5"/>
-			</td>
-			<td><select id="m5s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m5s2"></select></td>
-		</tr>
-	</table>
+
+<div id="quick" style=" height:200px; width: 802px;  border-width:1px;  border-style:solid;  border-color:black;" data-bind="visible:true">
+	<div id="subjects" style="float:left; width:250px; overflow: auto;">
+
+		<table>
+			<thead>
+				<tr>
+					<th>Subjects <span data-bind="text: subjectList().length"></span>/5 </th>
+					<th></th>
+				</tr>
+			</thead>
+			<tr>
+				<td>
+				<tbody data-bind="foreach: subjectList">
+
+					<td>
+					<input data-bind="value: name" />
+					</td>
+					<td><a href="#" data-bind="click: $parent.removeSubject">Remove</a></td>
+
+				</tbody>
+			</tr>
+		</table>
+		<button data-bind="click: addSubject2, enable: subjectList().length < 5">
+			Add Subject
+		</button></td>
+	</div>
+	<div id="messages" style="float:left; width:500px; overflow: auto;">
+		<table style="">
+			<thead>
+				<tr>
+
+					<th>Messages <span data-bind="text: messageList2().length"></span>/10 </th>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+			</thead>
+			<tr>
+
+				<td>
+				<tbody data-bind="foreach: messageList2">
+
+					<td><select data-bind="options: $parent.subjectList, optionsText: function(item){return item.name()}, optionsCaption: 'Select a subject...', value: sender"></select></td>
+					<td>
+					<input data-bind="value: message"/>
+					</td>
+					<td><select data-bind="options: $parent.subjectList, optionsText: function(item){return item.name()}, optionsCaption: 'Select a subject...', value: receiver"></select></td>
+					<td><a href="#" data-bind="click: $parent.removeMessage">Remove</a></td>
+
+				</tbody></td>
+			</tr>
+		</table>
+		<button data-bind="click: addMessage, enable: messageList2().length < 10">
+			Add Message
+		</button>
+	</div>
 </div>
-<div style="float:left; width:450px;">
-	<table>
-		<tr>
-			<th> Sender </th>
-			<th> Message </th>
-			<th> Receiver </th>
-		</tr>
-		<tr>
-			<td><select id="m6s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m6s1"></select></td>
-			<td>
-			<input type="text" id="m6" data-bind="value: m6"/>
-			</td>
-			<td><select id="m6s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m6s2"></select></td>
-		</tr>
-		<tr>
-			<td><select id="m7s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m7s1"></select></td>
-			<td>
-			<input type="text" id="m7" data-bind="value: m7"/>
-			</td>
-			<td><select id="m7s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m7s2"></select></td>
-		</tr>
-		<tr>
-			<td><select id="m8s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m8s1"></select></td>
-			<td>
-			<input type="text" id="m8" data-bind="value: m8"/>
-			</td>
-			<td><select id="m8s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m8s2"></select></td>
-		</tr>
-		<tr>
-			<td><select id="m9s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m9s1"></select></td>
-			<td>
-			<input type="text" id="m9" data-bind="value: m9"/>
-			</td>
-			<td><select id="m9s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m9s2"></select></td>
-		</tr>
-		<tr>
-			<td><select id="m10s1" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m10s1"></select></td>
-			<td>
-			<input type="text" id="m10" data-bind="value: m10"/>
-			</td>
-			<td><select id="m10s2" data-bind="options: subjects, optionsCaption: 'Select a subject...', value: m10s2"></select></td>
-		</tr>
-	</table>
-</div>
-</div>
+

@@ -91,7 +91,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		</div>
 	</div>
 	<!-- End header -->
-	<div style="margin:10px; width:500px">
+	<div style="margin:20px; width:300px; float:left;">
 		<br class="clear"/>
 		Create a new process.
 		<br class="clear"/>
@@ -111,7 +111,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<br class="clear"/>
 		
 
-		<input type="checkbox" name="Table" value="Table" data-bind="checked: quickVM.displayTable">Use Table <br>
+		<input type="checkbox" name="Table" value="Table" data-bind="checked: quickVM.displayTable" onClick="">Use Table <br>
 		<br class="clear"/>
 		<br class="clear"/>
 
@@ -120,9 +120,10 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<input type="button" value="Cancel" onClick="parent.fancyreturn1=false;parent.$.fancybox.close();"/>
 		</div>
 		<br class="clear"/>
-		<div id="quickTable" data-bind="template: { name:quickVM.name, data: quickVM}, visible: quickVM.displayTable" ></div>
-		</form>
+		
+		
+		
 	</div>
-
+<div id="quickTable" style="width:800px; float:left; margin:20px;" data-bind="template: { name:quickVM.name, data: quickVM}, visible: quickVM.displayTable" ></div>
 </body>
 </html>

@@ -113,8 +113,8 @@ var MenuViewModel = function() {
 		$("a#newProcess").fancybox({
 			'padding' : '0px',
 			'scrolling' : 'no',
-			'width' : '120',
-			'height' : '50',
+			'width' : '40',
+			'height' : '30',
 			'transitionIn' : 'elastic',
 			'transitionOut' : 'elastic',
 			'type' : 'iframe',
