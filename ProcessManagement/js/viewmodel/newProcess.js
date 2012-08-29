@@ -276,8 +276,8 @@ else
 				array.push(self.messageList2()[i]);
 		}
 		for( i = array.length - 1; i >= 0; i--) {
-			array[i].sender = array[i].sender.name();
-			array[i].receiver = array[i].receiver.name();
+			array[i].sender = array[i].sender.name().toLowerCase();
+			array[i].receiver = array[i].receiver.name().toLowerCase();
 		}
 		for( i = array.length - 1; i >= 0; i--) {
 			array[i] = {
@@ -303,13 +303,19 @@ self.cleanSubjects2 = function(){
 }
 
 	self.createProcessFromTable = function() {
+		//console.log(self.subjects());
+			//	var sub = self.subjects();
+		
+		//console.log(self.messages());
+		//var mes = self.messages();
+		
 		//console.log(self.subjectList());
-		var sub = self.cleanSubjects2()
-		console.log(sub);
+		var sub = self.cleanSubjects2();
+	//	console.log(sub);
 		
 //console.log(self.messageList2());
-var mes = self.cleanMessages2()
-		console.log(mes);
+var mes = self.cleanMessages2();
+	//	console.log(mes);
 
 		parent.SBPM.Service.Process.createProcessFromTable(sub,mes); 
 	}
