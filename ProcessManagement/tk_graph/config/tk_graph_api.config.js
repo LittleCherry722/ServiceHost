@@ -38,14 +38,8 @@ var gv_elements = {
 	
 	// select elements
 	inputNodeTypeStart:		"ge_type_start",
-		
-	inputNodeType2R:		"ge_type2_R",
-	inputNodeType2S:		"ge_type2_S",
-	inputNodeType2End:		"ge_type2_end",
-	inputNodeType2Action:	"ge_type2_action",
 	
 	// subject types
-	inputSubjectTypeSingle:		"ge_cv_type_single",
 	inputSubjectTypeMulti:		"ge_cv_type_multi",
 	inputSubjectTypeExternal:	"ge_cv_type_external",
 	

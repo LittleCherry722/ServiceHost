@@ -329,6 +329,43 @@ function gf_edgeMessage ()
 }
 
 /**
+ * Collects all messages available to the system and returns them as an Array of Objects.
+ * 
+ * @returns {Array} Array of Objects {sender, messageType, receiver}.
+ */
+function gf_getMessageTypes ()
+{
+	// clear messages
+	var gt_messages = [];
+	
+	// load messages from behavior
+	for (var gt_bi in gv_graph.subjects)
+	{
+		var gt_behav = gv_graph.getBehavior(gt_bi);
+		var gt_edges = gt_behav.getEdges();
+		for (var gt_eid in gt_edges)
+		{
+			var gt_edge					= gt_edges[gt_eid];
+			var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
+			var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
+			var gt_relatedSubject		= gt_edge.getRelatedSubject();
+			var gt_text					= gt_edge.getText();
+			var gt_type					= gt_edge.getType();
+			
+			if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
+			{
+				if (gf_isset(gv_graph.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
+				{
+					gt_messages[gt_messages.length] = {sender: gt_bi, receiver: gt_relatedSubject, messageType: gt_text};
+				}
+			}
+		}
+	}
+	
+	return gt_messages;
+}
+
+/**
  * Select the left sibbling of the currently selected node.
  * When the current node is the most left sibbling the most right sibbling will be selected.
  * 

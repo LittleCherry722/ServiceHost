@@ -56,16 +56,35 @@ var gv_paperSizes	= {
  */
 var gv_nodeTypes	= {
 	// action node will be displayed as a rounded rectangle containing the text defined in the node
-	action: {shape: "roundedrectangle", text: null},
+	action: {shape: "roundedrectangle", text: null, label: "action"},
 	
 	// a send node will be displayed as a circle containing an "S" to mark it as a send node
-	send: {shape: "circle", text: "S"},
+	send: {shape: "circle", text: "S", label: "send"},
 	
 	// a receive node will be displayed as a circle containing an "R" to mark it as a receive node
-	receive: {shape: "circle", text: "R"},
+	receive: {shape: "circle", text: "R", label: "receive"},
 	
 	// an end node will be displayed as a circle without text
-	end: {shape: "circle", text: ""}
+	end: {shape: "circle", text: "", label: "end"},
+	
+	// a modal split operator will be displayed as a circle with the letters "MS" on it
+	modalsplit: {shape: "circle", text: "MS", label: "modal split"},
+	
+	// a modal join operator will be displayed as a circle with the letters "MJ" on it
+	modaljoin: {shape: "circle", text: "MJ", label: "modal join"}
+};
+
+/**
+ * Contains some predefined actions.
+ * 
+ * @type Object
+ */
+var gv_predefinedActions	= {
+	// TODO
+	closeip: {relatedSubject: true, message: true, label: "closeIP"},
+	
+	// TODO
+	openip: {relatedSubject: true, message: true, label: "openIP"}
 };
 
 /**

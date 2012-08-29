@@ -363,7 +363,7 @@ var gv_cv_roundedRectangle = {
 		startX: 80,
 		
 		// distance between two subject nodes in pixels (measured from center to center)
-		distance: 275,
+		distance: 300,
 		
 		// references style of the node of a single subject
 		styleSingle: gv_cv_style_roundedRectangleSingle,

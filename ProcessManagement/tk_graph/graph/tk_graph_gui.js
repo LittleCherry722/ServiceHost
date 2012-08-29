@@ -212,15 +212,47 @@ function gf_guiDisplayNode (node)
 	
 	if (gf_elementExists(gv_elements.inputNodeTypeStart))
 		document.getElementById(gv_elements.inputNodeTypeStart).checked = node.isStart();
-
-	if (gf_elementExists(gv_elements.inputNodeType2R))
-		document.getElementById(gv_elements.inputNodeType2R).selected = node.getType() == "receive";
-	if (gf_elementExists(gv_elements.inputNodeType2S))
-		document.getElementById(gv_elements.inputNodeType2S).selected = node.getType() == "send";
-	if (gf_elementExists(gv_elements.inputNodeType2End))
-		document.getElementById(gv_elements.inputNodeType2End).selected = node.isEnd();
-	if (gf_elementExists(gv_elements.inputNodeType2Action))
-		document.getElementById(gv_elements.inputNodeType2Action).selected = !node.isEnd() && node.getType() == "action";
+		
+		
+	var gt_select_type			= document.getElementById(gv_elements.inputNodeType2);
+	
+	$('#' + gv_elements.inputNodeType2).empty();
+		
+	var gt_type	= node.isEnd() ? "end" : node.getType();
+		
+	// base elements
+	var gt_optgrp = document.createElement("optgroup");
+		gt_optgrp.label	= "base elements";
+		
+	var gt_option = "";
+	
+	for (var gt_key in gv_nodeTypes)
+	{
+		gt_option = document.createElement("option");
+		gt_option.text = gv_nodeTypes[gt_key].label;
+		gt_option.value = gt_key;
+		gt_option.id = gv_elements.inputEdgeTarget + "_" + gt_key;
+		gt_option.selected = gt_type == gt_key;
+		gt_optgrp.appendChild(gt_option);
+	}
+	gt_select_type.appendChild(gt_optgrp);
+	
+	// predefined actions
+		gt_optgrp = document.createElement("optgroup");
+		gt_optgrp.label	= "predefined actions";
+		
+	var gt_option = "";
+	
+	for (var gt_key in gv_predefinedActions)
+	{
+		gt_option = document.createElement("option");
+		gt_option.text = gv_predefinedActions[gt_key].label;
+		gt_option.value = "$" + gt_key;
+		gt_option.id = gv_elements.inputEdgeTarget + "_$" + gt_key;
+		gt_option.selected = gt_type == "$" + gt_key;
+		gt_optgrp.appendChild(gt_option);
+	}
+	gt_select_type.appendChild(gt_optgrp);
 }
 
 /**
@@ -240,15 +272,12 @@ function gf_guiDisplaySubject (subject)
 		
 	if (gf_elementExists(gv_elements.inputSubjectInputPool))
 		document.getElementById(gv_elements.inputSubjectInputPool).value = subject.getInputPool();
-		
-	if (gf_elementExists(gv_elements.inputSubjectTypeSingle) && subject.getType() == "single")
-		document.getElementById(gv_elements.inputSubjectTypeSingle).checked = true;
 
-	if (gf_elementExists(gv_elements.inputSubjectTypeMulti) && subject.getType() == "multi")
-		document.getElementById(gv_elements.inputSubjectTypeMulti).checked = true;
+	if (gf_elementExists(gv_elements.inputSubjectTypeMulti))
+		document.getElementById(gv_elements.inputSubjectTypeMulti).checked = subject.isMulti();
 	
-	if (gf_elementExists(gv_elements.inputSubjectTypeExternal) && subject.getType() == "external")
-		document.getElementById(gv_elements.inputSubjectTypeExternal).checked = true;
+	if (gf_elementExists(gv_elements.inputSubjectTypeExternal))
+		document.getElementById(gv_elements.inputSubjectTypeExternal).checked = subject.isExternal();
 }
 
 /**
@@ -431,14 +460,14 @@ function gf_guiReadSubject ()
 	
 	var gt_type	= "";
 	
-	if (gf_elementExists(gv_elements.inputSubjectTypeSingle)	&& document.getElementById(gv_elements.inputSubjectTypeSingle).checked		=== true)
-		gt_type = "single";
-	
 	if (gf_elementExists(gv_elements.inputSubjectTypeMulti)		&& document.getElementById(gv_elements.inputSubjectTypeMulti).checked		=== true)
-		gt_type = "multi";
+		gt_type += "multi";
 	
 	if (gf_elementExists(gv_elements.inputSubjectTypeExternal)	&& document.getElementById(gv_elements.inputSubjectTypeExternal).checked	=== true)
-		gt_type = "external";
+		gt_type += "external";
+		
+	if (gt_type == "")
+		gt_type = "single";
 		
 	gt_result.text		= gt_text;
 	gt_result.id		= gt_id;

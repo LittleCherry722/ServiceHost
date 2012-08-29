@@ -639,9 +639,6 @@ var InternalViewModel = function() {
 			}
 		});
 
-        // TODO WORKAROUND - Why isnt it working in internalView.html???
-        $('#ge_type2').html('<option value="R" id="ge_type2_R">receive</option><option value="S" id="ge_type2_S">send</option><option value="action" id="ge_type2_action">action</option><option value="end" id="ge_type2_end">end</option>');
-
 		// gf_clickedCVbehavior();
 		// updateListOfSubjects();
 		var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";

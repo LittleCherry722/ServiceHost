@@ -363,19 +363,23 @@ function GCgraphcv ()
 	this.drawSubject = function (x, y, subject, selected)
 	{
 		// determine the shape: multi subjects are displayed with a stack of four subjects
-		var gt_cv_shape	= subject.getType() == "multi" ? "roundedrectanglemulti" : "roundedrectangle";
+		var gt_cv_shape	= subject.isMulti() ? "roundedrectanglemulti" : "roundedrectangle";
 		
 		// create a new GClabel
 		var gt_cv_rect	= new GClabel(x, y, subject.textToString(), gt_cv_shape, subject.getId());
 			
 		// apply the correct style set
-		if (subject.getType() == "multi")
+		if (subject.isMulti() && subject.isExternal())
+		{
+			gt_cv_rect.setStyle(gf_mergeStyles(gv_cv_roundedRectangle.styleMulti, gv_cv_roundedRectangle.styleExternal));
+		}
+		else if (subject.isExternal())
+		{
+			gt_cv_rect.setStyle(gv_cv_roundedRectangle.styleExternal);
+		}
+		else if (subject.isMulti())
 		{
 			gt_cv_rect.setStyle(gv_cv_roundedRectangle.styleMulti);
-		}
-		else if (subject.getType() == "external")
-		{
-			gt_cv_rect.setStyle(gv_cv_roundedRectangle.styleExternal);	
 		}
 		else
 		{

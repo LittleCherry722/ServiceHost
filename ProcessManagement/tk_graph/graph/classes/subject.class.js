@@ -18,21 +18,19 @@
  * @class represents a Subject in the communication view
  * @param {String} id The id of the subject.
  * @param {String} text The label of the subject.
- * @param {String} type The type of the subject. Possible values: "sungle", "multi", "external" (default: "single")
+ * @param {String} type The type of the subject. Possible values: "sungle", "multi", "external", "multiexternal" (default: "single")
  * @param {int} inputPool The size of the input pool (-1 for infinite)
  * @returns {void}
  */
 function GCsubject (id, text, type, inputPool)
-{
-	// TODO: add function to set process to be loaded on dblClick on external subject
-	
+{	
 	// if no text is given set it to ""
 	if (!gf_isset(text))
 		text = "";
 		
 	// if no type is given set it to "single"
 	if (!gf_isset(type))
-		type = "single";		// single, multi, external
+		type = "single";		// single, multi, external, multiexternal
 		
 	// set a default for the size of the input-pool
 	if (!gf_isset(inputPool))
@@ -76,7 +74,7 @@ function GCsubject (id, text, type, inputPool)
 	
 	/**
 	 * The type of the subject.
-	 * Possible values "single", "multi", "external"
+	 * Possible values "single", "multi", "external", "multiexternal"
 	 * 
 	 * @type String
 	 */
@@ -163,6 +161,26 @@ function GCsubject (id, text, type, inputPool)
 	};
 	
 	/**
+	 * Returns true when the subject is an external subject.
+	 * 
+	 * @returns {boolean} Returns true when the subject is an external subject.
+	 */
+	this.isExternal = function ()
+	{
+		return this.getType() == "external" || this.getType() == "multiexternal";
+	};
+	
+	/**
+	 * Returns true when the subject is a multi-subject.
+	 * 
+	 * @returns {boolean} Returns true when the subject is a multi-subject.
+	 */
+	this.isMulti = function ()
+	{
+		return this.getType() == "multi" || this.getType() == "multiexternal";	
+	};
+	
+	/**
 	 * Updates the id of this subject with the given id.
 	 * 
 	 * @param {String} id The id of the subject.
@@ -209,7 +227,7 @@ function GCsubject (id, text, type, inputPool)
 	/**
 	 * Updates the type of this subject.
 	 * 
-	 * @param {String} type The type of the subject. Possile values are "single", "multi", "external". (default: "single")
+	 * @param {String} type The type of the subject. Possile values are "single", "multi", "external", "multiexternal". (default: "single")
 	 * @returns {void}
 	 */
 	this.setType = function (type)
@@ -217,7 +235,7 @@ function GCsubject (id, text, type, inputPool)
 		if (gf_isset(type))
 		{
 			type = type.toLowerCase();
-			if (type == "single" || type == "multi" || type == "external")
+			if (type == "single" || type == "multi" || type == "external" || type == "multiexternal")
 			{
 				this.type = type;
 			}

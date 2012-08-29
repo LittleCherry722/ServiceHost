@@ -91,7 +91,7 @@ function GCcommunication ()
 	 * 
 	 * @param {String} id The id of the subject.
 	 * @param {String} title The label of the subject.
-	 * @param {String} type The type of the subject. Possible values are "single", "multi", "external". (default: "single")
+	 * @param {String} type The type of the subject. Possible values are "single", "multi", "external", "multiexternal". (default: "single")
 	 * @param {int} inputPool The size of the subject's input-pool
 	 * @param {boolean} deactivated The deactivation status of the subject.
 	 * @returns {void}
