@@ -161,7 +161,7 @@ var gv_cv_style_roundedRectangleExternal = {
 	fontOpacitySelDeact: 0.75,			// floating number
 	fontOpacitySel: 1.0,				// floating number
 	fontFamily: "Times New Roman",		// any font
-	fontSize: 16,						// pixels
+	fontSize: 12,						// pixels
 	fontWeight: "normal",				// possible values: normal, bold
 	fontWeightDeact: "normal",			// possible values: normal, bold
 	fontWeightSelDeact: "bold",			// possible values: normal, bold

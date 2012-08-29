@@ -66,6 +66,20 @@ function GCsubject (id, text, type, inputPool)
 	this.inputPool	= -1;
 	
 	/**
+	 * For external subjects: the referenced process.
+	 * 
+	 * @type String
+	 */
+	this.relatedProcess		= null;
+	
+	/**
+	 * For external subjects: the referenced subject.
+	 * 
+	 * @type String
+	 */
+	this.relatedSubject		= null;
+	
+	/**
 	 * The label of the subject.
 	 * 
 	 * @type String
@@ -128,6 +142,26 @@ function GCsubject (id, text, type, inputPool)
 	this.getInputPool = function ()
 	{
 		return this.inputPool;
+	};
+	
+	/**
+	 * Returns the ID of the related process (only for external subjects).
+	 * 
+	 * @returns {String} The ID of the related process.
+	 */
+	this.getRelatedProcess = function ()
+	{
+		return this.relatedProcess;
+	};
+	
+	/**
+	 * Returns the ID of the corresponding subject in the related process (only for external subjects).
+	 * 
+	 * @returns {String} The ID of the corresponding subject in the related process.
+	 */
+	this.getRelatedSubject = function ()
+	{
+		return this.relatedSubject;
 	};
 	
 	/**
@@ -211,6 +245,34 @@ function GCsubject (id, text, type, inputPool)
 	};
 	
 	/**
+	 * Returns the ID of the related process (only for external subjects).
+	 * 
+	 * @param {String} relatedProcess The ID of the related process.
+	 * @returns {void}
+	 */
+	this.setRelatedProcess = function (relatedProcess)
+	{
+		if (gf_isset(relatedProcess))
+		{
+			this.relatedProcess = relatedProcess;
+		}
+	};
+	
+	/**
+	 * Returns the ID of the corresponding subject in the related process (only for external subjects).
+	 * 
+	 * @param {String} relatedSubject The ID of the corresponding subject in the related process.
+	 * @returns {void}
+	 */
+	this.setRelatedSubject = function (relatedSubject)
+	{
+		if (gf_isset(relatedSubject))
+		{
+			this.relatedSubject = relatedSubject;
+		}
+	};
+	
+	/**
 	 * Updates the label of this node with the given text.
 	 * 
 	 * @param {String} text The label of the subject.
@@ -257,7 +319,15 @@ function GCsubject (id, text, type, inputPool)
 	this.textToString = function ()
 	{
 		var gt_inputPool	= this.getInputPool() >= 0 ? this.getInputPool() : "\u221e";
-		return this.text + "\n(" + this.id + ")\n \n[InputPool: " + gt_inputPool + "]";
+		var gt_text			= this.text + "\n(" + this.id + ")\n \n[InputPool: " + gt_inputPool + "]";
+		
+		if (this.isExternal())
+		{
+			// gt_text += "\n\n(reference: " + this.relatedSubject + " @ " + this.relatedProcess + ")";
+			// TODO
+		}
+		
+		return gt_text;
 	};
 	
 	// set the type

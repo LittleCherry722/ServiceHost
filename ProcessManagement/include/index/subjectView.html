@@ -41,6 +41,20 @@
 			<br/>
 		</div>
 
+		<div style="display:none;" id="ge_cv_relatedOuter">
+			<label class="graphsectionheader">Related Process:</label>
+			<br />
+			<input type="text" id="ge_cv_relatedProcess" style="width:140px" />
+			<br />
+			(<a href="#">load</a>)
+			<br />
+			<label class="graphsectionheader">Related Subject:</label>
+			<br />
+			<input type="text" id="ge_cv_relatedSubject" style="width:140px" />
+			<br />
+			(<a href="#">view</a>)
+		</div>
+
 		<br/>
 		<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
 		<br/>

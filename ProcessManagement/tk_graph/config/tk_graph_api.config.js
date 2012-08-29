@@ -34,6 +34,9 @@ var gv_elements = {
 	inputSubjectText:		"ge_cv_text",
 	inputSubjectId:			"ge_cv_id",
 	inputSubjectInputPool:	"ge_cv_inputPool",
+	inputSubjectRelOuter:	"ge_cv_relatedOuter",
+	inputSubjectRelProcess:	"ge_cv_relatedProcess",
+	inputSubjectRelSubject:	"ge_cv_relatedSubject",
 	inputNodeText:			"ge_text",
 	inputNodeType2:			"ge_type2",
 	inputNodeOuter:			"node",
@@ -145,7 +148,7 @@ var gv_functions	= {
 		 * read input fields (subject) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadSubject()
-		 * @returns {Object} Indizes: text, id, type, inputPool
+		 * @returns {Object} Indizes: text, id, type, inputPool, relatedProcess, relatedSubject
 		 */
 		readSubject:		"",
 		

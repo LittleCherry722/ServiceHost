@@ -800,6 +800,12 @@ function GCcommunication ()
 			var gt_inputPool	= gf_isset(gt_subject.inputPool) ? gt_subject.inputPool : -1;
 			
 			this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_inputPool, gt_subject.deactivated);
+			
+			if (gf_isset(this.subjects[gt_subject.id]))
+			{
+				this.subjects[gt_subject.id].setRelatedProcess(gt_subject.relatedProcess);
+				this.subjects[gt_subject.id].setRelatedSubject(gt_subject.relatedSubject);
+			}
 		}
 		
 		// 2. add nodes + edges
@@ -966,11 +972,15 @@ function GCcommunication ()
 		{
 			gt_arrayIndex = gt_array.length;
 			
-			gt_array[gt_arrayIndex] = {	id: gt_sid,
-										name: this.subjects[gt_sid].getText(),
-										type: this.subjects[gt_sid].getType(),
-										deactivated: this.subjects[gt_sid].isDeactivated(),
-										inputPool: this.subjects[gt_sid].getInputPool()};
+			gt_array[gt_arrayIndex] = {
+						id: gt_sid,
+						name: this.subjects[gt_sid].getText(),
+						type: this.subjects[gt_sid].getType(),
+						deactivated: this.subjects[gt_sid].isDeactivated(),
+						inputPool: this.subjects[gt_sid].getInputPool(),
+						relatedProcess: this.subjects[gt_sid].getRelatedProcess(),
+						relatedSubject: this.subjects[gt_sid].getRelatedSubject()
+			};
 			
 			var gt_behav = this.subjects[gt_sid].getBehavior();
 			var gt_nodes = gt_behav.getNodes();
@@ -1202,10 +1212,12 @@ function GCcommunication ()
 					gt_values	= gf_guiReadSubject();
 				}
 				
-				var gt_text			= gf_isset(gt_values.text)		? gt_values.text		: "";
-				var gt_id			= gf_isset(gt_values.id)		? gt_values.id			: "";
-				var gt_type			= gf_isset(gt_values.type)		? gt_values.type		: "";
-				var gt_inputPool	= gf_isset(gt_values.inputPool)	? gt_values.inputPool	: "";
+				var gt_text				= gf_isset(gt_values.text)				? gt_values.text			: "";
+				var gt_id				= gf_isset(gt_values.id)				? gt_values.id				: "";
+				var gt_type				= gf_isset(gt_values.type)				? gt_values.type			: "";
+				var gt_inputPool		= gf_isset(gt_values.inputPool)			? gt_values.inputPool		: "";
+				var gt_relatedProcess	= gf_isset(gt_values.relatedProcess)	? gt_values.relatedProcess	: "";
+				var gt_relatedSubject	= gf_isset(gt_values.relatedSubject)	? gt_values.relatedSubject	: "";
 				
 					gt_type	= gt_type != "" ? gt_type : gt_subject.getType();
 				
@@ -1221,6 +1233,8 @@ function GCcommunication ()
 					gt_subject.setText(gt_text);
 					gt_subject.setType(gt_type);
 					gt_subject.setInputPool(gt_inputPool);
+					gt_subject.setRelatedProcess(gt_relatedProcess);
+					gt_subject.setRelatedSubject(gt_relatedSubject);
 					
 					// update references to this subject
 					if (this.selectedNode != gt_id && !gf_isset(this.subjects[gt_id]))

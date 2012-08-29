@@ -290,6 +290,20 @@ function gf_guiDisplaySubject (subject)
 	
 	if (gf_elementExists(gv_elements.inputSubjectTypeExternal))
 		document.getElementById(gv_elements.inputSubjectTypeExternal).checked = subject.isExternal();
+		
+	if (gf_elementExists(gv_elements.inputSubjectRelProcess))
+		document.getElementById(gv_elements.inputSubjectRelProcess).value = subject.getRelatedProcess();
+		
+	if (gf_elementExists(gv_elements.inputSubjectRelSubject))
+		document.getElementById(gv_elements.inputSubjectRelSubject).value = subject.getRelatedSubject();
+		
+	if (gf_elementExists(gv_elements.inputSubjectRelOuter))
+		document.getElementById(gv_elements.inputSubjectRelOuter).style.display = subject.isExternal() ? "block" : "none";
+		
+	if (gf_elementExists(gv_elements.inputSubjectTypeExternal) && gf_elementExists(gv_elements.inputSubjectRelOuter))
+		document.getElementById(gv_elements.inputSubjectTypeExternal).onclick = function () {
+			document.getElementById(gv_elements.inputSubjectRelOuter).style.display = document.getElementById(gv_elements.inputSubjectTypeExternal).checked ? "block" : "none";
+		};
 }
 
 /**
@@ -462,15 +476,17 @@ function gf_guiReadNode ()
  * Read the values for the selected subject from the input fields.
  * 
  * @see GCcommunication::updateSubject()
- * @returns {Object} Indizes: text, id, type
+ * @returns {Object} Indizes: text, id, type, inputPool, relatedProcess, relatedSubject
  */
 function gf_guiReadSubject ()
 {
-	var gt_result	= {text: "", id: "", type: "", inputPool: ""};
+	var gt_result	= {text: "", id: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: ""};
 	
 	var gt_text			= gf_elementExists(gv_elements.inputSubjectText)		? document.getElementById(gv_elements.inputSubjectText).value		: "";
 	var gt_id			= gf_elementExists(gv_elements.inputSubjectId)			? document.getElementById(gv_elements.inputSubjectId).value			: "";
 	var gt_inputPool	= gf_elementExists(gv_elements.inputSubjectInputPool)	? document.getElementById(gv_elements.inputSubjectInputPool).value	: "";
+	var gt_relProcess	= gf_elementExists(gv_elements.inputSubjectRelProcess)	? document.getElementById(gv_elements.inputSubjectRelProcess).value	: "";
+	var gt_relSubject	= gf_elementExists(gv_elements.inputSubjectRelSubject)	? document.getElementById(gv_elements.inputSubjectRelSubject).value	: "";
 	
 	var gt_type	= "";
 	
@@ -483,10 +499,12 @@ function gf_guiReadSubject ()
 	if (gt_type == "")
 		gt_type = "single";
 		
-	gt_result.text		= gt_text;
-	gt_result.id		= gt_id;
-	gt_result.type		= gt_type;
-	gt_result.inputPool	= gt_inputPool;
+	gt_result.text				= gt_text;
+	gt_result.id				= gt_id;
+	gt_result.type				= gt_type;
+	gt_result.inputPool			= gt_inputPool;
+	gt_result.relatedProcess	= gt_relProcess;
+	gt_result.relatedSubject	= gt_relSubject;
 	
 	return gt_result;
 }
