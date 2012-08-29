@@ -113,6 +113,18 @@ function gf_guiDisplayEdge (edge, startType)
 		document.getElementById(gv_elements.inputEdgeTargetO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeMessageO))
 		document.getElementById(gv_elements.inputEdgeMessageO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeOptionalO))
+		document.getElementById(gv_elements.inputEdgeOptionalO).style.display = "none";
+		
+	// optional edges
+	if (edge.getTypeOfStartNode() == "modalsplit")
+	{
+		if (gf_elementExists(gv_elements.inputEdgeOptionalO))
+			document.getElementById(gv_elements.inputEdgeOptionalO).style.display = "block";
+			
+		if (gf_elementExists(gv_elements.inputEdgeOptional))
+			document.getElementById(gv_elements.inputEdgeOptional).checked = edge.isOptional();
+	}
 	
 	// mark type
 	if (edge.getType() == "timeout")
@@ -400,15 +412,16 @@ function gf_guiLoadEdgeMessages ()
  * Read the values for the selected edge from the input fields.
  * 
  * @see GCcommunication::updateEdge()
- * @returns {Object} Indizes: text, relatedSubject, type, timeout
+ * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional
  */
 function gf_guiReadEdge ()
 {
-	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: ""};
+	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false};
 	
 	var gt_text				= gf_elementExists(gv_elements.inputEdgeText) ? document.getElementById(gv_elements.inputEdgeText).value : "";
 	var gt_relatedSubject	= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
 	var gt_timeout			= gf_elementExists(gv_elements.inputEdgeTimeout) ? document.getElementById(gv_elements.inputEdgeTimeout).value : "";
+	var gt_optional			= gf_elementExists(gv_elements.inputEdgeOptional) && document.getElementById(gv_elements.inputEdgeOptional).checked;
 	
 	var gt_type				= "exitcondition";
 	
@@ -419,6 +432,7 @@ function gf_guiReadEdge ()
 	gt_result.relatedSubject	= gt_relatedSubject;
 	gt_result.timeout			= gt_timeout;
 	gt_result.type				= gt_type;
+	gt_result.optional			= gt_optional;
 	
 	return gt_result;
 }

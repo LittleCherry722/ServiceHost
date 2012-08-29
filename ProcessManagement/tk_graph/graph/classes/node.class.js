@@ -149,6 +149,11 @@ function GCnode (id, text, type)
 		
 		if (this.isEnd())
 			type = "end";
+			
+		if (type.length > 0 && type.charAt(0) == '$' && gf_isset(gv_predefinedActions[type.substr(1)]))
+		{
+			text	= gv_predefinedActions[type.substr(1)].label + "\n(MessageType, Subject)";		// TODO: subject + message type
+		}
 		
 		if (gf_isset(gv_nodeTypes[type]) && gf_isset(gv_nodeTypes[type].text))
 		{
@@ -165,7 +170,14 @@ function GCnode (id, text, type)
 	 */
 	this.getType = function ()
 	{
-		return this.type.toLowerCase();
+		if (this.type.length > 0 && this.type.charAt(0) == '$' && gf_isset(gv_predefinedActions[this.type.substr(1)]))
+		{
+			return "action";
+		}
+		else
+		{
+			return this.type.toLowerCase();	
+		}
 	};
 	
 	/**

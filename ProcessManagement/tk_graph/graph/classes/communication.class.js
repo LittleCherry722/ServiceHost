@@ -1166,8 +1166,9 @@ function GCcommunication ()
 				var gt_relatedSubject	= gf_isset(gt_values.relatedSubject)	? gt_values.relatedSubject	: "";
 				var gt_type				= gf_isset(gt_values.type)				? gt_values.type			: "label";
 				var gt_timeout			= gf_isset(gt_values.timeout)			? gt_values.timeout			: "";
+				var gt_optional			= gf_isset(gt_values.optional)			? gt_values.optional		: false;
 				
-				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout);
+				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout, gt_optional);
 				this.loadInformationEdge();
 			}
 		}

@@ -561,9 +561,10 @@ function GCbehavior (name)
 	 * @param {String} text The new type of the edge.
 	 * @param {String} relatedSubject The relatedSubject of the edge.
 	 * @param {String} timeout The timeout of the edge.
+	 * @param {boolean} optional The optional flag of the edge.
 	 * @returns {void}
 	 */
-	this.updateEdge = function (text, type, relatedSubject, timeout)
+	this.updateEdge = function (text, type, relatedSubject, timeout, optional)
 	{
 		if (this.selectedEdge != null && gf_isset(this.edges["e" + this.selectedEdge], text, type))
 		{
@@ -603,6 +604,11 @@ function GCbehavior (name)
 			if (gf_isset(relatedSubject))
 			{
 				gt_edge.setRelatedSubject(relatedSubject);
+			}
+			
+			if (gf_isset(optional))
+			{
+				gt_edge.setOptional(optional);
 			}
 			
 			this.draw();

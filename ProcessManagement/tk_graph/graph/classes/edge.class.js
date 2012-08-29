@@ -218,6 +218,18 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	};
 	
 	/**
+	 * Returns the type of the edge's startNode.
+	 * 
+	 * @returns {String} The type of the edge's startNode.
+	 */
+	this.getTypeOfStartNode = function ()
+	{
+		var startNode		= this.parent.getNode(this.start);
+		
+		return startNode == null ? "action" : startNode.getType();
+	};
+	
+	/**
 	 * Returns the deactivate status of this edge.
 	 * 
 	 * @returns {boolean} True when the edge is deactivated.
@@ -234,7 +246,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 */
 	this.isOptional = function ()
 	{
-		return this.optional === true;
+		return this.optional === true && this.getTypeOfStartNode() == "modalsplit";
 	};
 	
 	/**
@@ -269,9 +281,9 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 */
 	this.setRelatedSubject = function (relatedSubject)
 	{
-		var startNode		= this.parent.getNode(this.start);
+		var startNodeType		= this.getTypeOfStartNode();
 		
-		if (gf_isset(relatedSubject) && relatedSubject != "" && startNode != null && (startNode.getType() == "receive" || startNode.getType() == "send"))
+		if (gf_isset(relatedSubject) && relatedSubject != "" && (startNodeType == "receive" || startNodeType == "send"))
 			this.relatedSubject = relatedSubject;
 	};
 	

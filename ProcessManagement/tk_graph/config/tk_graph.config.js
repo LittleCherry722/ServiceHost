@@ -88,6 +88,23 @@ var gv_predefinedActions	= {
 };
 
 /**
+ * Base definition for the time units.
+ * 
+ * @type {Object}
+ */
+var gv_timeDefinition	= {
+	second: 	{unit: "s",		abbr: "sec",	full: "second",	num: 1,		parts: "",			n: "minute",	p: "",			time: 1},
+	minute:		{unit: "m",		abbr: "min",	full: "minute", num: 60,	parts: "second",	n: "hour",	 	p: "second",	time: 0},
+	hour:		{unit: "h",		abbr: "hr",		full: "hour",	num: 60,	parts: "minute",	n: "day",		p: "minute",	time: 0},
+	day:		{unit: "d",		abbr: "d",		full: "day",	num: 24, 	parts: "hour",		n: "week",		p: "hour",		time: 0},
+	week:		{unit: "w",		abbr: "wk",		full: "week",	num: 7,		parts: "day",		n: "month",		p: "day",		time: 0},
+	month:		{unit: "mo",	abbr: "mo",		full: "month",	num: 30,	parts: "day",		n: "year",		p: "week",		time: 0},
+	year:		{unit: "y",		abbr: "yr",		full: "year",	num: 12,	parts: "month",		n: "",			p: "month",		time: 0}
+	// workday:		{unit: "wd",	abbr: "wday",	div: 8,		time: 28800},
+	// workweek:	{unit: "ww",	abbr: "wweek",	div: 5,		time: 144000}
+};
+
+/**
  * Settings for zoom.
  * Contains zoom-limits (min and max) and default zoomSpeed.
  * 
