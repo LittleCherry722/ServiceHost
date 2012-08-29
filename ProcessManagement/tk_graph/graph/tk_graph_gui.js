@@ -138,6 +138,24 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTypeCondition).checked = true;
 	}
 	
+	// disable radio buttons when type may not be changed
+	if (gf_checkCardinality(gv_graph.selectedSubject, edge.getStart(), edge.getEnd()) == false)
+	{
+		if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
+			document.getElementById(gv_elements.inputEdgeTypeTimeout).disabled = true;
+			
+		if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
+			document.getElementById(gv_elements.inputEdgeTypeCondition).disabled = true;
+	}
+	else
+	{
+		if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
+			document.getElementById(gv_elements.inputEdgeTypeTimeout).disabled = false;
+			
+		if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
+			document.getElementById(gv_elements.inputEdgeTypeCondition).disabled = false;	
+	}
+	
 	var gt_select_target		= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).options : null;
 	var gt_select_message		= gf_elementExists(gv_elements.inputEdgeMessage) ? document.getElementById(gv_elements.inputEdgeMessage).options : null;
 	

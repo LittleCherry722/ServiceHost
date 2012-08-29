@@ -104,6 +104,93 @@ var gv_originalViewBox	= {x: 0, y: 0, width: 0, height: 0, zoom: 1};
 var gv_graphID	= "cv";
 
 /**
+ * Checks the cardinality of a node.
+ * Returns false when the limit for outgoing edges of a node is reached.
+ * This avoids changing the type of an edge although it is not permitted.
+ * Current limits:
+ * - openIP / closeIP: one exit condition
+ * - send: one exit condition + one timeout
+ * - end: no edges
+ * - all other: unlimited outgoing edges, only one exit condition + one timeout between the same nodes
+ * 
+ * @param {String} subject The ID of the subject whose internal behavior is currently loaded.
+ * @param {int} start The ID of the start node.
+ * @param {int} end The ID of the target node.
+ * @returns {boolean} True, when the limit is not yet hit. The type of the clicked edge can still be changed.
+ */
+function gf_checkCardinality (subject, start, end)
+{
+	
+	var gt_limitReached		= false;
+			
+	if (gf_isset(subject, start, end))
+	{
+		var gt_behav = gv_graph.getBehavior(subject);
+		
+		if (gt_behav != null)
+		{
+			var gt_edges			= gt_behav.getEdges();
+			var gt_startNode		= gt_behav.getNode(start);
+			var gt_edgeCount		= 0;
+			var gt_edgeType			= "exitcondition";
+			var gt_isEndNode		= gt_startNode == null ? false : gt_startNode.isEnd();
+			var gt_startNodeType	= gt_startNode == null ? "action" : gt_startNode.type.toLowerCase();
+			
+			var gt_edge				= null;
+			
+			for (var gt_edgeId in gt_edges)
+			{
+				gt_edge				= gt_edges[gt_edgeId];
+				
+				if (gt_edge.start == start)
+				{
+					// no edges for end nodes
+					if (gt_isEndNode)
+					{
+						gt_limitReached = true;
+						break;
+					}
+					
+					// only one edge for closeIP / openIP
+					else if (gt_startNodeType == "$closeip" || gt_startNodeType == "$openip")
+					{
+						gt_limitReached = true;
+						break;
+					}
+					
+					// for send nodes: one exit condition, one timeout
+					else if (gt_startNodeType == "send")
+					{
+						gt_edgeCount++;
+						if (gt_edgeCount > 1)
+						{
+							gt_limitReached = true;
+							break;
+						}
+					}
+					
+					// for all other nodes: allow one exitcondition and one timeout between the same two nodes
+					else
+					{
+						if (gt_edge.end == end)
+						{
+							gt_edgeCount++;
+							if (gt_edgeCount > 1)
+							{
+								gt_limitReached = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return !gt_limitReached;
+}
+
+/**
  * Deselect all GCpath elements.
  * 
  * @private

@@ -248,13 +248,17 @@ function GCbehavior (name)
 	 * 
 	 * @param {String} start The id of the start node.
 	 * @param {String} end The id of the end node.
+	 * @param {String} type The type of the edge (timeout, exitcondition).
 	 * @returns {void}
 	 */
-	this.createEdge = function (start, end)
+	this.createEdge = function (start, end, type)
 	{
+		if (!gf_isset(type))
+			type = "exitcondition";
+		
 		if (gf_isset(start, end))
 		{
-			this.addEdge(start, end, "", null, "label");
+			this.addEdge(start, end, "", null, type);
 			this.draw();
 		}
  	};
@@ -514,21 +518,83 @@ function GCbehavior (name)
 				if (this.startNode != id)
 				{
 					// check if already one edge exists from start to end
-					var gt_edgeExists = false;
+					var gt_edgeExists		= false;
+					var gt_edgeCountAB		= 0;
+					var gt_edgeCountNode	= 0;
+					var gt_edgeType			= "exitcondition";
+					var gt_startNode		= gf_isset(this.nodes["n" + this.startNode]) ? this.nodes["n" + this.startNode] : null;
+					var gt_isEndNode		= gt_startNode == null ? false : gt_startNode.isEnd();
+					var gt_startNodeType	= gt_startNode == null ? "action" : gt_startNode.type.toLowerCase();
+					
+					var gt_edge				= null;
+					
 					for (var gt_edgeId in this.edges)
 					{
-						var gt_edge = this.edges[gt_edgeId];
+						gt_edge				= this.edges[gt_edgeId];
+						
+						if (gt_edge.start == this.startNode)
+						{
+							// no edges for end nodes
+							if (gt_isEndNode)
+							{
+								gt_edgeExists = true;
+								break;
+							}
+							
+							// only one edge for closeIP / openIP
+							else if (gt_startNodeType == "$closeip" || gt_startNodeType == "$openip")
+							{
+								gt_edgeExists = true;
+								break;
+							}
+							
+							// for send nodes: one exit condition, one timeout
+							else if (gt_startNodeType == "send")
+							{
+								gt_edgeCountNode++;
+								if (gt_edgeCountNode == 1)
+								{
+									gt_edgeType	= gt_edge.getType() == "timeout" ? "exitcondition" : "timeout";
+								}
+								else if (gt_edgeCountNode > 1)
+								{
+									gt_edgeExists = true;
+									break;
+								}
+							}
+							
+							// for all other nodes: allow one exitcondition and one timeout between the same two nodes
+							else
+							{
+								if (gt_edge.end == id)
+								{
+									gt_edgeCountAB++;
+									if (gt_edgeCountAB == 1)
+									{
+										gt_edgeType	= gt_edge.getType() == "timeout" ? "exitcondition" : "timeout";
+									}
+									else if (gt_edgeCountAB > 1)
+									{
+										gt_edgeExists = true;
+										break;
+									}
+								}
+							}
+						}
+						
+						/*
 						if (gt_edge.start == this.startNode && gt_edge.end == id)
 						{
 							gt_edgeExists = true;
 							break;
 						}
+						*/
 					}
 					
 					// create the edge if it does not already exist
 					if (gt_edgeExists == false)
 					{
-						this.createEdge(this.startNode, id);
+						this.createEdge(this.startNode, id, gt_edgeType);
 						this.connectNodes();
 					}
 				}
