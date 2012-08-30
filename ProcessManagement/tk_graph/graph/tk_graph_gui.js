@@ -95,7 +95,7 @@ function gf_guiDisplayEdge (edge, startType)
 {
 	if (gf_elementExists(gv_elements.inputEdgeText))
 	{
-		document.getElementById(gv_elements.inputEdgeText).value	= edge.getText();
+		document.getElementById(gv_elements.inputEdgeText).value	= edge.getMessageTypeId() == "" ? edge.getText() : edge.getMessageType();
 		document.getElementById(gv_elements.inputEdgeText).readOnly	= false;					
 	}
 	
@@ -115,6 +115,10 @@ function gf_guiDisplayEdge (edge, startType)
 		document.getElementById(gv_elements.inputEdgeMessageO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeOptionalO))
 		document.getElementById(gv_elements.inputEdgeOptionalO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
+		document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
+		document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = "none";
 		
 	// optional edges
 	if (edge.getTypeOfStartNode() == "modalsplit")
@@ -131,12 +135,38 @@ function gf_guiDisplayEdge (edge, startType)
 	{
 		if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
 			document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = true;
+			
+		if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
+			document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = "block";
 	}
 	else
 	{
 		if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
 			document.getElementById(gv_elements.inputEdgeTypeCondition).checked = true;
+			
+		if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
+			document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = "block";
 	}
+	
+	// add events
+	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
+		document.getElementById(gv_elements.inputEdgeTypeTimeout).onclick = function () {
+			var gt_status	= document.getElementById(gv_elements.inputEdgeTypeTimeout).checked;
+			
+			if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
+				document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = gt_status ? "none" : "block";
+			if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
+				document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = gt_status ? "block" : "none";
+		};
+	if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
+		document.getElementById(gv_elements.inputEdgeTypeCondition).onclick = function () {
+			var gt_status	= document.getElementById(gv_elements.inputEdgeTypeCondition).checked;
+			
+			if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
+				document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = gt_status ? "block" : "none";
+			if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
+				document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = gt_status ? "none" : "block";
+		};
 	
 	// disable radio buttons when type may not be changed
 	if (gf_checkCardinality(gv_graph.selectedSubject, edge.getStart(), edge.getEnd()) == false)
@@ -401,6 +431,7 @@ function gf_guiLoadEdgeMessages ()
 		gt_tmpStartNodeType	= gt_curStartNodeType == "send" ? "receive" : "send";
 		
 		// load the messages sent / received from subject gt_selectedTarget depending on the type of the startNode of the currently selected edge
+		/*
 		var gt_behav = gv_graph.getBehavior(gt_selectedTarget);
 		var gt_edges = gt_behav.getEdges();
 		for (var gt_eid in gt_edges)
@@ -419,20 +450,25 @@ function gf_guiLoadEdgeMessages ()
 				}
 			}
 		}
+		*/
+		for (var gt_messageType in gv_graph.messageTypes)
+		{
+			gt_messagesArray[gt_messagesArray.length]	= {id: gt_messageType, text: gv_graph.messageTypes[gt_messageType]};
+		}
 		
 		// sort the messages alphabetically
-		gt_messagesArray.sort();
+		gt_messagesArray.sort(gf_guiSortMessageTypes);
 		
 		// add the messages to the select field
 		for (var gt_mid in gt_messagesArray)
 		{
 			gt_option = document.createElement("option");
-			gt_option.text = gt_messagesArray[gt_mid];
-			gt_option.value = gt_messagesArray[gt_mid];
+			gt_option.text = gt_messagesArray[gt_mid].text;
+			gt_option.value = gt_messagesArray[gt_mid].id;
 			gt_option.id = gv_elements.inputEdgeMessage + "_" + gt_mid;
 			gt_select_message.add(gt_option);
 			
-			if (gf_elementExists(gv_elements.inputEdgeText) && gt_messagesArray[gt_mid].replace("\\n", "") == document.getElementById(gv_elements.inputEdgeText).value.replace("\\n", ""))
+			if (gf_elementExists(gv_elements.inputEdgeText) && gt_messagesArray[gt_mid].text.replace("\\n", "") == document.getElementById(gv_elements.inputEdgeText).value.replace("\\n", ""))
 			{
 				document.getElementById(gv_elements.inputEdgeMessage + "_" + gt_mid).selected = true;
 			}
@@ -444,16 +480,17 @@ function gf_guiLoadEdgeMessages ()
  * Read the values for the selected edge from the input fields.
  * 
  * @see GCcommunication::updateEdge()
- * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional
+ * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType
  */
 function gf_guiReadEdge ()
 {
-	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false};
+	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: ""};
 	
 	var gt_text				= gf_elementExists(gv_elements.inputEdgeText) ? document.getElementById(gv_elements.inputEdgeText).value : "";
 	var gt_relatedSubject	= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
 	var gt_timeout			= gf_elementExists(gv_elements.inputEdgeTimeout) ? document.getElementById(gv_elements.inputEdgeTimeout).value : "";
 	var gt_optional			= gf_elementExists(gv_elements.inputEdgeOptional) && document.getElementById(gv_elements.inputEdgeOptional).checked;
+	var gt_messageType		= gf_elementExists(gv_elements.inputEdgeMessage) ? document.getElementById(gv_elements.inputEdgeMessage).value : "";
 	
 	var gt_type				= "exitcondition";
 	
@@ -465,6 +502,7 @@ function gf_guiReadEdge ()
 	gt_result.timeout			= gt_timeout;
 	gt_result.type				= gt_type;
 	gt_result.optional			= gt_optional;
+	gt_result.messageType		= gt_messageType;
 	
 	return gt_result;
 }
@@ -546,12 +584,30 @@ function gf_guiSetEdgeMessage ()
 			document.getElementById(gv_elements.inputEdgeText).readOnly	= false;
 			document.getElementById(gv_elements.inputEdgeText).value 	= "";	
 		}
-		else
+		else if (gt_message.substr(0, 1) == "m")
 		{
-			document.getElementById(gv_elements.inputEdgeText).readOnly	= true;
-			document.getElementById(gv_elements.inputEdgeText).value 	= gt_message;
+			document.getElementById(gv_elements.inputEdgeText).readOnly	= false;
+			document.getElementById(gv_elements.inputEdgeText).value 	= gv_graph.messageTypes[gt_message];
 		}
 	}
+}
+
+/**
+ * Sort messages ascending by text.
+ * 
+ * @param {Object} obj1
+ * @param {Object} obj2
+ * @returns {int}
+ */
+function gf_guiSortMessageTypes (obj1, obj2)
+{
+	if (obj1.text.toLowerCase() > obj2.text.toLowerCase())
+		return 1;
+		
+	if (obj1.text.toLowerCase() < obj2.text.toLowerCase())
+		return -1;
+		
+	return 0;
 }
 
 /**

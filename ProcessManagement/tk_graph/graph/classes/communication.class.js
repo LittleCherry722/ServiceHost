@@ -29,6 +29,20 @@ function GCcommunication ()
 	this.messages	= {};	// 3-dim Array [from][to][]
 	
 	/**
+	 * Message types available within the process.
+	 * 
+	 * @type Object
+	 */
+	this.messageTypes	= {};
+	
+	/**
+	 * Counter for unique IDs for message types.
+	 * 
+	 * @type int
+	 */
+	this.messageTypeCounter	= 0;
+	
+	/**
 	 * This counter is used to create a unique id for new subjects.
 	 * 
 	 * @type int
@@ -540,7 +554,7 @@ function GCcommunication ()
 					var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
 					var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
 					var gt_relatedSubject		= gt_edge.getRelatedSubject();
-					var gt_text					= gt_edge.getText();
+					var gt_text					= gt_edge.getMessageType();
 					var gt_type					= gt_edge.getType();
 					
 					if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
@@ -789,12 +803,28 @@ function GCcommunication ()
 	 */
 	this.loadFromJSON = function (jsonString)
 	{
-		var gt_jsonObject = JSON.parse(jsonString);
+		var gt_messages		= {};		// messageText: messageID
+		
+		var gt_jsonObject	= JSON.parse(jsonString);
+		var gt_jsonProcess	= gt_jsonObject;
+		var gt_mapMessages	= false;
+		
+		if (gf_isset(gt_jsonObject.process, gt_jsonObject.messages, gt_jsonObject.messageCounter))
+		{
+			gt_jsonProcess			= gt_jsonObject.process;
+			this.messageTypes		= gt_jsonObject.messages;
+			this.messageTypeCounter	= gt_jsonObject.messageCounter;
+		}
+		else
+		{
+			gt_mapMessages				= true;
+			this.messageTypeCounter		= 0;
+		}
 		
 		// 1. create subjects (replace <br /> by \n)
-		for (var gt_subjectId in gt_jsonObject)
+		for (var gt_subjectId in gt_jsonProcess)
 		{
-			var gt_subject = gt_jsonObject[gt_subjectId];
+			var gt_subject = gt_jsonProcess[gt_subjectId];
 			
 			// provide compatibility to previous versions:
 			var gt_inputPool	= gf_isset(gt_subject.inputPool) ? gt_subject.inputPool : -1;
@@ -809,9 +839,9 @@ function GCcommunication ()
 		}
 		
 		// 2. add nodes + edges
-		for (var gt_subjectId in gt_jsonObject)
+		for (var gt_subjectId in gt_jsonProcess)
 		{
-			var gt_subject	= gt_jsonObject[gt_subjectId];
+			var gt_subject	= gt_jsonProcess[gt_subjectId];
 			var gt_behav	= this.getBehavior(gt_subject.id);
 			
 			if (gt_behav != null)
@@ -826,8 +856,35 @@ function GCcommunication ()
 				// 2.2 edges
 				for (var gt_edgeId in gt_subject.edges)
 				{
-					var gt_edge = gt_subject.edges[gt_edgeId];
-					gt_behav.addEdge(gt_edge.start, gt_edge.end, gf_replaceNewline(gt_edge.text), gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
+					var gt_edge				= gt_subject.edges[gt_edgeId];
+					var gt_startNodeID		= gt_edge.start;
+					
+					if (parseInt(gt_startNodeID) != gt_startNodeID && gf_isset(gt_behav.nodeIDs[gt_startNodeID]))
+					{
+						gt_startNodeID = gt_behav.nodeIDs[gt_startNodeID];
+					}
+					
+					var gt_startNode		= gt_behav.getNode(gt_startNodeID);
+					var gt_startNodeType	= gt_startNode != null ? gt_startNode.getType() : "action";
+					var gt_text				= gf_replaceNewline(gt_edge.text);
+					
+					// map messages to new system
+					if (gt_mapMessages && (gt_startNodeType == "send" || gt_startNodeType == "receive") && gt_edge.type == "exitcondition")
+					{
+						if (!gf_isset(gt_messages[gt_text]))
+						{
+							this.messageTypes["m" + this.messageTypeCounter] = gt_text;
+							gt_messages[gt_text] = this.messageTypeCounter;
+							this.messageTypeCounter++;
+						}
+						
+						if (gf_isset(gt_messages[gt_text]))
+						{
+							gt_text = gt_messages[gt_text];
+						}
+					}
+					
+					gt_behav.addEdge(gt_edge.start, gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
 				}
 			}
 			
@@ -1035,7 +1092,7 @@ function GCcommunication ()
 			gt_array[gt_arrayIndex].nodeCounter	= gt_behav.nodeCounter;
 		}
 		
-		return gt_array;
+		return {process: gt_array, messages: this.messageTypes, messageCounter: this.messageTypeCounter};
 	};
 	
 	/**
@@ -1177,6 +1234,35 @@ function GCcommunication ()
 				var gt_type				= gf_isset(gt_values.type)				? gt_values.type			: "label";
 				var gt_timeout			= gf_isset(gt_values.timeout)			? gt_values.timeout			: "";
 				var gt_optional			= gf_isset(gt_values.optional)			? gt_values.optional		: false;
+				var gt_messageTypeId	= gf_isset(gt_values.messageType)		? gt_values.messageType		: "";
+				
+				var gt_edge				= this.getBehavior(this.selectedSubject).getEdge();
+				var gt_startNodeType	= gt_edge != null ? gt_edge.getTypeOfStartNode() : "action";
+				
+				if (gt_startNodeType == "send" || gt_startNodeType == "receive")
+				{
+					var gt_currentMessageTypeId	= gt_edge.getMessageTypeId();
+					
+					if (gt_messageTypeId.substr(0, 1) == "m")
+					{
+						if (gt_currentMessageTypeId == gt_messageTypeId)
+						{
+							// update message type
+							if (this.messageTypes[gt_messageTypeId] != gt_text)
+							{
+								this.messageTypes[gt_messageTypeId]	= gt_text;
+							}
+						}
+						gt_text	= gt_messageTypeId.substr(1);
+					}
+					else if (gt_messageTypeId == "##createNewMsg##")
+					{
+						this.messageTypes["m" + this.messageTypeCounter] = gt_text;
+						gt_text	= this.messageTypeCounter;
+						this.messageTypeCounter++;
+					}
+				}
+				
 				
 				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout, gt_optional);
 				this.loadInformationEdge();

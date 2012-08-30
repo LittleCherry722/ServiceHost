@@ -31,6 +31,8 @@ var gv_elements = {
 	inputEdgeOptional:		"ge_edge_optional",
 	inputEdgeOptionalO:		"ge_edge_optionalO",
 	inputEdgeOuter:			"edge",
+	inputEdgeTypeCondO:		"ge_edge_typeCOuter",
+	inputEdgeTypeTimeoutO:	"ge_edge_typeTOuter",
 	inputSubjectText:		"ge_cv_text",
 	inputSubjectId:			"ge_cv_id",
 	inputSubjectInputPool:	"ge_cv_inputPool",
@@ -132,7 +134,7 @@ var gv_functions	= {
 		 * read input fields (edge) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateEdge(), gf_guiReadEdge()
-		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional
+		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType
 		 */
 		readEdge:			"",
 		

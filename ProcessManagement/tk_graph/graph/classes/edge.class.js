@@ -139,6 +139,41 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	};
 	
 	/**
+	 * Returns the messageType associated with this edge (only for startNode = receive | send).
+	 * 
+	 * @returns {String} The associated messageType.
+	 */
+	this.getMessageType = function ()
+	{
+		var gt_messageTypeId	= this.getMessageTypeId();
+		
+		if (gf_isset(gv_graph.messageTypes[gt_messageTypeId]))
+		{
+			return gv_graph.messageTypes[gt_messageTypeId];
+		}
+		return "";
+	};
+	
+	/**
+	 * Returns the ID of the messageType associated with this edge (only for startNode = receive | send).
+	 * 
+	 * @returns {String} The ID of the associated messageType.
+	 */
+	this.getMessageTypeId = function ()
+	{
+		var gt_startNode		= this.parent.getNode(this.start);
+		
+		if (gt_startNode != null)
+		{
+			if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
+			{
+				return "m" + this.text;
+			}
+		}
+		return "";
+	};
+	
+	/**
 	 * Returns the related subject.
 	 * 
 	 * @see GCedge.relatedSubject
@@ -384,18 +419,26 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		else
 		{
 			var gt_startNode		= this.parent.getNode(this.start);
-			var gt_relatedSubject	= this.relatedSubject != null ? this.relatedSubject : "";
-				gt_relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].getText() : gt_relatedSubject;
+			
+			// messages
+			if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
+			{
+				var gt_text				= this.getMessageType();
+				var gt_relatedSubject	= this.relatedSubject != null ? this.relatedSubject : "";
+					gt_relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].getText() : gt_relatedSubject;
+					
+				return gt_text + "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")";
+			}
+			
+			// all other exit conditions
+			else
+			{
+				return this.text;
+			}
+			
 			// return this.text + "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")";
-			return this.text + (this.getRelatedSubject() != null ? "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")" : "");
+			// return this.text + (this.getRelatedSubject() != null ? "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")" : "");
 		}
-		
-		/*
-		var gt_startNode		= this.parent.getNode(this.start);
-		var gt_relatedSubject	= gf_isset(gv_graph.subjects[this.relatedSubject]) ? gv_graph.subjects[this.relatedSubject].getText() : this.relatedSubject;
-		
-		return this.text + (this.getRelatedSubject() != null ? "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")" : "");
-		*/
 	};
 	
 	

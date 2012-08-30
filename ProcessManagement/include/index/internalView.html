@@ -23,21 +23,23 @@
 	<br/>
 	<div class="graphsettings" id="EdgeFunctions">
 		<span id="graphmenuheader">Transition settings</span>
-		<br/>
-		<label class="graphsectionheader">Text:</label>
-		<br/>
-		<textarea id="ge_edge_text" style="width: 140px;"></textarea>												
-		</input>
- <br/>
-		<div id="ge_edge_target_outer" style="display:none;">
-			<label class="graphsectionheader">Related Subject:</label>
+		
+		<div style="display:none;" id="ge_edge_typeCOuter">
 			<br/>
-			<select id="ge_edge_target" style="width: 140px;"></select>
+			<label class="graphsectionheader">Text:</label>
 			<br/>
-			<div id="ge_edge_message_outer" style="display:none;">
-				<label class="graphsectionheader">Message:</label>
+			<textarea id="ge_edge_text" style="width: 140px;"></textarea>												
+			<br/>
+			<div id="ge_edge_target_outer" style="display:none;">
+				<label class="graphsectionheader">Related Subject:</label>
 				<br/>
-				<select id="ge_edge_message" style="width: 140px;"></select>
+				<select id="ge_edge_target" style="width: 140px;"></select>
+				<br/>
+				<div id="ge_edge_message_outer" style="display:none;">
+					<label class="graphsectionheader">Message:</label>
+					<br/>
+					<select id="ge_edge_message" style="width: 140px;"></select>
+				</div>
 			</div>
 		</div>
 		<br/>
@@ -50,7 +52,8 @@
 			<label align="left" class="graphsectionheader">Timeout</label>
 		</div>
 		<br/>
-		<div id="timeoutdiv">
+		<!-- <div id="timeoutdiv"> -->
+		<div style="display:none;" id="ge_edge_typeTOuter">
 			<label class="graphsectionheader">Timeout:</label>
 			<br/>
 			<input type="text" id="ge_edge_timeout" value="" align="right" style="width: 140px;" />
