@@ -167,7 +167,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		{
 			if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
 			{
-				return "m" + this.text;
+				return this.text.substr(0, 1) == "m" ? this.text : "unknown";
 			}
 		}
 		return "";
@@ -427,13 +427,21 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 				var gt_relatedSubject	= this.relatedSubject != null ? this.relatedSubject : "";
 					gt_relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].getText() : gt_relatedSubject;
 					
+				if (gt_relatedSubject == "")
+				{
+					return "" + gt_text;
+				}
 				return gt_text + "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")";
 			}
 			
 			// all other exit conditions
 			else
 			{
-				return this.text;
+				if (this.text.substr(0, 1) == "m")
+				{
+					return "message: " + (gf_isset(gv_graph.messageTypes[this.text]) ? gv_graph.messageTypes[this.text] : "unknown");
+				}
+				return "" + this.text;
 			}
 			
 			// return this.text + "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")";

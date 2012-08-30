@@ -35,11 +35,9 @@
 				<br/>
 				<select id="ge_edge_target" style="width: 140px;"></select>
 				<br/>
-				<div id="ge_edge_message_outer" style="display:none;">
-					<label class="graphsectionheader">Message:</label>
-					<br/>
-					<select id="ge_edge_message" style="width: 140px;"></select>
-				</div>
+				<label class="graphsectionheader">Message:</label>
+				<br/>
+				<select id="ge_edge_message" style="width: 140px;"></select>
 			</div>
 		</div>
 		<br/>
@@ -82,13 +80,19 @@
 		<br/>
 		<select id="ge_type2"  style="width:140px"></select>
 		<br/>
-		<label class="graphsectionheader">Service:</label>
-		<br/>
-		<textarea id="ge_text" style="width:140px"></textarea>														
-		</input>
+		<div id="ge_node_optionsOuter" style="display:none;">
+			<label class="graphsectionheader">Subject:</label>
+			<br />
+			<select id="ge_node_subject" style="width:140px"></select>
+			<br />
+			<label class="graphsectionheader">Message:</label>
+			<br />
+			<select id="ge_node_message" style="width:140px"></select>
+		</div>
  <br/>
 		<input type="hidden" id="ge_id" value="" style="width:140px"/>
 		<label class="graphsectionheader">Text:</label>
+		<textarea id="ge_text" style="width:140px"></textarea>														
 		<br/>
 		<input type="button" id="UpdateNodeButton" class="graphmenubutton" onclick="gv_graph.updateNode();" value="Update state" />
 		<br/>

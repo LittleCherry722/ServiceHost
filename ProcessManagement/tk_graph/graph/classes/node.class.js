@@ -45,6 +45,13 @@ function GCnode (id, text, type)
 	this.id		= "";
 	
 	/**
+	 * Options for predefined actions.
+	 * 
+	 * @type Object
+	 */
+	this.options	= {message: "*", subject: "*"};
+	
+	/**
 	 * When this value is set to true this node will be handled as a start node for the internal behavior. 
 	 * Caution: this setting can be overriden by setting the "end" attribute
 	 * 
@@ -105,6 +112,16 @@ function GCnode (id, text, type)
 	};
 	
 	/**
+	 * Returns options of predefined actions.
+	 * 
+	 * @returns {Object} The node's options.
+	 */
+	this.getOptions = function ()
+	{
+		return this.options;
+	};
+	
+	/**
 	 * Returns the shape of this node.
 	 * This method returns either "roundedrectangle" or "circle" depending on the node's type.
 	 * This value influences the look of the node on the graph.
@@ -150,9 +167,17 @@ function GCnode (id, text, type)
 		if (this.isEnd())
 			type = "end";
 			
+			// gf_newlineToCamelCase
+			
 		if (type.length > 0 && type.charAt(0) == '$' && gf_isset(gv_predefinedActions[type.substr(1)]))
 		{
-			text	= gv_predefinedActions[type.substr(1)].label + "\n(MessageType, Subject)";		// TODO: subject + message type
+			var gt_messageType	= gf_isset(this.options.message) ? this.options.message : null;
+			var gt_subject		= gf_isset(this.options.subject) ? this.options.subject : null;
+			
+				gt_messageType	= gt_messageType != null && gf_isset(gv_graph.messageTypes[gt_messageType]) ? gf_newlineToCamelCase(gv_graph.messageTypes[gt_messageType]) : "*";
+				gt_subject		= gt_subject != null && gf_isset(gv_graph.subjects[gt_subject]) ? gv_graph.subjects[gt_subject].getText() : "*";
+			
+			text	= gv_predefinedActions[type.substr(1)].label + "\n(" + gt_messageType + ", " + gt_subject + ")";
 		}
 		
 		if (gf_isset(gv_nodeTypes[type]) && gf_isset(gv_nodeTypes[type].text))
@@ -166,11 +191,12 @@ function GCnode (id, text, type)
 	 * Returns the node's type.
 	 * This can either be "send", "receive", "end" or "action".
 	 * 
+	 * @param {boolean} map When set to true, predefined actions will be mapped to "action".
 	 * @returns {String} The node's type.
 	 */
-	this.getType = function ()
+	this.getType = function (map)
 	{
-		if (this.type.length > 0 && this.type.charAt(0) == '$' && gf_isset(gv_predefinedActions[this.type.substr(1)]))
+		if (gf_isset(map) && map === true && this.type.length > 0 && this.type.charAt(0) == '$' && gf_isset(gv_predefinedActions[this.type.substr(1)]))
 		{
 			return "action";
 		}
@@ -235,6 +261,20 @@ function GCnode (id, text, type)
 		if (gf_isset(id))
 		{
 			this.id = id;
+		}
+	};
+	
+	/**
+	 * Update the options of predefined actions.
+	 * 
+	 * @param {Object} options The options of a predefined action.
+	 * @returns {void}
+	 */
+	this.setOptions = function (options)
+	{
+		if (gf_isset(options))
+		{
+			this.options = options;
 		}
 	};
 	

@@ -317,18 +317,6 @@ function gf_deleteElement ()
 }
 
 /**
- * This method is called onChange of gv_elements.inputEdgeTarget.
- * It loads and displays all messages that can be received or send from the selected subject.
- * 
- * @see GCcommunication.loadEdgeMessages()
- * @returns {void}
- */
-function gf_edgeMessage ()
-{
-	gv_graph.loadEdgeMessages();
-}
-
-/**
  * Collects all messages available to the system and returns them as an Array of Objects.
  * 
  * @returns {Array} Array of Objects {sender, messageType, receiver}.
@@ -890,24 +878,6 @@ function gf_setDivs (bv, cv)
 	{
 		gv_elements.graphBVouter	= bv;
 		gv_elements.graphCVouter	= cv;
-	}
-}
-
-/**
- * This is called onChange of gv_elements.inputEdgeMessage.
- * It updates the value of gv_elements.inputEdgeText with the selected message so the edge can be updated correctly.
- * 
- * @returns {void}
- */
-function gf_setEdgeMessage ()
-{
-	if (!gf_isStandAlone() && gf_functionExists(gv_functions.general.toggleEdgeMessages))
-	{
-		window[gv_functions.general.toggleEdgeMessages]();
-	}
-	else
-	{
-		gf_guiSetEdgeMessage();
 	}
 }
 

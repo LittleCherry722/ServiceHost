@@ -27,7 +27,6 @@ var gv_elements = {
 	inputEdgeTimeout:		"ge_edge_timeout",
 	inputEdgeTimeoutEx:		"ge_edge_timeoutExample",
 	inputEdgeMessage:		"ge_edge_message",
-	inputEdgeMessageO:		"ge_edge_message_outer",
 	inputEdgeOptional:		"ge_edge_optional",
 	inputEdgeOptionalO:		"ge_edge_optionalO",
 	inputEdgeOuter:			"edge",
@@ -42,6 +41,9 @@ var gv_elements = {
 	inputNodeText:			"ge_text",
 	inputNodeType2:			"ge_type2",
 	inputNodeOuter:			"node",
+	inputNodeSubject:		"ge_node_subject",
+	inputNodeMessage:		"ge_node_message",
+	inputNodeOptionsO:		"ge_node_optionsOuter",
 	
 	// select elements
 	inputNodeTypeStart:		"ge_type_start",
@@ -123,14 +125,6 @@ var gv_functions	= {
 		displaySubject:		"",
 		
 		/**
-		 * used to load available messages for a certain subject
-		 * 
-		 * @see GCcommunication::loadEdgeMessages(), gf_guiLoadEdgeMessages()
-		 * @returns {void}
-		 */
-		loadEdgeMessages:	"",
-		
-		/**
 		 * read input fields (edge) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateEdge(), gf_guiReadEdge()
@@ -142,7 +136,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type2
+		 * @returns {Object} Indizes: text, isStart, type2, options
 		 */
 		readNode:			"",
 		
@@ -261,14 +255,6 @@ var gv_functions	= {
 		 * @see tk_graph.js :: gf_toggleBV()
 		 * @returns {void}
 		 */
-		changeViewBV:		"showtab1",
-		
-		/**
-		 * lock / unlock the textarea for an edge's text
-		 * 
-		 * @see tk_graph_api.js :: gf_setEdgeMessage()
-		 * @returns {void}
-		 */
-		toggleEdgeMessages:	""
+		changeViewBV:		"showtab1"
 	}
 };

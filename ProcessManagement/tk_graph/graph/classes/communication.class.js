@@ -270,6 +270,25 @@ function GCcommunication ()
 			this.addSubject(gt_subjectName.toLowerCase(), gt_subjectName, "single", -1, false);
 		}
 		
+		// collect messages
+		var gt_messageTypes	= {};
+		for (var gt_msgId in messages)
+		{
+			var gt_msg	= messages[gt_msgId].message;
+			
+			if (!gf_isset(gt_messageTypes[gt_msg]))
+			{
+				this.messageTypes["m" + this.messageTypeCounter] = gt_msg;
+				gt_messageTypes[gt_msg] = this.messageTypeCounter;
+				this.messageTypeCounter++;
+			}
+			
+			if (gf_isset(gt_messageTypes[gt_msg]))
+			{
+				messages[gt_msgId].message = gt_messageTypes[gt_msg];
+			}
+		}
+		
 		// create the internal behaviors
 		for (var gt_subjectId in subjects)
 		{
@@ -777,25 +796,6 @@ function GCcommunication ()
 	};
 	
 	/**
-	 * When a relatedSubject is selected from a drop down this method is called.
-	 * It loads all messages that are sent from the selected subject to the current subject or those sent from the current subject to the selected subject.
-	 * The messages are added to gv_elements.inputEdgeMessage.
-	 * 
-	 * @returns {void}
-	 */
-	this.loadEdgeMessages = function ()
-	{
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.loadEdgeMessages))
-		{
-			window[gv_functions.communication.loadEdgeMessages]();
-		}
-		else
-		{
-			gf_guiLoadEdgeMessages();
-		}
-	};
-	
-	/**
 	 * Loads a process graph from a given JSON representation stored in the database.
 	 * 
 	 * @param {String} jsonString The JSON representation of a process.
@@ -851,6 +851,14 @@ function GCcommunication ()
 				{
 					var gt_node	= gt_subject.nodes[gt_nodeId];
 					gt_behav.addNode(gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+					
+					if (gf_isset(gt_node.options))
+					{
+						if (gf_isset(gt_behav.nodeIDs[gt_node.id]))
+						{
+							gt_behav.getNode(gt_behav.nodeIDs[gt_node.id]).setOptions(gt_node.options);	
+						}
+					}
 				}
 				
 				// 2.2 edges
@@ -874,7 +882,7 @@ function GCcommunication ()
 						if (!gf_isset(gt_messages[gt_text]))
 						{
 							this.messageTypes["m" + this.messageTypeCounter] = gt_text;
-							gt_messages[gt_text] = this.messageTypeCounter;
+							gt_messages[gt_text] = "m" + this.messageTypeCounter;
 							this.messageTypeCounter++;
 						}
 						
@@ -1055,7 +1063,8 @@ function GCcommunication ()
 						start:	gt_node.isStart(),
 						end:	gt_node.isEnd(),
 						type:	gt_node.getType(),
-						deactivated: gt_node.isDeactivated()
+						deactivated: gt_node.isDeactivated(),
+						options:	gt_node.getOptions()
 				};
 			}
 
@@ -1198,7 +1207,6 @@ function GCcommunication ()
 	this.selectNothing = function ()
 	{
 		this.selectedNode	= null;
-		this.loadEdgeMessages();
 	};
 	
 	/**
@@ -1245,21 +1253,39 @@ function GCcommunication ()
 					
 					if (gt_messageTypeId.substr(0, 1) == "m")
 					{
-						if (gt_currentMessageTypeId == gt_messageTypeId)
+						// TODO: when changing the text of a messageType avoid duplicate messageTypes
+						
+						// update message type
+						if (this.messageTypes[gt_messageTypeId] != gt_text)
 						{
-							// update message type
-							if (this.messageTypes[gt_messageTypeId] != gt_text)
-							{
-								this.messageTypes[gt_messageTypeId]	= gt_text;
-							}
+							this.messageTypes[gt_messageTypeId]	= gt_text;
 						}
 						gt_text	= gt_messageTypeId.substr(1);
 					}
 					else if (gt_messageTypeId == "##createNewMsg##")
 					{
-						this.messageTypes["m" + this.messageTypeCounter] = gt_text;
-						gt_text	= this.messageTypeCounter;
-						this.messageTypeCounter++;
+						var gt_messageTypeExists	= false;
+						
+						// avoid duplicate messageTypes
+						for (var gt_mtid in this.messageTypes)
+						{
+							var gt_mt	= this.messageTypes[gt_mtid];
+							
+							if (gt_mt.toLowerCase().replace("\\n", " ") == gt_text.toLowerCase().replace("\\n", " "))
+							{
+								gt_text	= gt_mtid.substr(1);
+								gt_messageTypeExists	= true;
+								break;
+							}
+						}
+						
+						// create the new message
+						if (!gt_messageTypeExists)
+						{
+							this.messageTypes["m" + this.messageTypeCounter] = gt_text;
+							gt_text	= this.messageTypeCounter;
+							this.messageTypeCounter++;
+						}
 					}
 				}
 				
@@ -1376,6 +1402,7 @@ function GCcommunication ()
 				var gt_text		= gf_isset(gt_values.text)		? gt_values.text	: "";
 				var gt_isStart	= gf_isset(gt_values.isStart)	? gt_values.isStart	: false;
 				var gt_type2	= gf_isset(gt_values.type2)		? gt_values.type2	: "";
+				var gt_options	= gf_isset(gt_values.options)	? gt_values.options	: {};
 				
 				if (gt_type2 == "r")
 					gt_type2 = "receive";
@@ -1389,7 +1416,10 @@ function GCcommunication ()
 				if (gt_type2 == "end")
 					gt_type	= "end";
 				
-				this.getBehavior(this.selectedSubject).updateNode(gt_text, gt_type, gt_type2);
+				var gt_behav	= this.getBehavior(this.selectedSubject);
+					gt_behav.getNode(gt_behav.selectedNode).setOptions(gt_options);
+					gt_behav.updateNode(gt_text, gt_type, gt_type2);					
+				
 				this.loadInformation();
 			}
 		}

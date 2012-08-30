@@ -545,6 +545,31 @@ function gf_mergeStyles ()
 }
 
 /**
+ * Converts a text with new lines into a CamelCase text without whitespaces.
+ * 
+ * @param {String} gt_text The input text.
+ * @returns {String} The converted text.
+ */
+function gf_newlineToCamelCase (gt_text)
+{
+	if (gf_isset(gt_text))
+	{
+		gt_text	= gf_replaceNewline(gt_text, " ");
+		
+		var gt_textArray	= gt_text.split(" ");
+		var gt_result		= "";
+		for (var gt_taid in gt_textArray)
+		{
+			var gt_textArrayEntry	= gt_textArray[gt_taid].toLowerCase();
+			gt_result += gt_textArrayEntry.substr(0, 1).toUpperCase() + gt_textArrayEntry.substr(1);
+		}
+		
+		return gt_result;
+	}
+	return "";
+}
+
+/**
  * Checks if the given object / list of objects contain a certain attribute / a list of attributes.
  * Either pass an Object / String or an array for each parameter.
  * The method will return false when either an object does not exist or an object does not contain a certain attribute.
@@ -810,11 +835,15 @@ function gf_paperMousePosition (event)
  * 
  * @private
  * @param {String} text The text to process.
+ * @param {String} characeter A special character to replace all matching results with (optional).
  * @returns {String} The processed text.
  */
-function gf_replaceNewline (text)
+function gf_replaceNewline (text, character)
 {
-	return text.replace(/<br>|<br \/>|<br\/>|\r\n|\r|\\n|\n/gi, "\n");
+	if (!gf_isset(character))
+		character = "\n";
+	
+	return text.replace(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi, character);
 }
 
 /**
