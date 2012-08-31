@@ -434,8 +434,8 @@ a#show_menu:hover {
  }*/
 .switch {
 	float: left;
-	margin-left: 15px;
-	padding: 10px 0 0 0;
+	margin-left: 5px;
+	padding: 5px 0 0 0;
 }
 .onecolumn .content {
 	background: url(../images/bg_ip.png) repeat-x;
