@@ -891,9 +891,17 @@ function GCcommunication ()
 					
 					var gt_createdEdge	= gt_behav.addEdge(gt_edge.start, gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
 					
-					if (gf_isset(gt_edge.priority) && gt_createdEdge != null)
+					if (gt_createdEdge != null)
 					{
-						gt_createdEdge.setPriority(gt_edge.priority);
+						if (gf_isset(gt_edge.priority))
+						{
+							gt_createdEdge.setPriority(gt_edge.priority);
+						}
+						
+						if (gf_isset(gt_edge.manualTimeout))
+						{
+							gt_createdEdge.setManualTimeout(gt_edge.manualTimeout);
+						}
 					}
 				}
 			}
@@ -1093,7 +1101,8 @@ function GCcommunication ()
 								target: gt_relatedSubject == null ? "" : gt_relatedSubject,
 								deactivated:	gt_edge.isDeactivated(),
 								optional:		gt_edge.isOptional(),
-								priority:		gt_edge.getPriority()
+								priority:		gt_edge.getPriority(),
+								manualTimeout:	gt_edge.isManualTimeout()
 						};
 					}
 				}

@@ -282,7 +282,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	{
 		if (this.type == "timeout" && gf_isset(save) && save === true)
 		{
-			return this.timer.getTimestamp();
+			return "" + this.timer.getTimestamp();
 		}
 		
 		return this.text;

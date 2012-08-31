@@ -344,6 +344,7 @@ function gf_getMessageTypes ()
 			{
 				if (gf_isset(gv_graph.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
 				{
+					gt_text	= gf_isset(gv_graph.messageTypes[gt_text]) ? gv_graph.messageTypes[gt_text] : gt_text;
 					gt_messages[gt_messages.length] = {sender: gt_bi, receiver: gt_relatedSubject, messageType: gt_text};
 				}
 			}
