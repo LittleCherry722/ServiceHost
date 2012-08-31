@@ -136,10 +136,16 @@ var gv_cv_style_roundedRectangleExternal = {
 	/*
 	 * Background
 	 */		
+	 /*
 	bgColor: "#FF9999",					// any hex-color-value
 	bgColorDeact: "#FF9999",			// any hex-color-value
 	bgColorSelDeact: "#FF9999",			// any hex-color-value
 	bgColorSel: "#FF9999",				// any hex-color-value
+	*/
+	bgColor: "#999999",					// any hex-color-value
+	bgColorDeact: "#999999",			// any hex-color-value
+	bgColorSelDeact: "#999999",			// any hex-color-value
+	bgColorSel: "#999999",				// any hex-color-value
 	bgOpacity: 1.0,						// floating number
 	bgOpacityDeact: 0.5,				// floating number
 	bgOpacitySelDeact: 0.75,			// floating number

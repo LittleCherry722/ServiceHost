@@ -544,7 +544,7 @@ function GCbehavior (name)
 							}
 							
 							// only one edge for closeIP / openIP
-							else if (gt_startNodeType == "$closeip" || gt_startNodeType == "$openip")
+							else if (gt_startNodeType.substr(0, 1) == "$")
 							{
 								gt_edgeExists = true;
 								break;
