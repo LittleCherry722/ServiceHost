@@ -19,6 +19,7 @@ var SBPM = {
     },
     Service : {},
     Utilities: {},
+    Mediator : {},
     VM : {},
     Dialog : {},
     Notification : {},
@@ -28,7 +29,9 @@ var SBPM = {
 // turn off debug messages
 if(!SBPM.Constant.DEBUG){
     window.console = {
-        log : function(){}
+        log : function(){},
+        error : function(){},
+        info : function(){}
     }
 }
 
@@ -37,6 +40,7 @@ SBPM.DB = {
         var ret = defaultreturn;
         $.ajax({
           url: db_directory + url,
+          type: "POST",
           data: data,
           cache: false,
           async: false,
