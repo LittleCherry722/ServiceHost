@@ -542,14 +542,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		// return timeout
 		if (this.type == "timeout")
 		{
-			if (this.isManualTimeout())
-			{
-				return "Manual\nTimeout";
-			}
-			else
-			{
-				return "Timeout" + "\n(" + this.timer.getTimeString("unit") + ")";			
-			}
+			return "Timeout" + (this.isManualTimeout() ? " (M)" : "") + "\n(" + this.timer.getTimeString("unit") + ")";
 		}
 		
 		// return exit condition
