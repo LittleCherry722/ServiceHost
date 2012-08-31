@@ -463,8 +463,8 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 				{
 					return "" + gt_text;
 				}
-				return gt_text + "\n \n" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject +
-											(gt_startNode.getType() == "receive" ? "\npriority: " + this.getPriority() : "");
+				return gt_text + "\n" + (gt_startNode.getType() == "receive" ? "(" + this.getPriority() + ") " : "") +
+											(gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject;
 			}
 			
 			// all other exit conditions
