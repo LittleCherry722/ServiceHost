@@ -36,13 +36,25 @@
 				<select id="ge_edge_target" style="width: 140px;"></select>
 				<br/>
 				<label class="graphsectionheader">Message:</label>
-				<br/>
 				<select id="ge_edge_message" style="width: 140px;"></select>
+				
+				<div id="ge_edge_target_multi_outer" style="display:none;">
+					<input type="radio" id="ge_edge_target_multi_type_all" name="ge_edge_target_multi_type">
+					<label  class="graphsectionheader">All known subjects</label>
+					<br />
+					<input type="radio" id="ge_edge_target_multi_type_limit" name="ge_edge_target_multi_type">
+					<label  class="graphsectionheader">Limited # of subjects</label>
+					<div id="ge_edge_target_multi_minmax_outer" style="display:none;">
+						Min: <input type="text" id="ge_edge_target_multi_min" style="width:30px;">
+						Max: <input type="text" id="ge_edge_target_multi_max" style="width:30px;">
+					</div>
+				</div>
+				
 				<div id="ge_edge_priority_outer" style="display:none;">
-				<label class="graphsectionheader">Priority:</label>
-				<br />
-				<input type="text" id="ge_edge_priority" value="" style="width: 140px; text-align:right;" />
-			</div>
+					<label class="graphsectionheader">Priority:</label>
+					<br />
+					<input type="text" id="ge_edge_priority" value="" style="width: 140px; text-align:right;" />
+				</div>
 			</div>
 		</div>
 		<br/>

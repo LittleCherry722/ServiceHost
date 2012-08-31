@@ -1079,7 +1079,7 @@ function GCcommunication ()
 				
 				if (gt_edgeEnd != null && gt_edgeStart != null)
 				{
-					var gt_relatedSubject	= gt_edge.getRelatedSubject();
+					var gt_relatedSubject	= gt_edge.getRelatedSubject("all");
 					var gt_edgeStartNode	= gt_behav.getNode(gt_edgeStart);
 					var gt_edgeEndNode		= gt_behav.getNode(gt_edgeEnd);
 					

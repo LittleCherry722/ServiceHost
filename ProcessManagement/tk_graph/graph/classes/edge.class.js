@@ -20,7 +20,7 @@
  * @param {int} start The id of the start node.
  * @param {int} end The id of the end node.
  * @param {String} text The label of the edge.
- * @param {String} relatedSubject The id of the subject that is the sender or a receiver of the currently selected message.
+ * @param {Object} relatedSubject An object containing the id of the subject that is the sender or a receiver of the currently selected message. (further attributes: min, max, createNew)
  * @param {String} type The type of the edge. Either "exitcondition" or "timeout".
  * @returns {void}
  */
@@ -88,10 +88,14 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	
 	/**
 	 * The id of the subject that is the sender or a receiver of the currently selected message.
+	 * - id: the id of the relatedSubject
+	 * - min: the min number of messages to receive / send (-1 = infinite)
+	 * - max: the min number of messages to receive / send (-1 = infinite)
+	 * - createNew: a boolean value that is currently not used
 	 * 
-	 * @type String
+	 * @type Object
 	 */
-	this.relatedSubject	= relatedSubject;
+	this.relatedSubject	= {id: null, min: -1, max: -1, createNew: false};
 	
 	/**
 	 * The id of the start node of this edge.
@@ -202,16 +206,57 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 * Returns the related subject.
 	 * 
 	 * @see GCedge.relatedSubject
-	 * @returns {String} The id of the related subject.
+	 * @param {String} attribute Either "all", "id", "name", "min", "max", "createNew".
+	 * @returns {String|Object|int} The id of the related subject, its name, the min- or max- number of messages or the whole object depending on "attribute".
 	 */
-	this.getRelatedSubject = function ()
-	{
+	this.getRelatedSubject = function (attribute)
+	{		
 		var startNode		= this.parent.getNode(this.start);
 		var relatedSubject	= this.relatedSubject;
 		
-		if (startNode == null || (startNode.getType() != "receive" && startNode.getType() != "send") || relatedSubject == "")
+		if (startNode == null || (startNode.getType() != "receive" && startNode.getType() != "send") || relatedSubject == null)
 		{
 			relatedSubject = null;
+		}
+		else if (relatedSubject.id == null || relatedSubject.id == "")
+		{
+			relatedSubject = null;
+		}
+		else
+		{
+			if (!gf_isset(attribute))
+				attribute = "id";
+			
+			attribute	= attribute.toLowerCase();
+				
+			if (attribute == "id")
+			{
+				relatedSubject	= relatedSubject.id;
+			}
+			else if (attribute == "name")
+			{
+				var gt_relatedSubject	= relatedSubject.id;
+				
+				relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].getText() : gt_relatedSubject;
+			}
+			else if (attribute == "multi")
+			{
+				var gt_relatedSubject	= relatedSubject.id;
+				
+				relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].isMulti() : false;
+			}
+			else if (attribute == "min")
+			{
+				relatedSubject	= relatedSubject.min;
+			}
+			else if (attribute == "max")
+			{
+				relatedSubject	= relatedSubject.max;
+			}
+			else if (attribute == "createNew")
+			{
+				relatedSubject	= relatedSubject.createNew === true;
+			}
 		}
 		
 		return relatedSubject;
@@ -371,15 +416,40 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 * Sets the related subject.
 	 * 
 	 * @see GCedge.relatedSubject
-	 * @param {String} relatedSubject The related subject.
+	 * @param {String|Object} relatedSubject The related subject.
 	 * @returns {void}
 	 */
 	this.setRelatedSubject = function (relatedSubject)
 	{
 		var startNodeType		= this.getTypeOfStartNode();
 		
-		if (gf_isset(relatedSubject) && relatedSubject != "" && (startNodeType == "receive" || startNodeType == "send"))
-			this.relatedSubject = relatedSubject;
+		if (gf_isset(relatedSubject))
+		{
+			if (startNodeType == "receive" || startNodeType == "send")
+			{
+				if (relatedSubject != "" && relatedSubject != null)
+				{
+					if (typeof (relatedSubject) == 'string')
+					{
+						this.relatedSubject.id	= relatedSubject;
+					}
+					else
+					{
+						if (gf_isset(relatedSubject.id))
+						{
+							if (relatedSubject.id != "")
+								this.relatedSubject.id	= relatedSubject.id;
+							
+							if (gf_isset(relatedSubject.min))
+								this.relatedSubject.min	= relatedSubject.min;
+							
+							if (gf_isset(relatedSubject.max))
+								this.relatedSubject.max	= relatedSubject.max;
+						}
+					}
+				}
+			}
+		}
 	};
 	
 	/**
@@ -491,15 +561,30 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
 			{
 				var gt_text				= this.getMessageType();
-				var gt_relatedSubject	= this.relatedSubject != null ? this.relatedSubject : "";
-					gt_relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].getText() : gt_relatedSubject;
+				var gt_relatedSubject	= this.getRelatedSubject("name");
+				var gt_relatedMulti		= this.getRelatedSubject("multi");
+				var gt_relatedMin		= this.getRelatedSubject("min");
+				var gt_relatedMax		= this.getRelatedSubject("max");
+				var gt_relatedMultiText	= "";
+				
+				if (gt_relatedMulti)
+				{
+					if (gt_relatedMin == "-1" && gt_relatedMax == "-1")
+					{
+						gt_relatedMultiText = " (all)";
+					}
+					else
+					{
+						gt_relatedMultiText = "\n(" + gt_relatedMin + " to " + gt_relatedMax + " messages)";
+					}
+				}
 					
-				if (gt_relatedSubject == "")
+				if (gt_relatedSubject == "" || gt_relatedSubject == null)
 				{
 					return "" + gt_text;
 				}
 				return gt_text + "\n" + (gt_startNode.getType() == "receive" ? "(" + this.getPriority() + ") " : "") +
-											(gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject;
+											(gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + gt_relatedMultiText;
 			}
 			
 			// all other exit conditions
@@ -520,6 +605,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	
 	// init
 	this.setType(type);
+	this.setRelatedSubject(relatedSubject);
 	
 	if (type == "timeout")
 	{
