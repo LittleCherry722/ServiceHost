@@ -849,15 +849,12 @@ function GCcommunication ()
 				// 2.1 nodes
 				for (var gt_nodeId in gt_subject.nodes)
 				{
-					var gt_node	= gt_subject.nodes[gt_nodeId];
-					gt_behav.addNode(gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+					var gt_node		= gt_subject.nodes[gt_nodeId];
+					var gt_nodeId	= gt_behav.addNode(gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 					
 					if (gf_isset(gt_node.options))
 					{
-						if (gf_isset(gt_behav.nodeIDs[gt_node.id]))
-						{
-							gt_behav.getNode(gt_behav.nodeIDs[gt_node.id]).setOptions(gt_node.options);	
-						}
+						gt_behav.getNode(gt_nodeId).setOptions(gt_node.options);
 					}
 				}
 				
@@ -892,7 +889,12 @@ function GCcommunication ()
 						}
 					}
 					
-					gt_behav.addEdge(gt_edge.start, gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
+					var gt_createdEdge	= gt_behav.addEdge(gt_edge.start, gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
+					
+					if (gf_isset(gt_edge.priority) && gt_createdEdge != null)
+					{
+						gt_createdEdge.setPriority(gt_edge.priority);
+					}
 				}
 			}
 			
@@ -1090,7 +1092,8 @@ function GCcommunication ()
 								type:	gt_edge.getType(),
 								target: gt_relatedSubject == null ? "" : gt_relatedSubject,
 								deactivated:	gt_edge.isDeactivated(),
-								optional:		gt_edge.isOptional()
+								optional:		gt_edge.isOptional(),
+								priority:		gt_edge.getPriority()
 						};
 					}
 				}
@@ -1243,6 +1246,7 @@ function GCcommunication ()
 				var gt_timeout			= gf_isset(gt_values.timeout)			? gt_values.timeout			: "";
 				var gt_optional			= gf_isset(gt_values.optional)			? gt_values.optional		: false;
 				var gt_messageTypeId	= gf_isset(gt_values.messageType)		? gt_values.messageType		: "";
+				var gt_priority			= gf_isset(gt_values.priority)			? gt_values.priority		: "1";
 				
 				var gt_edge				= this.getBehavior(this.selectedSubject).getEdge();
 				var gt_startNodeType	= gt_edge != null ? gt_edge.getTypeOfStartNode() : "action";
@@ -1260,7 +1264,7 @@ function GCcommunication ()
 						{
 							this.messageTypes[gt_messageTypeId]	= gt_text;
 						}
-						gt_text	= gt_messageTypeId.substr(1);
+						gt_text	= gt_messageTypeId;
 					}
 					else if (gt_messageTypeId == "##createNewMsg##")
 					{
@@ -1273,7 +1277,7 @@ function GCcommunication ()
 							
 							if (gt_mt.toLowerCase().replace("\\n", " ") == gt_text.toLowerCase().replace("\\n", " "))
 							{
-								gt_text	= gt_mtid.substr(1);
+								gt_text	= gt_mtid;
 								gt_messageTypeExists	= true;
 								break;
 							}
@@ -1289,8 +1293,15 @@ function GCcommunication ()
 					}
 				}
 				
+				var gt_behav	= this.getBehavior(this.selectedSubject);
+				var gt_edge		= gt_behav == null ? null : gt_behav.getEdge(gt_behav.selectedEdge);
+				if (gt_edge != null)
+				{
+					gt_edge.setPriority(gt_priority);
+				}
 				
 				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout, gt_optional);
+				
 				this.loadInformationEdge();
 			}
 		}

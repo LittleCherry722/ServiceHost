@@ -72,6 +72,14 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.parent	= parent;
 	
 	/**
+	 * Set to a number >= 1.
+	 * Only used for exitconditions with startNode = receive.
+	 * 
+	 * @type int
+	 */
+	this.priority	= 1;
+	
+	/**
 	 * The id of the subject that is the sender or a receiver of the currently selected message.
 	 * 
 	 * @type String
@@ -171,6 +179,16 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			}
 		}
 		return "";
+	};
+	
+	/**
+	 * Returns the priority of the edge (for exit conditions starting by receive nodes).
+	 * 
+	 * @returns {int} The edge's priority.
+	 */
+	this.getPriority = function ()
+	{
+		return this.priority;
 	};
 	
 	/**
@@ -306,7 +324,21 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	{
 		this.optional = gf_isset(optional) && optional === true;
 	};
-	
+
+	/**
+	 * Update the edge's priority.
+	 * 
+	 * @param {int} priority The priority of the edge.
+	 * @returns {void}
+	 */
+	this.setPriority = function (priority)
+	{
+		if (gf_isset(priority))
+		{
+			this.priority	= parseInt(priority) == priority && parseInt(priority) > 0 ? parseInt(priority) : 1;
+		}
+	};
+
 	/**
 	 * Sets the related subject.
 	 * 
@@ -431,7 +463,8 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 				{
 					return "" + gt_text;
 				}
-				return gt_text + "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")";
+				return gt_text + "\n \n" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject +
+											(gt_startNode.getType() == "receive" ? "\npriority: " + this.getPriority() : "");
 			}
 			
 			// all other exit conditions

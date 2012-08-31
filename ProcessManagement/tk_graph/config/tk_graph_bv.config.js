@@ -33,8 +33,8 @@ var gv_bv_style_edge = {
 	arrowColorDeact: "#666666",			// any hex-color-value
 	arrowColorOpt: "#666666",			// any hex-color-value
 	arrowColorOptDeact: "#666666",		// any hex-color-value
-	arrowColorOptSel: "#666666",		// any hex-color-value
-	arrowColorOptSelDeact: "#666666",	// any hex-color-value
+	arrowColorOptSel: "#0000FF",		// any hex-color-value
+	arrowColorOptSelDeact: "#0000FF",	// any hex-color-value
 	arrowColorSelDeact: "#0000FF",		// any hex-color-value
 	arrowColorSel: "#0000FF",			// any hex-color-value
 	arrowLinecap: "square",				// possible values: butt, square, round
@@ -72,8 +72,8 @@ var gv_bv_style_edge = {
 	borderColorDeact: "#666666",		// any hex-color-value
 	borderColorOpt: "#666666",			// any hex-color-value
 	borderColorOptDeact: "#666666",		// any hex-color-value
-	borderColorOptSel: "#666666",		// any hex-color-value
-	borderColorOptSelDeact: "#666666",	// any hex-color-value
+	borderColorOptSel: "#0000FF",		// any hex-color-value
+	borderColorOptSelDeact: "#0000FF",	// any hex-color-value
 	borderColorSelDeact: "#0000FF",		// any hex-color-value
 	borderColorSel: "#0000FF",			// any hex-color-value
 	borderOpacity: 1.0,					// floating number
@@ -136,8 +136,8 @@ var gv_bv_style_edge = {
 	fontColorDeact: "#000000",			// any hex-color-value
 	fontColorOpt: "#000000",			// any hex-color-value
 	fontColorOptDeact: "#000000",		// any hex-color-value
-	fontColorOptSel: "#000000",			// any hex-color-value
-	fontColorOptSelDeact: "#000000",	// any hex-color-value
+	fontColorOptSel: "#0000FF",			// any hex-color-value
+	fontColorOptSelDeact: "#0000FF",	// any hex-color-value
 	fontColorSelDeact: "#0000FF",		// any hex-color-value
 	fontColorSel: "#0000FF",			// any hex-color-value
 	fontOpacity: 1.0,					// floating number

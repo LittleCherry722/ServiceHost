@@ -114,7 +114,7 @@ function GCbehavior (name)
 	 * @param {String} type The edge's type (exitcondition, timeout).
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
 	 * @param {boolean} [optional] The optional status of the edge. (default: false)
-	 * @returns {void}  
+	 * @returns {GCedge} The created edge or null on errors.  
 	 */
 	this.addEdge = function (start, end, text, relatedSubject, type, deactivated, optional)
 	{
@@ -141,6 +141,8 @@ function GCbehavior (name)
 			// store the edge
 			this.edges["e" + this.edgeCounter++] = gt_edge;
 		}
+		
+		return gt_edge;
  	};
 	
 	/**
