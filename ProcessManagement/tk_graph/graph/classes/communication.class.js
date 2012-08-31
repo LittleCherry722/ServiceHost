@@ -1288,7 +1288,7 @@ function GCcommunication ()
 						if (!gt_messageTypeExists)
 						{
 							this.messageTypes["m" + this.messageTypeCounter] = gt_text;
-							gt_text	= this.messageTypeCounter;
+							gt_text	= "m" + this.messageTypeCounter;
 							this.messageTypeCounter++;
 						}
 					}
