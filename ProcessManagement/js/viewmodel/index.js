@@ -333,17 +333,7 @@ var ProcessViewModel = function() {
 	var self = this;
 
 	self.processName = ko.observable();
-/**	self.objectOfSubjects = ko.observable(gv_graph.subjects);
-	self.arrayOfSubjects = ko.observableArray();
-	self.compSubjects = ko.computed(function() {
-		for (subject in self.objectOfSubjects()) {
-			self.arrayOfSubjects.push(subject);
-		}
-		return self.arrayOfSubjects();
 
-	});
-	
-	*/
 	self.name = "processView";
 	self.label = "Process";
 

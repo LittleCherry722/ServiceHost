@@ -22,11 +22,11 @@
 		<br/>
 		<label class="graphsectionheader">Node functions:</label>
 		<br/>
-		<input type="button" id="AddSubjectButton" class="graphmenubutton" onClick="gv_graph.createNode();" value="Add subject" />
+		<input type="button" id="AddSubjectButton" class="graphmenubutton" onClick="gv_graph.createNode(); updateListOfSubjects();" value="Add subject" />
 		<br/>
-		<input type="button" id="UpdateSubjectButton" class="graphmenubutton" onClick="gv_graph.updateNode();" value="Update subject" />
+		<input type="button" id="UpdateSubjectButton" class="graphmenubutton" onClick="gv_graph.updateNode(); updateListOfSubjects();" value="Update subject" />
 		<br/>
-		<input type="button" id="DeleteSubjectButton" class="graphmenubutton" onClick="gv_graph.deleteNode();" value="Delete subject" />
+		<input type="button" id="DeleteSubjectButton" class="graphmenubutton" onClick="gv_graph.deleteNode(); updateListOfSubjects();" value="Delete subject" />
 		<br/>
 		<input type="button" id="DeactivateSubjectButton" class="graphmenubutton" onClick="gf_deactivateNode();" value="De-/Activate subject" />
 		<br/>
