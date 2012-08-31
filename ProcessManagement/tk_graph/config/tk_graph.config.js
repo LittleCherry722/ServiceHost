@@ -81,10 +81,16 @@ var gv_nodeTypes	= {
  */
 var gv_predefinedActions	= {
 	// TODO
-	closeip: {relatedSubject: true, message: true, label: "closeIP"},
+	closeip: {relatedSubject: true, message: true, wildcard: true, label: "closeIP"},
 	
 	// TODO
-	openip: {relatedSubject: true, message: true, label: "openIP"}
+	openip: {relatedSubject: true, message: true, wildcard: true, label: "openIP"},
+	
+	// TODO
+	ignore: {relatedSubject: true, message: false, wildcard: false, label: "Ignore"},
+	
+	// TODO
+	acknowledge: {relatedSubject: true, message: false, wildcard: false, label: "Acknowledge"}
 };
 
 /**

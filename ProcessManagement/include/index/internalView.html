@@ -61,6 +61,9 @@
 			<br/>
 			<input type="text" id="ge_edge_timeout" value="" style="width: 140px; text-align:right;" />
 			<div id="ge_edge_timeoutExample"></div>
+			
+			<input type="checkbox" id="ge_edge_timeoutManual" />
+			<label class="graphsectionheader">Manual</label>
 		</div>
 		<div style="display:none;" id="ge_edge_optionalO">
 			<input type="checkbox" id="ge_edge_optional">
@@ -85,11 +88,12 @@
 		<br/>
 		<select id="ge_type2"  style="width:140px"></select>
 		<br/>
-		<div id="ge_node_optionsOuter" style="display:none;">
+		<div id="ge_node_subjectOuter" style="display:none;">
 			<label class="graphsectionheader">Subject:</label>
 			<br />
 			<select id="ge_node_subject" style="width:140px"></select>
-			<br />
+		</div>
+		<div id="ge_node_messageOuter" style="display:none;">
 			<label class="graphsectionheader">Message:</label>
 			<br />
 			<select id="ge_node_message" style="width:140px"></select>

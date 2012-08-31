@@ -79,8 +79,10 @@ function gf_guiClearInputFields ()
 		
 	if (gf_elementExists(gv_elements.inputEdgeTargetO))
 		document.getElementById(gv_elements.inputEdgeTargetO).style.display = "none";
-	if (gf_elementExists(gv_elements.inputNodeOptionsO))
-		document.getElementById(gv_elements.inputNodeOptionsO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputNodeMessageO))
+		document.getElementById(gv_elements.inputNodeMessageO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputNodeSubjectO))
+		document.getElementById(gv_elements.inputNodeSubjectO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgePriorityO))
 		document.getElementById(gv_elements.inputEdgePriorityO).style.display = "none";
 }
@@ -104,6 +106,11 @@ function gf_guiDisplayEdge (edge, startType)
 	if (gf_elementExists(gv_elements.inputEdgeTimeout))
 	{
 		document.getElementById(gv_elements.inputEdgeTimeout).value	= edge.getTimer("timestamp") > 0 ? edge.getTimer() : "";					
+	}
+	
+	if (gf_elementExists(gv_elements.inputEdgeTimeoutManual))
+	{
+		document.getElementById(gv_elements.inputEdgeTimeoutManual).checked	= edge.isManualTimeout();					
 	}
 	
 	if (gf_elementExists(gv_elements.inputEdgeTimeoutEx))
@@ -233,14 +240,10 @@ function gf_guiDisplayNode (node)
 	if (gf_elementExists(gv_elements.inputNodeTypeStart))
 		document.getElementById(gv_elements.inputNodeTypeStart).checked = node.isStart();
 		
-	if (gf_elementExists(gv_elements.inputNodeOptionsO))
-		document.getElementById(gv_elements.inputNodeOptionsO).style.display = "none";
-		
 	var gt_select_type			= document.getElementById(gv_elements.inputNodeType2);
 	
 	document.getElementById(gv_elements.inputNodeType2).onclick	= function () {
-		if (gf_elementExists(gv_elements.inputNodeOptionsO))
-			document.getElementById(gv_elements.inputNodeOptionsO).style.display = document.getElementById(gv_elements.inputNodeType2).value.substr(0, 1) == "$" ? "block" : "none";
+		gf_guiLoadDropDownForNode(document.getElementById(gv_elements.inputNodeType2).value);
 	};
 	
 	$('#' + gv_elements.inputNodeType2).empty();
@@ -281,11 +284,9 @@ function gf_guiDisplayNode (node)
 	}
 	gt_select_type.appendChild(gt_optgrp);
 	
-	gf_guiLoadDropDown(gv_elements.inputNodeMessage, gv_elements.inputNodeSubject, null, false, true);
 	if (gt_type.substr(0, 1) == "$")
 	{
-		if (gf_elementExists(gv_elements.inputNodeOptionsO))
-			document.getElementById(gv_elements.inputNodeOptionsO).style.display = "block";
+		gf_guiLoadDropDownForNode(gt_type);
 			
 		var gt_options	= node.getOptions();
 		
@@ -494,14 +495,44 @@ function gf_guiLoadDropDown (elementMessage, elementSubject, excludeSubject, new
 }
 
 /**
+ * This method is used to fill drop downs for node settings.
+ * 
+ * @param {String} nodeType The type of the node.
+ * @returns {void}
+ */
+function gf_guiLoadDropDownForNode (nodeType)
+{
+	if (!gf_isset(nodeType))
+		nodeType	= "action";
+		
+	if (gf_elementExists(gv_elements.inputNodeMessageO))
+		document.getElementById(gv_elements.inputNodeMessageO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputNodeSubjectO))
+		document.getElementById(gv_elements.inputNodeSubjectO).style.display = "none";
+		
+	if (nodeType.substr(0, 1) == "$")
+	{
+		var gt_predefAction	= gf_isset(gv_predefinedActions[nodeType.substr(1)]) ? gv_predefinedActions[nodeType.substr(1)] : {relatedSubject: false, message: false, wildcard: false};
+			
+		if (gf_elementExists(gv_elements.inputNodeMessageO) && gt_predefAction.message)
+			document.getElementById(gv_elements.inputNodeMessageO).style.display = "block";
+			
+		if (gf_elementExists(gv_elements.inputNodeSubjectO) && gt_predefAction.relatedSubject)
+			document.getElementById(gv_elements.inputNodeSubjectO).style.display = "block";
+			
+		gf_guiLoadDropDown(gv_elements.inputNodeMessage, gv_elements.inputNodeSubject, null, false, gt_predefAction.wildcard);
+	}
+}
+
+/**
  * Read the values for the selected edge from the input fields.
  * 
  * @see GCcommunication::updateEdge()
- * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority
+ * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout
  */
 function gf_guiReadEdge ()
 {
-	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1};
+	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false};
 	
 	var gt_text				= gf_elementExists(gv_elements.inputEdgeText) ? document.getElementById(gv_elements.inputEdgeText).value : "";
 	var gt_relatedSubject	= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
@@ -509,6 +540,7 @@ function gf_guiReadEdge ()
 	var gt_optional			= gf_elementExists(gv_elements.inputEdgeOptional) && document.getElementById(gv_elements.inputEdgeOptional).checked;
 	var gt_messageType		= gf_elementExists(gv_elements.inputEdgeMessage) ? document.getElementById(gv_elements.inputEdgeMessage).value : "";
 	var gt_priority			= gf_elementExists(gv_elements.inputEdgePriority) ? document.getElementById(gv_elements.inputEdgePriority).value : "1";
+	var gt_manualTimeout	= gf_elementExists(gv_elements.inputEdgeTimeoutManual) ? document.getElementById(gv_elements.inputEdgeTimeoutManual).checked : false;
 	
 	var gt_type				= "exitcondition";
 	
@@ -522,6 +554,7 @@ function gf_guiReadEdge ()
 	gt_result.optional			= gt_optional;
 	gt_result.messageType		= gt_messageType;
 	gt_result.priority			= gt_priority;
+	gt_result.manualTimeout		= gt_manualTimeout;
 	
 	return gt_result;
 }

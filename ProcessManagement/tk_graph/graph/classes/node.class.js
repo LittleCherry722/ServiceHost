@@ -171,13 +171,25 @@ function GCnode (id, text, type)
 			
 		if (type.length > 0 && type.charAt(0) == '$' && gf_isset(gv_predefinedActions[type.substr(1)]))
 		{
+			var gt_predefAction	= gv_predefinedActions[type.substr(1)];
 			var gt_messageType	= gf_isset(this.options.message) ? this.options.message : null;
 			var gt_subject		= gf_isset(this.options.subject) ? this.options.subject : null;
 			
-				gt_messageType	= gt_messageType != null && gf_isset(gv_graph.messageTypes[gt_messageType]) ? gf_newlineToCamelCase(gv_graph.messageTypes[gt_messageType]) : "*";
-				gt_subject		= gt_subject != null && gf_isset(gv_graph.subjects[gt_subject]) ? gv_graph.subjects[gt_subject].getText() : "*";
+				gt_messageType	= gt_messageType != null && gf_isset(gv_graph.messageTypes[gt_messageType]) ? gf_newlineToCamelCase(gv_graph.messageTypes[gt_messageType]) : (gt_predefAction.wildcard ? "*" : "");
+				gt_subject		= gt_subject != null && gf_isset(gv_graph.subjects[gt_subject]) ? gv_graph.subjects[gt_subject].getText() : (gt_predefAction.wildcard ? "*" : "");
 			
-			text	= gv_predefinedActions[type.substr(1)].label + "\n(" + gt_messageType + ", " + gt_subject + ")";
+			text	= gt_predefAction.label + "\n(";
+			
+			if (gt_predefAction.message)
+				text += gt_messageType;
+				
+			if (gt_predefAction.message && gt_predefAction.relatedSubject)
+				text += ", ";
+				
+			if (gt_predefAction.relatedSubject)
+				text += gt_subject;
+				
+			text += ")";
 		}
 		
 		if (gf_isset(gv_nodeTypes[type]) && gf_isset(gv_nodeTypes[type].text))

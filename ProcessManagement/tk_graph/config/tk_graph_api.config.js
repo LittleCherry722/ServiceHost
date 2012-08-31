@@ -21,11 +21,12 @@
 var gv_elements = {
 	graphBVouter:			"graph_bv_outer",
 	graphCVouter:			"graph_cv_outer",
-	inputEdgeText:			"ge_edge_text",
 	inputEdgeTarget:		"ge_edge_target",
 	inputEdgeTargetO:		"ge_edge_target_outer",
+	inputEdgeText:			"ge_edge_text",
 	inputEdgeTimeout:		"ge_edge_timeout",
 	inputEdgeTimeoutEx:		"ge_edge_timeoutExample",
+	inputEdgeTimeoutManual:	"ge_edge_timeoutManual",
 	inputEdgeMessage:		"ge_edge_message",
 	inputEdgeOptional:		"ge_edge_optional",
 	inputEdgeOptionalO:		"ge_edge_optionalO",
@@ -44,8 +45,9 @@ var gv_elements = {
 	inputNodeType2:			"ge_type2",
 	inputNodeOuter:			"node",
 	inputNodeSubject:		"ge_node_subject",
+	inputNodeSubjectO:		"ge_node_subjectOuter",
 	inputNodeMessage:		"ge_node_message",
-	inputNodeOptionsO:		"ge_node_optionsOuter",
+	inputNodeMessageO:		"ge_node_messageOuter",
 	
 	// select elements
 	inputNodeTypeStart:		"ge_type_start",
@@ -130,7 +132,7 @@ var gv_functions	= {
 		 * read input fields (edge) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateEdge(), gf_guiReadEdge()
-		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority
+		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout
 		 */
 		readEdge:			"",
 		

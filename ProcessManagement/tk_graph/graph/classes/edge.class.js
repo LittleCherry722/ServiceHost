@@ -57,6 +57,13 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.end	= end;
 	
 	/**
+	 * Manul timeout.
+	 * 
+	 * @type boolean
+	 */
+	this.manualTimeout	= false;
+	
+	/**
 	 * A flag to indicate whether or not the edge is optional (needed for modal-split and modal-join).
 	 * 
 	 * @type boolean
@@ -293,6 +300,16 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	};
 	
 	/**
+	 * Returns true when the edge's timeout is set to manual.
+	 * 
+	 * @returns {boolean} True when timeout is manual.
+	 */
+	this.isManualTimeout = function ()
+	{
+		return this.manualTimeout === true;
+	};
+	
+	/**
 	 * Returns the optional status of this edge.
 	 * 
 	 * @returns {boolean} True when the edge is optional (used for modal split / modal join).
@@ -312,6 +329,17 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	{
 		if (gf_isset(end) && parseInt(end) == end)
 			this.end = end;
+	};
+	
+	/**
+	 * Set a timeout edge to be manual.
+	 * 
+	 * @param {boolean} manual When set to true the timeout edge will be set to "manual".
+	 * @returns {void}
+	 */
+	this.setManualTimeout = function (manual)
+	{
+		this.manualTimeout	= gf_isset(manual) && manual === true;
 	};
 	
 	/**
@@ -444,7 +472,14 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		// return timeout
 		if (this.type == "timeout")
 		{
-			return "Timeout" + "\n(" + this.timer.getTimeString("unit") + ")";
+			if (this.isManualTimeout())
+			{
+				return "Manual\nTimeout";
+			}
+			else
+			{
+				return "Timeout" + "\n(" + this.timer.getTimeString("unit") + ")";			
+			}
 		}
 		
 		// return exit condition

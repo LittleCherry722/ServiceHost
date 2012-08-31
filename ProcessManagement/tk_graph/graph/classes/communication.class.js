@@ -279,7 +279,7 @@ function GCcommunication ()
 			if (!gf_isset(gt_messageTypes[gt_msg]))
 			{
 				this.messageTypes["m" + this.messageTypeCounter] = gt_msg;
-				gt_messageTypes[gt_msg] = this.messageTypeCounter;
+				gt_messageTypes[gt_msg] = "m" + this.messageTypeCounter;
 				this.messageTypeCounter++;
 			}
 			
@@ -1247,6 +1247,7 @@ function GCcommunication ()
 				var gt_optional			= gf_isset(gt_values.optional)			? gt_values.optional		: false;
 				var gt_messageTypeId	= gf_isset(gt_values.messageType)		? gt_values.messageType		: "";
 				var gt_priority			= gf_isset(gt_values.priority)			? gt_values.priority		: "1";
+				var gt_manualTimeout	= gf_isset(gt_values.manualTimeout)		? gt_values.manualTimeout	: false;
 				
 				var gt_edge				= this.getBehavior(this.selectedSubject).getEdge();
 				var gt_startNodeType	= gt_edge != null ? gt_edge.getTypeOfStartNode() : "action";
@@ -1298,6 +1299,7 @@ function GCcommunication ()
 				if (gt_edge != null)
 				{
 					gt_edge.setPriority(gt_priority);
+					gt_edge.setManualTimeout(gt_manualTimeout);
 				}
 				
 				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout, gt_optional);
