@@ -213,98 +213,123 @@ var ChargeViewModel = function() {
 
 	self.name = "chargeView";
 	self.label = "Person in charge";
-
+    self.tableIndex = 0;
+    
     self.data = {
         responsibilities : ko.observableArray([]),   // {groupName, subjectProvider}
         routings : ko.observableArray([])           // {fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider}
     };
 
-    self.lists = {};
-
-    // responsibilities : userName
-    self.unusedSubjectProviders = ko.computed(function() {
-        var subjectProviders = [];
+    self.lists = {
+        subjectNames : [],
+        subjectProviders : ko.observableArray([]),
+        messageTypes : [] 
+    };
+    
+    var Routing = function(messagesTypes){
+        var self = this;
         
-        self.lists.subjectNames.each(function(){
-            var subjectName = $(this);
-            self.data.responsibilities.each(function(){
-                var responsibility = $(this);
-                
-                if(subjectName != responsibility.subjectProvider)
-                    subjectProviders.push(subjectName);
-            });
+        var _private = {
+           messageTypes : messagesTypes
+        };
+        
+        self.fromSubject = ko.observable();
+        self.fromSubjectprovider = ko.observable();
+        self.messageType = ko.observable();
+        self.toSubject = ko.observable();
+        self.toSubjectprovider = ko.observable();
             
+        /**
+         * returns a unique list of sender's subjectNames
+         */
+        self.fromSubjectNames = ko.computed(function() {
+            return $.unique(_private.messageTypes
+                        .map(function(element){
+                            return element.sender;
+                        }));
+        });
+    
+        /**
+         * returns a list of messageTypes for a sender
+         */
+        self.availableMessageTypes = ko.computed(function() {
+            return _private.messageTypes
+                        .filter(function(element){
+                            return (element.sender == self.fromSubject()); 
+                        })
+                        .map(function(element){
+                            return element.messageType;
+                        });
+        });
+    
+        /**
+         * returns a list of receiver's subjectNames for a messageType
+         */ 
+        self.toSubjectNames = ko.computed(function() {
+            return _private.messageTypes
+                        .filter(function(element){
+                            return (element.messageType == self.messageType()); 
+                        })
+                        .map(function(element){
+                            return element.receiver;
+                        });
         });
         
-        return subjectProviders;
-    });
-
-    // responsibilities : fromSubject
-    self.fromSubjectNames = ko.computed(function() {
-        var fromSubjects = [];
+        /**
+         * reset messageType and toSubject when fromSubjects is being changed 
+         */
+        self.fromSubject.subscribe(function() {
+            self.messageType(undefined);
+            self.toSubject(undefined);
+        });
         
-        for(var row in self.lists.messageTypes)
-            if($.inArray(row.sender, fromSubjects) < 0)
-                fromSubjects.push(row.sender);
-
-        return fromSubjects;
-    });
-
-    // routings : messageType
-    self.availableMessageTypes = ko.computed(function() {
-        var messageTypes = [];
+        /**
+         * reset toSubject when messageType is being changed 
+         */
+        self.messageType.subscribe(function() {
+            self.toSubject(undefined);
+        });
+    }
+    
+    var Responsibility = function(subjectNames){
+        var self = this;
         
-        for(var row in self.lists.messageTypes)
-            if($.inArray(row.sender, self.lists.subjectNames) < 0)
+        var _private = {
+           subjectNames : subjectNames
+        };
         
-        return self.list.messageTypes.map(function(row) { return row.messageType });
-    });
-
-    // responsibilities : toSubject
-    self.toSubjectNames = ko.computed(function() {
-        var toSubjects = [];
+        self.groupName = "";
+        self.subjectProvider = ko.observable();
         
-        for(var row in self.lists.messageTypes)
-            if($.inArray(row.receiver, toSubjects) < 0)
-                toSubjects.push(row.receiver);
-
-        return toSubjects;
-    });
-
+        /**
+         * returns a list of SubjectProvider which do not own any repsonsibility 
+         */
+        self.unusedSubjectProviders = ko.computed(function() {
+            return _private.subjectNames
+                        .filter(function(element){
+                            return ($.inArray(element, self.data.responsibilities.map(function(element){
+                                return element.subjectProvider;
+                            })) < 0)
+                        });
+        });
+    }
+    
 	self.init = function() {
-
-        self.lists.subjects = gf_getSubjects();
-        self.lists.subjectNames = gf_getSubjectNames();
-        self.lists.subjectProviders = SBPM.Service.User.getAll().map(function(user){ return user.name; });
-        self.lists.messageTypes = gf_getMessageTypes(); // {sender, messageType, receiver}
-
-        console.log(self.lists);
-
         var defaultValue = {
-            responsibilities : [{
-                groupName : "",
-                subjectProvider : ""
-            }],
-            routings : [{
-                fromSubject : "",
-                fromSubjectprovider : "",
-                messageType : "",
-                toSubject : "",
-                toSubjectprovider : ""
-            }]
+            responsibilities : [new Responsibility([])],
+            routings : [new Routing([])]
         }
 
         self.data.responsibilities(defaultValue.responsibilities);
-        self.data.routings(defaultValue.routings);
-          
+        self.data.routings(defaultValue.routings);   
 	}
 
-    self.changeSender = function(element, i){
-        // reset messageType & receiver
-    }
-
-    self.changeMessageType = function(element, i){
-        // reset receiver
+    self.loadModel = function(){
+        self.lists.subjectNames = gf_getSubjectNames();
+        self.lists.subjectProviders(SBPM.Service.User.getAll().map(function(user){ return user.name; }));
+        self.lists.messageTypes = gf_getMessageTypes(); // {sender, messageType, receiver}
+        
+        // TODO load self.data
     }
 
     self.addRouting = function(){
