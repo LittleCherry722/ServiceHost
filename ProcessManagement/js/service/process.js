@@ -143,14 +143,4 @@ SBPM.Service.Process = {
             "subjects" : startSubjectsAsJSON
         }, false, SBPM.DB.defaultOKReturnBoolean);
     },
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

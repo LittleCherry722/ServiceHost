@@ -26,6 +26,9 @@ var Dialog = function() {
         });
     }
 
+    this.UrgentNotice = function(title, text) {
+        return dialog(title || "Notice", text);
+    }
 
     this.Notice = function(title, text, okAction) {
         return dialog(title || "Notice", text, [{

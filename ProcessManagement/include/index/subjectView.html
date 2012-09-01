@@ -22,13 +22,13 @@
 		<br/>
 		<label class="graphsectionheader">Node functions:</label>
 		<br/>
-		<input type="button" id="AddSubjectButton" class="graphmenubutton" onClick="gv_graph.createNode(); updateListOfSubjects();" value="Add subject" />
+		<input type="button" id="AddSubjectButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.createNode(); updateListOfSubjects();" value="Add subject" />
 		<br/>
-		<input type="button" id="UpdateSubjectButton" class="graphmenubutton" onClick="gv_graph.updateNode(); updateListOfSubjects();" value="Update subject" />
+		<input type="button" id="UpdateSubjectButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateNode(); updateListOfSubjects();" value="Update subject" />
 		<br/>
-		<input type="button" id="DeleteSubjectButton" class="graphmenubutton" onClick="gv_graph.deleteNode(); updateListOfSubjects();" value="Delete subject" />
+		<input type="button" id="DeleteSubjectButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteNode(); updateListOfSubjects();" value="Delete subject" />
 		<br/>
-		<input type="button" id="DeactivateSubjectButton" class="graphmenubutton" onClick="gf_deactivateNode();" value="De-/Activate subject" />
+		<input type="button" id="DeactivateSubjectButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;I&#34;'" onclick="gf_deactivateNode();" value="De-/Activate subject" />
 		<br/>
 		<div class="graphsectionheader" id="subjectType">
 			<label class="graphsectionheader">Subject type:</label>

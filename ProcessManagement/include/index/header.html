@@ -3,12 +3,12 @@
 </div>
 <div id="account_info">
     <img src="images/icons/user_48.png" width="16px" height="16px" alt="Online" class="mid_align"/>
-    Hello <a href="#" data-bind="text: userName"></a> (<a id="newMSG" href="newMSG.html" data-bind="text: messageCountString"></a>)
+    Hello <a href="#" data-bind="text: userName()"></a> (<a id="newMSG" href="newMSG.html" data-bind="fancybox : {}" ><span data-bind="text: messageCountString()"></span></a>)
 </div>
 
 <div id="misc">
     <div id="menu">
-        <a id="administration" href="administration.html">Administration</a>
+        <a href="administration.html" data-bind="fancybox : { width : '80', height : '50' }">Administration</a>
         |
         <a href="start.html">Logout</a>
     </div>

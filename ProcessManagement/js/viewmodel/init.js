@@ -1,43 +1,37 @@
+// on dom ready load mediator
+$(document).ready(function() {
 
-/**
- * Current ViewModel 
- */
-SBPM.VM = {}
+    $.getScript("js/mediator/mediator.js").fail(function(jqxhr, settings, exception) {
+        console.log("Error loading root mediator.");
+        throw exception;
+    }).success(function() {
 
+        $.getScript("js/mediator/" + Utilities.getFilename(true) + ".js").fail(function(jqxhr, settings, exception) {
 
-// on dom ready load templates
-$(document).ready(function(){
-    var scriptTags = $('script[type="text/html"]');
-    var i = 1;
-   
-    if(scriptTags.size() < 1)
-        loadViewModel();
-   else
-        // iterate through templates
-        scriptTags.each(function(idx){
-            // and load each
-            $(this).load("include/"+Utilities.getFilename(true)+"/"+$(this).attr('id')+".html", function(data){
-    
-                // if the last template is loaded init and bind ViewModel to dom
-                if(scriptTags.length == i++){
-                    
-                    loadViewModel();
-                        
-                }
-                
+            console.log("Application: Loading mediator failed. Falling back to standard mediator.");
+
+            // do some minimal viable stuff to initialize an ViewModel without a Mediator (backward-compability)
+            SBPM.Mediator = new (function(){
+
+                // Extends IMediator
+                IMediator.call(this);
+
             });
-        })
-    
-    function loadViewModel(){
-        $.getScript("js/viewmodel/"+Utilities.getFilename(true)+".js")
-        .fail(function(jqxhr, settings, exception){
-            console.log("Error loading ViewModel for "+Utilities.getFilename(true)+". Error: "+exception);
-        })
-        .success(function(){
-            // the current ViewModel can be found here
-            SBPM.VM = new ViewModel();   
-            ko.applyBindings(SBPM.VM);
-        });
-    }
 
-});
+        }).success(function() {
+
+            console.log("Application: Loading mediator succeded. (js/mediator/" + Utilities.getFilename(true) + ".js).");
+
+            // the current Mediator can be found here
+            SBPM.Mediator = new Mediator();
+            
+        }).complete(function() {
+            
+            console.log("Application: Initializing Mediator...");
+            SBPM.Mediator.init(SBPM.Mediator.viewListeners);
+            
+        });
+
+    });
+
+}); 

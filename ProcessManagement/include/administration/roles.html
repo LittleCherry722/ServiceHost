@@ -10,9 +10,9 @@
         <tbody data-bind='foreach: data()'>
             <tr>
                 <td><input class="inline"  data-bind='value: name' /></td>
-                <td><input type="button" class="button" value="Delete" data-bind='click: $parent.deleteRole' /></td>
+                <td><input type="button" class="button" value="Delete" data-bind='click: $parent.remove' /></td>
             </tr>
         </tbody>
     </table>
 
-<input id="rolesBtn" type="button" class="button" value="Create Role" data-bind='click: createRole' />
+<input id="rolesBtn" type="button" class="button" value="Create Role" data-bind='click: create' />

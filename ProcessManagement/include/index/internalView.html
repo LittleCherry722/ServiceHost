@@ -7,13 +7,13 @@
 		<div id="RightMenuDiv">
 			<label class="graphsectionheader">Add states:</label>
 			<br/>
-			<input type="button" id="CreateNodeButton" class="graphmenubutton" value="Add new state" onclick="gv_graph.createNode();"/>
+			<input type="button" id="CreateNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" value="Add new state" onclick="gv_graph.createNode()"/>
 			<br/>
-			<input type="button" id="InsertSendNodeButton" class="graphmenubutton" onclick="gf_callMacro('newSendNode');" value="Insert send state" />
+			<input type="button" id="InsertSendNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;1&#34;'" onclick="gf_callMacro('newSendNode');" value="Insert send state" />
 			<br/>
-			<input type="button" id="InsertReceiveButton" class="graphmenubutton" onclick="gf_callMacro('newReceiveNode');" value="Insert receive state" />
+			<input type="button" id="InsertReceiveButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;2&#34;'" onclick="gf_callMacro('newReceiveNode');" value="Insert receive state" />
 			<br/>
-			<input type="button" id="InsertActionNodeButton" class="graphmenubutton" onclick="gf_callMacro('newActionNode');" value="Insert action state" />
+			<input type="button" id="InsertActionNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;3&#34;'" onclick="gf_callMacro('newActionNode');" value="Insert action state" />
 			<br/>
 			<br/>
 			<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the behavior?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear behavior" />
@@ -82,9 +82,9 @@
 			<label align="left" class="graphsectionheader">Optional</label>
 		</div>
 		<br/>
-		<input type="button" id="UpdateEdgeButton" class="graphmenubutton" onclick="gv_graph.updateEdge();" value="Update transition" />
+		<input type="button" id="UpdateEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<br/>
-		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" onclick="gv_graph.deleteEdge();" value="Remove transition" />
+		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
 		<br/>
 		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate transition" />
 		<br/>
@@ -115,9 +115,9 @@
 		<label class="graphsectionheader">Text:</label>
 		<textarea id="ge_text" style="width:140px"></textarea>														
 		<br/>
-		<input type="button" id="UpdateNodeButton" class="graphmenubutton" onclick="gv_graph.updateNode();" value="Update state" />
+		<input type="button" id="UpdateNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
 		<br/>
-		<input type="button" id="ConnectNodeButton" class="graphmenubutton" onclick="gv_graph.connectNodes();" value="Connect state" />
+		<input type="button" id="ConnectNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />
 		<br/>
 		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate state" />
 		<br/>

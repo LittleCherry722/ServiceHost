@@ -2,24 +2,7 @@ var ViewModel = function() {
 
 	var self = this;
 
-	self.init = function() {
-		$("#dialog").dialog({
-			autoOpen : false,
-			modal : true,
-			draggable : false,
-			resiable : false,
-			buttons : [{
-				text : "Continue",
-				click : function() {
-				}
-			}, {
-				text : "Cancel",
-				click : function() {
-					$(this).dialog("close");
-				}
-			}]
-		});
-
+	self.init = function(callback) {
 		self.user = ko.observable();
 		self.activeViewIndex = ko.observable(0);
 
@@ -28,24 +11,23 @@ var ViewModel = function() {
 		self.processVM = new ProcessViewModel();
 		self.homeVM = new HomeViewModel();
 		self.executionVM = new ExecutionViewModel();
-		
+
+        self.mainViews = [self.homeVM, self.processVM, self.executionVM];
 
 		self.menuVM.init();
 		self.headerVM.init();
 		self.homeVM.init();
 		self.processVM.init();
 		self.executionVM.init();
-		
 
+        callback();
 	}
-
-	self.init();
-	self.mainViews = [self.homeVM, self.processVM, self.executionVM];
-
+	
 	self.activeView = function() {
 		return self.mainViews[self.activeViewIndex()]
 	};
 }
+
 var MenuViewModel = function() {
 
 	var self = this;
@@ -57,206 +39,6 @@ var MenuViewModel = function() {
 		self.recentProcesses(SBPM.Service.Process.getAllProcesses(self.maxRecent));
 	}
 
-	self.afterRender = function() {
-
-		$("#main_menu").accordion({
-			collapsible : true,
-			autoHeight : false
-		});
-
-		$("#calendar").datepicker({
-			nextText : "&raquo;",
-			prevText : "&laquo;"
-		});
-
-		$("a#save").click(function() {
-		    
-		    if(SBPM.Service.Process.saveProcess()){
-		      // reload recent processes
-		      self.init();
-		      
-		      SBPM.Notification.Info("Information", "Process successfully created.");
-		    }else
-		      SBPM.Notification.Info("Error", "Could not create process.");
-
-		});
-
-		$("#hide_menu").click(function() {
-			$("#left_menu").hide();
-			$("#show_menu").show();
-			$("body").addClass("nobg");
-			$("#content").css("marginLeft", 35);
-		});
-
-		$("#show_menu").click(function() {
-			$("#left_menu").show();
-			$(this).hide();
-			$("body").removeClass("nobg");
-			$("#content").css("marginLeft", 245);
-		});
-
-		$("a#saveAs").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'no',
-			'width' : '50',
-			'height' : '40',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-			}
-		});
-
-		$("a#newProcess").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'no',
-			'width' : '40',
-			'height' : '30',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-			}
-		});
-
-		$("a#newInstance").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'auto',
-			'width' : '40',
-			'height' : '50',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-				if (fancyreturn1 != false)
-					SBPM.VM.executionVM.newInstance(fancyreturn1);
-			}
-		});
-
-		$("a#newMSG").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'auto',
-			'width' : '40',
-			'height' : '50',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-				if (fancyreturn1 != false)
-					resumeInstanceMessage(fancyreturn1)
-			}
-		});
-
-		$("a#MSGInbox").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'auto',
-			'width' : '40',
-			'height' : '50',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-				if (fancyreturn1 != false) {
-					SBPM.VM.executionVM.drawHistory(loadInstanceData(fancyreturn1));
-					document.getElementById("welcome").style.display = "none";
-					document.getElementById('ausfuehrung').style.display = 'block';
-					document.getElementById("graph").style.display = "none";
-					document.getElementById("abortInstanceButton").style.display = "none";
-				}
-			}
-		});
-
-		$("a#MSGOutbox").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'auto',
-			'width' : '40',
-			'height' : '50',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-				if (fancyreturn1 != false) {
-					SBPM.VM.executionVM.drawHistory(loadInstanceData(fancyreturn1));
-					document.getElementById("welcome").style.display = "none";
-					document.getElementById('ausfuehrung').style.display = 'block';
-					document.getElementById("graph").style.display = "none";
-					document.getElementById("abortInstanceButton").style.display = "none";
-				}
-			}
-		});
-
-		$("a#runningInstances").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'auto',
-			'width' : '40',
-			'height' : '50',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-				writeSumActiveInstances();
-				if (fancyreturn1 != false)
-					resumeInstance(fancyreturn1);
-			}
-		});
-
-		$("a#history").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'auto',
-			'width' : '40',
-			'height' : '50',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-				if (fancyreturn1 != false) {
-					SBPM.VM.executionVM.drawHistory(loadInstanceData(fancyreturn1));
-					document.getElementById("welcome").style.display = "none";
-					document.getElementById('ausfuehrung').style.display = 'block';
-					document.getElementById("graph").style.display = "none";
-					document.getElementById("abortInstanceButton").style.display = "none";
-				}
-			}
-		});
-
-		$("a#processList").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'auto',
-			'width' : '40',
-			'height' : '50',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6'
-		});
-
-	}
 }
 var HeaderViewModel = function() {
 
@@ -284,29 +66,7 @@ var HeaderViewModel = function() {
 
 		setTimeout(messageCheck, 120000);
 	}
-
-
-	self.afterRender = function() {
-
-		$("a#administration").fancybox({
-			'padding' : '0',
-			'scrolling' : 'no',
-			'width' : '80',
-			'height' : '50',
-			'autoScale' : false,
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'enableEscapeButton' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-
-			}
-		});
-
-	}
+	
 }
 var HomeViewModel = function() {
 
@@ -324,10 +84,6 @@ var HomeViewModel = function() {
 		SBPM.VM.activeViewIndex(0);
 	}
 }
-
-
-
-
 var ProcessViewModel = function() {
 
 	var self = this;
@@ -339,15 +95,13 @@ var ProcessViewModel = function() {
 
 	self.subjectVM = new SubjectViewModel();
 	self.internalVM = new InternalViewModel();
-	self.chargeVM = new chargeViewModel();
+	self.chargeVM = new ChargeViewModel();
 
 
 	self.init = function() {
 		self.subjectVM.init();
 		self.internalVM.init();
 		self.chargeVM.init();
-
-
 	}
 
 	self.processViews = [self.subjectVM, self.internalVM, self.chargeVM];
@@ -357,53 +111,7 @@ var ProcessViewModel = function() {
 	self.activeView = function() {
 		return self.processViews[self.activeViewIndex()]
 	};
-
-	self.afterRender = function() {
-		$("#slctSbj").chosen();
-
-		$("#tab2").click(function() {
-			console.log("tab2 clicked");
-
-			$(this).parent().parent().find("td input").removeClass("active");
-			$(this).addClass("active");
-			$(".tab_content").addClass("hide");
-			$("#tab2_content").removeClass("hide");
-			gv_graph.changeView('cv');
-			updateListOfSubjects();
-		});
-
-		$("#tab3").click(function() {
-			console.log("tab3 clicked");
-
-			$(this).parent().parent().find("td input").removeClass("active");
-			$(this).addClass("active");
-			$(".tab_content").addClass("hide");
-			$("#tab3_content").removeClass("hide");
-
-			gv_graph.selectedNode = null;
-			updateListOfSubjects();
-			$("#zoominbutton").hide();
-			$("#zoomoutbutton").hide();
-			$("#reset-button").hide();
-		});
-
-		$("input#help-button").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'no',
-			'height' : '60',
-			'width' : '40',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-			}
-		});
-
-	}
-
+	
 	self.showProcess = function(processName) {
 	    
 	    try{
@@ -442,7 +150,6 @@ var ProcessViewModel = function() {
             
             
             // TODO replace this DEPRECATED CALLS!
-            showverantwortliche();
             setSubjectIDs(); 
             $("#tab2").addClass("active");
             // TODO END
@@ -453,6 +160,8 @@ var ProcessViewModel = function() {
 	        
 	        SBPM.Notification.Error("Error", "Could not load process \""+processName+"\".");
 	        
+	        console.log("ProcessViewModel: Could not load process: "+e);
+	        
 	    }
 	    
 
@@ -460,6 +169,7 @@ var ProcessViewModel = function() {
 		return processId;
 	}
 }
+
 var SubjectViewModel = function() {
 
 	var self = this;
@@ -478,119 +188,7 @@ var SubjectViewModel = function() {
 	}
 
 	self.afterRender = function() {
-		//resize canvas to fit into screen
-		$("#graph_cv_outer").css("width", window.innerWidth - 170 - 245);
-		$("#graph_cv_outer").css("height", window.innerHeight - 145);
-		$("#show_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$("#hide_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$(window).resize(function() {
-			if ($("#show_menu").css("display") == "none") {
-				$("#graph_cv_outer").css("width", window.innerWidth - 170 - 245);
-				$("#graph_cv_outer").css("height", window.innerHeight - 145);
-			} else {
-				$("#graph_cv_outer").css("width", window.innerWidth - 195);
-				$("#graph_cv_outer").css("height", window.innerHeight - 185);
-		}
-		});
 
-		// gv_graph.init();
-		// gf_paperChangeView("cv");
-		// updateListOfSubjects();
-		// gv_graph.draw();
-		var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
-		var qtipPositionAt = 'right top';
-		var qtipPositionMy = 'left bottom';
-		$('#AddSubjectButton').qtip({
-			content : {
-				text : 'Macro\n: Press "A"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#UpdateSubjectButton').qtip({
-			content : {
-				text : 'Macro\n: Press "U"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#DeleteSubjectButton').qtip({
-			content : {
-				text : 'Macro\n: Press "D"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#DeleteSubjectButton').qtip({
-			content : {
-				text : 'Macro\n: Press "D"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		
-				 $( document ).ready( function() { 
-
-      $("#ge_cv_id").bind( "change", function() {
-      	     if($("#ge_cv_id").val() == null || $("#ge_cv_id").val() == "") {
-
-           	$("#AssignRoleWarning").show();
-      } else {
-      	$("#AssignRoleWarning").hide();
-      }
-
-  });
-	
-	
-	});
 	}
 }
 var InternalViewModel = function() {
@@ -607,264 +205,128 @@ var InternalViewModel = function() {
 		SBPM.VM.activeViewIndex(1);
 		SBPM.VM.processVM.activeViewIndex(1);
 	}
-
-	self.afterRender = function() {
-
-		//resize canvas to fit into screen
-		$("#graph_bv_outer").css("width", window.innerWidth - 170 - 245);
-		$("#graph_bv_outer").css("height", window.innerHeight - 145);
-		$("#show_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$("#hide_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$(window).resize(function() {
-			if ($("#show_menu").css("display") == "none") {
-				$("#graph_bv_outer").css("width", window.innerWidth - 170 - 245);
-				$("#graph_bv_outer").css("height", window.innerHeight - 145);
-			} else {
-				$("#graph_bv_outer").css("width", window.innerWidth - 195);
-				$("#graph_bv_outer").css("height", window.innerHeight - 185);
-			}
-		});
-
-		// gf_clickedCVbehavior();
-		// updateListOfSubjects();
-		var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
-		var qtipPositionAt = 'right top';
-		var qtipPositionMy = 'left bottom';
-		$('#CreateNodeButton').qtip({
-			content : {
-				text : 'Macro\n: Press "A"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#InsertSendNodeButton').qtip({
-			content : {
-				text : 'Macro\n: Press "1"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#InsertReceiveButton').qtip({
-			content : {
-				text : 'Macro\n: Press "2"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#InsertActionNodeButton').qtip({
-			content : {
-				text : 'Macro\n: Press "3"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#UpdateNodeButton').qtip({
-			content : {
-				text : 'Macro\n: Press "U"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#DeleteNodeButton').qtip({
-			content : {
-				text : 'Macro\n: Press "D"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#ConnectNodeButton').qtip({
-			content : {
-				text : 'Macro\n: Press "C"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#UpdateEdgeButton').qtip({
-			content : {
-				text : 'Macro\n: Press "U"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$('#DeleteEdgeButton').qtip({
-			content : {
-				text : 'Macro\n: Press "D"'
-			},
-			position : {
-				at : qtipPositionAt,
-				my : qtipPositionMy,
-				viewport : $(window),
-				adjust : {
-					method : 'mouse',
-					x : 0,
-					y : 0
-				}
-			},
-			style : {
-				classes : qtipStyle
-			}
-		});
-		$("#rightMenuTrigger").click(function() {
-			if($("#RightMenuDiv").is(":visible")) {
-			$("#RightMenuDiv").hide();
-			$("#rightMenuTrigger").html("Show")
-			} else {
-			$("#RightMenuDiv").show();
-			$("#rightMenuTrigger").html("Hide")
-			}
-		});
-		
-		 $( document ).ready( function() { 
-
-      $("#internalRadioMenu :input" ).bind( "change", function() {
-      	     if($("#ge_edge_type_timeout").is(":checked")) {
-
-           	$("#timeoutdiv").show();
-      } else {
-      	$("#timeoutdiv").hide();
-      }
-
-  });
-
-	});
-	}
+	
 }
-var chargeViewModel = function() {
+var ChargeViewModel = function() {
 
 	var self = this;
 
 	self.name = "chargeView";
 	self.label = "Person in charge";
 
+    self.data = {
+        responsibilities : ko.observableArray([]),   // {groupName, subjectProvider}
+        routings : ko.observableArray([])           // {fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider}
+    };
+
+    self.lists = {};
+
+    // responsibilities : userName
+    self.unusedSubjectProviders = ko.computed(function() {
+        var subjectProviders = [];
+        
+        self.lists.subjectNames.each(function(){
+            var subjectName = $(this);
+            self.data.responsibilities.each(function(){
+                var responsibility = $(this);
+                
+                if(subjectName != responsibility.subjectProvider)
+                    subjectProviders.push(subjectName);
+            });
+            
+        });
+        
+        return subjectProviders;
+    });
+
+    // responsibilities : fromSubject
+    self.fromSubjectNames = ko.computed(function() {
+        var fromSubjects = [];
+        
+        for(var row in self.lists.messageTypes)
+            if($.inArray(row.sender, fromSubjects) < 0)
+                fromSubjects.push(row.sender);
+
+        return fromSubjects;
+    });
+
+    // routings : messageType
+    self.availableMessageTypes = ko.computed(function() {
+        var messageTypes = [];
+        
+        for(var row in self.lists.messageTypes)
+            if($.inArray(row.sender, self.lists.subjectNames) < 0)
+        
+        return self.list.messageTypes.map(function(row) { return row.messageType });
+    });
+
+    // responsibilities : toSubject
+    self.toSubjectNames = ko.computed(function() {
+        var toSubjects = [];
+        
+        for(var row in self.lists.messageTypes)
+            if($.inArray(row.receiver, toSubjects) < 0)
+                toSubjects.push(row.receiver);
+
+        return toSubjects;
+    });
+
 	self.init = function() {
 
+        self.lists.subjects = gf_getSubjects();
+        self.lists.subjectNames = gf_getSubjectNames();
+        self.lists.subjectProviders = SBPM.Service.User.getAll().map(function(user){ return user.name; });
+        self.lists.messageTypes = gf_getMessageTypes(); // {sender, messageType, receiver}
+
+        console.log(self.lists);
+
+        var defaultValue = {
+            responsibilities : [{
+                groupName : "",
+                subjectProvider : ""
+            }],
+            routings : [{
+                fromSubject : "",
+                fromSubjectprovider : "",
+                messageType : "",
+                toSubject : "",
+                toSubjectprovider : ""
+            }]
+        }
+
+        self.data.responsibilities(defaultValue.responsibilities);
+        self.data.routings(defaultValue.routings);
+          
 	}
+
+    self.changeSender = function(element, i){
+        // reset messageType & receiver
+    }
+
+    self.changeMessageType = function(element, i){
+        // reset receiver
+    }
+
+    self.addRouting = function(){
+        self.data.routings().push({
+                fromSubject : "",
+                fromSubjectprovider : "",
+                messageType : "",
+                toSubject : "",
+                toSubjectprovider : ""
+            });
+    }
+
+    self.removeRouting = function(element){
+        self.data.routings().remove(element);
+    }
 
 	self.showView = function() {
 		SBPM.VM.activeViewIndex(1);
 		SBPM.VM.processVM.activeViewIndex(2);
 	}
 
-	self.afterRender = function() {
-		$("a#responsibleForloggedinUser").fancybox({
-			'padding' : '0px',
-			'scrolling' : 'no',
-			'width' : '30',
-			'height' : '37',
-			'transitionIn' : 'elastic',
-			'transitionOut' : 'elastic',
-			'type' : 'iframe',
-			'overlayColor' : '#333333',
-			'modal' : true,
-			'overlayOpacity' : '0.6',
-			'onClosed' : function() {
-				if (fancyreturn1 != false)
-					addResponsible(fancyreturn2, fancyreturn1);
-			}
-		});
-
-		// showverantwortliche();
-		// gv_graph.selectedNode = null;
-		// updateListOfSubjects();
-
-	}
 }
-
-
-
-
 
 var ExecutionViewModel = function() {
 
@@ -880,8 +342,7 @@ var ExecutionViewModel = function() {
 		self.courseVM.init();
 		self.instanceVM.init();
 	}
-	self.afterRender = function() {
-	}
+
 	self.showView = function() {
 		SBPM.VM.activeViewIndex(2);
 	}
@@ -889,18 +350,19 @@ var ExecutionViewModel = function() {
 	self.executionViews = [self.courseVM, self.instanceVM];
 
 	self.activeViewIndex = ko.observable(0);
+	
 	self.activeView = function() {
 		return self.executionViews[self.activeViewIndex()];
 	}
 
-self.newInstance = function (name){
-	 	SBPM.Storage.set("inctanceStepSubjectID",null);
- 		SBPM.Storage.set("inctanceStepNodeID",null);
-		SBPM.Service.Instance.newInstance(name);
-		self.showView();
-	
-		self.drawInstanceState();
-}
+    self.newInstance = function (name){
+    	 	SBPM.Storage.set("inctanceStepSubjectID",null);
+     		SBPM.Storage.set("inctanceStepNodeID",null);
+    		SBPM.Service.Instance.newInstance(name);
+    		self.showView();
+    	
+    		self.drawInstanceState();
+    }
 
 
 	self.drawHistory = function(data) {
@@ -1045,6 +507,7 @@ location.reload();
 }
 
 }
+
 var CourseViewModel = function() {
 
 
@@ -1055,13 +518,10 @@ var CourseViewModel = function() {
 	self.init = function() {
 
 	}
-	self.afterRender = function() {
-	}
+
 	self.showView = function() {
 		SBPM.VM.activeViewIndex(2);
 		SBPM.VM.executionVM.activeViewIndex(0);
-		
-		
 		
 		if(SBPM.Storage.get("inctanceStepNodeID")==null ||SBPM.Storage.get("inctanceStepSubjectID")==null ){
 			SBPM.VM.executionVM.drawHistory(loadInstanceData(SBPM.Storage.get("instanceid")));
@@ -1069,10 +529,6 @@ var CourseViewModel = function() {
 		else{
 			SBPM.VM.executionVM.selectNextNode(SBPM.Storage.get("inctanceStepSubjectID"),SBPM.Storage.get("inctanceStepNodeID"));
 		}
-		
-		
-		
-		
 		
 	}
 	self.activateTab = function() {
@@ -1091,12 +547,7 @@ var InstanceViewModel = function() {
 	self.init = function() {
 
 	}
-	self.afterRender = function() {
-		
-		gf_showInternalBehavior(SBPM.Service.Process.loadGraph(getProcessIDforInstance(SBPM.Storage.get("userid"))),
-		 getGroupName(getGroupIDforResponsibleUser(SBPM.Storage.get("userid"),getProcessIDforInstance(SBPM.Storage.get("instanceid"))).groups[0]).toLowerCase(),
-		  SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history[SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history.length-1].nodeid);
-	}
+
 	self.showView = function() {
 		SPBM.VM.activeViewIndex(2);
 		SBPM.VM.executionVM.activeViewIndex(1);

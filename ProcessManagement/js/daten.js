@@ -21,21 +21,6 @@ console.log("Deprecated: daten.js");
 	 return error_log("false"=="false");
 }
 
-
-function showverantwortliche() {
-	console.log("Deprecated: daten.js");
-var groups = getAllGroups();
-var insert = "";
-for (var x = 0; x < groups.length; ++x) {
-	var responsibles = getResponsiblesForUserForGroup(getUserID(SBPM.Storage.get("loggedin_user")), getGroupID(groups[x]), getProcessID(processName));
-	if (responsibles.length == 0) insert += "<tr><td align=\"center\">" + groups[x] + "</td><td></td><td align=\"center\"></td></tr>";
-	for (var i = 0; i < responsibles.length; ++i) {
-		insert += "<tr><td align=\"center\">" + groups[x] + "</td><td align=\"center\">" + getUserName(responsibles[i]) + "</td><td align=\"center\"><a style=\"cursor:pointer\" onclick=\"removeResponsibleForUserForGroup("+getUserID(SBPM.Storage.get("loggedin_user"))+ ","+getGroupID(groups[x])+","+responsibles[i]+","+getProcessID(processName)+");showverantwortliche();\" >L&ouml;schen</a></td></tr>";
-	}
-}
-document.getElementById('responsibles').innerHTML = insert;
-}
-
 function setSubjectIDs() {
 	console.log("Deprecated: daten.js");
 var insert ="";
@@ -98,7 +83,6 @@ else {
 		document.getElementById("saveAs").style.display = "block";
 		document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + SBPM.Storage.get("loggedin_user");
 		processName = name;
-		showverantwortliche();
 		setSubjectIDs();
 		//gv_graph.clearGraph();
 		
@@ -106,24 +90,7 @@ else {
 }
 }
 */
-function addResponsible(user, group) {
-	console.log("Deprecated: daten.js");
 
-if(createResponsibleForUserForGroup(getUserID(SBPM.Storage.get("loggedin_user")), getGroupID(group), getUserID(user), getProcessID(processName))) {
-		$("#freeow").freeow("Person in charge", "User \"" + user +"\" was added as person in charge for group \"" + group + "\".", {
-		classes: [,"ok"],
-		autohide: true
-	});
-}
-else {
-	$("#freeow").freeow("Group assignment", "User \"" + user +"\" could not be added as person in charge for group \"" + group + "\".", {
-		classes: [,"error"],
-		autohide: true
-	});
-}
-showverantwortliche();
-}
-/*
 function GraphSpeichern() {
 
     var graphAsJSON = gv_graph.saveToJSON();
@@ -195,7 +162,6 @@ function ProzessLaden(name) {
 	document.getElementById("saveAs").style.display = "block";
 	document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + SBPM.Storage.get("loggedin_user");
 	shownothing();
-	showverantwortliche();
 	setSubjectIDs();
 	$("#freeow").freeow("Load process", "Process \"" + name + "\" successfully loaded.", {
 		classes: [,"ok"],
@@ -205,7 +171,7 @@ function ProzessLaden(name) {
 	$("input[id=tab2]").trigger("click");  
 
 }
-*/
+
 
 
 function clearListOfSubjects(){
@@ -254,6 +220,7 @@ function goToInternalBehaviorOf(subject){
 	showtab1();
 	updateListOfSubjects();
 	
+	SBPM.VM.processVM.activeViewIndex(1);
 }
 
 

@@ -9,10 +9,10 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: {data : data(), afterRender : $root.initUI}">
+        <tbody data-bind="foreach: {data : data(), afterRender : SBPM.Mediator.afterRenderUsersRow}">
             <tr>
                 <td><input class="inline" data-bind='value: name' /></td>
-                <td><select data-bind='options: $parent.options(), selectedOptions: roles, onchange: $parent.changeRoles' class="chzn-select" multiple /></td>
+                <td><select data-bind='options: $parent.options(), selectedOptions: roles' class="chzn-select" multiple="multiple" ></select></td>
     <!--             <td><input type="button" class="button" value="Details" data-bind='click: $parent.showDetails' /></td> 
                 <td>
                     <input class="readonly" style="float: left; width: 25px; text-align: right;" data-bind='{value: inputpoolsize}' maxlength="3" readonly/>
@@ -20,10 +20,10 @@
                         <div class="slider"></div>
                     </div>
                 </td>-->
-                <td><input type="button" class="button" value="Delete" data-bind='click: $parent.deleteUser' /></td>
+                <td><input type="button" class="button" value="Delete" data-bind='click: $parent.remove' /></td>
             </tr>
         </tbody>
     </table>
 </div>
 
-<input id="usersBtn" type="button" class="button" value="Create User" data-bind='click: createUser' />
+<input id="usersBtn" type="button" class="button" value="Create User" data-bind='click: create' />

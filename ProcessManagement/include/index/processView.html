@@ -8,12 +8,12 @@
 	<div id="graph" style="display:block">
 		<h2 id="process_name" style="color:#525252" data-bind="text :SBPM.VM.processVM.activeView().word "></h2>
 		<!-- Begin graph window -->
-		<div class="onecolumn">
+		<div class="onecolumn" style="width: 100%">
 			<div class="header">
-				<input id="zoominbutton" type="button" onClick="gf_paperZoomIn();" value="Zoom In" />
-				<input id="zoomoutbutton" type="button" onClick="gf_paperZoomOut();" value="Zoom Out" />
-				<input id="reset-button" type="button" onClick="gf_paperZoomReset();" value="Reset zoom" />
-				<input id="help-button" type="button" href="help.html" value="Help" />
+				<input id="zoominbutton" type="button" onclick="gf_paperZoomIn();" value="Zoom In" />
+				<input id="zoomoutbutton" type="button" onclick="gf_paperZoomOut();" value="Zoom Out" />
+				<input id="reset-button" type="button" onclick="gf_paperZoomReset();" value="Reset zoom" />
+				<input id="help-button" type="button" href="help.html" value="Help" data-bind="fancybox : {width : '30', height : '41'}"/>
 				<div class="switch" style="width:357px">
 					<table width="357px" cellpadding="0" cellspacing="0" class="menu-table">
                         <tbody>
@@ -24,7 +24,7 @@
 
                                 <td style="" class="menu-table">
                                     <div class="tab-dropdown">
-                                       <select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; " tabindex="1" ></select>
+                                       <select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
                                     </div>
                                 </td>
                                 <td>
@@ -42,9 +42,11 @@
 			
             <!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
 			<div id="processContent" >
-                <div id="tab2_content" class="tab_content" data-bind="template: { name: subjectVM.name, data: subjectVM, afterRender: subjectVM.afterRender }"></div>
-			    <div id="tab1_content" class="tab_content hide" data-bind="template: { name: internalVM.name, data: internalVM, afterRender: internalVM.afterRender }"></div>
-			    <div id="tab3_content" class="tab_content hide" data-bind="template: { name: chargeVM.name, data: chargeVM, afterRender: chargeVM.afterRender }"></div>
+                <div id="tab2_content" class="tab_content" data-bind="templateWithListeners: { name: subjectVM.name, data: subjectVM, listeners: SBPM.Mediator.subviewListeners['subjectView']}"></div>
+			    <div id="tab1_content" class="tab_content hide" data-bind="templateWithListeners: { name: internalVM.name, data: internalVM, listeners: SBPM.Mediator.subviewListeners['internalView']}"></div>
+			    <div data-bind="visible : chargeVM.name == activeView().name">
+                    <div id="tab3_content" class="tab_content hide" data-bind="templateWithListeners: { name: chargeVM.name, data: chargeVM, afterRender : chargeVM.init, listeners: SBPM.Mediator.subviewListeners['chargeView']}"></div>
+			    </div>
 			    
 			</div>
 			

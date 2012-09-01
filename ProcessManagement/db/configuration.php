@@ -40,9 +40,9 @@ switch ($action){
 		
 		if(is_array($configuration))
 			foreach ($configuration as $row) 
-				mysql_query("INSERT INTO `configuration` (`key`, `label`, `value`) 
-							 VALUES (" . $row['key'] . ", '" . $row['label'] . "', '" . $row['value'] . "') 
-							 ON DUPLICATE KEY UPDATE label = '" . $row['label'] . "', value = " . $row['value']);
+				mysql_query("INSERT INTO `configuration` (`key`, `label`, `value`, `type`) 
+							 VALUES (" . $row['key'] . ", '" . $row['label'] . "', '" . $row['value'] . "', '" . $row['type'] . "') 
+							 ON DUPLICATE KEY UPDATE label = '" . $row['label'] . "', value = " . $row['value'] .", type = " . $row['type']);
 
 		break;
 }

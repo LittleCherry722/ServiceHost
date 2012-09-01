@@ -7,37 +7,39 @@
 		<a href=""><img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>Process Management</a>
 		<ul>
 			<li>
-				<a id="newProcess" href="newProcess.html">Create new process</a>
+				<a id="newProcess" href="newProcess.html" data-bind="fancybox : {width : '40', height : '30'}">Create new process</a>
 			</li>
 			
 			<!-- <li><a id="deleteProcess" href="deleteProcess.html">Delete existing process</a></li> -->
             <li>
-                <a id="processList" href="processList.html">View existing processes</a>
+                <a id="processList" href="processList.html" data-bind="fancybox : {}">View existing processes</a>
             </li>
             <li>
                 <ul data-bind="foreach: recentProcesses">
                     <li>
-                        <a data-bind="{text: $data, click: SBPM.VM.processVM.showProcess}"></a>
+                        <a data-bind="{text: $data, click: SBPM.VM.processVM.showProcess}"> </a>
                     </li>
                 </ul>
             </li>
 			<!-- <li><a id="loadProcess" href="loadProcess.html">Load process</a></li> -->
 		</ul>
 	</li>
-	<li id="save" data-bind= "visible: SBPM.VM.activeViewIndex() == 1" >
-		<a id="save" href=""  ><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process</a>
+	<li data-bind= "visible: SBPM.VM.activeViewIndex() == 1" >
+		<a id="save" ><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process</a>
 	</li>
-	<li id="saveAs" data-bind= "visible: SBPM.VM.activeViewIndex() == 1">
-		<a id="saveAs" href="saveAsProcess.html"><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process As</a>
+	<li data-bind="visible: SBPM.VM.activeViewIndex() == 1">
+		<a id="saveAs" href="saveAsProcess.html" data-bind="fancybox : {width : '50', height : '40'}">
+		    <img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process As
+		</a>
 	</li>
 	<li>
 		<a href=""><img src="images/icons/mail_48.png" width="16px" height="16px" alt="Messages"/>Messages</a>
 		<ul>
 			<li>
-				<a id="MSGInbox" href="MSGInbox.html">Inbox</a>
+				<a id="MSGInbox" href="MSGInbox.html" data-bind="fancybox : {}">Inbox</a>
 			</li>
 			<li>
-				<a id="MSGOutbox" href="MSGOutbox.html">Outbox</a>
+				<a id="MSGOutbox" href="MSGOutbox.html" data-bind="fancybox : {}">Outbox</a>
 			</li>
 		</ul>
 	</li>
@@ -48,10 +50,10 @@
 				<a id="newInstance" href="newInstance.html">Start process</a>
 			</li>
 			<li>
-				<a id="runningInstances" href="runningInstances.html">Running instances</a>
+				<a id="runningInstances" href="runningInstances.html" data-bind="fancybox : {}">Running instances</a>
 			</li>
 			<li>
-				<a id="history" href="history.html">History</a>
+				<a id="history" href="history.html" data-bind="fancybox : {}">History</a>
 			</li>
 		</ul>
 	</li>

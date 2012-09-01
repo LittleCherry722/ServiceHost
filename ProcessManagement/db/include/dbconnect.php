@@ -36,16 +36,19 @@ if ($dbInitialize){
   `key` varchar(64) NOT NULL,
   `label` varchar(64) NOT NULL,
   `value` varchar(128) NOT NULL,
+  `type` ENUM(  'Varchar', 'Boolean', 'Enum' ) NOT NULL DEFAULT  'String',
   UNIQUE KEY `key` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
 	
 	mysql_query("INSERT INTO  `sbpm_groupware`.`configuration` (
 					`key` ,
 					`label` ,
-					`value`
+					`value`,
+					`type`
 					)
 				 VALUES (
-					'inputpool.size.default',  'default size of an input pool',  '8'");
+					'debug.extendedfeatureset.active',  'Activates the extended feature set which may be in development and therefore is not 100% functional',  false, 'Boolean'");
+	
 	
 	mysql_query("CREATE TABLE IF NOT EXISTS `groups` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,

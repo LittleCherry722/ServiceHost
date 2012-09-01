@@ -56,10 +56,10 @@
 </head>
 <body>
    
-<script type="text/html" id="general"></script>
-<script type="text/html" id="users"></script>
-<script type="text/html" id="roles"></script>
-<script type="text/html" id="debug"></script>
+<script type="text/html" id="General"></script>
+<script type="text/html" id="Users"></script>
+<script type="text/html" id="Roles"></script>
+<script type="text/html" id="Debug"></script>
   
 <div id="content_wide">
     
@@ -84,7 +84,7 @@
         </div>
         
         <div id="right">
-            <div data-bind="template: { name: subsite().template, data: subsite() }"></div>
+            <div id="right_content" data-bind="templateWithListeners: { name: subsite().name, data: subsite(), listeners: SBPM.Mediator.subviewListeners[subsite().name]}"></div>
         </div>
 
         <div id="buttons">
