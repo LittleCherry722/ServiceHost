@@ -29,7 +29,7 @@
 		//
 		//	|		$.publish("/some/topic", ["a","b","c"]);
 		cache[topic] && d.each(cache[topic], function(){
-			this.apply(d, args || {});
+			this.apply(d, args || []);
 		});
 	};
 

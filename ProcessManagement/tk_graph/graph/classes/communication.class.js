@@ -120,6 +120,9 @@ function GCcommunication ()
 			// the default subject type is "single"
 			if (!gf_isset(type))
 				type = "single";
+				
+			// publish the addition of the subject
+			$.publish(gv_topics.subjects, [{action: "add", id: id}]);
 			
 			// create the subject
 			var gt_subject = new GCsubject(id, title, type, inputPool);
@@ -389,7 +392,7 @@ function GCcommunication ()
 	{
 		// when the communication view is shown, add a new subject using addSubject()
 		if (this.selectedSubject == null)
-		{
+		{			
 			this.addSubject("new" + ++this.nodeCounter, "new node " + this.nodeCounter);
 			this.draw();
 		}
@@ -509,6 +512,9 @@ function GCcommunication ()
 		{
 			if (this.selectedNode != null)
 			{				
+				// publish the removal of the subject
+				$.publish(gv_topics.subjects, [{action: "remove", id: this.selectedNode}]);
+				
 				// remove references to this subject
 				delete this.subjects[this.selectedNode];
 
@@ -1369,6 +1375,9 @@ function GCcommunication ()
 					gt_subject.setInputPool(gt_inputPool);
 					gt_subject.setRelatedProcess(gt_relatedProcess);
 					gt_subject.setRelatedSubject(gt_relatedSubject);
+					
+					// publish the update of the subject
+					$.publish(gv_topics.subjects, [{action: "update", id: gt_id}]);
 					
 					// update references to this subject
 					if (this.selectedNode != gt_id && !gf_isset(this.subjects[gt_id]))
