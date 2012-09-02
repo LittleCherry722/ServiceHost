@@ -76,20 +76,25 @@ var gv_nodeTypes	= {
 
 /**
  * Contains some predefined actions.
+ * The objects contain several attributes:
+ * - relatedSubject: when set to true a dropDown for the subjects will be shown and filled
+ * - message: when set to true a dropDown for the messageTypes will be shown and filled
+ * - wildcard: when set to true both dropDowns will contain a wildcard option that selects all subjects / messageTypes
+ * - label: the label is shown in the dropDown for the nodeType and on the node itself
  * 
  * @type Object
  */
 var gv_predefinedActions	= {
-	// TODO
+	// the closeIP action has two parameters (messageType and Subject) and is used to close the input pool for a certain subject and messageType (also all subjects / all messageTypes are allowed)
 	closeip: {relatedSubject: true, message: true, wildcard: true, label: "closeIP"},
 	
-	// TODO
+	// the openIP action has two parameters (messageType and Subject) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes are allowed)
 	openip: {relatedSubject: true, message: true, wildcard: true, label: "openIP"},
 	
-	// TODO
+	// the ignore action has one parameter (subject without wildcard)
 	ignore: {relatedSubject: true, message: false, wildcard: false, label: "Ignore"},
 	
-	// TODO
+	// the acknowledge action has one parameter (subject without wildcard)
 	acknowledge: {relatedSubject: true, message: false, wildcard: false, label: "Acknowledge"}
 };
 

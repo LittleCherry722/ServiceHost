@@ -19,8 +19,11 @@ gf_includeJS("thirdparty/raphael-min.js");
 // include jQuery scrollTo plugin
 gf_includeJS("thirdparty/jquery.scrollTo-min.js");
 
-// include jQuery MouseWheel plugi
+// include jQuery MouseWheel plugin
 gf_includeJS("thirdparty/jquery.mousewheel.min.js");
+
+// include PubSub
+gf_includeJS("thirdparty/pubsub.js");
 
 // include classes
 gf_includeJS("graph/classes/behavior.class.js");

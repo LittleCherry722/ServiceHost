@@ -268,3 +268,13 @@ var gv_functions	= {
 		changeViewBV:		"showtab1"
 	}
 };
+
+
+/**
+ * Contains a list of topics used for the publish/subscribe system.
+ * 
+ * @type Object
+ */
+var gv_topics	= {
+	subjects:	"/tk_graph/subjects"
+};
