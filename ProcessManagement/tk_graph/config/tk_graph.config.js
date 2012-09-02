@@ -75,6 +75,18 @@ var gv_nodeTypes	= {
 };
 
 /**
+ * TODO
+ * 
+ * @type Object
+ */
+var gv_nodeTypeImg	= {
+	S: "send.png",
+	R: "receive.png",
+	MS: "modalsplit.png",
+	MJ: "modaljoin.png"
+};
+
+/**
  * Contains some predefined actions.
  * The objects contain several attributes:
  * - relatedSubject: when set to true a dropDown for the subjects will be shown and filled

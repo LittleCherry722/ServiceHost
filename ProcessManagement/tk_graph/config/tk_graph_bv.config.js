@@ -325,8 +325,8 @@ var gv_bv_style_circleNode = {
 	liSymbol: "\u2022 ",				// any unicode
 	width: 0,							// int
 	height: 0,							// int
-	minWidth: 24,						// int
-	minHeight: 24						// int
+	minWidth: 36,						// int
+	minHeight: 36						// int
 };
 
 /**
@@ -494,7 +494,9 @@ var gv_bv_arrow = {
 var gv_bv_circleNode = {
 		style: gv_bv_style_circleNode,				// style set for circle nodes
 		styleStart: gv_bv_style_circleNodeStart,	// style set for circle start nodes
-		styleEnd: gv_bv_style_circleNodeEnd			// style set for end nodes
+		styleEnd: gv_bv_style_circleNodeEnd,		// style set for end nodes
+		imgHeight: 24,								// height of the img bound to the circle node
+		imgWidth: 24								// width of the img bound to the circle node
 };
 
 /**

@@ -67,6 +67,14 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	this.id = "";
 	
 	/**
+	 * The image of this label (if one).
+	 * 
+	 * @see Paper.img() at the <a href="http://raphaeljs.com/reference.html#Paper.img">Raphael documentation</a>
+	 * @type Element (from Raphael)
+	 */
+	this.img	= null;
+	
+	/**
 	 * This array holds 3 Raphael rects.
 	 * It is used to display multi subjects.
 	 * 
@@ -201,6 +209,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 				}
 			}
 			$(this.text.node).css("pointer-events", "none");
+			$(this.img.node).css("pointer-events", "none");
 		}
 	};
 	
@@ -346,6 +355,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		this.rectangle	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.ellipse	= gv_paper.ellipse(0, 0, 0, 0);
 		this.text		= gv_paper.text(0, 0, "");
+		this.img		= gv_paper.image("tk_graph/img/empty.png", 0, 0, gv_bv_circleNode.imgWidth, gv_bv_circleNode.imgHeight);		
 		
 		this.bboxObj	= this.rectangle;
 	};
@@ -561,6 +571,17 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.getTextAlignAttribute(text);
 		this.text.attr("text", this.replaceNewline(text));
+		
+		if (gf_isset(text) && text != null && gf_isset(gv_nodeTypeImg[text]))
+		{
+			this.img.attr("src", "tk_graph/img/" + gv_nodeTypeImg[text]);
+			this.text.attr("text", "");
+		}
+		else
+		{
+			this.text.attr("text", this.replaceNewline(text));	
+		}
+		
 		this.refreshStyle();
 	};
 	
@@ -637,6 +658,9 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 			this.ellipse.attr("cy", this.y);
 			this.ellipse.attr("rx", radius);
 			this.ellipse.attr("ry", radius);
+			
+			this.img.attr("x", this.x - Math.round(gv_bv_circleNode.imgWidth/2));
+			this.img.attr("y", this.y - Math.round(gv_bv_circleNode.imgHeight/2));
 		}
 		else if (this.shape == "ellipse")
 		{
