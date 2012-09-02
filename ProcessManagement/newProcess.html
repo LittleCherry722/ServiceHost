@@ -91,7 +91,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		</div>
 	</div>
 	<!-- End header -->
-	<div style="margin:20px; width:300px; float:left;">
+	<div style="margin:10px; width:175px; float:left;">
 		<br class="clear"/>
 		Create a new process.
 		<br class="clear"/>
@@ -99,9 +99,9 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<br class="clear"/>
 		<!--<form onsubmit="if(this.new_process.value != '') {parent.fancyreturn1=this.new_process.value;parent.$.fancybox.close();}">-->
 			
-		<p>
+		<p style="width:182px;">
 			<label>Name:</label><br/>
-			<input type="text" id="new_process" style="width:273px" data-bind="value : processName"/>
+			<input type="text" id="new_process" style="width:180px;" data-bind="value : processName"/>
 			<script>
 				$("#new_process").focus();
 			</script>
@@ -124,6 +124,6 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		
 		
 	</div>
-<div id="quickTable" style="width:800px; float:left; margin:20px;" data-bind="template: { name:quickVM.name, data: quickVM}, visible: quickVM.displayTable" ></div>
+<div id="quickTable" style="width:760px; float:left; margin:20px;" data-bind="template: { name:quickVM.name, data: quickVM}, visible: quickVM.displayTable" ></div>
 </body>
 </html>

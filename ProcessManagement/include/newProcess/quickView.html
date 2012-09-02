@@ -1,5 +1,7 @@
-<div id="quick" style=" height:200px; width: 802px;  border-width:1px;  border-style:solid;  border-color:black;" data-bind="visible:true">
-	<div id="subjects" style="float:left; width:250px; overflow: auto; height:192px;">
+		<link href="css/main.css" rel="stylesheet" type="text/css" media="all">
+
+<div id="quick" style=" height:200px; width: 760px;  " data-bind="visible:true">
+	<div id="subjects" style="float:left; width:216px; overflow: auto; height:192px;padding:10px;">
 
 		<table>
 			<thead>
@@ -20,11 +22,10 @@
 				</tbody>
 			</tr>
 		</table>
-		<button data-bind="click: addSubject2">
-			Add Subject
-		</button></td>
+		<input type="button" value="Add Subject" data-bind="click: addSubject">
+
 	</div>
-	<div id="messages" style="float:left; width:550px; overflow: auto; height:192px;">
+	<div id="messages" style="float:left; width:495px; overflow: auto; height:192px;  border-left:1px; border-style:solid;  border-color:black; padding:10px;">
 		<table style="">
 			<thead>
 				<tr>
@@ -38,7 +39,7 @@
 			<tr>
 
 				<td>
-				<tbody data-bind="foreach: messageList2">
+				<tbody data-bind="foreach: messageList">
 
 					<td><select data-bind="options: $parent.subjectList, optionsText: function(item){return item.name()}, optionsCaption: 'Select a subject...', value: sender"></select></td>
 					<td>
@@ -50,9 +51,8 @@
 				</tbody></td>
 			</tr>
 		</table>
-		<button data-bind="click: addMessage">
-			Add Message
-		</button>
+		<input type="button" value="Add Message" data-bind="click: addMessage">
+
 	</div>
 </div>
 
