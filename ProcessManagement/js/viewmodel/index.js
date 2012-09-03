@@ -125,7 +125,8 @@ var ProcessViewModel = function(processName) {
 
 	self.name = "processView";
 	self.label = "Process";
-
+	self.processStamp = "";
+	
 	self.subjectVM = new SubjectViewModel();
 	self.internalVM = new InternalViewModel();
 	self.chargeVM = new ChargeViewModel();
@@ -170,7 +171,11 @@ var ProcessViewModel = function(processName) {
              */
             if(processId > 0){
             
+            	if(self.processStamp == "") {
                 var graphAsJson = SBPM.Service.Process.loadGraph(processId);
+             } else {
+              	var graphAsJson = loadGraphHistory(processId,self.processStamp)
+              }
                 
                 gv_graph.loadFromJSON(graphAsJson);
                 
@@ -179,7 +184,26 @@ var ProcessViewModel = function(processName) {
                 console.log(graph);
                 
                 self.chargeVM.load(graph);
-            
+                
+                var myOptions = getProcessStamps(processId);
+				var mySelect = $('#timestamps');
+				mySelect.empty();
+				mySelect.unbind();
+				
+				$.each(myOptions, function(text, val) {
+   					 mySelect.append(
+				    $('<option></option>').val(val).html(val)
+   				 );
+				});
+			
+				$("#timestamps option").last().attr('selected', 'selected');
+				$("#timestamps option[value='" + self.processStamp + "']").attr('selected', 'selected');
+				$("#timestamps").change(function() {
+				self.processStamp = $("#timestamps").val();
+				self.showProcess();
+				 });
+			
+          
             }else{
                 
                 console.log("load empty graph");
@@ -245,7 +269,6 @@ var ProcessViewModel = function(processName) {
         }else
           SBPM.Notification.Info("Error", "Could not create process.");
 	}
-	
 }
 
 var SubjectViewModel = function() {
