@@ -16,7 +16,7 @@ var IMediator = function(){
         if ( $.browser.msie && $.browser.version <= 10) 
             return $.fancybox(
                 "<div style=\"background-image:url(images/bg_header.png); background-repeat:repeat-x; padding: 5px\"><h2>The browser you are using is not supported by S-BPM Groupware.</h2></div><br><br>"+ 
-                "Since this application uses cutting edge technologies you should upgrade to a modern browser like <a href=\"https://www.google.com/intl/en/chrome/browser/\" target=\"_blank\">Google Chrome</a> and <a href=\"http://www.mozilla.org/en-US/firefox/new/\" target=\"_blank\">Mozilla Firefox</a>.<br><br><br>In the case you have no other choice then using Microsoft Internet Explorer please think about installing <a href=\"http://www.google.com/chromeframe/eula.html?user=true\" target=\"_blank\">Chrome Frame</a>." + 
+                "Since this application uses cutting edge technologies you should upgrade to a modern browser like <a href=\"https://www.google.com/intl/en/chrome/browser/\" target=\"_blank\">Google Chrome</a> and <a href=\"http://www.mozilla.org/en-US/firefox/new/\" target=\"_blank\">Mozilla Firefox</a>.<br><br><br>In the case you have no other choice then using Microsoft Internet Explorer please think about installing <a href=\"http://www.google.com/chromeframe/eula.html?user=true\" target=\"_blank\">Chrome Frame</a>." 
                 ,
                 {
                     'autoDimensions'    : false,
