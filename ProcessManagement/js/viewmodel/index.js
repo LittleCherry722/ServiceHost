@@ -215,13 +215,12 @@ var ProcessViewModel = function(processName) {
 
         var graph = JSON.parse(gv_graph.saveToJSON());
         
+        console.log(ko.mapping.toJS(self.chargeVM.data));
+        
         // add responsibilities and routings to graph
-        graph.responsibilities = ko.mapping.toJS(self.chargeVM.responsibilities, {
+        $.extend(graph, ko.mapping.toJS(self.chargeVM.data, {
             'ignore' :  ["subjectProvidersForRole"],
-        });
-        graph.routings = ko.mapping.toJS(self.chargeVM.routings, {
-            'ignore' :  ["dependencies"],
-        });
+        }));
 
         var graphAsJSON = JSON.stringify(graph);
 
