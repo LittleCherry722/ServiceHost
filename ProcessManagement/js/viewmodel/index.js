@@ -376,8 +376,6 @@ var ChargeViewModel = function() {
 
         }
 
-        console.log(self.lists);
-
         ko.mapping.fromJS(graph, {
             'ignore': ["process", "messages", "messageCounter"],
             'responsibilities' : {
