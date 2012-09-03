@@ -183,6 +183,15 @@ function getProcessName(processid){
 		if (json["code"] == "ok")
 			return json["name"];});
 }
+
+function getProcessStamps(processid){
+	return syncQuery(db_directory + "process.php", {"processid" : processid, "action" : "showStamps"}, "", function (json){
+		if (json["code"] == "ok") {
+			return json["stamps"];
+			}
+			});
+}
+
 function getProcessID(processname){
 	return syncQuery(db_directory + "process.php", {"processname" : processname, "action" : "getid"}, 0, defaultIDReturn);
 }
@@ -215,6 +224,21 @@ function loadGraph(processid){
 		}
 	});
 }
+
+function loadGraphHistory(processid, stamp){
+	return syncQuery(db_directory + "process.php", {"processid" : processid, "action" : "loadHistory", "stamp": stamp}, "", function (json){
+		if (json["code"] == "ok"){
+			try {
+				return json["graph"];
+			}catch (e){
+				return "{}";
+			}
+		}else{
+			return "{}";
+		}
+	});
+}
+
 function saveGraph(processid, graphAsJSON, startSubjectsAsJSON){
 	return syncQuery(db_directory + "process.php", {"processid" : processid, "action" : "save", "graph" : graphAsJSON, "subjects" : startSubjectsAsJSON}, false, function (json){
 		if (json["code"] == "ok")

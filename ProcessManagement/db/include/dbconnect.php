@@ -79,7 +79,9 @@ if ($dbInitialize){
 	mysql_query("CREATE TABLE IF NOT EXISTS `process_graphs` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `graph` blob NOT NULL,
-  PRIMARY KEY (`ID`)
+  PRIMARY KEY (`ID`),
+  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  `processID` int(11) NOT NULL
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;");
 
 	mysql_query("CREATE TABLE IF NOT EXISTS `process_instance` (

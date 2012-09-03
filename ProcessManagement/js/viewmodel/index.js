@@ -105,6 +105,7 @@ var ProcessViewModel = function() {
 	}
 
 	self.processViews = [self.subjectVM, self.internalVM, self.chargeVM];
+	
 
 	self.activeViewIndex = ko.observable(0);
 
