@@ -23,9 +23,19 @@
 	<br/>
 	<div class="graphsettings" id="EdgeFunctions">
 		<span id="graphmenuheader">Transition settings</span>
-		
-		<div style="display:none;" id="ge_edge_typeCOuter">
+		<br />
+		<label align="left" class="graphsectionheader">Transition Type</label>
+		<div id="internalRadioMenu">
+			<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
+			<label align="left"  class="graphsectionheader">Exit Condition</label>
 			<br/>
+
+			<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
+			<label align="left" class="graphsectionheader">Timeout</label>
+		</div>
+		
+		<br/>
+		<div style="display:none;" id="ge_edge_typeCOuter">
 			<label class="graphsectionheader">Text:</label>
 			<br/>
 			<textarea id="ge_edge_text" style="width: 140px;"></textarea>												
@@ -35,7 +45,7 @@
 				<br/>
 				<select id="ge_edge_target" style="width: 140px;"></select>
 				<br/>
-				<label class="graphsectionheader">Message:</label>
+				<label class="graphsectionheader">Message Type:</label>
 				<select id="ge_edge_message" style="width: 140px;"></select>
 				
 				<div id="ge_edge_target_multi_outer" style="display:none;">
@@ -57,16 +67,6 @@
 				</div>
 			</div>
 		</div>
-		<br/>
-		<div id="internalRadioMenu">
-			<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
-			<label align="left"  class="graphsectionheader">Exit Condition</label>
-			<br/>
-
-			<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
-			<label align="left" class="graphsectionheader">Timeout</label>
-		</div>
-		<br/>
 		<!-- <div id="timeoutdiv"> -->
 		<div style="display:none;" id="ge_edge_typeTOuter">
 			<label class="graphsectionheader">Timeout:</label>

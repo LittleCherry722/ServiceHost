@@ -432,16 +432,6 @@ function gf_guiLoadDropDown (elementMessage, elementSubject, excludeSubject, new
 			gt_option.id		= elementMessage + "_00000.1";
 			gt_select.add(gt_option);
 		
-		// options for adding new messages
-		if (newMessage === true)
-		{
-			gt_option			= document.createElement("option");
-			gt_option.text		= "create a new message";
-			gt_option.value		= "##createNewMsg##";
-			gt_option.id		= elementMessage + "_00000.2";
-			gt_select.add(gt_option);
-		}
-		
 		// options for select all messages
 		if (wildcard === true)
 		{
@@ -452,7 +442,7 @@ function gf_guiLoadDropDown (elementMessage, elementSubject, excludeSubject, new
 			gt_select.add(gt_option);
 		}
 		
-		if (newMessage === true || wildcard === true)
+		if (wildcard === true)
 		{
 			gt_option			= document.createElement("option");
 			gt_option.text		= "----------------------------";
@@ -477,6 +467,26 @@ function gf_guiLoadDropDown (elementMessage, elementSubject, excludeSubject, new
 			gt_option.text	= gf_replaceNewline(gt_messagesArray[gt_mid].text, " ");
 			gt_option.value	= gt_messagesArray[gt_mid].id;
 			gt_option.id	= elementMessage + "_" + gt_mid;
+			gt_select.add(gt_option);
+		}
+		
+		if (newMessage === true)
+		{
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementMessage + "_00000.42";
+			gt_select.add(gt_option);
+		}
+		
+		
+		// options for adding new messages
+		if (newMessage === true)
+		{
+			gt_option			= document.createElement("option");
+			gt_option.text		= "create a new message type";
+			gt_option.value		= "##createNewMsg##";
+			gt_option.id		= elementMessage + "_00000.2";
 			gt_select.add(gt_option);
 		}
 	}
