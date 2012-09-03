@@ -37,3 +37,8 @@
 	background-color: #4C535B;
 	color: #fff;
 }
+
+.datatable select,.datatable span,.datatable input {
+	width: 95%;
+	max-width: 95%;
+}

@@ -2,21 +2,21 @@
     <br class="clear"/>
     <h3>Responsibilities</h3>
     <br class="clear"/>
-    <table class="datatable" width="98%" cellpadding="0" cellspacing="0">
+    <table class="datatable" style="width: 50%" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th style="width:35%">Group name</th>
-                <th style="width:35%">Person in charge</th>
+                <th style="width:50%">Role</th>
+                <th style="width:50%">Person in charge</th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: {data : data.responsibilities()}">
+        <tbody data-bind="foreach: {data : data.responsibilities}">
             <tr>
-                <td><span data-bind="text: groupName"></span></td>
-                <td><select data-bind="selectType : 'chosen', options: unusedSubjectProviders(), value: subjectProvider" ></select></td>
+                <td><span data-bind="text: role"></span></td>
+                <td><select data-bind="options: subjectProvidersForRole, value: subjectProvider"></select></td>
             </tr>
         </tbody>
     </table>
-    
+
 
     <br class="clear"/> 
     <br class="clear"/>
@@ -25,7 +25,7 @@
     <!-- f:(fromSubject, fromSubjectprovider, messageType, toSubject) -> toSubjectprovider -->
     <a data-bind="click : addRouting">Create new message routing</a>
     <br class="clear"/>
-    <table class="datatable" width="98%" cellpadding="0" cellspacing="0">
+    <table class="datatable" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
                 <th style="width:18%">From Subject</th>
@@ -37,14 +37,16 @@
                 <th style="width:5%"> </th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: {data : data.routings()}">
+        <tbody data-bind="foreach: {data : data.routings }">
             <tr>
-                <td><select data-bind="selectType : 'chosen', options: fromSubjectNames(), value: fromSubject" ></select></td>
-                <td><select data-bind="selectType : 'chosen', options: $parent.lists.subjectProviders, value: fromSubjectprovider" ></select></td>
-                <td><select data-bind="selectType : 'chosen', options: availableMessageTypes(), value: messageType" ></select></td>
-                <td><select data-bind="selectType : 'chosen', options: toSubjectNames(), value: toSubject" ></select></td>
+                <td><select data-bind="options: $parent.lists.fromSubjects, value: fromSubject"></select></td>
+                <td><select data-bind="options: $parent.lists.subjectProviders, value: fromSubjectprovider" ></select></td>
+                <td><select data-bind="options: $parent.lists.availableMessageTypes[fromSubject()], value: messageType" ></select></td>
+                <td><select data-bind="options: $parent.lists.toSubjects[messageType()], value: toSubject" ></select></td>
                 <td> </td>
-                <td style="background-color: #ebedf0"><select data-bind="selectType : 'chosen', options: $parent.lists.subjectProviders, value: toSubjectprovider" ></select></td>
+                <td style="background-color: #ced3da;">
+                    <select data-bind="options: $parent.lists.subjectProviders, value: toSubjectprovider"></span>
+                </td>
                 <td><a data-bind="click : $parent.removeRouting">Delete</a></td>
             </tr>
         </tbody>

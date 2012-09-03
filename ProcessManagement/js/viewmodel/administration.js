@@ -195,13 +195,11 @@ var RoleViewModel = function() {
     }
 
     self.create = function() {// TODO why push by itself doesnt work?
-        var data = self.data();
-        data.push({
+       self.data.push({
             ID : 0,
             name : "",
             active : 1
         });
-        self.data(data);
         $(".scrollable input.inline").last().focus()
 
     }

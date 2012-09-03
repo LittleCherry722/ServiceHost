@@ -1,12 +1,12 @@
 <div class="inner">
 
 	<div id="contentHead">
-		<h3 style="color:#525252" data-bind="text :SBPM.VM.processVM.processName() "></h3>
+		<h3 style="color:#525252" data-bind="text :SBPM.VM.contentVM().processName() "></h3>
 
 	</div>
 
 	<div id="graph" style="display:block">
-		<h2 id="process_name" style="color:#525252" data-bind="text :SBPM.VM.processVM.activeView().word "></h2>
+		<h2 id="process_name" style="color:#525252" data-bind="text :SBPM.VM.contentVM().activeView().word "></h2>
 		<!-- Begin graph window -->
 		<div class="onecolumn" style="width: 100%">
 			<div class="header">
@@ -41,12 +41,10 @@
 
 			<!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
 			<div id="processContent" >
-				<div id="tab2_content" class="tab_content" data-bind="templateWithListeners: { name: subjectVM.name, data: subjectVM, listeners: SBPM.Mediator.subviewListeners['subjectView']}"></div>
-				<div id="tab1_content" class="tab_content hide" data-bind="templateWithListeners: { name: internalVM.name, data: internalVM, listeners: SBPM.Mediator.subviewListeners['internalView']}"></div>
-				<div data-bind="visible : chargeVM.name == activeView().name">
-					<div id="tab3_content" class="tab_content hide" data-bind="templateWithListeners: { name: chargeVM.name, data: chargeVM, afterRender : chargeVM.init, listeners: SBPM.Mediator.subviewListeners['chargeView']}"></div>
-				</div>
-
+                <div id="tab2_content" class="tab_content" data-bind="templateWithListeners: { name: subjectVM.name, data: subjectVM, listeners: SBPM.Mediator.subviewListeners['subjectView']}"></div>
+			    <div id="tab1_content" class="tab_content hide" data-bind="templateWithListeners: { name: internalVM.name, data: internalVM, listeners: SBPM.Mediator.subviewListeners['internalView']}"></div>
+                <div id="tab3_content" class="tab_content hide" data-bind="templateWithListeners: { name: chargeVM.name, data: chargeVM, listeners: SBPM.Mediator.subviewListeners['chargeView']}"></div>
+			    
 			</div>
 
 		</div>

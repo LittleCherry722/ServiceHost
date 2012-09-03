@@ -14,6 +14,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
 		<!-- Title -->
 		<title>S-BPM Groupware</title>
@@ -30,7 +31,7 @@
 		<link href="css/chosen.css" rel="stylesheet" type="text/css" media="all" />
         <link href="css/jquery.qtip.min.css" rel="stylesheet" type="text/css" media="all" />
         <link href="css/datatable.css" rel="stylesheet" type="text/css" media="all" />
-
+        
 		<!-- javascript -->
 		<!-- extern -->
 		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
@@ -93,16 +94,16 @@
 		<div class="content_wrapper">
 
 			<!-- header -->
-			<div id="header" data-bind="templateWithListeners: { name: 'header', data: headerVM , listeners: SBPM.Mediator.subviewListeners['header']}"></div>
+			<div id="header" data-bind="templateWithListeners: { name: 'header', data: headerVM, afterRender: headerVM.init, listeners: SBPM.Mediator.subviewListeners['header']}"></div>
 			<!-- End header -->
 			<div id="headAndLeft">
 				<!--left panel -->
 				<a href="javascript:;" id="show_menu">&raquo;</a>
-				<div id="left_menu" data-bind="templateWithListeners: { name: 'menu', data: menuVM, listeners: SBPM.Mediator.subviewListeners['menu']}"></div>
+				<div id="left_menu" data-bind="templateWithListeners: { name: 'menu', data: menuVM, afterRender: menuVM.init, listeners: SBPM.Mediator.subviewListeners['menu']}"></div>
 				<!-- End left panel -->
 
 				<!-- Begin content -->
-				<div id="main" data-bind="templateWithListeners: { name: activeView().name, data: activeView(), listeners: SBPM.Mediator.subviewListeners[activeView().name]}  "></div>
+				<div id="main" data-bind="templateWithListeners: { name: contentVM().name, data: contentVM(), afterRender: contentVM().init, listeners: SBPM.Mediator.subviewListeners[contentVM().name]}  "></div>
 				<!-- end content -->
 			</div>
 		</div>

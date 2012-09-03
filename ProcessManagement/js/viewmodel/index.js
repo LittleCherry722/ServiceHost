@@ -4,28 +4,30 @@ var ViewModel = function() {
 
 	self.init = function(callback) {
 		self.user = ko.observable();
-		self.activeViewIndex = ko.observable(0);
 
 		self.menuVM = new MenuViewModel();
 		self.headerVM = new HeaderViewModel();
-		self.processVM = new ProcessViewModel();
-		self.homeVM = new HomeViewModel();
-		self.executionVM = new ExecutionViewModel();
-
-        self.mainViews = [self.homeVM, self.processVM, self.executionVM];
-
-		self.menuVM.init();
-		self.headerVM.init();
-		self.homeVM.init();
-		self.processVM.init();
-		self.executionVM.init();
+		self.contentVM = ko.observable(new HomeViewModel());
 
         callback();
 	}
 	
-	self.activeView = function() {
-		return self.mainViews[self.activeViewIndex()]
-	};
+	self.goToPage = function(page, args){
+	    
+	    switch(page) {
+	        case "process":
+	           self.contentVM(new ProcessViewModel(args));
+	           break;
+            case "execution":
+               self.contentVM(new ExecutionViewModel(args));
+               break;
+            default:
+               self.contentVM(new HomeViewModel(args));
+               break;
+	    }
+	    
+	}
+	
 }
 
 var MenuViewModel = function() {
@@ -34,9 +36,27 @@ var MenuViewModel = function() {
 
 	self.recentProcesses = ko.observableArray();
 	self.maxRecent = 5;
+	self.visible = ko.observable({
+        home : false, 
+        process : false, 
+        save : false,
+        saveAs : false,
+        messages : false, 
+        execution : false
+    });
 
 	self.init = function() {
 		self.recentProcesses(SBPM.Service.Process.getAllProcesses(self.maxRecent));
+	}
+	
+	/**
+	 * redirect the save command to the current SubView 
+	 */
+	self.save = function(){
+	    if(SBPM.VM.contentVM().save);
+	       return SBPM.VM.contentVM().save();
+	       
+        return false;
 	}
 
 }
@@ -72,23 +92,36 @@ var HomeViewModel = function() {
 
 	var self = this;
 
+    SBPM.VM.menuVM.visible({
+        home : true, 
+        process : true, 
+        save : false,
+        saveAs : false,
+        messages : true, 
+        execution : true
+    });
+
 	self.name = "homeView";
 	self.label = "Home";
 
 	self.init = function() {
 	}
-
-	self.afterRender = function() {
-	}
-	self.showView = function() {
-		SBPM.VM.activeViewIndex(0);
-	}
+	
 }
-var ProcessViewModel = function() {
+var ProcessViewModel = function(processName) {
 
 	var self = this;
 
-	self.processName = ko.observable();
+    SBPM.VM.menuVM.visible({
+        home : true, 
+        process : true, 
+        save : true,
+        saveAs : true,
+        messages : true, 
+        execution : true
+    });
+
+	self.processName = ko.observable(processName);
 
 	self.name = "processView";
 	self.label = "Process";
@@ -97,11 +130,16 @@ var ProcessViewModel = function() {
 	self.internalVM = new InternalViewModel();
 	self.chargeVM = new ChargeViewModel();
 
-
 	self.init = function() {
-		self.subjectVM.init();
-		self.internalVM.init();
-		self.chargeVM.init();
+
+        self.subjectVM.init();
+        self.internalVM.init();
+        self.chargeVM.init();
+
+        if(self.processName().length > 0)
+           self.showProcess();
+
+        console.log("ProcessViewModel: initialized.");
 	}
 
 	self.processViews = [self.subjectVM, self.internalVM, self.chargeVM];
@@ -110,17 +148,17 @@ var ProcessViewModel = function() {
 	self.activeViewIndex = ko.observable(0);
 
 	self.activeView = function() {
-		return self.processViews[self.activeViewIndex()]
+		return self.processViews[self.activeViewIndex()];
 	};
 	
-	self.showProcess = function(processName) {
+	self.showProcess = function() {
 	    
 	    try{
             $("#tab2").click();
            
             gv_graph.clearGraph(true);
             
-            var processId = SBPM.Service.Process.getProcessID(processName);
+            var processId = SBPM.Service.Process.getProcessID(self.processName());
             
             self.subjectVM.showView();
             
@@ -134,9 +172,13 @@ var ProcessViewModel = function() {
             
                 var graphAsJson = SBPM.Service.Process.loadGraph(processId);
                 
-                console.log("load graph: "+graphAsJson);
-                
                 gv_graph.loadFromJSON(graphAsJson);
+                
+                var graph = JSON.parse(graphAsJson);
+                
+                console.log(graph);
+                
+                self.chargeVM.load(graph);
             
             }else{
                 
@@ -145,11 +187,7 @@ var ProcessViewModel = function() {
                 gv_graph.loadFromJSON("{}");
                 
             }
-            
-            self.processName(processName);
-            
-            
-            
+
             // TODO replace this DEPRECATED CALLS!
             setSubjectIDs(); 
             $("#tab2").addClass("active");
@@ -161,14 +199,54 @@ var ProcessViewModel = function() {
 	        
 	        SBPM.Notification.Error("Error", "Could not load process \""+processName+"\".");
 	        
-	        console.log("ProcessViewModel: Could not load process: "+e);
+	        throw e;
 	        
 	    }
 	    
-
 		updateListOfSubjects();
 		return processId;
 	}
+	
+	self.save = function(name, forceOverwrite, saveAs){
+        // try to set another default name
+        var name = name || self.processName();
+
+        // TODO do not convert twice (in lib and here)
+
+        var graph = JSON.parse(gv_graph.saveToJSON());
+        
+        // add responsibilities and routings to graph
+        graph.responsibilities = ko.mapping.toJS(self.chargeVM.responsibilities, {
+            'ignore' :  ["subjectProvidersForRole"],
+        });
+        graph.routings = ko.mapping.toJS(self.chargeVM.routings, {
+            'ignore' :  ["dependencies"],
+        });
+
+        var graphAsJSON = JSON.stringify(graph);
+
+        console.log(graph);
+
+        var startSubjects = [];
+
+        for (var subject in gv_graph.subjects)
+            startSubjects.push(SBPM.Service.Role.getByName(subject));
+
+        var startSubjectsAsJSON = JSON.stringify(startSubjects);
+	    
+        if(SBPM.Service.Process.saveProcess(graphAsJSON, startSubjectsAsJSON, name, forceOverwrite, saveAs)){
+            
+          // reload recent processes
+          SBPM.VM.menuVM.init();
+          
+          // update process name
+          self.processName(name);
+          
+          SBPM.Notification.Info("Information", "Process successfully created.");
+        }else
+          SBPM.Notification.Info("Error", "Could not create process.");
+	}
+	
 }
 
 var SubjectViewModel = function() {
@@ -183,9 +261,7 @@ var SubjectViewModel = function() {
 	}
 
 	self.showView = function() {
-		SBPM.VM.activeViewIndex(1);
-		SBPM.VM.processVM.activeViewIndex(0);
-
+		SBPM.VM.contentVM().activeViewIndex(0);
 	}
 
 	self.afterRender = function() {
@@ -203,8 +279,7 @@ var InternalViewModel = function() {
 	}
 
 	self.showView = function() {
-		SBPM.VM.activeViewIndex(1);
-		SBPM.VM.processVM.activeViewIndex(1);
+		SBPM.VM.contentVM().activeViewIndex(1);
 	}
 	
 }
@@ -214,142 +289,131 @@ var ChargeViewModel = function() {
 
 	self.name = "chargeView";
 	self.label = "Person in charge";
-    self.tableIndex = 0;
     
-    self.data = {
-        responsibilities : ko.observableArray([]),   // {groupName, subjectProvider}
-        routings : ko.observableArray([])           // {fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider}
-    };
-
-    self.lists = {
-        subjectNames : [],
-        subjectProviders : ko.observableArray([]),
-        messageTypes : [] 
-    };
-    
-    var Routing = function(messagesTypes){
+    var Routing = function(messagesTypes, fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider){
         var self = this;
-        
+                
         var _private = {
            messageTypes : messagesTypes
         };
         
-        self.fromSubject = ko.observable();
-        self.fromSubjectprovider = ko.observable();
-        self.messageType = ko.observable();
-        self.toSubject = ko.observable();
-        self.toSubjectprovider = ko.observable();
+        self.fromSubject = ko.observable(fromSubject);
+        self.fromSubjectprovider = ko.observable(fromSubjectprovider);
+        self.messageType = ko.observable(messageType);
+        self.toSubject = ko.observable(toSubject);
+        self.toSubjectprovider = ko.observable(toSubjectprovider);
+
+    }
+    
+    var Responsibility = function(subjectProvidersForRole, role, subjectProvider){
+        var self = this;
+        
+        self.subjectProvidersForRole = subjectProvidersForRole;
+        self.role = role;
+        self.subjectProvider = subjectProvider;
+    }
+    
+    self.data = {
+        responsibilities : ko.mapping.fromJS([]),  // {role, subjectProvider}
+        routings : ko.mapping.fromJS([]),          // {fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider}
+    }
+
+    self.lists = {
+        subjectProviders : ko.observableArray([]),
+        roles : {},
+        fromSubjects : {},
+        toSubjects : {},
+        availableMessageTypes : {}        
+    };
+
+	self.init = function() {	    
+	    // load lists needed for drop down menus
+        self.lists.subjectProviders(SBPM.Service.User.getAll().map(function(user){ return user.name; }));
+    
+        console.log("ChargeViewModel: initialized.");
+    }
+
+    self.load = function(graph){
+        
+        var messageTypes = gf_getMessageTypes();
+        
+        var roles = SBPM.Service.Role.getAllRolesAndUsers();
+
+        fromSubjects = $.unique(messageTypes
+                .map(function(element){
+                    return element.sender;
+                }));
+          
+        self.lists.fromSubjects = fromSubjects;
+          
+        for(var i in fromSubjects){
+            self.lists.availableMessageTypes[fromSubjects[i]] = messageTypes
+                    .filter(function(element){
+                        return (element.sender == fromSubjects[i]); 
+                    })
+                    .map(function(element){
+                        return element.messageType;
+                    })
             
-        /**
-         * returns a unique list of sender's subjectNames
-         */
-        self.fromSubjectNames = ko.computed(function() {
-            return $.unique(_private.messageTypes
-                        .map(function(element){
-                            return element.sender;
-                        }));
-        });
-    
-        /**
-         * returns a list of messageTypes for a sender
-         */
-        self.availableMessageTypes = ko.computed(function() {
-            return _private.messageTypes
+        }
+
+        availableMessageTypes = self.lists.availableMessageTypes;
+
+        for(var fromSubject in availableMessageTypes){
+
+            for(var i in availableMessageTypes[fromSubject]){
+                
+                self.lists.toSubjects[availableMessageTypes[fromSubject][i]] = messageTypes
                         .filter(function(element){
-                            return (element.sender == self.fromSubject()); 
-                        })
-                        .map(function(element){
-                            return element.messageType;
-                        });
-        });
-    
-        /**
-         * returns a list of receiver's subjectNames for a messageType
-         */ 
-        self.toSubjectNames = ko.computed(function() {
-            return _private.messageTypes
-                        .filter(function(element){
-                            return (element.messageType == self.messageType()); 
+                            return (element.messageType == availableMessageTypes[fromSubject][i]); 
                         })
                         .map(function(element){
                             return element.receiver;
                         });
-        });
-        
-        /**
-         * reset messageType and toSubject when fromSubjects is being changed 
-         */
-        self.fromSubject.subscribe(function() {
-            self.messageType(undefined);
-            self.toSubject(undefined);
-        });
-        
-        /**
-         * reset toSubject when messageType is being changed 
-         */
-        self.messageType.subscribe(function() {
-            self.toSubject(undefined);
-        });
-    }
-    
-    var Responsibility = function(subjectNames){
-        var self = this;
-        
-        var _private = {
-           subjectNames : subjectNames
-        };
-        
-        self.groupName = "";
-        self.subjectProvider = ko.observable();
-        
-        /**
-         * returns a list of SubjectProvider which do not own any repsonsibility 
-         */
-        self.unusedSubjectProviders = ko.computed(function() {
-            return _private.subjectNames
-                        .filter(function(element){
-                            return ($.inArray(element, self.data.responsibilities.map(function(element){
-                                return element.subjectProvider;
-                            })) < 0)
-                        });
-        });
-    }
-    
-	self.init = function() {
-        var defaultValue = {
-            responsibilities : [new Responsibility([])],
-            routings : [new Routing([])]
+                        
+            }
+
+
         }
 
-        self.data.responsibilities(defaultValue.responsibilities);
-        self.data.routings(defaultValue.routings);   
-	}
+        console.log(self.lists);
 
-    self.loadModel = function(){
-        self.lists.subjectNames = gf_getSubjectNames();
-        self.lists.subjectProviders(SBPM.Service.User.getAll().map(function(user){ return user.name; }));
-        self.lists.messageTypes = gf_getMessageTypes(); // {sender, messageType, receiver}
+        ko.mapping.fromJS(graph, {
+            'ignore': ["process", "messages", "messageCounter"],
+            'responsibilities' : {
+                create: function(options) {
+                    var data = options.data;
+                    
+                    return new Responsibility(roles[data.role], data.role, data.subjectProvider);
+                }
+            },
+            'routings' : {
+                create : function(options){
+                    var data = options.data;
+
+                    return new Routing(messageTypes, data.fromSubject, data.fromSubjectprovider, data.messageType, data.toSubject, data.toSubjectprovider);
+                }
+            }
+        }, self.data);
+
+        console.log(JSON.stringify(ko.toJS(self.data.routings), null, 2))
+
+        console.log("loaded",self.data.responsibilities(),self.data.routings());
         
-        // TODO load self.data
+        console.log("ChargeViewModel: Responsibilities and Routings loaded.");
+        
     }
 
     self.addRouting = function(){
-        self.data.routings().push({
-                fromSubject : "",
-                fromSubjectprovider : "",
-                messageType : "",
-                toSubject : "",
-                toSubjectprovider : ""
-            });
+        self.data.routings.push(new Routing(gf_getMessageTypes()));
     }
 
     self.removeRouting = function(element){
-        self.data.routings().remove(element);
+        self.data.routings.remove(element);
     }
 
 	self.showView = function() {
-		SBPM.VM.activeViewIndex(1);
-		SBPM.VM.processVM.activeViewIndex(2);
+		SBPM.VM.contentVM().activeViewIndex(2);
 	}
 
 }
@@ -357,20 +421,28 @@ var ChargeViewModel = function() {
 var ExecutionViewModel = function() {
 
 	var self = this;
+	
+    SBPM.VM.menuVM.visible({
+        home : true, 
+        process : true, 
+        save : false,
+        saveAs : false,
+        messages : true, 
+        execution : true
+    });
+	
 	self.name = "executionView";
 	self.lable = "Execution";
 
 	self.courseVM = new CourseViewModel();
 	self.instanceVM = new InstanceViewModel();
 
-	self.init = function() {
+	self.init = function(instanceName) {
+    
+        // TODO load instance
 
 		self.courseVM.init();
 		self.instanceVM.init();
-	}
-
-	self.showView = function() {
-		SBPM.VM.activeViewIndex(2);
 	}
 
 	self.executionViews = [self.courseVM, self.instanceVM];
@@ -535,8 +607,6 @@ location.reload();
 }
 
 var CourseViewModel = function() {
-
-
 	var self = this;
 	self.name = "courseView";
 	self.lable = "Course";
@@ -546,14 +616,13 @@ var CourseViewModel = function() {
 	}
 
 	self.showView = function() {
-		SBPM.VM.activeViewIndex(2);
-		SBPM.VM.executionVM.activeViewIndex(0);
+		SBPM.VM.contentVM().activeViewIndex(0);
 		
 		if(SBPM.Storage.get("inctanceStepNodeID")==null ||SBPM.Storage.get("inctanceStepSubjectID")==null ){
-			SBPM.VM.executionVM.drawHistory(loadInstanceData(SBPM.Storage.get("instanceid")));
+			SBPM.VM.contentVM().drawHistory(loadInstanceData(SBPM.Storage.get("instanceid")));
 		}
 		else{
-			SBPM.VM.executionVM.selectNextNode(SBPM.Storage.get("inctanceStepSubjectID"),SBPM.Storage.get("inctanceStepNodeID"));
+			SBPM.VM.contentVM().selectNextNode(SBPM.Storage.get("inctanceStepSubjectID"),SBPM.Storage.get("inctanceStepNodeID"));
 		}
 		
 	}
@@ -575,8 +644,7 @@ var InstanceViewModel = function() {
 	}
 
 	self.showView = function() {
-		SPBM.VM.activeViewIndex(2);
-		SBPM.VM.executionVM.activeViewIndex(1);
+		SBPM.VM.contentVM().activeViewIndex(1);
 	}
 	self.activateTab = function() {
 		$("#instance_tab1").removeClass("active");

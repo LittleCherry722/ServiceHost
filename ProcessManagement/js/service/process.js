@@ -8,28 +8,9 @@ SBPM.Service.Process = {
     processExists : function(name) {
         return name && name.length > 0 && SBPM.Service.Process.getProcessID(name) > 0;
     },
-    saveProcess : function(name, forceOverwrite, saveAs, context) {
-
-        if(!context)
-            context = parent;
- 
-        // try to set another default name
-        name = name || context.SBPM.VM.processVM.processName();
-
-        if (!name)
-            return false;
-
-        var graphAsJSON = context.gv_graph.saveToJSON();
-
-        var startSubjects = [];
-
-        for (var subject in context.gv_graph.subjects)
-            startSubjects.push(SBPM.Service.Role.getByName(subject));
-
-        var startSubjectsAsJSON = JSON.stringify(startSubjects);
-
+    saveProcess : function(graphAsJSON, startSubjectsAsJSON, name, forceOverwrite, saveAs) {
         var id;
-
+        
         if(saveAs){
             // if process already exists
             if(!forceOverwrite && this.processExists(name))

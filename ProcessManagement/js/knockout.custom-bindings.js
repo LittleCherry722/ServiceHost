@@ -1,6 +1,7 @@
 // extended template binding with a listeners attributed
 ko.bindingHandlers.templateWithListeners = {
     init : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
+        
         return ko.bindingHandlers.template.init(element, valueAccessor, allBindingAccessor, viewModel, context);   
     },
     update : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
@@ -14,7 +15,7 @@ ko.bindingHandlers.templateWithListeners = {
     }  
 };
 
-// extends click binding by adding a "tooltip label"
+// adding a "tooltip label"
 ko.bindingHandlers.tooltip = {
     init : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
       
@@ -77,21 +78,16 @@ ko.bindingHandlers.fancybox = {
     }
 };
 
-ko.bindingHandlers.selectType = {
-    init : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
-      
-        var options = valueAccessor();
-        
-        if(options.selectType && options.selectType == "chosen")
-            $(element).chosen();
-        
+ko.bindingHandlers.chosen = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
+        var allBindings = allBindingsAccessor();
+         
+        var options = {default: 'Select one...'};
+        $.extend(options, allBindings.chosen)
+                
+        $(element).attr('data-placeholder', options.default).addClass('chzn-select').chosen();              
     },
-    update : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
-        
-        var options = valueAccessor();
-        
-        if(options.selectType && options.selectType == "chosen")
-            $(element).trigger("liszt:updated");
-        
+    update: function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
+        $(element).trigger("liszt:updated");
     }
 };

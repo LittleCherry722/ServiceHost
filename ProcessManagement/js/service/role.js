@@ -17,6 +17,17 @@ SBPM.Service.Role = {
         });
     },
     /**
+     *get all roles and their users
+     */
+    getAllRolesAndUsers : function() {
+        return this.query({
+            "action" : "getallrolesandusers"
+        }, {}, function(json) {
+            if (json["code"] == "ok")
+                return json["groups"];
+        });
+    },
+    /**
      *
      * @param {Object} roleId
      */

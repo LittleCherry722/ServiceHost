@@ -220,7 +220,7 @@ function goToInternalBehaviorOf(subject){
 	showtab1();
 	updateListOfSubjects();
 	
-	SBPM.VM.processVM.activeViewIndex(1);
+	SBPM.VM.contentVM().activeViewIndex(1);
 }
 
 

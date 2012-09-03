@@ -26,11 +26,8 @@ var ViewModel = function() {
                 SBPM.Dialog.YesNo('Warning', 'Process\' name already exists. Do you want to overwrite the process?', function() {
 
                     // overwrite the existing process
-                    SBPM.Service.Process.saveProcess(process, true, true);
-
-                    // reload recent processes
-                    parent.SBPM.VM.menuVM.init();
-
+                    parent.SBPM.VM.save(process, true, true);
+                    
                     // close the layer
                     self.close();
 
@@ -38,21 +35,14 @@ var ViewModel = function() {
 
             } else {
 
-                // set the new name
-                self.processName(process);
-
-                // reload recent processes
-                parent.SBPM.VM.menuVM.init();
+                SBPM.Notification.Info("Information", "Process successfully created.");
 
                 // close the layer
                 self.close();
 
-                SBPM.Notification.Info("Information", "Process successfully created.");
-
             }
 
-            // load the new process
-            parent.SBPM.VM.processVM.processName(process);
+
 
         } else
             SBPM.Notification.Error("Error", "Could not create process.");

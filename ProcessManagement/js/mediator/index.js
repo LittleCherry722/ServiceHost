@@ -31,18 +31,6 @@ var Mediator = function() {
                 prevText : "&laquo;"
             });
     
-            $("a#save").click(function() {
-                
-                if(SBPM.Service.Process.saveProcess()){
-                  // reload recent processes
-                  self.init();
-                  
-                  SBPM.Notification.Info("Information", "Process successfully created.");
-                }else
-                  SBPM.Notification.Info("Error", "Could not create process.");
-    
-            });
-    
             $("#hide_menu").click(function() {
                 $("#left_menu").hide();
                 $("#show_menu").show();
@@ -119,7 +107,7 @@ var Mediator = function() {
                 gv_graph.changeView('cv');
                 updateListOfSubjects();
                 
-                SBPM.VM.processVM.activeViewIndex(0);
+                SBPM.VM.contentVM().activeViewIndex(0);
             });
 
             $("#tab3").click(function() {
@@ -136,7 +124,7 @@ var Mediator = function() {
                 $("#zoomoutbutton").hide();
                 $("#reset-button").hide();
                 
-                SBPM.VM.processVM.activeViewIndex(2);
+                SBPM.VM.contentVM().activeViewIndex(2);
             });
 
 

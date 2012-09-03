@@ -141,7 +141,21 @@ if (isset($_REQUEST['action'])){
 		}
 		$return['groups'] = $groups;
 		$return['code']   = "ok";
+	}elseif ($_REQUEST['action'] == "getallrolesandusers"){
+		$result = mysql_query("	SELECT groups.name as groupName, users.name as userName FROM groups, users_x_groups, users WHERE groups.id = users_x_groups.groupid AND users.id = users_x_groups.userid ORDER BY groupName, userName");
+		$groups = array();
+		while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
+			if(array_key_exists($group['groupName'], $groups))
+				array_push($groups[$group['groupName']], $group['userName']);
+			else
+				$groups[$group['groupName']] = array($group['userName']);
+		}
+		$return['groups'] = $groups;
+		$return['code']   = "ok";
 	}
+	
+	
+
 
 	if (!empty($return))
 			echo json_encode($return);
