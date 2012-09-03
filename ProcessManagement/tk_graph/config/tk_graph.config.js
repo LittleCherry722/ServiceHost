@@ -75,11 +75,12 @@ var gv_nodeTypes	= {
 };
 
 /**
- * TODO
+ * Names of the images that are placed on nodes for send, receive, modalsplit, modaljoin
  * 
  * @type Object
  */
 var gv_nodeTypeImg	= {
+	emptyNodeImg: "clearNode.png",
 	S: "send.png",
 	R: "receive.png",
 	MS: "modalsplit.png",

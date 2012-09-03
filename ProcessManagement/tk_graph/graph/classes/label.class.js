@@ -355,7 +355,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		this.rectangle	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.ellipse	= gv_paper.ellipse(0, 0, 0, 0);
 		this.text		= gv_paper.text(0, 0, "");
-		this.img		= gv_paper.image("tk_graph/img/empty.png", 0, 0, gv_bv_circleNode.imgWidth, gv_bv_circleNode.imgHeight);		
+		this.img		= gv_paper.image("tk_graph/img/" + gv_nodeTypeImg.emptyNodeImg, 0, 0, gv_bv_circleNode.imgWidth, gv_bv_circleNode.imgHeight);		
 		
 		this.bboxObj	= this.rectangle;
 	};
