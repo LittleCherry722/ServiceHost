@@ -276,5 +276,7 @@ var gv_functions	= {
  * @type Object
  */
 var gv_topics	= {
-	subjects:	"/tk_graph/subjects"
+	subjects:		"/tk_graph/subjects",
+	states:			"/tk_graph/states",
+	transitions:	"/tk_graph/transitions"
 };

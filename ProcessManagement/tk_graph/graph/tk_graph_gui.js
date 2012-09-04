@@ -676,7 +676,7 @@ function gf_guiReadSubject ()
 		
 	if (gt_type == "")
 		gt_type = "single";
-		
+	
 	gt_result.text				= gt_text;
 	gt_result.id				= gt_id;
 	gt_result.type				= gt_type;

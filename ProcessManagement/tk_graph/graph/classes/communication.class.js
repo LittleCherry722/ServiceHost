@@ -811,113 +811,124 @@ function GCcommunication ()
 	{
 		var gt_messages		= {};		// messageText: messageID
 		
-		var gt_jsonObject	= JSON.parse(jsonString);
-		var gt_jsonProcess	= gt_jsonObject;
-		var gt_mapMessages	= false;
+		if (gf_isset(jsonString))
+		{
 		
-		if (gf_isset(gt_jsonObject.process, gt_jsonObject.messages, gt_jsonObject.messageCounter))
-		{
-			gt_jsonProcess			= gt_jsonObject.process;
-			this.messageTypes		= gt_jsonObject.messages;
-			this.messageTypeCounter	= gt_jsonObject.messageCounter;
-		}
-		else
-		{
-			gt_mapMessages				= true;
-			this.messageTypeCounter		= 0;
-		}
-		
-		// 1. create subjects (replace <br /> by \n)
-		for (var gt_subjectId in gt_jsonProcess)
-		{
-			var gt_subject = gt_jsonProcess[gt_subjectId];
+			var gt_jsonObject	= JSON.parse(jsonString);
+			var gt_jsonProcess	= gt_jsonObject;
+			var gt_mapMessages	= false;
 			
-			// provide compatibility to previous versions:
-			var gt_inputPool	= gf_isset(gt_subject.inputPool) ? gt_subject.inputPool : -1;
-			
-			this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_inputPool, gt_subject.deactivated);
-			
-			if (gf_isset(this.subjects[gt_subject.id]))
+			if (gf_isset(gt_jsonObject.process, gt_jsonObject.messages, gt_jsonObject.messageCounter))
 			{
-				this.subjects[gt_subject.id].setRelatedProcess(gt_subject.relatedProcess);
-				this.subjects[gt_subject.id].setRelatedSubject(gt_subject.relatedSubject);
+				gt_jsonProcess			= gt_jsonObject.process;
+				this.messageTypes		= gt_jsonObject.messages;
+				this.messageTypeCounter	= gt_jsonObject.messageCounter;
 			}
-		}
-		
-		// 2. add nodes + edges
-		for (var gt_subjectId in gt_jsonProcess)
-		{
-			var gt_subject	= gt_jsonProcess[gt_subjectId];
-			var gt_behav	= this.getBehavior(gt_subject.id);
-			
-			if (gt_behav != null)
+			else
 			{
-				// 2.1 nodes
-				for (var gt_nodeId in gt_subject.nodes)
-				{
-					var gt_node		= gt_subject.nodes[gt_nodeId];
-					var gt_nodeId	= gt_behav.addNode(gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+				// remove additional attributes for backwards compatibility
+				if (gf_isset(gt_jsonObject.routings))
+					delete gt_jsonObject["routings"];
 					
-					if (gf_isset(gt_node.options))
+				if (gf_isset(gt_jsonObject.responsibilities))
+					delete gt_jsonObject["responsibilities"];
+				
+				gt_mapMessages				= true;
+				this.messageTypeCounter		= 0;
+			}
+			
+			// 1. create subjects (replace <br /> by \n)
+			for (var gt_subjectId in gt_jsonProcess)
+			{
+				var gt_subject = gt_jsonProcess[gt_subjectId];
+				
+				// provide compatibility to previous versions:
+				var gt_inputPool	= gf_isset(gt_subject.inputPool) ? gt_subject.inputPool : -1;
+				
+				this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_inputPool, gt_subject.deactivated);
+				
+				if (gf_isset(this.subjects[gt_subject.id]))
+				{
+					this.subjects[gt_subject.id].setRelatedProcess(gt_subject.relatedProcess);
+					this.subjects[gt_subject.id].setRelatedSubject(gt_subject.relatedSubject);
+				}
+			}
+			
+			// 2. add nodes + edges
+			for (var gt_subjectId in gt_jsonProcess)
+			{
+				var gt_subject	= gt_jsonProcess[gt_subjectId];
+				var gt_behav	= this.getBehavior(gt_subject.id);
+				
+				if (gt_behav != null)
+				{
+					// 2.1 nodes
+					for (var gt_nodeId in gt_subject.nodes)
 					{
-						gt_behav.getNode(gt_nodeId).setOptions(gt_node.options);
+						var gt_node		= gt_subject.nodes[gt_nodeId];
+						var gt_nodeId	= gt_behav.addNode(gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+						
+						if (gf_isset(gt_node.options))
+						{
+							gt_behav.getNode(gt_nodeId).setOptions(gt_node.options);
+						}
+					}
+					
+					// 2.2 edges
+					for (var gt_edgeId in gt_subject.edges)
+					{
+						var gt_edge				= gt_subject.edges[gt_edgeId];
+						var gt_startNodeID		= gt_edge.start;
+						
+						if (parseInt(gt_startNodeID) != gt_startNodeID && gf_isset(gt_behav.nodeIDs[gt_startNodeID]))
+						{
+							gt_startNodeID = gt_behav.nodeIDs[gt_startNodeID];
+						}
+						
+						var gt_startNode		= gt_behav.getNode(gt_startNodeID);
+						var gt_startNodeType	= gt_startNode != null ? gt_startNode.getType() : "action";
+						var gt_text				= gf_replaceNewline(gt_edge.text);
+						
+						// map messages to new system
+						if (gt_mapMessages && (gt_startNodeType == "send" || gt_startNodeType == "receive") && gt_edge.type == "exitcondition")
+						{
+							if (!gf_isset(gt_messages[gt_text]))
+							{
+								this.messageTypes["m" + this.messageTypeCounter] = gt_text;
+								gt_messages[gt_text] = "m" + this.messageTypeCounter;
+								this.messageTypeCounter++;
+							}
+							
+							if (gf_isset(gt_messages[gt_text]))
+							{
+								gt_text = gt_messages[gt_text];
+							}
+						}
+						
+						var gt_createdEdge	= gt_behav.addEdge(gt_edge.start, gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
+						
+						if (gt_createdEdge != null)
+						{
+							if (gf_isset(gt_edge.priority))
+							{
+								gt_createdEdge.setPriority(gt_edge.priority);
+							}
+							
+							if (gf_isset(gt_edge.manualTimeout))
+							{
+								gt_createdEdge.setManualTimeout(gt_edge.manualTimeout);
+							}
+						}
 					}
 				}
 				
-				// 2.2 edges
-				for (var gt_edgeId in gt_subject.edges)
-				{
-					var gt_edge				= gt_subject.edges[gt_edgeId];
-					var gt_startNodeID		= gt_edge.start;
-					
-					if (parseInt(gt_startNodeID) != gt_startNodeID && gf_isset(gt_behav.nodeIDs[gt_startNodeID]))
-					{
-						gt_startNodeID = gt_behav.nodeIDs[gt_startNodeID];
-					}
-					
-					var gt_startNode		= gt_behav.getNode(gt_startNodeID);
-					var gt_startNodeType	= gt_startNode != null ? gt_startNode.getType() : "action";
-					var gt_text				= gf_replaceNewline(gt_edge.text);
-					
-					// map messages to new system
-					if (gt_mapMessages && (gt_startNodeType == "send" || gt_startNodeType == "receive") && gt_edge.type == "exitcondition")
-					{
-						if (!gf_isset(gt_messages[gt_text]))
-						{
-							this.messageTypes["m" + this.messageTypeCounter] = gt_text;
-							gt_messages[gt_text] = "m" + this.messageTypeCounter;
-							this.messageTypeCounter++;
-						}
-						
-						if (gf_isset(gt_messages[gt_text]))
-						{
-							gt_text = gt_messages[gt_text];
-						}
-					}
-					
-					var gt_createdEdge	= gt_behav.addEdge(gt_edge.start, gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
-					
-					if (gt_createdEdge != null)
-					{
-						if (gf_isset(gt_edge.priority))
-						{
-							gt_createdEdge.setPriority(gt_edge.priority);
-						}
-						
-						if (gf_isset(gt_edge.manualTimeout))
-						{
-							gt_createdEdge.setManualTimeout(gt_edge.manualTimeout);
-						}
-					}
-				}
+				// set the nodeCounter to avoid problems with new nodes
+				gt_behav.nodeCounter = gt_subject.nodeCounter;
 			}
 			
-			// set the nodeCounter to avoid problems with new nodes
-			gt_behav.nodeCounter = gt_subject.nodeCounter;
+			// draw the graph
+			this.draw();
 		}
-		
-		// draw the graph
-		this.draw();
 	};
 	
 	/**

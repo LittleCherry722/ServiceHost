@@ -116,8 +116,8 @@ var gv_cv_style_roundedRectangleExternal = {
 	/*
 	 * Border
 	 */
-	borderColor: "#AA0000",				// any hex-color-value
-	borderColorDeact: "#AA0000",		// any hex-color-value
+	borderColor: "#CC0000",				// any hex-color-value
+	borderColorDeact: "#CC0000",		// any hex-color-value
 	borderColorSelDeact: "#0000FF",		// any hex-color-value
 	borderColorSel: "#0000FF",			// any hex-color-value
 	borderOpacity: 1.0,					// floating number
@@ -158,8 +158,8 @@ var gv_cv_style_roundedRectangleExternal = {
 	/*
 	 * Text
 	 */
-	fontColor: "#CC0000",				// any hex-color-value
-	fontColorDeact: "#CC0000",			// any hex-color-value
+	fontColor: "#000000",				// any hex-color-value
+	fontColorDeact: "#000000",			// any hex-color-value
 	fontColorSelDeact: "#0000FF",		// any hex-color-value
 	fontColorSel: "#0000FF",			// any hex-color-value
 	fontOpacity: 1.0,					// floating number
