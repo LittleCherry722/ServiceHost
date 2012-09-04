@@ -24,9 +24,8 @@ var ViewModel = function() {
 		// if process name does not exist
 		if(!SBPM.Service.Process.processExists(process)) {
 
-			// load a new process
-			parent.SBPM.VM.processVM.showProcess(process);
-
+            parent.SBPM.VM.goToPage("process", process);
+            
 			if(self.quickVM.displayTable()) {
 				self.quickVM.createProcessFromTable();
 
