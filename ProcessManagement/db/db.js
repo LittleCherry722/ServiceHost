@@ -27,7 +27,7 @@ var SBPM = {
 };
 
 // turn off debug messages
-if(!SBPM.Constant.DEBUG){
+if(!SBPM.Constant.DEBUG || !window.console){
     window.console = {
         log : function(){},
         error : function(){},
