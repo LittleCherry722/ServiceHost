@@ -135,6 +135,8 @@ var ProcessViewModel = function(processName) {
 
 	self.init = function() {
 
+        console.log("ProcessViewModel: init called.",arguments.callee.caller);
+
         self.subjectVM.init();
         self.internalVM.init();
         self.chargeVM.init();
@@ -159,7 +161,6 @@ var ProcessViewModel = function(processName) {
 	    console.log("ProcessViewModel: showProcess called. processName="+self.processName());
 	    
 	    try{
-            $("#tab2").click();
            
             gv_graph.clearGraph(true);
             
@@ -429,10 +430,6 @@ var ChargeViewModel = function() {
         self.data.routings(graph.routings.map(function(data){
             return new Routing(messageTypes, data.fromSubject, data.fromSubjectprovider, data.messageType, data.toSubject, data.toSubjectprovider)
         }));
-
-
-
-        console.log(JSON.stringify(ko.toJS(self.data), null, 2))
 
         console.log("loaded",self.data.responsibilities(),self.data.routings());
         

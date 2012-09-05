@@ -7,7 +7,9 @@ var Mediator = function() {
 
     // Overwrite viewListeners
     self.viewListeners = function() {
-
+        $("#tab2").click();
+        
+        console.log("Mediator: Listeners for ProcessView loaded.");
     }
     /**
      * used by afterRender in administration.html
