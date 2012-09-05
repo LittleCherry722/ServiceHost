@@ -244,7 +244,7 @@ var ProcessViewModel = function(processName) {
 
         var graph = JSON.parse(gv_graph.saveToJSON());
         
-        console.log(ko.mapping.toJS(self.chargeVM.data));
+        console.log("ProcessViewModel: saving "+name+".");
         
         // add responsibilities and routings to graph
         $.extend(graph, ko.mapping.toJS(self.chargeVM.data, {
@@ -252,8 +252,6 @@ var ProcessViewModel = function(processName) {
         }));
 
         var graphAsJSON = JSON.stringify(graph);
-
-        console.log(graph);
 
         var startSubjects = [];
 
@@ -329,9 +327,7 @@ var ChargeViewModel = function() {
         self.messageType = ko.observable(messageType);
         self.toSubject = ko.observable(toSubject);
         self.toSubjectprovider = toSubjectprovider;
-            
-        console.log(self.fromSubject());
-            
+  
         /**
          * returns a unique list of sender's subjectNames
          */
@@ -382,6 +378,7 @@ var ChargeViewModel = function() {
             self.toSubject(undefined);
         });
         
+        console.log(ko.mapping.toJS(self));
     }
     
     var Responsibility = function(subjectProvidersForRole, role, subjectProvider){
@@ -393,8 +390,8 @@ var ChargeViewModel = function() {
     }
     
     self.data = {
-        responsibilities : ko.mapping.fromJS([]),  // {role, subjectProvider}
-        routings : ko.mapping.fromJS([]),          // {fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider}
+        responsibilities : ko.observableArray([]),  // {role, subjectProvider}
+        routings : ko.observableArray([]),          // {fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider}
     }
 
     self.lists = {
@@ -416,25 +413,24 @@ var ChargeViewModel = function() {
         
         var messageTypes = gf_getMessageTypes();
         
-        var roles = SBPM.Service.Role.getAllRolesAndUsers();
+        var rolesAndUsers = SBPM.Service.Role.getAllRolesAndUsers();
 
-        ko.mapping.fromJS(graph, {
-            'ignore': ["process", "messages", "messageCounter"],
-            'responsibilities' : {
-                create: function(options) {
-                    var data = options.data;
-                    
-                    return new Responsibility(roles[data.role], data.role, data.subjectProvider);
-                }
-            },
-            'routings' : {
-                create : function(options){
-                    var data = options.data;
+        // if responsibilities aren't set yet -> set them
+        graph.responsibilities = graph.responsibilities || [];
+        
+        // otherwise just map them
+        self.data.responsibilities(graph.responsibilities.map(function(data){
+            return new Responsibility(rolesAndUsers[data.role], data.role, data.subjectProvider);
+        }));
+        
+        
+        graph.routings = graph.routings || [];
 
-                    return new Routing(messageTypes, data.fromSubject, data.fromSubjectprovider, data.messageType, data.toSubject, data.toSubjectprovider);
-                }
-            }
-        }, self.data);
+        self.data.routings(graph.routings.map(function(data){
+            return new Routing(messageTypes, data.fromSubject, data.fromSubjectprovider, data.messageType, data.toSubject, data.toSubjectprovider)
+        }));
+
+
 
         console.log(JSON.stringify(ko.toJS(self.data), null, 2))
 
@@ -445,7 +441,7 @@ var ChargeViewModel = function() {
     }
 
     self.addRouting = function(){
-        self.data.routings.push(new Routing(gf_getMessageTypes()));
+        self.data.routings.push(new Routing(gf_getMessageTypes(), "", "", "", "", ""));
     }
 
     self.removeRouting = function(element){
