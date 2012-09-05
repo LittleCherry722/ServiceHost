@@ -14,6 +14,8 @@ var ViewModel = function() {
 	
 	self.goToPage = function(page, args){
 	    
+	    console.log("ViewModel: goToPage("+page+", "+args+")");
+	    
 	    switch(page) {
 	        case "process":
 	           self.contentVM(new ProcessViewModel(args));
@@ -203,6 +205,7 @@ var ProcessViewModel = function(processName) {
 				self.showProcess();
 				 });
 			
+			    console.log(graph);
           
             }else{
                 
@@ -314,17 +317,69 @@ var ChargeViewModel = function() {
     
     var Routing = function(messagesTypes, fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider){
         var self = this;
-                
+        
         var _private = {
            messageTypes : messagesTypes
         };
         
         self.fromSubject = ko.observable(fromSubject);
-        self.fromSubjectprovider = ko.observable(fromSubjectprovider);
+        self.fromSubjectprovider = fromSubjectprovider;
         self.messageType = ko.observable(messageType);
         self.toSubject = ko.observable(toSubject);
-        self.toSubjectprovider = ko.observable(toSubjectprovider);
-
+        self.toSubjectprovider = toSubjectprovider;
+            
+        console.log(self.fromSubject());
+            
+        /**
+         * returns a unique list of sender's subjectNames
+         */
+        self.fromSubjectNames = ko.computed(function() {
+            return $.unique(_private.messageTypes
+                        .map(function(element){
+                            return element.sender;
+                        }));
+        });
+    
+        /**
+         * returns a list of messageTypes for a sender
+         */
+        self.availableMessageTypes = ko.computed(function() {
+            return _private.messageTypes
+                        .filter(function(element){
+                            return (element.sender == self.fromSubject()); 
+                        })
+                        .map(function(element){
+                            return element.messageType;
+                        });
+        });
+    
+        /**
+         * returns a list of receiver's subjectNames for a messageType
+         */ 
+        self.toSubjectNames = ko.computed(function() {
+            return _private.messageTypes
+                        .filter(function(element){
+                            return (element.messageType == self.messageType()); 
+                        })
+                        .map(function(element){
+                            return element.receiver;
+                        });
+        });
+        
+        /**
+         * reset messageType and toSubject when fromSubjects is being changed 
+         */
+        self.fromSubject.subscribe(function() {
+            self.messageType(undefined);
+        });
+        
+        /**
+         * reset toSubject when messageType is being changed 
+         */
+        self.messageType.subscribe(function() {
+            self.toSubject(undefined);
+        });
+        
     }
     
     var Responsibility = function(subjectProvidersForRole, role, subjectProvider){
@@ -360,43 +415,6 @@ var ChargeViewModel = function() {
         var messageTypes = gf_getMessageTypes();
         
         var roles = SBPM.Service.Role.getAllRolesAndUsers();
-
-        fromSubjects = $.unique(messageTypes
-                .map(function(element){
-                    return element.sender;
-                }));
-          
-        self.lists.fromSubjects = fromSubjects;
-          
-        for(var i in fromSubjects){
-            self.lists.availableMessageTypes[fromSubjects[i]] = messageTypes
-                    .filter(function(element){
-                        return (element.sender == fromSubjects[i]); 
-                    })
-                    .map(function(element){
-                        return element.messageType;
-                    })
-            
-        }
-
-        availableMessageTypes = self.lists.availableMessageTypes;
-
-        for(var fromSubject in availableMessageTypes){
-
-            for(var i in availableMessageTypes[fromSubject]){
-                
-                self.lists.toSubjects[availableMessageTypes[fromSubject][i]] = messageTypes
-                        .filter(function(element){
-                            return (element.messageType == availableMessageTypes[fromSubject][i]); 
-                        })
-                        .map(function(element){
-                            return element.receiver;
-                        });
-                        
-            }
-
-
-        }
 
         ko.mapping.fromJS(graph, {
             'ignore': ["process", "messages", "messageCounter"],
