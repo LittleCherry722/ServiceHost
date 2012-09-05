@@ -2,10 +2,14 @@
 ko.bindingHandlers.templateWithListeners = {
     init : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
         
+        console.log("CustomBinding: temaplteWithListeners - init.");
+        
         return ko.bindingHandlers.template.init(element, valueAccessor, allBindingAccessor, viewModel, context);   
     },
     update : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
         ko.bindingHandlers.template.update(element, valueAccessor, allBindingAccessor, viewModel, context);
+        
+        console.log("CustomBinding: temaplteWithListeners - update.");
         
         var options = valueAccessor();
         
@@ -82,10 +86,10 @@ ko.bindingHandlers.chosen = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
         var allBindings = allBindingsAccessor();
          
-        var options = {default: 'Select one...'};
+        var options = {'default': 'Select one...'};
         $.extend(options, allBindings.chosen)
                 
-        $(element).attr('data-placeholder', options.default).addClass('chzn-select').chosen();              
+        $(element).attr('data-placeholder', options['default']).addClass('chzn-select').chosen();              
     },
     update: function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
         $(element).trigger("liszt:updated");
