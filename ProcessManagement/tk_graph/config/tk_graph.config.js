@@ -88,6 +88,20 @@ var gv_nodeTypeImg	= {
 };
 
 /**
+ * Path to the image folder used by the tk_graph library.
+ * 
+ * @type String
+ */
+var gv_imgPath	= "tk_graph/img/";
+
+/**
+ * Path to the empty image (placeholder).
+ * 
+ * @type String
+ */
+var gv_emptyImgPath	= gv_imgPath + gv_nodeTypeImg.emptyNodeImg;
+
+/**
  * Contains some predefined actions.
  * The objects contain several attributes:
  * - relatedSubject: when set to true a dropDown for the subjects will be shown and filled

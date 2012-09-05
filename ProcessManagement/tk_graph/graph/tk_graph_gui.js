@@ -59,8 +59,8 @@ function gf_guiClearInputFields ()
 	
 	if (gf_elementExists(gv_elements.inputSubjectText))
 		document.getElementById(gv_elements.inputSubjectText).value = "";
-	if (gf_elementExists(gv_elements.inputSubjectId))
-		document.getElementById(gv_elements.inputSubjectId).value = "";
+	if (gf_elementExists(gv_elements.inputSubjectRole))
+		document.getElementById(gv_elements.inputSubjectRole).value = "";
 	if (gf_elementExists(gv_elements.inputSubjectInputPool))
 		document.getElementById(gv_elements.inputSubjectInputPool).value = "";
 
@@ -364,8 +364,8 @@ function gf_guiDisplaySubject (subject)
 	if (gf_elementExists(gv_elements.inputSubjectText))
 		document.getElementById(gv_elements.inputSubjectText).value = subject.getText();
 		
-	if (gf_elementExists(gv_elements.inputSubjectId))
-		document.getElementById(gv_elements.inputSubjectId).value = subject.getId();
+	if (gf_elementExists(gv_elements.inputSubjectRole))
+		document.getElementById(gv_elements.inputSubjectRole).value = subject.getRole();
 		
 	if (gf_elementExists(gv_elements.inputSubjectInputPool))
 		document.getElementById(gv_elements.inputSubjectInputPool).value = subject.getInputPool();
@@ -389,6 +389,15 @@ function gf_guiDisplaySubject (subject)
 		document.getElementById(gv_elements.inputSubjectTypeExternal).onclick = function () {
 			document.getElementById(gv_elements.inputSubjectRelOuter).style.display = document.getElementById(gv_elements.inputSubjectTypeExternal).checked ? "block" : "none";
 		};
+		
+	if (gf_elementExists(gv_elements.inputSubjectExtExternal))
+		document.getElementById(gv_elements.inputSubjectExtExternal).checked = subject.getExternalType() == "external";
+		
+	if (gf_elementExists(gv_elements.inputSubjectExtInterface))
+		document.getElementById(gv_elements.inputSubjectExtInterface).checked = subject.getExternalType() == "interface";
+		
+	if (gf_elementExists(gv_elements.inputSubjectExtInstantInterface))
+		document.getElementById(gv_elements.inputSubjectExtInstantInterface).checked = subject.getExternalType() == "instantinterface";
 }
 
 /**
@@ -532,7 +541,7 @@ function gf_guiLoadDropDown (elementMessage, elementSubject, excludeSubject, new
 		{
 			if (gt_sid != excludeSubject)
 			{
-				gt_subjectArray[gt_subjectArray.length]		= gv_graph.subjects[gt_sid].getText() + " (" + gt_sid + ")##;##" + gt_sid;
+				gt_subjectArray[gt_subjectArray.length]		= gv_graph.subjects[gt_sid].getText() + " (" + gv_graph.subjects[gt_sid].getRole() + ")##;##" + gt_sid;
 			}
 		}
 		
@@ -654,19 +663,20 @@ function gf_guiReadNode ()
  * Read the values for the selected subject from the input fields.
  * 
  * @see GCcommunication::updateSubject()
- * @returns {Object} Indizes: text, id, type, inputPool, relatedProcess, relatedSubject
+ * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType
  */
 function gf_guiReadSubject ()
 {
-	var gt_result	= {text: "", id: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: ""};
+	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: ""};
 	
 	var gt_text			= gf_elementExists(gv_elements.inputSubjectText)		? document.getElementById(gv_elements.inputSubjectText).value		: "";
-	var gt_id			= gf_elementExists(gv_elements.inputSubjectId)			? document.getElementById(gv_elements.inputSubjectId).value			: "";
+	var gt_role			= gf_elementExists(gv_elements.inputSubjectRole)		? document.getElementById(gv_elements.inputSubjectRole).value		: "";
 	var gt_inputPool	= gf_elementExists(gv_elements.inputSubjectInputPool)	? document.getElementById(gv_elements.inputSubjectInputPool).value	: "";
 	var gt_relProcess	= gf_elementExists(gv_elements.inputSubjectRelProcess)	? document.getElementById(gv_elements.inputSubjectRelProcess).value	: "";
 	var gt_relSubject	= gf_elementExists(gv_elements.inputSubjectRelSubject)	? document.getElementById(gv_elements.inputSubjectRelSubject).value	: "";
 	
 	var gt_type	= "";
+	var gt_externalType	= "external";
 	
 	if (gf_elementExists(gv_elements.inputSubjectTypeMulti)		&& document.getElementById(gv_elements.inputSubjectTypeMulti).checked		=== true)
 		gt_type += "multi";
@@ -677,12 +687,19 @@ function gf_guiReadSubject ()
 	if (gt_type == "")
 		gt_type = "single";
 	
+	if (gf_elementExists(gv_elements.inputSubjectExtInstantInterface)	&& document.getElementById(gv_elements.inputSubjectExtInstantInterface).checked	=== true)
+		gt_externalType	= "instantinterface";
+		
+	if (gf_elementExists(gv_elements.inputSubjectExtInterface)			&& document.getElementById(gv_elements.inputSubjectExtInterface).checked		=== true)
+		gt_externalType	= "interface";
+	
 	gt_result.text				= gt_text;
-	gt_result.id				= gt_id;
+	gt_result.role				= gt_role;
 	gt_result.type				= gt_type;
 	gt_result.inputPool			= gt_inputPool;
 	gt_result.relatedProcess	= gt_relProcess;
 	gt_result.relatedSubject	= gt_relSubject;
+	gt_result.externalType		= gt_externalType;
 	
 	return gt_result;
 }

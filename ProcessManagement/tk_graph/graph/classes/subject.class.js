@@ -52,6 +52,14 @@ function GCsubject (id, text, type, inputPool)
 	this.deactivated	= false;
 	
 	/**
+	 * The type of an external subject.
+	 * Either "external", "interface" or "instantinterface".
+	 * 
+	 * @type String
+	 */
+	this.externalType	= "external";
+	
+	/**
 	 * The id of the subject.
 	 * 
 	 * @type String
@@ -78,6 +86,13 @@ function GCsubject (id, text, type, inputPool)
 	 * @type String
 	 */
 	this.relatedSubject		= null;
+	
+	/**
+	 * The ID of the role that is assigned to this subject.
+	 * 
+	 * @type String
+	 */
+	this.role		= "";
 	
 	/**
 	 * The label of the subject.
@@ -125,6 +140,16 @@ function GCsubject (id, text, type, inputPool)
 	};
 	
 	/**
+	 * Returns the type of an external subject.
+	 * 
+	 * @returns {String} The type of an external subject. Possible values are "external", "interface", "instantinterface"
+	 */
+	this.getExternalType = function ()
+	{
+		return this.externalType;
+	};
+	
+	/**
 	 * Returns the id of the subject.
 	 * 
 	 * @returns {String} The id of the subject.
@@ -165,6 +190,19 @@ function GCsubject (id, text, type, inputPool)
 	};
 	
 	/**
+	 * Returns the ID of the role that is assigned to this subject.
+	 * 
+	 * @returns {String} The ID of the role that is assigned to this subject.
+	 */
+	this.getRole = function ()
+	{
+		if (this.role == null || this.role == "")
+			return "noRole";
+			
+		return this.role;
+	};
+	
+	/**
 	 * Returns the label of the subject.
 	 * 
 	 * @returns {String} The label of the subject.
@@ -182,6 +220,18 @@ function GCsubject (id, text, type, inputPool)
 	this.getType = function ()
 	{
 		return this.type.toLowerCase();
+	};
+	
+	/**
+	 * Returns true when the subject has an internal behavior.
+	 * All non-external subjects have an internal behavior.
+	 * So do interfaces.
+	 * 
+	 * @returns {boolean} True when the subject has an internal behavior.
+	 */
+	this.hasInternalBehavior = function ()
+	{
+		return !this.isExternal() || this.getExternalType() == "interface";
 	};
 	
 	/**
@@ -212,6 +262,24 @@ function GCsubject (id, text, type, inputPool)
 	this.isMulti = function ()
 	{
 		return this.getType() == "multi" || this.getType() == "multiexternal";	
+	};
+	
+	/**
+	 * The externalType attribute is only used for external subjects.
+	 * Using this method the externalType will be updated
+	 * 
+	 * @param {String} externalType The new externalType; possible values: external, interface, instantinterface
+	 * @returns {void}
+	 */
+	this.setExternalType = function (externalType)
+	{
+		if (this.isExternal() && gf_isset(externalType))
+		{
+			externalType = externalType.toLowerCase();
+			
+			if (externalType == "external" || externalType == "interface" || externalType == "instantinterface")
+				this.externalType	= externalType;
+		}
 	};
 	
 	/**
@@ -259,7 +327,7 @@ function GCsubject (id, text, type, inputPool)
 	};
 	
 	/**
-	 * Returns the ID of the corresponding subject in the related process (only for external subjects).
+	 * Updates the ID of the corresponding subject in the related process (only for external subjects).
 	 * 
 	 * @param {String} relatedSubject The ID of the corresponding subject in the related process.
 	 * @returns {void}
@@ -270,6 +338,17 @@ function GCsubject (id, text, type, inputPool)
 		{
 			this.relatedSubject = relatedSubject;
 		}
+	};
+	
+	/**
+	 * Updates the role that is assigned to the subject.
+	 * 
+	 * @param {String} role The ID of the role assigned to this subject.
+	 * @returns {void} 
+	 */
+	this.setRole = function (role)
+	{
+		this.role = role;
 	};
 	
 	/**
@@ -319,13 +398,24 @@ function GCsubject (id, text, type, inputPool)
 	this.textToString = function ()
 	{
 		var gt_inputPool	= this.getInputPool() >= 0 ? this.getInputPool() : "\u221e";
-		var gt_text			= this.text + "\n(" + this.id + ")\n \n[InputPool: " + gt_inputPool + "]";
+		var gt_text			= this.text;
 		
 		if (this.isExternal())
 		{
 			// gt_text += "\n\n(reference: " + this.relatedSubject + " @ " + this.relatedProcess + ")";
 			// TODO
+			var gt_external	= "E";
+			
+			if (this.getExternalType() == "interface")
+				gt_external	= "IF";
+				
+			if (this.getExternalType() == "instantinterface")
+				gt_external = "IIF";
+			
+			gt_text += " (" + gt_external + ")";
 		}
+		
+		gt_text += "\n(" + this.getRole() + ")\n \n[InputPool: " + gt_inputPool + "]";
 		
 		return gt_text;
 	};

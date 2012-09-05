@@ -154,52 +154,6 @@ function GCnode (id, text, type)
 	};
 	
 	/**
-	 * Returns the node's label depending on its type.
-	 * This method will return "S" for a send node, "R" for a receive node, "" for an end node and the node's text attribute for every other type.
-	 * 
-	 * @returns {String} The label of the node that will be displayed in the graph.
-	 */
-	this.getTextGraph = function ()
-	{
-		var type	= this.type.toLowerCase();
-		var text	= this.text;
-		
-		if (this.isEnd())
-			type = "end";
-			
-			// gf_newlineToCamelCase
-			
-		if (type.length > 0 && type.charAt(0) == '$' && gf_isset(gv_predefinedActions[type.substr(1)]))
-		{
-			var gt_predefAction	= gv_predefinedActions[type.substr(1)];
-			var gt_messageType	= gf_isset(this.options.message) ? this.options.message : null;
-			var gt_subject		= gf_isset(this.options.subject) ? this.options.subject : null;
-			
-				gt_messageType	= gt_messageType != null && gf_isset(gv_graph.messageTypes[gt_messageType]) ? gf_newlineToCamelCase(gv_graph.messageTypes[gt_messageType]) : (gt_predefAction.wildcard ? "*" : "");
-				gt_subject		= gt_subject != null && gf_isset(gv_graph.subjects[gt_subject]) ? gv_graph.subjects[gt_subject].getText() : (gt_predefAction.wildcard ? "*" : "");
-			
-			text	= gt_predefAction.label + "\n(";
-			
-			if (gt_predefAction.message)
-				text += gt_messageType;
-				
-			if (gt_predefAction.message && gt_predefAction.relatedSubject)
-				text += ", ";
-				
-			if (gt_predefAction.relatedSubject)
-				text += gt_subject;
-				
-			text += ")";
-		}
-		
-		if (gf_isset(gv_nodeTypes[type]) && gf_isset(gv_nodeTypes[type].text))
-		{
-			text	= gv_nodeTypes[type].text;
-		}
-		return text;
-	};
-	
-	/**
 	 * Returns the node's type.
 	 * This can either be "send", "receive", "end" or "action".
 	 * 
@@ -332,6 +286,52 @@ function GCnode (id, text, type)
 			
 			this.type = type;
 		}
+	};
+	
+	/**
+	 * Returns the node's label depending on its type.
+	 * This method will return "S" for a send node, "R" for a receive node, "" for an end node and the node's text attribute for every other type.
+	 * 
+	 * @returns {String} The label of the node that will be displayed in the graph.
+	 */
+	this.textToString = function ()
+	{
+		var type	= this.type.toLowerCase();
+		var text	= this.text;
+		
+		if (this.isEnd())
+			type = "end";
+			
+			// gf_newlineToCamelCase
+			
+		if (type.length > 0 && type.charAt(0) == '$' && gf_isset(gv_predefinedActions[type.substr(1)]))
+		{
+			var gt_predefAction	= gv_predefinedActions[type.substr(1)];
+			var gt_messageType	= gf_isset(this.options.message) ? this.options.message : null;
+			var gt_subject		= gf_isset(this.options.subject) ? this.options.subject : null;
+			
+				gt_messageType	= gt_messageType != null && gf_isset(gv_graph.messageTypes[gt_messageType]) ? gf_newlineToCamelCase(gv_graph.messageTypes[gt_messageType]) : (gt_predefAction.wildcard ? "*" : "");
+				gt_subject		= gt_subject != null && gf_isset(gv_graph.subjects[gt_subject]) ? gv_graph.subjects[gt_subject].getText() : (gt_predefAction.wildcard ? "*" : "");
+			
+			text	= gt_predefAction.label + "\n(";
+			
+			if (gt_predefAction.message)
+				text += gt_messageType;
+				
+			if (gt_predefAction.message && gt_predefAction.relatedSubject)
+				text += ", ";
+				
+			if (gt_predefAction.relatedSubject)
+				text += gt_subject;
+				
+			text += ")";
+		}
+		
+		if (gf_isset(gv_nodeTypes[type]) && gf_isset(gv_nodeTypes[type].text))
+		{
+			text	= gv_nodeTypes[type].text;
+		}
+		return text;
 	};
 	
 	// init

@@ -97,7 +97,19 @@ function GCcommunication ()
 		}
 		
 		// add the message to the messages array
-		this.messages[sender][receiver][this.messages[sender][receiver].length]	= message;
+		var gt_messageArray	= this.messages[sender][receiver];
+		var gt_messageFound	= false;
+		for (var gt_mtid in gt_messageArray)
+		{
+			if (gt_messageArray[gt_mtid] == message)
+			{
+				gt_messageFound	= true;
+				break;
+			}
+		}
+		
+		if (!gt_messageFound)
+			this.messages[sender][receiver][this.messages[sender][receiver].length]	= message;
 	};
 	
 	/**
@@ -393,7 +405,7 @@ function GCcommunication ()
 		// when the communication view is shown, add a new subject using addSubject()
 		if (this.selectedSubject == null)
 		{			
-			this.addSubject("new" + ++this.nodeCounter, "new node " + this.nodeCounter);
+			this.addSubject("Subj" + ++this.nodeCounter, "new Subject " + this.nodeCounter);
 			this.draw();
 		}
 		
@@ -588,6 +600,11 @@ function GCcommunication ()
 						{
 							this.addMessage(gt_bi, gt_relatedSubject, gt_text);
 						}
+						
+						if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "receive")
+						{
+							this.addMessage(gt_relatedSubject, gt_bi, gt_text);
+						}
 					}
 				}
 			}
@@ -731,6 +748,26 @@ function GCcommunication ()
 	};
 	
 	/**
+	 * Returns the names of all subjects of the graph.
+	 * 
+	 * @returns {String[]} An array of all subject names.
+	 */
+	this.getSubjectRoles = function ()
+	{
+		var gt_subjectRoles	= [];
+		
+		for (var gt_sid in this.subjects)
+		{
+			var gt_subjectRole	= this.subjects[gt_sid].geRole();
+			
+			if (gt_subjectRole != null && gt_subjectRole != "")
+				gt_subjectRoles[gt_subjectRoles.length]		= this.subjects[gt_sid].getRole();
+		}
+		
+		return gt_subjectRoles;
+	};
+	
+	/**
 	 * Returns the subjects of the graph.
 	 * 
 	 * @returns {String[]} An array of all subjects.
@@ -817,6 +854,7 @@ function GCcommunication ()
 			var gt_jsonObject	= JSON.parse(jsonString);
 			var gt_jsonProcess	= gt_jsonObject;
 			var gt_mapMessages	= false;
+			var gt_countNodes	= true;
 			
 			if (gf_isset(gt_jsonObject.process, gt_jsonObject.messages, gt_jsonObject.messageCounter))
 			{
@@ -837,6 +875,12 @@ function GCcommunication ()
 				this.messageTypeCounter		= 0;
 			}
 			
+			if (gf_isset(gt_jsonObject.nodeCounter))
+			{
+				this.nodeCounter	= gt_jsonObject.nodeCounter;
+				gt_countNodes		= false;
+			}
+			
 			// 1. create subjects (replace <br /> by \n)
 			for (var gt_subjectId in gt_jsonProcess)
 			{
@@ -849,8 +893,23 @@ function GCcommunication ()
 				
 				if (gf_isset(this.subjects[gt_subject.id]))
 				{
-					this.subjects[gt_subject.id].setRelatedProcess(gt_subject.relatedProcess);
-					this.subjects[gt_subject.id].setRelatedSubject(gt_subject.relatedSubject);
+					var gt_role	= gf_isset(gt_subject.role) ? gt_subject.role : gt_subject.id;
+					
+					if (gf_isset(gt_subject.relatedProcess))
+						this.subjects[gt_subject.id].setRelatedProcess(gt_subject.relatedProcess);
+						
+					if (gf_isset(gt_subject.relatedSubject))
+						this.subjects[gt_subject.id].setRelatedSubject(gt_subject.relatedSubject);
+						
+					if (gf_isset(gt_subject.externalType))
+						this.subjects[gt_subject.id].setExternalType(gt_subject.externalType);
+						
+					this.subjects[gt_subject.id].setRole(gt_role);
+				}
+				
+				if (gt_countNodes)
+				{
+					this.nodeCounter++;
 				}
 			}
 			
@@ -1071,7 +1130,9 @@ function GCcommunication ()
 						deactivated: this.subjects[gt_sid].isDeactivated(),
 						inputPool: this.subjects[gt_sid].getInputPool(),
 						relatedProcess: this.subjects[gt_sid].getRelatedProcess(),
-						relatedSubject: this.subjects[gt_sid].getRelatedSubject()
+						relatedSubject: this.subjects[gt_sid].getRelatedSubject(),
+						externalType: this.subjects[gt_sid].getExternalType(),
+						role: this.subjects[gt_sid].getRole()
 			};
 			
 			var gt_behav = this.subjects[gt_sid].getBehavior();
@@ -1130,7 +1191,7 @@ function GCcommunication ()
 			gt_array[gt_arrayIndex].nodeCounter	= gt_behav.nodeCounter;
 		}
 		
-		return {process: gt_array, messages: this.messageTypes, messageCounter: this.messageTypeCounter};
+		return {process: gt_array, messages: this.messageTypes, messageCounter: this.messageTypeCounter, nodeCounter: this.nodeCounter};
 	};
 	
 	/**
@@ -1364,33 +1425,39 @@ function GCcommunication ()
 				}
 				
 				var gt_text				= gf_isset(gt_values.text)				? gt_values.text			: "";
-				var gt_id				= gf_isset(gt_values.id)				? gt_values.id				: "";
+				var gt_role				= gf_isset(gt_values.role)				? gt_values.role			: "";
 				var gt_type				= gf_isset(gt_values.type)				? gt_values.type			: "";
 				var gt_inputPool		= gf_isset(gt_values.inputPool)			? gt_values.inputPool		: "";
 				var gt_relatedProcess	= gf_isset(gt_values.relatedProcess)	? gt_values.relatedProcess	: "";
 				var gt_relatedSubject	= gf_isset(gt_values.relatedSubject)	? gt_values.relatedSubject	: "";
+				var gt_externalType		= gf_isset(gt_values.externalType)		? gt_values.externalType	: "external";
 				
 					gt_type	= gt_type != "" ? gt_type : gt_subject.getType();
 				
-				// allow the change of the label even though the id is emtpy
+				// allow the change of the label even though the id is emtpy; not necessary any more
+				/*
 				if (gt_id.replace(" ", "") == "")
 				{
 					gt_id = gt_subject.getId();
 				}
+				*/
 				
-				if (gt_text.replace(" ", "") != "" && gt_id.replace(" ", "") != "")
+				if (gt_text.replace(" ", "") != "")
 				{
 				
+					gt_subject.setRole(gt_role);
 					gt_subject.setText(gt_text);
 					gt_subject.setType(gt_type);
 					gt_subject.setInputPool(gt_inputPool);
 					gt_subject.setRelatedProcess(gt_relatedProcess);
 					gt_subject.setRelatedSubject(gt_relatedSubject);
+					gt_subject.setExternalType(gt_externalType);
 					
 					// publish the update of the subject
-					$.publish(gv_topics.subjects, [{action: "update", id: gt_id}]);
+					$.publish(gv_topics.subjects, [{action: "update", id: gt_subject.id}]);
 					
-					// update references to this subject
+					// update references to this subject (not necessary any more as ID does not change)
+					/*
 					if (this.selectedNode != gt_id && !gf_isset(this.subjects[gt_id]))
 					{
 						gt_subject.setId(gt_id);
@@ -1418,6 +1485,7 @@ function GCcommunication ()
 							this.selectedSubject = gt_id;
 						}
 					}
+					*/
 					this.draw();
 				}
 			}

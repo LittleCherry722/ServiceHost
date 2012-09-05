@@ -324,6 +324,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.hideObjects();
 		this.text.hide();
+		this.img.hide();
 	};
 	
 	/**
@@ -355,7 +356,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		this.rectangle	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.ellipse	= gv_paper.ellipse(0, 0, 0, 0);
 		this.text		= gv_paper.text(0, 0, "");
-		this.img		= gv_paper.image("tk_graph/img/" + gv_nodeTypeImg.emptyNodeImg, 0, 0, gv_bv_circleNode.imgWidth, gv_bv_circleNode.imgHeight);		
+		this.img		= gv_paper.image(gv_emptyImgPath, 0, 0, 0, 0);		
 		
 		this.bboxObj	= this.rectangle;
 	};
@@ -478,6 +479,33 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	};
 	
 	/**
+	 * Updates the source and dimensions of the label's image.
+	 * 
+	 * @param {String} src The source of the image.
+	 * @param {int} width The width of the image.
+	 * @param {int} height The height of the image.
+	 * @returns {void}
+	 */
+	this.setImg = function (src, width, height)
+	{
+		// update the source
+		if (gf_isset(src) && src != "" && src != null)
+		{
+			this.img.attr("src", src);
+			
+			// update the dimensions and the position
+			if (gf_isset(width, height))
+			{
+				this.img.attr("width", width);
+				this.img.attr("height", height);
+				
+				this.img.attr("x", this.x - Math.round(width / 2));
+				this.img.attr("y", this.y - Math.round(height / 2));
+			}
+		}
+	};
+	
+	/**
 	 * Set the optional flag to the label.
 	 * 
 	 * @param {boolean} optional When set to true the label will be set to be optional.
@@ -571,17 +599,6 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.getTextAlignAttribute(text);
 		this.text.attr("text", this.replaceNewline(text));
-		
-		if (gf_isset(text) && text != null && gf_isset(gv_nodeTypeImg[text]))
-		{
-			this.img.attr("src", "tk_graph/img/" + gv_nodeTypeImg[text]);
-			this.text.attr("text", "");
-		}
-		else
-		{
-			this.text.attr("text", this.replaceNewline(text));	
-		}
-		
 		this.refreshStyle();
 	};
 	
@@ -594,6 +611,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	{
 		this.setShape(this.shape);
 		this.text.show();
+		this.img.show();
 	};
 	
 	/**
@@ -658,9 +676,6 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 			this.ellipse.attr("cy", this.y);
 			this.ellipse.attr("rx", radius);
 			this.ellipse.attr("ry", radius);
-			
-			this.img.attr("x", this.x - Math.round(gv_bv_circleNode.imgWidth/2));
-			this.img.attr("y", this.y - Math.round(gv_bv_circleNode.imgHeight/2));
 		}
 		else if (this.shape == "ellipse")
 		{

@@ -12,6 +12,14 @@
  */
 
 /**
+ * TODO: delete
+ */
+function gf_tmpLoadProcess (process)
+{
+	SBPM.VM.goToPage('process', process);
+}
+
+/**
  * This object contains a list of all DOM elements used within the API.
  * Do not change the indexes of the array as they are referred to in the API.
  * But you should adapt the values to the actual IDs of the elements on the page.
@@ -42,7 +50,7 @@ var gv_elements = {
 	inputEdgeTypeCondO:		"ge_edge_typeCOuter",
 	inputEdgeTypeTimeoutO:	"ge_edge_typeTOuter",
 	inputSubjectText:		"ge_cv_text",
-	inputSubjectId:			"ge_cv_id",
+	inputSubjectRole:		"ge_cv_id",
 	inputSubjectInputPool:	"ge_cv_inputPool",
 	inputSubjectRelOuter:	"ge_cv_relatedOuter",
 	inputSubjectRelProcess:	"ge_cv_relatedProcess",
@@ -61,6 +69,11 @@ var gv_elements = {
 	// subject types
 	inputSubjectTypeMulti:		"ge_cv_type_multi",
 	inputSubjectTypeExternal:	"ge_cv_type_external",
+	
+	// subject external types
+	inputSubjectExtExternal:			"ge_cv_external_external",
+	inputSubjectExtInterface:			"ge_cv_external_interface",
+	inputSubjectExtInstantInterface:	"ge_cv_external_instantInterface",
 	
 	// edge types
 	inputEdgeTypeCondition:		"ge_edge_type_condition",
@@ -154,7 +167,7 @@ var gv_functions	= {
 		 * read input fields (subject) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadSubject()
-		 * @returns {Object} Indizes: text, id, type, inputPool, relatedProcess, relatedSubject
+		 * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType
 		 */
 		readSubject:		"",
 		
@@ -236,13 +249,40 @@ var gv_functions	= {
 		subjectClickedHook:		"mSubjectClicked",
 		
 		/**
-		 * called when a subject is double-clicked
+		 * called when an external subject is double-clicked
+		 * 
+		 * @see tk_graph.js :: gf_paperDblClickNodeC()
+		 * @param {String} ID The id of the referenced process.
+		 * @returns {void}
+		 */
+		subjectDblClickedExternal:		"gf_tmpLoadProcess",
+		
+		/**
+		 * called when an instant interface (external subject) is double-clicked
 		 * 
 		 * @see tk_graph.js :: gf_paperDblClickNodeC()
 		 * @param {String} ID The id of the double-clicked subject.
 		 * @returns {void}
 		 */
-		subjectDblClicked:		"",
+		subjectDblClickedInstantInterface:		"",
+		
+		/**
+		 * called when an interface (external subject) is double-clicked
+		 * 
+		 * @see tk_graph.js :: gf_paperDblClickNodeC()
+		 * @param {String} ID The id of the double-clicked subject.
+		 * @returns {void}
+		 */
+		subjectDblClickedInterface:		"",
+		
+		/**
+		 * called when an internal subject is double-clicked
+		 * 
+		 * @see tk_graph.js :: gf_paperDblClickNodeC()
+		 * @param {String} ID The id of the double-clicked subject.
+		 * @returns {void}
+		 */
+		subjectDblClickedInternal:		"",
 		
 		/**
 		 * called when a subject is double-clicked (pre-method-call-hook)

@@ -792,18 +792,90 @@ function gf_paperDblClickNodeC (id)
 			window[gv_functions.events.subjectDblClickedHook](id);
 		}
 		
-		// call the gf_clickedCVnode method
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClicked))
-		{
-			window[gv_functions.events.subjectDblClicked](id);
-		}
-		else
-		{
-			// call the gf_paperClickNodeC method to select the node.
-			gf_paperClickNodeC(id);
+		// call actions depending on the subject's type
+		
+		var gt_subject	= null;
+		if (gf_isset(gv_graph.subjects[id]))
+			gt_subject	= gv_graph.subjects[id];
 			
-			// call the gf_toggleBV method to load the internal behavior
-			gf_toggleBV();
+		var gt_type		= "internal";
+		if (gt_subject != null)
+			gt_type		= gt_subject.isExternal() ? gt_subject.getExternalType() : "internal";
+			
+		// internal subject
+		if (gt_type == "internal")
+		{
+			// call the gf_clickedCVnode method
+			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInternal))
+			{
+				window[gv_functions.events.subjectDblClickedInternal](id);
+			}
+			else
+			{
+				// call the gf_paperClickNodeC method to select the node.
+				gf_paperClickNodeC(id);
+				
+				// call the gf_toggleBV method to load the internal behavior
+				gf_toggleBV();
+			}
+		}
+		
+		// external subject: instant interface
+		else if (gt_type == "instantinterface")
+		{
+			// call the gf_clickedCVnode method
+			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInstantInterface))
+			{
+				window[gv_functions.events.subjectDblClickedInstantInterface](id);
+			}
+			else
+			{
+				// call the gf_paperClickNodeC method to select the node.
+				gf_paperClickNodeC(id);
+				
+				// no further action
+			}
+		}
+		
+		// external subject: interface
+		else if (gt_type == "interface")
+		{
+			// call the gf_clickedCVnode method
+			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInterface))
+			{
+				window[gv_functions.events.subjectDblClickedInterface](id);
+			}
+			else
+			{
+				// call the gf_paperClickNodeC method to select the node.
+				gf_paperClickNodeC(id);
+				
+				// call the gf_toggleBV method to load the internal behavior
+				gf_toggleBV();
+			}
+		}
+		
+		// external subject: interface
+		else if (gt_type == "external")
+		{
+			var gt_process	= gt_subject != null ? gt_subject.getRelatedProcess() : "";
+			
+			// call the gf_clickedCVnode method
+			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedExternal) && gt_process != "")
+			{
+				window[gv_functions.events.subjectDblClickedExternal](gt_process);
+			}
+			else
+			{
+				// call the gf_paperClickNodeC method to select the node.
+				gf_paperClickNodeC(id);
+				
+				// no process can be loaded
+				if (gt_process == "")
+					console.log("Error on loading process! No process defined!");
+				else
+					console.log("Error on loading process '" + gt_process + "'! No handler available!");
+			}
 		}
 	}
 }

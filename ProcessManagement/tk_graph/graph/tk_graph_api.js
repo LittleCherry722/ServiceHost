@@ -588,6 +588,17 @@ function gf_getSubjectNames ()
 }
 
 /**
+ * Returns the roles of all subjects of the graph.
+ * 
+ * @see GCcommunication.getSubjectRoles()
+ * @returns {String[]} An array of all subject roles.
+ */
+function gf_getSubjectNames ()
+{
+	return gv_graph.getSubjectRoles();
+}
+
+/**
  * Returns the subjects of the graph.
  * 
  * @see GCcommunication.getSubjects()

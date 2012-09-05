@@ -638,7 +638,11 @@ function GCgraphbv ()
 	 */
 	this.drawNode = function (node)
 	{
-		var gt_bv_style	= null;
+		var gt_bv_style		= null;
+		var gt_bv_text		= node.node.textToString();
+		var gt_bv_imgSrc	= "";
+		var gt_bv_imgWidth	= 0;
+		var gt_bv_imgHeight	= 0;
 		
 		// when the shape of the node is a circle apply correct the style set for circles
 		if (node.node.getShape() == "circle")
@@ -654,6 +658,15 @@ function GCgraphbv ()
 			else
 			{
 				gt_bv_style = gv_bv_circleNode.style;
+			}
+			
+			// get the image source
+			if (gf_isset(gv_nodeTypeImg[node.node.textToString()]))
+			{
+				gt_bv_imgSrc	= gv_imgPath + gv_nodeTypeImg[node.node.textToString()];
+				gt_bv_imgHeight	= gv_bv_circleNode.imgHeight;
+				gt_bv_imgWidth	= gv_bv_circleNode.imgWidth;
+				gt_bv_text		= "";
 			}
 		}
 		
@@ -671,7 +684,7 @@ function GCgraphbv ()
 		}
 			
 		// create the GClabel at the x and y ordinates and pass the shape, the text and the id to the GClabel
-		var gt_bv_rect	= new GClabel(node.posx, node.posy, node.node.getTextGraph(), node.node.getShape(), node.id);
+		var gt_bv_rect	= new GClabel(node.posx, node.posy, gt_bv_text, node.node.getShape(), node.id);
 		
 		// apply the deactivation status to the label
 		if (node.node.isDeactivated())
@@ -680,6 +693,10 @@ function GCgraphbv ()
 		// apply the selection status to the label
 		if (gf_isset(node.selected) && node.selected === true)
 			gt_bv_rect.select();
+			
+		// apply the image
+		if (gt_bv_imgSrc != "")
+			gt_bv_rect.setImg(gt_bv_imgSrc, gt_bv_imgWidth, gt_bv_imgHeight);
 			
 		// apply the style
 		gt_bv_rect.setStyle(gt_bv_style);
