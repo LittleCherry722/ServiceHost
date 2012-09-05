@@ -156,6 +156,8 @@ var ProcessViewModel = function(processName) {
 	
 	self.showProcess = function() {
 	    
+	    console.log("ProcessViewModel: showProcess called. processName="+self.processName());
+	    
 	    try{
             $("#tab2").click();
            
@@ -434,7 +436,7 @@ var ChargeViewModel = function() {
             }
         }, self.data);
 
-        console.log(JSON.stringify(ko.toJS(self.data.routings), null, 2))
+        console.log(JSON.stringify(ko.toJS(self.data), null, 2))
 
         console.log("loaded",self.data.responsibilities(),self.data.routings());
         
