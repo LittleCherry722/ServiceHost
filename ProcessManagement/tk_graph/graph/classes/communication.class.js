@@ -826,6 +826,18 @@ function GCcommunication ()
 	 */
 	this.init = function ()
 	{
+		if (gf_elementExists(gv_elements.graphBVouter))
+		{
+			if (document.getElementById(gv_elements.graphBVouter).innerHTML == "")
+				gv_bv_paper	= null;
+		}
+		
+		if (gf_elementExists(gv_elements.graphCVouter))
+		{
+			if (document.getElementById(gv_elements.graphCVouter).innerHTML == "")
+				gv_cv_paper	= null;
+		}
+		
 		if (gv_bv_paper == null && gv_cv_paper == null)
 		{
 			// create the Raphael Paper object for the communication view
