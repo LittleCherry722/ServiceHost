@@ -329,23 +329,58 @@ function gf_getMessageTypes ()
 	// load messages from behavior
 	for (var gt_bi in gv_graph.subjects)
 	{
-		var gt_behav = gv_graph.getBehavior(gt_bi);
-		var gt_edges = gt_behav.getEdges();
-		for (var gt_eid in gt_edges)
+		var gt_subject	= gv_graph.subjects[gt_bi];
+		if (!gt_subject.isExternal() || gt_subject.getExternalType() == "interface")
 		{
-			var gt_edge					= gt_edges[gt_eid];
-			var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
-			var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
-			var gt_relatedSubject		= gt_edge.getRelatedSubject();
-			var gt_text					= gt_edge.getText();
-			var gt_type					= gt_edge.getType();
-			
-			if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
+			var gt_behav = gv_graph.getBehavior(gt_bi);
+			var gt_edges = gt_behav.getEdges();
+			for (var gt_eid in gt_edges)
 			{
-				if (gf_isset(gv_graph.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
+				var gt_edge					= gt_edges[gt_eid];
+				var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
+				var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
+				var gt_relatedSubject		= gt_edge.getRelatedSubject();
+				var gt_text					= gt_edge.getText();
+				var gt_type					= gt_edge.getType();
+				
+				if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
 				{
-					gt_text	= gf_isset(gv_graph.messageTypes[gt_text]) ? gv_graph.messageTypes[gt_text] : gt_text;
-					gt_messages[gt_messages.length] = {sender: gt_bi, receiver: gt_relatedSubject, messageType: gt_text};
+					var gt_addMessage	= false;
+					var gt_msgSender	= "";
+					var gt_msgReceiver	= "";
+					
+					if (gf_isset(gv_graph.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
+					{
+						gt_addMessage	= true;
+						gt_msgSender	= gt_bi;
+						gt_msgReceiver	= gt_relatedSubject;
+					}
+					
+					if (gf_isset(gv_graph.subjects[gt_relatedSubject]) && gt_startNode.getType() == "receive")
+					{
+						gt_addMessage	= true;
+						gt_msgSender	= gt_relatedSubject;
+						gt_msgReceiver	= gt_bi;
+					}
+					
+					if (gt_addMessage)
+					{
+						gt_text	= gf_isset(gv_graph.messageTypes[gt_text]) ? gv_graph.messageTypes[gt_text] : gt_text;
+						
+						var gt_messageFound	= false;
+						for (var gt_mtid in gt_messages)
+						{
+							var gt_msg	= gt_messages[gt_mtid];
+							if (gt_msg.messageType == gt_text && gt_msg.sender == gt_msgSender && gt_msg.receiver == gt_msgReceiver)
+							{
+								gt_messageFound = true;
+								break;
+							}
+						}
+						
+						if (!gt_messageFound)
+							gt_messages[gt_messages.length] = {sender: gt_msgSender, receiver: gt_msgReceiver, messageType: gt_text};
+					}
 				}
 			}
 		}

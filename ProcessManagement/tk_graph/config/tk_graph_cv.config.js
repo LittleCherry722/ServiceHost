@@ -107,6 +107,97 @@ var gv_cv_style_arrow = {
 };
 
 /**
+ * Default style set for channel edges between two subjects.
+ * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
+ * 
+ * @type Object
+ */
+var gv_cv_style_arrowChannel = {
+	/*
+	 * Arrow
+	 */
+	arrowHeadType: "none",				// possible values: classic, block, open, oval, diamond, none
+	arrowHeadLength: "long",			// possible values: long, short, medium
+	arrowHeadWidth: "wide",				// possible values: wide, narrow, medium
+	arrowColor: "#000000",				// any hex-color-value
+	arrowColorDeact: "#0000FF",			// any hex-color-value
+	arrowColorSel: "#0000FF",			// any hex-color-value
+	arrowLinecap: "square",				// possible values: butt, square, round
+	arrowLinejoin: "bevel",				// possible values: bevel, round, miter
+	arrowMiterLimit: 0,					// any number
+	arrowOpacity: 1.0,					// floating number
+	arrowOpacityDeact: 1.0,				// floating number
+	arrowOpacitySel: 1.0,				// floating number
+	arrowStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleDeact: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowStyleSel: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	arrowWidth: 2,						// pixels
+	arrowWidthDeact: 2,					// pixels
+	arrowWidthSel: 2,					// pixels
+	
+	/*
+	 * Border
+	 */
+	borderColor: "#000000",				// any hex-color-value
+	borderColorDeact: "#0000FF",		// any hex-color-value
+	borderColorSel: "#0000FF",			// any hex-color-value
+	borderOpacity: 1.0,					// floating number
+	borderOpacityDeact: 1.0,			// floating number
+	borderOpacitySel: 1.0,				// floating number
+	borderStyle: "solid",				// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleDeact: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderStyleSel: "solid",			// possible values: "dotted", "dashed", "double", "solid", "none", or Raphael's stroke-dasharray: " ", "-", ".", "-.", "-..", ". ", "- ", "--", "- .", "--.", "--.."
+	borderWidth: 1,						// pixels
+	borderWidthDeact: 1,				// pixels
+	borderWidthSel: 1,					// pixels
+
+	/*
+	 * Background
+	 */		
+	bgColor: "#C0FFFF",					// any hex-color-value
+	bgColorDeact: "#C0FFFF",			// any hex-color-value
+	bgColorSel: "#C0FFFF",				// any hex-color-value
+	bgOpacity: 1.0,						// floating number
+	bgOpacityDeact: 1.0,				// floating number
+	bgOpacitySel: 1.0,					// floating number
+	opacity: 1.0,						// floating number
+	opacityDeact: 1.0,					// floating number
+	opacitySel: 1.0,					// floating number
+	
+	/*
+	 * Text
+	 */
+	fontColor: "#000000",				// any hex-color-value
+	fontColorDeact: "#000000",			// any hex-color-value
+	fontColorSel: "#000000",			// any hex-color-value
+	fontOpacity: 1.0,					// floating number
+	fontOpacityDeact: 1.0,				// floating number
+	fontOpacitySel: 1.0,				// floating number
+	fontFamily: "Verdana, sans-serif",	// any font
+	fontSize: 12,						// pixels
+	fontWeight: "normal",				// possible values: normal, bold
+	fontWeightDeact: "normal",			// possible values: normal, bold
+	fontWeightSel: "normal",			// possible values: normal, bold
+	paddingBottom: 5,					// pixels
+	paddingLeft: 5,						// pixels
+	paddingRight: 5,					// pixels
+	paddingTop: 5,						// pixels
+	textAlign: "middle",				// possible values: left, right, middle
+	textAlignLi: "left",				// possible values: left, right, middle
+	textVAlign: "top",					// possible values: top, bottom, middle
+	
+	/*
+	 * Misc
+	 */
+	liSymbol: "\u2022 ",				// any unicode
+	rectangleRadius: 5,					// radius for rounded rectangles
+	width: 0,							// int
+	height: 0,							// int
+	minWidth: 0,						// int
+	minHeight: 0						// int
+};
+
+/**
  * Default style set for external subjects.
  * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
  * 
@@ -350,7 +441,8 @@ var gv_cv_style_roundedRectangleSingle = {
  * @type Object
  */
 var gv_cv_arrow = {
-		style: gv_cv_style_arrow	// style set to use
+		style: 			gv_cv_style_arrow,				// style set to use
+		styleChannel: 	gv_cv_style_arrowChannel		// style set to use for channels
 };
 
 /**

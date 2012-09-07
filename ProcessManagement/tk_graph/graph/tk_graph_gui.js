@@ -89,6 +89,8 @@ function gf_guiClearInputFields ()
 		document.getElementById(gv_elements.inputEdgeTargetMMMO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeTargetMOuter))
 		document.getElementById(gv_elements.inputEdgeTargetMOuter).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeTargetMTypeNO))
+		document.getElementById(gv_elements.inputEdgeTargetMTypeNO).style.display = "none";
 }
 
 /**
@@ -141,6 +143,8 @@ function gf_guiDisplayEdge (edge, startType)
 		document.getElementById(gv_elements.inputEdgeTargetMMMO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeTargetMOuter))
 		document.getElementById(gv_elements.inputEdgeTargetMOuter).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeTargetMTypeNO))
+		document.getElementById(gv_elements.inputEdgeTargetMTypeNO).style.display = "none";
 		
 	// optional edges
 	if (edge.getTypeOfStartNode() == "modalsplit")
@@ -224,7 +228,11 @@ function gf_guiDisplayEdge (edge, startType)
 		if (edge.getRelatedSubject("multi") && gf_elementExists(gv_elements.inputEdgeTargetMOuter))
 			document.getElementById(gv_elements.inputEdgeTargetMOuter).style.display = "block";
 			
-		var gt_isAll	= edge.getRelatedSubject("min") == "-1" && edge.getRelatedSubject("max") == "-1";
+		if (edge.getRelatedSubject("multi") && startType == "send" && gf_elementExists(gv_elements.inputEdgeTargetMTypeNO))
+			document.getElementById(gv_elements.inputEdgeTargetMTypeNO).style.display = "block";
+			
+		var gt_isAll		= edge.getRelatedSubject("min") == "-1" && edge.getRelatedSubject("max") == "-1";
+		var gt_createNew	= edge.getRelatedSubject("createNew");
 		
 		if (!gt_isAll && gf_elementExists(gv_elements.inputEdgeTargetMMMO))
 			document.getElementById(gv_elements.inputEdgeTargetMMMO).style.display = "block";
@@ -239,7 +247,10 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTargetMTypeA).checked	= gt_isAll;
 		
 		if (gf_elementExists(gv_elements.inputEdgeTargetMTypeL))
-			document.getElementById(gv_elements.inputEdgeTargetMTypeL).checked	= !gt_isAll;
+			document.getElementById(gv_elements.inputEdgeTargetMTypeL).checked	= !gt_isAll && !gt_createNew;
+			
+		if (gf_elementExists(gv_elements.inputEdgeTargetMTypeN))
+			document.getElementById(gv_elements.inputEdgeTargetMTypeN).checked	= !gt_isAll && gt_createNew;
 		
 		if (gf_elementExists(gv_elements.inputEdgeTargetMMin))
 			document.getElementById(gv_elements.inputEdgeTargetMMin).value	= edge.getRelatedSubject("min");
@@ -258,6 +269,13 @@ function gf_guiDisplayEdge (edge, startType)
 		if (gf_elementExists(gv_elements.inputEdgeTargetMTypeL))
 			document.getElementById(gv_elements.inputEdgeTargetMTypeL).onclick	= function () {
 				var gt_clickedValue	= document.getElementById(gv_elements.inputEdgeTargetMTypeL).checked;
+				
+				if (gf_elementExists(gv_elements.inputEdgeTargetMMMO))
+					document.getElementById(gv_elements.inputEdgeTargetMMMO).style.display = gt_clickedValue ? "block" : "none";
+			};
+		if (gf_elementExists(gv_elements.inputEdgeTargetMTypeN))
+			document.getElementById(gv_elements.inputEdgeTargetMTypeN).onclick	= function () {
+				var gt_clickedValue	= document.getElementById(gv_elements.inputEdgeTargetMTypeN).checked;
 				
 				if (gf_elementExists(gv_elements.inputEdgeTargetMMMO))
 					document.getElementById(gv_elements.inputEdgeTargetMMMO).style.display = gt_clickedValue ? "block" : "none";
@@ -603,7 +621,7 @@ function gf_guiReadEdge ()
 {
 	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false};
 	
-	var gt_relatedSubject	= {id: "", min: -1, max: -1};
+	var gt_relatedSubject	= {id: "", min: -1, max: -1, createNew: false};
 	
 	var gt_text				= gf_elementExists(gv_elements.inputEdgeText) ? document.getElementById(gv_elements.inputEdgeText).value : "";
 	var gt_timeout			= gf_elementExists(gv_elements.inputEdgeTimeout) ? document.getElementById(gv_elements.inputEdgeTimeout).value : "";
@@ -612,11 +630,12 @@ function gf_guiReadEdge ()
 	var gt_priority			= gf_elementExists(gv_elements.inputEdgePriority) ? document.getElementById(gv_elements.inputEdgePriority).value : "1";
 	var gt_manualTimeout	= gf_elementExists(gv_elements.inputEdgeTimeoutManual) ? document.getElementById(gv_elements.inputEdgeTimeoutManual).checked : false;
 	
-	var gt_isAll			= gf_elementExists(gv_elements.inputEdgeTargetMTypeA) ? document.getElementById(gv_elements.inputEdgeTargetMTypeA) : false;
+	var gt_isAll			= gf_elementExists(gv_elements.inputEdgeTargetMTypeA) ? document.getElementById(gv_elements.inputEdgeTargetMTypeA).checked : false;
 	
-	gt_relatedSubject.id	= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
-	gt_relatedSubject.min	= gf_elementExists(gv_elements.inputEdgeTargetMMin) && gt_isAll ? document.getElementById(gv_elements.inputEdgeTargetMMin).value : "-1";
-	gt_relatedSubject.max	= gf_elementExists(gv_elements.inputEdgeTargetMMax) && gt_isAll ? document.getElementById(gv_elements.inputEdgeTargetMMax).value : "-1";
+	gt_relatedSubject.id		= gf_elementExists(gv_elements.inputEdgeTarget) ? document.getElementById(gv_elements.inputEdgeTarget).value : "";
+	gt_relatedSubject.min		= gf_elementExists(gv_elements.inputEdgeTargetMMin) && !gt_isAll ? document.getElementById(gv_elements.inputEdgeTargetMMin).value : "-1";
+	gt_relatedSubject.max		= gf_elementExists(gv_elements.inputEdgeTargetMMax) && !gt_isAll ? document.getElementById(gv_elements.inputEdgeTargetMMax).value : "-1";
+	gt_relatedSubject.createNew	= gf_elementExists(gv_elements.inputEdgeTargetMTypeN) && document.getElementById(gv_elements.inputEdgeTargetMTypeN).checked;
 	
 	var gt_type				= "exitcondition";
 	

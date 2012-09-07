@@ -645,6 +645,7 @@ function GCbehavior (name)
 			var gt_tmpEdge				= null;
 			
 			// update message on relatedSubject
+			/*
 			if (	gt_curType == type && type == "exitcondition" &&
 					gt_curRelatedSubject != null && (gt_curRelatedSubject == relatedSubject || relatedSubject == "") && gf_isset(gv_graph.subjects[gt_curRelatedSubject]) &&
 					gt_curText != text)
@@ -660,6 +661,7 @@ function GCbehavior (name)
 					}
 				}
 			}
+			*/
 			
 			gt_edge.setText(text);
 			gt_edge.setType(type);

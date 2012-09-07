@@ -253,7 +253,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			{
 				relatedSubject	= relatedSubject.max;
 			}
-			else if (attribute == "createNew")
+			else if (attribute == "createnew")
 			{
 				relatedSubject	= relatedSubject.createNew === true;
 			}
@@ -445,6 +445,9 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 							
 							if (gf_isset(relatedSubject.max))
 								this.relatedSubject.max	= relatedSubject.max;
+								
+							if (gf_isset(relatedSubject.createNew))
+								this.relatedSubject.createNew	= relatedSubject.createNew === true;
 						}
 					}
 				}

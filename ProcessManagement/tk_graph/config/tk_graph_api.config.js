@@ -35,8 +35,6 @@ var gv_elements = {
 	inputEdgeTargetMMax:	"ge_edge_target_multi_max",
 	inputEdgeTargetMMMO:	"ge_edge_target_multi_minmax_outer",
 	inputEdgeTargetMOuter:	"ge_edge_target_multi_outer",
-	inputEdgeTargetMTypeA:	"ge_edge_target_multi_type_all",
-	inputEdgeTargetMTypeL:	"ge_edge_target_multi_type_limit",
 	inputEdgeText:			"ge_edge_text",
 	inputEdgeTimeout:		"ge_edge_timeout",
 	inputEdgeTimeoutEx:		"ge_edge_timeoutExample",
@@ -74,6 +72,12 @@ var gv_elements = {
 	inputSubjectExtExternal:			"ge_cv_external_external",
 	inputSubjectExtInterface:			"ge_cv_external_interface",
 	inputSubjectExtInstantInterface:	"ge_cv_external_instantInterface",
+	
+	// edge multi target
+	inputEdgeTargetMTypeA:		"ge_edge_target_multi_type_all",
+	inputEdgeTargetMTypeL:		"ge_edge_target_multi_type_limit",
+	inputEdgeTargetMTypeN:		"ge_edge_target_multi_type_new",
+	inputEdgeTargetMTypeNO:		"ge_edge_target_multi_type_new_outer",
 	
 	// edge types
 	inputEdgeTypeCondition:		"ge_edge_type_condition",

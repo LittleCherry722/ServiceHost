@@ -583,27 +583,31 @@ function GCcommunication ()
 			// load messages from behavior
 			for (var gt_bi in this.subjects)
 			{
-				var gt_behav = this.getBehavior(gt_bi);
-				var gt_edges = gt_behav.getEdges();
-				for (var gt_eid in gt_edges)
+				var gt_subject	= this.subjects[gt_bi];
+				if (!gt_subject.isExternal() || gt_subject.getExternalType() == "interface")
 				{
-					var gt_edge					= gt_edges[gt_eid];
-					var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
-					var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
-					var gt_relatedSubject		= gt_edge.getRelatedSubject();
-					var gt_text					= gt_edge.getMessageType();
-					var gt_type					= gt_edge.getType();
-					
-					if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
+					var gt_behav = this.getBehavior(gt_bi);
+					var gt_edges = gt_behav.getEdges();
+					for (var gt_eid in gt_edges)
 					{
-						if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
-						{
-							this.addMessage(gt_bi, gt_relatedSubject, gt_text);
-						}
+						var gt_edge					= gt_edges[gt_eid];
+						var gt_startNode			= gt_behav.getNode(gt_edge.getStart());
+						var gt_endNode				= gt_behav.getNode(gt_edge.getEnd());
+						var gt_relatedSubject		= gt_edge.getRelatedSubject();
+						var gt_text					= gt_edge.getMessageType();
+						var gt_type					= gt_edge.getType();
 						
-						if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "receive")
+						if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
 						{
-							this.addMessage(gt_relatedSubject, gt_bi, gt_text);
+							if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
+							{
+								this.addMessage(gt_bi, gt_relatedSubject, gt_text);
+							}
+							
+							if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "receive")
+							{
+								this.addMessage(gt_relatedSubject, gt_bi, gt_text);
+							}
 						}
 					}
 				}
