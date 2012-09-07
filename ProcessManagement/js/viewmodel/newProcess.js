@@ -24,11 +24,10 @@ var ViewModel = function() {
 		// if process name does not exist
 		if(!SBPM.Service.Process.processExists(process)) {
 
-            parent.SBPM.VM.goToPage("process", process);
-            
+            parent.SBPM.VM.goToPage("process").showProcess(process);
+
 			if(self.quickVM.displayTable()) {
 				self.quickVM.createProcessFromTable();
-
 			}
 
 			// update list of recent processes

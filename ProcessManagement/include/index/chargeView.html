@@ -9,7 +9,7 @@
                 <th style="width:50%">Person in charge</th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: {data : data.responsibilities}">
+        <tbody data-bind="foreach: {data : data().responsibilities}">
             <tr>
                 <td><span data-bind="text: role"></span></td>
                 <td><select data-bind="options: subjectProvidersForRole, value: subjectProvider"></select></td>
@@ -37,7 +37,7 @@
                 <th style="width:5%"> </th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: {data : data.routings }">
+        <tbody data-bind="foreach: {data : data().routings }">
             <tr>
                 <td><select data-bind="options: $parent.lists.fromSubjects, value: fromSubject"></select></td>
                 <td><select data-bind="options: $parent.lists.subjectProviders, value: fromSubjectprovider" ></select></td>

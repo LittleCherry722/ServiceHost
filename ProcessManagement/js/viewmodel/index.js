@@ -2,31 +2,43 @@ var ViewModel = function() {
 
 	var self = this;
 
+    var subViewModels = {
+        processVM : new ProcessViewModel(),
+        executionVM : new ExecutionViewModel(),
+        homeVM : new HomeViewModel()
+    };
+
 	self.init = function(callback) {
 		self.user = ko.observable();
 
 		self.menuVM = new MenuViewModel();
 		self.headerVM = new HeaderViewModel();
-		self.contentVM = ko.observable(new HomeViewModel());
+		self.contentVM = ko.observable();
+		
+		self.goToPage("home");
 
         callback();
 	}
 	
-	self.goToPage = function(page, args){
+	self.goToPage = function(page){
 	    
-	    console.log("ViewModel: goToPage("+page+", "+args+")");
+	    console.log("ViewModel: goToPage("+page+")");
 	    
 	    switch(page) {
 	        case "process":
-	           self.contentVM(new ProcessViewModel(args));
+	           self.contentVM(subViewModels.processVM);
 	           break;
             case "execution":
-               self.contentVM(new ExecutionViewModel(args));
+               self.contentVM(subViewModels.executionVM);
                break;
             default:
-               self.contentVM(new HomeViewModel(args));
+               self.contentVM(subViewModels.homeVM);
                break;
 	    }
+	    
+	    self.contentVM().init();
+	    
+	    return self.contentVM();
 	    
 	}
 	
@@ -38,7 +50,8 @@ var MenuViewModel = function() {
 
 	self.recentProcesses = ko.observableArray();
 	self.maxRecent = 5;
-	self.visible = ko.observable({
+
+    self.visible = ko.observable({
         home : false, 
         process : false, 
         save : false,
@@ -47,7 +60,7 @@ var MenuViewModel = function() {
         execution : false
     });
 
-	self.init = function() {
+	self.init = function() {	    
 		self.recentProcesses(SBPM.Service.Process.getAllProcesses(self.maxRecent));
 	}
 	
@@ -94,36 +107,28 @@ var HomeViewModel = function() {
 
 	var self = this;
 
-    SBPM.VM.menuVM.visible({
-        home : true, 
-        process : true, 
-        save : false,
-        saveAs : false,
-        messages : true, 
-        execution : true
-    });
-
 	self.name = "homeView";
 	self.label = "Home";
 
 	self.init = function() {
+	    
+        SBPM.VM.menuVM.visible({
+            home : true, 
+            process : true, 
+            save : false,
+            saveAs : false,
+            messages : true, 
+            execution : true
+        });
+	    
 	}
 	
 }
-var ProcessViewModel = function(processName) {
+var ProcessViewModel = function() {
 
 	var self = this;
 
-    SBPM.VM.menuVM.visible({
-        home : true, 
-        process : true, 
-        save : true,
-        saveAs : true,
-        messages : true, 
-        execution : true
-    });
-
-	self.processName = ko.observable(processName);
+	self.processName = ko.observable();
 
 	self.name = "processView";
 	self.label = "Process";
@@ -135,14 +140,18 @@ var ProcessViewModel = function(processName) {
 
 	self.init = function() {
 
-        console.log("ProcessViewModel: init called.",arguments.callee.caller);
+        SBPM.VM.menuVM.visible({
+            home : true, 
+            process : true, 
+            save : true,
+            saveAs : true,
+            messages : true, 
+            execution : true
+        });
 
         self.subjectVM.init();
         self.internalVM.init();
         self.chargeVM.init();
-
-        if(self.processName().length > 0)
-           self.showProcess();
 
         console.log("ProcessViewModel: initialized.");
 	}
@@ -156,11 +165,13 @@ var ProcessViewModel = function(processName) {
 		return self.processViews[self.activeViewIndex()];
 	};
 	
-	self.showProcess = function() {
+	self.showProcess = function(processName) {
 	    
 	    console.log("ProcessViewModel: showProcess called. processName="+self.processName());
 	    
 	    try{
+           
+            self.processName(processName);
            
             gv_graph.clearGraph(true);
             
@@ -174,13 +185,9 @@ var ProcessViewModel = function(processName) {
              *  0    -> new process
              *  1..n -> old process
              */
-            if(processId > 0){
+            if(processId > 0){ 
             
-            	if(self.processStamp == "") {
-                var graphAsJson = SBPM.Service.Process.loadGraph(processId);
-             } else {
-              	var graphAsJson = loadGraphHistory(processId,self.processStamp)
-              }
+                var graphAsJson = (self.processStamp == "") ? SBPM.Service.Process.loadGraph(processId) : loadGraphHistory(processId,self.processStamp);
                 
                 gv_graph.loadFromJSON(graphAsJson);
                 
@@ -204,9 +211,9 @@ var ProcessViewModel = function(processName) {
 				$("#timestamps option").last().attr('selected', 'selected');
 				$("#timestamps option[value='" + self.processStamp + "']").attr('selected', 'selected');
 				$("#timestamps").change(function() {
-				self.processStamp = $("#timestamps").val();
-				self.showProcess();
-				 });
+    				self.processStamp = $("#timestamps").val();
+    				self.showProcess(processName);
+				});
 			
 			    console.log(graph);
           
@@ -390,10 +397,10 @@ var ChargeViewModel = function() {
         self.subjectProvider = subjectProvider;
     }
     
-    self.data = {
+    self.data = ko.observable({
         responsibilities : ko.observableArray([]),  // {role, subjectProvider}
         routings : ko.observableArray([]),          // {fromSubject, fromSubjectprovider, messageType, toSubject, toSubjectprovider}
-    }
+    });
 
     self.lists = {
         subjectProviders : ko.observableArray([]),
@@ -420,29 +427,29 @@ var ChargeViewModel = function() {
         graph.responsibilities = graph.responsibilities || [];
         
         // otherwise just map them
-        self.data.responsibilities(graph.responsibilities.map(function(data){
+        self.data().responsibilities(graph.responsibilities.map(function(data){
             return new Responsibility(rolesAndUsers[data.role], data.role, data.subjectProvider);
         }));
         
         
         graph.routings = graph.routings || [];
 
-        self.data.routings(graph.routings.map(function(data){
+        self.data().routings(graph.routings.map(function(data){
             return new Routing(messageTypes, data.fromSubject, data.fromSubjectprovider, data.messageType, data.toSubject, data.toSubjectprovider)
         }));
 
-        console.log("loaded",self.data.responsibilities(),self.data.routings());
+        console.log("loaded",self.data().responsibilities(),self.data().routings());
         
         console.log("ChargeViewModel: Responsibilities and Routings loaded.");
         
     }
 
     self.addRouting = function(){
-        self.data.routings.push(new Routing(gf_getMessageTypes(), "", "", "", "", ""));
+        self.data().routings.push(new Routing(gf_getMessageTypes(), "", "", "", "", ""));
     }
 
     self.removeRouting = function(element){
-        self.data.routings.remove(element);
+        self.data().routings.remove(element);
     }
 
 	self.showView = function() {
@@ -455,15 +462,6 @@ var ExecutionViewModel = function() {
 
 	var self = this;
 	
-    SBPM.VM.menuVM.visible({
-        home : true, 
-        process : true, 
-        save : false,
-        saveAs : false,
-        messages : true, 
-        execution : true
-    });
-	
 	self.name = "executionView";
 	self.lable = "Execution";
 
@@ -471,6 +469,15 @@ var ExecutionViewModel = function() {
 	self.instanceVM = new InstanceViewModel();
 
 	self.init = function(instanceName) {
+    
+        SBPM.VM.menuVM.visible({
+            home : true, 
+            process : true, 
+            save : false,
+            saveAs : false,
+            messages : true, 
+            execution : true
+        });
     
         // TODO load instance
 

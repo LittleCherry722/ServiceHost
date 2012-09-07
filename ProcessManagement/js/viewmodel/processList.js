@@ -11,7 +11,7 @@ var ViewModel = function() {
     }
 
     self.load = function(process) {
-        parent.SBPM.VM.goToPage("process", process);        
+        parent.SBPM.VM.goToPage("process").showProcess(process);        
 
         self.close();
 
