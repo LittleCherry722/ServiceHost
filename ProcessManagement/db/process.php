@@ -69,12 +69,10 @@ if (isset($_REQUEST['action'])) {
 			$graph = $_REQUEST['graph'];
 			$lowestTS = mysql_query("SELECT `date` FROM `process_graphs` WHERE `processID` = " . $_REQUEST['processid'] . " ORDER BY `date` DESC");
 			if (mysql_num_rows($lowestTS) > 14) {
-				echo "rows: " . mysql_num_rows($lowestTS);
 				$counter = 0;
 				while ($row = mysql_fetch_array($lowestTS)) {
 					$counter = $counter + 1;
 					if($counter == 13) {
-						echo " Thirteen: ";
 					mysql_query("DELETE FROM `process_graphs` WHERE `processID` = " . $_REQUEST['processid'] . " AND `date` <= '" . $row[0] . "'");
 					}
 				}
