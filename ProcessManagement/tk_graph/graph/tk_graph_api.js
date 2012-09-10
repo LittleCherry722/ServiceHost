@@ -319,10 +319,16 @@ function gf_deleteElement ()
 /**
  * Collects all messages available to the system and returns them as an Array of Objects.
  * 
+ * @param {String} subjectInfo The information of subjects that will be returned (id, role, name).
  * @returns {Array} Array of Objects {sender, messageType, receiver}.
  */
-function gf_getMessageTypes ()
+function gf_getMessageTypes (subjectInfo)
 {
+	if (!gf_isset(subjectInfo))
+		subjectInfo = "name";
+		
+	subjectInfo	= subjectInfo.toLowerCase();
+	
 	// clear messages
 	var gt_messages = [];
 	
@@ -366,6 +372,30 @@ function gf_getMessageTypes ()
 					if (gt_addMessage)
 					{
 						gt_text	= gf_isset(gv_graph.messageTypes[gt_text]) ? gv_graph.messageTypes[gt_text] : gt_text;
+						
+						// replace all new line characters by space
+						gt_text	= gf_replaceNewline(gt_text, " ");
+						
+						// get the right information about the subjects
+						if (gf_isset(gv_graph.subjects[gt_msgSender]))
+						{
+							if (subjectInfo == "id")
+								gt_msgSender	= gf_replaceNewline(gv_graph.subjects[gt_msgSender].getId(), " ");
+							else if (subjectInfo == "role")
+								gt_msgSender	= gf_replaceNewline(gv_graph.subjects[gt_msgSender].getRole(), " ");
+							else
+								gt_msgSender	= gf_replaceNewline(gv_graph.subjects[gt_msgSender].getText(), " ");
+						}
+						
+						if (gf_isset(gv_graph.subjects[gt_msgReceiver]))
+						{
+							if (subjectInfo == "id")
+								gt_msgReceiver	= gf_replaceNewline(gv_graph.subjects[gt_msgReceiver].getId(), " ");
+							else if (subjectInfo == "role")
+								gt_msgReceiver	= gf_replaceNewline(gv_graph.subjects[gt_msgReceiver].getRole(), " ");
+							else
+								gt_msgReceiver	= gf_replaceNewline(gv_graph.subjects[gt_msgReceiver].getText(), " ");
+						}
 						
 						var gt_messageFound	= false;
 						for (var gt_mtid in gt_messages)

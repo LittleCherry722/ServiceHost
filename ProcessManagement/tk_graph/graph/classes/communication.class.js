@@ -113,6 +113,32 @@ function GCcommunication ()
 	};
 	
 	/**
+	 * TODO
+	 */
+	this.addMessageType = function (text)
+	{
+		
+		// use in loadFromJSON, updateEdge (GCcommunication, when new messageType is defined), addEdge (GCbehavior)
+		
+		var gt_messageTypeID	= "m0";	// TODO
+		
+		// check if text is of type "m" + number (already message ID); else: check if text already exists -> store new
+		if (!gf_isset(gt_messages[gt_text]))
+		{
+			this.messageTypes["m" + this.messageTypeCounter] = gt_text;
+			gt_messages[gt_text] = "m" + this.messageTypeCounter;
+			this.messageTypeCounter++;
+		}
+		
+		if (gf_isset(gt_messages[gt_text]))
+		{
+			gt_text = gt_messages[gt_text];
+		}
+		
+		return gt_messageTypeID;
+	};
+	
+	/**
 	 * Creates a new Subject with the given id, title and type and stores it to the subjects array.
 	 * 
 	 * @param {String} id The id of the subject.

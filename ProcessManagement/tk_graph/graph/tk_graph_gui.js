@@ -105,7 +105,7 @@ function gf_guiDisplayEdge (edge, startType)
 {
 	if (gf_elementExists(gv_elements.inputEdgeText))
 	{
-		document.getElementById(gv_elements.inputEdgeText).value	= edge.getMessageTypeId() == "" ? edge.getText() : edge.getMessageType();
+		document.getElementById(gv_elements.inputEdgeText).value	= gf_replaceNewline(edge.getMessageTypeId() == "" ? edge.getText() : edge.getMessageType());
 		document.getElementById(gv_elements.inputEdgeText).readOnly	= false;					
 	}
 	
@@ -152,7 +152,10 @@ function gf_guiDisplayEdge (edge, startType)
 			var gt_relatedSubjectMulti	= gf_isset(gv_graph.subjects[gt_relatedSubjectID]) ? gv_graph.subjects[gt_relatedSubjectID].isMulti() : false;
 			 
 			if (gf_elementExists(gv_elements.inputEdgeTargetMOuter))
-				document.getElementById(gv_elements.inputEdgeTargetMOuter).style.display = gt_relatedSubjectMulti ? "block" : "none";
+			{
+				document.getElementById(gv_elements.inputEdgeTargetMOuter).style.display	= gt_relatedSubjectMulti ? "block" : "none";
+				document.getElementById(gv_elements.inputEdgeTargetMTypeNO).style.display	= startType == "send" ? "block" : "none";
+			}
 		};
 		
 	// optional edges
@@ -311,7 +314,7 @@ function gf_guiDisplayNode (node)
 		return false;
 	
 	if (gf_elementExists(gv_elements.inputNodeText))
-		document.getElementById(gv_elements.inputNodeText).value = node.getText();
+		document.getElementById(gv_elements.inputNodeText).value = gf_replaceNewline(node.getText());
 	
 	if (gf_elementExists(gv_elements.inputNodeStart))
 		document.getElementById(gv_elements.inputNodeStart).checked = node.isStart();
@@ -389,7 +392,7 @@ function gf_guiDisplayNode (node)
 function gf_guiDisplaySubject (subject)
 {
 	if (gf_elementExists(gv_elements.inputSubjectText))
-		document.getElementById(gv_elements.inputSubjectText).value = subject.getText();
+		document.getElementById(gv_elements.inputSubjectText).value = gf_replaceNewline(subject.getText());
 		
 	if (gf_elementExists(gv_elements.inputSubjectRole))
 		document.getElementById(gv_elements.inputSubjectRole).value = subject.getRole();
