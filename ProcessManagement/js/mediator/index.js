@@ -193,5 +193,17 @@ var Mediator = function() {
             console.log("Mediator: Listeners for InstanceView loaded.");
         }
     }
+    
+    // some function used by the tk_braph lib
+    
+    self.goToExternalSubject = function(processName){
+
+        console.log("testtest", processName);
+        
+        SBPM.VM.contentVM().save();
+        
+        SBPM.VM.contentVM().showProcess(processName);
+
+    }
 
 }
