@@ -83,8 +83,8 @@ var gv_nodeTypeImg	= {
 	emptyNodeImg: "clearNode.png",
 	S: "send.png",
 	R: "receive.png",
-	MS: "modalsplit.png",
-	MJ: "modaljoin.png"
+	MS: "modalsplit_small.png",
+	MJ: "modaljoin_small.png"
 };
 
 /**
