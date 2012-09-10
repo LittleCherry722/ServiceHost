@@ -197,8 +197,6 @@ var Mediator = function() {
     // some function used by the tk_braph lib
     
     self.goToExternalSubject = function(processName){
-
-        console.log("testtest", processName);
         
         SBPM.VM.contentVM().save();
         
