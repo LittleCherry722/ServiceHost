@@ -339,13 +339,13 @@ var ChargeViewModel = function() {
         /**
          * returns a unique list of sender's subjectNames
          */
-        self.fromSubjectNames = ko.computed(function() {
+        self.fromSubjects = ko.computed(function() {
             return $.unique(_private.messageTypes
                         .map(function(element){
                             return element.sender;
                         }));
         });
-    
+
         /**
          * returns a list of messageTypes for a sender
          */
@@ -355,14 +355,14 @@ var ChargeViewModel = function() {
                             return (element.sender == self.fromSubject()); 
                         })
                         .map(function(element){
-                            return element.messageType;
+                            return element.messageType.replace("<br />", " ");
                         });
         });
     
         /**
          * returns a list of receiver's subjectNames for a messageType
          */ 
-        self.toSubjectNames = ko.computed(function() {
+        self.toSubjects = ko.computed(function() {
             return _private.messageTypes
                         .filter(function(element){
                             return (element.messageType == self.messageType()); 
@@ -386,7 +386,6 @@ var ChargeViewModel = function() {
             self.toSubject(undefined);
         });
         
-        console.log(ko.mapping.toJS(self));
     }
     
     var Responsibility = function(subjectProvidersForRole, role, subjectProvider){
@@ -404,10 +403,7 @@ var ChargeViewModel = function() {
 
     self.lists = {
         subjectProviders : ko.observableArray([]),
-        roles : {},
-        fromSubjects : {},
-        toSubjects : {},
-        availableMessageTypes : {}        
+        roles : {}      
     };
 
 	self.init = function() {	    
@@ -423,15 +419,23 @@ var ChargeViewModel = function() {
         
         var rolesAndUsers = SBPM.Service.Role.getAllRolesAndUsers();
 
-        // if responsibilities aren't set yet -> set them
-        graph.responsibilities = graph.responsibilities || [];
-        
-        // otherwise just map them
-        self.data().responsibilities(graph.responsibilities.map(function(data){
-            return new Responsibility(rolesAndUsers[data.role], data.role, data.subjectProvider);
-        }));
-        
-        
+        // if responsibilities arent set yet
+        if(!graph.responsibilities || graph.responsibilities.length < 1){
+            
+            // initialize them
+            $.each(rolesAndUsers, function(role, users){
+                self.data().responsibilities.push(new Responsibility(users, role));
+            });
+            
+        }else{
+            
+            // otherwise just map the exisiting values
+            self.data().responsibilities(graph.responsibilities.map(function(data){
+                return new Responsibility(rolesAndUsers[data.role], data.role, data.subjectProvider);
+            }));
+            
+        }
+
         graph.routings = graph.routings || [];
 
         self.data().routings(graph.routings.map(function(data){
@@ -445,7 +449,7 @@ var ChargeViewModel = function() {
     }
 
     self.addRouting = function(){
-        self.data().routings.push(new Routing(gf_getMessageTypes(), "", "", "", "", ""));
+        self.data().routings.push(new Routing(gf_getMessageTypes()));
     }
 
     self.removeRouting = function(element){

@@ -36,6 +36,9 @@ switch ($action){
 		break;
 	case "write":
 		
+		if(!isset($_REQUEST['configuration']))
+			break;
+
 		$configuration = $_REQUEST['configuration'];
 		
 		if(is_array($configuration))
