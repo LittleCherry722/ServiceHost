@@ -29,6 +29,12 @@ function gf_tmpLoadProcess (process)
 var gv_elements = {
 	graphBVouter:			"graph_bv_outer",
 	graphCVouter:			"graph_cv_outer",
+	inputEdgeMessage:		"ge_edge_message",
+	inputEdgeOptional:		"ge_edge_optional",
+	inputEdgeOptionalO:		"ge_edge_optionalO",
+	inputEdgeOuter:			"edge",
+	inputEdgePriority:		"ge_edge_priority",
+	inputEdgePriorityO:		"ge_edge_priority_outer",
 	inputEdgeTarget:		"ge_edge_target",
 	inputEdgeTargetO:		"ge_edge_target_outer",
 	inputEdgeTargetMMin:	"ge_edge_target_multi_min",
@@ -39,30 +45,24 @@ var gv_elements = {
 	inputEdgeTimeout:		"ge_edge_timeout",
 	inputEdgeTimeoutEx:		"ge_edge_timeoutExample",
 	inputEdgeTimeoutManual:	"ge_edge_timeoutManual",
-	inputEdgeMessage:		"ge_edge_message",
-	inputEdgeOptional:		"ge_edge_optional",
-	inputEdgeOptionalO:		"ge_edge_optionalO",
-	inputEdgeOuter:			"edge",
-	inputEdgePriority:		"ge_edge_priority",
-	inputEdgePriorityO:		"ge_edge_priority_outer",
 	inputEdgeTypeCondO:		"ge_edge_typeCOuter",
 	inputEdgeTypeTimeoutO:	"ge_edge_typeTOuter",
-	inputSubjectText:		"ge_cv_text",
-	inputSubjectRole:		"ge_cv_id",
+	inputNodeMessage:		"ge_node_message",
+	inputNodeMessageO:		"ge_node_messageOuter",
+	inputNodeOuter:			"node",
+	inputNodeSubject:		"ge_node_subject",
+	inputNodeSubjectO:		"ge_node_subjectOuter",
+	inputNodeText:			"ge_text",
+	inputNodeType:			"ge_type2",
 	inputSubjectInputPool:	"ge_cv_inputPool",
 	inputSubjectRelOuter:	"ge_cv_relatedOuter",
 	inputSubjectRelProcess:	"ge_cv_relatedProcess",
 	inputSubjectRelSubject:	"ge_cv_relatedSubject",
-	inputNodeText:			"ge_text",
-	inputNodeType2:			"ge_type2",
-	inputNodeOuter:			"node",
-	inputNodeSubject:		"ge_node_subject",
-	inputNodeSubjectO:		"ge_node_subjectOuter",
-	inputNodeMessage:		"ge_node_message",
-	inputNodeMessageO:		"ge_node_messageOuter",
+	inputSubjectRole:		"ge_cv_id",
+	inputSubjectText:		"ge_cv_text",
 	
 	// select elements
-	inputNodeTypeStart:		"ge_type_start",
+	inputNodeStart:		"ge_type_start",
 	
 	// subject types
 	inputSubjectTypeMulti:		"ge_cv_type_multi",
@@ -163,7 +163,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type2, options
+		 * @returns {Object} Indizes: text, isStart, type, options
 		 */
 		readNode:			"",
 		

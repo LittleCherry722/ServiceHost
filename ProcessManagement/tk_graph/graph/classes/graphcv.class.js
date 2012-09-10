@@ -111,7 +111,7 @@ function GCgraphcv ()
 			gt_cv_nextNodes[gt_cv_nextNodes.length] = gt_cv_subjects.length;
 			gt_cv_subjects[gt_cv_subjects.length] = this.subjects[gt_cv_subjectId];
 		}
-		gt_cv_subjects.sort(gv_graph_cv.sortSubjectsByIdCI);
+		gt_cv_subjects.sort(this.sortSubjectsByNameCI);
 		
 		// 0.1 calculate in- and outgoing messages
 		for (var gt_cv_start in gt_cv_messages)
@@ -418,11 +418,11 @@ function GCgraphcv ()
 	 * @param {Object} obj2 The subject to compare against.
 	 * @returns {int} Returns 1 when obj1 is sorted after obj2, -1 when obj2 is sorted after obj1 and 0 when both elements are equal.
 	 */
-	this.sortSubjectsByIdCI = function (obj1, obj2)
+	this.sortSubjectsByNameCI = function (obj1, obj2)
 	{
-		if (obj1.subject.getId().toLowerCase() > obj2.subject.getId().toLowerCase())
+		if (obj1.subject.getText().toLowerCase() > obj2.subject.getText().toLowerCase())
 			return 1;
-		if (obj1.subject.getId().toLowerCase() < obj2.subject.getId().toLowerCase())
+		if (obj1.subject.getText().toLowerCase() < obj2.subject.getText().toLowerCase())
 			return -1;
 		return 0;
 	};

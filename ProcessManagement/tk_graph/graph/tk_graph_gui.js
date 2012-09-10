@@ -54,8 +54,8 @@ function gf_guiClearInputFields ()
 {
 	if (gf_elementExists(gv_elements.inputNodeText))
 		document.getElementById(gv_elements.inputNodeText).value = "";
-	if (gf_elementExists(gv_elements.inputNodeType2))
-		document.getElementById(gv_elements.inputNodeType2).value = "";
+	if (gf_elementExists(gv_elements.inputNodeType))
+		document.getElementById(gv_elements.inputNodeType).value = "";
 	
 	if (gf_elementExists(gv_elements.inputSubjectText))
 		document.getElementById(gv_elements.inputSubjectText).value = "";
@@ -145,6 +145,15 @@ function gf_guiDisplayEdge (edge, startType)
 		document.getElementById(gv_elements.inputEdgeTargetMOuter).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeTargetMTypeNO))
 		document.getElementById(gv_elements.inputEdgeTargetMTypeNO).style.display = "none";
+		
+	if (gf_elementExists(gv_elements.inputEdgeTarget))
+		document.getElementById(gv_elements.inputEdgeTarget).onchange = function () {
+			var gt_relatedSubjectID		= document.getElementById(gv_elements.inputEdgeTarget).value;
+			var gt_relatedSubjectMulti	= gf_isset(gv_graph.subjects[gt_relatedSubjectID]) ? gv_graph.subjects[gt_relatedSubjectID].isMulti() : false;
+			 
+			if (gf_elementExists(gv_elements.inputEdgeTargetMOuter))
+				document.getElementById(gv_elements.inputEdgeTargetMOuter).style.display = gt_relatedSubjectMulti ? "block" : "none";
+		};
 		
 	// optional edges
 	if (edge.getTypeOfStartNode() == "modalsplit")
@@ -298,23 +307,23 @@ function gf_guiDisplayEdge (edge, startType)
  */
 function gf_guiDisplayNode (node)
 {
-	if (!gf_elementExists(gv_elements.inputNodeType2))
+	if (!gf_elementExists(gv_elements.inputNodeType))
 		return false;
 	
 	if (gf_elementExists(gv_elements.inputNodeText))
 		document.getElementById(gv_elements.inputNodeText).value = node.getText();
 	
-	if (gf_elementExists(gv_elements.inputNodeTypeStart))
-		document.getElementById(gv_elements.inputNodeTypeStart).checked = node.isStart();
+	if (gf_elementExists(gv_elements.inputNodeStart))
+		document.getElementById(gv_elements.inputNodeStart).checked = node.isStart();
 		
-	var gt_select_type			= document.getElementById(gv_elements.inputNodeType2);
+	var gt_select_type			= document.getElementById(gv_elements.inputNodeType);
 	
-	if (gf_elementExists(gv_elements.inputNodeType2))
-		document.getElementById(gv_elements.inputNodeType2).onclick	= function () {
-			gf_guiLoadDropDownForNode(document.getElementById(gv_elements.inputNodeType2).value);
+	if (gf_elementExists(gv_elements.inputNodeType))
+		document.getElementById(gv_elements.inputNodeType).onclick	= function () {
+			gf_guiLoadDropDownForNode(document.getElementById(gv_elements.inputNodeType).value);
 		};
 	
-	$('#' + gv_elements.inputNodeType2).empty();
+	$('#' + gv_elements.inputNodeType).empty();
 		
 	var gt_type	= node.isEnd() ? "end" : node.getType();
 		
@@ -658,21 +667,21 @@ function gf_guiReadEdge ()
  * Read the values for the selected node from the input fields.
  * 
  * @see GCcommunication::updateNode()
- * @returns {Object} Indizes: text, isStart, type2, options
+ * @returns {Object} Indizes: text, isStart, type, options
  */
 function gf_guiReadNode ()
 {
-	var gt_result	= {text: "", isStart: false, type2: "", options: {subject: "", message: ""}};
+	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: ""}};
 	
 	var gt_text		= gf_elementExists(gv_elements.inputNodeText) ? document.getElementById(gv_elements.inputNodeText).value : "";
-	var gt_isStart	= gf_elementExists(gv_elements.inputNodeTypeStart) && document.getElementById(gv_elements.inputNodeTypeStart).checked;
-	var gt_type2 	= gf_elementExists(gv_elements.inputNodeType2) ? document.getElementById(gv_elements.inputNodeType2).value.toLowerCase() : "";
+	var gt_isStart	= gf_elementExists(gv_elements.inputNodeStart) && document.getElementById(gv_elements.inputNodeStart).checked;
+	var gt_type 	= gf_elementExists(gv_elements.inputNodeType) ? document.getElementById(gv_elements.inputNodeType).value.toLowerCase() : "";
 	var gt_subject 	= gf_elementExists(gv_elements.inputNodeSubject) ? document.getElementById(gv_elements.inputNodeSubject).value : "";
 	var gt_message 	= gf_elementExists(gv_elements.inputNodeMessage) ? document.getElementById(gv_elements.inputNodeMessage).value : "";
 	
 	gt_result.text		= gt_text;
 	gt_result.isStart	= gt_isStart;
-	gt_result.type2		= gt_type2;
+	gt_result.type		= gt_type;
 	gt_result.options	= {subject: gt_subject, message: gt_message};
 	
 	return gt_result;

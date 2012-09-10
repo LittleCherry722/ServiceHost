@@ -1527,7 +1527,7 @@ function GCcommunication ()
 				var gt_type		= "normal";
 				var gt_text		= gf_isset(gt_values.text)		? gt_values.text	: "";
 				var gt_isStart	= gf_isset(gt_values.isStart)	? gt_values.isStart	: false;
-				var gt_type2	= gf_isset(gt_values.type2)		? gt_values.type2	: "";
+				var gt_type2	= gf_isset(gt_values.type)		? gt_values.type	: "";
 				var gt_options	= gf_isset(gt_values.options)	? gt_values.options	: {};
 				
 				if (gt_type2 == "r")
