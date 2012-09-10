@@ -788,6 +788,11 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	padding-left: 40px;
 }
 
-#timeoutdiv {
+#processHistory, #timestamps, #processName {
+display: inline;
+float: left;
+}
 
+#processHistory {
+	margin-left: 10px;
 }

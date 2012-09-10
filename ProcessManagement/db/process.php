@@ -67,6 +67,20 @@ if (isset($_REQUEST['action'])) {
 			}
 		} elseif (($_REQUEST['action'] == 'save') && isset($_REQUEST['graph']) && ($subjects != "-1")) {
 			$graph = $_REQUEST['graph'];
+			$lowestTS = mysql_query("SELECT `date` FROM `process_graphs` WHERE `processID` = " . $_REQUEST['processid'] . " ORDER BY `date` DESC");
+			if (mysql_num_rows($lowestTS) > 14) {
+				echo "rows: " . mysql_num_rows($lowestTS);
+				$counter = 0;
+				while ($row = mysql_fetch_array($lowestTS)) {
+					$counter = $counter + 1;
+					if($counter == 13) {
+						echo " Thirteen: ";
+					mysql_query("DELETE FROM `process_graphs` WHERE `processID` = " . $_REQUEST['processid'] . " AND `date` <= '" . $row[0] . "'");
+					}
+				}
+
+
+			}
 			mysql_query("INSERT INTO `process_graphs` (`graph`) VALUES ('" . $graph . "')");
 			$saveID = mysql_insert_id();
 			mysql_query("UPDATE `process` SET `graphID` = '" . mysql_insert_id() . "', `startSubjects` = '" . $subjects . "' WHERE `ID` = " . $_REQUEST['processid']);
@@ -98,7 +112,7 @@ if (isset($_REQUEST['action'])) {
 				$return['code'] = "error";
 			}
 		} elseif ($_REQUEST['action'] == 'loadHistory') {
-			$result = mysql_query("SELECT * from `process_graphs` WHERE `date` LIKE '" . $_REQUEST['stamp'] . "' AND `processID` LIKE '". $_REQUEST['processid'] ."'");
+			$result = mysql_query("SELECT * from `process_graphs` WHERE `date` LIKE '" . $_REQUEST['stamp'] . "' AND `processID` LIKE '" . $_REQUEST['processid'] . "'");
 			if (mysql_num_rows($result) == 1) {
 				$graph = mysql_fetch_array($result, MYSQL_ASSOC);
 				$return['graph'] = $graph['graph'];

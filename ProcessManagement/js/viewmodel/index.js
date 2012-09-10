@@ -275,7 +275,7 @@ var ProcessViewModel = function() {
           
           // update process name
           self.processName(name);
-          
+          SBPM.VM.contentVM().showProcess(name);
           SBPM.Notification.Info("Information", "Process successfully created.");
         }else
           SBPM.Notification.Info("Error", "Could not create process.");
