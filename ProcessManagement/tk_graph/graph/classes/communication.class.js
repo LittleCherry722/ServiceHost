@@ -699,7 +699,7 @@ function GCcommunication ()
 	 * @returns {GCbehavior} The behavior of the given subject or null if the subject does not exist.
 	 */
 	this.getBehavior = function (id)
-	{
+	{		
 		if (gf_isset(this.subjects[id]))
 			return this.subjects[id].getBehavior();
 		return null;

@@ -63,6 +63,14 @@ var gv_node_children	= {};	// relation: node => [children]
 var gv_node_parents		= {};	// relation: node => parent
 
 /**
+ * A flag set to true when a macro is called to avoid multiple redraws.
+ * 
+ * @private
+ * @type boolean
+ */
+var gv_noRedraw	= false;
+
+/**
  * A list of GCpaths on the paper.
  * The indexes are the paths' ids.
  * 

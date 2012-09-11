@@ -624,6 +624,44 @@ function gf_guiLoadDropDownForNode (nodeType)
 }
 
 /**
+ * Wrapper around window.SBPM.VM.Mediator.goToExternalSubject used to load processes referenced to by an external subject.
+ * 
+ * @param {String} process The name of the referenced process.
+ * @returns {void}
+ */
+function gf_guiLoadExternalProcess (process)
+{
+	var gt_executed		= false;
+	var gt_errorPart	= "";
+	if (gf_isset(window.SBPM))
+	{
+		if (gf_isset(window.SBPM.Mediator))
+		{
+			if (gf_isset(window.SBPM.Mediator.goToExternalSubject))
+			{
+				window.SBPM.Mediator.goToExternalSubject(process);
+				gt_executed = true;
+			}
+			else
+			{
+				gt_errorPart	= "goToExternalSubject";
+			}
+		}
+		else
+		{
+			gt_errorPart	= "Mediator";
+		}
+	}
+	else
+	{
+		gt_errorPart	= "SBPM";
+	}
+	
+	if (!gt_executed)
+		console.log("Load external process: Error: No handler available! (" + gt_errorPart + ")");
+}
+
+/**
  * Read the values for the selected edge from the input fields.
  * 
  * @see GCcommunication::updateEdge()

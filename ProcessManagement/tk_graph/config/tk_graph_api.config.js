@@ -12,14 +12,6 @@
  */
 
 /**
- * TODO: delete
- */
-function gf_tmpLoadProcess (process)
-{
-	SBPM.VM.goToPage('process', process);
-}
-
-/**
  * This object contains a list of all DOM elements used within the API.
  * Do not change the indexes of the array as they are referred to in the API.
  * But you should adapt the values to the actual IDs of the elements on the page.
@@ -259,7 +251,7 @@ var gv_functions	= {
 		 * @param {String} ID The id of the referenced process.
 		 * @returns {void}
 		 */
-		subjectDblClickedExternal:		"gf_tmpLoadProcess",
+		subjectDblClickedExternal:		"gf_guiLoadExternalProcess",
 		
 		/**
 		 * called when an instant interface (external subject) is double-clicked

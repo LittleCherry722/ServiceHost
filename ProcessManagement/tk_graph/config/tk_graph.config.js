@@ -27,10 +27,10 @@ gv_standAlone	= false;
  * predefined macros
  */
 // creates a macro with the ID "newSendNode" that will insert a new send node into the graph and connect it with the currently selected node
-gf_createMacro("newSendNode", "", "normal", "send", true);
+gf_createMacro("newSendNode", "", "normal", "send", true, true);
 
 // creates a macro with the ID "newReceiveNode" that will insert a new receive node into the graph and connect it with the currently selected node
-gf_createMacro("newReceiveNode", "", "normal", "receive", true);
+gf_createMacro("newReceiveNode", "", "normal", "receive", true, true);
 
 // creates a macro with the ID "newActionNode" that will insert a new action node into the graph and connect it with the currently selected node
 gf_createMacro("newActionNode", "internal action", "normal", "action", true);

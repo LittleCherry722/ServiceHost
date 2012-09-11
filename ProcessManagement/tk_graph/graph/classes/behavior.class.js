@@ -174,11 +174,10 @@ function GCbehavior (name)
 			type = "action";
 		
 		// create the new node
-		var gt_node	= new GCnode(id, text, type);
+		var gt_node	= new GCnode(this, this.nodeCounter, text, type);
 
 		// backup the id -> id
-		if (gt_node.getId() != "")
-			this.nodeIDs[gt_node.getId()] = this.nodeCounter;
+		this.nodeIDs[id] = this.nodeCounter;
 			
 		// pass the start attribute to the node
 		if (gf_isset(start) && start === true)
@@ -396,33 +395,36 @@ function GCbehavior (name)
 	 */
 	this.draw = function ()
 	{
-		// convert all data to gv_bv_graphs[name]
-		
-		gv_graph_bv.deleteSubject(this.name);
-		
-		gv_graph_bv.addSubject(this.name);
-		
-		// add all nodes to the graph
-		for (var gt_nid in this.nodes)
+		if (!gv_noRedraw)
 		{
-			var gt_node = this.nodes[gt_nid];
-			gv_graph_bv.addNode(this.name, gt_nid.substr(1), gt_node, this.selectedNode == gt_nid.substr(1));
-		}
-		
-		// add all edges to the graph
-		for (var gt_eid in this.edges)
-		{
-			var gt_edge = this.edges[gt_eid];
-			var gt_start = gt_edge.getStart();
-			var gt_end = gt_edge.getEnd();
-						
-			if (gf_isset(this.nodes["n" + gt_start], this.nodes["n" + gt_end]))
+			// convert all data to gv_bv_graphs[name]
+			
+			gv_graph_bv.deleteSubject(this.name);
+			
+			gv_graph_bv.addSubject(this.name);
+			
+			// add all nodes to the graph
+			for (var gt_nid in this.nodes)
 			{
-				gv_graph_bv.addEdge(this.name, gt_eid.substr(1), gt_start, gt_end, gt_edge, this.selectedEdge == gt_eid.substr(1));
+				var gt_node = this.nodes[gt_nid];
+				gv_graph_bv.addNode(this.name, gt_nid.substr(1), gt_node, this.selectedNode == gt_nid.substr(1));
 			}
+			
+			// add all edges to the graph
+			for (var gt_eid in this.edges)
+			{
+				var gt_edge = this.edges[gt_eid];
+				var gt_start = gt_edge.getStart();
+				var gt_end = gt_edge.getEnd();
+							
+				if (gf_isset(this.nodes["n" + gt_start], this.nodes["n" + gt_end]))
+				{
+					gv_graph_bv.addEdge(this.name, gt_eid.substr(1), gt_start, gt_end, gt_edge, this.selectedEdge == gt_eid.substr(1));
+				}
+			}
+			
+			gv_graph_bv.drawGraph(this.name);
 		}
-		
-		gv_graph_bv.drawGraph(this.name);
  	};
 	
 	/**

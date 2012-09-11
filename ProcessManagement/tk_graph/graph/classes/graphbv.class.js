@@ -644,14 +644,18 @@ function GCgraphbv ()
 		var gt_bv_imgWidth	= 0;
 		var gt_bv_imgHeight	= 0;
 		
+		var gt_bv_shape		= node.node.getShape();
+		var gt_bv_start		= node.node.isStart(true);
+		var gt_bv_end		= node.node.isEnd(true);
+		
 		// when the shape of the node is a circle apply correct the style set for circles
-		if (node.node.getShape() == "circle")
+		if (gt_bv_shape == "circle")
 		{
-			if (node.node.isStart())
+			if (gt_bv_start)
 			{
 				gt_bv_style = gf_mergeStyles(gv_bv_circleNode.style, gv_bv_circleNode.styleStart);
 			}
-			else if (node.node.isEnd())
+			else if (gt_bv_end)
 			{
 				gt_bv_style = gf_mergeStyles(gv_bv_circleNode.style, gv_bv_circleNode.styleEnd);
 			}
@@ -673,7 +677,7 @@ function GCgraphbv ()
 		// when the shape of the node is a roundedrectangle apply correct the style set for circles
 		else
 		{
-			if (node.node.isStart())
+			if (gt_bv_start)
 			{
 				gt_bv_style = gf_mergeStyles(gv_bv_rectNode.style, gv_bv_rectNode.styleStart);
 			}

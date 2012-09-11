@@ -16,12 +16,13 @@
  * 
  * @private
  * @class represents a node in a behavioral view
+ * @param {GCbehavior} parent The parent instance of GCbehavior.
  * @param {String} id The id of the node.
  * @param {String} text The label of the node.
  * @param {String} type The type of the node. Possible values are "send", "receive", "end", "action". (default: "action")
  * @returns {void}
  */
-function GCnode (id, text, type)
+function GCnode (parent, id, text, type)
 {	
 	/**
 	 * This attribute states whether the node is deactivated.
@@ -50,6 +51,14 @@ function GCnode (id, text, type)
 	 * @type Object
 	 */
 	this.options	= {message: "*", subject: "*"};
+	
+	/**
+	 * A reference to the parent instance of GCbehavior used for addressing the start and the end node.
+	 * This is the only attribute of Edge that can not be modified.
+	 * 
+	 * @type GCbehavior
+	 */
+	this.parent		= parent;
 	
 	/**
 	 * When this value is set to true this node will be handled as a start node for the internal behavior. 
@@ -106,7 +115,7 @@ function GCnode (id, text, type)
 	 * 
 	 * @returns {String} The id of the node.
 	 */
-	this.getId = function ()
+	this.getId = function (realId)
 	{
 		return this.id;
 	};
@@ -133,7 +142,7 @@ function GCnode (id, text, type)
 		var type	= this.type.toLowerCase();
 		var shape	= "roundedrectangle";
 		
-		if (this.isEnd())
+		if (this.isEnd(true))
 			type = "end";
 		
 		if (gf_isset(gv_nodeTypes[type]) && gf_isset(gv_nodeTypes[type].shape))
@@ -173,6 +182,40 @@ function GCnode (id, text, type)
 	};
 	
 	/**
+	 * Returns true when the node has at least one child (node that is connected via an edge starting at this node).
+	 * 
+	 * @returns {boolean} True when the node has at least one child.
+	 */
+	this.hasChildren = function ()
+	{
+		var gt_edges	= this.parent.getEdges();
+		for (var gt_edgeId in gt_edges)
+		{
+			var gt_edge	= gt_edges[gt_edgeId];
+			if (gt_edge.start	== this.id)
+				return true;
+		}
+		return false;
+	};
+	
+	/**
+	 * Returns true when the node has a parent (node that is connected via an edge ending at this node).
+	 * 
+	 * @returns {boolean} True when the node has a parent.
+	 */
+	this.hasParent = function ()
+	{
+		var gt_edges	= this.parent.getEdges();
+		for (var gt_edgeId in gt_edges)
+		{
+			var gt_edge	= gt_edges[gt_edgeId];
+			if (gt_edge.end	== this.id)
+				return true;
+		}
+		return false;
+	};
+	
+	/**
 	 * Returns the deactivation status of this node.
 	 * 
 	 * @returns {boolean} True when this node is deactivated.
@@ -185,20 +228,28 @@ function GCnode (id, text, type)
 	/**
 	 * Returns true if this node is an end node.
 	 * 
+	 * @param {boolean} draw When set to true the node will also be checked for children.
 	 * @returns {boolean} True when the node is an end node.
 	 */
-	this.isEnd = function ()
+	this.isEnd = function (draw)
 	{
+		if (gf_isset(draw) && draw === true)
+			return this.end === true || !this.hasChildren();
+			
 		return this.end === true;
 	};
 	
 	/**
 	 * Returns true if this node is an start node.
 	 * 
+	 * @param {boolean} draw When set to true the node will also be checked for a parent node.
 	 * @returns {boolean} True when the node is a start node.
 	 */
-	this.isStart = function ()
+	this.isStart = function (draw)
 	{
+		if (gf_isset(draw) && draw === true)
+			return /*this.start === true || */!this.hasParent();
+			
 		return this.start === true;
 	};
 	
@@ -299,7 +350,7 @@ function GCnode (id, text, type)
 		var type	= this.type.toLowerCase();
 		var text	= this.text;
 		
-		if (this.isEnd())
+		if (this.isEnd(true))
 			type = "end";
 			
 			// gf_newlineToCamelCase
