@@ -71,7 +71,6 @@ var QuickViewModle = function() {
 
 	self.fancyboxSize = ko.computed(function() {
 		
-		console.log(self.displayTable());
 		
 		if(self.displayTable()) {
 			parent.$('#fancybox-content').width('995px');
