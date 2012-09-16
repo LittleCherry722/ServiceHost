@@ -21,7 +21,7 @@
  * @param {int} end The id of the end node.
  * @param {String} text The label of the edge.
  * @param {Object} relatedSubject An object containing the id of the subject that is the sender or a receiver of the currently selected message. (further attributes: min, max, createNew)
- * @param {String} type The type of the edge. Either "exitcondition" or "timeout".
+ * @param {String} type The type of the edge. Either "exitcondition", "errorcondition" or "timeout".
  * @returns {void}
  */
 function GCedge (parent, start, end, text, relatedSubject, type)
@@ -55,6 +55,13 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 * @type int
 	 */
 	this.end	= end;
+	
+	/**
+	 * The text of an error condition.
+	 * 
+	 * @type String
+	 */
+	this.exception	= "";
 	
 	/**
 	 * Manul timeout.
@@ -121,7 +128,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	
 	/**
 	 * The type of the edge.
-	 * This can either be an exitcondition or a timeout.
+	 * This can either be an exitcondition, errorcondition or a timeout.
 	 * 
 	 * @type String
 	 */
@@ -155,6 +162,16 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.getEnd = function ()
 	{
 		return this.end;
+	};
+	
+	/**
+	 * Returns the text of an error condition.
+	 * 
+	 * @returns {String} The text of an error condition.
+	 */
+	this.getException = function ()
+	{
+		return this.exception;
 	};
 	
 	/**
@@ -285,6 +302,11 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			return "" + this.timer.getTimestamp();
 		}
 		
+		if (this.type == "errorcondition" && gf_isset(save) && save === true)
+		{
+			return "" + this.getException();
+		}
+		
 		return this.text;
 	};
 	
@@ -308,11 +330,11 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	/**
 	 * Returns the type of the edge.
 	 * 
-	 * @returns {String} The type of the edge. Currently the following types are possible: timeout, exitcondition (default)
+	 * @returns {String} The type of the edge. Currently the following types are possible: timeout, exitcondition (default), errorcondition
 	 */
 	this.getType = function ()
 	{
-		if (this.type == "timeout")
+		if (this.type == "timeout" || this.type == "errorcondition")
 		{
 			return this.type;
 		}
@@ -377,6 +399,20 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	};
 	
 	/**
+	 * Sets the text of an error condition.
+	 * 
+	 * @param {String} text The updated text of an error condition.
+	 * @returns {void} 
+	 */
+	this.setException = function (text)
+	{
+		if (gf_isset(text))
+		{
+			this.exception = text;
+		}
+	};
+	
+	/**
 	 * Set a timeout edge to be manual.
 	 * 
 	 * @param {boolean} manual When set to true the timeout edge will be set to "manual".
@@ -408,7 +444,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	{
 		if (gf_isset(priority))
 		{
-			this.priority	= parseInt(priority) == priority && parseInt(priority) > 0 ? parseInt(priority) : 1;
+			this.priority	= parseInt(priority) == priority ? parseInt(priority) : 1;
 		}
 	};
 
@@ -497,7 +533,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 * Sets the current type of the edge.
 	 * Possible types are "exitcondition" (like messages), "timeout" (a timeout edge).
 	 * 
-	 * @param {String} type The type of the edge. This can be "exitCondition" or "timeout".
+	 * @param {String} type The type of the edge. This can be "exitCondition", "errorcondition" or "timeout".
 	 * @returns {void}
 	 */
 	this.setType = function (type)
@@ -505,7 +541,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		if (gf_isset(type))
 		{
 			type = type.toLowerCase();
-			if (type == "exitcondition" || type == "timeout")
+			if (type == "exitcondition" || type == "timeout" || type == "errorcondition")
 			{
 				this.type = type;
 			}
@@ -546,6 +582,12 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		if (this.type == "timeout")
 		{
 			return "Timeout" + (this.isManualTimeout() ? " (M)" : "") + "\n(" + this.timer.getTimeString("unit") + ")";
+		}
+		
+		// return error condition
+		if (this.type == "errorcondition")
+		{
+			return "Exception:\n" + this.exception;
 		}
 		
 		// return exit condition
@@ -606,6 +648,12 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	if (type == "timeout")
 	{
 		this.setTimer(text);
+		this.text = "";
+	}
+	
+	if (type == "errorcondition")
+	{
+		this.setException(text);
 		this.text = "";
 	}
 }

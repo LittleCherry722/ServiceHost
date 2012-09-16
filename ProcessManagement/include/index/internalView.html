@@ -29,12 +29,21 @@
 			<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
 			<label align="left"  class="graphsectionheader">Exit Condition</label>
 			<br/>
-
+			
+			<input type="radio" id="ge_edge_type_exception" name="ge_edge_type" />
+			<label align="left"  class="graphsectionheader">Error Condition</label>
+			<br/>
+			
 			<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
 			<label align="left" class="graphsectionheader">Timeout</label>
 		</div>
 		
 		<br/>
+		<div style="display:none;" id="ge_edge_typeEOuter">
+			<label class="graphsectionheader">Exception:</label>
+			<br />
+			<textarea id="ge_edge_exception_text" style="width: 140px;"></textarea>
+		</div>
 		<div style="display:none;" id="ge_edge_typeCOuter">
 			<label class="graphsectionheader">Text:</label>
 			<br/>

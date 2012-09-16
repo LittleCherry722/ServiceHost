@@ -104,7 +104,7 @@ function gf_callMacro (id)
 			
 			if (gt_macro.autoEdge)
 			{
-				gf_callMacro("newActionNode");
+				gf_callMacro("newEndNode");
 			}
 		}
 	}

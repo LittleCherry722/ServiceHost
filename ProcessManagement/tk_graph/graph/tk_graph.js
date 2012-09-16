@@ -121,81 +121,368 @@ var gv_graphID	= "cv";
  * - end: no edges
  * - all other: unlimited outgoing edges, only one exit condition + one timeout between the same nodes
  * 
- * @param {String} subject The ID of the subject whose internal behavior is currently loaded.
+ * @param {GCbehavior} behavior The currently loaded internal behavior.
  * @param {int} start The ID of the start node.
  * @param {int} end The ID of the target node.
- * @returns {boolean} True, when the limit is not yet hit. The type of the clicked edge can still be changed.
+ * @param {String} desiredType The desired edge-type to check for availability.
+ * @param {String} currentType The current edge-type to check against.
+ * @param {String} action When set to "update" this method will return an alternative edge-type or null when no appropriate edge-type is available.
+ * @returns {boolean|String} True, when the limit is not yet hit. The type of the clicked edge can still be changed. String when alternative is set to true.
  */
-function gf_checkCardinality (subject, start, end)
+function gf_checkCardinality (behavior, start, end, desiredType, currentType, action)
 {
+
+	var gt_result	= {allowed: false, type: null};
 	
-	var gt_limitReached		= false;
-			
-	if (gf_isset(subject, start, end))
-	{
-		var gt_behav = gv_graph.getBehavior(subject);
+	if (!gf_isset(currentType))
+		currentType = "";
+	
+	if (!gf_isset(action))
+		action = "add";
 		
-		if (gt_behav != null)
+	if (gf_isset(behavior, start, end, desiredType))
+	{
+		if (behavior != null)
 		{
-			var gt_edges			= gt_behav.getEdges();
-			var gt_startNode		= gt_behav.getNode(start);
-			var gt_edgeCount		= 0;
-			var gt_edgeType			= "exitcondition";
-			var gt_isEndNode		= gt_startNode == null ? false : gt_startNode.isEnd();
-			var gt_startNodeType	= gt_startNode == null ? "action" : gt_startNode.type.toLowerCase();
+			var gt_edges			= behavior.getEdges();
+			var gt_startNode		= behavior.getNode(start);
 			
-			var gt_edge				= null;
-			
-			for (var gt_edgeId in gt_edges)
+			if (gt_startNode != null)
 			{
-				gt_edge				= gt_edges[gt_edgeId];
+				var gt_isEndNode		= gt_startNode.isEnd();
+				var gt_startNodeType	= gt_startNode.type.toLowerCase();
+
+				// counts: timeout, exception, condition; between two nodes: bnTimeout = true | false, bnException = true | false, bnCondition = true | false				
+				var gt_countCondition	= 0;
+				var gt_countException	= 0;
+				var gt_countTimeout		= 0;
+				var gt_bnCondition		= 0;
+				var gt_bnException		= 0;
+				var gt_bnTimeout		= 0;
 				
-				if (gt_edge.start == start)
+				var gt_typeCondition	= "exitcondition";
+				var gt_typeException	= "errorcondition";
+				var gt_typeTimeout		= "timeout";
+				
+				// no edges for end nodes
+				if (gt_isEndNode)
 				{
-					// no edges for end nodes
-					if (gt_isEndNode)
+					gt_result.allowed	= false;
+					gt_result.type		= null;
+				}
+				
+				// all other node types
+				else
+				{
+					var gt_edge	= null;
+					for (var gt_edgeId in gt_edges)
 					{
-						gt_limitReached = true;
-						break;
-					}
-					
-					// only one edge for closeIP / openIP
-					else if (gt_startNodeType == "$closeip" || gt_startNodeType == "$openip")
-					{
-						gt_limitReached = true;
-						break;
-					}
-					
-					// for send nodes: one exit condition, one timeout
-					else if (gt_startNodeType == "send")
-					{
-						gt_edgeCount++;
-						if (gt_edgeCount > 1)
+						gt_edge	= gt_edges[gt_edgeId];
+						
+						if (gt_edge.start == start)
 						{
-							gt_limitReached = true;
-							break;
+							if (gt_edge.getType() == gt_typeCondition)
+								gt_countCondition++;
+							if (gt_edge.getType() == gt_typeException)
+								gt_countException++;
+							if (gt_edge.getType() == gt_typeTimeout)
+								gt_countTimeout++;
+
+							if (gt_edge.end == end)
+							{
+								if (gt_edge.getType() == gt_typeCondition)
+									gt_bnCondition++;
+								if (gt_edge.getType() == gt_typeException)
+									gt_bnException++;
+								if (gt_edge.getType() == gt_typeTimeout)
+									gt_bnTimeout++;
+							}							
 						}
 					}
 					
-					// for all other nodes: allow one exitcondition and one timeout between the same two nodes
-					else
+					// modal split, modal join
+					if (gt_startNodeType == "modalsplit" || gt_startNodeType == "modaljoin")
 					{
-						if (gt_edge.end == end)
+						// exception edge
+						if (desiredType == gt_typeException)
 						{
-							gt_edgeCount++;
-							if (gt_edgeCount > 1)
+							gt_result.allowed	= false;
+							gt_result.type		= gt_typeCondition;
+						}
+						
+						// condition edge
+						else if (desiredType == gt_typeCondition)
+						{
+							gt_result.allowed	= true;
+							gt_result.type		= gt_typeCondition;
+						}
+						
+						// timeout edge
+						else if (desiredType == gt_typeTimeout)
+						{
+							if (action == "add")
 							{
-								gt_limitReached = true;
-								break;
+								gt_result.allowed	= gt_countTimeout == 0;
+								gt_result.type		= gt_result.allowed ? gt_typeTimeout : gt_typeCondition;
+							}
+							else
+							{
+								gt_result.allowed	= gt_countTimeout == 0 || currentType == gt_typeTimeout;
+								gt_result.type		= gt_result.allowed ? gt_typeTimeout : gt_typeCondition;
 							}
 						}
 					}
+					
+					// send
+					else if (gt_startNodeType == "send")
+					{
+						// exception edge
+						if (desiredType == gt_typeException)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countCondition > 0 && gt_countException == 0 && gt_countTimeout == 0;
+								gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_result.allowed ? gt_typeException : null);
+							}
+							else
+							{
+								gt_result.allowed	= gt_countCondition > 0 && (currentType == gt_typeException || currentType == gt_typeTimeout && gt_countException == 0);
+								gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_result.allowed ? gt_typeException : null);
+							}
+						}
+						
+						// condition edge
+						else if (desiredType == gt_typeCondition)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countCondition == 0;
+								gt_result.type		= gt_result.allowed ? gt_typeCondition : (gt_countTimeout == 0 && gt_countException == 0 ? gt_typeTimeout : null);
+							}
+							else
+							{
+								gt_result.allowed	= gt_countCondition == 0 || currentType == gt_typeCondition;
+								if (gt_result.allowed)
+									gt_result.type		= gt_typeCondition;
+								else if (currentType == gt_typeTimeout && gt_countException == 0)
+									gt_result.type		= 	gt_typeTimeout;
+								else if (currentType == gt_typeException && gt_countTimeout == 0)
+									gt_result.type		= gt_typeException;
+								else
+									gt_result.type		= null;
+							}
+						}
+						
+						// timeout edge
+						else if (desiredType == gt_typeTimeout)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countCondition > 0 && gt_countException == 0 && gt_countTimeout == 0;
+								gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_result.allowed ? gt_typeTimeout : null);
+							}
+							else
+							{
+								gt_result.allowed	= gt_countCondition > 0 && (currentType == gt_typeTimeout || currentType == gt_typeException && gt_countTimeout == 0);
+								gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_result.allowed ? gt_typeTimeout : null);
+							}
+						}
+					}
+					
+					// receive
+					else if (gt_startNodeType == "receive")
+					{
+						// exception edge
+						if (desiredType == gt_typeException)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countCondition > 0 && gt_countException == 0 && gt_countTimeout == 0;
+								gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_result.allowed ? gt_typeException : null);
+							}
+							else
+							{
+								gt_result.allowed	= gt_countCondition > 0 && (currentType == gt_typeException || currentType == gt_typeTimeout && gt_countException == 0) || gt_countCondition > 1;
+								gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_result.allowed ? gt_typeException : null);
+							}
+						}
+						
+						// condition edge
+						else if (desiredType == gt_typeCondition)
+						{
+							gt_result.allowed	= true;
+							gt_result.type		= gt_typeCondition;
+						}
+						
+						// timeout edge
+						else if (desiredType == gt_typeTimeout)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countCondition > 0 && gt_countException == 0 && gt_countTimeout == 0;
+								gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_result.allowed ? gt_typeTimeout : null);
+							}
+							else
+							{
+								gt_result.allowed	= gt_countCondition > 0 && (currentType == gt_typeTimeout || currentType == gt_typeException && gt_countTimeout == 0) || gt_countCondition > 1;
+								gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_result.allowed ? gt_typeTimeout : null);
+							}
+						}
+					}
+					
+					// predefined internal actions
+					else if (gt_startNodeType.substr(0, 1) == "$")
+					{
+						// exception edge
+						if (desiredType == gt_typeException)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countException == 0;
+								gt_result.type		= gt_result.allowed ? gt_typeException : (gt_countCondition == 0 ? gt_typeCondition : null);
+							}
+							else
+							{
+								gt_result.allowed	= gt_countException == 0 || currentType == gt_typeException;
+								gt_result.type		= gt_result.allowed ? gt_typeException : (gt_countCondition == 0 ? gt_typeCondition : null);
+							}
+						}
+						
+						// condition edge
+						else if (desiredType == gt_typeCondition)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countCondition == 0;
+								gt_result.type		= gt_result.allowed ? gt_typeCondition : (gt_countException == 0 ? gt_typeException : null);
+							}
+							else
+							{
+								gt_result.allowed	= gt_countCondition == 0 || currentType == gt_typeCondition;
+								gt_result.type		= gt_result.allowed ? gt_typeCondition : (gt_countException == 0 ? gt_typeException : null);
+							}
+						}
+						
+						// timeout edge
+						else if (desiredType == gt_typeTimeout)
+						{
+							gt_result.allowed	= false;
+							gt_result.type		= gt_countCondition == 0 ? gt_typeCondition : (gt_countException == 0 ? gt_typeException : null);
+						}
+					}
+					
+					// internal actions
+					else
+					{
+						// exception edge
+						if (desiredType == gt_typeException)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countException == 0 && gt_countTimeout == 0;
+								gt_result.type		= gt_result.allowed ? gt_typeException : gt_typeCondition;
+							}
+							else
+							{
+								gt_result.allowed	= gt_countTimeout == 0 && (gt_countException == 0 || currentType == gt_typeException);
+								gt_result.type		= gt_result.allowed ? gt_typeException : gt_typeCondition;
+							}
+						}
+						
+						// condition edge
+						else if (desiredType == gt_typeCondition)
+						{
+							gt_result.allowed	= true;
+							gt_result.type		= gt_typeCondition;
+						}
+						
+						// timeout edge
+						else if (desiredType == gt_typeTimeout)
+						{
+							if (action == "add")
+							{
+								gt_result.allowed	= gt_countException == 0 && gt_countTimeout == 0;
+								gt_result.type		= gt_result.allowed ? gt_typeTimeout : gt_typeCondition;
+							}
+							else
+							{
+								gt_result.allowed	= gt_countException == 0 && (gt_countTimeout == 0 || currentType == gt_typeTimeout);
+								gt_result.type		= gt_result.allowed ? gt_typeTimeout : gt_typeCondition;
+							}
+						}
+					}
+					
+					// check for more than one edge between two nodes
+					var gt_tmpResult = null;
+					if (gt_result.type == gt_typeCondition)
+					{
+						if (gt_bnCondition > 1 || gt_bnCondition > 0 && currentType != gt_typeCondition)
+						{
+							gt_tmpResult	= gf_checkCardinality(behavior, start, end, gt_typeTimeout, currentType, action);
+							if (!gt_tmpResult.allowed || gt_tmpResult.type != gt_typeTimeout)
+							{
+								gt_tmpResult	= gf_checkCardinality(behavior, start, end, gt_typeException, currentType, action);
+								if (!gt_tmpResult.allowed || gt_tmpResult.type != gt_typeException)
+								{
+									gt_result.type		= null;
+								}
+								else
+								{
+									gt_result.type	= gt_typeException;	
+								}
+							}
+							else
+							{
+								gt_result.type	= gt_typeTimeout;
+							}
+							gt_result.allowed	= false;
+						}
+					}
+					else if (gt_result.type == gt_typeException)
+					{
+						if (gt_countException > 0 && currentType != gt_typeException)
+						{
+							gt_tmpResult	= gf_checkCardinality(behavior, start, end, gt_typeCondition, currentType, action);
+							if (!gt_tmpResult.allowed || gt_tmpResult.type != gt_typeCondition || gt_bnCondition > 0)
+							{
+								
+								gt_result.type		= null;
+							}
+							else
+							{
+								gt_result.type	= gt_typeCondition;
+							}
+							gt_result.allowed	= false;
+						}
+					}
+					else if (gt_result.type == gt_typeTimeout)
+					{
+						if (gt_countTimeout > 0 && currentType != gt_typeTimeout)
+						{
+							gt_tmpResult	= gf_checkCardinality(behavior, start, end, gt_typeCondition, currentType, action);
+							if (!gt_tmpResult.allowed || gt_tmpResult.type != gt_typeCondition || gt_bnCondition > 0)
+							{
+								gt_result.type		= null;
+							}
+							else
+							{
+								gt_result.type	= gt_typeCondition;
+							}
+							gt_result.allowed	= false;
+						}
+					}
+					
+					if (desiredType == gt_typeTimeout && gt_countException > 0 && currentType != gt_typeException)
+						gt_result.allowed = false;
+						
+					if (desiredType == gt_typeException && gt_countTimeout > 0 && currentType != gt_typeTimeout)
+						gt_result.allowed = false;
 				}
 			}
 		}
 	}
 	
-	return !gt_limitReached;
+	return gt_result;
 }
 
 /**

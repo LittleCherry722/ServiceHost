@@ -111,7 +111,7 @@ function GCbehavior (name)
 	 * @param {int} end The id of the end node.
 	 * @param {String} text The label of this edge. When this edge's start node is either a send or receive node this can also be a message type.
 	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
-	 * @param {String} type The edge's type (exitcondition, timeout).
+	 * @param {String} type The edge's type (exitcondition, timeout, errorcondition).
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
 	 * @param {boolean} [optional] The optional status of the edge. (default: false)
 	 * @returns {GCedge} The created edge or null on errors.  
@@ -249,7 +249,7 @@ function GCbehavior (name)
 	 * 
 	 * @param {String} start The id of the start node.
 	 * @param {String} end The id of the end node.
-	 * @param {String} type The type of the edge (timeout, exitcondition).
+	 * @param {String} type The type of the edge (timeout, exitcondition, errorcondition).
 	 * @returns {void}
 	 */
 	this.createEdge = function (start, end, type)
@@ -520,80 +520,10 @@ function GCbehavior (name)
 			{
 				// no edge from the startNode to itself
 				if (this.startNode != id)
-				{
-					// check if already one edge exists from start to end
-					var gt_edgeExists		= false;
-					var gt_edgeCountAB		= 0;
-					var gt_edgeCountNode	= 0;
-					var gt_edgeType			= "exitcondition";
-					var gt_startNode		= gf_isset(this.nodes["n" + this.startNode]) ? this.nodes["n" + this.startNode] : null;
-					var gt_isEndNode		= gt_startNode == null ? false : gt_startNode.isEnd();
-					var gt_startNodeType	= gt_startNode == null ? "action" : gt_startNode.type.toLowerCase();
-					
-					var gt_edge				= null;
-					
-					for (var gt_edgeId in this.edges)
-					{
-						gt_edge				= this.edges[gt_edgeId];
-						
-						if (gt_edge.start == this.startNode)
-						{
-							// no edges for end nodes
-							if (gt_isEndNode)
-							{
-								gt_edgeExists = true;
-								break;
-							}
-							
-							// only one edge for closeIP / openIP
-							else if (gt_startNodeType.substr(0, 1) == "$")
-							{
-								gt_edgeExists = true;
-								break;
-							}
-							
-							// for send nodes: one exit condition, one timeout
-							else if (gt_startNodeType == "send")
-							{
-								gt_edgeCountNode++;
-								if (gt_edgeCountNode == 1)
-								{
-									gt_edgeType	= gt_edge.getType() == "timeout" ? "exitcondition" : "timeout";
-								}
-								else if (gt_edgeCountNode > 1)
-								{
-									gt_edgeExists = true;
-									break;
-								}
-							}
-							
-							// for all other nodes: allow one exitcondition and one timeout between the same two nodes
-							else
-							{
-								if (gt_edge.end == id)
-								{
-									gt_edgeCountAB++;
-									if (gt_edgeCountAB == 1)
-									{
-										gt_edgeType	= gt_edge.getType() == "timeout" ? "exitcondition" : "timeout";
-									}
-									else if (gt_edgeCountAB > 1)
-									{
-										gt_edgeExists = true;
-										break;
-									}
-								}
-							}
-						}
-						
-						/*
-						if (gt_edge.start == this.startNode && gt_edge.end == id)
-						{
-							gt_edgeExists = true;
-							break;
-						}
-						*/
-					}
+				{										
+					var gt_result		= gf_checkCardinality(this, this.startNode, id, "exitcondition", "", "add");
+					var gt_edgeExists	= gt_result.type == null;
+					var gt_edgeType		= gt_result.type;
 					
 					// create the edge if it does not already exist
 					if (gt_edgeExists == false)
@@ -632,9 +562,10 @@ function GCbehavior (name)
 	 * @param {String} relatedSubject The relatedSubject of the edge.
 	 * @param {String} timeout The timeout of the edge.
 	 * @param {boolean} optional The optional flag of the edge.
+	 * @param {Object} parameters An optional object (gt_values) passed by the updateEdge from GCcommunication.
 	 * @returns {void}
 	 */
-	this.updateEdge = function (text, type, relatedSubject, timeout, optional)
+	this.updateEdge = function (text, type, relatedSubject, timeout, optional, parameters)
 	{
 		if (this.selectedEdge != null && gf_isset(this.edges["e" + this.selectedEdge], text, type))
 		{
@@ -671,6 +602,11 @@ function GCbehavior (name)
 			if (type == "timeout" && gf_isset(timeout))
 			{
 				gt_edge.setTimer(timeout);
+			}
+			
+			if (type == "errorcondition" && gf_isset(parameters) && gf_isset(parameters.exception))
+			{
+				gt_edge.setException(parameters.exception);
 			}
 			
 			if (gf_isset(relatedSubject))

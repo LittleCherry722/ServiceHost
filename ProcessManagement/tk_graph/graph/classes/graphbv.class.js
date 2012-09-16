@@ -438,6 +438,8 @@ function GCgraphbv ()
 		var gt_bv_edgeStyle	= gv_bv_arrow.style;
 		if (edgeData.edge.getType() == "timeout")
 			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleTimeout);
+		if (edgeData.edge.getType() == "errorcondition")
+			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleException);
 			
 		gt_bv_edge.setStyle(gt_bv_edgeStyle)
 		

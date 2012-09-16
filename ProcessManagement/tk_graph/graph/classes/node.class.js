@@ -375,6 +375,8 @@ function GCnode (parent, id, text, type)
 			if (gt_predefAction.relatedSubject)
 				text += gt_subject;
 				
+			// TODO: show channels; when wildcard: do not show third param
+				
 			text += ")";
 		}
 		

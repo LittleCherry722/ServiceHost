@@ -178,6 +178,83 @@ var gv_bv_style_edge = {
 };
 
 /**
+ * Additional style set for exception-edges.
+ * The given attributes overwrite the values of the default edge style set gv_bv_style_edge.
+ * 
+ * @type Object
+ */
+var gv_bv_style_edgeException = {
+	/*
+	 * Arrow
+	 */
+	arrowColor: "#666666",				// any hex-color-value
+	arrowColorDeact: "#666666",			// any hex-color-value
+	arrowColorOpt: "#666666",			// any hex-color-value
+	arrowColorOptDeact: "#666666",		// any hex-color-value
+	arrowColorOptSel: "#0000FF",		// any hex-color-value
+	arrowColorOptSelDeact: "#0000FF",	// any hex-color-value
+	arrowColorSelDeact: "#0000FF",		// any hex-color-value
+	arrowColorSel: "#0000FF",			// any hex-color-value
+	arrowOpacity: 0.8,					// floating number
+	arrowOpacityDeact: 0.2,				// floating number
+	arrowOpacityOpt: 0.8,				// floating number
+	arrowOpacityOptDeact: 0.2,			// floating number
+	arrowOpacityOptSel: 0.8,			// floating number
+	arrowOpacityOptSelDeact: 0.5,		// floating number
+	arrowOpacitySelDeact: 0.5,			// floating number
+	arrowOpacitySel: 0.8,				// floating number
+	
+	/*
+	 * Border
+	 */
+	borderWidth: 1,						// pixels
+	borderWidthDeact: 1,				// pixels
+	borderWidthOpt: 1,					// pixels
+	borderWidthOptDeact: 1,				// pixels
+	borderWidthOptSel: 1,				// pixels
+	borderWidthOptSelDeact: 1,			// pixels
+	borderWidthSelDeact: 1,				// pixels
+	borderWidthSel: 1,					// pixels
+
+	/*
+	 * Background
+	 */
+	bgColor: "#E4FFFF",					// any hex-color-value
+	bgColorDeact: "#F4FFFF",			// any hex-color-value
+	bgColorOpt: "#F4FFFF",				// any hex-color-value
+	bgColorOptDeact: "#F4FFFF",			// any hex-color-value
+	bgColorOptSel: "#F4FFFF",			// any hex-color-value
+	bgColorOptSelDeact: "#F4FFFF",		// any hex-color-value
+	bgColorSelDeact: "#F4FFFF",			// any hex-color-value
+	bgColorSel: "#F4FFFF",				// any hex-color-value
+	bgOpacity: 1.0,						// floating number
+	bgOpacityDeact: 0.4,				// floating number
+	bgOpacityOpt: 1.0,					// floating number
+	bgOpacityOptDeact: 0.4,				// floating number
+	bgOpacityOptSel: 1.0,				// floating number
+	bgOpacityOptSelDeact: 0.7,			// floating number
+	bgOpacitySelDeact: 0.7,				// floating number
+	bgOpacitySel: 1.0,					// floating number
+	
+	/*
+	 * Text
+	 */
+	fontColor: "#666666",				// any hex-color-value
+	fontColorDeact: "#666666",			// any hex-color-value
+	fontColorOpt: "#666666",			// any hex-color-value
+	fontColorOptDeact: "#666666",		// any hex-color-value
+	fontOpacity: 0.8,					// floating number
+	fontOpacityDeact: 0.2,				// floating number
+	fontOpacityOpt: 0.8,				// floating number
+	fontOpacityOptDeact: 0.2,			// floating number
+	fontOpacityOptSel: 0.8,				// floating number
+	fontOpacityOptSelDeact: 0.5,		// floating number
+	fontOpacitySelDeact: 0.5,			// floating number
+	fontOpacitySel: 0.8,				// floating number
+	textAlign: "left"					// possible values: left, right, middle
+};
+
+/**
  * Additional style set for timeout-edges.
  * The given attributes overwrite the values of the default edge style set gv_bv_style_edge.
  * 
@@ -476,6 +553,7 @@ var gv_bv_style_rectNodeStart = {
 var gv_bv_arrow = {
 		style: gv_bv_style_edge,					// Style set to use for edges
 		styleTimeout: gv_bv_style_edgeTimeout,		// Additional style set to use for timeout edges
+		styleException: gv_bv_style_edgeException,	// Additional style set to use for exception edges
 		tout: true,									// Allow outgoing edges on the top of a node (true | false)
 		tin: true,									// Allow incoming edges on the top of a node (true | false)
 		lout: true,									// Allow outgoing edges on the left of a node (true | false)

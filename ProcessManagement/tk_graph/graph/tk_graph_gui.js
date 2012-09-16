@@ -74,6 +74,8 @@ function gf_guiClearInputFields ()
 		document.getElementById(gv_elements.inputEdgeTimeoutEx).innerHTML = "";
 	if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
 		document.getElementById(gv_elements.inputEdgeTypeCondition).checked = false;
+	if (gf_elementExists(gv_elements.inputEdgeTypeException))
+		document.getElementById(gv_elements.inputEdgeTypeException).checked = false;
 	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
 		document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = false;
 		
@@ -135,6 +137,8 @@ function gf_guiDisplayEdge (edge, startType)
 		document.getElementById(gv_elements.inputEdgeOptionalO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
 		document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeTypeExceptO))
+		document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
 		document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgePriorityO))
@@ -177,6 +181,14 @@ function gf_guiDisplayEdge (edge, startType)
 		if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
 			document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = "block";
 	}
+	else if (edge.getType() == "errorcondition")
+	{
+		if (gf_elementExists(gv_elements.inputEdgeTypeException))
+			document.getElementById(gv_elements.inputEdgeTypeException).checked = true;
+			
+		if (gf_elementExists(gv_elements.inputEdgeTypeExceptO))
+			document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = "block";
+	}
 	else
 	{
 		if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
@@ -193,6 +205,8 @@ function gf_guiDisplayEdge (edge, startType)
 			
 			if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
 				document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = gt_status ? "none" : "block";
+			if (gf_elementExists(gv_elements.inputEdgeTypeExceptO))
+				document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = gt_status ? "none" : "block";
 			if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
 				document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = gt_status ? "block" : "none";
 		};
@@ -202,27 +216,33 @@ function gf_guiDisplayEdge (edge, startType)
 			
 			if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
 				document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = gt_status ? "block" : "none";
+			if (gf_elementExists(gv_elements.inputEdgeTypeExceptO))
+				document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = gt_status ? "none" : "block";
 			if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
 				document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = gt_status ? "none" : "block";
 		};
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeException))
+		document.getElementById(gv_elements.inputEdgeTypeException).onclick = function () {
+			var gt_status	= document.getElementById(gv_elements.inputEdgeTypeException).checked;
+			
+			if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
+				document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = gt_status ? "none" : "block";
+			if (gf_elementExists(gv_elements.inputEdgeTypeExceptO))
+				document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = gt_status ? "block" : "none";
+			if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
+				document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = gt_status ? "none" : "block";
+		};
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
+		document.getElementById(gv_elements.inputEdgeTypeTimeout).disabled = !gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "timeout", edge.getType(), "update").allowed;
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
+		document.getElementById(gv_elements.inputEdgeTypeCondition).disabled = !gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "exitcondition", edge.getType(), "update").allowed;
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeException))
+		document.getElementById(gv_elements.inputEdgeTypeException).disabled = !gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "errorcondition", edge.getType(), "update").allowed;
 	
-	// disable radio buttons when type may not be changed
-	if (gf_checkCardinality(gv_graph.selectedSubject, edge.getStart(), edge.getEnd()) == false)
-	{
-		if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
-			document.getElementById(gv_elements.inputEdgeTypeTimeout).disabled = true;
-			
-		if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
-			document.getElementById(gv_elements.inputEdgeTypeCondition).disabled = true;
-	}
-	else
-	{
-		if (gf_elementExists(gv_elements.inputEdgeTypeTimeout))
-			document.getElementById(gv_elements.inputEdgeTypeTimeout).disabled = false;
-			
-		if (gf_elementExists(gv_elements.inputEdgeTypeCondition))
-			document.getElementById(gv_elements.inputEdgeTypeCondition).disabled = false;	
-	}
 	
 	// create the drop down menu to select the related subject (only for receive and send nodes)
 	if (startType == "send" || startType == "receive")
@@ -631,49 +651,27 @@ function gf_guiLoadDropDownForNode (nodeType)
  */
 function gf_guiLoadExternalProcess (process)
 {
-	var gt_executed		= false;
-	var gt_errorPart	= "";
 	if (gf_isset(window.SBPM))
-	{
-		if (gf_isset(window.SBPM.Mediator))
-		{
-			if (gf_isset(window.SBPM.Mediator.goToExternalSubject))
-			{
-				window.SBPM.Mediator.goToExternalSubject(process);
-				gt_executed = true;
-			}
-			else
-			{
-				gt_errorPart	= "goToExternalSubject";
-			}
-		}
-		else
-		{
-			gt_errorPart	= "Mediator";
-		}
-	}
-	else
-	{
-		gt_errorPart	= "SBPM";
-	}
-	
-	if (!gt_executed)
-		console.log("Load external process: Error: No handler available! (" + gt_errorPart + ")");
+		if (gf_isset(window.SBPM.VM))
+			if (gf_isset(window.SBPM.VM.Mediator))
+				if (gf_isset(window.SBPM.VM.Mediator.goToExternalSubject))
+					window.SBPM.VM.Mediator.goToExternalSubject(process);
 }
 
 /**
  * Read the values for the selected edge from the input fields.
  * 
  * @see GCcommunication::updateEdge()
- * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout
+ * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception
  */
 function gf_guiReadEdge ()
 {
-	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false};
+	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false, exception: ""};
 	
 	var gt_relatedSubject	= {id: "", min: -1, max: -1, createNew: false};
 	
 	var gt_text				= gf_elementExists(gv_elements.inputEdgeText) ? document.getElementById(gv_elements.inputEdgeText).value : "";
+	var gt_exception		= gf_elementExists(gv_elements.inputEdgeExceptionText) ? document.getElementById(gv_elements.inputEdgeExceptionText).value : "";
 	var gt_timeout			= gf_elementExists(gv_elements.inputEdgeTimeout) ? document.getElementById(gv_elements.inputEdgeTimeout).value : "";
 	var gt_optional			= gf_elementExists(gv_elements.inputEdgeOptional) && document.getElementById(gv_elements.inputEdgeOptional).checked;
 	var gt_messageType		= gf_elementExists(gv_elements.inputEdgeMessage) ? document.getElementById(gv_elements.inputEdgeMessage).value : "";
@@ -691,10 +689,14 @@ function gf_guiReadEdge ()
 	
 	if (gf_elementExists(gv_elements.inputEdgeTypeTimeout) && document.getElementById(gv_elements.inputEdgeTypeTimeout).checked)
 		gt_type	= "timeout";
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeException) && document.getElementById(gv_elements.inputEdgeTypeException).checked)
+		gt_type	= "errorcondition";
 	
 	gt_result.text				= gt_text;
 	gt_result.relatedSubject	= gt_relatedSubject;
 	gt_result.timeout			= gt_timeout;
+	gt_result.exception			= gt_exception;
 	gt_result.type				= gt_type;
 	gt_result.optional			= gt_optional;
 	gt_result.messageType		= gt_messageType;

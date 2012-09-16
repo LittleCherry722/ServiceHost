@@ -1431,7 +1431,7 @@ function GCcommunication ()
 					gt_edge.setManualTimeout(gt_manualTimeout);
 				}
 				
-				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout, gt_optional);
+				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout, gt_optional, gt_values);
 				
 				this.loadInformationEdge();
 			}

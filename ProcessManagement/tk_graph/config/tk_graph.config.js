@@ -35,6 +35,9 @@ gf_createMacro("newReceiveNode", "", "normal", "receive", true, true);
 // creates a macro with the ID "newActionNode" that will insert a new action node into the graph and connect it with the currently selected node
 gf_createMacro("newActionNode", "internal action", "normal", "action", true);
 
+// creates a macro with the ID "newEndNode" that will insert a new end node into the graph and connect it with the currently selected node
+gf_createMacro("newEndNode", "", "end", "end", true);
+
 /**
  * Contains the dimensions of both canvas elements.
  * Edit these lines in order to fit the canvas elements to your page.
