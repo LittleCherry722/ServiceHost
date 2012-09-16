@@ -165,7 +165,7 @@ var ProcessViewModel = function() {
 		return self.processViews[self.activeViewIndex()];
 	};
 	
-	self.showProcess = function(processName) {
+	self.showProcess = function(processName, showInformation) {
 	    
 	    console.log("ProcessViewModel: showProcess called. processName="+self.processName());
 	    
@@ -230,7 +230,7 @@ var ProcessViewModel = function() {
             $("#tab2").addClass("active");
             // TODO END
             
-            SBPM.Notification.Info("Information", "Process \""+processName+"\" successfully loaded.");
+           if(showInformation) SBPM.Notification.Info("Information", "Process \""+processName+"\" successfully loaded.");
     	        
 	    }catch(e){
 	        
@@ -275,8 +275,8 @@ var ProcessViewModel = function() {
           
           // update process name
           self.processName(name);
-          SBPM.VM.contentVM().showProcess(name);
-          SBPM.Notification.Info("Information", "Process successfully created.");
+          SBPM.VM.contentVM().showProcess(name, false);
+          SBPM.Notification.Info("Information", "Process successfully saved.");
         }else
           SBPM.Notification.Info("Error", "Could not create process.");
 	}

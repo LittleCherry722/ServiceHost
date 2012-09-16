@@ -35,7 +35,7 @@ var ViewModel = function() {
 
             } else {
 
-                SBPM.Notification.Info("Information", "Process successfully created.");
+                SBPM.Notification.Info("Information", "Process successfully saved.");
 
                 // close the layer
                 self.close();
