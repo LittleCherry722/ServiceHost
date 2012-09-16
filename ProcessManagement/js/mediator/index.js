@@ -191,6 +191,12 @@ var Mediator = function() {
                 );
                 
             console.log("Mediator: Listeners for InstanceView loaded.");
+        },
+                quickView : function() {
+
+            
+            console.log("Mediator: Listeners for QuickView loaded.");
+
         }
     }
     

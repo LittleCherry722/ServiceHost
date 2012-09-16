@@ -58,6 +58,7 @@ var ViewModel = function() {
 
 	console.log("ViewModel for newProcess initialized.");
 }
+
 var QuickViewModle = function() {
 
 	var self = this;
@@ -69,6 +70,9 @@ var QuickViewModle = function() {
 	self.displayTable = ko.observable(false);
 
 	self.fancyboxSize = ko.computed(function() {
+		
+		console.log(self.displayTable());
+		
 		if(self.displayTable()) {
 			parent.$('#fancybox-content').width('995px');
 			parent.$('#fancybox-content').height('300px');
