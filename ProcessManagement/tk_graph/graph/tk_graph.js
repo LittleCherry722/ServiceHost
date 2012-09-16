@@ -412,6 +412,7 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 						}
 					}
 					
+					/*
 					// check for more than one edge between two nodes
 					var gt_tmpResult = null;
 					if (gt_result.type == gt_typeCondition)
@@ -477,6 +478,7 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 						
 					if (desiredType == gt_typeException && gt_countTimeout > 0 && currentType != gt_typeTimeout)
 						gt_result.allowed = false;
+					*/
 				}
 			}
 		}
