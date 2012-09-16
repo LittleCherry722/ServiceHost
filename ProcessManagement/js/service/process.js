@@ -124,4 +124,38 @@ SBPM.Service.Process = {
             "subjects" : startSubjectsAsJSON
         }, false, SBPM.DB.defaultOKReturnBoolean);
     },
+    
+    /**
+	 * Returns elements that are not send, receive, action or end elements or single subjects.
+	 */
+        isExecutbale : function(processID){
+    	var graph = JSON.parse(self.loadGraph(processID));
+    	var error = new Array();
+    	
+    	//console.log(graph);
+    	//only single subjects
+    	graph.process.map(function(element){
+    	//console.log(element.type);
+    	if(element.type != 'single') error.push(element.type);
+    	
+    	//only send, receive, action ,end
+    	element.nodes.map(function(element){
+    		var v = element.type;
+    		//console.log(v);
+    		if(v != "send" && v != "receive" && v != "action" && v != "end") {
+    			error.push(element.type);
+    			}
+    		
+    	})
+    		
+    	}
+    	
+    	)
+    	
+    	
+    	
+    	return error;
+    	
+    }
+    
 }
