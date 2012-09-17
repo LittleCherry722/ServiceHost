@@ -1,15 +1,11 @@
 // extended template binding with a listeners attributed
 ko.bindingHandlers.templateWithListeners = {
     init : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
-        
-        console.log("CustomBinding: temaplteWithListeners - init.", element);
-        
+
         return ko.bindingHandlers.template.init(element, valueAccessor, allBindingAccessor, viewModel, context);   
     },
     update : function(element, valueAccessor, allBindingAccessor, viewModel, context) {
         ko.bindingHandlers.template.update(element, valueAccessor, allBindingAccessor, viewModel, context);
-        
-        console.log("CustomBinding: temaplteWithListeners - update.", element);
         
         var options = valueAccessor();
         
