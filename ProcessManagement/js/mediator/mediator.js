@@ -82,12 +82,8 @@ var IMediator = function(){
                     // the current ViewModel can be found here
                     SBPM.VM = new ViewModel(); 
                     SBPM.VM.init(function(){
-                        console.log($('body'));
-                        
                         ko.applyBindings(SBPM.VM);
-                        
-                        console.log($('body'));
-                        
+                    
                         console.log("IMediator: ViewModel bound to dom.");
                     });  
                     

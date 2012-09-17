@@ -15,9 +15,9 @@ var ViewModel = function() {
             return;
         }
 
-        console.log("saveAsProcess: " + process);
+        console.log("saveAsProcess: " + process, parent.SBPM.VM);
 
-        var result = SBPM.Service.Process.saveProcess(process, false, true);
+        var result = parent.SBPM.VM.contentVM().save(process, false, true);
 
         if (result) {
 
@@ -26,7 +26,7 @@ var ViewModel = function() {
                 SBPM.Dialog.YesNo('Warning', 'Process\' name already exists. Do you want to overwrite the process?', function() {
 
                     // overwrite the existing process
-                    parent.SBPM.VM.save(process, true, true);
+                    parent.SBPM.VM.contentVM().save(process, true, true);
                     
                     // close the layer
                     self.close();
@@ -35,7 +35,7 @@ var ViewModel = function() {
 
             } else {
 
-                SBPM.Notification.Info("Information", "Process successfully saved.");
+                parent.$.publish("/process/change");
 
                 // close the layer
                 self.close();

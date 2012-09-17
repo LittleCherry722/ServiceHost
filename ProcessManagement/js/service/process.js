@@ -72,10 +72,11 @@ SBPM.Service.Process = {
             "action" : "getid"
         }, 0, defaultIDReturn);
     },
-    getAllProcesses : function(limit) {
+    getAllProcesses : function(limit, orderby) {
         return this.query({
             "action" : "getallprocesses",
-            "limit" : limit
+            "limit" : limit,
+            "orderby": orderby
         }, "", function(json) {
             if (json["code"] == "ok")
                 return json["processes"];

@@ -45,10 +45,14 @@ SBPM.DB = {
           cache: false,
           async: false,
           success: function(dataAsJson){
-          
-            if (dataAsJson !== ""){
-                ret = successfunction(jQuery.parseJSON(dataAsJson),dataAsJson);
+            try {
+                if (dataAsJson !== ""){
+                    ret = successfunction(jQuery.parseJSON(dataAsJson),dataAsJson);
+                }
+            }catch(e){
+                console.log("Service: Error parsing JSON: "+dataAsJson);
             }
+
           },
           error : function(err){
               console.log(err);

@@ -31,7 +31,7 @@ var ViewModel = function() {
 			}
 
 			// update list of recent processes
-			parent.SBPM.VM.menuVM.init();
+			parent.$.publish("/process/change");
 
 			// close layer
 			self.close();

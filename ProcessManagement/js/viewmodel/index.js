@@ -61,7 +61,13 @@ var MenuViewModel = function() {
     });
 
 	self.init = function() {	    
-		self.recentProcesses(SBPM.Service.Process.getAllProcesses(self.maxRecent));
+		$.subscribe("/process/change", function(){
+		    self.recentProcesses(SBPM.Service.Process.getAllProcesses(self.maxRecent));
+		    
+		    console.log("MenuViewModel: reload recent processes.");
+		});
+		
+		$.publish("/process/change");
 	}
 	
 	/**
@@ -268,14 +274,13 @@ var ProcessViewModel = function() {
 	    
         if(SBPM.Service.Process.saveProcess(graphAsJSON, startSubjectsAsJSON, name, forceOverwrite, saveAs)){
             
-            // reload recent processes
-            SBPM.VM.menuVM.init();
-      
+            $.publish("/process/change");
+            
             SBPM.VM.contentVM().showProcess(name, false);
             
             SBPM.Notification.Info("Information", "Process successfully saved.");
         }else
-            SBPM.Notification.Error("Error", "Could not create process.");
+            SBPM.Notification.Error("Error", "Saving Process failed.");
 	}
 }
 
@@ -415,9 +420,7 @@ var ChargeViewModel = function() {
         var messageTypes = gf_getMessageTypes();
         
         var rolesAndUsers = SBPM.Service.Role.getAllRolesAndUsers();
-
-        console.log(!graph.responsibilities || graph.responsibilities.length < 1);
-
+        
         // if responsibilities arent set yet
         if(!graph.responsibilities || graph.responsibilities.length < 1){
             
@@ -432,10 +435,7 @@ var ChargeViewModel = function() {
             self.data().responsibilities(graph.responsibilities.map(function(data){
                 return new Responsibility(rolesAndUsers[data.role], data.role, data.subjectProvider);
             }));
-            
-            console.log(self.data().responsibilities());
-            
-            
+              
         }
 
         graph.routings = graph.routings || [];
@@ -443,8 +443,6 @@ var ChargeViewModel = function() {
         self.data().routings(graph.routings.map(function(data){
             return new Routing(messageTypes, data.fromSubject, data.fromSubjectprovider, data.messageType, data.toSubject, data.toSubjectprovider)
         }));
-
-        console.log("loaded",self.data().responsibilities(),self.data().routings());
         
         console.log("ChargeViewModel: Responsibilities and Routings loaded.");
         

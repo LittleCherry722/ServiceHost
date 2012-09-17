@@ -75,7 +75,7 @@
                                 <input type="button" class="button" value="Load" data-bind='click: $parent.load' />
                                 </td>
                                 <td>
-                                <input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />
+                                <input type="button" class="button" value="Delete" data-bind='click: $parent.remove, visible: !$parent.isLocked($data)' />
                                 </td>
                             </tr>
                         </tbody>
