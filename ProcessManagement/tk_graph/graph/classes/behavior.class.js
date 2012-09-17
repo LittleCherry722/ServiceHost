@@ -164,7 +164,7 @@ function GCbehavior (name)
 	this.addNode = function (id, text, type, start, end, deactivated)
 	{
 		// create a new id if none is given
-		if (!gf_isset(id) || id == "")
+		if (!gf_isset(id) || id === "")
 		{
 			id = "n" + this.nodeCounter;
 		}

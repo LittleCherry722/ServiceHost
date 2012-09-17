@@ -256,6 +256,9 @@ function GCcommunication ()
 			
 			this.nodeCounter		= 0;
 			
+			this.messageTypes		= {};
+			this.messageTypeCounter	= 0;
+			
 			this.draw();
 		}
 		
@@ -967,7 +970,7 @@ function GCcommunication ()
 					for (var gt_nodeId in gt_subject.nodes)
 					{
 						var gt_node		= gt_subject.nodes[gt_nodeId];
-						var gt_nodeId	= gt_behav.addNode(gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+						var gt_nodeId	= gt_behav.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 						
 						if (gf_isset(gt_node.options))
 						{
@@ -1006,7 +1009,7 @@ function GCcommunication ()
 							}
 						}
 						
-						var gt_createdEdge	= gt_behav.addEdge(gt_edge.start, gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
+						var gt_createdEdge	= gt_behav.addEdge("loadedNode" + gt_edge.start, "loadedNode" + gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
 						
 						if (gt_createdEdge != null)
 						{
