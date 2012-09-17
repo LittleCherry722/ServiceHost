@@ -236,8 +236,6 @@ var ProcessViewModel = function() {
 	        
 	        SBPM.Notification.Error("Error", "Could not load process \""+processName+"\".");
 	        
-	        throw e;
-	        
 	    }
 	    
 		updateListOfSubjects();
@@ -270,15 +268,14 @@ var ProcessViewModel = function() {
 	    
         if(SBPM.Service.Process.saveProcess(graphAsJSON, startSubjectsAsJSON, name, forceOverwrite, saveAs)){
             
-          // reload recent processes
-          SBPM.VM.menuVM.init();
-          
-          // update process name
-          self.processName(name);
-          SBPM.VM.contentVM().showProcess(name, false);
-          SBPM.Notification.Info("Information", "Process successfully saved.");
+            // reload recent processes
+            SBPM.VM.menuVM.init();
+      
+            SBPM.VM.contentVM().showProcess(name, false);
+            
+            SBPM.Notification.Info("Information", "Process successfully saved.");
         }else
-          SBPM.Notification.Info("Error", "Could not create process.");
+            SBPM.Notification.Error("Error", "Could not create process.");
 	}
 }
 
@@ -419,6 +416,8 @@ var ChargeViewModel = function() {
         
         var rolesAndUsers = SBPM.Service.Role.getAllRolesAndUsers();
 
+        console.log(!graph.responsibilities || graph.responsibilities.length < 1);
+
         // if responsibilities arent set yet
         if(!graph.responsibilities || graph.responsibilities.length < 1){
             
@@ -433,6 +432,9 @@ var ChargeViewModel = function() {
             self.data().responsibilities(graph.responsibilities.map(function(data){
                 return new Responsibility(rolesAndUsers[data.role], data.role, data.subjectProvider);
             }));
+            
+            console.log(self.data().responsibilities());
+            
             
         }
 
