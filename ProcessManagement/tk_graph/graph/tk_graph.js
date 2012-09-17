@@ -179,7 +179,7 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 					{
 						gt_edge	= gt_edges[gt_edgeId];
 						
-						if (gt_edge.start == start)
+						if (gt_edge.start == start && gf_isset(behavior.edges[gt_edge.end]))
 						{
 							if (gt_edge.getType() == gt_typeCondition)
 								gt_countCondition++;
@@ -412,7 +412,6 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 						}
 					}
 					
-					/*
 					// check for more than one edge between two nodes
 					var gt_tmpResult = null;
 					if (gt_result.type == gt_typeCondition)
@@ -478,7 +477,6 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 						
 					if (desiredType == gt_typeException && gt_countTimeout > 0 && currentType != gt_typeTimeout)
 						gt_result.allowed = false;
-					*/
 				}
 			}
 		}
