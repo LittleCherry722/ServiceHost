@@ -192,7 +192,7 @@ function GCnode (parent, id, text, type)
 		for (var gt_edgeId in gt_edges)
 		{
 			var gt_edge	= gt_edges[gt_edgeId];
-			if (gt_edge.start	== this.id)
+			if (gt_edge.start	== this.id && gf_isset(this.parent.nodes["n" + gt_edge.end]))
 				return true;
 		}
 		return false;
@@ -209,7 +209,7 @@ function GCnode (parent, id, text, type)
 		for (var gt_edgeId in gt_edges)
 		{
 			var gt_edge	= gt_edges[gt_edgeId];
-			if (gt_edge.end	== this.id)
+			if (gt_edge.end	== this.id && gf_isset(this.parent.nodes["n" + gt_edge.start]))
 				return true;
 		}
 		return false;
@@ -233,9 +233,10 @@ function GCnode (parent, id, text, type)
 	 */
 	this.isEnd = function (draw)
 	{
+		/*
 		if (gf_isset(draw) && draw === true)
 			return this.end === true || !this.hasChildren();
-			
+		*/
 		return this.end === true;
 	};
 	
@@ -247,9 +248,11 @@ function GCnode (parent, id, text, type)
 	 */
 	this.isStart = function (draw)
 	{
+		/*
 		if (gf_isset(draw) && draw === true)
-			return /*this.start === true || */!this.hasParent();
-			
+			// return this.start === true || !this.hasParent();
+			return !this.hasParent();
+		*/
 		return this.start === true;
 	};
 	

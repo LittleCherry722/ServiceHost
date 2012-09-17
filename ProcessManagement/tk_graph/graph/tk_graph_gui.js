@@ -270,7 +270,7 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTargetMMMO).style.display = "block";
 		
 		if (gf_elementExists(gv_elements.inputEdgeTarget))
-			document.getElementById(gv_elements.inputEdgeTarget).value	= edge.getRelatedSubject();
+			document.getElementById(gv_elements.inputEdgeTarget).value	= edge.getRelatedSubject() == null ? "" : edge.getRelatedSubject();
 		
 		if (gf_elementExists(gv_elements.inputEdgeMessage))
 			document.getElementById(gv_elements.inputEdgeMessage).value	= edge.getText();
