@@ -652,10 +652,15 @@ function gf_guiLoadDropDownForNode (nodeType)
 function gf_guiLoadExternalProcess (process)
 {
 	if (gf_isset(window.SBPM))
-		if (gf_isset(window.SBPM.VM))
-			if (gf_isset(window.SBPM.VM.Mediator))
-				if (gf_isset(window.SBPM.VM.Mediator.goToExternalSubject))
-					window.SBPM.VM.Mediator.goToExternalSubject(process);
+		if (gf_isset(window.SBPM.Mediator))
+			if (gf_isset(window.SBPM.Mediator.goToExternalSubject))
+				window.SBPM.Mediator.goToExternalSubject(process);
+			else
+				console.log("tk_graph: Error on loading external process: goToExternalSubject");
+		else
+			console.log("tk_graph: Error on loading external process: Mediator");
+	else
+		console.log("tk_graph: Error on loading external process: SBPM");
 }
 
 /**
