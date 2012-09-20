@@ -20,6 +20,23 @@
 function GCcommunication ()
 {	
 	/**
+	 * 
+	 * Initialized with 0.
+	 * This counter is used to give every channel an unique id.
+	 * The counter is increased with every channel added.
+	 * 
+	 * @type int
+	 */
+	this.channelCounter	= 0;
+	
+	/**
+	 * List of channels used in the process.
+	 * 
+	 * @type Object
+	 */
+	this.channels	= {};
+	
+	/**
 	 * Array of messages between subjects.
 	 * This array is only used by GCcommunication.draw () which collects all messages sent between subjects and stores them into the messages array in the following form:
 	 * messages[fromSubjectId][toSubjectId][lastIndex] = messageText
@@ -72,6 +89,78 @@ function GCcommunication ()
 	 */
 	this.subjects	= {};
 	
+ 	/**
+ 	 * Adds a new channel to the channels array of this process.
+ 	 * This method can also be used to update channels.
+ 	 * 
+ 	 * @param {String} text The name of the channel.
+ 	 * @param {String} id The id of the channel (optional, when set an update will be done)
+ 	 * @returns {String} The id of the inserted or updated channel.
+ 	 */
+	this.addChannel = function (text, id)
+	{
+ 		if (!gf_isset(id))
+			id = "##createNew##";
+		
+		var gt_channelId	= "";
+		if (gf_isset(id, text))
+		{
+			if (id.substr(0, 1) == "c")
+			{
+				// when changing the text of a channel avoid duplicate channels
+				var gt_channelExists	= false;
+				for (var gt_cid in this.channels)
+				{
+					if (gf_replaceNewline(this.channels[gt_cid].toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " ") && gt_cid != id)
+					{
+						gt_channelExists	= true;
+						break;
+					}
+				}
+				
+				// update channel
+				if (!gt_channelExists && gf_isset(this.channels[id]) && this.channels[id] != text && text != "")
+				{
+					this.channels[id]	= text;
+				}
+				gt_channelId	= id;
+			}
+			
+			// create new channel
+			else if (id == "##createNew##")
+			{
+				var gt_channelExists	= false;
+				
+				// avoid duplicate channels
+				for (var gt_cid in this.channels)
+				{
+					var gt_ch	= this.channels[gt_cid];
+					
+					if (gf_replaceNewline(gt_ch.toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " "))
+					{
+						gt_channelId	= gt_cid;
+						gt_channelExists	= true;
+						break;
+					}
+				}
+				
+				// create the new channel
+				if (!gt_channelExists && text != "")
+				{
+					this.channels["c" + this.channelCounter] = text;
+					gt_channelId	= "c" + this.channelCounter;
+					this.channelCounter++;
+				}
+			}
+			else
+			{
+				// (no channel selected)
+			}
+		}
+		
+		return gt_channelId;
+	};
+	
 	/**
 	 * Adds a message to messages[sender][receiver][index].
 	 * This method automatically initializes the array.
@@ -112,30 +201,77 @@ function GCcommunication ()
 			this.messages[sender][receiver][this.messages[sender][receiver].length]	= message;
 	};
 	
-	/**
-	 * TODO
-	 */
-	this.addMessageType = function (text)
+ 	/**
+ 	 * Adds a new messageType to the messageTypes array of this process.
+ 	 * This method can also be used to update messageTypes.
+ 	 * 
+ 	 * @param {String} text The name of the messageType.
+ 	 * @param {String} id The id of the messageType (optional, when set an update will be done)
+ 	 * @returns {String} The id of the inserted or updated messageType.
+ 	 */
+	this.addMessageType = function (text, id)
 	{
 		
-		// use in loadFromJSON, updateEdge (GCcommunication, when new messageType is defined), addEdge (GCbehavior)
+		if (!gf_isset(id))
+			id = "##createNew##";
 		
-		var gt_messageTypeID	= "m0";	// TODO
-		
-		// check if text is of type "m" + number (already message ID); else: check if text already exists -> store new
-		if (!gf_isset(gt_messages[gt_text]))
+		var gt_messageTypeId	= "";
+		if (gf_isset(id, text))
 		{
-			this.messageTypes["m" + this.messageTypeCounter] = gt_text;
-			gt_messages[gt_text] = "m" + this.messageTypeCounter;
-			this.messageTypeCounter++;
+			if (id.substr(0, 1) == "m")
+			{
+				// when changing the text of a messageType avoid duplicate messageTypes
+				var gt_messageTypeExists	= false;
+				for (var gt_mtid in this.messageTypes)
+				{
+					if (gf_replaceNewline(this.messageTypes[gt_mtid].toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " ") && gt_mtid != id)
+					{
+						gt_messageTypeExists	= true;
+						break;
+					}
+				}
+				
+				// update message type
+				if (!gt_messageTypeExists && gf_isset(this.messageTypes[id]) && this.messageTypes[id] != text && text != "")
+				{
+					this.messageTypes[id]	= text;
+				}
+				gt_messageTypeId	= id;
+			}
+			
+			// create new message
+			else if (id == "##createNew##")
+			{
+				var gt_messageTypeExists	= false;
+				
+				// avoid duplicate messageTypes
+				for (var gt_mtid in this.messageTypes)
+				{
+					var gt_mt	= this.messageTypes[gt_mtid];
+					
+					if (gf_replaceNewline(gt_mt.toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " "))
+					{
+						gt_messageTypeId	= gt_mtid;
+						gt_messageTypeExists	= true;
+						break;
+					}
+				}
+				
+				// create the new message
+				if (!gt_messageTypeExists && text != "")
+				{
+					this.messageTypes["m" + this.messageTypeCounter] = text;
+					gt_messageTypeId	= "m" + this.messageTypeCounter;
+					this.messageTypeCounter++;
+				}
+			}
+			else
+			{
+				// (no messageType selected)
+			}
 		}
 		
-		if (gf_isset(gt_messages[gt_text]))
-		{
-			gt_text = gt_messages[gt_text];
-		}
-		
-		return gt_messageTypeID;
+		return gt_messageTypeId;
 	};
 	
 	/**
@@ -901,6 +1037,9 @@ function GCcommunication ()
 			var gt_mapMessages	= false;
 			var gt_countNodes	= true;
 			
+			var gt_useChannels	= false;
+			var gt_useVariables	= false;
+			
 			if (gf_isset(gt_jsonObject.process, gt_jsonObject.messages, gt_jsonObject.messageCounter))
 			{
 				gt_jsonProcess			= gt_jsonObject.process;
@@ -924,6 +1063,13 @@ function GCcommunication ()
 			{
 				this.nodeCounter	= gt_jsonObject.nodeCounter;
 				gt_countNodes		= false;
+			}
+			
+			if (gf_isset(gt_jsonObject.channels, gt_jsonObject.channelCounter))
+			{
+				this.channels		= gt_jsonObject.channels;
+				this.channelCounter	= gt_jsonObject.channelCounter;
+				gt_useChannels		= true;
 			}
 			
 			// 1. create subjects (replace <br /> by \n)
@@ -964,6 +1110,14 @@ function GCcommunication ()
 				var gt_subject	= gt_jsonProcess[gt_subjectId];
 				var gt_behav	= this.getBehavior(gt_subject.id);
 				
+				// check if variables are used
+				if (gf_isset(gt_subject.variables, gt_subject.variableCounter))
+				{
+					gt_behav.variables			= gt_subject.variables;
+					gt_behav.variableCounter	= gt_subject.variableCounter;
+					gt_useVariables		= true;
+				}
+				
 				if (gt_behav != null)
 				{
 					// 2.1 nodes
@@ -975,6 +1129,21 @@ function GCcommunication ()
 						if (gf_isset(gt_node.options))
 						{
 							gt_behav.getNode(gt_nodeId).setOptions(gt_node.options);
+						}
+						
+						if (gf_isset(gt_node.channel) && gt_useChannels)
+						{
+							gt_behav.getNode(gt_nodeId).setChannel(gt_node.channel);
+						}
+						
+						if (gf_isset(gt_node.variable) && gt_useVariables)
+						{
+							gt_behav.getNode(gt_nodeId).setVariable(gt_node.variable);
+						}
+						
+						if (gf_isset(gt_node.majorStartNode))
+						{
+							gt_behav.getNode(gt_nodeId).setMajorStartNode(gt_node.majorStartNode);
 						}
 					}
 					
@@ -996,17 +1165,7 @@ function GCcommunication ()
 						// map messages to new system
 						if (gt_mapMessages && (gt_startNodeType == "send" || gt_startNodeType == "receive") && gt_edge.type == "exitcondition")
 						{
-							if (!gf_isset(gt_messages[gt_text]))
-							{
-								this.messageTypes["m" + this.messageTypeCounter] = gt_text;
-								gt_messages[gt_text] = "m" + this.messageTypeCounter;
-								this.messageTypeCounter++;
-							}
-							
-							if (gf_isset(gt_messages[gt_text]))
-							{
-								gt_text = gt_messages[gt_text];
-							}
+							gt_text	= this.addMessageType(gt_text);
 						}
 						
 						var gt_createdEdge	= gt_behav.addEdge("loadedNode" + gt_edge.start, "loadedNode" + gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
@@ -1021,6 +1180,19 @@ function GCcommunication ()
 							if (gf_isset(gt_edge.manualTimeout))
 							{
 								gt_createdEdge.setManualTimeout(gt_edge.manualTimeout);
+							}
+							
+							if (gt_useVariables)
+							{
+								if (gf_isset(gt_edge.variable))
+								{
+									gt_createdEdge.setVariable(gt_edge.variable);
+								}
+								
+								if (gf_isset(gt_edge.correlationId))
+								{
+									gt_createdEdge.setCorrelationId(gt_edge.correlationId);
+								}
 							}
 						}
 					}
@@ -1159,6 +1331,8 @@ function GCcommunication ()
 	 */
 	this.save = function ()
 	{
+		var gt_processData	= {};
+		
 		var gt_array = [];
 		
 		var gt_arrayIndex	= 0;
@@ -1196,8 +1370,11 @@ function GCcommunication ()
 						start:	gt_node.isStart(),
 						end:	gt_node.isEnd(),
 						type:	gt_node.getType(),
-						deactivated: gt_node.isDeactivated(),
-						options:	gt_node.getOptions()
+						options:	gt_node.getOptions(),
+						deactivated:	gt_node.isDeactivated(),
+						majorStartNode:	gt_node.isMajorStartNode(),
+						channel:		gt_node.getChannel(),
+						variable:		gt_node.getVariable()
 				};
 			}
 
@@ -1225,18 +1402,29 @@ function GCcommunication ()
 								deactivated:	gt_edge.isDeactivated(),
 								optional:		gt_edge.isOptional(),
 								priority:		gt_edge.getPriority(),
-								manualTimeout:	gt_edge.isManualTimeout()
+								manualTimeout:	gt_edge.isManualTimeout(),
+								variable:		gt_edge.getVariable(),
+								correlationId:	gt_edge.getCorrelationId()
 						};
 					}
 				}
 			}
 			
-			gt_array[gt_arrayIndex].nodes		= gt_newNodes;
-			gt_array[gt_arrayIndex].edges		= gt_newEdges;
-			gt_array[gt_arrayIndex].nodeCounter	= gt_behav.nodeCounter;
+			gt_array[gt_arrayIndex].nodes			= gt_newNodes;
+			gt_array[gt_arrayIndex].edges			= gt_newEdges;
+			gt_array[gt_arrayIndex].nodeCounter		= gt_behav.nodeCounter;
+			gt_array[gt_arrayIndex].variables		= gt_behav.variables;
+			gt_array[gt_arrayIndex].variableCounter	= gt_behav.variableCounter;
 		}
 		
-		return {process: gt_array, messages: this.messageTypes, messageCounter: this.messageTypeCounter, nodeCounter: this.nodeCounter};
+		gt_processData.process			= gt_array;
+		gt_processData.messages			= this.messageTypes;
+		gt_processData.messageCounter	= this.messageTypeCounter;
+		gt_processData.nodeCounter		= this.nodeCounter;
+		gt_processData.channels			= this.channels;
+		gt_processData.channelCounter	= this.channelCounter;
+		
+		return gt_processData;
 	};
 	
 	/**
@@ -1372,69 +1560,7 @@ function GCcommunication ()
 					gt_values	= gf_guiReadEdge();
 				}
 				
-				var gt_text				= gf_isset(gt_values.text)				? gt_values.text			: "";
-				var gt_relatedSubject	= gf_isset(gt_values.relatedSubject)	? gt_values.relatedSubject	: "";
-				var gt_type				= gf_isset(gt_values.type)				? gt_values.type			: "label";
-				var gt_timeout			= gf_isset(gt_values.timeout)			? gt_values.timeout			: "";
-				var gt_optional			= gf_isset(gt_values.optional)			? gt_values.optional		: false;
-				var gt_messageTypeId	= gf_isset(gt_values.messageType)		? gt_values.messageType		: "";
-				var gt_priority			= gf_isset(gt_values.priority)			? gt_values.priority		: "1";
-				var gt_manualTimeout	= gf_isset(gt_values.manualTimeout)		? gt_values.manualTimeout	: false;
-				
-				var gt_edge				= this.getBehavior(this.selectedSubject).getEdge();
-				var gt_startNodeType	= gt_edge != null ? gt_edge.getTypeOfStartNode() : "action";
-				
-				if (gt_startNodeType == "send" || gt_startNodeType == "receive")
-				{
-					var gt_currentMessageTypeId	= gt_edge.getMessageTypeId();
-					
-					if (gt_messageTypeId.substr(0, 1) == "m")
-					{
-						// TODO: when changing the text of a messageType avoid duplicate messageTypes
-						
-						// update message type
-						if (this.messageTypes[gt_messageTypeId] != gt_text)
-						{
-							this.messageTypes[gt_messageTypeId]	= gt_text;
-						}
-						gt_text	= gt_messageTypeId;
-					}
-					else if (gt_messageTypeId == "##createNewMsg##")
-					{
-						var gt_messageTypeExists	= false;
-						
-						// avoid duplicate messageTypes
-						for (var gt_mtid in this.messageTypes)
-						{
-							var gt_mt	= this.messageTypes[gt_mtid];
-							
-							if (gt_mt.toLowerCase().replace("\\n", " ") == gt_text.toLowerCase().replace("\\n", " "))
-							{
-								gt_text	= gt_mtid;
-								gt_messageTypeExists	= true;
-								break;
-							}
-						}
-						
-						// create the new message
-						if (!gt_messageTypeExists)
-						{
-							this.messageTypes["m" + this.messageTypeCounter] = gt_text;
-							gt_text	= "m" + this.messageTypeCounter;
-							this.messageTypeCounter++;
-						}
-					}
-				}
-				
-				var gt_behav	= this.getBehavior(this.selectedSubject);
-				var gt_edge		= gt_behav == null ? null : gt_behav.getEdge(gt_behav.selectedEdge);
-				if (gt_edge != null)
-				{
-					gt_edge.setPriority(gt_priority);
-					gt_edge.setManualTimeout(gt_manualTimeout);
-				}
-				
-				this.getBehavior(this.selectedSubject).updateEdge(gt_text, gt_type, gt_relatedSubject, gt_timeout, gt_optional, gt_values);
+				this.getBehavior(this.selectedSubject).updateEdge(gt_values);
 				
 				this.loadInformationEdge();
 			}
@@ -1442,7 +1568,7 @@ function GCcommunication ()
 	};
 	
 	/**
-	 * When selectedSubject is set the input fields are read and the information is passed to the GCbehavior.updateNode(text, startEnd, type) method of the current behavior.
+	 * When selectedSubject is set the input fields are read and the information is passed to the GCbehavior.updateNode() method of the current behavior.
 	 * When no subject is selected the input fields are read and the subject with the id stored in selectedNode is updated.
 	 * When the id is changed the id is also changed on all messages that contain this subject as the related subject.
 	 * The graph for the communication view is redrawn and the graph of the selected behavior is redrawn if one is loaded.
@@ -1479,14 +1605,6 @@ function GCcommunication ()
 				
 					gt_type	= gt_type != "" ? gt_type : gt_subject.getType();
 				
-				// allow the change of the label even though the id is emtpy; not necessary any more
-				/*
-				if (gt_id.replace(" ", "") == "")
-				{
-					gt_id = gt_subject.getId();
-				}
-				*/
-				
 				if (gt_text.replace(" ", "") != "")
 				{
 				
@@ -1501,36 +1619,6 @@ function GCcommunication ()
 					// publish the update of the subject
 					$.publish(gv_topics.subjects, [{action: "update", id: gt_subject.id}]);
 					
-					// update references to this subject (not necessary any more as ID does not change)
-					/*
-					if (this.selectedNode != gt_id && !gf_isset(this.subjects[gt_id]))
-					{
-						gt_subject.setId(gt_id);
-						
-						delete this.subjects[this.selectedNode];
-	
-						for (var gt_subId in this.subjects)
-						{
-							var gt_edges = this.subjects[gt_subId].getBehavior().getEdges();
-							
-							for (var gt_edgeId in gt_edges)
-							{
-								var gt_edge = gt_edges[gt_edgeId];
-								if (gt_edge.getRelatedSubject() == this.selectedNode)
-									gt_edge.setRelatedSubject(gt_id);
-							}
-						}
-						
-						gt_subject.getBehavior().name = gt_id;
-						this.subjects[gt_id] = gt_subject;
-						this.selectNode(gt_id);
-						
-						if (this.selectedSubject == this.selectedNode)
-						{
-							this.selectedSubject = gt_id;
-						}
-					}
-					*/
 					this.draw();
 				}
 			}
@@ -1553,27 +1641,8 @@ function GCcommunication ()
 					gt_values	= gf_guiReadNode();
 				}
 
-				var gt_type		= "normal";
-				var gt_text		= gf_isset(gt_values.text)		? gt_values.text	: "";
-				var gt_isStart	= gf_isset(gt_values.isStart)	? gt_values.isStart	: false;
-				var gt_type2	= gf_isset(gt_values.type)		? gt_values.type	: "";
-				var gt_options	= gf_isset(gt_values.options)	? gt_values.options	: {};
-				
-				if (gt_type2 == "r")
-					gt_type2 = "receive";
-					
-				if (gt_type2 == "s")
-					gt_type2 = "send";
-					
-				if (gt_isStart === true)
-					gt_type = "start";					
-
-				if (gt_type2 == "end")
-					gt_type	= "end";
-				
 				var gt_behav	= this.getBehavior(this.selectedSubject);
-					gt_behav.getNode(gt_behav.selectedNode).setOptions(gt_options);
-					gt_behav.updateNode(gt_text, gt_type, gt_type2);					
+					gt_behav.updateNode(gt_values);					
 				
 				this.loadInformation();
 			}

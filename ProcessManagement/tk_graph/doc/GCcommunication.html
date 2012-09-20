@@ -1,0 +1,4382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: GCcommunication</title>
+    
+    <script src="http://shjs.sourceforge.net/sh_main.min.js"> </script>
+    <script src="http://shjs.sourceforge.net/lang/sh_javascript.min.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/node-dark.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Class: GCcommunication</h1>
+    
+    
+
+
+
+<section>
+    
+<header>
+    <h2>
+    GCcommunication
+    </h2>
+    
+        <div class="class-description">The graph information for the communication view.</div>
+    
+</header>  
+
+<article>
+    <div class="container-overview">
+    
+    
+    
+        
+<dt>
+    <h4 class="name" id="GCcommunication"><span class="type-signature"></span>new GCcommunication</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Represents the communication view and routes all GUI requests either to its subjects or to the selected internal behavior.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 20</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+    
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="channelCounter"><span class="type-signature"></span>channelCounter<span class="type-signature"> :int</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Initialized with 0.
+This counter is used to give every channel an unique id.
+The counter is increased with every channel added.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 30</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="channels"><span class="type-signature"></span>channels<span class="type-signature"> :Object</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        List of channels used in the process.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 37</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="messages"><span class="type-signature"></span>messages<span class="type-signature"> :Object</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Array of messages between subjects.
+This array is only used by GCcommunication.draw () which collects all messages sent between subjects and stores them into the messages array in the following form:
+messages[fromSubjectId][toSubjectId][lastIndex] = messageText
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 46</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="messageTypeCounter"><span class="type-signature"></span>messageTypeCounter<span class="type-signature"> :int</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Counter for unique IDs for message types.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 60</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="messageTypes"><span class="type-signature"></span>messageTypes<span class="type-signature"> :Object</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Message types available within the process.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 53</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="nodeCounter"><span class="type-signature"></span>nodeCounter<span class="type-signature"> :int</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        This counter is used to create a unique id for new subjects.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 67</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="selectedNode"><span class="type-signature"></span>selectedNode<span class="type-signature"> :String</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The currenctly selected subject-node in the communication view.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 74</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="selectedSubject"><span class="type-signature"></span>selectedSubject<span class="type-signature"> :String</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The currently selected subject.
+This attribute is used to route GUI calls to the currently loaded behavior.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 82</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="subjects"><span class="type-signature"></span>subjects<span class="type-signature"> :GCsubject[]</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        An array of GCsubjects.
+This array contains all subjects of the graph.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 90</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="addChannel"><span class="type-signature"></span>addChannel</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Adds a new channel to the channels array of this process.
+This method can also be used to update channels.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The name of the channel.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the channel (optional, when set an update will be done)</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 100</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The id of the inserted or updated channel.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="addMessage"><span class="type-signature"></span>addMessage</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Adds a message to messages[sender][receiver][index].
+This method automatically initializes the array.
+This method is called by the GCcommunication.draw() method while collecting the messages that are sent between subjects.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>sender</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The sender subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>receiver</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The receiver subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The message sent from sender to receiver.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 174</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="addMessageType"><span class="type-signature"></span>addMessageType</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Adds a new messageType to the messageTypes array of this process.
+This method can also be used to update messageTypes.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The name of the messageType.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the messageType (optional, when set an update will be done)</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 212</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The id of the inserted or updated messageType.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="addSubject"><span class="type-signature"></span>addSubject</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Creates a new Subject with the given id, title and type and stores it to the subjects array.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>title</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The label of the subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The type of the subject. Possible values are "single", "multi", "external", "multiexternal". (default: "single")</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>inputPool</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The size of the subject's input-pool</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>deactivated</code></td>
+            
+            
+            <td class="type">
+            
+                        boolean
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The deactivation status of the subject.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 287</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="changeView"><span class="type-signature"></span>changeView</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Switches between the behavioral view and the communication view.
+When view is set to "cv" (communication view) all edges and nodes are deselected, the input fields are cleared and the graph is redrawn.
+When view is set to "bv" (behavioral view) the internal behavior of the subject stored in selectedSubject is loaded and the input fields are cleared.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>view</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The view to load. Possible values are "cv" and "bv".</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 321</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="clearGraph"><span class="type-signature"></span>clearGraph</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When the selectedSubject attribute is set the GCbehavior.clearGraph() method of the corresponding behavior is called.
+When no subject is selected all attributes of GCcommunication are reset to their default values.
+The whole process is emptied.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>wholeProcess</code></td>
+            
+            
+            <td class="type">
+            
+                        boolean
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Optional parameter to clear the whole process instead of the current view.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 383</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="connectNodes"><span class="type-signature"></span>connectNodes</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When selectedSubject is set the GCbehavior.connectNodes() method of the loaded internal behavior is called.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 416</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="createFromTable"><span class="type-signature"></span>createFromTable</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Creates a new process from a table containing subjects and messages sent between those subjects.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>subjects</code></td>
+            
+            
+            <td class="type">
+            
+                        String[]
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">An array of subject names.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>messages</code></td>
+            
+            
+            <td class="type">
+            
+                        Object[]
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">A list of messages containing the attributes "message", "sender" (id of sender subject), "receiver" (id of receiver subject).</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 440</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="createNode"><span class="type-signature"></span>createNode</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When selectedSubject is set the GCbehavior.createNode() method of the corresponding internal behavior is called.
+When no subject is selected a new subject is added using GCcommunication.addSubject(id, title) where id is the current value of the nodeCounter, prefixed with "new", and the title is the current value of the nodeCounter, prefixed with "new node".
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 568</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="deactivateEdge"><span class="type-signature"></span>deactivateEdge</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        De- / activate the currently selected edge in the behavioral view.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 592</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="deactivateNode"><span class="type-signature"></span>deactivateNode</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        De- / activate the currently selected node (either in the communication view or the behavioral view).
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 614</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="deleteEdge"><span class="type-signature"></span>deleteEdge</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When a subject is selected the GCbehavior.deleteEdge(id) method of its behavior is called and the input fields for the edge are cleared.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 660</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="deleteNode"><span class="type-signature"></span>deleteNode</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When a subject is selected the GCbehavior.deleteNode(id) method of its behavior is called and the input fields for nodes are cleared.
+When selectedSubject is null and a node in the communication view is selected (selectedNode != null) the subject and its behavior are deleted from the process.
+The edges of all nodes that have the deleted subject stored as their related subject are also removed. Both graphs are redrawn.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 685</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="draw"><span class="type-signature"></span>draw</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Draws the graph for the subject-interaction-view.
+Before passing all information to the appropriate drawing functions this method collects all necessary data – like the messages that are exchanged between subjects.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 738</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="drawBehavior"><span class="type-signature"></span>drawBehavior</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Draws the behavior of the subject with the given id by calling the GCbehavior.draw() method of the behavior.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">The id of the subject to load the internal behavior for.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 816</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getBehavior"><span class="type-signature"></span>getBehavior</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the behavior of the subject with the given id or null if the subject does not exist.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the subject.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 840</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The behavior of the given subject or null if the subject does not exist.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">GCbehavior</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getMessages"><span class="type-signature"></span>getMessages</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the messages that are sent from the subject with the id that is passes in the sender parameter, to the subject whose id is passed in the receiver parameter.
+When no messages are sent in this direction between the two subjects an empty array is returned.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>sender</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the sender subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>receiver</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the receiver subject.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 855</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">Array</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getSelectedNode"><span class="type-signature"></span>getSelectedNode</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the id of the node currently selected depending on the current view.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 869</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The id of the selectedNode of the currently active view or null.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">int</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getSubjectIDs"><span class="type-signature"></span>getSubjectIDs</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the IDs of all subjects of the graph.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 890</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An array of all subject IDs.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String[]</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getSubjectNames"><span class="type-signature"></span>getSubjectNames</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the names of all subjects of the graph.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 907</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An array of all subject names.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String[]</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getSubjectRoles"><span class="type-signature"></span>getSubjectRoles</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the names of all subjects of the graph.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 924</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An array of all subject names.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String[]</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getSubjects"><span class="type-signature"></span>getSubjects</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the subjects of the graph.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 944</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    An array of all subjects.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String[]</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="implodeMessages"><span class="type-signature"></span>implodeMessages</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Calls GCcommunication.getMessages(sender, receiver) and implodes the resulting array to a string.
+When only one message is returned by GCcommunication.getMessages() this message is returned.
+When at least two messages are returned this method prefixes every message with an "li" html tag, which will be displayed as a list-bullet in the graph,
+indicating that multiple messages can be sent from one subject to another, and postfixed with "\n", so that every message will be printed in its own line.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>sender</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the sender subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>receiver</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the receiver subject.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 959</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The list of messages from sender to receiver imploded to one String.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="init"><span class="type-signature"></span>init</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Initialize the GCcommunication instance.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 992</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="loadFromJSON"><span class="type-signature"></span>loadFromJSON</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Loads a process graph from a given JSON representation stored in the database.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>jsonString</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The JSON representation of a process.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1028</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="loadInformation"><span class="type-signature"></span>loadInformation</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When clear is set to true all input fields are emptied.
+In all other cases the input fields will be filled with information about the currently selected node, depending on selectedSubject and selectedNode.
+When a subject is selected, the data is loaded from the selected node in the behavioral view.
+When selectedSubject is null, the information of the selected node of the communication view are loaded.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>clear</code></td>
+            
+            
+            <td class="type">
+            
+                        boolean
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">When set to true all input fields are emptied.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1219</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="loadInformationEdge"><span class="type-signature"></span>loadInformationEdge</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When a subject is selected the information about the currently selected edge at the behavioral view is loaded and filled into the input fields.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1290</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="save"><span class="type-signature"></span>save</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        This method returns an array containing the whole graph.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1332</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A simplified representation of the graph.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">Array</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="saveToJSON"><span class="type-signature"></span>saveToJSON</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the complete graph in JSON format.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1435</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The complete graph in JSON format.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="saveToPDF"><span class="type-signature"></span>saveToPDF</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        This method is not available at the moment.
+Save the graph as a pdf.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1446</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="saveToSVG"><span class="type-signature"></span>saveToSVG</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        This method is not available at the moment.
+Save the graph as a SVG.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1457</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="selectEdge"><span class="type-signature"></span>selectEdge</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When selectedSubject is set the GCbehavior.selectEdge(id) method of the currently active behavior is called and
+GCcommunication.loadInformationEdge() is used to display the information of the selected edge.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the edge to select.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1473</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="selectNode"><span class="type-signature"></span>selectNode</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When a subject is selected the id will be passed to the GCbehavior.selectNode(id) method of the current behavior.
+When selectedSubject is null the selectedNode of the communication view is updated and the graph is redrawn.
+In both cases the GCcommunication.loadInformation(clear) is called without the clear parameter.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                         | 
+                    
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the node to select. This will be of type int for nodes on the behavioral view and String for nodes on the communication view.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1497</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="selectNothing"><span class="type-signature"></span>selectNothing</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Clears the selectedEdge and selectedNode of the communication view.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1530</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="updateEdge"><span class="type-signature"></span>updateEdge</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When selectedSubject is set the information from the input fields is loaded and passed to the GCbehavior.updateEdge(text, relatedSubject) method of the current behavior.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1540</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="updateNode"><span class="type-signature"></span>updateNode</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        When selectedSubject is set the input fields are read and the information is passed to the GCbehavior.updateNode() method of the current behavior.
+When no subject is selected the input fields are read and the subject with the id stored in selectedNode is updated.
+When the id is changed the id is also changed on all messages that contain this subject as the related subject.
+The graph for the communication view is redrawn and the graph of the selected behavior is redrawn if one is loaded.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>communication.class.js, line 1578</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+    
+    
+</article>
+
+</section>  
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="GCbehavior.html">GCbehavior</a></li><li><a href="GCcommunication.html">GCcommunication</a></li><li><a href="GCedge.html">GCedge</a></li><li><a href="GCgraphbv.html">GCgraphbv</a></li><li><a href="GCgraphcv.html">GCgraphcv</a></li><li><a href="GClabel.html">GClabel</a></li><li><a href="GCnode.html">GCnode</a></li><li><a href="GCpath.html">GCpath</a></li><li><a href="GCsubject.html">GCsubject</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calcTimes">calcTimes</a></li><li><a href="global.html#def">def</a></li><li><a href="global.html#GCtime">GCtime</a></li><li><a href="global.html#getExample">getExample</a></li><li><a href="global.html#getExplanation">getExplanation</a></li><li><a href="global.html#getTime">getTime</a></li><li><a href="global.html#getTimestamp">getTimestamp</a></li><li><a href="global.html#getTimeString">getTimeString</a></li><li><a href="global.html#gf_callMacro">gf_callMacro</a></li><li><a href="global.html#gf_changeView">gf_changeView</a></li><li><a href="global.html#gf_checkCardinality">gf_checkCardinality</a></li><li><a href="global.html#gf_clearGraph">gf_clearGraph</a></li><li><a href="global.html#gf_clearSelection">gf_clearSelection</a></li><li><a href="global.html#gf_clickedBVedge">gf_clickedBVedge</a></li><li><a href="global.html#gf_clickedBVnode">gf_clickedBVnode</a></li><li><a href="global.html#gf_clickedCVbehavior">gf_clickedCVbehavior</a></li><li><a href="global.html#gf_clickedCVnode">gf_clickedCVnode</a></li><li><a href="global.html#gf_connectNodes">gf_connectNodes</a></li><li><a href="global.html#gf_createFromTable">gf_createFromTable</a></li><li><a href="global.html#gf_createMacro">gf_createMacro</a></li><li><a href="global.html#gf_createNode">gf_createNode</a></li><li><a href="global.html#gf_deactivateEdge">gf_deactivateEdge</a></li><li><a href="global.html#gf_deactivateElement">gf_deactivateElement</a></li><li><a href="global.html#gf_deactivateNode">gf_deactivateNode</a></li><li><a href="global.html#gf_deleteElement">gf_deleteElement</a></li><li><a href="global.html#gf_deselectEdges">gf_deselectEdges</a></li><li><a href="global.html#gf_deselectNodes">gf_deselectNodes</a></li><li><a href="global.html#gf_elementExists">gf_elementExists</a></li><li><a href="global.html#gf_functionExists">gf_functionExists</a></li><li><a href="global.html#gf_getChildNodes">gf_getChildNodes</a></li><li><a href="global.html#gf_getMessageTypes">gf_getMessageTypes</a></li><li><a href="global.html#gf_getNodeLeft">gf_getNodeLeft</a></li><li><a href="global.html#gf_getNodeNext">gf_getNodeNext</a></li><li><a href="global.html#gf_getNodePrevious">gf_getNodePrevious</a></li><li><a href="global.html#gf_getNodeRight">gf_getNodeRight</a></li><li><a href="global.html#gf_getParentNode">gf_getParentNode</a></li><li><a href="global.html#gf_getSelectedElement">gf_getSelectedElement</a></li><li><a href="global.html#gf_getSelectedElementType">gf_getSelectedElementType</a></li><li><a href="global.html#gf_getSelectedNode">gf_getSelectedNode</a></li><li><a href="global.html#gf_getStrokeDasharray">gf_getStrokeDasharray</a></li><li><a href="global.html#gf_getStyleValue">gf_getStyleValue</a></li><li><a href="global.html#gf_getSubjectIDs">gf_getSubjectIDs</a></li><li><a href="global.html#gf_getSubjectNames">gf_getSubjectNames</a></li><li><a href="global.html#gf_getSubjects">gf_getSubjects</a></li><li><a href="global.html#gf_getTextPosition">gf_getTextPosition</a></li><li><a href="global.html#gf_guiChangeView">gf_guiChangeView</a></li><li><a href="global.html#gf_guiClearInputFields">gf_guiClearInputFields</a></li><li><a href="global.html#gf_guiDisplayEdge">gf_guiDisplayEdge</a></li><li><a href="global.html#gf_guiDisplayNode">gf_guiDisplayNode</a></li><li><a href="global.html#gf_guiDisplaySubject">gf_guiDisplaySubject</a></li><li><a href="global.html#gf_guiElementHide">gf_guiElementHide</a></li><li><a href="global.html#gf_guiElementRead">gf_guiElementRead</a></li><li><a href="global.html#gf_guiElementShow">gf_guiElementShow</a></li><li><a href="global.html#gf_guiElementWrite">gf_guiElementWrite</a></li><li><a href="global.html#gf_guiLoadDropDownChannels">gf_guiLoadDropDownChannels</a></li><li><a href="global.html#gf_guiLoadDropDownCorrelationIds">gf_guiLoadDropDownCorrelationIds</a></li><li><a href="global.html#gf_guiLoadDropDownForNode">gf_guiLoadDropDownForNode</a></li><li><a href="global.html#gf_guiLoadDropDownMessageTypes">gf_guiLoadDropDownMessageTypes</a></li><li><a href="global.html#gf_guiLoadDropDownStates">gf_guiLoadDropDownStates</a></li><li><a href="global.html#gf_guiLoadDropDownSubjects">gf_guiLoadDropDownSubjects</a></li><li><a href="global.html#gf_guiLoadDropDownVariables">gf_guiLoadDropDownVariables</a></li><li><a href="global.html#gf_guiLoadExternalProcess">gf_guiLoadExternalProcess</a></li><li><a href="global.html#gf_guiReadEdge">gf_guiReadEdge</a></li><li><a href="global.html#gf_guiReadNode">gf_guiReadNode</a></li><li><a href="global.html#gf_guiReadSubject">gf_guiReadSubject</a></li><li><a href="global.html#gf_guiSetEdgeMessage">gf_guiSetEdgeMessage</a></li><li><a href="global.html#gf_guiSortArrayByText">gf_guiSortArrayByText</a></li><li><a href="global.html#gf_guiToggleNEForms">gf_guiToggleNEForms</a></li><li><a href="global.html#gf_initPaper">gf_initPaper</a></li><li><a href="global.html#gf_isArray">gf_isArray</a></li><li><a href="global.html#gf_isset">gf_isset</a></li><li><a href="global.html#gf_isStandAlone">gf_isStandAlone</a></li><li><a href="global.html#gf_loadGraph">gf_loadGraph</a></li><li><a href="global.html#gf_mergeStyles">gf_mergeStyles</a></li><li><a href="global.html#gf_newlineToCamelCase">gf_newlineToCamelCase</a></li><li><a href="global.html#gf_objectHasAttribute">gf_objectHasAttribute</a></li><li><a href="global.html#gf_paperCenterPosition">gf_paperCenterPosition</a></li><li><a href="global.html#gf_paperChangeView">gf_paperChangeView</a></li><li><a href="global.html#gf_paperClickEdge">gf_paperClickEdge</a></li><li><a href="global.html#gf_paperClickNodeB">gf_paperClickNodeB</a></li><li><a href="global.html#gf_paperClickNodeC">gf_paperClickNodeC</a></li><li><a href="global.html#gf_paperDblClickNodeC">gf_paperDblClickNodeC</a></li><li><a href="global.html#gf_paperDragEnd">gf_paperDragEnd</a></li><li><a href="global.html#gf_paperDragMove">gf_paperDragMove</a></li><li><a href="global.html#gf_paperDragStart">gf_paperDragStart</a></li><li><a href="global.html#gf_paperMousePosition">gf_paperMousePosition</a></li><li><a href="global.html#gf_paperZoomIn">gf_paperZoomIn</a></li><li><a href="global.html#gf_paperZoomOut">gf_paperZoomOut</a></li><li><a href="global.html#gf_paperZoomReset">gf_paperZoomReset</a></li><li><a href="global.html#gf_replaceNewline">gf_replaceNewline</a></li><li><a href="global.html#gf_saveGraph">gf_saveGraph</a></li><li><a href="global.html#gf_setDivs">gf_setDivs</a></li><li><a href="global.html#gf_showInternalBehavior">gf_showInternalBehavior</a></li><li><a href="global.html#gf_toggleBV">gf_toggleBV</a></li><li><a href="global.html#gf_updateElement">gf_updateElement</a></li><li><a href="global.html#gv_bgRect">gv_bgRect</a></li><li><a href="global.html#gv_bv_paper">gv_bv_paper</a></li><li><a href="global.html#gv_currentViewBox">gv_currentViewBox</a></li><li><a href="global.html#gv_cv_paper">gv_cv_paper</a></li><li><a href="global.html#gv_graph">gv_graph</a></li><li><a href="global.html#gv_graph_bv">gv_graph_bv</a></li><li><a href="global.html#gv_graph_cv">gv_graph_cv</a></li><li><a href="global.html#gv_graphID">gv_graphID</a></li><li><a href="global.html#gv_macros">gv_macros</a></li><li><a href="global.html#gv_mousePositionStart">gv_mousePositionStart</a></li><li><a href="global.html#gv_node_children">gv_node_children</a></li><li><a href="global.html#gv_node_parents">gv_node_parents</a></li><li><a href="global.html#gv_noRedraw">gv_noRedraw</a></li><li><a href="global.html#gv_objects_edges">gv_objects_edges</a></li><li><a href="global.html#gv_objects_nodes">gv_objects_nodes</a></li><li><a href="global.html#gv_originalViewBox">gv_originalViewBox</a></li><li><a href="global.html#gv_paper">gv_paper</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#setTime">setTime</a></li><li><a href="global.html#setTimestamp">setTimestamp</a></li><li><a href="global.html#setTimeString">setTimeString</a></li><li><a href="global.html#sortUnits">sortUnits</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#timestampToString">timestampToString</a></li><li><a href="global.html#timeStringToStamp">timeStringToStamp</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Thu Sep 20 2012 18:27:10 GMT+0200 (MESZ)
+</footer>
+
+<script> sh_highlightDocument(); </script>
+</body>
+</html>

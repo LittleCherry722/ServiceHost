@@ -19,41 +19,62 @@
  * @type Object
  */
 var gv_elements = {
-	graphBVouter:			"graph_bv_outer",
-	graphCVouter:			"graph_cv_outer",
-	inputEdgeExceptionText:	"ge_edge_exception_text",
-	inputEdgeMessage:		"ge_edge_message",
-	inputEdgeOptional:		"ge_edge_optional",
-	inputEdgeOptionalO:		"ge_edge_optionalO",
-	inputEdgeOuter:			"edge",
-	inputEdgePriority:		"ge_edge_priority",
-	inputEdgePriorityO:		"ge_edge_priority_outer",
-	inputEdgeTarget:		"ge_edge_target",
-	inputEdgeTargetO:		"ge_edge_target_outer",
-	inputEdgeTargetMMin:	"ge_edge_target_multi_min",
-	inputEdgeTargetMMax:	"ge_edge_target_multi_max",
-	inputEdgeTargetMMMO:	"ge_edge_target_multi_minmax_outer",
-	inputEdgeTargetMOuter:	"ge_edge_target_multi_outer",
-	inputEdgeText:			"ge_edge_text",
-	inputEdgeTimeout:		"ge_edge_timeout",
-	inputEdgeTimeoutEx:		"ge_edge_timeoutExample",
-	inputEdgeTimeoutManual:	"ge_edge_timeoutManual",
-	inputEdgeTypeCondO:		"ge_edge_typeCOuter",
-	inputEdgeTypeExceptO:	"ge_edge_typeEOuter",
-	inputEdgeTypeTimeoutO:	"ge_edge_typeTOuter",
-	inputNodeMessage:		"ge_node_message",
-	inputNodeMessageO:		"ge_node_messageOuter",
-	inputNodeOuter:			"node",
-	inputNodeSubject:		"ge_node_subject",
-	inputNodeSubjectO:		"ge_node_subjectOuter",
-	inputNodeText:			"ge_text",
-	inputNodeType:			"ge_type2",
-	inputSubjectInputPool:	"ge_cv_inputPool",
-	inputSubjectRelOuter:	"ge_cv_relatedOuter",
-	inputSubjectRelProcess:	"ge_cv_relatedProcess",
-	inputSubjectRelSubject:	"ge_cv_relatedSubject",
-	inputSubjectRole:		"ge_cv_id",
-	inputSubjectText:		"ge_cv_text",
+	graphBVouter:				"graph_bv_outer",
+	graphCVouter:				"graph_cv_outer",
+	inputEdgeCorrelationId:		"ge_edge_correlationid",
+	inputEdgeCorrelationIdO:	"ge_edge_correlationid_outer",
+	inputEdgeExceptionText:		"ge_edge_exception_text",
+	inputEdgeMessage:			"ge_edge_message",
+	inputEdgeOptional:			"ge_edge_optional",
+	inputEdgeOptionalO:			"ge_edge_optionalO",
+	inputEdgeOuter:				"edge",
+	inputEdgePriority:			"ge_edge_priority",
+	inputEdgePriorityO:			"ge_edge_priority_outer",
+	inputEdgeStoreOuter:		"ge_edge_store_outer",
+	inputEdgeStoreVariable:		"ge_edge_store_variable",
+	inputEdgeStoreVariableN:	"ge_edge_store_variable_new",
+	inputEdgeStoreVariableNO:	"ge_edge_store_variable_new_outer",
+	inputEdgeTarget:			"ge_edge_target",
+	inputEdgeTargetO:			"ge_edge_target_outer",
+	inputEdgeTargetMMin:		"ge_edge_target_multi_min",
+	inputEdgeTargetMMax:		"ge_edge_target_multi_max",
+	inputEdgeTargetMMMO:		"ge_edge_target_multi_minmax_outer",
+	inputEdgeTargetMOuter:		"ge_edge_target_multi_outer",
+	inputEdgeText:				"ge_edge_text",
+	inputEdgeTimeout:			"ge_edge_timeout",
+	inputEdgeTimeoutEx:			"ge_edge_timeoutExample",
+	inputEdgeTimeoutManual:		"ge_edge_timeoutManual",
+	inputEdgeTypeCondO:			"ge_edge_typeCOuter",
+	inputEdgeTypeExceptO:		"ge_edge_typeEOuter",
+	inputEdgeTypeTimeoutO:		"ge_edge_typeTOuter",
+	inputNodeChannel:			"ge_node_channel",
+	inputNodeChannelNew:		"ge_node_channel_new",
+	inputNodeChannelNewOuter:	"ge_node_channel_new_outer",
+	inputNodeChannelOuter:		"ge_node_channel_outer",
+	inputNodeMajorStart:		"ge_node_major_start_node",
+	inputNodeMajorStartOuter:	"ge_node_major_start_node_outer",
+	inputNodeOptionsOuter:		"ge_node_options_outer",
+	inputNodeOptChannel:		"ge_node_opt_channel",
+	inputNodeOptChannelOuter:	"ge_node_opt_channel_outer",
+	inputNodeOptCorrelationId:	"ge_node_opt_correlation_id",
+	inputNodeOptCorrelationIdO:	"ge_node_opt_correlation_id_outer",
+	inputNodeOptMessage:		"ge_node_opt_message",
+	inputNodeOptMessageO:		"ge_node_opt_messageOuter",
+	inputNodeOptState:			"ge_node_opt_state",
+	inputNodeOptStateOuter:		"ge_node_opt_state_outer",
+	inputNodeOptSubject:		"ge_node_opt_subject",
+	inputNodeOptSubjectO:		"ge_node_opt_subjectOuter",
+	inputNodeOuter:				"node",
+	inputNodeText:				"ge_text",
+	inputNodeType:				"ge_type2",
+	inputNodeVariable:			"ge_node_variable",
+	inputNodeVariableO:			"ge_node_variable_outer",
+	inputSubjectInputPool:		"ge_cv_inputPool",
+	inputSubjectRelOuter:		"ge_cv_relatedOuter",
+	inputSubjectRelProcess:		"ge_cv_relatedProcess",
+	inputSubjectRelSubject:		"ge_cv_relatedSubject",
+	inputSubjectRole:			"ge_cv_id",
+	inputSubjectText:			"ge_cv_text",
 	
 	// select elements
 	inputNodeStart:		"ge_type_start",
@@ -72,6 +93,11 @@ var gv_elements = {
 	inputEdgeTargetMTypeL:		"ge_edge_target_multi_type_limit",
 	inputEdgeTargetMTypeN:		"ge_edge_target_multi_type_new",
 	inputEdgeTargetMTypeNO:		"ge_edge_target_multi_type_new_outer",
+	inputEdgeTargetMTypeV:		"ge_edge_target_multi_type_var",
+	inputEdgeTargetMTypeVO:		"ge_edge_target_multi_type_var_outer",
+	inputEdgeTargetMVariable:	"ge_edge_target_multi_variable",
+	inputEdgeTargetMVarText:	"ge_edge_target_multi_variable_text",
+	inputEdgeTargetMVarTextO:	"ge_edge_target_multi_variable_text_outer",
 	
 	// edge types
 	inputEdgeTypeCondition:		"ge_edge_type_condition",
@@ -150,7 +176,7 @@ var gv_functions	= {
 		 * read input fields (edge) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateEdge(), gf_guiReadEdge()
-		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception
+		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId
 		 */
 		readEdge:			"",
 		
@@ -158,7 +184,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type, options
+		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable
 		 */
 		readNode:			"",
 		

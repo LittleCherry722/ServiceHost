@@ -103,6 +103,22 @@ function GCbehavior (name)
 	this.startNode		= null;
 	
 	/**
+	 * Initialized with 0.
+	 * This counter is used to give every variable an unique id.
+	 * The counter is increased with every variable added.
+	 * 
+	 * @type int
+	 */
+	this.variableCounter	= 0;
+	
+	/**
+	 * List of variables used in the internal behavior.
+	 * 
+	 * @type Object
+	 */
+	this.variables		= {};
+	
+	/**
 	 * Creates a new GCedge and stores it in the edges array.
 	 * The edge will be stored at key "e" + edgeCounter.
 	 * The edgeCounter is increased by one.
@@ -196,6 +212,78 @@ function GCbehavior (name)
 		
 		// return the node's ID
 		return this.nodeCounter - 1;
+ 	};
+ 	
+ 	/**
+ 	 * Adds a new variable to the variables array of this internal behavior.
+ 	 * This method can also be used to update variables.
+ 	 * 
+ 	 * @param {String} text The name of the variable.
+ 	 * @param {String} id The id of the variable (optional, when set an update will be done)
+ 	 * @returns {String} The id of the inserted or updated variable.
+ 	 */
+ 	this.addVariable = function (text, id)
+ 	{
+ 		if (!gf_isset(id))
+			id = "##createNew##";
+		
+		var gt_variableId	= "";
+		if (gf_isset(id, text))
+		{
+			if (id.substr(0, 1) == "v")
+			{
+				// when changing the text of a variable avoid duplicate variables
+				var gt_variableExists	= false;
+				for (var gt_vid in this.variables)
+				{
+					if (gf_replaceNewline(this.variables[gt_vid].toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " ") && gt_vid != id)
+					{
+						gt_variableExists	= true;
+						break;
+					}
+				}
+				
+				// update variable
+				if (!gt_variableExists && gf_isset(this.variables[id]) && this.variables[id] != text && text != "")
+				{
+					this.variables[id]	= text;
+				}
+				gt_variableId	= id;
+			}
+			
+			// create new variable
+			else if (id == "##createNew##")
+			{
+				var gt_variableExists	= false;
+				
+				// avoid duplicate variables
+				for (var gt_vid in this.variables)
+				{
+					var gt_var	= this.variables[gt_vid];
+					
+					if (gf_replaceNewline(gt_var.toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " "))
+					{
+						gt_variableId	= gt_vid;
+						gt_variableExists	= true;
+						break;
+					}
+				}
+				
+				// create the new variable
+				if (!gt_variableExists && text != "")
+				{
+					this.variables["v" + this.variableCounter] = text;
+					gt_variableId	= "v" + this.variableCounter;
+					this.variableCounter++;
+				}
+			}
+			else
+			{
+				// (no variable selected)
+			}
+		}
+		
+		return gt_variableId;
  	};
 	
 	/**
@@ -557,66 +645,70 @@ function GCbehavior (name)
 	 * Updates the information of the edge with the id stored in selectedEdge by calling the setText (text) and setRelatedSubject (relatedSubject) methods of GCedge.
 	 * Redraws the graph.
 	 * 
-	 * @param {String} text The new text of the edge.
-	 * @param {String} text The new type of the edge.
-	 * @param {String} relatedSubject The relatedSubject of the edge.
-	 * @param {String} timeout The timeout of the edge.
-	 * @param {boolean} optional The optional flag of the edge.
-	 * @param {Object} parameters An optional object (gt_values) passed by the updateEdge from GCcommunication.
+	 * @param {Object} values An object (gt_values) passed by the updateEdge method from GCcommunication.
 	 * @returns {void}
 	 */
-	this.updateEdge = function (text, type, relatedSubject, timeout, optional, parameters)
+	this.updateEdge = function (values)
 	{
-		if (this.selectedEdge != null && gf_isset(this.edges["e" + this.selectedEdge], text, type))
+		if (this.selectedEdge != null && gf_isset(this.edges["e" + this.selectedEdge], values))
 		{
-			gt_edge = this.edges["e" + this.selectedEdge];
+			var gt_edge 	= this.edges["e" + this.selectedEdge];
+			
+			// (gt_text, gt_type, gt_relatedSubject, gt_timeout, gt_optional, gt_values);
+			// (text, type, relatedSubject, timeout, optional, parameters)
 			
 			// read current settings
 			var gt_curRelatedSubject	= gt_edge.getRelatedSubject();
 			var gt_curType				= gt_edge.getType();
 			var gt_curText				= gt_edge.getText();
 			var gt_tmpEdge				= null;
+			var gt_startNodeType		= gt_edge.getTypeOfStartNode();
 			
-			// update message on relatedSubject
-			/*
-			if (	gt_curType == type && type == "exitcondition" &&
-					gt_curRelatedSubject != null && (gt_curRelatedSubject == relatedSubject || relatedSubject == "") && gf_isset(gv_graph.subjects[gt_curRelatedSubject]) &&
-					gt_curText != text)
+			// collect new values
+			var gt_text				= gf_isset(values.text)				? values.text			: "";
+			var gt_relatedSubject	= gf_isset(values.relatedSubject)	? values.relatedSubject	: "";
+			var gt_type				= gf_isset(values.type)				? values.type			: "label";
+			var gt_timeout			= gf_isset(values.timeout)			? values.timeout		: "";
+			var gt_exception		= gf_isset(values.exception)		? values.exception		: "";
+			var gt_optional			= gf_isset(values.optional)			? values.optional		: false;
+			var gt_messageTypeId	= gf_isset(values.messageType)		? values.messageType	: "";
+			var gt_priority			= gf_isset(values.priority)			? values.priority		: "1";
+			var gt_manualTimeout	= gf_isset(values.manualTimeout)	? values.manualTimeout	: false;
+			var gt_storeVariable	= gf_isset(values.variable)			? values.variable		: "";
+			var gt_storeVariableNew	= gf_isset(values.variableText)		? values.variableText	: "";
+			var gt_correlationId	= gf_isset(values.correlationId)	? values.correlationId	: "";
+			
+			if (gt_startNodeType == "send" || gt_startNodeType == "receive")
 			{
-				var gt_behav		= gv_graph.getBehavior(gt_curRelatedSubject);
-				var gt_subjEdges	= gt_behav.getEdges();
-				for (var gt_tmpEdgeID in gt_subjEdges)
-				{
-					gt_tmpEdge	= gt_subjEdges[gt_tmpEdgeID];
-					if (gt_tmpEdge.getType() == "exitcondition" && gt_tmpEdge.getText() == gt_curText && gt_tmpEdge.getRelatedSubject() == gv_graph.selectedSubject)
-					{
-						gt_tmpEdge.setText(text);
-					}
-				}
-			}
-			*/
-			
-			gt_edge.setText(text);
-			gt_edge.setType(type);
-			
-			if (type == "timeout" && gf_isset(timeout))
-			{
-				gt_edge.setTimer(timeout);
+				gt_text	= gv_graph.addMessageType(gt_text, gt_messageTypeId);
 			}
 			
-			if (type == "errorcondition" && gf_isset(parameters) && gf_isset(parameters.exception))
+			if (gf_isset(gt_relatedSubject.variable, gt_relatedSubject.variableText, gt_relatedSubject.useVariable))
 			{
-				gt_edge.setException(parameters.exception);
+				if (gt_relatedSubject.useVariable === true)
+					gt_relatedSubject.variable	= this.addVariable(gt_relatedSubject.variableText, gt_relatedSubject.variable);
+				else
+					gt_relatedSubject.variable = "";
 			}
 			
-			if (gf_isset(relatedSubject))
+			// manipulate edge
+			gt_edge.setPriority(gt_priority);
+			gt_edge.setManualTimeout(gt_manualTimeout);
+			gt_edge.setText(gt_text);
+			gt_edge.setType(gt_type);
+			gt_edge.setCorrelationId(gt_correlationId);
+			gt_edge.setVariable(this.addVariable(gt_storeVariableNew, gt_storeVariable));
+			gt_edge.setRelatedSubject(gt_relatedSubject);
+			gt_edge.setOptional(gt_optional);
+			
+			if (gt_type == "timeout")
 			{
-				gt_edge.setRelatedSubject(relatedSubject);
+				gt_edge.setTimer(gt_timeout);
 			}
 			
-			if (gf_isset(optional))
+			if (gt_type == "errorcondition")
 			{
-				gt_edge.setOptional(optional);
+				gt_edge.setException(gt_exception);
 			}
 			
 			this.draw();
@@ -627,22 +719,54 @@ function GCbehavior (name)
 	 * Updates the information of the node with the id that is stored in selectedNode by calling the setText (text), setType (type), setStart (start) and the setEnd (end) methods of GCnode.
 	 * Redraws the graph.
 	 * 
-	 * @param {String} text The new label of the node.
-	 * @param {String} startEnd Possible values are "normal", "start", "end". The new start- / end- status of the node.
-	 * @param {String} type The new type of the node. Possible values are "send", "receive", "end", "action".
+	 * @param {Object} values The values array passed by the GCcommunication::updateNode() function.
 	 * @returns {void}
 	 */
-	this.updateNode = function (text, startEnd, type)
+	this.updateNode = function (values)
 	{
-		
-		if (this.selectedNode != null && gf_isset(this.nodes["n" + this.selectedNode], text, startEnd, type))
+		if (this.selectedNode != null && gf_isset(this.nodes["n" + this.selectedNode], values))
 		{
 			gt_node = this.nodes["n" + this.selectedNode];
 			
-			gt_node.setText(text);
-			gt_node.setType(type);
-			gt_node.setStart(startEnd == "start");
-			gt_node.setEnd(startEnd == "end");
+			var gt_text				= gf_isset(values.text)				? values.text				: "";
+			var gt_isStart			= gf_isset(values.isStart)			? values.isStart			: false;
+			var gt_type				= gf_isset(values.type)				? values.type				: "";
+			var gt_isMajorStartNode	= gf_isset(values.isMajorStartNode)	? values.isMajorStartNode	: false;
+			var gt_channel			= gf_isset(values.channel)			? values.channel			: "";
+			var gt_channelText		= gf_isset(values.channelText)		? values.channelText		: "";
+			var gt_variable			= gf_isset(values.variable)			? values.variable			: "";
+			var gt_options			= gf_isset(values.options)			? values.options			: {};
+			
+			// check option entries
+			if (!gf_isset(gt_options.message))
+				gt_options.message	= "*";
+				
+			if (!gf_isset(gt_options.subject))
+				gt_options.subject	= "*";
+				
+			if (!gf_isset(gt_options.correlationId))
+				gt_options.correlationId	= "*";
+				
+			if (!gf_isset(gt_options.channel))
+				gt_options.channel	= "*";
+				
+			if (!gf_isset(gt_options.state))
+				gt_options.state	= "";
+			
+			if (gt_type == "r")
+				gt_type = "receive";
+				
+			if (gt_type == "s")
+				gt_type = "send";
+		
+			gt_node.setText(gt_text);
+			gt_node.setType(gt_type);
+			gt_node.setStart(gt_isStart);
+			gt_node.setEnd(gt_type == "end");
+			gt_node.setOptions(gt_options);
+			gt_node.setMajorStartNode(gt_isMajorStartNode);
+			gt_node.setVariable(gt_variable);
+			gt_node.setChannel(gv_graph.addChannel(gt_channelText, gt_channel));
 			
 			this.draw();
 		}

@@ -41,6 +41,14 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	// when no relatedSubject is given, set it to null
 	if (!gf_isset(relatedSubject))
 		relatedSubject = null;
+		
+	/**
+	 * The correlationId of the edge.
+	 * Can either be "##cid##" (current ID), "##nid##" (new ID) or any variable.
+	 * 
+	 * @type String
+	 */
+	this.correlationId	= "";
 	
 	/**
 	 * A flag to indicate whether or not the edge is deactivated. Deactivated edges are displayed in a different way.
@@ -99,10 +107,11 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 * - min: the min number of messages to receive / send (-1 = infinite)
 	 * - max: the min number of messages to receive / send (-1 = infinite)
 	 * - createNew: a boolean value that is currently not used
+	 * - variable: a variable defined within an internal behavior which stores a set of messages (subjectprovider, message, correlationId)
 	 * 
 	 * @type Object
 	 */
-	this.relatedSubject	= {id: null, min: -1, max: -1, createNew: false};
+	this.relatedSubject	= {id: null, min: -1, max: -1, createNew: false, variable: null};
 	
 	/**
 	 * The id of the start node of this edge.
@@ -135,6 +144,12 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.type	= "exitcondition";
 	
 	/**
+	 * Variable of the edge.
+	 * A variable is defined within an internal behavior and stores a set of messages (subjectprovider, message, correlationId).
+	 */
+	this.variable	= null;
+	
+	/**
 	 * Activates an edge.
 	 * 
 	 * @returns {void}
@@ -152,6 +167,31 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.deactivate = function ()
 	{
 		this.deactivated = true;
+	};
+	
+	/**
+	 * Returns the correlationId of the edge.
+	 * 
+	 * @returns {String} The edge's correlationId.
+	 */
+	this.getCorrelationId = function (type)
+	{
+		if (!gf_isset(type))
+			type	= "id";
+			
+		if (type == "name")
+		{
+			var gt_variables	= this.parent.variables;
+			
+			if (this.correlationId == "##cid##")
+				return "cID";
+			else if (this.correlationId == "##nid##")
+				return "nID"
+			else if (this.correlationId != null && gf_isset(gt_variables[this.correlationId]))
+				return gt_variables[this.correlationId];
+		}
+		
+		return this.correlationId;
 	};
 	
 	/**
@@ -223,7 +263,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 * Returns the related subject.
 	 * 
 	 * @see GCedge.relatedSubject
-	 * @param {String} attribute Either "all", "id", "name", "min", "max", "createNew".
+	 * @param {String} attribute Either "all", "id", "name", "min", "max", "createNew", "variable".
 	 * @returns {String|Object|int} The id of the related subject, its name, the min- or max- number of messages or the whole object depending on "attribute".
 	 */
 	this.getRelatedSubject = function (attribute)
@@ -273,6 +313,10 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			else if (attribute == "createnew")
 			{
 				relatedSubject	= relatedSubject.createNew === true;
+			}
+			else if (attribute == "variable")
+			{
+				relatedSubject	= relatedSubject.variable;
 			}
 		}
 		
@@ -357,6 +401,26 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	};
 	
 	/**
+	 * Returns the variable of the edge.
+	 * 
+	 * @returns {void} The edge's variable.
+	 */
+	this.getVariable = function (type)
+	{
+		if (!gf_isset(type))
+			type	= "id";
+			
+		if (type == "name")
+		{
+			var gt_variables	= this.parent.variables;
+			if (this.variable != null && gf_isset(gt_variables[this.variable]))
+				return gt_variables[this.variable];
+		}
+		
+		return this.variable;
+	}
+	
+	/**
 	 * Returns the deactivate status of this edge.
 	 * 
 	 * @returns {boolean} True when the edge is deactivated.
@@ -384,6 +448,20 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.isOptional = function ()
 	{
 		return this.optional === true && this.getTypeOfStartNode() == "modalsplit";
+	};
+	
+	/**
+	 * Update the correlationId of the edge.
+	 * 
+	 * @param {String} correlationId The new correlationId of the edge.
+	 * @returns {void}
+	 */
+	this.setCorrelationId = function (correlationId)
+	{
+		if (gf_isset(correlationId))
+		{
+			this.correlationId = correlationId;
+		}
 	};
 	
 	/**
@@ -484,6 +562,9 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 								
 							if (gf_isset(relatedSubject.createNew))
 								this.relatedSubject.createNew	= relatedSubject.createNew === true;
+								
+							if (gf_isset(relatedSubject.variable))
+								this.relatedSubject.variable	= relatedSubject.variable;
 						}
 					}
 				}
@@ -546,7 +627,21 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 				this.type = type;
 			}
 		}
-	}
+	};
+	
+	/**
+	 * Update the variable of the edge.
+	 * 
+	 * @param {String} variable The new variable of the edge.
+	 * @returns {void}
+	 */
+	this.setVariable = function (variable)
+	{
+		if (gf_isset(variable))
+		{
+			this.variable = variable;
+		}
+	};
 	
 	/**
 	 * Returns the label of the edge including the reference to the related subject or timeout (if any).
@@ -594,6 +689,18 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		else
 		{
 			var gt_startNode		= this.parent.getNode(this.start);
+			var gt_variable			= this.getVariable();
+			var gt_correlation		= this.getCorrelationId();
+			
+			if (gt_variable == null || gt_variable == "" || (gt_startNode.getType() != "send" && gt_startNode.getType() != "receive" && gt_startNode.getType() != "action"))
+				gt_variable	= "";
+			else
+				gt_variable	= " =: " + this.getVariable("name");
+			
+			if (gt_correlation == null || gt_correlation == "")
+				gt_correlation	= "";
+			else
+				gt_correlation	= " with (" + this.getCorrelationId("name") + ")"
 			
 			// messages
 			if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
@@ -604,25 +711,41 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 				var gt_relatedMin		= this.getRelatedSubject("min");
 				var gt_relatedMax		= this.getRelatedSubject("max");
 				var gt_relatedMultiText	= "";
+				var gt_relatedVariable	= this.getRelatedSubject("variable");
 				
 				if (gt_relatedMulti)
 				{
-					if (gt_relatedMin == "-1" && gt_relatedMax == "-1")
+					if (gt_relatedVariable != null && gt_relatedVariable != "")
+					{
+						var gt_variables	= this.parent.variables;
+						if (gf_isset(gt_variables[gt_relatedVariable]))
+						{							
+								gt_relatedVariable = gt_variables[gt_relatedVariable];
+						}
+						gt_relatedMultiText = " (" + gt_relatedVariable + ")";
+					}
+					else if (gt_relatedMin == "-1" && gt_relatedMax == "-1")
 					{
 						gt_relatedMultiText = " (all)";
 					}
 					else
 					{
-						gt_relatedMultiText = "\n(" + gt_relatedMin + " to " + gt_relatedMax + " messages)";
+						// gt_relatedMultiText = "\n(" + gt_relatedMin + " to " + gt_relatedMax + " messages)";
+						gt_relatedMultiText = " (" + gt_relatedMin + " to " + gt_relatedMax + ")";
 					}
+				}
+				else
+				{
+					gt_correlation	= "";
+					gt_variable		= "";
 				}
 					
 				if (gt_relatedSubject == "" || gt_relatedSubject == null)
 				{
-					return "" + gt_text;
+					return "" + gt_text + gt_variable;
 				}
 				return gt_text + "\n" + (gt_startNode.getType() == "receive" ? "(" + this.getPriority() + ") " : "") +
-											(gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + gt_relatedMultiText;
+											(gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + gt_relatedMultiText + gt_correlation + gt_variable;
 			}
 			
 			// all other exit conditions
@@ -630,9 +753,10 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			{
 				if (this.text.substr(0, 1) == "m")
 				{
-					return "message: " + (gf_isset(gv_graph.messageTypes[this.text]) ? gv_graph.messageTypes[this.text] : "unknown");
+					return "message: " + (gf_isset(gv_graph.messageTypes[this.text]) ? gv_graph.messageTypes[this.text] : "unknown") + gt_variable;
 				}
-				return "" + this.text;
+				
+				return "" + this.text + gt_variable;
 			}
 			
 			// return this.text + "\n(" + (gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + ")";

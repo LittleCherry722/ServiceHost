@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: GCgraphcv</title>
+    
+    <script src="http://shjs.sourceforge.net/sh_main.min.js"> </script>
+    <script src="http://shjs.sourceforge.net/lang/sh_javascript.min.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/node-dark.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Class: GCgraphcv</h1>
+    
+    
+
+
+
+<section>
+    
+<header>
+    <h2>
+    GCgraphcv
+    </h2>
+    
+        <div class="class-description">used to draw the graph for the communication view</div>
+    
+</header>  
+
+<article>
+    <div class="container-overview">
+    
+    
+    
+        
+<dt>
+    <h4 class="name" id="GCgraphcv"><span class="type-signature">&lt;private> </span>new GCgraphcv</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        The class draws a graph for the communication view.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 21</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+    
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="messages"><span class="type-signature">&lt;private> </span>messages<span class="type-signature"> :Object</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        This contains all subjects and all messages that are used during the creation of the graph.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 29</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="subjects"><span class="type-signature">&lt;private> </span>subjects<span class="type-signature"> :Object</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        This contains all subjects and all messages that are used during the creation of the graph.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 37</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="addMessage"><span class="type-signature">&lt;private> </span>addMessage</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Adds a message to the graph.
+This is called by the API.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>sender</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The sender subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>receiver</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The receiver subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The text of the message.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 49</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="addSubject"><span class="type-signature">&lt;private> </span>addSubject</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Adds a subject to the graph.
+This is called by the API.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>subject</code></td>
+            
+            
+            <td class="type">
+            
+                        <a href="GCsubject.html">GCsubject</a>
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">A complete GCsubject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>selected</code></td>
+            
+            
+            <td class="type">
+            
+                        boolean
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">When set to true the subject will be selected.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>Callback</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">function [optional].</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 67</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="drawGraph"><span class="type-signature">&lt;private> </span>drawGraph</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        The main function for drawing the graph.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>Callback</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">function [optional].</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 88</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="drawMessage"><span class="type-signature">&lt;private> </span>drawMessage</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Displays a message sent from one subject to another.
+This creates a new GCpath.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>sender</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the sender subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>receiver</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the receiver subject.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The text of the message.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 258</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="drawSubject"><span class="type-signature">&lt;private> </span>drawSubject</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Displays a subject.
+This creates a new GClabel.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The x ordinate of the subject's center.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The x ordinate of the subject's center.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 363</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="init"><span class="type-signature">&lt;private> </span>init</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Initialize the canvas.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 407</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="sortSubjectsByNameCI"><span class="type-signature">&lt;private> </span>sortSubjectsByNameCI</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Function to be passed as parameter for array.sort() to sort the objects in the given array by name.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>obj1</code></td>
+            
+            
+            <td class="type">
+            
+                        Object
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The subject to compare.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>obj2</code></td>
+            
+            
+            <td class="type">
+            
+                        Object
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The subject to compare against.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>graphcv.class.js, line 421</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    Returns 1 when obj1 is sorted after obj2, -1 when obj2 is sorted after obj1 and 0 when both elements are equal.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">int</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+    
+    
+</article>
+
+</section>  
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="GCbehavior.html">GCbehavior</a></li><li><a href="GCcommunication.html">GCcommunication</a></li><li><a href="GCedge.html">GCedge</a></li><li><a href="GCgraphbv.html">GCgraphbv</a></li><li><a href="GCgraphcv.html">GCgraphcv</a></li><li><a href="GClabel.html">GClabel</a></li><li><a href="GCnode.html">GCnode</a></li><li><a href="GCpath.html">GCpath</a></li><li><a href="GCsubject.html">GCsubject</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calcTimes">calcTimes</a></li><li><a href="global.html#def">def</a></li><li><a href="global.html#GCtime">GCtime</a></li><li><a href="global.html#getExample">getExample</a></li><li><a href="global.html#getExplanation">getExplanation</a></li><li><a href="global.html#getTime">getTime</a></li><li><a href="global.html#getTimestamp">getTimestamp</a></li><li><a href="global.html#getTimeString">getTimeString</a></li><li><a href="global.html#gf_callMacro">gf_callMacro</a></li><li><a href="global.html#gf_changeView">gf_changeView</a></li><li><a href="global.html#gf_checkCardinality">gf_checkCardinality</a></li><li><a href="global.html#gf_clearGraph">gf_clearGraph</a></li><li><a href="global.html#gf_clearSelection">gf_clearSelection</a></li><li><a href="global.html#gf_clickedBVedge">gf_clickedBVedge</a></li><li><a href="global.html#gf_clickedBVnode">gf_clickedBVnode</a></li><li><a href="global.html#gf_clickedCVbehavior">gf_clickedCVbehavior</a></li><li><a href="global.html#gf_clickedCVnode">gf_clickedCVnode</a></li><li><a href="global.html#gf_connectNodes">gf_connectNodes</a></li><li><a href="global.html#gf_createFromTable">gf_createFromTable</a></li><li><a href="global.html#gf_createMacro">gf_createMacro</a></li><li><a href="global.html#gf_createNode">gf_createNode</a></li><li><a href="global.html#gf_deactivateEdge">gf_deactivateEdge</a></li><li><a href="global.html#gf_deactivateElement">gf_deactivateElement</a></li><li><a href="global.html#gf_deactivateNode">gf_deactivateNode</a></li><li><a href="global.html#gf_deleteElement">gf_deleteElement</a></li><li><a href="global.html#gf_deselectEdges">gf_deselectEdges</a></li><li><a href="global.html#gf_deselectNodes">gf_deselectNodes</a></li><li><a href="global.html#gf_elementExists">gf_elementExists</a></li><li><a href="global.html#gf_functionExists">gf_functionExists</a></li><li><a href="global.html#gf_getChildNodes">gf_getChildNodes</a></li><li><a href="global.html#gf_getMessageTypes">gf_getMessageTypes</a></li><li><a href="global.html#gf_getNodeLeft">gf_getNodeLeft</a></li><li><a href="global.html#gf_getNodeNext">gf_getNodeNext</a></li><li><a href="global.html#gf_getNodePrevious">gf_getNodePrevious</a></li><li><a href="global.html#gf_getNodeRight">gf_getNodeRight</a></li><li><a href="global.html#gf_getParentNode">gf_getParentNode</a></li><li><a href="global.html#gf_getSelectedElement">gf_getSelectedElement</a></li><li><a href="global.html#gf_getSelectedElementType">gf_getSelectedElementType</a></li><li><a href="global.html#gf_getSelectedNode">gf_getSelectedNode</a></li><li><a href="global.html#gf_getStrokeDasharray">gf_getStrokeDasharray</a></li><li><a href="global.html#gf_getStyleValue">gf_getStyleValue</a></li><li><a href="global.html#gf_getSubjectIDs">gf_getSubjectIDs</a></li><li><a href="global.html#gf_getSubjectNames">gf_getSubjectNames</a></li><li><a href="global.html#gf_getSubjects">gf_getSubjects</a></li><li><a href="global.html#gf_getTextPosition">gf_getTextPosition</a></li><li><a href="global.html#gf_guiChangeView">gf_guiChangeView</a></li><li><a href="global.html#gf_guiClearInputFields">gf_guiClearInputFields</a></li><li><a href="global.html#gf_guiDisplayEdge">gf_guiDisplayEdge</a></li><li><a href="global.html#gf_guiDisplayNode">gf_guiDisplayNode</a></li><li><a href="global.html#gf_guiDisplaySubject">gf_guiDisplaySubject</a></li><li><a href="global.html#gf_guiElementHide">gf_guiElementHide</a></li><li><a href="global.html#gf_guiElementRead">gf_guiElementRead</a></li><li><a href="global.html#gf_guiElementShow">gf_guiElementShow</a></li><li><a href="global.html#gf_guiElementWrite">gf_guiElementWrite</a></li><li><a href="global.html#gf_guiLoadDropDownChannels">gf_guiLoadDropDownChannels</a></li><li><a href="global.html#gf_guiLoadDropDownCorrelationIds">gf_guiLoadDropDownCorrelationIds</a></li><li><a href="global.html#gf_guiLoadDropDownForNode">gf_guiLoadDropDownForNode</a></li><li><a href="global.html#gf_guiLoadDropDownMessageTypes">gf_guiLoadDropDownMessageTypes</a></li><li><a href="global.html#gf_guiLoadDropDownStates">gf_guiLoadDropDownStates</a></li><li><a href="global.html#gf_guiLoadDropDownSubjects">gf_guiLoadDropDownSubjects</a></li><li><a href="global.html#gf_guiLoadDropDownVariables">gf_guiLoadDropDownVariables</a></li><li><a href="global.html#gf_guiLoadExternalProcess">gf_guiLoadExternalProcess</a></li><li><a href="global.html#gf_guiReadEdge">gf_guiReadEdge</a></li><li><a href="global.html#gf_guiReadNode">gf_guiReadNode</a></li><li><a href="global.html#gf_guiReadSubject">gf_guiReadSubject</a></li><li><a href="global.html#gf_guiSetEdgeMessage">gf_guiSetEdgeMessage</a></li><li><a href="global.html#gf_guiSortArrayByText">gf_guiSortArrayByText</a></li><li><a href="global.html#gf_guiToggleNEForms">gf_guiToggleNEForms</a></li><li><a href="global.html#gf_initPaper">gf_initPaper</a></li><li><a href="global.html#gf_isArray">gf_isArray</a></li><li><a href="global.html#gf_isset">gf_isset</a></li><li><a href="global.html#gf_isStandAlone">gf_isStandAlone</a></li><li><a href="global.html#gf_loadGraph">gf_loadGraph</a></li><li><a href="global.html#gf_mergeStyles">gf_mergeStyles</a></li><li><a href="global.html#gf_newlineToCamelCase">gf_newlineToCamelCase</a></li><li><a href="global.html#gf_objectHasAttribute">gf_objectHasAttribute</a></li><li><a href="global.html#gf_paperCenterPosition">gf_paperCenterPosition</a></li><li><a href="global.html#gf_paperChangeView">gf_paperChangeView</a></li><li><a href="global.html#gf_paperClickEdge">gf_paperClickEdge</a></li><li><a href="global.html#gf_paperClickNodeB">gf_paperClickNodeB</a></li><li><a href="global.html#gf_paperClickNodeC">gf_paperClickNodeC</a></li><li><a href="global.html#gf_paperDblClickNodeC">gf_paperDblClickNodeC</a></li><li><a href="global.html#gf_paperDragEnd">gf_paperDragEnd</a></li><li><a href="global.html#gf_paperDragMove">gf_paperDragMove</a></li><li><a href="global.html#gf_paperDragStart">gf_paperDragStart</a></li><li><a href="global.html#gf_paperMousePosition">gf_paperMousePosition</a></li><li><a href="global.html#gf_paperZoomIn">gf_paperZoomIn</a></li><li><a href="global.html#gf_paperZoomOut">gf_paperZoomOut</a></li><li><a href="global.html#gf_paperZoomReset">gf_paperZoomReset</a></li><li><a href="global.html#gf_replaceNewline">gf_replaceNewline</a></li><li><a href="global.html#gf_saveGraph">gf_saveGraph</a></li><li><a href="global.html#gf_setDivs">gf_setDivs</a></li><li><a href="global.html#gf_showInternalBehavior">gf_showInternalBehavior</a></li><li><a href="global.html#gf_toggleBV">gf_toggleBV</a></li><li><a href="global.html#gf_updateElement">gf_updateElement</a></li><li><a href="global.html#gv_bgRect">gv_bgRect</a></li><li><a href="global.html#gv_bv_paper">gv_bv_paper</a></li><li><a href="global.html#gv_currentViewBox">gv_currentViewBox</a></li><li><a href="global.html#gv_cv_paper">gv_cv_paper</a></li><li><a href="global.html#gv_graph">gv_graph</a></li><li><a href="global.html#gv_graph_bv">gv_graph_bv</a></li><li><a href="global.html#gv_graph_cv">gv_graph_cv</a></li><li><a href="global.html#gv_graphID">gv_graphID</a></li><li><a href="global.html#gv_macros">gv_macros</a></li><li><a href="global.html#gv_mousePositionStart">gv_mousePositionStart</a></li><li><a href="global.html#gv_node_children">gv_node_children</a></li><li><a href="global.html#gv_node_parents">gv_node_parents</a></li><li><a href="global.html#gv_noRedraw">gv_noRedraw</a></li><li><a href="global.html#gv_objects_edges">gv_objects_edges</a></li><li><a href="global.html#gv_objects_nodes">gv_objects_nodes</a></li><li><a href="global.html#gv_originalViewBox">gv_originalViewBox</a></li><li><a href="global.html#gv_paper">gv_paper</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#setTime">setTime</a></li><li><a href="global.html#setTimestamp">setTimestamp</a></li><li><a href="global.html#setTimeString">setTimeString</a></li><li><a href="global.html#sortUnits">sortUnits</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#timestampToString">timestampToString</a></li><li><a href="global.html#timeStringToStamp">timeStringToStamp</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Thu Sep 20 2012 18:27:11 GMT+0200 (MESZ)
+</footer>
+
+<script> sh_highlightDocument(); </script>
+</body>
+</html>

@@ -96,8 +96,10 @@ function gf_callMacro (id)
 			if (gt_macro.autoEdge)
 				gv_noRedraw	= true;
 			
+			var gt_values	= {text: gt_macro.text, type: gt_macro.type, isStart: gt_macro.isStart};
+			
 			gt_behavior.selectedNode = gt_nodeId;
-			gt_behavior.updateNode(gt_macro.text, gt_macro.type, gt_macro.type2);
+			gt_behavior.updateNode(gt_values);
 			
 			// reenable drawing
 			gv_noRedraw	= false;
@@ -246,13 +248,13 @@ function gf_createFromTable (subjects, messages)
  * 
  * @param {String} id The id of the macro.
  * @param {String} text The label of the node to be inserted.
- * @param {String} type Possible values: "start", "end", "normal"; This will result in either a start node, an end node or a node without any specific marker.
- * @param {String} type2 The type of the node. Possible values are "send", "receive", "end" or "action" (default: "action")
+ * @param {boolean} isStart When set to true the created node will be a start node.
+ * @param {String} type The type of the node. Possible values are "send", "receive", "end", "action", "modalsplit", "modaljoin" or any predifined action. (default: "action")
  * @param {boolean} connect When set to true, the inserted node will automatically be connected to the selected node (if one).
  * @param {boolean} autoEdge When set to true, an internal action node will be created and connected to the newly created node.
  * @returns {void}
  */
-function gf_createMacro (id, text, type, type2, connect, autoEdge)
+function gf_createMacro (id, text, isStart, type, connect, autoEdge)
 {
 	if (!gf_isset(autoEdge) || autoEdge !== true)
 		autoEdge = false;
@@ -260,7 +262,7 @@ function gf_createMacro (id, text, type, type2, connect, autoEdge)
 	if (gf_isset(id, type, text, connect) && !gf_isset(this.gv_macros[id]))
 	{
 		connect = connect === true ? true : false;
-		gv_macros[id] = {id: id, type: type, type2: type2, text: text, connect: connect, autoEdge: autoEdge};
+		gv_macros[id] = {id: id, type: type, isStart: isStart, text: text, connect: connect, autoEdge: autoEdge};
 	}
 }
 

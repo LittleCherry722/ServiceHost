@@ -1,0 +1,3523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: GClabel</title>
+    
+    <script src="http://shjs.sourceforge.net/sh_main.min.js"> </script>
+    <script src="http://shjs.sourceforge.net/lang/sh_javascript.min.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/node-dark.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Class: GClabel</h1>
+    
+    
+
+
+
+<section>
+    
+<header>
+    <h2>
+    GClabel
+    </h2>
+    
+        <div class="class-description">creates a Raphael ellipse or rect</div>
+    
+</header>  
+
+<article>
+    <div class="container-overview">
+    
+    
+    
+        
+<dt>
+    <h4 class="name" id="GClabel"><span class="type-signature">&lt;private> </span>new GClabel</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Creates a Raphael ellipse or rect and contains some information about that element.
+This represents a label in either the behavioral view or the communication view.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The x ordinate of the top left corner of this element.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The y ordinate of the top left corner of this element.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The text of the label.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>shape</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The shape of the label. Possible values are "rectangle", "roundedrectangle", "roundedrectanglemulti", "circle", "ellipse" (default: "roundedrectangle")</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the label.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>belongsToPath</code></td>
+            
+            
+            <td class="type">
+            
+                        boolean
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">This indicates whether the label belongs to a path.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 28</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+    
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        <h3 class="subsection-title">Members</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="bboxObj"><span class="type-signature"></span>bboxObj<span class="type-signature"> :Element (from Raphael)</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        A reference to either the rectangle element or the ellipse element.
+This is used to get the dimensions of the object depending on its current shape.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 37</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="belongsToPath"><span class="type-signature"></span>belongsToPath<span class="type-signature"> :boolean</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        When set to true this label belongs to a path so it has to call a different set of methods on an event.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 44</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="deactive"><span class="type-signature"></span>deactive<span class="type-signature"> :boolean</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Deactivation flag.
+When it is set to true the label will be displayed as deactivated.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 52</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="ellipse"><span class="type-signature"></span>ellipse<span class="type-signature"> :Element (from Raphael)</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        A Raphael ellipse.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 60</li></ul></dd>
+	
+    
+    
+	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>Paper.ellipse() at the <a href="http://raphaeljs.com/reference.html#Paper.ellipse">Raphael documentation</a></li>
+        </ul>
+	</dd>
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="id"><span class="type-signature"></span>id<span class="type-signature"> :String</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The id of this label.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 67</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="img"><span class="type-signature"></span>img<span class="type-signature"> :Element (from Raphael)</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The image of this label (if one).
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 75</li></ul></dd>
+	
+    
+    
+	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>Paper.img() at the <a href="http://raphaeljs.com/reference.html#Paper.img">Raphael documentation</a></li>
+        </ul>
+	</dd>
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="multiRR"><span class="type-signature"></span>multiRR<span class="type-signature"> :Element[]</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        This array holds 3 Raphael rects.
+It is used to display multi subjects.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 84</li></ul></dd>
+	
+    
+    
+	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>Paper.rect() at the <a href="http://raphaeljs.com/reference.html#Paper.rect">Raphael documentation</a></li>
+        </ul>
+	</dd>
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="optional"><span class="type-signature"></span>optional<span class="type-signature"> :boolean</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Optional flag.
+Whe it is set to true the path will be displayed as an optional label.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 92</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="rectangle"><span class="type-signature"></span>rectangle<span class="type-signature"> :Element</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        A Raphael rect.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 100</li></ul></dd>
+	
+    
+    
+	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>Paper.rect() at the <a href="http://raphaeljs.com/reference.html#Paper.rect">Raphael documentation</a></li>
+        </ul>
+	</dd>
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="selected"><span class="type-signature"></span>selected<span class="type-signature"> :boolean</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        Selected flag.
+When set to true the label will be displayed in a different way.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 108</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="shape"><span class="type-signature"></span>shape<span class="type-signature"> :String</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The shape of the label.
+Depending on this value the multiRR, rectangle or ellipse objects are hidden / shown
+Possible values: "rectangle", "roundedrectangle", "roundedrectanglemulti", "circle", "ellipse"
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 117</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="style"><span class="type-signature"></span>style<span class="type-signature"> :Object</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The style information for this node.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 124</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="text"><span class="type-signature"></span>text<span class="type-signature"> :Element</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        A raphael text.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 132</li></ul></dd>
+	
+    
+    
+	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>Paper.text() at the <a href="http://raphaeljs.com/reference.html#Paper.text">Raphael documentation</a></li>
+        </ul>
+	</dd>
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="textAlignAttribute"><span class="type-signature"></span>textAlignAttribute<span class="type-signature"> :String</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The textAlign Attribute of the style.
+This depends on the text of the label.
+When the text contains a list element the value of this attribute is set to "textAlignLi".
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 141</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="x"><span class="type-signature"></span>x<span class="type-signature"> :int</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The x ordinate of the top left corner.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 148</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="y"><span class="type-signature"></span>y<span class="type-signature"> :int</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    <div class="description">
+        The y ordinate of the top left corner.
+    </div>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 155</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+        <h3 class="subsection-title">Methods</h3>
+        
+        <dl>
+            
+<dt>
+    <h4 class="name" id="activate"><span class="type-signature"></span>activate</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Activate the label and update its look.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 162</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="click"><span class="type-signature"></span>click</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Activate the event handlers for click and dblClick on this object depending on the current graph.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>graph</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Indicates which graph is currently shown. Depending on this the called methods on an event vary. Possible values: "cv" (communication view), "bv" (behavioral view)</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 174</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="deactivate"><span class="type-signature"></span>deactivate</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Deactivate the label and update its look.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 221</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="deselect"><span class="type-signature"></span>deselect</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Deselect the label and update its look.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 232</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getBoundaries"><span class="type-signature"></span>getBoundaries</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the boundaries of this label.
+The resulting object contains the following information:
+<br />
+- x: the x ordinate of the label's center<br />
+- y: the y ordinate of the label's center<br />
+- top: the top of the label<br />
+- bottom: the bottom of the label<br />
+- left: the left of the label<br />
+- right: the right of the label<br />
+- width: the width of the label<br />
+- height: the height of the label
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 253</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The boundaries of this label.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">Object</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getPosition"><span class="type-signature"></span>getPosition</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the coordinates of this label.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 296</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The coordinates of this label.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">Object</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getTextAlignAttribute"><span class="type-signature"></span>getTextAlignAttribute</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Update the value of the textAlignAttribute depending on the new text of this label.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The text to check for list elements.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 307</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="hide"><span class="type-signature"></span>hide</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Hide the element.
+Hide all Raphael Elements of this label.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 323</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="hideObjects"><span class="type-signature"></span>hideObjects</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Hide all Raphael Elements of this label.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 335</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="init"><span class="type-signature"></span>init</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Initialize the Raphael Elements of this label.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 350</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="isOptional"><span class="type-signature"></span>isOptional</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns true when the label is set to be optional.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 369</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    True when the label is set to be optional.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">boolean</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="readStyle"><span class="type-signature"></span>readStyle</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Read a value from the style set.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>key</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The key to read from the style set.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>type</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">A type to determine the default value if the key was not found in the style.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 381</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The style value.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="refreshStyle"><span class="type-signature"></span>refreshStyle</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Update the style information of all Raphael elements belonging to this label.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 391</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="replaceNewline"><span class="type-signature"></span>replaceNewline</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Replace all new line characters and the li identifieres by \n and the liSymbol defined in the style set.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The text to process.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 465</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The processed text.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="select"><span class="type-signature"></span>select</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Select the label and update its look.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 475</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setImg"><span class="type-signature"></span>setImg</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Updates the source and dimensions of the label's image.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>src</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The source of the image.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The width of the image.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The height of the image.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 489</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setOptional"><span class="type-signature"></span>setOptional</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Set the optional flag to the label.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>optional</code></td>
+            
+            
+            <td class="type">
+            
+                        boolean
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">When set to true the label will be set to be optional.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 513</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setPosition"><span class="type-signature"></span>setPosition</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Moves the label to the given position.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The x ordinate of the new position.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The y ordinate of the new position.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 525</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setShape"><span class="type-signature"></span>setShape</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Update the shape of the label.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>shape</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The new shape. Possible values are "circle", "ellipse", "rectangle", "roundedrectangle", "roundedrectanglemulti"</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 541</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setStyle"><span class="type-signature"></span>setStyle</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Loads a new style set and calls the refreshStyle method.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>style</code></td>
+            
+            
+            <td class="type">
+            
+                        Object
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The style set to load.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 586</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="setText"><span class="type-signature"></span>setText</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Set a new text to the label.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The new text.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 598</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="show"><span class="type-signature"></span>show</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Show the label.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 610</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="toPath"><span class="type-signature"></span>toPath</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns a path representation of the label's boundareis.
+This is needed for intersection checks.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 623</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A path representation of the label's boundaries.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="updateBoundaries"><span class="type-signature"></span>updateBoundaries</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Update the boundaries of the Raphael Elements that are associated with this label depending on the information stored in this label.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>label.class.js, line 635</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        </dl>
+    
+    
+    
+    
+    
+</article>
+
+</section>  
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="GCbehavior.html">GCbehavior</a></li><li><a href="GCcommunication.html">GCcommunication</a></li><li><a href="GCedge.html">GCedge</a></li><li><a href="GCgraphbv.html">GCgraphbv</a></li><li><a href="GCgraphcv.html">GCgraphcv</a></li><li><a href="GClabel.html">GClabel</a></li><li><a href="GCnode.html">GCnode</a></li><li><a href="GCpath.html">GCpath</a></li><li><a href="GCsubject.html">GCsubject</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calcTimes">calcTimes</a></li><li><a href="global.html#def">def</a></li><li><a href="global.html#GCtime">GCtime</a></li><li><a href="global.html#getExample">getExample</a></li><li><a href="global.html#getExplanation">getExplanation</a></li><li><a href="global.html#getTime">getTime</a></li><li><a href="global.html#getTimestamp">getTimestamp</a></li><li><a href="global.html#getTimeString">getTimeString</a></li><li><a href="global.html#gf_callMacro">gf_callMacro</a></li><li><a href="global.html#gf_changeView">gf_changeView</a></li><li><a href="global.html#gf_checkCardinality">gf_checkCardinality</a></li><li><a href="global.html#gf_clearGraph">gf_clearGraph</a></li><li><a href="global.html#gf_clearSelection">gf_clearSelection</a></li><li><a href="global.html#gf_clickedBVedge">gf_clickedBVedge</a></li><li><a href="global.html#gf_clickedBVnode">gf_clickedBVnode</a></li><li><a href="global.html#gf_clickedCVbehavior">gf_clickedCVbehavior</a></li><li><a href="global.html#gf_clickedCVnode">gf_clickedCVnode</a></li><li><a href="global.html#gf_connectNodes">gf_connectNodes</a></li><li><a href="global.html#gf_createFromTable">gf_createFromTable</a></li><li><a href="global.html#gf_createMacro">gf_createMacro</a></li><li><a href="global.html#gf_createNode">gf_createNode</a></li><li><a href="global.html#gf_deactivateEdge">gf_deactivateEdge</a></li><li><a href="global.html#gf_deactivateElement">gf_deactivateElement</a></li><li><a href="global.html#gf_deactivateNode">gf_deactivateNode</a></li><li><a href="global.html#gf_deleteElement">gf_deleteElement</a></li><li><a href="global.html#gf_deselectEdges">gf_deselectEdges</a></li><li><a href="global.html#gf_deselectNodes">gf_deselectNodes</a></li><li><a href="global.html#gf_elementExists">gf_elementExists</a></li><li><a href="global.html#gf_functionExists">gf_functionExists</a></li><li><a href="global.html#gf_getChildNodes">gf_getChildNodes</a></li><li><a href="global.html#gf_getMessageTypes">gf_getMessageTypes</a></li><li><a href="global.html#gf_getNodeLeft">gf_getNodeLeft</a></li><li><a href="global.html#gf_getNodeNext">gf_getNodeNext</a></li><li><a href="global.html#gf_getNodePrevious">gf_getNodePrevious</a></li><li><a href="global.html#gf_getNodeRight">gf_getNodeRight</a></li><li><a href="global.html#gf_getParentNode">gf_getParentNode</a></li><li><a href="global.html#gf_getSelectedElement">gf_getSelectedElement</a></li><li><a href="global.html#gf_getSelectedElementType">gf_getSelectedElementType</a></li><li><a href="global.html#gf_getSelectedNode">gf_getSelectedNode</a></li><li><a href="global.html#gf_getStrokeDasharray">gf_getStrokeDasharray</a></li><li><a href="global.html#gf_getStyleValue">gf_getStyleValue</a></li><li><a href="global.html#gf_getSubjectIDs">gf_getSubjectIDs</a></li><li><a href="global.html#gf_getSubjectNames">gf_getSubjectNames</a></li><li><a href="global.html#gf_getSubjects">gf_getSubjects</a></li><li><a href="global.html#gf_getTextPosition">gf_getTextPosition</a></li><li><a href="global.html#gf_guiChangeView">gf_guiChangeView</a></li><li><a href="global.html#gf_guiClearInputFields">gf_guiClearInputFields</a></li><li><a href="global.html#gf_guiDisplayEdge">gf_guiDisplayEdge</a></li><li><a href="global.html#gf_guiDisplayNode">gf_guiDisplayNode</a></li><li><a href="global.html#gf_guiDisplaySubject">gf_guiDisplaySubject</a></li><li><a href="global.html#gf_guiElementHide">gf_guiElementHide</a></li><li><a href="global.html#gf_guiElementRead">gf_guiElementRead</a></li><li><a href="global.html#gf_guiElementShow">gf_guiElementShow</a></li><li><a href="global.html#gf_guiElementWrite">gf_guiElementWrite</a></li><li><a href="global.html#gf_guiLoadDropDownChannels">gf_guiLoadDropDownChannels</a></li><li><a href="global.html#gf_guiLoadDropDownCorrelationIds">gf_guiLoadDropDownCorrelationIds</a></li><li><a href="global.html#gf_guiLoadDropDownForNode">gf_guiLoadDropDownForNode</a></li><li><a href="global.html#gf_guiLoadDropDownMessageTypes">gf_guiLoadDropDownMessageTypes</a></li><li><a href="global.html#gf_guiLoadDropDownStates">gf_guiLoadDropDownStates</a></li><li><a href="global.html#gf_guiLoadDropDownSubjects">gf_guiLoadDropDownSubjects</a></li><li><a href="global.html#gf_guiLoadDropDownVariables">gf_guiLoadDropDownVariables</a></li><li><a href="global.html#gf_guiLoadExternalProcess">gf_guiLoadExternalProcess</a></li><li><a href="global.html#gf_guiReadEdge">gf_guiReadEdge</a></li><li><a href="global.html#gf_guiReadNode">gf_guiReadNode</a></li><li><a href="global.html#gf_guiReadSubject">gf_guiReadSubject</a></li><li><a href="global.html#gf_guiSetEdgeMessage">gf_guiSetEdgeMessage</a></li><li><a href="global.html#gf_guiSortArrayByText">gf_guiSortArrayByText</a></li><li><a href="global.html#gf_guiToggleNEForms">gf_guiToggleNEForms</a></li><li><a href="global.html#gf_initPaper">gf_initPaper</a></li><li><a href="global.html#gf_isArray">gf_isArray</a></li><li><a href="global.html#gf_isset">gf_isset</a></li><li><a href="global.html#gf_isStandAlone">gf_isStandAlone</a></li><li><a href="global.html#gf_loadGraph">gf_loadGraph</a></li><li><a href="global.html#gf_mergeStyles">gf_mergeStyles</a></li><li><a href="global.html#gf_newlineToCamelCase">gf_newlineToCamelCase</a></li><li><a href="global.html#gf_objectHasAttribute">gf_objectHasAttribute</a></li><li><a href="global.html#gf_paperCenterPosition">gf_paperCenterPosition</a></li><li><a href="global.html#gf_paperChangeView">gf_paperChangeView</a></li><li><a href="global.html#gf_paperClickEdge">gf_paperClickEdge</a></li><li><a href="global.html#gf_paperClickNodeB">gf_paperClickNodeB</a></li><li><a href="global.html#gf_paperClickNodeC">gf_paperClickNodeC</a></li><li><a href="global.html#gf_paperDblClickNodeC">gf_paperDblClickNodeC</a></li><li><a href="global.html#gf_paperDragEnd">gf_paperDragEnd</a></li><li><a href="global.html#gf_paperDragMove">gf_paperDragMove</a></li><li><a href="global.html#gf_paperDragStart">gf_paperDragStart</a></li><li><a href="global.html#gf_paperMousePosition">gf_paperMousePosition</a></li><li><a href="global.html#gf_paperZoomIn">gf_paperZoomIn</a></li><li><a href="global.html#gf_paperZoomOut">gf_paperZoomOut</a></li><li><a href="global.html#gf_paperZoomReset">gf_paperZoomReset</a></li><li><a href="global.html#gf_replaceNewline">gf_replaceNewline</a></li><li><a href="global.html#gf_saveGraph">gf_saveGraph</a></li><li><a href="global.html#gf_setDivs">gf_setDivs</a></li><li><a href="global.html#gf_showInternalBehavior">gf_showInternalBehavior</a></li><li><a href="global.html#gf_toggleBV">gf_toggleBV</a></li><li><a href="global.html#gf_updateElement">gf_updateElement</a></li><li><a href="global.html#gv_bgRect">gv_bgRect</a></li><li><a href="global.html#gv_bv_paper">gv_bv_paper</a></li><li><a href="global.html#gv_currentViewBox">gv_currentViewBox</a></li><li><a href="global.html#gv_cv_paper">gv_cv_paper</a></li><li><a href="global.html#gv_graph">gv_graph</a></li><li><a href="global.html#gv_graph_bv">gv_graph_bv</a></li><li><a href="global.html#gv_graph_cv">gv_graph_cv</a></li><li><a href="global.html#gv_graphID">gv_graphID</a></li><li><a href="global.html#gv_macros">gv_macros</a></li><li><a href="global.html#gv_mousePositionStart">gv_mousePositionStart</a></li><li><a href="global.html#gv_node_children">gv_node_children</a></li><li><a href="global.html#gv_node_parents">gv_node_parents</a></li><li><a href="global.html#gv_noRedraw">gv_noRedraw</a></li><li><a href="global.html#gv_objects_edges">gv_objects_edges</a></li><li><a href="global.html#gv_objects_nodes">gv_objects_nodes</a></li><li><a href="global.html#gv_originalViewBox">gv_originalViewBox</a></li><li><a href="global.html#gv_paper">gv_paper</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#setTime">setTime</a></li><li><a href="global.html#setTimestamp">setTimestamp</a></li><li><a href="global.html#setTimeString">setTimeString</a></li><li><a href="global.html#sortUnits">sortUnits</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#timestampToString">timestampToString</a></li><li><a href="global.html#timeStringToStamp">timeStringToStamp</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Thu Sep 20 2012 18:27:11 GMT+0200 (MESZ)
+</footer>
+
+<script> sh_highlightDocument(); </script>
+</body>
+</html>

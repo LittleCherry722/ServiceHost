@@ -27,16 +27,16 @@ gv_standAlone	= false;
  * predefined macros
  */
 // creates a macro with the ID "newSendNode" that will insert a new send node into the graph and connect it with the currently selected node
-gf_createMacro("newSendNode", "", "normal", "send", true, true);
+gf_createMacro("newSendNode", "", false, "send", true, true);
 
 // creates a macro with the ID "newReceiveNode" that will insert a new receive node into the graph and connect it with the currently selected node
-gf_createMacro("newReceiveNode", "", "normal", "receive", true, true);
+gf_createMacro("newReceiveNode", "", false, "receive", true, true);
 
 // creates a macro with the ID "newActionNode" that will insert a new action node into the graph and connect it with the currently selected node
-gf_createMacro("newActionNode", "internal action", "normal", "action", true);
+gf_createMacro("newActionNode", "internal action", false, "action", true);
 
 // creates a macro with the ID "newEndNode" that will insert a new end node into the graph and connect it with the currently selected node
-gf_createMacro("newEndNode", "", "end", "end", true);
+gf_createMacro("newEndNode", "", false, "end", true);
 
 /**
  * Contains the dimensions of both canvas elements.
@@ -107,25 +107,41 @@ var gv_emptyImgPath	= gv_imgPath + gv_nodeTypeImg.emptyNodeImg;
 /**
  * Contains some predefined actions.
  * The objects contain several attributes:
- * - relatedSubject: when set to true a dropDown for the subjects will be shown and filled
+ * - subject: when set to true a dropDown for the subjects will be shown and filled
  * - message: when set to true a dropDown for the messageTypes will be shown and filled
  * - wildcard: when set to true both dropDowns will contain a wildcard option that selects all subjects / messageTypes
  * - label: the label is shown in the dropDown for the nodeType and on the node itself
+ * - correlationId: when set to true a dropDown for the correlationId will be shown and filled
+ * - channel: when set to true a dropDown for the channel will be shown and filled
+ * - options: when set to true the options for predefined actions will be shown
+ * - state: when set to true a dropDown for the state will be shown and filled
  * 
  * @type Object
  */
 var gv_predefinedActions	= {
-	// the closeIP action has two parameters (messageType and Subject) and is used to close the input pool for a certain subject and messageType (also all subjects / all messageTypes are allowed)
-	closeip: {relatedSubject: true, message: true, wildcard: true, label: "closeIP"},
+	// the closeIP action has two to four parameters (messageType, Subject, correlationId, channel) and is used to close the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
+	closeip: {subject: true, message: true, wildcard: true, label: "closeIP", channel: true, correlationid: true, options: true, state: false},
 	
-	// the openIP action has two parameters (messageType and Subject) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes are allowed)
-	openip: {relatedSubject: true, message: true, wildcard: true, label: "openIP"},
+	// the openIP action has two to four parameters (messageType, Subject, correlationId, channel) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
+	openip: {subject: true, message: true, wildcard: true, label: "openIP", channel: true, correlationid: true, options: true, state: false},
+	
+	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, channel) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
+	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", channel: true, correlationid: true, options: true, state: false},
 	
 	// the ignore action has one parameter (subject without wildcard)
-	ignore: {relatedSubject: true, message: false, wildcard: false, label: "Ignore"},
+	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", channel: false, correlationid: false, options: true, state: false},
 	
 	// the acknowledge action has one parameter (subject without wildcard)
-	acknowledge: {relatedSubject: true, message: false, wildcard: false, label: "Acknowledge"}
+	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", channel: false, correlationid: false, options: true, state: false},
+	
+	// the Activate State action has one parameter (state) and is used to activate a certain start state within an internal behavior
+	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", channel: false, correlationid: false, options: true, state: true},
+	
+	// the Deactivate State action has one parameter (state) and is used to deactivate a certain start state within an internal behavior
+	deactivatestate: {subject: false, message: false, wildcard: false, label: "Deactivate State", channel: false, correlationid: false, options: true, state: true}
+	
+	// TODO
+	//varmanipulation: {subject: false, message: false, wildcard: false, label: "Deactivate State", channel: false, correlationid: false, options: true, state: false, variableman}
 };
 
 /**

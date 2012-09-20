@@ -67,16 +67,35 @@
 						<input type="radio" id="ge_edge_target_multi_type_new" name="ge_edge_target_multi_type">
 						<label  class="graphsectionheader">Create new Subjects</label>
 					</div>
+					<input type="radio" id="ge_edge_target_multi_type_var" name="ge_edge_target_multi_type">
+					<label  class="graphsectionheader">load from Variable</label>
 					<div id="ge_edge_target_multi_minmax_outer" style="display:none;">
 						Min: <input type="text" id="ge_edge_target_multi_min" style="width:30px;">
 						Max: <input type="text" id="ge_edge_target_multi_max" style="width:30px;">
 					</div>
+					<div id="ge_edge_target_multi_type_var_outer" style="display:none;">
+						<select id="ge_edge_target_multi_variable" style="width:140px"></select>
+						<div id="ge_edge_target_multi_variable_text_outer" style="display:none;">
+							<label  class="graphsectionheader">new Variable:</label>
+							<br />
+							<input type="text" id="ge_edge_target_multi_variable_text" style="width:140px" />
+						</div>
+					</div>
 				</div>
 				
-				<div id="ge_edge_priority_outer" style="display:none;">
+				<div id="ge_edge_priority_outer" style="display:none; margin-top:20px;">
 					<label class="graphsectionheader">Priority:</label>
 					<br />
 					<input type="text" id="ge_edge_priority" value="" style="width: 140px;" />
+				</div>
+			</div>
+					
+			<div id="ge_edge_store_outer" style="display:none; margin-top:10px;">
+				<label  class="graphsectionheader">Store Messages in Var:</label>
+				<select id="ge_edge_store_variable" style="width:140px"></select>
+				<div id="ge_edge_store_variable_new_outer" style="display:none;">
+					<label  class="graphsectionheader">Create new var:</label>
+					<input type="text" id="ge_edge_store_variable_new" style="width:140px" />
 				</div>
 			</div>
 		</div>
@@ -95,6 +114,12 @@
 			<label align="left" class="graphsectionheader">Optional</label>
 		</div>
 		<br/>
+		<div style="display:none; margin-bottom:20px;" id="ge_edge_correlationid_outer">
+			<label align="left" class="graphsectionheader">Correlation ID:</label>
+			<br />
+			<select id="ge_edge_correlationid" style="width: 140px;"></select>
+		</div>
+		
 		<input type="button" id="UpdateEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<br/>
 		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
@@ -107,26 +132,59 @@
 		<span id="graphmenuheader">State settings</span>
 		<br/>
 
-		<label class="graphsectionheader">Type:</label>
 		<input type="checkbox" id="ge_type_start" name="ge_type_start" />
-		<label  class="graphsectionheader">Startstate</label>
-		<br/>
+		<label class="graphsectionheader">Startstate</label>
+		<div id="ge_node_major_start_node_outer" style="display:none;">
+			<input type="checkbox" id="ge_node_major_start_node" />
+			<label class="graphsectionheader">Major Startstate</label>
+		</div>
+		<br />
+		<label class="graphsectionheader">Type:</label>
 		<select id="ge_type2"  style="width:140px"></select>
 		<br/>
-		<div id="ge_node_subjectOuter" style="display:none;">
-			<label class="graphsectionheader">Subject:</label>
-			<br />
-			<select id="ge_node_subject" style="width:140px"></select>
-		</div>
-		<div id="ge_node_messageOuter" style="display:none;">
-			<label class="graphsectionheader">Message:</label>
-			<br />
-			<select id="ge_node_message" style="width:140px"></select>
-		</div>
- <br/>
 		<input type="hidden" id="ge_id" value="" style="width:140px"/>
 		<label class="graphsectionheader">Text:</label>
-		<textarea id="ge_text" style="width:140px"></textarea>														
+		<textarea id="ge_text" style="width:140px"></textarea>
+		
+		<div id="ge_node_variable_outer" style="display:none; margin-top:10px;">
+			<label class="graphsectionheader">Variable:</label>
+			<select id="ge_node_variable" style="width:140px"></select>
+		</div>
+		<div id="ge_node_channel_outer" style="display:none; margin-top:10px;">
+			<label class="graphsectionheader">Channel:</label>
+			<select id="ge_node_channel" style="width:140px"></select>
+			<div id="ge_node_channel_new_outer" style="display:none;">
+				<label class="graphsectionheader">New Channel:</label>
+				<input type="text" id="ge_node_channel_new" style="width:140px" />
+			</div>
+		</div>
+		<br/>
+		
+		<div id="ge_node_options_outer" style="display:none;">
+			<div class="graphsectionheader" style="width:100%; text-align:left; font-style:italic; padding-left:5px;">Options:</div>
+			
+			<div id="ge_node_opt_messageOuter" style="display:none;">
+				<label class="graphsectionheader">Message Type:</label>
+				<select id="ge_node_opt_message" style="width:140px"></select>
+			</div>
+			<div id="ge_node_opt_subjectOuter" style="display:none;">
+				<label class="graphsectionheader">Subject:</label>
+				<select id="ge_node_opt_subject" style="width:140px"></select>
+			</div>
+			<div id="ge_node_opt_correlation_id_outer" style="display:none;">
+				<label class="graphsectionheader">Correlation ID:</label>
+				<select id="ge_node_opt_correlation_id" style="width:140px"></select>
+			</div>
+			<div id="ge_node_opt_channel_outer" style="display:none;">
+				<label class="graphsectionheader">Channel:</label>
+				<select id="ge_node_opt_channel" style="width:140px"></select>
+			</div>
+			<div id="ge_node_opt_state_outer" style="display:none;">
+				<label class="graphsectionheader">State:</label>
+				<select id="ge_node_opt_state" style="width:140px"></select>
+			</div>
+		</div>
+														
 		<br/>
 		<input type="button" id="UpdateNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
 		<br/>
