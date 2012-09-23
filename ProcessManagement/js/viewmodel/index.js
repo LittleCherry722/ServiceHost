@@ -302,6 +302,10 @@ var SubjectViewModel = function() {
 	self.afterRender = function() {
 
 	}
+	
+	self.availableProcesses = ko.observableArray(SBPM.Service.Process.getAllProcesses());
+	
+	
 }
 var InternalViewModel = function() {
 
