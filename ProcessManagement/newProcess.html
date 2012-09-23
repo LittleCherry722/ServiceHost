@@ -102,19 +102,21 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 			
 		<p style="width:182px;">
 			<label>Name:</label><br/>
-			<input type="text" id="new_process" style="width:180px;" data-bind="value : processName"/>
+			<input type="text" id="new_process" style="width:180px;" data-bind="value : processName, valueUpdate:'afterkeydown'"/>
 			<script>
 				$("#new_process").focus();
 			</script>
 		</p>
-
-		<br class="clear"/>
-		<br class="clear"/>
 		
+		<br class="clear"/>
+		<div id="processExist" style="width:170px;height:45px;">
+		<span data-bind="visible: processExist">Process already exists! If you proceed, process will be overwritten.</span>
+		</div>
+		<br class="clear"/>
 
 		<input type="checkbox" name="Table" value="Table" data-bind="checked: quickVM.displayTable" >Use Table <br>
 		<br class="clear"/>
-		<br class="clear"/>
+		
 
 		<div align="center" style="float:left;" >
 		<input type="submit" value="Accept" data-bind="click : createCheck"/>

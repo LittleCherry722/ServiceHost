@@ -14,6 +14,7 @@ var Dialog = function() {
 
         return $.fancybox({
             modal : true,
+            autoScale: true,
             width : '400px',
             content : '<div id="dialog-header" style="background-image:url(images/bg_header.png); background-repeat:repeat-x;">' + '	<div id="dialog-logo">' + '	<h3>' + title + '</h3>' + '	</div>' + '</div>' + '<div style="margin:10px; width:270px">' + '	<br class="clear"/>' + text + '	<br class="clear"/>' + '	<br class="clear"/>' + '	<br class="clear"/>' + '	<div id="dialog-buttons" align="center" >' + buildButtonString(buttons) + '	</div>' + '</div>',
             onComplete : function() {

@@ -12,6 +12,11 @@ var ViewModel = function() {
 
 	self.processName = ko.observable("");
 
+	self.processExist = ko.computed(function() {
+		return SBPM.Service.Process.processExists(self.processName());
+
+	});
+
 	self.createCheck = function() {
 		var process = self.processName();
 		console.log("createCheck " + process);
@@ -21,31 +26,23 @@ var ViewModel = function() {
 			return;
 		}
 
-		// if process name does not exist
-		if(!SBPM.Service.Process.processExists(process)) {
+		SBPM.Service.Process.deleteProcess(process);
+		self.goToProcess(process);
 
-            parent.SBPM.VM.goToPage("process").showProcess(process);
+	}
 
-			if(self.quickVM.displayTable()) {
-				self.quickVM.createProcessFromTable();
-			}
+	self.goToProcess = function(process) {
+		parent.SBPM.VM.goToPage("process").showProcess(process);
 
-			// update list of recent processes
-			parent.$.publish("/process/change");
-
-			// close layer
-			self.close();
-
-		} else {// otherwise ask the user to keep the given name anyhow
-
-			SBPM.Dialog.YesNo('Warning', 'Process\' name already exists. Do you want to proceed with the given name?', function() {// yes
-
-				// close the newProcess layer
-				self.close();
-
-			});
-
+		if(self.quickVM.displayTable()) {
+			self.quickVM.createProcessFromTable();
 		}
+
+		// update list of recent processes
+		parent.$.publish("/process/change");
+
+		// close layer
+		self.close();
 	}
 
 	self.close = function() {
@@ -58,7 +55,6 @@ var ViewModel = function() {
 
 	console.log("ViewModel for newProcess initialized.");
 }
-
 var QuickViewModle = function() {
 
 	var self = this;
@@ -70,8 +66,7 @@ var QuickViewModle = function() {
 	self.displayTable = ko.observable(false);
 
 	self.fancyboxSize = ko.computed(function() {
-		
-		
+
 		if(self.displayTable()) {
 			parent.$('#fancybox-content').width('995px');
 			parent.$('#fancybox-content').height('300px');
@@ -91,8 +86,7 @@ var QuickViewModle = function() {
 		else
 			self.displayTable(true);
 	}
-	
-	//Used as a class. 
+	//Used as a class.
 	self.Subject = function(name1) {
 		var self = this;
 		self.name = ko.observable(name1);
@@ -106,11 +100,10 @@ var QuickViewModle = function() {
 	self.addSubject = function() {
 		self.subjectList.push(new self.Subject(""));
 	}
-
 	//Contains all Subjects.
 	self.subjectList = ko.observableArray([new self.Subject("Subject 1"), new self.Subject("Subject 2")]);
 
-	//Used as a class. 
+	//Used as a class.
 	self.Message = function(s1, message, s2) {
 		var self = this;
 		self.message = message;
@@ -126,12 +119,9 @@ var QuickViewModle = function() {
 	self.addMessage = function() {
 		self.messageList.push(new self.Message("", "", ""));
 	}
-
-
 	//Contains all Messages.
 	self.messageList = ko.observableArray([new self.Message("", "File", ""), new self.Message("", "Answer", "")]);
 
-	
 	self.noMessage = function(mesOb) {
 		var bool = true;
 
@@ -147,7 +137,6 @@ var QuickViewModle = function() {
 			bool = true;
 		return bool;
 	}
-
 	//Returns an array to be used in SBPM.Service.Process.createProcessFromTable.
 	self.cleanMessages = function() {
 		var array = new Array();
