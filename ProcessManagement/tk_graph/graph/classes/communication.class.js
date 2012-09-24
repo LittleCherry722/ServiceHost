@@ -1126,25 +1126,26 @@ function GCcommunication ()
 						var gt_node		= gt_subject.nodes[gt_nodeId];
 						var gt_nodeId	= gt_behav.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 						
-						if (gf_isset(gt_node.options))
+						var gt_createdNode	= gt_behav.getNode(gt_nodeId);
+						
+						if (gt_createdNode != null)
 						{
-							gt_behav.getNode(gt_nodeId).setOptions(gt_node.options);
+							if (gf_isset(gt_node.options))
+								gt_createdNode.setOptions(gt_node.options);
+							
+							if (gf_isset(gt_node.channel) && gt_useChannels)
+								gt_createdNode.setChannel(gt_node.channel);
+							
+							if (gf_isset(gt_node.variable) && gt_useVariables)
+								gt_createdNode.setVariable(gt_node.variable);
+							
+							if (gf_isset(gt_node.majorStartNode))
+								gt_createdNode.setMajorStartNode(gt_node.majorStartNode);
+							
+							if (gf_isset(gt_node.varMan))
+								gt_createdNode.setVarMan(gt_node.varMan);
 						}
 						
-						if (gf_isset(gt_node.channel) && gt_useChannels)
-						{
-							gt_behav.getNode(gt_nodeId).setChannel(gt_node.channel);
-						}
-						
-						if (gf_isset(gt_node.variable) && gt_useVariables)
-						{
-							gt_behav.getNode(gt_nodeId).setVariable(gt_node.variable);
-						}
-						
-						if (gf_isset(gt_node.majorStartNode))
-						{
-							gt_behav.getNode(gt_nodeId).setMajorStartNode(gt_node.majorStartNode);
-						}
 					}
 					
 					// 2.2 edges
@@ -1374,7 +1375,8 @@ function GCcommunication ()
 						deactivated:	gt_node.isDeactivated(),
 						majorStartNode:	gt_node.isMajorStartNode(),
 						channel:		gt_node.getChannel(),
-						variable:		gt_node.getVariable()
+						variable:		gt_node.getVariable(),
+						varMan:			gt_node.getVarMan("all")
 				};
 			}
 

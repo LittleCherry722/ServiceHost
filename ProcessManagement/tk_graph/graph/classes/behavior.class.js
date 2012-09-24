@@ -736,6 +736,7 @@ function GCbehavior (name)
 			var gt_channelText		= gf_isset(values.channelText)		? values.channelText		: "";
 			var gt_variable			= gf_isset(values.variable)			? values.variable			: "";
 			var gt_options			= gf_isset(values.options)			? values.options			: {};
+			var gt_varMan			= gf_isset(values.varMan)			? values.varMan				: {};
 			
 			// check option entries
 			if (!gf_isset(gt_options.message))
@@ -758,6 +759,11 @@ function GCbehavior (name)
 				
 			if (gt_type == "s")
 				gt_type = "send";
+				
+			if (gf_isset(gt_varMan.storevar, gt_varMan.storevarText))
+			{
+				gt_varMan.storevar	= this.addVariable(gt_varMan.storevarText, gt_varMan.storevar);
+			}
 		
 			gt_node.setText(gt_text);
 			gt_node.setType(gt_type);
@@ -767,6 +773,7 @@ function GCbehavior (name)
 			gt_node.setMajorStartNode(gt_isMajorStartNode);
 			gt_node.setVariable(gt_variable);
 			gt_node.setChannel(gv_graph.addChannel(gt_channelText, gt_channel));
+			gt_node.setVarMan(gt_varMan);
 			
 			this.draw();
 		}

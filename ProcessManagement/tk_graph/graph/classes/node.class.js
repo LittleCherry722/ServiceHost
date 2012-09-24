@@ -110,6 +110,13 @@ function GCnode (parent, id, text, type)
 	this.variable	= null;
 	
 	/**
+	 * Settings for the predefined variable manipulation action.
+	 * 
+	 * @type Object
+	 */
+	this.varMan	= {var1: "", var2: "", operation: "and", storevar: ""};
+	
+	/**
 	 * This is the node's type.
 	 * It can be set to "action", "send", "receive" or to "end".
 	 * It defaults to action.
@@ -261,6 +268,50 @@ function GCnode (parent, id, text, type)
 		}
 		
 		return this.variable;
+	};
+	
+	/**
+	 * Returns either one entry of the varMan objct or the whole object.
+	 * 
+	 * @param {String} attribite The attribute to return. When set to "all" the whole object will be returned.
+	 * @param {String} type An optional parameter. When set to "name" the name of the variable stored in var1, var2, storevar will be returned instead of its id.
+	 * @returns {String|Object} Either the whole varMan object or a single entry.
+	 */
+	this.getVarMan = function (attribute, type)
+	{
+		var gt_result	= this.varMan;
+		
+		if (!gf_isset(type))
+			type = "id";
+		
+		if (gf_isset(attribute))
+		{
+			attribute	= attribute.toLowerCase();
+			
+			if (attribute == "var1" || attribute == "var2" || attribute == "storevar")
+			{
+				gt_result	= gf_isset(this.varMan[attribute]) ? this.varMan[attribute] : "";
+				
+				if (type == "name")
+				{
+					var gt_variables	= this.parent.variables;
+					if (gt_result != null && gf_isset(gt_variables[gt_result]))
+						gt_result	= gt_variables[gt_result];	
+				}
+			}
+			else if (attribute == "operation")
+			{
+				gt_result	= gf_isset(this.varMan.operation) ? this.varMan.operation : "&";
+				
+				if (type == "name")
+				{
+					if (gt_result != null && gf_isset(gv_varManOperations[gt_result]))
+						gt_result	= gv_varManOperations[gt_result];	
+				}
+			}
+		}
+		
+		return gt_result;
 	};
 	
 	/**
@@ -527,6 +578,27 @@ function GCnode (parent, id, text, type)
 	};
 	
 	/**
+	 * Update the settings of the variable manipulation.
+	 * 
+	 * @param {Object} An object holding the necessary data for the variable manipulation.
+	 * @returns {void}
+	 */
+	this.setVarMan = function (varMan)
+	{
+		if (this.getType() == "$variableman" && gf_isset(varMan))
+		{
+			if (gf_isset(varMan.var1))
+				this.varMan.var1	= varMan.var1;
+			if (gf_isset(varMan.var2))
+				this.varMan.var2	= varMan.var2;
+			if (gf_isset(varMan.storevar))
+				this.varMan.storevar	= varMan.storevar;
+			if (gf_isset(varMan.operation))
+				this.varMan.operation	= varMan.operation;
+		}
+	};
+	
+	/**
 	 * Returns the node's label depending on its type.
 	 * This method will return "S" for a send node, "R" for a receive node, "" for an end node and the node's text attribute for every other type.
 	 * 
@@ -542,7 +614,18 @@ function GCnode (parent, id, text, type)
 			
 			// gf_newlineToCamelCase
 			
-		if (type.length > 0 && type.charAt(0) == '$' && gf_isset(gv_predefinedActions[type.substr(1)]))
+		if (type == "$variableman")
+		{
+			text += " = " + this.getVarMan("var1", "name");
+			
+			if (this.getVarMan("operation") != "new")
+			{
+				text += " " + this.getVarMan("operation", "name") + " " + this.getVarMan("var2", "name");
+			}
+			
+			text += " =: " + this.getVarMan("storevar", "name");
+		}
+		else if (type.length > 0 && type.charAt(0) == '$' && gf_isset(gv_predefinedActions[type.substr(1)]))
 		{
 			var gt_predefAction		= gv_predefinedActions[type.substr(1)];
 			var gt_useWildcard		= gt_predefAction.wildcard;

@@ -115,33 +115,54 @@ var gv_emptyImgPath	= gv_imgPath + gv_nodeTypeImg.emptyNodeImg;
  * - channel: when set to true a dropDown for the channel will be shown and filled
  * - options: when set to true the options for predefined actions will be shown
  * - state: when set to true a dropDown for the state will be shown and filled
+ * - variableman: when set to true fields for variable manipulation will be displayed
+ * - booledge: when set to true only two edges may start at a node: yes / no
  * 
  * @type Object
  */
 var gv_predefinedActions	= {
 	// the closeIP action has two to four parameters (messageType, Subject, correlationId, channel) and is used to close the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
-	closeip: {subject: true, message: true, wildcard: true, label: "closeIP", channel: true, correlationid: true, options: true, state: false},
+	closeip: {subject: true, message: true, wildcard: true, label: "closeIP", channel: true, correlationid: true, options: true, state: false, variableman: false, booledge: false},
 	
 	// the openIP action has two to four parameters (messageType, Subject, correlationId, channel) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
-	openip: {subject: true, message: true, wildcard: true, label: "openIP", channel: true, correlationid: true, options: true, state: false},
+	openip: {subject: true, message: true, wildcard: true, label: "openIP", channel: true, correlationid: true, options: true, state: false, variableman: false, booledge: false},
 	
 	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, channel) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
-	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", channel: true, correlationid: true, options: true, state: false},
+	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", channel: true, correlationid: true, options: true, state: false, variableman: false, booledge: true},
 	
 	// the ignore action has one parameter (subject without wildcard)
-	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", channel: false, correlationid: false, options: true, state: false},
+	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", channel: false, correlationid: false, options: true, state: false, variableman: false, booledge: false},
 	
 	// the acknowledge action has one parameter (subject without wildcard)
-	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", channel: false, correlationid: false, options: true, state: false},
+	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", channel: false, correlationid: false, options: true, state: false, variableman: false, booledge: false},
 	
 	// the Activate State action has one parameter (state) and is used to activate a certain start state within an internal behavior
-	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", channel: false, correlationid: false, options: true, state: true},
+	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", channel: false, correlationid: false, options: true, state: true, variableman: false, booledge: false},
 	
 	// the Deactivate State action has one parameter (state) and is used to deactivate a certain start state within an internal behavior
-	deactivatestate: {subject: false, message: false, wildcard: false, label: "Deactivate State", channel: false, correlationid: false, options: true, state: true}
+	deactivatestate: {subject: false, message: false, wildcard: false, label: "Deactivate State", channel: false, correlationid: false, options: true, state: true, variableman: false, booledge: false},
 	
-	// TODO
-	//varmanipulation: {subject: false, message: false, wildcard: false, label: "Deactivate State", channel: false, correlationid: false, options: true, state: false, variableman}
+	// options for manipulating a variable
+	variableman: {subject: false, message: false, wildcard: false, label: "Variable Manipulation", channel: false, correlationid: false, options: true, state: false, variableman: true, booledge: false}
+};
+
+/**
+ * Available operations for variable manipulation.
+ * 
+ * @type Object
+ */
+var gv_varManOperations	= {
+	// the boolean and operation
+	and: "&",
+	
+	// the boolean or operation
+	or: "|",
+	
+	// the boolean xor operation
+	xor: "^",
+	
+	// the boolean complement (A minus B)
+	complement: "\\"
 };
 
 /**

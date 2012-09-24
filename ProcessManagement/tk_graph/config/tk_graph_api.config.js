@@ -102,7 +102,16 @@ var gv_elements = {
 	// edge types
 	inputEdgeTypeCondition:		"ge_edge_type_condition",
 	inputEdgeTypeException:		"ge_edge_type_exception",
-	inputEdgeTypeTimeout:		"ge_edge_type_timeout"
+	inputEdgeTypeTimeout:		"ge_edge_type_timeout",
+	
+	// variable manipulation
+	inputNodeVarManOperation:	"ge_node_varman_operation",
+	inputNodeVarManOuter:		"ge_node_varman_outer",
+	inputNodeVarManVar1:		"ge_node_varman_var1",
+	inputNodeVarManVar2:		"ge_node_varman_var2",
+	inputNodeVarManVarStore:	"ge_node_varman_store",
+	inputNodeVarManVarStoreN:	"ge_node_varman_store_new",
+	inputNodeVarManVarStoreNO:	"ge_node_varman_store_new_outer"
 };
 
 /**
@@ -184,7 +193,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable
+		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan
 		 */
 		readNode:			"",
 		

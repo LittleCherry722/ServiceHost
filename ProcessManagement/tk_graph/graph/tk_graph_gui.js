@@ -206,6 +206,10 @@ function gf_guiClearInputFields ()
 		document.getElementById(gv_elements.inputEdgeStoreOuter).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeStoreVariableNO))
 		document.getElementById(gv_elements.inputEdgeStoreVariableNO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputNodeVarManOuter))
+		document.getElementById(gv_elements.inputNodeVarManOuter).style.display = "none";
+	if (gf_elementExists(gv_elements.inputNodeVarManVarStoreNO))
+		document.getElementById(gv_elements.inputNodeVarManVarStoreNO).style.display = "none";
 }
 
 /**
@@ -548,6 +552,10 @@ function gf_guiDisplayNode (node)
 		document.getElementById(gv_elements.inputNodeChannelNewOuter).style.display = "none";
 	if (gf_elementExists(gv_elements.inputNodeVariableO))
 		document.getElementById(gv_elements.inputNodeVariableO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputNodeVarManOuter))
+		document.getElementById(gv_elements.inputNodeVarManOuter).style.display = "none";
+	if (gf_elementExists(gv_elements.inputNodeVarManVarStoreNO))
+		document.getElementById(gv_elements.inputNodeVarManVarStoreNO).style.display = "none";
 		
 	if (gf_elementExists(gv_elements.inputNodeChannelNew))
 		document.getElementById(gv_elements.inputNodeChannelNew).value = "";
@@ -584,6 +592,17 @@ function gf_guiDisplayNode (node)
 			if (gf_elementExists(gv_elements.inputNodeChannelNewOuter))
 			{
 				document.getElementById(gv_elements.inputNodeChannelNewOuter).style.display = gt_selected == "##createNew##" ? "block" : "none";
+			}
+		};
+		
+	if (gf_elementExists(gv_elements.inputNodeVarManVarStore))
+		document.getElementById(gv_elements.inputNodeVarManVarStore).onchange	= function ()
+		{
+			var gt_selected = document.getElementById(gv_elements.inputNodeVarManVarStore).value;
+				
+			if (gf_elementExists(gv_elements.inputNodeVarManVarStoreNO))
+			{
+				document.getElementById(gv_elements.inputNodeVarManVarStoreNO).style.display = gt_selected == "##createNew##" ? "block" : "none";
 			}
 		};
 		
@@ -668,6 +687,19 @@ function gf_guiDisplayNode (node)
 		{
 			document.getElementById(gv_elements.inputNodeVariable).value = node.getVariable() == null ? "" : node.getVariable();
 		}
+		
+		
+		if (gf_elementExists(gv_elements.inputNodeVarManVar1))
+			document.getElementById(gv_elements.inputNodeVarManVar1).value	= node.getVarMan("var1");
+			
+		if (gf_elementExists(gv_elements.inputNodeVarManVar2))
+			document.getElementById(gv_elements.inputNodeVarManVar2).value	= node.getVarMan("var2");
+			
+		if (gf_elementExists(gv_elements.inputNodeVarManVarStore))
+			document.getElementById(gv_elements.inputNodeVarManVarStore).value	= node.getVarMan("storevar");
+			
+		if (gf_elementExists(gv_elements.inputNodeVarManOperation))
+			document.getElementById(gv_elements.inputNodeVarManOperation).value	= node.getVarMan("operation");
 	}
 }
 
@@ -1222,6 +1254,52 @@ function gf_guiLoadDropDownVariables (behavior, elementVariable, newVariable, wi
 }
 
 /**
+ * Fills a select with all available boolean operations that can be used for the variable manipulation.
+ * 
+ * @param {String} elementVarMan The ID of the select element that holds the available variable operations.
+ * @returns {void}
+ */
+function gf_guiLoadDropDownVarManOperations (elementVarMan)
+{
+	// load operations	
+	if (elementVarMan != null && gf_elementExists(elementVarMan))
+	{
+		var gt_select			= document.getElementById(elementVarMan).options;
+			gt_select.length	= 0;
+		var gt_variableArray	= [];
+		
+		// create some entries to guide the user
+		var gt_option			= document.createElement("option");
+			gt_option.text		= "please select";
+			gt_option.value		= "";
+			gt_option.id		= elementVarMan + "_00000.0";
+			gt_select.add(gt_option);
+		
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementVarMan + "_00000.1";
+			gt_select.add(gt_option);
+		
+			gt_option			= document.createElement("option");
+			gt_option.text		= "assign new";
+			gt_option.value		= "new";
+			gt_option.id		= elementVarMan + "_new";
+			gt_select.add(gt_option);
+		
+		// add the operations to the select field
+		for (var gt_vmid in gv_varManOperations)
+		{
+			gt_option		= document.createElement("option");
+			gt_option.text	= gv_varManOperations[gt_vmid];
+			gt_option.value	= gt_vmid;
+			gt_option.id	= elementVarMan + "_" + gt_vmid;
+			gt_select.add(gt_option);
+		}
+	}
+}
+
+/**
  * This method is used to fill drop downs for node settings.
  * 
  * @param {GCbehavior} behavior Used for collecting several information.
@@ -1247,7 +1325,20 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 		document.getElementById(gv_elements.inputNodeOptionsOuter).style.display = "none";
 	if (gf_elementExists(gv_elements.inputNodeVariableO))
 		document.getElementById(gv_elements.inputNodeVariableO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputNodeVarManOuter))
+		document.getElementById(gv_elements.inputNodeVarManOuter).style.display = "none";
 		
+	if (nodeType == "$variableman")
+	{	
+		if (gf_elementExists(gv_elements.inputNodeVarManOuter))
+			document.getElementById(gv_elements.inputNodeVarManOuter).style.display = "block";
+			
+		gf_guiLoadDropDownVariables(behavior, gv_elements.inputNodeVarManVar1, false, false);
+		gf_guiLoadDropDownVariables(behavior, gv_elements.inputNodeVarManVar2, false, false);
+		gf_guiLoadDropDownVariables(behavior, gv_elements.inputNodeVarManVarStore, true, false);
+		gf_guiLoadDropDownVarManOperations(gv_elements.inputNodeVarManOperation);
+			
+	}
 	if (nodeType.substr(0, 1) == "$")
 	{
 		var gt_predefAction	= {subject: false, message: false, wildcard: false, channel: false, correlationid: false, options: false, state: false};
@@ -1397,11 +1488,11 @@ function gf_guiReadEdge ()
  * Read the values for the selected node from the input fields.
  * 
  * @see GCcommunication::updateNode()
- * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable
+ * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan
  */
 function gf_guiReadNode ()
 {
-	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", channel: "", state: ""}, isMajorStartNode: false, channel: "", channelText: "", variable: ""};
+	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", channel: "", state: ""}, isMajorStartNode: false, channel: "", channelText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}};
 	
 	var gt_text					= gf_elementExists(gv_elements.inputNodeText) ? document.getElementById(gv_elements.inputNodeText).value : "";
 	var gt_isStart				= gf_elementExists(gv_elements.inputNodeStart) && document.getElementById(gv_elements.inputNodeStart).checked;
@@ -1417,6 +1508,14 @@ function gf_guiReadNode ()
 	var gt_channel			= gf_elementExists(gv_elements.inputNodeChannel) ? document.getElementById(gv_elements.inputNodeChannel).value : "";
 	var gt_channelNew		= gf_elementExists(gv_elements.inputNodeChannelNew) ? document.getElementById(gv_elements.inputNodeChannelNew).value : "";
 	var gt_variable			= gf_elementExists(gv_elements.inputNodeVariable) ? document.getElementById(gv_elements.inputNodeVariable).value : "";
+	
+	
+	var gt_varMan	= {};
+		gt_varMan.var1			= gf_elementExists(gv_elements.inputNodeVarManVar1) ? document.getElementById(gv_elements.inputNodeVarManVar1).value : "";
+		gt_varMan.var2			= gf_elementExists(gv_elements.inputNodeVarManVar2) ? document.getElementById(gv_elements.inputNodeVarManVar2).value : "";
+		gt_varMan.storevar		= gf_elementExists(gv_elements.inputNodeVarManVarStore) ? document.getElementById(gv_elements.inputNodeVarManVarStore).value : "";
+		gt_varMan.operation		= gf_elementExists(gv_elements.inputNodeVarManOperation) ? document.getElementById(gv_elements.inputNodeVarManOperation).value : "";
+		gt_varMan.storevarText	= gf_elementExists(gv_elements.inputNodeVarManVarStoreN) ? document.getElementById(gv_elements.inputNodeVarManVarStoreN).value : "";
 	
 	var gt_options		= {};
 	
@@ -1434,6 +1533,7 @@ function gf_guiReadNode ()
 	gt_result.channel			= gt_channel;
 	gt_result.channelText		= gt_channelNew;
 	gt_result.variable			= gt_variable;
+	gt_result.varMan			= gt_varMan;
 	
 	return gt_result;
 }

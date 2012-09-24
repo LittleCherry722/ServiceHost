@@ -184,6 +184,24 @@
 				<select id="ge_node_opt_state" style="width:140px"></select>
 			</div>
 		</div>
+		
+		<div id="ge_node_varman_outer" style="display:none;">
+			<select id="ge_node_varman_store" style="width:140px;"></select>
+			<div id="ge_node_varman_store_new_outer" style="display:none;">
+				<label class="graphsectionheader">New Var:</label>
+				<br />
+				<input type="text" id="ge_node_varman_store_new" style="width:140px;" />
+			</div>
+			<div>
+			:=
+			</div>
+			<select id="ge_node_varman_var1" style="width:140px;"></select>
+			<br />
+			<select id="ge_node_varman_operation" style="width:75px;"></select>
+			<br />
+			<select id="ge_node_varman_var2" style="width:140px;"></select>
+			
+		</div>
 														
 		<br/>
 		<input type="button" id="UpdateNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
