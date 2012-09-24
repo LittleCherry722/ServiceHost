@@ -190,7 +190,7 @@ var gv_cv_style_arrowChannel = {
 	 * Misc
 	 */
 	liSymbol: "\u2022 ",				// any unicode
-	rectangleRadius: 5,					// radius for rounded rectangles
+	rectangleRadius: 10,				// radius for rounded rectangles
 	width: 0,							// int
 	height: 0,							// int
 	minWidth: 0,						// int

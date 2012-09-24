@@ -81,6 +81,13 @@ function GCbehavior (name)
 	this.nodes	= {};
 	
 	/**
+	 * The currently selected channel
+	 * 
+	 * @type String
+	 */
+	this.selectedChannel	= "##all##";
+	
+	/**
 	 * The id (key of edges array) of the currently selected edge.
 	 * 
 	 * @type int
@@ -512,6 +519,8 @@ function GCbehavior (name)
 			}
 			
 			gv_graph_bv.drawGraph(this.name);
+			
+			this.selectChannel(this.selectedChannel);
 		}
  	};
 	
@@ -569,6 +578,65 @@ function GCbehavior (name)
 	this.getNodes = function ()
 	{
 		return this.nodes;
+ 	};
+	
+	/**
+	 * Select a channel.
+	 * This will deactivate all nodes and edges that do not belong to the specified channel.
+	 * 
+	 * @param {String} channel The name of the channel to select. When set to "##all##" all nodes and edges will be displayed.
+	 * @returns {void}
+	 */
+ 	this.selectChannel = function (channel)
+ 	{
+ 		if (!gf_isset(channel))
+ 			channel	= "##all##";
+ 			
+ 		this.selectedChannel	= channel;
+ 		
+ 		var gt_node			= null;
+ 		var gt_edge			= null;
+ 		var gt_deactivate	= false;
+ 		
+ 		// de- / activate nodes
+ 		for (var gt_nid in this.nodes)
+ 		{
+ 			gt_node	= this.nodes[gt_nid];
+ 			
+ 			if (channel == "##all##")
+ 				gt_deactivate	= gt_node.isDeactivated();
+ 			else
+ 				gt_deactivate	= gt_node.getChannel() != channel;
+ 				
+ 			if (gf_isset(gv_objects_nodes[gt_node.id]))
+ 			{
+ 				if (gt_deactivate)
+ 					gv_objects_nodes[gt_node.id].deactivate();
+ 				else
+ 					gv_objects_nodes[gt_node.id].activate();
+ 			}
+ 		}
+ 		
+ 		// de- / activate edges
+ 		for (var gt_eid in this.edges)
+ 		{
+ 			gt_edge	= this.edges[gt_eid];
+ 			gt_node	= gf_isset(this.nodes["n" + gt_edge.getStart()]) ? this.nodes["n" + gt_edge.getStart()] : null;
+ 			
+ 			if (channel == "##all##")
+ 				gt_deactivate	= gt_edge.isDeactivated();
+ 			else
+ 				gt_deactivate	= gt_node == null ? true : gt_node.getChannel() != channel;
+ 				
+ 			gt_eid	= gt_eid.substr(1);
+ 			if (gf_isset(gv_objects_edges[gt_eid]))
+ 			{
+ 				if (gt_deactivate)
+ 					gv_objects_edges[gt_eid].deactivate();
+ 				else
+ 					gv_objects_edges[gt_eid].activate();
+ 			}
+ 		}
  	};
 	
 	/**

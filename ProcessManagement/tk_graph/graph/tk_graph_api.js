@@ -336,6 +336,34 @@ function gf_deleteElement ()
 }
 
 /**
+ * Returns a list of channels.
+ * 
+ * @returns {Object} List of channels.
+ */
+function gf_getChannels ()
+{
+	var gt_channels	= {};
+	var gt_isCV		= false;
+	
+	if (gv_graph.selectedSubject == null)
+		gt_isCV	= true;
+	
+	// add display channels
+	if (gt_isCV)
+		gt_channels["##channels##"]	= "display channels";
+		
+	// add all channels
+	gt_channels["##all##"]	= "all channels";
+		
+	for (var gt_chid in gv_graph.channels)
+	{
+		gt_channels[gt_chid]	= gv_graph.channels[gt_chid];
+	}
+	
+	return gt_channels;
+}
+
+/**
  * Collects all messages available to the system and returns them as an Array of Objects.
  * 
  * @param {String} subjectInfo The information of subjects that will be returned (id, role, name).
@@ -552,6 +580,17 @@ function gf_getNodeRight ()
 			}		
 		}
 	}
+}
+
+/**
+ * Returns the id of the selected channel.
+ * 
+ * @see GCcommunication::getSelectedChannel()
+ * @returns {String} Id of selected channel.
+ */
+function gf_getSelectedChannel ()
+{
+	return gv_graph.getSelectedChannel();
 }
 
 /**
@@ -959,6 +998,19 @@ function gf_saveGraph (format)
 	{
 		return gv_graph.saveToJSON();
 	}
+}
+
+/**
+ * Select a channel.
+ * When an internal behavior is selected the channel name will be passed to the behavior's selectChannel method.
+ *
+ * @see GCcommunication.selectChannel()
+ * @param {String} channel The name of the channel to select. When set to "##channels##" the available channels will be displayed in the CV. When set to "##all##" all channels will be displayed.
+ * @returns {void}
+ */
+function gf_selectChannel (channel)
+{
+	gv_graph.selectChannel(channel);
 }
 
 /**

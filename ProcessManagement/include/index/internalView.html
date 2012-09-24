@@ -124,8 +124,8 @@
 		<br/>
 		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate transition" />
-		<br/>
+<!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate transition" />
+		<br/> -->
 	</div>
 
 	<div class="nodesettings" id="NodeFunctions">
@@ -186,6 +186,7 @@
 		</div>
 		
 		<div id="ge_node_varman_outer" style="display:none;">
+			<label class="graphsectionheader">Variable Manipulation:</label>
 			<select id="ge_node_varman_store" style="width:140px;"></select>
 			<div id="ge_node_varman_store_new_outer" style="display:none;">
 				<label class="graphsectionheader">New Var:</label>
@@ -208,8 +209,8 @@
 		<br/>
 		<input type="button" id="ConnectNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />
 		<br/>
-		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate state" />
-		<br/>
+<!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate state" />
+		<br/> -->
 		<input type="button" id="DeleteNodeButton" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete state" />
 		<br/>
 	</div>

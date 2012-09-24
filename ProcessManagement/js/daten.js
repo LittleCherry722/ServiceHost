@@ -173,11 +173,46 @@ function ProzessLaden(name) {
 }
 
 
+function clearListOfChannels(){
+	console.log("Deprecated: daten.js");
+	$("#slctChan").val('').trigger("liszt:updated");
+	$("#slctChan").html('').trigger("liszt:updated");
+}
 
 function clearListOfSubjects(){
 	console.log("Deprecated: daten.js");
-	$(".chzn-select").val('').trigger("liszt:updated");
-	$(".chzn-select").html('').trigger("liszt:updated");
+	$("#slctSbj").val('').trigger("liszt:updated");
+	$("#slctSbj").html('').trigger("liszt:updated");
+}
+
+function updateListOfChannels(){
+	console.log("Deprecated: daten.js");
+	
+	//console.log(gv_graph.subjects);
+	
+	clearListOfChannels();
+	var html = "<option></option>";
+	
+	var channelList	= gf_getChannels();
+	
+	for(var chid in channelList){
+	
+	if (""+chid == gf_getSelectedChannel()){
+
+		html += "<option selected id=\""+chid+"\">"+channelList[chid]+"</option>";
+		
+	}
+	else{
+		html += "<option id=\""+chid+"\">"+channelList[chid]+"</option>";
+
+	}
+}
+
+
+	$('#slctChan').html(html);
+	$("#slctChan").trigger("liszt:updated");
+	//Workaround, Chosen fails to reset, can't select same internal behavior twice with dropdown. Fix: add click listener to every chosen option (not native select option).
+$(".active-result").click(function(){gf_selectChannel($('#slctChan option:selected').attr('id'))});
 }
 
 function updateListOfSubjects(){

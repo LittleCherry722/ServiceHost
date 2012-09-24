@@ -67,6 +67,13 @@ function GCcommunication ()
 	this.nodeCounter		= 0;
 	
 	/**
+	 * The currently selected channel
+	 * 
+	 * @type String
+	 */
+	this.selectedChannel	= "##all##";
+	
+	/**
 	 * The currenctly selected subject-node in the communication view.
 	 * 
 	 * @type String
@@ -103,6 +110,7 @@ function GCcommunication ()
 			id = "##createNew##";
 		
 		var gt_channelId	= "";
+		var gt_changesDone	= false;
 		if (gf_isset(id, text))
 		{
 			if (id.substr(0, 1) == "c")
@@ -122,6 +130,7 @@ function GCcommunication ()
 				if (!gt_channelExists && gf_isset(this.channels[id]) && this.channels[id] != text && text != "")
 				{
 					this.channels[id]	= text;
+					gt_changesDone	= true;
 				}
 				gt_channelId	= id;
 			}
@@ -150,12 +159,17 @@ function GCcommunication ()
 					this.channels["c" + this.channelCounter] = text;
 					gt_channelId	= "c" + this.channelCounter;
 					this.channelCounter++;
+					gt_changesDone = true;
 				}
 			}
 			else
 			{
 				// (no channel selected)
 			}
+			
+			// publish update
+			if (gt_changesDone)
+				$.publish(gv_topics.channels, [{action: "add", id: gt_channelId, text: text}]);
 		}
 		
 		return gt_channelId;
@@ -320,6 +334,9 @@ function GCcommunication ()
 	 */
 	this.changeView = function (view)
 	{
+		if (!gf_isset(view))
+			view = "";
+			
 		// hook
 		if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.changeViewHook))
 		{
@@ -761,17 +778,32 @@ function GCcommunication ()
 						var gt_relatedSubject		= gt_edge.getRelatedSubject();
 						var gt_text					= gt_edge.getMessageType();
 						var gt_type					= gt_edge.getType();
-						
+						var gt_channelId			= gt_startNode	== null ? "" : gt_startNode.getChannel();
+						var gt_channelName			= gt_startNode	== null ? "" : gt_startNode.getChannel("name");
+												
 						if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
 						{
-							if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
+							if (this.selectedChannel == "##channels##")
 							{
-								this.addMessage(gt_bi, gt_relatedSubject, gt_text);
+								if (gf_isset(this.subjects[gt_relatedSubject]) && (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive") && gt_channelName != null)
+								{
+									if (gt_relatedSubject.toLowerCase() > gt_bi.toLowerCase())
+										this.addMessage(gt_bi, gt_relatedSubject, gt_channelName);
+									else
+										this.addMessage(gt_relatedSubject, gt_bi, gt_channelName);
+								}
 							}
-							
-							if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "receive")
+							else if (this.selectedChannel == "##all##" || this.selectedChannel == gt_channelId || this.selectedChannel == null)
 							{
-								this.addMessage(gt_relatedSubject, gt_bi, gt_text);
+								if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
+								{
+									this.addMessage(gt_bi, gt_relatedSubject, gt_text);
+								}
+								
+								if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "receive")
+								{
+									this.addMessage(gt_relatedSubject, gt_bi, gt_text);
+								}
 							}
 						}
 					}
@@ -779,7 +811,7 @@ function GCcommunication ()
 			}
 			
 			// clear graph
-			gv_graph_cv.init();
+			gv_graph_cv.init(this.selectedChannel == "##channels##");
 			
 			// add subjects
 			for (var gt_sid in this.subjects)
@@ -803,6 +835,7 @@ function GCcommunication ()
 				}
 			}
 			
+			$.publish(gv_topics.channels, [{action: "load", view: "cv"}]);
 			gv_graph_cv.drawGraph();
 		}
 	};
@@ -828,6 +861,9 @@ function GCcommunication ()
 			this.changeView("bv");
 			gt_behavior.draw();
 			this.selectedSubject = id;
+			
+			// request an update of the channel list
+			$.publish(gv_topics.channels, [{action: "load", view: "bv"}]);
 		}
 	};
 	
@@ -859,6 +895,35 @@ function GCcommunication ()
 			return this.messages[sender][receiver];
 		}
 		return [];
+	};
+	
+	/**
+	 * Returns the id of the selected channel.
+	 * 
+	 * @param {String} view Indicates when a view is changed.
+	 * @returns {String} Id of the selected channel.
+	 */
+	this.getSelectedChannel = function (view)
+	{
+		if (!gf_isset(view))
+			view = null;
+		
+		if (this.selectedSubject == null && view != "bv" || view == "cv")
+		{
+			return this.selectedChannel;
+		}
+		else
+		{
+			if (this.selectedSubject != null && gf_isset(this.subjects[this.selectedSubject]))
+			{
+				return this.getBehavior(this.selectedSubject).selectedChannel;
+			}
+			else if (this.selectedNode != null && gf_isset(this.subjects[this.selectedNode]))
+			{
+				return this.getBehavior(this.selectedNode).selectedChannel;
+			}
+		}
+		return null;
 	};
 	
 	/**
@@ -970,6 +1035,8 @@ function GCcommunication ()
 		// if more than one message is sent from sender to receiver return the messages imploded to a string
 		else if (gt_messages.length > 0)
 		{
+			gt_messages.sort();
+			
 			for (var gt_mi = 0; gt_mi < gt_messages.length; gt_mi++)
 			{
 				// add a new line character to each message
@@ -1071,6 +1138,9 @@ function GCcommunication ()
 				this.channelCounter	= gt_jsonObject.channelCounter;
 				gt_useChannels		= true;
 			}
+			
+			// reset channel selection
+			this.selectedChannel	= "##all##";
 			
 			// 1. create subjects (replace <br /> by \n)
 			for (var gt_subjectId in gt_jsonProcess)
@@ -1463,6 +1533,33 @@ function GCcommunication ()
 		
 		// var uriContent	= "data:image/svg+xml," + encodeURIComponent(svg);
 		// var newWindow	= window.open(uriContent, "test window");
+	};
+	
+	/**
+	 * Select a channel.
+	 * When an internal behavior is selected the channel name will be passed to the behavior's selectChannel method.
+	 * 
+	 * @param {String} channel The name of the channel to select. When set to "##channels##" the available channels will be displayed in the CV. When set to "##all##" all channels will be displayed.
+	 * @returns {void}
+	 */
+	this.selectChannel = function (channel)
+	{
+		if (this.selectedSubject == null)
+		{			
+			if (!gf_isset(channel))
+				channel = "##all##";
+				
+			this.selectedChannel	= channel;
+			
+			this.draw();
+		}
+		else
+		{
+			if (gf_isset(this.subjects[this.selectedSubject]))
+			{
+				this.getBehavior(this.selectedSubject).selectChannel(channel);
+			}
+		}
 	};
 	
 	/**

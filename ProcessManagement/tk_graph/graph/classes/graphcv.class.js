@@ -21,6 +21,11 @@
 function GCgraphcv ()
 {
 	/**
+	 * When set to true the style for channels will be used.
+	 */
+	this.channels	= false;
+	
+	/**
 	 * This contains all subjects and all messages that are used during the creation of the graph.
 	 * 
 	 * @private
@@ -299,8 +304,16 @@ function GCgraphcv ()
 				gt_cv_endx		= gt_cv_objectEnd.left;
 				
 				// move the arrow ends out of the middle
-				gt_cv_starty	= gt_cv_objectStart.y - gv_cv_roundedRectangle.arrowCorrectionV;
-				gt_cv_endy		= gt_cv_objectEnd.y - gv_cv_roundedRectangle.arrowCorrectionV;
+				if (this.channels === true)
+				{
+					gt_cv_starty	= gt_cv_objectStart.y;
+					gt_cv_endy		= gt_cv_objectEnd.y;
+				}
+				else
+				{
+					gt_cv_starty	= gt_cv_objectStart.y - gv_cv_roundedRectangle.arrowCorrectionV;
+					gt_cv_endy		= gt_cv_objectEnd.y - gv_cv_roundedRectangle.arrowCorrectionV;
+				}
 			}
 		}
 		
@@ -327,14 +340,22 @@ function GCgraphcv ()
 				gt_cv_endx		= gt_cv_objectEnd.right;
 				
 				// move the arrow ends out of the middle
-				gt_cv_starty	= gt_cv_objectStart.y + gv_cv_roundedRectangle.arrowCorrectionV;
-				gt_cv_endy		= gt_cv_objectEnd.y + gv_cv_roundedRectangle.arrowCorrectionV;
+				if (this.channels === true)
+				{
+					gt_cv_starty	= gt_cv_objectStart.y;
+					gt_cv_endy		= gt_cv_objectEnd.y;
+				}
+				else
+				{
+					gt_cv_starty	= gt_cv_objectStart.y + gv_cv_roundedRectangle.arrowCorrectionV;
+					gt_cv_endy		= gt_cv_objectEnd.y + gv_cv_roundedRectangle.arrowCorrectionV;
+				}
 			}
 		}
 		
 		// create a new GCpath
 		var gt_cv_path = new GCpath(gt_cv_startx, gt_cv_starty, gt_cv_endx, gt_cv_endy, gt_cv_arrowType, text, "doesNotMatter" + Math.random());
-			gt_cv_path.setStyle(gv_cv_arrow.style);
+			gt_cv_path.setStyle(this.channels === true ? gv_cv_arrow.styleChannel : gv_cv_arrow.style);			
 			gt_cv_path.setSpace1(gt_cv_arrowUspace);
 			gt_cv_path.setFirstLine("v");
 			gt_cv_path.updatePath();
@@ -402,10 +423,14 @@ function GCgraphcv ()
 	 * Initialize the canvas.
 	 * 
 	 * @private
+	 * @param {boolean} channels When set to true the style for channels will be used.
 	 * @returns {void}
 	 */
-	this.init = function ()
+	this.init = function (channels)
 	{
+		this.channels	= gf_isset(channels) && channels == true;
+		
+		
 		this.subjects = {};
 		this.messages = {};
 	};

@@ -98,6 +98,8 @@ var Mediator = function() {
         processView : function() {
 
             $("#slctSbj").chosen();
+            
+            $("#slctChan").chosen();
 
             $("#tab2").click(function() {
                 console.log("tab2 clicked");
@@ -108,6 +110,7 @@ var Mediator = function() {
                 $("#tab2_content").removeClass("hide");
                 gv_graph.changeView('cv');
                 updateListOfSubjects();
+                updateListOfChannels();
                 
                 SBPM.VM.contentVM().activeViewIndex(0);
             });

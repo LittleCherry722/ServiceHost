@@ -19,6 +19,9 @@
  * @type Object
  */
 var gv_elements = {
+	
+	guiChannelSelect:			"graph_channel_select",
+	
 	graphBVouter:				"graph_bv_outer",
 	graphCVouter:				"graph_cv_outer",
 	inputEdgeCorrelationId:		"ge_edge_correlationid",
@@ -215,6 +218,13 @@ var gv_functions	= {
 		toggleNEForms:		"",
 		
 		/**
+		 * updates the list of available channels in the GUI
+		 * 
+		 * @returns {void}
+		 */
+		updateListOfChannels:	"updateListOfChannels",
+		
+		/**
 		 * updates the list of available subjects in the GUI
 		 * 
 		 * @see GCcommunication::selectNode()
@@ -350,6 +360,7 @@ var gv_functions	= {
  * @type Object
  */
 var gv_topics	= {
+	channels:		"/tk_graph/channels",
 	subjects:		"/tk_graph/subjects",
 	states:			"/tk_graph/states",
 	transitions:	"/tk_graph/transitions"

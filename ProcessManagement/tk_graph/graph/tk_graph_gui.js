@@ -11,6 +11,28 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+// subscribe to changes of channel list
+$.subscribe("/tk_graph/channels", function (args)
+{
+	if (gf_isset(gv_elements))
+	{
+		if (gf_isset(args.action) && args.action == "load" && gf_isset(args.view))
+		{
+			gf_guiLoadDropDownForChannelSelect(args.view);
+		}
+		else
+		{
+			gf_guiLoadDropDownForChannelSelect();
+		}
+	}
+	
+	if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.updateListOfChannels))
+	{
+		window[gv_functions.communication.updateListOfChannels]();
+	}
+}
+);
+
 /**
  * Hides an element (display="none").
  * 
@@ -125,6 +147,8 @@ function gf_guiChangeView (view)
 			$('#' + gv_elements.graphBVouter).scrollTo( {left: '0px', top: '0px'});
 			$('#' + gv_elements.graphBVouter).scrollTo( {left: '50%', top: '0px'});
 		}
+		
+		gf_guiLoadDropDownForChannelSelect(view);
 	}
 }
 
@@ -757,15 +781,19 @@ function gf_guiDisplaySubject (subject)
  * @param {String} elementChannel The ID of the select element that holds the available channels.
  * @param {boolean} newChannel When set to true an option will be added to create a new channel.
  * @param {boolean} wildcard When set to true an option will be added to the select field to select all channels (wildcard).
+ * @param {boolean} selectChannels When set to true an option will be added to the select field to only display channels (used in CV).
  * @returns {void}
  */
-function gf_guiLoadDropDownChannels (elementChannel, newChannel, wildcard)
+function gf_guiLoadDropDownChannels (elementChannel, newChannel, wildcard, selectChannels)
 {
 	if (!gf_isset(newChannel) || newChannel !== true)
 		newChannel = false;
 		
 	if (!gf_isset(wildcard) || wildcard !== true)
 		wildcard = false;
+		
+	if (!gf_isset(selectChannels) || selectChannels !== true)
+		selectChannels = false;
 	
 	// load channels	
 	if (elementChannel != null && gf_elementExists(elementChannel))
@@ -786,6 +814,22 @@ function gf_guiLoadDropDownChannels (elementChannel, newChannel, wildcard)
 			gt_option.value		= "";
 			gt_option.id		= elementChannel + "_00000.1";
 			gt_select.add(gt_option);
+		
+		// options for select channels instead of messageTypes (CV only)
+		if (selectChannels === true)
+		{
+			gt_option			= document.createElement("option");
+			gt_option.text		= "display channels";
+			gt_option.value		= "##channels##";
+			gt_option.id		= elementChannel + "_00000.channels";
+			gt_select.add(gt_option);
+		
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementChannel + "_00000.321";
+			gt_select.add(gt_option);
+		}
 		
 		// options for select all channels
 		if (wildcard === true)
@@ -1296,6 +1340,34 @@ function gf_guiLoadDropDownVarManOperations (elementVarMan)
 			gt_option.id	= elementVarMan + "_" + gt_vmid;
 			gt_select.add(gt_option);
 		}
+	}
+}
+
+/**
+ * Refresh the list of channels to select.
+ * 
+ * @param {String} view Just needed when the view is changed.
+ * @returns {void}
+ */
+function gf_guiLoadDropDownForChannelSelect (view)
+{
+	if (!gf_isset(view))
+		view = "";
+	
+	if (gf_elementExists(gv_elements.guiChannelSelect))
+	{
+		var gt_value	= view == "" ? gv_graph.getSelectedChannel() : gv_graph.getSelectedChannel(view);
+			gt_value	= gt_value == null ? "##all##" : gt_value;
+		
+		gf_guiLoadDropDownChannels(gv_elements.guiChannelSelect, false, true, view == "cv");
+		document.getElementById(gv_elements.guiChannelSelect).value = gt_value;
+		
+		document.getElementById(gv_elements.guiChannelSelect).onchange = function ()
+		{
+			var gt_selected	= document.getElementById(gv_elements.guiChannelSelect).value;
+			
+			gf_selectChannel(gt_selected);
+		};
 	}
 }
 
