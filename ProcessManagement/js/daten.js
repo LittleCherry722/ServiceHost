@@ -223,18 +223,21 @@ function updateListOfSubjects(){
 	clearListOfSubjects();
 	var html = "<option></option>";
 	
-	for(var subject in gv_graph.subjects){
+	for(var subject in gv_graph.subjects)
+	{
+		if (!gv_graph.subjects[subject].isExternal() || gv_graph.subjects[subject].getExternalType() == "interface")
+		{
 	
-	if (""+subject == gv_graph.selectedNode){
-
-		html += "<option selected id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
-		
+			if (""+subject == gv_graph.selectedNode)
+			{
+				html += "<option selected id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
+			}
+			else
+			{
+				html += "<option id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
+			}
+		}
 	}
-	else{
-		html += "<option id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
-
-	}
-}
 
 
 	$('#slctSbj').html(html);

@@ -131,19 +131,31 @@ function gf_guiChangeView (view)
 	{
 		if (view == "cv")
 		{
+			/*
 			if (gf_elementExists(gv_elements.graphBVouter))
 				document.getElementById(gv_elements.graphBVouter).style.display = "none";
 			
 			document.getElementById(gv_elements.graphCVouter).style.display = "block";
+			*/
+			
+			gf_guiElementHide(gv_elements.graphBVouter);
+			gf_guiElementShow(gv_elements.graphCVouter);
+			
 			$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '0px'});
 			$('#' + gv_elements.graphCVouter).scrollTo( {left: '0px', top: '50%'});
 		}
 		else
 		{
+			/*
 			if (gf_elementExists(gv_elements.graphCVouter))
 				document.getElementById(gv_elements.graphCVouter).style.display = "none";
 				
 			document.getElementById(gv_elements.graphBVouter).style.display = "block";
+			*/
+			
+			gf_guiElementHide(gv_elements.graphCVouter);
+			gf_guiElementShow(gv_elements.graphBVouter);
+			
 			$('#' + gv_elements.graphBVouter).scrollTo( {left: '0px', top: '0px'});
 			$('#' + gv_elements.graphBVouter).scrollTo( {left: '50%', top: '0px'});
 		}
@@ -234,6 +246,11 @@ function gf_guiClearInputFields ()
 		document.getElementById(gv_elements.inputNodeVarManOuter).style.display = "none";
 	if (gf_elementExists(gv_elements.inputNodeVarManVarStoreNO))
 		document.getElementById(gv_elements.inputNodeVarManVarStoreNO).style.display = "none";
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeBooleanOuter))
+		document.getElementById(gv_elements.inputEdgeTypeBooleanOuter).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeTypeNormalOuter))
+		document.getElementById(gv_elements.inputEdgeTypeNormalOuter).style.display = "none";
 }
 
 /**
@@ -301,6 +318,10 @@ function gf_guiDisplayEdge (edge, startType)
 		document.getElementById(gv_elements.inputEdgeTargetMVarTextO).style.display = "none";
 	if (gf_elementExists(gv_elements.inputEdgeCorrelationIdO))
 		document.getElementById(gv_elements.inputEdgeCorrelationIdO).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeTypeBooleanOuter))
+		document.getElementById(gv_elements.inputEdgeTypeBooleanOuter).style.display = "none";
+	if (gf_elementExists(gv_elements.inputEdgeTypeNormalOuter))
+		document.getElementById(gv_elements.inputEdgeTypeNormalOuter).style.display = "none";
 		
 	if (gf_elementExists(gv_elements.inputEdgeStoreOuter))
 		document.getElementById(gv_elements.inputEdgeStoreOuter).style.display = "none";
@@ -329,6 +350,12 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeOptional).checked = edge.isOptional();
 	}
 	
+	
+	if (gf_elementExists(gv_elements.inputEdgeTypeBooleanOuter))
+		document.getElementById(gv_elements.inputEdgeTypeBooleanOuter).style.display = startType == "$isipempty" ? "block" : "none";
+	if (gf_elementExists(gv_elements.inputEdgeTypeNormalOuter))
+		document.getElementById(gv_elements.inputEdgeTypeNormalOuter).style.display = startType == "$isipempty" ? "none" : "block";
+	
 	// mark type
 	if (edge.getType() == "timeout")
 	{
@@ -336,7 +363,7 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = true;
 			
 		if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
-			document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = "block";
+			document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = startType == "$isipempty" ? "none" : "block";
 	}
 	else if (edge.getType() == "errorcondition")
 	{
@@ -344,7 +371,17 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTypeException).checked = true;
 			
 		if (gf_elementExists(gv_elements.inputEdgeTypeExceptO))
-			document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = "block";
+			document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = startType == "$isipempty" ? "none" : "block";
+	}
+	else if (edge.getType() == "booltrue")
+	{
+		if (gf_elementExists(gv_elements.inputEdgeTypeBooleanTrue))
+			document.getElementById(gv_elements.inputEdgeTypeBooleanTrue).checked = true;
+	}
+	else if (edge.getType() == "boolfalse")
+	{
+		if (gf_elementExists(gv_elements.inputEdgeTypeBooleanFalse))
+			document.getElementById(gv_elements.inputEdgeTypeBooleanFalse).checked = true;
 	}
 	else
 	{
@@ -352,7 +389,7 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTypeCondition).checked = true;
 			
 		if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
-			document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = "block";
+			document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = startType == "$isipempty" ? "none" : "block";
 	}
 	
 	// add events
@@ -399,6 +436,12 @@ function gf_guiDisplayEdge (edge, startType)
 		
 	if (gf_elementExists(gv_elements.inputEdgeTypeException))
 		document.getElementById(gv_elements.inputEdgeTypeException).disabled = !gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "errorcondition", edge.getType(), "update").allowed;
+
+	if (gf_elementExists(gv_elements.inputEdgeTypeBooleanTrue))
+		document.getElementById(gv_elements.inputEdgeTypeBooleanTrue).disabled = !gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "booltrue", edge.getType(), "update").allowed;
+
+	if (gf_elementExists(gv_elements.inputEdgeTypeBooleanFalse))
+		document.getElementById(gv_elements.inputEdgeTypeBooleanFalse).disabled = !gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "boolfalse", edge.getType(), "update").allowed;
 	
 	// correlationID
 	if (startType == "send" || startType == "receive" || startType == "action")
@@ -1335,7 +1378,7 @@ function gf_guiLoadDropDownVarManOperations (elementVarMan)
 		for (var gt_vmid in gv_varManOperations)
 		{
 			gt_option		= document.createElement("option");
-			gt_option.text	= gv_varManOperations[gt_vmid];
+			gt_option.text	= gv_varManOperations[gt_vmid].label + " (" + gv_varManOperations[gt_vmid].desc + ")";
 			gt_option.value	= gt_vmid;
 			gt_option.id	= elementVarMan + "_" + gt_vmid;
 			gt_select.add(gt_option);
@@ -1539,6 +1582,12 @@ function gf_guiReadEdge ()
 		
 	if (gf_elementExists(gv_elements.inputEdgeTypeException) && document.getElementById(gv_elements.inputEdgeTypeException).checked)
 		gt_type	= "errorcondition";
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeBooleanFalse) && document.getElementById(gv_elements.inputEdgeTypeBooleanFalse).checked)
+		gt_type	= "boolfalse";
+		
+	if (gf_elementExists(gv_elements.inputEdgeTypeBooleanTrue) && document.getElementById(gv_elements.inputEdgeTypeBooleanTrue).checked)
+		gt_type	= "booltrue";
 	
 	gt_result.text				= gt_text;
 	gt_result.relatedSubject	= gt_relatedSubject;

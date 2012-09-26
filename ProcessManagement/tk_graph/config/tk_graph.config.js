@@ -74,7 +74,10 @@ var gv_nodeTypes	= {
 	modalsplit: {shape: "circle", text: "MS", label: "modal split"},
 	
 	// a modal join operator will be displayed as a circle with the letters "MJ" on it
-	modaljoin: {shape: "circle", text: "MJ", label: "modal join"}
+	modaljoin: {shape: "circle", text: "MJ", label: "modal join"},
+	
+	// an empty node to merge two paths together
+	merge: {shape: "circle", text: "", label: "merge"}
 };
 
 /**
@@ -153,16 +156,16 @@ var gv_predefinedActions	= {
  */
 var gv_varManOperations	= {
 	// the boolean and operation
-	and: "&",
+	and: {label: "&", desc: "AND"},
 	
 	// the boolean or operation
-	or: "|",
+	or: {label: "|", desc: "OR"},
 	
 	// the boolean xor operation
-	xor: "^",
+	xor: {label: "^", desc: "XOR"},
 	
 	// the boolean complement (A minus B)
-	complement: "\\"
+	complement: {label: "\\", desc: "Complement"}
 };
 
 /**

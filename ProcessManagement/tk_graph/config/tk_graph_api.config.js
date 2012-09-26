@@ -103,8 +103,12 @@ var gv_elements = {
 	inputEdgeTargetMVarTextO:	"ge_edge_target_multi_variable_text_outer",
 	
 	// edge types
+	inputEdgeTypeBooleanFalse:	"ge_edge_type_boolean_false",
+	inputEdgeTypeBooleanOuter:	"ge_edge_type_boolean_outer",
+	inputEdgeTypeBooleanTrue:	"ge_edge_type_boolean_true",
 	inputEdgeTypeCondition:		"ge_edge_type_condition",
 	inputEdgeTypeException:		"ge_edge_type_exception",
+	inputEdgeTypeNormalOuter:	"ge_edge_type_normal_outer",
 	inputEdgeTypeTimeout:		"ge_edge_type_timeout",
 	
 	// variable manipulation

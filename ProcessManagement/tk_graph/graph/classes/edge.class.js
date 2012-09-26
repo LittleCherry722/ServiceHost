@@ -138,6 +138,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	/**
 	 * The type of the edge.
 	 * This can either be an exitcondition, errorcondition or a timeout.
+	 * For startNode == isIPEmpty: booltrue, boolfalse
 	 * 
 	 * @type String
 	 */
@@ -270,37 +271,39 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	{		
 		var startNode		= this.parent.getNode(this.start);
 		var relatedSubject	= this.relatedSubject;
-		
+				
 		if (startNode == null || (startNode.getType() != "receive" && startNode.getType() != "send") || relatedSubject == null)
-		{
-			relatedSubject = null;
-		}
-		else if (relatedSubject.id == null || relatedSubject.id == "")
 		{
 			relatedSubject = null;
 		}
 		else
 		{
+			var gt_isNull	= relatedSubject.id == null || relatedSubject.id == "";
+			
 			if (!gf_isset(attribute))
 				attribute = "id";
 			
 			attribute	= attribute.toLowerCase();
-				
-			if (attribute == "id")
+			
+			if (attribute == "id" && !gt_isNull)
 			{
 				relatedSubject	= relatedSubject.id;
 			}
-			else if (attribute == "name")
+			else if (attribute == "name" && !gt_isNull)
 			{
 				var gt_relatedSubject	= relatedSubject.id;
 				
 				relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].getText() : gt_relatedSubject;
 			}
-			else if (attribute == "multi")
+			else if (attribute == "multi" && !gt_isNull)
 			{
 				var gt_relatedSubject	= relatedSubject.id;
 				
 				relatedSubject	= gf_isset(gv_graph.subjects[gt_relatedSubject]) ? gv_graph.subjects[gt_relatedSubject].isMulti() : false;
+			}
+			else if (attribute == "multi" && gt_isNull)
+			{
+				relatedSubject	= false;
 			}
 			else if (attribute == "min")
 			{
@@ -314,9 +317,13 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			{
 				relatedSubject	= relatedSubject.createNew === true;
 			}
-			else if (attribute == "variable")
+			else if (attribute == "variable" && !gt_isNull)
 			{
 				relatedSubject	= relatedSubject.variable;
+			}
+			else
+			{
+				relatedSubject	=  gt_isNull ? null : relatedSubject;
 			}
 		}
 		
@@ -374,18 +381,23 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	/**
 	 * Returns the type of the edge.
 	 * 
-	 * @returns {String} The type of the edge. Currently the following types are possible: timeout, exitcondition (default), errorcondition
+	 * @returns {String} The type of the edge. Currently the following types are possible: timeout, exitcondition (default), errorcondition; for startNode = isIPempty: booltrue (default), boolfalse
 	 */
 	this.getType = function ()
 	{
-		if (this.type == "timeout" || this.type == "errorcondition")
+		if (this.getTypeOfStartNode() == "$isipempty")
 		{
-			return this.type;
+			if (this.type == "booltrue" || this.type == "boolfalse")
+				return this.type;
 		}
 		else
 		{
-			return "exitcondition";
+			if (this.type == "timeout" || this.type == "errorcondition")
+			{
+				return this.type;
+			}
 		}
+		return "exitcondition";
 	};
 	
 	/**
@@ -622,9 +634,19 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		if (gf_isset(type))
 		{
 			type = type.toLowerCase();
-			if (type == "exitcondition" || type == "timeout" || type == "errorcondition")
+			if (this.getTypeOfStartNode() == "$isipempty")
 			{
-				this.type = type;
+				if (type == "booltrue" || type == "boolfalse")
+				{
+					this.type = type;
+				}
+			}
+			else
+			{
+				if (type == "exitcondition" || type == "timeout" || type == "errorcondition")
+				{
+					this.type = type;
+				}
 			}
 		}
 	};
@@ -679,8 +701,20 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			return "Timeout" + (this.isManualTimeout() ? " (M)" : "") + "\n(" + this.timer.getTimeString("unit") + ")";
 		}
 		
+		// return boolean false
+		else if (this.type == "booltrue")
+		{
+			return "Yes";
+		}
+		
+		// return boolean false
+		else if (this.type == "boolfalse")
+		{
+			return "No";
+		}
+		
 		// return error condition
-		if (this.type == "errorcondition")
+		else if (this.type == "errorcondition")
 		{
 			return "Exception:\n" + this.exception;
 		}
@@ -702,8 +736,14 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			else
 				gt_correlation	= " with (" + this.getCorrelationId("name") + ")"
 			
+			// merge node
+			if (gt_startNode.getType() == "merge")
+			{
+				return "";
+			}
+			
 			// messages
-			if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
+			else if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
 			{
 				var gt_text				= this.getMessageType();
 				var gt_relatedSubject	= this.getRelatedSubject("name");
@@ -722,16 +762,16 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 						{							
 								gt_relatedVariable = gt_variables[gt_relatedVariable];
 						}
-						gt_relatedMultiText = " (" + gt_relatedVariable + ")";
+						gt_relatedMultiText = "(" + gt_relatedVariable + ") of ";
 					}
 					else if (gt_relatedMin == "-1" && gt_relatedMax == "-1")
 					{
-						gt_relatedMultiText = " (all)";
+						gt_relatedMultiText = "(all) of ";
 					}
 					else
 					{
 						// gt_relatedMultiText = "\n(" + gt_relatedMin + " to " + gt_relatedMax + " messages)";
-						gt_relatedMultiText = " (" + gt_relatedMin + " to " + gt_relatedMax + ")";
+						gt_relatedMultiText = "(" + gt_relatedMin + " to " + gt_relatedMax + ") of ";
 					}
 				}
 				else
@@ -745,7 +785,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 					return "" + gt_text + gt_variable;
 				}
 				return gt_text + "\n" + (gt_startNode.getType() == "receive" ? "(" + this.getPriority() + ") " : "") +
-											(gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedSubject + gt_relatedMultiText + gt_correlation + gt_variable;
+											(gt_startNode.getType() == "receive" ? "from" : "to") + ": " + gt_relatedMultiText + gt_relatedSubject + gt_correlation + gt_variable;
 			}
 			
 			// all other exit conditions

@@ -169,6 +169,24 @@ function GCbehavior (name)
  	};
 	
 	/**
+	 * Creates a new GCedge (with type=exit condition and a proper messageType added) and stores it in the edges array.
+	 * The edge will be stored at key "e" + edgeCounter.
+	 * The edgeCounter is increased by one.
+	 * 
+	 * @param {int} start The id of the start node.
+	 * @param {int} end The id of the end node.
+	 * @param {String} message The messageType (text not ID) associated to this edge.
+	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
+	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
+	 * @param {boolean} [optional] The optional status of the edge. (default: false)
+	 * @returns {GCedge} The created edge or null on errors.  
+	 */
+	this.addEdgeMessage = function (start, end, message, relatedSubject, deactivated, optional)
+	{
+		return this.addEdge(start, end, gv_graph.addMessageType(message), relatedSubject, "exitcondition", deactivated, optional);
+	};
+	
+	/**
 	 * Creates a new GCnode and stores it in the nodes array.
 	 * The node will be stored at key "n" + nodeCounter.
 	 * The nodeCounter is increased by one.

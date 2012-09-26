@@ -25,17 +25,28 @@
 		<span id="graphmenuheader">Transition settings</span>
 		<br />
 		<label align="left" class="graphsectionheader">Transition Type</label>
-		<div id="internalRadioMenu">
-			<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
-			<label align="left"  class="graphsectionheader">Exit Condition</label>
+		<div id="ge_edge_type_normal_outer" style="display:none;">
+			<div id="internalRadioMenu">
+				<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
+				<label align="left"  class="graphsectionheader">Exit Condition</label>
+				<br/>
+				
+				<input type="radio" id="ge_edge_type_exception" name="ge_edge_type" />
+				<label align="left"  class="graphsectionheader">Error Condition</label>
+				<br/>
+				
+				<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
+				<label align="left" class="graphsectionheader">Timeout</label>
+			</div>
+		</div>
+		
+		<div id="ge_edge_type_boolean_outer" style="display:none;">
+			<input type="radio" id="ge_edge_type_boolean_true" name="ge_edge_type" />
+			<label align="left"  class="graphsectionheader">Yes</label>
 			<br/>
 			
-			<input type="radio" id="ge_edge_type_exception" name="ge_edge_type" />
-			<label align="left"  class="graphsectionheader">Error Condition</label>
-			<br/>
-			
-			<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
-			<label align="left" class="graphsectionheader">Timeout</label>
+			<input type="radio" id="ge_edge_type_boolean_false" name="ge_edge_type" />
+			<label align="left"  class="graphsectionheader">No</label>
 		</div>
 		
 		<br/>
@@ -187,20 +198,20 @@
 		
 		<div id="ge_node_varman_outer" style="display:none;">
 			<label class="graphsectionheader">Variable Manipulation:</label>
+			<select id="ge_node_varman_var1" style="width:140px;"></select>
+			<br />
+			<select id="ge_node_varman_operation" style="width:100px;"></select>
+			<br />
+			<select id="ge_node_varman_var2" style="width:140px;"></select>
+			
+			<label class="graphsectionheader">=:</label>
+			
 			<select id="ge_node_varman_store" style="width:140px;"></select>
 			<div id="ge_node_varman_store_new_outer" style="display:none;">
 				<label class="graphsectionheader">New Var:</label>
 				<br />
 				<input type="text" id="ge_node_varman_store_new" style="width:140px;" />
 			</div>
-			<div>
-			:=
-			</div>
-			<select id="ge_node_varman_var1" style="width:140px;"></select>
-			<br />
-			<select id="ge_node_varman_operation" style="width:75px;"></select>
-			<br />
-			<select id="ge_node_varman_var2" style="width:140px;"></select>
 			
 		</div>
 														
