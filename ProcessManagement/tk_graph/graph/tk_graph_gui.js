@@ -340,6 +340,9 @@ function gf_guiDisplayEdge (edge, startType)
 			}
 		};
 		
+	var gt_st_isIPempty	= startType == "$isipempty";
+	var gt_st_merge		= startType == "merge";
+		
 	// optional edges
 	if (edge.getTypeOfStartNode() == "modalsplit")
 	{
@@ -352,9 +355,9 @@ function gf_guiDisplayEdge (edge, startType)
 	
 	
 	if (gf_elementExists(gv_elements.inputEdgeTypeBooleanOuter))
-		document.getElementById(gv_elements.inputEdgeTypeBooleanOuter).style.display = startType == "$isipempty" ? "block" : "none";
+		document.getElementById(gv_elements.inputEdgeTypeBooleanOuter).style.display = gt_st_isIPempty ? "block" : "none";
 	if (gf_elementExists(gv_elements.inputEdgeTypeNormalOuter))
-		document.getElementById(gv_elements.inputEdgeTypeNormalOuter).style.display = startType == "$isipempty" ? "none" : "block";
+		document.getElementById(gv_elements.inputEdgeTypeNormalOuter).style.display = gt_st_isIPempty ? "none" : "block";
 	
 	// mark type
 	if (edge.getType() == "timeout")
@@ -363,7 +366,7 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTypeTimeout).checked = true;
 			
 		if (gf_elementExists(gv_elements.inputEdgeTypeTimeoutO))
-			document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = startType == "$isipempty" ? "none" : "block";
+			document.getElementById(gv_elements.inputEdgeTypeTimeoutO).style.display = gt_st_isIPempty || gt_st_merge ? "none" : "block";
 	}
 	else if (edge.getType() == "errorcondition")
 	{
@@ -371,7 +374,7 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTypeException).checked = true;
 			
 		if (gf_elementExists(gv_elements.inputEdgeTypeExceptO))
-			document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = startType == "$isipempty" ? "none" : "block";
+			document.getElementById(gv_elements.inputEdgeTypeExceptO).style.display = gt_st_isIPempty || gt_st_merge ? "none" : "block";
 	}
 	else if (edge.getType() == "booltrue")
 	{
@@ -389,7 +392,7 @@ function gf_guiDisplayEdge (edge, startType)
 			document.getElementById(gv_elements.inputEdgeTypeCondition).checked = true;
 			
 		if (gf_elementExists(gv_elements.inputEdgeTypeCondO))
-			document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = startType == "$isipempty" ? "none" : "block";
+			document.getElementById(gv_elements.inputEdgeTypeCondO).style.display = gt_st_isIPempty || gt_st_merge ? "none" : "block";
 	}
 	
 	// add events

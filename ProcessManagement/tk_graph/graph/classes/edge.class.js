@@ -694,6 +694,13 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.textToString = function ()
 	{
 		var gt_text	= "";
+		var gt_startNode = this.parent.getNode(this.start);
+		
+		// merge node
+		if (gt_startNode != null && gt_startNode.getType() == "merge")
+		{
+			return "";
+		}
 		
 		// return timeout
 		if (this.type == "timeout")
@@ -722,7 +729,6 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 		// return exit condition
 		else
 		{
-			var gt_startNode		= this.parent.getNode(this.start);
 			var gt_variable			= this.getVariable();
 			var gt_correlation		= this.getCorrelationId();
 			
@@ -736,14 +742,8 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			else
 				gt_correlation	= " with (" + this.getCorrelationId("name") + ")"
 			
-			// merge node
-			if (gt_startNode.getType() == "merge")
-			{
-				return "";
-			}
-			
 			// messages
-			else if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
+			if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
 			{
 				var gt_text				= this.getMessageType();
 				var gt_relatedSubject	= this.getRelatedSubject("name");
