@@ -273,8 +273,8 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 						gt_result.type		= desiredType == gt_typeBooleanFalse ? typeBF : (desiredType == gt_typeBooleanTrue ? typeBT : typeX);
 					}
 					
-					// modal split, modal join, predefined actions
-					else if (gt_startNodeType == "modalsplit" || gt_startNodeType == "modaljoin" || gt_startNodeType.substr(0, 1) == "$")
+					// modal split, modal join
+					else if (gt_startNodeType == "modalsplit" || gt_startNodeType == "modaljoin")
 					{
 						var allowedC	= false;
 						var allowedX	= false;
@@ -283,6 +283,29 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 						
 						// for add action
 						allowedC	= gt_bnTotal == 0;
+						
+						if (action == "update")
+						{
+							allowedC	= allowedC || gt_bnTotal == 1;
+						}
+						
+						typeC		= allowedC ? gt_typeCondition : null;
+						typeX		= typeC;
+						
+						gt_result.allowed	= desiredType == gt_typeCondition ? allowedC : allowedX;
+						gt_result.type		= desiredType == gt_typeCondition ? typeC : typeX;
+					}
+					
+					// predefined actions
+					else if (gt_startNodeType.substr(0, 1) == "$")
+					{
+						var allowedC	= false;
+						var allowedX	= false;
+						var typeC		= null;
+						var typeX		= null;
+						
+						// for add action
+						allowedC	= gt_countTotal == 0;
 						
 						if (action == "update")
 						{
