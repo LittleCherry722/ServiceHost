@@ -10,6 +10,8 @@ var ViewModel = function() {
 		callback();
 	}
 
+
+
 	self.processName = ko.observable("");
 
 	self.processExist = ko.computed(function() {
