@@ -110,7 +110,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		
 		<br class="clear"/>
 		<div id="processExist" style="width:170px;height:45px;">
-		<span data-bind="visible: processExist">Process already exists! If you proceed, process will be overwritten.</span>
+		<span data-bind="visible: processExist" style="color: red;">Process already exists! Please choose a different name.</span>
 		</div>
 		<br class="clear"/>
 
@@ -119,7 +119,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		
 
 		<div align="center" style="float:left;" >
-		<input type="submit" value="Accept" data-bind="click : createCheck"/>
+		<input type="submit" value="Accept"  data-bind="click : createCheck, disable: processExist, style: {color: processExist() ? 'grey' : '#333'} "/>
 		<input type="button" value="Cancel" onclick="parent.fancyreturn1=false;parent.$.fancybox.close();"/>
 		</div>
 		<br class="clear"/>
