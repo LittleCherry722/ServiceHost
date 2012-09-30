@@ -100,7 +100,7 @@ var Mediator = function() {
             $("#slctSbj").chosen();
             
             $("#slctChan").chosen();
-
+            
             $("#tab2").click(function() {
                 console.log("tab2 clicked");
 

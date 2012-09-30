@@ -121,7 +121,7 @@ var gv_graphID	= "cv";
  * - end: no edges
  * - all other: unlimited outgoing edges, only one exit condition + one timeout between the same nodes
  * 
- * @param {GCbehavior} behavior The currently loaded internal behavior.
+ * @param {GCmacro} macro The currently loaded macro.
  * @param {int} start The ID of the start node.
  * @param {int} end The ID of the target node.
  * @param {String} desiredType The desired edge-type to check for availability.
@@ -129,7 +129,7 @@ var gv_graphID	= "cv";
  * @param {String} action When set to "update" this method will return an alternative edge-type or null when no appropriate edge-type is available.
  * @returns {boolean|String} True, when the limit is not yet hit. The type of the clicked edge can still be changed. String when alternative is set to true.
  */
-function gf_checkCardinality (behavior, start, end, desiredType, currentType, action)
+function gf_checkCardinality (macro, start, end, desiredType, currentType, action)
 {
 
 	var gt_result	= {allowed: false, type: null};
@@ -140,12 +140,12 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 	if (!gf_isset(action))
 		action = "add";
 		
-	if (gf_isset(behavior, start, end, desiredType))
+	if (gf_isset(macro, start, end, desiredType))
 	{
-		if (behavior != null)
+		if (macro != null)
 		{
-			var gt_edges			= behavior.getEdges();
-			var gt_startNode		= behavior.getNode(start);
+			var gt_edges			= macro.getEdges();
+			var gt_startNode		= macro.getNode(start);
 			
 			if (gt_startNode != null)
 			{
@@ -188,7 +188,7 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 					{
 						gt_edge	= gt_edges[gt_edgeId];
 						
-						if (gt_edge.start == start && gf_isset(behavior.nodes["n" + gt_edge.end]))
+						if (gt_edge.start == start && gf_isset(macro.nodes["n" + gt_edge.end]))
 						{
 							
 							if (gt_edge.getType() == gt_typeCondition)
@@ -297,7 +297,7 @@ function gf_checkCardinality (behavior, start, end, desiredType, currentType, ac
 					}
 					
 					// predefined actions
-					else if (gt_startNodeType.substr(0, 1) == "$")
+					else if (gt_startNodeType.substr(0, 1) == "$" || gt_startNodeType == "macro")
 					{
 						var allowedC	= false;
 						var allowedX	= false;
@@ -993,12 +993,33 @@ function gf_paperClickNodeC (id)
 }
 
 /**
+ * Called when a macro node is dblclicked on the canvas of the behaviorla view.
+ * It loads the proper macro.
+ * 
+ * @private
+ * @param {String} id The id of the clicked node.
+ * @returns {void}
+ */
+function gf_paperDblClickNodeB (id)
+{
+	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
+	{
+		var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
+		
+		if (gt_behav != null)
+		{
+			gt_behav.selectMacroByNode(id);
+		}
+	}
+}
+
+/**
  * Called when a subject is dblclicked on the canvas of the communication view.
  * It loads the internal behavior for the subject.
  * 
  * @private
  * @param {String} id The id of the clicked subject.
- * @returns{void}
+ * @returns {void}
  */
 function gf_paperDblClickNodeC (id)
 {

@@ -33,6 +33,16 @@ $.subscribe("/tk_graph/channels", function (args)
 }
 );
 
+// subscribe to changes of macro list
+$.subscribe("/tk_graph/macros", function (args)
+{
+	if (!gf_isStandAlone() && gf_functionExists(gv_functions.behavior.updateListOfMacros))
+	{
+		window[gv_functions.behavior.updateListOfMacros]();
+	}
+}
+);
+
 /**
  * Disables an element (readOnly=true | disabled=true).
  * 
@@ -254,6 +264,8 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputEdgeTypeNormalOuter);
 	gf_guiElementHide(gv_elements.inputNodeVarManOuter);
 	gf_guiElementHide(gv_elements.inputNodeVarManVarStoreNO);
+	gf_guiElementHide(gv_elements.inputNodeMacroOuter);
+	gf_guiElementHide(gv_elements.inputNodeMacroNewOuter);
 	
 	// clear element values
 	gf_guiElementWrite(gv_elements.guiChannelSelect, "string", "");
@@ -291,6 +303,8 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputNodeVarManVar2, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeVarManVarStore, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeVarManVarStoreN, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeMacro, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeMacroNew, "string", "");
 	
 	// uncheck elements
 	gf_guiElementWrite(gv_elements.inputEdgeOptional, "bool", false);
@@ -377,11 +391,11 @@ function gf_guiDisplayEdge (edge, startType)
 	gf_guiElementWrite(gv_elements.inputEdgeTypeTimeout, "bool", edge.getType() == "timeout");
 	
 	// disable types
-	gf_guiElementEnable(gv_elements.inputEdgeTypeBooleanFalse, "disabled", gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "boolfalse", edge.getType(), "update").allowed);
-	gf_guiElementEnable(gv_elements.inputEdgeTypeBooleanTrue, "disabled", gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "booltrue", edge.getType(), "update").allowed);
-	gf_guiElementEnable(gv_elements.inputEdgeTypeCondition, "disabled", gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "exitcondition", edge.getType(), "update").allowed);
-	gf_guiElementEnable(gv_elements.inputEdgeTypeException, "disabled", gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "errorcondition", edge.getType(), "update").allowed);
-	gf_guiElementEnable(gv_elements.inputEdgeTypeTimeout, "disabled", gf_checkCardinality(edge.parent, edge.getStart(), edge.getEnd(), "timeout", edge.getType(), "update").allowed);
+	gf_guiElementEnable(gv_elements.inputEdgeTypeBooleanFalse, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "boolfalse", edge.getType(), "update").allowed);
+	gf_guiElementEnable(gv_elements.inputEdgeTypeBooleanTrue, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "booltrue", edge.getType(), "update").allowed);
+	gf_guiElementEnable(gv_elements.inputEdgeTypeCondition, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "exitcondition", edge.getType(), "update").allowed);
+	gf_guiElementEnable(gv_elements.inputEdgeTypeException, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "errorcondition", edge.getType(), "update").allowed);
+	gf_guiElementEnable(gv_elements.inputEdgeTypeTimeout, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "timeout", edge.getType(), "update").allowed);
 	
 	// add events for edge types
 	gf_guiEdgeTypeAddOnClick(gv_elements.inputEdgeTypeCondition, gv_elements.inputEdgeTypeCondO);
@@ -404,7 +418,7 @@ function gf_guiDisplayEdge (edge, startType)
 		}
 		
 		// load variables
-		gf_guiLoadDropDownVariables(edge.parent, gv_elements.inputEdgeStoreVariable, true, false);
+		gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeStoreVariable, true, false);
 		
 		gf_guiElementShow(gv_elements.inputEdgeStoreOuter);
 		gf_guiElementWrite(gv_elements.inputEdgeStoreVariable, "string", edge.getVariable(), "");
@@ -419,10 +433,10 @@ function gf_guiDisplayEdge (edge, startType)
 			var gt_isVariable	= edge.getRelatedSubject("variable") != null && edge.getRelatedSubject("variable") != "";
 			
 			// load drop down fields
-			gf_guiLoadDropDownCorrelationIds(edge.parent, gv_elements.inputEdgeCorrelationId, true, false);
+			gf_guiLoadDropDownCorrelationIds(edge.parentBehavior, gv_elements.inputEdgeCorrelationId, true, false);
 			gf_guiLoadDropDownMessageTypes(gv_elements.inputEdgeMessage, true, false);
 			gf_guiLoadDropDownSubjects(gv_elements.inputEdgeTarget, gv_graph.selectedSubject, false);
-			gf_guiLoadDropDownVariables(edge.parent, gv_elements.inputEdgeTargetMVariable, false, false);
+			gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
 		
 			// show elements
 			gf_guiElementShow(gv_elements.inputEdgeCorrelationIdO);
@@ -551,12 +565,16 @@ function gf_guiDisplayNode (node)
 	// clear input fields
 	gf_guiClearInputFields();
 	
+	// do not update elements when node is startNode of macro
+	if (node.parentMacro.name != "##main##" && node.id == 0)
+		return false;
+	
 	// show menu
 	gf_guiElementShow(gv_elements.inputNodeOuter);
 	
 	// load dropdowns
 	gf_guiLoadDropDownChannels(gv_elements.inputNodeChannel, true, false);
-	gf_guiLoadDropDownForNode(node.parent, gt_type);
+	gf_guiLoadDropDownForNode(node.parentBehavior, gt_type);
 	gf_guiLoadDropDownNodeTypes(gv_elements.inputNodeType);
 		
 	// show divs
@@ -577,7 +595,7 @@ function gf_guiDisplayNode (node)
 	{
 		document.getElementById(gv_elements.inputNodeType).onclick	= function ()
 		{
-			gf_guiLoadDropDownForNode(node.parent, document.getElementById(gv_elements.inputNodeType).value);
+			gf_guiLoadDropDownForNode(node.parentBehavior, document.getElementById(gv_elements.inputNodeType).value);
 		};
 	}
 		
@@ -617,8 +635,20 @@ function gf_guiDisplayNode (node)
 		};
 	}
 	
-	// additional settings for internal actions and predefined actions
-	if (gt_type.substr(0, 1) == "$" || gt_type == "action")
+	// add onChange listener to macro Drop Down
+	if (gf_elementExists(gv_elements.inputNodeMacro))
+	{
+		document.getElementById(gv_elements.inputNodeMacro).onchange	= function ()
+		{
+			if (gf_guiElementRead(gv_elements.inputNodeMacro, "string") == "##createNew##")
+				gf_guiElementShow(gv_elements.inputNodeMacroNewOuter);
+			else
+				gf_guiElementHide(gv_elements.inputNodeMacroNewOuter);
+		};
+	}
+	
+	// additional settings for internal actions, macros and predefined actions
+	if (gt_type.substr(0, 1) == "$" || gt_type == "action" || gt_type == "macro")
 	{
 			
 		var gt_options	= node.getOptions();
@@ -645,6 +675,9 @@ function gf_guiDisplayNode (node)
 		gf_guiElementWrite(gv_elements.inputNodeVarManVar2, "string", node.getVarMan("var2"), "");
 		gf_guiElementWrite(gv_elements.inputNodeVarManVarStore, "string", node.getVarMan("storevar"), "");
 		gf_guiElementWrite(gv_elements.inputNodeVarManOperation, "string", node.getVarMan("operation"), "");
+		
+		// macro
+		gf_guiElementWrite(gv_elements.inputNodeMacro, "string", node.getMacro());
 	}
 }
 
@@ -924,6 +957,76 @@ function gf_guiLoadDropDownCorrelationIds (behavior, elementCorrelationId, newCo
 }
 
 /**
+ * This method is used to fill a select field with all available macros of the current internal behavior.
+ * 
+ * @param {GCbehavior} behavior The currently selected internal behavior (used to read the macros).
+ * @param {String} elementMacro The ID of the select element that holds the available macros.
+ * @param {boolean} newMacro When set to true an option will be added to create a new macro.
+ * @returns {void}
+ */
+function gf_guiLoadDropDownMacros (behavior, elementMacro, newMacro)
+{
+	if (!gf_isset(newMacro) || newMacro !== true)
+		newMacro = false;
+	
+	// load macros	
+	if (elementMacro != null && gf_elementExists(elementMacro))
+	{
+		var gt_select			= document.getElementById(elementMacro).options;
+			gt_select.length	= 0;
+		var gt_macroArray		= [];
+		
+		// create some entries to guide the user
+		var gt_option			= document.createElement("option");
+			gt_option.text		= "please select";
+			gt_option.value		= "";
+			gt_option.id		= elementMacro + "_00000.0";
+			gt_select.add(gt_option);
+		
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementMacro + "_00000.1";
+			gt_select.add(gt_option);
+		
+		// collect macros
+		for (var gt_mid in behavior.macros)
+		{
+			if (gt_mid != "##main##" && behavior.selectedMacro != gt_mid)
+				gt_macroArray[gt_macroArray.length]	= {id: gt_mid, text: behavior.macros[gt_mid].name};
+		}
+		
+		// sort the macros alphabetically
+		gt_macroArray.sort(gf_guiSortArrayByText);
+		
+		// add the macros to the select field
+		for (var gt_mid in gt_macroArray)
+		{
+			gt_option		= document.createElement("option");
+			gt_option.text	= gf_replaceNewline(gt_macroArray[gt_mid].text, " ");
+			gt_option.value	= gt_macroArray[gt_mid].id;
+			gt_option.id	= elementMacro + "_" + gt_mid;
+			gt_select.add(gt_option);
+		}
+		
+		if (newMacro === true)
+		{
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementMacro + "_00000.42";
+			gt_select.add(gt_option);
+		
+			gt_option			= document.createElement("option");
+			gt_option.text		= "create a new macro";
+			gt_option.value		= "##createNew##";
+			gt_option.id		= elementMacro + "_00000.new";
+			gt_select.add(gt_option);
+		}
+	}
+}
+
+/**
  * This method is used to fill a select field with all available messageTypes.
  * 
  * @param {String} elementMessage The ID of the select element that holds the available messaageTypes.
@@ -1112,12 +1215,12 @@ function gf_guiLoadDropDownStates (behavior, elementState)
 		
 		// collect start states
 		var gt_node	= null;
-		for (var gt_nodeId in behavior.nodes)
+		for (var gt_nodeId in behavior.getMacro().nodes)
 		{
-			gt_node	= behavior.nodes[gt_nodeId];
+			gt_node	= behavior.getMacro().nodes[gt_nodeId];
 			if (gt_node.isStart() && !gt_node.isMajorStartNode())
 			{
-				gt_statesArray[gt_statesArray.length]	= {id: gt_nodeId, text: behavior.nodes[gt_nodeId].text};
+				gt_statesArray[gt_statesArray.length]	= {id: gt_nodeId, text: behavior.getMacro().nodes[gt_nodeId].text};
 			}
 		}
 		
@@ -1399,6 +1502,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 	gf_guiElementHide(gv_elements.inputNodeOptionsOuter);
 	gf_guiElementHide(gv_elements.inputNodeVariableO);
 	gf_guiElementHide(gv_elements.inputNodeVarManOuter);
+	gf_guiElementHide(gv_elements.inputNodeMacroOuter);
 		
 	if (nodeType == "$variableman")
 	{	
@@ -1410,7 +1514,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 		gf_guiLoadDropDownVarManOperations(gv_elements.inputNodeVarManOperation);
 			
 	}
-	if (nodeType.substr(0, 1) == "$")
+	else if (nodeType.substr(0, 1) == "$")
 	{
 		var gt_predefAction	= {subject: false, message: false, wildcard: false, channel: false, correlationid: false, options: false, state: false};
 		
@@ -1466,6 +1570,11 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 	{
 		gf_guiElementShow(gv_elements.inputNodeVariableO);
 		gf_guiLoadDropDownVariables(behavior, gv_elements.inputNodeVariable, false, false);
+	}
+	else if (nodeType == "macro")
+	{
+		gf_guiElementShow(gv_elements.inputNodeMacroOuter);
+		gf_guiLoadDropDownMacros(behavior, gv_elements.inputNodeMacro, true);
 	}
 }
 
@@ -1561,11 +1670,11 @@ function gf_guiReadEdge ()
  * Read the values for the selected node from the input fields.
  * 
  * @see GCcommunication::updateNode()
- * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan
+ * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan, macro, macroText
  */
 function gf_guiReadNode ()
 {
-	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", channel: "", state: ""}, isMajorStartNode: false, channel: "", channelText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}};
+	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", channel: "", state: ""}, isMajorStartNode: false, channel: "", channelText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, macro: "", macroText: ""};
 	
 	var gt_text					= gf_guiElementRead(gv_elements.inputNodeText, "string", "");
 	var gt_isStart				= gf_guiElementRead(gv_elements.inputNodeStart, "bool", false);
@@ -1589,6 +1698,9 @@ function gf_guiReadNode ()
 		gt_varMan.storevar		= gf_guiElementRead(gv_elements.inputNodeVarManVarStore, "string", "");
 		gt_varMan.operation		= gf_guiElementRead(gv_elements.inputNodeVarManOperation, "string", "");
 		gt_varMan.storevarText	= gf_guiElementRead(gv_elements.inputNodeVarManVarStoreN, "string", "");
+		
+	var gt_macro		= gf_guiElementRead(gv_elements.inputNodeMacro, "string", "");
+	var gt_macroText	= gf_guiElementRead(gv_elements.inputNodeMacroNew, "string", "");
 	
 	var gt_options		= {};
 	
@@ -1607,6 +1719,8 @@ function gf_guiReadNode ()
 	gt_result.channelText		= gt_channelNew;
 	gt_result.variable			= gt_variable;
 	gt_result.varMan			= gt_varMan;
+	gt_result.macro				= gt_macro;
+	gt_result.macroText			= gt_macroText;
 	
 	return gt_result;
 }

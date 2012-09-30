@@ -32,6 +32,7 @@ gf_includeJS("graph/classes/edge.class.js");
 gf_includeJS("graph/classes/graphbv.class.js");
 gf_includeJS("graph/classes/graphcv.class.js");
 gf_includeJS("graph/classes/label.class.js");
+gf_includeJS("graph/classes/macro.class.js");
 gf_includeJS("graph/classes/node.class.js");
 gf_includeJS("graph/classes/path.class.js");
 gf_includeJS("graph/classes/subject.class.js");

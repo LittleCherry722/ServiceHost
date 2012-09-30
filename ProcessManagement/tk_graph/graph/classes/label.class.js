@@ -208,6 +208,22 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 					this.ellipse.click(function () {gf_paperClickNodeB(id); });
 				}
 			}
+			
+			// set the event handlers for the behavioral view (double click for macro nodes)
+			else if (graph == "bv_dblclick")
+			{
+				this.rectangle.click(function () {gf_paperClickNodeB(id); });
+				this.ellipse.click(function () {gf_paperClickNodeB(id); });
+				
+				this.rectangle.dblclick(function () {gf_paperDblClickNodeB(id); });
+				this.ellipse.dblclick(function () {gf_paperDblClickNodeB(id); });
+			}
+			
+			// set the event handlers for the behavioral view (no click)
+			else if (graph == "bv_noclick")
+			{
+				// no click events
+			}
 			$(this.text.node).css("pointer-events", "none");
 			$(this.img.node).css("pointer-events", "none");
 		}
@@ -722,7 +738,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	if (gf_isset(belongsToPath) && belongsToPath === true)
 	{
 		this.belongsToPath = true;
-	};
+	}
 	
 	// set the text
 	this.setText(text);

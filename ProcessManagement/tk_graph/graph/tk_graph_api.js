@@ -88,17 +88,19 @@ function gf_callMacro (id)
 		var gt_nodeId = gv_graph.createNode();
 		var gt_behavior = gv_graph.getBehavior(gv_graph.selectedSubject);
 		
-		
 		if (gt_behavior != null)
 		{
-			
-			// when another node will be added after this node -> avoid redrawing the internal behavior
-			if (gt_macro.autoEdge)
-				gv_noRedraw	= true;
+			// disable redrawing
+			gv_noRedraw	= true;
 			
 			var gt_values	= {text: gt_macro.text, type: gt_macro.type, isStart: gt_macro.isStart};
 			
-			gt_behavior.selectedNode = gt_nodeId;
+			gt_behavior.getMacro().selectedNode = gt_nodeId;
+			
+			// when another node will be added after this node -> avoid redrawing the internal behavior
+			if (!gt_macro.autoEdge)
+				gv_noRedraw	= false;
+			
 			gt_behavior.updateNode(gt_values);
 			
 			// reenable drawing
@@ -364,6 +366,42 @@ function gf_getChannels ()
 }
 
 /**
+ * Returns a list of macros of the current behavior.
+ * 
+ * @returns {Object} List of macros.
+ */
+function gf_getMacros ()
+{
+	var gt_macros	= {length: 0};
+	var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
+	
+	if (gt_behav != null)
+	{
+		// add "internal behavior"
+		gt_macros["##main##"]	= "internal behavior";
+		gt_macros.length++;
+		
+		var gt_tmpArray		= [];
+		var gt_tmpMacros	= gt_behav.getMacros();
+		for (var gt_mid in gt_tmpMacros)
+		{
+			if (gt_mid != "##main##")
+				gt_tmpArray[gt_tmpArray.length]	= {id: gt_mid, text: gt_tmpMacros[gt_mid].name};
+		}
+		
+		gt_tmpArray.sort(gf_guiSortArrayByText);
+		
+		for (var gt_mid in gt_tmpArray)
+		{
+			gt_macros[gt_tmpArray[gt_mid].id]	= gt_tmpArray[gt_mid].text;
+			gt_macros.length++;
+		}
+	}
+	
+	return gt_macros;
+}
+
+/**
  * Collects all messages available to the system and returns them as an Array of Objects.
  * 
  * @param {String} subjectInfo The information of subjects that will be returned (id, role, name).
@@ -619,15 +657,15 @@ function gf_getSelectedElement ()
 		{
 			var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
 			
-			if (gt_behav.selectedNode != null)
+			if (gt_behav.getMacro().selectedNode != null)
 			{
 				gt_result.type	= "node";
-				gt_result.id	= gt_behav.selectedNode;
+				gt_result.id	= gt_behav.getMacro().selectedNode;
 			}
-			if (gt_behav.selectedEdge != null)
+			if (gt_behav.getMacro().selectedEdge != null)
 			{
 				gt_result.type	= "edge";
-				gt_result.id	= gt_behav.selectedEdge;
+				gt_result.id	= gt_behav.getMacro().selectedEdge;
 			}
 		}
 	}
@@ -663,11 +701,11 @@ function gf_getSelectedElementType ()
 		{
 			var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
 			
-			if (gt_behav.selectedNode != null)
+			if (gt_behav.getMacro().selectedNode != null)
 			{
 				gt_type = "node";
 			}
-			if (gt_behav.selectedEdge != null)
+			if (gt_behav.getMacro().selectedEdge != null)
 			{
 				gt_type = "edge";
 			}
@@ -675,6 +713,22 @@ function gf_getSelectedElementType ()
 	}
 	
 	return gt_type;
+}
+
+/**
+ * Returns the ID of the currently selected macro.
+ * 
+ * @returns {String} The ID of the currently selected macro.
+ */
+function gf_getSelectedMacro ()
+{
+	var gt_behav	= gv_graph.getBehavior(gv_graph.selectedSubject);
+	
+	if (gt_behav != null)
+	{
+		return gt_behav.selectedMacro;
+	}
+	return null;
 }
 
 /**
@@ -1014,6 +1068,18 @@ function gf_selectChannel (channel)
 }
 
 /**
+ * Selects a macro in the currently selected internal behavior.
+ * 
+ * @see GCcommunication.selectMacro()
+ * @param {String} macro The ID of the macro to select.
+ * @returns {void}
+ */
+function gf_selectMacro (macro)
+{
+	gv_graph.selectMacro(macro);
+}
+
+/**
  * Sets the IDs of the divs that will hold the canvases for the behavioral view and the communication view.
  * 
  * @param {String} ID of the div that will hold the canvas vor the behavioral view.
@@ -1051,9 +1117,9 @@ function gf_showInternalBehavior (jsonProcess, subject, node)
 	if (gt_behav != null)
 	{
 		var gt_nodeId	= node;
-		if (parseInt(gt_nodeId) != gt_nodeId && gf_isset(gt_behav.nodeIDs[gt_nodeId]))
+		if (parseInt(gt_nodeId) != gt_nodeId && gf_isset(gt_behav.getMacro().nodeIDs[gt_nodeId]))
 		{
-			gt_nodeId = gt_behav.nodeIDs[gt_nodeId];
+			gt_nodeId = gt_behav.getMacro().nodeIDs[gt_nodeId];
 		}
 		
 		// draw the graph for the internal behavior

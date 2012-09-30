@@ -16,7 +16,8 @@
  * 
  * @private
  * @class represents an edge in the graph
- * @param {GCbehavior} parent The parent instance of GCbehavior.
+ * @param {GCmacro} parentMacro The parent instance of GCmacro.
+ * @param {GCbehavior} parentBehavior The parent instance of GCbehavior.
  * @param {int} start The id of the start node.
  * @param {int} end The id of the end node.
  * @param {String} text The label of the edge.
@@ -24,7 +25,7 @@
  * @param {String} type The type of the edge. Either "exitcondition", "errorcondition" or "timeout".
  * @returns {void}
  */
-function GCedge (parent, start, end, text, relatedSubject, type)
+function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, type)
 {
 	// when no start node is given, set it to 0
 	if (!gf_isset(start) || parseInt(start) != start)
@@ -86,12 +87,18 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.optional	= false;
 	
 	/**
-	 * A reference to the parent instance of GCbehavior used for addressing the start and the end node.
-	 * This is the only attribute of Edge that can not be modified.
+	 * A reference to the parent instance of GCbehavior.
 	 * 
 	 * @type GCbehavior
 	 */
-	this.parent	= parent;
+	this.parentBehavior	= parentBehavior;
+	
+	/**
+	 * A reference to the parent instance of GCmacro.
+	 * 
+	 * @type GCmacro
+	 */
+	this.parentMacro	= parentMacro;
 	
 	/**
 	 * Set to a number >= 1.
@@ -182,7 +189,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			
 		if (type == "name")
 		{
-			var gt_variables	= this.parent.variables;
+			var gt_variables	= this.parentBehavior.variables;
 			
 			if (this.correlationId == "##cid##")
 				return "cID";
@@ -238,7 +245,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 */
 	this.getMessageTypeId = function ()
 	{
-		var gt_startNode		= this.parent.getNode(this.start);
+		var gt_startNode		= this.parentMacro.getNode(this.start);
 		
 		if (gt_startNode != null)
 		{
@@ -269,7 +276,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 */
 	this.getRelatedSubject = function (attribute)
 	{		
-		var startNode		= this.parent.getNode(this.start);
+		var startNode		= this.parentMacro.getNode(this.start);
 		var relatedSubject	= this.relatedSubject;
 				
 		if (startNode == null || (startNode.getType() != "receive" && startNode.getType() != "send") || relatedSubject == null)
@@ -407,7 +414,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	 */
 	this.getTypeOfStartNode = function ()
 	{
-		var startNode		= this.parent.getNode(this.start);
+		var startNode		= this.parentMacro.getNode(this.start);
 		
 		return startNode == null ? "action" : startNode.getType();
 	};
@@ -424,7 +431,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 			
 		if (type == "name")
 		{
-			var gt_variables	= this.parent.variables;
+			var gt_variables	= this.parentBehavior.variables;
 			if (this.variable != null && gf_isset(gt_variables[this.variable]))
 				return gt_variables[this.variable];
 		}
@@ -694,7 +701,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 	this.textToString = function ()
 	{
 		var gt_text	= "";
-		var gt_startNode = this.parent.getNode(this.start);
+		var gt_startNode = this.parentMacro.getNode(this.start);
 		
 		// merge node
 		if (gt_startNode != null && gt_startNode.getType() == "merge")
@@ -757,7 +764,7 @@ function GCedge (parent, start, end, text, relatedSubject, type)
 				{
 					if (gt_relatedVariable != null && gt_relatedVariable != "")
 					{
-						var gt_variables	= this.parent.variables;
+						var gt_variables	= this.parentBehavior.variables;
 						if (gf_isset(gt_variables[gt_relatedVariable]))
 						{							
 								gt_relatedVariable = gt_variables[gt_relatedVariable];

@@ -16,13 +16,14 @@
  * 
  * @private
  * @class represents a node in a behavioral view
- * @param {GCbehavior} parent The parent instance of GCbehavior.
+ * @param {GCmacro} parentMacro The parent instance of GCmacro.
+ * @param {GCbehavior} parentBehavior The parent instance of GCbehavior.
  * @param {String} id The id of the node.
  * @param {String} text The label of the node.
  * @param {String} type The type of the node. Possible values are "send", "receive", "end", "action". (default: "action")
  * @returns {void}
  */
-function GCnode (parent, id, text, type)
+function GCnode (parentMacro, parentBehavior, id, text, type)
 {	
 	/**
 	 * The node's channel.
@@ -61,6 +62,13 @@ function GCnode (parent, id, text, type)
 	this.id		= "";
 	
 	/**
+	 * The id of a macro that is associated with this node.
+	 * 
+	 * @type String
+	 */
+	this.macro	= "";
+	
+	/**
 	 * Flag to indicate whether a start node is the major startNode of the internal behavior.
 	 * 
 	 * @type boolean
@@ -75,12 +83,18 @@ function GCnode (parent, id, text, type)
 	this.options	= {message: "*", subject: "*", correlationId: "*", channel: "*", state: ""};
 	
 	/**
-	 * A reference to the parent instance of GCbehavior used for addressing the start and the end node.
-	 * This is the only attribute of Edge that can not be modified.
+	 * A reference to the parent instance of GCbehavior.
 	 * 
 	 * @type GCbehavior
 	 */
-	this.parent		= parent;
+	this.parentBehavior	= parentBehavior;
+	
+	/**
+	 * A reference to the parent instance of GCmacro.
+	 * 
+	 * @type GCmacro
+	 */
+	this.parentMacro	= parentMacro;
 	
 	/**
 	 * When this value is set to true this node will be handled as a start node for the internal behavior. 
@@ -189,6 +203,16 @@ function GCnode (parent, id, text, type)
 	};
 	
 	/**
+	 * Returns the id of the macro associated with this node or an empty String when the node is no macro node.
+	 * 
+	 * @returns {String} The id of the macro associated with this node. 
+	 */
+	this.getMacro = function ()
+	{
+		return this.macro == null || this.getType() != "macro" ? "" : this.macro;
+	};
+	
+	/**
 	 * Returns options of predefined actions.
 	 * 
 	 * @returns {Object} The node's options.
@@ -262,7 +286,7 @@ function GCnode (parent, id, text, type)
 			
 		if (type == "name")
 		{
-			var gt_variables	= this.parent.variables;
+			var gt_variables	= this.parentBehavior.variables;
 			if (this.variable != null && gf_isset(gt_variables[this.variable]))
 				return gt_variables[this.variable];
 		}
@@ -294,7 +318,7 @@ function GCnode (parent, id, text, type)
 				
 				if (type == "name")
 				{
-					var gt_variables	= this.parent.variables;
+					var gt_variables	= this.parentBehavior.variables;
 					if (gt_result != null && gf_isset(gt_variables[gt_result]))
 						gt_result	= gt_variables[gt_result];	
 				}
@@ -321,11 +345,11 @@ function GCnode (parent, id, text, type)
 	 */
 	this.hasChildren = function ()
 	{
-		var gt_edges	= this.parent.getEdges();
+		var gt_edges	= this.parentMacro.getEdges();
 		for (var gt_edgeId in gt_edges)
 		{
 			var gt_edge	= gt_edges[gt_edgeId];
-			if (gt_edge.start	== this.id && gf_isset(this.parent.nodes["n" + gt_edge.end]))
+			if (gt_edge.start	== this.id && gf_isset(this.parentMacro.nodes["n" + gt_edge.end]))
 				return true;
 		}
 		return false;
@@ -338,11 +362,11 @@ function GCnode (parent, id, text, type)
 	 */
 	this.hasParent = function ()
 	{
-		var gt_edges	= this.parent.getEdges();
+		var gt_edges	= this.parentMacro.getEdges();
 		for (var gt_edgeId in gt_edges)
 		{
 			var gt_edge	= gt_edges[gt_edgeId];
-			if (gt_edge.end	== this.id && gf_isset(this.parent.nodes["n" + gt_edge.start]))
+			if (gt_edge.end	== this.id && gf_isset(this.parentMacro.nodes["n" + gt_edge.start]))
 				return true;
 		}
 		return false;
@@ -459,6 +483,20 @@ function GCnode (parent, id, text, type)
 	};
 	
 	/**
+	 * Updates the macro associated with this node.
+	 * 
+	 * @param {String} macro The id of the macro.
+	 * @returns {void};
+	 */
+	this.setMacro = function (macro)
+	{
+		if (gf_isset(macro) && this.getType() == "macro")
+		{
+			this.macro = macro;
+		}
+	};
+	
+	/**
 	 * Mark the node as the major startNode of the internal behavior.
 	 * Only one major start node can be active per internal behavior.
 	 * 
@@ -466,11 +504,11 @@ function GCnode (parent, id, text, type)
 	 */
 	this.setMajorStartNode = function (majorStartNode)
 	{
-		if (gf_isset(majorStartNode))
+		if (gf_isset(majorStartNode) && this.parentMacro.id == "##main##")
 		{
 			if (majorStartNode === true)
 			{
-				var gt_nodes	= this.parent.getNodes();
+				var gt_nodes	= this.parentMacro.getNodes();
 				
 				// set all start nodes to minor start nodes
 				for (var gt_nodeId in gt_nodes)
@@ -509,11 +547,11 @@ function GCnode (parent, id, text, type)
 	 */
 	this.setStart = function (start)
 	{
-		if (gf_isset(start))
+		if (gf_isset(start) && this.parentMacro.id == "##main##")
 		{
 			if (start === true)
 			{
-				var gt_nodes		= this.parent.getNodes();
+				var gt_nodes		= this.parentMacro.getNodes();
 				var gt_majorExists	= false;
 				
 				// check if already a start node in the internal behavior
@@ -614,7 +652,14 @@ function GCnode (parent, id, text, type)
 			
 			// gf_newlineToCamelCase
 			
-		if (type == "$variableman")
+		if (type == "macro")
+		{
+			var gt_macroName	= this.getMacro() != "" ? this.getMacro() : "";
+				gt_macroName	= gf_isset(this.parentBehavior.macros[gt_macroName]) ? this.parentBehavior.macros[gt_macroName].name : gt_macroName;
+			
+			text = "Macro: " + gt_macroName;
+		}
+		else if (type == "$variableman")
 		{
 			if (text.replace(/\ /gi, "") == "")
 				text	= "";
@@ -660,8 +705,8 @@ function GCnode (parent, id, text, type)
 				gt_channel	= gt_useWildcard ? "*" : "";
 				
 			// correlationId
-			if (gt_correlationId != null && gf_isset(this.parent.variables[gt_correlationId]))
-				gt_correlationId	= gf_newlineToCamelCase(this.parent.variables[gt_correlationId]);
+			if (gt_correlationId != null && gf_isset(this.parentBehavior.variables[gt_correlationId]))
+				gt_correlationId	= gf_newlineToCamelCase(this.parentBehavior.variables[gt_correlationId]);
 			else if (gt_correlationId == "##nid##")
 				gt_correlationId	= "nID";
 			else if (gt_correlationId == "##cid##")
@@ -670,8 +715,8 @@ function GCnode (parent, id, text, type)
 				gt_correlationId	= gt_useWildcard ? "*" : "";
 				
 			// state
-			if (gt_state != null && gf_isset(this.parent.nodes[gt_state]))
-				gt_state	= gf_newlineToCamelCase(this.parent.nodes[gt_state].getText());
+			if (gt_state != null && gf_isset(this.parentBehavior.getMacro("##main##").nodes[gt_state]))
+				gt_state	= gf_newlineToCamelCase(this.parentBehavior.getMacro("##main##").nodes[gt_state].getText());
 			else
 				gt_state	= gt_useWildcard ? "*" : "";
 			

@@ -77,7 +77,10 @@ var gv_nodeTypes	= {
 	modaljoin: {shape: "circle", text: "MJ", label: "modal join"},
 	
 	// an empty node to merge two paths together
-	merge: {shape: "circle", text: "", label: "merge"}
+	merge: {shape: "circle", text: "", label: "merge"},
+	
+	// macro nodes contain a macro which will be loaded on dbl-click
+	macro: {shape: "roundedrectangle", text: null, label: "macro"}
 };
 
 /**

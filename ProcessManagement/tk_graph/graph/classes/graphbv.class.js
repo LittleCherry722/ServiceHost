@@ -704,9 +704,18 @@ function GCgraphbv ()
 		if (gt_bv_imgSrc != "")
 			gt_bv_rect.setImg(gt_bv_imgSrc, gt_bv_imgWidth, gt_bv_imgHeight);
 			
+		// determine click type
+		var gt_clickType	= "bv";
+		/*
+		if (node.node.parentMacro.id != "##main##" && node.node.id == 0)
+			gt_clickType +=	"_noclick";
+		*/
+		if (node.node.getType() == "macro")
+			gt_clickType += "_dblclick";
+			
 		// apply the style
 		gt_bv_rect.setStyle(gt_bv_style);
-		gt_bv_rect.click("bv");	
+		gt_bv_rect.click(gt_clickType);	
 	};
 	
 	/**

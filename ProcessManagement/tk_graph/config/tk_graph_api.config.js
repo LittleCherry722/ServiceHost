@@ -118,7 +118,13 @@ var gv_elements = {
 	inputNodeVarManVar2:		"ge_node_varman_var2",
 	inputNodeVarManVarStore:	"ge_node_varman_store",
 	inputNodeVarManVarStoreN:	"ge_node_varman_store_new",
-	inputNodeVarManVarStoreNO:	"ge_node_varman_store_new_outer"
+	inputNodeVarManVarStoreNO:	"ge_node_varman_store_new_outer",
+	
+	// macro
+	inputNodeMacroOuter:		"ge_node_macro_outer",
+	inputNodeMacro:				"ge_node_macro",
+	inputNodeMacroNewOuter:		"ge_node_macro_new_outer",
+	inputNodeMacroNew:			"ge_node_macro_new"
 };
 
 /**
@@ -130,6 +136,19 @@ var gv_elements = {
  * @type Object
  */
 var gv_functions	= {
+	/*
+	 * functions used in GCbehavior
+	 */
+	behavior:
+	{
+		/**
+		 * updates the list of available macros in the GUI
+		 * 
+		 * @returns {void}
+		 */
+		updateListOfMacros:	"updateListOfMacros"
+	},
+	
 	/*
 	 * functions used in GCcommunication
 	 */
@@ -200,7 +219,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan
+		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan, macro, macroText
 		 */
 		readNode:			"",
 		
@@ -365,7 +384,8 @@ var gv_functions	= {
  */
 var gv_topics	= {
 	channels:		"/tk_graph/channels",
-	subjects:		"/tk_graph/subjects",
+	macros:			"/tk_graph/macros",
 	states:			"/tk_graph/states",
+	subjects:		"/tk_graph/subjects",
 	transitions:	"/tk_graph/transitions"
 };

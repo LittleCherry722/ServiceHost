@@ -179,6 +179,12 @@ function clearListOfChannels(){
 	$("#slctChan").html('').trigger("liszt:updated");
 }
 
+function clearListOfMacros(){
+	console.log("Deprecated: daten.js");
+	$("#slctMacro").val('').trigger("liszt:updated");
+	$("#slctMacro").html('').trigger("liszt:updated");
+}
+
 function clearListOfSubjects(){
 	console.log("Deprecated: daten.js");
 	$("#slctSbj").val('').trigger("liszt:updated");
@@ -187,8 +193,6 @@ function clearListOfSubjects(){
 
 function updateListOfChannels(){
 	console.log("Deprecated: daten.js");
-	
-	//console.log(gv_graph.subjects);
 	
 	clearListOfChannels();
 	var html = "<option></option>";
@@ -213,6 +217,40 @@ function updateListOfChannels(){
 	$("#slctChan").trigger("liszt:updated");
 	//Workaround, Chosen fails to reset, can't select same internal behavior twice with dropdown. Fix: add click listener to every chosen option (not native select option).
 $(".active-result").click(function(){gf_selectChannel($('#slctChan option:selected').attr('id'))});
+}
+
+function updateListOfMacros(){
+	console.log("Deprecated: daten.js");
+	
+	clearListOfMacros();
+	var macroList	= gf_getMacros();
+	
+	if (macroList.length > 0)
+	{
+		$('#slctMacro').chosen();
+		
+		var html = "<option></option>";
+		
+		for(var mid in macroList)
+		{
+			if ("" + mid == gf_getSelectedMacro())
+			{
+				html += "<option selected id=\""+mid+"\">"+macroList[mid]+"</option>";
+			}
+			else if (mid != "length")
+			{
+				html += "<option id=\""+mid+"\">"+macroList[mid]+"</option>";
+			}
+		}
+		
+		$('#slctMacro').html(html);
+		$("#slctMacro").trigger("liszt:updated");
+		$(".active-result").click(function(){gf_selectMacro($('#slctMacro option:selected').attr('id'))});
+	}
+	else
+	{
+		$('#slctMacro').hide();
+	}
 }
 
 function updateListOfSubjects(){

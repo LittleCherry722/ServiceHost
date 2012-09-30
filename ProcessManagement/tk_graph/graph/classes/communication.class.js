@@ -859,11 +859,12 @@ function GCcommunication ()
 		if (gt_behavior != null)
 		{
 			this.changeView("bv");
-			gt_behavior.draw();
+			gt_behavior.selectMacro("##main##");
 			this.selectedSubject = id;
 			
-			// request an update of the channel list
+			// request an update of the channel and macro list
 			$.publish(gv_topics.channels, [{action: "load", view: "bv"}]);
+			$.publish(gv_topics.macros, [{action: "load", view: "bv"}]);
 		}
 	};
 	
@@ -1190,87 +1191,117 @@ function GCcommunication ()
 				
 				if (gt_behav != null)
 				{
-					// 2.1 nodes
-					for (var gt_nodeId in gt_subject.nodes)
+					if (!gf_isset(gt_subject.macros))
 					{
-						var gt_node		= gt_subject.nodes[gt_nodeId];
-						var gt_nodeId	= gt_behav.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+						gt_subject.macros	= [];
 						
-						var gt_createdNode	= gt_behav.getNode(gt_nodeId);
-						
-						if (gt_createdNode != null)
-						{
-							if (gf_isset(gt_node.options))
-								gt_createdNode.setOptions(gt_node.options);
-							
-							if (gf_isset(gt_node.channel) && gt_useChannels)
-								gt_createdNode.setChannel(gt_node.channel);
-							
-							if (gf_isset(gt_node.variable) && gt_useVariables)
-								gt_createdNode.setVariable(gt_node.variable);
-							
-							if (gf_isset(gt_node.majorStartNode))
-								gt_createdNode.setMajorStartNode(gt_node.majorStartNode);
-							
-							if (gf_isset(gt_node.varMan))
-								gt_createdNode.setVarMan(gt_node.varMan);
-						}
-						
+						gt_subject.macros[0] = {
+								id:				"##main##",
+								name:			"",
+								nodes:			gt_subject.nodes,
+								edges:			gt_subject.edges,
+								nodeCounter:	gt_subject.nodeCounter
+						};
 					}
+				
+					if (!gf_isset(gt_subject.macroCounter))
+						gt_subject.macroCounter = 0;
 					
-					// 2.2 edges
-					for (var gt_edgeId in gt_subject.edges)
+					for (var gt_mid in gt_subject.macros)
 					{
-						var gt_edge				= gt_subject.edges[gt_edgeId];
-						var gt_startNodeID		= gt_edge.start;
+						var gt_macroValues	= gt_subject.macros[gt_mid];
 						
-						if (parseInt(gt_startNodeID) != gt_startNodeID && gf_isset(gt_behav.nodeIDs[gt_startNodeID]))
+						if (!gf_isset(gt_behav.macros[gt_macroValues.id]))
+							gt_behav.macros[gt_macroValues.id] = new GCmacro(gt_behav, gt_macroValues.id, gt_macroValues.name);
+							
+						var gt_macro	= gt_behav.macros[gt_macroValues.id];
+						
+						// 2.1 nodes
+						for (var gt_nodeId in gt_macroValues.nodes)
 						{
-							gt_startNodeID = gt_behav.nodeIDs[gt_startNodeID];
-						}
-						
-						var gt_startNode		= gt_behav.getNode(gt_startNodeID);
-						var gt_startNodeType	= gt_startNode != null ? gt_startNode.getType() : "action";
-						var gt_text				= gf_replaceNewline(gt_edge.text);
-						
-						// map messages to new system
-						if (gt_mapMessages && (gt_startNodeType == "send" || gt_startNodeType == "receive") && gt_edge.type == "exitcondition")
-						{
-							gt_text	= this.addMessageType(gt_text);
-						}
-						
-						var gt_createdEdge	= gt_behav.addEdge("loadedNode" + gt_edge.start, "loadedNode" + gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
-						
-						if (gt_createdEdge != null)
-						{
-							if (gf_isset(gt_edge.priority))
+							var gt_node		= gt_macroValues.nodes[gt_nodeId];
+							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+							
+							var gt_createdNode	= gt_macro.getNode(gt_nodeId);
+							
+							if (gt_createdNode != null)
 							{
-								gt_createdEdge.setPriority(gt_edge.priority);
+								if (gf_isset(gt_node.options))
+									gt_createdNode.setOptions(gt_node.options);
+								
+								if (gf_isset(gt_node.channel) && gt_useChannels)
+									gt_createdNode.setChannel(gt_node.channel);
+								
+								if (gf_isset(gt_node.variable) && gt_useVariables)
+									gt_createdNode.setVariable(gt_node.variable);
+								
+								if (gf_isset(gt_node.majorStartNode))
+									gt_createdNode.setMajorStartNode(gt_node.majorStartNode);
+								
+								if (gf_isset(gt_node.varMan))
+									gt_createdNode.setVarMan(gt_node.varMan);
+									
+								if (gf_isset(gt_node.macro))
+									gt_createdNode.setMacro(gt_node.macro);
 							}
 							
-							if (gf_isset(gt_edge.manualTimeout))
+						}
+						
+						// 2.2 edges
+						for (var gt_edgeId in gt_macroValues.edges)
+						{
+							var gt_edge				= gt_macroValues.edges[gt_edgeId];
+							var gt_startNodeID		= gt_edge.start;
+							
+							if (parseInt(gt_startNodeID) != gt_startNodeID && gf_isset(gt_macro.nodeIDs[gt_startNodeID]))
 							{
-								gt_createdEdge.setManualTimeout(gt_edge.manualTimeout);
+								gt_startNodeID = gt_macro.nodeIDs[gt_startNodeID];
 							}
 							
-							if (gt_useVariables)
+							var gt_startNode		= gt_macro.getNode(gt_startNodeID);
+							var gt_startNodeType	= gt_startNode != null ? gt_startNode.getType() : "action";
+							var gt_text				= gf_replaceNewline(gt_edge.text);
+							
+							// map messages to new system
+							if (gt_mapMessages && (gt_startNodeType == "send" || gt_startNodeType == "receive") && gt_edge.type == "exitcondition")
 							{
-								if (gf_isset(gt_edge.variable))
+								gt_text	= this.addMessageType(gt_text);
+							}
+							
+							var gt_createdEdge	= gt_macro.addEdge("loadedNode" + gt_edge.start, "loadedNode" + gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
+							
+							if (gt_createdEdge != null)
+							{
+								if (gf_isset(gt_edge.priority))
 								{
-									gt_createdEdge.setVariable(gt_edge.variable);
+									gt_createdEdge.setPriority(gt_edge.priority);
 								}
 								
-								if (gf_isset(gt_edge.correlationId))
+								if (gf_isset(gt_edge.manualTimeout))
 								{
-									gt_createdEdge.setCorrelationId(gt_edge.correlationId);
+									gt_createdEdge.setManualTimeout(gt_edge.manualTimeout);
+								}
+								
+								if (gt_useVariables)
+								{
+									if (gf_isset(gt_edge.variable))
+									{
+										gt_createdEdge.setVariable(gt_edge.variable);
+									}
+									
+									if (gf_isset(gt_edge.correlationId))
+									{
+										gt_createdEdge.setCorrelationId(gt_edge.correlationId);
+									}
 								}
 							}
 						}
+						// set the nodeCounter to avoid problems with new nodes
+						gt_macro.nodeCounter = gt_macroValues.nodeCounter;
 					}
+					
+					gt_behav.macroCounter	= gt_subject.macroCounter;
 				}
-				
-				// set the nodeCounter to avoid problems with new nodes
-				gt_behav.nodeCounter = gt_subject.nodeCounter;
 			}
 			
 			// draw the graph
@@ -1425,66 +1456,81 @@ function GCcommunication ()
 						role: this.subjects[gt_sid].getRole()
 			};
 			
-			var gt_behav = this.subjects[gt_sid].getBehavior();
-			var gt_nodes = gt_behav.getNodes();
-			var gt_edges = gt_behav.getEdges();
-			var gt_newNodes = [];
-			var gt_newEdges = [];
+			var gt_behav 	= this.subjects[gt_sid].getBehavior();
+			var gt_macros	= gt_behav.getMacros();
+			var gt_newMacros	= [];
 			
-			// transform the behavior's nodes
-			for (var gt_nid in gt_nodes)
-			{				
-				var gt_node = gt_nodes[gt_nid];
-				gt_newNodes[gt_newNodes.length] = {
-						id:		gt_node.getId(),
-						text:	gt_node.getText(),
-						start:	gt_node.isStart(),
-						end:	gt_node.isEnd(),
-						type:	gt_node.getType(),
-						options:	gt_node.getOptions(),
-						deactivated:	gt_node.isDeactivated(),
-						majorStartNode:	gt_node.isMajorStartNode(),
-						channel:		gt_node.getChannel(),
-						variable:		gt_node.getVariable(),
-						varMan:			gt_node.getVarMan("all")
-				};
-			}
-
-			// transform the behavior's edges
-			for (var gt_eid in gt_edges)
+			for (var gt_mid in gt_macros)
 			{
-				var gt_edge			= gt_edges[gt_eid];
-				var gt_edgeEnd		= gt_edge.getEnd();
-				var gt_edgeStart	= gt_edge.getStart();
+				var gt_macro	= gt_macros[gt_mid];
+				var gt_nodes	= gt_macro.getNodes();
+				var gt_edges	= gt_macro.getEdges();
+				var gt_newNodes	= [];
+				var gt_newEdges	= [];
 				
-				if (gt_edgeEnd != null && gt_edgeStart != null)
+				// transform the behavior's nodes
+				for (var gt_nid in gt_nodes)
+				{				
+					var gt_node = gt_nodes[gt_nid];
+					gt_newNodes[gt_newNodes.length] = {
+							id:		gt_node.getId(),
+							text:	gt_node.getText(),
+							start:	gt_node.isStart(),
+							end:	gt_node.isEnd(),
+							type:	gt_node.getType(),
+							options:	gt_node.getOptions(),
+							deactivated:	gt_node.isDeactivated(),
+							majorStartNode:	gt_node.isMajorStartNode(),
+							channel:		gt_node.getChannel(),
+							variable:		gt_node.getVariable(),
+							varMan:			gt_node.getVarMan("all"),
+							macro:			gt_node.getMacro()
+					};
+				}
+	
+				// transform the behavior's edges
+				for (var gt_eid in gt_edges)
 				{
-					var gt_relatedSubject	= gt_edge.getRelatedSubject("all");
-					var gt_edgeStartNode	= gt_behav.getNode(gt_edgeStart);
-					var gt_edgeEndNode		= gt_behav.getNode(gt_edgeEnd);
+					var gt_edge			= gt_edges[gt_eid];
+					var gt_edgeEnd		= gt_edge.getEnd();
+					var gt_edgeStart	= gt_edge.getStart();
 					
-					if (gt_edgeStartNode != null && gt_edgeEndNode != null)
+					if (gt_edgeEnd != null && gt_edgeStart != null)
 					{
-						gt_newEdges[gt_newEdges.length] = {
-								start:	gt_edgeStartNode.getId(),
-								end:	gt_edgeEndNode.getId(),
-								text:	gt_edge.getText(true),
-								type:	gt_edge.getType(),
-								target: gt_relatedSubject == null ? "" : gt_relatedSubject,
-								deactivated:	gt_edge.isDeactivated(),
-								optional:		gt_edge.isOptional(),
-								priority:		gt_edge.getPriority(),
-								manualTimeout:	gt_edge.isManualTimeout(),
-								variable:		gt_edge.getVariable(),
-								correlationId:	gt_edge.getCorrelationId()
-						};
+						var gt_relatedSubject	= gt_edge.getRelatedSubject("all");
+						var gt_edgeStartNode	= gt_macro.getNode(gt_edgeStart);
+						var gt_edgeEndNode		= gt_macro.getNode(gt_edgeEnd);
+						
+						if (gt_edgeStartNode != null && gt_edgeEndNode != null)
+						{
+							gt_newEdges[gt_newEdges.length] = {
+									start:	gt_edgeStartNode.getId(),
+									end:	gt_edgeEndNode.getId(),
+									text:	gt_edge.getText(true),
+									type:	gt_edge.getType(),
+									target: gt_relatedSubject == null ? "" : gt_relatedSubject,
+									deactivated:	gt_edge.isDeactivated(),
+									optional:		gt_edge.isOptional(),
+									priority:		gt_edge.getPriority(),
+									manualTimeout:	gt_edge.isManualTimeout(),
+									variable:		gt_edge.getVariable(),
+									correlationId:	gt_edge.getCorrelationId()
+							};
+						}
 					}
 				}
+				
+				gt_newMacros[gt_newMacros.length] = {
+						id:				gt_macro.id,
+						name:			gt_macro.name,
+						nodes:			gt_newNodes,
+						edges:			gt_newEdges,
+						nodeCounter:	gt_macro.nodeCounter
+				};
 			}
 			
-			gt_array[gt_arrayIndex].nodes			= gt_newNodes;
-			gt_array[gt_arrayIndex].edges			= gt_newEdges;
-			gt_array[gt_arrayIndex].nodeCounter		= gt_behav.nodeCounter;
+			gt_array[gt_arrayIndex].macros			= gt_newMacros;
+			gt_array[gt_arrayIndex].macroCounter	= gt_behav.macroCounter;
 			gt_array[gt_arrayIndex].variables		= gt_behav.variables;
 			gt_array[gt_arrayIndex].variableCounter	= gt_behav.variableCounter;
 		}
@@ -1584,6 +1630,28 @@ function GCcommunication ()
 			}
 		}
 	};
+	
+	/**
+	 * When selectedSubject is set the GCbehavior.selectMacro(id) method of the currently active behavior is called.
+	 * 
+	 * @see GCbehavior.selectMacro()
+	 * @param {int} id The id of the macro to select.
+	 * @returns {void}
+	 */
+	this.selectMacro = function (id)
+	{
+		if (this.selectedSubject == null)
+		{
+			// not available in cv
+		}
+		else
+		{
+			if (gf_isset(this.subjects[this.selectedSubject]))
+			{
+				this.getBehavior(this.selectedSubject).selectMacro(id);
+			}
+		}
+	}
 	
 	/**
 	 * When a subject is selected the id will be passed to the GCbehavior.selectNode(id) method of the current behavior.
