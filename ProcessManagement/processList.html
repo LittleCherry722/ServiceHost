@@ -76,6 +76,7 @@
                                 </td>
                                 <td>
                                 <input type="button" class="button" value="Delete" data-bind='click: $parent.remove, visible: !$parent.isLocked($data)' />
+                                <span data-bind=' visible: $parent.isLocked($data)'>Process in use.</span>
                                 </td>
                             </tr>
                         </tbody>
