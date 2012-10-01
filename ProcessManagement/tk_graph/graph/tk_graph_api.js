@@ -621,6 +621,27 @@ function gf_getNodeRight ()
 }
 
 /**
+ * Returns the current state of the process.
+ * 
+ * @returns {Object} Object that contains the selected behavior - or null if process is in communication view - and the currently selected macro - when an internal behavior is selected.
+ */
+function gf_getProcessState ()
+{
+	var gt_state	= {behavior: null, macro: null};
+	
+	if (gv_graph.selectedSubject != null)
+	{
+		if (gf_isset(gv_graph.subjects[gv_graph.selectedSubject]))
+		{
+			gt_state.behavior	= gv_graph.selectedSubject;
+			gt_state.macro		= gv_graph.getBehavior(gv_graph.selectedSubject).selectedMacro;
+		}
+	}
+	
+	return gt_state;
+}
+
+/**
  * Returns the id of the selected channel.
  * 
  * @see GCcommunication::getSelectedChannel()
@@ -791,11 +812,33 @@ function gf_getSubjects ()
  * 
  * @see GCcommunication.loadFromJSON()
  * @param {String} jsonString The JSON representation of a process.
+ * @param {Object} state Optional parameter, retrieved from gf_getProcessState()
  * @returns {void}
  */
-function gf_loadGraph (jsonString)
+function gf_loadGraph (jsonString, state)
 {
 	gv_graph.loadFromJSON(jsonString);
+	
+	// if state is given, load the state
+	if (gf_isset(state))
+	{
+		if (gf_isset(state.behavior, state.macro))
+		{
+			// if behavior is null, load the cv view
+			if (state.behavior == null)
+			{
+				gf_changeView("cv");
+			}
+			
+			// else load the selected macro
+			else
+			{
+				gv_graph.selectedSubject	= state.behavior;
+				gf_changeView("bv");
+				gv_graph.selectMacro(state.macro);
+			}
+		}
+	}
 }
 
 /**
