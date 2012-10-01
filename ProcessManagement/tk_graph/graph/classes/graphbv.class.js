@@ -693,7 +693,7 @@ function GCgraphbv ()
 		var gt_bv_rect	= new GClabel(node.posx, node.posy, gt_bv_text, node.node.getShape(), node.id);
 		
 		// apply the deactivation status to the label
-		if (node.node.isDeactivated())
+		if (node.node.isDeactivated(true))
 			gt_bv_rect.deactivate();
 				
 		// apply the selection status to the label

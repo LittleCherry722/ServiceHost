@@ -566,7 +566,7 @@ function gf_guiDisplayNode (node)
 	gf_guiClearInputFields();
 	
 	// do not update elements when node is startNode of macro
-	if (node.parentMacro.name != "##main##" && node.id == 0)
+	if (node.parentMacro.id != "##main##" && node.id == 0)
 		return false;
 	
 	// show menu

@@ -375,11 +375,12 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	/**
 	 * Returns the deactivation status of this node.
 	 * 
+	 * @param {boolean} draw When set to true the deactivation status will be returned also depending on the majorStartNode status.
 	 * @returns {boolean} True when this node is deactivated.
 	 */
-	this.isDeactivated = function ()
+	this.isDeactivated = function (draw)
 	{
-		if (this.isStart() && !this.isMajorStartNode())
+		if (this.isStart() && !this.isMajorStartNode() && gf_isset(draw) && draw === true)
 			return true;
 			
 		return this.deactivated === true;

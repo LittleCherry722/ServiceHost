@@ -1220,7 +1220,8 @@ function GCcommunication ()
 						for (var gt_nodeId in gt_macroValues.nodes)
 						{
 							var gt_node		= gt_macroValues.nodes[gt_nodeId];
-							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
+							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, false);
+							// var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 							
 							var gt_createdNode	= gt_macro.getNode(gt_nodeId);
 							

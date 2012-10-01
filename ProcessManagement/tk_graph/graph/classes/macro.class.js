@@ -528,7 +528,7 @@ function GCmacro (parent, id, name)
  			gt_node	= this.nodes[gt_nid];
  			
  			if (channel == "##all##")
- 				gt_deactivate	= gt_node.isDeactivated();
+ 				gt_deactivate	= gt_node.isDeactivated(true);
  			else
  				gt_deactivate	= gt_node.getChannel() != channel;
  				
@@ -760,10 +760,10 @@ function GCmacro (parent, id, name)
 		
 			gt_node.setText(gt_text);
 			gt_node.setType(gt_type);
+			gt_node.setMajorStartNode(gt_isMajorStartNode);
 			gt_node.setStart(gt_isStart);
 			gt_node.setEnd(gt_type == "end");
 			gt_node.setOptions(gt_options);
-			gt_node.setMajorStartNode(gt_isMajorStartNode);
 			gt_node.setVariable(gt_variable);
 			gt_node.setChannel(gv_graph.addChannel(gt_channelText, gt_channel));
 			gt_node.setVarMan(gt_varMan);
