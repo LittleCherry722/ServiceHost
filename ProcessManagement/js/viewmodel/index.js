@@ -171,7 +171,7 @@ var ProcessViewModel = function() {
 		return self.processViews[self.activeViewIndex()];
 	};
 	
-	self.showProcess = function(processName, showInformation) {
+	self.showProcess = function(processName, showInformation, processState) {
 	    
 	    console.log("ProcessViewModel: showProcess called. processName="+self.processName());
 	    
@@ -195,8 +195,9 @@ var ProcessViewModel = function() {
             
                 var graphAsJson = (self.processStamp == "") ? SBPM.Service.Process.loadGraph(processId) : loadGraphHistory(processId,self.processStamp);
                 
-                gv_graph.loadFromJSON(graphAsJson);
+                gf_loadGraph(graphAsJson, processState);
                 
+                 
                 var graph = JSON.parse(graphAsJson);
                 
                 console.log(graph);
@@ -220,6 +221,8 @@ var ProcessViewModel = function() {
     				self.processStamp = $("#timestamps").val();
     				self.showProcess(processName);
 				});
+				
+	
 			
 			    console.log(graph);
           
@@ -234,6 +237,12 @@ var ProcessViewModel = function() {
             // TODO replace this DEPRECATED CALLS!
             setSubjectIDs(); 
             $("#tab2").addClass("active");
+            		               if(typeof(processState) != "undefined") {
+                	console.log(processState);
+                	if(processState.behavior != null) {
+                		$("#tab2").removeClass("active");
+                	}
+                }
             // TODO END
             
            if(showInformation) SBPM.Notification.Info("Information", "Process \""+processName+"\" successfully loaded.");
@@ -275,8 +284,12 @@ var ProcessViewModel = function() {
         if(SBPM.Service.Process.saveProcess(graphAsJSON, startSubjectsAsJSON, name, forceOverwrite, saveAs)){
             
             $.publish("/process/change");
+            var processState = gf_getProcessState();
             
-            SBPM.VM.contentVM().showProcess(name, false);
+             gv_graph.clearGraph(true);
+             parent.processStamp = ""
+            
+            SBPM.VM.contentVM().showProcess(name, false, processState);
             
             SBPM.Notification.Info("Information", "Process successfully saved.");
         }else
