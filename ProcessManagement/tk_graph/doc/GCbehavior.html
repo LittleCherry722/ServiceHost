@@ -180,62 +180,7 @@
         <dl>
             
 <dt>
-    <h4 class="name" id="connectMode"><span class="type-signature"></span>connectMode<span class="type-signature"> :boolean</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        When connectMode is set to true and a new node is created it will automatically be connected to the previously selected node with the new node as the target node.
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 29</li></ul></dd>
-	
-    
-    
-	
-	
-	<dt class="tag-see">See:</dt>
-	<dd class="tag-see">
-        <ul>
-            <li>GCbehavior.connectNodes(), GCbehavior.createNode()</li>
-        </ul>
-	</dd>
-	
-	
-	
-</dl>
-
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="edgeCounter"><span class="type-signature"></span>edgeCounter<span class="type-signature"> :int</span></h4>
+    <h4 class="name" id="macroCounter"><span class="type-signature"></span>macroCounter<span class="type-signature"> :int</span></h4>
     
     
 </dt>
@@ -243,8 +188,8 @@
     
     <div class="description">
         Initialized with 0.
-This counter is used to give every edge an unique id.
-Thus the counter is increased with every new edge.
+This counter is used to give every macro an unique id.
+The counter is increased with every macro added.
     </div>
     
     
@@ -268,7 +213,7 @@ Thus the counter is increased with every new edge.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 38</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 31</li></ul></dd>
 	
     
     
@@ -285,16 +230,15 @@ Thus the counter is increased with every new edge.
         
             
 <dt>
-    <h4 class="name" id="edges"><span class="type-signature"></span>edges<span class="type-signature"> :GCedge[]</span></h4>
+    <h4 class="name" id="macros"><span class="type-signature"></span>macros<span class="type-signature"> :GCmacro[]</span></h4>
     
     
 </dt>
 <dd>
     
     <div class="description">
-        This is an object of GCedges.
-It contains all edges of the behavior.
-The keys of this array are the values of edgeCounter prefixed with "e".
+        This array contains all GCmacros of the internal behavior.
+The keys of this array are the values of macroCounter prefixed with "m" or "##main##" for the first macro added.
     </div>
     
     
@@ -318,7 +262,7 @@ The keys of this array are the values of edgeCounter prefixed with "e".
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 47</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 39</li></ul></dd>
 	
     
     
@@ -367,7 +311,7 @@ It is the same as the ID of the corresponding subject and is used to identify th
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 55</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 47</li></ul></dd>
 	
     
     
@@ -384,17 +328,14 @@ It is the same as the ID of the corresponding subject and is used to identify th
         
             
 <dt>
-    <h4 class="name" id="nodeCounter"><span class="type-signature"></span>nodeCounter<span class="type-signature"> :int</span></h4>
+    <h4 class="name" id="selectedChannel"><span class="type-signature"></span>selectedChannel<span class="type-signature"> :String</span></h4>
     
     
 </dt>
 <dd>
     
     <div class="description">
-        Initialized with 0.
-This counter is used to give every node an unique id which is also used for the onClick event of the graph elements.
-The counter is increased with every node added.
-It is also used when a new node is added to the graph and thus has no id to store in the database.
+        The currently selected channel
     </div>
     
     
@@ -418,7 +359,7 @@ It is also used when a new node is added to the graph and thus has no id to stor
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 65</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 54</li></ul></dd>
 	
     
     
@@ -435,15 +376,14 @@ It is also used when a new node is added to the graph and thus has no id to stor
         
             
 <dt>
-    <h4 class="name" id="nodeIDs"><span class="type-signature"></span>nodeIDs<span class="type-signature"> :int[]</span></h4>
+    <h4 class="name" id="selectedMacro"><span class="type-signature"></span>selectedMacro<span class="type-signature"> :int</span></h4>
     
     
 </dt>
 <dd>
     
     <div class="description">
-        This array is mainly used during load time of a graph.
-It is a map with a node's id attribute as the key and the unique id, that identifies the node within the behavior, as the value.
+        The id (key of macros array) of the currently selected macro.
     </div>
     
     
@@ -467,211 +407,11 @@ It is a map with a node's id attribute as the key and the unique id, that identi
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 73</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 61</li></ul></dd>
 	
     
     
 	
-	
-	
-	
-</dl>
-
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="nodes"><span class="type-signature"></span>nodes<span class="type-signature"> :GCnode[]</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        This array contains all GCnodes of the internal behavior.
-The keys of this array are the values of nodeCounter prefixed with "n".
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 81</li></ul></dd>
-	
-    
-    
-	
-	
-	
-	
-</dl>
-
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="selectedEdge"><span class="type-signature"></span>selectedEdge<span class="type-signature"> :int</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        The id (key of edges array) of the currently selected edge.
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 88</li></ul></dd>
-	
-    
-    
-	
-	
-	
-	
-</dl>
-
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="selectedNode"><span class="type-signature"></span>selectedNode<span class="type-signature"> :int</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        The id (key of nodes array) of the currently selected node.
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 95</li></ul></dd>
-	
-    
-    
-	
-	
-	
-	
-</dl>
-
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <h4 class="name" id="startNode"><span class="type-signature"></span>startNode<span class="type-signature"> :int</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        The id (key of nodes array) of the node that will be the start node of a new edge.
-    </div>
-    
-    
-    
-<dl class="details">
-    
-        
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 103</li></ul></dd>
-	
-    
-    
-	
-	
-	<dt class="tag-see">See:</dt>
-	<dd class="tag-see">
-        <ul>
-            <li>GCbehavior.connectNodes(), GCbehavior.createNode()</li>
-        </ul>
-	</dd>
 	
 	
 	
@@ -717,7 +457,7 @@ The counter is increased with every variable added.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 112</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 70</li></ul></dd>
 	
     
     
@@ -765,7 +505,7 @@ The counter is increased with every variable added.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 119</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 77</li></ul></dd>
 	
     
     
@@ -796,9 +536,7 @@ The counter is increased with every variable added.
     
     
     <div class="description">
-        Creates a new GCedge and stores it in the edges array.
-The edge will be stored at key "e" + edgeCounter.
-The edgeCounter is increased by one.
+        Creates a new GCedge in the proper macro.
     </div>
     
     
@@ -1046,7 +784,288 @@ The edgeCounter is increased by one.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 135</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 92</li></ul></dd>
+	
+    
+    
+	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.addEdge()</li>
+        </ul>
+	</dd>
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The created edge or null on errors.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">GCedge</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="addEdgeMessage"><span class="type-signature"></span>addEdgeMessage</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Creates a new GCedge (with type=exit condition and a proper messageType added) in the selected macro.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		<th>Argument</th>
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>start</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">The id of the start node.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>end</code></td>
+            
+            
+            <td class="type">
+            
+                        int
+                        
+                    
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">The id of the end node.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">The messageType (text not ID) associated to this edge.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>relatedSubject</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>deactivated</code></td>
+            
+            
+            <td class="type">
+            
+                        boolean
+                        
+                    
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">The deactivation status of the edge. (default: false)</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>optional</code></td>
+            
+            
+            <td class="type">
+            
+                        boolean
+                        
+                    
+            </td>
+            
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+                    
+                
+                </td>
+            
+            
+            
+            
+            <td class="description last">The optional status of the edge. (default: false)</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 108</li></ul></dd>
 	
     
     
@@ -1099,12 +1118,7 @@ The edgeCounter is increased by one.
     
     
     <div class="description">
-        Creates a new GCnode and stores it in the nodes array.
-The node will be stored at key "n" + nodeCounter.
-The nodeCounter is increased by one.
-When id is empty or not set a new id will be created as "n" + nodeCounter.
-This id is only used in the database to identify the node.
-The type parameter is optional and will mainly be passed by reading the nodes from the database.
+        Creates a new GCnode in the selected macro.
     </div>
     
     
@@ -1329,11 +1343,18 @@ The type parameter is optional and will mainly be passed by reading the nodes fr
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 180</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 125</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.addNode()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -1478,7 +1499,7 @@ This method can also be used to update variables.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 225</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 138</li></ul></dd>
 	
     
     
@@ -1531,9 +1552,7 @@ This method can also be used to update variables.
     
     
     <div class="description">
-        Clears the current behavioral view.
-The nodes and edges arrays are emptied and all attributes are set to their defaults.
-The graph is redrawn and will result in an empty canvas.
+        Clears the currently selected macro.
     </div>
     
     
@@ -1561,11 +1580,18 @@ The graph is redrawn and will result in an empty canvas.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 296</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 208</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.clearGraph()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -1610,9 +1636,7 @@ The graph is redrawn and will result in an empty canvas.
     
     
     <div class="description">
-        When connectNodes() is called connectMode is toggled.
-When connectMode is set to true the connectMode is changed to false.
-When it is false connectMode is set to true and the currently selected node is backed up as the startNode.
+        Calls the connectNodes() method of the currently selected macro.
     </div>
     
     
@@ -1640,11 +1664,18 @@ When it is false connectMode is set to true and the currently selected node is b
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 320</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 219</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.connectNodes()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -1689,8 +1720,7 @@ When it is false connectMode is set to true and the currently selected node is b
     
     
     <div class="description">
-        This method creates a new edge from the node with the id given in parameter start to the node with the id given in parameter end by calling the addEdge (start, end, text, relatedSubject, type) method with an empty text and without a relatedSubject.
-The graph is redrawn.
+        This method creates a new edge in the currently selected macro.
     </div>
     
     
@@ -1806,11 +1836,18 @@ The graph is redrawn.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 343</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 233</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.createEdge()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -1847,6 +1884,133 @@ The graph is redrawn.
         
             
 <dt>
+    <h4 class="name" id="createMacro"><span class="type-signature"></span>createMacro</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Creates a new macro and stores it in the macros array.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The name of the macro.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 244</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The ID of the new macro.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">String</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="createNode"><span class="type-signature"></span>createNode</h4>
     
     
@@ -1855,9 +2019,7 @@ The graph is redrawn.
     
     
     <div class="description">
-        Calls addNode(id, text, type) where id is an empty string, so addNode() will calculate a new id, and text is "new".
-The type is left blank – the node will be created as an internal action with type "normal".
-The resulting nodeId is then passed to gf_clickedBVnode(id) and the graph is redrawn.
+        Creates a new node in the currently selected macro.
     </div>
     
     
@@ -1885,11 +2047,18 @@ The resulting nodeId is then passed to gf_clickedBVnode(id) and the graph is red
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 362</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 271</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.createNode()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -1938,7 +2107,7 @@ The resulting nodeId is then passed to gf_clickedBVnode(id) and the graph is red
     
     
     <div class="description">
-        De- / activates the currently selected edge depending on its current deactivation status.
+        De- / activates the currently selected edge depending on its current deactivation status of the currently selected macro.
     </div>
     
     
@@ -1966,11 +2135,18 @@ The resulting nodeId is then passed to gf_clickedBVnode(id) and the graph is red
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 382</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 282</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.deactivateEdge()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2015,7 +2191,7 @@ The resulting nodeId is then passed to gf_clickedBVnode(id) and the graph is red
     
     
     <div class="description">
-        De- / activates the currently selected node depending on its current deactivation status.
+        De- / activates the currently selected node depending on its current deactivation status of the currently selected macro.
     </div>
     
     
@@ -2043,11 +2219,18 @@ The resulting nodeId is then passed to gf_clickedBVnode(id) and the graph is red
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 415</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 293</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.deactivateNode()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2092,9 +2275,7 @@ The resulting nodeId is then passed to gf_clickedBVnode(id) and the graph is red
     
     
     <div class="description">
-        Removes the edge with the given id from the behavioral view.
-When no id is given the currently selectedEdge will be removed.
-The graph is redrawn.
+        Removes the edge with the given id from the currently selected macro.
     </div>
     
     
@@ -2178,11 +2359,18 @@ The graph is redrawn.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 451</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 305</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.deleteEdge()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2227,9 +2415,7 @@ The graph is redrawn.
     
     
     <div class="description">
-        Removes the node with the given id from the behavioral view.
-When no id is given the currently selectedNode will be removed.
-The graph is redrawn.
+        Removes the node with the given id from the currently selected macro.
     </div>
     
     
@@ -2313,11 +2499,18 @@ The graph is redrawn.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 469</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 317</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.deleteNode()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2362,7 +2555,7 @@ The graph is redrawn.
     
     
     <div class="description">
-        Draws the graph of this behavior.
+        Draws the graph of the currently selected macro.
     </div>
     
     
@@ -2390,11 +2583,18 @@ The graph is redrawn.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 484</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 328</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.draw()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2440,9 +2640,6 @@ The graph is redrawn.
     
     <div class="description">
         Returns the GCedge with the given id.
-When the id is empty the currently selectedEdge will be returned.
-This method will most likely be called by GCcommunication.loadInformationEdge().
-returns the edge with the given id
     </div>
     
     
@@ -2526,11 +2723,18 @@ returns the edge with the given id
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 527</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 340</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.getEdge()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2579,7 +2783,7 @@ returns the edge with the given id
     
     
     <div class="description">
-        Returns the edges array.
+        Returns the edges array of the currently selected macro.
     </div>
     
     
@@ -2607,11 +2811,18 @@ returns the edge with the given id
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 542</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 351</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.getEdges()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2648,6 +2859,210 @@ returns the edge with the given id
         
             
 <dt>
+    <h4 class="name" id="getMacro"><span class="type-signature"></span>getMacro</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the macro with the given ID or the currently selected macro, when no id is given.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the macro. When not set, the currently selected Macro will be returned.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 362</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    The macro with the given ID.
+</div>
+
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">GCmacro</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getMacros"><span class="type-signature"></span>getMacros</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Returns the macros array of the internal behavior.
+    </div>
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 378</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">GCmacro[]</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="getNode"><span class="type-signature"></span>getNode</h4>
     
     
@@ -2656,8 +3071,7 @@ returns the edge with the given id
     
     
     <div class="description">
-        Returns the GCnode with the given internal id (not the database id).
-When id is empty the currently selectedNode will be returned.
+        Returns the GCnode with the given internal id.
     </div>
     
     
@@ -2741,11 +3155,18 @@ When id is empty the currently selectedNode will be returned.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 554</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 390</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.getNode()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2794,7 +3215,7 @@ When id is empty the currently selectedNode will be returned.
     
     
     <div class="description">
-        Returns the nodes array.
+        Returns the nodes array of the currently selected macro.
     </div>
     
     
@@ -2822,11 +3243,18 @@ When id is empty the currently selectedNode will be returned.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 569</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 401</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.getNodes()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -2863,6 +3291,136 @@ When id is empty the currently selectedNode will be returned.
         
             
 <dt>
+    <h4 class="name" id="selectChannel"><span class="type-signature"></span>selectChannel</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Select a channel in the currently selected macro.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>channel</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The name of the channel to select. When set to "##all##" all nodes and edges will be displayed.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 413</li></ul></dd>
+	
+    
+    
+	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.selectChannel()</li>
+        </ul>
+	</dd>
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="selectEdge"><span class="type-signature"></span>selectEdge</h4>
     
     
@@ -2871,7 +3429,7 @@ When id is empty the currently selectedNode will be returned.
     
     
     <div class="description">
-        Clears the current selection by calling GCbehavior.selectNothing() and updates selectedEdge with given id.
+        Selects the edge with the given id.
     </div>
     
     
@@ -2945,7 +3503,260 @@ When id is empty the currently selectedNode will be returned.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 580</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 425</li></ul></dd>
+	
+    
+    
+	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.selectEdge()</li>
+        </ul>
+	</dd>
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="selectMacro"><span class="type-signature"></span>selectMacro</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Selects the macro with the given id.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the macro.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 436</li></ul></dd>
+	
+    
+    
+	
+	
+	
+	
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+		<span class="param-type">void</span> 
+		
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="selectMacroByNode"><span class="type-signature"></span>selectMacroByNode</h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Selects the macro by double-clicking a node.
+    </div>
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+            
+            <td class="type">
+            
+                        String
+                        
+                    
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">The id of the node.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<dt class="tag-source">Source:</dt>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 457</li></ul></dd>
 	
     
     
@@ -2994,9 +3805,7 @@ When id is empty the currently selectedNode will be returned.
     
     
     <div class="description">
-        When connectMode is set to true a new edge is created from the node with the id stored in startNode to the node with the given id,
-but only when no edge already exists from startNode to id.
-When connectMode is set to false the current selection is cleared using GCbehavior.selectNothing() and selectedNode is set to id.
+        Selects the node with the given id.
     </div>
     
     
@@ -3070,11 +3879,18 @@ When connectMode is set to false the current selection is cleared using GCbehavi
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 597</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 478</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.selectNode()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -3119,7 +3935,7 @@ When connectMode is set to false the current selection is cleared using GCbehavi
     
     
     <div class="description">
-        Resets selectedEdge, selectedNode and connectMode to false.
+        Resets selection in the currently selected macro.
     </div>
     
     
@@ -3147,11 +3963,18 @@ When connectMode is set to false the current selection is cleared using GCbehavi
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 637</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 489</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.selectNothing()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -3196,8 +4019,7 @@ When connectMode is set to false the current selection is cleared using GCbehavi
     
     
     <div class="description">
-        Updates the information of the edge with the id stored in selectedEdge by calling the setText (text) and setRelatedSubject (relatedSubject) methods of GCedge.
-Redraws the graph.
+        Updates the currently selected edge of the currently selected macro.
     </div>
     
     
@@ -3271,11 +4093,18 @@ Redraws the graph.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 651</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 501</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.updateEdge()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -3320,8 +4149,7 @@ Redraws the graph.
     
     
     <div class="description">
-        Updates the information of the node with the id that is stored in selectedNode by calling the setText (text), setType (type), setStart (start) and the setEnd (end) methods of GCnode.
-Redraws the graph.
+        Updates the currently selected node of the currently selected macro.
     </div>
     
     
@@ -3395,11 +4223,18 @@ Redraws the graph.
 	
 	
 	<dt class="tag-source">Source:</dt>
-	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 725</li></ul></dd>
+	<dd class="tag-source"><ul class="dummy"><li>behavior.class.js, line 513</li></ul></dd>
 	
     
     
 	
+	
+	<dt class="tag-see">See:</dt>
+	<dd class="tag-see">
+        <ul>
+            <li>GCmacro.updateNode()</li>
+        </ul>
+	</dd>
 	
 	
 	
@@ -3449,13 +4284,13 @@ Redraws the graph.
 </div>
 
 <nav>
-    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="GCbehavior.html">GCbehavior</a></li><li><a href="GCcommunication.html">GCcommunication</a></li><li><a href="GCedge.html">GCedge</a></li><li><a href="GCgraphbv.html">GCgraphbv</a></li><li><a href="GCgraphcv.html">GCgraphcv</a></li><li><a href="GClabel.html">GClabel</a></li><li><a href="GCnode.html">GCnode</a></li><li><a href="GCpath.html">GCpath</a></li><li><a href="GCsubject.html">GCsubject</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calcTimes">calcTimes</a></li><li><a href="global.html#def">def</a></li><li><a href="global.html#GCtime">GCtime</a></li><li><a href="global.html#getExample">getExample</a></li><li><a href="global.html#getExplanation">getExplanation</a></li><li><a href="global.html#getTime">getTime</a></li><li><a href="global.html#getTimestamp">getTimestamp</a></li><li><a href="global.html#getTimeString">getTimeString</a></li><li><a href="global.html#gf_callMacro">gf_callMacro</a></li><li><a href="global.html#gf_changeView">gf_changeView</a></li><li><a href="global.html#gf_checkCardinality">gf_checkCardinality</a></li><li><a href="global.html#gf_clearGraph">gf_clearGraph</a></li><li><a href="global.html#gf_clearSelection">gf_clearSelection</a></li><li><a href="global.html#gf_clickedBVedge">gf_clickedBVedge</a></li><li><a href="global.html#gf_clickedBVnode">gf_clickedBVnode</a></li><li><a href="global.html#gf_clickedCVbehavior">gf_clickedCVbehavior</a></li><li><a href="global.html#gf_clickedCVnode">gf_clickedCVnode</a></li><li><a href="global.html#gf_connectNodes">gf_connectNodes</a></li><li><a href="global.html#gf_createFromTable">gf_createFromTable</a></li><li><a href="global.html#gf_createMacro">gf_createMacro</a></li><li><a href="global.html#gf_createNode">gf_createNode</a></li><li><a href="global.html#gf_deactivateEdge">gf_deactivateEdge</a></li><li><a href="global.html#gf_deactivateElement">gf_deactivateElement</a></li><li><a href="global.html#gf_deactivateNode">gf_deactivateNode</a></li><li><a href="global.html#gf_deleteElement">gf_deleteElement</a></li><li><a href="global.html#gf_deselectEdges">gf_deselectEdges</a></li><li><a href="global.html#gf_deselectNodes">gf_deselectNodes</a></li><li><a href="global.html#gf_elementExists">gf_elementExists</a></li><li><a href="global.html#gf_functionExists">gf_functionExists</a></li><li><a href="global.html#gf_getChildNodes">gf_getChildNodes</a></li><li><a href="global.html#gf_getMessageTypes">gf_getMessageTypes</a></li><li><a href="global.html#gf_getNodeLeft">gf_getNodeLeft</a></li><li><a href="global.html#gf_getNodeNext">gf_getNodeNext</a></li><li><a href="global.html#gf_getNodePrevious">gf_getNodePrevious</a></li><li><a href="global.html#gf_getNodeRight">gf_getNodeRight</a></li><li><a href="global.html#gf_getParentNode">gf_getParentNode</a></li><li><a href="global.html#gf_getSelectedElement">gf_getSelectedElement</a></li><li><a href="global.html#gf_getSelectedElementType">gf_getSelectedElementType</a></li><li><a href="global.html#gf_getSelectedNode">gf_getSelectedNode</a></li><li><a href="global.html#gf_getStrokeDasharray">gf_getStrokeDasharray</a></li><li><a href="global.html#gf_getStyleValue">gf_getStyleValue</a></li><li><a href="global.html#gf_getSubjectIDs">gf_getSubjectIDs</a></li><li><a href="global.html#gf_getSubjectNames">gf_getSubjectNames</a></li><li><a href="global.html#gf_getSubjects">gf_getSubjects</a></li><li><a href="global.html#gf_getTextPosition">gf_getTextPosition</a></li><li><a href="global.html#gf_guiChangeView">gf_guiChangeView</a></li><li><a href="global.html#gf_guiClearInputFields">gf_guiClearInputFields</a></li><li><a href="global.html#gf_guiDisplayEdge">gf_guiDisplayEdge</a></li><li><a href="global.html#gf_guiDisplayNode">gf_guiDisplayNode</a></li><li><a href="global.html#gf_guiDisplaySubject">gf_guiDisplaySubject</a></li><li><a href="global.html#gf_guiElementHide">gf_guiElementHide</a></li><li><a href="global.html#gf_guiElementRead">gf_guiElementRead</a></li><li><a href="global.html#gf_guiElementShow">gf_guiElementShow</a></li><li><a href="global.html#gf_guiElementWrite">gf_guiElementWrite</a></li><li><a href="global.html#gf_guiLoadDropDownChannels">gf_guiLoadDropDownChannels</a></li><li><a href="global.html#gf_guiLoadDropDownCorrelationIds">gf_guiLoadDropDownCorrelationIds</a></li><li><a href="global.html#gf_guiLoadDropDownForNode">gf_guiLoadDropDownForNode</a></li><li><a href="global.html#gf_guiLoadDropDownMessageTypes">gf_guiLoadDropDownMessageTypes</a></li><li><a href="global.html#gf_guiLoadDropDownStates">gf_guiLoadDropDownStates</a></li><li><a href="global.html#gf_guiLoadDropDownSubjects">gf_guiLoadDropDownSubjects</a></li><li><a href="global.html#gf_guiLoadDropDownVariables">gf_guiLoadDropDownVariables</a></li><li><a href="global.html#gf_guiLoadExternalProcess">gf_guiLoadExternalProcess</a></li><li><a href="global.html#gf_guiReadEdge">gf_guiReadEdge</a></li><li><a href="global.html#gf_guiReadNode">gf_guiReadNode</a></li><li><a href="global.html#gf_guiReadSubject">gf_guiReadSubject</a></li><li><a href="global.html#gf_guiSetEdgeMessage">gf_guiSetEdgeMessage</a></li><li><a href="global.html#gf_guiSortArrayByText">gf_guiSortArrayByText</a></li><li><a href="global.html#gf_guiToggleNEForms">gf_guiToggleNEForms</a></li><li><a href="global.html#gf_initPaper">gf_initPaper</a></li><li><a href="global.html#gf_isArray">gf_isArray</a></li><li><a href="global.html#gf_isset">gf_isset</a></li><li><a href="global.html#gf_isStandAlone">gf_isStandAlone</a></li><li><a href="global.html#gf_loadGraph">gf_loadGraph</a></li><li><a href="global.html#gf_mergeStyles">gf_mergeStyles</a></li><li><a href="global.html#gf_newlineToCamelCase">gf_newlineToCamelCase</a></li><li><a href="global.html#gf_objectHasAttribute">gf_objectHasAttribute</a></li><li><a href="global.html#gf_paperCenterPosition">gf_paperCenterPosition</a></li><li><a href="global.html#gf_paperChangeView">gf_paperChangeView</a></li><li><a href="global.html#gf_paperClickEdge">gf_paperClickEdge</a></li><li><a href="global.html#gf_paperClickNodeB">gf_paperClickNodeB</a></li><li><a href="global.html#gf_paperClickNodeC">gf_paperClickNodeC</a></li><li><a href="global.html#gf_paperDblClickNodeC">gf_paperDblClickNodeC</a></li><li><a href="global.html#gf_paperDragEnd">gf_paperDragEnd</a></li><li><a href="global.html#gf_paperDragMove">gf_paperDragMove</a></li><li><a href="global.html#gf_paperDragStart">gf_paperDragStart</a></li><li><a href="global.html#gf_paperMousePosition">gf_paperMousePosition</a></li><li><a href="global.html#gf_paperZoomIn">gf_paperZoomIn</a></li><li><a href="global.html#gf_paperZoomOut">gf_paperZoomOut</a></li><li><a href="global.html#gf_paperZoomReset">gf_paperZoomReset</a></li><li><a href="global.html#gf_replaceNewline">gf_replaceNewline</a></li><li><a href="global.html#gf_saveGraph">gf_saveGraph</a></li><li><a href="global.html#gf_setDivs">gf_setDivs</a></li><li><a href="global.html#gf_showInternalBehavior">gf_showInternalBehavior</a></li><li><a href="global.html#gf_toggleBV">gf_toggleBV</a></li><li><a href="global.html#gf_updateElement">gf_updateElement</a></li><li><a href="global.html#gv_bgRect">gv_bgRect</a></li><li><a href="global.html#gv_bv_paper">gv_bv_paper</a></li><li><a href="global.html#gv_currentViewBox">gv_currentViewBox</a></li><li><a href="global.html#gv_cv_paper">gv_cv_paper</a></li><li><a href="global.html#gv_graph">gv_graph</a></li><li><a href="global.html#gv_graph_bv">gv_graph_bv</a></li><li><a href="global.html#gv_graph_cv">gv_graph_cv</a></li><li><a href="global.html#gv_graphID">gv_graphID</a></li><li><a href="global.html#gv_macros">gv_macros</a></li><li><a href="global.html#gv_mousePositionStart">gv_mousePositionStart</a></li><li><a href="global.html#gv_node_children">gv_node_children</a></li><li><a href="global.html#gv_node_parents">gv_node_parents</a></li><li><a href="global.html#gv_noRedraw">gv_noRedraw</a></li><li><a href="global.html#gv_objects_edges">gv_objects_edges</a></li><li><a href="global.html#gv_objects_nodes">gv_objects_nodes</a></li><li><a href="global.html#gv_originalViewBox">gv_originalViewBox</a></li><li><a href="global.html#gv_paper">gv_paper</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#setTime">setTime</a></li><li><a href="global.html#setTimestamp">setTimestamp</a></li><li><a href="global.html#setTimeString">setTimeString</a></li><li><a href="global.html#sortUnits">sortUnits</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#timestampToString">timestampToString</a></li><li><a href="global.html#timeStringToStamp">timeStringToStamp</a></li></ul>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="GCbehavior.html">GCbehavior</a></li><li><a href="GCcommunication.html">GCcommunication</a></li><li><a href="GCedge.html">GCedge</a></li><li><a href="GCgraphbv.html">GCgraphbv</a></li><li><a href="GCgraphcv.html">GCgraphcv</a></li><li><a href="GClabel.html">GClabel</a></li><li><a href="GCmacro.html">GCmacro</a></li><li><a href="GCnode.html">GCnode</a></li><li><a href="GCpath.html">GCpath</a></li><li><a href="GCsubject.html">GCsubject</a></li></ul><h3>Global</h3><ul><li><a href="global.html#calcTimes">calcTimes</a></li><li><a href="global.html#def">def</a></li><li><a href="global.html#GCtime">GCtime</a></li><li><a href="global.html#getExample">getExample</a></li><li><a href="global.html#getExplanation">getExplanation</a></li><li><a href="global.html#getTime">getTime</a></li><li><a href="global.html#getTimestamp">getTimestamp</a></li><li><a href="global.html#getTimeString">getTimeString</a></li><li><a href="global.html#gf_callMacro">gf_callMacro</a></li><li><a href="global.html#gf_changeView">gf_changeView</a></li><li><a href="global.html#gf_checkCardinality">gf_checkCardinality</a></li><li><a href="global.html#gf_clearGraph">gf_clearGraph</a></li><li><a href="global.html#gf_clearSelection">gf_clearSelection</a></li><li><a href="global.html#gf_clickedBVedge">gf_clickedBVedge</a></li><li><a href="global.html#gf_clickedBVnode">gf_clickedBVnode</a></li><li><a href="global.html#gf_clickedCVbehavior">gf_clickedCVbehavior</a></li><li><a href="global.html#gf_clickedCVnode">gf_clickedCVnode</a></li><li><a href="global.html#gf_connectNodes">gf_connectNodes</a></li><li><a href="global.html#gf_createFromTable">gf_createFromTable</a></li><li><a href="global.html#gf_createMacro">gf_createMacro</a></li><li><a href="global.html#gf_createNode">gf_createNode</a></li><li><a href="global.html#gf_deactivateEdge">gf_deactivateEdge</a></li><li><a href="global.html#gf_deactivateElement">gf_deactivateElement</a></li><li><a href="global.html#gf_deactivateNode">gf_deactivateNode</a></li><li><a href="global.html#gf_deleteElement">gf_deleteElement</a></li><li><a href="global.html#gf_deselectEdges">gf_deselectEdges</a></li><li><a href="global.html#gf_deselectNodes">gf_deselectNodes</a></li><li><a href="global.html#gf_elementExists">gf_elementExists</a></li><li><a href="global.html#gf_functionExists">gf_functionExists</a></li><li><a href="global.html#gf_getChannels">gf_getChannels</a></li><li><a href="global.html#gf_getChildNodes">gf_getChildNodes</a></li><li><a href="global.html#gf_getMacros">gf_getMacros</a></li><li><a href="global.html#gf_getMessageTypes">gf_getMessageTypes</a></li><li><a href="global.html#gf_getNodeLeft">gf_getNodeLeft</a></li><li><a href="global.html#gf_getNodeNext">gf_getNodeNext</a></li><li><a href="global.html#gf_getNodePrevious">gf_getNodePrevious</a></li><li><a href="global.html#gf_getNodeRight">gf_getNodeRight</a></li><li><a href="global.html#gf_getParentNode">gf_getParentNode</a></li><li><a href="global.html#gf_getProcessState">gf_getProcessState</a></li><li><a href="global.html#gf_getSelectedChannel">gf_getSelectedChannel</a></li><li><a href="global.html#gf_getSelectedElement">gf_getSelectedElement</a></li><li><a href="global.html#gf_getSelectedElementType">gf_getSelectedElementType</a></li><li><a href="global.html#gf_getSelectedMacro">gf_getSelectedMacro</a></li><li><a href="global.html#gf_getSelectedNode">gf_getSelectedNode</a></li><li><a href="global.html#gf_getStrokeDasharray">gf_getStrokeDasharray</a></li><li><a href="global.html#gf_getStyleValue">gf_getStyleValue</a></li><li><a href="global.html#gf_getSubjectIDs">gf_getSubjectIDs</a></li><li><a href="global.html#gf_getSubjectNames">gf_getSubjectNames</a></li><li><a href="global.html#gf_getSubjects">gf_getSubjects</a></li><li><a href="global.html#gf_getTextPosition">gf_getTextPosition</a></li><li><a href="global.html#gf_guiChangeView">gf_guiChangeView</a></li><li><a href="global.html#gf_guiClearInputFields">gf_guiClearInputFields</a></li><li><a href="global.html#gf_guiDisplayEdge">gf_guiDisplayEdge</a></li><li><a href="global.html#gf_guiDisplayNode">gf_guiDisplayNode</a></li><li><a href="global.html#gf_guiDisplaySubject">gf_guiDisplaySubject</a></li><li><a href="global.html#gf_guiEdgeTypeAddOnClick">gf_guiEdgeTypeAddOnClick</a></li><li><a href="global.html#gf_guiElementDisable">gf_guiElementDisable</a></li><li><a href="global.html#gf_guiElementEnable">gf_guiElementEnable</a></li><li><a href="global.html#gf_guiElementHide">gf_guiElementHide</a></li><li><a href="global.html#gf_guiElementRead">gf_guiElementRead</a></li><li><a href="global.html#gf_guiElementShow">gf_guiElementShow</a></li><li><a href="global.html#gf_guiElementWrite">gf_guiElementWrite</a></li><li><a href="global.html#gf_guiLoadDropDownChannels">gf_guiLoadDropDownChannels</a></li><li><a href="global.html#gf_guiLoadDropDownCorrelationIds">gf_guiLoadDropDownCorrelationIds</a></li><li><a href="global.html#gf_guiLoadDropDownForChannelSelect">gf_guiLoadDropDownForChannelSelect</a></li><li><a href="global.html#gf_guiLoadDropDownForNode">gf_guiLoadDropDownForNode</a></li><li><a href="global.html#gf_guiLoadDropDownMacros">gf_guiLoadDropDownMacros</a></li><li><a href="global.html#gf_guiLoadDropDownMessageTypes">gf_guiLoadDropDownMessageTypes</a></li><li><a href="global.html#gf_guiLoadDropDownNodeTypes">gf_guiLoadDropDownNodeTypes</a></li><li><a href="global.html#gf_guiLoadDropDownStates">gf_guiLoadDropDownStates</a></li><li><a href="global.html#gf_guiLoadDropDownSubjects">gf_guiLoadDropDownSubjects</a></li><li><a href="global.html#gf_guiLoadDropDownVariables">gf_guiLoadDropDownVariables</a></li><li><a href="global.html#gf_guiLoadDropDownVarManOperations">gf_guiLoadDropDownVarManOperations</a></li><li><a href="global.html#gf_guiLoadExternalProcess">gf_guiLoadExternalProcess</a></li><li><a href="global.html#gf_guiReadEdge">gf_guiReadEdge</a></li><li><a href="global.html#gf_guiReadNode">gf_guiReadNode</a></li><li><a href="global.html#gf_guiReadSubject">gf_guiReadSubject</a></li><li><a href="global.html#gf_guiSetEdgeMessage">gf_guiSetEdgeMessage</a></li><li><a href="global.html#gf_guiSortArrayByText">gf_guiSortArrayByText</a></li><li><a href="global.html#gf_guiToggleNEForms">gf_guiToggleNEForms</a></li><li><a href="global.html#gf_initPaper">gf_initPaper</a></li><li><a href="global.html#gf_isArray">gf_isArray</a></li><li><a href="global.html#gf_isset">gf_isset</a></li><li><a href="global.html#gf_isStandAlone">gf_isStandAlone</a></li><li><a href="global.html#gf_loadGraph">gf_loadGraph</a></li><li><a href="global.html#gf_mergeStyles">gf_mergeStyles</a></li><li><a href="global.html#gf_newlineToCamelCase">gf_newlineToCamelCase</a></li><li><a href="global.html#gf_objectHasAttribute">gf_objectHasAttribute</a></li><li><a href="global.html#gf_paperCenterPosition">gf_paperCenterPosition</a></li><li><a href="global.html#gf_paperChangeView">gf_paperChangeView</a></li><li><a href="global.html#gf_paperClickEdge">gf_paperClickEdge</a></li><li><a href="global.html#gf_paperClickNodeB">gf_paperClickNodeB</a></li><li><a href="global.html#gf_paperClickNodeC">gf_paperClickNodeC</a></li><li><a href="global.html#gf_paperDblClickNodeB">gf_paperDblClickNodeB</a></li><li><a href="global.html#gf_paperDblClickNodeC">gf_paperDblClickNodeC</a></li><li><a href="global.html#gf_paperDragEnd">gf_paperDragEnd</a></li><li><a href="global.html#gf_paperDragMove">gf_paperDragMove</a></li><li><a href="global.html#gf_paperDragStart">gf_paperDragStart</a></li><li><a href="global.html#gf_paperMousePosition">gf_paperMousePosition</a></li><li><a href="global.html#gf_paperZoomIn">gf_paperZoomIn</a></li><li><a href="global.html#gf_paperZoomOut">gf_paperZoomOut</a></li><li><a href="global.html#gf_paperZoomReset">gf_paperZoomReset</a></li><li><a href="global.html#gf_replaceNewline">gf_replaceNewline</a></li><li><a href="global.html#gf_saveGraph">gf_saveGraph</a></li><li><a href="global.html#gf_selectChannel">gf_selectChannel</a></li><li><a href="global.html#gf_selectMacro">gf_selectMacro</a></li><li><a href="global.html#gf_setDivs">gf_setDivs</a></li><li><a href="global.html#gf_showInternalBehavior">gf_showInternalBehavior</a></li><li><a href="global.html#gf_toggleBV">gf_toggleBV</a></li><li><a href="global.html#gf_updateElement">gf_updateElement</a></li><li><a href="global.html#gv_bgRect">gv_bgRect</a></li><li><a href="global.html#gv_bv_paper">gv_bv_paper</a></li><li><a href="global.html#gv_currentViewBox">gv_currentViewBox</a></li><li><a href="global.html#gv_cv_paper">gv_cv_paper</a></li><li><a href="global.html#gv_graph">gv_graph</a></li><li><a href="global.html#gv_graph_bv">gv_graph_bv</a></li><li><a href="global.html#gv_graph_cv">gv_graph_cv</a></li><li><a href="global.html#gv_graphID">gv_graphID</a></li><li><a href="global.html#gv_macros">gv_macros</a></li><li><a href="global.html#gv_mousePositionStart">gv_mousePositionStart</a></li><li><a href="global.html#gv_node_children">gv_node_children</a></li><li><a href="global.html#gv_node_parents">gv_node_parents</a></li><li><a href="global.html#gv_noRedraw">gv_noRedraw</a></li><li><a href="global.html#gv_objects_edges">gv_objects_edges</a></li><li><a href="global.html#gv_objects_nodes">gv_objects_nodes</a></li><li><a href="global.html#gv_originalViewBox">gv_originalViewBox</a></li><li><a href="global.html#gv_paper">gv_paper</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#setTime">setTime</a></li><li><a href="global.html#setTimestamp">setTimestamp</a></li><li><a href="global.html#setTimeString">setTimeString</a></li><li><a href="global.html#sortUnits">sortUnits</a></li><li><a href="global.html#timestamp">timestamp</a></li><li><a href="global.html#timestampToString">timestampToString</a></li><li><a href="global.html#timeStringToStamp">timeStringToStamp</a></li></ul>
 </nav>
 
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Thu Sep 20 2012 18:27:10 GMT+0200 (MESZ)
+    Documentation generated by <a href="https://github.com/micmath/jsdoc">JSDoc 3</a> on Fri Oct 05 2012 10:36:16 GMT+0200 (MESZ)
 </footer>
 
 <script> sh_highlightDocument(); </script>
