@@ -68,6 +68,7 @@ var gv_elements = {
 	inputNodeOptSubject:		"ge_node_opt_subject",
 	inputNodeOptSubjectO:		"ge_node_opt_subjectOuter",
 	inputNodeOuter:				"node",
+	inputNodeStartOuter:		"ge_node_start_node_outer",
 	inputNodeText:				"ge_text",
 	inputNodeType:				"ge_type2",
 	inputNodeVariable:			"ge_node_variable",

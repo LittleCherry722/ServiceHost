@@ -255,6 +255,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputNodeOptStateOuter);
 	gf_guiElementHide(gv_elements.inputNodeOptSubjectO);
 	gf_guiElementHide(gv_elements.inputNodeOuter);
+	gf_guiElementHide(gv_elements.inputNodeStartOuter);
 	gf_guiElementHide(gv_elements.inputNodeVariableO);
 	gf_guiElementHide(gv_elements.inputSubjectRelOuter);
 	gf_guiElementHide(gv_elements.inputEdgeTargetMTypeNO);
@@ -579,6 +580,9 @@ function gf_guiDisplayNode (node)
 		
 	// show divs
 	gf_guiElementShow(gv_elements.inputNodeChannelOuter);
+	
+	if (node.parentMacro.id == "##main##")
+		gf_guiElementShow(gv_elements.inputNodeStartOuter);
 	
 	if (node.isStart())
 		gf_guiElementShow(gv_elements.inputNodeMajorStartOuter);
