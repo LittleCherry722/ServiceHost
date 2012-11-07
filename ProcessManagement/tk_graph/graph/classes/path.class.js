@@ -775,4 +775,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.setText(text);
 	
 	gv_objects_edges[id] = this;
+	
+	// move path to back so line-crossings aren't that obvious
+	this.path.toBack();
 }
