@@ -669,6 +669,7 @@ function GCmacro (parent, id, name)
 			var gt_storeVariable	= gf_isset(values.variable)			? values.variable		: "";
 			var gt_storeVariableNew	= gf_isset(values.variableText)		? values.variableText	: "";
 			var gt_correlationId	= gf_isset(values.correlationId)	? values.correlationId	: "";
+			var gt_comment			= gf_isset(values.comment)			? values.comment		: "";
 			
 			if (gt_startNodeType == "send" || gt_startNodeType == "receive")
 			{
@@ -692,6 +693,7 @@ function GCmacro (parent, id, name)
 			gt_edge.setVariable(this.parent.addVariable(gt_storeVariableNew, gt_storeVariable));
 			gt_edge.setRelatedSubject(gt_relatedSubject);
 			gt_edge.setOptional(gt_optional);
+			gt_edge.setComment(gt_comment);
 			
 			if (gt_type == "timeout")
 			{
@@ -730,6 +732,7 @@ function GCmacro (parent, id, name)
 			var gt_options			= gf_isset(values.options)			? values.options			: {};
 			var gt_varMan			= gf_isset(values.varMan)			? values.varMan				: {};
 			var gt_macro			= gf_isset(values.macro)			? values.macro				: "";
+			var gt_comment			= gf_isset(values.comment)			? values.comment			: "";
 			
 			// check option entries
 			if (!gf_isset(gt_options.message))
@@ -767,6 +770,7 @@ function GCmacro (parent, id, name)
 			gt_node.setVariable(gt_variable);
 			gt_node.setChannel(gv_graph.addChannel(gt_channelText, gt_channel));
 			gt_node.setVarMan(gt_varMan);
+			gt_node.setComment(gt_comment);
 			
 			// macro
 			if (gt_macro == "##createNew##" && gf_isset(values.macroText))

@@ -131,6 +131,13 @@
 			<select id="ge_edge_correlationid" style="width: 140px;"></select>
 		</div>
 		
+		<br/>
+		<label class="graphsectionheader">Comment:</label>
+		<br/>
+		<textarea id="ge_edge_comment" style="width: 140px;"></textarea>												
+		<br/>
+		<br/>
+		
 		<input type="button" id="UpdateEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<br/>
 		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
@@ -226,8 +233,14 @@
 			</div>
 			
 		</div>
-														
+		
 		<br/>
+		<label class="graphsectionheader">Comment:</label>
+		<br/>
+		<textarea id="ge_node_comment" style="width: 140px;"></textarea>												
+		<br/>
+		<br/>
+		
 		<input type="button" id="UpdateNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
 		<br/>
 		<input type="button" id="ConnectNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />

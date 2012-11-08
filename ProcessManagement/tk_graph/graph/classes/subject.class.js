@@ -44,6 +44,13 @@ function GCsubject (id, text, type, inputPool)
 	this.behavior	= new GCbehavior(id);
 	
 	/**
+	 * Comment for this subject.
+	 * 
+	 * @type String
+	 */
+	this.comment	= "";
+	
+	/**
 	 * A flag to indicate whether or not the subject is deactivated.
 	 * Deactivated subjects are displayed in a different way.
 	 * 
@@ -137,6 +144,16 @@ function GCsubject (id, text, type, inputPool)
 	this.getBehavior = function ()
 	{
 		return this.behavior;
+	};
+	
+	/**
+	 * Returns the subject's comment.
+	 * 
+	 * @returns {String} The subject's comment.
+	 */
+	this.getComment	= function ()
+	{
+		return this.comment;
 	};
 	
 	/**
@@ -262,6 +279,17 @@ function GCsubject (id, text, type, inputPool)
 	this.isMulti = function ()
 	{
 		return this.getType() == "multi" || this.getType() == "multiexternal";	
+	};
+	
+	/**
+	 * Updates the subject's comment.
+	 * 
+	 * @param {String} comment The new comment.
+	 * @returns {void}
+	 */
+	this.setComment = function (comment)
+	{
+		this.comment = comment;
 	};
 	
 	/**

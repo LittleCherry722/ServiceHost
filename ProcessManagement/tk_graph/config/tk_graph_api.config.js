@@ -125,7 +125,12 @@ var gv_elements = {
 	inputNodeMacroOuter:		"ge_node_macro_outer",
 	inputNodeMacro:				"ge_node_macro",
 	inputNodeMacroNewOuter:		"ge_node_macro_new_outer",
-	inputNodeMacroNew:			"ge_node_macro_new"
+	inputNodeMacroNew:			"ge_node_macro_new",
+	
+	// comment fields
+	inputNodeComment:			"ge_node_comment",
+	inputEdgeComment:			"ge_edge_comment",
+	inputSubjectComment:		"ge_subject_comment"
 };
 
 /**
@@ -212,7 +217,7 @@ var gv_functions	= {
 		 * read input fields (edge) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateEdge(), gf_guiReadEdge()
-		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId
+		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId, comment
 		 */
 		readEdge:			"",
 		
@@ -220,7 +225,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan, macro, macroText
+		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan, macro, macroText, comment
 		 */
 		readNode:			"",
 		
@@ -228,7 +233,7 @@ var gv_functions	= {
 		 * read input fields (subject) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadSubject()
-		 * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType
+		 * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment
 		 */
 		readSubject:		"",
 		

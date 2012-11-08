@@ -1166,6 +1166,9 @@ function GCcommunication ()
 					if (gf_isset(gt_subject.externalType))
 						this.subjects[gt_subject.id].setExternalType(gt_subject.externalType);
 						
+					if (gf_isset(gt_subject.comment))
+						this.subjects[gt_subject.id].setComment(gt_subject.comment);
+						
 					this.subjects[gt_subject.id].setRole(gt_role);
 				}
 				
@@ -1244,6 +1247,9 @@ function GCcommunication ()
 									
 								if (gf_isset(gt_node.macro))
 									gt_createdNode.setMacro(gt_node.macro);
+									
+								if (gf_isset(gt_node.comment))
+									gt_createdNode.setComment(gt_node.comment);
 							}
 							
 						}
@@ -1276,6 +1282,11 @@ function GCcommunication ()
 								if (gf_isset(gt_edge.priority))
 								{
 									gt_createdEdge.setPriority(gt_edge.priority);
+								}
+								
+								if (gf_isset(gt_edge.comment))
+								{
+									gt_createdEdge.setComment(gt_edge.comment);
 								}
 								
 								if (gf_isset(gt_edge.manualTimeout))
@@ -1454,7 +1465,8 @@ function GCcommunication ()
 						relatedProcess: this.subjects[gt_sid].getRelatedProcess(),
 						relatedSubject: this.subjects[gt_sid].getRelatedSubject(),
 						externalType: this.subjects[gt_sid].getExternalType(),
-						role: this.subjects[gt_sid].getRole()
+						role: this.subjects[gt_sid].getRole(),
+						comment: this.subjects[gt_sid].getComment()
 			};
 			
 			var gt_behav 	= this.subjects[gt_sid].getBehavior();
@@ -1485,7 +1497,8 @@ function GCcommunication ()
 							channel:		gt_node.getChannel(),
 							variable:		gt_node.getVariable(),
 							varMan:			gt_node.getVarMan("all"),
-							macro:			gt_node.getMacro()
+							macro:			gt_node.getMacro(),
+							comment:		gt_node.getComment()
 					};
 				}
 	
@@ -1515,7 +1528,8 @@ function GCcommunication ()
 									priority:		gt_edge.getPriority(),
 									manualTimeout:	gt_edge.isManualTimeout(),
 									variable:		gt_edge.getVariable(),
-									correlationId:	gt_edge.getCorrelationId()
+									correlationId:	gt_edge.getCorrelationId(),
+									comment:		gt_edge.getComment()
 							};
 						}
 					}
@@ -1770,6 +1784,7 @@ function GCcommunication ()
 				var gt_relatedProcess	= gf_isset(gt_values.relatedProcess)	? gt_values.relatedProcess	: "";
 				var gt_relatedSubject	= gf_isset(gt_values.relatedSubject)	? gt_values.relatedSubject	: "";
 				var gt_externalType		= gf_isset(gt_values.externalType)		? gt_values.externalType	: "external";
+				var gt_comment			= gf_isset(gt_values.comment)			? gt_values.comment			: "";
 				
 					gt_type	= gt_type != "" ? gt_type : gt_subject.getType();
 				
@@ -1783,6 +1798,7 @@ function GCcommunication ()
 					gt_subject.setRelatedProcess(gt_relatedProcess);
 					gt_subject.setRelatedSubject(gt_relatedSubject);
 					gt_subject.setExternalType(gt_externalType);
+					gt_subject.setComment(gt_comment);
 					
 					// publish the update of the subject
 					$.publish(gv_topics.subjects, [{action: "update", id: gt_subject.id}]);

@@ -270,6 +270,7 @@ function gf_guiClearInputFields ()
 	
 	// clear element values
 	gf_guiElementWrite(gv_elements.guiChannelSelect, "string", "");
+	gf_guiElementWrite(gv_elements.inputEdgeComment, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeCorrelationId, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeExceptionText, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeMessage, "string", "");
@@ -283,6 +284,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputEdgeTimeout, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeChannel, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeChannelNew, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeComment, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeOptChannel, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeOptCorrelationId, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeOptMessage, "string", "");
@@ -291,6 +293,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputNodeText, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeType, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeVariable, "string", "");
+	gf_guiElementWrite(gv_elements.inputSubjectComment, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectInputPool, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelProcess, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", "");
@@ -359,6 +362,9 @@ function gf_guiDisplayEdge (edge, startType)
 	
 	// priority
 	gf_guiElementWrite(gv_elements.inputEdgePriority, "string", edge.getPriority());
+	
+	// comment
+	gf_guiElementWrite(gv_elements.inputEdgeComment, "string", edge.getComment());
 	
 	// optional edges
 	if (startType == "modalsplit")
@@ -594,6 +600,9 @@ function gf_guiDisplayNode (node)
 	gf_guiElementWrite(gv_elements.inputNodeStart, "bool", node.isStart());
 	gf_guiElementWrite(gv_elements.inputNodeMajorStart, "bool", node.isStart() && node.isMajorStartNode());
 	
+	// comment
+	gf_guiElementWrite(gv_elements.inputNodeComment, "string", node.getComment());
+	
 	// add onChange listener to type selection
 	if (gf_elementExists(gv_elements.inputNodeType))
 	{
@@ -709,6 +718,7 @@ function gf_guiDisplaySubject (subject)
 	gf_guiElementWrite(gv_elements.inputSubjectInputPool, "string", subject.getInputPool(), "-1");
 	gf_guiElementWrite(gv_elements.inputSubjectRelProcess, "string", subject.getRelatedProcess(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", subject.getRelatedSubject(), "");
+	gf_guiElementWrite(gv_elements.inputSubjectComment, "string", subject.getComment());
 	
 	// check checbkoxes / radio buttons
 	gf_guiElementWrite(gv_elements.inputSubjectTypeMulti, "bool", subject.isMulti());
@@ -1606,11 +1616,11 @@ function gf_guiLoadExternalProcess (process)
  * Read the values for the selected edge from the input fields.
  * 
  * @see GCcommunication::updateEdge()
- * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId
+ * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId, comment
  */
 function gf_guiReadEdge ()
 {
-	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false, exception: "", variable: "", variableText: "", correlationId: ""};
+	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false, exception: "", variable: "", variableText: "", correlationId: "", comment: ""};
 	
 	var gt_relatedSubject	= {id: "", min: -1, max: -1, createNew: false, variable: "", variableText: "", useVariable: false};
 	
@@ -1621,6 +1631,7 @@ function gf_guiReadEdge ()
 	var gt_messageType		= gf_guiElementRead(gv_elements.inputEdgeMessage, "string", "");
 	var gt_priority			= gf_guiElementRead(gv_elements.inputEdgePriority, "string", "1");
 	var gt_manualTimeout	= gf_guiElementRead(gv_elements.inputEdgeTimeoutManual, "bool", false);
+	var gt_comment			= gf_guiElementRead(gv_elements.inputEdgeComment, "string", "");
 	
 	var gt_targetVar		= gf_guiElementRead(gv_elements.inputEdgeTargetMVariable, "string", "");
 	var gt_targetVarNew		= gf_guiElementRead(gv_elements.inputEdgeTargetMVarText, "string", "");
@@ -1666,6 +1677,7 @@ function gf_guiReadEdge ()
 	gt_result.variable			= gt_storeVar;
 	gt_result.variableText		= gt_storeVarNew;
 	gt_result.correlationId		= gt_correlationId;
+	gt_result.comment			= gt_comment;
 	
 	return gt_result;
 }
@@ -1674,11 +1686,11 @@ function gf_guiReadEdge ()
  * Read the values for the selected node from the input fields.
  * 
  * @see GCcommunication::updateNode()
- * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan, macro, macroText
+ * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan, macro, macroText, comment
  */
 function gf_guiReadNode ()
 {
-	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", channel: "", state: ""}, isMajorStartNode: false, channel: "", channelText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, macro: "", macroText: ""};
+	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", channel: "", state: ""}, isMajorStartNode: false, channel: "", channelText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, macro: "", macroText: "", comment: ""};
 	
 	var gt_text					= gf_guiElementRead(gv_elements.inputNodeText, "string", "");
 	var gt_isStart				= gf_guiElementRead(gv_elements.inputNodeStart, "bool", false);
@@ -1689,6 +1701,7 @@ function gf_guiReadNode ()
 	var gt_opt_correlationId 	= gf_guiElementRead(gv_elements.inputNodeOptCorrelationId, "string", "");
 	var gt_opt_state 			= gf_guiElementRead(gv_elements.inputNodeOptState, "string", "");
 	var gt_isMajorStartNode		= gf_guiElementRead(gv_elements.inputNodeMajorStart, "bool", false);
+	var gt_comment				= gf_guiElementRead(gv_elements.inputNodeComment, "string", "");
 	
 	
 	var gt_channel			= gf_guiElementRead(gv_elements.inputNodeChannel, "string", "");
@@ -1725,6 +1738,7 @@ function gf_guiReadNode ()
 	gt_result.varMan			= gt_varMan;
 	gt_result.macro				= gt_macro;
 	gt_result.macroText			= gt_macroText;
+	gt_result.comment			= gt_comment;
 	
 	return gt_result;
 }
@@ -1733,17 +1747,18 @@ function gf_guiReadNode ()
  * Read the values for the selected subject from the input fields.
  * 
  * @see GCcommunication::updateSubject()
- * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType
+ * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment
  */
 function gf_guiReadSubject ()
 {
-	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: ""};
+	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: ""};
 	
 	var gt_text			= gf_guiElementRead(gv_elements.inputSubjectText, "string", "");
 	var gt_role			= gf_guiElementRead(gv_elements.inputSubjectRole, "string", "");
 	var gt_inputPool	= gf_guiElementRead(gv_elements.inputSubjectInputPool, "string", "");
 	var gt_relProcess	= gf_guiElementRead(gv_elements.inputSubjectRelProcess, "string", "");
 	var gt_relSubject	= gf_guiElementRead(gv_elements.inputSubjectRelSubject, "string", "");
+	var gt_comment		= gf_guiElementRead(gv_elements.inputSubjectComment, "string", "");
 	
 	var gt_type	= "";
 	var gt_externalType	= "external";
@@ -1770,6 +1785,7 @@ function gf_guiReadSubject ()
 	gt_result.relatedProcess	= gt_relProcess;
 	gt_result.relatedSubject	= gt_relSubject;
 	gt_result.externalType		= gt_externalType;
+	gt_result.comment			= gt_comment;
 	
 	return gt_result;
 }

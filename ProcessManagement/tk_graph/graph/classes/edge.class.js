@@ -42,6 +42,13 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	// when no relatedSubject is given, set it to null
 	if (!gf_isset(relatedSubject))
 		relatedSubject = null;
+	
+	/**
+	 * Comment for this edge.
+	 * 
+	 * @type String
+	 */
+	this.comment	= "";
 		
 	/**
 	 * The correlationId of the edge.
@@ -175,6 +182,16 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	this.deactivate = function ()
 	{
 		this.deactivated = true;
+	};
+	
+	/**
+	 * Returns the edge's comment.
+	 * 
+	 * @returns {String} The edge's comment.
+	 */
+	this.getComment	= function ()
+	{
+		return this.comment;
 	};
 	
 	/**
@@ -467,6 +484,17 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	this.isOptional = function ()
 	{
 		return this.optional === true && this.getTypeOfStartNode() == "modalsplit";
+	};
+	
+	/**
+	 * Updates the edge's comment.
+	 * 
+	 * @param {String} comment The new comment.
+	 * @returns {void}
+	 */
+	this.setComment = function (comment)
+	{
+		this.comment = comment;
 	};
 	
 	/**

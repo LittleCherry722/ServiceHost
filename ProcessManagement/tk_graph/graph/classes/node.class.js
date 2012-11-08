@@ -34,6 +34,13 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	this.channel	= null;
 	
 	/**
+	 * Comment for this node.
+	 * 
+	 * @type String
+	 */
+	this.comment	= "";
+	
+	/**
 	 * CorrelationId, only used for closeIP, openIP, isIPempty
 	 * 
 	 * @type String
@@ -180,6 +187,16 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		}
 		
 		return this.channel;
+	};
+	
+	/**
+	 * Returns the node's comment.
+	 * 
+	 * @returns {String} The node's comment.
+	 */
+	this.getComment	= function ()
+	{
+		return this.comment;
 	};
 	
 	/**
@@ -439,6 +456,17 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		{
 			this.channel = channel;
 		}
+	};
+	
+	/**
+	 * Updates the node's comment.
+	 * 
+	 * @param {String} comment The new comment.
+	 * @returns {void}
+	 */
+	this.setComment = function (comment)
+	{
+		this.comment = comment;
 	};
 	
 	/**
