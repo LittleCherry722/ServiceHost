@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 
 <!-- S-BPM Groupware v1.2
 -
@@ -11,11 +11,11 @@
 - License, v. 2.0. If a copy of the MPL was not distributed with this file,
 - You can obtain one at http://mozilla.org/MPL/2.0/.  -->
 
-<html> 
-<head> 
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
- 
-<!-- Title --> 
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<!-- Title -->
 <title>Create new process</title>
 
 
@@ -43,7 +43,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 
 		<!-- javascript -->
 		<!-- extern -->
-		<script type="text/javascript" src="js/jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
 		<script type="text/javascript" src="js/chosen.jquery.min.js"></script>
 		<script type="text/javascript" src="js/jquery.freeow.js"></script>
@@ -75,15 +75,15 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<script type="text/javascript" src="js/service/process.js"></script>
 		<script type="text/javascript" src="js/service/role.js"></script>
 		<script type="text/javascript" src="js/service/user.js"></script>
-		
+
 		<!-- Views -->
 		<script type="text/html" id="quickView"></script>
-		
+
 </head>
 <body>
 
-	
-	
+
+
 <div id="freeow" class="freeow freeow-top-right"></div>
 <!-- <div id="content"> -->
 
@@ -102,7 +102,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<br class="clear"/>
 		<br class="clear"/>
 		<!--<form onsubmit="if(this.new_process.value != '') {parent.fancyreturn1=this.new_process.value;parent.$.fancybox.close();}">-->
-			
+
 		<p style="width:182px;">
 			<label>Name:</label><br/>
 			<input type="text" id="new_process" style="width:180px;" data-bind="value : processName, valueUpdate:'afterkeydown'"/>
@@ -110,7 +110,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 				$("#new_process").focus();
 			</script>
 		</p>
-		
+
 		<br class="clear"/>
 		<div id="processExist" style="width:170px;height:45px;">
 		<span data-bind="visible: processExist" style="color: red;">Process already exists! Please choose a different name.</span>
@@ -119,19 +119,19 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 
 		<input type="checkbox" name="Table" value="Table" data-bind="checked: quickVM.displayTable" >Use Table <br>
 		<br class="clear"/>
-		
+
 
 		<div align="center" style="float:left;" >
 		<input type="submit" value="Accept"  data-bind="click : createCheck, disable: processExist, style: {color: processExist() ? 'grey' : '#333'} "/>
 		<input type="button" value="Cancel" onclick="parent.fancyreturn1=false;parent.$.fancybox.close();"/>
 		</div>
 		<br class="clear"/>
-		
-		
-		
+
+
+
 	</div>
-	
-	
+
+
 <div id="quickTable" style="width:760px; float:left; margin:20px;" data-bind="template: { name: 'quickView', data: quickVM}, visible: quickVM.displayTable"></div>
 </body>
 </html>
