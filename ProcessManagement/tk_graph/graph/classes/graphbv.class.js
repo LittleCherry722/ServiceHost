@@ -43,6 +43,14 @@ function GCgraphbv ()
 	this.objectPorts	= {};
 	
 	/**
+	 * Points that are already blocked by a node.
+	 * 
+	 * @private
+	 * @type Object
+	 */
+	this.pointsBlocked	= {};
+	
+	/**
 	 * A list of available ports (top, bottom, right, left).
 	 * 
 	 * @private
@@ -360,7 +368,7 @@ function GCgraphbv ()
 					gt_bv_edge.setShape(gt_bv_arrowShape.shape);
 					
 					// check if the new arrow would fit better than the currently best
-					if (!gt_bv_edge.checkIntersection())
+					if (!gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy}))
 					{
 						
 						if (gt_bv_arrowShape.shape == "L" && gt_bv_o == "b")
@@ -479,6 +487,7 @@ function GCgraphbv ()
 			
 			// clear arrays
 			this.objectPorts	= {};
+			this.pointsBlocked	= {};
 			
 			gv_node_parents		= {};
 			gv_node_children	= {};
@@ -505,10 +514,23 @@ function GCgraphbv ()
 				// position the start node depending on the number of children
 				var gt_bv_edgesOut	= gt_bv_graph.nodes[gt_bv_startNode].edgesOut;
 					gt_bv_edgesOut	= gt_bv_edgesOut > 0 ? gt_bv_edgesOut - 1 : 0;
+					
+				var gt_tempPosX	= gt_bv_x + Math.floor(gt_bv_edgesOut * gt_bv_distanceX/2);
+				var gt_tempPosY	= gt_bv_y;
+				var gt_pointsBlockedIndex	= gt_tempPosX + "/" + gt_tempPosY;
 				
-				gt_bv_graph.nodes[gt_bv_startNode].posx		= gt_bv_x + gt_bv_edgesOut * gt_bv_distanceX/2;
-				gt_bv_graph.nodes[gt_bv_startNode].posy		= gt_bv_y;
+				while (gf_isset(this.pointsBlocked[gt_pointsBlockedIndex]))
+				{
+					gt_tempPosX				+= gt_bv_distanceX;
+					gt_pointsBlockedIndex	= gt_tempPosX + "/" + gt_tempPosY;
+				}
+				
+				gt_bv_graph.nodes[gt_bv_startNode].posx		= gt_tempPosX;
+				gt_bv_graph.nodes[gt_bv_startNode].posy		= gt_tempPosY;
 				gt_bv_graph.nodes[gt_bv_startNode].visited	= true;
+				
+				// mark current position as blocked
+				this.pointsBlocked[gt_pointsBlockedIndex] = gt_bv_startNode;
 				
 				gt_bv_nodeSet.nodes[gt_bv_startNode]	= gt_bv_startNode;
 				gt_bv_nodeSet.count++;
@@ -545,11 +567,24 @@ function GCgraphbv ()
 							
 								if (gt_bv_graph.nodes[gt_bv_edge.end].visited == false)
 								{
+									var gt_tempPosX	= gt_bv_graph.nodes[gt_bv_edge.start].posx + Math.floor((gt_bv_graph.nodes[gt_bv_edge.start].edgesOutCur - gt_bv_edgesOut/2) * gt_bv_distanceX);
+									var gt_tempPosY	= gt_bv_graph.nodes[gt_bv_edge.start].posy + gt_bv_distanceY;
+									var gt_pointsBlockedIndex	= gt_tempPosX + "/" + gt_tempPosY;
+									
+									while (gf_isset(this.pointsBlocked[gt_pointsBlockedIndex]))
+									{
+										gt_tempPosX				+= gt_bv_distanceX;
+										gt_pointsBlockedIndex	= gt_tempPosX + "/" + gt_tempPosY;
+									}
+									
 									// position the node depending on the number of children
-									gt_bv_graph.nodes[gt_bv_edge.end].posx		= gt_bv_graph.nodes[gt_bv_edge.start].posx + (gt_bv_graph.nodes[gt_bv_edge.start].edgesOutCur - gt_bv_edgesOut/2) * gt_bv_distanceX;
-									gt_bv_graph.nodes[gt_bv_edge.end].posy		= gt_bv_graph.nodes[gt_bv_edge.start].posy + gt_bv_distanceY;
+									gt_bv_graph.nodes[gt_bv_edge.end].posx		= gt_tempPosX;
+									gt_bv_graph.nodes[gt_bv_edge.end].posy		= gt_tempPosY;
 									gt_bv_graph.nodes[gt_bv_edge.end].visited	= true;
 									gt_bv_graph.nodes[gt_bv_edge.start].edgesOutCur++;
+				
+									// mark current position as blocked
+									this.pointsBlocked[gt_pointsBlockedIndex] = gt_bv_edge.end;
 									
 									// mostLeft
 									if (gt_bv_graph.nodes[gt_bv_edge.end].posx < gt_bv_mostLeft)
@@ -828,7 +863,7 @@ function GCgraphbv ()
 				{
 					// when either the distance between the x ordinates is smaller than the x ordinate of the node-distance or
 					// the distance between the y ordinates is smaller than the y ordinate of the node-distance the shape has to be a S
-					if (gt_bv_diffX <= gv_bv_nodeSettings.distanceX / 2 || gt_bv_diffY <= gv_bv_nodeSettings.distanceY / 2)
+					if (gt_bv_diffX < gv_bv_nodeSettings.distanceX / 2 || gt_bv_diffY < gv_bv_nodeSettings.distanceY / 2)
 					{
 						gt_bv_shape			= "S";
 						gt_bv_length		+= 4 * gv_bv_nodeSettings.arrowSpace;
@@ -869,6 +904,7 @@ function GCgraphbv ()
 					gt_bv_shape			= "UI";
 					gt_bv_length		+= 2 * gv_bv_nodeSettings.arrowSpace;
 					gt_bv_space1		= startPos == "l" || startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
+					gt_bv_space2		= endPos == "r" || endPos == "b" ? 0 - gv_bv_nodeSettings.arrowSpace2 : gv_bv_nodeSettings.arrowSpace2;
 				}
 				
 				// default shape is "L"

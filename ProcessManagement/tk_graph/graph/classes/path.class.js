@@ -405,9 +405,10 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	 * Check if the path intersects with another path or a label on this paper.
 	 * 
 	 * @param {boolean} labelsOnly When set to true the intersection checks will only be executed against labels.
+	 * @param {Object} coordinatesOrg Additional parameter containing the original start and end point of the path. {x1, x2, y1, y2}
 	 * @returns {boolean} True when the path intersects with another object.
 	 */
-	this.checkIntersection = function (labelsOnly)
+	this.checkIntersection = function (labelsOnly, coordinatesOrg)
 	{
 		
 		if (!gf_isset(labelsOnly) || labelsOnly !== true)
@@ -415,12 +416,26 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 			
 		// var thisLabelPath	= this.label.toPath();
 		
+		
 		// check whether the path intersects with other paths or with their labels
 		for (objId in gv_objects_edges)
 		{
 			if (objId != this.id)
 			{
 				var tObject	= gv_objects_edges[objId];
+				
+				if (gf_isset(coordinatesOrg) && gf_objectHasAttribute(coordinatesOrg, ["x1", "x2", "y1", "y2"]))
+				{
+					if (tObject.getPositionStart().x == coordinatesOrg.x1 && tObject.getPositionStart().y == coordinatesOrg.y1 && this.firstLine == tObject.firstLine)
+					{
+						continue;
+					}
+					
+					if (tObject.getPositionEnd().x == coordinatesOrg.x2 && tObject.getPositionEnd().y == coordinatesOrg.y2)
+					{
+						continue;
+					}
+				}
 				
 				// when labelsOnly is set to true, the check will only be performed against the path's label
 				var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.pathStr);

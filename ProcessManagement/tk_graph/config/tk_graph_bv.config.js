@@ -599,5 +599,6 @@ var gv_bv_nodeSettings = {
 		startY: 50,			// The y-ordinate of the starting position of the graph.
 		startNewX: 150,		// The x-ordinate of the starting position of unconnected nodes.
 		startNewY: 50,		// The y-ordinate of the starting position of unconnected nodes.
-		arrowSpace: 75		// Space needed for calculation
+		arrowSpace: 75,		// Space needed for calculation
+		arrowSpace2: 50		// Space needed for calculation
 };
