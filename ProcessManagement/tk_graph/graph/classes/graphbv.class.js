@@ -34,6 +34,14 @@ function GCgraphbv ()
 	this.graphs = {};
 	
 	/**
+	 * Contains the outgoing edge counts for the nodes.
+	 * 
+	 * @private
+	 * @type Object
+	 */
+	this.nodesOutgoingEdgeCount	= {};
+	
+	/**
 	 * Contains the current statusses of the object ports.
 	 * An object port is a side of a node (top, bottom, left, right).
 	 * 
@@ -41,6 +49,14 @@ function GCgraphbv ()
 	 * @type Object
 	 */
 	this.objectPorts	= {};
+	
+	/**
+	 * Stores which nodes are already placed in the graph.
+	 * 
+	 * @private
+	 * @type Object
+	 */
+	this.placedNodes	= {};
 	
 	/**
 	 * Points that are already blocked by a node.
@@ -203,6 +219,38 @@ function GCgraphbv ()
 	};
 	
 	/**
+	 * Corrects the number of outgoing edges for a certain node as it is only used to define the proper space for the child nodes.
+	 * Nodes that are already placed result in wrong positions.
+	 * 
+	 * @param {Object} edges An array containing all edges of the selected graph.
+	 * @param {int} nodeId The id of the node to check.
+	 * @returns {int} The corrected number of outgoing edges.
+	 */
+	this.checkOutgoingEdgeCount = function (edges, nodeId)
+	{
+		if (!gf_isset(this.nodesOutgoingEdgeCount["n" + nodeId]))
+		{
+			var gt_outgoingCount	= 0;
+			
+			for (var gt_edgeId in edges[nodeId])
+			{
+				
+				var gt_edge	= edges[nodeId][gt_edgeId];
+				
+				if (gt_edge.start == nodeId)
+				{
+					if (!gf_isset(this.placedNodes["n" + gt_edge.end]))
+						gt_outgoingCount++;
+				}
+			}
+			
+			this.nodesOutgoingEdgeCount["n" + nodeId]	= gt_outgoingCount;
+		}
+		
+		return this.nodesOutgoingEdgeCount["n" + nodeId];
+	};
+	
+	/**
 	 * Checks if an object's port is available for an incoming / outgoing edge (flag).
 	 * Returns true when the port is open.
 	 * A port is blocked when it already has an incoming edge / outgoing edge and the flag is set to outgoing / incoming.
@@ -311,8 +359,8 @@ function GCgraphbv ()
 		{
 			for (var gt_bv_in in this.ports)
 			{
-				// only process when the port of the start and the end objects are availables
-				if (this.checkObjectPort(gt_bv_start, gt_bv_out, "o") && this.checkObjectPort(gt_bv_end, gt_bv_in, "i"))
+				// only process when the port of the start and the end objects are availables; if edge can already be displayed as an I shaped edge, do not cycle through the other alternatives as it won't result in any shorter edge
+				if (this.checkObjectPort(gt_bv_start, gt_bv_out, "o") && this.checkObjectPort(gt_bv_end, gt_bv_in, "i") && (gt_bv_shape != "I" || gt_bv_minLength == 999999999))
 				{
 					gt_bv_o	= gt_bv_out;
 					gt_bv_i	= gt_bv_in;
@@ -540,6 +588,8 @@ function GCgraphbv ()
 			// clear arrays
 			this.objectPorts	= {};
 			this.pointsBlocked	= {};
+			this.placedNodes	= {};
+			this.nodesOutgoingEdgeCount	= {};
 			
 			gv_node_parents		= {};
 			gv_node_children	= {};
@@ -558,16 +608,20 @@ function GCgraphbv ()
 			var gt_bv_x = Math.round(gv_paperSizes.bv_width/2) + gv_bv_nodeSettings.startX;
 			var gt_bv_y = gv_bv_nodeSettings.startY;
 			
+			var gt_bv_xOrg	= gt_bv_x;
+			
 			var gt_bv_mostLeft	= gt_bv_x;
 			
 			// 1. start with the start nodes
 			for (var gt_bv_startNode in gt_bv_graph.startNodes)
-			{
+			{				
 				// position the start node depending on the number of children
-				var gt_bv_edgesOut	= gt_bv_graph.nodes[gt_bv_startNode].edgesOut;
+				// var gt_bv_edgesOut	= gt_bv_graph.nodes[gt_bv_startNode].edgesOut;
+				var gt_bv_edgesOut	= this.checkOutgoingEdgeCount(gt_bv_graph.edges, gt_bv_startNode);
 					gt_bv_edgesOut	= gt_bv_edgesOut > 0 ? gt_bv_edgesOut - 1 : 0;
 					
-				var gt_tempPosX	= gt_bv_x + Math.floor(gt_bv_edgesOut * gt_bv_distanceX/2);
+				// do not move the first start node no matter how many child nodes it has
+				var gt_tempPosX	= gt_bv_x == gt_bv_xOrg ? gt_bv_x : gt_bv_x + Math.floor(gt_bv_edgesOut * gt_bv_distanceX/2);
 				var gt_tempPosY	= gt_bv_y;
 				var gt_pointsBlockedIndex	= gt_tempPosX + "/" + gt_tempPosY;
 				
@@ -584,6 +638,9 @@ function GCgraphbv ()
 				// mark current position as blocked
 				this.pointsBlocked[gt_pointsBlockedIndex] = gt_bv_startNode;
 				
+				// mark node as already visited (to decrease the number of outgoing edges)
+				this.placedNodes["n" + gt_bv_startNode]	= true;
+				
 				gt_bv_nodeSet.nodes[gt_bv_startNode]	= gt_bv_startNode;
 				gt_bv_nodeSet.count++;
 				
@@ -593,7 +650,7 @@ function GCgraphbv ()
 			}
 	
 			// 2 set nodes connected by edges (starting with the start nodes)
-			var gt_bv_rescueCount = 10000;
+			var gt_bv_rescueCount = 100;	// TODO: get rid of this
 			while (gt_bv_nodeSet.count > 0 && gt_bv_rescueCount > 0)
 			{
 				for (var gt_bv_node in gt_bv_nodeSet.nodes)
@@ -614,7 +671,8 @@ function GCgraphbv ()
 							if (!gf_isset(gt_bv_nodeSet.nodes[gt_bv_edge.end]))
 							{
 								// draw node
-								var gt_bv_edgesOut	= gt_bv_graph.nodes[gt_bv_edge.start].edgesOut;
+								// var gt_bv_edgesOut	= gt_bv_graph.nodes[gt_bv_edge.start].edgesOut;
+								var gt_bv_edgesOut	= this.checkOutgoingEdgeCount(gt_bv_graph.edges, gt_bv_edge.start);
 									gt_bv_edgesOut	= gt_bv_edgesOut > 0 ? gt_bv_edgesOut - 1 : 0;
 							
 								if (gt_bv_graph.nodes[gt_bv_edge.end].visited == false)
@@ -637,6 +695,9 @@ function GCgraphbv ()
 				
 									// mark current position as blocked
 									this.pointsBlocked[gt_pointsBlockedIndex] = gt_bv_edge.end;
+				
+									// mark node as already visited (to decrease the number of outgoing edges)
+									this.placedNodes["n" + gt_bv_edge.end]	= true;
 									
 									// mostLeft
 									if (gt_bv_graph.nodes[gt_bv_edge.end].posx < gt_bv_mostLeft)
@@ -648,6 +709,8 @@ function GCgraphbv ()
 									gv_node_parents["n" + gt_bv_edge.end]	= gt_bv_edge.start;
 									gv_node_children["n" + gt_bv_edge.start][gv_node_children["n" + gt_bv_edge.start].length] = gt_bv_edge.end;
 								}
+								
+								// TODO: do not add every node again
 								
 								gt_bv_nodeSet.nodes[gt_bv_edge.end] = gt_bv_edge.end;
 								gt_bv_nodeSet.count++;
