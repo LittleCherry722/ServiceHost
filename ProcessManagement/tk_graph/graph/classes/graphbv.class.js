@@ -326,7 +326,9 @@ function GCgraphbv ()
 					// calculate the arrow shape that fits best for this port combination
 					var gt_bv_arrowShape	= this.getArrowShape(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_o, gt_bv_i);
 					
-					var gt_bv_setAsMin	= false;
+					var gt_bv_setAsMin		= false;
+					var gt_bv_currentLength	= 0;
+					var gt_bv_doLoop		= true;
 					
 					// correction to avoid intersection problems
 					var gt_bv_x1	= gt_bv_startx;
@@ -360,51 +362,101 @@ function GCgraphbv ()
 						gt_bv_y2 += 5;
 					
 					// update edge
-					gt_bv_edge.setPositionStart(gt_bv_x1, gt_bv_y1);
-					gt_bv_edge.setPositionEnd(gt_bv_x2, gt_bv_y2);
-					gt_bv_edge.setFirstLine(gt_bv_arrowShape.firstLine);
-					gt_bv_edge.setSpace1(gt_bv_arrowShape.space1);
-					gt_bv_edge.setSpace2(gt_bv_arrowShape.space2);
-					gt_bv_edge.setShape(gt_bv_arrowShape.shape);
+					var gt_bv_asm1 = 1;		// asm = arrowShape multiplier
+					var gt_bv_asm2 = 1;
 					
-					// check if the new arrow would fit better than the currently best
-					if (!gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy}))
+					var gt_bv_asSpace1	= 0;
+					var gt_bv_asSpace2	= 0;
+					
+					while (gt_bv_asm1 <= 5 && gt_bv_doLoop)
 					{
+						gt_bv_asm2 = 1;
 						
-						if (gt_bv_arrowShape.shape == "L" && gt_bv_o == "b")
-							gt_bv_arrowShape.length += gv_bv_nodeSettings.arrowSpace;
-						
-						// calculate the shortest path (shorter length)
-						if (gt_bv_arrowShape.length < gt_bv_minLength)
-						{
-							gt_bv_setAsMin = true;
-						}
-						
-						// calculate the shortest path (same length)
-						else if (gt_bv_arrowShape.length == gt_bv_minLength)
-						{
-							if (gt_bv_shape == gt_bv_arrowShape.shape)
-							{	
-								
-								if (gt_bv_posStart == "r" && gt_bv_o == "l" && gt_bv_startx > gt_bv_endx)
-									gt_bv_setAsMin = true;
-								
-								if (gt_bv_posStart == "t" && gt_bv_o == "b" && gt_bv_starty < gt_bv_endy)
-									gt_bv_setAsMin = true;
-							}
-						}
-						else
+						while (gt_bv_asm2 <= 5 && gt_bv_doLoop)
 						{
 							
+							gt_bv_asSpace1	= gt_bv_arrowShape.space1 * gt_bv_asm1;
+							gt_bv_asSpace2	= gt_bv_arrowShape.space2 * gt_bv_asm2;
+							
+							gt_bv_edge.setPositionStart(gt_bv_x1, gt_bv_y1);
+							gt_bv_edge.setPositionEnd(gt_bv_x2, gt_bv_y2);
+							gt_bv_edge.setFirstLine(gt_bv_arrowShape.firstLine);
+							gt_bv_edge.setSpace1(gt_bv_asSpace1);
+							gt_bv_edge.setSpace2(gt_bv_asSpace2);
+							gt_bv_edge.setShape(gt_bv_arrowShape.shape);
+							
+							gt_bv_currentLength	= gt_bv_arrowShape.length;
+							
+							// length correction
+							if (gt_bv_arrowShape.shape == "U")
+								gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
+								
+							else if (gt_bv_arrowShape.shape == "ZU")
+								gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
+								
+							else if (gt_bv_arrowShape.shape == "S")
+								gt_bv_currentLength += 4 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
+								
+							else if (gt_bv_arrowShape.shape == "C")
+								gt_bv_currentLength += 4 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
+								
+							else if (gt_bv_arrowShape.shape == "UI")
+								gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
+								
+							else if (gt_bv_arrowShape.shape == "G")
+								gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
+							
+							// check if the new arrow would fit better than the currently best
+							if (!gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy}))
+							{
+								
+								if (gt_bv_arrowShape.shape == "L" && gt_bv_o == "b")
+									gt_bv_currentLength += gv_bv_nodeSettings.arrowSpace;
+								
+								// calculate the shortest path (shorter length)
+								if (gt_bv_currentLength < gt_bv_minLength)
+								{
+									gt_bv_setAsMin = true;
+								}
+								
+								// calculate the shortest path (same length)
+								else if (gt_bv_currentLength == gt_bv_minLength)
+								{
+									if (gt_bv_shape == gt_bv_arrowShape.shape)
+									{	
+										
+										if (gt_bv_posStart == "r" && gt_bv_o == "l" && gt_bv_startx > gt_bv_endx)
+											gt_bv_setAsMin = true;
+										
+										if (gt_bv_posStart == "t" && gt_bv_o == "b" && gt_bv_starty < gt_bv_endy)
+											gt_bv_setAsMin = true;
+									}
+								}
+								else
+								{
+									
+								}
+								
+								gt_bv_doLoop	= false;	// leave loop
+							}
+							
+							// leave loop when no space1 or space2 can be increased because both are 0
+							if (gt_bv_asSpace1 == 0 && gt_bv_asSpace2 == 0)
+							{
+								gt_bv_doLoop	= false;
+							}
+							
+							gt_bv_asm2++;
 						}
+						gt_bv_asm1++;
 					}
-					
+						
 					// store the information about the min graph
 					if (gt_bv_setAsMin)
 					{
-						gt_bv_minLength	= gt_bv_arrowShape.length;
-						gt_bv_space1	= gt_bv_arrowShape.space1;
-						gt_bv_space2	= gt_bv_arrowShape.space2;
+						gt_bv_minLength	= gt_bv_currentLength;
+						gt_bv_space1	= gt_bv_asSpace1;
+						gt_bv_space2	= gt_bv_asSpace2;
 						gt_bv_shape		= gt_bv_arrowShape.shape;
 						gt_bv_posStart	= gt_bv_o;
 						gt_bv_posEnd	= gt_bv_i;
@@ -920,7 +972,7 @@ function GCgraphbv ()
 				gt_bv_shape			= "G";
 				gt_bv_length		+= 4 * gv_bv_nodeSettings.arrowSpace;
 				gt_bv_space1		= startPos == "l" || startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
-				gt_bv_space2		= startPos == "l" || startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
+				gt_bv_space2		= endPos == "l" || endPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;
 			}
 		}
 		
