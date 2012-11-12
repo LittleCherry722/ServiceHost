@@ -416,11 +416,11 @@ function GCgraphbv ()
 					var gt_bv_asSpace1	= 0;
 					var gt_bv_asSpace2	= 0;
 					
-					while (gt_bv_asm1 <= 5 && gt_bv_doLoop)
+					while (gt_bv_asm1 <= 3 && gt_bv_doLoop)
 					{
 						gt_bv_asm2 = 1;
 						
-						while (gt_bv_asm2 <= 5 && gt_bv_doLoop)
+						while (gt_bv_asm2 <= 3 && gt_bv_doLoop)
 						{
 							
 							gt_bv_asSpace1	= gt_bv_arrowShape.space1 * gt_bv_asm1;
