@@ -72,7 +72,7 @@ function GCgraphbv ()
 	 * @private
 	 * @type Object
 	 */
-	this.ports			= {t: "t", b: "b", r: "r", l: "l"};
+	this.ports			= {b: "b", t: "t", r: "r", l: "l"};
 	
 	/**
 	 * Lists the port settings from the configuration file.
