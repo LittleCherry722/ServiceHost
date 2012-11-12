@@ -438,7 +438,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 				}
 				
 				// when labelsOnly is set to true, the check will only be performed against the path's label
-				var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
+				var interPoints1	= []; // labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
 				var interPoints2	= Raphael.pathIntersection(this.pathStr, tObject.label.toPath());
 				var interPoints3	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.pathStr);
 				var interPoints4	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.label.toPath());

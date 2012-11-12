@@ -432,39 +432,47 @@ function GCgraphbv ()
 							gt_bv_edge.setSpace1(gt_bv_asSpace1);
 							gt_bv_edge.setSpace2(gt_bv_asSpace2);
 							gt_bv_edge.setShape(gt_bv_arrowShape.shape);
-							
-							gt_bv_currentLength	= gt_bv_arrowShape.length;
-							
-							// length correction
-							if (gt_bv_arrowShape.shape == "U")
-								gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
-								
-							else if (gt_bv_arrowShape.shape == "ZU")
-								gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
-								
-							else if (gt_bv_arrowShape.shape == "S")
-								gt_bv_currentLength += 4 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
-								
-							else if (gt_bv_arrowShape.shape == "C")
-								gt_bv_currentLength += 4 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
-								
-							else if (gt_bv_arrowShape.shape == "UI")
-								gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
-								
-							else if (gt_bv_arrowShape.shape == "G")
-								gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
-							
+														
 							// check if the new arrow would fit better than the currently best
 							if (!gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy}))
 							{
+								gt_bv_currentLength	= gt_bv_arrowShape.length;
 								
-								if (gt_bv_arrowShape.shape == "L" && gt_bv_o == "b")
-									gt_bv_currentLength += gv_bv_nodeSettings.arrowSpace;
+								// length correction
+								if (gt_bv_arrowShape.shape == "U")
+									gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
+									
+								else if (gt_bv_arrowShape.shape == "ZU")
+									gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
+									
+								else if (gt_bv_arrowShape.shape == "S")
+									gt_bv_currentLength += 4 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
+									
+								else if (gt_bv_arrowShape.shape == "C")
+									gt_bv_currentLength += 4 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
+									
+								else if (gt_bv_arrowShape.shape == "UI")
+									gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1));
+									
+								else if (gt_bv_arrowShape.shape == "G")
+									gt_bv_currentLength += 2 * Math.abs(gt_bv_arrowShape.space1 * (gt_bv_asm1 - 1)) + 2 * Math.abs(gt_bv_arrowShape.space2 * (gt_bv_asm2 - 1));
+								
+								// TODO
+								if (gt_bv_arrowShape.shape == "L")
+								{
+									if (gt_bv_o == "b" && this.nodesOutgoingEdgeCount["n" + edgeData.start] > 1)
+									{
+										gt_bv_currentLength += gv_bv_nodeSettings.arrowSpace;
+									}
+								}
+									
 								
 								// calculate the shortest path (shorter length)
 								if (gt_bv_currentLength < gt_bv_minLength)
 								{
-									gt_bv_setAsMin = true;
+									// prefer L shaped arrows TODO
+									// if (gt_bv_shape != "L" || gt_bv_arrowShape.shape != "Z")
+										gt_bv_setAsMin = true;
 								}
 								
 								// calculate the shortest path (same length)
@@ -474,15 +482,22 @@ function GCgraphbv ()
 									{	
 										
 										if (gt_bv_posStart == "r" && gt_bv_o == "l" && gt_bv_startx > gt_bv_endx)
-											gt_bv_setAsMin = true;
+											gt_bv_setAsMin	= true;
 										
 										if (gt_bv_posStart == "t" && gt_bv_o == "b" && gt_bv_starty < gt_bv_endy)
-											gt_bv_setAsMin = true;
+											gt_bv_setAsMin	= true;
+											
+									}
+									else if (gt_bv_arrowShape.shape == "L" && gt_bv_shape != "I")
+									{
+										gt_bv_setAsMin	= true;
 									}
 								}
 								else
 								{
-									
+									// prefer L shaped arrows
+									if (gt_bv_shape == "Z" && gt_bv_arrowShape.shape == "L")
+										gt_bv_setAsMin	= true;
 								}
 								
 								gt_bv_doLoop	= false;	// leave loop
