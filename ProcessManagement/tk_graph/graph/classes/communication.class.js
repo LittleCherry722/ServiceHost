@@ -858,9 +858,15 @@ function GCcommunication ()
 		
 		if (gt_behavior != null)
 		{
+			gf_timeReset();
+			gf_timeCalc("load internal behavior");
+			
 			this.changeView("bv");
 			gt_behavior.selectMacro("##main##");
 			this.selectedSubject = id;
+	
+			gf_timeCalc("load internal behavior");
+			gf_timePrint();
 			
 			// request an update of the channel and macro list
 			$.publish(gv_topics.channels, [{action: "load", view: "bv"}]);

@@ -1039,8 +1039,6 @@ function gf_paperDblClickNodeB (id)
  */
 function gf_paperDblClickNodeC (id)
 {
-	gf_timeReset();
-	gf_timeCalc("load internal behavior");
 	
 	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
 	{
@@ -1136,9 +1134,6 @@ function gf_paperDblClickNodeC (id)
 			}
 		}
 	}
-	
-	gf_timeCalc("load internal behavior");
-	gf_timePrint();
 }
 
 /**
