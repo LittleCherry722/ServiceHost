@@ -416,6 +416,22 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 			
 		// var thisLabelPath	= this.label.toPath();
 		
+		// check whether the path intersects with a label
+		for (objId in gv_objects_nodes)
+		{
+			var tObject	= gv_objects_nodes[objId];
+			
+			// when labelsOnly is set to true, no further checks will be performed
+			var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.toPath());
+			var interPoints2	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.toPath());
+			
+			// if any intersection point occured, the path intersects
+			if (interPoints1.length > 0 || interPoints2.length > 0)
+			{
+				return true;
+			}
+		}
+		
 		
 		// check whether the path intersects with other paths or with their labels
 		for (objId in gv_objects_edges)
@@ -439,6 +455,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 				
 				// when labelsOnly is set to true, the check will only be performed against the path's label
 				var interPoints1	= []; // labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
+				// var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
 				var interPoints2	= Raphael.pathIntersection(this.pathStr, tObject.label.toPath());
 				var interPoints3	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.pathStr);
 				var interPoints4	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.label.toPath());
@@ -448,22 +465,6 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 				{
 					return true;					
 				}
-			}
-		}
-		
-		// check whether the path intersects with a label
-		for (objId in gv_objects_nodes)
-		{
-			var tObject	= gv_objects_nodes[objId];
-			
-			// when labelsOnly is set to true, no further checks will be performed
-			var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.toPath());
-			var interPoints2	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.toPath());
-			
-			// if any intersection point occured, the path intersects
-			if (interPoints1.length > 0 || interPoints2.length > 0)
-			{
-				return true;
 			}
 		}
 		
@@ -679,12 +680,16 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	 * Update the shape of the path.
 	 * 
 	 * @param {String} shape The shape of the path. Possible values: "I", "L", "U", "Z", "G", "C", "S", "UI", "ZU", "SI"
+	 * @param {boolean} performanceMode The performance mode will increase performance by applying a reduced set on rules to the path's label.
 	 * @returns {void}
 	 */
-	this.setShape = function (shape)
+	this.setShape = function (shape, performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode = false;
+			
 		this.shape = shape;
-		this.updatePath();
+		this.updatePath(performanceMode);
 	};
 	
 	/**
@@ -748,10 +753,14 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	 * Update the path.
 	 * Adapt the path to the start and end point and to the shape.
 	 * 
+	 * @param {boolean} performanceMode The performance mode will increase performance by applying a reduced set on rules to the path's label.
 	 * @returns {void}
 	 */
-	this.updatePath = function ()
+	this.updatePath = function (performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode = false;
+			
 		var x1 = this.positionStart.x;
 		var y1 = this.positionStart.y;
 		var x2 = this.positionEnd.x;
@@ -760,16 +769,22 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		var shape	= this.shape;
 			
 		// calculate the shape
+		gf_timeCalc("update path (shape calculation)");
 		var newPath	= this.calculateShape(x1, y1, x2, y2, shape, this.firstLine, this.space1, this.space2);
+		gf_timeCalc("update path (shape calculation)");
 		
+		gf_timeCalc("update path (path attr)");
 		this.pathStr	= "M" + x1 + "," + y1 + newPath.path;
 		this.path.attr("path", this.pathStr);
+		gf_timeCalc("update path (path attr)");
 		
 		this.edgeCenter.x	= newPath.x;
 		this.edgeCenter.y	= newPath.y;
 		
 		// move the label to the center of the label
-		this.label.setPosition(newPath.x, newPath.y);
+		gf_timeCalc("update path (label position)");
+		this.label.setPosition(newPath.x, newPath.y, performanceMode);
+		gf_timeCalc("update path (label position)");
 	};
 
 	// set the id

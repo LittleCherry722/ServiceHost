@@ -22,6 +22,13 @@
  */
 gv_standAlone	= false;
 
+/**
+ * When set to true the times used for certain tasks will be printed to the console.
+ * 
+ * @type boolean
+ */
+gv_printTimes	= true;
+
 
 /*
  * predefined macros

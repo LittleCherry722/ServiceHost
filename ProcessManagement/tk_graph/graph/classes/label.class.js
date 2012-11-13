@@ -60,6 +60,13 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	this.ellipse	= null;
 	
 	/**
+	 * The current height of this label. Only used to increase performance.
+	 * 
+	 * @type int
+	 */
+	this.height	= 0;
+	
+	/**
 	 * The id of this label.
 	 * 
 	 * @type String
@@ -139,6 +146,13 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * @type String
 	 */
 	this.textAlignAttribute	= "textAlign";
+	
+	/**
+	 * The current width of this label. Only used to increase performance.
+	 * 
+	 * @type int
+	 */
+	this.width	= 0;
 	
 	/**
 	 * The x ordinate of the top left corner.
@@ -525,6 +539,7 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * Set the optional flag to the label.
 	 * 
 	 * @param {boolean} optional When set to true the label will be set to be optional.
+	 * @returns {void}
 	 */
 	this.setOptional = function (optional)
 	{
@@ -537,14 +552,19 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * 
 	 * @param {int} x The x ordinate of the new position.
 	 * @param {int} y The y ordinate of the new position.
+	 * @param {boolean} performanceMode The performance mode will be passed to the updateBoundaries method to reduce the number of calculations done as they are obsolete in some cases.
+	 * @returns {void}
 	 */
-	this.setPosition = function (x, y)
+	this.setPosition = function (x, y, performanceMode)
 	{
 		if (gf_isset(x, y))
 		{
+			if (!gf_isset(performanceMode) || performanceMode != true)
+				performanceMode = false;
+				
 			this.x = x;
 			this.y = y;
-			this.updateBoundaries();
+			this.updateBoundaries(performanceMode);
 		}
 	};
 	
@@ -646,15 +666,19 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	/**
 	 * Update the boundaries of the Raphael Elements that are associated with this label depending on the information stored in this label.
 	 * 
+	 * @param {boolean} performanceMode The performance mode will reduce the number of calculations done as they are obsolete in some cases.
 	 * @returns {void}
 	 */
-	this.updateBoundaries = function ()
+	this.updateBoundaries = function (performanceMode)
 	{
 		
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode = false;
+			
 		// TODO: some more options like apply padding and move the text according to the new position
 		
 		var textX	= this.x;
-		
+
 		// correct the text position depending on the textAlign
 		if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "start")
 		{
@@ -664,27 +688,35 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		{
 			textX	= this.x + this.text.getBBox().width / 2;
 		}
-		
-		this.text.attr("x", textX);
-		this.text.attr("y", this.y);
-		
+
+		// in performance mode do not update the text
+		if (!performanceMode)
+		{
+			this.text.attr("x", textX);
+			this.text.attr("y", this.y);
+		}
+
 		var paddingLeft		= this.readStyle("paddingLeft", "int");
 		var paddingRight	= this.readStyle("paddingRight", "int");
 		var paddingTop		= this.readStyle("paddingTop", "int");
 		var paddingBottom	= this.readStyle("paddingBottom", "int");
 		var styleWidth		= this.readStyle("width", "int");
-		var styleHeight		= this.readStyle("height", "int");		
+		var styleHeight		= this.readStyle("height", "int");
 		
 		
 		// apply the width and height information
-		var width	= Math.round(this.text.getBBox().width);
-		var height	= Math.round(this.text.getBBox().height);
+		var width	= performanceMode ? this.width : Math.round(this.text.getBBox().width);
+		var height	= performanceMode ? this.height : Math.round(this.text.getBBox().height);
 		var width2	= styleWidth > 0 ? styleWidth : Math.max(width + paddingLeft + paddingRight, this.readStyle("minWidth", "int"));
 		var height2	= styleHeight > 0 ? styleHeight : Math.max(height + paddingTop + paddingBottom, this.readStyle("minHeight", "int"));
 		var radiusx	= Math.round(width2 / 2);
 		var radiusy	= Math.round(height2 / 2);
 		var radius	= Math.max(radiusx, radiusy);
 		var rectR	= this.shape == "roundedrectangle" || this.shape == "roundedrectanglemulti" ? this.readStyle("rectangleRadius", "int") : 0;
+		
+		// backup height and width to increase performance
+		this.width	= width;
+		this.height	= height;
 		
 		if (this.shape == "circle")
 		{

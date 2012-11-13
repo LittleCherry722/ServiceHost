@@ -84,6 +84,38 @@ function GCgraphbv ()
 	this.portSettings	= {t: "io", b: "io", r: "io", l: "io"};
 	
 	/**
+	 * Time measuring: time used for intersection checks
+	 * 
+	 * @private
+	 * @type int
+	 */
+	this.timeIntersection	= 0;
+	
+	/**
+	 * Time measuring: time used for arrowShape calculation
+	 * 
+	 * @private
+	 * @type int
+	 */
+	this.timeShape	= 0;
+	
+	/**
+	 * Time measuring: temporary start time
+	 * 
+	 * @private
+	 * @type int
+	 */
+	this.timeTEnd	= 0;
+	
+	/**
+	 * Time measuring: temporary end time
+	 * 
+	 * @private
+	 * @type int
+	 */
+	this.timeTStart	= 0;
+	
+	/**
 	 * Adds an edge to a subject.
 	 * 
 	 * @private
@@ -372,7 +404,9 @@ function GCgraphbv ()
 					gt_bv_endy		= gt_bv_i == "t" || gt_bv_i == "b" ? gt_bv_objEnd[mapPorts[gt_bv_i]]	: gt_bv_objEnd.y;
 					
 					// calculate the arrow shape that fits best for this port combination
+					gf_timeCalc("shape calculation");
 					var gt_bv_arrowShape	= this.getArrowShape(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_o, gt_bv_i);
+					gf_timeCalc("shape calculation");
 					
 					var gt_bv_setAsMin		= false;
 					var gt_bv_currentLength	= 0;
@@ -426,15 +460,24 @@ function GCgraphbv ()
 							gt_bv_asSpace1	= gt_bv_arrowShape.space1 * gt_bv_asm1;
 							gt_bv_asSpace2	= gt_bv_arrowShape.space2 * gt_bv_asm2;
 							
+							gf_timeCalc("update path");
 							gt_bv_edge.setPositionStart(gt_bv_x1, gt_bv_y1);
 							gt_bv_edge.setPositionEnd(gt_bv_x2, gt_bv_y2);
 							gt_bv_edge.setFirstLine(gt_bv_arrowShape.firstLine);
 							gt_bv_edge.setSpace1(gt_bv_asSpace1);
 							gt_bv_edge.setSpace2(gt_bv_asSpace2);
-							gt_bv_edge.setShape(gt_bv_arrowShape.shape);
+							
+							gf_timeCalc("update path (shape)");
+							gt_bv_edge.setShape(gt_bv_arrowShape.shape, true);
+							gf_timeCalc("update path (shape)");
+							gf_timeCalc("update path");
 														
 							// check if the new arrow would fit better than the currently best
-							if (!gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy}))
+							gf_timeCalc("intersection checks");
+							var gt_bv_intersectionCheck	= gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy});
+							gf_timeCalc("intersection checks");
+							
+							if (!gt_bv_intersectionCheck)
 							{
 								gt_bv_currentLength	= gt_bv_arrowShape.length;
 								
@@ -471,7 +514,7 @@ function GCgraphbv ()
 								if (gt_bv_currentLength < gt_bv_minLength)
 								{
 									// prefer L shaped arrows TODO
-									// if (gt_bv_shape != "L" || gt_bv_arrowShape.shape != "Z")
+									if (!(gt_bv_shape == "L" && gt_bv_arrowShape.shape == "Z" && 1.15*gt_bv_currentLength > gt_bv_minLength))	// TODO
 										gt_bv_setAsMin = true;
 								}
 								
@@ -496,7 +539,7 @@ function GCgraphbv ()
 								else
 								{
 									// prefer L shaped arrows
-									if (gt_bv_shape == "Z" && gt_bv_arrowShape.shape == "L")
+									if (gt_bv_shape == "Z" && gt_bv_arrowShape.shape == "L" && gt_bv_currentLength < 1.15*gt_bv_minLength)	// TODO
 										gt_bv_setAsMin	= true;
 								}
 								
@@ -627,6 +670,7 @@ function GCgraphbv ()
 			
 			var gt_bv_mostLeft	= gt_bv_x;
 			
+			gf_timeCalc("placing start nodes");
 			// 1. start with the start nodes
 			for (var gt_bv_startNode in gt_bv_graph.startNodes)
 			{				
@@ -663,8 +707,11 @@ function GCgraphbv ()
 				
 				gv_node_children["n" + gt_bv_startNode] = [];
 			}
+			gf_timeCalc("placing start nodes");
 	
 			// 2 set nodes connected by edges (starting with the start nodes)
+			gf_timeCalc("placing connected nodes");
+			
 			var gt_bv_rescueCount = 100;	// TODO: get rid of this
 			while (gt_bv_nodeSet.count > 0 && gt_bv_rescueCount > 0)
 			{
@@ -736,8 +783,11 @@ function GCgraphbv ()
 				
 				gt_bv_rescueCount--;
 			}
+			gf_timeCalc("placing connected nodes");
 			
 			// 3. all other nodes (not connected to the start nodes)
+			gf_timeCalc("placing other nodes");
+			
 			gt_bv_x	= gt_bv_mostLeft - gv_bv_nodeSettings.startNewX;
 			gt_bv_y = gv_bv_nodeSettings.startNewY;
 			for (var gt_bv_node in gt_bv_graph.nodes)
@@ -751,8 +801,10 @@ function GCgraphbv ()
 					gt_bv_y += gt_bv_distanceY/2;
 				}
 			}
+			gf_timeCalc("placing other nodes");
 			
 			// draw the nodes
+			gf_timeCalc("drawing nodes");
 			for (var gt_bv_nodeId in this.graphs[subject].nodes)
 			{
 				var gt_bv_node = this.graphs[subject].nodes[gt_bv_nodeId];
@@ -761,8 +813,10 @@ function GCgraphbv ()
 				
 				this.addObjectPort(gt_bv_node.id);
 			}
+			gf_timeCalc("drawing nodes");
 			
 			// draw the edges
+			gf_timeCalc("drawing edges");
 			for (var gt_bv_nodeId in this.graphs[subject].edges)
 			{
 				for (var gt_bv_edgeId in this.graphs[subject].edges[gt_bv_nodeId])
@@ -773,6 +827,7 @@ function GCgraphbv ()
 					this.drawArrow(gt_bv_edge);
 				}
 			}
+			gf_timeCalc("drawing edges");
 			
 			var ioTop	= false;		
 			// check tin and tout of startnodes

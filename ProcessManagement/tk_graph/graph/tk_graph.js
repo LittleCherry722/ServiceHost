@@ -112,6 +112,22 @@ var gv_originalViewBox	= {x: 0, y: 0, width: 0, height: 0, zoom: 1};
 var gv_graphID	= "cv";
 
 /**
+ * Time measuring: times used for certain tasks
+ * 
+ * @private
+ * @type Object
+ */
+var gv_times	= {};
+
+/**
+ * Time measuring: start times
+ * 
+ * @private
+ * @type Object
+ */
+var gv_timeStart	= {};
+
+/**
  * Checks the cardinality of a node.
  * Returns false when the limit for outgoing edges of a node is reached.
  * This avoids changing the type of an edge although it is not permitted.
@@ -1023,6 +1039,9 @@ function gf_paperDblClickNodeB (id)
  */
 function gf_paperDblClickNodeC (id)
 {
+	gf_timeReset();
+	gf_timeCalc("load internal behavior");
+	
 	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
 	{
 		// hook
@@ -1117,6 +1136,9 @@ function gf_paperDblClickNodeC (id)
 			}
 		}
 	}
+	
+	gf_timeCalc("load internal behavior");
+	gf_timePrint();
 }
 
 /**
@@ -1155,6 +1177,103 @@ function gf_replaceNewline (text, character)
 		character = "\n";
 	
 	return text.replace(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi, character);
+}
+
+/**
+ * Calculate the time for a certain task.
+ * 
+ * @private
+ * @param {String} type The task to calculate the time for.
+ */
+function gf_timeCalc (type)
+{
+	if (gf_isset(type))
+	{
+		if (!gf_isset(gv_times[type]))
+			gv_times[type]	= 0;
+			
+		if (!gf_isset(gv_timeStart[type]))
+			gv_timeStart[type]	= 0;
+			
+		if (gv_timeStart[type] == 0)
+		{
+			gv_timeStart[type]	= new Date();
+		}
+		else
+		{
+			var gt_timeEnd	= new Date();
+			gv_times[type]	+= gt_timeEnd - gv_timeStart[type];				
+			gv_timeStart[type]	= 0;
+		}
+	}
+}
+
+/**
+ * Print the time taken for a certain task.
+ * 
+ * @private
+ * @param {String} type The task to print the time for. If no type is given, all measured times will be printed.
+ * @returns {void}
+ */
+function gf_timePrint (type)
+{
+	if (gv_printTimes)
+	{
+		if (gf_isset(type) && gf_isset(gv_times[type]))
+		{
+			console.log("time for '" + type + "': " + gv_times[type]/1000 + "s");
+		}
+		else
+		{
+			console.log("\nTime used:");
+			
+			var gt_timeStrings	= [];
+			for (var gt_type in gv_times)
+			{
+				gt_timeStrings[gt_timeStrings.length] = "\t" + gt_type + ": " + gv_times[gt_type]/1000 + "s";
+			}
+			
+			gt_timeStrings.sort()
+			
+			for (var gt_timeString in gt_timeStrings)
+			{
+				console.log(gt_timeStrings[gt_timeString]);
+			}
+		}
+	}
+}
+
+/**
+ * Reset the times taken for a certain task.
+ * 
+ * @private
+ * @param {String} type The task to reset the time for. If no type is given, all measured times will be cleared.
+ * @returns {void}
+ */
+function gf_timeReset (type)
+{
+	if (gf_isset(type))
+	{
+		if (!gf_isArray(type))
+			type = [type];
+			
+		var gt_type	= "";
+		for (var gt_typeId in type)
+		{
+			gt_type	= type[gt_typeId];
+			
+			if (gf_isset(gv_times[gt_type]))
+			{
+				gv_times[gt_type]		= 0;
+				gv_timeStart[gt_type]	= 0;
+			}
+		}
+	}
+	else
+	{
+		gv_times		= {};
+		gv_timeStart	= {};
+	}
 }
 
 /**
