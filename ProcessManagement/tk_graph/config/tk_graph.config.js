@@ -179,6 +179,17 @@ var gv_varManOperations	= {
 };
 
 /**
+ * Message Transport Types.
+ * 
+ * @type Object
+ */
+var gv_messageTransportTypes = {
+	googleMail: "Google Mail",
+	googleDrive: "Google Drive",
+	internal: "internal"
+};
+
+/**
  * Base definition for the time units.
  * 
  * @type {Object}

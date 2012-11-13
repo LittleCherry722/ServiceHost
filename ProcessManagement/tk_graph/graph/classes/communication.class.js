@@ -1300,6 +1300,11 @@ function GCcommunication ()
 									gt_createdEdge.setManualTimeout(gt_edge.manualTimeout);
 								}
 								
+								if (gf_isset(gt_edge.transportMethod))
+								{
+									gt_createdEdge.setTransportMethod(gt_edge.transportMethod);
+								}
+								
 								if (gt_useVariables)
 								{
 									if (gf_isset(gt_edge.variable))
@@ -1535,7 +1540,8 @@ function GCcommunication ()
 									manualTimeout:	gt_edge.isManualTimeout(),
 									variable:		gt_edge.getVariable(),
 									correlationId:	gt_edge.getCorrelationId(),
-									comment:		gt_edge.getComment()
+									comment:		gt_edge.getComment(),
+									transportMethod:	gt_edge.getTransportMethod()
 							};
 						}
 					}

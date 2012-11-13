@@ -150,6 +150,13 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	this.timer	= new GCtime();
 	
 	/**
+	 * Transport Method for a messageType associated to this edge.
+	 * 
+	 * @type String
+	 */
+	this.transportMethod	= "internal";
+	
+	/**
 	 * The type of the edge.
 	 * This can either be an exitcondition, errorcondition or a timeout.
 	 * For startNode == isIPEmpty: booltrue, boolfalse
@@ -400,6 +407,16 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			type = "unit";
 			
 		return this.timer.getTime(type);
+	};
+	
+	/**
+	 * Returns the transportMethod of this edge.
+	 * 
+	 * @returns {String} The transportMethod of this edge.
+	 */
+	this.getTransportMethod = function ()
+	{
+		return this.transportMethod;
 	};
 	
 	/**
@@ -655,6 +672,18 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	{
 		if (gf_isset(time))
 			this.timer.setTime(time);
+	};
+	
+	/**
+	 * Update the transportMethod of this edge.
+	 * 
+	 * @param {String} transportMethod The new transportMethod.
+	 * @returns {void}
+	 */
+	this.setTransportMethod = function (transportMethod)
+	{
+		if (gf_isset(transportMethod) && gf_isset(gv_messageTransportTypes[transportMethod]))
+			this.transportMethod	= transportMethod;
 	};
 	
 	/**

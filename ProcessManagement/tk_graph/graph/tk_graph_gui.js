@@ -282,6 +282,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMMax, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeText, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTimeout, "string", "");
+	gf_guiElementWrite(gv_elements.inputEdgeTransportMethod, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeChannel, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeChannelNew, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeComment, "string", "");
@@ -443,6 +444,7 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiLoadDropDownCorrelationIds(edge.parentBehavior, gv_elements.inputEdgeCorrelationId, true, false);
 			gf_guiLoadDropDownMessageTypes(gv_elements.inputEdgeMessage, true, false);
 			gf_guiLoadDropDownSubjects(gv_elements.inputEdgeTarget, gv_graph.selectedSubject, false);
+			gf_guiLoadDropDownTransportMethods(gv_elements.inputEdgeTransportMethod);
 			gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
 		
 			// show elements
@@ -465,6 +467,7 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMMin, "string", edge.getRelatedSubject("min"));
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMMax, "string", edge.getRelatedSubject("max"));
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMVariable, "string", edge.getRelatedSubject("variable"), "");
+			gf_guiElementWrite(gv_elements.inputEdgeTransportMethod, "string", edge.getTransportMethod(), "");
 			
 			// set boolean values
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeA, "bool", gt_isAll && !gt_isVariable);
@@ -1334,6 +1337,56 @@ function gf_guiLoadDropDownSubjects (elementSubject, excludeSubject, wildcard)
 }
 
 /**
+ * This method is used to fill a select field with all available node types.
+ * 
+ * @param {String} elementTransportMethods The ID of the select element that holds the available node types.
+ * @returns {void}
+ */
+function gf_guiLoadDropDownTransportMethods (elementTransportMethods)
+{
+	// load transport methods
+	if (elementTransportMethods != null && gf_elementExists(elementTransportMethods))
+	{
+		
+		var gt_select			= document.getElementById(elementTransportMethods).options;
+			gt_select.length	= 0;
+		
+		var gt_option			= document.createElement("option");
+			gt_option.text		= "please select";
+			gt_option.value		= "";
+			gt_option.id		= elementTransportMethods + "_00000.0";
+			gt_select.add(gt_option);
+		
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementTransportMethods + "_00000.1";
+			gt_select.add(gt_option);
+		
+		// read the transport methods
+		var gt_transportMethods = [];
+		
+		for (var gt_tmid in gv_messageTransportTypes)
+		{
+			gt_transportMethods[gt_transportMethods.length]		= {id: gt_tmid, text: gv_messageTransportTypes[gt_tmid]};
+		}
+		
+		// sort the transport methods
+		gt_transportMethods.sort(gf_guiSortArrayByText);
+		
+		// add the transport methods as options to the select field
+		for (var gt_tmid in gt_transportMethods)
+		{						
+			gt_option		= document.createElement("option");
+			gt_option.text	= gf_replaceNewline(gt_transportMethods[gt_tmid].text, " ");
+			gt_option.value	= gt_transportMethods[gt_tmid].id;
+			gt_option.id	= elementTransportMethods + "_" + gt_tmid;
+			gt_select.add(gt_option);
+		}
+	}
+}
+
+/**
  * This method is used to fill a select field with all available variables of the current internal behavior.
  * 
  * @param {GCbehavior} behavior The currently selected internal behavior (used to read the variables).
@@ -1616,11 +1669,11 @@ function gf_guiLoadExternalProcess (process)
  * Read the values for the selected edge from the input fields.
  * 
  * @see GCcommunication::updateEdge()
- * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId, comment
+ * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId, comment, transportMethod
  */
 function gf_guiReadEdge ()
 {
-	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false, exception: "", variable: "", variableText: "", correlationId: "", comment: ""};
+	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false, exception: "", variable: "", variableText: "", correlationId: "", comment: "", transportMethod: ""};
 	
 	var gt_relatedSubject	= {id: "", min: -1, max: -1, createNew: false, variable: "", variableText: "", useVariable: false};
 	
@@ -1632,6 +1685,7 @@ function gf_guiReadEdge ()
 	var gt_priority			= gf_guiElementRead(gv_elements.inputEdgePriority, "string", "1");
 	var gt_manualTimeout	= gf_guiElementRead(gv_elements.inputEdgeTimeoutManual, "bool", false);
 	var gt_comment			= gf_guiElementRead(gv_elements.inputEdgeComment, "string", "");
+	var gt_transportMethod	= gf_guiElementRead(gv_elements.inputEdgeTransportMethod, "string", "");
 	
 	var gt_targetVar		= gf_guiElementRead(gv_elements.inputEdgeTargetMVariable, "string", "");
 	var gt_targetVarNew		= gf_guiElementRead(gv_elements.inputEdgeTargetMVarText, "string", "");
@@ -1678,6 +1732,7 @@ function gf_guiReadEdge ()
 	gt_result.variableText		= gt_storeVarNew;
 	gt_result.correlationId		= gt_correlationId;
 	gt_result.comment			= gt_comment;
+	gt_result.transportMethod	= gt_transportMethod;
 	
 	return gt_result;
 }

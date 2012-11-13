@@ -47,6 +47,7 @@ var gv_elements = {
 	inputEdgeTimeout:			"ge_edge_timeout",
 	inputEdgeTimeoutEx:			"ge_edge_timeoutExample",
 	inputEdgeTimeoutManual:		"ge_edge_timeoutManual",
+	inputEdgeTransportMethod:	"ge_edge_transportMethod",
 	inputEdgeTypeCondO:			"ge_edge_typeCOuter",
 	inputEdgeTypeExceptO:		"ge_edge_typeEOuter",
 	inputEdgeTypeTimeoutO:		"ge_edge_typeTOuter",
@@ -217,7 +218,7 @@ var gv_functions	= {
 		 * read input fields (edge) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateEdge(), gf_guiReadEdge()
-		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId, comment
+		 * @returns {Object} Indizes: text, relatedSubject, type, timeout, optional, messageType, priority, manualTimeout, exception, variable, variableText, correlationId, comment, transportMethod
 		 */
 		readEdge:			"",
 		

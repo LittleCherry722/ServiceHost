@@ -657,19 +657,20 @@ function GCmacro (parent, id, name)
 			var gt_startNodeType		= gt_edge.getTypeOfStartNode();
 			
 			// collect new values
-			var gt_text				= gf_isset(values.text)				? values.text			: "";
-			var gt_relatedSubject	= gf_isset(values.relatedSubject)	? values.relatedSubject	: "";
-			var gt_type				= gf_isset(values.type)				? values.type			: "label";
-			var gt_timeout			= gf_isset(values.timeout)			? values.timeout		: "";
-			var gt_exception		= gf_isset(values.exception)		? values.exception		: "";
-			var gt_optional			= gf_isset(values.optional)			? values.optional		: false;
-			var gt_messageTypeId	= gf_isset(values.messageType)		? values.messageType	: "";
-			var gt_priority			= gf_isset(values.priority)			? values.priority		: "1";
-			var gt_manualTimeout	= gf_isset(values.manualTimeout)	? values.manualTimeout	: false;
-			var gt_storeVariable	= gf_isset(values.variable)			? values.variable		: "";
-			var gt_storeVariableNew	= gf_isset(values.variableText)		? values.variableText	: "";
-			var gt_correlationId	= gf_isset(values.correlationId)	? values.correlationId	: "";
-			var gt_comment			= gf_isset(values.comment)			? values.comment		: "";
+			var gt_text				= gf_isset(values.text)				? values.text				: "";
+			var gt_relatedSubject	= gf_isset(values.relatedSubject)	? values.relatedSubject		: "";
+			var gt_type				= gf_isset(values.type)				? values.type				: "label";
+			var gt_timeout			= gf_isset(values.timeout)			? values.timeout			: "";
+			var gt_exception		= gf_isset(values.exception)		? values.exception			: "";
+			var gt_optional			= gf_isset(values.optional)			? values.optional			: false;
+			var gt_messageTypeId	= gf_isset(values.messageType)		? values.messageType		: "";
+			var gt_priority			= gf_isset(values.priority)			? values.priority			: "1";
+			var gt_manualTimeout	= gf_isset(values.manualTimeout)	? values.manualTimeout		: false;
+			var gt_storeVariable	= gf_isset(values.variable)			? values.variable			: "";
+			var gt_storeVariableNew	= gf_isset(values.variableText)		? values.variableText		: "";
+			var gt_correlationId	= gf_isset(values.correlationId)	? values.correlationId		: "";
+			var gt_comment			= gf_isset(values.comment)			? values.comment			: "";
+			var gt_transportMethod	= gf_isset(values.transportMethod)	? values.transportMethod	: "internal";
 			
 			if (gt_startNodeType == "send" || gt_startNodeType == "receive")
 			{
@@ -694,6 +695,7 @@ function GCmacro (parent, id, name)
 			gt_edge.setRelatedSubject(gt_relatedSubject);
 			gt_edge.setOptional(gt_optional);
 			gt_edge.setComment(gt_comment);
+			gt_edge.setTransportMethod(gt_transportMethod);
 			
 			if (gt_type == "timeout")
 			{
