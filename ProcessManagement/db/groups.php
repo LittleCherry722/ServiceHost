@@ -84,7 +84,7 @@ if (isset($_REQUEST['action'])){
 			$return['code']   = "ok";
 		}elseif ($_REQUEST['action'] == 'remove'){
 	
-				mysql_query("DELETE FROM `users_x_groups` WHERE `groupID` = '". $_REQUEST['groupid'] ."'");
+				mysql_query("DELETE FROM `group_x_roles` WHERE `groupID` = '". $_REQUEST['groupid'] ."'");
 				
 				mysql_query("DELETE FROM `groups` WHERE `ID` = '". $_REQUEST['groupid'] ."'");
 				
@@ -109,10 +109,10 @@ if (isset($_REQUEST['action'])){
 			
 			foreach ($groups as $group){
 																	
-				$groupid = intval($group['ID']) > 0 ? $group['ID'] : "";
+			
 			
 				// insert/update group
-				mysql_query("INSERT INTO `groups` (`ID`,`name`) VALUES ('" . $groupid . "', '" . $group['name'] . "') ON DUPLICATE KEY UPDATE name = '" . $group['name'] . "', active = " . $group['active']);
+				mysql_query("INSERT INTO `groups` (`name`) VALUES (" . $group['name'].")");
 
 			}
 
@@ -149,6 +149,22 @@ if (isset($_REQUEST['action'])){
 				array_push($groups[$group['groupName']], $group['userName']);
 			else
 				$groups[$group['groupName']] = array($group['userName']);
+		}
+		$return['groups'] = $groups;
+		$return['code']   = "ok";
+	}elseif ($_REQUEST['action'] == "getallgroupsandroles"){
+		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, roles.name as roleName, roles.ID as roleID FROM (groups INNER JOIN group_x_roles ON groups.ID = group_x_roles.groupID) INNER JOIN roles ON group_x_roles.roleID = roles.ID");
+		$groups = array();
+		while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
+			if(array_key_exists($group['groupID'], $groups)){
+				array_push($groups[$group['groupID']]['roleName'], $group['roleName']);
+				array_push($groups[$group['groupID']]['roleID'], $group['roleID']);
+				}
+			else{
+				$groups[$group['groupID']] = $group;
+				$groups[$group['groupID']]['roleName'] = array($group['roleName']);
+				$groups[$group['groupID']]['roleID'] = array($group['roleID']);
+		}
 		}
 		$return['groups'] = $groups;
 		$return['code']   = "ok";

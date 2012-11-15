@@ -7,6 +7,14 @@ var ViewModel = function() {
 
 		self.quickVM.init();
 
+
+//disable TableCreate if create Case
+		self.updateTableCreate = ko.computed(function(){
+			if(!self.isProcess())
+			self.quickVM.displayTable(false);
+			return null
+		});
+
 		callback();
 	}
 
@@ -18,6 +26,15 @@ var ViewModel = function() {
 		return SBPM.Service.Process.processExists(self.processName());
 
 	});
+	self.caseOrProcess = ko.observable("isProcess");
+	
+	//Save in Database 
+	self.isProcess = ko.computed(function(){
+				return self.caseOrProcess() == "isProcess"
+	});
+
+
+
 
 	self.createCheck = function() {
 		var process = self.processName();
@@ -66,6 +83,8 @@ var QuickViewModle = function() {
 	}
 
 	self.displayTable = ko.observable(false);
+
+
 
 	self.fancyboxSize = ko.computed(function() {
 

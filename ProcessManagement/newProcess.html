@@ -111,16 +111,14 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 			</script>
 		</p>
 
-		<br class="clear"/>
 		<div id="processExist" style="width:170px;height:45px;">
 		<span data-bind="visible: processExist" style="color: red;">Process already exists! Please choose a different name.</span>
 		</div>
-		<br class="clear"/>
-
-		<input type="checkbox" name="Table" value="Table" data-bind="checked: quickVM.displayTable" >Use Table <br>
-		<br class="clear"/>
-
-
+		<div id="options">
+			<div><input type="radio" name="caseGroup" value="isProcess" data-bind="checked: caseOrProcess" /> Create Process</div>
+	    	<div><input type="radio" name="caseGroup" value="isCase" data-bind="checked: caseOrProcess" /> Create Case</div>
+	   		<div><input type="checkbox" name="Table" value="Table" data-bind="checked: quickVM.displayTable, enable: isProcess" >Use Table </div>
+   		</div>
 		<div align="center" style="float:left;" >
 		<input type="submit" value="Accept"  data-bind="click : createCheck, disable: processExist, style: {color: processExist() ? 'grey' : '#333'} "/>
 		<input type="button" value="Cancel" onclick="parent.fancyreturn1=false;parent.$.fancybox.close();"/>

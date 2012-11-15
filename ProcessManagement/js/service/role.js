@@ -1,6 +1,6 @@
 SBPM.Service.Role = {
     _default : {
-        endpoint : "groups.php"
+        endpoint : "roles.php"
     },
     query : function(param, defaultvalue, callback) {
         return SBPM.DB.syncQuery(this._default.endpoint, param, defaultvalue, callback);
@@ -13,7 +13,7 @@ SBPM.Service.Role = {
             "action" : "getall"
         }, {}, function(json) {
             if (json["code"] == "ok")
-                return json["groups"];
+                return json["roles"];
         });
     },
     /**
@@ -59,7 +59,7 @@ SBPM.Service.Role = {
      */
     remove : function(roleId) {
         return this.query({
-            "groupid" : roleId,
+            "roleid" : roleId,
             "action" : "remove"
         }, false, SBPM.DB.defaultRemoveReturn);
     },

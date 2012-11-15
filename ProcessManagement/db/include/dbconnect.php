@@ -49,7 +49,6 @@ if ($dbInitialize){
 				 VALUES (
 					'debug.extendedfeatureset.active',  'Activates the extended feature set which may be in development and therefore is not 100% functional',  false, 'Boolean'");
 	
-	
 	mysql_query("CREATE TABLE IF NOT EXISTS `groups` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
@@ -73,6 +72,7 @@ if ($dbInitialize){
   `name` varchar(64) NOT NULL,
   `startSubjects` varchar(128) NOT NULL,
   `graphID` int(11) NOT NULL,
+  `isProcess` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;");
 
@@ -101,28 +101,28 @@ if ($dbInitialize){
   PRIMARY KEY (`userID`,`groupID`,`responsibleID`,`processID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
 
+	mysql_query("CREATE TABLE IF NOT EXISTS `roles` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  `active` BOOLEAN NOT NULL DEFAULT  '1',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
+
 	mysql_query("CREATE TABLE IF NOT EXISTS `users` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
+  `groupID` int(11),
   `active` tinyint(1) NOT NULL DEFAULT '1',
-  `inputpoolsize` smallint(6) NOT NULL,
+  `inputpoolsize` smallint(6) NOT NULL DEFAULT '8',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;");
 
-	mysql_query("INSERT INTO `users` (
-`ID` ,
-`name`
-)
-VALUES (
-NULL , 'Admin'
-);
-");
-
-	mysql_query("CREATE TABLE IF NOT EXISTS `users_x_groups` (
-  `userID` int(11) NOT NULL,
+	mysql_query("CREATE TABLE IF NOT EXISTS `group_x_roles` (
   `groupID` int(11) NOT NULL,
+  `roleID` int(11) NOT NULL,
   `active` BOOLEAN NOT NULL DEFAULT  '1',
-  PRIMARY KEY (`userID`,`groupID`)
+  PRIMARY KEY (`groupID`,`roleID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
+
 }
 ?>

@@ -74,9 +74,10 @@ SBPM.Service.User = {
     /**
      * saves a list of users
      *
-     * @param {array of {id, name, active, roles : [roleId1, ...]}} users
+     * @param {array of {name, groupID, inputpoolsize}} users
      */
     saveAll : function(users) {
+       	
         return this.query({
             "action" : "save",
             "users" : users

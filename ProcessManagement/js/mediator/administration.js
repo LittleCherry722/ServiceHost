@@ -32,6 +32,10 @@ var Mediator = function(){
             
             console.log("Mediator: Listeners of tab 'Roles' has been initialized.");
         },
+        Groups : function(){
+            
+            console.log("Mediator: Listeners of tab 'Groups' has been initialized.");
+        },
         Debug : function(){
             
             console.log("Mediator: Listeners of tab 'Debug' has been initialized.");
@@ -68,7 +72,31 @@ var Mediator = function(){
         });
         
     }
-    
+    self.afterRenderGroupRow = function(row){
+        var select = $(row).find('.chzn-select');
+        
+        select.chosen();
+        select.trigger("liszt:updated");
+
+        $(row).find('.slider').slider({
+            min : 1,
+            max : 256,
+            value : 8,
+            slide : function(event, ui) {
+                var input = $(this).parent().prev();
+
+                // change value
+                input.val(ui.value);
+                
+                // populate changed value to knockout
+                input.change();
+            },
+            create : function(event, ui) {
+                $(this).slider( "option", "value", $(event.target).parent().prev().val() );
+            }
+        });
+        
+    }
 
 
 }

@@ -2,8 +2,10 @@
     <table class="datatable">
         <thead>
             <tr>
+            	<th>ID</th>
                 <th>Name</th>
-                <th>Roles</th>
+                <th>Group</th>
+                <th>Delete</th>
     <!--            <th>Pool Size</th>
                  <th /> -->
                 <th></th>
@@ -11,8 +13,9 @@
         </thead>
         <tbody data-bind="foreach: {data : data(), afterRender : SBPM.Mediator.afterRenderUsersRow}">
             <tr>
-                <td><input class="inline" data-bind='value: name' /></td>
-                <td><select data-bind='options: $parent.options(), selectedOptions: roles' class="chzn-select" multiple="multiple" ></select></td>
+            	<td data-bind ='text:userID'></td>
+                <td><input class="inline" data-bind='value: userName' /></td>
+                <td><select data-bind='options: $parent.options(),optionsCaption: "Select a group" , optionsText: "groupName", optionsValue : "groupID", value: groupID' class="chzn-select"  ></select></td>
     <!--             <td><input type="button" class="button" value="Details" data-bind='click: $parent.showDetails' /></td> 
                 <td>
                     <input class="readonly" style="float: left; width: 25px; text-align: right;" data-bind='{value: inputpoolsize}' maxlength="3" readonly/>
@@ -24,6 +27,6 @@
             </tr>
         </tbody>
     </table>
+    <input id="usersBtn" type="button" class="button" value="Create User" data-bind='click: create' />
 </div>
 
-<input id="usersBtn" type="button" class="button" value="Create User" data-bind='click: create' />

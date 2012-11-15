@@ -3,12 +3,14 @@ var ViewModel = function() {
     var self = this;
 
     self.tab = ko.observable("");
-    self.tabs = ['General', 'Users', 'Roles', 'Debug'];
+    self.tabs = ['General', 'Users', 'Roles','Groups', 'Debug'];
     self.subsites = ko.observable({
         'General' : new GeneralViewModel(),
         'Users' : new UserViewModel(),
         'Roles' : new RoleViewModel(),
+        'Groups' : new GroupViewModel(),
         'Debug' : new DebugViewModel()
+        
     });
 
     self.init = function(callback) {
@@ -44,18 +46,21 @@ var ViewModel = function() {
 
     self.save = function() {
         var success = true;
+     
+        
 
         for (var site in self.subsites())
             // save all tabs
             success = success && self.subsites()[site].save();
 
         // and re-init the current tab
-        self.subsite().init();
+        //self.subsite().init();
 
         if (success)
             SBPM.Notification.Info("Information", "The administration has been saved.");
         else
             SBPM.Notification.Error("Error", "An Error occured while saving the administration.");
+           
     }
 };
 
@@ -115,19 +120,43 @@ var UserViewModel = function() {
     var self = this;
 
     self.options = ko.observableArray();
-
+	
     self.loadModel = function() {
 
         if (self.initialized)
             return;
-
-        ko.mapping.fromJS(SBPM.Service.User.getAll(), self.data);
-
-        var roles = SBPM.Service.Role.getAll();
+            
+        var groups = SBPM.Service.Group.getAll();
         self.options.removeAll();
         
-        for (var i in roles)
-            self.options.push(roles[i].name);
+        var groupOption = function(name,id){
+        	this.groupName= name;
+        	this.groupID=id;
+        }
+        
+        for (var i in groups){
+            self.options.push(new groupOption(groups[i].name, groups[i].ID));
+           }
+           
+            console.log(self.options());
+		var transform = SBPM.Service.User.getAll();
+		//console.log(self.transform);
+
+		for(var i in transform) {
+			//console.log(i);
+			//console.log(transform[i]);
+			self.data.push({
+				'userName' : transform[i].name,
+				'userID' : transform[i].ID,
+				'groupName' : SBPM.Service.Group.getName(transform[i].groupID),
+				'groupID' : transform[i].groupID,
+				'inputpoolsize' : transform[i].inputpoolsize
+				
+			});
+		}
+        console.log(self.data());
+		
+        
 
         self.initialized = true;
     }
@@ -137,32 +166,37 @@ var UserViewModel = function() {
     }
 
     self.remove = function(user) {
-        if (user.id == "0" || SBPM.Service.User.remove(user.id()))
-            self.data.remove(user);
+       SBPM.Service.User.remove(user.userID)
+       self.data.remove(user);
     }
 
     self.create = function() {
-        var data = self.data();
-        data.push({
-            id : "0",
-            name : "",
-            roles : [""],
-            active : "1",
+        //var data = self.data();
+        self.data.push({
+            userName : "",
+            groupName : undefined,
+            groupID : undefined,
+            userID : 'Will be assigned \n after save',
             inputpoolsize : "8"
         });
-        self.data(data);
+      
         $(".scrollable input.inline").last().focus();
     }
 
     self.save = function() {
 
         for (var i in self.data())
-            if (self.data()[i].name == "")
+            if (self.data()[i].userName == "")
                 self.data.remove(self.data()[i]);
 
         var toSaveData = ko.toJS(self.data());
-
-        ko.mapping.fromJS(SBPM.Service.User.saveAll(toSaveData), self.data);
+		
+		SBPM.Service.User.saveAll(toSaveData);
+		
+		console.log("Users");
+		console.log(toSaveData);
+		
+        //ko.mapping.fromJS(SBPM.Service.User.saveAll(toSaveData), self.data);
 
         self.initialized = false;
 
@@ -190,19 +224,19 @@ var RoleViewModel = function() {
     }
 
     self.remove = function(role) {
-        if (SBPM.Service.Role.remove(role.ID))
+        SBPM.Service.Role.remove(role.ID);
             self.data.remove(role);
     }
 
-    self.create = function() {// TODO why push by itself doesnt work?
-       self.data.push({
-            ID : 0,
-            name : "",
-            active : 1
-        });
-        $(".scrollable input.inline").last().focus()
 
-    }
+	self.create = function() {
+		self.data.push({
+			name : ""
+		});
+		$(".scrollable input.inline").last().focus()
+
+	}
+
 
     self.save = function() {
 
@@ -211,8 +245,10 @@ var RoleViewModel = function() {
             self.data.remove(self.data()[i]);
 
         var toSaveData = ko.toJS(self.data());
+console.log("roles");
+console.log(toSaveData);
 
-        ko.mapping.fromJS(SBPM.Service.Role.saveAll(toSaveData), self.data);
+       // ko.mapping.fromJS(SBPM.Service.Role.saveAll(toSaveData), self.data);
 
         self.initialized = false;
 
@@ -222,6 +258,95 @@ var RoleViewModel = function() {
     SubViewModel.call(self, "Roles");
 
 }
+
+/**
+ * extends SubViewModel
+ */
+var GroupViewModel = function() {
+	var self = this;
+	
+	self.options = ko.observableArray();
+	
+
+	self.loadModel = function() {
+		if(self.initialized)
+			return;
+
+		var roles = SBPM.Service.Role.getAll();
+		self.options.removeAll();
+
+
+
+        var roleOption = function(name,id){
+        	this.rolesName= name;
+        	this.rolesID=id;
+        }
+        
+        for (var i in roles){
+            self.options.push(new roleOption(roles[i].name, roles[i].ID));
+           }
+
+
+		var transform = SBPM.Service.Group.getallgroupsandroles()
+		//console.log(self.transform);
+
+		for(var i in transform) {
+			//console.log(i);
+			//console.log(transform[i]);
+			self.data.push({
+				'groupName' : transform[i].groupName,
+				'groupID' : i,
+				//'roles' : transform[i].roleName,
+				'rolesID' : ko.observableArray(transform[i].roleID)
+			});
+		}
+
+		//ko.mapping.fromJS(SBPM.Service.Group.getallgroupsandroles(), self.data);
+
+
+
+		self.initialized = true;
+	}
+
+    
+    self.save = function() {
+    	for (var i in self.data())
+            if (self.data()[i].groupName == "")
+                self.data.remove(self.data()[i]);
+
+        var toSaveData = ko.toJS(self.data());
+        console.log("groups");
+		console.log(toSaveData);
+		//SBPM.Service.User.saveAll(toSaveData);
+    	
+    	
+        return true;
+    }    
+    
+    
+      self.create = function() {
+       self.data.push({
+             groupName : "",
+             groupID :"",
+             rolesID :ko.observableArray()          
+        });
+        $(".scrollable input.inline").last().focus()
+
+    }  
+    
+    self.remove = function(group){
+    	console.log(group.groupID);
+    	self.data.remove(group);
+    	SBPM.Service.Group.remove(group.groupID);
+    }
+    
+    
+    
+        SubViewModel.call(self, "Groups");
+}
+
+
+
 /**
  * extends SubViewModel
  */
