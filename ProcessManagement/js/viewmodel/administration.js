@@ -138,23 +138,24 @@ var UserViewModel = function() {
             self.options.push(new groupOption(groups[i].name, groups[i].ID));
            }
            
-            console.log(self.options());
-		var transform = SBPM.Service.User.getAll();
-		//console.log(self.transform);
+            //console.log(self.options());
+		var transform = SBPM.Service.User.getAllUsersAndGroups();
+		console.log(self.transform);
 
 		for(var i in transform) {
-			//console.log(i);
-			//console.log(transform[i]);
+			console.log(i);
+			console.log(transform[i]);
+			console.log(transform[i].groupID);
 			self.data.push({
-				'userName' : transform[i].name,
-				'userID' : transform[i].ID,
-				'groupName' : SBPM.Service.Group.getName(transform[i].groupID),
-				'groupID' : transform[i].groupID,
-				'inputpoolsize' : transform[i].inputpoolsize
+				'userName' : transform[i].userName,
+				'userID' : transform[i].userID,
+				//'groupName' : SBPM.Service.Group.getName(transform[i].groupID),
+				'groupID' : ko.observableArray(transform[i].groupID),
+				//'inputpoolsize' : transform[i].inputpoolsize
 				
 			});
 		}
-        //console.log(self.data());
+        console.log(self.data());
 		
         
 
@@ -193,8 +194,8 @@ var UserViewModel = function() {
 		
 		SBPM.Service.User.saveAll(toSaveData);
 		
-		//console.log("Users");
-		//console.log(toSaveData);
+		console.log("Users");
+		console.log(toSaveData);
 		
         //ko.mapping.fromJS(SBPM.Service.User.saveAll(toSaveData), self.data);
 
@@ -239,8 +240,8 @@ var RoleViewModel = function() {
 		//console.log(self.transform);
 		self.data([]);
 		for(var i in transform) {
-			console.log(i);
-			console.log(transform[i]);
+			//console.log(i);
+			//console.log(transform[i]);
 			self.data.push({
 				'roleName' : transform[i].roleName,
 				'roleID' : i,
@@ -364,7 +365,7 @@ var GroupViewModel = function() {
     }  
     
     self.remove = function(group){
-    	console.log(group.groupID);
+    	//console.log(group.groupID);
     	self.data.remove(group);
     	SBPM.Service.Group.remove(group.groupID);
     }

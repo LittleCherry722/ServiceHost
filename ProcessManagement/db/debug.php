@@ -34,10 +34,11 @@ switch ($action){
 			mysql_query("TRUNCATE TABLE process_instance");
 			mysql_query("TRUNCATE TABLE relation;"); 
 			mysql_query("TRUNCATE TABLE messages;"); 
+			mysql_query("TRUNCATE TABLE group_x_users;");
 			
-			mysql_query("INSERT INTO `users` (`ID`, `name`, `groupID`) VALUES
-						('1' , 'Superuser' , '1'),
-						('2' , 'Philip' , '2');"); 
+			mysql_query("INSERT INTO `users` (`ID`, `name`) VALUES
+						('1' , 'Superuser'),
+						('2' , 'Philip');"); 
 				
 			mysql_query("INSERT INTO `groups` (`ID`, `name`) VALUES
 							('1', 'IT Staff'),
@@ -75,10 +76,26 @@ switch ($action){
 		mysql_query("TRUNCATE TABLE groups"); 
 		mysql_query("TRUNCATE TABLE users"); 
 		mysql_query("TRUNCATE TABLE roles"); 
+		mysql_query("TRUNCATE TABLE group_x_users;");
 		mysql_query("TRUNCATE TABLE group_x_roles"); 
-			mysql_query("INSERT INTO `users` (`ID`, `name`, `groupID`) VALUES
-						('1' , 'Superuser' , '1'),
-						('2' , 'Philip' , '2');");  
+			mysql_query("INSERT INTO `users` (`ID`, `name`) VALUES
+							('1' , 'Superuser'),
+							('2' , 'Philip' );");
+			mysql_query("INSERT INTO `groups` (`ID`, `name`) VALUES
+							('1', 'IT Staff'),
+							('2', 'Manager');");			  
+			mysql_query("INSERT INTO `group_x_users` (`groupID`, `userID`) VALUES
+							('1','1'),
+							('1','2'),
+							('2','2');");
+			mysql_query("INSERT INTO `group_x_roles` (`groupID`, `roleID`) VALUES
+							('1','1'),
+							('1','2'),
+							('2','2');");
+			mysql_query("INSERT INTO `roles` (`ID`, `name`) VALUES
+							('1', 'Admin'),
+							('2', 'Boss');");			 			
+						
 		break;
 		
 	case "clear":	
@@ -92,6 +109,7 @@ switch ($action){
 			mysql_query("TRUNCATE TABLE process_instance");
 			mysql_query("TRUNCATE TABLE relation;"); 
 			mysql_query("TRUNCATE TABLE messages;");	
+			mysql_query("TRUNCATE TABLE group_x_users;");
 			
 		break;
 		
@@ -106,6 +124,7 @@ switch ($action){
 			mysql_query("DROP TABLE process_instance");
 			mysql_query("DROP TABLE relation;"); 
 			mysql_query("DROP TABLE messages;");
+			mysql_query("DROP TABLE group_x_users;");
 			
 			
 		break;

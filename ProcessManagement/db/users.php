@@ -132,6 +132,22 @@ if (isset($_REQUEST['action'])) {
 
 		$return['users'] = $users;
 		$return['code'] = "ok";
+	}elseif ($_REQUEST['action'] == "getAllUsersAndGroups"){
+		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, users.name as userName, users.ID as userID FROM (groups INNER JOIN group_x_users ON groups.ID = group_x_users.groupID) INNER JOIN users ON group_x_users.userID = users.ID");
+		$users = array();
+		while ($user = mysql_fetch_array($result, MYSQL_ASSOC)){
+			if(array_key_exists($user['userID'], $users)){
+				array_push($users[$user['userID']]['groupName'], $user['groupName']);
+				array_push($users[$user['userID']]['groupID'], $user['groupID']);
+				}
+			else{
+				$users[$user['userID']] = $user;
+				$users[$user['userID']]['groupName'] = array($user['groupName']);
+				$users[$user['userID']]['groupID'] = array($user['groupID']);
+		}
+		}
+		$return['users'] = $users;
+		$return['code']   = "ok";
 	}
 
 	if (!empty($return))

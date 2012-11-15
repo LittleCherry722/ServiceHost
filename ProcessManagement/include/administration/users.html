@@ -15,7 +15,7 @@
             <tr>
             	<td data-bind ='text:userID'></td>
                 <td><input class="inline" data-bind='value: userName' /></td>
-                <td><select data-bind='options: $parent.options(),optionsCaption: "Select a group" , optionsText: "groupName", optionsValue : "groupID", value: groupID' class="chzn-select"  ></select></td>
+                <td><select data-bind='options: $parent.options(),optionsCaption: "Select a group" , optionsText: "groupName", optionsValue : "groupID", selectedOptions: groupID' class="chzn-select" multiple="multiple"  ></select></td>
     <!--             <td><input type="button" class="button" value="Details" data-bind='click: $parent.showDetails' /></td> 
                 <td>
                     <input class="readonly" style="float: left; width: 25px; text-align: right;" data-bind='{value: inputpoolsize}' maxlength="3" readonly/>

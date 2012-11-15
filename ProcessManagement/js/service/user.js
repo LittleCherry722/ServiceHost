@@ -16,6 +16,14 @@ SBPM.Service.User = {
                 return data["users"];
         });
     },
+    	getAllUsersAndGroups : function() {
+        return this.query({
+            "action" : "getAllUsersAndGroups"
+        }, {}, function(json) {
+            if (json["code"] == "ok")
+                return json["users"];
+        });
+    },
     /**
      *  gets a users by a his id
      *

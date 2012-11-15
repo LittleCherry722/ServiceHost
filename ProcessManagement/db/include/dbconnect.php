@@ -111,7 +111,6 @@ if ($dbInitialize){
 	mysql_query("CREATE TABLE IF NOT EXISTS `users` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL,
-  `groupID` int(11),
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `inputpoolsize` smallint(6) NOT NULL DEFAULT '8',
   PRIMARY KEY (`ID`)
@@ -122,6 +121,13 @@ if ($dbInitialize){
   `roleID` int(11) NOT NULL,
   `active` BOOLEAN NOT NULL DEFAULT  '1',
   PRIMARY KEY (`groupID`,`roleID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
+
+	mysql_query("CREATE TABLE IF NOT EXISTS `group_x_users` (
+  `groupID` int(11) NOT NULL,
+  `userID` int(11) NOT NULL,
+  `active` BOOLEAN NOT NULL DEFAULT  '1',
+  PRIMARY KEY (`groupID`,`userID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
 
 }
