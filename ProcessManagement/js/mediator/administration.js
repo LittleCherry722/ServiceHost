@@ -97,7 +97,31 @@ var Mediator = function(){
         });
         
     }
+    self.afterRenderRoleRow = function(row){
+        var select = $(row).find('.chzn-select');
+       
+        select.chosen();
+        select.trigger("liszt:updated");
 
+        $(row).find('.slider').slider({
+            min : 1,
+            max : 256,
+            value : 8,
+            slide : function(event, ui) {
+                var input = $(this).parent().prev();
+
+                // change value
+                input.val(ui.value);
+                
+                // populate changed value to knockout
+                input.change();
+            },
+            create : function(event, ui) {
+                $(this).slider( "option", "value", $(event.target).parent().prev().val() );
+            }
+        });
+        
+    }
 
 }
 

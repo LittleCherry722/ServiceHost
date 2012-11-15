@@ -152,6 +152,22 @@ if (isset($_REQUEST['action'])){
 		}
 		$return['roles'] = $roles;
 		$return['code']   = "ok";
+	}elseif ($_REQUEST['action'] == "getallrolesandgroups"){
+		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, roles.name as roleName, roles.ID as roleID FROM (groups INNER JOIN group_x_roles ON groups.ID = group_x_roles.groupID) INNER JOIN roles ON group_x_roles.roleID = roles.ID");
+		$roles = array();
+		while ($role = mysql_fetch_array($result, MYSQL_ASSOC)){
+			if(array_key_exists($role['roleID'], $roles)){
+				array_push($roles[$role['roleID']]['groupName'], $role['groupName']);
+				array_push($roles[$role['roleID']]['groupID'], $role['groupID']);
+				}
+			else{
+				$roles[$role['roleID']] = $role;
+				$roles[$role['roleID']]['groupName'] = array($role['groupName']);
+				$roles[$role['roleID']]['groupID'] = array($role['groupID']);
+		}
+		}
+		$return['roles'] = $roles;
+		$return['code']   = "ok";
 	}
 	
 	

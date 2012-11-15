@@ -28,6 +28,17 @@ SBPM.Service.Role = {
         });
     },
     /**
+     *get all roles and their groups
+     */
+    getAllRolesAndGroups : function() {
+        return this.query({
+            "action" : "getallrolesandgroups"
+        }, {}, function(json) {
+            if (json["code"] == "ok")
+                return json["roles"];
+        });
+    },
+    /**
      *
      * @param {Object} roleId
      */

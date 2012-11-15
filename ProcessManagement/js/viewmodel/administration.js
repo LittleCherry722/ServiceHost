@@ -154,7 +154,7 @@ var UserViewModel = function() {
 				
 			});
 		}
-        console.log(self.data());
+        //console.log(self.data());
 		
         
 
@@ -166,7 +166,7 @@ var UserViewModel = function() {
     }
 
     self.remove = function(user) {
-       SBPM.Service.User.remove(user.userID)
+       SBPM.Service.User.remove(user.userID);
        self.data.remove(user);
     }
 
@@ -193,8 +193,8 @@ var UserViewModel = function() {
 		
 		SBPM.Service.User.saveAll(toSaveData);
 		
-		console.log("Users");
-		console.log(toSaveData);
+		//console.log("Users");
+		//console.log(toSaveData);
 		
         //ko.mapping.fromJS(SBPM.Service.User.saveAll(toSaveData), self.data);
 
@@ -212,16 +212,43 @@ var UserViewModel = function() {
 var RoleViewModel = function() {
 
     var self = this;
-
+	self.options = ko.observableArray();
+	
     self.loadModel = function() {
+		if(self.initialized)
+			return;
 
-        if (self.initialized)
-            return;
 
-        ko.mapping.fromJS(SBPM.Service.Role.getAll(), self.data);
 
-        self.initialized = true;
-    }
+		var groups = SBPM.Service.Group.getAll();
+		self.options.removeAll();
+
+
+
+        var groupOption = function(name,id){
+        	this.groupName= name;
+        	this.groupID=id;
+        }
+        
+        for (var i in groups){
+            self.options.push(new groupOption(groups[i].name, groups[i].ID));
+           }
+
+
+		var transform = SBPM.Service.Role.getAllRolesAndGroups()
+		//console.log(self.transform);
+		self.data([]);
+		for(var i in transform) {
+			console.log(i);
+			console.log(transform[i]);
+			self.data.push({
+				'roleName' : transform[i].roleName,
+				'roleID' : i,
+				//'roles' : transform[i].roleName,
+				'groupID' : ko.observableArray(transform[i].groupID)
+			});
+		}
+}
 
     self.remove = function(role) {
         SBPM.Service.Role.remove(role.ID);
@@ -231,7 +258,9 @@ var RoleViewModel = function() {
 
 	self.create = function() {
 		self.data.push({
-			name : ""
+			roleName : "",
+			roleID : 'Will be assigned \n after save',
+			groupID : undefined
 		});
 		$(".scrollable input.inline").last().focus()
 
