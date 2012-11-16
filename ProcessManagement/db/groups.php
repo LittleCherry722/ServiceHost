@@ -86,7 +86,11 @@ if (isset($_REQUEST['action'])){
 	
 				mysql_query("DELETE FROM `group_x_roles` WHERE `groupID` = '". $_REQUEST['groupid'] ."'");
 				
+				mysql_query("DELETE FROM `group_x_users` WHERE `groupID` = '". $_REQUEST['groupid'] ."'");
+				
 				mysql_query("DELETE FROM `groups` WHERE `ID` = '". $_REQUEST['groupid'] ."'");
+				
+				
 				
 				if(mysql_affected_rows() > 0){
 					$return['code'] = "removed";
@@ -106,16 +110,14 @@ if (isset($_REQUEST['action'])){
 		$groups = $_REQUEST['groups'];
 		
 		if ($_REQUEST['action'] == 'save') {
-			
+			// insert/update group
 			foreach ($groups as $group){
-																	
-			
-			
-				// insert/update group
-				mysql_query("INSERT INTO `groups` (`name`) VALUES (" . $group['name'].")");
-
+				if (is_numeric($group['groupID'])){												
+					mysql_query("UPDATE `groups` Set `groups.name` = '" . $group['groupName'] . "' WHERE `groups.ID` = '" . $group['groupID'] .  "' )");	
+			}else{
+				mysql_query("INSERT INTO `groups` (`name`) VALUES ('" . $group['groupName']."')");	
 			}
-
+			}
 			$result = mysql_query("SELECT * FROM `groups`");
 			$groups = array();
 			while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
@@ -134,13 +136,13 @@ if (isset($_REQUEST['action'])){
 		$return['groups'] = $groups;
 		$return['code']   = "ok";
 	}elseif ($_REQUEST['action'] == "getall"){
-		$result = mysql_query("SELECT * FROM `groups`");
-		$groups = array();
-		while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
-			array_push($groups, $group);
-		}
-		$return['groups'] = $groups;
-		$return['code']   = "ok";
+			$result = mysql_query("SELECT * FROM `groups`");
+			$groups = array();
+			while ($group = mysql_fetch_array($result, MYSQL_ASSOC)){
+				array_push($groups, $group);
+			}
+			$return['groups'] = $groups;
+			$return['code']   = "ok";	
 	}elseif ($_REQUEST['action'] == "getallrolesandusers"){
 		$result = mysql_query("	SELECT groups.name as groupName, users.name as userName FROM groups, users_x_groups, users WHERE groups.id = users_x_groups.groupid AND users.id = users_x_groups.userid ORDER BY groupName, userName");
 		$groups = array();

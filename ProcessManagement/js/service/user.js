@@ -82,7 +82,7 @@ SBPM.Service.User = {
     /**
      * saves a list of users
      *
-     * @param {array of {name, groupID, inputpoolsize}} users
+     * @param {array of {userID, userName, groupID[]}} users
      */
     saveAll : function(users) {
        	

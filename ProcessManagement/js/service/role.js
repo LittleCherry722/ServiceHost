@@ -81,10 +81,10 @@ SBPM.Service.Role = {
     saveAll : function(roles) {
         return this.query({
             "action" : "save",
-            "groups" : roles
+            "roles" : roles
         }, {}, function(json) {
             if (json["code"] == "ok")
-                return json["groups"];
+                return json["roles"];
         });
     },
 

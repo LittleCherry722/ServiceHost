@@ -51,16 +51,16 @@ SBPM.Service.Group = {
     /**
      * saves a list of groups
      *
-     * @param {array of {name, groupID, inputpoolsize}} users
+     * @param {array of {name, ID}} users
      */
     saveAll : function(users) {
        	
         return this.query({
             "action" : "save",
-            "users" : users
+            "groups" : users
         }, {}, function(json) {
             if (json["code"] == "ok")
-                return json["users"];
+                return json["groups"];
         });
     }
 }

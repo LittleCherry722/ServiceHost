@@ -49,16 +49,38 @@ if (isset($_REQUEST['action'])) {
 
 		if ($_REQUEST['action'] == 'save') {
 
+		mysql_query("TRUNCATE TABLE group_x_users;");
+
+
+
+
 			foreach ($users as $user) {
 
 				error_log(var_export($user, true));
 
-				// insert/update user
-				if (array_key_exists('groupID', $user)){			
-				mysql_query("INSERT INTO `users` (`name`, `groupID`,`inputpoolsize`) VALUES (" . $user['userName'] . ", " . $user['groupID'] . ", " . $user['inputpoolsize'] . ")");
+				// update user
+				if (is_numeric($user['userID'])){
+				mysql_query("UPDATE `users` Set `users.name` = '" . $user['userName'] . "' WHERE `users.ID` = '" . $user['userID'] .  "' )");
+					$groups = $user['groupID'];
+					foreach ($groups as $group) {					
+						if(! (is_null($group))){
+						mysql_query("INSERT INTO `group_x_users` (`userID` , `groupID`) VALUES ( '" . $user['userID'] . "' , '" . $group . "' )");
+						}
+					}
+					
 				}else{
-				mysql_query("INSERT INTO `users` (`name`, `inputpoolsize`) VALUES (" . $user['userName'] . ", " . $user['inputpoolsize'] . ")");
+				// insert user	
+				mysql_query("INSERT INTO `users` (`name`) VALUES ( '" . $user['userName'] . "' )");
+				if(key_exists('groupID', $user)){
+					$groups = $user['groupID'];
+					foreach ($groups as $group) {					
+					if(! (is_null($group))){
+					mysql_query("INSERT INTO `group_x_users` (`userID` , `groupID`) VALUES ( '" . mysql_insert_id() . "' , '" . $group . "' )");
+						}
+					}
 				}
+				}
+									
 			}
 
 		$result = mysql_query("SELECT * FROM `users`");
@@ -133,7 +155,7 @@ if (isset($_REQUEST['action'])) {
 		$return['users'] = $users;
 		$return['code'] = "ok";
 	}elseif ($_REQUEST['action'] == "getAllUsersAndGroups"){
-		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, users.name as userName, users.ID as userID FROM (groups INNER JOIN group_x_users ON groups.ID = group_x_users.groupID) INNER JOIN users ON group_x_users.userID = users.ID");
+		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, users.name as userName, users.ID as userID FROM (groups right JOIN group_x_users ON groups.ID = group_x_users.groupID) right JOIN users ON group_x_users.userID = users.ID");
 		$users = array();
 		while ($user = mysql_fetch_array($result, MYSQL_ASSOC)){
 			if(array_key_exists($user['userID'], $users)){

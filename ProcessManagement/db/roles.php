@@ -107,14 +107,37 @@ if (isset($_REQUEST['action'])){
 		
 		if ($_REQUEST['action'] == 'save') {
 			
-			foreach ($roles as $role){
-																	
-				//$roleid = intval($role['ID']) > 0 ? $role['ID'] : "";
-			
-				// insert/update role
-				mysql_query("INSERT INTO `roles` (`name`) VALUES ('"  . $role['name'] . "') ON DUPLICATE KEY UPDATE name = '" . $role['name'] . "', active = " . $role['active']);
+		mysql_query("TRUNCATE TABLE group_x_roles;");
 
-			}
+			foreach ($roles as $role) {
+
+				error_log(var_export($role, true));
+
+				// update role
+				if (is_numeric($role['roleID'])){
+					
+				mysql_query("UPDATE `roles` Set `roles.name` = '" . $role['roleName'] . "' WHERE `roles.ID` = '" . $role['roleID'] .  "' )");
+					$groups = $role['groupID'];
+					foreach ($groups as $group) {					
+						if(! (is_null($group))){
+						mysql_query("INSERT INTO `group_x_roles` (`roleID` , `groupID`) VALUES ( '" . $role['roleID'] . "' , '" . $group . "' )");
+						}
+					}
+					
+				}else{
+				// insert role	
+				mysql_query("INSERT INTO `roles` (`name`) VALUES ( '" . $role['roleName'] . "' )");
+				if(key_exists('groupID', $role)){
+					$groups = $role['groupID'];
+					foreach ($groups as $group) {					
+					if(! (is_null($group))){
+					mysql_query("INSERT INTO `group_x_roles` (`roleID` , `groupID`) VALUES ( '" . mysql_insert_id() . "' , '" . $group . "' )");
+						}
+					}
+				}
+				}
+									
+			}	
 
 			$result = mysql_query("SELECT * FROM `roles`");
 			$roles = array();
@@ -153,7 +176,7 @@ if (isset($_REQUEST['action'])){
 		$return['roles'] = $roles;
 		$return['code']   = "ok";
 	}elseif ($_REQUEST['action'] == "getallrolesandgroups"){
-		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, roles.name as roleName, roles.ID as roleID FROM (groups INNER JOIN group_x_roles ON groups.ID = group_x_roles.groupID) INNER JOIN roles ON group_x_roles.roleID = roles.ID");
+		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, roles.name as roleName, roles.ID as roleID FROM (groups right JOIN group_x_roles ON groups.ID = group_x_roles.groupID) right JOIN roles ON group_x_roles.roleID = roles.ID");
 		$roles = array();
 		while ($role = mysql_fetch_array($result, MYSQL_ASSOC)){
 			if(array_key_exists($role['roleID'], $roles)){

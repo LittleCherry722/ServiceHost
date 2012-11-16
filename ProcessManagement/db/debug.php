@@ -37,21 +37,22 @@ switch ($action){
 			mysql_query("TRUNCATE TABLE group_x_users;");
 			
 			mysql_query("INSERT INTO `users` (`ID`, `name`) VALUES
-						('1' , 'Superuser'),
-						('2' , 'Philip');"); 
-				
+							('1' , 'Superuser'),
+							('2' , 'Philip' );");
 			mysql_query("INSERT INTO `groups` (`ID`, `name`) VALUES
 							('1', 'IT Staff'),
-							('2', 'Manager');"); 
-							
-			mysql_query("INSERT INTO `roles` (`ID`, `name`) VALUES
-							('1', 'Admin'),
-							('2', 'Boss');");				
-							
+							('2', 'Manager');");			  
+			mysql_query("INSERT INTO `group_x_users` (`groupID`, `userID`) VALUES
+							('1','1'),
+							('1','2'),
+							('2','2');");
 			mysql_query("INSERT INTO `group_x_roles` (`groupID`, `roleID`) VALUES
 							('1','1'),
 							('1','2'),
-							('2','2');"); 
+							('2','2');");
+			mysql_query("INSERT INTO `roles` (`ID`, `name`) VALUES
+							('1', 'Admin'),
+							('2', 'Boss');"); 
 							
 			mysql_query("INSERT INTO `process` (`ID`, `name`, `startSubjects`, `graphID`) VALUES
 							('1', 'Travel Request', \"[{'ID':'1','name':'Employee','active':'1'},{'ID':'2','name':'Manager','active':'1'},{'ID':'3','name':'Human Resource','active':'1'}]\", '1'),
