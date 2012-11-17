@@ -1,39 +1,37 @@
 var ViewModel = function() {
-	var self = this;
+  var self = this;
 
-	self.init = function(callback) {
-		console.log("newProcess init");
-		self.quickVM = new QuickViewModle();
+  self.init = function(callback) {
+    console.log("newProcess init");
+    self.quickVM = new QuickViewModel();
 
-		self.quickVM.init();
+    self.quickVM.init();
 
 
-//disable TableCreate if create Case
-		self.updateTableCreate = ko.computed(function(){
-			if(!self.isProcess())
-			self.quickVM.displayTable(false);
-			return null
-		});
+    //disable TableCreate if create Case
+    self.updateTableCreate = ko.computed(function(){
+      if(!self.isProcess())
+        self.quickVM.displayTable(false);
+      return null
+    });
 
-		callback();
+    callback();
 	}
 
 
 
-	self.processName = ko.observable("");
+  self.processName = ko.observable("");
 
-	self.processExist = ko.computed(function() {
-		return SBPM.Service.Process.processExists(self.processName());
+  self.processExist = ko.computed(function() {
+    return SBPM.Service.Process.processExists(self.processName());
 
-	});
-	self.caseOrProcess = ko.observable("isProcess");
+  });
+  self.caseOrProcess = ko.observable("isProcess");
 	
-	//Save in Database 
+	//Save in Database
 	self.isProcess = ko.computed(function(){
-				return self.caseOrProcess() == "isProcess"
+    return self.caseOrProcess() == "isProcess"
 	});
-
-
 
 
 	self.createCheck = function() {
@@ -47,11 +45,12 @@ var ViewModel = function() {
 
 		SBPM.Service.Process.deleteProcess(process);
 		self.goToProcess(process);
-
 	}
 
 	self.goToProcess = function(process) {
-		parent.SBPM.VM.goToPage("process").showProcess(process);
+		processVM = parent.SBPM.VM.goToPage("process");
+    processVM.showProcess(process);
+    processVM.isProcess(self.isProcess());
 
 		if(self.quickVM.displayTable()) {
 			self.quickVM.createProcessFromTable();
@@ -74,7 +73,7 @@ var ViewModel = function() {
 
 	console.log("ViewModel for newProcess initialized.");
 }
-var QuickViewModle = function() {
+var QuickViewModel = function() {
 
 	var self = this;
 	self.name = "quickView";
@@ -85,9 +84,7 @@ var QuickViewModle = function() {
 	self.displayTable = ko.observable(false);
 
 
-
 	self.fancyboxSize = ko.computed(function() {
-
 		if(self.displayTable()) {
 			parent.$('#fancybox-content').width('995px');
 			parent.$('#fancybox-content').height('300px');

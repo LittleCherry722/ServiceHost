@@ -26,7 +26,8 @@ if (isset($_REQUEST['action'])) {
 		$procs = mysql_query("SELECT * FROM `process` WHERE `name` LIKE '" . $_REQUEST['processname'] . "'");
 		if ($_REQUEST['action'] == 'new') {
 			if (mysql_num_rows($procs) == 0) {
-				mysql_query("INSERT INTO `process` (`name`) VALUES ('" . $_REQUEST['processname'] . "');");
+        $isProcess = (isset($_REQUEST['isProcess']) && $_REQUEST['isProcess'] == "true")? 1 : 0;
+				mysql_query("INSERT INTO `process` (`name`, `isProcess`) VALUES ('" . $_REQUEST['processname'] . "', '" . $isProcess . "');");
 				$return['id'] = mysql_insert_id();
 				$return['code'] = "added";
 			} else {
@@ -43,6 +44,14 @@ if (isset($_REQUEST['action'])) {
 			if (mysql_num_rows($procs) == 1) {
 				$line = mysql_fetch_array($procs, MYSQL_ASSOC);
 				$return['id'] = $line['ID'];
+				$return['code'] = "ok";
+			} else {
+				$return['code'] = "error";
+			}
+		} elseif ($_REQUEST['action'] == "getIsProcess") {
+			if (mysql_num_rows($procs) == 1) {
+				$line = mysql_fetch_array($procs, MYSQL_ASSOC);
+				$return['isProcess'] = $line['isProcess'];
 				$return['code'] = "ok";
 			} else {
 				$return['code'] = "error";

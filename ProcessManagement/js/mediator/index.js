@@ -8,7 +8,7 @@ var Mediator = function() {
     // Overwrite viewListeners
     self.viewListeners = function() {
         $("#tab2").click();
-        
+
         console.log("Mediator: Listeners for ProcessView loaded.");
     }
     /**
@@ -16,30 +16,26 @@ var Mediator = function() {
      */
     self.subviewListeners = {
         header : function () {
-          
             console.log("Mediator: Listeners for HeaderView loaded.");
-     
         },
-        
         menu : function () {
-                   
             $("#main_menu").accordion({
                 collapsible : true,
                 autoHeight : false
             });
-    
+
             $("#calendar").datepicker({
                 nextText : "&raquo;",
                 prevText : "&laquo;"
             });
-    
+
             $("#hide_menu").click(function() {
                 $("#left_menu").hide();
                 $("#show_menu").show();
                 $("body").addClass("nobg");
                 $("#content").css("marginLeft", 35);
             });
-    
+
             $("#show_menu").click(function() {
                 $("#left_menu").show();
                 $(this).hide();
@@ -47,7 +43,7 @@ var Mediator = function() {
                 $("#content").css("marginLeft", 245);
             });
 
-            console.log("Mediator: Listeners for MenuView loaded."); 
+            console.log("Mediator: Listeners for MenuView loaded.");
         },
         internalView : function() {
             //resize canvas to fit into screen
@@ -90,17 +86,17 @@ var Mediator = function() {
             });
 
         },
-        
+
         chargeView : function() {
 
         },
-        
+
         processView : function() {
 
             $("#slctSbj").chosen();
-            
+
             $("#slctChan").chosen();
-            
+
             $("#tab2").click(function() {
                 console.log("tab2 clicked");
 
@@ -111,7 +107,7 @@ var Mediator = function() {
                 gv_graph.changeView('cv');
                 updateListOfSubjects();
                 updateListOfChannels();
-                
+
                 SBPM.VM.contentVM().activeViewIndex(0);
             });
 
@@ -128,7 +124,7 @@ var Mediator = function() {
                 $("#zoominbutton").hide();
                 $("#zoomoutbutton").hide();
                 $("#reset-button").hide();
-                
+
                 SBPM.VM.contentVM().activeViewIndex(2);
             });
 
@@ -137,7 +133,7 @@ var Mediator = function() {
             console.log("Mediator: Listeners for ProcessView loaded.");
 
         },
-        
+
         subjectView : function() {
 
             //resize canvas to fit into screen
@@ -172,43 +168,41 @@ var Mediator = function() {
             console.log("Mediator: Listeners for SubjectView loaded.");
 
         },
-        
+
         executionView : function() {
 
-            
+
             console.log("Mediator: Listeners for ExecutionView loaded.");
 
         },
-        
+
         courseView : function() {
 
             console.log("Mediator: Listeners for CourseView loaded.");
 
         },
-        
+
         instanceView : function() {
             gf_showInternalBehavior(
-                SBPM.Service.Process.loadGraph(getProcessIDforInstance(SBPM.Storage.get("userid"))), 
-                getGroupName(getGroupIDforResponsibleUser(SBPM.Storage.get("userid"),getProcessIDforInstance(SBPM.Storage.get("instanceid"))).groups[0]).toLowerCase(), 
+                SBPM.Service.Process.loadGraph(getProcessIDforInstance(SBPM.Storage.get("userid"))),
+                getGroupName(getGroupIDforResponsibleUser(SBPM.Storage.get("userid"),getProcessIDforInstance(SBPM.Storage.get("instanceid"))).groups[0]).toLowerCase(),
                 SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history[SBPM.Storage.get("instancedata")[SBPM.Storage.get("userid")].history.length - 1].nodeid
-                );
-                
+            );
+
             console.log("Mediator: Listeners for InstanceView loaded.");
         },
-                quickView : function() {
+        quickView : function() {
 
-            
             console.log("Mediator: Listeners for QuickView loaded.");
-
         }
     }
-    
+
     // some function used by the tk_braph lib
-    
+
     self.goToExternalSubject = function(processName){
-        
+
         SBPM.VM.contentVM().save();
-        
+
         SBPM.VM.contentVM().showProcess(processName);
 
     }

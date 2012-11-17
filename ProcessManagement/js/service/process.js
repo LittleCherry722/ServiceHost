@@ -8,18 +8,18 @@ SBPM.Service.Process = {
     processExists : function(name) {
         return name && name.length > 0 && SBPM.Service.Process.getProcessID(name) > 0;
     },
-    saveProcess : function(graphAsJSON, startSubjectsAsJSON, name, forceOverwrite, saveAs) {
+    saveProcess : function(graphAsJSON, startSubjectsAsJSON, name, forceOverwrite, saveAs, isProcess) {
         var id;
-        
+
         if(saveAs){
             // if process already exists
             if(!forceOverwrite && this.processExists(name))
                 return {code:"duplicated"}; // return error code
-            
-            id = this.createProcess(name, forceOverwrite);
+
+            id = this.createProcess(name, forceOverwrite, isProcess);
         } else
             if(!this.processExists(name))
-                id = this.createProcess(name);
+                id = this.createProcess(name, null, isProcess);
 
         return this.query({
             "processid" : id || this.getProcessID(name),
@@ -29,14 +29,15 @@ SBPM.Service.Process = {
         }, false, defaultOKReturnBoolean);
     },
     // create/remove process
-    createProcess : function(processname, forceOverwrite) {
+    createProcess : function(processname, forceOverwrite, isProcess) {
         // if the process should be overwritten
         if (forceOverwrite)
             this.deleteProcess(processname);
 
         return this.query({
             "processname" : processname,
-            "action" : "new"
+            "action" : "new",
+            "isProcess": isProcess
         }, 0, SBPM.DB.defaultIDReturn);
     },
     
@@ -71,6 +72,16 @@ SBPM.Service.Process = {
             "processname" : processname,
             "action" : "getid"
         }, 0, defaultIDReturn);
+    },
+    getIsProcess : function(processname) {
+        return this.query({
+            "processname" : processname,
+            "action" : "getIsProcess"
+        }, true, function(json) {
+          if (json['code'] == "ok") {
+            return (json['isProcess'] == "1") ? true : false;
+          }
+        });
     },
     getAllProcesses : function(limit, orderby) {
         return this.query({
