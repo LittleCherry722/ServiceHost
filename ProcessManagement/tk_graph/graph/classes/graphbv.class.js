@@ -1009,8 +1009,8 @@ function GCgraphbv ()
 			gt_bv_length	= gt_bv_diffX + gt_bv_diffY + 2 * gv_bv_nodeSettings.arrowSpace;
 			
 			// get the shape depending on the ports and the distance
-			if (	gt_bv_diffX <= gv_bv_nodeSettings.distanceX / 2 && (startPos == "t" || startPos == "b") ||
-					gt_bv_diffY <= gv_bv_nodeSettings.distanceY / 2 && (startPos == "l" || startPos == "r"))
+			if (	gt_bv_diffX < gv_bv_nodeSettings.distanceX / 2 && (startPos == "t" || startPos == "b") ||
+					gt_bv_diffY < gv_bv_nodeSettings.distanceY / 2 && (startPos == "l" || startPos == "r"))
 			{
 				gt_bv_shape 		= "ZU";
 				gt_bv_space2		= startPos == "l" || startPos == "t" ? 0 - gv_bv_nodeSettings.arrowSpace : gv_bv_nodeSettings.arrowSpace;

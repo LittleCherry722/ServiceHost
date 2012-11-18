@@ -83,6 +83,13 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	this.path	= null;
 	
 	/**
+	 * The path of this path element as segments.
+	 * 
+	 * @type Array
+	 */
+	this.pathSegments	= [];
+	
+	/**
 	 * The string representation of the path.
 	 * 
 	 * @type String
@@ -153,6 +160,30 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	};
 	
 	/**
+	 * Adds a new point to the path's segments list.
+	 * A segment always consists of two consecutive points.
+	 * 
+	 * @param {Object} start Refreshes the path's segments array and stores the starting point {x,y}.
+	 * @param {Object} point Adds a point to the path's segments list.
+	 * @returns {void}
+	 */
+	this.calculatePathSegments	= function (start, point)
+	{
+		
+		if (gf_isset(start))
+		{
+			this.pathSegments		= [];
+			this.pathSegments[0]	= start;
+		}
+		
+		if (gf_isset(point))
+		{
+			this.pathSegments[this.pathSegments.length]	= point;
+		}
+		
+	};
+	
+	/**
 	 * Calculate the path for the given parameters.
 	 * The object returned contains the following information:
 	 * <br />
@@ -205,6 +236,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 					cX		= rcX;
 					cY		= rcY;
 					cPath	= absDiffX > absDiffY ? "H" + x2 : "V" + y2;
+					this.calculatePathSegments(null, {x: x2, y: y2});
 				}
 				
 				// calculate the path for a L shaped path
@@ -414,25 +446,29 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		if (!gf_isset(labelsOnly) || labelsOnly !== true)
 			labelsOnly = false;
 			
-		// var thisLabelPath	= this.label.toPath();
+		// var thisLabelPath	= this.label.toPathSegments();
 		
-		// check whether the path intersects with a label
+		// TODO: limit intersections (max 1 with the same path), check same segments
+		
+		gf_timeCalc("intersection checks (labels)");
 		for (objId in gv_objects_nodes)
 		{
-			var tObject	= gv_objects_nodes[objId];
+			var tObject		= gv_objects_nodes[objId];
 			
-			// when labelsOnly is set to true, no further checks will be performed
-			var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.toPath());
-			var interPoints2	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.toPath());
-			
-			// if any intersection point occured, the path intersects
-			if (interPoints1.length > 0 || interPoints2.length > 0)
-			{
+			// check intersection of path with node
+			if (!labelsOnly && this.checkIntersectionSegments(this.pathSegments, tObject.toPathSegments()))
 				return true;
-			}
+				
+			// check intersection of path's label with node (deactivated)
+			/*
+			if (!labelsOnly && this.checkIntersectionSegments(thisLabelPath, tObject.toPathSegments()))
+				return true;
+			*/
 		}
+		gf_timeCalc("intersection checks (labels)");
 		
 		
+		gf_timeCalc("intersection checks (paths)");
 		// check whether the path intersects with other paths or with their labels
 		for (objId in gv_objects_edges)
 		{
@@ -442,6 +478,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 				
 				if (gf_isset(coordinatesOrg) && gf_objectHasAttribute(coordinatesOrg, ["x1", "x2", "y1", "y2"]))
 				{
+					// ignore paths that share the same segment at a node
 					if (tObject.getPositionStart().x == coordinatesOrg.x1 && tObject.getPositionStart().y == coordinatesOrg.y1 && this.firstLine == tObject.firstLine)
 					{
 						continue;
@@ -453,22 +490,85 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 					}
 				}
 				
-				// when labelsOnly is set to true, the check will only be performed against the path's label
-				var interPoints1	= []; // labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
-				// var interPoints1	= labelsOnly ? [] : Raphael.pathIntersection(this.pathStr, tObject.pathStr);
-				var interPoints2	= Raphael.pathIntersection(this.pathStr, tObject.label.toPath());
-				var interPoints3	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.pathStr);
-				var interPoints4	= []; // TODO: temp removed because of performance issues // Raphael.pathIntersection(thisLabelPath, tObject.label.toPath());
+				// check intersection of path with other paths (deactivated)
+				/*
+				if (!labelsOnly && this.checkIntersectionSegments(this.pathSegments, tObject.pathSegments))
+					return true;
+				*/
 				
-				// if any intersection point occured, the path intersects
-				if (interPoints1.length > 0 || interPoints2.length > 0 || interPoints3.length > 0 || interPoints4.length > 0)
-				{
-					return true;					
-				}
+				// check intersection of path with other paths' labels
+				if (this.checkIntersectionSegments(this.pathSegments, tObject.label.toPathSegments()))
+					return true;
+					
+				// check intersection of path's label with other paths (deactivated)
+				/*
+				if (!labelsOnly && this.checkIntersectionSegments(thisLabelPath, tObject.pathSegments))
+					return true;
+				*/
+				
+				// check intersection of path's label with other paths' labels (deactivated)
+				/*
+				if (this.checkIntersectionSegments(thisLabelPath, tObject.label.toPathSegments()))
+					return true;
+				*/
+			}
+		}
+		gf_timeCalc("intersection checks (paths)");
+		
+		return false;
+	};
+	
+	/**
+	 * Calculates the intersection point for the given segment lists.
+	 * 
+	 * @param {Array} segments1 A list of segments {x,y}.
+	 * @param {Array} segments2 A list of segments {x,y}.
+	 * @returns {boolean} True when there is an intersection point between both lines, false otherwise.
+	 */
+	this.checkIntersectionSegments = function (segments1, segments2)
+	{
+		var gt_intersects	= false;
+		
+		for (var gt_i1 = 0; gt_i1 < segments1.length - 1; gt_i1++)
+		{
+			for (var gt_i2 = 0; gt_i2 < segments2.length - 1; gt_i2++)
+			{
+				var gt_s1p1	= segments1[gt_i1];
+				var gt_s1p2	= segments1[gt_i1+1];
+				
+				var gt_s2p1	= segments2[gt_i2];
+				var gt_s2p2	= segments2[gt_i2+1];
+				
+				var gt_a1	= gt_s1p2.y - gt_s1p1.y;
+				var gt_a2	= gt_s2p2.y - gt_s2p1.y;
+				
+				var gt_b1	= gt_s1p2.x - gt_s1p1.x;
+				var gt_b2	= gt_s2p2.x - gt_s2p1.x;
+				
+				var gt_det = gt_a1 * gt_b2 - gt_a2 * gt_b1
+			    if (gt_det == 0)
+			    {
+			        //Lines are parallel
+			    }
+			    else
+			    {
+				
+					var gt_c1	= gt_a1 * gt_s1p1.x + gt_b1 * gt_s1p1.y;
+					var gt_c2	= gt_a2 * gt_s2p1.x + gt_b2 * gt_s2p1.y;
+				
+			        var gt_x = (gt_b2 * gt_c1 - gt_b1 * gt_c2) / gt_det;
+			        var gt_y = (gt_a1 * gt_c2 - gt_a2 * gt_c1) / gt_det;
+			        
+			        if ((Math.min(gt_s1p1.x, gt_s1p2.x) <= gt_x && gt_x <= Math.max(gt_s1p1.x, gt_s1p2.x)) &&
+			        	(Math.min(gt_s1p1.y, gt_s1p2.y) <= gt_y && gt_y <= Math.max(gt_s1p1.y, gt_s1p2.y)) &&
+			        	(Math.min(gt_s2p1.x, gt_s2p2.x) <= gt_x && gt_x <= Math.max(gt_s2p1.x, gt_s2p2.x)) &&
+			        	(Math.min(gt_s2p1.y, gt_s2p2.y) <= gt_y && gt_y <= Math.max(gt_s2p1.y, gt_s2p2.y)))
+			        		gt_intersects = true;
+			    }
 			}
 		}
 		
-		return false;
+		return gt_intersects;
 	};
 	
 	/**
@@ -770,11 +870,13 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 			
 		// calculate the shape
 		gf_timeCalc("update path (shape calculation)");
+		this.calculatePathSegments({x: x1, y: y1});
 		var newPath	= this.calculateShape(x1, y1, x2, y2, shape, this.firstLine, this.space1, this.space2);
 		gf_timeCalc("update path (shape calculation)");
 		
 		gf_timeCalc("update path (path attr)");
 		this.pathStr	= "M" + x1 + "," + y1 + newPath.path;
+		
 		this.path.attr("path", this.pathStr);
 		gf_timeCalc("update path (path attr)");
 		

@@ -651,17 +651,31 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	};
 	
 	/**
-	 * Returns a path representation of the label's boundareis.
+	 * Returns a path representation of the label's diagonals.
 	 * This is needed for intersection checks.
 	 * 
-	 * @returns {String} A path representation of the label's boundaries.
+	 * @returns {String} A path representation of the label's diagonals.
 	 */
 	this.toPath = function ()
 	{
 		var gt_bbox = this.getBoundaries();
 		
-		return "M" + gt_bbox.left + "," + gt_bbox.top + "H" + gt_bbox.right + "V" + gt_bbox.bottom + "H" + gt_bbox.left + "Z";
+		// simple path (two diagonal lines)
+		return "M" + gt_bbox.left + "," + gt_bbox.top + "L" + gt_bbox.right + "," + gt_bbox.bottom + "M" + gt_bbox.left + "," + gt_bbox.bottom + "L" + gt_bbox.right + "," + gt_bbox.top;
 	};
+	
+	/**
+	 * Returns the label's boundaries as path segments.
+	 * This is needed for intersection checks.
+	 * 
+	 * @returns {Array} Array of path segments {x,y}.
+	 */
+	this.toPathSegments = function ()
+	{
+		var gt_bbox = this.getBoundaries();
+		
+		return [{x: gt_bbox.left, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.top}];
+	}
 	
 	/**
 	 * Update the boundaries of the Raphael Elements that are associated with this label depending on the information stored in this label.
