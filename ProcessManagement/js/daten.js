@@ -29,8 +29,9 @@ var content = "";
 var activeProcess = SBPM.VM.contentVM().processName();
 var isProcess = SBPM.Service.Process.getIsProcess(activeProcess);
 
-if(isProcess == undefined){
-	var users = getAllInstancesForUser(getUserID(SBPM.Storage.get("loggedin_user")));
+if(isProcess != true){
+	//var users = getAllInstancesForUser(getUserID(SBPM.Storage.get("loggedin_user")));
+	var users = getAllUsers();
 	content = users;
 	document.getElementById('AssignRoleWarning').innerHTML = "You have to create Users to assign them.";
 }
@@ -39,7 +40,6 @@ else{
 	content = groups;
 }
 	
-
 for(var i = 0; i < content.length; ++i)
 	insert += "<option>" + content[i] +"</option>";
 document.getElementById('ge_cv_id').innerHTML = insert;
