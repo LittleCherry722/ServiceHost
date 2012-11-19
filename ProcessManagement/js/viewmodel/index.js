@@ -298,6 +298,7 @@ var SubjectViewModel = function() {
 
   self.name = "subjectView";
   self.label = "Subject-Interaction-View";
+  self.userOrRole = ko.observable();
 
   self.init = function() {
 
@@ -305,6 +306,15 @@ var SubjectViewModel = function() {
 
   self.showView = function() {
     SBPM.VM.contentVM().activeViewIndex(0);
+
+    var activeProcess = SBPM.VM.contentVM().processName();
+    var isProcess = SBPM.Service.Process.getIsProcess(activeProcess);
+    if(isProcess != true){
+      self.userOrRole("Assigned-User:");
+    }
+    else{
+      self.userOrRole("Assigned-Role:");
+    }
   }
 
   self.afterRender = function() {

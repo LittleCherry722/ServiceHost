@@ -24,9 +24,24 @@ console.log("Deprecated: daten.js");
 function setSubjectIDs() {
 	console.log("Deprecated: daten.js");
 var insert ="";
-var groups = getAllGroups();
-for(var i = 0; i < groups.length; ++i)
-	insert += "<option>" + groups[i] +"</option>";
+var content = "";
+
+var activeProcess = SBPM.VM.contentVM().processName();
+var isProcess = SBPM.Service.Process.getIsProcess(activeProcess);
+
+if(isProcess == undefined){
+	var users = getAllInstancesForUser(getUserID(SBPM.Storage.get("loggedin_user")));
+	content = users;
+	document.getElementById('AssignRoleWarning').innerHTML = "You have to create Users to assign them.";
+}
+else{
+	var groups = getAllGroups();
+	content = groups;
+}
+	
+
+for(var i = 0; i < content.length; ++i)
+	insert += "<option>" + content[i] +"</option>";
 document.getElementById('ge_cv_id').innerHTML = insert;
 //Fire change event for listeners
 $('#ge_cv_id').change();
