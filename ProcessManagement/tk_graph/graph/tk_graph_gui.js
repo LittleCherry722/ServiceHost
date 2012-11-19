@@ -121,7 +121,7 @@ function gf_guiElementHide (element)
  * @param {String} element The name of the DOM element to read the value from.
  * @param {String} type The type of the value to read (bool [checked] or string [value]).
  * @param {String} defaultValue The default value of the element.
- * @returns {bool|String} The value of the element.
+ * @returns {bool|String|Array} The value of the element.
  */
 function gf_guiElementRead (element, type, defaultValue)
 {
@@ -131,6 +131,10 @@ function gf_guiElementRead (element, type, defaultValue)
 		if (type == "bool")
 		{
 			value = document.getElementById(element).checked === true;
+		}
+		else if (type == "array")
+		{
+			value = $("#" + gv_elements.inputEdgeTransportMethod).val();
 		}
 		else
 		{
@@ -444,7 +448,7 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiLoadDropDownCorrelationIds(edge.parentBehavior, gv_elements.inputEdgeCorrelationId, true, false);
 			gf_guiLoadDropDownMessageTypes(gv_elements.inputEdgeMessage, true, false);
 			gf_guiLoadDropDownSubjects(gv_elements.inputEdgeTarget, gv_graph.selectedSubject, false);
-			gf_guiLoadDropDownTransportMethods(gv_elements.inputEdgeTransportMethod);
+			gf_guiLoadDropDownTransportMethods(gv_elements.inputEdgeTransportMethod, edge.getTransportMethod());
 			gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
 		
 			// show elements
@@ -467,7 +471,7 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMMin, "string", edge.getRelatedSubject("min"));
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMMax, "string", edge.getRelatedSubject("max"));
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMVariable, "string", edge.getRelatedSubject("variable"), "");
-			gf_guiElementWrite(gv_elements.inputEdgeTransportMethod, "string", edge.getTransportMethod(), "");
+			// gf_guiElementWrite(gv_elements.inputEdgeTransportMethod, "string", edge.getTransportMethod(), "");
 			
 			// set boolean values
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeA, "bool", gt_isAll && !gt_isVariable);
@@ -1340,9 +1344,10 @@ function gf_guiLoadDropDownSubjects (elementSubject, excludeSubject, wildcard)
  * This method is used to fill a select field with all available node types.
  * 
  * @param {String} elementTransportMethods The ID of the select element that holds the available node types.
+ * @param {Array} selectedTransportMethods The IDs of the currently selected methods.
  * @returns {void}
  */
-function gf_guiLoadDropDownTransportMethods (elementTransportMethods)
+function gf_guiLoadDropDownTransportMethods (elementTransportMethods, selectedTransportMethods)
 {
 	// load transport methods
 	if (elementTransportMethods != null && gf_elementExists(elementTransportMethods))
@@ -1351,6 +1356,7 @@ function gf_guiLoadDropDownTransportMethods (elementTransportMethods)
 		var gt_select			= document.getElementById(elementTransportMethods).options;
 			gt_select.length	= 0;
 		
+		/*
 		var gt_option			= document.createElement("option");
 			gt_option.text		= "please select";
 			gt_option.value		= "";
@@ -1362,6 +1368,8 @@ function gf_guiLoadDropDownTransportMethods (elementTransportMethods)
 			gt_option.value		= "";
 			gt_option.id		= elementTransportMethods + "_00000.1";
 			gt_select.add(gt_option);
+			*/
+		var gt_option	= null;
 		
 		// read the transport methods
 		var gt_transportMethods = [];
@@ -1380,8 +1388,14 @@ function gf_guiLoadDropDownTransportMethods (elementTransportMethods)
 			gt_option		= document.createElement("option");
 			gt_option.text	= gf_replaceNewline(gt_transportMethods[gt_tmid].text, " ");
 			gt_option.value	= gt_transportMethods[gt_tmid].id;
-			gt_option.id	= elementTransportMethods + "_" + gt_tmid;
+			gt_option.id	= elementTransportMethods + "_" + gt_transportMethods[gt_tmid].id;
 			gt_select.add(gt_option);
+		}
+		
+		// select entries
+		for (var gt_stmid in selectedTransportMethods)
+		{
+			document.getElementById(elementTransportMethods + "_" + selectedTransportMethods[gt_stmid]).selected	= true;
 		}
 	}
 }
@@ -1685,7 +1699,7 @@ function gf_guiReadEdge ()
 	var gt_priority			= gf_guiElementRead(gv_elements.inputEdgePriority, "string", "1");
 	var gt_manualTimeout	= gf_guiElementRead(gv_elements.inputEdgeTimeoutManual, "bool", false);
 	var gt_comment			= gf_guiElementRead(gv_elements.inputEdgeComment, "string", "");
-	var gt_transportMethod	= gf_guiElementRead(gv_elements.inputEdgeTransportMethod, "string", "");
+	var gt_transportMethod	= gf_guiElementRead(gv_elements.inputEdgeTransportMethod, "array", ["internal"]);
 	
 	var gt_targetVar		= gf_guiElementRead(gv_elements.inputEdgeTargetMVariable, "string", "");
 	var gt_targetVarNew		= gf_guiElementRead(gv_elements.inputEdgeTargetMVarText, "string", "");

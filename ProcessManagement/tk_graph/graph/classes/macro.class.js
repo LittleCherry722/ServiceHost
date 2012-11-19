@@ -680,7 +680,7 @@ function GCmacro (parent, id, name)
 			var gt_storeVariableNew	= gf_isset(values.variableText)		? values.variableText		: "";
 			var gt_correlationId	= gf_isset(values.correlationId)	? values.correlationId		: "";
 			var gt_comment			= gf_isset(values.comment)			? values.comment			: "";
-			var gt_transportMethod	= gf_isset(values.transportMethod)	? values.transportMethod	: "internal";
+			var gt_transportMethod	= gf_isset(values.transportMethod)	? values.transportMethod	: ["internal"];
 			
 			if (gt_startNodeType == "send" || gt_startNodeType == "receive")
 			{

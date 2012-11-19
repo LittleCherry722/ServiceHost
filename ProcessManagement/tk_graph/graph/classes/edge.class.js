@@ -152,9 +152,9 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	/**
 	 * Transport Method for a messageType associated to this edge.
 	 * 
-	 * @type String
+	 * @type Array
 	 */
-	this.transportMethod	= "internal";
+	this.transportMethod	= ["internal"];
 	
 	/**
 	 * The type of the edge.
@@ -412,11 +412,28 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	/**
 	 * Returns the transportMethod of this edge.
 	 * 
-	 * @returns {String} The transportMethod of this edge.
+	 * @returns {Array} The transportMethods of this edge.
 	 */
 	this.getTransportMethod = function ()
 	{
-		return this.transportMethod;
+		if (!gf_isArray(this.transportMethod))
+			this.transportMethod	= [this.transportMethod];
+			
+		var gt_transportMethods		= [];
+		var gt_methodName			= "";
+		
+		for (var gt_tmid in this.transportMethod)
+		{
+			gt_methodName	= this.transportMethod[gt_tmid];
+			
+			if (gf_isset(gv_messageTransportTypes[gt_methodName]))
+				gt_transportMethods[gt_transportMethods.length] = gt_methodName;
+		}
+		
+		if (gt_transportMethods.length == 0)
+			gt_transportMethods[0] = "internal";
+			
+		return gt_transportMethods;
 	};
 	
 	/**
@@ -677,13 +694,18 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	/**
 	 * Update the transportMethod of this edge.
 	 * 
-	 * @param {String} transportMethod The new transportMethod.
+	 * @param {Array} transportMethod The new transportMethods.
 	 * @returns {void}
 	 */
 	this.setTransportMethod = function (transportMethod)
 	{
-		if (gf_isset(transportMethod) && gf_isset(gv_messageTransportTypes[transportMethod]))
+		if (gf_isset(transportMethod))
+		{	
+			if (!gf_isArray(transportMethod))
+				transportMethod = [transportMethod];
+			
 			this.transportMethod	= transportMethod;
+		}
 	};
 	
 	/**
