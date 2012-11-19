@@ -232,6 +232,18 @@ function gf_connectNodes ()
 }
 
 /**
+ * Creates a new case.
+ * 
+ * @see GCcommunication::createCase()
+ * @param {String} userName The name of the current user.
+ * @returns {void}
+ */
+function gf_createCase (userName)
+{
+	gv_graph.createCase(userName);
+}
+
+/**
  * Creates a new process from a table containing subjects and messages sent between those subjects.
  * 
  * @see GCcommunication.createFromTable()
@@ -827,6 +839,30 @@ function gf_loadBenchmarkGraph ()
 					'{"start":2,"end":0,"text":"m5","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":1,"end":3,"text":"create msg","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":3,"end":0,"text":"m6","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":1,"end":4,"text":"create msg","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":4,"end":0,"text":"m7","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":1,"end":5,"text":"create msg","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":5,"end":0,"text":"m8","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":1,"end":6,"text":"create msg","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":6,"end":0,"text":"m9","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":0,"end":7,"text":"end process","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},' +
 					'{"start":0,"end":8,"text":"receive","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":8,"end":0,"text":"cancel","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":8,"end":9,"text":"m0","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":9,"end":0,"text":"","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":8,"end":10,"text":"m1","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":10,"end":0,"text":"","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":8,"end":11,"text":"m2","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":11,"end":0,"text":"","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":8,"end":12,"text":"m3","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":12,"end":0,"text":"","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},' +
 					'{"start":8,"end":13,"text":"m4","type":"exitcondition","target":{"id":"s1","min":-1,"max":-1,"createNew":false,"variable":null},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""},{"start":13,"end":0,"text":"","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":""}],"nodeCounter":14}],"macroCounter":0,"variables":{},"variableCounter":0}],"messages":{"m0":"Message 1","m1":"Message 2","m2":"Message 3","m3":"Message 4","m4":"Message 5","m5":"Message 6","m6":"Message 7","m7":"Message 8","m8":"Message 9","m9":"Message 10"},"messageCounter":10,"nodeCounter":0,"channels":{},"channelCounter":0}');
+}
+
+/**
+ * Loads a case graph from a given JSON representation stored in the database.
+ * 
+ * @see GCcommunication.loadFromJSON()
+ * @param {String} jsonString The JSON representation of a process.
+ * @param {Object} state Optional parameter, retrieved from gf_getProcessState()
+ * @returns {void}
+ */
+function gf_loadCase (jsonString, state)
+{
+	if (gf_isset(state))
+	{
+		gf_loadGraph(jsonString, state);
+	}
+	else
+	{
+		gv_graph.loadFromJSON(jsonString);
+	
+		gv_graph.selectedSubject	= "me";
+		gf_changeView("bv");
+		gv_graph.selectMacro("##main##");
+	}
 }
 
 /**

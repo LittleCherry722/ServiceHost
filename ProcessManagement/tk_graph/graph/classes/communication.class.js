@@ -448,6 +448,31 @@ function GCcommunication ()
 	};
 	
 	/**
+	 * Creates a new case.
+	 * 
+	 * @param {String} userName The name of the current user.
+	 * @returns {void}
+	 */
+	this.createCase = function (userName)
+	{
+		// initialize the canvas
+		this.init();
+		this.clearGraph(true);
+		
+		// add the "me" Subject
+		this.addSubject("me", userName, "single", -1, false);
+		
+		// add the internal behavior
+		var gt_behav		= this.getBehavior("me");
+		
+		gt_behav.addNode("start", "What to do?", "action", true, false, false);
+		gt_behav.addNode("end", "", "end", false, true, false);
+		gt_behav.addEdge("start", "end", "", null, "exitcondition", false, false);
+		
+		this.drawBehavior("me");
+	};
+	
+	/**
 	 * Creates a new process from a table containing subjects and messages sent between those subjects.
 	 * 
 	 * @param {String[]} subjects An array of subject names.
