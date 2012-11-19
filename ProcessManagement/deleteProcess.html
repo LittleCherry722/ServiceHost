@@ -47,8 +47,8 @@ function showProcessesToDelete() {
 var pro = getAllProcesses();
 var insert = "";
 for (var i = 0; i < pro.length; ++i) {
-	if(pro[i] != parent.processName)
-		insert += "<tr><td>" + pro[i] + "</td><td><a style=\"cursor:pointer\" onClick=\"deleteProcess('"+pro[i]+"');showProcessesToDelete();\">L&ouml;schen</a></td></tr>";
+	if(pro[i].name != parent.processName)
+		insert += "<tr><td>" + pro[i].name + "</td><td><a style=\"cursor:pointer\" onClick=\"deleteProcess('"+pro[i]+"');showProcessesToDelete();\">L&ouml;schen</a></td></tr>";
 }
 document.getElementById('deleteProcesses').innerHTML = insert;
 }

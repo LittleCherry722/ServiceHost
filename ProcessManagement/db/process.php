@@ -131,7 +131,9 @@ if (isset($_REQUEST['action'])) {
 		$result = mysql_query("SELECT * FROM `process` ORDER BY graphID " . mysql_real_escape_string($limit) . "");
 		$processes = array();
 		while ($process = mysql_fetch_array($result, MYSQL_ASSOC)) {
-			array_push($processes, $process['name']);
+      array_push($processes, array("name" => $process['name'], "isProcess" => 
+        $process['isProcess'], "displayName" => (($process['isProcess'] == "0") 
+        ? "[C] " : "[P] ") . $process['name']));
 		}
 		$return['processes'] = $processes;
 		$return['code'] = "ok";

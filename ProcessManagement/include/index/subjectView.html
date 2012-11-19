@@ -11,7 +11,7 @@
 		<input id="ge_cv_text" style="width:140px">
 		</input>
 		<br/>
-		<label class="graphsectionheader">Assigned Role:</label>
+		<label class="graphsectionheader" data-bind="text: userOrRole">Assigned-Role:</label>
 		<br/>
 		<select id="ge_cv_id" style="width:140px">
 		</select>
@@ -48,7 +48,7 @@
 		
 			<label class="graphsectionheader">Related Process:</label>
 			<br />
-			<select  id="ge_cv_relatedProcess" data-bind="options: availableProcesses,optionsCaption: 'Select a process...'" style="width:140px" ></select>
+      <select  id="ge_cv_relatedProcess" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', optionsCaption: 'Select a process...'" style="width:140px" ></select>
 			<br />
 			<label class="graphsectionheader">Related Subject:</label>
 			<br />
