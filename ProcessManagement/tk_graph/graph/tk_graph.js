@@ -1179,10 +1179,15 @@ function gf_replaceNewline (text, character)
  * 
  * @private
  * @param {String} type The task to calculate the time for.
+ * @param {boolean} condition When set to false the time will not be counted.
+ * @returns {void}
  */
-function gf_timeCalc (type)
+function gf_timeCalc (type, condition)
 {
-	if (gf_isset(type))
+	if (!gf_isset(condition) || condition != false)
+		condition	= true;
+	
+	if (gf_isset(type) && condition)
 	{
 		if (!gf_isset(gv_times[type]))
 			gv_times[type]	= 0;

@@ -24,9 +24,10 @@
  * @param {String} shape The shape of the path. Possible values are "I", "L", "Z", "U", "S", "C", "G", "SI", "ZU", "UI"
  * @param {String} text The text to display on the edge's label
  * @param {String} id The id of the edge.
+ * @param {boolean} performanceMode When set to true the style won't be updated on init.
  * @returns {void}
  */
-function GCpath (startx, starty, endx, endy, shape, text, id)
+function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 {
 	/**
 	 * Deactivation flag.
@@ -450,7 +451,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		
 		// TODO: limit intersections (max 1 with the same path), check same segments
 		
-		gf_timeCalc("intersection checks (labels)");
+		gf_timeCalc("path - intersection checks (labels)");
 		for (objId in gv_objects_nodes)
 		{
 			var tObject		= gv_objects_nodes[objId];
@@ -465,10 +466,10 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 				return true;
 			*/
 		}
-		gf_timeCalc("intersection checks (labels)");
+		gf_timeCalc("path - intersection checks (labels)");
 		
 		
-		gf_timeCalc("intersection checks (paths)");
+		gf_timeCalc("path - intersection checks (paths)");
 		// check whether the path intersects with other paths or with their labels
 		for (objId in gv_objects_edges)
 		{
@@ -513,7 +514,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 				*/
 			}
 		}
-		gf_timeCalc("intersection checks (paths)");
+		gf_timeCalc("path - intersection checks (paths)");
 		
 		return false;
 	};
@@ -533,6 +534,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		{
 			for (var gt_i2 = 0; gt_i2 < segments2.length - 1; gt_i2++)
 			{
+				// gt_segment1point1 | gt_segment1point2 | gt_segment2point1 | gt_segment2point2
 				var gt_s1p1	= segments1[gt_i1];
 				var gt_s1p2	= segments1[gt_i1+1];
 				
@@ -545,8 +547,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 				var gt_b1	= gt_s1p2.x - gt_s1p1.x;
 				var gt_b2	= gt_s2p2.x - gt_s2p1.x;
 				
-				var gt_det = gt_a1 * gt_b2 - gt_a2 * gt_b1
-			    if (gt_det == 0)
+				var gt_denom = gt_a1 * gt_b2 - gt_a2 * gt_b1
+			    if (gt_denom == 0)
 			    {
 			        //Lines are parallel
 			    }
@@ -556,8 +558,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 					var gt_c1	= gt_a1 * gt_s1p1.x + gt_b1 * gt_s1p1.y;
 					var gt_c2	= gt_a2 * gt_s2p1.x + gt_b2 * gt_s2p1.y;
 				
-			        var gt_x = (gt_b2 * gt_c1 - gt_b1 * gt_c2) / gt_det;
-			        var gt_y = (gt_a1 * gt_c2 - gt_a2 * gt_c1) / gt_det;
+			        var gt_x = (gt_b2 * gt_c1 - gt_b1 * gt_c2) / gt_denom;
+			        var gt_y = (gt_a1 * gt_c2 - gt_a2 * gt_c1) / gt_denom;
 			        
 			        if ((Math.min(gt_s1p1.x, gt_s1p2.x) <= gt_x && gt_x <= Math.max(gt_s1p1.x, gt_s1p2.x)) &&
 			        	(Math.min(gt_s1p1.y, gt_s1p2.y) <= gt_y && gt_y <= Math.max(gt_s1p1.y, gt_s1p2.y)) &&
@@ -586,13 +588,19 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	/**
 	 * Deactivate the path and its label and update its look.
 	 * 
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.deactivate = function ()
+	this.deactivate = function (performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.deactive = true;
-		this.label.deactivate();
-		this.refreshStyle();
+		this.label.deactivate(performanceMode);
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};	
 	
 	/**
@@ -641,12 +649,16 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	/**
 	 * Initialize the Raphael Elements of this path.
 	 * 
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.init = function ()
+	this.init = function (performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.path	= gv_paper.path("M0,0L0,0");
-		this.label	= new GClabel(0, 0, text, "roundedrectangle", id, true);
+		this.label	= new GClabel(0, 0, text, "roundedrectangle", id, true, performanceMode);
 	};
 	
 	/**
@@ -697,7 +709,6 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		
 		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("arrowStyle" + statusDependent, ""));
 		var strokeWidth		= strokeDasharray == "none" ? 0 : this.readStyle("arrowWidth" + statusDependent, "int");
-		
 		// apply the settings to the path
 		this.path.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
 		this.path.attr("stroke-dasharray", strokeDasharray);
@@ -714,13 +725,19 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	/**
 	 * Select the path and its label and update its look.
 	 * 
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.select = function ()
+	this.select = function (performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.selected = true;
-		this.label.select();
-		this.refreshStyle();
+		this.label.select(performanceMode);
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};
 	
 	/**
@@ -738,12 +755,19 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	 * Set the optional flag to the path.
 	 * 
 	 * @param {boolean} optional When set to true the path will be set to be optional.
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
+	 * @returns {void}
 	 */
-	this.setOptional = function (optional)
+	this.setOptional = function (optional, performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.optional = gf_isset(optional) && optional === true;
-		this.label.setOptional(this.optional);
-		this.refreshStyle();
+		this.label.setOptional(this.optional, performanceMode);
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};
 	
 	/**
@@ -780,13 +804,13 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	 * Update the shape of the path.
 	 * 
 	 * @param {String} shape The shape of the path. Possible values: "I", "L", "U", "Z", "G", "C", "S", "UI", "ZU", "SI"
-	 * @param {boolean} performanceMode The performance mode will increase performance by applying a reduced set on rules to the path's label.
+	 * @param {int} performanceMode The performance mode will increase performance by applying a reduced set on rules to the path's label.
 	 * @returns {void}
 	 */
 	this.setShape = function (shape, performanceMode)
 	{
-		if (!gf_isset(performanceMode) || performanceMode != true)
-			performanceMode = false;
+		if (!gf_isset(performanceMode))
+			performanceMode = 0;
 			
 		this.shape = shape;
 		this.updatePath(performanceMode);
@@ -818,48 +842,62 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	 * Loads a new style set and calls the refreshStyle method.
 	 * 
 	 * @param {Object} style The style set to load.
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.setStyle = function (style)
+	this.setStyle = function (style, performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.style = gf_mergeStyles(gv_defaultStyle, style);
-		this.label.setStyle(style);
-		this.refreshStyle();
+		this.label.setStyle(style, performanceMode);
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};
 	
 	/**
 	 * Update the text of the path's label.
 	 * 
 	 * @param {String} text The text of the path's label.
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.setText = function (text)
+	this.setText = function (text, performanceMode)
 	{
-		this.label.setText(text);
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
+		this.label.setText(text, performanceMode);
 	};
 	
 	/**
 	 * Show the path and its label.
 	 * 
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.show = function ()
+	this.show = function (performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.path.show();
-		this.label.show();
+		this.label.show(performanceMode);
 	};
 	
 	/**
 	 * Update the path.
 	 * Adapt the path to the start and end point and to the shape.
 	 * 
-	 * @param {boolean} performanceMode The performance mode will increase performance by applying a reduced set on rules to the path's label.
+	 * @param {int} performanceMode The performance mode will increase performance by applying a reduced set on rules to the path's label.
 	 * @returns {void}
 	 */
 	this.updatePath = function (performanceMode)
 	{
-		if (!gf_isset(performanceMode) || performanceMode != true)
-			performanceMode = false;
+		if (!gf_isset(performanceMode))
+			performanceMode = 0;
 			
 		var x1 = this.positionStart.x;
 		var y1 = this.positionStart.y;
@@ -869,31 +907,36 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 		var shape	= this.shape;
 			
 		// calculate the shape
-		gf_timeCalc("update path (shape calculation)");
+		gf_timeCalc("path - update path (shape calculation)");
 		this.calculatePathSegments({x: x1, y: y1});
 		var newPath	= this.calculateShape(x1, y1, x2, y2, shape, this.firstLine, this.space1, this.space2);
-		gf_timeCalc("update path (shape calculation)");
+		gf_timeCalc("path - update path (shape calculation)");
 		
-		gf_timeCalc("update path (path attr)");
-		this.pathStr	= "M" + x1 + "," + y1 + newPath.path;
-		
-		this.path.attr("path", this.pathStr);
-		gf_timeCalc("update path (path attr)");
+		gf_timeCalc("path - update path (path attr)");
+		if (performanceMode != 1)
+		{
+			this.pathStr	= "M" + x1 + "," + y1 + newPath.path;
+			this.path.attr("path", this.pathStr);
+		}
+		gf_timeCalc("path - update path (path attr)");
 		
 		this.edgeCenter.x	= newPath.x;
 		this.edgeCenter.y	= newPath.y;
 		
 		// move the label to the center of the label
-		gf_timeCalc("update path (label position)");
+		gf_timeCalc("path - update path (label position)");
 		this.label.setPosition(newPath.x, newPath.y, performanceMode);
-		gf_timeCalc("update path (label position)");
+		gf_timeCalc("path - update path (label position)");
 	};
+	
+	if (!gf_isset(performanceMode) || performanceMode != true)
+		performanceMode	= false;
 
 	// set the id
 	this.id = id;
 	
 	// initialize the path
-	this.init();
+	this.init(performanceMode);
 	
 	// set the starting and end position
 	this.setPositionStart(startx, starty);
@@ -901,10 +944,12 @@ function GCpath (startx, starty, endx, endy, shape, text, id)
 	
 	// set the shape
 	this.setShape(shape);
-	this.refreshStyle();
+		
+	if (!performanceMode)
+		this.refreshStyle();
 	
 	// set the text of the label
-	this.setText(text);
+	this.setText(text, performanceMode);
 	
 	gv_objects_edges[id] = this;
 	

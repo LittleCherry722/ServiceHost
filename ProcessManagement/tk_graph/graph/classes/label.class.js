@@ -23,9 +23,10 @@
  * @param {String} shape The shape of the label. Possible values are "rectangle", "roundedrectangle", "roundedrectanglemulti", "circle", "ellipse" (default: "roundedrectangle")
  * @param {String} id The id of the label.
  * @param {boolean} belongsToPath This indicates whether the label belongs to a path.
+ * @param {boolean} performanceMode When set to true the style won't be updated on init.
  * @returns {void}
  */
-function GClabel (x, y, text, shape, id, belongsToPath)
+function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 {
 	
 	/**
@@ -60,13 +61,6 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	this.ellipse	= null;
 	
 	/**
-	 * The current height of this label. Only used to increase performance.
-	 * 
-	 * @type int
-	 */
-	this.height	= 0;
-	
-	/**
 	 * The id of this label.
 	 * 
 	 * @type String
@@ -97,6 +91,20 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * @type boolean
 	 */
 	this.optional	= false;
+	
+	/**
+	 * X-radius of label, backed up for performance issues.
+	 * 
+	 * @type int
+	 */
+	this.radiusx	= 0;
+	
+	/**
+	 * Y-radius of label, backed up for performance issues.
+	 * 
+	 * @type int
+	 */
+	this.radiusy	= 0;
 	
 	/**
 	 * A Raphael rect.
@@ -146,13 +154,6 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * @type String
 	 */
 	this.textAlignAttribute	= "textAlign";
-	
-	/**
-	 * The current width of this label. Only used to increase performance.
-	 * 
-	 * @type int
-	 */
-	this.width	= 0;
 	
 	/**
 	 * The x ordinate of the top left corner.
@@ -246,12 +247,18 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	/**
 	 * Deactivate the label and update its look.
 	 * 
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.deactivate = function ()
+	this.deactivate = function (performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.deactive = true;
-		this.refreshStyle();
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};
 	
 	/**
@@ -379,14 +386,21 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 */
 	this.init = function ()
 	{
+		gf_timeCalc("label - init", this.belongsToPath);
+		
 		// create the Raphael elements
 		this.multiRR[3]	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.multiRR[2]	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.multiRR[1]	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.rectangle	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.ellipse	= gv_paper.ellipse(0, 0, 0, 0);
+		this.img		= gv_paper.image(gv_emptyImgPath, 0, 0, 0, 0);
+		
+		gf_timeCalc("label - init - text", this.belongsToPath);
 		this.text		= gv_paper.text(0, 0, "");
-		this.img		= gv_paper.image(gv_emptyImgPath, 0, 0, 0, 0);		
+		gf_timeCalc("label - init - text", this.belongsToPath);
+		
+		gf_timeCalc("label - init", this.belongsToPath);
 		
 		this.bboxObj	= this.rectangle;
 	};
@@ -500,12 +514,18 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	/**
 	 * Select the label and update its look.
 	 * 
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.select = function ()
+	this.select = function (performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.selected = true;
-		this.refreshStyle();
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};
 	
 	/**
@@ -539,12 +559,18 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * Set the optional flag to the label.
 	 * 
 	 * @param {boolean} optional When set to true the label will be set to be optional.
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.setOptional = function (optional)
+	this.setOptional = function (optional, performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.optional = gf_isset(optional) && optional === true;
-		this.refreshStyle();
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};
 	
 	/**
@@ -552,19 +578,40 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * 
 	 * @param {int} x The x ordinate of the new position.
 	 * @param {int} y The y ordinate of the new position.
-	 * @param {boolean} performanceMode The performance mode will be passed to the updateBoundaries method to reduce the number of calculations done as they are obsolete in some cases.
+	 * @param {int} performanceMode The performance mode will be passed to the updateBoundaries method to reduce the number of calculations done as they are obsolete in some cases.
 	 * @returns {void}
 	 */
 	this.setPosition = function (x, y, performanceMode)
 	{
 		if (gf_isset(x, y))
 		{
-			if (!gf_isset(performanceMode) || performanceMode != true)
-				performanceMode = false;
+			if (!gf_isset(performanceMode))
+				performanceMode = 0;
 				
 			this.x = x;
 			this.y = y;
-			this.updateBoundaries(performanceMode);
+				
+			// performance mode to ignore unnecessary calculations	
+			if (performanceMode == 1 || performanceMode == 2)
+			{				
+				if (this.shape == "circle" || this.shape == "ellipse")
+				{
+					this.ellipse.attr("cx", x);
+					this.ellipse.attr("cy", y);
+				}
+				else if (this.shape == "roundedrectangle" || this.shape == "rectangle" || this.shape == "roundedrectanglemulti")
+				{
+					this.rectangle.attr("x", x - this.radiusx);
+			 		this.rectangle.attr("y", y - this.radiusy);
+				}
+				
+				if (performanceMode == 2)
+					this.updateBoundariesText();	
+			}
+			else
+			{
+				this.updateBoundaries();
+			}
 		}
 	};
 	
@@ -572,11 +619,14 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * Update the shape of the label.
 	 * 
 	 * @param {String} shape The new shape. Possible values are "circle", "ellipse", "rectangle", "roundedrectangle", "roundedrectanglemulti"
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.setShape = function (shape)
+	this.setShape = function (shape, performanceMode)
 	{
-		
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		if (gf_isset(shape))
 		{
 			shape = shape.toLowerCase();
@@ -608,7 +658,8 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 					this.rectangle.show();
 				}
 				
-				this.refreshStyle();
+				if (!performanceMode)
+					this.refreshStyle();
 			}
 		}
 	};
@@ -617,35 +668,51 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	 * Loads a new style set and calls the refreshStyle method.
 	 * 
 	 * @param {Object} style The style set to load.
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.setStyle = function (style)
+	this.setStyle = function (style, performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.style = gf_mergeStyles(gv_defaultStyle, style);
-		this.refreshStyle();
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};
 	
 	/**
 	 * Set a new text to the label.
 	 * 
 	 * @param {String} text The new text.
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.setText = function (text)
+	this.setText = function (text, performanceMode)
 	{
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
 		this.getTextAlignAttribute(text);
 		this.text.attr("text", this.replaceNewline(text));
-		this.refreshStyle();
+		
+		if (!performanceMode)
+			this.refreshStyle();
 	};
 	
 	/**
 	 * Show the label.
 	 * 
+	 * @param {boolean} performanceMode When set to true, the style won't be refreshed.
 	 * @returns {void}
 	 */
-	this.show = function ()
+	this.show = function (performanceMode)
 	{
-		this.setShape(this.shape);
+		if (!gf_isset(performanceMode) || performanceMode != true)
+			performanceMode	= false;
+			
+		this.setShape(this.shape, performanceMode);
 		this.text.show();
 		this.img.show();
 	};
@@ -680,35 +747,13 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	/**
 	 * Update the boundaries of the Raphael Elements that are associated with this label depending on the information stored in this label.
 	 * 
-	 * @param {boolean} performanceMode The performance mode will reduce the number of calculations done as they are obsolete in some cases.
 	 * @returns {void}
 	 */
-	this.updateBoundaries = function (performanceMode)
+	this.updateBoundaries = function ()
 	{
-		
-		if (!gf_isset(performanceMode) || performanceMode != true)
-			performanceMode = false;
-			
 		// TODO: some more options like apply padding and move the text according to the new position
 		
-		var textX	= this.x;
-
-		// correct the text position depending on the textAlign
-		if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "start")
-		{
-			textX	= this.x - this.text.getBBox().width / 2;
-		}
-		else if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "end")
-		{
-			textX	= this.x + this.text.getBBox().width / 2;
-		}
-
-		// in performance mode do not update the text
-		if (!performanceMode)
-		{
-			this.text.attr("x", textX);
-			this.text.attr("y", this.y);
-		}
+		this.updateBoundariesText();
 
 		var paddingLeft		= this.readStyle("paddingLeft", "int");
 		var paddingRight	= this.readStyle("paddingRight", "int");
@@ -717,10 +762,9 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		var styleWidth		= this.readStyle("width", "int");
 		var styleHeight		= this.readStyle("height", "int");
 		
-		
 		// apply the width and height information
-		var width	= performanceMode ? this.width : Math.round(this.text.getBBox().width);
-		var height	= performanceMode ? this.height : Math.round(this.text.getBBox().height);
+		var width	= Math.round(this.text.getBBox().width);
+		var height	= Math.round(this.text.getBBox().height);
 		var width2	= styleWidth > 0 ? styleWidth : Math.max(width + paddingLeft + paddingRight, this.readStyle("minWidth", "int"));
 		var height2	= styleHeight > 0 ? styleHeight : Math.max(height + paddingTop + paddingBottom, this.readStyle("minHeight", "int"));
 		var radiusx	= Math.round(width2 / 2);
@@ -728,9 +772,9 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		var radius	= Math.max(radiusx, radiusy);
 		var rectR	= this.shape == "roundedrectangle" || this.shape == "roundedrectanglemulti" ? this.readStyle("rectangleRadius", "int") : 0;
 		
-		// backup height and width to increase performance
-		this.width	= width;
-		this.height	= height;
+		// backup radiusx, radiusy for performance optimization
+		this.radiusx	= radiusx;
+		this.radiusy	= radiusy;
 		
 		if (this.shape == "circle")
 		{
@@ -770,6 +814,36 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 		}
 	};
 	
+	/**
+	 * Updates the position of the text.
+	 * 
+	 * @returns {void}
+	 */
+	this.updateBoundariesText = function ()
+	{
+		var textX	= this.x;
+
+		// correct the text position depending on the textAlign
+		if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "start")
+		{
+			textX	= this.x - this.text.getBBox().width / 2;
+		}
+		else if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "end")
+		{
+			textX	= this.x + this.text.getBBox().width / 2;
+		}
+
+		this.text.attr("x", textX);
+		this.text.attr("y", this.y);
+	};
+	
+	// update the belongsToPath attribute
+	if (gf_isset(belongsToPath) && belongsToPath === true)
+		this.belongsToPath = true;
+	
+	if (!gf_isset(performanceMode) || performanceMode != true)
+		performanceMode	= false;
+	
 	// initialize the label
 	this.init();
 	
@@ -780,17 +854,11 @@ function GClabel (x, y, text, shape, id, belongsToPath)
 	// set the id
 	this.id = id;
 	
-	// update the belongsToPath attribute
-	if (gf_isset(belongsToPath) && belongsToPath === true)
-	{
-		this.belongsToPath = true;
-	}
-	
 	// set the text
-	this.setText(text);
+	this.setText(text, performanceMode);
 	
 	// set the shape
-	this.setShape(shape);
+	this.setShape(shape, performanceMode);
 	
 	// add the label to the objects array
 	if (!this.belongsToPath)

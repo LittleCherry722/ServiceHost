@@ -80,6 +80,9 @@ function gf_callMacro (id)
 {
 	if (gf_isset(gv_macros[id]))
 	{
+		// disable redrawing
+		gv_noRedraw	= true;
+			
 		var gt_macro = gv_macros[id];
 		
 		if (gt_macro.connect)
@@ -90,9 +93,6 @@ function gf_callMacro (id)
 		
 		if (gt_behavior != null)
 		{
-			// disable redrawing
-			gv_noRedraw	= true;
-			
 			var gt_values	= {text: gt_macro.text, type: gt_macro.type, isStart: gt_macro.isStart};
 			
 			gt_behavior.getMacro().selectedNode = gt_nodeId;
@@ -103,14 +103,14 @@ function gf_callMacro (id)
 			
 			gt_behavior.updateNode(gt_values);
 			
-			// reenable drawing
-			gv_noRedraw	= false;
-			
 			if (gt_macro.autoEdge)
 			{
 				gf_callMacro("newEndNode");
 			}
 		}
+			
+		// reenable drawing
+		gv_noRedraw	= false;
 	}
 }
 

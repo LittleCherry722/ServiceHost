@@ -279,7 +279,9 @@ function GCmacro (parent, id, name)
 		if (gf_isset(start, end))
 		{
 			this.addEdge(start, end, "", null, type);
-			this.draw();
+			
+			if (!gv_noRedraw)
+				this.draw();
 		}
  	};
 	
@@ -299,7 +301,8 @@ function GCmacro (parent, id, name)
 		gf_clickedBVnode(gt_nodeId);
 		
 		// redraw the graph to display the inserted node
-		this.draw();
+		if (!gv_noRedraw)
+			this.draw();
 		
 		// return the node's id
 		return gt_nodeId;
@@ -418,6 +421,8 @@ function GCmacro (parent, id, name)
 		{
 			// convert all data to gv_bv_graphs[name]
 			
+			gf_timeCalc("macro - draw (preparation)");
+			
 			gv_graph_bv.deleteSubject(this.parent.name);
 			
 			gv_graph_bv.addSubject(this.parent.name);
@@ -441,10 +446,15 @@ function GCmacro (parent, id, name)
 					gv_graph_bv.addEdge(this.parent.name, gt_eid.substr(1), gt_start, gt_end, gt_edge, this.selectedEdge == gt_eid.substr(1));
 				}
 			}
+			gf_timeCalc("macro - draw (preparation)");
 			
+			gf_timeCalc("macro - draw (drawGraph)");
 			gv_graph_bv.drawGraph(this.parent.name);
+			gf_timeCalc("macro - draw (drawGraph)");
 			
+			gf_timeCalc("macro - draw (select channel)");
 			this.selectChannel(this.parent.selectedChannel);
+			gf_timeCalc("macro - draw (select channel)");
 		}
  	};
 	
@@ -534,9 +544,9 @@ function GCmacro (parent, id, name)
  				
  			if (gf_isset(gv_objects_nodes[gt_node.id]))
  			{
- 				if (gt_deactivate)
+ 				if (gt_deactivate && gv_objects_nodes[gt_node.id].deactive == false)
  					gv_objects_nodes[gt_node.id].deactivate();
- 				else
+ 				else if (gv_objects_nodes[gt_node.id].deactive == true)
  					gv_objects_nodes[gt_node.id].activate();
  			}
  		}
@@ -555,9 +565,9 @@ function GCmacro (parent, id, name)
  			gt_eid	= gt_eid.substr(1);
  			if (gf_isset(gv_objects_edges[gt_eid]))
  			{
- 				if (gt_deactivate)
+ 				if (gt_deactivate && gv_objects_edges[gt_eid].deactive == false)
  					gv_objects_edges[gt_eid].deactivate();
- 				else
+ 				else if (gv_objects_edges[gt_eid].deactive == true)
  					gv_objects_edges[gt_eid].activate();
  			}
  		}
@@ -707,7 +717,8 @@ function GCmacro (parent, id, name)
 				gt_edge.setException(gt_exception);
 			}
 			
-			this.draw();
+			if (!gv_noRedraw)
+				this.draw();
 		}
  	};
 	
@@ -781,7 +792,8 @@ function GCmacro (parent, id, name)
 			if (gt_macro != "")
 				gt_node.setMacro(gt_macro);
 			
-			this.draw();
+			if (!gv_noRedraw)
+				this.draw();
 		}
  	};
 }

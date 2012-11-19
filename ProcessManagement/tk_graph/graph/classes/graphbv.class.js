@@ -72,7 +72,23 @@ function GCgraphbv ()
 	 * @private
 	 * @type Object
 	 */
-	this.ports			= {b: "b", t: "t", r: "r", l: "l"};
+	this.ports			= {t: "t", b: "b", r: "r", l: "l"};
+	
+	/**
+	 * A list of available ports (in, ordered by priority) (top, bottom, right, left).
+	 * 
+	 * @private
+	 * @type Object
+	 */
+	this.portsI			= {b: "b", t: "t", r: "r", l: "l"};
+	
+	/**
+	 * A list of available ports (out, ordered by priority) (top, bottom, right, left).
+	 * 
+	 * @private
+	 * @type Object
+	 */
+	this.portsO			= {t: "t", b: "b", r: "r", l: "l"};
 	
 	/**
 	 * Lists the port settings from the configuration file.
@@ -363,8 +379,8 @@ function GCgraphbv ()
 		var gt_bv_endLine			= "v";
 		var gt_bv_startx			= 0;
 		var gt_bv_starty			= 0;
-		var gt_bv_endx				= 0;
-		var gt_bv_endy				= 0;
+		var gt_bv_endx				= 1;
+		var gt_bv_endy				= 1;
 			
 		var gt_bv_posStart	= "b";
 		var gt_bv_posEnd	= "t";
@@ -375,21 +391,45 @@ function GCgraphbv ()
 		var gt_bv_space1	= 0;
 		var gt_bv_space2	= 0;
 		var gt_bv_minLength	= 999999999;
-		var gt_bv_shape		= "I";
+		var gt_bv_shape		= "Z";
 		
 		// maps the ports to the attributes of the boundaries
 		var mapPorts		= {t: "top", b: "bottom", r: "right", l: "left"};
 		
 		// create the path
-		var gt_bv_edge	= new GCpath(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_shape, edgeData.edge.textToString(), edgeData.id);
+		// var gt_bv_edge	= new GCpath(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_shape, edgeData.edge.textToString(), edgeData.id, true);
+		var gt_bv_edge	= new GCpath(0, 0, 100, 100, "Z", edgeData.edge.textToString(), edgeData.id, true);
+				
+		// apply the deactivation status to the path
+		if (edgeData.edge.isDeactivated())
+			gt_bv_edge.deactivate(true);
+		
+		// apply the optional status to the path
+		gt_bv_edge.setOptional(edgeData.edge.isOptional(), true);
+		
+		// apply the selection status to the path
+		if (gf_isset(edgeData.selected) && edgeData.selected === true)
+			gt_bv_edge.select(true);
+		
+		// add the click events to the path
+		gt_bv_edge.click();
+			
+		// update the style
+		var gt_bv_edgeStyle	= gv_bv_arrow.style;
+		if (edgeData.edge.getType() == "timeout")
+			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleTimeout);
+		if (edgeData.edge.getType() == "errorcondition")
+			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleException);
+			
+		gt_bv_edge.setStyle(gt_bv_edgeStyle);
 		
 		// hide the path as long as it has not the final shape
 			gt_bv_edge.hide();
 			
 		// cycle through all port combinations at startObject and endObject to determine the shape of the arrow and the ports to use
-		for (var gt_bv_out in this.ports)
+		for (var gt_bv_out in this.portsO)
 		{
-			for (var gt_bv_in in this.ports)
+			for (var gt_bv_in in this.portsI)
 			{
 				// only process when the port of the start and the end objects are availables; if edge can already be displayed as an I shaped edge, do not cycle through the other alternatives as it won't result in any shorter edge
 				if (this.checkObjectPort(gt_bv_start, gt_bv_out, "o") && this.checkObjectPort(gt_bv_end, gt_bv_in, "i") && (gt_bv_shape != "I" || gt_bv_minLength == 999999999))
@@ -404,9 +444,9 @@ function GCgraphbv ()
 					gt_bv_endy		= gt_bv_i == "t" || gt_bv_i == "b" ? gt_bv_objEnd[mapPorts[gt_bv_i]]	: gt_bv_objEnd.y;
 					
 					// calculate the arrow shape that fits best for this port combination
-					gf_timeCalc("shape calculation");
+					gf_timeCalc("drawing edges - drawArrow() - shape calculation");
 					var gt_bv_arrowShape	= this.getArrowShape(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_o, gt_bv_i);
-					gf_timeCalc("shape calculation");
+					gf_timeCalc("drawing edges - drawArrow() - shape calculation");
 					
 					var gt_bv_setAsMin		= false;
 					var gt_bv_currentLength	= 0;
@@ -450,32 +490,34 @@ function GCgraphbv ()
 					var gt_bv_asSpace1	= 0;
 					var gt_bv_asSpace2	= 0;
 					
-					while (gt_bv_asm1 <= 3 && gt_bv_doLoop)
+					var gt_bv_asmMax	= 3;
+					
+					while (gt_bv_asm1 <= gt_bv_asmMax && gt_bv_doLoop)
 					{
 						gt_bv_asm2 = 1;
 						
-						while (gt_bv_asm2 <= 3 && gt_bv_doLoop)
+						while (gt_bv_asm2 <= gt_bv_asmMax && gt_bv_doLoop)
 						{
 							
 							gt_bv_asSpace1	= gt_bv_arrowShape.space1 * gt_bv_asm1;
 							gt_bv_asSpace2	= gt_bv_arrowShape.space2 * gt_bv_asm2;
 							
-							gf_timeCalc("update path");
+							gf_timeCalc("drawing edges - drawArrow() - update path");
 							gt_bv_edge.setPositionStart(gt_bv_x1, gt_bv_y1);
 							gt_bv_edge.setPositionEnd(gt_bv_x2, gt_bv_y2);
 							gt_bv_edge.setFirstLine(gt_bv_arrowShape.firstLine);
 							gt_bv_edge.setSpace1(gt_bv_asSpace1);
 							gt_bv_edge.setSpace2(gt_bv_asSpace2);
 							
-							gf_timeCalc("update path (shape)");
-							gt_bv_edge.setShape(gt_bv_arrowShape.shape, true);
-							gf_timeCalc("update path (shape)");
-							gf_timeCalc("update path");
+							gf_timeCalc("drawing edges - drawArrow() - update path (shape)");
+							gt_bv_edge.setShape(gt_bv_arrowShape.shape, 1);
+							gf_timeCalc("drawing edges - drawArrow() - update path (shape)");
+							gf_timeCalc("drawing edges - drawArrow() - update path");
 														
 							// check if the new arrow would fit better than the currently best
-							gf_timeCalc("intersection checks");
+							gf_timeCalc("drawing edges - drawArrow() - intersection checks");
 							var gt_bv_intersectionCheck	= gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy});
-							gf_timeCalc("intersection checks");
+							gf_timeCalc("drawing edges - drawArrow() - intersection checks");
 							
 							if (!gt_bv_intersectionCheck)
 							{
@@ -598,33 +640,12 @@ function GCgraphbv ()
 		gt_bv_edge.setSpace2(gt_bv_space2);
 		
 		// update the shape of the path
-		gt_bv_edge.setShape(gt_bv_shape);
-		
-		// update the style
-		var gt_bv_edgeStyle	= gv_bv_arrow.style;
-		if (edgeData.edge.getType() == "timeout")
-			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleTimeout);
-		if (edgeData.edge.getType() == "errorcondition")
-			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleException);
-			
-		gt_bv_edge.setStyle(gt_bv_edgeStyle)
+		gt_bv_edge.setShape(gt_bv_shape, 2);
 		
 		// show the path as it now is complete
-		gt_bv_edge.show();
-		
-		// add the click events to the path
-		gt_bv_edge.click();
-		
-		// apply the deactivation status to the path
-		if (edgeData.edge.isDeactivated())
-			gt_bv_edge.deactivate();
-		
-		// apply the optional status to the path
-		gt_bv_edge.setOptional(edgeData.edge.isOptional());
-		
-		// apply the selection status to the path
-		if (gf_isset(edgeData.selected) && edgeData.selected === true)
-			gt_bv_edge.select();
+		gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
+		gt_bv_edge.show(true);		
+		gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
 	};
 	
 	/**
@@ -670,7 +691,7 @@ function GCgraphbv ()
 			
 			var gt_bv_mostLeft	= gt_bv_x;
 			
-			gf_timeCalc("placing start nodes");
+			gf_timeCalc("placing nodes (start nodes)");
 			// 1. start with the start nodes
 			for (var gt_bv_startNode in gt_bv_graph.startNodes)
 			{				
@@ -707,10 +728,10 @@ function GCgraphbv ()
 				
 				gv_node_children["n" + gt_bv_startNode] = [];
 			}
-			gf_timeCalc("placing start nodes");
+			gf_timeCalc("placing nodes (start nodes)");
 	
 			// 2 set nodes connected by edges (starting with the start nodes)
-			gf_timeCalc("placing connected nodes");
+			gf_timeCalc("placing nodes (connected nodes)");
 			
 			var gt_bv_rescueCount = 100;	// TODO: get rid of this
 			while (gt_bv_nodeSet.count > 0 && gt_bv_rescueCount > 0)
@@ -783,10 +804,10 @@ function GCgraphbv ()
 				
 				gt_bv_rescueCount--;
 			}
-			gf_timeCalc("placing connected nodes");
+			gf_timeCalc("placing nodes (connected nodes)");
 			
 			// 3. all other nodes (not connected to the start nodes)
-			gf_timeCalc("placing other nodes");
+			gf_timeCalc("placing nodes (other nodes)");
 			
 			gt_bv_x	= gt_bv_mostLeft - gv_bv_nodeSettings.startNewX;
 			gt_bv_y = gv_bv_nodeSettings.startNewY;
@@ -801,7 +822,7 @@ function GCgraphbv ()
 					gt_bv_y += gt_bv_distanceY/2;
 				}
 			}
-			gf_timeCalc("placing other nodes");
+			gf_timeCalc("placing nodes (other nodes)");
 			
 			// draw the nodes
 			gf_timeCalc("drawing nodes");
@@ -860,6 +881,7 @@ function GCgraphbv ()
 	 */
 	this.drawNode = function (node)
 	{
+		gf_timeCalc("drawing nodes - drawNode() - calculate");
 		var gt_bv_style		= null;
 		var gt_bv_text		= node.node.textToString();
 		var gt_bv_imgSrc	= "";
@@ -908,17 +930,21 @@ function GCgraphbv ()
 				gt_bv_style = gv_bv_rectNode.style;
 			}
 		}
+		gf_timeCalc("drawing nodes - drawNode() - calculate");
 			
+		gf_timeCalc("drawing nodes - drawNode() - create");
 		// create the GClabel at the x and y ordinates and pass the shape, the text and the id to the GClabel
-		var gt_bv_rect	= new GClabel(node.posx, node.posy, gt_bv_text, node.node.getShape(), node.id);
+		var gt_bv_rect	= new GClabel(node.posx, node.posy, gt_bv_text, node.node.getShape(), node.id, false, true);
+		gf_timeCalc("drawing nodes - drawNode() - create");
 		
+		gf_timeCalc("drawing nodes - drawNode() - apply");
 		// apply the deactivation status to the label
 		if (node.node.isDeactivated(true))
-			gt_bv_rect.deactivate();
+			gt_bv_rect.deactivate(true);
 				
 		// apply the selection status to the label
 		if (gf_isset(node.selected) && node.selected === true)
-			gt_bv_rect.select();
+			gt_bv_rect.select(true);
 			
 		// apply the image
 		if (gt_bv_imgSrc != "")
@@ -936,6 +962,7 @@ function GCgraphbv ()
 		// apply the style
 		gt_bv_rect.setStyle(gt_bv_style);
 		gt_bv_rect.click(gt_clickType);	
+		gf_timeCalc("drawing nodes - drawNode() - apply");
 	};
 	
 	/**
