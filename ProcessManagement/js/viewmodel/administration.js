@@ -178,7 +178,7 @@ var UserViewModel = function() {
 	}
 
 	self.save = function() {
-
+var toSaveData = new Array();
 		for(var i in self.data()) {
 			//console.log("self.data[i] User");
 			//console.log(self.data[i]);
@@ -189,15 +189,17 @@ var UserViewModel = function() {
 			if(ko.isObservable(self.data()[i].groupID))
 			self.data()[i].groupID = self.data()[i].groupID();
 			//console.log(self.data()[i].userName == "");
-			if(self.data()[i].userName == "")
-				self.data.remove(self.data()[i]);
-			//console.log(self.data());	
+			if(! self.data()[i].userName == "")
+				toSaveData.push(self.data()[i]);
+			//console.log("toSaveData: " + i);	
+			//console.log(toSaveData);	
 		}
-		var toSaveData = self.data();
+		self.data(toSaveData);
 		
 
-		//console.log("Users");
-		//console.log(toSaveData);
+		console.log("Users");
+		console.log(toSaveData);
+		console.log(self.data());
 		
 		SBPM.Service.User.saveAll(toSaveData);
 		
@@ -266,7 +268,7 @@ var RoleViewModel = function() {
 	}
 
 	self.save = function() {
-
+var toSaveData = new Array();
 		for(var i in self.data()) {
 			//console.log("self.data[i] Roles");
 			//console.log(self.data[i]);
@@ -277,14 +279,15 @@ var RoleViewModel = function() {
 			if(ko.isObservable(self.data()[i].groupID))
 			self.data()[i].groupID = self.data()[i].groupID();
 			//console.log(self.data()[i].roleName == "");
-			if(self.data()[i].roleName == "")
-				self.data.remove(self.data()[i]);
+			if(! self.data()[i].roleName == "")
+				toSaveData.push(self.data()[i]);
 			//console.log(self.data());	
 		}
-		var toSaveData = self.data();
+		self.data(toSaveData);
 		
-		//console.log("roles");
-		//console.log(toSaveData);
+		console.log("roles");
+		console.log(toSaveData);
+		console.log(self.data());
 		
 		SBPM.Service.Role.saveAll(toSaveData);
 		self.loadModel();
@@ -339,22 +342,22 @@ var GroupViewModel = function() {
 	}
 
 	self.save = function() {
-		for(var i in self.data()) {
-			if(self.data()[i].groupName == "")
-				self.data.remove(self.data()[i]);
-		}
-		var toSaveData = self.data();
+		var toSaveData = new Array();
 		
-		//console.log("groups");
-		//console.log(toSaveData);
+		for(var i in self.data()) {
+			if(! self.data()[i].groupName == "")
+				toSaveData.push(self.data()[i]);
+		}
+		 self.data(toSaveData);
+		
+		console.log("groups");
+		console.log(toSaveData);
+		console.log(self.data());
 		
 		SBPM.Service.Group.saveAll(toSaveData);
 		self.loadModel();
 		self.initialized = false;
-		self.loadModel();
-		
-		
-		
+			
 		return true;
 	}
 
