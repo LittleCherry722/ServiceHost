@@ -189,7 +189,7 @@ var ProcessViewModel = function() {
        *  1..n -> old process
        */
       if(processId > 0){
-        self.isProcess(SBPM.Service.Process.getIsProcess(self.ProcessName()));
+        self.isProcess(SBPM.Service.Process.getIsProcess(self.processName()));
         var graphAsJson = (self.processStamp == "") ? SBPM.Service.Process.loadGraph(processId) : loadGraphHistory(processId,self.processStamp);
 
         console.log("isProcess? " + self.isProcess());
