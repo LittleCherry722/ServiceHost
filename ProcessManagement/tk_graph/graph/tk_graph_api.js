@@ -367,7 +367,7 @@ function gf_getChannels ()
 		gt_channels["##channels##"]	= "display channels";
 		
 	// add all channels
-	gt_channels["##all##"]	= "all channels";
+	gt_channels["##all##"]	= "All channels";
 		
 	for (var gt_chid in gv_graph.channels)
 	{

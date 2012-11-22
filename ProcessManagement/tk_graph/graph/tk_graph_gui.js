@@ -827,7 +827,7 @@ function gf_guiLoadDropDownChannels (elementChannel, newChannel, wildcard, selec
 		if (wildcard === true)
 		{
 			gt_option			= document.createElement("option");
-			gt_option.text		= "all channels";
+			gt_option.text		= "All channels";
 			gt_option.value		= "##all##";
 			gt_option.id		= elementChannel + "_00000.all";
 			gt_select.add(gt_option);
