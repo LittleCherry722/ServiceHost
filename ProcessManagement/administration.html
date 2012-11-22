@@ -77,10 +77,10 @@
     <div id="inner_content">
 
         <div id="left">
-            <ul data-bind="foreach: tabs">
-                <li data-bind="css: { selected: $data == $root.tab() }">
+            <ul class="nav nav-list" data-bind="foreach: tabs">
+                <li data-bind="css: { active: $data == $root.tab() }">
                    <a data-bind="text: $data,
-                               click: $root.goToTab"></a>
+                     click: $root.goToTab"></a>
                 </li>
             </ul>
         </div>
