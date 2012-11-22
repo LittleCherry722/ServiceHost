@@ -17,7 +17,7 @@
             <li>
                 <ul data-bind="foreach: recentProcesses">
                     <li>
-                        <a data-bind="text: displayName, click: function(){ SBPM.VM.goToPage('process').showProcess($data.name) }"> </a>
+                        <a data-bind="text: displayName, click: function(data){ SBPM.VM.goToPage('process').showProcess(data.name) }"> </a>
                     </li>
                 </ul>
             </li>

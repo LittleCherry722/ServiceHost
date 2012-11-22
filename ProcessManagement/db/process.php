@@ -51,7 +51,7 @@ if (isset($_REQUEST['action'])) {
 		} elseif ($_REQUEST['action'] == "getIsProcess") {
 			if (mysql_num_rows($procs) == 1) {
 				$line = mysql_fetch_array($procs, MYSQL_ASSOC);
-				$return['isProcess'] = $line['isProcess'];
+				$return['isProcess'] = "" . $line['isProcess'];
 				$return['code'] = "ok";
 			} else {
 				$return['code'] = "error";

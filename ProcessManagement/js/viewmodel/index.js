@@ -90,8 +90,6 @@ var HeaderViewModel = function() {
   self.init = function() {
 
     if (SBPM.Storage.get("user")) {
-      console.log("User: " + SBPM.Storage.get("user"));
-
       self.userName(SBPM.Storage.get("user").name);
       messageCheck();
     }
@@ -173,12 +171,10 @@ var ProcessViewModel = function() {
 
   self.showProcess = function(processName, showInformation, processState) {
 
+    self.processName(processName);
     console.log("ProcessViewModel: showProcess called. processName="+self.processName());
 
     try{
-
-      self.processName(processName);
-      self.isProcess(SBPM.Service.Process.getIsProcess(self.ProcessName));
 
       gv_graph.clearGraph(true);
 
@@ -193,10 +189,15 @@ var ProcessViewModel = function() {
        *  1..n -> old process
        */
       if(processId > 0){
-
+        self.isProcess(SBPM.Service.Process.getIsProcess(self.ProcessName()));
         var graphAsJson = (self.processStamp == "") ? SBPM.Service.Process.loadGraph(processId) : loadGraphHistory(processId,self.processStamp);
 
-        gf_loadGraph(graphAsJson, processState);
+        console.log("isProcess? " + self.isProcess());
+        if(self.isProcess()) {
+          gf_loadGraph(graphAsJson, processState);
+        } else {
+          gf_loadCase(graphAsJson, processState);
+        }
 
         var graph = JSON.parse(graphAsJson);
 
@@ -225,8 +226,15 @@ var ProcessViewModel = function() {
 
         console.log(graph);
       }else{
-        console.log("load empty graph");
-        gv_graph.loadFromJSON("{}");
+        if (self.isProcess()) {
+          console.log("load empty graph");
+          gv_graph.loadFromJSON("{}");
+        } else {
+          console.log("loading empty case");
+          var user = SBPM.Storage.get("user")
+          var username = (user === undefined) ? "no user" : user.name;
+          gf_createCase(username);
+        }
       }
 
       // TODO replace this DEPRECATED CALLS!
