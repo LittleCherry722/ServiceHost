@@ -19,6 +19,7 @@
  *
  * Designed and built with all the love in the world @twitter by @mdo and @fat.
  */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000319}}
 article,
 aside,
 details,
@@ -31,6 +32,7 @@ nav,
 section {
   display: block; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000328}}
 audio,
 canvas,
 video {
@@ -38,23 +40,28 @@ video {
   *display: inline;
   *zoom: 1; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000337}}
 audio:not([controls]) {
   display: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000344}}
 html {
   font-size: 100%;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000350}}
 a:focus {
   outline: thin dotted #333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000355}}
 a:hover,
 a:active {
   outline: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000363}}
 sub,
 sup {
   position: relative;
@@ -62,12 +69,15 @@ sup {
   line-height: 0;
   vertical-align: baseline; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000369}}
 sup {
   top: -0.5em; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000372}}
 sub {
   bottom: -0.25em; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000379}}
 img {
   /* Responsive images (ensure images don't scale beyond their parents) */
   max-width: 100%;
@@ -80,10 +90,12 @@ img {
   border: 0;
   -ms-interpolation-mode: bicubic; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\0000392}}
 #map_canvas img,
 .google-maps img {
   max-width: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\00003103}}
 button,
 input,
 select,
@@ -92,16 +104,19 @@ textarea {
   font-size: 100%;
   vertical-align: middle; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\00003109}}
 button,
 input {
   *overflow: visible;
   line-height: normal; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\00003114}}
 button::-moz-focus-inner,
 input::-moz-focus-inner {
   padding: 0;
   border: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\00003121}}
 button,
 html input[type="button"],
 input[type="reset"],
@@ -109,768 +124,35 @@ input[type="submit"] {
   -webkit-appearance: button;
   cursor: pointer; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\00003125}}
 input[type="search"] {
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
   box-sizing: content-box;
   -webkit-appearance: textfield; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\00003132}}
 input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_reset\.scss}line{font-family:\00003135}}
 textarea {
   overflow: auto;
   vertical-align: top; }
 
-body {
-  margin: 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 20px;
-  color: #333333;
-  background-color: white; }
-
-a {
-  color: #4b4f5d;
-  text-decoration: none; }
-
-a:hover {
-  color: #292b33;
-  text-decoration: underline; }
-
-.img-rounded {
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px; }
-
-.img-polaroid {
-  padding: 4px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
-
-.img-circle {
-  -webkit-border-radius: 500px;
-  -moz-border-radius: 500px;
-  border-radius: 500px; }
-
-.row {
-  margin-left: -20px;
-  *zoom: 1; }
-  .row:before, .row:after {
-    display: table;
-    content: "";
-    line-height: 0; }
-  .row:after {
-    clear: both; }
-
-[class*="span"] {
-  float: left;
-  min-height: 1px;
-  margin-left: 20px; }
-
-.container,
-.navbar-static-top .container,
-.navbar-fixed-top .container,
-.navbar-fixed-bottom .container {
-  width: 940px; }
-
-.span12 {
-  width: 940px; }
-
-.span11 {
-  width: 860px; }
-
-.span10 {
-  width: 780px; }
-
-.span9 {
-  width: 700px; }
-
-.span8 {
-  width: 620px; }
-
-.span7 {
-  width: 540px; }
-
-.span6 {
-  width: 460px; }
-
-.span5 {
-  width: 380px; }
-
-.span4 {
-  width: 300px; }
-
-.span3 {
-  width: 220px; }
-
-.span2 {
-  width: 140px; }
-
-.span1 {
-  width: 60px; }
-
-.offset12 {
-  margin-left: 980px; }
-
-.offset11 {
-  margin-left: 900px; }
-
-.offset10 {
-  margin-left: 820px; }
-
-.offset9 {
-  margin-left: 740px; }
-
-.offset8 {
-  margin-left: 660px; }
-
-.offset7 {
-  margin-left: 580px; }
-
-.offset6 {
-  margin-left: 500px; }
-
-.offset5 {
-  margin-left: 420px; }
-
-.offset4 {
-  margin-left: 340px; }
-
-.offset3 {
-  margin-left: 260px; }
-
-.offset2 {
-  margin-left: 180px; }
-
-.offset1 {
-  margin-left: 100px; }
-
-.row-fluid {
-  width: 100%;
-  *zoom: 1; }
-  .row-fluid:before, .row-fluid:after {
-    display: table;
-    content: "";
-    line-height: 0; }
-  .row-fluid:after {
-    clear: both; }
-  .row-fluid [class*="span"] {
-    display: block;
-    width: 100%;
-    min-height: 30px;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    float: left;
-    margin-left: 2.12766%;
-    *margin-left: 2.07447%; }
-  .row-fluid [class*="span"]:first-child {
-    margin-left: 0; }
-  .row-fluid .controls-row [class*="span"] + [class*="span"] {
-    margin-left: 2.12766%; }
-  .row-fluid .span12 {
-    width: 100%;
-    *width: 99.94681%; }
-  .row-fluid .span11 {
-    width: 91.48936%;
-    *width: 91.43617%; }
-  .row-fluid .span10 {
-    width: 82.97872%;
-    *width: 82.92553%; }
-  .row-fluid .span9 {
-    width: 74.46809%;
-    *width: 74.41489%; }
-  .row-fluid .span8 {
-    width: 65.95745%;
-    *width: 65.90426%; }
-  .row-fluid .span7 {
-    width: 57.44681%;
-    *width: 57.39362%; }
-  .row-fluid .span6 {
-    width: 48.93617%;
-    *width: 48.88298%; }
-  .row-fluid .span5 {
-    width: 40.42553%;
-    *width: 40.37234%; }
-  .row-fluid .span4 {
-    width: 31.91489%;
-    *width: 31.8617%; }
-  .row-fluid .span3 {
-    width: 23.40426%;
-    *width: 23.35106%; }
-  .row-fluid .span2 {
-    width: 14.89362%;
-    *width: 14.84043%; }
-  .row-fluid .span1 {
-    width: 6.38298%;
-    *width: 6.32979%; }
-  .row-fluid .offset12 {
-    margin-left: 104.25532%;
-    *margin-left: 104.14894%; }
-  .row-fluid .offset12:first-child {
-    margin-left: 102.12766%;
-    *margin-left: 102.02128%; }
-  .row-fluid .offset11 {
-    margin-left: 95.74468%;
-    *margin-left: 95.6383%; }
-  .row-fluid .offset11:first-child {
-    margin-left: 93.61702%;
-    *margin-left: 93.51064%; }
-  .row-fluid .offset10 {
-    margin-left: 87.23404%;
-    *margin-left: 87.12766%; }
-  .row-fluid .offset10:first-child {
-    margin-left: 85.10638%;
-    *margin-left: 85.0%; }
-  .row-fluid .offset9 {
-    margin-left: 78.7234%;
-    *margin-left: 78.61702%; }
-  .row-fluid .offset9:first-child {
-    margin-left: 76.59574%;
-    *margin-left: 76.48936%; }
-  .row-fluid .offset8 {
-    margin-left: 70.21277%;
-    *margin-left: 70.10638%; }
-  .row-fluid .offset8:first-child {
-    margin-left: 68.08511%;
-    *margin-left: 67.97872%; }
-  .row-fluid .offset7 {
-    margin-left: 61.70213%;
-    *margin-left: 61.59574%; }
-  .row-fluid .offset7:first-child {
-    margin-left: 59.57447%;
-    *margin-left: 59.46809%; }
-  .row-fluid .offset6 {
-    margin-left: 53.19149%;
-    *margin-left: 53.08511%; }
-  .row-fluid .offset6:first-child {
-    margin-left: 51.06383%;
-    *margin-left: 50.95745%; }
-  .row-fluid .offset5 {
-    margin-left: 44.68085%;
-    *margin-left: 44.57447%; }
-  .row-fluid .offset5:first-child {
-    margin-left: 42.55319%;
-    *margin-left: 42.44681%; }
-  .row-fluid .offset4 {
-    margin-left: 36.17021%;
-    *margin-left: 36.06383%; }
-  .row-fluid .offset4:first-child {
-    margin-left: 34.04255%;
-    *margin-left: 33.93617%; }
-  .row-fluid .offset3 {
-    margin-left: 27.65957%;
-    *margin-left: 27.55319%; }
-  .row-fluid .offset3:first-child {
-    margin-left: 25.53191%;
-    *margin-left: 25.42553%; }
-  .row-fluid .offset2 {
-    margin-left: 19.14894%;
-    *margin-left: 19.04255%; }
-  .row-fluid .offset2:first-child {
-    margin-left: 17.02128%;
-    *margin-left: 16.91489%; }
-  .row-fluid .offset1 {
-    margin-left: 10.6383%;
-    *margin-left: 10.53191%; }
-  .row-fluid .offset1:first-child {
-    margin-left: 8.51064%;
-    *margin-left: 8.40426%; }
-
-[class*="span"].hide,
-.row-fluid [class*="span"].hide {
-  display: none; }
-
-[class*="span"].pull-right,
-.row-fluid [class*="span"].pull-right {
-  float: right; }
-
-.container {
-  margin-right: auto;
-  margin-left: auto;
-  *zoom: 1; }
-  .container:before, .container:after {
-    display: table;
-    content: "";
-    line-height: 0; }
-  .container:after {
-    clear: both; }
-
-.container-fluid {
-  padding-right: 20px;
-  padding-left: 20px;
-  *zoom: 1; }
-  .container-fluid:before, .container-fluid:after {
-    display: table;
-    content: "";
-    line-height: 0; }
-  .container-fluid:after {
-    clear: both; }
-
-code,
-pre {
-  padding: 0 3px 2px;
-  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
-  font-size: 12px;
-  color: #333333;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px; }
-
-code {
-  padding: 2px 4px;
-  color: #d14;
-  background-color: #f7f7f9;
-  border: 1px solid #e1e1e8; }
-
-pre {
-  display: block;
-  padding: 9.5px;
-  margin: 0 0 10px;
-  font-size: 13px;
-  line-height: 20px;
-  word-break: break-all;
-  word-wrap: break-word;
-  white-space: pre;
-  white-space: pre-wrap;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px; }
-  pre.prettyprint {
-    margin-bottom: 20px; }
-  pre code {
-    padding: 0;
-    color: inherit;
-    background-color: transparent;
-    border: 0; }
-
-.pre-scrollable {
-  max-height: 340px;
-  overflow-y: scroll; }
-
-table {
-  max-width: 100%;
-  background-color: transparent;
-  border-collapse: collapse;
-  border-spacing: 0; }
-
-.table {
-  width: 100%;
-  margin-bottom: 20px; }
-  .table th,
-  .table td {
-    padding: 8px;
-    line-height: 20px;
-    text-align: left;
-    vertical-align: top;
-    border-top: 1px solid #dddddd; }
-  .table th {
-    font-weight: bold; }
-  .table thead th {
-    vertical-align: bottom; }
-  .table caption + thead tr:first-child th,
-  .table caption + thead tr:first-child td,
-  .table colgroup + thead tr:first-child th,
-  .table colgroup + thead tr:first-child td,
-  .table thead:first-child tr:first-child th,
-  .table thead:first-child tr:first-child td {
-    border-top: 0; }
-  .table tbody + tbody {
-    border-top: 2px solid #dddddd; }
-
-.table-condensed th,
-.table-condensed td {
-  padding: 4px 5px; }
-
-.table-bordered {
-  border: 1px solid #dddddd;
-  border-collapse: separate;
-  *border-collapse: collapse;
-  border-left: 0;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px; }
-  .table-bordered th,
-  .table-bordered td {
-    border-left: 1px solid #dddddd; }
-  .table-bordered caption + thead tr:first-child th,
-  .table-bordered caption + tbody tr:first-child th,
-  .table-bordered caption + tbody tr:first-child td,
-  .table-bordered colgroup + thead tr:first-child th,
-  .table-bordered colgroup + tbody tr:first-child th,
-  .table-bordered colgroup + tbody tr:first-child td,
-  .table-bordered thead:first-child tr:first-child th,
-  .table-bordered tbody:first-child tr:first-child th,
-  .table-bordered tbody:first-child tr:first-child td {
-    border-top: 0; }
-  .table-bordered thead:first-child tr:first-child th:first-child,
-  .table-bordered tbody:first-child tr:first-child td:first-child {
-    -webkit-border-top-left-radius: 4px;
-    border-top-left-radius: 4px;
-    -moz-border-radius-topleft: 4px; }
-  .table-bordered thead:first-child tr:first-child th:last-child,
-  .table-bordered tbody:first-child tr:first-child td:last-child {
-    -webkit-border-top-right-radius: 4px;
-    border-top-right-radius: 4px;
-    -moz-border-radius-topright: 4px; }
-  .table-bordered thead:last-child tr:last-child th:first-child,
-  .table-bordered tbody:last-child tr:last-child td:first-child,
-  .table-bordered tfoot:last-child tr:last-child td:first-child {
-    -webkit-border-radius: 0 0 0 4px;
-    -moz-border-radius: 0 0 0 4px;
-    border-radius: 0 0 0 4px;
-    -webkit-border-bottom-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    -moz-border-radius-bottomleft: 4px; }
-  .table-bordered thead:last-child tr:last-child th:last-child,
-  .table-bordered tbody:last-child tr:last-child td:last-child,
-  .table-bordered tfoot:last-child tr:last-child td:last-child {
-    -webkit-border-bottom-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    -moz-border-radius-bottomright: 4px; }
-  .table-bordered caption + thead tr:first-child th:first-child,
-  .table-bordered caption + tbody tr:first-child td:first-child,
-  .table-bordered colgroup + thead tr:first-child th:first-child,
-  .table-bordered colgroup + tbody tr:first-child td:first-child {
-    -webkit-border-top-left-radius: 4px;
-    border-top-left-radius: 4px;
-    -moz-border-radius-topleft: 4px; }
-  .table-bordered caption + thead tr:first-child th:last-child,
-  .table-bordered caption + tbody tr:first-child td:last-child,
-  .table-bordered colgroup + thead tr:first-child th:last-child,
-  .table-bordered colgroup + tbody tr:first-child td:last-child {
-    -webkit-border-top-right-radius: 4px;
-    border-top-right-radius: 4px;
-    -moz-border-radius-topright: 4px; }
-
-.table-striped tbody tr:nth-child(odd) td,
-.table-striped tbody tr:nth-child(odd) th {
-  background-color: #f9f9f9; }
-
-.table-hover tbody tr:hover td,
-.table-hover tbody tr:hover th {
-  background-color: whitesmoke; }
-
-table td[class*="span"],
-table th[class*="span"],
-.row-fluid table td[class*="span"],
-.row-fluid table th[class*="span"] {
-  display: table-cell;
-  float: none;
-  margin-left: 0; }
-
-.table td.span1,
-.table th.span1 {
-  float: none;
-  width: 44px;
-  margin-left: 0; }
-.table td.span2,
-.table th.span2 {
-  float: none;
-  width: 124px;
-  margin-left: 0; }
-.table td.span3,
-.table th.span3 {
-  float: none;
-  width: 204px;
-  margin-left: 0; }
-.table td.span4,
-.table th.span4 {
-  float: none;
-  width: 284px;
-  margin-left: 0; }
-.table td.span5,
-.table th.span5 {
-  float: none;
-  width: 364px;
-  margin-left: 0; }
-.table td.span6,
-.table th.span6 {
-  float: none;
-  width: 444px;
-  margin-left: 0; }
-.table td.span7,
-.table th.span7 {
-  float: none;
-  width: 524px;
-  margin-left: 0; }
-.table td.span8,
-.table th.span8 {
-  float: none;
-  width: 604px;
-  margin-left: 0; }
-.table td.span9,
-.table th.span9 {
-  float: none;
-  width: 684px;
-  margin-left: 0; }
-.table td.span10,
-.table th.span10 {
-  float: none;
-  width: 764px;
-  margin-left: 0; }
-.table td.span11,
-.table th.span11 {
-  float: none;
-  width: 844px;
-  margin-left: 0; }
-.table td.span12,
-.table th.span12 {
-  float: none;
-  width: 924px;
-  margin-left: 0; }
-
-.table tbody tr.success td {
-  background-color: #dff0d8; }
-.table tbody tr.error td {
-  background-color: #f2dede; }
-.table tbody tr.warning td {
-  background-color: #fcf8e3; }
-.table tbody tr.info td {
-  background-color: #d9edf7; }
-
-.table-hover tbody tr.success:hover td {
-  background-color: #d0e9c6; }
-.table-hover tbody tr.error:hover td {
-  background-color: #ebcccc; }
-.table-hover tbody tr.warning:hover td {
-  background-color: #faf2cc; }
-.table-hover tbody tr.info:hover td {
-  background-color: #c4e3f3; }
-
-.dropup,
-.dropdown {
-  position: relative; }
-
-.dropdown-toggle {
-  *margin-bottom: -3px; }
-
-.dropdown-toggle:active,
-.open .dropdown-toggle {
-  outline: 0; }
-
-.caret {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  vertical-align: top;
-  border-top: 4px solid black;
-  border-right: 4px solid transparent;
-  border-left: 4px solid transparent;
-  content: ""; }
-
-.dropdown .caret {
-  margin-top: 8px;
-  margin-left: 2px; }
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
-  display: none;
-  float: left;
-  min-width: 160px;
-  padding: 5px 0;
-  margin: 2px 0 0;
-  list-style: none;
-  background-color: white;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  *border-right-width: 2px;
-  *border-bottom-width: 2px;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
-  background-clip: padding-box; }
-  .dropdown-menu.pull-right {
-    right: 0;
-    left: auto; }
-  .dropdown-menu .divider {
-    *width: 100%;
-    height: 1px;
-    margin: 9px 1px;
-    *margin: -5px 0 5px;
-    overflow: hidden;
-    background-color: #e5e5e5;
-    border-bottom: 1px solid white; }
-  .dropdown-menu li > a {
-    display: block;
-    padding: 3px 20px;
-    clear: both;
-    font-weight: normal;
-    line-height: 20px;
-    color: #333333;
-    white-space: nowrap; }
-
-.dropdown-menu li > a:hover,
-.dropdown-menu li > a:focus,
-.dropdown-submenu:hover > a {
-  text-decoration: none;
-  color: white;
-  background-color: #464a57;
-  background-image: -moz-linear-gradient(top, #4b4f5d, #40434f);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#4b4f5d), to(#40434f));
-  background-image: -webkit-linear-gradient(top, #4b4f5d, #40434f);
-  background-image: -o-linear-gradient(top, #4b4f5d, #40434f);
-  background-image: linear-gradient(to bottom, #4b4f5d, #40434f);
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF4B4F5D', endColorstr='#FF40434F', GradientType=0); }
-
-.dropdown-menu .active > a,
-.dropdown-menu .active > a:hover {
-  color: #333333;
-  text-decoration: none;
-  outline: 0;
-  background-color: #464a57;
-  background-image: -moz-linear-gradient(top, #4b4f5d, #40434f);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#4b4f5d), to(#40434f));
-  background-image: -webkit-linear-gradient(top, #4b4f5d, #40434f);
-  background-image: -o-linear-gradient(top, #4b4f5d, #40434f);
-  background-image: linear-gradient(to bottom, #4b4f5d, #40434f);
-  background-repeat: repeat-x;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF4B4F5D', endColorstr='#FF40434F', GradientType=0); }
-
-.dropdown-menu .disabled > a,
-.dropdown-menu .disabled > a:hover {
-  color: #999999; }
-
-.dropdown-menu .disabled > a:hover {
-  text-decoration: none;
-  background-color: transparent;
-  background-image: none;
-  cursor: default; }
-
-.open {
-  *z-index: 1000; }
-  .open > .dropdown-menu {
-    display: block; }
-
-.pull-right > .dropdown-menu {
-  right: 0;
-  left: auto; }
-
-.dropup .caret,
-.navbar-fixed-bottom .dropdown .caret {
-  border-top: 0;
-  border-bottom: 4px solid black;
-  content: ""; }
-.dropup .dropdown-menu,
-.navbar-fixed-bottom .dropdown .dropdown-menu {
-  top: auto;
-  bottom: 100%;
-  margin-bottom: 1px; }
-
-.dropdown-submenu {
-  position: relative; }
-
-.dropdown-submenu > .dropdown-menu {
-  top: 0;
-  left: 100%;
-  margin-top: -6px;
-  margin-left: -1px;
-  -webkit-border-radius: 0 6px 6px 6px;
-  -moz-border-radius: 0 6px 6px 6px;
-  border-radius: 0 6px 6px 6px; }
-
-.dropdown-submenu:hover > .dropdown-menu {
-  display: block; }
-
-.dropup .dropdown-submenu > .dropdown-menu {
-  top: auto;
-  bottom: 0;
-  margin-top: 0;
-  margin-bottom: -2px;
-  -webkit-border-radius: 5px 5px 5px 0;
-  -moz-border-radius: 5px 5px 5px 0;
-  border-radius: 5px 5px 5px 0; }
-
-.dropdown-submenu > a:after {
-  display: block;
-  content: " ";
-  float: right;
-  width: 0;
-  height: 0;
-  border-color: transparent;
-  border-style: solid;
-  border-width: 5px 0 5px 5px;
-  border-left-color: #cccccc;
-  margin-top: 5px;
-  margin-right: -10px; }
-
-.dropdown-submenu:hover > a:after {
-  border-left-color: white; }
-
-.dropdown-submenu.pull-left {
-  float: none; }
-  .dropdown-submenu.pull-left > .dropdown-menu {
-    left: -100%;
-    margin-left: 10px;
-    -webkit-border-radius: 6px 0 6px 6px;
-    -moz-border-radius: 6px 0 6px 6px;
-    border-radius: 6px 0 6px 6px; }
-
-.dropdown .dropdown-menu .nav-header {
-  padding-left: 20px;
-  padding-right: 20px; }
-
-.typeahead {
-  margin-top: 2px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px; }
-
-.well {
-  min-height: 20px;
-  padding: 19px;
-  margin-bottom: 20px;
-  background-color: whitesmoke;
-  border: 1px solid #e3e3e3;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05); }
-  .well blockquote {
-    border-color: #ddd;
-    border-color: rgba(0, 0, 0, 0.15); }
-
-.well-large {
-  padding: 24px;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px; }
-
-.well-small {
-  padding: 9px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px; }
-
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_component-animations\.scss}line{font-family:\000036}}
 .fade {
   opacity: 0;
   -webkit-transition: opacity 0.15s linear;
   -moz-transition: opacity 0.15s linear;
   -o-transition: opacity 0.15s linear;
   transition: opacity 0.15s linear; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_component-animations\.scss}line{font-family:\000039}}
   .fade.in {
     opacity: 1; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_component-animations\.scss}line{font-family:\0000314}}
 .collapse {
   position: relative;
   height: 0;
@@ -879,32 +161,11 @@ table th[class*="span"],
   -moz-transition: height 0.35s ease;
   -o-transition: height 0.35s ease;
   transition: height 0.35s ease; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_component-animations\.scss}line{font-family:\0000319}}
   .collapse.in {
     height: auto; }
 
-.close {
-  float: right;
-  font-size: 20px;
-  font-weight: bold;
-  line-height: 20px;
-  color: black;
-  text-shadow: 0 1px 0 white;
-  opacity: 0.2;
-  filter: alpha(opacity=20); }
-  .close:hover {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-    opacity: 0.4;
-    filter: alpha(opacity=40); }
-
-button.close {
-  padding: 0;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  -webkit-appearance: none; }
-
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000310}}
 .btn {
   display: inline-block;
   *display: inline;
@@ -943,14 +204,18 @@ button.close {
   -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
   -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
   .btn:hover, .btn:active, .btn.active, .btn.disabled, .btn[disabled] {
     color: #333333;
     background-color: #e6e6e6;
     *background-color: #d9d9d9; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
   .btn:active, .btn.active {
     background-color: #cccccc \9; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000361}}
   .btn:first-child {
     *margin-left: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000330}}
   .btn:hover {
     color: #333333;
     text-decoration: none;
@@ -962,10 +227,12 @@ button.close {
     -moz-transition: background-position 0.1s linear;
     -o-transition: background-position 0.1s linear;
     transition: background-position 0.1s linear; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000343}}
   .btn:focus {
     outline: thin dotted #333;
     outline: 5px auto -webkit-focus-ring-color;
     outline-offset: -2px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000349}}
   .btn.active, .btn:active {
     background-color: #e6e6e6;
     background-color: #d9d9d9 \9;
@@ -974,6 +241,7 @@ button.close {
     -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
     -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000359}}
   .btn.disabled, .btn[disabled] {
     cursor: default;
     background-color: #e6e6e6;
@@ -984,6 +252,7 @@ button.close {
     -moz-box-shadow: none;
     box-shadow: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000375}}
 .btn-large {
   padding: 11px 19px;
   font-size: 17.5px;
@@ -991,10 +260,12 @@ button.close {
   -moz-border-radius: 6px;
   border-radius: 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000381}}
 .btn-large [class^="icon-"],
 .btn-large [class*=" icon-"] {
   margin-top: 2px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000386}}
 .btn-small {
   padding: 2px 10px;
   font-size: 11.9px;
@@ -1002,10 +273,12 @@ button.close {
   -moz-border-radius: 3px;
   border-radius: 3px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000392}}
 .btn-small [class^="icon-"],
 .btn-small [class*=" icon-"] {
   margin-top: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\0000397}}
 .btn-mini {
   padding: 1px 6px;
   font-size: 10.5px;
@@ -1013,6 +286,7 @@ button.close {
   -moz-border-radius: 3px;
   border-radius: 3px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003107}}
 .btn-block {
   display: block;
   width: 100%;
@@ -1022,14 +296,17 @@ button.close {
   -moz-box-sizing: border-box;
   box-sizing: border-box; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003116}}
 .btn-block + .btn-block {
   margin-top: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003124}}
 input[type="submit"].btn-block,
 input[type="reset"].btn-block,
 input[type="button"].btn-block {
   width: 100%; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003140}}
 .btn-primary.active,
 .btn-warning.active,
 .btn-danger.active,
@@ -1038,10 +315,12 @@ input[type="button"].btn-block {
 .btn-inverse.active {
   color: rgba(255, 255, 255, 0.75); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003146}}
 .btn {
   border-color: #c5c5c5;
   border-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.25); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003151}}
 .btn-primary {
   color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -1058,13 +337,16 @@ input[type="button"].btn-block {
   *background-color: #4d4b5d;
   /* Darken IE7 buttons by default so they stand out more given they won't have borders */
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
   .btn-primary:hover, .btn-primary:active, .btn-primary.active, .btn-primary.disabled, .btn-primary[disabled] {
     color: white;
     background-color: #4d4b5d;
     *background-color: #41404f; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
   .btn-primary:active, .btn-primary.active {
     background-color: #363441 \9; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003155}}
 .btn-warning {
   color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -1081,13 +363,16 @@ input[type="button"].btn-block {
   *background-color: #f89406;
   /* Darken IE7 buttons by default so they stand out more given they won't have borders */
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
   .btn-warning:hover, .btn-warning:active, .btn-warning.active, .btn-warning.disabled, .btn-warning[disabled] {
     color: white;
     background-color: #f89406;
     *background-color: #df8505; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
   .btn-warning:active, .btn-warning.active {
     background-color: #c67605 \9; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003159}}
 .btn-danger {
   color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -1104,13 +389,16 @@ input[type="button"].btn-block {
   *background-color: #bd362f;
   /* Darken IE7 buttons by default so they stand out more given they won't have borders */
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
   .btn-danger:hover, .btn-danger:active, .btn-danger.active, .btn-danger.disabled, .btn-danger[disabled] {
     color: white;
     background-color: #bd362f;
     *background-color: #a9302a; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
   .btn-danger:active, .btn-danger.active {
     background-color: #942a25 \9; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003163}}
 .btn-success {
   color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -1127,13 +415,16 @@ input[type="button"].btn-block {
   *background-color: #51a351;
   /* Darken IE7 buttons by default so they stand out more given they won't have borders */
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
   .btn-success:hover, .btn-success:active, .btn-success.active, .btn-success.disabled, .btn-success[disabled] {
     color: white;
     background-color: #51a351;
     *background-color: #499249; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
   .btn-success:active, .btn-success.active {
     background-color: #408140 \9; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003167}}
 .btn-info {
   color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -1150,13 +441,16 @@ input[type="button"].btn-block {
   *background-color: #2f96b4;
   /* Darken IE7 buttons by default so they stand out more given they won't have borders */
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
   .btn-info:hover, .btn-info:active, .btn-info.active, .btn-info.disabled, .btn-info[disabled] {
     color: white;
     background-color: #2f96b4;
     *background-color: #2a85a0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
   .btn-info:active, .btn-info.active {
     background-color: #24748c \9; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003171}}
 .btn-inverse {
   color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -1173,34 +467,42 @@ input[type="button"].btn-block {
   *background-color: #222222;
   /* Darken IE7 buttons by default so they stand out more given they won't have borders */
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
   .btn-inverse:hover, .btn-inverse:active, .btn-inverse.active, .btn-inverse.disabled, .btn-inverse[disabled] {
     color: white;
     background-color: #222222;
     *background-color: #151515; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
   .btn-inverse:active, .btn-inverse.active {
     background-color: #090909 \9; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003180}}
 button.btn,
 input[type="submit"].btn {
   *padding-top: 3px;
   *padding-bottom: 3px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003183}}
   button.btn::-moz-focus-inner,
   input[type="submit"].btn::-moz-focus-inner {
     padding: 0;
     border: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003192}}
   button.btn.btn-large,
   input[type="submit"].btn.btn-large {
     *padding-top: 7px;
     *padding-bottom: 7px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003196}}
   button.btn.btn-small,
   input[type="submit"].btn.btn-small {
     *padding-top: 3px;
     *padding-bottom: 3px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003200}}
   button.btn.btn-mini,
   input[type="submit"].btn.btn-mini {
     *padding-top: 1px;
     *padding-bottom: 1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003213}}
 .btn-link,
 .btn-link:active,
 .btn-link[disabled] {
@@ -1210,6 +512,7 @@ input[type="submit"].btn {
   -moz-box-shadow: none;
   box-shadow: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003218}}
 .btn-link {
   border-color: transparent;
   cursor: pointer;
@@ -1218,15 +521,18 @@ input[type="submit"].btn {
   -moz-border-radius: 0;
   border-radius: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003224}}
 .btn-link:hover {
   color: #292b33;
   text-decoration: underline;
   background-color: transparent; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_buttons\.scss}line{font-family:\00003229}}
 .btn-link[disabled]:hover {
   color: #333333;
   text-decoration: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\000037}}
 .btn-group {
   position: relative;
   display: inline-block;
@@ -1237,43 +543,54 @@ input[type="submit"].btn {
   vertical-align: middle;
   white-space: nowrap;
   *margin-left: .3em; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000361}}
   .btn-group:first-child {
     *margin-left: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000318}}
 .btn-group + .btn-group {
   margin-left: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000323}}
 .btn-toolbar {
   font-size: 0;
   margin-top: 10px;
   margin-bottom: 10px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000329}}
   .btn-toolbar .btn + .btn,
   .btn-toolbar .btn-group + .btn,
   .btn-toolbar .btn + .btn-group {
     margin-left: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000335}}
 .btn-group > .btn {
   position: relative;
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000339}}
 .btn-group > .btn + .btn {
   margin-left: -1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000343}}
 .btn-group > .btn,
 .btn-group > .dropdown-menu {
   font-size: 14px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000348}}
 .btn-group > .btn-mini {
   font-size: 11px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000351}}
 .btn-group > .btn-small {
   font-size: 12px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000354}}
 .btn-group > .btn-large {
   font-size: 16px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000359}}
 .btn-group > .btn:first-child {
   margin-left: 0;
   -webkit-border-top-left-radius: 4px;
@@ -1283,6 +600,7 @@ input[type="submit"].btn {
   -moz-border-radius-bottomleft: 4px;
   border-bottom-left-radius: 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000370}}
 .btn-group > .btn:last-child,
 .btn-group > .dropdown-toggle {
   -webkit-border-top-right-radius: 4px;
@@ -1292,6 +610,7 @@ input[type="submit"].btn {
   -moz-border-radius-bottomright: 4px;
   border-bottom-right-radius: 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000379}}
 .btn-group > .btn.large:first-child {
   margin-left: 0;
   -webkit-border-top-left-radius: 6px;
@@ -1301,6 +620,7 @@ input[type="submit"].btn {
   -moz-border-radius-bottomleft: 6px;
   border-bottom-left-radius: 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\0000389}}
 .btn-group > .btn.large:last-child,
 .btn-group > .large.dropdown-toggle {
   -webkit-border-top-right-radius: 6px;
@@ -1310,16 +630,19 @@ input[type="submit"].btn {
   -moz-border-radius-bottomright: 6px;
   border-bottom-right-radius: 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003102}}
 .btn-group > .btn:hover,
 .btn-group > .btn:focus,
 .btn-group > .btn:active,
 .btn-group > .btn.active {
   z-index: 2; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003108}}
 .btn-group .dropdown-toggle:active,
 .btn-group.open .dropdown-toggle {
   outline: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003118}}
 .btn-group > .btn + .dropdown-toggle {
   padding-left: 8px;
   padding-right: 8px;
@@ -1329,59 +652,75 @@ input[type="submit"].btn {
   *padding-top: 5px;
   *padding-bottom: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003125}}
 .btn-group > .btn-mini + .dropdown-toggle {
   padding-left: 5px;
   padding-right: 5px;
   *padding-top: 2px;
   *padding-bottom: 2px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003131}}
 .btn-group > .btn-small + .dropdown-toggle {
   *padding-top: 5px;
   *padding-bottom: 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003135}}
 .btn-group > .btn-large + .dropdown-toggle {
   padding-left: 12px;
   padding-right: 12px;
   *padding-top: 7px;
   *padding-bottom: 7px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003146}}
 .btn-group.open .dropdown-toggle {
   background-image: none;
   -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
   -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003152}}
 .btn-group.open .btn.dropdown-toggle {
   background-color: #e6e6e6; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003155}}
 .btn-group.open .btn-primary.dropdown-toggle {
   background-color: #4d4b5d; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003158}}
 .btn-group.open .btn-warning.dropdown-toggle {
   background-color: #f89406; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003161}}
 .btn-group.open .btn-danger.dropdown-toggle {
   background-color: #bd362f; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003164}}
 .btn-group.open .btn-success.dropdown-toggle {
   background-color: #51a351; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003167}}
 .btn-group.open .btn-info.dropdown-toggle {
   background-color: #2f96b4; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003170}}
 .btn-group.open .btn-inverse.dropdown-toggle {
   background-color: #222222; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003177}}
 .btn .caret {
   margin-top: 8px;
   margin-left: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003184}}
 .btn-mini .caret,
 .btn-small .caret,
 .btn-large .caret {
   margin-top: 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003187}}
 .btn-large .caret {
   border-left-width: 5px;
   border-right-width: 5px;
   border-top-width: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003193}}
 .dropup .btn-large .caret {
   border-bottom-width: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003206}}
 .btn-primary .caret,
 .btn-warning .caret,
 .btn-danger .caret,
@@ -1391,12 +730,14 @@ input[type="submit"].btn {
   border-top-color: white;
   border-bottom-color: white; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003217}}
 .btn-group-vertical {
   display: inline-block;
   *display: inline;
   /* IE7 inline-block hack */
   *zoom: 1; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003221}}
 .btn-group-vertical .btn {
   display: block;
   float: none;
@@ -1405,30 +746,36 @@ input[type="submit"].btn {
   -moz-border-radius: 0;
   border-radius: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003227}}
 .btn-group-vertical .btn + .btn {
   margin-left: 0;
   margin-top: -1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003231}}
 .btn-group-vertical .btn:first-child {
   -webkit-border-radius: 4px 4px 0 0;
   -moz-border-radius: 4px 4px 0 0;
   border-radius: 4px 4px 0 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003234}}
 .btn-group-vertical .btn:last-child {
   -webkit-border-radius: 0 0 4px 4px;
   -moz-border-radius: 0 0 4px 4px;
   border-radius: 0 0 4px 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003237}}
 .btn-group-vertical .btn-large:first-child {
   -webkit-border-radius: 6px 6px 0 0;
   -moz-border-radius: 6px 6px 0 0;
   border-radius: 6px 6px 0 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_button-groups\.scss}line{font-family:\00003240}}
 .btn-group-vertical .btn-large:last-child {
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
   border-radius: 0 0 6px 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\000039}}
 .alert {
   padding: 8px 35px 8px 14px;
   margin-bottom: 20px;
@@ -1440,57 +787,70 @@ input[type="submit"].btn {
   border-radius: 4px;
   color: #c09853; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\0000318}}
 .alert h4 {
   margin: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\0000323}}
 .alert .close {
   position: relative;
   top: -2px;
   right: -21px;
   line-height: 20px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\0000334}}
 .alert-success {
   background-color: #dff0d8;
   border-color: #d6e9c6;
   color: #468847; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\0000340}}
 .alert-danger,
 .alert-error {
   background-color: #f2dede;
   border-color: #eed3d7;
   color: #b94a48; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\0000345}}
 .alert-info {
   background-color: #d9edf7;
   border-color: #bce8f1;
   color: #3a87ad; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\0000355}}
 .alert-block {
   padding-top: 14px;
   padding-bottom: 14px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\0000360}}
 .alert-block > p,
 .alert-block > ul {
   margin-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_alerts\.scss}line{font-family:\0000363}}
 .alert-block p + p {
   margin-top: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\000039}}
 .nav {
   margin-left: 0;
   margin-bottom: 20px;
   list-style: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000316}}
 .nav > li > a {
   display: block; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000319}}
 .nav > li > a:hover {
   text-decoration: none;
   background-color: #eeeeee; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000325}}
 .nav > .pull-right {
   float: right; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000330}}
 .nav-header {
   display: block;
   padding: 3px 15px;
@@ -1501,33 +861,40 @@ input[type="submit"].btn {
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
   text-transform: uppercase; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000341}}
 .nav li + .nav-header {
   margin-top: 9px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000350}}
 .nav-list {
   padding-left: 15px;
   padding-right: 15px;
   margin-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000356}}
 .nav-list > li > a,
 .nav-list .nav-header {
   margin-left: -15px;
   margin-right: -15px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000361}}
 .nav-list > li > a {
   padding: 3px 15px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000365}}
 .nav-list > .active > a,
 .nav-list > .active > a:hover {
   color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background-color: #4b4f5d; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000371}}
 .nav-list [class^="icon-"],
 .nav-list [class*=" icon-"] {
   margin-right: 2px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000375}}
 .nav-list .divider {
   *width: 100%;
   height: 1px;
@@ -1537,23 +904,28 @@ input[type="submit"].btn {
   background-color: #e5e5e5;
   border-bottom: 1px solid white; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000386}}
 .nav-tabs,
 .nav-pills {
   *zoom: 1; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000315}}
   .nav-tabs:before, .nav-tabs:after,
   .nav-pills:before,
   .nav-pills:after {
     display: table;
     content: "";
     line-height: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000322}}
   .nav-tabs:after,
   .nav-pills:after {
     clear: both; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000390}}
 .nav-tabs > li,
 .nav-pills > li {
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\0000394}}
 .nav-tabs > li > a,
 .nav-pills > li > a {
   padding-right: 12px;
@@ -1561,12 +933,15 @@ input[type="submit"].btn {
   margin-right: 2px;
   line-height: 14px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003105}}
 .nav-tabs {
   border-bottom: 1px solid #ddd; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003109}}
 .nav-tabs > li {
   margin-bottom: -1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003113}}
 .nav-tabs > li > a {
   padding-top: 8px;
   padding-bottom: 8px;
@@ -1575,9 +950,11 @@ input[type="submit"].btn {
   -webkit-border-radius: 4px 4px 0 0;
   -moz-border-radius: 4px 4px 0 0;
   border-radius: 4px 4px 0 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003119}}
   .nav-tabs > li > a:hover {
     border-color: #eeeeee #eeeeee #dddddd; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003125}}
 .nav-tabs > .active > a,
 .nav-tabs > .active > a:hover {
   color: #555555;
@@ -1586,6 +963,7 @@ input[type="submit"].btn {
   border-bottom-color: transparent;
   cursor: default; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003138}}
 .nav-pills > li > a {
   padding-top: 8px;
   padding-bottom: 8px;
@@ -1595,26 +973,32 @@ input[type="submit"].btn {
   -moz-border-radius: 5px;
   border-radius: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003148}}
 .nav-pills > .active > a,
 .nav-pills > .active > a:hover {
   color: white;
   background-color: #4b4f5d; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003159}}
 .nav-stacked > li {
   float: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003162}}
 .nav-stacked > li > a {
   margin-right: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003167}}
 .nav-tabs.nav-stacked {
   border-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003170}}
 .nav-tabs.nav-stacked > li > a {
   border: 1px solid #ddd;
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003174}}
 .nav-tabs.nav-stacked > li:first-child > a {
   -webkit-border-top-right-radius: 4px;
   -moz-border-radius-topright: 4px;
@@ -1623,6 +1007,7 @@ input[type="submit"].btn {
   -moz-border-radius-topleft: 4px;
   border-top-left-radius: 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003177}}
 .nav-tabs.nav-stacked > li:last-child > a {
   -webkit-border-bottom-right-radius: 4px;
   -moz-border-radius-bottomright: 4px;
@@ -1631,50 +1016,62 @@ input[type="submit"].btn {
   -moz-border-radius-bottomleft: 4px;
   border-bottom-left-radius: 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003180}}
 .nav-tabs.nav-stacked > li > a:hover {
   border-color: #ddd;
   z-index: 2; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003186}}
 .nav-pills.nav-stacked > li > a {
   margin-bottom: 3px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003189}}
 .nav-pills.nav-stacked > li:last-child > a {
   margin-bottom: 1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003198}}
 .nav-tabs .dropdown-menu {
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
   border-radius: 0 0 6px 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003201}}
 .nav-pills .dropdown-menu {
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
   border-radius: 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003208}}
 .nav .dropdown-toggle .caret {
   border-top-color: #4b4f5d;
   border-bottom-color: #4b4f5d;
   margin-top: 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003213}}
 .nav .dropdown-toggle:hover .caret {
   border-top-color: #292b33;
   border-bottom-color: #292b33; }
 
 /* move down carets for tabs */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003218}}
 .nav-tabs .dropdown-toggle .caret {
   margin-top: 8px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003224}}
 .nav .active .dropdown-toggle .caret {
   border-top-color: #fff;
   border-bottom-color: #fff; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003228}}
 .nav-tabs .active .dropdown-toggle .caret {
   border-top-color: #555555;
   border-bottom-color: #555555; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003235}}
 .nav > .dropdown.active > a:hover {
   cursor: pointer; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003243}}
 .nav-tabs .open .dropdown-toggle,
 .nav-pills .open .dropdown-toggle,
 .nav > li.dropdown.open.active > a:hover {
@@ -1682,6 +1079,7 @@ input[type="submit"].btn {
   background-color: #999999;
   border-color: #999999; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003250}}
 .nav li.dropdown.open .caret,
 .nav li.dropdown.open.active .caret,
 .nav li.dropdown.open a:hover .caret {
@@ -1690,109 +1088,135 @@ input[type="submit"].btn {
   opacity: 1;
   filter: alpha(opacity=100); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003257}}
 .tabs-stacked .open > a:hover {
   border-color: #999999; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003271}}
 .tabbable {
   *zoom: 1; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000315}}
   .tabbable:before, .tabbable:after {
     display: table;
     content: "";
     line-height: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000322}}
   .tabbable:after {
     clear: both; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003274}}
 .tab-content {
   overflow: auto; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003281}}
 .tabs-below > .nav-tabs,
 .tabs-right > .nav-tabs,
 .tabs-left > .nav-tabs {
   border-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003287}}
 .tab-content > .tab-pane,
 .pill-content > .pill-pane {
   display: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003291}}
 .tab-content > .active,
 .pill-content > .active {
   display: block; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003299}}
 .tabs-below > .nav-tabs {
   border-top: 1px solid #ddd; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003302}}
 .tabs-below > .nav-tabs > li {
   margin-top: -1px;
   margin-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003306}}
 .tabs-below > .nav-tabs > li > a {
   -webkit-border-radius: 0 0 4px 4px;
   -moz-border-radius: 0 0 4px 4px;
   border-radius: 0 0 4px 4px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003308}}
   .tabs-below > .nav-tabs > li > a:hover {
     border-bottom-color: transparent;
     border-top-color: #ddd; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003314}}
 .tabs-below > .nav-tabs > .active > a,
 .tabs-below > .nav-tabs > .active > a:hover {
   border-color: transparent #ddd #ddd #ddd; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003323}}
 .tabs-left > .nav-tabs > li,
 .tabs-right > .nav-tabs > li {
   float: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003327}}
 .tabs-left > .nav-tabs > li > a,
 .tabs-right > .nav-tabs > li > a {
   min-width: 74px;
   margin-right: 0;
   margin-bottom: 3px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003334}}
 .tabs-left > .nav-tabs {
   float: left;
   margin-right: 19px;
   border-right: 1px solid #ddd; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003339}}
 .tabs-left > .nav-tabs > li > a {
   margin-right: -1px;
   -webkit-border-radius: 4px 0 0 4px;
   -moz-border-radius: 4px 0 0 4px;
   border-radius: 4px 0 0 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003343}}
 .tabs-left > .nav-tabs > li > a:hover {
   border-color: #eeeeee #dddddd #eeeeee #eeeeee; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003347}}
 .tabs-left > .nav-tabs .active > a,
 .tabs-left > .nav-tabs .active > a:hover {
   border-color: #ddd transparent #ddd #ddd;
   *border-right-color: white; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003353}}
 .tabs-right > .nav-tabs {
   float: right;
   margin-left: 19px;
   border-left: 1px solid #ddd; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003358}}
 .tabs-right > .nav-tabs > li > a {
   margin-left: -1px;
   -webkit-border-radius: 0 4px 4px 0;
   -moz-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003362}}
 .tabs-right > .nav-tabs > li > a:hover {
   border-color: #eeeeee #eeeeee #eeeeee #dddddd; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003366}}
 .tabs-right > .nav-tabs .active > a,
 .tabs-right > .nav-tabs .active > a:hover {
   border-color: #ddd #ddd #ddd transparent;
   *border-left-color: white; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003377}}
 .nav > .disabled > a {
   color: #999999; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navs\.scss}line{font-family:\00003381}}
 .nav > .disabled > a:hover {
   text-decoration: none;
   background-color: transparent;
   cursor: default; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000310}}
 .navbar {
   overflow: visible;
   margin-bottom: 20px;
@@ -1800,6 +1224,7 @@ input[type="submit"].btn {
   *position: relative;
   *z-index: 2; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000322}}
 .navbar-inner {
   min-height: 40px;
   padding-left: 20px;
@@ -1820,20 +1245,25 @@ input[type="submit"].btn {
   -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.065);
   *zoom: 1; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000315}}
   .navbar-inner:before, .navbar-inner:after {
     display: table;
     content: "";
     line-height: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000322}}
   .navbar-inner:after {
     clear: both; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000337}}
 .navbar .container {
   width: auto; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000342}}
 .nav-collapse.collapse {
   height: auto;
   overflow: visible; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000350}}
 .navbar .brand {
   float: left;
   display: block;
@@ -1843,69 +1273,86 @@ input[type="submit"].btn {
   font-weight: 200;
   color: #777777;
   text-shadow: 0 1px 0 white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000360}}
   .navbar .brand:hover {
     text-decoration: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000367}}
 .navbar-text {
   margin-bottom: 0;
   line-height: 40px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000374}}
 .navbar-link {
   color: #777777; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000376}}
   .navbar-link:hover {
     color: #333333; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000383}}
 .navbar .divider-vertical {
   height: 40px;
   margin: 0 9px;
   border-left: 1px solid #f2f2f2;
   border-right: 1px solid white; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000393}}
 .navbar .btn,
 .navbar .btn-group {
   margin-top: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\0000398}}
 .navbar .btn-group .btn,
 .navbar .input-prepend .btn,
 .navbar .input-append .btn {
   margin-top: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003104}}
 .navbar-form {
   margin-bottom: 0;
   *zoom: 1; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000315}}
   .navbar-form:before, .navbar-form:after {
     display: table;
     content: "";
     line-height: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000322}}
   .navbar-form:after {
     clear: both; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003110}}
   .navbar-form input,
   .navbar-form select,
   .navbar-form .radio,
   .navbar-form .checkbox {
     margin-top: 5px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003115}}
   .navbar-form input,
   .navbar-form select,
   .navbar-form .btn {
     display: inline-block;
     margin-bottom: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003121}}
   .navbar-form input[type="image"],
   .navbar-form input[type="checkbox"],
   .navbar-form input[type="radio"] {
     margin-top: 3px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003125}}
   .navbar-form .input-append,
   .navbar-form .input-prepend {
     margin-top: 6px;
     white-space: nowrap; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003128}}
     .navbar-form .input-append input,
     .navbar-form .input-prepend input {
       margin-top: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003136}}
 .navbar-search {
   position: relative;
   float: left;
   margin-top: 5px;
   margin-bottom: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003141}}
   .navbar-search .search-query {
     margin-bottom: 0;
     padding: 4px 14px;
@@ -1917,14 +1364,17 @@ input[type="submit"].btn {
     -moz-border-radius: 15px;
     border-radius: 15px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003154}}
 .navbar-static-top {
   position: static;
   margin-bottom: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003157}}
   .navbar-static-top .navbar-inner {
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
     border-radius: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003169}}
 .navbar-fixed-top,
 .navbar-fixed-bottom {
   position: fixed;
@@ -1933,13 +1383,16 @@ input[type="submit"].btn {
   z-index: 1030;
   margin-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003177}}
 .navbar-fixed-top .navbar-inner,
 .navbar-static-top .navbar-inner {
   border-width: 0 0 1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003180}}
 .navbar-fixed-bottom .navbar-inner {
   border-width: 1px 0 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003184}}
 .navbar-fixed-top .navbar-inner,
 .navbar-fixed-bottom .navbar-inner {
   padding-left: 0;
@@ -1948,27 +1401,33 @@ input[type="submit"].btn {
   -moz-border-radius: 0;
   border-radius: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003194}}
 .navbar-static-top .container,
 .navbar-fixed-top .container,
 .navbar-fixed-bottom .container {
   width: 940px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003199}}
 .navbar-fixed-top {
   top: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003204}}
 .navbar-fixed-top .navbar-inner,
 .navbar-static-top .navbar-inner {
   -webkit-box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003210}}
 .navbar-fixed-bottom {
   bottom: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003212}}
   .navbar-fixed-bottom .navbar-inner {
     -webkit-box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
     -moz-box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1);
     box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.1); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003222}}
 .navbar .nav {
   position: relative;
   left: 0;
@@ -1976,13 +1435,16 @@ input[type="submit"].btn {
   float: left;
   margin: 0 10px 0 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003229}}
 .navbar .nav.pull-right {
   float: right;
   margin-right: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003233}}
 .navbar .nav > li {
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003238}}
 .navbar .nav > li > a {
   float: none;
   padding: 10px 15px 10px;
@@ -1990,15 +1452,18 @@ input[type="submit"].btn {
   text-decoration: none;
   text-shadow: 0 1px 0 white; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003246}}
 .navbar .nav .dropdown-toggle .caret {
   margin-top: 8px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003252}}
 .navbar .nav > li > a:focus,
 .navbar .nav > li > a:hover {
   background-color: transparent;
   color: #333333;
   text-decoration: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003261}}
 .navbar .nav > .active > a,
 .navbar .nav > .active > a:hover,
 .navbar .nav > .active > a:focus {
@@ -2009,6 +1474,7 @@ input[type="submit"].btn {
   -moz-box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
   box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003270}}
 .navbar .btn-navbar {
   display: none;
   float: right;
@@ -2033,13 +1499,16 @@ input[type="submit"].btn {
   -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075);
   -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.075); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
   .navbar .btn-navbar:hover, .navbar .btn-navbar:active, .navbar .btn-navbar.active, .navbar .btn-navbar.disabled, .navbar .btn-navbar[disabled] {
     color: white;
     background-color: #e5e5e5;
     *background-color: #d8d8d8; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
   .navbar .btn-navbar:active, .navbar .btn-navbar.active {
     background-color: #cbcbcb \9; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003279}}
 .navbar .btn-navbar .icon-bar {
   display: block;
   width: 18px;
@@ -2052,9 +1521,11 @@ input[type="submit"].btn {
   -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.25); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003287}}
 .btn-navbar .icon-bar + .icon-bar {
   margin-top: 3px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003298}}
 .navbar .nav > li > .dropdown-menu:before {
   content: '';
   display: inline-block;
@@ -2065,6 +1536,7 @@ input[type="submit"].btn {
   position: absolute;
   top: -7px;
   left: 9px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003309}}
 .navbar .nav > li > .dropdown-menu:after {
   content: '';
   display: inline-block;
@@ -2075,46 +1547,55 @@ input[type="submit"].btn {
   top: -6px;
   left: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003322}}
 .navbar-fixed-bottom .nav > li > .dropdown-menu:before {
   border-top: 7px solid #ccc;
   border-top-color: rgba(0, 0, 0, 0.2);
   border-bottom: 0;
   bottom: -7px;
   top: auto; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003329}}
 .navbar-fixed-bottom .nav > li > .dropdown-menu:after {
   border-top: 6px solid white;
   border-bottom: 0;
   bottom: -6px;
   top: auto; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003340}}
 .navbar .nav li.dropdown.open > .dropdown-toggle,
 .navbar .nav li.dropdown.active > .dropdown-toggle,
 .navbar .nav li.dropdown.open.active > .dropdown-toggle {
   background-color: #e6e6e6;
   color: #555555; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003344}}
 .navbar .nav li.dropdown > .dropdown-toggle .caret {
   border-top-color: #777777;
   border-bottom-color: #777777; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003350}}
 .navbar .nav li.dropdown.open > .dropdown-toggle .caret,
 .navbar .nav li.dropdown.active > .dropdown-toggle .caret,
 .navbar .nav li.dropdown.open.active > .dropdown-toggle .caret {
   border-top-color: #555555;
   border-bottom-color: #555555; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003357}}
 .navbar .pull-right > li > .dropdown-menu,
 .navbar .nav > li > .dropdown-menu.pull-right {
   left: auto;
   right: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003360}}
   .navbar .pull-right > li > .dropdown-menu:before,
   .navbar .nav > li > .dropdown-menu.pull-right:before {
     left: auto;
     right: 12px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003364}}
   .navbar .pull-right > li > .dropdown-menu:after,
   .navbar .nav > li > .dropdown-menu.pull-right:after {
     left: auto;
     right: 13px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003368}}
   .navbar .pull-right > li > .dropdown-menu .dropdown-menu,
   .navbar .nav > li > .dropdown-menu.pull-right .dropdown-menu {
     left: auto;
@@ -2125,8 +1606,10 @@ input[type="submit"].btn {
     -moz-border-radius: 6px 0 6px 6px;
     border-radius: 6px 0 6px 6px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003381}}
 .navbar-inverse {
   color: #999999; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003384}}
   .navbar-inverse .navbar-inner {
     background-color: #1b1b1b;
     background-image: -moz-linear-gradient(top, #222222, #111111);
@@ -2137,42 +1620,53 @@ input[type="submit"].btn {
     background-repeat: repeat-x;
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF222222', endColorstr='#FF111111', GradientType=0);
     border-color: #252525; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003390}}
   .navbar-inverse .brand,
   .navbar-inverse .nav > li > a {
     color: #999999;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003393}}
     .navbar-inverse .brand:hover,
     .navbar-inverse .nav > li > a:hover {
       color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003399}}
   .navbar-inverse .nav > li > a:focus,
   .navbar-inverse .nav > li > a:hover {
     background-color: transparent;
     color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003406}}
   .navbar-inverse .nav .active > a,
   .navbar-inverse .nav .active > a:hover,
   .navbar-inverse .nav .active > a:focus {
     color: white;
     background-color: #111111; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003412}}
   .navbar-inverse .navbar-link {
     color: #999999; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003414}}
     .navbar-inverse .navbar-link:hover {
       color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003420}}
   .navbar-inverse .divider-vertical {
     border-left-color: #111111;
     border-right-color: #222222; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003428}}
   .navbar-inverse .nav li.dropdown.open > .dropdown-toggle,
   .navbar-inverse .nav li.dropdown.active > .dropdown-toggle,
   .navbar-inverse .nav li.dropdown.open.active > .dropdown-toggle {
     background-color: #111111;
     color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003432}}
   .navbar-inverse .nav li.dropdown > .dropdown-toggle .caret {
     border-top-color: #999999;
     border-bottom-color: #999999; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003438}}
   .navbar-inverse .nav li.dropdown.open > .dropdown-toggle .caret,
   .navbar-inverse .nav li.dropdown.active > .dropdown-toggle .caret,
   .navbar-inverse .nav li.dropdown.open.active > .dropdown-toggle .caret {
     border-top-color: white;
     border-bottom-color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003445}}
   .navbar-inverse .navbar-search .search-query {
     color: white;
     background-color: #515151;
@@ -2184,12 +1678,16 @@ input[type="submit"].btn {
     -moz-transition: none;
     -o-transition: none;
     transition: none; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000383}}
     .navbar-inverse .navbar-search .search-query:-moz-placeholder {
       color: #cccccc; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000386}}
     .navbar-inverse .navbar-search .search-query:-ms-input-placeholder {
       color: #cccccc; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000389}}
     .navbar-inverse .navbar-search .search-query::-webkit-input-placeholder {
       color: #cccccc; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003455}}
     .navbar-inverse .navbar-search .search-query:focus, .navbar-inverse .navbar-search .search-query.focused {
       padding: 5px 15px;
       color: #333333;
@@ -2200,6 +1698,7 @@ input[type="submit"].btn {
       -moz-box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
       box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
       outline: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_navbar\.scss}line{font-family:\00003468}}
   .navbar-inverse .btn-navbar {
     color: white;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
@@ -2216,201 +1715,16 @@ input[type="submit"].btn {
     *background-color: #040404;
     /* Darken IE7 buttons by default so they stand out more given they won't have borders */
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003496}}
     .navbar-inverse .btn-navbar:hover, .navbar-inverse .btn-navbar:active, .navbar-inverse .btn-navbar.active, .navbar-inverse .btn-navbar.disabled, .navbar-inverse .btn-navbar[disabled] {
       color: white;
       background-color: #040404;
       *background-color: black; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\00003504}}
     .navbar-inverse .btn-navbar:active, .navbar-inverse .btn-navbar.active {
       background-color: black \9; }
 
-.breadcrumb {
-  padding: 8px 15px;
-  margin: 0 0 20px;
-  list-style: none;
-  background-color: #f5f5f5;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px; }
-  .breadcrumb li {
-    display: inline-block;
-    *display: inline;
-    /* IE7 inline-block hack */
-    *zoom: 1;
-    text-shadow: 0 1px 0 white; }
-  .breadcrumb .divider {
-    padding: 0 5px;
-    color: #ccc; }
-  .breadcrumb .active {
-    color: #999999; }
-
-.pagination {
-  margin: 20px 0; }
-
-.pagination ul {
-  display: inline-block;
-  *display: inline;
-  /* IE7 inline-block hack */
-  *zoom: 1;
-  margin-left: 0;
-  margin-bottom: 0;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
-
-.pagination ul > li {
-  display: inline; }
-
-.pagination ul > li > a,
-.pagination ul > li > span {
-  float: left;
-  padding: 4px 12px;
-  line-height: 20px;
-  text-decoration: none;
-  background-color: white;
-  border: 1px solid #dddddd;
-  border-left-width: 0; }
-
-.pagination ul > li > a:hover,
-.pagination ul > .active > a,
-.pagination ul > .active > span {
-  background-color: whitesmoke; }
-
-.pagination ul > .active > a,
-.pagination ul > .active > span {
-  color: #999999;
-  cursor: default; }
-
-.pagination ul > .disabled > span,
-.pagination ul > .disabled > a,
-.pagination ul > .disabled > a:hover {
-  color: #999999;
-  background-color: transparent;
-  cursor: default; }
-
-.pagination ul > li:first-child > a,
-.pagination ul > li:first-child > span {
-  border-left-width: 1px;
-  -webkit-border-top-left-radius: 4px;
-  -moz-border-radius-topleft: 4px;
-  border-top-left-radius: 4px;
-  -webkit-border-bottom-left-radius: 4px;
-  -moz-border-radius-bottomleft: 4px;
-  border-bottom-left-radius: 4px; }
-
-.pagination ul > li:last-child > a,
-.pagination ul > li:last-child > span {
-  -webkit-border-top-right-radius: 4px;
-  -moz-border-radius-topright: 4px;
-  border-top-right-radius: 4px;
-  -webkit-border-bottom-right-radius: 4px;
-  -moz-border-radius-bottomright: 4px;
-  border-bottom-right-radius: 4px; }
-
-.pagination-centered {
-  text-align: center; }
-
-.pagination-right {
-  text-align: right; }
-
-.pagination-large ul > li > a,
-.pagination-large ul > li > span {
-  padding: 11px 19px;
-  font-size: 17.5px; }
-.pagination-large ul > li:first-child > a,
-.pagination-large ul > li:first-child > span {
-  -webkit-border-top-left-radius: 6px;
-  -moz-border-radius-topleft: 6px;
-  border-top-left-radius: 6px;
-  -webkit-border-bottom-left-radius: 6px;
-  -moz-border-radius-bottomleft: 6px;
-  border-bottom-left-radius: 6px; }
-.pagination-large ul > li:last-child > a,
-.pagination-large ul > li:last-child > span {
-  -webkit-border-top-right-radius: 6px;
-  -moz-border-radius-topright: 6px;
-  border-top-right-radius: 6px;
-  -webkit-border-bottom-right-radius: 6px;
-  -moz-border-radius-bottomright: 6px;
-  border-bottom-right-radius: 6px; }
-
-.pagination-mini ul > li:first-child > a,
-.pagination-mini ul > li:first-child > span,
-.pagination-small ul > li:first-child > a,
-.pagination-small ul > li:first-child > span {
-  -webkit-border-top-left-radius: 3px;
-  -moz-border-radius-topleft: 3px;
-  border-top-left-radius: 3px;
-  -webkit-border-bottom-left-radius: 3px;
-  -moz-border-radius-bottomleft: 3px;
-  border-bottom-left-radius: 3px; }
-.pagination-mini ul > li:last-child > a,
-.pagination-mini ul > li:last-child > span,
-.pagination-small ul > li:last-child > a,
-.pagination-small ul > li:last-child > span {
-  -webkit-border-top-right-radius: 3px;
-  -moz-border-radius-topright: 3px;
-  border-top-right-radius: 3px;
-  -webkit-border-bottom-right-radius: 3px;
-  -moz-border-radius-bottomright: 3px;
-  border-bottom-right-radius: 3px; }
-
-.pagination-small ul > li > a,
-.pagination-small ul > li > span {
-  padding: 2px 10px;
-  font-size: 11.9px; }
-
-.pagination-mini ul > li > a,
-.pagination-mini ul > li > span {
-  padding: 1px 6px;
-  font-size: 10.5px; }
-
-.pager {
-  margin: 20px 0;
-  list-style: none;
-  text-align: center;
-  *zoom: 1; }
-  .pager:before, .pager:after {
-    display: table;
-    content: "";
-    line-height: 0; }
-  .pager:after {
-    clear: both; }
-
-.pager li {
-  display: inline; }
-
-.pager li > a,
-.pager li > span {
-  display: inline-block;
-  padding: 5px 14px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  -webkit-border-radius: 15px;
-  -moz-border-radius: 15px;
-  border-radius: 15px; }
-
-.pager li > a:hover {
-  text-decoration: none;
-  background-color: #f5f5f5; }
-
-.pager .next > a,
-.pager .next > span {
-  float: right; }
-
-.pager .previous > a,
-.pager .previous > span {
-  float: left; }
-
-.pager .disabled > a,
-.pager .disabled > a:hover,
-.pager .disabled > span {
-  color: #999999;
-  background-color: #fff;
-  cursor: default; }
-
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\000036}}
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -2419,14 +1733,17 @@ input[type="submit"].btn {
   left: 0;
   z-index: 1040;
   background-color: black; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000315}}
   .modal-backdrop.fade {
     opacity: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000319}}
 .modal-backdrop,
 .modal-backdrop.fade.in {
   opacity: 0.8;
   filter: alpha(opacity=80); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000324}}
 .modal {
   position: fixed;
   top: 50%;
@@ -2450,32 +1767,40 @@ input[type="submit"].btn {
   -moz-background-clip: padding-box;
   background-clip: padding-box;
   outline: none; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000342}}
   .modal.fade {
     -webkit-transition: opacity 0.3s linear, top 0.3s ease-out;
     -moz-transition: opacity 0.3s linear, top 0.3s ease-out;
     -o-transition: opacity 0.3s linear, top 0.3s ease-out;
     transition: opacity 0.3s linear, top 0.3s ease-out;
     top: -25%; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000346}}
   .modal.fade.in {
     top: 50%; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000348}}
 .modal-header {
   padding: 9px 15px;
   border-bottom: 1px solid #eee; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000352}}
   .modal-header .close {
     margin-top: 2px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000354}}
   .modal-header h3 {
     margin: 0;
     line-height: 30px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000361}}
 .modal-body {
   overflow-y: auto;
   max-height: 400px;
   padding: 15px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000367}}
 .modal-form {
   margin-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000372}}
 .modal-footer {
   padding: 14px 15px 15px;
   margin-bottom: 0;
@@ -2489,20 +1814,26 @@ input[type="submit"].btn {
   -moz-box-shadow: inset 0 1px 0 white;
   box-shadow: inset 0 1px 0 white;
   *zoom: 1; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000315}}
   .modal-footer:before, .modal-footer:after {
     display: table;
     content: "";
     line-height: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000322}}
   .modal-footer:after {
     clear: both; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000383}}
   .modal-footer .btn + .btn {
     margin-left: 5px;
     margin-bottom: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000388}}
   .modal-footer .btn-group .btn + .btn {
     margin-left: -1px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_modals\.scss}line{font-family:\0000392}}
   .modal-footer .btn-block + .btn-block {
     margin-left: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\000037}}
 .tooltip {
   position: absolute;
   z-index: 1030;
@@ -2512,18 +1843,24 @@ input[type="submit"].btn {
   font-size: 11px;
   opacity: 0;
   filter: alpha(opacity=0); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000315}}
   .tooltip.in {
     opacity: 0.8;
     filter: alpha(opacity=80); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000316}}
   .tooltip.top {
     margin-top: -3px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000317}}
   .tooltip.right {
     margin-left: 3px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000318}}
   .tooltip.bottom {
     margin-top: 3px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000319}}
   .tooltip.left {
     margin-left: -3px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000323}}
 .tooltip-inner {
   max-width: 200px;
   padding: 3px 8px;
@@ -2535,6 +1872,7 @@ input[type="submit"].btn {
   -moz-border-radius: 4px;
   border-radius: 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000334}}
 .tooltip-arrow {
   position: absolute;
   width: 0;
@@ -2542,24 +1880,28 @@ input[type="submit"].btn {
   border-color: transparent;
   border-style: solid; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000342}}
 .tooltip.top .tooltip-arrow {
   bottom: 0;
   left: 50%;
   margin-left: -5px;
   border-width: 5px 5px 0;
   border-top-color: black; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000349}}
 .tooltip.right .tooltip-arrow {
   top: 50%;
   left: 0;
   margin-top: -5px;
   border-width: 5px 5px 5px 0;
   border-right-color: black; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000356}}
 .tooltip.left .tooltip-arrow {
   top: 50%;
   right: 0;
   margin-top: -5px;
   border-width: 5px 0 5px 5px;
   border-left-color: black; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_tooltip\.scss}line{font-family:\0000363}}
 .tooltip.bottom .tooltip-arrow {
   top: 0;
   left: 50%;
@@ -2567,6 +1909,7 @@ input[type="submit"].btn {
   border-width: 0 5px 5px;
   border-bottom-color: black; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\000036}}
 .popover {
   position: absolute;
   top: 0;
@@ -2587,15 +1930,20 @@ input[type="submit"].btn {
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000324}}
   .popover.top {
     margin-top: -10px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000325}}
   .popover.right {
     margin-left: 10px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000326}}
   .popover.bottom {
     margin-top: 10px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000327}}
   .popover.left {
     margin-left: -10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000331}}
 .popover-title {
   margin: 0;
   padding: 8px 14px;
@@ -2608,11 +1956,14 @@ input[type="submit"].btn {
   -moz-border-radius: 5px 5px 0 0;
   border-radius: 5px 5px 0 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000342}}
 .popover-content {
   padding: 9px 14px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000344}}
   .popover-content p, .popover-content ul, .popover-content ol {
     margin-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000351}}
 .popover .arrow,
 .popover .arrow:after {
   position: absolute;
@@ -2622,135 +1973,102 @@ input[type="submit"].btn {
   border-color: transparent;
   border-style: solid; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000359}}
 .popover .arrow:after {
   content: "";
   z-index: -1; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000365}}
 .popover.top .arrow {
   bottom: -10px;
   left: 50%;
   margin-left: -10px;
   border-width: 10px 10px 0;
   border-top-color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000371}}
   .popover.top .arrow:after {
     border-width: 11px 11px 0;
     border-top-color: rgba(0, 0, 0, 0.25);
     bottom: -1px;
     left: -11px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000378}}
 .popover.right .arrow {
   top: 50%;
   left: -10px;
   margin-top: -10px;
   border-width: 10px 10px 10px 0;
   border-right-color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000384}}
   .popover.right .arrow:after {
     border-width: 11px 11px 11px 0;
     border-right-color: rgba(0, 0, 0, 0.25);
     bottom: -11px;
     left: -1px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000391}}
 .popover.bottom .arrow {
   top: -10px;
   left: 50%;
   margin-left: -10px;
   border-width: 0 10px 10px;
   border-bottom-color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\0000397}}
   .popover.bottom .arrow:after {
     border-width: 0 11px 11px;
     border-bottom-color: rgba(0, 0, 0, 0.25);
     top: -1px;
     left: -11px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\00003104}}
 .popover.left .arrow {
   top: 50%;
   right: -10px;
   margin-top: -10px;
   border-width: 10px 0 10px 10px;
   border-left-color: white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_popovers\.scss}line{font-family:\00003110}}
   .popover.left .arrow:after {
     border-width: 11px 0 11px 11px;
     border-left-color: rgba(0, 0, 0, 0.25);
     bottom: -11px;
     right: -1px; }
 
-.thumbnails {
-  margin-left: -20px;
-  list-style: none;
-  *zoom: 1; }
-  .thumbnails:before, .thumbnails:after {
-    display: table;
-    content: "";
-    line-height: 0; }
-  .thumbnails:after {
-    clear: both; }
-
-.row-fluid .thumbnails {
-  margin-left: 0; }
-
-.thumbnails > li {
-  float: left;
-  margin-bottom: 20px;
-  margin-left: 20px; }
-
-.thumbnail {
-  display: block;
-  padding: 4px;
-  line-height: 20px;
-  border: 1px solid #ddd;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
-  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.055);
-  -webkit-transition: all 0.2s ease-in-out;
-  -moz-transition: all 0.2s ease-in-out;
-  -o-transition: all 0.2s ease-in-out;
-  transition: all 0.2s ease-in-out; }
-
-a.thumbnail:hover {
-  border-color: #4b4f5d;
-  -webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
-  -moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
-  box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25); }
-
-.thumbnail > img {
-  display: block;
-  max-width: 100%;
-  margin-left: auto;
-  margin-right: auto; }
-
-.thumbnail .caption {
-  padding: 9px;
-  color: #555555; }
-
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_media\.scss}line{font-family:\0000311}}
 .media,
 .media-body {
   overflow: hidden;
   *overflow: visible;
   zoom: 1; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_media\.scss}line{font-family:\0000319}}
 .media,
 .media .media {
   margin-top: 15px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_media\.scss}line{font-family:\0000322}}
 .media:first-child {
   margin-top: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_media\.scss}line{font-family:\0000327}}
 .media-object {
   display: block; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_media\.scss}line{font-family:\0000332}}
 .media-heading {
   margin: 0 0 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_media\.scss}line{font-family:\0000340}}
 .media .pull-left {
   margin-right: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_media\.scss}line{font-family:\0000343}}
 .media .pull-right {
   margin-left: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_media\.scss}line{font-family:\0000352}}
 .media-list {
   margin-left: 0;
   list-style: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\000038}}
 .label,
 .badge {
   display: inline-block;
@@ -2764,11 +2082,13 @@ a.thumbnail:hover {
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #999999; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000321}}
 .label {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000324}}
 .badge {
   padding-left: 9px;
   padding-right: 9px;
@@ -2776,46 +2096,59 @@ a.thumbnail:hover {
   -moz-border-radius: 9px;
   border-radius: 9px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000333}}
 a.label:hover, a.badge:hover {
   color: white;
   text-decoration: none;
   cursor: pointer; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000343}}
 .label-important, .badge-important {
   background-color: #b94a48; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000344}}
 .label-important[href], .badge-important[href] {
   background-color: #953b39; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000346}}
 .label-warning, .badge-warning {
   background-color: #f89406; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000347}}
 .label-warning[href], .badge-warning[href] {
   background-color: #c67605; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000349}}
 .label-success, .badge-success {
   background-color: #468847; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000350}}
 .label-success[href], .badge-success[href] {
   background-color: #356635; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000352}}
 .label-info, .badge-info {
   background-color: #3a87ad; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000353}}
 .label-info[href], .badge-info[href] {
   background-color: #2d6987; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000355}}
 .label-inverse, .badge-inverse {
   background-color: #333333; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000356}}
 .label-inverse[href], .badge-inverse[href] {
   background-color: #1a1a1a; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000361}}
 .btn .label,
 .btn .badge {
   position: relative;
   top: -1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_labels-badges\.scss}line{font-family:\0000368}}
 .btn-mini .label,
 .btn-mini .badge {
   top: 0; }
@@ -2855,6 +2188,7 @@ a.label:hover, a.badge:hover {
   to {
     background-position: 0 0; } }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\0000345}}
 .progress {
   overflow: hidden;
   height: 20px;
@@ -2874,6 +2208,7 @@ a.label:hover, a.badge:hover {
   -moz-border-radius: 4px;
   border-radius: 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\0000355}}
 .progress .bar {
   width: 0%;
   height: 100%;
@@ -2901,11 +2236,13 @@ a.label:hover, a.badge:hover {
   -o-transition: width 0.6s ease;
   transition: width 0.6s ease; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\0000368}}
 .progress .bar + .bar {
   -webkit-box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
   -moz-box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
   box-shadow: inset 1px 0 0 rgba(0, 0, 0, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.15); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\0000373}}
 .progress-striped .bar {
   background-color: #149bdf;
   background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255, 255, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(0.75, rgba(255, 255, 255, 0.15)), color-stop(0.75, transparent), to(transparent));
@@ -2918,6 +2255,7 @@ a.label:hover, a.badge:hover {
   -o-background-size: 40px 40px;
   background-size: 40px 40px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\0000379}}
 .progress.active .bar {
   -webkit-animation: progress-bar-stripes 2s linear infinite;
   -moz-animation: progress-bar-stripes 2s linear infinite;
@@ -2925,6 +2263,7 @@ a.label:hover, a.badge:hover {
   -o-animation: progress-bar-stripes 2s linear infinite;
   animation: progress-bar-stripes 2s linear infinite; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\0000393}}
 .progress-danger .bar, .progress .bar-danger {
   background-color: #de514c;
   background-image: -moz-linear-gradient(top, #ee5f5b, #c43c35);
@@ -2935,6 +2274,7 @@ a.label:hover, a.badge:hover {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFEE5F5B', endColorstr='#FFC43C35', GradientType=0); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\0000396}}
 .progress-danger.progress-striped .bar, .progress-striped .bar-danger {
   background-color: #ee5f5b;
   background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255, 255, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(0.75, rgba(255, 255, 255, 0.15)), color-stop(0.75, transparent), to(transparent));
@@ -2943,6 +2283,7 @@ a.label:hover, a.badge:hover {
   background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\00003101}}
 .progress-success .bar, .progress .bar-success {
   background-color: #5db95d;
   background-image: -moz-linear-gradient(top, #62c462, #57a957);
@@ -2953,6 +2294,7 @@ a.label:hover, a.badge:hover {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF62C462', endColorstr='#FF57A957', GradientType=0); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\00003104}}
 .progress-success.progress-striped .bar, .progress-striped .bar-success {
   background-color: #62c462;
   background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255, 255, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(0.75, rgba(255, 255, 255, 0.15)), color-stop(0.75, transparent), to(transparent));
@@ -2961,6 +2303,7 @@ a.label:hover, a.badge:hover {
   background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\00003109}}
 .progress-info .bar, .progress .bar-info {
   background-color: #4cb2d0;
   background-image: -moz-linear-gradient(top, #5bc0de, #339bb9);
@@ -2971,6 +2314,7 @@ a.label:hover, a.badge:hover {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF5BC0DE', endColorstr='#FF339BB9', GradientType=0); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\00003112}}
 .progress-info.progress-striped .bar, .progress-striped .bar-info {
   background-color: #5bc0de;
   background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255, 255, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(0.75, rgba(255, 255, 255, 0.15)), color-stop(0.75, transparent), to(transparent));
@@ -2979,6 +2323,7 @@ a.label:hover, a.badge:hover {
   background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\00003117}}
 .progress-warning .bar, .progress .bar-warning {
   background-color: #f9a834;
   background-image: -moz-linear-gradient(top, #fbb450, #f89406);
@@ -2989,6 +2334,7 @@ a.label:hover, a.badge:hover {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFBB450', endColorstr='#FFF89406', GradientType=0); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_progress-bars\.scss}line{font-family:\00003120}}
 .progress-warning.progress-striped .bar, .progress-striped .bar-warning {
   background-color: #fbb450;
   background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255, 255, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(0.75, rgba(255, 255, 255, 0.15)), color-stop(0.75, transparent), to(transparent));
@@ -2997,9 +2343,11 @@ a.label:hover, a.badge:hover {
   background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
   background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent); }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_accordion\.scss}line{font-family:\000037}}
 .accordion {
   margin-bottom: 20px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_accordion\.scss}line{font-family:\0000312}}
 .accordion-group {
   margin-bottom: 2px;
   border: 1px solid #e5e5e5;
@@ -3007,20 +2355,25 @@ a.label:hover, a.badge:hover {
   -moz-border-radius: 4px;
   border-radius: 4px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_accordion\.scss}line{font-family:\0000317}}
 .accordion-heading {
   border-bottom: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_accordion\.scss}line{font-family:\0000320}}
 .accordion-heading .accordion-toggle {
   display: block;
   padding: 8px 15px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_accordion\.scss}line{font-family:\0000326}}
 .accordion-toggle {
   cursor: pointer; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_accordion\.scss}line{font-family:\0000331}}
 .accordion-inner {
   padding: 9px 15px;
   border-top: 1px solid #e5e5e5; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_hero-unit\.scss}line{font-family:\000036}}
 .hero-unit {
   padding: 60px;
   margin-bottom: 30px;
@@ -3032,42 +2385,54 @@ a.label:hover, a.badge:hover {
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
   border-radius: 6px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_hero-unit\.scss}line{font-family:\0000315}}
   .hero-unit h1 {
     margin-bottom: 0;
     font-size: 60px;
     line-height: 1;
     color: inherit;
     letter-spacing: -1px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_hero-unit\.scss}line{font-family:\0000322}}
   .hero-unit li {
     line-height: 30px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\000037}}
 .pull-right {
   float: right; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\0000310}}
 .pull-left {
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\0000315}}
 .hide {
   display: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\0000318}}
 .show {
   display: block; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\0000323}}
 .invisible {
   visibility: hidden; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\0000328}}
 .affix {
   position: fixed; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\0000333}}
 .clearfix {
   *zoom: 1; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000315}}
   .clearfix:before, .clearfix:after {
     display: table;
     content: "";
     line-height: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_mixins\.scss}line{font-family:\0000322}}
   .clearfix:after {
     clear: both; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\0000338}}
 .hide-text {
   font: 0/0 a;
   color: transparent;
@@ -3075,6 +2440,7 @@ a.label:hover, a.badge:hover {
   background-color: transparent;
   border: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_utilities\.scss}line{font-family:\0000343}}
 .input-block-level {
   display: block;
   width: 100%;
@@ -3083,6 +2449,7 @@ a.label:hover, a.badge:hover {
   -moz-box-sizing: border-box;
   box-sizing: border-box; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000317}}
 html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
   margin: 0;
   padding: 0;
@@ -3093,6 +2460,7 @@ html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pr
   font-family: inherit;
   vertical-align: baseline; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000332}}
 .tab-dropdown {
   margin-top: 2px;
   -moz-border-radius: 0;
@@ -3110,6 +2478,7 @@ html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pr
   font-size: 12px;
   vertical-align: middle; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000350}}
 body {
   font-family: Arial;
   font-size: 12px;
@@ -3117,9 +2486,11 @@ body {
   text-shadow: 0 1px 0 #fff;
   background: #f7f7f7 url(../images/bg_left.jpg) repeat-y; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000357}}
 body.nobg {
   background: #f7f7f7; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000360}}
 body.login {
   margin: auto;
   padding: auto;
@@ -3129,6 +2500,7 @@ body.login {
   color: #363636;
   text-shadow: 0 1px 0 #ccc; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000370}}
 h1 {
   margin: 0;
   padding: 0;
@@ -3138,6 +2510,7 @@ h1 {
   font-family: Verdana;
   color: #f1f1f1; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000379}}
 h2 {
   margin: 0;
   padding: 0;
@@ -3147,6 +2520,7 @@ h2 {
   font-family: Verdana;
   color: #f1f1f1; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000388}}
 h3 {
   margin: 0;
   padding: 0;
@@ -3154,6 +2528,7 @@ h3 {
   font-weight: bold;
   margin-bottom: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\0000395}}
 h4 {
   margin: 0;
   padding: 0;
@@ -3161,17 +2536,20 @@ h4 {
   font-weight: bold;
   margin-bottom: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003103}}
 #login_wrapper {
   width: 100%;
   height: 400px;
   margin-top: 200px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003108}}
 #login_top_window {
   margin: auto;
   padding: auto;
   width: 351px;
   height: 30px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003114}}
 #login_body_window {
   margin: auto;
   padding: auto;
@@ -3179,6 +2557,7 @@ h4 {
   height: 240px;
   background: transparent url("../images/bg_login_window.png") no-repeat top; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003121}}
 #login_body_window .inner {
   margin: auto;
   padding: auto;
@@ -3186,15 +2565,18 @@ h4 {
   height: 235px;
   padding-top: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003128}}
 #login_body_window .inner p {
   margin-top: 30px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003131}}
 #login_footer_window {
   margin: auto;
   padding: auto;
   width: 351px;
   height: 30px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003137}}
 #login_reflect {
   margin: auto;
   padding: auto;
@@ -3202,12 +2584,14 @@ h4 {
   width: 350px;
   height: 107px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003145}}
 #shortcut li {
   display: block;
   float: left;
   margin: 0 20px 20px 0;
   text-align: center; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003151}}
 #shortcut li a {
   display: block;
   width: 50px;
@@ -3223,19 +2607,24 @@ h4 {
   -webkit-box-shadow: 0 2px 2px #fff;
   box-shadow: 0 2px 2px #fff; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003166}}
 #shortcut li a:hover {
   background: #eaeced; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003169}}
 #shortcut li a:active, #shortcut li a.active {
   background: #c6cacb; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003172}}
 #shortcut li a img {
   margin-bottom: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003176}}
 #content_wrapper {
   width: 100%;
   text-align: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003180}}
 #header {
   width: 100%;
   min-width: 960px;
@@ -3245,33 +2634,39 @@ h4 {
   text-shadow: 1px 0 0 #666;
   color: #ccc; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003189}}
 #header a {
   color: #F1F1F1;
   text-decoration: none;
   text-shadow: 0 0 0 transparent;
   font-weight: bold; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003195}}
 #header a:hover {
   color: #D1D1D1;
   text-decoration: none;
   text-shadow: 0 0 0 transparent; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003200}}
 #header a:active {
   color: #000;
   text-decoration: none;
   text-shadow: 0 0 0 transparent; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003205}}
 #logo {
   width: 290px;
   float: left;
   margin: 8px 0 0 20px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003210}}
 #account_info {
   width: 450px;
   float: left;
   text-align: left;
   margin: 16px 35px 0 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003216}}
 #misc {
   width: 350px;
   height: 40px;
@@ -3279,44 +2674,54 @@ h4 {
   padding: 0px 0px 0 0px;
   float: right; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003223}}
 #misc #menu {
   width: 150px;
   margin: 16px 35px 0 0;
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003228}}
 #misc #img {
   width: 160px;
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003233}}
 a {
   color: #1F92FF;
   text-decoration: none;
   text-shadow: 0 0 0 transparent; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003238}}
 a:hover {
   color: #2F4E85;
   text-decoration: none;
   text-shadow: 0 0 0 transparent; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003243}}
 a:active {
   color: #000;
   text-decoration: none;
   text-shadow: 0 0 0 transparent; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003248}}
 .clear {
   clear: both; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003251}}
 .show {
   display: block; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003254}}
 .hide {
   display: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003258}}
 #left_menu {
   width: 213px;
   height: 100%;
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003264}}
 #main_menu {
   margin: 0;
   padding: 0;
@@ -3326,15 +2731,18 @@ a:active {
   display: block;
   height: 100%; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003273}}
 #main_menu li {
   width: 100%;
   border-top: 1px solid #fff;
   border-bottom: 1px solid #ccc;
   display: block; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003279}}
 #main_menu li.active {
   height: auto; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003282}}
 #main_menu li ul {
   margin: 0;
   padding: 0;
@@ -3349,16 +2757,20 @@ a:active {
   display: none;
   overflow: hidden; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003296}}
 #main_menu li ul li {
   border: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003299}}
 #main_menu li ul li a {
   text-shadow: 0 1px 0 #DBDBDB; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003302}}
 #main_menu li ul li a:hover {
   background: #b1b8c1;
   text-shadow: 0 1px 0 #DBDBDB; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003307}}
 #main_menu li ul li ul {
   margin: 0;
   padding: 0;
@@ -3373,23 +2785,28 @@ a:active {
   display: block;
   overflow: hidden; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003321}}
 #main_menu li ul li ul li {
   border: 0;
   display: block; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003325}}
 #main_menu li ul li ul li a {
   text-shadow: 0 1px 0 #DBDBDB;
   cursor: pointer; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003329}}
 #main_menu li ul li ul li a:hover {
   background: #a2acb9;
   text-shadow: 0 1px 0 #DBDBDB; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003334}}
 #main_menu li a img {
   vertical-align: middle;
   margin-right: 15px;
   border: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003339}}
 #main_menu li a {
   display: block;
   padding: 10px 20px 12px 30px;
@@ -3397,14 +2814,17 @@ a:active {
   font-weight: bold;
   text-shadow: 0 1px 0 #fff; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003346}}
 #main_menu li a:hover {
   background: #DADADA; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003349}}
 #main_menu li.end {
   border-top: 1px solid #fff;
   border-bottom: 0;
   height: 1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003354}}
 a#hide_menu {
   display: block;
   margin-right: 3px;
@@ -3416,9 +2836,11 @@ a#hide_menu {
   border-bottom: 1px solid #ccc;
   cursor: w-resize; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003365}}
 a#hide_menu:hover {
   background: #ccc; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003368}}
 a#show_menu {
   display: none;
   padding: 5px 10px 5px 10px;
@@ -3434,19 +2856,23 @@ a#show_menu {
   cursor: e-resize;
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003383}}
 a#show_menu:hover {
   background: #ccc; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003387}}
 #main {
   margin-left: 15px;
   margin-top: 15px;
   padding: 0;
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003393}}
 #content .inner {
   float: left;
   width: 98%; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003397}}
 .onecolumn {
   float: left;
   width: 100%;
@@ -3459,6 +2885,7 @@ a#show_menu:hover {
   -webkit-box-shadow: 0 1px 2px #ccc;
   box-shadow: 0 1px 2px #ccc; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003409}}
 .onecolumn .header {
   background: url(../images/bg_window_header.png) repeat-x;
   margin: 0;
@@ -3473,6 +2900,7 @@ a#show_menu:hover {
   -webkit-border-top-left-radius: 5px;
   position: relative; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003423}}
 .onecolumn .header span {
   display: block;
   font-size: 12px;
@@ -3488,11 +2916,13 @@ a#show_menu:hover {
  margin-left: 15px;
  padding: 5px 0 0 0;
  }*/
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003438}}
 .switch {
   float: left;
   margin-left: 5px;
   padding: 5px 0 0 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003443}}
 .onecolumn .content {
   background: url(../images/bg_ip.png) repeat-x;
   -moz-border-radius-bottomright: 5px;
@@ -3502,10 +2932,12 @@ a#show_menu:hover {
   border-top: 0px solid #bdbdbd;
   padding: 15px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003452}}
 .twocolumn {
   width: 100%;
   margin: 5px 0 20px 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003456}}
 .column_left, .column_right {
   width: 49%;
   background: #fff;
@@ -3517,9 +2949,11 @@ a#show_menu:hover {
   box-shadow: 0 1px 2px #ccc;
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003467}}
 .column_right {
   float: right; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003470}}
 .column_left .header, .column_right .header {
   margin: 0;
   padding: 0;
@@ -3533,6 +2967,7 @@ a#show_menu:hover {
   -moz-border-radius-topleft: 5px;
   -webkit-border-top-left-radius: 5px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003483}}
 .column_left .header span, .column_right .header span {
   display: block;
   font-size: 13px;
@@ -3542,6 +2977,7 @@ a#show_menu:hover {
   width: auto;
   cursor: n-resize; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003492}}
 .column_left .content, .column_right .content {
   background: url(../images/bg_ip.png) repeat-x;
   -moz-border-radius-bottomright: 5px;
@@ -3552,56 +2988,72 @@ a#show_menu:hover {
   padding-bottom: 10px;
   padding: 25px 15px 15px 15px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003502}}
 .twocolumninfo {
   width: 100%;
   margin: 20px 0 20px 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003506}}
 .column_left2, .column_right2 {
   width: 33%;
   background: #fff;
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003511}}
 .column_right2 {
   float: right; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003514}}
 table.data caption {
   display: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003517}}
 table.data tr {
   background: #f7f7f7; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003520}}
 table.data tr td, table.data tr th {
   border-bottom: 1px solid #ccc; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003523}}
 table.data tr th {
   font-weight: bold;
   background: #eee; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003527}}
 table.data tr th, table.data tr td {
   padding: 7px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003530}}
 table.data tr td {
   color: #666; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003533}}
 table.data2 caption {
   display: none; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003536}}
 table.data2 tr {
   background: #f7f7f7; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003539}}
 table.data2 tr td, table.data2 tr th {
   border-bottom: 1px solid #ccc; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003542}}
 table.data2 tr th {
   font-weight: bold;
   background: #eee; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003546}}
 table.data2 tr th, table.data2 tr td {
   padding: 9px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003549}}
 table.data2 tr td {
   color: #666; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003553}}
 input[type=submit], input[type=button] {
   background: url(../images/bg_button_tab.png);
   background-repeat: repeat-x;
@@ -3614,6 +3066,7 @@ input[type=submit], input[type=button] {
   box-shadow: 0 1px 2px #444;
   color: #333; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003565}}
 input[type=button].right_switch {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
@@ -3633,6 +3086,7 @@ input[type=button].right_switch {
   color: #494949;
   font-size: 12px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003584}}
 input[type=button].left_switch {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
@@ -3652,6 +3106,7 @@ input[type=button].left_switch {
   color: #494949;
   font-size: 12px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003603}}
 input[type=select].middle_switch {
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
@@ -3667,15 +3122,18 @@ input[type=select].middle_switch {
   color: #494949;
   font-size: 12px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003618}}
 input[type=submit]:hover, input[type=button]:hover, input[type=button].right_switch:hover, input[type=button].left_switch:hover, input[type=button].middle_switch:hover {
   border: 1px solid #666; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003621}}
 input[type=submit]:active, input[type=button]:active, input[type=button].right_switch:active, input[type=button].left_switch:active, input[type=button].right_switch.active, input[type=button].left_switch.active, input[type=button].middle_switch:active, input[type=button].middle_switch.active {
   color: #606060;
   border: 1px solid #999;
   background: url(../images/bg_tab_over.png) repeat-x;
   text-shadow: 0 0 0 #999; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003628}}
 #dialog-header {
   width: 100%;
   height: 50px;
@@ -3685,29 +3143,35 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
   margin: 0;
   padding: 0; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003637}}
 #dialog-logo {
   width: 240px;
   float: left;
   margin: 15px 0 0 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003642}}
 #dialog-buttons input {
   margin-right: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003646}}
 #help-button {
   margin-right: 0;
   position: absolute;
   right: 6px;
   top: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003653}}
 #reset-button {
   margin-right: 0;
   position: absolute;
   right: 68px;
   top: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003660}}
 .warning {
   color: #CD0A0A; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003664}}
 .graphmenu {
   top: 0px;
   right: 0px;
@@ -3718,6 +3182,7 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
   float: right;
   text-align: center; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003675}}
 .graphsettings {
   background: #D1D1D1;
   float: none;
@@ -3725,6 +3190,7 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
   border-style: solid;
   border-width: 1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003683}}
 .nodesettings {
   background: #D1D1D1;
   float: none;
@@ -3732,6 +3198,7 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
   border-style: solid;
   border-width: 1px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003691}}
 .graphmenubutton {
   width: 140px;
   margin: 2px;
@@ -3777,57 +3244,70 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
  background: #545454;
  }
  */
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003736}}
 #graphmenuheader {
   font-size: 14px;
   font-weight: bold; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003741}}
 .graphsectionheader {
   text-align: left;
   font-weight: bold;
   margin-top: 3px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003747}}
 #graphmenudivide {
   border-bottom-style: dotted;
   border-top-style: dotted;
   border-color: #000000; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003753}}
 .subjectradiobutton {
   text-align: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003757}}
 #subjectType {
   margin-left: 30px;
   text-align: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003762}}
 #zoominbutton {
   margin-right: 0;
   position: absolute;
   right: 272px;
   top: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003769}}
 #zoomoutbutton {
   margin-right: 0;
   position: absolute;
   right: 178px;
   top: 10px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003776}}
 .readonly {
   border: 0;
   background-color: inherit; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003781}}
 .menu-table {
   vertical-align: middle; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003785}}
 #rightMenuTrigger {
   cursor: s-resize;
   text-decoration: underline; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003790}}
 #internalRadioMenu {
   text-align: left;
   padding-left: 40px; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003795}}
 #processHistory, #timestamps, #processName {
   display: inline;
   float: left; }
 
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/main\.scss}line{font-family:\00003800}}
 #processHistory {
   margin-left: 10px; }

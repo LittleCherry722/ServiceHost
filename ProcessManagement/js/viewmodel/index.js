@@ -192,19 +192,16 @@ var ProcessViewModel = function() {
         self.isProcess(SBPM.Service.Process.getIsProcess(self.processName()));
         var graphAsJson = (self.processStamp == "") ? SBPM.Service.Process.loadGraph(processId) : loadGraphHistory(processId,self.processStamp);
 
-        console.log("isProcess? " + self.isProcess());
         if(self.isProcess()) {
           gf_loadGraph(graphAsJson, processState);
         } else {
           gf_loadCase(graphAsJson, processState);
         }
 
+        // TODO always  throws errors.
         var graph = JSON.parse(graphAsJson);
-
-        console.log(graph);
-
-        console.log("still working");
         self.chargeVM.load(graph);
+
 
         var myOptions = getProcessStamps(processId);
         var mySelect = $('#timestamps');
@@ -236,6 +233,7 @@ var ProcessViewModel = function() {
           gf_createCase(username);
         }
       }
+
 
       // TODO replace this DEPRECATED CALLS!
       setSubjectIDs();
