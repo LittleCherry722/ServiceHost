@@ -136,26 +136,41 @@ var UserViewModel = function() {
 			self.options.push(new groupOption(groups[i].name, groups[i].ID));
 		}
 
-		//console.log(self.options());
+
 		var transform = SBPM.Service.User.getAllUsersAndGroups();
-		//console.log(self.transform);
+
 
 		for(var i in transform) {
-			//console.log(i);
-			//console.log(transform[i]);
-			//console.log(transform[i].groupID);
+
 			self.data.push({
 				'userName' : transform[i].userName,
 				'userID' : transform[i].userID,
-				'groupID' : ko.observableArray(transform[i].groupID)
+				'groupID' : ko.observableArray(transform[i].groupID),
+				'userActive': ko.observable(self.isTrue(transform[i].userActive))
 				
 
 			});
+			
+			
+			
 		}
-		//console.log(self.data());
+
+
 
 		self.initialized = true;
+		
+
+		
+		
 	}
+
+		self.isTrue = function(value){
+				if(value == 1){
+				return true;
+			}else{
+				return false;
+			}
+		}
 
 	self.showDetails = function(user) {
 
@@ -171,7 +186,8 @@ var UserViewModel = function() {
 		self.data.push({
 			userName : "",
 			groupID : ko.observableArray(),
-			userID : 'Will be assigned \n after save'
+			userID : 'Will be assigned \n after save',
+			userActive: ko.observable(true)
 		});
 
 		$(".scrollable input.inline").last().focus();
@@ -179,32 +195,40 @@ var UserViewModel = function() {
 
 	self.save = function() {
 var toSaveData = new Array();
+
 		for(var i in self.data()) {
-			//console.log("self.data[i] User");
-			//console.log(self.data[i]);
-			//console.log(self.data()[i].groupID);
-			//console.log(ko.isObservable(self.data()[i].groupID));
-			//console.log(self.data()[i].userName);
-			//console.log(self.data()[i].groupID());
-			if(ko.isObservable(self.data()[i].groupID))
+
+			
+			if(ko.isObservable(self.data()[i].groupID)){
 			self.data()[i].groupID = self.data()[i].groupID();
-			//console.log(self.data()[i].userName == "");
-			if(! self.data()[i].userName == "")
+			}			
+
+			
+			if(ko.isObservable(self.data()[i].userActive)){
+				if(self.data()[i].userActive()){
+					self.data()[i].userActive = 1
+				}else{
+					self.data()[i].userActive = 0
+				}
+
+			}			
+
+			
+
+			if(! self.data()[i].userName == ""){
 				toSaveData.push(self.data()[i]);
-			//console.log("toSaveData: " + i);	
-			//console.log(toSaveData);	
+
+			}
+	
 		}
 		self.data(toSaveData);
 		
 
-		console.log("Users");
-		console.log(toSaveData);
-		console.log(self.data());
+
 		
 		SBPM.Service.User.saveAll(toSaveData);
 		
 		//ko.mapping.fromJS(SBPM.Service.User.saveAll(toSaveData), self.data);
-		self.loadModel();
 		self.loadModel();
 		self.initialized = false;
 
@@ -270,24 +294,17 @@ var RoleViewModel = function() {
 	self.save = function() {
 var toSaveData = new Array();
 		for(var i in self.data()) {
-			//console.log("self.data[i] Roles");
-			//console.log(self.data[i]);
-			//console.log(self.data()[i].groupID);
-			//console.log(ko.isObservable(self.data()[i].groupID));
-			////console.log(self.data()[i].roleName);
-			//console.log(self.data()[i].groupID());
+
 			if(ko.isObservable(self.data()[i].groupID))
 			self.data()[i].groupID = self.data()[i].groupID();
-			//console.log(self.data()[i].roleName == "");
+
 			if(! self.data()[i].roleName == "")
 				toSaveData.push(self.data()[i]);
-			//console.log(self.data());	
+
 		}
 		self.data(toSaveData);
 		
-		console.log("roles");
-		console.log(toSaveData);
-		console.log(self.data());
+
 		
 		SBPM.Service.Role.saveAll(toSaveData);
 		self.loadModel();
@@ -350,9 +367,7 @@ var GroupViewModel = function() {
 		}
 		 self.data(toSaveData);
 		
-		console.log("groups");
-		console.log(toSaveData);
-		console.log(self.data());
+
 		
 		SBPM.Service.Group.saveAll(toSaveData);
 		self.loadModel();

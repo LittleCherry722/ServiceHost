@@ -51,16 +51,14 @@ if (isset($_REQUEST['action'])) {
 
 		mysql_query("TRUNCATE TABLE group_x_users;");
 
-
-
-
 			foreach ($users as $user) {
 
-				error_log(var_export($user, true));
+				//error_log(var_export($user, true));
 
 				// update user
 				if (is_numeric($user['userID'])){
-				mysql_query("UPDATE `users` Set `users.name` = '" . $user['userName'] . "' WHERE `users.ID` = '" . $user['userID'] .  "' )");
+				mysql_query("UPDATE `users` Set `name` = '" . $user['userName'] . "', `active` = '" . $user['userActive'] . "' WHERE `ID` =  '" . $user['userID'] .  "'");
+					
 					$groups = $user['groupID'];
 					foreach ($groups as $group) {					
 						if(! (is_null($group))){
@@ -70,7 +68,7 @@ if (isset($_REQUEST['action'])) {
 					
 				}else{
 				// insert user	
-				mysql_query("INSERT INTO `users` (`name`) VALUES ( '" . $user['userName'] . "' )");
+				mysql_query("INSERT INTO `users` (`name`, `active`) VALUES ( '" . $user['userName'] . "', '" . $user['userActive'] . "')");
 				if(key_exists('groupID', $user)){
 					$groups = $user['groupID'];
 					foreach ($groups as $group) {					
@@ -155,13 +153,13 @@ if (isset($_REQUEST['action'])) {
 		$return['users'] = $users;
 		$return['code'] = "ok";
 	}elseif ($_REQUEST['action'] == "getAllUsersAndGroups"){
-		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, users.name as userName, users.ID as userID FROM (groups right JOIN group_x_users ON groups.ID = group_x_users.groupID) right JOIN users ON group_x_users.userID = users.ID");
+		$result = mysql_query("	SELECT groups.name as groupName, groups.ID as groupID, users.name as userName, users.ID as userID, users.active as userActive FROM (groups right JOIN group_x_users ON groups.ID = group_x_users.groupID) right JOIN users ON group_x_users.userID = users.ID");
 		$users = array();
 		while ($user = mysql_fetch_array($result, MYSQL_ASSOC)){
 			if(array_key_exists($user['userID'], $users)){
 				array_push($users[$user['userID']]['groupName'], $user['groupName']);
 				array_push($users[$user['userID']]['groupID'], $user['groupID']);
-				}
+								}
 			else{
 				$users[$user['userID']] = $user;
 				$users[$user['userID']]['groupName'] = array($user['groupName']);

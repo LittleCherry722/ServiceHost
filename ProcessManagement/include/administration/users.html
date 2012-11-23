@@ -5,6 +5,7 @@
             	<th>ID</th>
                 <th>Name</th>
                 <th>Group</th>
+                <th>Active</th>
                 <th>Delete</th>
     <!--            <th>Pool Size</th>
                  <th /> -->
@@ -23,6 +24,7 @@
                         <div class="slider"></div>
                     </div>
                 </td>-->
+                <td><input type="checkbox" data-bind="checked: userActive" /></td>
                 <td><input type="button" class="button" value="Delete" data-bind='click: $parent.remove' /></td>
             </tr>
         </tbody>
