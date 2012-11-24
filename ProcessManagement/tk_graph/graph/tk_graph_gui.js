@@ -246,6 +246,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputEdgeTargetO);
 	gf_guiElementHide(gv_elements.inputEdgeTargetMMMO);
 	gf_guiElementHide(gv_elements.inputEdgeTargetMOuter);
+	gf_guiElementHide(gv_elements.inputEdgeTargetNewO);
 	gf_guiElementHide(gv_elements.inputEdgeTypeCondO);
 	gf_guiElementHide(gv_elements.inputEdgeTypeExceptO);
 	gf_guiElementHide(gv_elements.inputEdgeTypeTimeoutO);
@@ -284,6 +285,8 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputEdgeTarget, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMMin, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMMax, "string", "");
+	gf_guiElementWrite(gv_elements.inputEdgeTargetNewName, "string", "");
+	gf_guiElementWrite(gv_elements.inputEdgeTargetNewRole, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeText, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTimeout, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTransportMethod, "string", "");
@@ -447,9 +450,10 @@ function gf_guiDisplayEdge (edge, startType)
 			// load drop down fields
 			gf_guiLoadDropDownCorrelationIds(edge.parentBehavior, gv_elements.inputEdgeCorrelationId, true, false);
 			gf_guiLoadDropDownMessageTypes(gv_elements.inputEdgeMessage, true, false);
-			gf_guiLoadDropDownSubjects(gv_elements.inputEdgeTarget, gv_graph.selectedSubject, false);
+			gf_guiLoadDropDownSubjects(gv_elements.inputEdgeTarget, gv_graph.selectedSubject, false, true);
 			gf_guiLoadDropDownTransportMethods(gv_elements.inputEdgeTransportMethod, edge.getTransportMethod());
 			gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
+			gf_guiLoadDropDownNewSubject(gv_elements.inputEdgeTargetNewRole, gv_elements.inputSubjectRole);
 		
 			// show elements
 			gf_guiElementShow(gv_elements.inputEdgeCorrelationIdO);
@@ -507,6 +511,18 @@ function gf_guiDisplayEdge (edge, startType)
 						gf_guiElementShow(gv_elements.inputEdgeTargetMVarTextO);
 					else
 						gf_guiElementHide(gv_elements.inputEdgeTargetMVarTextO);
+				};
+			}
+				
+			// add onChange event for related subject drop down
+			if (gf_elementExists(gv_elements.inputEdgeTarget))
+			{
+				document.getElementById(gv_elements.inputEdgeTarget).onchange = function ()
+				{
+					if (gf_guiElementRead(gv_elements.inputEdgeTarget, "string") == "##createNew##")
+						gf_guiElementShow(gv_elements.inputEdgeTargetNewO);
+					else
+						gf_guiElementHide(gv_elements.inputEdgeTargetNewO);
 				};
 			}
 			
@@ -1136,6 +1152,63 @@ function gf_guiLoadDropDownMessageTypes (elementMessage, newMessage, wildcard)
 }
 
 /**
+ * TODO
+ */
+function gf_guiLoadDropDownNewSubject (elementSubject, elementSetSubjectIDs)
+{	
+	if (gf_elementExists(elementSubject, elementSetSubjectIDs) && gf_elementExists(elementSubject, elementSetSubjectIDs))
+	{
+		var gt_select			= document.getElementById(elementSubject).options;
+			gt_select.length	= 0;
+		
+		// create some entries to guide the user
+		var gt_option			= document.createElement("option");
+			gt_option.text		= "please select";
+			gt_option.value		= "";
+			gt_option.id		= elementSubject + "_00000.0";
+			gt_select.add(gt_option);
+		
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementSubject + "_00000.1";
+			gt_select.add(gt_option);
+			
+			// copy entries from role selection in subject settings
+			if (gf_isset(document.getElementById(elementSetSubjectIDs).options))
+			{
+				var gt_options	= document.getElementById(elementSetSubjectIDs).options;
+				
+				for (var gt_optId in gt_options)
+				{
+					var gt_oldOption	= gt_options[gt_optId];
+					
+					if (gf_isset(gt_oldOption.tagName) && gt_oldOption.tagName.toLowerCase() == "option")
+					{
+						gt_option			= document.createElement("option");
+						gt_option.text		= gt_oldOption.text;
+						gt_option.value		= gt_oldOption.value;
+						gt_option.id		= elementSubject + "_" + gt_oldOption.value;
+						gt_select.add(gt_option);
+					}
+				}
+			}
+			
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementSubject + "_00000.42";
+			gt_select.add(gt_option);
+			
+			gt_option			= document.createElement("option");
+			gt_option.text		= "noRole / noUser";
+			gt_option.value		= "";
+			gt_option.id		= elementSubject + "_00000.21";
+			gt_select.add(gt_option);
+	}
+}
+
+/**
  * This method is used to fill a select field with all available node types.
  * 
  * @param {String} elementNodeTypes The ID of the select element that holds the available node types.
@@ -1266,15 +1339,19 @@ function gf_guiLoadDropDownStates (behavior, elementState)
  * @param {String} elementSubject The ID of the select element that holds the available subjects.
  * @param {String} excludeSubject The subject to exclude from the list.
  * @param {boolean} wildcard When set to true an option will be added to the select field to select all subjects (wildcard).
+ * @param {boolean} createNew When set to true an option for creating a new subject will be added.
  * @returns {void}
  */
-function gf_guiLoadDropDownSubjects (elementSubject, excludeSubject, wildcard)
+function gf_guiLoadDropDownSubjects (elementSubject, excludeSubject, wildcard, createNew)
 {
 	if (!gf_isset(excludeSubject))
 		excludeSubject	= null;
 		
 	if (!gf_isset(wildcard) || wildcard !== true)
 		wildcard = false;
+		
+	if (!gf_isset(createNew) || createNew !== true)
+		createNew = false;
 	
 	
 	// load subjects
@@ -1335,6 +1412,22 @@ function gf_guiLoadDropDownSubjects (elementSubject, excludeSubject, wildcard)
 			gt_option.text	= gf_replaceNewline(gt_subjArray[0], " ");
 			gt_option.value = gt_subjID;
 			gt_option.id	= elementSubject + "_" + gt_subjID;
+			gt_select.add(gt_option);
+		}
+		
+		// options for creating a new subject
+		if (createNew === true)
+		{
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementSubject + "_00000.4221";
+			gt_select.add(gt_option);
+			
+			gt_option			= document.createElement("option");
+			gt_option.text		= "create new subject";
+			gt_option.value		= "##createNew##";
+			gt_option.id		= elementSubject + "_00000.createNew";
 			gt_select.add(gt_option);
 		}
 	}
@@ -1689,7 +1782,7 @@ function gf_guiReadEdge ()
 {
 	var gt_result	= {text: "", relatedSubject: "", timeout: "", type: "", optional: false, messageType: "", priority: 1, manualTimeout: false, exception: "", variable: "", variableText: "", correlationId: "", comment: "", transportMethod: ""};
 	
-	var gt_relatedSubject	= {id: "", min: -1, max: -1, createNew: false, variable: "", variableText: "", useVariable: false};
+	var gt_relatedSubject	= {id: "", min: -1, max: -1, createNew: false, variable: "", variableText: "", useVariable: false, createNew: false, createNewRole: "", createNewName: ""};
 	
 	var gt_text				= gf_guiElementRead(gv_elements.inputEdgeText, "string", "");
 	var gt_exception		= gf_guiElementRead(gv_elements.inputEdgeExceptionText, "string", "");
@@ -1718,6 +1811,9 @@ function gf_guiReadEdge ()
 	gt_relatedSubject.variable		= gt_isVariable ? gt_targetVar : "";
 	gt_relatedSubject.variableText	= gt_isVariable ? gt_targetVarNew : "";
 	gt_relatedSubject.useVariable	= gt_isVariable;
+	gt_relatedSubject.createNew		= gf_guiElementRead(gv_elements.inputEdgeTarget, "string", "") == "##createNew##";
+	gt_relatedSubject.createNewRole	= gf_guiElementRead(gv_elements.inputEdgeTargetNewRole, "string", "");
+	gt_relatedSubject.createNewName	= gf_guiElementRead(gv_elements.inputEdgeTargetNewName, "string", "");
 	
 	var gt_type				= "exitcondition";
 	

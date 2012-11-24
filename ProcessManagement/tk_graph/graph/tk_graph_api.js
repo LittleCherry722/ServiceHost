@@ -858,10 +858,8 @@ function gf_loadCase (jsonString, state)
 	else
 	{
 		gv_graph.loadFromJSON(jsonString);
-	
-		gv_graph.selectedSubject	= "me";
-		gf_changeView("bv");
-		gv_graph.selectMacro("##main##");
+		gf_toggleBV();
+		gv_graph.drawBehavior("me");
 	}
 }
 

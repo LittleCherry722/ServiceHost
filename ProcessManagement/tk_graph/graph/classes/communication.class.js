@@ -456,7 +456,7 @@ function GCcommunication ()
 	this.createCase = function (userName)
 	{
 		// initialize the canvas
-		this.init();
+		this.init("bv");
 		this.clearGraph(true);
 		
 		// add the "me" Subject
@@ -464,10 +464,10 @@ function GCcommunication ()
 		
 		// add the internal behavior
 		var gt_behav		= this.getBehavior("me");
-		
 		gt_behav.addNode("start", "What to do?", "action", true, false, false);
-		gt_behav.addNode("end", "", "end", false, true, false);
-		gt_behav.addEdge("start", "end", "", null, "exitcondition", false, false);
+		
+		// toggle bv
+		gf_toggleBV();
 		
 		this.drawBehavior("me");
 	};
@@ -1086,10 +1086,14 @@ function GCcommunication ()
 	/**
 	 * Initialize the GCcommunication instance.
 	 * 
+	 * @param {String} view Either bv or cv. (optional)
 	 * @returns {void}
 	 */
-	this.init = function ()
+	this.init = function (view)
 	{
+		if (!gf_isset(view) || view != "bv")
+			view = "cv";
+			
 		if (gf_elementExists(gv_elements.graphBVouter))
 		{
 			if (document.getElementById(gv_elements.graphBVouter).innerHTML == "")
@@ -1113,8 +1117,12 @@ function GCcommunication ()
 				gv_bv_paper = Raphael(gv_elements.graphBVouter, gv_paperSizes.bv_width, gv_paperSizes.bv_height);
 				
 			// load the communication view
-			if (gv_cv_paper != null)
-				this.changeView("cv");
+			if (gv_cv_paper != null && view == "cv")
+				this.changeView(view);
+				
+			// load the behavioral view
+			if (gv_bv_paper != null && view == "bv")
+				this.changeView(view);
 		}
 	};
 	

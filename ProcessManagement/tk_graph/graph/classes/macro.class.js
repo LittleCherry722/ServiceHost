@@ -695,6 +695,20 @@ function GCmacro (parent, id, name)
 					gt_relatedSubject.variable = "";
 			}
 			
+			if (gf_isset(gt_relatedSubject.createNew, gt_relatedSubject.createNewName, gt_relatedSubject.createNewRole))
+			{
+				if (gt_relatedSubject.createNew === true && gt_relatedSubject.createNewName != "")
+				{
+					var gt_newSubjectRole	= gt_relatedSubject.createNewRole == "" ? "noRole" : gt_relatedSubject.createNewRole;
+					var gt_newSubjectId		= "Subj" + ++gv_graph.nodeCounter;
+					
+					gv_graph.addSubject(gt_newSubjectId, gt_relatedSubject.createNewName);
+					gv_graph.subjects[gt_newSubjectId].setRole(gt_newSubjectRole);
+					
+					gt_relatedSubject.id	= gt_newSubjectId;
+				}
+			}
+			
 			// manipulate edge
 			gt_edge.setPriority(gt_priority);
 			gt_edge.setManualTimeout(gt_manualTimeout);
