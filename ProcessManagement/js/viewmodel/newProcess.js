@@ -49,7 +49,7 @@ var ViewModel = function() {
 
 	self.goToProcess = function(process) {
 		processVM = parent.SBPM.VM.goToPage("process");
-    processVM.showProcess(process);
+    processVM.showProcess(process, null, null, self.isProcess());
     processVM.isProcess(self.isProcess());
 
 		if(self.quickVM.displayTable()) {

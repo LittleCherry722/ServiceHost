@@ -169,7 +169,8 @@ var ProcessViewModel = function() {
     return self.processViews[self.activeViewIndex()];
   };
 
-  self.showProcess = function(processName, showInformation, processState) {
+  self.showProcess = function(processName, showInformation, processState, isProcess) {
+
 
     self.processName(processName);
     console.log("ProcessViewModel: showProcess called. processName="+self.processName());
@@ -189,7 +190,10 @@ var ProcessViewModel = function() {
        *  1..n -> old process
        */
       if(processId > 0){
-        self.isProcess(SBPM.Service.Process.getIsProcess(self.processName()));
+        if (isProcess === null || isProcess === undefined) {
+          isProcess = SBPM.Service.Process.getIsProcess(self.processName());
+        }
+        self.isProcess(isProcess);
         var graphAsJson = (self.processStamp == "") ? SBPM.Service.Process.loadGraph(processId) : loadGraphHistory(processId,self.processStamp);
 
         if(self.isProcess()) {
@@ -222,8 +226,8 @@ var ProcessViewModel = function() {
         });
 
         console.log(graph);
-      }else{
-        if (self.isProcess()) {
+      } else {
+        if (isProcess === true) {
           console.log("load empty graph");
           gv_graph.loadFromJSON("{}");
         } else {
@@ -238,9 +242,9 @@ var ProcessViewModel = function() {
       // TODO replace this DEPRECATED CALLS!
       setSubjectIDs();
       $("#tab2").addClass("active");
-      if(typeof(processState) != "undefined") {
+      if (processState !== undefined && processState !== null) {
         console.log(processState);
-        if(processState.behavior != null) {
+        if(processState.behavior !== null) {
           $("#tab2").removeClass("active");
         }
       }
