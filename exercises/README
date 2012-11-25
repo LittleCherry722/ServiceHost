@@ -1,0 +1,8 @@
+Save your solutions in the corresponding sub-directories.
+
+Name your file as follows: solution.<firstname if lastname is ambiguous><lastname>.scala
+
+e.g.
+John Doe is commiting his solution for chapter 14 and there is no other "Doe":
+
+14/solution.doe.scala
