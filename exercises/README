@@ -4,5 +4,8 @@ Name your file as follows: solution.<firstname if lastname is ambiguous><lastnam
 
 e.g.
 John Doe is commiting his solution for chapter 14 and there is no other "Doe":
-
 14/solution.doe.scala
+
+
+HINT: For easier testing & reviewing please use the template (solution.template.scala) in the same folder as this file.
+

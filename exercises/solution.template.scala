@@ -47,7 +47,7 @@ object Tasks extends Tasks{
   new Task("Task 3"){
 	  def solution() = {
 
-	  		// your solution for task 2 here
+	  		// your solution for task 3 here
 	    
 	  }
   }
@@ -55,7 +55,7 @@ object Tasks extends Tasks{
   new Task("Task 4"){
 	  def solution() = {
 
-	  		// your solution for task 2 here
+	  		// your solution for task 4 here
 	    
 	  }
   }
@@ -63,7 +63,7 @@ object Tasks extends Tasks{
   new Task("Task 5"){
 	  def solution() = {
 
-	  		// your solution for task 2 here
+	  		// your solution for task 5 here
 	    
 	  }
   }
@@ -71,7 +71,7 @@ object Tasks extends Tasks{
   new Task("Task 6"){
 	  def solution() = {
 
-	  		// your solution for task 2 here
+	  		// your solution for task 6 here
 	    
 	  }
   } 
@@ -79,7 +79,7 @@ object Tasks extends Tasks{
   new Task("Task 7"){
 	  def solution() = {
 
-	  		// your solution for task 2 here
+	  		// your solution for task 7 here
 	    
 	  }
   }
@@ -87,7 +87,7 @@ object Tasks extends Tasks{
   new Task("Task 8"){
 	  def solution() = {
 
-	  		// your solution for task 2 here
+	  		// your solution for task 8 here
 	    
 	  }
   }
@@ -95,7 +95,7 @@ object Tasks extends Tasks{
   new Task("Task 9"){
 	  def solution() = {
 
-	  		// your solution for task 2 here
+	  		// your solution for task 9 here
 	    
 	  }
   }
@@ -103,7 +103,7 @@ object Tasks extends Tasks{
   new Task("Task 10"){
 	  def solution() = {
 
-	  		// your solution for task 2 here
+	  		// your solution for task 10 here
 	    
 	  }
   }
