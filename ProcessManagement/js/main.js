@@ -1,3 +1,4 @@
+
 // Require.js allows us to configure shortcut alias
 require.config({
 	paths: {
@@ -21,16 +22,12 @@ require.config({
 		"jquery.qtip":       ["jquery"],
 		"jquery.scrollTo":   ["jquery"],
 		"jquery.bootstrap":  ["jquery"],
-		"knockout.mapping":  ["knockout"]
 	}
 
 });
 
-require([
+require([ 'app' ], function(App){
 
-	// Load our app module and pass it to our definition function
-	'app',
-], function(App){
 	// The "app" dependency is passed in as "App"
 	App.initialize();
 });

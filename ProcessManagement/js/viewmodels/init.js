@@ -10,7 +10,8 @@ $(document).ready(function() {
 
 			console.log("Application: Loading mediator failed. Falling back to standard mediator.");
 
-			// do some minimal viable stuff to initialize an ViewModel without a Mediator (backward-compability)
+			// do some minimal viable stuff to initialize an ViewModel without a
+			// Mediator (backward-compability)
 			SBPM.Mediator = new (function(){
 
 				// Extends IMediator
