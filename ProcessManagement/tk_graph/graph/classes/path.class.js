@@ -456,8 +456,12 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		{
 			var tObject		= gv_objects_nodes[objId];
 			
+			gf_timeCalc("path - intersection check - calculate pathSegments");
+			var gt_tObjectSegments	= tObject.toPathSegments();
+			gf_timeCalc("path - intersection check - calculate pathSegments");
+			
 			// check intersection of path with node
-			if (!labelsOnly && this.checkIntersectionSegments(this.pathSegments, tObject.toPathSegments()))
+			if (!labelsOnly && this.checkIntersectionSegments(this.pathSegments, gt_tObjectSegments))
 				return true;
 				
 			// check intersection of path's label with node (deactivated)
@@ -491,6 +495,10 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 					}
 				}
 				
+				gf_timeCalc("path - intersection check - calculate pathSegments");
+				var gt_tObjectSegments	= tObject.label.toPathSegments();
+				gf_timeCalc("path - intersection check - calculate pathSegments");
+				
 				// check intersection of path with other paths (deactivated)
 				/*
 				if (!labelsOnly && this.checkIntersectionSegments(this.pathSegments, tObject.pathSegments))
@@ -498,7 +506,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 				*/
 				
 				// check intersection of path with other paths' labels
-				if (this.checkIntersectionSegments(this.pathSegments, tObject.label.toPathSegments()))
+				if (this.checkIntersectionSegments(this.pathSegments, gt_tObjectSegments))
 					return true;
 					
 				// check intersection of path's label with other paths (deactivated)
@@ -530,6 +538,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	{
 		var gt_intersects	= false;
 		
+		gf_timeCalc("path - intersection check - calculation");
 		for (var gt_i1 = 0; gt_i1 < segments1.length - 1; gt_i1++)
 		{
 			for (var gt_i2 = 0; gt_i2 < segments2.length - 1; gt_i2++)
@@ -569,6 +578,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			    }
 			}
 		}
+		gf_timeCalc("path - intersection check - calculation");
 		
 		return gt_intersects;
 	};

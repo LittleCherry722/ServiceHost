@@ -699,7 +699,7 @@ function GCmacro (parent, id, name)
 			{
 				if (gt_relatedSubject.createNew === true && gt_relatedSubject.createNewName != "")
 				{
-					var gt_newSubjectRole	= gt_relatedSubject.createNewRole == "" ? "noRole" : gt_relatedSubject.createNewRole;
+					var gt_newSubjectRole	= gt_relatedSubject.createNewRole == "" ? gv_graph.getProcessText("noRole") : gt_relatedSubject.createNewRole;
 					var gt_newSubjectId		= "Subj" + ++gv_graph.nodeCounter;
 					
 					gv_graph.addSubject(gt_newSubjectId, gt_relatedSubject.createNewName);

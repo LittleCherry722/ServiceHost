@@ -67,6 +67,13 @@ function GCcommunication ()
 	this.nodeCounter		= 0;
 	
 	/**
+	 * Flag indicating whether the graph is a process or a case (to distinguish between roles and users).
+	 * 
+	 * @type boolean
+	 */
+	this.processFlag	= true;
+	
+	/**
 	 * The currently selected channel
 	 * 
 	 * @type String
@@ -412,6 +419,8 @@ function GCcommunication ()
 			this.messageTypes		= {};
 			this.messageTypeCounter	= 0;
 			
+			this.processFlag		= true;
+			
 			this.draw();
 		}
 		
@@ -458,6 +467,7 @@ function GCcommunication ()
 		// initialize the canvas
 		this.init("bv");
 		this.clearGraph(true);
+		this.processFlag	= false;
 		
 		// add the "me" Subject
 		this.addSubject("me", userName, "single", -1, false);
@@ -930,6 +940,39 @@ function GCcommunication ()
 	};
 	
 	/**
+	 * Returns a proper string depending on the processFlag.
+	 * 
+	 * @param {String} type Currently either "subject" (Subject / Subjectprovider) or "noRole" (noRole / noUser).
+	 * @returns {String} A string depending on the processFlag.
+	 */
+	this.getProcessText = function (type)
+	{
+		var gt_result	= "";
+		
+		if (gf_isset(type))
+		{
+			type	= type.toLowerCase();
+			
+			if (type == "subject")
+			{
+				if (this.isProcess())
+					gt_result	= "Subject";
+				else
+					gt_result	= "Subjectprovider";
+			}
+			else if (type == "norole")
+			{
+				if (this.isProcess())
+					gt_result	= "noRole";
+				else
+					gt_result	= "noUser";
+			}
+		}
+		
+		return gt_result;
+	};
+	
+	/**
 	 * Returns the id of the selected channel.
 	 * 
 	 * @param {String} view Indicates when a view is changed.
@@ -973,7 +1016,7 @@ function GCcommunication ()
 		{
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
-				return this.getBehavior(this.selectedSubject).selectedNode;
+				return this.getBehavior(this.selectedSubject).getMacro().selectedNode;
 			}
 		}
 		return null;
@@ -1127,13 +1170,23 @@ function GCcommunication ()
 	};
 	
 	/**
+	 * Returns true when the processFlag is set to true.
+	 * 
+	 * @returns {boolean} True when the graph is a process and no case.
+	 */
+	this.isProcess = function ()
+	{
+		return this.processFlag !== false;
+	};
+	
+	/**
 	 * Loads a process graph from a given JSON representation stored in the database.
 	 * 
 	 * @param {String} jsonString The JSON representation of a process.
 	 * @returns {void}
 	 */
 	this.loadFromJSON = function (jsonString)
-	{
+	{		
 		var gt_messages		= {};		// messageText: messageID
 		
 		if (gf_isset(jsonString))
