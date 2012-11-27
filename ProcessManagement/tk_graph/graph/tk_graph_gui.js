@@ -1066,7 +1066,7 @@ function gf_guiLoadDropDownMacros (behavior, elementMacro, newMacro)
 /**
  * This method is used to fill a select field with all available messageTypes.
  * 
- * @param {String} elementMessage The ID of the select element that holds the available messaageTypes.
+ * @param {String} elementMessage The ID of the select element that holds the available messageTypes.
  * @param {boolean} newMessage When set to true an option will be added to create a new messageType.
  * @param {boolean} wildcard When set to true an option will be added to the select field to select all messageTypes (wildcard).
  * @returns {void}
@@ -1152,7 +1152,11 @@ function gf_guiLoadDropDownMessageTypes (elementMessage, newMessage, wildcard)
 }
 
 /**
- * TODO
+ * Fill a drop down with roles / users for creating a new subject.
+ * 
+ * @param {String} elementSubject The ID of the select element that holds the available subject roles / users.
+ * @param {String} elementSetSubjectIDs The ID of the select element that holds the list of available roles / users set by setSubjectIDs().
+ * @returns {void}
  */
 function gf_guiLoadDropDownNewSubject (elementSubject, elementSetSubjectIDs)
 {	
@@ -1201,7 +1205,7 @@ function gf_guiLoadDropDownNewSubject (elementSubject, elementSetSubjectIDs)
 			gt_select.add(gt_option);
 			
 			gt_option			= document.createElement("option");
-			gt_option.text		= "noRole / noUser";
+			gt_option.text		= gv_graph.getProcessText("noRole");
 			gt_option.value		= "";
 			gt_option.id		= elementSubject + "_00000.21";
 			gt_select.add(gt_option);
@@ -1425,7 +1429,7 @@ function gf_guiLoadDropDownSubjects (elementSubject, excludeSubject, wildcard, c
 			gt_select.add(gt_option);
 			
 			gt_option			= document.createElement("option");
-			gt_option.text		= "create new subject";
+			gt_option.text		= "create new " + gv_graph.getProcessText("subject");
 			gt_option.value		= "##createNew##";
 			gt_option.id		= elementSubject + "_00000.createNew";
 			gt_select.add(gt_option);

@@ -209,12 +209,12 @@ function GCsubject (id, text, type, inputPool)
 	/**
 	 * Returns the ID of the role that is assigned to this subject.
 	 * 
-	 * @returns {String} The ID of the role that is assigned to this subject.
+	 * @returns {String} The ID of the role / user that is assigned to this subject.
 	 */
 	this.getRole = function ()
 	{
-		if (this.role == null || this.role == "")
-			return "noRole";
+		if (this.role == null || this.role == "" || this.role == "noUser" || this.role == "noRole")
+			return gv_graph.getProcessText("noRole");
 			
 		return this.role;
 	};
