@@ -10,7 +10,7 @@ define([ "director" ], function( Director ) {
 
 	}
 
-	// Everything here will is private
+	// Everything here is private
 	initialize = function() {
 		Director(routes).init();
 	}
