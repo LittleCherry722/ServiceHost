@@ -26,8 +26,8 @@ require.config({
 
 });
 
-require([ 'app' ], function(App){
+require([ 'router' ], function(Router){
 
 	// The "app" dependency is passed in as "App"
-	App.initialize();
+	Router.init();
 });
