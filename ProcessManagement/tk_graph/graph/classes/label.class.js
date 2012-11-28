@@ -82,7 +82,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 * @see Paper.rect() at the <a href="http://raphaeljs.com/reference.html#Paper.rect">Raphael documentation</a>
 	 * @type Element[]
 	 */
-	this.multiRR	= [];
+	this.multiRR	= [null, null, null];
 	
 	/**
 	 * Optional flag.
@@ -91,6 +91,13 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 * @type boolean
 	 */
 	this.optional	= false;
+	
+	/**
+	 * Path segments of the label's boundaries.
+	 * 
+	 * @type Array
+	 */
+	this.pathSegments	= [];
 	
 	/**
 	 * X-radius of label, backed up for performance issues.
@@ -129,7 +136,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 * 
 	 * @type String
 	 */
-	this.shape		= "roundedrectangle";
+	this.shape		= "";	// roundedrectangle
 	
 	/**
 	 * The style information for this node.
@@ -154,6 +161,20 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 * @type String
 	 */
 	this.textAlignAttribute	= "textAlign";
+	
+	/**
+	 * Holds the current position of the text.
+	 * 
+	 * @type Object
+	 */
+	this.textPosition	= {x: 0, y: 0};
+	
+	/**
+	 * Backup the label's text.
+	 * 
+	 * @type String
+	 */
+	this.textString		= "";
 	
 	/**
 	 * The x ordinate of the top left corner.
@@ -196,16 +217,25 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			// set the event handlers for the communication view (label is a subject)
 			if (graph == "cv")
 			{
-				this.rectangle.click(function () {gf_paperClickNodeC(id); });
-				this.ellipse.click(function () {gf_paperClickNodeC(id); });
+				if (this.rectangle != null)
+				{
+					this.rectangle.click(function () {gf_paperClickNodeC(id); });
+					this.rectangle.dblclick(function () {gf_paperDblClickNodeC(id); });
+				}
 				
-				this.rectangle.dblclick(function () {gf_paperDblClickNodeC(id); });
-				this.ellipse.dblclick(function () {gf_paperDblClickNodeC(id); });
+				if (this.ellipse != null)
+				{
+					this.ellipse.click(function () {gf_paperClickNodeC(id); });
+					this.ellipse.dblclick(function () {gf_paperDblClickNodeC(id); });
+				}
 				
 				for (rrId in this.multiRR)
 	 			{
-	 				this.multiRR[rrId].click(function () {gf_paperClickNodeC(id);});
-	 				this.multiRR[rrId].dblclick(function () {gf_paperDblClickNodeC(id); });
+	 				if (this.multiRR[rrId] != null)
+	 				{
+		 				this.multiRR[rrId].click(function () {gf_paperClickNodeC(id);});
+		 				this.multiRR[rrId].dblclick(function () {gf_paperDblClickNodeC(id); });
+	 				}
 	 			}
 			}
 			
@@ -214,24 +244,36 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			{
 				if (this.belongsToPath)
 				{
-					this.rectangle.click(function () {gf_paperClickEdge(id); });
-					this.ellipse.click(function () {gf_paperClickEdge(id); });
+					if (this.rectangle != null)
+						this.rectangle.click(function () {gf_paperClickEdge(id); });
+						
+					if (this.ellipse != null)
+						this.ellipse.click(function () {gf_paperClickEdge(id); });
 				}
 				else
 				{
-					this.rectangle.click(function () {gf_paperClickNodeB(id); });
-					this.ellipse.click(function () {gf_paperClickNodeB(id); });
+					if (this.rectangle != null)
+						this.rectangle.click(function () {gf_paperClickNodeB(id); });
+					
+					if (this.ellipse != null)
+						this.ellipse.click(function () {gf_paperClickNodeB(id); });
 				}
 			}
 			
 			// set the event handlers for the behavioral view (double click for macro nodes)
 			else if (graph == "bv_dblclick")
 			{
-				this.rectangle.click(function () {gf_paperClickNodeB(id); });
-				this.ellipse.click(function () {gf_paperClickNodeB(id); });
+				if (this.rectangle != null)
+				{
+					this.rectangle.click(function () {gf_paperClickNodeB(id); });
+					this.rectangle.dblclick(function () {gf_paperDblClickNodeB(id); });
+				}
 				
-				this.rectangle.dblclick(function () {gf_paperDblClickNodeB(id); });
-				this.ellipse.dblclick(function () {gf_paperDblClickNodeB(id); });
+				if (this.ellipse != null)
+				{
+					this.ellipse.click(function () {gf_paperClickNodeB(id); });
+					this.ellipse.dblclick(function () {gf_paperDblClickNodeB(id); });
+				}
 			}
 			
 			// set the event handlers for the behavioral view (no click)
@@ -239,8 +281,12 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			{
 				// no click events
 			}
-			$(this.text.node).css("pointer-events", "none");
-			$(this.img.node).css("pointer-events", "none");
+			
+			if (this.text != null)
+				$(this.text.node).css("pointer-events", "none");
+				
+			if (this.img != null)
+				$(this.img.node).css("pointer-events", "none");
 		}
 	};
 	
@@ -295,7 +341,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		if (this.shape == "roundedrectanglemulti")
 		{
 			var bbox1	= this.rectangle.getBBox();
-			var bbox2	= this.multiRR[3].getBBox();
+			var bbox2	= this.multiRR[this.multiRR.length - 1].getBBox();
 			
 			bbox.top	= Math.round(bbox2.y);
 			bbox.bottom	= Math.round(bbox1.y2);
@@ -360,8 +406,12 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	this.hide = function ()
 	{
 		this.hideObjects();
-		this.text.hide();
-		this.img.hide();
+		
+		if (this.text != null)
+			this.text.hide();
+		
+		if (this.img != null)
+			this.img.hide();
 	};
 	
 	/**
@@ -373,10 +423,15 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	{
 		for (rrId in this.multiRR)
  		{
-			this.multiRR[rrId].hide();
+ 			if (this.multiRR[rrId] != null)
+				this.multiRR[rrId].hide();
 		}
-		this.rectangle.hide();
-		this.ellipse.hide();
+		
+		if (this.rectangle != null)
+			this.rectangle.hide();
+		
+		if (this.ellipse != null)
+			this.ellipse.hide();
 	};
 	
 	/**
@@ -394,11 +449,11 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		this.multiRR[1]	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.rectangle	= gv_paper.rect(0, 0, 0, 0, 0);
 		this.ellipse	= gv_paper.ellipse(0, 0, 0, 0);
-		this.img		= gv_paper.image(gv_emptyImgPath, 0, 0, 0, 0);
+		// this.img		= gv_paper.image(gv_emptyImgPath, 0, 0, 0, 0);
 		
-		gf_timeCalc("label - init - text", this.belongsToPath);
-		this.text		= gv_paper.text(0, 0, "");
-		gf_timeCalc("label - init - text", this.belongsToPath);
+		// gf_timeCalc("label - init - text", this.belongsToPath);
+		// this.text		= gv_paper.text(0, 0, "");
+		// gf_timeCalc("label - init - text", this.belongsToPath);
 		
 		gf_timeCalc("label - init", this.belongsToPath);
 		
@@ -435,6 +490,9 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	this.refreshStyle = function ()
 	{
 		
+		if (this.belongsToPath === true)
+			gf_taskCounterCount("label - refresh style");
+		
 		/*
 		 * status dependent styles
 		 */
@@ -456,44 +514,48 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		var strokeWidth		= strokeDasharray == "none" ? 0 : this.readStyle("borderWidth" + statusDependent, "int");
 		var textAlign		= gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align;
 		
+		var params						= {};
+			params["opacity"]			= this.readStyle("opacity" + statusDependent, "float");
+			params["stroke-opacity"]	= this.readStyle("borderOpacity" + statusDependent, "float");
+			params["stroke-width"]		= strokeWidth;
+			params["stroke-dasharray"]	= strokeDasharray;
+			params["fill-opacity"]		= this.readStyle("bgOpacity" + statusDependent, "float");
+			params["stroke"]			= this.readStyle("borderColor" + statusDependent, "");
+			params["fill"]				= this.readStyle("bgColor" + statusDependent, "");
+		
 		// apply rectangle style information
-		this.rectangle.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
-		this.rectangle.attr("stroke-opacity", this.readStyle("borderOpacity" + statusDependent, "float"));
-		this.rectangle.attr("stroke-width", strokeWidth);
-		this.rectangle.attr("stroke-dasharray", strokeDasharray);
-		this.rectangle.attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
-		this.rectangle.attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
-		this.rectangle.attr("fill", this.readStyle("bgColor" + statusDependent, ""));
+		if (this.shape == "roundedrectangle" || this.shape == "rectangle" || this.shape == "roundedrectanglemulti")
+		{
+			this.rectangle.attr(params);
+		}
 		
 		// apply rr1-3 style information
-		for (rrId in this.multiRR)
-	 	{
-			this.multiRR[rrId].attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
-			this.multiRR[rrId].attr("stroke-opacity", this.readStyle("borderOpacity" + statusDependent, "float"));
-			this.multiRR[rrId].attr("stroke-width", strokeWidth);
-			this.multiRR[rrId].attr("stroke-dasharray", strokeDasharray);
-			this.multiRR[rrId].attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
-			this.multiRR[rrId].attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
-			this.multiRR[rrId].attr("fill", this.readStyle("bgColor" + statusDependent, ""));
+		if (this.shape == "roundedrectanglemulti")
+		{
+			for (rrId in this.multiRR)
+		 	{
+				this.multiRR[rrId].attr(params);
+			}
 		}
 		
 		// apply ellipse style information
-		this.ellipse.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
-		this.ellipse.attr("stroke-opacity", this.readStyle("borderOpacity" + statusDependent, "float"));
-		this.ellipse.attr("stroke-width", strokeWidth);
-		this.ellipse.attr("stroke-dasharray", strokeDasharray);
-		this.ellipse.attr("fill-opacity", this.readStyle("bgOpacity" + statusDependent, "float"));
-		this.ellipse.attr("stroke", this.readStyle("borderColor" + statusDependent, ""));
-		this.ellipse.attr("fill", this.readStyle("bgColor" + statusDependent, ""));
+		if (this.shape == "circle" || this.shape == "ellipse")
+		{
+			this.ellipse.attr(params);
+		}
 		
 		// apply text style information
-		this.text.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
-		this.text.attr("fill-opacity", this.readStyle("fontOpacity" + statusDependent, "float"));
-		this.text.attr("fill", this.readStyle("fontColor" + statusDependent, ""));
-		this.text.attr("font-weight", this.readStyle("fontWeight" + statusDependent, ""));
-		this.text.attr("font-size", this.readStyle("fontSize", "int"));
-		this.text.attr("font-family", this.readStyle("fontFamily", ""));
-		this.text.attr("text-anchor", textAlign);
+			params						= {};
+			params["opacity"]			= this.readStyle("opacity" + statusDependent, "float");
+			params["fill-opacity"]		= this.readStyle("fontOpacity" + statusDependent, "float");
+			params["fill"]				= this.readStyle("fontColor" + statusDependent, "");
+			params["font-weight"]		= this.readStyle("fontWeight" + statusDependent, "");
+			params["font-size"]			= this.readStyle("fontSize", "int");
+			params["font-family"]		= this.readStyle("fontFamily", "");
+			params["text-anchor"]		= textAlign;
+			
+		if (this.textString != "")
+			this.text.attr(params);
 		
 		// textVAlign: "top",	// TODO / remove?
 		
@@ -541,17 +603,22 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		// update the source
 		if (gf_isset(src) && src != "" && src != null)
 		{
-			this.img.attr("src", src);
+			var params	= {src: src};
 			
 			// update the dimensions and the position
 			if (gf_isset(width, height))
 			{
-				this.img.attr("width", width);
-				this.img.attr("height", height);
+				params.width	= width;
+				params.height	= height;
 				
-				this.img.attr("x", this.x - Math.round(width / 2));
-				this.img.attr("y", this.y - Math.round(height / 2));
+				params.x		= this.x - Math.round(width / 2);
+				params.y		= this.y - Math.round(height / 2);
 			}
+			
+			if (this.img == null)
+				this.img = gv_paper.image(src, params.x, params.y, params.width, params.height);
+			else
+				this.img.attr(params);
 		}
 	};
 	
@@ -593,20 +660,18 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 				
 			// performance mode to ignore unnecessary calculations	
 			if (performanceMode == 1 || performanceMode == 2)
-			{				
+			{
 				if (this.shape == "circle" || this.shape == "ellipse")
 				{
-					this.ellipse.attr("cx", x);
-					this.ellipse.attr("cy", y);
+					this.ellipse.attr({cx: x, cy: y});
 				}
 				else if (this.shape == "roundedrectangle" || this.shape == "rectangle" || this.shape == "roundedrectanglemulti")
 				{
-					this.rectangle.attr("x", x - this.radiusx);
-			 		this.rectangle.attr("y", y - this.radiusy);
+					this.rectangle.attr({x: (x - this.radiusx), y: (y - this.radiusy)});
 				}
 				
 				if (performanceMode == 2)
-					this.updateBoundariesText();	
+					this.updateBoundariesText();
 			}
 			else
 			{
@@ -633,26 +698,40 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			
 			this.hideObjects();
 			
-			if (!(this.text.attr("text") == "" && this.belongsToPath === true))
+			if (this.textString != "" || this.belongsToPath !== true) // !(this.textString == "" && this.belongsToPath === true)
 			{
 				if (shape == "circle" || shape == "ellipse")
 				{
+					if (this.ellipse == null)
+						this.ellipse	= gv_paper.ellipse(0, 0, 0, 0);
+					
 					this.shape		= shape;
 					this.bboxObj	= this.ellipse;
 					this.ellipse.show();
 				}
 				else if (shape == "rectangle" || shape == "roundedrectangle")
 				{
+			
+					if (this.rectangle == null)
+						this.rectangle	= gv_paper.rect(0, 0, 0, 0, 0);
+						
 					this.shape		= shape;
 					this.bboxObj	= this.rectangle;
 					this.rectangle.show();
 				}
 				else if (shape == "roundedrectanglemulti")
 				{
+					
+					if (this.rectangle == null)
+						this.rectangle	= gv_paper.rect(0, 0, 0, 0, 0);
+					
 					this.shape		= shape;
 					
 					for (rrId in this.multiRR)
 		 			{
+						if (this.rectangle == null)
+							this.multiRR[rrId]	= gv_paper.rect(0, 0, 0, 0, 0);
+							
 						this.multiRR[rrId].show();
 					}
 					this.rectangle.show();
@@ -694,11 +773,21 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		if (!gf_isset(performanceMode) || performanceMode != true)
 			performanceMode	= false;
 			
-		this.getTextAlignAttribute(text);
-		this.text.attr("text", this.replaceNewline(text));
+		var gt_text	= this.replaceNewline(text);
 		
-		if (!performanceMode)
-			this.refreshStyle();
+		if (gt_text != this.textString)
+		{			
+			this.getTextAlignAttribute(text);
+			this.textString	= gt_text;
+			
+			if (this.text == null)
+				this.text		= gv_paper.text(0, 0, this.textString);
+			else
+				this.text.attr("text", this.textString);
+			
+			if (!performanceMode)
+				this.refreshStyle();
+		}
 	};
 	
 	/**
@@ -713,8 +802,12 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			performanceMode	= false;
 			
 		this.setShape(this.shape, performanceMode);
-		this.text.show();
-		this.img.show();
+		
+		if (this.text != null)
+			this.text.show();
+			
+		if (this.img != null)
+			this.img.show();
 	};
 	
 	/**
@@ -739,9 +832,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 */
 	this.toPathSegments = function ()
 	{
-		var gt_bbox = this.getBoundaries();
-		
-		return [{x: gt_bbox.left, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.top}];
+		return this.pathSegments;
 	}
 	
 	/**
@@ -753,8 +844,11 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	{
 		// TODO: some more options like apply padding and move the text according to the new position
 		
-		this.updateBoundariesText();
+		var gt_textBBox	= this.textString == "" ? {top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0} : this.text.getBBox();
+		
+		this.updateBoundariesText(gt_textBBox);
 
+		
 		var paddingLeft		= this.readStyle("paddingLeft", "int");
 		var paddingRight	= this.readStyle("paddingRight", "int");
 		var paddingTop		= this.readStyle("paddingTop", "int");
@@ -763,8 +857,8 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		var styleHeight		= this.readStyle("height", "int");
 		
 		// apply the width and height information
-		var width	= Math.round(this.text.getBBox().width);
-		var height	= Math.round(this.text.getBBox().height);
+		var width	= Math.round(gt_textBBox.width);
+		var height	= Math.round(gt_textBBox.height);
 		var width2	= styleWidth > 0 ? styleWidth : Math.max(width + paddingLeft + paddingRight, this.readStyle("minWidth", "int"));
 		var height2	= styleHeight > 0 ? styleHeight : Math.max(height + paddingTop + paddingBottom, this.readStyle("minHeight", "int"));
 		var radiusx	= Math.round(width2 / 2);
@@ -772,31 +866,29 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		var radius	= Math.max(radiusx, radiusy);
 		var rectR	= this.shape == "roundedrectangle" || this.shape == "roundedrectanglemulti" ? this.readStyle("rectangleRadius", "int") : 0;
 		
+		var bbox	= {top: 0, left: 0, right: 0, bottom: 0};
+		
 		// backup radiusx, radiusy for performance optimization
 		this.radiusx	= radiusx;
 		this.radiusy	= radiusy;
 		
 		if (this.shape == "circle")
 		{
-			this.ellipse.attr("cx", this.x);
-			this.ellipse.attr("cy", this.y);
-			this.ellipse.attr("rx", radius);
-			this.ellipse.attr("ry", radius);
+			this.ellipse.attr({cx: this.x, cy: this.y, rx: radius, ry: radius});
+			
+			bbox	= {top: this.y - radius, bottom: this.y + radius, left: this.x - radius, right: this.x + radius};
 		}
 		else if (this.shape == "ellipse")
 		{
-			this.ellipse.attr("cx", this.x);
-			this.ellipse.attr("cy", this.y);
-			this.ellipse.attr("rx", radiusx);
-			this.ellipse.attr("ry", radiusy);
+			this.ellipse.attr({cx: this.x, cy: this.y, rx: radiusx, ry: radiusy});
+			
+			bbox	= {top: this.y - radiusy, bottom: this.y + radiusy, left: this.x - radiusx, right: this.x + radiusx};
 		}
 		else if (this.shape == "roundedrectangle" || this.shape == "rectangle" || this.shape == "roundedrectanglemulti")
 		{
-			this.rectangle.attr("x", this.x - radiusx);
-	 		this.rectangle.attr("y", this.y - radiusy);
-	 		this.rectangle.attr("width", width2);
-	 		this.rectangle.attr("height", height2);
-	 		this.rectangle.attr("r", rectR);
+	 		this.rectangle.attr({x: (this.x - radiusx), y: (this.y - radiusy), width: width2, height: height2, r: rectR});
+			
+			bbox	= {top: this.y - radiusy, bottom: this.y - radiusy + height2, left: this.x - radiusx, right: this.x - radiusx + width2};
 		}
 		
 		if (this.shape == "roundedrectanglemulti")
@@ -805,36 +897,59 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			 		
 	 		for (rrId in this.multiRR)
 	 		{
-				this.multiRR[rrId].attr("x", this.x - radiusx + rrId * rrOverlap);
-		 		this.multiRR[rrId].attr("y", this.y - radiusy - rrId * rrOverlap);
-		 		this.multiRR[rrId].attr("width", width2);
-		 		this.multiRR[rrId].attr("height", height2);
-		 		this.multiRR[rrId].attr("r", rectR);
+		 		this.multiRR[rrId].attr({x: (this.x - radiusx + rrId * rrOverlap), y: (this.y - radiusy - rrId * rrOverlap), width: width2, height: height2, r: rectR});
 	 		}			
 		}
+		
+		this.updatePathSegments(bbox);
 	};
 	
 	/**
 	 * Updates the position of the text.
 	 * 
+	 * @param {Object} bbox The BBox of the label's text element.
 	 * @returns {void}
 	 */
-	this.updateBoundariesText = function ()
+	this.updateBoundariesText = function (bbox)
 	{
 		var textX	= this.x;
-
-		// correct the text position depending on the textAlign
-		if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "start")
-		{
-			textX	= this.x - this.text.getBBox().width / 2;
+		
+		if (this.text != null && this.textString != "")
+		{		
+			if (!gf_isset(bbox))
+				bbox	= this.textString == "" ? {width: 0, height: 0} : this.text.getBBox();
+	
+			// correct the text position depending on the textAlign
+			if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "start")
+			{
+				textX	= this.x - bbox.width / 2;
+			}
+			else if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "end")
+			{
+				textX	= this.x + bbox.width / 2;
+			}
+	
+			if (textX != this.textPosition.x || this.y != this.textPosition.y)
+			{				
+				this.textPosition	= {x: textX, y: this.y};
+				this.text.attr(this.textPosition);
+				this.text.toFront();
+			}
 		}
-		else if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "end")
-		{
-			textX	= this.x + this.text.getBBox().width / 2;
-		}
-
-		this.text.attr("x", textX);
-		this.text.attr("y", this.y);
+	};
+	
+	/**
+	 * Updates the path segments of this label's boundaries.
+	 * 
+	 * @param {Object} gt_bbox The BBox of this label.
+	 * @returns {void}
+	 */
+	this.updatePathSegments = function (gt_bbox)
+	{
+		if (!gf_isset(gt_bbox))
+			gt_bbox = this.getBoundaries();
+		
+		this.pathSegments	= [{x: gt_bbox.left, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.top}];
 	};
 	
 	// update the belongsToPath attribute
@@ -845,7 +960,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		performanceMode	= false;
 	
 	// initialize the label
-	this.init();
+	// this.init();
 	
 	// set the position of the label
 	this.x	= x;
@@ -855,10 +970,10 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	this.id = id;
 	
 	// set the text
-	this.setText(text, performanceMode);
+	this.setText(text, true);
 	
 	// set the shape
-	this.setShape(shape, performanceMode);
+	this.setShape(shape, true);
 	
 	// add the label to the objects array
 	if (!this.belongsToPath)

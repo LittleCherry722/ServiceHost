@@ -112,6 +112,14 @@ var gv_originalViewBox	= {x: 0, y: 0, width: 0, height: 0, zoom: 1};
 var gv_graphID	= "cv";
 
 /**
+ * Counter for certain tasks
+ * 
+ * @private
+ * @type Object
+ */
+var gv_taskCounter	= {};
+
+/**
  * Time measuring: times used for certain tasks
  * 
  * @private
@@ -1172,6 +1180,78 @@ function gf_replaceNewline (text, character)
 		character = "\n";
 	
 	return text.replace(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi, character);
+}
+
+/**
+ * TODO
+ */
+function gf_taskCounterCount (type)
+{
+	if (gf_isset(type))
+	{
+		if (!gf_isset(gv_taskCounter[type]))
+			gv_taskCounter[type]	= 1;
+		else
+			gv_taskCounter[type]++;
+	}
+}
+
+/**
+ * TODO
+ */
+function gf_taskCounterPrint (type)
+{
+	if (gv_taskCounter)
+	{
+		if (gf_isset(type) && gf_isset(gv_times[type]))
+		{
+			console.log("count for '" + type + "': " + gv_taskCounter[type] + " times");
+		}
+		else
+		{
+			console.log("\nTask Counter:");
+			
+			var gt_taskStrings	= [];
+			for (var gt_type in gv_taskCounter)
+			{
+				gt_taskStrings[gt_taskStrings.length] = "\t" + gt_type + ": " + gv_taskCounter[gt_type] + " times";
+			}
+			
+			gt_taskStrings.sort()
+			
+			for (var gt_taskString in gt_taskStrings)
+			{
+				console.log(gt_taskStrings[gt_taskString]);
+			}
+		}
+	}
+}
+
+/**
+ * TODO
+ */
+function gf_taskCounterReset (type)
+{
+	if (gf_isset(type))
+	{
+		if (!gf_isArray(type))
+			type = [type];
+			
+		var gt_type	= "";
+		for (var gt_typeId in type)
+		{
+			gt_type	= type[gt_typeId];
+			
+			if (gf_isset(gv_taskCounter[gt_type]))
+			{
+				gv_taskCounter[gt_type]		= 0;
+			}
+		}
+	}
+	else
+	{
+		gv_taskCounter		= {};
+	}
 }
 
 /**

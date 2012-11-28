@@ -179,7 +179,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		
 		if (gf_isset(point))
 		{
-			this.pathSegments[this.pathSegments.length]	= point;
+			var gt_length	= this.pathSegments.length;
+			this.pathSegments[gt_length]	= point;
 		}
 		
 	};
@@ -451,29 +452,38 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		
 		// TODO: limit intersections (max 1 with the same path), check same segments
 		
-		gf_timeCalc("path - intersection checks (labels)");
+		var gt_isIntersection	= false;
+		
+		// gf_timeCalc("path - intersection checks (labels)");
 		for (objId in gv_objects_nodes)
 		{
 			var tObject		= gv_objects_nodes[objId];
 			
-			gf_timeCalc("path - intersection check - calculate pathSegments");
 			var gt_tObjectSegments	= tObject.toPathSegments();
-			gf_timeCalc("path - intersection check - calculate pathSegments");
 			
 			// check intersection of path with node
 			if (!labelsOnly && this.checkIntersectionSegments(this.pathSegments, gt_tObjectSegments))
-				return true;
+			{
+				gt_isIntersection	= true;				
+				break;
+			}
 				
 			// check intersection of path's label with node (deactivated)
 			/*
 			if (!labelsOnly && this.checkIntersectionSegments(thisLabelPath, tObject.toPathSegments()))
-				return true;
+			{
+				gt_isIntersection	= true;				
+				break;
+			}
 			*/
 		}
-		gf_timeCalc("path - intersection checks (labels)");
+		// gf_timeCalc("path - intersection checks (labels)");
+		
+		if (gt_isIntersection)
+			return true;
 		
 		
-		gf_timeCalc("path - intersection checks (paths)");
+		// gf_timeCalc("path - intersection checks (paths)");
 		// check whether the path intersects with other paths or with their labels
 		for (objId in gv_objects_edges)
 		{
@@ -495,34 +505,47 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 					}
 				}
 				
-				gf_timeCalc("path - intersection check - calculate pathSegments");
 				var gt_tObjectSegments	= tObject.label.toPathSegments();
-				gf_timeCalc("path - intersection check - calculate pathSegments");
 				
 				// check intersection of path with other paths (deactivated)
 				/*
 				if (!labelsOnly && this.checkIntersectionSegments(this.pathSegments, tObject.pathSegments))
-					return true;
+				{
+					gt_isIntersection	= true;				
+					break;
+				}
 				*/
 				
 				// check intersection of path with other paths' labels
 				if (this.checkIntersectionSegments(this.pathSegments, gt_tObjectSegments))
-					return true;
+				{
+					gt_isIntersection	= true;				
+					break;
+				}
 					
 				// check intersection of path's label with other paths (deactivated)
 				/*
 				if (!labelsOnly && this.checkIntersectionSegments(thisLabelPath, tObject.pathSegments))
-					return true;
+				{
+					gt_isIntersection	= true;				
+					break;
+				}
 				*/
 				
 				// check intersection of path's label with other paths' labels (deactivated)
 				/*
 				if (this.checkIntersectionSegments(thisLabelPath, tObject.label.toPathSegments()))
-					return true;
+				{
+					gt_isIntersection	= true;				
+					break;
+				}
 				*/
 			}
 		}
-		gf_timeCalc("path - intersection checks (paths)");
+		// gf_timeCalc("path - intersection checks (paths)");
+		
+		if (gt_isIntersection)
+			return true;
 		
 		return false;
 	};
@@ -667,7 +690,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		if (!gf_isset(performanceMode) || performanceMode != true)
 			performanceMode	= false;
 			
-		this.path	= gv_paper.path("M0,0L0,0");
+		this.path	= gv_paper.path("M0,0L10,10");
 		this.label	= new GClabel(0, 0, text, "roundedrectangle", id, true, performanceMode);
 	};
 	
@@ -699,7 +722,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	 * @returns {void}
 	 */
 	this.refreshStyle = function ()
-	{		
+	{
 		/*
 		 * status dependent styles
 		 */
@@ -720,16 +743,17 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("arrowStyle" + statusDependent, ""));
 		var strokeWidth		= strokeDasharray == "none" ? 0 : this.readStyle("arrowWidth" + statusDependent, "int");
 		// apply the settings to the path
-		this.path.attr("opacity", this.readStyle("opacity" + statusDependent, "float"));
-		this.path.attr("stroke-dasharray", strokeDasharray);
-		this.path.attr("stroke-opacity", this.readStyle("arrowOpacity" + statusDependent, "float"));
-		this.path.attr("stroke-width", strokeWidth);
-		this.path.attr("stroke", this.readStyle("arrowColor" + statusDependent, ""));
-		
-		this.path.attr("arrow-end", this.readStyle("arrowHeadType", "") + "-" + this.readStyle("arrowHeadWidth", "") + "-" + this.readStyle("arrowHeadLength", ""));
-		
-		this.path.attr("stroke-linecap", this.readStyle("arrowLinecap", ""));
-		this.path.attr("stroke-linejoin", this.readStyle("arrowLinejoin", ""));
+		var params						= {};
+			params["opacity"]			= this.readStyle("opacity" + statusDependent, "float");
+			params["stroke-dasharray"]	= strokeDasharray;
+			params["stroke-opacity"]	= this.readStyle("arrowOpacity" + statusDependent, "float");
+			params["stroke-width"]		= strokeWidth;
+			params["stroke"]			= this.readStyle("arrowColor" + statusDependent, "");
+			params["arrow-end"]			= this.readStyle("arrowHeadType", "") + "-" + this.readStyle("arrowHeadWidth", "") + "-" + this.readStyle("arrowHeadLength", "");
+			params["stroke-linecap"]	= this.readStyle("arrowLinecap", "");
+			params["stroke-linejoin"]	= this.readStyle("arrowLinejoin", "");
+			
+		this.path.attr(params);
 	};
 	
 	/**
@@ -925,6 +949,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		gf_timeCalc("path - update path (path attr)");
 		if (performanceMode != 1)
 		{
+			gf_taskCounterCount("path - path attr");
+			
 			this.pathStr	= "M" + x1 + "," + y1 + newPath.path;
 			this.path.attr("path", this.pathStr);
 		}
@@ -946,20 +972,20 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	this.id = id;
 	
 	// initialize the path
-	this.init(performanceMode);
+	this.init(true);
 	
 	// set the starting and end position
 	this.setPositionStart(startx, starty);
 	this.setPositionEnd(endx, endy);
 	
 	// set the shape
-	this.setShape(shape);
+	this.setShape(shape, 1);
 		
 	if (!performanceMode)
 		this.refreshStyle();
 	
 	// set the text of the label
-	this.setText(text, performanceMode);
+	this.setText(text, true);
 	
 	gv_objects_edges[id] = this;
 	
