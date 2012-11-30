@@ -36,79 +36,66 @@
 
 		<!-- javascript -->
 		<!-- extern -->
-		<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
-		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
-		<script type="text/javascript" src="js/chosen.jquery.min.js"></script>
-		<script type="text/javascript" src="js/jquery.freeow.js"></script>
-		<script type="text/javascript" src="js/jquery.scrollTo-min.js"></script>
-		<script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-		<script type="text/javascript" src="js/knockout-2.1.0.min.js"></script>
-		<script type="text/javascript" src="js/knockout.custom-bindings.js"></script>
-		<script type="text/javascript" src="js/knockout.mapping-latest.js"></script>
-		<script type="text/javascript" src="js/jquery.qtip.min.js"></script>
-        <script type="text/javascript" src="js/keymaster.min.js"></script>
+		<!-- <script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>-->
+		<!-- <script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>-->
+		<!-- <script type="text/javascript" src="js/chosen.jquery.min.js"></script>-->
+		<!-- <script type="text/javascript" src="js/jquery.freeow.js"></script>-->
+		<!-- <script type="text/javascript" src="js/jquery.scrollTo-min.js"></script>-->
+		<!-- <script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>-->
+		<!-- <script type="text/javascript" src="js/knockout-2.1.0.min.js"></script>-->
+		<!-- <script type="text/javascript" src="js/knockout.custom-bindings.js"></script>-->
+		<!-- <script type="text/javascript" src="js/knockout.mapping-latest.js"></script>-->
+		<!-- <script type="text/javascript" src="js/jquery.qtip.min.js"></script>-->
+    <!--     <script type="text/javascript" src="js/keymaster.min.js"></script>-->
 
-		<!-- intern -->
-		<script type="text/javascript" src="js/custom.js"></script>
-		<script type="text/javascript" src="db/db.js"></script>
-		<script type="text/javascript" src="tk_graph/tk_graph.js"></script>
-		<script type="text/javascript" src="js/daten.js"></script>
-		<script type="text/javascript" src="js/daten2.js"></script>
-		<script type="text/javascript" src="js/storage.js"></script>
-		<script type="text/javascript" src="js/dialog.js"></script>
-        <script type="text/javascript" src="js/notification.js"></script>
-		<script type="text/javascript" src="js/shortcuts.js"></script>
-        <script type="text/javascript" src="js/utilities.js"></script>
-		<script type="text/javascript" src="js/viewmodel/init.js"></script>
-		<script type="text/javascript" src="js/menu.js"></script>
+		<!-- [> intern <]-->
+		<!-- <script type="text/javascript" src="js/custom.js"></script>-->
+		<!-- <script type="text/javascript" src="db/db.js"></script>-->
+		<!-- <script type="text/javascript" src="tk_graph/tk_graph.js"></script>-->
+		<!-- <script type="text/javascript" src="js/daten.js"></script>-->
+		<!-- <script type="text/javascript" src="js/daten2.js"></script>-->
+		<!-- <script type="text/javascript" src="js/storage.js"></script>-->
+		<!-- <script type="text/javascript" src="js/dialog.js"></script>-->
+    <!--     <script type="text/javascript" src="js/notification.js"></script>-->
+		<!-- <script type="text/javascript" src="js/shortcuts.js"></script>-->
+    <!--     <script type="text/javascript" src="js/utilities.js"></script>-->
+		<!-- <script type="text/javascript" src="js/viewmodel/init.js"></script>-->
+		<!-- <script type="text/javascript" src="js/menu.js"></script>-->
 
 
-		<!-- services -->
-		<script type="text/javascript" src="js/service/authentication.js"></script>
-		<script type="text/javascript" src="js/service/debug.js"></script>
-		<script type="text/javascript" src="js/service/instance.js"></script>
-		<script type="text/javascript" src="js/service/messages.js"></script>
-		<script type="text/javascript" src="js/service/process.js"></script>
-		<script type="text/javascript" src="js/service/role.js"></script>
-		<script type="text/javascript" src="js/service/user.js"></script>
-		<script type="text/javascript" src="js/service/group.js"></script>
+		<!-- [> services <]-->
+		<!-- <script type="text/javascript" src="js/service/authentication.js"></script>-->
+		<!-- <script type="text/javascript" src="js/service/debug.js"></script>-->
+		<!-- <script type="text/javascript" src="js/service/instance.js"></script>-->
+		<!-- <script type="text/javascript" src="js/service/messages.js"></script>-->
+		<!-- <script type="text/javascript" src="js/service/process.js"></script>-->
+		<!-- <script type="text/javascript" src="js/service/role.js"></script>-->
+		<!-- <script type="text/javascript" src="js/service/user.js"></script>-->
+		<!-- <script type="text/javascript" src="js/service/group.js"></script>-->
 
 		
-		<script>
-			$(function() {
-				$("#column_left").draggable();
-				$("#column_right").draggable();
-			});
-		</script>
+		<!-- <script>-->
+		<!--   $(function() {-->
+		<!--     $("#column_left").draggable();-->
+		<!--     $("#column_right").draggable();-->
+		<!--   });-->
+		<!-- </script>-->
 	</head>
 	<body>
-
-		<script type="text/html" id="menu"></script>
-		<script type="text/html" id="header"></script>
-		<script type="text/html" id="processView"></script>
-		<script type="text/html" id="homeView"></script>
-		<script type="text/html" id="subjectView"></script>
-		<script type="text/html" id="internalView"></script>
-		<script type="text/html" id="chargeView"></script>
-		<script type="text/html" id="executionView"></script>
-
-	<script type="text/html" id="courseView"></script>
-
-
 		<div id="freeow" class="freeow freeow-top-right"></div>
 		<div class="content_wrapper">
 
 			<!-- header -->
-			<div id="header" data-bind="templateWithListeners: { name: 'header', data: headerVM, afterRender: headerVM.init, listeners: SBPM.Mediator.subviewListeners['header']}"></div>
+			<div id="header"></div>
 			<!-- End header -->
 			<div id="headAndLeft">
 				<!--left panel -->
 				<a href="javascript:;" id="show_menu">&raquo;</a>
-				<div id="left_menu" data-bind="templateWithListeners: { name: 'menu', data: menuVM, afterRender: menuVM.init, listeners: SBPM.Mediator.subviewListeners['menu']}"></div>
+				<div id="left_menu"></div>
 				<!-- End left panel -->
 
 				<!-- Begin content -->
-				<div id="main" data-bind="templateWithListeners: { name: contentVM().name, data: contentVM(), listeners: SBPM.Mediator.subviewListeners[contentVM().name]}  "></div>
+				<div id="main"></div>
 				<!-- end content -->
 			</div>
 		</div>

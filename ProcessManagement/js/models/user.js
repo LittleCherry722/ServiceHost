@@ -1,0 +1,11 @@
+define([
+	"knockout"
+], function( ko ) {
+	var User = function(name) {
+		this.name = ko.observable(name);
+
+		this.messageCount = ko.observable(0);
+	}
+	
+	return User
+});

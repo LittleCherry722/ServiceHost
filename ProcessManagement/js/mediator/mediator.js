@@ -10,7 +10,7 @@ var IMediator = function() {
 	self.subviewListeners = {};
 
 	// epxose only the init method to inheritors
-	self.init = function(viewListeners){
+	self.init = function(viewListeners) {
 
 		// check if an unsupported browser is in use
 		if ( $.browser.msie && $.browser.version <= 10) {

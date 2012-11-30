@@ -2,6 +2,8 @@
 // Require.js allows us to configure shortcut alias
 require.config({
 	paths: {
+		"text":              "libs/require/plugins/text",
+		"jade":              "libs/require/plugins/jade",
 		"director":          "libs/director/director",
 		"jquery":            "libs/jquery/jquery",
 		"jquery.ui":         "libs/jquery/plugins/jquery-ui",
@@ -22,12 +24,18 @@ require.config({
 		"jquery.qtip":       ["jquery"],
 		"jquery.scrollTo":   ["jquery"],
 		"jquery.bootstrap":  ["jquery"],
+		"director": {
+			exports: "Router"
+		}
 	}
 
 });
 
-require([ 'router' ], function(Router){
+require([ "app", "router" ], function( App, Router ){
+	
+	// Initialize our application.
+	App.init();
 
-	// The "app" dependency is passed in as "App"
+	// And load our router so we can actually navigate the page.
 	Router.init();
 });

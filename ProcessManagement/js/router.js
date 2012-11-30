@@ -1,4 +1,5 @@
 define([ "director" ], function( Director ) {
+	var routes, showHome, initialize;
 
 	// Every route and action is defined in this object
 	routes = {
@@ -10,13 +11,12 @@ define([ "director" ], function( Director ) {
 
 	}
 
-	// Everything here is private
 	initialize = function() {
 		Director(routes).init();
 	}
 
 	// Everything in this object will be the public API
-	return function() {
+	return {
 		init: initialize
 	}
 });

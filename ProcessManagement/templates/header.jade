@@ -1,0 +1,22 @@
+#logo
+	h1( style="float:left" ) S-BPM Groupware v1.2
+#account_info( data-bind="with: currentUser" )
+	img.mid_align( src="images/icons/user_48.png", width="16px", height="16px", alt="Online" )
+	| Hello 
+	a( href="#", data-bind="text: name" )
+	|  (
+	a#newMSG( href="newMSG.html", data-bind="fancybox : {}" )
+		span(data-bind="text: messageCount()")
+	| )
+
+#misc
+	#menu
+		a( href="administration.html", data-bind="fancybox : { width : '80', height : '50' }" )
+			| Administration | 
+		a( href="start.html" ) Logout
+
+	#img
+		a( href="http://www.tu-darmstadt.de" )
+			img( src="images/tu_darmstadt_web.png", alt="TU-Darmstadt" )
+		a( href="http://www.tk.informatik.tu-darmstadt.de/" )
+			img( src="images/tk_HintergrundWeiss_Web.png", alt="Telecooperation Group" )

@@ -1,0 +1,69 @@
+<a href="javascript:;" id="hide_menu">&laquo;</a>
+<ul id="main_menu">
+	<li data-bind= "visible: visible().home" >
+		<a data-bind="click: function(){ SBPM.VM.goToPage('home') }"><img src="images/icons/home_48.png" width="16px" height="16px" alt="Home"/>Home</a>
+	</li>
+	<li data-bind= "visible: visible().process" >
+		<a href=""><img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>Process Management</a>
+		<ul>
+			<li>
+				<a id="newProcess" href="newProcess.html" data-bind="fancybox : {width : '21', height : '30'}">Create new process</a>
+			</li>
+			
+			<!-- <li><a id="deleteProcess" href="deleteProcess.html">Delete existing process</a></li> -->
+            <li>
+                <a id="processList" href="processList.html" data-bind="fancybox : {}">View existing processes</a>
+            </li>
+            <li>
+                <ul data-bind="foreach: recentProcesses">
+                    <li>
+                        <a data-bind="text: displayName, click: function(data){ SBPM.VM.goToPage('process').showProcess(data.name) }"> </a>
+                    </li>
+                </ul>
+            </li>
+			<!-- <li><a id="loadProcess" href="loadProcess.html">Load process</a></li> -->
+		</ul>
+	</li>
+	<li data-bind= "visible: visible().save" >
+		<a id="save" data-bind="click : save"><img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process</a>
+	</li>
+	<li data-bind="visible: visible().saveAs">
+		<a id="saveAs" href="saveAsProcess.html" data-bind="fancybox : {width : '50', height : '40'}">
+		    <img src="images/icons/floppy_disk_48.png" width="16px" height="16px" />Save Process As
+		</a>
+	</li>
+	<li data-bind= "visible: visible().messages">
+		<a href=""><img src="images/icons/mail_48.png" width="16px" height="16px" alt="Messages"/>Messages</a>
+		<ul>
+			<li>
+				<a id="MSGInbox" href="MSGInbox.html" data-bind="fancybox : {}">Inbox</a>
+			</li>
+			<li>
+				<a id="MSGOutbox" href="MSGOutbox.html" data-bind="fancybox : {}">Outbox</a>
+			</li>
+		</ul> 
+	</li>
+	<li data-bind= "visible: visible().execution" >
+		<a href="" ><img src="images/icons/arrow_right_48.png" height="16" width="16" alt="Process Execution"  />Process Execution</a>
+		<ul>
+			<li>
+				<a id="newInstance" href="newInstance.html" data-bind="fancybox:{}">Start process</a>
+				
+			</li>
+			<li>
+				<a id="runningInstances" href="runningInstances.html" data-bind="fancybox : {}">Running instances</a>
+			</li>
+			<li>
+				<a id="history" href="history.html" data-bind="fancybox : {}">History</a>
+			</li>
+		</ul> 
+	</li>
+</ul>
+
+<br class="clear"/>
+<br class="clear"/>
+<br class="clear"/>
+
+<!-- Begin left panel calendar -->
+<div id="calendar"></div>
+<!-- End left panel calendar -->
