@@ -6,6 +6,10 @@ define([
 
 		this.messageCount = ko.observable(0);
 	}
+
+	User.prototype.all = function() {
+		return [];
+	}
 	
-	return User
+	return User;
 });

@@ -26,9 +26,9 @@ define([
   // unloading can be aborted by returning "false" in the unload function.
 	var loadViewModel = function( viewModel ) {
     // check if the unload method is actually set
-		if ( typeof contentViewModel.unload === 'function' ) {
+		if ( typeof contentViewModel().unload === 'function' ) {
       // call "unload" and exit early if it retunes a falsey value
-			if ( !contentViewModel.unload() ) {
+			if ( !contentViewModel().unload() ) {
 				return
 			}
 		}
@@ -38,9 +38,47 @@ define([
 		cuntentViewModel( viewModel );
 	}
 
+  // loads a simple template as the main content of the site.
+  // Very usefull to display static content that is saved inside a template
+  // and is not associated to a ViewModel.
+  // Param "template" specifiec the template to be loaded.
+  // Templates have to be in the "/templates" root path.
+  // type specifies the type of the template. Default is jade.
+  // Supported template handlers are: jade, text
+  //
+  // example: loadTemplate('home', 'text')
+  var loadTemplate = function( templateName, type ) {
+    if ( !type ) {
+      type = "jade";
+    }
+
+    // create the path from:
+    // * template handler (type). Must be a requirejs plugin.
+    // * the default path to all templates.
+    // * the template name.
+    var path = type + "!../templates/" + templateName;
+
+    // load the template from the server
+    require([ path ], function( template ) {
+      mainNode = document.getElementById("main");
+
+      // If the type of the template is text, we get a simple string. We
+      // would not want to call a string as a function. Every other template
+      // handler should return a function to convert the template to a string
+      // we can insert into our main node.
+      if ( type === "text" ) {
+        mainNode.innerHTML = template;
+      } else {
+        mainNode.innerHTML = template();
+      }
+    });
+  }
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		currentUser: currentUser
+		currentUser: currentUser,
+    loadTemplate: loadTemplate,
+    loadViewModel: loadViewModel
 	}
 });
