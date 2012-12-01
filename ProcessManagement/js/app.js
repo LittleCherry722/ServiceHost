@@ -24,30 +24,42 @@ define([
   // Load a new viewModel as our ContentViewModel.
   // Unloads the old model (calling "unload()" on it of available).
   // unloading can be aborted by returning "false" in the unload function.
-	var loadViewModel = function( viewModel ) {
-    // check if the unload method is actually set
-		if ( typeof contentViewModel().unload === 'function' ) {
-      // call "unload" and exit early if it retunes a falsey value
-			if ( !contentViewModel().unload() ) {
-				return
-			}
-		}
+	var loadView = function( viewName ) {
+    if ( contentViewModel() ) {
+      // check if the unload method is actually set
+      if ( typeof contentViewModel().unload === 'function' ) {
+        // call "unload" and exit early if it retunes a falsey value
+        if ( !contentViewModel().unload() ) {
+          return
+        }
+      }
+    }
 
-    // just load our new viewmodel if unload was successfull (truethy return
+    // just load our new viewmodel if unload was successfull (truthy return
     // value) or was not defined at all.
-		cuntentViewModel( viewModel );
+		require([ "viewmodels/" + viewName ], function( viewModel ) {
+      viewModel.init();
+      contentViewModel( viewModel );
+		});
 	}
 
-  // loads a simple template as the main content of the site.
-  // Very usefull to display static content that is saved inside a template
-  // and is not associated to a ViewModel.
-  // Param "template" specifiec the template to be loaded.
-  // Templates have to be in the "/templates" root path.
-  // type specifies the type of the template. Default is jade.
-  // Supported template handlers are: jade, text
-  //
-  // example: loadTemplate('home', 'text')
-  var loadTemplate = function( templateName, type ) {
+  /**
+   * loads a simple template as the main content of the site.
+   * Very usefull to display static content that is saved inside a template
+   * and is not associated to a ViewModel.
+   *
+   * @param {String} templateName specifiec the template to be loaded.
+   *  Templates have to be in the "/templates" root path.
+   *
+   * @param {ViewModel} viewModel the viewModel to be applied to the new content.
+   *  Optional.
+   *
+   * @param {String} type specifies the type of the template. Default is jade.
+   * Supported template handlers are: jade, text. Optional.
+   *
+   * example: loadTemplate('home', new ViewModel(), 'text')
+   */
+  var loadTemplate = function( templateName, viewModel, type ) {
     if ( !type ) {
       type = "jade";
     }
@@ -71,6 +83,11 @@ define([
       } else {
         mainNode.innerHTML = template();
       }
+
+      // Apply the viewModel to the newly inserted content if available
+      if ( viewModel ) {
+        ko.applyBindings(viewModel, mainNode)
+      }
     });
   }
 
@@ -79,6 +96,6 @@ define([
 		init: initialize,
 		currentUser: currentUser,
     loadTemplate: loadTemplate,
-    loadViewModel: loadViewModel
+    loadView: loadView
 	}
 });

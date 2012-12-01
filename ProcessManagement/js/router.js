@@ -10,7 +10,11 @@ define([ "director", "app" ], function( Director, App ) {
 	}
 
 	var showProcess = function(processName) {
+		console.log("loading process");
+	}
 
+	var showNewProcess = function() {
+		loadView("newProcess");
 	}
 
 	/*
@@ -19,7 +23,10 @@ define([ "director", "app" ], function( Director, App ) {
 	var routes = {
 		"/":  showHome,
 		"/home":  showHome,
-		"/processes/:process": showProcess
+		"/processes": {
+			"/new": showNewProcess,
+			"/:process": showProcess
+		}
 	}
 
 
@@ -29,19 +36,17 @@ define([ "director", "app" ], function( Director, App ) {
 
 	// Load a custom viewmodel.
 	// Path is always prepended with "/viewmodels"
-	var loadViewModel = function(model) {
-		require([ "viewmodels/" + model ], function( viewModel ) {
-			App.loadViewModel(viewModel);
-		});
+	var loadView = function(viewName) {
+		App.loadView(viewName);
 	}
 
 	// given a process, creates a path for this process.
 	// This path can be used for internal navigation only as it does not contain
 	// host information, only the path.
-	var pathForProcess = function(process) {
+	var processPath = function(process) {
 		// prepend our baisc processes route and append the process name with
 		// whitespace converted to underscores
-		path = "#/processes/" + process.name.replace(/ /g, "_")
+		path = "#/processes/" + process.name().replace(/ /g, "_")
 		return path;
 	}
 
@@ -55,6 +60,7 @@ define([ "director", "app" ], function( Director, App ) {
 
 	// Everything in this object will be the public API
 	return {
-		init: initialize
+		init: initialize,
+		processPath: processPath
 	}
 });

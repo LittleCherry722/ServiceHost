@@ -10,12 +10,12 @@ define([
 	}
 
 	Process.prototype.url = function() {
-		
+		return Router.processPath(this);
 	}
 
 	Process.all = function() {
-		processes = [ new Process( "test Process" ) ];
-		return processes;
+		processes = ko.observableArray([ new Process( "test Process" ) ]);
+		return processes();
 	}
 	
 	return Process;

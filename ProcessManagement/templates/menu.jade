@@ -13,7 +13,7 @@ ul#main_menu
 			| Process Management
 		ul
 			li
-				a#newProcess( href="newProcess.html",
+				a#newProcess( href="#/processes/new",
 											data-bind="fancybox : {width : '21', height : '30'}")
 					| Create new process
 			li
@@ -22,7 +22,7 @@ ul#main_menu
 			li
 				ul( data-bind="foreach: allProcesses" )
 					li
-						a( data-bind="text: name, attr: { href: url } ")
+						a( data-bind="text: name, attr: { href: url() } ")
 	li( data-bind="visible: visible().save")
 		a#save( data-bind="click : save")
 			img( src="images/icons/floppy_disk_48.png", width="16px", height="16px" )

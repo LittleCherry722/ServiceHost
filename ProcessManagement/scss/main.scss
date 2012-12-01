@@ -13,21 +13,8 @@
 
 @import "variables";
 @import "bootstrap";
+@import "flexbox";
 
-html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-weight: inherit;
-  font-style: inherit;
-  font-size: 100%;
-  font-family: inherit;
-  vertical-align: baseline;
-}
-
-// div {
-//   vertical-align: middle;
-// }
 
 .tab-dropdown {
   margin-top: 2px;
@@ -52,10 +39,12 @@ body {
   font-size: 12px;
   color: #363636;
   text-shadow: 0 1px 0 #fff;
-  background: #f7f7f7 url(../images/bg_left.jpg) repeat-y
+  background-color: #f7f7f7;
+  background-image: url(../images/bg_left.jpg);
+  background-repeat: repeat-y;
 }
-body.nobg {
-  background: #f7f7f7;
+body.no-menu {
+  background-image: none;
 }
 body.login {
   margin: auto;
@@ -67,37 +56,30 @@ body.login {
   text-shadow: 0 1px 0 #ccc;
 }
 
-h1 {
+h1, h2, h3, h4 {
   margin: 0;
   padding: 0;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+h1 {
   font-size: 24px;
   font-weight: normal;
   margin-bottom: 0px;
-  font-family: Verdana;
+  font-family: Helvetica;
   color: #F1F1F1
 }
 h2 {
-  margin: 0;
-  padding: 0;
   font-size: 20px;
-  font-weight: normal;
-  margin-bottom: 10px;
   font-family: Verdana;
   color: #F1F1F1
 }
 h3 {
-  margin: 0;
-  padding: 0;
   font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
 }
 h4 {
-  margin: 0;
-  padding: 0;
   font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 10px;
 }
 
 #login_wrapper {
@@ -268,89 +250,88 @@ a:active {
 	width: 210px;
 	list-style: none;
 	display: block;
-	height: 100%
-}
-#main_menu li {
-	width: 100%;
-	border-top: 1px solid #fff;
-	border-bottom: 1px solid #ccc;
-	display: block;
-}
-#main_menu li.active {
-	height: auto;
-}
-#main_menu li ul {
-	margin: 0;
-	padding: 0;
-	padding: 10px 0 10px 0;
-	margin-bottom: 10px;
-	float: left;
-	display: block;
-	width: 100%;
-	background: #bfc6cf;
-	border-top: 2px solid #999;
-	border-bottom: 1px solid #fff;
-	display: none;
-	overflow: hidden;
-}
-#main_menu li ul li {
-	border: 0;
-}
-#main_menu li ul li a {
-	text-shadow: 0 1px 0 #DBDBDB;
-}
-#main_menu li ul li a:hover {
-	background: #b1b8c1;
-	text-shadow: 0 1px 0 #DBDBDB;
+	height: 100%;
+
+  li {
+    width: 100%;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #ccc;
+    display: block;
+
+    &.active {
+      height: auto;
+    }
+    &.end {
+      border-top: 1px solid #fff;
+      border-bottom: 0;
+      height: 1px;
+    }
+
+    a {
+      display: block;
+      padding: 10px 20px 12px 30px;
+      color: #4b4f5d;
+      font-weight: bold;
+      text-shadow: 0 1px 0 #fff;
+
+      &:hover {
+        background: #DADADA;
+      }
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      padding: 10px 0 10px 0;
+      margin-bottom: 10px;
+      float: left;
+      display: block;
+      width: 100%;
+      background: #bfc6cf;
+      border-top: 2px solid #999;
+      border-bottom: 1px solid #fff;
+      display: none;
+      overflow: hidden;
+
+      li {
+        border: 0;
+        a {
+          text-shadow: 0 1px 0 #DBDBDB;
+
+          &:hover {
+            background: #b1b8c1;
+            text-shadow: 0 1px 0 #DBDBDB;
+          }
+
+          img {
+            vertical-align: middle;
+            margin-right: 15px;
+            border: 0;
+          }
+        }
+
+        ul {
+          background: #b0b9c4;
+          border-bottom: 1px solid #EAECED;
+          display: block;
+          li {
+            display: block;
+            a {
+              text-shadow: 0 1px 0 #DBDBDB;
+              cursor: pointer;
+
+              &:hover {
+                background: #a2acb9;
+                text-shadow: 0 1px 0 #DBDBDB;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
-#main_menu li ul li ul {
-	margin: 0;
-	padding: 0;
-	padding: 10px 0 10px 0;
-	margin-bottom: 10px;
-	float: left;
-	display: block;
-	width: 100%;
-	background: #b0b9c4;
-	border-top: 2px solid #999;
-	border-bottom: 1px solid #EAECED;
-	display: block;
-	overflow: hidden;
-}
-#main_menu li ul li ul li {
-	border: 0;
-	display: block;
-}
-#main_menu li ul li ul li a {
-	text-shadow: 0 1px 0 #DBDBDB;
-	cursor: pointer;
-}
-#main_menu li ul li ul li a:hover {
-	background: #a2acb9;
-	text-shadow: 0 1px 0 #DBDBDB;
-}
-
-#main_menu li a img {
-	vertical-align: middle;
-	margin-right: 15px;
-	border: 0;
-}
-#main_menu li a {
-	display: block;
-	padding: 10px 20px 12px 30px;
-	color: #4b4f5d;
-	font-weight: bold;
-	text-shadow: 0 1px 0 #fff;
-}
-#main_menu li a:hover {
-	background: #DADADA;
-}
-#main_menu li.end {
-	border-top: 1px solid #fff;
-	border-bottom: 0;
-	height: 1px;
-}
 a#hide_menu {
 	display: block;
 	margin-right: 3px;
@@ -361,10 +342,12 @@ a#hide_menu {
 	font-weight: bold;
 	border-bottom: 1px solid #ccc;
 	cursor: w-resize;
+
+  &:hover {
+    background: #ccc;
+  }
 }
-a#hide_menu:hover {
-	background: #ccc;
-}
+
 a#show_menu {
 	display: none;
 	padding: 5px 10px 5px 10px;
@@ -379,9 +362,10 @@ a#show_menu {
 	font-weight: bold;
 	cursor: e-resize;
 	float: left;
-}
-a#show_menu:hover {
-	background: #ccc;
+
+  &:hover {
+    background: #ccc;
+  }
 }
 
 #main {
@@ -695,44 +679,7 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	height: 20px;
 	padding: 0px;
 }
-/*
- .graphmenubutton {
- border-top: 1px solid #d0d2d4;
- background: #535454;
 
- background: -webkit-gradient(linear, left top, left bottom, from(#676e73), to(#535454));
- background: -webkit-linear-gradient(top, #676e73, #535454);
- background: -moz-linear-gradient(top, #676e73, #535454);
- background: -ms-linear-gradient(top, #676e73, #535454);
- background: -o-linear-gradient(top, #676e73, #535454);
-
- padding: 5px 10px;
- margin: 2px;
- -webkit-border-radius: 8px;
- -moz-border-radius: 8px;
- border-radius: 8px;
- -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
- -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
- box-shadow: rgba(0,0,0,1) 0 1px 0;
- text-shadow: rgba(0,0,0,.4) 0 1px 0;
- color: white;
- font-size: 14px;
- text-decoration: none;
- vertical-align: middle;
- width: 140px;
- max-width: 140px;
- height: 28px;
- }
- .graphmenubutton:hover {
- border-top-color: #404040;
- background: #404040;
- color: #ccc;
- }
- .graphmenubutton:active {
- border-top-color: #545454;
- background: #545454;
- }
- */
 #graphmenuheader {
 	font-size: 14px;
 	font-weight: bold;
