@@ -17,6 +17,10 @@ define([
 		processes = ko.observableArray([ new Process( "test Process" ) ]);
 		return processes();
 	}
+
+	Process.exists = function() {
+
+	}
 	
 	return Process;
 });

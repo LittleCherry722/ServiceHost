@@ -1,46 +1,33 @@
 h2 Create new process
 
-div( style="margin:10px; width:175px; float:left;" )
-  br.clear
+form
+	.control-group( data-bind=" css: { error: processExist } " )
+		label( for="new_process" ) Name
+		input#new_process( type="text", style="width:180px;",
+			data-bind="value : processName, valueUpdate:'afterkeydown'")
+		ul.errors( data-bind="visible: processExist" )
+			li Process already exists! Please choose a different name.
+		script
+			document.getElementById("new_process").focus();
 
-  p( style="width:182px;" )
-    <label>Name:</label>
-    br
-    input( type="text", id="new_process", style="width:180px;",
-           data-bind="value : processName, valueUpdate:'afterkeydown'")
-    script
-      $("#new_process").focus();
+	label.radio
+		input( type="radio", name="caseGroup", value="isProcess",
+			data-bind="checked: caseOrProcess" )
+		| Create Process
+	label.radio
+		input( type="radio", name="caseGroup", value="isCase",
+			data-bind="checked: caseOrProcess" )
+		| Create Case
+	label.checkbox
+		input( type="checkbox", name="Table", value="Table",
+			data-bind="checked: quickVM.displayTable, enable: isProcess" )
+		| Use Table
 
-  #processExist( style="width:170px;height:45px;" )
-    span( data-bind="visible: processExist", style="color: red;" )
-      | Process already exists! Please choose a different name.
-
-  #options
-    div
-      label
-        input( type="radio", name="caseGroup", value="isProcess",
-               data-bind="checked: caseOrProcess" )
-        | Create Process
-    div
-      label
-        input( type="radio", name="caseGroup", value="isCase",
-               data-bind="checked: caseOrProcess" )
-        | Create Case
-    div
-      label
-        input( type="checkbox", name="Table", value="Table",
-               data-bind="checked: quickVM.displayTable, enable: isProcess" )
-        | Use Table
-
-  div( align="center", style="float:left;" )
-    input( type="submit", value="Accept",
-           data-bind="click : createCheck, disable: processExist, style: {color: processExist() ? 'grey' : '#333'} " )
-     input( type="button", value="Cancel",
-            onclick="parent.fancyreturn1=false;parent.$.fancybox.close();" )
-
-  br.clear
-
+	input( type="submit", value="Accept",
+		data-bind="click : createCheck, disable: processExist, style: {color: processExist() ? 'grey' : '#333'} " )
+	input( type="button", value="Cancel",
+		onclick="history.back()" )
 
 #quickTable( style="width:760px; float:left; margin:20px;",
-             data-bind="template: { name: 'quickView', data: quickVM}, visible: quickVM.displayTable" )
+	data-bind="template: { name: 'quickView', data: quickVM}, visible: quickVM.displayTable" )
 

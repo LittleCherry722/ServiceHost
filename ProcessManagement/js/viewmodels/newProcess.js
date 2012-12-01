@@ -5,6 +5,11 @@ define([
 ], function( ko, Process, App ) {
 	var ViewModel = function() {
 		this.processName = ko.observable("");
+
+		this.processExist = ko.computed(function() {
+			return Process.exists( this.processName() );
+		}.bind(this));
+
 	}
 
 	var initialize = function() {

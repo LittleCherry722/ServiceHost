@@ -13,8 +13,10 @@
 
 @import "variables";
 @import "bootstrap";
+
 @import "flexbox";
 
+@import "forms";
 
 .tab-dropdown {
   margin-top: 2px;
@@ -35,9 +37,8 @@
 }
 
 body {
-  font-family: Arial;
-  font-size: 12px;
   color: #363636;
+  font-size: 12px;
   text-shadow: 0 1px 0 #fff;
   background-color: #f7f7f7;
   background-image: url(../images/bg_left.jpg);
@@ -73,13 +74,15 @@ h1 {
 h2 {
   font-size: 20px;
   font-family: Verdana;
-  color: #F1F1F1
+  color: #4B4F5D;
 }
 h3 {
   font-size: 18px;
+  color: #4B4F5D;
 }
 h4 {
   font-size: 14px;
+  color: #4B4F5D;
 }
 
 #login_wrapper {
@@ -237,23 +240,24 @@ a:active {
 	display: none;
 }
 
+#headAndLeft {
+  @include display-box;
+}
+
 #left_menu {
-	width: 213px;
+	width: 210px;
+  margin-left: -1px;
 	height: 100%;
-	float: left
 }
 
 #main_menu {
+  @include box-sizing(border-box);
 	margin: 0;
 	padding: 0;
-	float: left;
-	width: 210px;
+  width: 100%;
 	list-style: none;
-	display: block;
-	height: 100%;
 
   li {
-    width: 100%;
     border-top: 1px solid #fff;
     border-bottom: 1px solid #ccc;
     display: block;
@@ -276,6 +280,12 @@ a:active {
 
       &:hover {
         background: #DADADA;
+      }
+
+      img {
+        vertical-align: middle;
+        margin-right: 15px;
+        border: 0;
       }
     }
 
@@ -303,11 +313,6 @@ a:active {
             text-shadow: 0 1px 0 #DBDBDB;
           }
 
-          img {
-            vertical-align: middle;
-            margin-right: 15px;
-            border: 0;
-          }
         }
 
         ul {
@@ -334,7 +339,6 @@ a:active {
 
 a#hide_menu {
 	display: block;
-	margin-right: 3px;
 	padding: 5px 10px 5px 30px;
 	text-align: right;
 	font-size: 14px;
@@ -369,10 +373,9 @@ a#show_menu {
 }
 
 #main {
-	margin-left: 15px;
-	margin-top: 15px;
-	padding: 0;
-	float: left;
+  @include box-flex(1);
+  padding-top: 15px;
+  padding-left: 15px;
 }
 #content .inner {
 	float: left;
@@ -532,81 +535,6 @@ table.data2 tr th, table.data2 tr td {
 }
 table.data2 tr td {
 	color: #666;
-}
-
-input[type=submit], input[type=button] {
-	background: url(../images/bg_button_tab.png);
-	background-repeat: repeat-x;
-	border: 1px solid #999;
-	font-weight: bold;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-moz-box-shadow: 0 1px 2px #444;
-	-webkit-box-shadow: 0 1px 2px #444;
-	box-shadow: 0 1px 2px #444;
-	color: #333;
-}
-input[type=button].right_switch {
-	-moz-border-radius: 0;
-	-webkit-border-radius: 0;
-	-moz-border-radius-topright: 5px;
-	-webkit-border-top-right-radius: 5px;
-	-moz-border-radius-bottomright: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	background: url(../images/bg_button_tab.png) repeat-x;
-	font-weight: bold;
-	margin: 0;
-	height: 30px;
-	border: 1px solid #AAA9A9;
-	-moz-box-shadow: 0 1px 1px #fff;
-	-webkit-box-shadow: 0 1px 1px #fff;
-	box-shadow: 0 1px 1px #fff;
-	text-shadow: 1px 0 0 #fff;
-	color: #494949;
-	font-size: 12px;
-}
-input[type=button].left_switch {
-	-moz-border-radius: 0;
-	-webkit-border-radius: 0;
-	-moz-border-radius-topleft: 5px;
-	-webkit-border-top-left-radius: 5px;
-	-moz-border-radius-bottomleft: 5px;
-	-webkit-border-bottom-left-radius: 5px;
-	background: url(../images/bg_button_tab.png) repeat-x;
-	font-weight: bold;
-	margin-top: 0;
-	height: 30px;
-	border: 1px solid #AAA9A9;
-	-moz-box-shadow: 0 1px 1px #fff;
-	-webkit-box-shadow: 0 1px 1px #fff;
-	box-shadow: 0 1px 1px #fff;
-	text-shadow: 1px 0 0 #fff;
-	color: #494949;
-	font-size: 12px;
-}
-input[type=select].middle_switch {
-	-moz-border-radius: 0;
-	-webkit-border-radius: 0;
-	background: url(../images/bg_button_tab.png) repeat-x;
-	font-weight: bold;
-	margin: 0;
-	height: 30px;
-	border: 1px solid #AAA9A9;
-	-moz-box-shadow: 0 1px 1px #fff;
-	-webkit-box-shadow: 0 1px 1px #fff;
-	box-shadow: 0 1px 1px #fff;
-	text-shadow: 1px 0 0 #fff;
-	color: #494949;
-	font-size: 12px;
-}
-input[type=submit]:hover, input[type=button]:hover, input[type=button].right_switch:hover, input[type=button].left_switch:hover, input[type=button].middle_switch:hover {
-	border: 1px solid #666;
-}
-input[type=submit]:active, input[type=button]:active, input[type=button].right_switch:active, input[type=button].left_switch:active, input[type=button].right_switch.active, input[type=button].left_switch.active, input[type=button].middle_switch:active, input[type=button].middle_switch.active {
-	color: #606060;
-	border: 1px solid #999;
-	background: url(../images/bg_tab_over.png) repeat-x;
-	text-shadow: 0 0 0 #999;
 }
 
 #dialog-header {

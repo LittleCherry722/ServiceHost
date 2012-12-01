@@ -39,7 +39,7 @@ define([
     // value) or was not defined at all.
 		require([ "viewmodels/" + viewName ], function( viewModel ) {
       viewModel.init();
-      contentViewModel( viewModel );
+      kontentViewModel( viewModel );
 		});
 	}
 
