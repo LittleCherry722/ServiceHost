@@ -1,0 +1,30 @@
+
+<div class="controls">
+  <label>Subjects</label>
+  <form>
+    <ul data-bind="foreach: subjectList" class="unstyled">
+      <li>
+        <input type="text" data-bind="value: name, valueUpdate: 'afterkeydown'"/><a href="#" data-bind="click: $parent.removeSubject">Remove</a>
+      </li>
+    </ul>
+    <div class="actions">
+      <input type="button" value="Add Subject" data-bind="click: addSubject"/>
+    </div>
+  </form>
+</div>
+<div class="controls">
+  <label>Messages
+    <form>
+      <ul data-bind="foreach: messageList" class="unstyled">
+        <li>
+          <select data-bind="options: $parent.subjectList, optionsText: function(item){return item.name()}, optionsCaption: 'Select a subject...', value: sender" class="input-medium"></select>
+          <input type="text" data-bind="value: message" class="input-medium"/>
+          <select data-bind="options: $parent.subjectList, optionsText: function(item){return item.name()}, optionsCaption: 'Select a subject...', value: receiver" class="input-medium"></select><a href="#" data-bind="click: $parent.removeMessage">Remove</a>
+        </li>
+      </ul>
+      <div class="actions">
+        <input type="button" value="Add Message" data-bind="click: addMessage"/>
+      </div>
+    </form>
+  </label>
+</div>

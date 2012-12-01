@@ -18,6 +18,18 @@
 
 @import "forms";
 
+.flexbox {
+  @include display-box;
+  
+  [class*="span"] {
+    float: none;
+  }
+
+  .fluid {
+    @include box-flex(1);
+  }
+}
+
 .tab-dropdown {
   margin-top: 2px;
   -moz-border-radius: 0;
@@ -162,6 +174,15 @@ h4 {
 	width: 100%;
 	text-align: left;
 }
+
+#quick_table {
+  form {
+    input, select {
+      margin-right: 5px;
+    }
+  }
+}
+
 #header {
 	width: 100%;
 	min-width: 960px;

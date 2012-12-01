@@ -1,0 +1,35 @@
+
+<div class="pull-left">
+  <h2>Create new process</h2>
+  <div class="flexbox">
+    <form data-bind="submit: createProcess" class="span3">
+      <div data-bind=" css: { error: processValid } " class="control-group">
+        <label for="new_process">Name</label>
+        <input id="new_process" type="text" style="width:180px;" data-bind="value : processName, valueUpdate:'afterkeydown'"/>
+        <ul data-bind="visible: processValid" class="errors">
+          <li>Process already exists! Please choose a different name.</li>
+        </ul>
+        <script>
+          document.getElementById("new_process").focus();
+          
+        </script>
+      </div>
+      <label class="radio">
+        <input type="radio" name="processType" value="process" data-bind="checked: processType"/>Create Process
+      </label>
+      <label class="radio">
+        <input type="radio" name="processType" value="case" data-bind="checked: processType"/>Create Case
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" name="Table" value="Table" data-bind="checked: displayTable, disable: isCase"/>Use Table
+      </label>
+    </form>
+    <div class="fluid">
+      <div id="quick_table" data-bind="visible: displayTable"></div>
+    </div>
+  </div>
+  <div class="form-actions">
+    <input type="submit" value="Accept" data-bind="disable: processValid"/>
+    <input type="button" value="Cancel" onclick="history.back()"/>
+  </div>
+</div>
