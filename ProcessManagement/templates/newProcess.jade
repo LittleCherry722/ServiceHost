@@ -1,33 +1,31 @@
 h2 Create new process
 
-form
-	.control-group( data-bind=" css: { error: processExist } " )
+form.span3( data-bind="submit: createProcess" )
+	.control-group( data-bind=" css: { error: processValid } " )
 		label( for="new_process" ) Name
 		input#new_process( type="text", style="width:180px;",
 			data-bind="value : processName, valueUpdate:'afterkeydown'")
-		ul.errors( data-bind="visible: processExist" )
+		ul.errors( data-bind="visible: processValid" )
 			li Process already exists! Please choose a different name.
 		script
 			document.getElementById("new_process").focus();
 
 	label.radio
-		input( type="radio", name="caseGroup", value="isProcess",
-			data-bind="checked: caseOrProcess" )
+		input( type="radio", name="processType", value="process",
+			data-bind="checked: processType" )
 		| Create Process
 	label.radio
-		input( type="radio", name="caseGroup", value="isCase",
-			data-bind="checked: caseOrProcess" )
+		input( type="radio", name="processType", value="case",
+			data-bind="checked: processType" )
 		| Create Case
 	label.checkbox
 		input( type="checkbox", name="Table", value="Table",
-			data-bind="checked: quickVM.displayTable, enable: isProcess" )
+			data-bind="checked: displayTable, disable: isCase" )
 		| Use Table
 
-	input( type="submit", value="Accept",
-		data-bind="click : createCheck, disable: processExist, style: {color: processExist() ? 'grey' : '#333'} " )
-	input( type="button", value="Cancel",
-		onclick="history.back()" )
+	input( type="submit", value="Accept", data-bind="disable: processValid" )
+	input( type="button", value="Cancel", onclick="history.back()" )
 
 #quickTable( style="width:760px; float:left; margin:20px;",
-	data-bind="template: { name: 'quickView', data: quickVM}, visible: quickVM.displayTable" )
+	data-bind="visible: displayTable" )
 

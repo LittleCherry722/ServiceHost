@@ -4,17 +4,68 @@ define([
 	"app"
 ], function( ko, Process, App ) {
 	var ViewModel = function() {
-		this.processName = ko.observable("");
+		var self = this;
 
-		this.processExist = ko.computed(function() {
-			return Process.exists( this.processName() );
-		}.bind(this));
+		// The current process Name
+		this.processName = ko.observable( currentProcess().name() );
+
+		// Is it a Process or a Case?
+		this.isCase = ko.observable( currentProcess().isCase() );
+
+		// Returns the Process Type if called without arguments.
+		// Possibilities: "case" wenn isCase() == true, "process" otherwise.
+		//
+		// If called with an argument (used as setter), writes isCase() dependant
+		// on the given argument. Sets isCase to true if newValue === "case", false
+		// otherwise.
+		this.processType = ko.computed({
+			read: function() {
+				return self.isCase() ? "case" : "process";
+			},
+			write: function( newValue ) {
+				if ( newValue === "case" ) {
+					self.isCase( true );
+				} else {
+					self.isCase( false );
+				}
+			}
+		});
+
+		// Does this Process already exist?
+		this.processExists = ko.observable( Process.exists( this.processName() ) );
+
+		// is this a valid process?
+		this.processValid = ko.observable( currentProcess().isValid() );
+
+		// Should a table be used (we NEED another name for this) for creating the
+		// Process?
+		this.displayTable = ko.observable( false );
+
+
+		this.createProcess = createProcess;
+	}
+
+	// The current Process.
+	// Create a new Process (but do not save it yet) and let every other
+	// observable (name, isCase etc.) reference this process.
+	// That way everything is updated automatically.
+	//
+	// Example: processName = currentProcess().name()
+	var currentProcess = ko.observable( new Process() );
+
+	// Creates the Process
+	var createProcess = function() {
 
 	}
 
+	// Initialize our View.
+	// Includes loading the template and creating the viewModel
+	// to be applied to the template.
 	var initialize = function() {
 		var viewModel = new ViewModel();
-		App.loadTemplate( "newProcess", viewModel )
+		App.loadTemplate( "newProcess", viewModel, null, function() {
+			App.loadTemplate( "newProcess/quickView", viewModel, "quickTable" )
+		});
 	}
 	
 	// Everything in this object will be the public API

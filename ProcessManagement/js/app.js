@@ -39,7 +39,7 @@ define([
     // value) or was not defined at all.
 		require([ "viewmodels/" + viewName ], function( viewModel ) {
       viewModel.init();
-      kontentViewModel( viewModel );
+      contentViewModel( viewModel );
 		});
 	}
 
@@ -54,39 +54,43 @@ define([
    * @param {ViewModel} viewModel the viewModel to be applied to the new content.
    *  Optional.
    *
-   * @param {String} type specifies the type of the template. Default is jade.
-   * Supported template handlers are: jade, text. Optional.
+   * @param {String} nodeID the id of the element whose content (innerHTML) is
+   *  to be replaced by the template. Defaults to "main".
+   *
+   * @param {Function} callback the function to be executed after the template
+   *  has been loaded and the viewModel (if supplied) has been applied.
    *
    * example: loadTemplate('home', new ViewModel(), 'text')
    */
-  var loadTemplate = function( templateName, viewModel, type ) {
-    if ( !type ) {
-      type = "jade";
+  var loadTemplate = function( templateName, viewModel, nodeID, callback ) {
+    var path;
+
+    // Set the defaults for nodeID
+    if ( !nodeID ) {
+      nodeID = "main"
     }
 
     // create the path from:
     // * template handler (type). Must be a requirejs plugin.
     // * the default path to all templates.
     // * the template name.
-    var path = type + "!../templates/" + templateName;
+    path = "jade!../templates/" + templateName;
 
     // load the template from the server
     require([ path ], function( template ) {
-      mainNode = document.getElementById("main");
+      templateNode = document.getElementById(nodeID);
 
-      // If the type of the template is text, we get a simple string. We
-      // would not want to call a string as a function. Every other template
-      // handler should return a function to convert the template to a string
-      // we can insert into our main node.
-      if ( type === "text" ) {
-        mainNode.innerHTML = template;
-      } else {
-        mainNode.innerHTML = template();
+      // load our template and insert it into the document.
+      templateNode.innerHTML = template();
+
+      // Apply the viewModel to the newly inserted content if available.
+      if ( viewModel ) {
+        ko.applyBindings(viewModel, templateNode)
       }
 
-      // Apply the viewModel to the newly inserted content if available
-      if ( viewModel ) {
-        ko.applyBindings(viewModel, mainNode)
+      // if a callback is set, execute it.
+      if ( typeof callback === "function" ) {
+        callback();
       }
     });
   }
