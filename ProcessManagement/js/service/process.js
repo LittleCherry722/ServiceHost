@@ -10,7 +10,6 @@ SBPM.Service.Process = {
 	},
 	saveProcess : function( graphAsJSON, startSubjectsAsJSON, name, forceOverwrite, saveAs, isProcess ) {
 		var id;
-
 		if( saveAs ) {
 
 			// if process already exists
