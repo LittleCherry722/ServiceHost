@@ -39,8 +39,14 @@ define([
 	}
 
 	var setupMenu = function() {
+		// Set up the main Menu accordion
 		$("#main_menu").accordion({
 			autoHeight : false
+		});
+
+		// Make vanilla links in accordions possible
+		$("#main_menu a.link").live( 'click', function() {
+			window.location = this.getAttribute('href');
 		});
 
 		$("#calendar").datepicker({
