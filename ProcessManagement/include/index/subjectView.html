@@ -8,12 +8,12 @@
 		<br/>
 		<label class="graphsectionheader">Subject Name:</label>
 		<br/>
-		<input id="ge_cv_text" style="width:140px">
+		<input id="ge_cv_text" style="width:140px" data-bind="tooltip : 'Name of a role instance'">
 		</input>
 		<br/>
-		<label class="graphsectionheader" data-bind="text: userOrRole">Assigned-Role:</label>
+		<label class="graphsectionheader" data-bind="text: userOrRole">Assigned-Role</label>
 		<br/>
-		<select id="ge_cv_id" style="width:140px">
+		<select id="ge_cv_id" style="width:140px" data-bind="tooltip : 'Assign a specific role to a subject'">
 		</select>
 		<br/>
 		<label class="graphsectionheader">Input Pool:</label>
@@ -23,10 +23,10 @@
 		<div class="graphsectionheader" id="subjectType">
 			<label class="graphsectionheader">Subject type:</label>
 			<br/>
-			<input type="checkbox" id="ge_cv_type_multi" name="ge_cv_type_multi" />
+			<input type="checkbox" id="ge_cv_type_multi" name="ge_cv_type_multi" data-bind="tooltip : 'Are there multiple instances of this subject?'" />
 			Multi
 			<br/>
-			<input type="checkbox" id="ge_cv_type_external" name="ge_cv_type_external" />
+			<input type="checkbox" id="ge_cv_type_external" name="ge_cv_type_external" data-bind="tooltip : 'Does the subject come from without your company'"/>
 			External
 			<br/>
 		</div>
