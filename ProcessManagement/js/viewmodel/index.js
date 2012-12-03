@@ -173,6 +173,7 @@ var ProcessViewModel = function() {
 
 
     self.processName(processName);
+    SBPM.VM.contentVM().subjectVM.processName(processName); //TODO Let subjectVM know by it self.
     console.log("ProcessViewModel: showProcess called. processName="+self.processName());
 
     try{
@@ -309,7 +310,7 @@ var SubjectViewModel = function() {
   self.name = "subjectView";
   self.label = "Subject-Interaction-View";
   self.userOrRole = ko.observable();
-
+self.processName = ko.observable("");
   self.init = function() {
 
   }
@@ -332,7 +333,21 @@ var SubjectViewModel = function() {
   }
 
   self.availableProcesses = ko.observableArray(SBPM.Service.Process.getAllProcesses());
+  
 
+
+	self.updateProcessList = ko.computed(function() {
+		filterArray = SBPM.Service.Process.getAllProcesses();
+
+		self.availableProcesses(filterArray.filter(function(element) {
+			return (element.name != self.processName());
+		}))
+	}); 
+
+  	
+  
+  
+console.log("self.availableProcesses = ko.observableArray(SBPM.Service.Process.getAllProcesses());")
 
 }
 var InternalViewModel = function() {
