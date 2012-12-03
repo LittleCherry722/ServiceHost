@@ -38,7 +38,6 @@ define([
 		validators: {
 			// Does this Process already exist?
 			exists: function() {
-				console.log(this)
 				if ( Process.exists(this.name()) ) {
 					return "Process already exists! Please choose a different name.";
 				}

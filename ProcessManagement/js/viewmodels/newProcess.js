@@ -65,7 +65,6 @@ define([
 		 *	@param {Subject} subject the subject to be removed.
 		 */
 		this.removeSubject = function( subject ) {
-			console.log(this.subjectList());
 			this.subjectList.remove( subject );
 		}.bind( this );
 

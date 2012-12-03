@@ -49,10 +49,6 @@ define([
 				}
 
 				// Return our valid / invalid status;
-				console.log("valid? " + valid )
-				if ( !valid ) {
-					console.log(this.errors)
-				}
 				return valid;
 			};
 
