@@ -338,7 +338,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		var bbox = {x: 0, y: 0, top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0};
 		
 		// when the shape is "roundedrectanglemulti" calculate the shape from the first and the last roundedrectangle on the stack
-		if (this.shape == "roundedrectanglemulti")
+		if (this.shape == "roundedrectanglemulti" && gf_isset(this.rectangle, this.multiRR[this.multiRR.length - 1]))
 		{
 			var bbox1	= this.rectangle.getBBox();
 			var bbox2	= this.multiRR[this.multiRR.length - 1].getBBox();
@@ -354,7 +354,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		}
 		
 		// for all other shapes simply calculate the boundaries of the element referenced by bboxObj
-		else
+		else if (gf_isset(this.bboxObj))
 		{
 			var bbox1	= this.bboxObj.getBBox();
 			
@@ -380,6 +380,30 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	{
 		return {x: this.x, y: this.y};
 	};
+	
+	/**
+	 * Returns the status dependent string for selecting the right information from the style set.
+	 * 
+	 * @returns {String} The string addition for the correct style.
+	 */
+	this.getStatusDependent = function ()
+	{
+		var statusDependent = "";
+		if (this.optional === true)
+		{
+			statusDependent += "Opt";
+		}
+		if (this.selected === true)
+		{
+			statusDependent += "Sel";
+		}
+		if (this.deactive === true)
+		{
+			statusDependent += "Deact";
+		}
+		
+		return statusDependent;
+	}
 		
 	/**
 	 * Update the value of the textAlignAttribute depending on the new text of this label.
@@ -496,19 +520,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		/*
 		 * status dependent styles
 		 */
-		var statusDependent = "";
-		if (this.optional === true)
-		{
-			statusDependent += "Opt";
-		}
-		if (this.selected === true)
-		{
-			statusDependent += "Sel";
-		}
-		if (this.deactive === true)
-		{
-			statusDependent += "Deact";
-		}
+		var statusDependent = this.getStatusDependent();
 		
 		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("borderStyle" + statusDependent, ""));
 		var strokeWidth		= strokeDasharray == "none" ? 0 : this.readStyle("borderWidth" + statusDependent, "int");
