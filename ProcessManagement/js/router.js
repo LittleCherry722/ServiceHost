@@ -40,13 +40,19 @@ define([ "director", "app" ], function( Director, App ) {
 		App.loadView(viewName);
 	}
 
-	// given a process, creates a path for this process.
+	// given a model, creates a path for this model.
 	// This path can be used for internal navigation only as it does not contain
 	// host information, only the path.
-	var processPath = function(process) {
-		// prepend our baisc processes route and append the process name with
-		// whitespace converted to underscores
-		path = "#/processes/" + process.name().replace(/ /g, "_")
+	//
+	// Model path is generated from the model name (className) in lowercase,
+	// pluralized (by simply appending an s).
+	//
+	// example:
+	// var process = new Model("Process");	// => { className: "process", id: 3 }
+	// modelPath(process) =									// => #/process/3
+	var modelPath = function(model) {
+		var modelName = model.className.toLowerCase();
+		path = "#/" + modelName + "/" + model.id
 		return path;
 	}
 
@@ -61,6 +67,6 @@ define([ "director", "app" ], function( Director, App ) {
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		processPath: processPath
+		modelPath: modelPath
 	}
 });

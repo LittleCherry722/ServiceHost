@@ -60,8 +60,9 @@ define([
 		 *	@param {Subject} subject the subject to be removed.
 		 */
 		this.removeSubject = function( subject ) {
+			console.log(this.subjectList());
 			this.subjectList.remove( subject );
-		}
+		}.bind( this );
 
 		/**
 		 *	Adds an empty subject to the list of subjects.
@@ -70,6 +71,11 @@ define([
 			this.subjectList.push( new Subject() );
 		}
 
+		//Contains all Messages.
+		this.messageList = ko.observableArray([
+			new Message("", "File", ""),
+			new Message("", "Answer", "")
+		]);
 
 		/**
 		 *	Removes a message from the list of messages.
@@ -77,7 +83,7 @@ define([
 		 */
 		this.removeMessage = function( message ) {
 			this.messageList.remove( message );
-		}
+		}.bind( this );
 
 		/**
 		 *	Adds a subject to the list of subjects.
@@ -85,12 +91,6 @@ define([
 		this.addMessage = function() {
 			this.messageList.push( new Message() );
 		}
-
-		//Contains all Messages.
-		this.messageList = ko.observableArray([
-			new Message("", "File", ""),
-			new Message("", "Answer", "")
-		]);
 	}
 
 	/**
@@ -149,7 +149,6 @@ define([
 	// to be applied to the template.
 	var initialize = function() {
 		var viewModel = new ViewModel();
-		console.log(viewModel);
 		App.loadTemplate( "newProcess", viewModel, null, function() {
 			App.loadTemplate( "newProcess/quickView", viewModel, "quick_table" )
 		});
@@ -166,105 +165,105 @@ define([
 
 
 
-var ViewModel = function() {
-	var self = this;
+// var ViewModel = function() {
+//   var self = this;
 
-	self.processExist = ko.computed(function() {
-		return SBPM.Service.Process.processExists(self.processName());
+//   self.processExist = ko.computed(function() {
+//     return SBPM.Service.Process.processExists(self.processName());
 
-	});
+//   });
 	
-	self.createCheck = function() {
-		var process = self.processName();
-		console.log("createCheck " + process);
+//   self.createCheck = function() {
+//     var process = self.processName();
+//     console.log("createCheck " + process);
 
-		if(!process || process.length < 1) {
-			SBPM.Notification.Warning('Warning', 'Please enter a name for the process!');
-			return;
-		}
+//     if(!process || process.length < 1) {
+//       SBPM.Notification.Warning('Warning', 'Please enter a name for the process!');
+//       return;
+//     }
 
-		SBPM.Service.Process.deleteProcess(process);
-		self.goToProcess(process);
-	}
+//     SBPM.Service.Process.deleteProcess(process);
+//     self.goToProcess(process);
+//   }
 
-	self.goToProcess = function(process) {
-		processVM = parent.SBPM.VM.goToPage("process");
-		processVM.showProcess(process, null, null, self.isProcess());
-		processVM.isProcess(self.isProcess());
+//   self.goToProcess = function(process) {
+//     processVM = parent.SBPM.VM.goToPage("process");
+//     processVM.showProcess(process, null, null, self.isProcess());
+//     processVM.isProcess(self.isProcess());
 
-		if(self.quickVM.displayTable()) {
-			self.quickVM.createProcessFromTable();
-		}
+//     if(self.quickVM.displayTable()) {
+//       self.quickVM.createProcessFromTable();
+//     }
 
-		// update list of recent processes
-		parent.$.publish("/process/change");
+//     // update list of recent processes
+//     parent.$.publish("/process/change");
 
-		// close layer
-		self.close();
-	}
-}
+//     // close layer
+//     self.close();
+//   }
+// }
 
-var QuickViewModel = function() {
-	var self = this;
+// var QuickViewModel = function() {
+//   var self = this;
 
 
-	self.noMessage = function(mesOb) {
-		var bool = true;
+//   self.noMessage = function(mesOb) {
+//     var bool = true;
 
-		if(mesOb.message != null && mesOb.message.replace(" ", "") != "" && mesOb.sender != null && mesOb.sender.replace(" ", "") != "" && mesOb.receiver != null && mesOb.receiver.replace(" ", "") != "")
-			bool = false;
-		return bool;
-	}
+//     if(mesOb.message != null && mesOb.message.replace(" ", "") != "" && mesOb.sender != null && mesOb.sender.replace(" ", "") != "" && mesOb.receiver != null && mesOb.receiver.replace(" ", "") != "")
+//       bool = false;
+//     return bool;
+//   }
 
-	//Checks if message is complete.
-	self.completeMessage = function(mesOb) {
-		var bool = false;
+//   //Checks if message is complete.
+//   self.completeMessage = function(mesOb) {
+//     var bool = false;
 
-		if(mesOb.message != null && mesOb.message.replace(" ", "") != "" && mesOb.sender != null && mesOb.sender.name().replace(" ", "") != "" && mesOb.receiver != null && mesOb.receiver.name().replace(" ", "") != "")
-			bool = true;
-		return bool;
-	}
-	//Returns an array to be used in SBPM.Service.Process.createProcessFromTable.
-	self.cleanMessages = function() {
-		var array = new Array();
-		for( i = self.messageList().length - 1; i >= 0; i--) {
-			if(self.completeMessage(self.messageList()[i]))
-				array.push(self.messageList()[i]);
-		}
-		for( i = array.length - 1; i >= 0; i--) {
-			array[i].sender = array[i].sender.name().toLowerCase();
-			array[i].receiver = array[i].receiver.name().toLowerCase();
-		}
-		for( i = array.length - 1; i >= 0; i--) {
-			array[i] = {
-				message : array[i].message,
-				sender : array[i].sender,
-				receiver : array[i].receiver
-			};
+//     if(mesOb.message != null && mesOb.message.replace(" ", "") != "" && mesOb.sender != null && mesOb.sender.name().replace(" ", "") != "" && mesOb.receiver != null && mesOb.receiver.name().replace(" ", "") != "")
+//       bool = true;
+//     return bool;
+//   }
+//   //Returns an array to be used in SBPM.Service.Process.createProcessFromTable.
+//   self.cleanMessages = function() {
+//     var array = new Array();
+//     for( i = self.messageList().length - 1; i >= 0; i--) {
+//       if(self.completeMessage(self.messageList()[i]))
+//         array.push(self.messageList()[i]);
+//     }
+//     for( i = array.length - 1; i >= 0; i--) {
+//       array[i].sender = array[i].sender.name().toLowerCase();
+//       array[i].receiver = array[i].receiver.name().toLowerCase();
+//     }
+//     for( i = array.length - 1; i >= 0; i--) {
+//       array[i] = {
+//         message : array[i].message,
+//         sender : array[i].sender,
+//         receiver : array[i].receiver
+//       };
 
-		}
+//     }
 
-		return array;
-	}
-	//Returns an array to be used in SBPM.Service.Process.createProcessFromTable.
-	self.cleanSubjects = function() {
-		var array = new Array();
-		for( i = self.subjectList().length - 1; i >= 0; i--) {
-			if(self.subjectList()[i].name().replace(" ", "") != "" && self.subjectList()[i].name() != null)
-				array[i] = self.subjectList()[i].name();
+//     return array;
+//   }
+//   //Returns an array to be used in SBPM.Service.Process.createProcessFromTable.
+//   self.cleanSubjects = function() {
+//     var array = new Array();
+//     for( i = self.subjectList().length - 1; i >= 0; i--) {
+//       if(self.subjectList()[i].name().replace(" ", "") != "" && self.subjectList()[i].name() != null)
+//         array[i] = self.subjectList()[i].name();
 
-		}
-		return array;
-	}
+//     }
+//     return array;
+//   }
 
-	self.createProcessFromTable = function() {
-		var sub = self.cleanSubjects();
-		//console.log(sub);
+//   self.createProcessFromTable = function() {
+//     var sub = self.cleanSubjects();
+//     //console.log(sub);
 
-		var mes = self.cleanMessages();
-		//console.log(mes);
+//     var mes = self.cleanMessages();
+//     //console.log(mes);
 
-		parent.SBPM.Service.Process.createProcessFromTable(sub, mes);
-	}
-}
+//     parent.SBPM.Service.Process.createProcessFromTable(sub, mes);
+//   }
+// }
 

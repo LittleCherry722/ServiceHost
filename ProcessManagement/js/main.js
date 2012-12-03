@@ -15,17 +15,25 @@ require.config({
 		"keymaster":         "libs/keymaster/keymaster",
 		"knockout":          "libs/knockout/knockout",
 		"knockout.mapping":  "libs/knockout/plugins/knockout.mapping",
-		"underscore":        "libs/underscore/underscore"
+		"underscore":        "libs/underscore/underscore",
+		"model":             "libs/arne/model"
 	},
 	shim: {
+		// Plugins that dont need anything to export, just depend on other
+		// libraries that are not specified inside the plugins
 		"jquery.ui":         ["jquery"],
 		"jquery.freeow":     ["jquery"],
 		"jquery.chosen":     ["jquery"],
 		"jquery.qtip":       ["jquery"],
 		"jquery.scrollTo":   ["jquery"],
 		"jquery.bootstrap":  ["jquery"],
+
+		// Legacy libararies that do not follow the common.js module pattern.
 		"director": {
 			exports: "Router"
+		},
+		"underscore": {
+			exports: "_"
 		}
 	}
 

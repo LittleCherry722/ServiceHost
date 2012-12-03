@@ -13,18 +13,17 @@
   </form>
 </div>
 <div class="controls">
-  <label>Messages
-    <form>
-      <ul data-bind="foreach: messageList" class="unstyled">
-        <li>
-          <select data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: sender" class="input-medium"></select>
-          <input type="text" data-bind="value: message" class="input-medium"/>
-          <select data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: receiver" class="input-medium"></select><a href="#" data-bind="click: $parent.removeMessage">Remove</a>
-        </li>
-      </ul>
-      <div class="actions">
-        <input type="button" value="Add Message" data-bind="click: addMessage"/>
-      </div>
-    </form>
-  </label>
+  <label>Messages</label>
+  <form>
+    <ul data-bind="foreach: messageList" class="unstyled">
+      <li>
+        <select data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: sender" class="input-medium"></select>
+        <input type="text" data-bind="value: message" class="input-medium"/>
+        <select data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: receiver" class="input-medium"></select><a href="#" data-bind="click: $parent.removeMessage">Remove</a>
+      </li>
+    </ul>
+    <div class="actions">
+      <input type="button" value="Add Message" data-bind="click: addMessage"/>
+    </div>
+  </form>
 </div>

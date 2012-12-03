@@ -12,14 +12,14 @@
 
 .controls
 	label Messages
-		form
-			ul.unstyled( data-bind="foreach: messageList" )
-				li
-					select.input-medium( data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: sender" )
-					input.input-medium( type="text", data-bind="value: message" )
-					select.input-medium( data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: receiver" )
-					a( href="#", data-bind="click: $parent.removeMessage") Remove
+	form
+		ul.unstyled( data-bind="foreach: messageList" )
+			li
+				select.input-medium( data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: sender" )
+				input.input-medium( type="text", data-bind="value: message" )
+				select.input-medium( data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: receiver" )
+				a( href="#", data-bind="click: $parent.removeMessage") Remove
 
-			.actions
-				input( type="button", value="Add Message", data-bind="click: addMessage")
+		.actions
+			input( type="button", value="Add Message", data-bind="click: addMessage")
 
