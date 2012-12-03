@@ -18,6 +18,9 @@ define([
 	});
 
 	Process.include({
+		name: ko.observable(""),
+		isCase: ko.observable(false),
+
 		// Initialize is a special method defined as an instance method.  If any
 		// method named "initializer" is given, it will be called upon object
 		// creation (when calling new model()) with the context of the model.
@@ -28,19 +31,24 @@ define([
 				data = {};
 			}
 			_(data).defaults({ name: "", isCase: false });
-			this.name   = ko.observable(data.name);
-			this.isCase = ko.observable(data.isCase);
+			this.name(data.name);
+			this.isCase(data.isCase);
 		},
 		
 		validators: {
 			// Does this Process already exist?
 			exists: function() {
-				return Process.exists(this.name());
+				console.log(this)
+				if ( Process.exists(this.name()) ) {
+					return "Process already exists! Please choose a different name.";
+				}
 			},
 
 			// Does this process have a valid name?
 			isNameInvalid: function() {
-				return this.name().length > 0;
+				if ( this.name().length < 1 ) {
+					return "Process name is Invalid. Process name must have at least one character.";
+				}
 			}
 		}
 	});
@@ -50,29 +58,23 @@ define([
 	Process.exists = Process.all = function(){};
 
 
-	// get the ProcessID of a given Process identified by its name.
-	// We do not really want this method but it is needed for now because of the
-	// old PHP server interface.
-	getProcessID = function(name) {
-		// TODO actually do something usefull here.
-		return 0;
-	}
-
 	/**
 	 *	Returns a list of all Processes currently available.
+	 *	TODO should not really be here...
 	 *
 	 *	@return {ko.observableArray<Process>} the Array of Processes
 	 */
 	Process.all = function() {
-		processes = ko.observableArray([ new Process( { name: "test Process" } ) ]);
-		return processes();
+		this.all = ko.observableArray([ new Process( { name: "test Process" } ) ]);
+		return this.all();
 	}
 
 	/**
 	 *	Checks whether a Process with the given Name already exists.
+	 *	TODO should not really be here...
 	 */
 	Process.exists = function(name) {
-		return getProcessID(name) > 0
+		return true;
 	}
 	
 	return Process;

@@ -18,8 +18,8 @@ define([
 			// method coming soon) etc.
 			this.className = modelName;
 
-			// Initialize with an empty set of validators.
-			this.validators = {};
+			// Initialize an empty error object.
+			this.errors = ko.observableArray([]);
 
 			// Validates the model.
 			// Iterates over the list of Validators defined (if any) and execute each of
@@ -27,14 +27,38 @@ define([
 			// If one validator returns false, exit early and mark the model as invalid.
 			// If no validator retrurns false we assume this model to be valid and
 			// therefore return true.
-			this.isValid = ko.computed(function() {
-				var validator;
+			this.isValid = function() {
+				var validator, valid, message;
+
+				// reset the error array
+				this.errors([]);
+
+				// lets assume there are no errors;
+				valid = true;
+
+				// loop through every validator and execute it.
 				for ( validator in this.validators ) {
-					if ( !validator() ) {
-						return false
+					message = this.validators[validator].call( this );
+					if ( message ) {
+						// we just found an error. Mark the model as not valid
+						valid = false;
+
+						// append error message
+						this.errors.push(message);
 					}
 				}
-				return true;
+
+				// Return our valid / invalid status;
+				console.log("valid? " + valid )
+				if ( !valid ) {
+					console.log(this.errors)
+				}
+				return valid;
+			};
+
+			// convinience negation method
+			this.isInvalid = ko.computed(function() {
+				return !this.isValid();
 			}.bind( this ));
 
 			/**
@@ -54,6 +78,16 @@ define([
 				this.initialize.call(this, data);
 			}
 		}
+
+		// Set the className as an static attribute to our newly created model.
+		Result.className = modelName;
+
+
+		// Initialize with an empty set of validators.
+		// Validators all have a name for easier identifiaction.
+		// Validators that return ANYTHING will be treated as failed and the
+		// return value will be added to the errors object.
+		Result.prototype.validators = {};
 
 		/**
 		 * Extend the class with static methods. All methods defined inside the
@@ -77,10 +111,10 @@ define([
 			_(Result.prototype).extend(obj);
 		}
 
-		// Return our newly defined and extended class
+		// Return our newly defined object.
 		return Result;
 	}
 	
-	// Everything in this object will be the public API
+	// Everything in this object will be the public API.
 	return Model
 });

@@ -7,7 +7,10 @@ define([
 		var self = this;
 
 		// The current process Name
-		this.processName = ko.observable( currentProcess().name() );
+		this.processName = ko.observable("");
+		this.processName.subscribe(function(newValue) {
+			currentProcess().isValid();
+		});
 
 		// Is it a Process or a Case?
 		this.isCase = ko.observable( currentProcess().isCase() );
@@ -32,11 +35,12 @@ define([
 			}
 		});
 
-		// Does this Process already exist?
-		this.processExists = ko.observable( Process.exists( this.processName() ) );
-
 		// is this a valid process?
-		this.processValid = ko.observable( currentProcess().isValid() );
+		this.processValid = currentProcess().isValid;
+		this.processInvalid = currentProcess().isInvalid;
+
+		// Every errir
+		this.processErrors = currentProcess().errors;
 
 		// Should a table be used (we NEED another name for this) for creating the
 		// Process?
@@ -44,6 +48,7 @@ define([
 
 		// Event handler for process Creation
 		this.createProcess = createProcess;
+
 
 		/*
 		 *	Everything related to the table view goes here
@@ -149,6 +154,10 @@ define([
 	// to be applied to the template.
 	var initialize = function() {
 		var viewModel = new ViewModel();
+
+		// Bind the name of our process to the process name input field
+		currentProcess().name = viewModel.processName;
+
 		App.loadTemplate( "newProcess", viewModel, null, function() {
 			App.loadTemplate( "newProcess/quickView", viewModel, "quick_table" )
 		});

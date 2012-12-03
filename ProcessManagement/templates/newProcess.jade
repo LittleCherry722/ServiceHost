@@ -3,12 +3,12 @@
 
 	.flexbox
 		form.span3( data-bind="submit: createProcess" )
-			.control-group( data-bind=" css: { error: processValid } " )
+			.control-group( data-bind=" css: { error: processInvalid } " )
 				label( for="new_process" ) Name
 				input#new_process( type="text", style="width:180px;",
 					data-bind="value : processName, valueUpdate:'afterkeydown'")
-				ul.errors( data-bind="visible: processValid" )
-					li Process already exists! Please choose a different name.
+				ul.errors( data-bind="foreach: processErrors" )
+					li( data-bind="text: $data" )
 				script
 					document.getElementById("new_process").focus();
 
