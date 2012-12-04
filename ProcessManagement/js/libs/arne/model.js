@@ -5,7 +5,8 @@ define([
 ], function( _, ko, Router ) {
 	var _id = 1;
 
-	var Model = function( modelName, attributes ) {
+	// Our Model cunstructor function. Returns another constructor function.
+	var Model = function( modelName, attrs ) {
 
 		// Define our Base model
 		var Result = function( data ) {
@@ -21,17 +22,23 @@ define([
 			// Initialize an empty error object.
 			this.errors = ko.observableArray([]);
 
-			// Validates the model.
-			// Iterates over the list of Validators defined (if any) and execute each of
-			// them.
-			// If one validator returns false, exit early and mark the model as invalid.
-			// If no validator retrurns false we assume this model to be valid and
-			// therefore return true.
-			this.isValid = function() {
-				var validator, valid, message;
+			this.isValid = ko.observable();
+			this.isInvalid = ko.computed(function() {
+				return !this.isValid();
+			}.bind(this));
 
-				// reset the error array
-				this.errors([]);
+			/*
+			 * Validates the model.
+			 * Iterates over the list of Validators defined (if any) and execute each of
+			 * them.
+			 * A validator is considered "false" when it returns something of type
+			 * "string".  This return value is also used as error message and
+			 * appendet to the observable Error Object.
+			 */
+			this.validate = function() {
+				var validator, message, newErrors;
+
+				newErrors = [];
 
 				// lets assume there are no errors;
 				valid = true;
@@ -43,19 +50,28 @@ define([
 						// we just found an error. Mark the model as not valid
 						valid = false;
 
-						// append error message
-						this.errors.push(message);
+						// append error message to a new Error Array. Needed because we do
+						// not want to trigger to many updates on our observable error
+						// Array
+						newErrors.push(message);
 					}
 				}
 
-				// Return our valid / invalid status;
+				// All all errors not already in the error array to our list of errors.
+				_( newErrors ).each(function( element ) {
+					if ( this.errors.indexOf( element ) === -1 ) {
+						this.errors.push( element );
+					}
+				}.bind( this ));
+
+				// Remove all errors not in our new error array (but in the old one)
+				// from the array of errors.
+				this.errors.removeAll( _( this.errors() ).difference( newErrors ) );
+
+				// Return our valid / invalid status and write it to our observable;
+				this.isValid( valid );
 				return valid;
 			};
-
-			// convinience negation method
-			this.isInvalid = ko.computed(function() {
-				return !this.isValid();
-			}.bind( this ));
 
 			/**
 			 *	Return the url for this process.

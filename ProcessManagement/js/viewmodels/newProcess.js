@@ -8,8 +8,10 @@ define([
 
 		// The current process Name
 		this.processName = ko.observable("");
-		this.processName.subscribe(function(newValue) {
-			currentProcess().isValid();
+
+		// Validate the model on every change
+		currentProcess().subscribe(function() {
+			currentProcess().validate();
 		});
 
 		// Is it a Process or a Case?
@@ -37,9 +39,15 @@ define([
 
 		// is this a valid process?
 		this.processValid = currentProcess().isValid;
-		this.processInvalid = currentProcess().isInvalid;
 
-		// Every errir
+		// Should error messages be displayed?
+		// We choose to not display error messages if the name text field is empty,
+		// but there should be a better way to do it...
+		this.showErrors = ko.computed(function() {
+			return self.processName() && !currentProcess().isValid();
+		});
+
+		// Every error
 		this.processErrors = currentProcess().errors;
 
 		// Should a table be used (we NEED another name for this) for creating the

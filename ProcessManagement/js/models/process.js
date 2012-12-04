@@ -35,18 +35,21 @@ define([
 			this.isCase(data.isCase);
 		},
 		
+		// Custom validator object. Validators are (like the initialize function)
+		// special in a sense that this object will be iterated over when the
+		// "validate" method is executed.
 		validators: {
 			// Does this Process already exist?
 			exists: function() {
-				if ( Process.exists(this.name()) ) {
+				if ( Process.exists( this.name() ) ) {
 					return "Process already exists! Please choose a different name.";
 				}
 			},
 
 			// Does this process have a valid name?
 			isNameInvalid: function() {
-				if ( this.name().length < 1 ) {
-					return "Process name is Invalid. Process name must have at least one character.";
+				if ( this.name().length < 2 ) {
+					return "Process name is Invalid. Process name must have at least two characters.";
 				}
 			}
 		}

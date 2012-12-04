@@ -3,7 +3,7 @@
 
 	.flexbox
 		form.span3( data-bind="submit: createProcess" )
-			.control-group( data-bind=" css: { error: processInvalid } " )
+			.control-group( data-bind=" css: { error: showErrors } " )
 				label( for="new_process" ) Name
 				input#new_process( type="text", style="width:180px;",
 					data-bind="value : processName, valueUpdate:'afterkeydown'")
