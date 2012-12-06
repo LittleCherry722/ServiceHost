@@ -63,7 +63,7 @@ var gv_bv_style_edge = {
 	arrowWidthOptSel: 2,				// pixels
 	arrowWidthOptSelDeact: 2,			// pixels
 	arrowWidthSelDeact: 2,				// pixels
-	arrowWidthSel: 2,					// pixels
+	arrowWidthSel: 4,					// pixels
 	
 	/*
 	 * Border

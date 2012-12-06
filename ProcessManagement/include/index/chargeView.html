@@ -1,26 +1,5 @@
 <div style="padding: 0 5px;">
-    <br class="clear"/>
-    <h3>Responsibilities</h3>
-    <br class="clear"/>
-    <table class="datatable" style="width: 50%" cellpadding="0" cellspacing="0">
-        <thead>
-            <tr>
-                <th style="width:50%">Role</th>
-                <th style="width:50%">Person in charge</th>
-            </tr>
-        </thead>
-        <tbody data-bind="foreach: {data : data().responsibilities}">
-            <tr>
-                <td><span data-bind="text: role"></span></td>
-                <td><select data-bind="optionsCaption: '', options: subjectProvidersForRole, value: subjectProvider"></select></td>
-            </tr>
-        </tbody>
-    </table>
-
-
-    <br class="clear"/> 
-    <br class="clear"/>
-    <h3>Message Routing</h3>
+    <h3>Routing</h3>
     <br class="clear"/>
     <!-- f:(fromSubject, fromSubjectprovider, messageType, toSubject) -> toSubjectprovider -->
     <a data-bind="click : addRouting">Create new message routing</a>
@@ -28,26 +7,31 @@
     <table class="datatable" cellpadding="0" cellspacing="0">
         <thead>
             <tr>
-                <th style="width:18%">From Subject</th>
-                <th style="width:18%">From Subject Provider</th>
-                <th style="width:18%">Message Type</th>
-                <th style="width:18%">To Subject</th>
-                <th style="width:5%">-></th>
-                <th style="width:18%">To Subjectprovider</th>
-                <th style="width:5%"> </th>
+            	
+                <th style="width:10%">If subject provider of</th>
+                <th style="width:10%">subject</th>
+                <th style="width:10%">is/is not</th>
+                <th style="width:10%">in group/user</th>
+                <th style="width:10%">group/user</th>
+                <th style="width:10%">then</th>
+                <th style="width:10%">subject</th>
+                <th style="width:10%">is/isnot</th>
+                <th style="width:10%">group/user.</th>
+                <th style="width:10%">Delete</th>
             </tr>
         </thead>
-        <tbody data-bind="foreach: {data : data().routings }">
+        <tbody>
             <tr>
-                <td><select data-bind="optionsCaption: '', options: fromSubjects, value: fromSubject"></select></td>
-                <td><select data-bind="optionsCaption: '', options: $parent.lists.subjectProviders, value: fromSubjectprovider" ></select></td>
-                <td><select data-bind="optionsCaption: '', options: availableMessageTypes, value: messageType" ></select></td>
-                <td><select data-bind="optionsCaption: '', options: toSubjects, value: toSubject" ></select></td>
+                <td>If subject provider of</td>
                 <td> </td>
-                <td style="background-color: #ced3da;">
-                    <select data-bind="optionsCaption: '', options: $parent.lists.subjectProviders, value: toSubjectprovider"></select>
-                </td>
-                <td><a data-bind="click : $parent.removeRouting">Delete</a></td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td> </td>
+                <td><a data-bind="">Delete</a></td>
             </tr>
         </tbody>
     </table>
