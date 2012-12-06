@@ -57,6 +57,15 @@ if (isset($_REQUEST['action'])) {
 				$return['code'] = "error";
 			}
 		}
+	} elseif ($_REQUEST['action'] == 'all') {
+		$result = mysql_query("SELECT * FROM `process` ORDER BY `ID`");
+		$processes = array();
+		while ($process = mysql_fetch_array($result, MYSQL_ASSOC)) {
+			array_push( $processes, array( "id" => $process['ID'], "name" =>
+				$process['name'], "isCase" => ( $process['isProcess'] == '0' ),
+				"graphID" => $process['graphID'] ) );
+		}
+		$return = $processes;
 	} elseif (isset($_REQUEST['processid'])) {
 		$procs = mysql_query("SELECT * FROM `process` WHERE `ID` LIKE '" . $_REQUEST['processid'] . "'");
 		if ($_REQUEST['action'] == "getname") {
@@ -127,7 +136,7 @@ if (isset($_REQUEST['action'])) {
 			$return['code'] = "ok";
 
 		}
-	} elseif ($_REQUEST['action'] == "getallprocesses") {	
+	} elseif ($_REQUEST['action'] == "getallprocesses") {
 		$result = mysql_query("SELECT * FROM `process` ORDER BY graphID " . mysql_real_escape_string($limit) . "");
 		$processes = array();
 		while ($process = mysql_fetch_array($result, MYSQL_ASSOC)) {

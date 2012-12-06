@@ -6,10 +6,6 @@ define([
 	"jquery.ui"
 ], function( ko, $, Process, menuTemplate ) {
 
-	var allProcesses = function() {
-		return Process.all();
-	}
-
 	var viewModel = function() {
 		// Where do we actually need this? Remove it?
 		this.visible = ko.observable({
@@ -21,7 +17,7 @@ define([
       execution : true
     });
 
-		this.allProcesses = ko.observableArray(allProcesses());
+		this.allProcesses = Process.all
 	}
 
 	

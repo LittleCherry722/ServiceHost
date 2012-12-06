@@ -16,7 +16,8 @@ require.config({
 		"knockout":          "libs/knockout/knockout",
 		"knockout.mapping":  "libs/knockout/plugins/knockout.mapping",
 		"underscore":        "libs/underscore/underscore",
-		"model":             "libs/arne/model"
+		"model":             "libs/arne/model",
+		"notify":            "libs/sbpm/notify"
 	},
 	shim: {
 		// Plugins that dont need anything to export, just depend on other

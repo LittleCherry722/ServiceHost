@@ -1,9 +1,8 @@
 define([
 	"knockout",
-	"router",
 	"model",
 	"underscore"
-], function( ko, Router, Model, _ ) {
+], function( ko, Model, _ ) {
 
 	// Our main model that will be returned at the end of the function.
 	//
@@ -18,9 +17,6 @@ define([
 	});
 
 	Process.include({
-		name: ko.observable(""),
-		isCase: ko.observable(false),
-
 		// Initialize is a special method defined as an instance method.  If any
 		// method named "initializer" is given, it will be called upon object
 		// creation (when calling new model()) with the context of the model.
@@ -30,9 +26,9 @@ define([
 			if ( !data ) {
 				data = {};
 			}
-			_(data).defaults({ name: "", isCase: false });
-			this.name(data.name);
-			this.isCase(data.isCase);
+			_( data ).defaults({ name: "", isCase: false });
+			this.name( data.name );
+			this.isCase( data.isCase );
 		},
 		
 		// Custom validator object. Validators are (like the initialize function)
@@ -57,7 +53,7 @@ define([
 
 	// Javascript... Define these functions here so we can call them.
 	// They get overwritten before execution anyway.
-	Process.exists = Process.all = function(){};
+	Process.exists = function(){};
 
 
 	/**
@@ -66,10 +62,10 @@ define([
 	 *
 	 *	@return {ko.observableArray<Process>} the Array of Processes
 	 */
-	Process.all = function() {
-		this.all = ko.observableArray([ new Process( { name: "test Process" } ) ]);
-		return this.all();
-	}
+	// Process.all = function() {
+	//   this.all = ko.observableArray([ new Process( { name: "test Process" } ) ]);
+	//   return this.all();
+	// }
 
 	/**
 	 *	Checks whether a Process with the given Name already exists.
@@ -78,6 +74,6 @@ define([
 	Process.exists = function(name) {
 		return true;
 	}
-	
+
 	return Process;
 });

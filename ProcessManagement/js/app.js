@@ -1,8 +1,9 @@
 define([
   "knockout",
-  "models/user",
   "require"
-], function( ko, User, require ) {
+], function( ko, require ) {
+	var currentUser = ko.observable();
+
 	var initialize = function() {
 		// initialize our header. We have to do this asynchronously
     // since our header and menu ViewModel also require this "App" module
@@ -13,10 +14,20 @@ define([
       HeaderViewModel.init();
       MenuViewModel.init();
     });
+
+		require([
+			"models/user",
+			"models/process"
+		], function( User, Process ) {
+
+			// The current user logged in to our system
+			currentUser( new User( "no user" ) );
+
+			// Initially fetch all Models
+			Process.fetch();
+		})
 	}
 
-	// The current user logged in to our system
-	var currentUser = ko.observable( new User( "no user" ) );
 
 	// The current ViewModel loaded for the "main" view
 	var contentViewModel = ko.observable();

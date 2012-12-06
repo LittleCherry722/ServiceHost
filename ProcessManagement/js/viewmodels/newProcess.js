@@ -1,8 +1,10 @@
 define([
 	"knockout",
 	"models/process",
-	"app"
-], function( ko, Process, App ) {
+	"app",
+	"notify",
+	"router"
+], function( ko, Process, App, Notify, Router ) {
 	var ViewModel = function() {
 		var self = this;
 
@@ -10,7 +12,7 @@ define([
 		this.processName = ko.observable("");
 
 		// Validate the model on every change
-		currentProcess().subscribe(function() {
+		this.processName.subscribe(function() {
 			currentProcess().validate();
 		});
 
@@ -153,7 +155,13 @@ define([
 
 	// Creates the Process
 	var createProcess = function() {
+		if ( currentProcess().name().length < 1 ) {
+			Notify.warning( 'Warning', 'Please enter a name for the process!' );
+			return;
+		}
 
+		currentProcess.save();
+		Router.goTo( currentProcess() );
 	}
 
 	// Initialize our View.

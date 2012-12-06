@@ -1,23 +1,42 @@
 define([
 	"underscore",
 	"knockout",
-	"router"
-], function( _, ko, Router ) {
-	var _id = 1;
+	"router",
+	"jquery"
+], function( _, ko, Router, $ ) {
 
 	// Our Model cunstructor function. Returns another constructor function.
 	var Model = function( modelName, attrs ) {
+		if ( !attrs ) {
+			attrs = [];
+		}
+
+		var dbPath = "db/";
+
+		var modelPath = dbPath + modelName.toLowerCase();
+
+		var _id = 1;
+
+		var instances = ko.observableArray([]);
 
 		// Define our Base model
 		var Result = function( data ) {
 
-			// give every model a default and unique id.
-			// TODO Implement a sane id system.
-			this.id = _id++;
+			// Set the ID of the model to (initially) undefined.
+			// The model receives the ID from the database.
+			// Therefore the ID will be available as soon as the model has been saved
+			// or for all records that have been loaded from the server.
+			this.id = undefined;
+
+			this.isNewRecord = true;
 
 			// Set the class Name. Needed for routes, to display the model (toString
 			// method coming soon) etc.
 			this.className = modelName;
+
+			for (var i = 0; i < attrs.length; i++) {
+				this[ attrs[i] ] = ko.observable();
+			}
 
 			// Initialize an empty error object.
 			this.errors = ko.observableArray([]);
@@ -85,14 +104,125 @@ define([
 				return Router.modelPath(this);
 			}
 
+			this.toJSON = function() {
+
+			}
+
+			// Save the current Record.
+			// Saves only this model to the database, no related structures.
+			// Sabes the initial set of attributes to the databse.
+			// Only saves the object if it passes validation.
+			//
+			// It may be possible (but uncommon) that the the server alters the
+			// models attributes.
+			this.save = function() {
+
+				// If this is a new record that has not yet been saved, create a new
+				// record. Otherwise, just save it.
+				if ( this.isNewRecord ) {
+					Result.create( this.toJSON );
+				} else {
+					Result._saveExisting( this );
+				}
+			}
+
+			// this is the default "init" method.
+			// If a data object was supplied upon initialization,
+			// loop over every attribute and assign it to the attribute of our model.
+			// Only assign it if our model has an attribute with this name of course.
+			//
+			if ( data && typeof data === "object" ) {
+				_( attrs ).each(function( attribute ) {
+					if ( data[ attribute ] !== undefined ) {
+						this[ attribute ]( data[ attribute ] );
+					}
+				}.bind( this ));
+			}
+
 			// call our initializer method if defined.
+			// This can override any of the default initializations done on the lines
+			// above
 			if ( typeof this.initialize === "function" ) {
 				this.initialize.call(this, data);
 			}
+
 		}
 
 		// Set the className as an static attribute to our newly created model.
 		Result.className = modelName;
+
+
+		// Create a new Result object (an instance of model subclass)
+		// from a JSON Object.
+		var newFromJSON = function(JSONObject) {
+			var newResult;
+
+			newResult = new Result( resultJSON );
+
+			// If the server supplies an ID, set the ID of our current model.
+			if ( resultJSON['id'] ) {
+				newResult.id = parseInt( resultJSON['id'], 10 );
+			}
+
+			// Mark this Record as not new (and therefore as already persisted)
+			newResult.isNewRecord = false;
+
+			return newResult;
+		}
+
+
+		/*
+		 *  DB interaction bavor
+		 */
+
+		Result.fetch = function( callback ) {
+			var data, newResult, JSONObject;
+
+			instances.removeAll();
+
+			data = { action: "all" }
+			
+			$.ajax({
+				url: dbPath + modelPath + ".php",
+				data: data,
+				cache: false,
+				type: "POST",
+				success: function( JSONString ) {
+					// Try to parse JSON String, if sucessfull continue, otherwise return
+					// early.
+					try {
+						JSONObject = jQuery.parseJSON( JSONString );
+					} catch( error ) {
+						console.error( "Service: Error parsing JSON: " + JSONString );
+						console.error( "Error: " + error )
+
+						// We do not want to do anything else if we encoutnered an error
+						return;
+					}
+
+					// If previous statement was excuted successfully, create new
+					// instance of our model
+					_( JSONObject ).each(function( resultJSON ) {
+						newResult = newFromJSON( resultJSON );
+
+						// Append the new model to our collection of Models.
+						// Every observer will be notified about this event.
+						instances.push( newResult );
+					});
+				},
+				error: function( error ) {
+					if ( console && typeof console.log === "function" ) {
+						console.log( error )
+					}
+				}
+			});
+		}
+
+		/*
+		 * end DB interaction bavior.
+		 */
+
+		Result.all = instances;
 
 
 		// Initialize with an empty set of validators.
