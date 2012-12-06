@@ -84,6 +84,15 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	this.path	= null;
 	
 	/**
+	 * A Raphael Path.
+	 * This path will be a bit wider to ease the action of clicking a path.
+	 * 
+	 * @see Paper.path() at the <a href="http://raphaeljs.com/reference.html#Paper.path">Raphael documentation</a>
+	 * @type Element (from Raphael)
+	 */
+	this.pathClick	= null;
+	
+	/**
 	 * The path of this path element as segments.
 	 * 
 	 * @type Array
@@ -615,6 +624,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	{
 		id = this.id;
 		this.path.click(function () {gf_paperClickEdge(id); });
+		this.pathClick.click(function () {gf_paperClickEdge(id); });
 		this.label.click("bv");
 	};
 	
@@ -669,6 +679,30 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	};
 	
 	/**
+	 * Returns the status dependent string for selecting the right information from the style set.
+	 * 
+	 * @returns {String} The string addition for the correct style.
+	 */
+	this.getStatusDependent = function ()
+	{
+		var statusDependent = "";
+		if (this.optional === true)
+		{
+			statusDependent += "Opt";
+		}
+		if (this.selected === true)
+		{
+			statusDependent += "Sel";
+		}
+		if (this.deactive === true)
+		{
+			statusDependent += "Deact";
+		}
+		
+		return statusDependent;
+	}
+	
+	/**
 	 * Hide the path and its label.
 	 * 
 	 * @returns {void}
@@ -690,8 +724,9 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		if (!gf_isset(performanceMode) || performanceMode != true)
 			performanceMode	= false;
 			
-		this.path	= gv_paper.path("M0,0L10,10");
-		this.label	= new GClabel(0, 0, text, "roundedrectangle", id, true, performanceMode);
+		this.path		= gv_paper.path("M0,0L10,10");
+		this.pathClick	= gv_paper.path("M0,0L10,10");
+		this.label		= new GClabel(0, 0, text, "roundedrectangle", id, true, performanceMode);
 	};
 	
 	/**
@@ -726,19 +761,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		/*
 		 * status dependent styles
 		 */
-		var statusDependent = "";
-		if (this.optional === true)
-		{
-			statusDependent += "Opt";
-		}
-		if (this.selected === true)
-		{
-			statusDependent += "Sel";
-		}
-		if (this.deactive === true)
-		{
-			statusDependent += "Deact";
-		}
+		var statusDependent = this.getStatusDependent();
 		
 		var strokeDasharray	= gf_getStrokeDasharray(this.readStyle("arrowStyle" + statusDependent, ""));
 		var strokeWidth		= strokeDasharray == "none" ? 0 : this.readStyle("arrowWidth" + statusDependent, "int");
@@ -754,6 +777,11 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			params["stroke-linejoin"]	= this.readStyle("arrowLinejoin", "");
 			
 		this.path.attr(params);
+		
+			params						= {};
+			params["opacity"]			= 0;
+			params["stroke-width"]		= strokeWidth * 6;	// set the width to 5 times the normal width
+		this.pathClick.attr(params);
 	};
 	
 	/**
@@ -953,6 +981,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			
 			this.pathStr	= "M" + x1 + "," + y1 + newPath.path;
 			this.path.attr("path", this.pathStr);
+			this.pathClick.attr("path", this.pathStr);
 		}
 		gf_timeCalc("path - update path (path attr)");
 		
@@ -991,4 +1020,5 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	
 	// move path to back so line-crossings aren't that obvious
 	this.path.toBack();
+	this.pathClick.toBack();
 }

@@ -1183,6 +1183,67 @@ function gf_replaceNewline (text, character)
 }
 
 /**
+ * Compares two style sets for same attributes and values.
+ * 
+ * @private
+ * @param {Object} style1 A style set.
+ * @param {Object} style2 A style set.
+ * @returns {boolean} True when both styles contain the same attributes and values, false otherwise.
+ */
+function gf_stylesCompare (style1, style2)
+{
+	for (var gt_key in style1)
+	{
+		if (!gf_isset(style2[gt_key]) || style2[gt_key] != style1[gt_key])
+			return false;
+	}
+	
+	for (var gt_key in style2)
+	{
+		if (!gf_isset(style1[gt_key]) || style2[gt_key] != style1[gt_key])
+			return false;
+	}
+	
+	return true;
+}
+
+/**
+ * Calculate the difference between two styleSets.
+ * 
+ * @private
+ * @param {Object} style1 A style set.
+ * @param {Object} style2 A style set.
+ * @returns {Object} A reduced style set.
+ */
+function gf_stylesDiff (style1, style2)
+{
+	for (var gt_key in style1)
+	{
+		if (gf_isset(style2[gt_key]))
+		{
+			if (style2[gt_key] == style1[gt_key])
+				delete style2[gt_key];
+		}
+	}
+	
+	return style2;
+}
+
+/**
+ * Merge two or more style sets.
+ * The attributes of the sets are merged together into one style set.
+ * The method can take any number of style sets.
+ * 
+ * @private
+ * @param {Object} styleSet Any number of style sets.
+ * @returns {Object} The merged style set.
+ */
+function gf_stylesMerge ()
+{
+	return gf_mergeStyles.apply(null, arguments);
+}
+
+/**
  * TODO
  */
 function gf_taskCounterCount (type)
