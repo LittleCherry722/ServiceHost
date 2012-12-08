@@ -13,7 +13,9 @@ define([
 	Process = Model( "Process", [ "name", "isCase" ] );
 
 	Process.extend({
-
+		createFromTable: function( subjects, messages, callback ) {
+			
+		}
 	});
 
 	Process.include({
@@ -37,7 +39,7 @@ define([
 		validators: {
 			// Does this Process already exist?
 			exists: function() {
-				if ( Process.exists( this.name() ) ) {
+				if ( Process.nameAlreadyTaken( this.name() ) ) {
 					return "Process already exists! Please choose a different name.";
 				}
 			},
@@ -53,19 +55,28 @@ define([
 
 	// Javascript... Define these functions here so we can call them.
 	// They get overwritten before execution anyway.
-	Process.exists = function(){};
-
-
-	/**
-	 *	Returns a list of all Processes currently available.
-	 *	TODO should not really be here...
-	 *
-	 *	@return {ko.observableArray<Process>} the Array of Processes
-	 */
-	// Process.all = function() {
-	//   this.all = ko.observableArray([ new Process( { name: "test Process" } ) ]);
-	//   return this.all();
-	// }
+	Process.nameAlreadyTaken = function( name ) {
+		var json,
+			data = {
+				processname: name,
+				action: "getid"
+			}
+		$.ajax({
+			url: 'db/process.php',
+			data: data,
+			cache: false,
+			type: "POST",
+			async: false,
+			success: function( data ) {
+				json = JSON.parse( data );
+			}
+		});
+		if ((json["code"] == "added") || (json["code"] == "ok")) {
+			return json["id"] > 0;
+		} else {
+			return false;
+		}
+	};
 
 	/**
 	 *	Checks whether a Process with the given Name already exists.

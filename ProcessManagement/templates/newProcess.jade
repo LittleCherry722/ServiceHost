@@ -29,5 +29,5 @@
 			#quick_table( data-bind="visible: displayTable" )
 
 	.form-actions
-		input( type="submit", value="Accept", data-bind="disable: processValid, click: createProcess" )
+		input( type="submit", value="Accept", data-bind="enable: processValid, click: createProcess" )
 		input( type="button", value="Cancel", onclick="history.back()" )

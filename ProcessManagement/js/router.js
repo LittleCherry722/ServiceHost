@@ -53,7 +53,8 @@ define([ "director", "app" ], function( Director, App ) {
 	// modelPath(process) =									// => #/process/3
 	var modelPath = function( model ) {
 		var modelName = model.className.toLowerCase();
-		path = "#/" + pluralize( modelName ) + "/" + model.id
+
+		path = "#/" + pluralize( modelName ) + "/" + model.id();
 		return path;
 	}
 
@@ -90,7 +91,7 @@ define([ "director", "app" ], function( Director, App ) {
 		// director library knows how to handle, so we supply it directly to our
 		// Router.
 		if ( typeof path === "object" ) {
-			route = modelPath( path );
+			route = modelPath( path ).substr( 1 );
 		} else  {
 			route = path;
 		}

@@ -1,10 +1,12 @@
 define([
 	"knockout",
-	"models/process",
 	"app",
 	"notify",
-	"router"
-], function( ko, Process, App, Notify, Router ) {
+	"router",
+	"models/process",
+	"models/message",
+	"models/subject"
+], function( ko, App, Notify, Router, Process, Message, Subject ) {
 	var ViewModel = function() {
 		var self = this;
 
@@ -65,103 +67,58 @@ define([
 		 */
 
 		// A list ob all Subjects used in the table process creation form.
-		this.subjectList = ko.observableArray([
+		this.subjectList = Subject.all;
+		this.subjectList([
 			new Subject( "Subject 1" ),
 			new Subject( "Subject 2" )
 		]);
 
-		/**
-		 *	Removes a subject from the list of subjects.
-		 *	@param {Subject} subject the subject to be removed.
-		 */
-		this.removeSubject = function( subject ) {
-			this.subjectList.remove( subject );
-		}.bind( this );
-
-		/**
-		 *	Adds an empty subject to the list of subjects.
-		 */
-		this.addSubject = function() {
-			this.subjectList.push( new Subject() );
-		}
-
 		//Contains all Messages.
-		this.messageList = ko.observableArray([
+		this.messageList = Message.all;
+		this.messageList([
 			new Message("", "File", ""),
 			new Message("", "Answer", "")
 		]);
 
-		/**
-		 *	Removes a message from the list of messages.
-		 *	@param {Message} message the subject to be removed.
-		 */
-		this.removeMessage = function( message ) {
-			this.messageList.remove( message );
-		}.bind( this );
+		this.addSubject = Subject.add;
+		this.addMessage = Message.add;
 
-		/**
-		 *	Adds a subject to the list of subjects.
-		 */
-		this.addMessage = function() {
-			this.messageList.push( new Message() );
-		}
+		this.removeSubject = Subject.remove;
+		this.removeMessage = Message.remove;
 	}
 
-	/**
-	 *	Local Subject object. Is only needed in the context of this ViewModel,
-	 *	therefore no need to make it public and create its own file.
+	/*
+	 * The current Process.
+	 * Create a new Process (but do not save it yet) and let every other
+	 * observable (name, isCase etc.) reference this process.
+	 * That way everything is updated automatically.
 	 *
-	 *	To be used as an object ( var subject = new Subject("my name"); )
-	 *
-	 *	@param {String} name the name of the subject
+	 * Example: processName = currentProcess().name()
 	 */
-	var Subject = function( name ) {
-
-		// Make empty string the default for the subject name
-		if ( !name ) name = "";
-		this.name = ko.observable( name )
-	};
-
-	/**
-	 *	Local Message object. Is only needed in the context of this ViewModel,
-	 *	therefore no need to make it public and create its own file.
-	 *
-	 *	To be used as an object:
-	 *		var message = new Message("Subject 1", "Answer", "Subject 2");
-	 *
-	 *	@param {String} sender the Sender of this message
-	 *	@param {String} message the message name / content
-	 *	@param {String} receiver the receiver of this message
-	 */
-	var Message = function( sender, message, receiver ) {
-
-		// Make empty string the default for every argument.
-		if ( !sender ) sender = "";
-		if ( !message ) message = "";
-		if ( !receiver ) receiver = "";
-
-		this.sender = ko.observable( sender);
-		this.message = ko.observable( message );
-		this.receiver = ko.observable( receiver );
-	};
-
-	// The current Process.
-	// Create a new Process (but do not save it yet) and let every other
-	// observable (name, isCase etc.) reference this process.
-	// That way everything is updated automatically.
-	//
-	// Example: processName = currentProcess().name()
 	var currentProcess = ko.observable( new Process() );
 
 	// Creates the Process
 	var createProcess = function() {
+		var subjects, messages,
+			onSave = function() {
+				Router.goTo( currentProcess() );
+			}
+
 		if ( currentProcess().name().length < 1 ) {
 			Notify.warning( 'Warning', 'Please enter a name for the process!' );
 			return;
 		}
 
-		currentProcess.save();
-		Router.goTo( currentProcess() );
+		if ( this.displayTable() ) {
+			subjects = Subject.allClean();
+			messages = Message.allClean();
+
+			// parent.SBPM.Service.Process.createProcessFromTable(sub, mes);
+			Process.createFromTable( subjects, messages, onSave );
+		} else {
+			currentProcess().save( onSave );
+		}
+
 	}
 
 	// Initialize our View.
@@ -183,8 +140,6 @@ define([
 		init: initialize
 	}
 });
-
-
 
 
 

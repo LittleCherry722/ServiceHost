@@ -40,11 +40,13 @@ require.config({
 
 });
 
-require([ "app", "router" ], function( App, Router ){
+require([ "app", "router", "jquery" ], function( App, Router, $ ){
 	
-	// Initialize our application.
-	App.init();
+	$(function() {
+		// Initialize our application.
+		App.init();
 
-	// And load our router so we can actually navigate the page.
-	Router.init();
+		// And load our router so we can actually navigate the page.
+		Router.init();
+	});
 });

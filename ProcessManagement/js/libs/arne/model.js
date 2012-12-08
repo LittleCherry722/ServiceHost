@@ -11,22 +11,17 @@ define([
 			attrs = [];
 		}
 
-		var dbPath = "db/";
+		// Let every model have an "id" attribute
+		if ( !_( attrs ).contains( "id" ) ) {
+			attrs.push("id");
+		}
 
-		var modelPath = dbPath + modelName.toLowerCase();
-
-		var _id = 1;
+		var modelPath = "db/" + modelName.toLowerCase();
 
 		var instances = ko.observableArray([]);
 
 		// Define our Base model
 		var Result = function( data ) {
-
-			// Set the ID of the model to (initially) undefined.
-			// The model receives the ID from the database.
-			// Therefore the ID will be available as soon as the model has been saved
-			// or for all records that have been loaded from the server.
-			this.id = undefined;
 
 			this.isNewRecord = true;
 
@@ -34,6 +29,7 @@ define([
 			// method coming soon) etc.
 			this.className = modelName;
 
+			// Initialize every attriubute as a KnockOut observable
 			for (var i = 0; i < attrs.length; i++) {
 				this[ attrs[i] ] = ko.observable();
 			}
@@ -104,25 +100,42 @@ define([
 				return Router.modelPath(this);
 			}
 
-			this.toJSON = function() {
 
+			/**
+			 * converts this instance of a model to a JSON string.
+			 * The String is formed by looking at the attributes supplied at
+			 * instanciating this model type.
+			 *
+			 * No other Attribute will be serialized.
+			 *
+			 * @return {Object} the JSON object
+			 */
+			this.toJSON = function() {
+				json = {};
+				_( attrs ).each(function( attribute ) {
+					json[attribute] = this[attribute]();
+				}.bind( this ));
+
+				return json;
 			}
 
-			// Save the current Record.
-			// Saves only this model to the database, no related structures.
-			// Sabes the initial set of attributes to the databse.
-			// Only saves the object if it passes validation.
-			//
-			// It may be possible (but uncommon) that the the server alters the
-			// models attributes.
-			this.save = function() {
+			/*
+			 * Save the current Record.
+			 * Saves only this model to the database, no related structures.
+			 * Sabes the initial set of attributes to the databse.
+			 * Only saves the object if it passes validation.
+			 *
+			 * It may be possible (but uncommon) that the the server alters the
+			 * models attributes.
+			 */
+			this.save = function( callback ) {
 
 				// If this is a new record that has not yet been saved, create a new
 				// record. Otherwise, just save it.
 				if ( this.isNewRecord ) {
-					Result.create( this.toJSON );
+					Result._createFromExisting( this, callback );
 				} else {
-					Result._saveExisting( this );
+					Result._saveExisting( this, callback );
 				}
 			}
 
@@ -155,13 +168,11 @@ define([
 		// Create a new Result object (an instance of model subclass)
 		// from a JSON Object.
 		var newFromJSON = function(JSONObject) {
-			var newResult;
-
-			newResult = new Result( resultJSON );
+			var newResult = new Result( JSONObject );
 
 			// If the server supplies an ID, set the ID of our current model.
-			if ( resultJSON['id'] ) {
-				newResult.id = parseInt( resultJSON['id'], 10 );
+			if ( JSONObject['id'] ) {
+				newResult.id( parseInt( JSONObject['id'], 10 ) );
 			}
 
 			// Mark this Record as not new (and therefore as already persisted)
@@ -172,8 +183,54 @@ define([
 
 
 		/*
-		 *  DB interaction bavor
+		 *  DB interaction behavior.
 		 */
+
+		Result._createFromExisting = function( model, callback ) {
+			var newResult, JSONObject, attribute, data,
+				self = this;
+
+			data = model.toJSON();
+			data.action = "create";
+			
+			$.ajax({
+				url: modelPath + ".php",
+				data: data,
+				cache: false,
+				type: "POST",
+				success: function( JSONString ) {
+					JSONObject = jQuery.parseJSON( JSONString );
+
+					// Override all local attributes with attributes supplied by the Server
+					_( attrs ).each(function( attribute ) {
+						if ( _( JSONObject ).has( attribute ) ) {
+							model[attribute]( JSONObject[attribute] );
+						}
+					});
+
+					// Mark this model as persisted (not new)
+					model.isNewRecord = false;
+					instances.push(model);
+
+					// If a callback was given, call it and set "this" inside the
+					// callback function to our model instance
+					if ( typeof callback === "function" ) {
+						callback.call( model, null );
+					}
+				},
+				error: function( error ) {
+					if ( console && typeof console.log === "function" ) {
+						console.log( error )
+					}
+
+					// If a callback was given, call it and set "this" inside the
+					// callback function to our model instance
+					if ( typeof callback === "function" ) {
+						callback.call( model, error );
+					}
+				}
+			});
+		}
 
 		Result.fetch = function( callback ) {
 			var data, newResult, JSONObject;
@@ -183,7 +240,7 @@ define([
 			data = { action: "all" }
 			
 			$.ajax({
-				url: dbPath + modelPath + ".php",
+				url: modelPath + ".php",
 				data: data,
 				cache: false,
 				type: "POST",
