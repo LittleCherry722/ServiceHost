@@ -275,6 +275,20 @@ define([
 			});
 		}
 
+		Result.find = function( processID ) {
+			processID = parseInt( processID, 10 );
+			var foundInInstances = _( Result.all() ).filter(function( process ) {
+				return process.id() === processID;
+			});
+
+			if ( foundInInstances.length > 0 ) {
+				return foundInInstances[0]
+			}
+
+			// we have not found anything :(
+			return undefined;
+		}
+
 		/*
 		 * end DB interaction bavior.
 		 */

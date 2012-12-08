@@ -1,7 +1,8 @@
 define([
   "knockout",
-  "require"
-], function( ko, require ) {
+  "require",
+	"underscore"
+], function( ko, require, _ ) {
 	var currentUser = ko.observable();
 
 	var initialize = function() {
@@ -32,10 +33,25 @@ define([
 	// The current ViewModel loaded for the "main" view
 	var contentViewModel = ko.observable();
 
+
+	// Does exactly what "loadView" does but does not set the contentViewModel
+	// and does not unload the old viewModel.
+	var loadSubView = function( viewName, args, callback ) {
+    // just load our new viewmodel and call the init method.
+		require([ "viewmodels/" + viewName ], function( viewModel ) {
+      viewModel.init( callback );
+		});
+	}
+
   // Load a new viewModel as our ContentViewModel.
   // Unloads the old model (calling "unload()" on it of available).
   // unloading can be aborted by returning "false" in the unload function.
-	var loadView = function( viewName ) {
+	var loadView = function( viewName, args, callback ) {
+		if ( !_.isArray(args) ) {
+			args = [ args ];
+		}
+		args.push( callback )
+
     if ( contentViewModel() ) {
       // check if the unload method is actually set
       if ( typeof contentViewModel().unload === 'function' ) {
@@ -46,10 +62,11 @@ define([
       }
     }
 
-    // just load our new viewmodel if unload was successfull (truthy return
-    // value) or was not defined at all.
+		
+
+    // just load our new viewmodel and call the init method.
 		require([ "viewmodels/" + viewName ], function( viewModel ) {
-      viewModel.init();
+      viewModel.init.apply(viewModel, args );
       contentViewModel( viewModel );
 		});
 	}
@@ -85,14 +102,14 @@ define([
     // * template handler (type). Must be a requirejs plugin.
     // * the default path to all templates.
     // * the template name.
-    path = "jade!../templates/" + templateName;
+    path = "text!../templates/" + templateName + ".html";
 
     // load the template from the server
     require([ path ], function( template ) {
       templateNode = document.getElementById(nodeID);
 
       // load our template and insert it into the document.
-      templateNode.innerHTML = template();
+      templateNode.innerHTML = template;
 
       // Apply the viewModel to the newly inserted content if available.
       if ( viewModel ) {

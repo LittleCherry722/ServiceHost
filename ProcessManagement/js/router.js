@@ -1,21 +1,36 @@
 define([ "director", "app" ], function( Director, App ) {
 	var router;
 
+	var _globalCallback;
+
+	var globalCallback = function( callback ) {
+		var cb;
+
+		if ( typeof callback === "function" ) {
+			_globalCallback = callback;
+			return callback;
+		} else {
+			cb = _globalCallback;
+			_globalCallback = undefined;
+			return cb;
+		}
+	}
+
 	/*
 	 * Custom route actions go here. Keep it concice!
 	 */
 
 	// Show the home (index) page.
 	var showHome = function() {
-		App.loadTemplate("home");
+		App.loadTemplate( "home", null, globalCallback() );
 	}
 
-	var showProcess = function(processName) {
-		console.log("loading process");
+	var showProcess = function( processID ) {
+		loadView( "process", processID, globalCallback() );
 	}
 
 	var showNewProcess = function() {
-		loadView("newProcess");
+		loadView( "newProcess", null, globalCallback() );
 	}
 
 	/*
@@ -37,8 +52,8 @@ define([ "director", "app" ], function( Director, App ) {
 
 	// Load a custom viewmodel.
 	// Path is always prepended with "/viewmodels"
-	var loadView = function(viewName) {
-		App.loadView(viewName);
+	var loadView = function( viewName, args, callback ) {
+		App.loadView( viewName, args, callback );
 	}
 
 	// given a model, creates a path for this model.
@@ -80,7 +95,7 @@ define([ "director", "app" ], function( Director, App ) {
 	// Example:
 	// goTo( (new Process()).save );
 	// goTo( "/processes/new" );
-	var goTo = function( path ) {
+	var goTo = function( path, callback ) {
 		var route;
 
 		// check whether the given path is of type "object", that is most likely a
@@ -94,6 +109,10 @@ define([ "director", "app" ], function( Director, App ) {
 			route = modelPath( path ).substr( 1 );
 		} else  {
 			route = path;
+		}
+
+		if ( typeof callback === "function" ) {
+			globalCallback( callback );
 		}
 
 		router.setRoute( route );

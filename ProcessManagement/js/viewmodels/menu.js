@@ -2,7 +2,7 @@ define([
 	"knockout",
 	"jquery",
 	"models/process",
-	"jade!../../templates/menu",
+	"text!../../templates/menu.html",
 	"jquery.ui"
 ], function( ko, $, Process, menuTemplate ) {
 
@@ -27,7 +27,7 @@ define([
 	var initialize = function() {
 		// Insert the menu template in the page
 		menuNode = document.getElementById('left_menu')
-		menuNode.innerHTML = menuTemplate();
+		menuNode.innerHTML = menuTemplate;
 		ko.applyBindings(new viewModel(), menuNode)
 
 		// Apply custom menu bar behavior

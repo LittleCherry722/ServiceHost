@@ -10,11 +10,12 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	Process = Model( "Process", [ "name", "isCase" ] );
+	Process = Model( "Process", [ "name", "isCase", "graphID" ] );
 
 	Process.extend({
 		createFromTable: function( subjects, messages, callback ) {
-			
+			// updateListOfSubjects();
+			callback();
 		}
 	});
 

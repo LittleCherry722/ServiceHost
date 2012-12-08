@@ -99,10 +99,7 @@ define([
 
 	// Creates the Process
 	var createProcess = function() {
-		var subjects, messages,
-			onSave = function() {
-				Router.goTo( currentProcess() );
-			}
+		var subjects, messages, callback;
 
 		if ( currentProcess().name().length < 1 ) {
 			Notify.warning( 'Warning', 'Please enter a name for the process!' );
@@ -112,13 +109,15 @@ define([
 		if ( this.displayTable() ) {
 			subjects = Subject.allClean();
 			messages = Message.allClean();
-
-			// parent.SBPM.Service.Process.createProcessFromTable(sub, mes);
-			Process.createFromTable( subjects, messages, onSave );
-		} else {
-			currentProcess().save( onSave );
+			callback = function() {
+				gf_createFromTable( subjects, messages );
+				// updateListOfSubjects();
+			}
 		}
 
+		currentProcess().save(function() {
+			Router.goTo( currentProcess(), callback );
+		});
 	}
 
 	// Initialize our View.
@@ -147,11 +146,6 @@ define([
 // var ViewModel = function() {
 //   var self = this;
 
-//   self.processExist = ko.computed(function() {
-//     return SBPM.Service.Process.processExists(self.processName());
-
-//   });
-	
 //   self.createCheck = function() {
 //     var process = self.processName();
 //     console.log("createCheck " + process);
@@ -185,14 +179,6 @@ define([
 // var QuickViewModel = function() {
 //   var self = this;
 
-
-//   self.noMessage = function(mesOb) {
-//     var bool = true;
-
-//     if(mesOb.message != null && mesOb.message.replace(" ", "") != "" && mesOb.sender != null && mesOb.sender.replace(" ", "") != "" && mesOb.receiver != null && mesOb.receiver.replace(" ", "") != "")
-//       bool = false;
-//     return bool;
-//   }
 
 //   //Checks if message is complete.
 //   self.completeMessage = function(mesOb) {
@@ -233,16 +219,6 @@ define([
 
 //     }
 //     return array;
-//   }
-
-//   self.createProcessFromTable = function() {
-//     var sub = self.cleanSubjects();
-//     //console.log(sub);
-
-//     var mes = self.cleanMessages();
-//     //console.log(mes);
-
-//     parent.SBPM.Service.Process.createProcessFromTable(sub, mes);
 //   }
 // }
 

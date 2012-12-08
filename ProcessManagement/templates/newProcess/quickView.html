@@ -1,10 +1,10 @@
-
 <div class="controls">
   <label>Subjects</label>
   <form>
     <ul data-bind="foreach: subjectList" class="unstyled">
       <li>
-        <input type="text" data-bind="value: name, valueUpdate: 'afterkeydown'"/><a href="#" data-bind="click: $parent.removeSubject">Remove</a>
+        <input type="text" data-bind="value: name, valueUpdate: 'afterkeydown'"/>
+        <a href="#" data-bind="click: $parent.removeSubject">Remove</a>
       </li>
     </ul>
     <div class="actions">
@@ -19,7 +19,8 @@
       <li>
         <select data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: sender" class="input-medium"></select>
         <input type="text" data-bind="value: message" class="input-medium"/>
-        <select data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: receiver" class="input-medium"></select><a href="#" data-bind="click: $parent.removeMessage">Remove</a>
+        <select data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: receiver" class="input-medium"></select>
+        <a href="#" data-bind="click: $parent.removeMessage">Remove</a>
       </li>
     </ul>
     <div class="actions">
