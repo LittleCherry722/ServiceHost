@@ -294,8 +294,13 @@ function updateListOfSubjects(){
 
 	$('#slctSbj').html(html);
 	$("#slctSbj").trigger("liszt:updated");
-	//Workaround, Chosen fails to reset, can't select same internal behavior twice with dropdown. Fix: add click listener to every chosen option (not native select option).
-$(".active-result").click(function(){goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'))});
+
+	// Workaround, Chosen fails to reset, can't select same internal behavior
+	// twice with dropdown. Fix: add click listener to every chosen option
+	// (not native select option).
+	$(".active-result").click(function() {
+		goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'))
+	});
 }
 
 
