@@ -6,6 +6,7 @@ define([
 	"models/process",
 	"models/message",
 	"models/subject"
+	// "tk_graph"
 ], function( ko, App, Notify, Router, Process, Message, Subject ) {
 	var ViewModel = function() {
 		var self = this;

@@ -5,7 +5,7 @@ require.config({
 		"text":              "libs/require/plugins/text",
 		"jade":              "libs/require/plugins/jade",
 		"director":          "libs/director/director",
-		"jquery":            "libs/jquery/jquery",
+		// "jquery":            "libs/jquery/jquery",
 		"jquery.ui":         "libs/jquery/plugins/jquery-ui",
 		"jquery.freeow":     "libs/jquery/plugins/jquery.freeow",
 		"jquery.qtip":       "libs/jquery/plugins/jquery.qtip",
@@ -17,18 +17,10 @@ require.config({
 		"knockout.mapping":  "libs/knockout/plugins/knockout.mapping",
 		"underscore":        "libs/underscore/underscore",
 		"model":             "libs/arne/model",
-		"notify":            "libs/sbpm/notify"
+		"notify":            "libs/sbpm/notify",
+		"async":             "libs/async/async"
 	},
 	shim: {
-		// Plugins that dont need anything to export, just depend on other
-		// libraries that are not specified inside the plugins
-		"jquery.ui":         ["jquery"],
-		"jquery.freeow":     ["jquery"],
-		"jquery.chosen":     ["jquery"],
-		"jquery.qtip":       ["jquery"],
-		"jquery.scrollTo":   ["jquery"],
-		"jquery.bootstrap":  ["jquery"],
-
 		// Legacy libararies that do not follow the common.js module pattern.
 		"director": {
 			exports: "Router"
@@ -40,13 +32,13 @@ require.config({
 
 });
 
-require([ "app", "router", "jquery" ], function( App, Router, $ ){
+require([ "app", "router" ], function( App, Router ){
 	
 	$(function() {
 		// Initialize our application.
-		App.init();
-
-		// And load our router so we can actually navigate the page.
-		Router.init();
+		App.init(function() {
+			// And load our router so we can actually navigate the page.
+			Router.init();
+		});
 	});
 });

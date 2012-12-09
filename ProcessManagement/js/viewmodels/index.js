@@ -234,10 +234,9 @@ var SubjectViewModel = function() {
 
     var activeProcess = SBPM.VM.contentVM().processName();
     var isProcess = SBPM.Service.Process.getIsProcess(activeProcess);
-    if(isProcess != true){
+    if( !isProcess ){
       self.userOrRole("Assigned-User:");
-    }
-    else{
+    } else {
       self.userOrRole("Assigned-Role:");
     }
   }

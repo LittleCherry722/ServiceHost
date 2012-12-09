@@ -3,8 +3,10 @@ define([
 	"app",
 	"notify",
 	"router",
-	"models/process"
-], function( ko, App, Notify, Router, Process ) {
+	"models/process",
+	"async"
+	// "tk_graph"
+], function( ko, App, Notify, Router, Process, async ) {
 	var ViewModel = function() {
 		var self = this;
 
@@ -13,7 +15,11 @@ define([
 
 		this.currentProcess = currentProcess;
 
-		this.activeView = ko.observable("Subject View");
+		this.assignedRoleText = ko.computed(function() {
+			return currentProcess().isCase() ? "Assigned User" : "Assigned Role"
+		});
+
+		this.availableProcesses = Process.all;
 	}
 
 	var currentView = ko.observable();
@@ -29,25 +35,46 @@ define([
 	 */
 	var currentProcess = ko.observable( new Process() );
 
-	currentProcess.subscribe(function() {
-		gv_graph.clearGraph(true);
+	currentProcess.subscribe(function( process ) {
+		gv_graph.clearGraph( true );
+		
+		if ( process.graph() ) {
+			console.log( "loading existing graph" );
+			gf_loadGraph( process.graph().graphString(), undefined );
+
+			// var graph = JSON.parse(graphAsJson);
+			// self.chargeVM.load(graph);
+
+		} else {
+			loadEmptyProcess( process );
+		}
+
+		$("#tab2").addClass("active");
+
+		Notify.info("Information", "Process \""+ process.name() +"\" successfully loaded.");
 	});
+
+	var loadEmptyProcess = function( process ) {
+		if ( process.isCase() ) {
+			gf_createCase( App.currentUser().name() );
+		} else {
+			gv_graph.loadFromJSON("{}");
+		}
+	}
 
 	// Initialize our View.
 	// Includes loading the template and creating the viewModel
 	// to be applied to the template.
 	var initialize = function( processID, callback ) {
 		var viewModel = new ViewModel();
-		currentProcess( Process.find( processID ) )
 
 		App.loadTemplate( "process", viewModel, null, function() {
-			console.log( "main process View loaded" );
 
-			App.loadTemplate( "process/subject", viewModel, "tab2_content", function() {
-				console.log("subject view loaded")
-			} );
-			App.loadTemplate( "process/internal", viewModel, "tab1_content", function() {
-				console.log("internal view loaded");
+			App.loadTemplates([
+				[ "process/subject", "tab2_content" ],
+				[ "process/internal", "tab1_content" ]
+			], viewModel, function() {
+				currentProcess( Process.find( processID ) )
 			});
 
 			if ( typeof callback === "function" ) {

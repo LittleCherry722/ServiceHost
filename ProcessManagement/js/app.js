@@ -1,32 +1,48 @@
 define([
   "knockout",
   "require",
-	"underscore"
-], function( ko, require, _ ) {
+	"underscore",
+	"async"
+], function( ko, require, _, async ) {
 	var currentUser = ko.observable();
 
-	var initialize = function() {
-		// initialize our header. We have to do this asynchronously
-    // since our header and menu ViewModel also require this "App" module
-    require([
-      "viewmodels/header",
-      "viewmodels/menu"
-    ], function( HeaderViewModel, MenuViewModel ) {
-      HeaderViewModel.init();
-      MenuViewModel.init();
-    });
+	var loadModels = function() {
 
+	}
+
+	var initializeViews = function( callback ) {
+		// initialize our header. We have to do this asynchronously
+		// since our header and menu ViewModel also require this "App" module
+		require([
+			"viewmodels/header",
+			"viewmodels/menu"
+		], function( HeaderViewModel, MenuViewModel ) {
+			HeaderViewModel.init();
+			MenuViewModel.init();
+
+			callback();
+		});
+	}
+
+	var initialize = function( callback ) {
 		require([
 			"models/user",
-			"models/process"
-		], function( User, Process ) {
+			"models/process",
+			"models/graph"
+		], function( User, Process, Graph ) {
 
 			// The current user logged in to our system
 			currentUser( new User( "no user" ) );
 
-			// Initially fetch all Models
-			Process.fetch();
-		})
+			// Initially fetch all Models, then initialize the views and after that,
+			// tell everyone that we are done (call the callback).
+			async.auto({
+				fetchProcess: Process.fetch,
+				fetchGraph: Graph.fetch,
+				initViews: [ "fetchProcess", "fetchGraph", initializeViews ],
+				callback: [ "initViews", callback ]
+			});
+		});
 	}
 
 
@@ -52,82 +68,116 @@ define([
 		}
 		args.push( callback )
 
-    if ( contentViewModel() ) {
-      // check if the unload method is actually set
-      if ( typeof contentViewModel().unload === 'function' ) {
-        // call "unload" and exit early if it retunes a falsey value
-        if ( !contentViewModel().unload() ) {
-          return
-        }
-      }
-    }
+		if ( contentViewModel() ) {
+			// check if the unload method is actually set
+			if ( typeof contentViewModel().unload === 'function' ) {
+				// call "unload" and exit early if it retunes a falsey value
+				if ( !contentViewModel().unload() ) {
+					return
+				}
+			}
+		}
 
 		
 
     // just load our new viewmodel and call the init method.
 		require([ "viewmodels/" + viewName ], function( viewModel ) {
-      viewModel.init.apply(viewModel, args );
-      contentViewModel( viewModel );
+			viewModel.init.apply(viewModel, args );
+			contentViewModel( viewModel );
 		});
 	}
 
-  /**
-   * loads a simple template as the main content of the site.
-   * Very usefull to display static content that is saved inside a template
-   * and is not associated to a ViewModel.
-   *
-   * @param {String} templateName specifiec the template to be loaded.
-   *  Templates have to be in the "/templates" root path.
-   *
-   * @param {ViewModel} viewModel the viewModel to be applied to the new content.
-   *  Optional.
-   *
-   * @param {String} nodeID the id of the element whose content (innerHTML) is
-   *  to be replaced by the template. Defaults to "main".
-   *
-   * @param {Function} callback the function to be executed after the template
-   *  has been loaded and the viewModel (if supplied) has been applied.
-   *
-   * example: loadTemplate('home', new ViewModel(), 'text')
-   */
-  var loadTemplate = function( templateName, viewModel, nodeID, callback ) {
-    var path;
+	/**
+	 * loads a simple template as the main content of the site.
+	 * Very usefull to display static content that is saved inside a template
+	 * and is not associated to a ViewModel.
+	 *
+	 * @param {String} templateName specifiec the template to be loaded.
+	 *  Templates have to be in the "/templates" root path.
+	 *
+	 * @param {ViewModel} viewModel the viewModel to be applied to the new content.
+	 *  Optional.
+	 *
+	 * @param {String} nodeID the id of the element whose content (innerHTML) is
+	 *  to be replaced by the template. Defaults to "main".
+	 *
+	 * @param {Function} callback the function to be executed after the template
+	 *  has been loaded and the viewModel (if supplied) has been applied.
+	 *
+	 * example: loadTemplate('home', new ViewModel(), 'text')
+		 */
+	var loadTemplate = function( templateName, viewModel, nodeID, callback ) {
+		var path;
 
-    // Set the defaults for nodeID
-    if ( !nodeID ) {
-      nodeID = "main"
-    }
+		// Set the defaults for nodeID
+		if ( !nodeID ) {
+			nodeID = "main"
+		}
 
-    // create the path from:
-    // * template handler (type). Must be a requirejs plugin.
-    // * the default path to all templates.
-    // * the template name.
-    path = "text!../templates/" + templateName + ".html";
+		// create the path from:
+		// * template handler (type). Must be a requirejs plugin.
+		// * the default path to all templates.
+		// * the template name.
+		path = "text!../templates/" + templateName + ".html";
 
-    // load the template from the server
-    require([ path ], function( template ) {
-      templateNode = document.getElementById(nodeID);
+		// load the template from the server
+		require([ path ], function( template ) {
+			templateNode = document.getElementById(nodeID);
 
-      // load our template and insert it into the document.
-      templateNode.innerHTML = template;
+			// load our template and insert it into the document.
+			templateNode.innerHTML = template;
 
-      // Apply the viewModel to the newly inserted content if available.
-      if ( viewModel ) {
-        ko.applyBindings(viewModel, templateNode)
-      }
+			// Apply the viewModel to the newly inserted content if available.
+			if ( viewModel ) {
+				ko.applyBindings(viewModel, templateNode)
+			}
 
-      // if a callback is set, execute it.
-      if ( typeof callback === "function" ) {
-        callback();
-      }
-    });
-  }
+			// if a callback is set, execute it.
+			if ( typeof callback === "function" ) {
+				callback();
+			}
+		});
+	}
+
+	/**
+	 * asynchronously load an array of templates.
+	 * works mostly like "loadTemplate" but only accepts one viewmodel.
+	 * The callback will be called when all templates have successfully been
+	 * applied.
+	 *
+	 * @param {array} templates - The array of templates. This array is itself an array of
+	 *   [ templateName, templateNode ]. Example:
+	 *     [ "process/subject", "tab2_content" ],
+	 *     [ "process/internal", "tab1_content" ]
+	 * @param {ViewModel} viewModel - the viewmodel to be applied to every
+	 *   template. Can be empty.
+	 * @param {function} callback - The callback to execute once all templates
+	 *   have been lodaded.
+	 */
+	var loadTemplates = function( templates, viewModel, callback ) {
+		var templateName, templateNode;
+		
+		// for every array in our array of templates, apply a function that
+		// calls loadTemplate with the appropiate params and execute the
+		// callback needed for async.js once the template has successfully been
+		// applied.
+		async.map( templates , function( template, cb ) {
+
+			// First array entry must be the template name, second one the nodeID this
+			// template should be inseted into
+			templateName = template[0];
+			templateNode = template[1];
+
+			loadTemplate( templateName, viewModel, templateNode, cb);
+		}, callback);
+	}
 
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
 		currentUser: currentUser,
-    loadTemplate: loadTemplate,
-    loadView: loadView
+		loadTemplate: loadTemplate,
+		loadTemplates: loadTemplates,
+		loadView: loadView
 	}
 });

@@ -19,6 +19,9 @@ define([
 		}
 	});
 
+	Process.belongsTo([ "graph" ]);
+	// Process.hasMany([ "graph" ]);
+
 	Process.include({
 		// Initialize is a special method defined as an instance method.  If any
 		// method named "initializer" is given, it will be called upon object

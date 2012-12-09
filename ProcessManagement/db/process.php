@@ -58,7 +58,13 @@ if (isset($_REQUEST['action'])) {
 			}
 		}
 
+
+
+
+
   // NEW AND BETTER
+
+	// Fetch all processes
 	} elseif ($_REQUEST['action'] == 'all') {
 		$result = mysql_query("SELECT * FROM `process` ORDER BY `ID`");
 		$processes = array();
@@ -68,12 +74,19 @@ if (isset($_REQUEST['action'])) {
 				"graphID" => $process['graphID'] ) );
 		}
 		$return = $processes;
+
+	// Create a new process
 	} elseif ($_REQUEST['action'] == 'create') {
 		$isProcess = (isset($_REQUEST['isCase']) && ($_REQUEST['isCase'] === "true" || $_REQUEST['isCase'] === true))? 0 : 1;
-		mysql_query("INSERT INTO `process` (`name`, `isProcess`) VALUES ('" . $_REQUEST['name'] . "', '" . $isProcess . "');");
+		$name = mysql_real_escape_string($_REQUEST['name']);
+		mysql_query("INSERT INTO `process` (`name`, `isProcess`) VALUES ('" . $name . "', '" . $isProcess . "');");
 		$return['id'] = mysql_insert_id();
 		$return['isCase'] = $_REQUEST['isCase'];
 		$return['name'] = $_REQUEST['name'];
+
+
+
+
 	} elseif (isset($_REQUEST['processid'])) {
 		$procs = mysql_query("SELECT * FROM `process` WHERE `ID` LIKE '" . $_REQUEST['processid'] . "'");
 		if ($_REQUEST['action'] == "getname") {

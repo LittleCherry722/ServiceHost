@@ -1,10 +1,10 @@
 define([
 	"knockout",
-	"jquery",
 	"models/process",
 	"text!../../templates/menu.html",
 	"jquery.ui"
-], function( ko, $, Process, menuTemplate ) {
+	// "jquery"
+], function( ko, Process, menuTemplate ) {
 
 	var viewModel = function() {
 		// Where do we actually need this? Remove it?
@@ -36,23 +36,23 @@ define([
 
 	var setupMenu = function() {
 		// Set up the main Menu accordion
-		$("#main_menu").accordion({
+		jQuery("#main_menu").accordion({
 			autoHeight : false
 		});
 
 		// Make vanilla links in accordions possible
-		$("#main_menu a.link").live( 'click', function() {
+		jQuery("#main_menu a.link").live( 'click', function() {
 			window.location = this.getAttribute('href');
 		});
 
-		$("#calendar").datepicker({
+		jQuery("#calendar").datepicker({
 			nextText : "&raquo;",
 			prevText : "&laquo;"
 		});
 
-		$("#hide_menu, #show_menu").click(function() {
-			$( "#left_menu, #show_menu" ).toggle();
-			$( "body" ).toggleClass("no-menu");
+		jQuery("#hide_menu, #show_menu").click(function() {
+			jQuery( "#left_menu, #show_menu" ).toggle();
+			jQuery( "body" ).toggleClass("no-menu");
 		});
 	}
 	

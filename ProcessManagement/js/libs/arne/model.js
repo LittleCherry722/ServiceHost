@@ -2,8 +2,9 @@ define([
 	"underscore",
 	"knockout",
 	"router",
-	"jquery"
-], function( _, ko, Router, $ ) {
+	"require"
+	// "jquery"
+], function( _, ko, Router, requier ) {
 
 	// Our Model cunstructor function. Returns another constructor function.
 	var Model = function( modelName, attrs ) {
@@ -199,7 +200,7 @@ define([
 				cache: false,
 				type: "POST",
 				success: function( JSONString ) {
-					JSONObject = jQuery.parseJSON( JSONString );
+					JSONObject = $.parseJSON( JSONString );
 
 					// Override all local attributes with attributes supplied by the Server
 					_( attrs ).each(function( attribute ) {
@@ -248,7 +249,7 @@ define([
 					// Try to parse JSON String, if sucessfull continue, otherwise return
 					// early.
 					try {
-						JSONObject = jQuery.parseJSON( JSONString );
+						JSONObject = $.parseJSON( JSONString );
 					} catch( error ) {
 						console.error( "Service: Error parsing JSON: " + JSONString );
 						console.error( "Error: " + error )
@@ -266,10 +267,17 @@ define([
 						// Every observer will be notified about this event.
 						instances.push( newResult );
 					});
+
+					if( typeof callback === "function" ) {
+						callback.call(this);
+					}
 				},
 				error: function( error ) {
 					if ( console && typeof console.log === "function" ) {
-						console.log( error )
+						console.log( error );
+						if( typeof callback === "function" ) {
+							callback.call(this);
+						}
 					}
 				}
 			});
@@ -322,6 +330,40 @@ define([
 		 */
 		Result.include = function(obj) {
 			_(Result.prototype).extend(obj);
+		}
+
+		/**
+		 * Set up a belongs to association.
+		 * This assumes, that the models to be associated have a foreign key called
+		 * like the model name + "ID".
+		 *
+		 * Example: Given the models Author and Article. An article belongsTo
+		 * author (Article.belongsTo( "author" )), the Article model needs and
+		 * attribute called "authorID".
+		 *
+		 * Creates a method on the Model called like the association.
+		 * For example: Article.belongsTo( "author" ) makes the method
+		 * Article.author() available.
+		 */
+		Result.belongsTo = function( models ) {
+			var foreignKey;
+
+			// Also accept plain strings, not just an array of strings.
+			if ( typeof models === "string" ) {
+				models = [ models ];
+			}
+
+			// Iterate over every model, load it and set up the association method.
+			_( models ).each(function( modelName ) {
+				foreignKey = modelName.toLowerCase() + "ID";
+
+				require( [ "models/" + modelName ], function( model ) {
+					// setup of the method.
+					Result.prototype[ modelName ] = function() {
+						return model.find( this[ foreignKey ]() );
+					}
+				})
+			});
 		}
 
 		// Return our newly defined object.

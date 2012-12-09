@@ -23,28 +23,27 @@ console.log("Deprecated: daten.js");
 
 function setSubjectIDs() {
 	console.log("Deprecated: daten.js");
-var insert ="";
-var content = "";
+	var insert ="";
+	var content = "";
 
-var activeProcess = SBPM.VM.contentVM().processName();
-var isProcess = SBPM.Service.Process.getIsProcess(activeProcess);
+	var activeProcess = SBPM.VM.contentVM().processName();
+	var isProcess = SBPM.Service.Process.getIsProcess(activeProcess);
 
-if(isProcess != true){
-	//var users = getAllInstancesForUser(getUserID(SBPM.Storage.get("loggedin_user")));
-	var users = getAllUsers();
-	content = users;
-	document.getElementById('AssignRoleWarning').innerHTML = "You have to create Users to assign them.";
-}
-else{
-	var groups = getAllGroups();
-	content = groups;
-}
-	
-for(var i = 0; i < content.length; ++i)
+	if(isProcess != true){
+		//var users = getAllInstancesForUser(getUserID(SBPM.Storage.get("loggedin_user")));
+		var users = getAllUsers();
+		content = users;
+		document.getElementById('AssignRoleWarning').innerHTML = "You have to create Users to assign them.";
+	} else {
+		var groups = getAllGroups();
+		content = groups;
+	}
+
+	for(var i = 0; i < content.length; ++i)
 	insert += "<option>" + content[i] +"</option>";
-document.getElementById('ge_cv_id').innerHTML = insert;
-//Fire change event for listeners
-$('#ge_cv_id').change();
+	document.getElementById('ge_cv_id').innerHTML = insert;
+	//Fire change event for listeners
+	$('#ge_cv_id').change();
 }
 
 function writeSumActiveInstances() {
