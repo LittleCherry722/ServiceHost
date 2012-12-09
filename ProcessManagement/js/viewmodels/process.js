@@ -102,44 +102,6 @@ define([
 
 		});
 
-		//resize canvas to fit into screen
-		$("#graph_bv_outer").css("width", window.innerWidth - 170 - 245);
-		$("#graph_bv_outer").css("height", window.innerHeight - 145);
-		$("#show_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$("#hide_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$(window).resize(function() {
-			if ($("#show_menu").css("display") == "none") {
-				$("#graph_bv_outer").css("width", window.innerWidth - 170 - 245);
-				$("#graph_bv_outer").css("height", window.innerHeight - 145);
-			} else {
-				$("#graph_bv_outer").css("width", window.innerWidth - 195);
-				$("#graph_bv_outer").css("height", window.innerHeight - 185);
-			}
-		});
-
-		$("#rightMenuTrigger").click(function() {
-			if ($("#RightMenuDiv").is(":visible")) {
-				$("#RightMenuDiv").hide();
-				$("#rightMenuTrigger").html("Show")
-			} else {
-				$("#RightMenuDiv").show();
-				$("#rightMenuTrigger").html("Hide")
-			}
-		});
-
-		$("#internalRadioMenu :input").bind("change", function() {
-			if ($("#ge_edge_type_timeout").is(":checked")) {
-
-				$("#timeoutdiv").show();
-			} else {
-				$("#timeoutdiv").hide();
-			}
-
-		});
 
 		$("#slctSbj").chosen();
 
@@ -196,11 +158,11 @@ define([
 		});
 
 		$("#ge_cv_id").bind("change", function() {
-			if ($("#ge_cv_id").val() == null || $("#ge_cv_id").val() == "") {
+			if ( !$("#ge_cv_id").val() ) {
 
-				$("#AssignRoleWarning").show();
+				$( "#AssignRoleWarning" ).show();
 			} else {
-				$("#AssignRoleWarning").hide();
+				$( "#AssignRoleWarning" ).hide();
 			}
 		});
 	}
