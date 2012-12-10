@@ -24,7 +24,7 @@ define([
 		this.availableChannels = availableChannels;
 		this.availableMacros   = availableMacros;
 
-		this.selectedSubject = ko.observable();
+		this.currentSubject = currentSubject;
 	}
 
 	var availableSubjects = ko.observableArray([]);
@@ -35,24 +35,40 @@ define([
 	var currentChannel = ko.observable();
 
 	availableSubjects.subscribe(function( subjects ) {
-		console.log("changing")
 		setTimeout(function() {
 			$("#slctSbj").trigger("liszt:updated");
-		}, 0);
+		}, 1);
+	});
+
+	currentSubject.subscribe(function( subject ) {
+		console.log(subject)
+
+		if ( _.isEmpty( subject ) ) {
+			return;
+		}
+		
+		console.log("going to internal behavior")
+
+		gv_graph.selectedSubject = null;
+		gf_clickedCVnode( subject );
+		onChangeViewBV();
 	});
 
 	var updateListOfSubjects = function() {
-		var subjects = [];
+		var subject,
+			subjects = [{}];
+		console.log("list of subjects")
 
 		_( gv_graph.subjects ).each(function( value, key ) {
-			subjects.push({
+			subject = {
 				subjectID: key,
 				subjectText: value.getText(),
 				subject: value
-			})
+			}
+
+			subjects.push( subject );
 		})
 
-		console.log( subjects );
 		availableSubjects( subjects );
 	}
 
@@ -157,7 +173,6 @@ define([
 			gv_graph.changeView('cv');
 
 			// Update our chosen selects.
-			updateListOfSubjects();
 			updateListOfChannels();
 		});
 
@@ -165,10 +180,10 @@ define([
 		// let the graph not we changed views and update the list of subjects.
 		$("#tab3").on( "click", function() {
 			gv_graph.selectedNode = null;
-			updateListOfSubjects();
 		});
 
 		$.subscribeOnce("gf_changeViewBV", onChangeViewBV);
+		$.subscribeOnce("tk_communication/updateListOfSubjects", updateListOfSubjects);
 	}
 
 	// Method called when the graph view is changed to internal view.
@@ -210,6 +225,8 @@ define([
 		$( "#tab" + tabIndex ).addClass( "active" );
 		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
+
+		updateListOfSubjects();
 	}
 
 	// Initialize our View.

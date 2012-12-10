@@ -1784,9 +1784,9 @@ function GCcommunication ()
 				this.selectNothing();
 				this.selectedNode = id;
 				
-				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.updateListOfSubjects))
+				if (!gf_isStandAlone() && gf_hasSubscribers("tk_communication/updateListOfSubjects"))
 				{
-					window[gv_functions.communication.updateListOfSubjects]();
+					$.publish("tk_communication/updateListOfSubjects")
 				}
 			}
 		}

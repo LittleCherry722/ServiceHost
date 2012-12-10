@@ -32,9 +32,10 @@
 									<div class="tab-dropdown">
 										<select id="slctSbj" data-placeholder="Select Internal Behavior"
 											class="middle_switch chzn-select" style="min-width:160px;" tabindex="1"
-											onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"
-											data-bind="options: availableSubjects, optionsText: 'subjectText', value: selectedSubject" >
-										</select>
+											onchange="console.log('changed');//goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"
+											data-bind="options: availableSubjects, optionsText: 'subjectText',
+												optionsValue: 'subjectID', value: currentSubject, caption: ''"
+										></select>
 									</div>
 								</td>
 								<td style="" class="menu-table">

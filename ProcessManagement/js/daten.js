@@ -274,24 +274,25 @@ function updateListOfSubjects(){
 	var html = "<option></option>";
 
 	for(var subject in gv_graph.subjects) {
-		if (!gv_graph.subjects[subject].isExternal() || gv_graph.subjects[subject].getExternalType() == "interface") {
-			if (""+subject == gv_graph.selectedNode) {
-			} else {
-				html += "<option id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
-			}
+			if (!gv_graph.subjects[subject].isExternal() || gv_graph.subjects[subject].getExternalType() == "interface") {
+					if (""+subject == gv_graph.selectedNode) {
+							html += "<option selected id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
+						} else {
+							html += "<option id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
+						}
+				}
 		}
-	}
 
 
-	$('#slctSbj').html(html);
-	$("#slctSbj").trigger("liszt:updated");
+		$('#slctSbj').html(html);
+		$("#slctSbj").trigger("liszt:updated");
 
-	// Workaround, Chosen fails to reset, can't select same internal behavior
-	// twice with dropdown. Fix: add click listener to every chosen option
-	// (not native select option).
-	$(".active-result").click(function() {
-		goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'))
-	});
+		// Workaround, Chosen fails to reset, can't select same internal behavior
+		// twice with dropdown. Fix: add click listener to every chosen option
+		// (not native select option).
+		$(".active-result").click(function() {
+			goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'))
+		});
 }
 
 
