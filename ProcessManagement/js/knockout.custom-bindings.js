@@ -24,23 +24,30 @@ ko.bindingHandlers.tooltip = {
         if(tooltip){
             
             var qtipStyle = "ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow";
-            var qtipPositionAt = 'right top';
-            var qtipPositionMy = 'left bottom';
+            var qtipPositionAt = 'top right';
+            var qtipPositionMy = 'bottom left';
             
             $(element).qtip({
                 content : {
                     text : tooltip
                 },
+                /*
                 position : {
-                    at : qtipPositionAt,
-                    my : qtipPositionMy,
+                    target: 'mouse',
                     viewport : $(window),
-                    adjust : {
-                        method : 'mouse',
-                        x : 0,
-                        y : 0
+                    adjust:{
+                        mouse: false
                     }
                 },
+                */
+                position:{
+                    my : qtipPositionMy,
+                    at : qtipPositionAt,
+                    container: $(element).parent(),
+                    viewport: $(window)
+                },
+                show: 'mouseover',
+                hide: 'mouseout',
                 style : {
                     classes : qtipStyle
                 }

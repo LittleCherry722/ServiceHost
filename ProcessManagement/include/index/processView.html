@@ -1,9 +1,14 @@
 <div class="inner">
 
 	<div id="contentHead">
-		<h3 id="processName" style="color:#525252" data-bind="text :SBPM.VM.contentVM().processName() "></h3>
-
+		<h3 id="processName" style="color:#525252" data-bind="text :SBPM.VM.contentVM().processName() ">
+		</h3>
 	</div>
+	<span>
+		<a id="editProcess" href="editProcessSettings.html" data-bind="fancybox : {width : '21', height : '30'}">
+		<img src="images/icons/settings.png" width="16px" height="16px" alt="Processes"></a>
+	</span>
+
 <form action="" id="processHistory">
 			<select id="timestamps" size="1">
 			</select>

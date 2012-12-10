@@ -851,6 +851,8 @@ function gf_loadBenchmarkGraph ()
  */
 function gf_loadCase (jsonString, state)
 {
+	gv_graph.processFlag	= false;
+	
 	if (gf_isset(state))
 	{
 		gf_loadGraph(jsonString, state);

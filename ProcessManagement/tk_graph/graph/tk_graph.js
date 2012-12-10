@@ -112,6 +112,14 @@ var gv_originalViewBox	= {x: 0, y: 0, width: 0, height: 0, zoom: 1};
 var gv_graphID	= "cv";
 
 /**
+ * Counter for certain tasks
+ * 
+ * @private
+ * @type Object
+ */
+var gv_taskCounter	= {};
+
+/**
  * Time measuring: times used for certain tasks
  * 
  * @private
@@ -1172,6 +1180,139 @@ function gf_replaceNewline (text, character)
 		character = "\n";
 	
 	return text.replace(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi, character);
+}
+
+/**
+ * Compares two style sets for same attributes and values.
+ * 
+ * @private
+ * @param {Object} style1 A style set.
+ * @param {Object} style2 A style set.
+ * @returns {boolean} True when both styles contain the same attributes and values, false otherwise.
+ */
+function gf_stylesCompare (style1, style2)
+{
+	for (var gt_key in style1)
+	{
+		if (!gf_isset(style2[gt_key]) || style2[gt_key] != style1[gt_key])
+			return false;
+	}
+	
+	for (var gt_key in style2)
+	{
+		if (!gf_isset(style1[gt_key]) || style2[gt_key] != style1[gt_key])
+			return false;
+	}
+	
+	return true;
+}
+
+/**
+ * Calculate the difference between two styleSets.
+ * 
+ * @private
+ * @param {Object} style1 A style set.
+ * @param {Object} style2 A style set.
+ * @returns {Object} A reduced style set.
+ */
+function gf_stylesDiff (style1, style2)
+{
+	for (var gt_key in style1)
+	{
+		if (gf_isset(style2[gt_key]))
+		{
+			if (style2[gt_key] == style1[gt_key])
+				delete style2[gt_key];
+		}
+	}
+	
+	return style2;
+}
+
+/**
+ * Merge two or more style sets.
+ * The attributes of the sets are merged together into one style set.
+ * The method can take any number of style sets.
+ * 
+ * @private
+ * @param {Object} styleSet Any number of style sets.
+ * @returns {Object} The merged style set.
+ */
+function gf_stylesMerge ()
+{
+	return gf_mergeStyles.apply(null, arguments);
+}
+
+/**
+ * TODO
+ */
+function gf_taskCounterCount (type)
+{
+	if (gf_isset(type))
+	{
+		if (!gf_isset(gv_taskCounter[type]))
+			gv_taskCounter[type]	= 1;
+		else
+			gv_taskCounter[type]++;
+	}
+}
+
+/**
+ * TODO
+ */
+function gf_taskCounterPrint (type)
+{
+	if (gv_taskCounter)
+	{
+		if (gf_isset(type) && gf_isset(gv_times[type]))
+		{
+			console.log("count for '" + type + "': " + gv_taskCounter[type] + " times");
+		}
+		else
+		{
+			console.log("\nTask Counter:");
+			
+			var gt_taskStrings	= [];
+			for (var gt_type in gv_taskCounter)
+			{
+				gt_taskStrings[gt_taskStrings.length] = "\t" + gt_type + ": " + gv_taskCounter[gt_type] + " times";
+			}
+			
+			gt_taskStrings.sort()
+			
+			for (var gt_taskString in gt_taskStrings)
+			{
+				console.log(gt_taskStrings[gt_taskString]);
+			}
+		}
+	}
+}
+
+/**
+ * TODO
+ */
+function gf_taskCounterReset (type)
+{
+	if (gf_isset(type))
+	{
+		if (!gf_isArray(type))
+			type = [type];
+			
+		var gt_type	= "";
+		for (var gt_typeId in type)
+		{
+			gt_type	= type[gt_typeId];
+			
+			if (gf_isset(gv_taskCounter[gt_type]))
+			{
+				gv_taskCounter[gt_type]		= 0;
+			}
+		}
+	}
+	else
+	{
+		gv_taskCounter		= {};
+	}
 }
 
 /**

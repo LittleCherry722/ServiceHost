@@ -16,7 +16,7 @@
 			<input type="button" id="InsertActionNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;3&#34;'" onclick="gf_callMacro('newActionNode');" value="Insert action state" />
 			<br/>
 			<br/>
-			<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the behavior?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear behavior" />
+			<input type="button" class="graphmenubutton" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the behavior?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear behavior" data-bind="tooltip : 'Remove all states'"/>
 			<br/>
 		</div>
 	</div>
@@ -68,13 +68,13 @@
 				<br/>
 				<select id="ge_edge_target" style="width: 140px;"></select>
 				<div id="ge_edge_target_new_outer" style="display:none;">
-					<label class="graphsectionheader">Role / User:</label>
-					<br />
-					<select id="ge_edge_target_new_role" style="width: 140px;"></select>
-					<br />
 					<label class="graphsectionheader">Name:</label>
 					<br />
 					<input type="text" id="ge_edge_target_new_name" style="width: 140px;" />
+					<br />
+					<label class="graphsectionheader">Role / User:</label>
+					<br />
+					<select id="ge_edge_target_new_role" style="width: 140px;"></select>
 				</div>
 				<br/>
 				<label class="graphsectionheader">Transport Method:</label>
@@ -163,29 +163,29 @@
 		<br/>
 
 		<div id="ge_node_start_node_outer" style="display:none;">
-			<input type="checkbox" id="ge_type_start" name="ge_type_start" />
+			<input type="checkbox" id="ge_type_start" name="ge_type_start" data-bind="tooltip : 'At least one state must be a start state.'"/>
 			<label class="graphsectionheader">Startstate</label>
 			<div id="ge_node_major_start_node_outer" style="display:none;">
-				<input type="checkbox" id="ge_node_major_start_node" />
+				<input type="checkbox" id="ge_node_major_start_node" data-bind="tooltip : 'If you have several start states you have to select exactly one major start state.'"/>
 				<label class="graphsectionheader">Major Startstate</label>
 			</div>
 		</div>
 		<br />
 		<label class="graphsectionheader">Type:</label>
-		<select id="ge_type2"  style="width:140px"></select>
+		<select id="ge_type2"  style="width:140px" data-bind="tooltip : 'Type of the state'"></select>
 		<br/>
 		<input type="hidden" id="ge_id" value="" style="width:140px"/>
 		<label class="graphsectionheader">Text:</label>
-		<textarea id="ge_text" style="width:140px"></textarea>
+		<textarea id="ge_text" style="width:140px" data-bind="tooltip : 'Message or other annotation that comes with the state.'"></textarea>
 		
 		<div id="ge_node_variable_outer" style="display:none; margin-top:10px;">
 			<label class="graphsectionheader">Variable:</label>
-			<select id="ge_node_variable" style="width:140px"></select>
+			<select id="ge_node_variable" style="width:140px" data-bind="tooltip : 'You can manipulate variables by adding a &quot;Variable Manipulation&quot; node to the graph.'"></select>
 		</div>
 		
 		<div id="ge_node_macro_outer" style="display:none; margin-top:10px;">
 			<label class="graphsectionheader">Macro:</label>
-			<select id="ge_node_macro" style="width:140px"></select>
+			<select id="ge_node_macro" style="width:140px" data-bind="tooltip : 'Replace reoccuring sequences of transitions and states or a part of an internal behavior by other parts of the internal behavior.'"></select>
 			<div id="ge_node_macro_new_outer" style="display:none;">
 				<label class="graphsectionheader">New Macro:</label>
 				<input type="text" id="ge_node_macro_new" style="width:140px" />
@@ -194,7 +194,7 @@
 		
 		<div id="ge_node_channel_outer" style="display:none; margin-top:10px;">
 			<label class="graphsectionheader">Channel:</label>
-			<select id="ge_node_channel" style="width:140px"></select>
+			<select id="ge_node_channel" style="width:140px" data-bind="tooltip : 'Channels are used to group states and transitions within an internal behavior. You can select a channel for each state.'"></select>
 			<div id="ge_node_channel_new_outer" style="display:none;">
 				<label class="graphsectionheader">New Channel:</label>
 				<input type="text" id="ge_node_channel_new" style="width:140px" />
@@ -249,7 +249,7 @@
 		<br/>
 		<label class="graphsectionheader">Comment:</label>
 		<br/>
-		<textarea id="ge_node_comment" style="width: 140px;"></textarea>												
+		<textarea id="ge_node_comment" style="width: 140px;" data-bind="tooltip : 'Miscellaneous annotations'"></textarea>												
 		<br/>
 		<br/>
 		
@@ -259,7 +259,7 @@
 		<br/>
 <!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate state" />
 		<br/> -->
-		<input type="button" id="DeleteNodeButton" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete state" />
+		<input type="button" id="DeleteNodeButton" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete state" data-bind="tooltip : 'Delete this state.'" />
 		<br/>
 	</div>
 

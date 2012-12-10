@@ -67,6 +67,13 @@ function GCcommunication ()
 	this.nodeCounter		= 0;
 	
 	/**
+	 * Flag indicating whether the graph is a process or a case (to distinguish between roles and users).
+	 * 
+	 * @type boolean
+	 */
+	this.processFlag	= true;
+	
+	/**
 	 * The currently selected channel
 	 * 
 	 * @type String
@@ -412,6 +419,8 @@ function GCcommunication ()
 			this.messageTypes		= {};
 			this.messageTypeCounter	= 0;
 			
+			this.processFlag		= true;
+			
 			this.draw();
 		}
 		
@@ -458,6 +467,7 @@ function GCcommunication ()
 		// initialize the canvas
 		this.init("bv");
 		this.clearGraph(true);
+		this.processFlag	= false;
 		
 		// add the "me" Subject
 		this.addSubject("me", userName, "single", -1, false);
@@ -900,6 +910,149 @@ function GCcommunication ()
 	};
 	
 	/**
+	 * TODO
+	 * Exports either the subject interaction view or the currently selected internal behavior / macro.
+	 */
+	this.exportCurrent = function ()
+	{
+		var gt_result	= {nodes: null, edges: null};
+		
+		var gt_styles	= [];
+		
+		// 1. nodes
+		var gt_nodes	= [];
+		for (var gt_objectId in gv_objects_nodes)
+		{
+			var gt_object	= gv_objects_nodes[gt_objectId];
+			
+			if (gt_object.belongsToPath !== true)
+			{
+				var gt_text		= {text: gt_object.textString};
+				var gt_image	= {src: ""};
+				
+				if (gt_object.textString != "")
+				{
+					gt_text.x					= gt_object.text.attr("x");
+					gt_text.y					= gt_object.text.attr("y");
+					gt_text.textAlignAttribute	= gt_object.textAlignAttribute;
+				}
+				
+				if (gt_object.img != null)
+				{
+					gt_image.src	= gt_object.img.attr("src");
+					gt_image.x		= gt_object.img.attr("x");
+					gt_image.y		= gt_object.img.attr("y");
+					gt_image.width	= gt_object.img.attr("width");
+					gt_image.height	= gt_object.img.attr("height");
+				}
+				
+				gt_nodes[gt_nodes.length]	= {
+					id: 				gt_object.id,
+					text:				gt_text,
+					style:				this.exportCurrentAddStyle(gt_styles, gt_object.style),
+					statusDependent:	gt_object.getStatusDependent(),
+					shape:				gt_object.shape,
+					boundaries:			gt_object.getBoundaries(),
+					image:				gt_image
+				};
+			}
+		}
+		
+		// 2. edges
+		var gt_edges	= [];
+		for (var gt_objectId in gv_objects_edges)
+		{
+			var gt_object	= gv_objects_edges[gt_objectId];
+			var gt_text		= {text: ""};
+			var gt_image	= {src: ""};
+			
+			if (gt_object.label.textString != "")
+			{
+				gt_text.text				= gt_object.label.textString;
+				gt_text.x					= gt_object.label.text.attr("x");
+				gt_text.y					= gt_object.label.text.attr("y");
+				gt_text.textAlignAttribute	= gt_object.label.textAlignAttribute;
+			}
+			
+			if (gt_object.label.img != null)
+			{
+				gt_image.src	= gt_object.label.img.attr("src");
+				gt_image.x		= gt_object.label.img.attr("x");
+				gt_image.y		= gt_object.label.img.attr("y");
+				gt_image.width	= gt_object.label.img.attr("width");
+				gt_image.height	= gt_object.label.img.attr("height");
+			}
+			
+			gt_edges[gt_edges.length]	= {
+					id: 				gt_object.id,
+					segments:			gt_object.pathSegments,
+					path:				gt_object.pathStr,
+					style:				this.exportCurrentAddStyle(gt_styles, gt_object.style),
+					statusDependent:	gt_object.getStatusDependent(),
+					label:
+						{
+							text:				gt_text,
+							style:				null, // gt_object.label.style,
+							statusDependent:	gt_object.getStatusDependent(),
+							shape:				gt_object.label.shape,
+							boundaries:			gt_object.label.getBoundaries(),
+							image:				gt_image
+						}
+			};
+		}
+		
+		gt_result.nodes		= gt_nodes;
+		gt_result.edges		= gt_edges;
+		gt_result.styles	= gt_styles;
+		
+		return gt_result;
+	};
+	
+	/**
+	 * TODO
+	 */
+	this.exportCurrentAddStyle	= function (styles, style)
+	{
+		var gt_id		= 0;
+			
+		if (styles.length == 0)
+		{
+			styles[0] = style;
+		}
+		else
+		{
+			var gt_diff		= gf_stylesDiff(styles[0], style);
+			var gt_found	= false;
+			
+			for (var gt_styleId in styles)
+			{
+				if (gf_stylesCompare(styles[gt_styleId], gt_diff))
+				{
+					gt_found	= true;
+					gt_id		= gt_styleId;
+					break;
+				}
+			}
+			
+			if (!gt_found)
+			{
+				gt_id					= styles.length;
+				styles[styles.length]	= gt_diff;
+			}
+		}
+		
+		return gt_id;
+	};
+	
+	/**
+	 * TODO
+	 */
+	this.exportCurrentToJSON = function ()
+	{
+		return JSON.stringify(this.exportCurrent()).replace(/\\n/gi, "<br />");
+	};
+	
+	/**
 	 * Returns the behavior of the subject with the given id or null if the subject does not exist.
 	 * 
 	 * @param {String} id The id of the subject.
@@ -927,6 +1080,39 @@ function GCcommunication ()
 			return this.messages[sender][receiver];
 		}
 		return [];
+	};
+	
+	/**
+	 * Returns a proper string depending on the processFlag.
+	 * 
+	 * @param {String} type Currently either "subject" (Subject / Subjectprovider) or "noRole" (noRole / noUser).
+	 * @returns {String} A string depending on the processFlag.
+	 */
+	this.getProcessText = function (type)
+	{
+		var gt_result	= "";
+		
+		if (gf_isset(type))
+		{
+			type	= type.toLowerCase();
+			
+			if (type == "subject")
+			{
+				if (this.isProcess())
+					gt_result	= "Subject";
+				else
+					gt_result	= "Subjectprovider";
+			}
+			else if (type == "norole")
+			{
+				if (this.isProcess())
+					gt_result	= "noRole";
+				else
+					gt_result	= "noUser";
+			}
+		}
+		
+		return gt_result;
 	};
 	
 	/**
@@ -973,7 +1159,7 @@ function GCcommunication ()
 		{
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
-				return this.getBehavior(this.selectedSubject).selectedNode;
+				return this.getBehavior(this.selectedSubject).getMacro().selectedNode;
 			}
 		}
 		return null;
@@ -1127,13 +1313,23 @@ function GCcommunication ()
 	};
 	
 	/**
+	 * Returns true when the processFlag is set to true.
+	 * 
+	 * @returns {boolean} True when the graph is a process and no case.
+	 */
+	this.isProcess = function ()
+	{
+		return this.processFlag !== false;
+	};
+	
+	/**
 	 * Loads a process graph from a given JSON representation stored in the database.
 	 * 
 	 * @param {String} jsonString The JSON representation of a process.
 	 * @returns {void}
 	 */
 	this.loadFromJSON = function (jsonString)
-	{
+	{		
 		var gt_messages		= {};		// messageText: messageID
 		
 		if (gf_isset(jsonString))
