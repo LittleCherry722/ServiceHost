@@ -8,7 +8,7 @@ import spray.http.HttpRequest
 import akka.event.Logging
 
 /**
- * This Actor is only used to process REST calls regarding "process"
+ * This Actor is only used to process REST calls regarding "execution"
  */
 // TODO when to choose HttpService and when HttpServiceActor
 class ExecutionInterfaceActor extends Actor with HttpService {
