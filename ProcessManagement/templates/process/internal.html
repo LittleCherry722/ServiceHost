@@ -1,4 +1,4 @@
-<div id="graph_bv_outer" class="fluid" style="height: 100%; overflow:auto;"></div>
+<div id="graph_bv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
 
 <div class="graphsettings">
 	<fieldset>
@@ -20,16 +20,20 @@
 
 		<label align="left" class="graphsectionheader">Transition Type</label>
 		<div id="ge_edge_type_normal_outer" style="display:none;">
-			<div id="internalRadioMenu">
+			<label class="radio">
 				<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
-				<label align="left"  class="graphsectionheader">Exit Condition</label>
+				Exit Condition
+			</label>
 
+			<label class="radio">
 				<input type="radio" id="ge_edge_type_exception" name="ge_edge_type" />
-				<label align="left"  class="graphsectionheader">Error Condition</label>
+				Error Condition
+			</label>
 
+			<label class="radio">
 				<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
-				<label align="left" class="graphsectionheader">Timeout</label>
-			</div>
+				Timeout
+			</label>
 		</div>
 
 		<div id="ge_edge_type_boolean_outer" style="display:none;">
@@ -42,7 +46,6 @@
 
 		<div style="display:none;" id="ge_edge_typeEOuter">
 			<label class="graphsectionheader">Exception:</label>
-			<br />
 			<textarea id="ge_edge_exception_text" ></textarea>
 		</div>
 
@@ -123,14 +126,12 @@
 
 		<div style="display:none; margin-bottom:20px;" id="ge_edge_correlationid_outer">
 			<label align="left" class="graphsectionheader">Correlation ID:</label>
-			<br />
 			<select id="ge_edge_correlationid" ></select>
 		</div>
 
 		<label class="graphsectionheader">Comment:</label>
 		<textarea id="ge_edge_comment" ></textarea>
 
-		<br/>
 
 		<input type="button" id="UpdateEdgeButton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<input type="button" id="DeleteEdgeButton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
@@ -221,7 +222,6 @@
 		<label class="graphsectionheader">Comment:</label>
 		<textarea id="ge_node_comment" ></textarea>
 
-		<br/>
 
 		<input type="button" id="UpdateNodeButton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
 		<input type="button" id="ConnectNodeButton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />

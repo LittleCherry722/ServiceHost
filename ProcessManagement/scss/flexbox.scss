@@ -33,6 +33,7 @@
   display: -ms-box;
   display: -o-box;
   display: box;
+  display: flex;
 }
 
 @mixin box-orient($orient: inline-axis) {
@@ -66,6 +67,7 @@
 
 @mixin box-flex($value: 0.0) {
   @include prefixer(box-flex, $value);
+  flex: $value;
 }
 
 @mixin box-flex-group($int: 1) {

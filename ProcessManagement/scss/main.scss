@@ -37,6 +37,8 @@ body, html, .content_wrapper{
 }
 
 #headAndLeft {
+  @include display-box;
+  min-width: 1px;
   @include calc(height, "100% - 50px");
 }
 
@@ -142,9 +144,7 @@ h4 {
 	width: 50px;
 	padding: 10px 15px 10px 15px;
 	background: #fff;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
+  @include border-radius(5px);
 	border: 1px solid #cdcdcd;
 	color: #4c535b;
 	text-shadow: 0 1px 0 #fff;
@@ -248,10 +248,6 @@ a:active {
 }
 .show {
 	display: block;
-}
-
-#headAndLeft {
-  @include display-box;
 }
 
 #left_menu {
@@ -383,7 +379,9 @@ a#show_menu {
 #main {
   @include box-flex(1);
   @include box-sizing(border-box);
+  min-width: 1px;
   height: 100%;
+  min-width: 1px;
   padding: 15px 7px 7px 15px;
 
   > .inner {
@@ -432,10 +430,8 @@ a#show_menu {
   width: 49%;
   background: #fff;
   border: 1px solid #cdcdcd;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  -moz-box-shadow: 0 1px 4px #ccc;
-  -webkit-box-shadow: 0 1px 2px #ccc;
+  @include border-radius(5px);
+  @include box-shadow(0 1px 4px #ccc);
   box-shadow: 0 1px 2px #ccc;
   float: left;
 }
@@ -450,10 +446,7 @@ a#show_menu {
   width: 100%;
   height: 40px;
   border-bottom: 1px solid #ccc;
-  -moz-border-radius-topright: 5px;
-  -webkit-border-top-right-radius: 5px;
-  -moz-border-radius-topleft: 5px;
-  -webkit-border-top-left-radius: 5px;
+  @include border-radius(5px 5px 0 0);
 }
 .column_left .header span, .column_right .header span {
   display: block;
@@ -466,10 +459,7 @@ a#show_menu {
 }
 .column_left .content, .column_right .content {
   background: url(../images/bg_ip.png) repeat-x;
-  -moz-border-radius-bottomright: 5px;
-  -webkit-border-bottom-right-radius: 5px;
-  -moz-border-radius-bottomleft: 5px;
-  -webkit-border-bottom-left-radius: 5px;
+  @include border-radius(0 0 5px 5px);
   border-top: 0px solid #bdbdbd;
   padding-bottom: 10px;
   padding: 25px 15px 15px 15px;
@@ -548,11 +538,11 @@ table.data2 tr td {
 }
 
 .graphsettings {
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   text-align: left;
-  padding: 7px 4px;
-	width: 155px;
-	max-width: 155px;
+  padding: 5px 10px;
+	width: 170px;
   max-height: 100%;
   text-shadow: 0 1px 0 #eee;
 	background: #e6e6e6;
@@ -596,7 +586,6 @@ table.data2 tr td {
     @include box-sizing(border-box);
     width: 155px;
     display: block;
-    margin: 0 auto;
     margin-bottom: $baseLineHeight / 2;
     font-size: 12px;
   }
@@ -671,8 +660,7 @@ table.data2 tr td {
 
 .tab-dropdown {
   display: inline-block;
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
+  @include border-radius(0);
   background: url(../images/bg_button_tab.png) repeat-x;
   font-weight: bold;
   margin: 0;
@@ -716,6 +704,7 @@ table.data2 tr td {
 
 .tab_content {
   @include display-box;
+  min-width: 1px;
   height: 100%;
 }
 
