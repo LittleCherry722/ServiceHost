@@ -1,4 +1,4 @@
-package de.tkip.sbpm
+package de.tkip.sbpm.rest
 
 import akka.actor.Actor
 import akka.actor.Props
@@ -7,9 +7,7 @@ import spray.http._
 import MediaTypes._
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
-import de.tkip.sbpm.rest.ProcessInterfaceActor
 import akka.event.Logging
-import de.tkip.sbpm.rest.ExecutionInterfaceActor
 
 object Entity {
   val PROCESS = "process"

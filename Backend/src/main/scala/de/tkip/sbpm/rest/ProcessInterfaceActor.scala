@@ -26,7 +26,7 @@ class ProcessInterfaceActor extends Actor with HttpService {
   def actorRefFactory = context
   
   /**
-   * a REST Api should at least implement the following functions:
+   * usually a REST Api should at least implement the following functions:
    * - GET withouht parameter => list of entity
    * - GET with id => specific entity
    * - PUT without id => new entity
@@ -35,6 +35,9 @@ class ProcessInterfaceActor extends Actor with HttpService {
    * 
    * For more information about how to design a RESTful API see: 
    * http://ajaxpatterns.org/RESTful_Service#RESTful_Principles
+   * 
+   * Nevertheless: If an URL does not represent a resource, like the "execution" API 
+   * it makes sense to step away from this general template
    * 
    */
   def receive = runRoute({ 
