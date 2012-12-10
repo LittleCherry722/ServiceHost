@@ -1,63 +1,60 @@
 <div class="inner">
 
-	<div id="contentHead">
+	<div id="contentHead" class="clearfix">
 		<h3 id="processName" style="color:#525252" data-bind="text: currentProcess().name "></h3>
 
+		<form action="" id="processHistory">
+			<select id="timestamps">
+			</select>
+		</form>
 	</div>
-	<form action="" id="processHistory">
-		<select id="timestamps" size="1">
-		</select>
-	</form>
 
-	<div id="graph" style="display:block">
+	<div id="graph">
 		<!-- <h2 id="process_name" style="color:#525252" data-bind="text: activeView "></h2>-->
 		<!-- Begin graph window -->
 		<div class="onecolumn" style="width: 100%">
 			<div class="header">
-				<div id="graphZoomButtons">
-					<input id="zoominbutton" type="button" onclick="gf_paperZoomIn();" value="Zoom In" />
-					<input id="zoomoutbutton" type="button" onclick="gf_paperZoomOut();" value="Zoom Out" />
-					<input id="reset-button" type="button" onclick="gf_paperZoomReset();" value="Reset zoom" />
-				</div>
-				<input id="help-button" type="button" href="help.html" value="Help" data-bind="fancybox : {width : '30', height : '41'}"/>
-				<div class="switch" style="width:357px">
-					<table width="357px" cellpadding="0" cellspacing="0" class="menu-table">
-						<tbody>
-							<tr>
-								<td>
-									<input type="button"  id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:170px"/>
-								</td>
+				<ul class="nav pull-right" id="graphZoomButtons">
+					<li class="zoombutton">
+						<input id="zoominbutton" type="button" onclick="gf_paperZoomIn();" value="Zoom In" />
+					</li>
+					<li class="zoombutton">
+						<input id="zoomoutbutton" type="button" onclick="gf_paperZoomOut();" value="Zoom Out" />
+					</li>
+					<li class="zoombutton">
+						<input id="reset-button" type="button" onclick="gf_paperZoomReset();" value="Reset zoom" />
+					</li>
+					<li>
+						<input id="help-button" type="button" href="help.html" value="Help" data-bind="fancybox : {width : '30', height : '41'}"/>
+					</li>
+				</ul>
+				<ul class="nav" id="switch">
+					<li>
+						<input type="button"	id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:170px"/>
+					</li>
 
-								<td style="" class="menu-table">
-									<div class="tab-dropdown">
-										<select id="slctSbj" data-placeholder="Select Internal Behavior"
-											class="middle_switch chzn-select" style="min-width:160px;" tabindex="1"
-											onchange="console.log('changed');//goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"
-											data-bind="options: availableSubjects, optionsText: 'subjectText',
-												optionsValue: 'subjectID', value: currentSubject, caption: ''"
-										></select>
-									</div>
-								</td>
-								<td style="" class="menu-table">
-									<div class="tab-dropdown">
-										<select id="slctChan" data-placeholder="Select Channel" onchange="gf_selectChannel($('#slctChan option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
-								</div></td>
-								<td style="" class="menu-table">
-									<div class="tab-dropdown">
-										<select id="slctMacro" data-placeholder="Select Macro" onchange="gf_selectMacro($('#slctMacro option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px; display:none;" tabindex="1" ></select>
-								</div></td>
-								<td>
-									<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
-								</td>
-							</tr>
-						</tbody>
+					<li class="tab-dropdown">
+						<select id="slctSbj" data-placeholder="Select Internal Behavior"
+							class="middle_switch chzn-select" style="min-width:160px;" tabindex="1"
+							onchange="console.log('changed');//goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"
+							data-bind="options: availableSubjects, optionsText: 'subjectText',
+							optionsValue: 'subjectID', value: currentSubject, caption: ''">
+						</select>
+					</li>
 
-					</table>
+					<li class="tab-dropdown">
+						<select id="slctChan" data-placeholder="Select Channel" onchange="gf_selectChannel($('#slctChan option:selected').attr('id'));"	class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
+					</li>
 
-				</div>
+					<li class="tab-dropdown">
+						<select id="slctMacro" data-placeholder="Select Macro" onchange="gf_selectMacro($('#slctMacro option:selected').attr('id'));"	class="middle_switch chzn-select" style="min-width:160px; display:none;" tabindex="1" ></select>
+					</li>
+					<li>
+						<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
+					</li>
+				</ul>
 			</div>
 
-			<br class="clear"/>
 
 			<!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
 			<div id="processContent" >

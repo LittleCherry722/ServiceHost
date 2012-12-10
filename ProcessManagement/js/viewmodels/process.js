@@ -212,9 +212,9 @@ define([
 
 		// Hide the graph zoom Buttons n charge view. Show it in all other views.
 		if ( tabIndex === 3 ) {
-			$( "#graphZoomButtons" ).hide();
+			$( ".zoombutton" ).hide();
 		} else {
-			$( "#graphZoomButtons" ).show();
+			$( ".zoombutton" ).show();
 		}
 
 		// Mark only the clicked tab as active, all other as inactive, hide all
