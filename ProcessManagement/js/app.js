@@ -172,6 +172,10 @@ define([
 		}, callback);
 	}
 
+	var publish = function() {
+		
+	}
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize,

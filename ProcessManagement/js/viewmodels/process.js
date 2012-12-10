@@ -2,11 +2,10 @@ define([
 	"knockout",
 	"app",
 	"notify",
-	"router",
 	"models/process",
-	"async"
+	"underscore"
 	// "tk_graph"
-], function( ko, App, Notify, Router, Process, async ) {
+], function( ko, App, Notify, Process, _ ) {
 	var ViewModel = function() {
 		var self = this;
 
@@ -20,9 +19,42 @@ define([
 		});
 
 		this.availableProcesses = Process.all;
+
+		this.availableSubjects = availableSubjects;
+		this.availableChannels = availableChannels;
+		this.availableMacros   = availableMacros;
+
+		this.selectedSubject = ko.observable();
 	}
 
-	var currentView = ko.observable();
+	var availableSubjects = ko.observableArray([]);
+	var availableChannels = ko.observableArray([]);
+	var availableMacros   = ko.observableArray([]);
+
+	var currentSubject = ko.observable();
+	var currentChannel = ko.observable();
+
+	availableSubjects.subscribe(function( subjects ) {
+		console.log("changing")
+		setTimeout(function() {
+			$("#slctSbj").trigger("liszt:updated");
+		}, 0);
+	});
+
+	var updateListOfSubjects = function() {
+		var subjects = [];
+
+		_( gv_graph.subjects ).each(function( value, key ) {
+			subjects.push({
+				subjectID: key,
+				subjectText: value.getText(),
+				subject: value
+			})
+		})
+
+		console.log( subjects );
+		availableSubjects( subjects );
+	}
 
 	/*
 	 * The current Process.
@@ -35,26 +67,39 @@ define([
 	 */
 	var currentProcess = ko.observable( new Process() );
 
+	// Subscribe to the change of the current Process.
+	// Enables us to load new processes without reloading the entire viewmodel.
+	//
+	// Clears the graph, and loads the new graph for the new process.
 	currentProcess.subscribe(function( process ) {
 		gv_graph.clearGraph( true );
 		
+		// If the process already has an associated graph load it.
+		// Otherwise load an empty graph from the process (or case).
 		if ( process.graph() ) {
-			console.log( "loading existing graph" );
 			gf_loadGraph( process.graph().graphString(), undefined );
 
+			// TODO
 			// var graph = JSON.parse(graphAsJson);
 			// self.chargeVM.load(graph);
 
 		} else {
-			loadEmptyProcess( process );
+			loadNewProcess( process );
 		}
 
-		$("#tab2").addClass("active");
+		// Make Tab 2 (Subject interaction view) the active Tab.
+		selectTab( 2 );
 
+		// Notify the user that the process has successfully been loaded
 		Notify.info("Information", "Process \""+ process.name() +"\" successfully loaded.");
 	});
 
-	var loadEmptyProcess = function( process ) {
+	// method to load an empty process.
+	// A process is "empty", if it has no associated graph.
+	var loadNewProcess = function( process ) {
+
+		// If the process is a case, create a new case with our current user as
+		// subject provider. Otherwise just create an empty graph.
 		if ( process.isCase() ) {
 			gf_createCase( App.currentUser().name() );
 		} else {
@@ -62,26 +107,11 @@ define([
 		}
 	}
 
+	// Initialize listeners. These are either bound to the DOM (for click events
+	// etc), or listeners for the graph library.
 	var initializeListeners = function() {
-		//resize canvas to fit into screen
-		$("#graph_bv_outer").css("width", window.innerWidth - 170 - 245);
-		$("#graph_bv_outer").css("height", window.innerHeight - 145);
-		$("#show_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$("#hide_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$(window).resize(function() {
-			if ($("#show_menu").css("display") == "none") {
-				$("#graph_bv_outer").css("width", window.innerWidth - 170 - 245);
-				$("#graph_bv_outer").css("height", window.innerHeight - 145);
-			} else {
-				$("#graph_bv_outer").css("width", window.innerWidth - 195);
-				$("#graph_bv_outer").css("height", window.innerHeight - 185);
-			}
-		});
 
+		// TODO no idea what this is about. anyone?
 		$("#rightMenuTrigger").click(function() {
 			if ($("#RightMenuDiv").is(":visible")) {
 				$("#RightMenuDiv").hide();
@@ -92,79 +122,94 @@ define([
 			}
 		});
 
+		// TODO no idea what this is about. anyone?
 		$("#internalRadioMenu :input").bind("change", function() {
 			if ($("#ge_edge_type_timeout").is(":checked")) {
-
 				$("#timeoutdiv").show();
 			} else {
 				$("#timeoutdiv").hide();
 			}
-
 		});
 
-
-		$("#slctSbj").chosen();
-
-		$("#slctChan").chosen();
-
-		$("#tab2").click(function() {
-			console.log("tab2 clicked");
-
-			$(this).parent().parent().find("td input").removeClass("active");
-			$(this).addClass("active");
-			$(".tab_content").addClass("hide");
-			$("#tab2_content").removeClass("hide");
-			gv_graph.changeView('cv');
-			updateListOfSubjects();
-			updateListOfChannels();
-
-			SBPM.VM.contentVM().activeViewIndex(0);
-		});
-
-		$("#tab3").click(function() {
-			console.log("tab3 clicked");
-
-			$(this).parent().parent().find("td input").removeClass("active");
-			$(this).addClass("active");
-			$(".tab_content").addClass("hide");
-			$("#tab3_content").removeClass("hide");
-
-			gv_graph.selectedNode = null;
-			updateListOfSubjects();
-			$("#zoominbutton").hide();
-			$("#zoomoutbutton").hide();
-			$("#reset-button").hide();
-
-			SBPM.VM.contentVM().activeViewIndex(2);
-		});
-
-		//resize canvas to fit into screen
-		$("#graph_cv_outer").css("width", window.innerWidth - 170 - 245);
-		$("#graph_cv_outer").css("height", window.innerHeight - 145);
-		$("#show_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$("#hide_menu").click(function() {
-			$(window).trigger('resize');
-		});
-		$(window).resize(function() {
-			if ($("#show_menu").css("display") == "none") {
-				$("#graph_cv_outer").css("width", window.innerWidth - 170 - 245);
-				$("#graph_cv_outer").css("height", window.innerHeight - 145);
-			} else {
-				$("#graph_cv_outer").css("width", window.innerWidth - 195);
-				$("#graph_cv_outer").css("height", window.innerHeight - 185);
-			}
-		});
-
-		$("#ge_cv_id").bind("change", function() {
-			if ( !$("#ge_cv_id").val() ) {
-
+		// TODO no idea what this is about. anyone?
+		$("#ge_cv_id").on( "change", function() {
+			if ( !$( "#ge_cv_id" ).val() ) {
 				$( "#AssignRoleWarning" ).show();
 			} else {
 				$( "#AssignRoleWarning" ).hide();
 			}
 		});
+
+
+		// Initialize our chosen selects for subjects and channels.
+		$("#slctSbj").chosen();
+		$("#slctChan").chosen();
+
+		// When a selectable tab is clicked, mark the tab as selected, update the
+		// list of subjects and channels.
+		// See "selectTab" for more Information,
+		$(".switch input[id^='tab']").on( "click", selectTab )
+
+		// Tab2, "Subject Interaction View" clicked.
+		// let the graph not we changed views and update the list of subjects and
+		// channels.
+		$("#tab2").on( "click", function() {
+			gv_graph.changeView('cv');
+
+			// Update our chosen selects.
+			updateListOfSubjects();
+			updateListOfChannels();
+		});
+
+		// Tab2, "Charge View" clicked.
+		// let the graph not we changed views and update the list of subjects.
+		$("#tab3").on( "click", function() {
+			gv_graph.selectedNode = null;
+			updateListOfSubjects();
+		});
+
+		$.subscribeOnce("gf_changeViewBV", onChangeViewBV);
+	}
+
+	// Method called when the graph view is changed to internal view.
+	// Needs to be a separate function so we can potentially unsubscribe it
+	// easily e.g. when the view is unloaded.
+	var onChangeViewBV = function() {
+		selectTab( 1 );
+		gf_clickedCVbehavior();
+	}
+
+	// Select a certain tab. Can either be directly attacthed to the click
+	// listener (or anything else) of a secific tab, or invoked with the number
+	// of the tab (id = "tab" + number) as first parameter.
+	var selectTab = function( tabIndex ) {
+		var tabID;
+
+		// if the first parameter is no number, we assume this method has been
+		// called by an event handler. We now need to extract the tabIndex from the
+		// ID of the tab (current this object = tab node) that issued the event.
+		if ( typeof tabIndex !== "number" ) {
+			tabID = this.getAttribute("id");
+			// set tabIndex to be the integer value of the last character of the ID
+			// string. (to base 10).
+			tabIndex = parseInt( tabID.substr( tabID.length - 1 ), 10 );
+		}
+
+		// Hide the graph zoom Buttons n charge view. Show it in all other views.
+		if ( tabIndex === 3 ) {
+			$( "#graphZoomButtons" ).hide();
+		} else {
+			$( "#graphZoomButtons" ).show();
+		}
+
+		// Mark only the clicked tab as active, all other as inactive, hide all
+		// current tab contents and only selectively show the tab content of the
+		// currently clicked tab.
+		$( ".tab_content" ).addClass( "hide" );
+		$( ".switch input" ).removeClass( "active" );
+		$( "#tab" + tabIndex ).addClass( "active" );
+		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
+		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
 	}
 
 	// Initialize our View.
@@ -175,23 +220,47 @@ define([
 
 		App.loadTemplate( "process", viewModel, null, function() {
 
+			// Load all sub templates. They are:
+			// Subject interaction view (tab 2)
+			// Internal view (tab1)
+			// Charge View (tab 3
 			App.loadTemplates([
 				[ "process/subject", "tab2_content" ],
 				[ "process/internal", "tab1_content" ]
 			], viewModel, function() {
+
+				// After all templates have been loaded and applied successfully,
+				// set the current process and initialize the view Listeners.
 				currentProcess( Process.find( processID ) );
 				initializeListeners();
 			});
 
+			// Execute the callback if any was given.
 			if ( typeof callback === "function" ) {
 				callback.call( this );
 			}
 		});
 	}
+
+	// This function gets called when another view is loaded.
+	// At the moment, just unsubscribe all listeners we have set up that are not
+	// bound to the DOM (and therefore do not get unsubscribed automatically).
+	//
+	// We should use it in the future to stop the view from unloading when
+	// unsaved changes are detected.
+	//
+	// Must return true, otherwise the view will not be unloaded.
+	var unload = function() {
+		$.subscribeOnce("gf_changeViewBV", onChangeViewBV);
+
+		// return true so the view actually gets unloaded.
+		return true;
+	}
 	
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		currentProcess: currentProcess
+		currentProcess: currentProcess,
+		unload: unload
 	}
 });

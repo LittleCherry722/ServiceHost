@@ -502,6 +502,22 @@ function gf_functionExists ()
 	return gt_argc > 0;
 }
 
+function gf_hasSubscribers ()
+{
+	var gt_argv = arguments;
+	var gt_argc = gt_argv.length;
+
+	for (var gt_i = 0; gt_i < gt_argc; gt_i++)
+	{
+		if ($.subscribers(gt_argv[gt_i]).length == 0)
+		{
+			return false;
+		}
+	}
+	
+	return gt_argc > 0;
+}
+
 /**
  * Retrieve the ids of the children of the node with the given id.
  * 
@@ -916,15 +932,15 @@ function gf_paperClickEdge (id)
 		gv_objects_edges[id].select();
 		
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.edgeClickedHook))
+		if (!gf_isStandAlone() && gf_hasSubscribers("gf_edgeClickedHook"))
 		{
-			window[gv_functions.events.edgeClickedHook](id);
+			$.publish("gf_edgeClickedHook", id);
 		}
 		
 		// call the gf_clickedBVedge method
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.edgeClicked))
+		if (!gf_isStandAlone() && gf_hasSubscribers("gf_edgeClicked"))
 		{
-			window[gv_functions.events.edgeClicked](id);
+			$.publish("gf_edgeClicked", id);
 		}
 		else
 		{
@@ -953,15 +969,15 @@ function gf_paperClickNodeB (id)
 		gv_objects_nodes[id].select();
 		
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.nodeClickedHook))
+		if (!gf_isStandAlone() && gf_hasSubscribers("gf_nodeClickedHook"))
 		{
-			window[gv_functions.events.nodeClickedHook](id);
+			$.publish("gf_nodeClickedHook", id);
 		}
 		
 		// call the gf_clickedBVnode method
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.nodeClicked))
+		if (!gf_isStandAlone() && gf_hasSubscribers("gf_nodeClicked"))
 		{
-			window[gv_functions.events.nodeClicked](id);
+			$.publish("gf_nodeClicked", id);
 		}
 		else
 		{
@@ -991,15 +1007,15 @@ function gf_paperClickNodeC (id)
 		
 		
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectClickedHook))
+		if (!gf_isStandAlone() && gf_hasSubscribers("gf_subjectClickedHook"))
 		{
-			window[gv_functions.events.subjectClickedHook](id);
+			$.publish("gf_subjectClickedHook", id);
 		}
 		
 		// call the gf_clickedCVnode method
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectClicked))
+		if (!gf_isStandAlone() && gf_hasSubscribers("gf_subjectClicked"))
 		{
-			window[gv_functions.events.subjectClicked](id);
+			$.publish("gf_subjectClicked", id);
 		}
 		else
 		{
@@ -1043,9 +1059,9 @@ function gf_paperDblClickNodeC (id)
 	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
 	{
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedHook))
+		if (!gf_isStandAlone() && gf_hasSubscribers("gf_subjectDblClickedHook"))
 		{
-			window[gv_functions.events.subjectDblClickedHook](id);
+			$.publish("gf_subjectDblClickedHook", id)
 		}
 		
 		// call actions depending on the subject's type
@@ -1062,9 +1078,9 @@ function gf_paperDblClickNodeC (id)
 		if (gt_type == "internal")
 		{
 			// call the gf_clickedCVnode method
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInternal))
+			if (!gf_isStandAlone() && gf_hasSubscribers("gf_subjectDblClickedInternal"))
 			{
-				window[gv_functions.events.subjectDblClickedInternal](id);
+				$.publish("gf_subjectDblClickedInternal", id)
 			}
 			else
 			{
@@ -1080,9 +1096,9 @@ function gf_paperDblClickNodeC (id)
 		else if (gt_type == "instantinterface")
 		{
 			// call the gf_clickedCVnode method
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInstantInterface))
+			if (!gf_isStandAlone() && gf_hasSubscribers("gf_subjectDblClickedInstantInterface"))
 			{
-				window[gv_functions.events.subjectDblClickedInstantInterface](id);
+				$.publish("gf_subjectDblClickedInstantInterface", id)
 			}
 			else
 			{
@@ -1097,9 +1113,9 @@ function gf_paperDblClickNodeC (id)
 		else if (gt_type == "interface")
 		{
 			// call the gf_clickedCVnode method
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInterface))
+			if (!gf_isStandAlone() && gf_hasSubscribers("gf_subjectDblClickedInterface"))
 			{
-				window[gv_functions.events.subjectDblClickedInterface](id);
+				$.publish("gf_subjectDblClickedInterface", id)
 			}
 			else
 			{
@@ -1117,9 +1133,9 @@ function gf_paperDblClickNodeC (id)
 			var gt_process	= gt_subject != null ? gt_subject.getRelatedProcess() : "";
 			
 			// call the gf_clickedCVnode method
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedExternal) && gt_process != "")
+			if (!gf_isStandAlone() && gf_hasSubscribers("subjectDblClickedExternal") && gt_process != "")
 			{
-				window[gv_functions.events.subjectDblClickedExternal](gt_process);
+				$.publish("subjectDblClickedExternal", gt_process)
 			}
 			else
 			{
@@ -1285,12 +1301,13 @@ function gf_timeReset (type)
  */
 function gf_toggleBV ()
 {
-	if (!gf_isStandAlone() && gf_functionExists(gv_functions.general.changeViewBV))
+	if (!gf_isStandAlone() && gf_hasSubscribers("gf_changeViewBV"))
 	{
-		window[gv_functions.general.changeViewBV]();
+		$.publish("gf_changeViewBV")
 	}
 	else
 	{
 		gf_clickedCVbehavior();
 	}	
 }
+

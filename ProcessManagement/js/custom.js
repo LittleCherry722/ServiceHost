@@ -43,6 +43,7 @@ function showtab1() {
 
 function shownothing() {
 	console.log("Deprecated: custom.js");
+
 	$("#tab2").removeClass("active");
 	$("#tab3").removeClass("active");
 	$("#tab1_content").addClass("hide");

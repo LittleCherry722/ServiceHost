@@ -82,33 +82,5 @@
 		return l;
 	};
 
-	d.subscribeOnce = function(/* String */topic, /* Function */callback){
-		// summary:
-		//		Register a callback on a named topic.
-		// topic: String
-		//		The channel to subscribe to
-		// callback: Function
-		//		The handler event. Anytime something is $.publish'ed on a 
-		//		subscribed channel, the callback will be called with the
-		//		published array as ordered arguments.
-		//
-		//	Only subscribes if callback is not already subscribed
-		//
-		// returns: Array
-		//		A handle which can be used to unsubscribe this particular subscription.
-		//	
-		// example:
-		//	|	$.subscribe("/some/topic", function(a, b, c){ /* handle data */ });
-		//
-		if(d.subscribers(topic).indexOf(callback) !== -1) {
-			return [topic, callback]; // Array
-		}
-		if(!cache[topic]){
-			cache[topic] = [];
-		}
-		cache[topic].push(callback);
-		return [topic, callback]; // Array
-	};
-
 })(jQuery);
 

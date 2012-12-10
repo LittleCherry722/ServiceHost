@@ -207,30 +207,28 @@ function clearListOfSubjects(){
 
 function updateListOfChannels(){
 	console.log("Deprecated: daten.js");
-	
+
 	clearListOfChannels();
 	var html = "<option></option>";
-	
+
 	var channelList	= gf_getChannels();
-	
+
 	for(var chid in channelList){
-	
-	if (""+chid == gf_getSelectedChannel()){
 
-		html += "<option selected id=\""+chid+"\">"+channelList[chid]+"</option>";
-		
-	}
-	else{
-		html += "<option id=\""+chid+"\">"+channelList[chid]+"</option>";
+		if (""+chid == gf_getSelectedChannel()){
 
+			html += "<option selected id=\""+chid+"\">"+channelList[chid]+"</option>";
+
+		} else {
+			html += "<option id=\""+chid+"\">"+channelList[chid]+"</option>";
+		}
 	}
-}
 
 
 	$('#slctChan').html(html);
 	$("#slctChan").trigger("liszt:updated");
 	//Workaround, Chosen fails to reset, can't select same internal behavior twice with dropdown. Fix: add click listener to every chosen option (not native select option).
-$(".active-result").click(function(){gf_selectChannel($('#slctChan option:selected').attr('id'))});
+	$(".active-result").click(function(){gf_selectChannel($('#slctChan option:selected').attr('id'))});
 }
 
 function updateListOfMacros(){
@@ -269,23 +267,16 @@ function updateListOfMacros(){
 
 function updateListOfSubjects(){
 	console.log("Deprecated: daten.js");
-	
+
 	//console.log(gv_graph.subjects);
-	
+
 	clearListOfSubjects();
 	var html = "<option></option>";
-	
-	for(var subject in gv_graph.subjects)
-	{
-		if (!gv_graph.subjects[subject].isExternal() || gv_graph.subjects[subject].getExternalType() == "interface")
-		{
-	
-			if (""+subject == gv_graph.selectedNode)
-			{
-				html += "<option selected id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
-			}
-			else
-			{
+
+	for(var subject in gv_graph.subjects) {
+		if (!gv_graph.subjects[subject].isExternal() || gv_graph.subjects[subject].getExternalType() == "interface") {
+			if (""+subject == gv_graph.selectedNode) {
+			} else {
 				html += "<option id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
 			}
 		}

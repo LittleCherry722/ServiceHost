@@ -14,22 +14,29 @@
 		<!-- Begin graph window -->
 		<div class="onecolumn" style="width: 100%">
 			<div class="header">
-				<input id="zoominbutton" type="button" onclick="gf_paperZoomIn();" value="Zoom In" />
-				<input id="zoomoutbutton" type="button" onclick="gf_paperZoomOut();" value="Zoom Out" />
-				<input id="reset-button" type="button" onclick="gf_paperZoomReset();" value="Reset zoom" />
+				<div id="graphZoomButtons">
+					<input id="zoominbutton" type="button" onclick="gf_paperZoomIn();" value="Zoom In" />
+					<input id="zoomoutbutton" type="button" onclick="gf_paperZoomOut();" value="Zoom Out" />
+					<input id="reset-button" type="button" onclick="gf_paperZoomReset();" value="Reset zoom" />
+				</div>
 				<input id="help-button" type="button" href="help.html" value="Help" data-bind="fancybox : {width : '30', height : '41'}"/>
 				<div class="switch" style="width:357px">
 					<table width="357px" cellpadding="0" cellspacing="0" class="menu-table">
 						<tbody>
 							<tr>
 								<td>
-									<input type="button" id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:170px"/>
+									<input type="button"  id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:170px"/>
 								</td>
 
 								<td style="" class="menu-table">
 									<div class="tab-dropdown">
-										<select id="slctSbj" data-placeholder="Select Internal Behavior" onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
-								</div></td>
+										<select id="slctSbj" data-placeholder="Select Internal Behavior"
+											class="middle_switch chzn-select" style="min-width:160px;" tabindex="1"
+											onchange="goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"
+											data-bind="options: availableSubjects, optionsText: 'subjectText', value: selectedSubject" >
+										</select>
+									</div>
+								</td>
 								<td style="" class="menu-table">
 									<div class="tab-dropdown">
 										<select id="slctChan" data-placeholder="Select Channel" onchange="gf_selectChannel($('#slctChan option:selected').attr('id'));"  class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
