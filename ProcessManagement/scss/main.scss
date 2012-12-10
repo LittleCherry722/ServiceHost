@@ -564,6 +564,28 @@ table.data2 tr td {
     border-color: #ccc;
   }
 
+  fieldset {
+    &.hidden {
+      margin-bottom: $baseLineHeight;
+      text-align: center;
+
+      legend {
+        margin-bottom: 0px;
+        text-align: left;
+        border-bottom: none;
+      }
+      &:before {
+        content: "…";
+      }
+      #rightMenuTrigger {
+        cursor: s-resize;
+      }
+      #RightMenuDiv {
+        display: none;
+      }
+    }
+  }
+
   h1, h2, h3, h4, h5, h6 {
     color: inherit;
     text-align: center;
@@ -692,13 +714,10 @@ table.data2 tr td {
 
 
 #rightMenuTrigger {
-	cursor: s-resize;
-	text-decoration: underline;
-}
-
-#internalRadioMenu {
-	text-align: left;
-	padding-left: 40px;
+  float: right;
+  font-size: 11px;
+  cursor: n-resize;
+  text-decoration: underline;
 }
 
 #contentHead {

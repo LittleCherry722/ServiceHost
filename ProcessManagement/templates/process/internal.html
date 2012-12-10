@@ -2,7 +2,7 @@
 
 <div class="graphsettings">
 	<fieldset>
-		<legend>Behavior settings</legend>
+		<legend>Behavior settings<span id="rightMenuTrigger">Hide</span></legend>
 
 		<div id="RightMenuDiv">
 			<label class="graphsectionheader">Add states:</label>
@@ -20,20 +20,22 @@
 
 		<label align="left" class="graphsectionheader">Transition Type</label>
 		<div id="ge_edge_type_normal_outer" style="display:none;">
-			<label class="radio">
-				<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
-				Exit Condition
-			</label>
+			<div id="internalRadioMenu">
+				<label class="radio">
+					<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
+					Exit Condition
+				</label>
 
-			<label class="radio">
-				<input type="radio" id="ge_edge_type_exception" name="ge_edge_type" />
-				Error Condition
-			</label>
+				<label class="radio">
+					<input type="radio" id="ge_edge_type_exception" name="ge_edge_type" />
+					Error Condition
+				</label>
 
-			<label class="radio">
-				<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
-				Timeout
-			</label>
+				<label class="radio">
+					<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
+					Timeout
+				</label>
+			</div>
 		</div>
 
 		<div id="ge_edge_type_boolean_outer" style="display:none;">

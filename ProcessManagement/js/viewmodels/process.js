@@ -127,13 +127,13 @@ define([
 	// etc), or listeners for the graph library.
 	var initializeListeners = function() {
 
-		// TODO no idea what this is about. anyone?
+		// Make internal settings screens toggle-able
 		$("#rightMenuTrigger").click(function() {
 			if ($("#RightMenuDiv").is(":visible")) {
-				$("#RightMenuDiv").hide();
-				$("#rightMenuTrigger").html("Show")
+				$(this).closest("fieldset").addClass('hidden');
+				$("#rightMenuTrigger").html("Show").addClass("show");
 			} else {
-				$("#RightMenuDiv").show();
+				$(this).closest("fieldset").removeClass('hidden');
 				$("#rightMenuTrigger").html("Hide")
 			}
 		});
