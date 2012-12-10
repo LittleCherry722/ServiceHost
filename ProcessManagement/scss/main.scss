@@ -559,6 +559,11 @@ table.data2 tr td {
   border-bottom: 1px solid #ccc;
   @include border-radius(0 0 5px 0);
 
+  legend {
+    font-size: 17px;
+    border-color: #ccc;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     color: inherit;
     text-align: center;
@@ -585,6 +590,15 @@ table.data2 tr td {
   select {
     width: 155px;
   }
+
+  input[type="button"] {
+    @include box-sizing(border-box);
+    width: 155px;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: $baseLineHeight / 2;
+    font-size: 12px;
+  }
 }
 
 .nodesettings {
@@ -593,15 +607,6 @@ table.data2 tr td {
 	border: #363636;
 	border-style: solid;
 	border-width: 1px;
-}
-
-.graphmenubutton {
-	width: auto;
-  display: block;
-  margin: 0 auto;
-  margin-bottom: 5px;
-	font-size: 12px;
-	// height: 20px;
 }
 
 #graphmenuheader {
