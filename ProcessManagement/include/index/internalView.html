@@ -1,4 +1,4 @@
-<div id="graph_bv_outer" style="overflow:auto; height:700px; width: 800px; float: left;"></div>
+<div id="graph_bv_outer" style="overflow:auto;"></div>
 
 <div class="graphmenu">
 	<div class="graphsettings">
@@ -30,25 +30,25 @@
 				<input type="radio" id="ge_edge_type_condition" name="ge_edge_type" />
 				<label align="left"  class="graphsectionheader">Exit Condition</label>
 				<br/>
-				
+
 				<input type="radio" id="ge_edge_type_exception" name="ge_edge_type" />
 				<label align="left"  class="graphsectionheader">Error Condition</label>
 				<br/>
-				
+
 				<input type="radio" id="ge_edge_type_timeout" name="ge_edge_type" />
 				<label align="left" class="graphsectionheader">Timeout</label>
 			</div>
 		</div>
-		
+
 		<div id="ge_edge_type_boolean_outer" style="display:none;">
 			<input type="radio" id="ge_edge_type_boolean_true" name="ge_edge_type" />
 			<label align="left"  class="graphsectionheader">Yes</label>
 			<br/>
-			
+
 			<input type="radio" id="ge_edge_type_boolean_false" name="ge_edge_type" />
 			<label align="left"  class="graphsectionheader">No</label>
 		</div>
-		
+
 		<br/>
 		<div style="display:none;" id="ge_edge_typeEOuter">
 			<label class="graphsectionheader">Exception:</label>
@@ -56,9 +56,9 @@
 			<textarea id="ge_edge_exception_text" style="width: 140px;"></textarea>
 		</div>
 		<div style="display:none;" id="ge_edge_typeCOuter">
-      <label class="graphsectionheader">Message Type:</label>
-      <select id="ge_edge_message" style="width: 140px;"></select>
-      <br/>
+			<label class="graphsectionheader">Message Type:</label>
+			<select id="ge_edge_message" style="width: 140px;"></select>
+			<br/>
 			<label class="graphsectionheader">Text:</label>
 			<br/>
 			<textarea id="ge_edge_text" style="width: 140px;"></textarea>												
@@ -79,7 +79,7 @@
 				<br/>
 				<label class="graphsectionheader">Transport Method:</label>
 				<select id="ge_edge_transportMethod" style="width: 140px;" multiple="multiple" rows="4"></select>
-				
+
 				<div id="ge_edge_target_multi_outer" style="display:none;">
 					<input type="radio" id="ge_edge_target_multi_type_all" name="ge_edge_target_multi_type">
 					<label  class="graphsectionheader">All known subjects</label>
@@ -105,14 +105,14 @@
 						</div>
 					</div>
 				</div>
-				
+
 				<div id="ge_edge_priority_outer" style="display:none; margin-top:20px;">
 					<label class="graphsectionheader">Priority:</label>
 					<br />
 					<input type="text" id="ge_edge_priority" value="" style="width: 140px;" />
 				</div>
 			</div>
-					
+
 			<div id="ge_edge_store_outer" style="display:none; margin-top:10px;">
 				<label  class="graphsectionheader">Store Messages in Var:</label>
 				<select id="ge_edge_store_variable" style="width:140px"></select>
@@ -122,13 +122,13 @@
 				</div>
 			</div>
 		</div>
-		<!-- <div id="timeoutdiv"> -->
+
 		<div style="display:none;" id="ge_edge_typeTOuter">
 			<label class="graphsectionheader">Timeout:</label>
 			<br/>
 			<input type="text" id="ge_edge_timeout" value="" style="width: 140px;" />
 			<div id="ge_edge_timeoutExample"></div>
-			
+
 			<input type="checkbox" id="ge_edge_timeoutManual" />
 			<label class="graphsectionheader">Manual</label>
 		</div>
@@ -142,19 +142,19 @@
 			<br />
 			<select id="ge_edge_correlationid" style="width: 140px;"></select>
 		</div>
-		
+
 		<br/>
 		<label class="graphsectionheader">Comment:</label>
 		<br/>
 		<textarea id="ge_edge_comment" style="width: 140px;"></textarea>												
 		<br/>
 		<br/>
-		
+
 		<input type="button" id="UpdateEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<br/>
 		<input type="button" id="DeleteEdgeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
 		<br/>
-<!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate transition" />
+		<!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate transition" />
 		<br/> -->
 	</div>
 
@@ -177,12 +177,12 @@
 		<input type="hidden" id="ge_id" value="" style="width:140px"/>
 		<label class="graphsectionheader">Text:</label>
 		<textarea id="ge_text" style="width:140px"></textarea>
-		
+
 		<div id="ge_node_variable_outer" style="display:none; margin-top:10px;">
 			<label class="graphsectionheader">Variable:</label>
 			<select id="ge_node_variable" style="width:140px"></select>
 		</div>
-		
+
 		<div id="ge_node_macro_outer" style="display:none; margin-top:10px;">
 			<label class="graphsectionheader">Macro:</label>
 			<select id="ge_node_macro" style="width:140px"></select>
@@ -191,7 +191,7 @@
 				<input type="text" id="ge_node_macro_new" style="width:140px" />
 			</div>
 		</div>
-		
+
 		<div id="ge_node_channel_outer" style="display:none; margin-top:10px;">
 			<label class="graphsectionheader">Channel:</label>
 			<select id="ge_node_channel" style="width:140px"></select>
@@ -201,10 +201,10 @@
 			</div>
 		</div>
 		<br/>
-		
+
 		<div id="ge_node_options_outer" style="display:none;">
 			<div class="graphsectionheader" style="width:100%; text-align:left; font-style:italic; padding-left:5px;">Options:</div>
-			
+
 			<div id="ge_node_opt_messageOuter" style="display:none;">
 				<label class="graphsectionheader">Message Type:</label>
 				<select id="ge_node_opt_message" style="width:140px"></select>
@@ -226,7 +226,7 @@
 				<select id="ge_node_opt_state" style="width:140px"></select>
 			</div>
 		</div>
-		
+
 		<div id="ge_node_varman_outer" style="display:none;">
 			<label class="graphsectionheader">Variable Manipulation:</label>
 			<select id="ge_node_varman_var1" style="width:140px;"></select>
@@ -234,30 +234,30 @@
 			<select id="ge_node_varman_operation" style="width:100px;"></select>
 			<br />
 			<select id="ge_node_varman_var2" style="width:140px;"></select>
-			
+
 			<label class="graphsectionheader">=:</label>
-			
+
 			<select id="ge_node_varman_store" style="width:140px;"></select>
 			<div id="ge_node_varman_store_new_outer" style="display:none;">
 				<label class="graphsectionheader">New Var:</label>
 				<br />
 				<input type="text" id="ge_node_varman_store_new" style="width:140px;" />
 			</div>
-			
+
 		</div>
-		
+
 		<br/>
 		<label class="graphsectionheader">Comment:</label>
 		<br/>
 		<textarea id="ge_node_comment" style="width: 140px;"></textarea>												
 		<br/>
 		<br/>
-		
+
 		<input type="button" id="UpdateNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
 		<br/>
 		<input type="button" id="ConnectNodeButton" class="graphmenubutton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />
 		<br/>
-<!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate state" />
+		<!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate state" />
 		<br/> -->
 		<input type="button" id="DeleteNodeButton" class="graphmenubutton" onclick="gv_graph.deleteNode();" value="Delete state" />
 		<br/>

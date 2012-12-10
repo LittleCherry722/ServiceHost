@@ -1,4 +1,4 @@
-<div id="graph_bv_outer" style="overflow:auto; height:700px; width: 800px; float: left;"></div>
+<div id="graph_bv_outer" class="fluid" style="overflow:auto;"></div>
 
 <div class="graphsettings">
 	<fieldset>
@@ -91,151 +91,145 @@
 							<input type="text" id="ge_edge_target_multi_variable_text" style="width:140px" />
 						</div>
 					</div>
-
-					<div id="ge_edge_priority_outer" style="display:none; margin-top:20px;">
-						<label class="graphsectionheader">Priority:</label>
-						<input type="text" id="ge_edge_priority" value="" style="width: 140px;" />
-					</div>
 				</div>
 
-				<div id="ge_edge_store_outer" style="display:none; margin-top:10px;">
-					<label  class="graphsectionheader">Store Messages in Var:</label>
-					<select id="ge_edge_store_variable" style="width:140px"></select>
-					<div id="ge_edge_store_variable_new_outer" style="display:none;">
-						<label  class="graphsectionheader">Create new var:</label>
-						<input type="text" id="ge_edge_store_variable_new" style="width:140px" />
-					</div>
+				<div id="ge_edge_priority_outer" style="display:none; margin-top:20px;">
+					<label class="graphsectionheader">Priority:</label>
+					<input type="text" id="ge_edge_priority" value="" style="width: 140px;" />
 				</div>
 			</div>
-			<!-- <div id="timeoutdiv"> -->
-				<div style="display:none;" id="ge_edge_typeTOuter">
-					<label class="graphsectionheader">Timeout:</label>
-					<input type="text" id="ge_edge_timeout" value="" style="width: 140px;" />
-					<div id="ge_edge_timeoutExample"></div>
 
-					<input type="checkbox" id="ge_edge_timeoutManual" />
-					<label class="graphsectionheader">Manual</label>
+			<div id="ge_edge_store_outer" style="display:none; margin-top:10px;">
+				<label  class="graphsectionheader">Store Messages in Var:</label>
+				<select id="ge_edge_store_variable" style="width:140px"></select>
+				<div id="ge_edge_store_variable_new_outer" style="display:none;">
+					<label  class="graphsectionheader">Create new var:</label>
+					<input type="text" id="ge_edge_store_variable_new" style="width:140px" />
 				</div>
-				<div style="display:none;" id="ge_edge_optionalO">
-					<input type="checkbox" id="ge_edge_optional">
-					<label align="left" class="graphsectionheader">Optional</label>
-				</div>
+			</div>
+		</div>
+		<div style="display:none;" id="ge_edge_typeTOuter">
+			<label class="graphsectionheader">Timeout:</label>
+			<input type="text" id="ge_edge_timeout" value="" style="width: 140px;" />
+			<div id="ge_edge_timeoutExample"></div>
 
-				<div style="display:none; margin-bottom:20px;" id="ge_edge_correlationid_outer">
-					<label align="left" class="graphsectionheader">Correlation ID:</label>
-					<br />
-					<select id="ge_edge_correlationid" style="width: 140px;"></select>
-				</div>
-
-				<label class="graphsectionheader">Comment:</label>
-				<textarea id="ge_edge_comment" style="width: 140px;"></textarea>
-
-				<br/>
-
-				<input type="button" id="UpdateEdgeButton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
-				<input type="button" id="DeleteEdgeButton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
-				<br/>
-				<!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateEdge();" value="De-/Activate transition" />
-				<br/> -->
-			</fieldset>
-
-			<fieldset>
-				<legend>State settings</legend>
-
-				<div id="ge_node_start_node_outer" style="display:none;">
-					<input type="checkbox" id="ge_type_start" name="ge_type_start" />
-					<label class="graphsectionheader">Startstate</label>
-					<div id="ge_node_major_start_node_outer" style="display:none;">
-						<input type="checkbox" id="ge_node_major_start_node" />
-						<label class="graphsectionheader">Major Startstate</label>
-					</div>
-				</div>
-
-				<label class="graphsectionheader">Type:</label>
-				<select id="ge_type2"  style="width:140px"></select>
-				<input type="hidden" id="ge_id" value="" style="width:140px"/>
-
-				<label class="graphsectionheader">Text:</label>
-				<textarea id="ge_text" style="width:140px"></textarea>
-
-				<div id="ge_node_variable_outer" style="display:none; margin-top:10px;">
-					<label class="graphsectionheader">Variable:</label>
-					<select id="ge_node_variable" style="width:140px"></select>
-				</div>
-
-				<div id="ge_node_macro_outer" style="display:none; margin-top:10px;">
-					<label class="graphsectionheader">Macro:</label>
-					<select id="ge_node_macro" style="width:140px"></select>
-					<div id="ge_node_macro_new_outer" style="display:none;">
-						<label class="graphsectionheader">New Macro:</label>
-						<input type="text" id="ge_node_macro_new" style="width:140px" />
-					</div>
-				</div>
-
-				<div id="ge_node_channel_outer" style="display:none; margin-top:10px;">
-					<label class="graphsectionheader">Channel:</label>
-					<select id="ge_node_channel" style="width:140px"></select>
-					<div id="ge_node_channel_new_outer" style="display:none;">
-						<label class="graphsectionheader">New Channel:</label>
-						<input type="text" id="ge_node_channel_new" style="width:140px" />
-					</div>
-				</div>
-
-				<div id="ge_node_options_outer" style="display:none;">
-					<div class="graphsectionheader" style="width:100%; text-align:left; font-style:italic; padding-left:5px;">Options:</div>
-
-					<div id="ge_node_opt_messageOuter" style="display:none;">
-						<label class="graphsectionheader">Message Type:</label>
-						<select id="ge_node_opt_message" style="width:140px"></select>
-					</div>
-					<div id="ge_node_opt_subjectOuter" style="display:none;">
-						<label class="graphsectionheader">Subject:</label>
-						<select id="ge_node_opt_subject" style="width:140px"></select>
-					</div>
-					<div id="ge_node_opt_correlation_id_outer" style="display:none;">
-						<label class="graphsectionheader">Correlation ID:</label>
-						<select id="ge_node_opt_correlation_id" style="width:140px"></select>
-					</div>
-					<div id="ge_node_opt_channel_outer" style="display:none;">
-						<label class="graphsectionheader">Channel:</label>
-						<select id="ge_node_opt_channel" style="width:140px"></select>
-					</div>
-					<div id="ge_node_opt_state_outer" style="display:none;">
-						<label class="graphsectionheader">State:</label>
-						<select id="ge_node_opt_state" style="width:140px"></select>
-					</div>
-				</div>
-
-				<div id="ge_node_varman_outer" style="display:none;">
-					<label class="graphsectionheader">Variable Manipulation:</label>
-					<select id="ge_node_varman_var1" style="width:140px;"></select>
-					<select id="ge_node_varman_operation" style="width:100px;"></select>
-					<select id="ge_node_varman_var2" style="width:140px;"></select>
-
-					<label class="graphsectionheader">=:</label>
-					<select id="ge_node_varman_store" style="width:140px;"></select>
-					<div id="ge_node_varman_store_new_outer" style="display:none;">
-						<label class="graphsectionheader">New Var:</label>
-						<input type="text" id="ge_node_varman_store_new" style="width:140px;" />
-					</div>
-
-				</div>
-
-				<label class="graphsectionheader">Comment:</label>
-				<textarea id="ge_node_comment" style="width: 140px;"></textarea>												
-
-				<br/>
-
-				<input type="button" id="UpdateNodeButton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
-				<br/>
-				<input type="button" id="ConnectNodeButton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />
-				<br/>
-				<!--		<input type="button" class="graphmenubutton" onclick="gf_deactivateNode();" value="De-/Activate state" />
-				<br/> -->
-				<input type="button" id="DeleteNodeButton" onclick="gv_graph.deleteNode();" value="Delete state" />
-				<br/>
-			</fieldset>
+			<input type="checkbox" id="ge_edge_timeoutManual" />
+			<label class="graphsectionheader">Manual</label>
+		</div>
+		<div style="display:none;" id="ge_edge_optionalO">
+			<input type="checkbox" id="ge_edge_optional">
+			<label align="left" class="graphsectionheader">Optional</label>
 		</div>
 
-	</div>
+		<div style="display:none; margin-bottom:20px;" id="ge_edge_correlationid_outer">
+			<label align="left" class="graphsectionheader">Correlation ID:</label>
+			<br />
+			<select id="ge_edge_correlationid" style="width: 140px;"></select>
+		</div>
+
+		<label class="graphsectionheader">Comment:</label>
+		<textarea id="ge_edge_comment" style="width: 140px;"></textarea>
+
+		<br/>
+
+		<input type="button" id="UpdateEdgeButton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
+		<input type="button" id="DeleteEdgeButton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
+		<br/>
+	</fieldset>
+
+	<fieldset>
+		<legend>State settings</legend>
+
+		<div id="ge_node_start_node_outer" style="display:none;">
+			<input type="checkbox" id="ge_type_start" name="ge_type_start" />
+			<label class="graphsectionheader">Startstate</label>
+			<div id="ge_node_major_start_node_outer" style="display:none;">
+				<input type="checkbox" id="ge_node_major_start_node" />
+				<label class="graphsectionheader">Major Startstate</label>
+			</div>
+		</div>
+
+		<label class="graphsectionheader">Type:</label>
+		<select id="ge_type2"  style="width:140px"></select>
+		<input type="hidden" id="ge_id" value="" style="width:140px"/>
+
+		<label class="graphsectionheader">Text:</label>
+		<textarea id="ge_text" style="width:140px"></textarea>
+
+		<div id="ge_node_variable_outer" style="display:none; margin-top:10px;">
+			<label class="graphsectionheader">Variable:</label>
+			<select id="ge_node_variable" style="width:140px"></select>
+		</div>
+
+		<div id="ge_node_macro_outer" style="display:none; margin-top:10px;">
+			<label class="graphsectionheader">Macro:</label>
+			<select id="ge_node_macro" style="width:140px"></select>
+			<div id="ge_node_macro_new_outer" style="display:none;">
+				<label class="graphsectionheader">New Macro:</label>
+				<input type="text" id="ge_node_macro_new" style="width:140px" />
+			</div>
+		</div>
+
+		<div id="ge_node_channel_outer" style="display:none; margin-top:10px;">
+			<label class="graphsectionheader">Channel:</label>
+			<select id="ge_node_channel" style="width:140px"></select>
+			<div id="ge_node_channel_new_outer" style="display:none;">
+				<label class="graphsectionheader">New Channel:</label>
+				<input type="text" id="ge_node_channel_new" style="width:140px" />
+			</div>
+		</div>
+
+		<div id="ge_node_options_outer" style="display:none;">
+			<div class="graphsectionheader" style="width:100%; text-align:left; font-style:italic; padding-left:5px;">Options:</div>
+
+			<div id="ge_node_opt_messageOuter" style="display:none;">
+				<label class="graphsectionheader">Message Type:</label>
+				<select id="ge_node_opt_message" style="width:140px"></select>
+			</div>
+			<div id="ge_node_opt_subjectOuter" style="display:none;">
+				<label class="graphsectionheader">Subject:</label>
+				<select id="ge_node_opt_subject" style="width:140px"></select>
+			</div>
+			<div id="ge_node_opt_correlation_id_outer" style="display:none;">
+				<label class="graphsectionheader">Correlation ID:</label>
+				<select id="ge_node_opt_correlation_id" style="width:140px"></select>
+			</div>
+			<div id="ge_node_opt_channel_outer" style="display:none;">
+				<label class="graphsectionheader">Channel:</label>
+				<select id="ge_node_opt_channel" style="width:140px"></select>
+			</div>
+			<div id="ge_node_opt_state_outer" style="display:none;">
+				<label class="graphsectionheader">State:</label>
+				<select id="ge_node_opt_state" style="width:140px"></select>
+			</div>
+		</div>
+
+		<div id="ge_node_varman_outer" style="display:none;">
+			<label class="graphsectionheader">Variable Manipulation:</label>
+			<select id="ge_node_varman_var1" style="width:140px;"></select>
+			<select id="ge_node_varman_operation" style="width:100px;"></select>
+			<select id="ge_node_varman_var2" style="width:140px;"></select>
+
+			<label class="graphsectionheader">=:</label>
+			<select id="ge_node_varman_store" style="width:140px;"></select>
+			<div id="ge_node_varman_store_new_outer" style="display:none;">
+				<label class="graphsectionheader">New Var:</label>
+				<input type="text" id="ge_node_varman_store_new" style="width:140px;" />
+			</div>
+
+		</div>
+
+		<label class="graphsectionheader">Comment:</label>
+		<textarea id="ge_node_comment" style="width: 140px;"></textarea>												
+
+		<br/>
+
+		<input type="button" id="UpdateNodeButton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
+		<br/>
+		<input type="button" id="ConnectNodeButton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />
+		<br/>
+		<input type="button" id="DeleteNodeButton" onclick="gv_graph.deleteNode();" value="Delete state" />
+		<br/>
+	</fieldset>
+</div>
 
