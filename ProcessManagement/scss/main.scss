@@ -550,6 +550,15 @@ table.data2 tr td {
   border-bottom: 1px solid #ccc;
   @include border-radius(0 0 5px 0);
 
+  .chzn-container-multi {
+    height: auto;
+    width: 100%;
+  }
+
+  .chzn-container .chzn-results li {
+    text-shadow: none;
+  }
+
   legend {
     font-size: 17px;
     border-color: #ccc;
