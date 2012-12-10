@@ -12,7 +12,7 @@
 	<div id="graph">
 		<!-- <h2 id="process_name" style="color:#525252" data-bind="text: activeView "></h2>-->
 		<!-- Begin graph window -->
-		<div class="onecolumn" style="width: 100%">
+		<div class="onecolumn">
 			<div class="header">
 				<ul class="nav pull-right" id="graphZoomButtons">
 					<li class="zoombutton">
@@ -30,24 +30,30 @@
 				</ul>
 				<ul class="nav" id="switch">
 					<li>
-						<input type="button"	id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" style="width:170px"/>
+						<input type="button"	id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" />
 					</li>
 
-					<li class="tab-dropdown">
-						<select id="slctSbj" data-placeholder="Select Internal Behavior"
-							class="middle_switch chzn-select" style="min-width:160px;" tabindex="1"
-							onchange="console.log('changed');//goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"
-							data-bind="options: availableSubjects, optionsText: 'subjectText',
-							optionsValue: 'subjectID', value: currentSubject, caption: ''">
-						</select>
+					<li>
+						<div class="tab-dropdown">
+							<select id="slctSbj" data-placeholder="Select Internal Behavior"
+								class="middle_switch chzn-select" style="min-width:160px;" tabindex="1"
+								onchange="console.log('changed');//goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"
+								data-bind="options: availableSubjects, optionsText: 'subjectText',
+								optionsValue: 'subjectID', value: currentSubject, caption: ''">
+							</select>
+						</div>
 					</li>
 
-					<li class="tab-dropdown">
-						<select id="slctChan" data-placeholder="Select Channel" onchange="gf_selectChannel($('#slctChan option:selected').attr('id'));"	class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
+					<li>
+						<div class="tab-dropdown">
+							<select id="slctChan" data-placeholder="Select Channel" onchange="gf_selectChannel($('#slctChan option:selected').attr('id'));"	class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
+						</div>
 					</li>
 
-					<li class="tab-dropdown">
-						<select id="slctMacro" data-placeholder="Select Macro" onchange="gf_selectMacro($('#slctMacro option:selected').attr('id'));"	class="middle_switch chzn-select" style="min-width:160px; display:none;" tabindex="1" ></select>
+					<li>
+						<div class="tab-dropdown" style="display: none;">
+							<select id="slctMacro" data-placeholder="Select Macro" onchange="gf_selectMacro($('#slctMacro option:selected').attr('id'));"	class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
+						</div>
 					</li>
 					<li>
 						<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
