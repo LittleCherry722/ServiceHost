@@ -5,6 +5,26 @@ define([
 	"require"
 	// "jquery"
 ], function( _, ko, Router, requier ) {
+	var jsonAssign = function(attribute, value) {
+		var castValue;
+
+		if ( value === "false" ) {
+			castValue = false;
+		} else if ( value === "true" ) {
+			castValue = true;
+		} else if ( value === "null" ) {
+			castValue = null;
+		} else if ( value === "undefined" ) {
+			castValue = undefined;
+		} else if ( parseInt( value, 10 ) == value ) {
+			castValue = parseInt( value, 10 );
+		} else {
+			castValue = value;
+		}
+
+		attribute(castValue);
+		return castValue;
+	}
 
 	// Our Model cunstructor function. Returns another constructor function.
 	var Model = function( modelName, attrs ) {
@@ -148,7 +168,7 @@ define([
 			if ( data && typeof data === "object" ) {
 				_( attrs ).each(function( attribute ) {
 					if ( data[ attribute ] !== undefined ) {
-						this[ attribute ]( data[ attribute ] );
+						jsonAssign(this[ attribute ], data[ attribute ]);
 					}
 				}.bind( this ));
 			}
@@ -205,7 +225,7 @@ define([
 					// Override all local attributes with attributes supplied by the Server
 					_( attrs ).each(function( attribute ) {
 						if ( _( JSONObject ).has( attribute ) ) {
-							model[attribute]( JSONObject[attribute] );
+							jsonAssign(model[ attribute ], JSONObject[ attribute ]);
 						}
 					});
 

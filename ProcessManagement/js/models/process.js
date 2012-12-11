@@ -29,6 +29,14 @@ define([
 	// Process.hasMany([ "graph" ]);
 
 	Process.include({
+		menuName: function() {
+			if ( this.isCase() ) {
+				return "[C] " + this.name();
+			} else {
+				return "[P] " + this.name();
+			}
+		},
+
 		// Initialize is a special method defined as an instance method.  If any
 		// method named "initializer" is given, it will be called upon object
 		// creation (when calling new model()) with the context of the model.

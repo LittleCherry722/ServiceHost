@@ -93,7 +93,6 @@ define([
 	// knockout observables or knockout not supporting ES5 style getter / setter
 	// methods.
 	var updateListOfSubjects = function() {
-		console.log("updating list of subjects")
 		var subject,
 			subjects = [{}];
 
@@ -158,18 +157,23 @@ define([
 			// var graph = JSON.parse(graphAsJson);
 			// self.chargeVM.load(graph);
 
+			selectTab( 2 )
+
 		} else {
 			// If the process is a case, create a new case with our current user as
 			// subject provider. Otherwise just create an empty graph.
+			console.log( "isCase? " + process.isCase() );
+			console.log( "typeof isCase " + typeof process.isCase() );
 			if ( process.isCase() ) {
 				gf_createCase( App.currentUser().name() );
+				selectTab( 1 );
 			} else {
 				gv_graph.loadFromJSON("{}");
+				selectTab( 2 );
 			}
 		}
 
-		// Make Tab 2 (Subject interaction view) the active Tab.
-		selectTab( 2 );
+		// viewChanged()
 
 		// Notify the user that the process has successfully been loaded
 		Notify.info( "Information", "Process \""+ process.name() +"\" successfully loaded." );
@@ -253,7 +257,6 @@ define([
 	// versa. The view argument can be either "cv" for the subject interaction
 	// view or "bv" for the behavior aka internal view.
 	var viewChanged = function( view ) {
-		console.log("view changed");
 
 		// start with every view beeing invisible since we should not have anything selected
 		setVisibleExclusive();
@@ -287,6 +290,7 @@ define([
 	}
 
 	var goToExternalProcess = function( sub ) {
+		console.log("external process");
 		Router.goTo( Process.findByName( sub ) )
 	}
 
