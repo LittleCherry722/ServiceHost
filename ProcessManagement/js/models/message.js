@@ -18,7 +18,7 @@ define([
 		if ( !message ) message = "";
 		if ( !receiver ) receiver = "";
 
-		this.sender = ko.observable( sender);
+		this.sender = ko.observable( sender );
 		this.message = ko.observable( message );
 		this.receiver = ko.observable( receiver );
 
@@ -32,12 +32,12 @@ define([
 			}
 
 			// Mark as invalid if sender is invalid
-			if ( !this.sender().isValid() ) {
+			if ( !this.sender() || !this.sender().isValid() ) {
 				return false;
 			}
 
 			// Mark as invalid if receiver is invalid
-			if ( !this.receiver().isValid() ) {
+			if ( !this.receiver() || !this.receiver().isValid() ) {
 				return false
 			}
 

@@ -29,12 +29,16 @@ define([
 		}
 	};
 
+	
+
 	Subject.all = ko.observableArray();
 
 	Subject.allClean = function() {
-		return _( Subject.all() ).filter(function( subject ) {
+		return _.chain( Subject.all() ).filter(function( subject ) {
 			return subject.isValid();
-		});
+		}).map(function(subject) {
+			return subject.name();
+		}).value();
 	}
 
 	/**

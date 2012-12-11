@@ -11,6 +11,8 @@ define([
 	var ViewModel = function() {
 		var self = this;
 
+		currentProcess( new Process() );
+
 		// The current process Name
 		this.processName = ko.observable("");
 
@@ -21,6 +23,9 @@ define([
 
 		// Is it a Process or a Case?
 		this.isCase = ko.observable( currentProcess().isCase() );
+		this.isCase.subscribe( function( newValue ) {
+			currentProcess().isCase( newValue );
+		});
 
 		// Returns the Process Type if called without arguments.
 		// Possibilities: "case" wenn isCase() == true, "process" otherwise.
@@ -77,8 +82,8 @@ define([
 		//Contains all Messages.
 		this.messageList = Message.all;
 		this.messageList([
-			new Message("", "File", ""),
-			new Message("", "Answer", "")
+			new Message(Subject.all()[0], "File", Subject.all()[1]),
+			new Message(Subject.all()[1], "Answer", Subject.all()[0])
 		]);
 
 		this.addSubject = Subject.add;
@@ -96,7 +101,7 @@ define([
 	 *
 	 * Example: processName = currentProcess().name()
 	 */
-	var currentProcess = ko.observable( new Process() );
+	var currentProcess = ko.observable();
 
 	// Creates the Process
 	var createProcess = function() {
@@ -111,8 +116,11 @@ define([
 			subjects = Subject.allClean();
 			messages = Message.allClean();
 			callback = function() {
+				console.log(subjects);
+				console.log(messages);
 				gf_createFromTable( subjects, messages );
-				// updateListOfSubjects();
+				console.log(this);
+				this.updateListOfSubjects();
 			}
 		}
 
@@ -131,7 +139,8 @@ define([
 		currentProcess().name = viewModel.processName;
 
 		App.loadTemplate( "newProcess", viewModel, null, function() {
-			App.loadTemplate( "newProcess/quickView", viewModel, "quick_table" )
+			App.loadTemplate( "newProcess/quickView", viewModel, "quick_table" );
+
 		});
 	}
 	

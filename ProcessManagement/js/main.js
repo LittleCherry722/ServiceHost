@@ -15,6 +15,7 @@ require.config({
 		"keymaster":         "libs/keymaster/keymaster",
 		"knockout":          "libs/knockout/knockout",
 		"knockout.mapping":  "libs/knockout/plugins/knockout.mapping",
+		"knockout.custom":  "libs/knockout/plugins/knockout.custom-bindings",
 		"underscore":        "libs/underscore/underscore",
 		"model":             "libs/arne/model",
 		"notify":            "libs/sbpm/notify",
@@ -33,7 +34,7 @@ require.config({
 
 });
 
-require([ "app", "router" ], function( App, Router ){
+require([ "app", "router", "knockout.custom" ], function( App, Router ){
 	
 	$(function() {
 		// Initialize our application.

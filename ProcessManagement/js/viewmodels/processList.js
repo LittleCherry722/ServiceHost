@@ -1,45 +1,57 @@
-var ViewModel = function() {
+define([
+	"knockout",
+	"app",
+	"notify",
+	"dialog",
+	"models/process",
+	"underscore"
+	// "tk_graph"
+], function( ko, App, Notify, Dialog, Process, _ ) {
+	var ViewModel = function() {
 
-    var self = this;
+		var self = this;
 
-    self.processes = ko.observableArray();
+		self.processes = Process.all;
 
-    self.init = function(callback) {
-        self.processes(SBPM.Service.Process.getAllProcesses());
-        
-        if(callback)
-            callback();
-    }
+		self.back = function() {
+			history.back()
+		}
 
-    self.load = function(process) {
-        parent.SBPM.VM.goToPage("process").showProcess(process);        
 
-        // update list of recent processes
-        parent.$.publish("/process/change");
+		self.remove = function( process ) {
+			Dialog.yesNo( 'Warning', "Do you really want to delete this Process?", function(){
+				destroyProcess( process )
+				parent.$.fancybox.close();
+			});
+		}
 
-        self.close();
+		// self.isLocked = function(processName){
+		//   return (parent.SBPM.VM.contentVM() instanceof parent.ProcessViewModel && parent.SBPM.VM.contentVM().processName() === processName);
+		// }
+	}
 
-    }
+	var destroyProcess = function( process ) {
+		process.destroy(function( error ) {
+			if ( error ) {
+				Notify.error( "Error", "Deleting the process failed." );
+			} else {
+				Notify.info( "Success", "Process " + this.name() + " has successfully been deleted" );
+			}
+		});
+	}
 
-    self.remove = function(process) {
-        if (SBPM.Service.Process.deleteProcess(process)) {
 
-            self.init();
-            
-            // update list of recent processes
-            parent.$.publish("/process/change");
+	var initialize = function() {
+		var viewModel = new ViewModel();
 
-        } else
-            parent.SBPM.Notification.Error("Error", "Deleting the process failed.");
+		App.loadTemplate( "processList", viewModel, null, function() {
+			// TODO do we need to do anything?
+		});
+	}
+	
+	// Everything in this object will be the public API
+	return {
+		init: initialize
+	}
+});
 
-    }
-
-    self.isLocked = function(processName){
-        return (parent.SBPM.VM.contentVM() instanceof parent.ProcessViewModel && parent.SBPM.VM.contentVM().processName() === processName);   
-    }
-
-    self.close = function() {
-        parent.$.fancybox.close();
-    }
-
-}

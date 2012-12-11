@@ -99,6 +99,13 @@ define([
 		// Iterate over every subject available in the graph and buld a nice
 		// JS object from it. Than push this subject to the list of subjects.
 		_( gv_graph.subjects ).each(function( value, key ) {
+
+			// we dont want external subjects in the list of (local) subjects
+			if ( value.isExternal() ) {
+				return;
+			}
+
+			// create the subejct object
 			subject = {
 				subjectID: key,
 				subjectText: value.getText(),
@@ -162,8 +169,6 @@ define([
 		} else {
 			// If the process is a case, create a new case with our current user as
 			// subject provider. Otherwise just create an empty graph.
-			console.log( "isCase? " + process.isCase() );
-			console.log( "typeof isCase " + typeof process.isCase() );
 			if ( process.isCase() ) {
 				gf_createCase( App.currentUser().name() );
 				selectTab( 1 );
@@ -171,6 +176,11 @@ define([
 				gv_graph.loadFromJSON("{}");
 				selectTab( 2 );
 			}
+			var graph = new Graph();
+			process.graph( graph );
+
+			graph.save();
+			process.save();
 		}
 
 		// viewChanged()
@@ -290,7 +300,6 @@ define([
 	}
 
 	var goToExternalProcess = function( sub ) {
-		console.log("external process");
 		Router.goTo( Process.findByName( sub ) )
 	}
 
@@ -373,9 +382,24 @@ define([
 				// When this is called, everyting should be loaded and ready to go.
 				if ( typeof callback === "function" ) {
 					callback.call( this );
+					updateListOfSubjects();
+					updateListOfChannels();
 				}
 			});
 		});
+	}
+
+	// Unsubscreibe from all subscriptions thet we subscribed to on
+	// initialization.
+	var unsubscribeAll = function() {
+		$.unsubscribe( "tk_communication/updateListOfSubjects", updateListOfSubjects );
+		$.unsubscribe( "tk_communication/changeViewHook", viewChanged );
+		$.unsubscribe( "gf_changeViewBV", loadBehaviorView );
+		$.unsubscribe( "gf_subjectDblClickedHook", currentSubject);
+		$.unsubscribe( "gf_edgeClickedHook", showEdgeFields );
+		$.unsubscribe( "gf_nodeClickedHook", showNodeFields );
+		$.unsubscribe( "gf_subjectClickedHook", showOrHideRoleWarning );
+		$.unsubscribe( "subjectDblClickedExternal", goToExternalProcess);
 	}
 
 	// This function gets called when another view is loaded.
@@ -387,7 +411,7 @@ define([
 	//
 	// Must return true, otherwise the view will not be unloaded.
 	var unload = function() {
-		$.subscribeOnce("gf_changeViewBV", loadBehaviorView);
+		unsubscribeAll();
 
 		// return true so the view actually gets unloaded.
 		return true;

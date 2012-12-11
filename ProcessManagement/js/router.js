@@ -33,12 +33,17 @@ define([ "director", "app" ], function( Director, App ) {
 		loadView( "newProcess", null, globalCallback() );
 	}
 
+	var showProcessList = function() {
+		loadView( "processList", null, globalCallback() );
+	}
+
 	/*
 	 *	Every possible route gets defined here
 	 */
 	var routes = {
 		"/":  showHome,
 		"/home":  showHome,
+		"/processList":  showProcessList,
 		"/processes": {
 			"/new": showNewProcess,
 			"/:process": showProcess

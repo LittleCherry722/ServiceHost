@@ -16,7 +16,7 @@ var processName = false; //aktueller Prozessname
 
 function testphp(){
 
-console.log("Deprecated: daten.js");	
+console.log("Deprecated: daten.js");
 	
 	 return error_log("false"=="false");
 }
@@ -302,7 +302,7 @@ function goToInternalBehaviorOf(subject){
 	console.log("Deprecated: daten.js");
 	//alert(subject);
 
-	gv_graph.selectedSubject = null; 
+	gv_graph.selectedSubject = null;
 	gf_clickedCVnode(subject);
 	showtab1();
 	updateListOfSubjects();

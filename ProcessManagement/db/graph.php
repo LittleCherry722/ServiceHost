@@ -37,10 +37,34 @@ if (isset($_REQUEST['action'])) {
 		$graph = mysql_real_escape_string($_REQUEST['graphString']);
 		$date = mysql_real_escape_string($_REQUEST['date']);
 		$processID = mysql_real_escape_string($_REQUEST['processID']);
-		mysql_query("INSERT INTO `graph` (`graph`, `date`, `processID`) VALUES ('" . $name . "', '" . $graph . "', '" . $processID . "');");
+		mysql_query("INSERT INTO `process_graphs` (`graph`, `date`, `processID`) VALUES ('" . $graph . "', '" . $date . "', '" . $processID . "');");
 		$return['id'] = mysql_insert_id();
-		$return['isCase'] = $_REQUEST['isCase'];
-		$return['name'] = $_REQUEST['name'];
+		$return['graphString'] = $_REQUEST['graphString'];
+		$return['date'] = $_REQUEST['date'];
+		$return['processID'] = $_REQUEST['processID'];
+
+	// destroy an existing graph
+	} elseif ($_REQUEST['action'] == 'destroy') {
+		$graphs = mysql_query("SELECT * FROM `process_graphs` WHERE `ID` LIKE '" . $_REQUEST['id'] . "'");
+		if (mysql_num_rows($graphs) > 0) {
+			mysql_query("DELETE FROM `process_graphs`` WHERE `ID` LIKE '" . $_REQUEST['id'] . "'");
+			$return['code'] = "removed";
+		} else {
+			$return['code'] = "error";
+		}
+
+	// save existing graph
+	} elseif ($action == 'save') {
+		$isProcess = (isset($_REQUEST['isCase']) && ($_REQUEST['isCase'] === "true" || $_REQUEST['isCase'] === true))? 0 : 1;
+		$id = mysql_real_escape_string($_REQUEST['id']);
+		$graph = mysql_real_escape_string($_REQUEST['graphString']);
+		$date = mysql_real_escape_string($_REQUEST['date']);
+		$processID = mysql_real_escape_string($_REQUEST['processID']);
+    mysql_query("UPDATE `process_graphs` SET `graph` = '" . $graph . "', `date` = '" . $date . "', `processID = '" . $processID . "'` WHERE `ID` = " . $id);
+		$return['id'] = $_REQUEST['id'];
+		$return['graphString'] = $_REQUEST['graphString'];
+		$return['date'] = $_REQUEST['date'];
+		$return['processID'] = $_REQUEST['processID'];
 	}
 
 	if (!empty($return)){

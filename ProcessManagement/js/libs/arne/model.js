@@ -45,6 +45,7 @@ define([
 		var Result = function( data ) {
 
 			this.isNewRecord = true;
+			this.isDestroyed = false;
 
 			// Set the class Name. Needed for routes, to display the model (toString
 			// method coming soon) etc.
@@ -160,6 +161,59 @@ define([
 				}
 			}
 
+			this.destroy = function( callback ) {
+				var JSONObject, data,
+					error = false,
+					model = this;
+
+				data = {
+					id: model.id(),
+					action: "destroy"
+				}
+
+				$.ajax({
+					url: modelPath + ".php",
+					data: data,
+					cache: false,
+					type: "POST",
+					success: function( JSONString ) {
+						JSONObject = $.parseJSON( JSONString );
+
+						// We successfully removed the model from the DB if
+						// we get back the code "removed"
+						if ( JSONObject["code"] === "removed" ) {
+
+							// Mark the model as destroyed and remove it from the list of
+							// models
+							model.isDestroyed = true;
+							instances.remove(model);
+						} else {
+
+							// set the error message
+							error = "Could not delete " + model.className + ": " + model.name();
+						}
+
+						// If a callback was given, call it and set "this" inside the
+						// callback function to our model instance
+						if ( typeof callback === "function" ) {
+							callback.call( model, error );
+						}
+					},
+					error: function( error ) {
+						if ( console && typeof console.log === "function" ) {
+							console.error( error )
+						}
+
+						// If a callback was given, call it and set "this" inside the
+						// callback function to our model instance
+						if ( typeof callback === "function" ) {
+							callback.call( model, error );
+						}
+					}
+				});
+		}
+
+
 			// this is the default "init" method.
 			// If a data object was supplied upon initialization,
 			// loop over every attribute and assign it to the attribute of our model.
@@ -206,7 +260,6 @@ define([
 		/*
 		 *  DB interaction behavior.
 		 */
-
 		Result._createFromExisting = function( model, callback ) {
 			var newResult, JSONObject, attribute, data,
 				self = this;
@@ -232,6 +285,48 @@ define([
 					// Mark this model as persisted (not new)
 					model.isNewRecord = false;
 					instances.push(model);
+
+					// If a callback was given, call it and set "this" inside the
+					// callback function to our model instance
+					if ( typeof callback === "function" ) {
+						callback.call( model, null );
+					}
+				},
+				error: function( error ) {
+					if ( console && typeof console.log === "function" ) {
+						console.log( error )
+					}
+
+					// If a callback was given, call it and set "this" inside the
+					// callback function to our model instance
+					if ( typeof callback === "function" ) {
+						callback.call( model, error );
+					}
+				}
+			});
+		}
+
+		Result._saveExisting = function( model, callback ) {
+			var newResult, JSONObject, attribute, data,
+				self = this;
+
+			data = model.toJSON();
+			data.action = "save";
+			
+			$.ajax({
+				url: modelPath + ".php",
+				data: data,
+				cache: false,
+				type: "POST",
+				success: function( JSONString ) {
+					JSONObject = $.parseJSON( JSONString );
+
+					// Override all local attributes with attributes supplied by the Server
+					_( attrs ).each(function( attribute ) {
+						if ( _( JSONObject ).has( attribute ) ) {
+							jsonAssign(model[ attribute ], JSONObject[ attribute ]);
+						}
+					});
 
 					// If a callback was given, call it and set "this" inside the
 					// callback function to our model instance
@@ -317,6 +412,10 @@ define([
 			return undefined;
 		}
 
+		Result.destroy = function( process, callback ) {
+			process.destroy( callback );
+		}
+
 		/*
 		 * end DB interaction bavior.
 		 */
@@ -366,7 +465,7 @@ define([
 		 * Article.author() available.
 		 */
 		Result.belongsTo = function( models ) {
-			var foreignKey;
+			var foreignKey, keyToSet;
 
 			// Also accept plain strings, not just an array of strings.
 			if ( typeof models === "string" ) {
@@ -379,8 +478,14 @@ define([
 
 				require( [ "models/" + modelName ], function( model ) {
 					// setup of the method.
-					Result.prototype[ modelName ] = function() {
-						return model.find( this[ foreignKey ]() );
+					Result.prototype[ modelName ] = function( foreignModel ) {
+						if ( foreignModel ) {
+							keyToSet = this.className.toLowerCase() + "ID";
+							this[ foreignKey ]( foreignModel.id() )
+							foreignModel[ keyToSet ]( this.id() );
+						} else {
+							return model.find( this[ foreignKey ]() );
+						}
 					}
 				})
 			});

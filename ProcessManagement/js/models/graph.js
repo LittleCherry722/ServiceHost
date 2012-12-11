@@ -22,14 +22,13 @@ define([
 		// creation (when calling new model()) with the context of the model.
 		// That is, "this" refers to the model itself.
 		// This makes it possible to define defaults for attributes etc.
-		// initialize: function( data ) {
-		//   if ( !data ) {
-		//     data = {};
-		//   }
-		//   _( data ).defaults({ name: "", isCase: false });
-		//   this.name( data.name );
-		//   this.isCase( data.isCase );
-		// },
+		initialize: function( data ) {
+			if ( !data ) {
+				data = {};
+			}
+			_( data ).defaults({ graphString: "{}", isCase: false });
+			this.graphString( data.graphString );
+		}
 		
 		// Custom validator object. Validators are (like the initialize function)
 		// special in a sense that this object will be iterated over when the
