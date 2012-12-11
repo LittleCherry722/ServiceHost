@@ -50,7 +50,6 @@ define([
 
 	// Currently selected subejct and channel (in chosen)
 	var currentSubject = ko.observable();
-	window.currentSubject = currentSubject;
 	var currentChannel = ko.observable();
 
 	// On change of the available Subjects, let chosen know we updated the list
@@ -62,6 +61,13 @@ define([
 	availableSubjects.subscribe(function( subjects ) {
 		setTimeout(function() {
 			$("#slctSbj").trigger("liszt:updated");
+		}, 1);
+	});
+
+	// Do basicly the same for the list of channels (see above)
+	availableSubjects.subscribe(function( channels ) {
+		setTimeout(function() {
+			$("#slctChan").trigger("liszt:updated");
 		}, 1);
 	});
 
@@ -87,6 +93,7 @@ define([
 	// knockout observables or knockout not supporting ES5 style getter / setter
 	// methods.
 	var updateListOfSubjects = function() {
+		console.log("updating list of subjects")
 		var subject,
 			subjects = [{}];
 
@@ -103,6 +110,25 @@ define([
 		})
 
 		availableSubjects( subjects );
+	}
+
+
+	var updateListOfChannels = function() {
+		var channel,
+			channels = [{}];
+
+		// Iterate over every channel available in the graph and buld a nice
+		// JS object from it. Than push this channel to the list of channels.
+		_( gf_getChannels() ).each(function( value, key ) {
+			channel = {
+				channelID: key,
+				text: value
+			}
+
+			channels.push( channel );
+		})
+
+		availableChannels( channels );
 	}
 
 	/*
@@ -191,9 +217,6 @@ define([
 		$("#tab2").on( "click", function() {
 			selectTab( 2 );
 			gv_graph.changeView('cv');
-
-			// Update our chosen selects.
-			// updateListOfChannels();
 		});
 
 		// Tab2, "Charge View" clicked.
@@ -230,6 +253,7 @@ define([
 	// versa. The view argument can be either "cv" for the subject interaction
 	// view or "bv" for the behavior aka internal view.
 	var viewChanged = function( view ) {
+		console.log("view changed");
 
 		// start with every view beeing invisible since we should not have anything selected
 		setVisibleExclusive();
@@ -238,8 +262,9 @@ define([
 			currentSubject( undefined );
 		}
 
-		// Always update the list of subjects since we don't know where we are going
+		// Always update the chosen selects since we don't know where we are going.
 		updateListOfSubjects();
+		updateListOfChannels();
 	}
 
 	// Sets the fields for the internal view to all be hidden exept
@@ -278,6 +303,8 @@ define([
 		selectTab( 1 );
 		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
+		updateListOfSubjects();
+		updateListOfChannels();
 	}
 
 	// Select a certain tab. Can either be directly attacthed to the click
@@ -313,6 +340,7 @@ define([
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
 
 		updateListOfSubjects();
+		updateListOfChannels();
 	}
 
 	// Initialize our View.

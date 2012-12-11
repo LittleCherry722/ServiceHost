@@ -37,7 +37,6 @@
 						<div class="tab-dropdown">
 							<select id="slctSbj" data-placeholder="Select Internal Behavior"
 								class="middle_switch chzn-select" style="min-width:160px;" tabindex="1"
-								onchange="console.log('changed');//goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'));"
 								data-bind="options: availableSubjects, optionsText: 'subjectText',
 								optionsValue: 'subjectID', value: currentSubject, caption: ''">
 							</select>
@@ -46,7 +45,12 @@
 
 					<li>
 						<div class="tab-dropdown">
-							<select id="slctChan" data-placeholder="Select Channel" onchange="gf_selectChannel($('#slctChan option:selected').attr('id'));"	class="middle_switch chzn-select" style="min-width:160px;" tabindex="1" ></select>
+							<select id="slctChan" data-placeholder="Select Channel"
+								onchange="//gf_selectChannel($('#slctChan option:selected').attr('id'));"
+								class="middle_switch chzn-select" style="min-width:160px;" tabindex="1"
+								data-bind="options: availableChannels, optionsText: 'text',
+								optionsValue: 'channelID', value: currentChannel, caption: ''">
+							</select>
 						</div>
 					</li>
 
