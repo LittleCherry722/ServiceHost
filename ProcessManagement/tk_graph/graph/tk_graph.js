@@ -1009,6 +1009,7 @@ function gf_paperClickNodeC (id)
 		// hook
 		if (!gf_isStandAlone() && gf_hasSubscribers("gf_subjectClickedHook"))
 		{
+			console.log(id);
 			$.publish("gf_subjectClickedHook", id);
 		}
 		

@@ -11,11 +11,11 @@
 			<input type="button" id="InsertReceiveButton" data-bind="tooltip : 'Macro : Press &#34;2&#34;'" onclick="gf_callMacro('newReceiveNode');" value="Insert receive state" />
 			<input type="button" id="InsertActionNodeButton" data-bind="tooltip : 'Macro : Press &#34;3&#34;'" onclick="gf_callMacro('newActionNode');" value="Insert action state" />
 			<br/>
-			<input type="button" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the behavior?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear behavior" />
+			<input type="button" id="internalClearBehavior" value="Clear behavior" />
 		</div>
 	</fieldset>
 
-	<fieldset id="EdgeFunctions">
+	<fieldset data-bind="if: isEdgeSelected">
 		<legend>Transition settings</legend>
 
 		<label align="left" class="graphsectionheader">Transition Type</label>
@@ -139,15 +139,19 @@
 		<input type="button" id="DeleteEdgeButton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
 	</fieldset>
 
-	<fieldset id="NodeFunctions">
+	<fieldset data-bind="if: isNodeSelected">
 		<legend>State settings</legend>
 
 		<div id="ge_node_start_node_outer" style="display:none;">
-			<input type="checkbox" id="ge_type_start" name="ge_type_start" />
-			<label class="graphsectionheader">Startstate</label>
+			<label class="checkbox">
+				<input type="checkbox" id="ge_type_start" name="ge_type_start" />
+				Startstate
+			</label>
 			<div id="ge_node_major_start_node_outer" style="display:none;">
-				<input type="checkbox" id="ge_node_major_start_node" />
-				<label class="graphsectionheader">Major Startstate</label>
+				<label class="checkbox">
+					<input type="checkbox" id="ge_node_major_start_node" />
+					Major Startstate
+				</label>
 			</div>
 		</div>
 

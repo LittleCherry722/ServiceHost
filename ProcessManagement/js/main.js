@@ -18,6 +18,7 @@ require.config({
 		"underscore":        "libs/underscore/underscore",
 		"model":             "libs/arne/model",
 		"notify":            "libs/sbpm/notify",
+		"dialog":            "libs/sbpm/dialog",
 		"async":             "libs/async/async"
 	},
 	shim: {

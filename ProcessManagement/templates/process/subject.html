@@ -1,10 +1,12 @@
 <div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
 
-<div class="graphsettings" id="subjectMenu">
+<div class="graphsettings">
   <fieldset>
     <legend>Subject settings</legend>
 
-    <p class="warning" id="AssignRoleWarning">You have to assign a role before you can enter a text.</p>
+    <p class="warning" data-bind="if: isShowRoleWarning">
+      You have to assign a role before you can enter a text.
+    </p>
 
     <label class="graphsectionheader">Subject Name:</label>
     <input type="text" id="ge_cv_text" />

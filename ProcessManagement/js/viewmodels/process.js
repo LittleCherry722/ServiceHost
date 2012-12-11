@@ -2,10 +2,11 @@ define([
 	"knockout",
 	"app",
 	"notify",
+	"dialog",
 	"models/process",
 	"underscore"
 	// "tk_graph"
-], function( ko, App, Notify, Process, _ ) {
+], function( ko, App, Notify, Dialog, Process, _ ) {
 	var ViewModel = function() {
 		var self = this;
 
@@ -18,47 +19,78 @@ define([
 			return currentProcess().isCase() ? "Assigned User" : "Assigned Role"
 		});
 
+		// List of available Processes (observable array)
+		// Needed for the list of related Processes
 		this.availableProcesses = Process.all;
 
+		// Available Subjects, channels and macros for display in chosen selects
+		// at the top of the internal / interaction view
 		this.availableSubjects = availableSubjects;
 		this.availableChannels = availableChannels;
 		this.availableMacros   = availableMacros;
 
+		// The currently selected subject and channel (in chosen)
 		this.currentSubject = currentSubject;
+		this.currentChannel = currentChannel;
+
+		// should certain elements of the right form be visible?
+		this.isEdgeSelected        = isEdgeSelected;
+		this.isNodeSelected        = isNodeSelected;
+		this.isShowRoleWarning     = isShowRoleWarning;
+		this.isShowEdgeInformation = isShowEdgeInformation;
 	}
 
+	// ko.observables for similiar named attributes of the viewmodel.
+	// Reference it outside the viewmodel so we dont have to declare every
+	// function inside the viewmodel to get a reference to these objects.
 	var availableSubjects = ko.observableArray([]);
 	var availableChannels = ko.observableArray([]);
 	var availableMacros   = ko.observableArray([]);
 
+	// Currently selected subejct and channel (in chosen)
 	var currentSubject = ko.observable();
+	window.currentSubject = currentSubject;
 	var currentChannel = ko.observable();
 
+	// On change of the available Subjects, let chosen know we updated the list
+	// so it can do its magic and rebuild.
+	// We need to do it in a timed (out) function because knockout needs some
+	// time to rebuild the selects. 1ms is enough since we only need to wait for
+	// the render process to become available again. As soon as this happens we
+	// know knockout is done.
 	availableSubjects.subscribe(function( subjects ) {
 		setTimeout(function() {
 			$("#slctSbj").trigger("liszt:updated");
 		}, 1);
 	});
 
+	// When a subject is clicked in chosen, go to the internal behavior of the
+	// subject.
 	currentSubject.subscribe(function( subject ) {
-		console.log(subject)
 
+		// Do not do anything if an empty subject is selected.
+		// Happens every time chosen updates itself with a new list of available
+		// subjects.
 		if ( _.isEmpty( subject ) ) {
 			return;
 		}
-		
-		console.log("going to internal behavior")
 
+		// let the graph know we want to go to the internal view of a subejct.
 		gv_graph.selectedSubject = null;
 		gf_clickedCVnode( subject );
-		onChangeViewBV();
+		loadBehaviorView( subject );
 	});
 
+	// Function to trigger the update of the list of subjects.
+	// More or less a workaround for the graph library not supporting
+	// knockout observables or knockout not supporting ES5 style getter / setter
+	// methods.
 	var updateListOfSubjects = function() {
 		var subject,
 			subjects = [{}];
-		console.log("list of subjects")
 
+		// Iterate over every subject available in the graph and buld a nice
+		// JS object from it. Than push this subject to the list of subjects.
 		_( gv_graph.subjects ).each(function( value, key ) {
 			subject = {
 				subjectID: key,
@@ -100,28 +132,22 @@ define([
 			// self.chargeVM.load(graph);
 
 		} else {
-			loadNewProcess( process );
+			// If the process is a case, create a new case with our current user as
+			// subject provider. Otherwise just create an empty graph.
+			if ( process.isCase() ) {
+				gf_createCase( App.currentUser().name() );
+			} else {
+				gv_graph.loadFromJSON("{}");
+			}
 		}
 
 		// Make Tab 2 (Subject interaction view) the active Tab.
 		selectTab( 2 );
 
 		// Notify the user that the process has successfully been loaded
-		Notify.info("Information", "Process \""+ process.name() +"\" successfully loaded.");
+		Notify.info( "Information", "Process \""+ process.name() +"\" successfully loaded." );
 	});
 
-	// method to load an empty process.
-	// A process is "empty", if it has no associated graph.
-	var loadNewProcess = function( process ) {
-
-		// If the process is a case, create a new case with our current user as
-		// subject provider. Otherwise just create an empty graph.
-		if ( process.isCase() ) {
-			gf_createCase( App.currentUser().name() );
-		} else {
-			gv_graph.loadFromJSON("{}");
-		}
-	}
 
 	// Initialize listeners. These are either bound to the DOM (for click events
 	// etc), or listeners for the graph library.
@@ -138,24 +164,16 @@ define([
 			}
 		});
 
-		// TODO no idea what this is about. anyone?
-		$("#internalRadioMenu :input").bind("change", function() {
-			if ($("#ge_edge_type_timeout").is(":checked")) {
-				$("#timeoutdiv").show();
-			} else {
-				$("#timeoutdiv").hide();
-			}
-		});
+		// Show or hide the role warning. Show it when no Role has been selected
+		// (empty val), otherwise hide it.
+		$("#ge_cv_id").on( "change", showOrHideRoleWarning);
 
-		// TODO no idea what this is about. anyone?
-		$("#ge_cv_id").on( "change", function() {
-			if ( !$( "#ge_cv_id" ).val() ) {
-				$( "#AssignRoleWarning" ).show();
-			} else {
-				$( "#AssignRoleWarning" ).hide();
-			}
-		});
-
+		$('#internalClearBehavior').on('click', function() {
+			Dialog.yesNo( 'Warning', 'Do you really want to clear the behavior?', function(){
+				gv_graph.clearGraph();
+				parent.$.fancybox.close();
+			});
+		})
 
 		// Initialize our chosen selects for subjects and channels.
 		$("#slctSbj").chosen();
@@ -170,10 +188,11 @@ define([
 		// let the graph not we changed views and update the list of subjects and
 		// channels.
 		$("#tab2").on( "click", function() {
+			selectTab( 2 );
 			gv_graph.changeView('cv');
 
 			// Update our chosen selects.
-			updateListOfChannels();
+			// updateListOfChannels();
 		});
 
 		// Tab2, "Charge View" clicked.
@@ -182,15 +201,50 @@ define([
 			gv_graph.selectedNode = null;
 		});
 
-		$.subscribeOnce("gf_changeViewBV", onChangeViewBV);
-		$.subscribeOnce("tk_communication/updateListOfSubjects", updateListOfSubjects);
+		$.subscribeOnce( "gf_changeViewBV", loadBehaviorView );
+		$.subscribeOnce( "tk_communication/updateListOfSubjects", updateListOfSubjects );
+		$.subscribeOnce( "tk_communication/changeViewHook", setVisibleExclusive );
+		$.subscribeOnce( "gf_edgeClickedHook", showEdgeFields );
+		$.subscribeOnce( "gf_nodeClickedHook", showNodeFields );
+		$.subscribeOnce( "gf_subjectClickedHook", showOrHideRoleWarning );
+	}
+
+	// Various observables to controll whether or not to show certain
+	// formfields in the internal view.
+	var isEdgeSelected        = ko.observable( false );
+	var isNodeSelected        = ko.observable( false );
+	var isShowRoleWarning     = ko.observable( true );
+	var isShowEdgeInformation = ko.observable( false );
+
+	var showEdgeFields = function() {
+		setVisibleExclusive( isEdgeSelected );
+	}
+	var showNodeFields = function() {
+		setVisibleExclusive( isNodeSelected );
+	}
+
+	var setVisibleExclusive = function( fn ) {
+		isEdgeSelected( false );
+		isNodeSelected( false );
+		isShowEdgeInformation( false );
+
+		if ( typeof fn === "function" ) {
+			fn( true );
+		}
+	}
+
+	var showOrHideRoleWarning = function() {
+		isShowRoleWarning( !$( "#ge_cv_id" ).val() );
 	}
 
 	// Method called when the graph view is changed to internal view.
 	// Needs to be a separate function so we can potentially unsubscribe it
 	// easily e.g. when the view is unloaded.
-	var onChangeViewBV = function() {
+	var loadBehaviorView = function( subject ) {
+		console.log("loading behavior")
+		console.log("subject: " + subject)
 		selectTab( 1 );
+		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
 	}
 
@@ -221,7 +275,7 @@ define([
 		// current tab contents and only selectively show the tab content of the
 		// currently clicked tab.
 		$( ".tab_content" ).addClass( "hide" );
-		$( ".switch input" ).removeClass( "active" );
+		$( "#switch input" ).removeClass( "active" );
 		$( "#tab" + tabIndex ).addClass( "active" );
 		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
@@ -250,12 +304,13 @@ define([
 				// set the current process and initialize the view Listeners.
 				currentProcess( Process.find( processID ) );
 				initializeListeners();
-			});
 
-			// Execute the callback if any was given.
-			if ( typeof callback === "function" ) {
-				callback.call( this );
-			}
+				// Execute the callback if any was given.
+				// When this is called, everyting should be loaded and ready to go.
+				if ( typeof callback === "function" ) {
+					callback.call( this );
+				}
+			});
 		});
 	}
 
@@ -268,7 +323,7 @@ define([
 	//
 	// Must return true, otherwise the view will not be unloaded.
 	var unload = function() {
-		$.subscribeOnce("gf_changeViewBV", onChangeViewBV);
+		$.subscribeOnce("gf_changeViewBV", loadBehaviorView);
 
 		// return true so the view actually gets unloaded.
 		return true;

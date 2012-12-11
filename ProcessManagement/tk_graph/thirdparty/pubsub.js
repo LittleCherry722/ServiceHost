@@ -29,6 +29,9 @@
 		//
 		//	|		$.publish("/some/topic", ["a","b","c"]);
 		cache[topic] && d.each(cache[topic], function(){
+			if ( !d.isArray(args) ) {
+				args = [args]
+			}
 			this.apply(d, args || []);
 		});
 	};

@@ -345,9 +345,9 @@ function GCcommunication ()
 			view = "";
 			
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.changeViewHook))
+		if (!gf_isStandAlone() && gf_hasSubscribers("tk_communication/changeViewHook"))
 		{
-			window[gv_functions.communication.changeViewHook](view);
+			$.publish("tk_communication/changeViewHook", view)
 		}
 		
 		// change to the communication view
