@@ -4,9 +4,10 @@ define([
 	"notify",
 	"dialog",
 	"models/process",
-	"underscore"
+	"underscore",
+	"router"
 	// "tk_graph"
-], function( ko, App, Notify, Dialog, Process, _ ) {
+], function( ko, App, Notify, Dialog, Process, _, Router ) {
 	var ViewModel = function() {
 		var self = this;
 
@@ -201,12 +202,14 @@ define([
 			gv_graph.selectedNode = null;
 		});
 
-		$.subscribeOnce( "gf_changeViewBV", loadBehaviorView );
 		$.subscribeOnce( "tk_communication/updateListOfSubjects", updateListOfSubjects );
-		$.subscribeOnce( "tk_communication/changeViewHook", setVisibleExclusive );
+		$.subscribeOnce( "tk_communication/changeViewHook", viewChanged );
+		$.subscribeOnce( "gf_changeViewBV", loadBehaviorView );
+		$.subscribeOnce( "gf_subjectDblClickedHook", currentSubject);
 		$.subscribeOnce( "gf_edgeClickedHook", showEdgeFields );
 		$.subscribeOnce( "gf_nodeClickedHook", showNodeFields );
 		$.subscribeOnce( "gf_subjectClickedHook", showOrHideRoleWarning );
+		$.subscribeOnce( "subjectDblClickedExternal", goToExternalProcess);
 	}
 
 	// Various observables to controll whether or not to show certain
@@ -223,6 +226,31 @@ define([
 		setVisibleExclusive( isNodeSelected );
 	}
 
+	// Is called whenenver the view changes from internal to external or vice
+	// versa. The view argument can be either "cv" for the subject interaction
+	// view or "bv" for the behavior aka internal view.
+	var viewChanged = function( view ) {
+
+		// start with every view beeing invisible since we should not have anything selected
+		setVisibleExclusive();
+
+		if ( view === "cv" ) {
+			currentSubject( undefined );
+		}
+
+		// Always update the list of subjects since we don't know where we are going
+		updateListOfSubjects();
+	}
+
+	// Sets the fields for the internal view to all be hidden exept
+	// for the observer passed in as function.
+	//
+	// So for example if every field execpt the Edge Fields should be hidden,
+	// invoke it like: setVisibleExclusive( isEdgeSelected ).
+	//
+	// this marks the observer as false and therfore hides the fields.
+	//
+	// Can also be invoked without any arguments. Then everything will be hidden.
 	var setVisibleExclusive = function( fn ) {
 		isEdgeSelected( false );
 		isNodeSelected( false );
@@ -233,6 +261,12 @@ define([
 		}
 	}
 
+	var goToExternalProcess = function( sub ) {
+		Router.goTo( Process.findByName( sub ) )
+	}
+
+	// Compute whether to show or hide the role warning.
+	// Is based upon the selected role in subject settings.
 	var showOrHideRoleWarning = function() {
 		isShowRoleWarning( !$( "#ge_cv_id" ).val() );
 	}
@@ -241,8 +275,6 @@ define([
 	// Needs to be a separate function so we can potentially unsubscribe it
 	// easily e.g. when the view is unloaded.
 	var loadBehaviorView = function( subject ) {
-		console.log("loading behavior")
-		console.log("subject: " + subject)
 		selectTab( 1 );
 		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
