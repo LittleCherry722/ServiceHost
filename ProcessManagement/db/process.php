@@ -22,6 +22,13 @@ $limit = (isset($_REQUEST['limit'])) ? "LIMIT 0," . $_REQUEST['limit'] : "";
 if (isset($_REQUEST['action'])) {
 	$return = array();
 
+	if ( $_REQUEST['action'] == 'renameprocess' && isset($_REQUEST['processname']) && isset($_REQUEST['processid']) ) {
+		mysql_query("UPDATE `process` SET `name` ='" . $_REQUEST['processname'] . "' WHERE `ID` LIKE '" . $_REQUEST['processid'] . "'");
+		//mysql_query("UPDATE `process` SET `name` ='RenameTest2' WHERE `ID` = 3");
+		//mysql_query("UPDATE  `sbpm_groupware`.`process` SET  `name` =  'Testcase2' WHERE  `process`.`ID` =3");
+		$return['code'] = "ok";
+	}
+
 	if (isset($_REQUEST['processname'])) {
 		$procs = mysql_query("SELECT * FROM `process` WHERE `name` LIKE '" . $_REQUEST['processname'] . "'");
 		if ($_REQUEST['action'] == 'new') {
@@ -74,7 +81,7 @@ if (isset($_REQUEST['action'])) {
 			} else {
 				$return['code'] = "error";
 			}
-		} elseif (($_REQUEST['action'] == 'save') && isset($_REQUEST['graph']) && ($subjects != "-1")) {
+		}  elseif (($_REQUEST['action'] == 'save') && isset($_REQUEST['graph']) && ($subjects != "-1")) {
 			$graph = $_REQUEST['graph'];
 			$lowestTS = mysql_query("SELECT `date` FROM `process_graphs` WHERE `processID` = " . $_REQUEST['processid'] . " ORDER BY `date` DESC");
 			if (mysql_num_rows($lowestTS) > 14) {

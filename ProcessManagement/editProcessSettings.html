@@ -44,7 +44,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<!-- javascript -->
 		<!-- extern -->
 		<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
-		<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.8.24.custom.min.js"></script>
 		<script type="text/javascript" src="js/chosen.jquery.min.js"></script>
 		<script type="text/javascript" src="js/jquery.freeow.js"></script>
 		<script type="text/javascript" src="js/jquery.scrollTo-min.js"></script>
@@ -58,7 +58,7 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<script type="text/javascript" src="js/custom.js"></script>
 		<script type="text/javascript" src="db/db.js"></script>
 		<script type="text/javascript" src="tk_graph/tk_graph.js"></script>
-		<script type="text/javascript" src="js/daten.js"></script>
+		<!--<script type="text/javascript" src="js/daten.js"></script>-->
 		<script type="text/javascript" src="js/daten2.js"></script>
 		<script type="text/javascript" src="js/storage.js"></script>
 		<script type="text/javascript" src="js/dialog.js"></script>
@@ -75,10 +75,6 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<script type="text/javascript" src="js/service/process.js"></script>
 		<script type="text/javascript" src="js/service/role.js"></script>
 		<script type="text/javascript" src="js/service/user.js"></script>
-
-		<!-- Views -->
-		<script type="text/html" id="quickView"></script>
-
 </head>
 <body>
 
@@ -100,31 +96,15 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		<!--<form onsubmit="if(this.new_process.value != '') {parent.fancyreturn1=this.new_process.value;parent.$.fancybox.close();}">-->
 
 		<p style="width:182px;">
-			<label>Name:</label><br/>
-			<input type="text" id="editName" style="width:180px;" data-bind="value : processName, valueUpdate:'afterkeydown'"/>
-			<script>
+			<label>Current Name:<span data-bind="text: processName">y u r unset?</span></label><br/>
+			<input type="text" id="editName" style="width:180px;" data-bind="value: processName, valueUpdate: 'afterkeydown'"/>
+<!--			<script>
 				$("#new_process").focus();
-			</script>
+			</script>-->
 		</p>
 	    <div id="options">
 	      <div>
-	        <label>
-	          <input type="radio" name="caseGroup" value="isProcess" data-bind="checked: caseOrProcess" />
-	          Create Process
-	        </label>
-	      </div>
-	      <div>
-	        <label>
-	          <input type="radio" name="caseGroup" value="isCase" data-bind="checked: caseOrProcess" />
-	          Create Case
-	        </label>
-	      </div>
-	      <div>
-	        <label>
-	          <input type="checkbox" name="Table" value="Table" data-bind="checked: quickVM.displayTable, enable: isProcess" >
-	          Use Table
-	        </label>
-	      </div>
+	        <input type="checkbox" name="zutat"> change to Process
 	    </div>
 		<div align="center" style="float:left;" >
 		<input type="submit" value="Accept"  data-bind="click : createCheck, disable: processExist, style: {color: processExist() ? 'grey' : '#333'} "/>
@@ -132,8 +112,5 @@ h4{margin:0;padding:0;font-size:14px;font-weight:bold;margin-bottom:10px;}
 		</div>
 		<br class="clear"/>
 	</div>
-
-
-<div id="quickTable" style="width:760px; float:left; margin:20px;" data-bind="template: { name: 'quickView', data: quickVM}, visible: quickVM.displayTable"></div>
 </body>
 </html>

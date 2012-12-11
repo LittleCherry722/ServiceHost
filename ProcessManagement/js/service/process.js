@@ -28,6 +28,13 @@ SBPM.Service.Process = {
             "subjects" : startSubjectsAsJSON
         }, false, defaultOKReturnBoolean);
     },
+    renameProcess : function(processname, processid){
+        return this.query({
+            "processname" : processname,
+            "action" : "renameprocess",
+            "processid": processid
+        }, true, defaultOKReturnBoolean);
+    },
     // create/remove process
     createProcess : function(processname, forceOverwrite, isProcess) {
         // if the process should be overwritten

@@ -12,8 +12,7 @@ var ViewModel = function() {
     }
 
     self.load = function(process) {
-        parent.SBPM.VM.goToPage("process").showProcess(process);        
-
+        parent.SBPM.VM.goToPage("process").showProcess(process.name);        
         // update list of recent processes
         parent.$.publish("/process/change");
 
