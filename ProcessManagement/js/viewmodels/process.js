@@ -5,17 +5,21 @@ define([
 	"dialog",
 	"models/process",
 	"underscore",
-	"router"
+	"router",
+	"async"
 	// "tk_graph"
 ], function( ko, App, Notify, Dialog, Process, _, Router ) {
-	var ViewModel = function() {
-		var self = this;
 
-		// The current process Name
-		this.processName = ko.observable("");
+	// The main viewmodel. Every observable defined inside can be used by the
+	// view. Lets keep it clean and define functions and other helper variables
+	// outside this viewmodel so it is immidiatly apparant which functions /
+	// observables are really used by the view.
+	var ViewModel = function() {
 
 		this.currentProcess = currentProcess;
 
+		// The text used for the currently assigned "role".
+		// Is dependant on whether the process is a case or not.
 		this.assignedRoleText = ko.computed(function() {
 			return currentProcess().isCase() ? "Assigned User" : "Assigned Role"
 		});
@@ -41,6 +45,35 @@ define([
 		this.isShowEdgeInformation = isShowEdgeInformation;
 	}
 
+
+	/***************************************************************************
+	 * Variable definitions for the viewmodel.
+	 * Current Subject, list of channels, etc.
+	 **************************************************************************/
+
+	/*
+	 *
+	 * The current Process.
+
+	 * Create a new Process (but do not save it yet) and let every other
+	 * observable (name, isCase etc.) reference this process.
+	 * That way everything is updated automatically.
+	 *
+	 * Example: processName = currentProcess().name()
+	 */
+	var currentProcess = ko.observable( new Process() );
+
+	// Currently selected subejct and channel (in chosen)
+	var currentSubject = ko.observable();
+	var currentChannel = ko.observable();
+
+	// Various observables to controll whether or not to show certain
+	// formfields in the internal view.
+	var isEdgeSelected        = ko.observable( false );
+	var isNodeSelected        = ko.observable( false );
+	var isShowRoleWarning     = ko.observable( true );
+	var isShowEdgeInformation = ko.observable( false );
+
 	// ko.observables for similiar named attributes of the viewmodel.
 	// Reference it outside the viewmodel so we dont have to declare every
 	// function inside the viewmodel to get a reference to these objects.
@@ -48,9 +81,10 @@ define([
 	var availableChannels = ko.observableArray([]);
 	var availableMacros   = ko.observableArray([]);
 
-	// Currently selected subejct and channel (in chosen)
-	var currentSubject = ko.observable();
-	var currentChannel = ko.observable();
+	/***************************************************************************
+	 * Subscriptions to our observables. Used
+	 * For exmaple to load the current Graph.
+	 ***************************************************************************/
 
 	// On change of the available Subjects, let chosen know we updated the list
 	// so it can do its magic and rebuild.
@@ -88,107 +122,110 @@ define([
 		loadBehaviorView( subject );
 	});
 
-	// Function to trigger the update of the list of subjects.
-	// More or less a workaround for the graph library not supporting
-	// knockout observables or knockout not supporting ES5 style getter / setter
-	// methods.
-	var updateListOfSubjects = function() {
-		var subject,
-			subjects = [{}];
-
-		// Iterate over every subject available in the graph and buld a nice
-		// JS object from it. Than push this subject to the list of subjects.
-		_( gv_graph.subjects ).each(function( value, key ) {
-
-			// we dont want external subjects in the list of (local) subjects
-			if ( value.isExternal() ) {
-				return;
-			}
-
-			// create the subejct object
-			subject = {
-				subjectID: key,
-				subjectText: value.getText(),
-				subject: value
-			}
-
-			subjects.push( subject );
-		})
-
-		availableSubjects( subjects );
-	}
-
-
-	var updateListOfChannels = function() {
-		var channel,
-			channels = [{}];
-
-		// Iterate over every channel available in the graph and buld a nice
-		// JS object from it. Than push this channel to the list of channels.
-		_( gf_getChannels() ).each(function( value, key ) {
-			channel = {
-				channelID: key,
-				text: value
-			}
-
-			channels.push( channel );
-		})
-
-		availableChannels( channels );
-	}
-
-	/*
-	 * The current Process.
-
-	 * Create a new Process (but do not save it yet) and let every other
-	 * observable (name, isCase etc.) reference this process.
-	 * That way everything is updated automatically.
-	 *
-	 * Example: processName = currentProcess().name()
-	 */
-	var currentProcess = ko.observable( new Process() );
-
 	// Subscribe to the change of the current Process.
 	// Enables us to load new processes without reloading the entire viewmodel.
 	//
 	// Clears the graph, and loads the new graph for the new process.
 	currentProcess.subscribe(function( process ) {
+		var graph, isNewRecord;
+
+		// Clear the graph canvas
 		gv_graph.clearGraph( true );
 		
-		// If the process already has an associated graph load it.
-		// Otherwise load an empty graph from the process (or case).
-		if ( process.graph() ) {
-			gf_loadGraph( process.graph().graphString(), undefined );
+		// If there is no graph associated to the process so far, it is probably a new
+		// process that has not yet been loaded. In this case create a new Graph
+		// and act on it dependant on whether it is a process, case or has been
+		// created from a table input.
+		if ( !process.graph() ) {
+			graph = new Graph();
 
-			// TODO
-			// var graph = JSON.parse(graphAsJson);
-			// self.chargeVM.load(graph);
-
-			selectTab( 2 )
-
-		} else {
-			// If the process is a case, create a new case with our current user as
-			// subject provider. Otherwise just create an empty graph.
-			if ( process.isCase() ) {
+			// If it has been created from a table input, let the graph library do
+			// the heavy lifting and create the graph.
+			// If it is a case, just tell the graph lib. to create a new case with
+			// default nodes already setup.
+			// Otherwise just load an empty process graph..
+			if ( process.isCreatedFromTable ) {
+				gf_createFromTable( process.subjects, process.messages );
+			} else if ( process.isCase() ) {
 				gf_createCase( App.currentUser().name() );
 				selectTab( 1 );
 			} else {
-				gv_graph.loadFromJSON("{}");
-				selectTab( 2 );
+				loadGraph( graph );
 			}
-			var graph = new Graph();
-			process.graph( graph );
 
-			graph.save();
-			process.save();
+			// in any case, save the graph.
+			saveGraph( process, graph );
+		} else {
+			// Graph already exists. Just load it.
+			loadGraph( process.graph() );
 		}
-
-		// viewChanged()
 
 		// Notify the user that the process has successfully been loaded
 		Notify.info( "Information", "Process \""+ process.name() +"\" successfully loaded." );
 	});
 
+
+	/***************************************************************************
+	 * Graph and Process helper funcitons
+	 ***************************************************************************/
+
+	/*
+	 * The current Graph.
+	 *
+	 * Depends  on th current Process and may change over time
+	 * for example when loading an older graph from history.
+	 *
+	 * Can be used as both gettet and setter like ko.observables.
+	 */
+	var currentGraph = function( graph ) {
+		if ( graph ) {
+			return currentProcess().graph( graph );
+		} else {
+			return currentProcess().graph();
+		}
+	}
+
+	// Save the graph to the database.
+	var saveGraph = function( process, graph ) {
+		if ( !graph ) {
+			graph = process.graph();
+		}
+
+		// Get the graph JSON String, save it to the model attribute,
+		// save the graph, assign the graph to our process and save the process.
+		// Saving has to be blocking because we have to make sure that the graph
+		// is saved before we assign it to the process (graph needs an ID to be
+		// assigned).
+		// Final call to save can be non blocking because we probably dont need to
+		// hold the user back untill the graph is finally saved. Should only take a
+		// couple of ms anyway.
+		graph.graphString( gv_graph.saveToJSON() );
+		graph.save({ async: false });
+		process.graph( graph );
+		process.save();
+	}
+
+	var saveCurrentGraph = function() {
+		saveGraph( currentProces(), currentGraph() );
+	}
+
+	// Basic graph loading.
+	// Just load the graph from a JSON String and display it.
+	// no saving needed.
+	var loadGraph = function( graph ) {
+		gf_loadGraph( graph.graphString(), undefined );
+
+		// TODO
+		// var graph = JSON.parse(graphAsJson);
+		// self.chargeVM.load(graph);
+
+		selectTab( 2 )
+	}
+
+
+	/***************************************************************************
+	 * Setup methdos for DOM and tk_graph Listeners
+	 ***************************************************************************/
 
 	// Initialize listeners. These are either bound to the DOM (for click events
 	// etc), or listeners for the graph library.
@@ -239,6 +276,11 @@ define([
 			gv_graph.selectedNode = null;
 		});
 
+		// Subscribe to all graph events we need to listen to.
+		subscribeAll()
+	}
+
+	var subscribeAll = function() {
 		$.subscribeOnce( "tk_communication/updateListOfSubjects", updateListOfSubjects );
 		$.subscribeOnce( "tk_communication/changeViewHook", viewChanged );
 		$.subscribeOnce( "gf_changeViewBV", loadBehaviorView );
@@ -249,12 +291,73 @@ define([
 		$.subscribeOnce( "subjectDblClickedExternal", goToExternalProcess);
 	}
 
-	// Various observables to controll whether or not to show certain
-	// formfields in the internal view.
-	var isEdgeSelected        = ko.observable( false );
-	var isNodeSelected        = ko.observable( false );
-	var isShowRoleWarning     = ko.observable( true );
-	var isShowEdgeInformation = ko.observable( false );
+	// Unsubscreibe from all subscriptions thet we subscribed to on
+	// initialization.
+	var unsubscribeAll = function() {
+		$.unsubscribe( "tk_communication/updateListOfSubjects", updateListOfSubjects );
+		$.unsubscribe( "tk_communication/changeViewHook", viewChanged );
+		$.unsubscribe( "gf_changeViewBV", loadBehaviorView );
+		$.unsubscribe( "gf_subjectDblClickedHook", currentSubject);
+		$.unsubscribe( "gf_edgeClickedHook", showEdgeFields );
+		$.unsubscribe( "gf_nodeClickedHook", showNodeFields );
+		$.unsubscribe( "gf_subjectClickedHook", showOrHideRoleWarning );
+		$.unsubscribe( "subjectDblClickedExternal", goToExternalProcess);
+	}
+
+
+	/***************************************************************************
+	 * Directly view related methods
+	 ***************************************************************************/
+
+	// Function to trigger the update of the list of subjects.
+	// More or less a workaround for the graph library not supporting
+	// knockout observables or knockout not supporting ES5 style getter / setter
+	// methods.
+	var updateListOfSubjects = function() {
+		var subject,
+			subjects = [{}];
+
+		// Iterate over every subject available in the graph and buld a nice
+		// JS object from it. Than push this subject to the list of subjects.
+		_( gv_graph.subjects ).each(function( value, key ) {
+
+			// we dont want external subjects in the list of (local) subjects
+			if ( value.isExternal() ) {
+				return;
+			}
+
+			// create the subejct object
+			subject = {
+				subjectID: key,
+				subjectText: value.getText(),
+				subject: value
+			}
+
+			subjects.push( subject );
+		})
+
+		availableSubjects( subjects );
+	}
+
+
+	// Updates the list of channels.
+	var updateListOfChannels = function() {
+		var channel,
+			channels = [{}];
+
+		// Iterate over every channel available in the graph and buld a nice
+		// JS object from it. Than push this channel to the list of channels.
+		_( gf_getChannels() ).each(function( value, key ) {
+			channel = {
+				channelID: key,
+				text: value
+			}
+
+			channels.push( channel );
+		})
+
+		availableChannels( channels );
+	}
 
 	var showEdgeFields = function() {
 		setVisibleExclusive( isEdgeSelected );
@@ -299,8 +402,8 @@ define([
 		}
 	}
 
-	var goToExternalProcess = function( sub ) {
-		Router.goTo( Process.findByName( sub ) )
+	var goToExternalProcess = function( process ) {
+		Router.goTo( Process.findByName( process ) )
 	}
 
 	// Compute whether to show or hide the role warning.
@@ -356,6 +459,11 @@ define([
 		updateListOfChannels();
 	}
 
+
+	/***************************************************************************
+	 * Initialization and unload methods
+	 ***************************************************************************/
+
 	// Initialize our View.
 	// Includes loading the template and creating the viewModel
 	// to be applied to the template.
@@ -387,19 +495,6 @@ define([
 				}
 			});
 		});
-	}
-
-	// Unsubscreibe from all subscriptions thet we subscribed to on
-	// initialization.
-	var unsubscribeAll = function() {
-		$.unsubscribe( "tk_communication/updateListOfSubjects", updateListOfSubjects );
-		$.unsubscribe( "tk_communication/changeViewHook", viewChanged );
-		$.unsubscribe( "gf_changeViewBV", loadBehaviorView );
-		$.unsubscribe( "gf_subjectDblClickedHook", currentSubject);
-		$.unsubscribe( "gf_edgeClickedHook", showEdgeFields );
-		$.unsubscribe( "gf_nodeClickedHook", showNodeFields );
-		$.unsubscribe( "gf_subjectClickedHook", showOrHideRoleWarning );
-		$.unsubscribe( "subjectDblClickedExternal", goToExternalProcess);
 	}
 
 	// This function gets called when another view is loaded.

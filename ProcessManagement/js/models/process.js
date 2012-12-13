@@ -29,6 +29,10 @@ define([
 	// Process.hasMany([ "graph" ]);
 
 	Process.include({
+		subjects: [],
+		messages: [],
+		isCreatedFromTable: false,
+
 		menuName: function() {
 			if ( this.isCase() ) {
 				return "[C] " + this.name();
@@ -46,7 +50,13 @@ define([
 			if ( !data ) {
 				data = {};
 			}
-			_( data ).defaults({ name: "", isCase: false });
+
+			// Set some defaults for the data object (used as a hash)
+			_( data ).defaults({
+				name: "",
+				isCase: false
+			});
+
 			this.name( data.name );
 			this.isCase( data.isCase );
 		},

@@ -47,11 +47,11 @@ define([
 
 
 	// The current ViewModel loaded for the "main" view
-	var contentViewModel = ko.observable();
+	var currentMainViewModel = ko.observable();
 
 
-	// Does exactly what "loadView" does but does not set the contentViewModel
-	// and does not unload the old viewModel.
+	// Does exactly what "loadView" does but does not set the current main
+	// ViewModel and does not unload the old viewModel.
 	var loadSubView = function( viewName, args, callback ) {
     // just load our new viewmodel and call the init method.
 		require([ "viewmodels/" + viewName ], function( viewModel ) {
@@ -68,22 +68,20 @@ define([
 		}
 		args.push( callback )
 
-		if ( contentViewModel() ) {
+		if ( currentMainViewModel() ) {
 			// check if the unload method is actually set
-			if ( typeof contentViewModel().unload === 'function' ) {
+			if ( typeof currentMainViewModel().unload === 'function' ) {
 				// call "unload" and exit early if it retunes a falsey value
-				if ( !contentViewModel().unload() ) {
+				if ( !currentMainViewModel().unload() ) {
 					return
 				}
 			}
 		}
 
-		
-
     // just load our new viewmodel and call the init method.
 		require([ "viewmodels/" + viewName ], function( viewModel ) {
 			viewModel.init.apply(viewModel, args );
-			contentViewModel( viewModel );
+			currentMainViewModel( viewModel );
 		});
 	}
 
@@ -182,6 +180,7 @@ define([
 		currentUser: currentUser,
 		loadTemplate: loadTemplate,
 		loadTemplates: loadTemplates,
+		currentMainViewModel: currentMainViewModel,
 		loadView: loadView
 	}
 });

@@ -150,21 +150,47 @@ define([
 			 * It may be possible (but uncommon) that the the server alters the
 			 * models attributes.
 			 */
-			this.save = function( callback ) {
+			this.save = function( options, callback ) {
+
+				if ( typeof options === "function" ) {
+					callback = options;
+					options = {}
+				}
+
+				if ( !options ) {
+					options = {};
+				}
+
+				_( options ).defaults({
+					async: true
+				});
 
 				// If this is a new record that has not yet been saved, create a new
 				// record. Otherwise, just save it.
 				if ( this.isNewRecord ) {
-					Result._createFromExisting( this, callback );
+					Result._createFromExisting( this, options, callback );
 				} else {
-					Result._saveExisting( this, callback );
+					Result._saveExisting( this, options, callback );
 				}
 			}
 
-			this.destroy = function( callback ) {
+			this.destroy = function( options, callback ) {
 				var JSONObject, data,
 					error = false,
 					model = this;
+
+				if ( typeof options === "function" ) {
+					callback = options;
+					options = {}
+				}
+
+				if ( !options ) {
+					options = {};
+				}
+
+				_( options ).defaults({
+					async: true
+				});
 
 				data = {
 					id: model.id(),
@@ -175,6 +201,7 @@ define([
 					url: modelPath + ".php",
 					data: data,
 					cache: false,
+					async: options.async,
 					type: "POST",
 					success: function( JSONString ) {
 						JSONObject = $.parseJSON( JSONString );
@@ -260,7 +287,7 @@ define([
 		/*
 		 *  DB interaction behavior.
 		 */
-		Result._createFromExisting = function( model, callback ) {
+		Result._createFromExisting = function( model, options, callback ) {
 			var newResult, JSONObject, attribute, data,
 				self = this;
 
@@ -271,6 +298,7 @@ define([
 				url: modelPath + ".php",
 				data: data,
 				cache: false,
+				async: options.async,
 				type: "POST",
 				success: function( JSONString ) {
 					JSONObject = $.parseJSON( JSONString );
@@ -306,7 +334,7 @@ define([
 			});
 		}
 
-		Result._saveExisting = function( model, callback ) {
+		Result._saveExisting = function( model, options, callback ) {
 			var newResult, JSONObject, attribute, data,
 				self = this;
 
@@ -317,6 +345,7 @@ define([
 				url: modelPath + ".php",
 				data: data,
 				cache: false,
+				async: options.async,
 				type: "POST",
 				success: function( JSONString ) {
 					JSONObject = $.parseJSON( JSONString );
@@ -348,16 +377,30 @@ define([
 			});
 		}
 
-		Result.fetch = function( callback ) {
+		Result.fetch = function( options, callback ) {
 			var data, newResult, JSONObject;
 
 			instances.removeAll();
+
+			if ( typeof options === "function" ) {
+				callback = options;
+				options = {}
+			}
+
+			if ( !options ) {
+				options = {};
+			}
+
+			_( options ).defaults({
+				async: true
+			});
 
 			data = { action: "all" }
 			
 			$.ajax({
 				url: modelPath + ".php",
 				data: data,
+				async: options.async,
 				cache: false,
 				type: "POST",
 				success: function( JSONString ) {
@@ -477,12 +520,16 @@ define([
 				foreignKey = modelName.toLowerCase() + "ID";
 
 				require( [ "models/" + modelName ], function( model ) {
+
 					// setup of the method.
 					Result.prototype[ modelName ] = function( foreignModel ) {
 						if ( foreignModel ) {
 							keyToSet = this.className.toLowerCase() + "ID";
-							this[ foreignKey ]( foreignModel.id() )
-							foreignModel[ keyToSet ]( this.id() );
+							if ( !foreignModel.id() || foreignModel.isNewRecord ) {
+								console.error(" Foreign Model must be saved bevor it can be assigned. ")
+							} else {
+								this[ foreignKey ]( foreignModel.id() )
+							}
 						} else {
 							return model.find( this[ foreignKey ]() );
 						}

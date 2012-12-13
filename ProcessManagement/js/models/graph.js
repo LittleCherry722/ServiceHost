@@ -26,7 +26,11 @@ define([
 			if ( !data ) {
 				data = {};
 			}
-			_( data ).defaults({ graphString: "{}", isCase: false });
+
+			_( data ).defaults({
+				graphString: "{}"
+			});
+
 			this.graphString( data.graphString );
 		}
 		

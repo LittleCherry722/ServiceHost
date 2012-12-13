@@ -8,6 +8,8 @@ define([
 	"models/subject"
 	// "tk_graph"
 ], function( ko, App, Notify, Router, Process, Message, Subject ) {
+	window.Message = Message;
+	window.Subject = Subject;
 	var ViewModel = function() {
 		var self = this;
 
@@ -105,7 +107,7 @@ define([
 
 	// Creates the Process
 	var createProcess = function() {
-		var subjects, messages, callback;
+		var graph;
 
 		if ( currentProcess().name().length < 1 ) {
 			Notify.warning( 'Warning', 'Please enter a name for the process!' );
@@ -113,19 +115,13 @@ define([
 		}
 
 		if ( this.displayTable() ) {
-			subjects = Subject.allClean();
-			messages = Message.allClean();
-			callback = function() {
-				console.log(subjects);
-				console.log(messages);
-				gf_createFromTable( subjects, messages );
-				console.log(this);
-				this.updateListOfSubjects();
-			}
+			currentProcess().subjects = Subject.allClean();
+			currentProcess().messages = Message.allClean();
+			currentProcess().isCreatedFromTable = true;
 		}
 
 		currentProcess().save(function() {
-			Router.goTo( currentProcess(), callback );
+			Router.goTo( currentProcess() );
 		});
 	}
 
