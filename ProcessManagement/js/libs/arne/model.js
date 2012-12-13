@@ -238,7 +238,23 @@ define([
 						}
 					}
 				});
-		}
+			}
+
+			// Duplicate the current Object. Does NOT do a deep copy, so obejcts,
+			// arrays, etc storede inside this copied object will reflect changes
+			// made to the original obect, array etc.
+			// This can be solved by sinply saving the object as everything is
+			// serialized when sent to the server and then parsed and re-written to
+			// the object.
+			this.duplicate = function() {
+				var result = new Result();
+				
+				_.chain( attrs ).without( "id" ).each(function( attribute ) {
+					result[ attribute ]( this[ attribute ]() );
+				}.bind( this ));
+
+				return result;
+			}
 
 
 			// this is the default "init" method.
@@ -334,6 +350,7 @@ define([
 			});
 		}
 
+		// Saves an existing record to the database.
 		Result._saveExisting = function( model, options, callback ) {
 			var newResult, JSONObject, attribute, data,
 				self = this;
@@ -377,6 +394,22 @@ define([
 			});
 		}
 
+		// Fetch a list of all model instances from the Server.
+		// (At the moment) fetches the entire object.
+		// TODO Only get a list of objects and then upon first load, get all the
+		// details needed. This WILL BE NEEDED to be able to scale reasonably.
+		// Options hash can be omitted and callback can be the only argument.
+		//
+		// Options descriptions:
+		//	async: Whether the query should be performed asynchronously or not.
+		//	It is strongly recommended to perform async requests and only wait
+		//	for it to finish if really necessary.
+		//
+		// Options defaults are:
+		//	{
+		//		async: true
+		//	}
+		//
 		Result.fetch = function( options, callback ) {
 			var data, newResult, JSONObject;
 
@@ -441,6 +474,7 @@ define([
 			});
 		}
 
+		// Get one model instance by id
 		Result.find = function( processID ) {
 			processID = parseInt( processID, 10 );
 			var foundInInstances = _( Result.all() ).filter(function( process ) {

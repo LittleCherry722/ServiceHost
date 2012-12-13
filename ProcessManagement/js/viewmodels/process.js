@@ -205,8 +205,24 @@ define([
 		process.save();
 	}
 
-	var saveCurrentGraph = function() {
+	// Saves the currently displayed graph to the database.
+	var saveCurrentGraph = function( name ) {
 		saveGraph( currentProces(), currentGraph() );
+	}
+
+	// Saves a duplicate of the current Graph under a given Name.
+	// Duplicates the Process and Graph and changes the Name of the
+	// duplicated Process.
+	// After saving, load the newly created Process and Graph.
+	var saveCurrentGraphAs = function( name ) {
+		var graph = currentGraph().duplicate(),
+			process = currentProcess().duplicate();
+
+		process.name( name );
+		graph.save({ async: false });
+		process.graph( graph );
+
+		Router.goTo( process );
 	}
 
 	// Basic graph loading.
@@ -222,6 +238,7 @@ define([
 		selectTab( 2 )
 	}
 
+	// Loads a Process given the ID of the process.
 	var loadProcessByID = function( id ) {
 		currentProcess( Process.find( id ) );
 	}
