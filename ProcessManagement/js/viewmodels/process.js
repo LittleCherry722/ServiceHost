@@ -222,6 +222,10 @@ define([
 		selectTab( 2 )
 	}
 
+	var loadProcessByID = function( id ) {
+		currentProcess( Process.find( id ) );
+	}
+
 
 	/***************************************************************************
 	 * Setup methdos for DOM and tk_graph Listeners
@@ -515,7 +519,7 @@ define([
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		currentProcess: currentProcess,
+		loadProcessByID: loadProcessByID,
 		unload: unload
 	}
 });

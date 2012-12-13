@@ -26,7 +26,11 @@ define([ "director", "app" ], function( Director, App ) {
 	}
 
 	var showProcess = function( processID ) {
-		loadView( "process", processID, globalCallback() );
+		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByID ) {
+			App.currentMainViewModel().loadProcessByID( processID );
+		} else {
+			loadView( "process", processID, globalCallback() );
+		}
 	}
 
 	var showNewProcess = function() {
