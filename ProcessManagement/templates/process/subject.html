@@ -1,6 +1,16 @@
 <div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
 
 <div class="graphsettings">
+  <fieldset class="clearfix hidden">
+    <legend>Process Settings<span class="processSettingsTrigger">Show</span></legend>
+    <div class="toggle-able">
+      <label>Change revision</label>
+      <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'">
+      <br />
+      <input type="button" data-bind="click: saveCurrentProcess" value="Save Process" />
+      <input type="button" data-bind="clicl: saveCurrentProcessAs" value="Save Process As" />
+    </div>
+  </fieldset>
   <fieldset>
     <legend>Subject settings</legend>
 

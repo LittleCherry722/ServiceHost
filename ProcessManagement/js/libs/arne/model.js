@@ -41,8 +41,48 @@ define([
 
 		var instances = ko.observableArray([]);
 
+		// Creates a dynamic attribute finder for a given attribute.
+		// This method consumes a search string
+		// (or more general an object) and a set of options.
+		// These options can be:
+		//	observable: should this method return a ko.computed object or
+		//		a plain list of results? Defaults to false (plain list).
+		//		If a computed object is wanted, to get to the actual results
+		//		the method has to be called:
+		//		Article.findByID(2, { observable: true })();
+		var dynamicFinderForAttribute = function( attribute ) {
+			return function( search, options ) {
+
+				// Initialize the options hash and set some default values.
+				if ( !options ) {
+					options = {}
+				}
+				_( options ).defaults({
+					observable: false
+				});
+
+				// If an observable (more generally computed) should be returned,
+				// create a new computed (not write enabled, that wold be crazy...)
+				// object. Otherwise just filter the list of instances for this
+				// specific attribute and return it.
+				if ( options.observable ) {
+					return ko.computed(function() {
+						return _( instances() ).filter(function( model ) {
+							return model[ attribute ]() === search;
+						});
+					});
+				} else {
+					return _( instances() ).filter(function( model ) {
+						return model[ attribute ]() === search;
+					});
+				}
+			}
+		}
+
+
 		// Define our Base model
 		var Result = function( data ) {
+			var camelCasedAttribute;
 
 			this.isNewRecord = true;
 			this.isDestroyed = false;
@@ -52,8 +92,19 @@ define([
 			this.className = modelName;
 
 			// Initialize every attriubute as a KnockOut observable
-			for (var i = 0; i < attrs.length; i++) {
+			// and create a search mehtod for it.
+			for ( var i = 0; i < attrs.length; i++ ) {
 				this[ attrs[i] ] = ko.observable();
+
+				// Create dynamic finder methods. This allows us to use for example
+				// Article.findByTitle("test") and we get back an array of Articles
+				// that match this exact title.
+				// First we need to set up the CamelCase attiribute name so the
+				// method is called findByAttribute and not findByattribute.
+				camelCasedAttribute = attrs[i][0].toUpperCase() + attrs[i].slice( 1, attrs[i].length );
+
+				// Create dynamic attribute Finder
+				Result[ "findBy" + camelCasedAttribute ] = dynamicFinderForAttribute( attrs[i] );
 			}
 
 			// Initialize an empty error object.
@@ -164,6 +215,11 @@ define([
 				_( options ).defaults({
 					async: true
 				});
+
+				// Initiate the beforeSave callback if it was defined
+				if ( typeof this.beforeSave === "function" ) {
+					this.beforeSave.call( this );
+				}
 
 				// If this is a new record that has not yet been saved, create a new
 				// record. Otherwise, just save it.
@@ -442,8 +498,10 @@ define([
 					try {
 						JSONObject = $.parseJSON( JSONString );
 					} catch( error ) {
-						console.error( "Service: Error parsing JSON: " + JSONString );
-						console.error( "Error: " + error )
+						if ( console && typeof console.error === "function" ) {
+							console.error( "Service: Error parsing JSON: " + JSONString );
+							console.error( "Error: " + error )
+						}
 
 						// We do not want to do anything else if we encoutnered an error
 						return;
@@ -466,9 +524,9 @@ define([
 				error: function( error ) {
 					if ( console && typeof console.log === "function" ) {
 						console.log( error );
-						if( typeof callback === "function" ) {
-							callback.call(this);
-						}
+					}
+					if( typeof callback === "function" ) {
+						callback.call(this);
 					}
 				}
 			});
@@ -541,41 +599,116 @@ define([
 		 * For example: Article.belongsTo( "author" ) makes the method
 		 * Article.author() available.
 		 */
-		Result.belongsTo = function( models ) {
+		Result.belongsTo = function( modelName, options ) {
 			var foreignKey, keyToSet;
 
-			// Also accept plain strings, not just an array of strings.
-			if ( typeof models === "string" ) {
-				models = [ models ];
+			if ( !options ) {
+				options = {};
 			}
 
-			// Iterate over every model, load it and set up the association method.
-			_( models ).each(function( modelName ) {
-				foreignKey = modelName.toLowerCase() + "ID";
+			_( options ).defaults({
+				foreignKey: modelName + "ID"
+			});
 
-				require( [ "models/" + modelName ], function( model ) {
+			require( [ "models/" + modelName ], function( model ) {
 
-					// setup of the method.
-					Result.prototype[ modelName ] = function( foreignModel ) {
-						if ( foreignModel ) {
-							keyToSet = this.className.toLowerCase() + "ID";
-							if ( !foreignModel.id() || foreignModel.isNewRecord ) {
-								console.error(" Foreign Model must be saved bevor it can be assigned. ")
-							} else {
-								this[ foreignKey ]( foreignModel.id() )
+				// setup of the method.
+				// Creates a new method that is called like the modelName (for example
+				// "author") that optionally accepts a model as attribute.
+				Result.prototype[ modelName ] = function( foreignModel ) {
+					if ( foreignModel ) {
+						keyToSet = toAttributeName( this.className.toLowerCase(), "ID" );
+						if ( !foreignModel.id() || foreignModel.isNewRecord ) {
+							if ( console && typeof console.error === "function" ) {
+								console.error("Foreign Model must be saved bevor it can be assigned. ")
 							}
 						} else {
-							return model.find( this[ foreignKey ]() );
+							this[ options.foreignKey ]( foreignModel.id() )
+						}
+					} else {
+						return model.find( this[ options.foreignKey ]() );
+					}
+				}
+			});
+		}
+
+		/*
+		 * Setup a has many association.
+		 * Accepts a plural form of the name of the foreign Model and an optional
+		 * set of options.
+		 * The first argument will be used as the method name for the association
+		 * and the options can be used in case the foreign Model cannot be easily
+		 * identified from the plural name (irregular pluran or nouns whose plural
+		 * form is not created by just appending an "s").
+		 *
+		 * So for example:
+		 *	Author.hasMany("articles")
+		 *		This creates an Author.articles() method that loads the Article Model,
+		 *		checks the authorID on this Model (or to be more specific calls the
+		 *		"findByAuthorID" method) and returns an array of articles.
+		 *	Aquarium.hasMany("octopi", { : foreignModelName: "octopus" })
+		 */
+		Result.hasMany = function( foreignModelPluralName, options ) {
+			var foreignKey, keyToSet, foreignModelName;
+
+			if ( !options ) { options = {}; }
+
+			// set the default foreign Model name. Is just the pluralName minus the
+			// last character (the s in most cases) which leaves us with the singular
+			// form of the name... most of the times at least.
+			foreignModelName = foreignModelPluralName.slice(0, foreignModelPluralName.length - 1)
+
+			// Actually set the options defaults.
+			_( options ).defaults({
+				foreignModelName: foreignModelName,
+				foreignKey: toAttributeName( this.className, "ID" ),
+				foreignSearchMethod: "findBy" + this.className + "ID"
+			});
+
+			require( [ "models/" + options.foreignModelName ], function( foreignModel ) {
+
+				// setup of the method. This creates a new method that is called like
+				// the modelPluralName, for example "articles".
+				// This method optionally accepts an array
+				Result.prototype[ foreignModelPluralName ] = function( arrayOfForeignModels, opts ) {
+					if ( !opts ) { opts = {}; }
+					_( opts ).defaults({
+						observable: false
+					});
+
+					if ( arrayOfForeignModels ) {
+						if ( !this.id() || this.isNewRecord ) {
+							if ( console && typeof console.error === "function" ) {
+								console.error("Model must be saved before any foreign models can be assigned")
+							}
+						} else {
+							_( arrayOfForeignModels ).each(function( foreignModelInstance ) {
+								foreignModelInstance[ options.foreignKey ]( this.id() );
+							}.bind( this ))
+						}
+					} else {
+						if ( opts.observable ) {
+							return foreignModel[ options.foreignSearchMethod ]( this.id(), { observable: true } );
+						} else {
+							return foreignModel[ options.foreignSearchMethod ]( this.id() );
 						}
 					}
-				})
+				}
 			});
 		}
 
 		// Return our newly defined object.
 		return Result;
 	}
-	
+
+	var toAttributeName = function( string, append ) {
+		if ( !append || typeof append !== "string" ) {
+			append = "";
+		}
+
+		return string[0].toLowerCase() + string.slice(1, string.length) + append;
+	}
+
 	// Everything in this object will be the public API.
 	return Model
 });

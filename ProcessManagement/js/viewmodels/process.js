@@ -17,6 +17,8 @@ define([
 	var ViewModel = function() {
 
 		this.currentProcess = currentProcess;
+		this.currentGraph = currentGraph;
+		this.graphHistory = graphHistory;
 
 		// The text used for the currently assigned "role".
 		// Is dependant on whether the process is a case or not.
@@ -43,6 +45,14 @@ define([
 		this.isNodeSelected        = isNodeSelected;
 		this.isShowRoleWarning     = isShowRoleWarning;
 		this.isShowEdgeInformation = isShowEdgeInformation;
+
+		// Save process methods
+		this.saveCurrentProcess = saveCurrentGraph;
+		this.saveCurrentProcessAs = function() {
+			var processName;
+
+			saveCurrentGraph( processName );
+		}
 	}
 
 
@@ -62,6 +72,33 @@ define([
 	 * Example: processName = currentProcess().name()
 	 */
 	var currentProcess = ko.observable( new Process() );
+
+	/*
+	 * The current Graph.
+	 *
+	 * Depends  on th current Process and may change over time
+	 * for example when loading an older graph from history.
+	 *
+	 * Can be used as both gettet and setter like ko.observables.
+	 */
+	var currentGraph = ko.computed({
+		read: function() {
+			return currentProcess().graph();
+		},
+		write: function( graph ) {
+			if ( !graph ) {
+				return;
+			}
+
+			currentProcess().graph( graph );
+			loadGraph( graph );
+			return graph
+		}
+	});
+
+	var graphHistory = ko.computed(function() {
+		return currentProcess().graphs( null, { observable: true } );
+	});
 
 	// Currently selected subejct and channel (in chosen)
 	var currentSubject = ko.observable();
@@ -128,9 +165,6 @@ define([
 	// Clears the graph, and loads the new graph for the new process.
 	currentProcess.subscribe(function( process ) {
 		var graph, isNewRecord;
-
-		// Clear the graph canvas
-		gv_graph.clearGraph( true );
 		
 		// If there is no graph associated to the process so far, it is probably a new
 		// process that has not yet been loaded. In this case create a new Graph
@@ -145,8 +179,12 @@ define([
 			// default nodes already setup.
 			// Otherwise just load an empty process graph..
 			if ( process.isCreatedFromTable ) {
+				// Clear the graph canvas
+				gv_graph.clearGraph( true );
 				gf_createFromTable( process.subjects, process.messages );
 			} else if ( process.isCase() ) {
+				// Clear the graph canvas
+				gv_graph.clearGraph( true );
 				gf_createCase( App.currentUser().name() );
 				selectTab( 1 );
 			} else {
@@ -169,22 +207,6 @@ define([
 	 * Graph and Process helper funcitons
 	 ***************************************************************************/
 
-	/*
-	 * The current Graph.
-	 *
-	 * Depends  on th current Process and may change over time
-	 * for example when loading an older graph from history.
-	 *
-	 * Can be used as both gettet and setter like ko.observables.
-	 */
-	var currentGraph = function( graph ) {
-		if ( graph ) {
-			return currentProcess().graph( graph );
-		} else {
-			return currentProcess().graph();
-		}
-	}
-
 	// Save the graph to the database.
 	var saveGraph = function( process, graph ) {
 		if ( !graph ) {
@@ -199,7 +221,9 @@ define([
 		// Final call to save can be non blocking because we probably dont need to
 		// hold the user back untill the graph is finally saved. Should only take a
 		// couple of ms anyway.
+		graph = graph.duplicate();
 		graph.graphString( gv_graph.saveToJSON() );
+		graph.processID( process.id() );
 		graph.save({ async: false });
 		process.graph( graph );
 		process.save();
@@ -218,7 +242,9 @@ define([
 		var graph = currentGraph().duplicate(),
 			process = currentProcess().duplicate();
 
-		process.name( name );
+		if ( name ) {
+			process.name( name );
+		}
 		graph.save({ async: false });
 		process.graph( graph );
 
@@ -229,6 +255,9 @@ define([
 	// Just load the graph from a JSON String and display it.
 	// no saving needed.
 	var loadGraph = function( graph ) {
+
+		// Clear the graph canvas
+		gv_graph.clearGraph( true );
 		gf_loadGraph( graph.graphString(), undefined );
 
 		// TODO
@@ -253,13 +282,13 @@ define([
 	var initializeListeners = function() {
 
 		// Make internal settings screens toggle-able
-		$("#rightMenuTrigger").click(function() {
-			if ($("#RightMenuDiv").is(":visible")) {
+		$(".processSettingsTrigger").live("click", function() {
+			if ($(this).parent().next().is(":visible")) {
 				$(this).closest("fieldset").addClass('hidden');
-				$("#rightMenuTrigger").html("Show").addClass("show");
+				$(this).html("Show").addClass("show");
 			} else {
 				$(this).closest("fieldset").removeClass('hidden');
-				$("#rightMenuTrigger").html("Hide")
+				$(this).html("Hide")
 			}
 		});
 
@@ -288,7 +317,6 @@ define([
 		// channels.
 		$("#tab2").on( "click", function() {
 			selectTab( 2 );
-			gv_graph.changeView('cv');
 		});
 
 		// Tab2, "Charge View" clicked.
@@ -460,13 +488,6 @@ define([
 			tabIndex = parseInt( tabID.substr( tabID.length - 1 ), 10 );
 		}
 
-		// Hide the graph zoom Buttons n charge view. Show it in all other views.
-		if ( tabIndex === 3 ) {
-			$( ".zoombutton" ).hide();
-		} else {
-			$( ".zoombutton" ).show();
-		}
-
 		// Mark only the clicked tab as active, all other as inactive, hide all
 		// current tab contents and only selectively show the tab content of the
 		// currently clicked tab.
@@ -475,6 +496,15 @@ define([
 		$( "#tab" + tabIndex ).addClass( "active" );
 		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
+
+		// Hide the graph zoom Buttons n charge view. Show it in all other views.
+		if ( tabIndex === 3 ) {
+			$( ".zoombutton" ).hide();
+		} else if( tabIndex === 2 ) {
+			gv_graph.changeView('cv');
+		} else {
+			$( ".zoombutton" ).show();
+		}
 
 		updateListOfSubjects();
 		updateListOfChannels();

@@ -1,8 +1,9 @@
 define([
 	"knockout",
 	"model",
-	"underscore"
-], function( ko, Model, _ ) {
+	"underscore",
+	"moment"
+], function( ko, Model, _, moment ) {
 
 	// Our main model that will be returned at the end of the function.
 	//
@@ -32,14 +33,11 @@ define([
 			});
 
 			this.graphString( data.graphString );
-		}
+		},
 		
-		// Custom validator object. Validators are (like the initialize function)
-		// special in a sense that this object will be iterated over when the
-		// "validate" method is executed.
-		// validators: {
-
-		// }
+		beforeSave: function() {
+			this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
+		}
 	});
 
 	return Graph;

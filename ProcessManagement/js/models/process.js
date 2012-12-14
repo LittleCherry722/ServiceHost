@@ -25,8 +25,8 @@ define([
 		}
 	});
 
-	Process.belongsTo([ "graph" ]);
-	// Process.hasMany([ "graph" ]);
+	Process.belongsTo( "graph" /*, { foreignKey: "graphID" } */ );
+	Process.hasMany( "graphs" /*, { foreignModelName: "graph", foreignKey: "processID" } */ );
 
 	Process.include({
 		subjects: [],
@@ -81,8 +81,6 @@ define([
 		}
 	});
 
-	// Javascript... Define these functions here so we can call them.
-	// They get overwritten before execution anyway.
 	Process.nameAlreadyTaken = function( name ) {
 		var json,
 			data = {

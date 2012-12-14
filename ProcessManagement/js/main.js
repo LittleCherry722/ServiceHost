@@ -15,12 +15,13 @@ require.config({
 		"keymaster":         "libs/keymaster/keymaster",
 		"knockout":          "libs/knockout/knockout",
 		"knockout.mapping":  "libs/knockout/plugins/knockout.mapping",
-		"knockout.custom":  "libs/knockout/plugins/knockout.custom-bindings",
+		"knockout.custom":   "libs/knockout/plugins/knockout.custom-bindings",
 		"underscore":        "libs/underscore/underscore",
 		"model":             "libs/arne/model",
 		"notify":            "libs/sbpm/notify",
 		"dialog":            "libs/sbpm/dialog",
-		"async":             "libs/async/async"
+		"async":             "libs/async/async",
+		"moment":            "libs/moment/moment"
 	},
 	shim: {
 		// Legacy libararies that do not follow the common.js module pattern.

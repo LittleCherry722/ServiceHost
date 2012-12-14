@@ -578,12 +578,13 @@ table.data2 tr td {
         border-bottom: none;
       }
       &:before {
+        display: inline;
         content: "…";
       }
-      #rightMenuTrigger {
+      .processSettingsTrigger {
         cursor: s-resize;
       }
-      #RightMenuDiv {
+      .toggle-able {
         display: none;
       }
     }
@@ -716,7 +717,7 @@ table.data2 tr td {
 }
 
 
-#rightMenuTrigger {
+.processSettingsTrigger {
   float: right;
   font-size: 11px;
   cursor: n-resize;
@@ -726,10 +727,6 @@ table.data2 tr td {
 #contentHead {
   h3 {
     line-height: 24px;
-  }
-
-  h3, form {
-    float: left;
   }
 }
 

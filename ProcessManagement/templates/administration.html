@@ -1,0 +1,24 @@
+<div class="inner">
+
+	<div id="contentHead">
+		<h3>Administration</h3>
+	</div>
+
+  <div id="left">
+    <ul class="nav nav-list" data-bind="foreach: tabs">
+      <li data-bind="css: { active: $data == $root.tab() }">
+        <a data-bind="text: $data,
+          click: $root.goToTab"></a>
+      </li>
+    </ul>
+  </div>
+
+  <div id="right">
+    <div id="right_content" data-bind="templateWithListeners: { name: subsite().name.toLowerCase(), data: subsite(), listeners: SBPM.Mediator.subviewListeners[subsite().name]}"></div>
+  </div>
+
+  <div id="buttons">
+    <input type="button" value="Save" data-bind="click: save"/>
+    <input type="button" value="Close" data-bind="click: close"/>
+  </div>
+</div>

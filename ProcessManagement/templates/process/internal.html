@@ -1,10 +1,10 @@
 <div id="graph_bv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
 
 <div class="graphsettings">
-	<fieldset>
-		<legend>Behavior settings<span id="rightMenuTrigger">Hide</span></legend>
+	<fieldset class="clearfix">
+		<legend>Behavior settings<span class="processSettingsTrigger">Hide</span></legend>
 
-		<div id="RightMenuDiv">
+		<div class="toggle-able">
 			<label class="graphsectionheader">Add states:</label>
 			<input type="button" id="CreateNodeButton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" value="Add new state" onclick="gv_graph.createNode()"/>
 			<input type="button" id="InsertSendNodeButton" data-bind="tooltip : 'Macro : Press &#34;1&#34;'" onclick="gf_callMacro('newSendNode');" value="Insert send state" />
