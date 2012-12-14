@@ -9,17 +9,20 @@ define([
 	var viewModel = function() {
 		// Where do we actually need this? Remove it?
 		this.visible = ko.observable({
-      home : true,
-      process : true,
-      save : false,
-      saveAs : false,
-      messages : true,
-      execution : true
-    });
+			home : true,
+			process : true,
+			save : false,
+			saveAs : false,
+			messages : true,
+			execution : true
+		});
 
-		this.allProcesses = Process.all
+		this.allProcesses = Process.all;
 	}
 
+	var expandListOfProcesses = function() {
+		$('#processListLink').trigger( "click" )
+	}
 	
 	// Initialize our menu.
 	// Write the template content in our menuNode and
@@ -58,7 +61,8 @@ define([
 	
 	// Everything in this object will be the public API
 	return {
-		init: initialize
+		init: initialize,
+		expandListOfProcesses: expandListOfProcesses
 	}
 });
 

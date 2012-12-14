@@ -1,4 +1,4 @@
-define([ "director", "app", "viewmodels/menu" ], function( Director, App, Menu ) {
+define([ "director", "app"], function( Director, App ) {
 	var router;
 
 	var _globalCallback;
@@ -27,7 +27,8 @@ define([ "director", "app", "viewmodels/menu" ], function( Director, App, Menu )
 	}
 
 	var showProcess = function( processID ) {
-		Menu.showListOfProcesses( true );
+		expandListOfProcesses();
+
 		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByID ) {
 			App.currentMainViewModel().loadProcessByID( processID );
 		} else {
@@ -36,10 +37,12 @@ define([ "director", "app", "viewmodels/menu" ], function( Director, App, Menu )
 	}
 
 	var showNewProcess = function() {
+		expandListOfProcesses();
 		loadView( "newProcess", null, globalCallback() );
 	}
 
 	var showProcessList = function() {
+		expandListOfProcesses();
 		loadView( "processList", null, globalCallback() );
 	}
 
@@ -56,6 +59,10 @@ define([ "director", "app", "viewmodels/menu" ], function( Director, App, Menu )
 		}
 	}
 
+	var expandListOfProcesses = function() {
+		Menu = require("viewmodels/menu");
+		Menu.expandListOfProcesses( true );
+	}
 
 	/*
 	 * other private methods (helper methods etc.) go here
