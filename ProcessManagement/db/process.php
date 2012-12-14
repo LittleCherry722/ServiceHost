@@ -43,7 +43,7 @@ if (isset($_REQUEST['action'])) {
 		$return['id'] = mysql_insert_id();
 		$return['isCase'] = $_REQUEST['isCase'];
 		$return['name'] = $_REQUEST['name'];
-		$return['graphID'] = -1;
+		$return['graphID'] = $_REQUEST['graphID'];
 
   // destroy an existing process
 	} elseif ($action == 'destroy') {
@@ -67,7 +67,9 @@ if (isset($_REQUEST['action'])) {
 		$return['name'] = $_REQUEST['name'];
 		$return['graphID'] = $_REQUEST['graphID'];
 
-	} elseif ($_REQUEST['action'] == "getid") {
+	} elseif ($action == "getid") {
+		$name = mysql_real_escape_string($_REQUEST['name']);
+    $procs = mysql_query("SELECT * FROM `process` WHERE `name` LIKE '" . $name . "'");
 		if (mysql_num_rows($procs) == 1) {
 			$line = mysql_fetch_array($procs, MYSQL_ASSOC);
 			$return['id'] = $line['ID'];

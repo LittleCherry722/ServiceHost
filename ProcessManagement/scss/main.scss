@@ -626,6 +626,18 @@ table.data2 tr td {
   }
 }
 
+#saveProcessAs {
+  &.hidden {
+    display: none;
+  }
+
+  input[type="button"] {
+    margin-right: 5px;
+    width: 75px;
+    float: left;
+  }
+}
+
 .nodesettings {
 	background: #D1D1D1;
 	float: none;

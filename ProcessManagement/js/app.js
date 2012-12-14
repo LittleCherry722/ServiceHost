@@ -73,7 +73,7 @@ define([
 			if ( typeof currentMainViewModel().unload === 'function' ) {
 				// call "unload" and exit early if it retunes a falsey value
 				if ( !currentMainViewModel().unload() ) {
-					return
+					return;
 				}
 			}
 		}

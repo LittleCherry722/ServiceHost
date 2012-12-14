@@ -19,6 +19,14 @@ define([
 		this.currentProcess = currentProcess;
 		this.currentGraph = currentGraph;
 		this.graphHistory = graphHistory;
+		this.newProcessName = newProcessName;
+		this.processNameError = ko.computed(function() {
+			if ( Process.nameAlreadyTaken( newProcessName() ) ) {
+				return "Process Name '" + newProcessName() + "' is not available.";
+			} else {
+				return "";
+			}
+		});
 
 		// The text used for the currently assigned "role".
 		// Is dependant on whether the process is a case or not.
@@ -49,9 +57,7 @@ define([
 		// Save process methods
 		this.saveCurrentProcess = saveCurrentGraph;
 		this.saveCurrentProcessAs = function() {
-			var processName;
-
-			saveCurrentGraph( processName );
+			saveCurrentGraphAs( newProcessName() );
 		}
 	}
 
@@ -73,6 +79,8 @@ define([
 	 */
 	var currentProcess = ko.observable( new Process() );
 
+	var newProcessName = ko.observable("");
+
 	/*
 	 * The current Graph.
 	 *
@@ -86,7 +94,7 @@ define([
 			return currentProcess().graph();
 		},
 		write: function( graph ) {
-			if ( !graph ) {
+			if ( !graph || currentProcess().id() !== graph.processID() ) {
 				return;
 			}
 
@@ -226,12 +234,14 @@ define([
 		graph.processID( process.id() );
 		graph.save({ async: false });
 		process.graph( graph );
-		process.save();
+		process.save(function() {
+			Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved");
+		});
 	}
 
 	// Saves the currently displayed graph to the database.
 	var saveCurrentGraph = function( name ) {
-		saveGraph( currentProces(), currentGraph() );
+		saveGraph( currentProcess(), currentGraph() );
 	}
 
 	// Saves a duplicate of the current Graph under a given Name.
@@ -245,10 +255,15 @@ define([
 		if ( name ) {
 			process.name( name );
 		}
-		graph.save({ async: false });
-		process.graph( graph );
 
-		Router.goTo( process );
+		graph.save({ async: false });
+		process.graphID( graph.id() );
+		process.save({ async: false })
+		graph.processID( process.id() );
+		graph.save(function() {
+			Router.goTo( process );
+		});
+
 	}
 
 	// Basic graph loading.
@@ -282,21 +297,21 @@ define([
 	var initializeListeners = function() {
 
 		// Make internal settings screens toggle-able
-		$(".processSettingsTrigger").live("click", function() {
-			if ($(this).parent().next().is(":visible")) {
-				$(this).closest("fieldset").addClass('hidden');
-				$(this).html("Show").addClass("show");
+		$( ".processSettingsTrigger" ).live( "click", function() {
+			if ($(this).parent().next().is( ":visible" )) {
+				$(this).closest( "fieldset" ).addClass( "hidden" );
+				$(this).html( "Show" ).addClass( "show" );
 			} else {
-				$(this).closest("fieldset").removeClass('hidden');
-				$(this).html("Hide")
+				$(this).closest( "fieldset" ).removeClass( "hidden" );
+				$(this).html( "Hide" )
 			}
 		});
 
 		// Show or hide the role warning. Show it when no Role has been selected
 		// (empty val), otherwise hide it.
-		$("#ge_cv_id").on( "change", showOrHideRoleWarning);
+		$( "#ge_cv_id" ).on( "change", showOrHideRoleWarning);
 
-		$('#internalClearBehavior').on('click', function() {
+		$( '#internalClearBehavior' ).on( "click", function() {
 			Dialog.yesNo( 'Warning', 'Do you really want to clear the behavior?', function(){
 				gv_graph.clearGraph();
 				parent.$.fancybox.close();
@@ -304,19 +319,30 @@ define([
 		})
 
 		// Initialize our chosen selects for subjects and channels.
-		$("#slctSbj").chosen();
-		$("#slctChan").chosen();
+		$( "#slctSbj" ).chosen();
+		$( "#slctChan" ).chosen();
 
 		// When a selectable tab is clicked, mark the tab as selected, update the
 		// list of subjects and channels.
 		// See "selectTab" for more Information,
-		$(".switch input[id^='tab']").on( "click", selectTab )
+		$( ".switch input[id^='tab']" ).on( "click", selectTab )
 
 		// Tab2, "Subject Interaction View" clicked.
 		// let the graph not we changed views and update the list of subjects and
 		// channels.
-		$("#tab2").on( "click", function() {
+		$( "#tab2" ).on( "click", function() {
 			selectTab( 2 );
+		});
+		
+		// Save Process buttons behavior
+		$( "#saveProcessAsButton" ).live( "click", function() {
+			$('#newProcessName').val( currentProcess().name() ).trigger('change');
+			$(this).parent().slideUp( 350 );
+			$(this).parent().next().slideDown( 350 );
+		});
+		$( "#saveProcessAs input[type='button']" ).live( "click", function() {
+			$(this).parent().slideUp( 350 );
+			$(this).parent().prev().slideDown( 350 );
 		});
 
 		// Tab2, "Charge View" clicked.
@@ -496,6 +522,7 @@ define([
 		$( "#tab" + tabIndex ).addClass( "active" );
 		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
+		$( "#saveProcessAsButton" ).parent().slideDown().next().slideUp();
 
 		// Hide the graph zoom Buttons n charge view. Show it in all other views.
 		if ( tabIndex === 3 ) {

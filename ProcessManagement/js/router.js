@@ -1,4 +1,4 @@
-define([ "director", "app" ], function( Director, App ) {
+define([ "director", "app", "viewmodels/menu" ], function( Director, App, Menu ) {
 	var router;
 
 	var _globalCallback;
@@ -22,10 +22,12 @@ define([ "director", "app" ], function( Director, App ) {
 
 	// Show the home (index) page.
 	var showHome = function() {
+		App.currentMainViewModel(null);
 		App.loadTemplate( "home", null, globalCallback() );
 	}
 
 	var showProcess = function( processID ) {
+		Menu.showListOfProcesses( true );
 		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByID ) {
 			App.currentMainViewModel().loadProcessByID( processID );
 		} else {

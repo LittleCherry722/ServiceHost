@@ -5,12 +5,22 @@
     <legend>Process Settings<span class="processSettingsTrigger">Show</span></legend>
     <div class="toggle-able">
       <label>Change revision</label>
-      <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'">
+      <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>
       <br />
-      <input type="button" data-bind="click: saveCurrentProcess" value="Save Process" />
-      <input type="button" data-bind="clicl: saveCurrentProcessAs" value="Save Process As" />
+      <div>
+        <input type="button" data-bind="click: saveCurrentProcess" value="Save Process" />
+        <input type="button" id="saveProcessAsButton" value="Save Process As" />
+      </div>
+      <div id="saveProcessAs" class="hidden">
+        <label>New process name</label>
+        <input id="newProcessName" type="text" data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
+        <p class="text-error" style="text-align: left;" data-bind="text: processNameError"></p>
+        <input type="button" value="Cancel" />
+        <input type="button" data-bind="click: saveCurrentProcessAs" value="Save" />
+      </div>
     </div>
   </fieldset>
+
   <fieldset>
     <legend>Subject settings</legend>
 

@@ -84,7 +84,7 @@ define([
 	Process.nameAlreadyTaken = function( name ) {
 		var json,
 			data = {
-				processname: name,
+				name: name,
 				action: "getid"
 			}
 		$.ajax({
