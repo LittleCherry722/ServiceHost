@@ -26,20 +26,14 @@ $.subscribe("/tk_graph/channels", function (args)
 		}
 	}
 	
-	if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.updateListOfChannels))
-	{
-		window[gv_functions.communication.updateListOfChannels]();
-	}
+	gf_callFunc("communication.updateListOfChannels", null);
 }
 );
 
 // subscribe to changes of macro list
 $.subscribe("/tk_graph/macros", function (args)
 {
-	if (!gf_isStandAlone() && gf_functionExists(gv_functions.behavior.updateListOfMacros))
-	{
-		window[gv_functions.behavior.updateListOfMacros]();
-	}
+	gf_callFunc("behavior.updateListOfMacros", null);
 }
 );
 
