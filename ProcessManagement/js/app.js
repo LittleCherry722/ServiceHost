@@ -178,6 +178,7 @@ define([
 		loadTemplate: loadTemplate,
 		loadTemplates: loadTemplates,
 		currentMainViewModel: currentMainViewModel,
-		loadView: loadView
+		loadView: loadView,
+		loadView: loadSubView
 	}
 });

@@ -17,9 +17,18 @@ define([
 	var ViewModel = function() {
 
 		this.currentProcess = currentProcess;
+
+		// The currently displayed graph
 		this.currentGraph = currentGraph;
+
+		// The history of the graph. Used to let the user switch between different
+		// revisions of a graph for the current process.
 		this.graphHistory = graphHistory;
+
+		// Needed for saving a process under a different name
 		this.newProcessName = newProcessName;
+
+		// Validation errors for saving a process under a different name
 		this.processNameError = ko.computed(function() {
 			if ( Process.nameAlreadyTaken( newProcessName() ) ) {
 				return "Process Name '" + newProcessName() + "' is not available.";
@@ -153,11 +162,19 @@ define([
 	// When a subject is clicked in chosen, go to the internal behavior of the
 	// subject.
 	currentSubject.subscribe(function( subject ) {
+		var newRoute;
 
 		// Do not do anything if an empty subject is selected.
 		// Happens every time chosen updates itself with a new list of available
 		// subjects.
-		if ( _.isEmpty( subject ) ) {
+		if ( !subject || gv_graph.subjects[subject].isExternal() ) {
+			return;
+		}
+		if ( gv_graph.subjects[subject] && gv_graph.subjects[subject].isExternal() ) {
+			return;
+		}
+
+		if ( Router.goTo( Router.modelPath( currentProcess() ) + "/" + subject ) ) {
 			return;
 		}
 
@@ -283,8 +300,19 @@ define([
 	}
 
 	// Loads a Process given the ID of the process.
-	var loadProcessByID = function( id ) {
-		currentProcess( Process.find( id ) );
+	var loadProcessByIDs = function( processID, subjectID, callback ) {
+
+		if ( currentProcess().id() !== processID ) {
+			currentProcess( Process.find( processID ) );
+		}
+
+		if ( subjectID !== currentSubject() ) {
+			currentSubject( subjectID );
+		}
+		
+		if ( typeof callback === "function" ) {
+			callback.call( this );
+		}
 	}
 
 
@@ -331,7 +359,7 @@ define([
 		// let the graph not we changed views and update the list of subjects and
 		// channels.
 		$( "#tab2" ).on( "click", function() {
-			selectTab( 2 );
+			Router.goTo( currentProcess() );
 		});
 		
 		// Save Process buttons behavior
@@ -359,7 +387,7 @@ define([
 		$.subscribeOnce( "tk_communication/updateListOfSubjects", updateListOfSubjects );
 		$.subscribeOnce( "tk_communication/changeViewHook", viewChanged );
 		$.subscribeOnce( "gf_changeViewBV", loadBehaviorView );
-		$.subscribeOnce( "gf_subjectDblClickedHook", currentSubject);
+		$.subscribeOnce( "gf_subjectDblClickedInternal", currentSubject);
 		$.subscribeOnce( "gf_edgeClickedHook", showEdgeFields );
 		$.subscribeOnce( "gf_nodeClickedHook", showNodeFields );
 		$.subscribeOnce( "gf_subjectClickedHook", showOrHideRoleWarning );
@@ -372,7 +400,7 @@ define([
 		$.unsubscribe( "tk_communication/updateListOfSubjects", updateListOfSubjects );
 		$.unsubscribe( "tk_communication/changeViewHook", viewChanged );
 		$.unsubscribe( "gf_changeViewBV", loadBehaviorView );
-		$.unsubscribe( "gf_subjectDblClickedHook", currentSubject);
+		$.unsubscribe( "gf_subjectDblClickedInternal", currentSubject);
 		$.unsubscribe( "gf_edgeClickedHook", showEdgeFields );
 		$.unsubscribe( "gf_nodeClickedHook", showNodeFields );
 		$.unsubscribe( "gf_subjectClickedHook", showOrHideRoleWarning );
@@ -478,7 +506,7 @@ define([
 	}
 
 	var goToExternalProcess = function( process ) {
-		Router.goTo( Process.findByName( process ) )
+		Router.goTo( Process.findByName( process )[0] )
 	}
 
 	// Compute whether to show or hide the role warning.
@@ -545,7 +573,7 @@ define([
 	// Initialize our View.
 	// Includes loading the template and creating the viewModel
 	// to be applied to the template.
-	var initialize = function( processID, callback ) {
+	var initialize = function( processID, subjectID, callback ) {
 		var viewModel = new ViewModel();
 
 		App.loadTemplate( "process", viewModel, null, function() {
@@ -561,7 +589,7 @@ define([
 
 				// After all templates have been loaded and applied successfully,
 				// set the current process and initialize the view Listeners.
-				currentProcess( Process.find( processID ) );
+				loadProcessByIDs( processID, subjectID )
 				initializeListeners();
 
 				// Execute the callback if any was given.
@@ -593,7 +621,7 @@ define([
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		loadProcessByID: loadProcessByID,
+		loadProcessByIDs: loadProcessByIDs,
 		unload: unload
 	}
 });

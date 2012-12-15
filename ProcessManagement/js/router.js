@@ -26,13 +26,13 @@ define([ "director", "app"], function( Director, App ) {
 		App.loadTemplate( "home", null, globalCallback() );
 	}
 
-	var showProcess = function( processID ) {
+	var showProcess = function( processID, subjectID ) {
 		expandListOfProcesses();
 
-		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByID ) {
-			App.currentMainViewModel().loadProcessByID( processID );
+		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByIDs ) {
+			App.currentMainViewModel().loadProcessByIDs( processID, subjectID, globalCallback() );
 		} else {
-			loadView( "process", processID, globalCallback() );
+			loadView( "process", [ processID, subjectID ], globalCallback() );
 		}
 	}
 
@@ -55,7 +55,10 @@ define([ "director", "app"], function( Director, App ) {
 		"/processList":  showProcessList,
 		"/processes": {
 			"/new": showNewProcess,
-			"/:process": showProcess
+			"/:process/": {
+				on: showProcess,
+				"/:subject": showProcess
+			}
 		}
 	}
 
@@ -124,9 +127,17 @@ define([ "director", "app"], function( Director, App ) {
 		// director library knows how to handle, so we supply it directly to our
 		// Router.
 		if ( typeof path === "object" ) {
-			route = modelPath( path ).substr( 1 );
+			route = modelPath( path );
 		} else  {
 			route = path;
+		}
+
+		if ( route[0] === "#" ) {
+			route = route.substr(1);
+		}
+
+		if ( route === currentPath() ) {
+			return false;
 		}
 
 		if ( typeof callback === "function" ) {
@@ -134,14 +145,22 @@ define([ "director", "app"], function( Director, App ) {
 		}
 
 		router.setRoute( route );
+
+		return true;
+	}
+
+	var currentPath = function() {
+		return "/" + router.getRoute().join("/");
 	}
 
 	// Initialize our Router.
 	// Applies the routes to the router and sets a default route.
 	var initialize = function() {
 		router = Director(routes);
+		window.r = router;
 		// Set our default route to "/" (if no /#/ could be found)
 		router.init("/");
+		
 	}
 
 	// Everything in this object will be the public API

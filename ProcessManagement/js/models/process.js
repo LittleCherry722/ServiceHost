@@ -16,12 +16,6 @@ define([
 		createFromTable: function( subjects, messages, callback ) {
 			// updateListOfSubjects();
 			callback();
-		},
-
-		findByName: function( processName ) {
-			return _( Process.all() ).find(function( process ) {
-				return process.name() === processName;
-			});
 		}
 	});
 
