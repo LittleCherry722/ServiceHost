@@ -350,6 +350,17 @@ function gf_deleteElement ()
 }
 
 /**
+ * A simple function doing nothing.
+ * Used in the gv_functions to override default functions.
+ * 
+ * @returns {void}
+ */
+function gf_empty ()
+{
+	
+}
+
+/**
  * Returns a list of channels.
  * 
  * @returns {Object} List of channels.
