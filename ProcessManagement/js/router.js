@@ -136,8 +136,10 @@ define([ "director", "app"], function( Director, App ) {
 		// Router.
 		if ( typeof path === "object" ) {
 			route = modelPath( path );
-		} else  {
+		} else if ( path ) {
 			route = path;
+		} else {
+			route = "/"
 		}
 
 		if ( route[0] === "#" ) {

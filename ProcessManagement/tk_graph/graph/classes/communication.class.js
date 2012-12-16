@@ -176,7 +176,7 @@ function GCcommunication ()
 			
 			// publish update
 			if (gt_changesDone)
-				$.publish(gv_topics.channels, [{action: "add", id: gt_channelId, text: text}]);
+				$.publish(gv_topics.general.channels, [{action: "add", id: gt_channelId, text: text}]);
 		}
 		
 		return gt_channelId;
@@ -317,7 +317,7 @@ function GCcommunication ()
 				type = "single";
 				
 			// publish the addition of the subject
-			$.publish(gv_topics.subjects, [{action: "add", id: id}]);
+			$.publish(gv_topics.general.subjects, [{action: "add", id: id}]);
 			
 			// create the subject
 			var gt_subject = new GCsubject(id, title, type, inputPool);
@@ -345,10 +345,7 @@ function GCcommunication ()
 			view = "";
 			
 		// hook
-		if (!gf_isStandAlone() && gf_hasSubscribers("tk_communication/changeViewHook"))
-		{
-			$.publish("tk_communication/changeViewHook", view)
-		}
+		gf_callFunc("communication.changeViewHook", null, view);
 		
 		// change to the communication view
 		if (view == "cv")
@@ -356,15 +353,7 @@ function GCcommunication ()
 			gf_paperChangeView("cv");
 			if (gf_elementExists(gv_elements.graphCVouter))
 			{
-				
-				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.changeView))
-				{
-					window[gv_functions.communication.changeView]("cv");
-				}
-				else
-				{
-					gf_guiChangeView("cv");
-				}
+				gf_callFunc("communication.changeView", "gf_guiChangeView", "cv");
 			
 				this.selectedSubject	= null;
 				this.selectedNode		= null;
@@ -379,14 +368,7 @@ function GCcommunication ()
 			gf_paperChangeView("bv");
 			if (gf_elementExists(gv_elements.graphBVouter))
 			{
-				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.changeView))
-				{
-					window[gv_functions.communication.changeView]("bv");
-				}
-				else
-				{
-					gf_guiChangeView("bv");
-				}
+				gf_callFunc("communication.changeView", "gf_guiChangeView", "bv");
 				
 				if (gf_isset(this.subjects[this.selectedSubject]))
 				{
@@ -742,7 +724,7 @@ function GCcommunication ()
 			if (this.selectedNode != null)
 			{				
 				// publish the removal of the subject
-				$.publish(gv_topics.subjects, [{action: "remove", id: this.selectedNode}]);
+				$.publish(gv_topics.general.subjects, [{action: "remove", id: this.selectedNode}]);
 				
 				// remove references to this subject
 				delete this.subjects[this.selectedNode];
@@ -870,7 +852,7 @@ function GCcommunication ()
 				}
 			}
 			
-			$.publish(gv_topics.channels, [{action: "load", view: "cv"}]);
+			$.publish(gv_topics.general.channels, [{action: "load", view: "cv"}]);
 			gv_graph_cv.drawGraph();
 		}
 	};
@@ -904,9 +886,152 @@ function GCcommunication ()
 			gf_timePrint();
 			
 			// request an update of the channel and macro list
-			$.publish(gv_topics.channels, [{action: "load", view: "bv"}]);
-			$.publish(gv_topics.macros, [{action: "load", view: "bv"}]);
+			$.publish(gv_topics.general.channels, [{action: "load", view: "bv"}]);
+			$.publish(gv_topics.general.macros, [{action: "load", view: "bv"}]);
 		}
+	};
+	
+	/**
+	 * TODO
+	 * Exports either the subject interaction view or the currently selected internal behavior / macro.
+	 */
+	this.exportCurrent = function ()
+	{
+		var gt_result	= {nodes: null, edges: null};
+		
+		var gt_styles	= [];
+		
+		// 1. nodes
+		var gt_nodes	= [];
+		for (var gt_objectId in gv_objects_nodes)
+		{
+			var gt_object	= gv_objects_nodes[gt_objectId];
+			
+			if (gt_object.belongsToPath !== true)
+			{
+				var gt_text		= {text: gt_object.textString};
+				var gt_image	= {src: ""};
+				
+				if (gt_object.textString != "")
+				{
+					gt_text.x					= gt_object.text.attr("x");
+					gt_text.y					= gt_object.text.attr("y");
+					gt_text.textAlignAttribute	= gt_object.textAlignAttribute;
+				}
+				
+				if (gt_object.img != null)
+				{
+					gt_image.src	= gt_object.img.attr("src");
+					gt_image.x		= gt_object.img.attr("x");
+					gt_image.y		= gt_object.img.attr("y");
+					gt_image.width	= gt_object.img.attr("width");
+					gt_image.height	= gt_object.img.attr("height");
+				}
+				
+				gt_nodes[gt_nodes.length]	= {
+					id: 				gt_object.id,
+					text:				gt_text,
+					style:				this.exportCurrentAddStyle(gt_styles, gt_object.style),
+					statusDependent:	gt_object.getStatusDependent(),
+					shape:				gt_object.shape,
+					boundaries:			gt_object.getBoundaries(),
+					image:				gt_image
+				};
+			}
+		}
+		
+		// 2. edges
+		var gt_edges	= [];
+		for (var gt_objectId in gv_objects_edges)
+		{
+			var gt_object	= gv_objects_edges[gt_objectId];
+			var gt_text		= {text: ""};
+			var gt_image	= {src: ""};
+			
+			if (gt_object.label.textString != "")
+			{
+				gt_text.text				= gt_object.label.textString;
+				gt_text.x					= gt_object.label.text.attr("x");
+				gt_text.y					= gt_object.label.text.attr("y");
+				gt_text.textAlignAttribute	= gt_object.label.textAlignAttribute;
+			}
+			
+			if (gt_object.label.img != null)
+			{
+				gt_image.src	= gt_object.label.img.attr("src");
+				gt_image.x		= gt_object.label.img.attr("x");
+				gt_image.y		= gt_object.label.img.attr("y");
+				gt_image.width	= gt_object.label.img.attr("width");
+				gt_image.height	= gt_object.label.img.attr("height");
+			}
+			
+			gt_edges[gt_edges.length]	= {
+					id: 				gt_object.id,
+					segments:			gt_object.pathSegments,
+					path:				gt_object.pathStr,
+					style:				this.exportCurrentAddStyle(gt_styles, gt_object.style),
+					statusDependent:	gt_object.getStatusDependent(),
+					label:
+						{
+							text:				gt_text,
+							style:				null, // gt_object.label.style,
+							statusDependent:	gt_object.getStatusDependent(),
+							shape:				gt_object.label.shape,
+							boundaries:			gt_object.label.getBoundaries(),
+							image:				gt_image
+						}
+			};
+		}
+		
+		gt_result.nodes		= gt_nodes;
+		gt_result.edges		= gt_edges;
+		gt_result.styles	= gt_styles;
+		
+		return gt_result;
+	};
+	
+	/**
+	 * TODO
+	 */
+	this.exportCurrentAddStyle	= function (styles, style)
+	{
+		var gt_id		= 0;
+			
+		if (styles.length == 0)
+		{
+			styles[0] = style;
+		}
+		else
+		{
+			var gt_diff		= gf_stylesDiff(styles[0], style);
+			var gt_found	= false;
+			
+			for (var gt_styleId in styles)
+			{
+				if (gf_stylesCompare(styles[gt_styleId], gt_diff))
+				{
+					gt_found	= true;
+					gt_id		= gt_styleId;
+					break;
+				}
+			}
+			
+			if (!gt_found)
+			{
+				gt_id					= styles.length;
+				styles[styles.length]	= gt_diff;
+			}
+		}
+		
+		return gt_id;
+	};
+	
+	/**
+	 * TODO
+	 */
+	this.exportCurrentToJSON = function ()
+	{
+		return JSON.stringify(this.exportCurrent()).replace(/\\n/gi, "<br />");
 	};
 	
 	/**
@@ -1432,28 +1557,14 @@ function GCcommunication ()
 		// empty all input fields
 		if (gf_isset(clear) && clear == true)
 		{
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.clearInputFields))
-			{
-				window[gv_functions.communication.clearInputFields]();
-			}
-			else
-			{
-				gf_guiClearInputFields();
-			}
+			gf_callFunc("communication.clearInputFields", "gf_guiClearInputFields");
 		}
 		
 		// load the information of a selected node
 		else
 		{			
 			this.loadInformation(true);
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.toggleNEForms))
-			{
-				window[gv_functions.communication.toggleNEForms]("n");
-			}
-			else
-			{
-				gf_guiToggleNEForms("n");
-			}
+			gf_callFunc("communication.toggleNEForms", "gf_guiToggleNEForms", "n");
 		
 			// when the communication view is shown load the information of the currently selected subject-node
 			if (this.selectedSubject == null)
@@ -1462,14 +1573,7 @@ function GCcommunication ()
 				{
 					var gt_subject = this.subjects[this.selectedNode];		
 					
-					if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.displaySubject))
-					{
-						window[gv_functions.communication.displaySubject](gt_subject);
-					}
-					else
-					{
-						gf_guiDisplaySubject(gt_subject);
-					}
+					gf_callFunc("communication.displaySubject", "gf_guiDisplaySubject", gt_subject);
 				}
 			}
 			
@@ -1480,14 +1584,7 @@ function GCcommunication ()
 				{
 					var gt_node = this.getBehavior(this.selectedSubject).getNode();
 					
-					if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.displayNode))
-					{
-						window[gv_functions.communication.displayNode](gt_node);
-					}
-					else
-					{
-						gf_guiDisplayNode(gt_node);
-					}
+					gf_callFunc("communication.displayNode", "gf_guiDisplayNode", gt_node);
 				}
 			}
 		}
@@ -1510,27 +1607,13 @@ function GCcommunication ()
 		{
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
-				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.toggleNEForms))
-				{
-					window[gv_functions.communication.toggleNEForms]("e");
-				}
-				else
-				{
-					gf_guiToggleNEForms("e");
-				}
+				gf_callFunc("communication.toggleNEForms", "gf_guiToggleNEForms", "e");
 				
 				var gt_edge = this.getBehavior(this.selectedSubject).getEdge();
 				var gt_node = this.getBehavior(this.selectedSubject).getNode(gt_edge.getStart());
 				var gt_type	= gf_isset(gt_node) ? gt_node.getType() : "";
 				
-				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.displayEdge))
-				{
-					window[gv_functions.communication.displayEdge](gt_edge, gt_type);
-				}
-				else
-				{
-					gf_guiDisplayEdge(gt_edge, gt_type);
-				}
+				gf_callFunc("communication.displayEdge", "gf_guiDisplayEdge", gt_edge, gt_type);
 			}
 		}
 	};
@@ -1784,10 +1867,7 @@ function GCcommunication ()
 				this.selectNothing();
 				this.selectedNode = id;
 				
-				if (!gf_isStandAlone() && gf_hasSubscribers("tk_communication/updateListOfSubjects"))
-				{
-					$.publish("tk_communication/updateListOfSubjects")
-				}
+				gf_callFunc("communication.updateListOfSubjects", null);
 			}
 		}
 		
@@ -1830,15 +1910,7 @@ function GCcommunication ()
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
 				// read information from fields and pass to bv
-				var gt_values	= {};
-				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.readEdge))
-				{
-					gt_values	= window[gv_functions.communication.readEdge]();
-				}
-				else
-				{
-					gt_values	= gf_guiReadEdge();
-				}
+				var gt_values	= gf_callFunc("communication.readEdge", "gf_guiReadEdge");
 				
 				this.getBehavior(this.selectedSubject).updateEdge(gt_values);
 				
@@ -1864,16 +1936,7 @@ function GCcommunication ()
 			{
 				var gt_subject = this.subjects[this.selectedNode];					
 								
-				var gt_values	= {};
-					
-				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.readSubject))
-				{
-					gt_values	= window[gv_functions.communication.readSubject]();
-				}
-				else
-				{
-					gt_values	= gf_guiReadSubject();
-				}
+				var gt_values	= gf_callFunc("communication.readSubject", "gf_guiReadSubject");
 				
 				var gt_text				= gf_isset(gt_values.text)				? gt_values.text			: "";
 				var gt_role				= gf_isset(gt_values.role)				? gt_values.role			: "";
@@ -1899,7 +1962,7 @@ function GCcommunication ()
 					gt_subject.setComment(gt_comment);
 					
 					// publish the update of the subject
-					$.publish(gv_topics.subjects, [{action: "update", id: gt_subject.id}]);
+					$.publish(gv_topics.general.subjects, [{action: "update", id: gt_subject.id}]);
 					
 					this.draw();
 				}
@@ -1912,16 +1975,7 @@ function GCcommunication ()
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
 				// read the fields' values and pass to the bv
-				var gt_values	= {};
-					
-				if (!gf_isStandAlone() && gf_functionExists(gv_functions.communication.readNode))
-				{
-					gt_values	= window[gv_functions.communication.readNode]();
-				}
-				else
-				{
-					gt_values	= gf_guiReadNode();
-				}
+				var gt_values	= gf_callFunc("communication.readNode", "gf_guiReadNode");
 
 				var gt_behav	= this.getBehavior(this.selectedSubject);
 					gt_behav.updateNode(gt_values);					

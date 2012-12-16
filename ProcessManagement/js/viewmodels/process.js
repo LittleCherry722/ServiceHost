@@ -211,7 +211,7 @@ define([
 				// Clear the graph canvas
 				gv_graph.clearGraph( true );
 				gf_createCase( App.currentUser().name() );
-				selectTab( 1 );
+				Router.goTo( Router.modelPath( currentProcess() ) + "/me" )
 			} else {
 				loadGraph( graph );
 			}
@@ -384,27 +384,27 @@ define([
 	}
 
 	var subscribeAll = function() {
-		$.subscribeOnce( "tk_communication/updateListOfSubjects", updateListOfSubjects );
-		$.subscribeOnce( "tk_communication/changeViewHook", viewChanged );
-		$.subscribeOnce( "gf_changeViewBV", loadBehaviorView );
-		$.subscribeOnce( "gf_subjectDblClickedInternal", currentSubject);
-		$.subscribeOnce( "gf_edgeClickedHook", showEdgeFields );
-		$.subscribeOnce( "gf_nodeClickedHook", showNodeFields );
-		$.subscribeOnce( "gf_subjectClickedHook", showOrHideRoleWarning );
-		$.subscribeOnce( "subjectDblClickedExternal", goToExternalProcess);
+		$.subscribeOnce( "tk_graph/updateListOfSubjects", updateListOfSubjects );
+		$.subscribeOnce( "tk_graph/changeViewHook", viewChanged );
+		$.subscribeOnce( "tk_graph/changeViewBV", loadBehaviorView );
+		$.subscribeOnce( "tk_graph/subjectDblClickedInternal", currentSubject);
+		$.subscribeOnce( "tk_graph/edgeClickedHook", showEdgeFields );
+		$.subscribeOnce( "tk_graph/nodeClickedHook", showNodeFields );
+		$.subscribeOnce( "tk_graph/subjectClickedHook", showOrHideRoleWarning );
+		$.subscribeOnce( "tk_graph/subjectDblClickedExternal", goToExternalProcess);
 	}
 
 	// Unsubscreibe from all subscriptions thet we subscribed to on
 	// initialization.
 	var unsubscribeAll = function() {
-		$.unsubscribe( "tk_communication/updateListOfSubjects", updateListOfSubjects );
-		$.unsubscribe( "tk_communication/changeViewHook", viewChanged );
-		$.unsubscribe( "gf_changeViewBV", loadBehaviorView );
-		$.unsubscribe( "gf_subjectDblClickedInternal", currentSubject);
-		$.unsubscribe( "gf_edgeClickedHook", showEdgeFields );
-		$.unsubscribe( "gf_nodeClickedHook", showNodeFields );
-		$.unsubscribe( "gf_subjectClickedHook", showOrHideRoleWarning );
-		$.unsubscribe( "subjectDblClickedExternal", goToExternalProcess);
+		$.unsubscribe( "tk_graph/updateListOfSubjects", updateListOfSubjects );
+		$.unsubscribe( "tk_graph/changeViewHook", viewChanged );
+		$.unsubscribe( "tk_graph/changeViewBV", loadBehaviorView );
+		$.unsubscribe( "tk_graph/subjectDblClickedInternal", currentSubject);
+		$.unsubscribe( "tk_graph/edgeClickedHook", showEdgeFields );
+		$.unsubscribe( "tk_graph/nodeClickedHook", showNodeFields );
+		$.unsubscribe( "tk_graph/subjectClickedHook", showOrHideRoleWarning );
+		$.unsubscribe( "tk_graph/subjectDblClickedExternal", goToExternalProcess);
 	}
 
 

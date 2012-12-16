@@ -255,7 +255,7 @@ function GCbehavior (name)
  		this.macros[gt_macroId]	= gt_macro;
  		
  		// Publish news about updated macro list
-		$.publish(gv_topics.macros, [{action: "add", id: gt_macroId, text: name}]);
+		$.publish(gv_topics.general.macros, [{action: "add", id: gt_macroId, text: name}]);
  		
  		this.macroCounter++;
  		
@@ -443,7 +443,7 @@ function GCbehavior (name)
  			
  		this.selectedMacro = id;
  		
-		$.publish(gv_topics.macros, [{action: "load", view: "bv"}]);
+		$.publish(gv_topics.general.macros, [{action: "load", view: "bv"}]);
  		
  		this.draw();
  	};

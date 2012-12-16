@@ -484,17 +484,18 @@ function GCgraphbv ()
 						gt_bv_y2 += 5;
 					
 					// update edge
-					var gt_bv_asm1 = 1;		// asm = arrowShape multiplier
-					var gt_bv_asm2 = 1;
+					var gt_bv_asmStep	= 1;	// 0.5
+					var gt_bv_asmMax	= 3;
+					
+					var gt_bv_asm1 = gt_bv_asmStep;		// asm = arrowShape multiplier
+					var gt_bv_asm2 = gt_bv_asmStep;
 					
 					var gt_bv_asSpace1	= 0;
 					var gt_bv_asSpace2	= 0;
 					
-					var gt_bv_asmMax	= 3;
-					
 					while (gt_bv_asm1 <= gt_bv_asmMax && gt_bv_doLoop)
 					{
-						gt_bv_asm2 = 1;
+						gt_bv_asm2 = gt_bv_asmStep;
 						
 						while (gt_bv_asm2 <= gt_bv_asmMax && gt_bv_doLoop)
 						{
@@ -502,7 +503,6 @@ function GCgraphbv ()
 							gt_bv_asSpace1	= gt_bv_arrowShape.space1 * gt_bv_asm1;
 							gt_bv_asSpace2	= gt_bv_arrowShape.space2 * gt_bv_asm2;
 							
-							gf_timeCalc("drawing edges - drawArrow() - update path");
 							gt_bv_edge.setPositionStart(gt_bv_x1, gt_bv_y1);
 							gt_bv_edge.setPositionEnd(gt_bv_x2, gt_bv_y2);
 							gt_bv_edge.setFirstLine(gt_bv_arrowShape.firstLine);
@@ -512,12 +512,9 @@ function GCgraphbv ()
 							gf_timeCalc("drawing edges - drawArrow() - update path (shape)");
 							gt_bv_edge.setShape(gt_bv_arrowShape.shape, 1);
 							gf_timeCalc("drawing edges - drawArrow() - update path (shape)");
-							gf_timeCalc("drawing edges - drawArrow() - update path");
 														
 							// check if the new arrow would fit better than the currently best
-							gf_timeCalc("drawing edges - drawArrow() - intersection checks");
 							var gt_bv_intersectionCheck	= gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy});
-							gf_timeCalc("drawing edges - drawArrow() - intersection checks");
 							
 							if (!gt_bv_intersectionCheck)
 							{
@@ -594,9 +591,9 @@ function GCgraphbv ()
 								gt_bv_doLoop	= false;
 							}
 							
-							gt_bv_asm2++;
+							gt_bv_asm2 += gt_bv_asmStep;
 						}
-						gt_bv_asm1++;
+						gt_bv_asm1 += gt_bv_asmStep;
 					}
 						
 					// store the information about the min graph
@@ -956,11 +953,14 @@ function GCgraphbv ()
 		if (node.node.parentMacro.id != "##main##" && node.node.id == 0)
 			gt_clickType +=	"_noclick";
 		*/
+		
 		if (node.node.getType() == "macro")
 			gt_clickType += "_dblclick";
 			
 		// apply the style
+		gf_timeCalc("drawing nodes - drawNode() - apply III");
 		gt_bv_rect.setStyle(gt_bv_style);
+		gf_timeCalc("drawing nodes - drawNode() - apply III");
 		gt_bv_rect.click(gt_clickType);	
 		gf_timeCalc("drawing nodes - drawNode() - apply");
 	};
