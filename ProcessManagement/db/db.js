@@ -35,7 +35,7 @@ if(!SBPM.Constant.DEBUG || !window.console){
     }
 }
 
-SBPM.DB = {    
+SBPM.DB = {
     syncQuery : function(url, data, defaultreturn, successfunction ){
         var ret = defaultreturn;
         $.ajax({

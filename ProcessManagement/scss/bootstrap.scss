@@ -27,7 +27,7 @@ $baseLineHeight: 14px;
 @import "bootstrap/type";
 // @import "bootstrap/code";
 @import "bootstrap/forms";
-// @import "bootstrap/tables";
+@import "bootstrap/tables";
 
 // Components: common
 // @import "bootstrap/sprites";
@@ -65,3 +65,12 @@ $baseLineHeight: 14px;
 // Utility classes
 @import "bootstrap/utilities"; // Has to be last to override when necessary
 
+
+.table.table-striped-darker {
+  tbody {
+    tr:nth-child(odd) td,
+    tr:nth-child(odd) th {
+      background-color: #efefef;
+    }
+  }
+}

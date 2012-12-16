@@ -1,30 +1,14 @@
 define([
 	"knockout",
 	"app",
-	"notify",
-	"underscore",
-	"router"
-], function( ko, App, Notify, _, Router ) {
+	"underscore"
+], function( ko, App, _ ) {
 
 	var ViewModel = function() {
 
 		this.tabs = tabs;
+
 		this.currentTab = currentTab;
-		// this.subsites = ko.observable({
-		//   'General' : new GeneralViewModel(),
-		//   'Users' : new UserViewModel(),
-		//   'Roles' : new RoleViewModel(),
-		//   'Groups' : new GroupViewModel(),
-		//   'Debug' : new DebugViewModel()
-		// });
-
-		this.subsite = function() {
-			return this.subsites()[this.tab()];
-		}
-
-		this.close = function() {
-			parent.$.fancybox.close();
-		}
 
 		this.save = function() {
 			var success = true;
@@ -48,8 +32,9 @@ define([
 	var tabs = ['General', 'Users', 'Roles', 'Groups', 'Debug'];
 
 	var currentTab = ko.observable("Users");
+
 	currentTab.subscribe(function( newTab ) {
-		console.log("tab changed");
+		App.loadSubView( "administration/" + newTab.toLowerCase() );
 	});
 
 

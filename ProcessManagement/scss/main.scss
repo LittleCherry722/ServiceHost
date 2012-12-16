@@ -766,8 +766,8 @@ table.data2 tr td {
   @include box-shadow(0 1px 2px #ccc);
 
   .left {
-    width: 100px;
-    background-color: #E6E6E6;
+    width: 120px;
+    background-color: #ebebeb;
     padding-top: 1em;
     border-right: 1px solid #bbb;
 
@@ -782,10 +782,13 @@ table.data2 tr td {
         color: #111;
         text-shadow: none
       }
+
+      a:hover {
+        background-color: #f9f9f9;
+      }
       &.active {
-        background-color: #4B4F5D;
-        &:hover {
-          background-color: inherit;
+        a:hover {
+          background-color: $linkColor;
         }
         a {
           color: #FFFFFF;

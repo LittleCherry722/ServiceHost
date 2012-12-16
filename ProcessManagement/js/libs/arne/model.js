@@ -2,9 +2,12 @@ define([
 	"underscore",
 	"knockout",
 	"router",
-	"require"
+	"require",
+	"async"
 	// "jquery"
-], function( _, ko, Router, requier ) {
+], function( _, ko, Router, require, async ) {
+	var models = [];
+
 	var jsonAssign = function(attribute, value) {
 		var castValue;
 
@@ -526,7 +529,7 @@ define([
 						console.log( error );
 					}
 					if( typeof callback === "function" ) {
-						callback.call(this);
+						callback.call(this, error);
 					}
 				}
 			});
@@ -697,8 +700,27 @@ define([
 			});
 		}
 
+		models.push( Result );
+
 		// Return our newly defined object.
 		return Result;
+	}
+
+	// Fetch all resources of all models
+	Model.fetchAll = function( callback ) {
+		async.map( models, function( model, cb ) {
+			model.fetch( cb );
+		}, function( error, results ) {
+			if ( error ) {
+				if (console && typeof console.error === "function") {
+					console.error("Error while fetching ");
+				}
+			}
+
+			if ( typeof callback === "function" ) {
+				callback();
+			}
+		});
 	}
 
 	var toAttributeName = function( string, append ) {
