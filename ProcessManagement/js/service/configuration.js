@@ -8,7 +8,7 @@ SBPM.Service.Configuration = {
     read : function() {
         return this.query({
             "action" : "read",
-        }, {}, function(data,json) {           
+        }, {}, function(data,json) {
             if (data["code"] == "ok")
                 return data["configuration"];
         });

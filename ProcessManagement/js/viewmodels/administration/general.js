@@ -6,17 +6,15 @@ define([
 	"model"
 ], function( ko, App, _, Notify, Model ) {
 
+	// TODO Actually do something here
 	var ViewModel = function() {
 
 		this.save = function() {
-			var success = SBPM.Service.Configuration.write(ko.toJS(this.data()));
-
-			this.initialized = false;
-
-			return success;
+			console.log("Nothing to be done really...")
 		}
 
-		this.dataForUI = function() {// TODO return actual data
+		this.dataForUI = function() {
+
 			return [];
 		}
 	}
@@ -26,7 +24,7 @@ define([
 
 		viewModel = new ViewModel();
 
-		App.loadTemplate( "administration/debug", viewModel, "right_content", null );
+		App.loadTemplate( "administration/general", viewModel, "right_content", null );
 	}
 
 	// Everything in this object will be the public API
