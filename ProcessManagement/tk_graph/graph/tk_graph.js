@@ -145,7 +145,7 @@ function gf_callFunc (func, fallback)
 	
 	if (!gf_isStandAlone() && gf_hasSubscribers(gv_topics[gt_funcInfo[0]][gt_funcInfo[1]]))
 	{
-		$.publish(gv_topics[gt_funcInfo[0]][gt_funcInfo[1]], [gt_arguments]);
+		$.publish(gv_topics[gt_funcInfo[0]][gt_funcInfo[1]], gt_arguments);
 	}
 	
 	var gt_values	= null;
