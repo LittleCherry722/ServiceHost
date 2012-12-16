@@ -74,3 +74,17 @@ $baseLineHeight: 14px;
     }
   }
 }
+
+.tooltip {
+	font-size: 12px;
+
+	&.in {
+		opacity: 0.9;
+	}
+}
+
+.tooltip-inner {
+	padding: 4px 8px;
+	text-shadow: none;
+	color: #eee;
+}

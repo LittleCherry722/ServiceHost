@@ -940,7 +940,7 @@ input[type="file"] {
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\/_forms\.scss}line{font-family:\00003164}}
 select {
-  width: 220px;
+  width: 190px;
   border: 1px solid #cccccc;
   background-color: white; }
 
@@ -4220,6 +4220,19 @@ a.label:hover, a.badge:hover {
 .table.table-striped-darker tbody tr:nth-child(odd) td,
 .table.table-striped-darker tbody tr:nth-child(odd) th {
   background-color: #efefef; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000378}}
+.tooltip {
+  font-size: 12px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000381}}
+  .tooltip.in {
+    opacity: 0.9; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000386}}
+.tooltip-inner {
+  padding: 4px 8px;
+  text-shadow: none;
+  color: #eee; }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/popup\.scss}line{font-family:\000035}}
 body {

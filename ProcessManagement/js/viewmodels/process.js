@@ -349,6 +349,7 @@ define([
 		// Initialize our chosen selects for subjects and channels.
 		$( "#slctSbj" ).chosen();
 		$( "#slctChan" ).chosen();
+		$( "#slctMacro" ).chosen();
 
 		// When a selectable tab is clicked, mark the tab as selected, update the
 		// list of subjects and channels.
@@ -372,6 +373,9 @@ define([
 			$(this).parent().slideUp( 350 );
 			$(this).parent().prev().slideDown( 350 );
 		});
+
+		// tooltips
+		$('.tooltip-enabled *[title]').tooltip();
 
 		// Tab2, "Charge View" clicked.
 		// let the graph not we changed views and update the list of subjects.
