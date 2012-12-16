@@ -20,12 +20,6 @@ define([ "director", "app"], function( Director, App ) {
 	 * Custom route actions go here. Keep it concice!
 	 */
 
-	// Show the home (index) page.
-	var showHome = function() {
-		App.currentMainViewModel(null);
-		App.loadTemplate( "home", null, globalCallback() );
-	}
-
 	var showProcess = function( processID, subjectID ) {
 		expandListOfProcesses();
 
@@ -34,6 +28,12 @@ define([ "director", "app"], function( Director, App ) {
 		} else {
 			loadView( "process", [ processID, subjectID ], globalCallback() );
 		}
+	}
+
+	// Show the home (index) page.
+	var showHome = function() {
+		App.currentMainViewModel(null);
+		App.loadTemplate( "home", null, globalCallback() );
 	}
 
 	var showNewProcess = function() {
@@ -46,12 +46,20 @@ define([ "director", "app"], function( Director, App ) {
 		loadView( "processList", null, globalCallback() );
 	}
 
+	var showAdministration = function( subSite ) {
+		loadView( "administration", subSite, globalCallback() );
+	}
+
 	/*
 	 *	Every possible route gets defined here
 	 */
 	var routes = {
 		"/":  showHome,
 		"/home":  showHome,
+		"/administration": {
+			on: showAdministration,
+			"/:subSite" : showAdministration
+		},
 		"/processList":  showProcessList,
 		"/processes": {
 			"/new": showNewProcess,

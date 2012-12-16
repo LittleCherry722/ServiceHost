@@ -753,6 +753,71 @@ table.data2 tr td {
 }
 
 
+// Administration
+
+
+#adminContainer {
+  @include display-box;
+  @include calc(height, "100% - 45px");
+  min-width: 1px;
+  background-color: #fff;
+  @include border-radius(5px);
+  border: 1px solid #cdcdcd;
+  @include box-shadow(0 1px 2px #ccc);
+
+  .left {
+    width: 100px;
+    background-color: #E6E6E6;
+    padding-top: 1em;
+    border-right: 1px solid #bbb;
+
+    ul {
+      padding: 0;
+    }
+    li {
+      line-height: 25px;
+      padding: 0 15px;
+
+      a {
+        color: #111;
+        text-shadow: none
+      }
+      &.active {
+        background-color: #4B4F5D;
+        &:hover {
+          background-color: inherit;
+        }
+        a {
+          color: #FFFFFF;
+        }
+      }
+    }
+
+
+  }
+
+  .right {
+    @include box-flex(1);
+    margin: 10px;
+
+    .inline {
+      height: 23px;
+      line-height: 23px;
+      vertical-align: 10px;
+    }
+
+    .button {
+      height: 30px;
+      line-height: 15px;
+      vertical-align: 11px;
+      margin: 0 5px;
+    }
+
+    select {
+      width: 300px;
+    }
+  }
+}
 
 
 

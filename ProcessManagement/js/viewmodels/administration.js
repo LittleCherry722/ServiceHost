@@ -8,11 +8,9 @@ define([
 
 	var ViewModel = function() {
 
-		var self = this;
-
-		// self.tab = ko.observable("");
-		// self.tabs = ['General', 'Users', 'Roles', 'Groups', 'Debug'];
-		// self.subsites = ko.observable({
+		this.tabs = tabs;
+		this.currentTab = currentTab;
+		// this.subsites = ko.observable({
 		//   'General' : new GeneralViewModel(),
 		//   'Users' : new UserViewModel(),
 		//   'Roles' : new RoleViewModel(),
@@ -20,37 +18,24 @@ define([
 		//   'Debug' : new DebugViewModel()
 		// });
 
-		self.goToTab = function(tab) {
-
-			if(tab == self.tab())
-				return;
-
-			// load the selected tabs model & ui
-			self.subsites()[tab].init();
-
-			// set the tab for highlighting
-			self.tab(tab);
-
+		this.subsite = function() {
+			return this.subsites()[this.tab()];
 		}
 
-		self.subsite = function() {
-			return self.subsites()[self.tab()];
-		}
-
-		self.close = function() {
+		this.close = function() {
 			parent.$.fancybox.close();
 		}
 
-		self.save = function() {
+		this.save = function() {
 			var success = true;
 
-			for(var site in self.subsites()) {
+			for(var site in this.subsites()) {
 				// save all tabs
-				success = success && self.subsites()[site].save();
+				success = success && this.subsites()[site].save();
 			}
 
 			// and re-init the current tab
-			self.subsite().init();
+			this.subsite().init();
 
 			if(success) {
 				SBPM.Notification.Info("Information", "The administration has been saved.");
@@ -60,10 +45,25 @@ define([
 		}
 	}
 
+	var tabs = ['General', 'Users', 'Roles', 'Groups', 'Debug'];
+
+	var currentTab = ko.observable("Users");
+	currentTab.subscribe(function( newTab ) {
+		console.log("tab changed");
+	});
 
 
-	var initialize = function() {
-		// TODO
+	var initialize = function( subSite ) {
+		var viewModel;
+
+		console.log("initializing admin with site: " + subSite)
+		
+		viewModel = new ViewModel();
+
+		App.loadTemplate( "administration", viewModel, null, function() {
+			currentTab( subSite || tabs[0] )
+		});
+
 	}
 	
 	// Everything in this object will be the public API
