@@ -33,7 +33,6 @@ define([
 			$(".scrollable input.inline").last().focus()
 		}
 
-
 		this.remove = function( group ) {
 			group.destroy();
 		}

@@ -31,7 +31,7 @@ if (isset($_REQUEST['action'])) {
 		// Create a new graph
 	} elseif ($action == 'create') {
 		$attr_name = mysql_real_escape_string($_REQUEST['name']);
-		$attr_active = mysql_real_escape_string($_REQUEST['isActive']);
+		$attr_active = ($_REQUEST['isActive'] == "true" );
 		mysql_query("INSERT INTO `groups` ( `name`, `active` ) VALUES ( '" . $attr_name . "', '" . $attr_active . "' );");
 		$return['id'] = mysql_insert_id();
 		$return['name'] = $_REQUEST['name'];
@@ -52,7 +52,7 @@ if (isset($_REQUEST['action'])) {
 	} elseif ($action == 'save') {
 		$attr_id = mysql_real_escape_string($_REQUEST['id']);
 		$attr_name = mysql_real_escape_string($_REQUEST['name']);
-		$attr_active = (mysql_real_escape_string($_REQUEST['isActive']) == "true" );
+		$attr_active = ($_REQUEST['isActive'] == "true" );
     mysql_query("UPDATE `groups` SET `name` = '" . $attr_name . "', `active` = '" . $attr_active . "' WHERE `ID` = " . $attr_id);
 		$return['id'] = $_REQUEST['id'];
 		$return['name'] = $_REQUEST['name'];

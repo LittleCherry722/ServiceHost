@@ -12,13 +12,6 @@ define([
 	// validating the current process etc.
 	Group = Model( "Group", [ "name", "isActive" ] );
 
-	Group.extend({
-		createFromTable: function( subjects, messages, callback ) {
-			// updateListOfSubjects();
-			callback();
-		}
-	});
-
 	// Group.belongsTo( "graph" [>, { foreignKey: "graphID" } <] );
 	// Group.hasMany( "graphs" [>, { foreignModelName: "graph", foreignKey: "processID" } <] );
 

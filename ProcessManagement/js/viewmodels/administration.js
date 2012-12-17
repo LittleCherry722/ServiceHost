@@ -31,7 +31,7 @@ define([
 
 	var tabs = ['General', 'Users', 'Roles', 'Groups', 'Debug'];
 
-	var currentTab = ko.observable("Users");
+	var currentTab = ko.observable();
 
 	currentTab.subscribe(function( newTab ) {
 		App.loadSubView( "administration/" + newTab.toLowerCase() );
@@ -265,77 +265,5 @@ define([
 
 //   SubViewModel.call(self, "Roles");
 
-// }
-/**
- * extends SubViewModel
- */
-// var GroupViewModel = function() {
-//   var self = this;
-
-//   self.options = ko.observableArray();
-
-//   self.loadModel = function() {
-//     if(self.initialized)
-//       return;
-//     self.data.removeAll();// TODO Remove for better binding
-		
-//     var roles = SBPM.Service.Role.getAll();
-//     self.options.removeAll();
-
-//     var roleOption = function(name, id) {
-//       this.rolesName = name;
-//       this.rolesID = id;
-//     }
-//     for(var i in roles) {
-//       self.options.push(new roleOption(roles[i].name, roles[i].ID));
-//     }
-
-//     var transform = SBPM.Service.Group.getAll()
-
-//     for(var i in transform) {
-//       self.data.push({
-//         'groupName' : transform[i].name,
-//         'groupID' : transform[i].ID
-//       });
-//     }
-
-//     //ko.mapping.fromJS(SBPM.Service.Group.getallgroupsandroles(), self.data);
-
-//     self.initialized = true;
-//   }
-
-//   self.save = function() {
-//     var toSaveData = new Array();
-		
-//     for(var i in self.data()) {
-//       if(! self.data()[i].groupName == "")
-//         toSaveData.push(self.data()[i]);
-//     }
-//      self.data(toSaveData);
-		
-
-		
-//     SBPM.Service.Group.saveAll(toSaveData);
-//     self.loadModel();
-//     self.initialized = false;
-			
-//     return true;
-//   }
-
-//   self.create = function() {
-//     self.data.push({
-//       groupName : "",
-//       groupID : 'Will be assigned \n after save',
-//     });
-//     $(".scrollable input.inline").last().focus()
-
-//   }
-
-//   self.remove = function(group) {
-//     self.data.remove(group);
-//     SBPM.Service.Group.remove(group.groupID);
-//   }
-
-//   SubViewModel.call(self, "Groups");
 // }
 

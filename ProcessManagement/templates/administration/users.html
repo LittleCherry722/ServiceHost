@@ -1,0 +1,37 @@
+<div>
+	<table class="datatable">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th>Group</th>
+				<th>Active</th>
+				<th>Actions</th>
+				<th></th>
+				</tr>
+			</thead>
+			<tbody data-bind="foreach: users">
+				<tr>
+					<td data-bind="text: id"></td>
+					<td>
+						<input class="inline" data-bind='value: name' />
+					</td>
+					<td>
+						<select data-bind="options: $parent.groups,
+							optionsCaption: 'Select a group' , optionsText: 'name',
+							optionsValue : 'ID', selectedOptions: groupID"
+							class="chzn-select" multiple="multiple">
+						</select>
+					</td>
+					<td>
+						<input type="checkbox" data-bind="checked: isActive" />
+					</td>
+					<td>
+						<input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<input id="usersBtn" type="button" class="button" value="Create User" data-bind='click: create' />
+	</div>
+

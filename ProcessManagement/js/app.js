@@ -32,7 +32,7 @@ define([
 		], function( User, Process, Graph ) {
 
 			// The current user logged in to our system
-			currentUser( new User( "no user" ) );
+			currentUser( new User( { name: "no user" } ) );
 
 			// Initially fetch all Models, then initialize the views and after that,
 			// tell everyone that we are done (call the callback).
