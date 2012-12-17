@@ -12,15 +12,11 @@ define([
 	// validating the current process etc.
 	Process = Model( "Process", [ "name", "isCase", "graphID" ] );
 
-	Process.extend({
-		createFromTable: function( subjects, messages, callback ) {
-			// updateListOfSubjects();
-			callback();
-		}
-	});
 
 	Process.belongsTo( "graph" /*, { foreignKey: "graphID" } */ );
 	Process.hasMany( "graphs" /*, { foreignModelName: "graph", foreignKey: "processID" } */ );
+
+	// Process.extend({);
 
 	Process.include({
 		subjects: [],

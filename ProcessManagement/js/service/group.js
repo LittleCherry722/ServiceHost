@@ -1,6 +1,6 @@
 SBPM.Service.Group = {
 	    _default : {
-        endpoint : "groups.php"
+        endpoint : "group.php"
     },
 	    query : function(param, defaultvalue, callback) {
         return SBPM.DB.syncQuery(this._default.endpoint, param, defaultvalue, callback);

@@ -44,10 +44,10 @@ if (isset($_REQUEST['action'])) {
 		$return['processID'] = $_REQUEST['processID'];
 
 	// destroy an existing graph
-	} elseif ($_REQUEST['action'] == 'destroy') {
+	} elseif ($action == 'destroy') {
 		$graphs = mysql_query("SELECT * FROM `process_graphs` WHERE `ID` LIKE '" . $_REQUEST['id'] . "'");
 		if (mysql_num_rows($graphs) > 0) {
-			mysql_query("DELETE FROM `process_graphs`` WHERE `ID` LIKE '" . $_REQUEST['id'] . "'");
+			mysql_query("DELETE FROM `process_graphs` WHERE `ID` LIKE '" . $_REQUEST['id'] . "'");
 			$return['code'] = "removed";
 		} else {
 			$return['code'] = "error";
@@ -55,7 +55,6 @@ if (isset($_REQUEST['action'])) {
 
 	// save existing graph
 	} elseif ($action == 'save') {
-		$isProcess = (isset($_REQUEST['isCase']) && ($_REQUEST['isCase'] === "true" || $_REQUEST['isCase'] === true))? 0 : 1;
 		$id = mysql_real_escape_string($_REQUEST['id']);
 		$graph = mysql_real_escape_string($_REQUEST['graphString']);
 		$date = mysql_real_escape_string($_REQUEST['date']);

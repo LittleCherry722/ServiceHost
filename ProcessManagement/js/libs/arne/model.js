@@ -44,6 +44,49 @@ define([
 
 		var instances = ko.observableArray([]);
 
+		var createAttributeObservables = function( M, instance, attrs ) {
+			// Initialize every attriubute as a KnockOut observable
+			// and create a search mehtod for it.
+			for ( var i = 0; i < attrs.length; i++ ) {
+				// First we need to set up the CamelCase attiribute name so the
+				// method is called findByAttribute and not findByattribute and so on.
+				camelCasedAttribute = attrs[i][0].toUpperCase() + attrs[i].slice( 1, attrs[i].length );
+
+				instance[ attrs[i] ] = ko.observable();
+				instance[ attrs[i] + "Old" ] = ko.observable();
+
+				// Closure so we dont loose our precious attribute;
+				(function() {
+					var attr = attrs[i]
+
+					// Method to reset the changes to a specific attribute
+					instance[ attr+ "Reset" ] = function() {
+						instance[ attr ]( instance[ attr + "Old" ]() );
+					}
+
+					// Method to check whether a specific attribute has changed
+					instance[ attr + "HasChanged" ] = ko.computed({
+						read: function() {
+							return instance[ attr ]() !== instance[ attr + "Old" ]();
+						},
+						write: function( bool ) {
+							if ( bool === false ) {
+								instance[ attr + "Old" ]( instance[ attr ]() );
+							}
+							return false;
+						}
+					});
+				})();
+
+				// Create dynamic finder methods. This allows us to use for example
+				// Article.findByTitle("test") and we get back an array of Articles
+				// that match this exact title.
+
+				// Create dynamic attribute Finder
+				M[ "findBy" + camelCasedAttribute ] = dynamicFinderForAttribute( attrs[i] );
+			}
+		}
+
 		// Creates a dynamic attribute finder for a given attribute.
 		// This method consumes a search string
 		// (or more general an object) and a set of options.
@@ -85,6 +128,8 @@ define([
 
 		// Define our Base model
 		var Result = function( data ) {
+			var self = this;
+
 			var camelCasedAttribute;
 
 			this.isNewRecord = true;
@@ -94,22 +139,44 @@ define([
 			// method coming soon) etc.
 			this.className = modelName;
 
-			// Initialize every attriubute as a KnockOut observable
-			// and create a search mehtod for it.
-			for ( var i = 0; i < attrs.length; i++ ) {
-				this[ attrs[i] ] = ko.observable();
+			createAttributeObservables( Result, this, attrs );
 
-				// Create dynamic finder methods. This allows us to use for example
-				// Article.findByTitle("test") and we get back an array of Articles
-				// that match this exact title.
-				// First we need to set up the CamelCase attiribute name so the
-				// method is called findByAttribute and not findByattribute.
-				camelCasedAttribute = attrs[i][0].toUpperCase() + attrs[i].slice( 1, attrs[i].length );
+			this.hasChanged = ko.computed({
+				read: function() {
+					var i = 0,
+						length = attrs.length;
 
-				// Create dynamic attribute Finder
-				Result[ "findBy" + camelCasedAttribute ] = dynamicFinderForAttribute( attrs[i] );
+					for ( i = 0; i < length; i++ ) {
+						if ( self[ attrs[i] + "HasChanged" ]() ) {
+							return true;
+						}
+					}
+					return false;
+				},
+				write: function( bool ) {
+					var i = 0,
+						length = attrs.length;
+
+					if( bool ) {
+						return true;
+					}
+
+					for ( i = 0; i < length; i++ ) {
+						self[ attrs[i] + "HasChanged" ]( false );
+					}
+					return false;
+				}
+			});
+
+			this.reset = function() {
+				var i = 0,
+				length = attrs.length;
+
+				for ( i = 0; i < length; i++ ) {
+					this[ attrs[i] + "Reset" ]()
+				}
 			}
-
+			
 			// Initialize an empty error object.
 			this.errors = ko.observableArray([]);
 
@@ -231,6 +298,8 @@ define([
 				} else {
 					Result._saveExisting( this, options, callback );
 				}
+
+				this.hasChanged( false );
 			}
 
 			this.destroy = function( options, callback ) {
@@ -241,6 +310,17 @@ define([
 				if ( typeof options === "function" ) {
 					callback = options;
 					options = {}
+				}
+
+				if ( this.isNewRecord ) {
+					if ( _( instances() ).contains( this ) ) {
+						instances.remove( this )
+					}
+
+					if ( typeof callback === "function" ) {
+						callback();
+					}
+					return;
 				}
 
 				if ( !options ) {
@@ -358,6 +438,14 @@ define([
 			return newResult;
 		}
 
+		Result.build = function( data ) {
+			var result;
+
+			result = new Result( data );
+			instances.push( result );
+			
+			return result;
+		}
 
 		/*
 		 *  DB interaction behavior.
@@ -387,7 +475,10 @@ define([
 
 					// Mark this model as persisted (not new)
 					model.isNewRecord = false;
-					instances.push(model);
+					model.hasChanged( false );
+					if ( ! _( instances() ).contains( model ) ) {
+						instances.push( model );
+					}
 
 					// If a callback was given, call it and set "this" inside the
 					// callback function to our model instance
@@ -413,6 +504,13 @@ define([
 		Result._saveExisting = function( model, options, callback ) {
 			var newResult, JSONObject, attribute, data,
 				self = this;
+
+			if ( ! model.hasChanged() ) {
+				if ( typeof callback === "function" ) {
+					callback.call( model );
+				}
+				return;
+			}
 
 			data = model.toJSON();
 			data.action = "save";
@@ -514,10 +612,13 @@ define([
 					// instance of our model
 					_( JSONObject ).each(function( resultJSON ) {
 						newResult = newFromJSON( resultJSON );
+						newResult.hasChanged( false );
 
 						// Append the new model to our collection of Models.
 						// Every observer will be notified about this event.
-						instances.push( newResult );
+						if ( ! _( instances() ).contains( newResult ) ) {
+							instances.push( newResult );
+						}
 					});
 
 					if( typeof callback === "function" ) {
@@ -560,6 +661,18 @@ define([
 
 		Result.all = instances;
 
+
+		Result.resetAll = function() {
+			unsavedInstances = _( instances() ).filter(function( instance ) {
+				return instance.isNewRecord;
+			})
+
+			instances.removeAll( unsavedInstances );
+
+			_( instances() ).each(function( group ) {
+				group.reset();
+			});
+		}
 
 		// Initialize with an empty set of validators.
 		// Validators all have a name for easier identifiaction.

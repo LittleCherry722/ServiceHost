@@ -46,7 +46,7 @@ SBPM.Service.User = {
      * @param {int} roleId
      */
     getByRoleId : function(roleId) {
-        return SBPM.DB.syncQuery("groups.php", {
+        return SBPM.DB.syncQuery("group.php", {
             "action" : "getallusers",
             "groupid" : roleId
         }, {}, function(json) {
