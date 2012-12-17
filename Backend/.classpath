@@ -18,6 +18,7 @@
 	<classpathentry kind="lib" path="lib/spray-json_2.9.2-1.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/slick_2.10.0-RC1-0.11.2.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.22-bin.jar"/>
 	<classpathentry kind="con" path="lib/org.scala-ide.sdt.launching.SCALA_COMPILER_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/akka-testkit-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.5.jar"/>
