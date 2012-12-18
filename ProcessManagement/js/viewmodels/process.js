@@ -43,6 +43,15 @@ define([
 			return currentProcess().isCase() ? "Assigned User" : "Assigned Role"
 		});
 
+		this.rolesOrUsers = ko.computed(function() {
+			if ( currentProcess().isCase() ) {
+				return User.all();
+			} else {
+				return Role.all();
+			}
+		});
+
+
 		// List of available Processes (observable array)
 		// Needed for the list of related Processes
 		this.availableProcesses = Process.all;

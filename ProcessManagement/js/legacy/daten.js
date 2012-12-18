@@ -39,8 +39,9 @@ function setSubjectIDs() {
 		content = groups;
 	}
 
-	for(var i = 0; i < content.length; ++i)
-	insert += "<option>" + content[i] +"</option>";
+	for(var i = 0; i < content.length; ++i) {
+		insert += "<option>" + content[i] +"</option>";
+	}
 	document.getElementById('ge_cv_id').innerHTML = insert;
 	//Fire change event for listeners
 	$('#ge_cv_id').change();
