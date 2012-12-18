@@ -9,61 +9,30 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	User = Model( "User", [ "name", "isActive", "inputPoolSize" ] );
+	GroupsUsers = Model( "GroupsUsers", [ "isActive", "userID", "groupID" ], [ "userID", "groupID" ] );
 
-	User.hasMany( "groups", { through: "groupsUsers" } );
+	GroupsUsers.belongsTo( "user" );
+	GroupsUsers.belongsTo( "group" );
 
 	// Group.extend({);
 
-	User.include({
+	GroupsUsers.include({
 		// Initialize is a special method defined as an instance method.  If any
 		// method named "initializer" is given, it will be called upon object
 		// creation (when calling new model()) with the context of the model.
 		// That is, "this" refers to the model itself.
 		// This makes it possible to define defaults for attributes etc.
 		initialize: function( data ) {
-			var self = this;
-
 			if ( !data ) {
 				data = {};
 			}
 
 			// Set some defaults for the data object (used as a hash)
 			_( data ).defaults({
-				name: "",
-				isActive: true,
-				inputPoolSize: 8,
-				messageCount: 0
+				isActive: true
 			});
 
-			this.name( data.name );
 			this.isActive( data.isActive );
-			this.inputPoolSize( data.inputPoolSize );
-			this.messageCount = ko.observable( data.messageCount );
-
-			this.groupIDs = ko.observable();
-		},
-
-		beforeSave: function() {
-			var groupsNow, oldGroupIDs, newGroupIDs, toBePushedIDs, toBeDeletedIDs,
-
-			groupsOld = this.groups();
-			newGroupIDs = this.groupIDs();
-			
-			oldGroupIDs = groupsOld.map(function( group ) {
-				return group.id();
-			});
-
-			toBePushedIDs = _.difference( newGroupIDs, oldGroupIDs );
-			toBeDeletedIDs = _.difference( oldGroupIDs, newGroupIDs );
-
-			_( toBePushedIDs ).each(function( toBePushedID ) {
-				groupsOld.push( Group.find( toBePushedID ) );
-			})
-
-			_( toBeDeletedIDs ).each(function( toBeDeletedID ) {
-				groupsOld.remove( Group.find( toBeDeletedID ) );
-			})
 		}
 		
 		// Custom validator object. Validators are (like the initialize function)
@@ -72,5 +41,5 @@ define([
 		// validators: { }
 	});
 	
-	return User;
+	return GroupsUsers;
 });

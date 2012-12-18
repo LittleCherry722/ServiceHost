@@ -26,8 +26,8 @@ if (isset($_REQUEST['action'])) {
 			array_push( $results, array(
 				"id" => $result['ID'],
 				"name" => $result['name'],
-				"isActive" => $graph['active'],
-				"inputPoolSize" => $graph['inputpoolsize']
+				"isActive" => $result['active'],
+				"inputPoolSize" => $result['inputpoolsize']
 			));
 		}
 		$return = $results;

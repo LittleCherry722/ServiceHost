@@ -19,7 +19,7 @@
 					<td>
 						<select data-bind="options: $parent.groups,
 							optionsCaption: 'Select a group' , optionsText: 'name',
-							optionsValue : 'ID', selectedOptions: groupID"
+							optionsValue : 'id', selectedOptions: groupIDs"
 							class="chzn-select" multiple="multiple">
 						</select>
 					</td>
@@ -28,6 +28,7 @@
 					</td>
 					<td>
 						<input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />
+						<input type="button" class="button" value="Save" data-bind='click: $parent.save' />
 					</td>
 				</tr>
 			</tbody>

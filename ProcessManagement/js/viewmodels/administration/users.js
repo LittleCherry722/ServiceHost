@@ -44,27 +44,20 @@ define([
 
 		viewModel = new ViewModel();
 
-		// Get the required template and all users, groups if not already done.
-		App.loadTemplate( "administration/users", viewModel, "right_content", function() {
-			if ( Group.all().length === 0 ) {
-				Group.fetch();
-			}
-			if ( User.all().length === 0 ) {
-				User.fetch();
-			}
-			if ( typeof callback === "function" ) {
-				callback();
-			}
+		// Get the required template;
+		App.loadTemplate( "administration/users", viewModel, "right_content", callback);
+
+		_( User.all() ).each(function( user ) {
+			console.log(user.name())
+			groupIDs = _( user.groups() ).map(function( group ) {
+				return group.id();
+			});
+			user.groupIDs( groupIDs );
 		});
 	}
-
 	// Everything in this object will be the public API
 	return {
 		init: initialize
 	}
 });
-
-
-
-
 

@@ -8,9 +8,18 @@ define([
 ], function( _, ko, Router, require, async ) {
 	var models = [];
 
+	// Some Dynamic typecasting magic. Should *probably* be changed
+	// so that attributes have a specific type and we always try to cast to
+	// this type, but this have to do for now...
+	// Most type related work is done on the backend regardless.
+	//
+	// Assigns a value to an attribute and tries to find the right type.
+	// Basicly checks if a value is a string representation of any known
+	// JS keyword like true, false, undefined etc.
 	var jsonAssign = function(attribute, value) {
 		var castValue;
 
+		// Try casting the value
 		if ( value === "false" ) {
 			castValue = false;
 		} else if ( value === "true" ) {
@@ -25,25 +34,43 @@ define([
 			castValue = value;
 		}
 
-		attribute(castValue);
+		// Assign and return the value.
+		attribute( castValue );
 		return castValue;
 	}
 
 	// Our Model cunstructor function. Returns another constructor function.
-	var Model = function( modelName, attrs ) {
+	var Model = function( modelName, attrs, ids ) {
 		if ( !attrs ) {
 			attrs = [];
 		}
 
-		// Let every model have an "id" attribute
-		if ( !_( attrs ).contains( "id" ) ) {
-			attrs.push("id");
+		if ( !ids ) {
+			ids = [ "id" ];
+		} else {
+			if ( !_(ids).isArray() ) {
+				ids = [ ids ];
+			}
 		}
+
+		_( ids ).each(function( id ) {
+			// Let every model have an "id" attribute
+			if ( !_( attrs ).contains( id) ) {
+				attrs.push(id);
+			}
+		})
 
 		var modelPath = "db/" + modelName.toLowerCase();
 
+		// All currently available instances this Model are stored in this
+		// observableArray.
 		var instances = ko.observableArray([]);
 
+		// Creates basic methods that depend on the attributes of a model.
+		// Parameters are in order: The model constructor class, the specific
+		// instance of the model to which to assign the methods and an array
+		// of attributes as string that should be defined.
+		// The attributes should always include an "id" attribute.
 		var createAttributeObservables = function( M, instance, attrs ) {
 			// Initialize every attriubute as a KnockOut observable
 			// and create a search mehtod for it.
@@ -52,31 +79,15 @@ define([
 				// method is called findByAttribute and not findByattribute and so on.
 				camelCasedAttribute = attrs[i][0].toUpperCase() + attrs[i].slice( 1, attrs[i].length );
 
+				// Setup basic attribute accessors and oldValue accessors.
+				// Old values are mostly used internally to reset an attribute to the
+				// last saved state or determine if an attribute has changed but can
+				// just as well be accessed from the outside.
 				instance[ attrs[i] ] = ko.observable();
 				instance[ attrs[i] + "Old" ] = ko.observable();
 
-				// Closure so we dont loose our precious attribute;
-				(function() {
-					var attr = attrs[i]
-
-					// Method to reset the changes to a specific attribute
-					instance[ attr+ "Reset" ] = function() {
-						instance[ attr ]( instance[ attr + "Old" ]() );
-					}
-
-					// Method to check whether a specific attribute has changed
-					instance[ attr + "HasChanged" ] = ko.computed({
-						read: function() {
-							return instance[ attr ]() !== instance[ attr + "Old" ]();
-						},
-						write: function( bool ) {
-							if ( bool === false ) {
-								instance[ attr + "Old" ]( instance[ attr ]() );
-							}
-							return false;
-						}
-					});
-				})();
+				// Create HasChanged and reset methods.
+				createChangedMethod( instance, attrs[i] )
 
 				// Create dynamic finder methods. This allows us to use for example
 				// Article.findByTitle("test") and we get back an array of Articles
@@ -87,6 +98,31 @@ define([
 			}
 		}
 
+		// Creates hasChanged and Reset methods for every attribute.
+		// Given the attribute "name", generates the instance methods
+		// "nameHasChanged()" that returns true when the name has changed since the
+		// last save and "nameReset()" that resets the name to the value
+		// at the last save.
+		var createChangedMethod = function( instance, attr ) {
+			// Method to reset the changes to a specific attribute
+			instance[ attr+ "Reset" ] = function() {
+				instance[ attr ]( instance[ attr + "Old" ]() );
+			}
+
+			// Method to check whether a specific attribute has changed
+			instance[ attr + "HasChanged" ] = ko.computed({
+				read: function() {
+					return instance[ attr ]() !== instance[ attr + "Old" ]();
+				},
+				write: function( bool ) {
+					if ( bool === false ) {
+						instance[ attr + "Old" ]( instance[ attr ]() );
+					}
+					return false;
+				}
+			});
+		}
+
 		// Creates a dynamic attribute finder for a given attribute.
 		// This method consumes a search string
 		// (or more general an object) and a set of options.
@@ -95,7 +131,7 @@ define([
 		//		a plain list of results? Defaults to false (plain list).
 		//		If a computed object is wanted, to get to the actual results
 		//		the method has to be called:
-		//		Article.findByID(2, { observable: true })();
+		//		Article.findById(2, { observable: true })();
 		var dynamicFinderForAttribute = function( attribute ) {
 			return function( search, options ) {
 
@@ -128,8 +164,11 @@ define([
 
 		// Define our Base model
 		var Result = function( data ) {
+
+			// needed only in rare cases, but invaluable there.
 			var self = this;
 
+			// The camelCase nam
 			var camelCasedAttribute;
 
 			this.isNewRecord = true;
@@ -141,7 +180,18 @@ define([
 
 			createAttributeObservables( Result, this, attrs );
 
+			// The global hasChanged method that returns true when any attribute of
+			// the model was modified since the last save and false otherwise.
+			// Has to be a knockout computed since we have to check every attribute
+			// and if it has changed.
+			//
+			// Also allows us to set the hasChanged value, but only to false,
+			// essentially working as a global reset method.
 			this.hasChanged = ko.computed({
+
+				// Reading has changed: Loop through every attribute and check if the
+				// attributeHasChanged mehtod returns true. If so return early,
+				// otherwise return false at the end, meaning that nothing has changed.
 				read: function() {
 					var i = 0,
 						length = attrs.length;
@@ -153,13 +203,16 @@ define([
 					}
 					return false;
 				},
+
+				// Writing is similiar to reading the has changed value, only that we
+				// return early if a true value is given since we do not know how to
+				// set this. Otherwise delegate the work to the attribute specific
+				// hasChanged method that will reset the attribute for us.
 				write: function( bool ) {
 					var i = 0,
 						length = attrs.length;
 
-					if( bool ) {
-						return true;
-					}
+					if( bool ) { return true; }
 
 					for ( i = 0; i < length; i++ ) {
 						self[ attrs[i] + "HasChanged" ]( false );
@@ -168,13 +221,11 @@ define([
 				}
 			});
 
+			// The global reset method for our model instance.
+			// Resets every attribute of this model. Exactly the same as invoking
+			// hasChanged( false ) on the method, but more idiomatic.
 			this.reset = function() {
-				var i = 0,
-				length = attrs.length;
-
-				for ( i = 0; i < length; i++ ) {
-					this[ attrs[i] + "Reset" ]()
-				}
+				this.hasChanged( false );
 			}
 			
 			// Initialize an empty error object.
@@ -273,14 +324,13 @@ define([
 			 */
 			this.save = function( options, callback ) {
 
+				// Allow the callback to be on first position if no options are given.
 				if ( typeof options === "function" ) {
 					callback = options;
 					options = {}
 				}
 
-				if ( !options ) {
-					options = {};
-				}
+				if ( !options ) { options = {}; }
 
 				_( options ).defaults({
 					async: true
@@ -302,11 +352,13 @@ define([
 				this.hasChanged( false );
 			}
 
+			// Delete a specific record from the database
 			this.destroy = function( options, callback ) {
 				var JSONObject, data,
 					error = false,
 					model = this;
 
+				// Allow the callback to be on first position if no options are given.
 				if ( typeof options === "function" ) {
 					callback = options;
 					options = {}
@@ -323,18 +375,18 @@ define([
 					return;
 				}
 
-				if ( !options ) {
-					options = {};
-				}
+				if ( !options ) { options = {}; }
 
 				_( options ).defaults({
 					async: true
 				});
 
 				data = {
-					id: model.id(),
 					action: "destroy"
 				}
+				_( ids ).each(function( id ) {
+					data[ id ] = this[ id ]();
+				}, this);
 
 				$.ajax({
 					url: modelPath + ".php",
@@ -356,7 +408,7 @@ define([
 						} else {
 
 							// set the error message
-							error = "Could not delete " + model.className + ": " + model.name();
+							error = "Could not delete " + model.className + ": ";
 						}
 
 						// If a callback was given, call it and set "this" inside the
@@ -400,7 +452,6 @@ define([
 			// If a data object was supplied upon initialization,
 			// loop over every attribute and assign it to the attribute of our model.
 			// Only assign it if our model has an attribute with this name of course.
-			//
 			if ( data && typeof data === "object" ) {
 				_( attrs ).each(function( attribute ) {
 					if ( data[ attribute ] !== undefined ) {
@@ -415,7 +466,6 @@ define([
 			if ( typeof this.initialize === "function" ) {
 				this.initialize.call(this, data);
 			}
-
 		}
 
 		// Set the className as an static attribute to our newly created model.
@@ -427,7 +477,7 @@ define([
 		var newFromJSON = function(JSONObject) {
 			var newResult = new Result( JSONObject );
 
-			// If the server supplies an ID, set the ID of our current model.
+			// If the server supplies an id, set the id of our current model.
 			if ( JSONObject['id'] ) {
 				newResult.id( parseInt( JSONObject['id'], 10 ) );
 			}
@@ -662,13 +712,22 @@ define([
 		Result.all = instances;
 
 
+		// Resets all attributes of all models currently available / known by
+		// the instance (Model.all()) array.
+		// Deletes every unsaved object from the list of instances and then
+		// resets every remaining model instance.
 		Result.resetAll = function() {
+			var unsavedInstances;
+
+			// filter all instances and only return those who are a newRecord.
 			unsavedInstances = _( instances() ).filter(function( instance ) {
 				return instance.isNewRecord;
 			})
 
+			// No remove all unsaved instances from the array of model instances.
 			instances.removeAll( unsavedInstances );
 
+			// And reset all remaining instances.
 			_( instances() ).each(function( group ) {
 				group.reset();
 			});
@@ -718,9 +777,7 @@ define([
 		Result.belongsTo = function( modelName, options ) {
 			var foreignKey, keyToSet;
 
-			if ( !options ) {
-				options = {};
-			}
+			if ( !options ) { options = {}; }
 
 			_( options ).defaults({
 				foreignKey: modelName + "ID"
@@ -765,7 +822,7 @@ define([
 		 *	Aquarium.hasMany("octopi", { : foreignModelName: "octopus" })
 		 */
 		Result.hasMany = function( foreignModelPluralName, options ) {
-			var foreignKey, keyToSet, foreignModelName;
+			var foreignKey, keyToSet, foreignModelName, requireArray;
 
 			if ( !options ) { options = {}; }
 
@@ -778,39 +835,212 @@ define([
 			_( options ).defaults({
 				foreignModelName: foreignModelName,
 				foreignKey: toAttributeName( this.className, "ID" ),
-				foreignSearchMethod: "findBy" + this.className + "ID"
+				foreignSearchMethod: "findBy" + this.className + "ID",
+				through: undefined
 			});
+			
+			// Build the array with all paths to our needed models in advance.
+			// Needed because we are not certain if we need any intermediate model.
+			requireArray = [ "models/" + options.foreignModelName ];
+			if ( options.through ) {
+				requireArray.push( "models/" + options.through );
+			}
 
-			require( [ "models/" + options.foreignModelName ], function( foreignModel ) {
-
-				// setup of the method. This creates a new method that is called like
-				// the modelPluralName, for example "articles".
-				// This method optionally accepts an array
-				Result.prototype[ foreignModelPluralName ] = function( arrayOfForeignModels, opts ) {
-					if ( !opts ) { opts = {}; }
-					_( opts ).defaults({
-						observable: false
-					});
-
-					if ( arrayOfForeignModels ) {
-						if ( !this.id() || this.isNewRecord ) {
-							if ( console && typeof console.error === "function" ) {
-								console.error("Model must be saved before any foreign models can be assigned")
-							}
-						} else {
-							_( arrayOfForeignModels ).each(function( foreignModelInstance ) {
-								foreignModelInstance[ options.foreignKey ]( this.id() );
-							}.bind( this ))
-						}
-					} else {
-						if ( opts.observable ) {
-							return foreignModel[ options.foreignSearchMethod ]( this.id(), { observable: true } );
-						} else {
-							return foreignModel[ options.foreignSearchMethod ]( this.id() );
-						}
-					}
+			// IntermediateModel will only be available if a "hasMany { through: "..." }"
+			// relation has been defined.
+			require( requireArray, function( ForeignModel, IntermediateModel ) {
+				if ( options.through ) {
+					Result.prototype[ foreignModelPluralName ] =
+						createHasManyThroughAccessors.call( this, ForeignModel, IntermediateModel, options );
+				} else {
+					Result.prototype[ foreignModelPluralName ] =
+						createHasManyAccessors.call( this, ForeignModel, options );
 				}
 			});
+		}
+
+		// setup of the method. This creates a new method that is called like
+		// the modelPluralName, for example "articles".
+		var createHasManyAccessors = function( ForeignModel, options ) {
+			return function() {
+				results = ForeignModel[ options.foreignSearchMethod ]( this.id() );
+
+				// we want to be able to easily add or remove models to our relation.
+				// This is done by overriding the push method of the array we return
+				// and add a handy little remove method.
+				_push = results.push;
+
+				// Push a new object to the array of results and save the pushed model.
+				// Sets the foreign key of the foreign model to the id of our current model.
+				// If no ID could be found (probably because the record has not yet been
+				// persisted), save the record first.
+				// Also saves the foreign model after assigning the foreign key.
+				// Does so asynchronously if a callback is given or blockingly if
+				// the callback is ommited.
+				results.push = function( item, callback ) {
+
+					// Return if the item already exists in this relation
+					if ( _( results ).contains( item ) ) {
+						return;
+					}
+
+					// call the native push method.
+					_push.call( results, item );
+
+					// Save the record if it has not yet been saved
+					if ( !this.id() || this.isNewRecord ) {
+						this.save({ async: false });
+					}
+
+					// Set the forign key of the item to be added to our current ID.
+					item[ options.foreignKey ]( this.id() )
+
+					// If no callback was given, save blockingly, otherwise just
+					// supply the callback to the save method.
+					if ( !callback ) {
+						callback = { async: false }
+					}
+					item.save( callback );
+
+					return results;
+				}
+
+				results.remove = function( item, callback ) {
+					// Return if the item does not exist in this relation
+					if ( !_( results ).contains( item ) ) {
+						return;
+					}
+
+					// Reove the model from this relation array
+					results.splice( _(results).indexOf( item ), 1 );
+
+					// Save the record if it has not yet been saved.
+					if ( !this.id() || this.isNewRecord ) {
+						this.save({ async: false });
+					}
+
+					// Empty the foreign key of the item to be removed.
+					item[ options.foreignKey ]( -1 )
+
+					// If no callback was given, save blockingly, otherwise just
+					// supply the callback to the save method.
+					if ( !callback ) {
+						callback = { async: false }
+					}
+					item.save( callback );
+				}
+
+				// if no foreign models were given, this method is just a getter and
+				// return every foreign model matching
+				// the request.
+				return results
+			}
+		}
+
+		// This is where things get complicated.
+		// Setting up a has many association through a foreign model in order
+		// to get a many to many relation working.
+		var createHasManyThroughAccessors = function( ForeignModel, IntermediateModel, options ) {
+			return function(arrayOfForeignModels) {
+				var _push, intermediateResults, results, existingRelations,
+					intermediateForeignKey, intermediateModelObject, toBeDeletedIntermediate,
+					intermediateIndex,
+					self = this;
+
+				// First get all intermediate model instances whose foreignKey equal
+				// the ID of our current model.
+				intermediateResults = IntermediateModel[ options.foreignSearchMethod ]( self.id() );
+
+				// The results array will hold all final results, that is
+				// the foreign models that we want to access.
+				results = [];
+
+				// Iterate over every intermediate result and push the result of
+				// the "belongsTo" relation accessor that has been setup with the same
+				// name as our initial "hasMany X" relation.
+				// For example: Author hasMany("articles" { through: "articlesAuthor" })
+				// ArticlesAuthor belongsTo( "articles" ).
+				_( intermediateResults ).each(function( result ) {
+					results.push( result[ options.foreignModelName ]() )
+				});
+
+				// we want to be able to easily add or remove models to our relation.
+				// This is done by overriding the push method of the array we return
+				// and add a handy little remove method.
+				_push = results.push;
+
+				// Push a new object to the array of results and save the pushed model -
+				// That is create a new intermediate model with the IDs of our current
+				// model and the foreign model.
+				// But only, if no intermediate Model with this exact relation already
+				// exists. We can leverage our existing intermediate results for this.
+				results.push = function( item, callback ) {
+					intermediateForeignKey = toAttributeName( item.className, "ID" );
+
+					if ( !item.id() || item.isNewRecord ) {
+						item.save({ async: false });
+					}
+
+					// Array of existing relations that, in the end, match the ID of our
+					// current model and the ID of the foreignModel to be added to the
+					// relation.
+					existingRelations = _( intermediateResults ).filter(function( result ) {
+						return result[ intermediateForeignKey ]() === item.id();
+					});
+
+					// if no existing relations were found for this constellation of
+					// models, add it.
+					if ( existingRelations.length === 0 ) {
+						_push.call( results, item );
+
+						intermediateModelObject = {};
+						intermediateModelObject[ intermediateForeignKey ] = item.id();
+						intermediateModelObject[ options.foreignKey ]     = self.id();
+
+						if ( !callback ) {
+							callback = { async: false };
+						}
+						IntermediateModel.build( intermediateModelObject ).save( callback );
+					}
+
+					return results;
+				}
+
+				// add a remove method to the array for easy deletion of models from
+				// an association.
+				// Does only delete (from the DB) the intermediate relation, not the
+				// model itself.
+				results.remove = function( item, callback ) {
+					intermediateForeignKey = toAttributeName( item.className, "ID" );
+
+					// Array of existing relations that, in the end, match the ID of our
+					// current model and the ID of the foreignModel to be added to the
+					// relation.
+					existingRelations = _( intermediateResults ).filter(function( result ) {
+						return ( result[ intermediateForeignKey ]() === item.id() );
+					});
+
+					// If the DB was engineered sanely, we only get at most one result we
+					// have to delete now.
+					if ( existingRelations.length > 0 ) {
+						// Splice the results (js way of deleting array elements in place
+						// and returning the deleted element), and destroy the intermediate
+						// model in question (delete it from the DB).
+						if ( !callback ) {
+							callback = { async: false };
+						}
+
+						intermediateIndex = _( intermediateResults ).indexOf( existingRelations[0] )
+						toBeDeletedIntermediate = intermediateResults.splice( intermediateIndex, 1 )[0]
+						console.log( toBeDeletedIntermediate );
+						toBeDeletedIntermediate.destroy( callback );
+					}
+
+					return results;
+				}
+
+				return results;
+			}
 		}
 
 		models.push( Result );

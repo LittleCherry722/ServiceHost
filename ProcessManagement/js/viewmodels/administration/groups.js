@@ -44,23 +44,8 @@ define([
 
 		viewModel = new ViewModel();
 
-		// Get the required template and all Groups if not already done.
-		async.parallel([
-			function( cb ) {
-				App.loadTemplate( "administration/groups", viewModel, "right_content", cb );
-			},
-			function( cb ) {
-				if ( Group.all().length === 0 ) {
-					Group.fetch( cb );
-				} else {
-					cb( null, null );
-				}
-			}
-		], function( error, results ) {
-			if ( typeof callback === "function" ) {
-				callback();
-			}
-		})
+		// Get the required template.
+		App.loadTemplate( "administration/groups", viewModel, "right_content", callback );
 	}
 
 	// Everything in this object will be the public API
