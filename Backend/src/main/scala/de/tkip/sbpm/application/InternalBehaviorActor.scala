@@ -6,7 +6,7 @@ import miscellaneous.ProcessAttributes._
 /**
  * contains the businesslogic that will be modeled by the Graph
  */
-class InternalBehaviourActor extends Actor {
+class InternalBehaviorActor extends Actor {
   private val statesMap = collection.mutable.Map[StateID, BehaviourState]()
   private var startState: StateID = ""
 
