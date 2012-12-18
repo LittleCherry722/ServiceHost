@@ -17,11 +17,6 @@ case class SaveProcess(id: Option[Int] = None, name: String, graph: String, subj
 // delete process with id from db
 case class DeleteProcess(id: Int) extends ProcessAction
 
-// result message for GetProcess
-case class Process(id: Option[Int], name: String, startSubjects: String, graphId: Option[Int] = None)
-// represents a graph in the db
-case class Graph(id: Option[Int], definition: String, date: java.sql.Timestamp, processId: Int)
-
 /**
  * Handles database connection for "Process" entities using slick.
  */
@@ -35,15 +30,30 @@ class ProcessPersistenceActor extends Actor {
     // get process with given id
     case GetProcess(id) => sender ! queryEach("SELECT name FROM process where id = %d".format(id.get))(_.getString("name")).head
     // create new process
-    case SaveProcess(None, name, graph, subjects) => println("not yet implemented")
+    case SaveProcess(None, name, graph, subjects) => sender ! createProcess(name, graph, subjects)
     // save existing process
-    case SaveProcess(id, name, graph, subjects) => println("not yet implemented")
+    case SaveProcess(id, name, graph, subjects) => sender ! updateProcess(id.get, name, graph, subjects)
     // delete process with given id
-    case DeleteProcess(id) => println("not yet implemented")
+    case DeleteProcess(id) => sender ! execute("DELETE FROM process where id = %d".format(id))
     case _ => println("not yet implemented")
   }
 
   // returns current timestamp
   private def now = new java.sql.Timestamp(java.lang.System.currentTimeMillis())
 
+  private def createProcess(name: String, graph:String, subjects:String) = {
+    val id = autoInc("INSERT INTO process (name, startSubjects) VALUES ('%s', '%s')".format(name, graph))
+    val graphId = createGraph(graph, id)
+    execute("UPDATE process SET graphID = %d WHERE id = %d".format(graphId, id))
+    id
+  }
+  
+  private def createGraph(graph: String, processId: Int) =
+    autoInc("INSERT INTO process_graphs (graph, processID, date) VALUES ('%s', %d, '%s')".format(graph, processId, now.toString()))
+  
+  private def updateProcess(id: Int, name:String, graph:String, subjects:String) ={
+    val graphId = createGraph(graph, id)
+    execute("UPDATE process SET graphID = %d, name = '%s', startSubjects = '%s' WHERE id = %d".format(graphId, name, subjects, id))
+    id
+  }
 }
