@@ -223,9 +223,6 @@ define([
 			// Graph already exists. Just load it.
 			loadGraph( process.graph() );
 		}
-
-		// Notify the user that the process has successfully been loaded
-		Notify.info( "Information", "Process \""+ process.name() +"\" successfully loaded." );
 	});
 
 
@@ -347,6 +344,11 @@ define([
 			});
 		})
 
+		var updateSubjectIDs = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
+		$(updateSubjectIDs).on("click", function() {
+			updateListOfSubjects();
+		})
+
 		// Initialize our chosen selects for subjects and channels.
 		$( "#slctSbj" ).chosen();
 		$( "#slctChan" ).chosen();
@@ -397,6 +399,12 @@ define([
 		$.subscribeOnce( "tk_graph/nodeClickedHook", showNodeFields );
 		$.subscribeOnce( "tk_graph/subjectClickedHook", showOrHideRoleWarning );
 		$.subscribeOnce( "tk_graph/subjectDblClickedExternal", goToExternalProcess);
+
+    window.onbeforeunload = function( e ) {
+      if ( graphHasUnsavedChanges() ) {
+        return "The graph has changed and not yet been saved. Are you sure you want to leave this site and loose all unsaved changes?";
+      }
+    }
 	}
 
 	// Unsubscreibe from all subscriptions thet we subscribed to on
@@ -410,6 +418,8 @@ define([
 		$.unsubscribe( "tk_graph/nodeClickedHook", showNodeFields );
 		$.unsubscribe( "tk_graph/subjectClickedHook", showOrHideRoleWarning );
 		$.unsubscribe( "tk_graph/subjectDblClickedExternal", goToExternalProcess);
+
+    window.onbeforeunload = undefined;
 	}
 
 
@@ -608,6 +618,19 @@ define([
 		});
 	}
 
+  // check if the graph has unsaved changes. We wouldnt want to loose them.
+  var graphHasUnsavedChanges = function() {
+		return currentGraph().graphString() !=  gv_graph.saveToJSON();
+  }
+
+  var confirmExit = function( callback ) {
+    if ( graphHasUnsavedChanges() ) {
+      return confirm("The graph has changed and not yet been saved. Are you sure you want to leave this site and loose all unsaved changes?");
+    } else {
+      return true;
+    }
+  }
+
 	// This function gets called when another view is loaded.
 	// At the moment, just unsubscribe all listeners we have set up that are not
 	// bound to the DOM (and therefore do not get unsubscribed automatically).
@@ -620,8 +643,11 @@ define([
 		unsubscribeAll();
 
 		// return true so the view actually gets unloaded.
-		return true;
+    return true;
 	}
+
+  // check whether we can unload or not
+  var canUnload = confirmExit;
 	
 	// Everything in this object will be the public API
 	return {

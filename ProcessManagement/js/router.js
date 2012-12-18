@@ -22,7 +22,6 @@ define([ "director", "app"], function( Director, App ) {
 
 	var showProcess = function( processID, subjectID ) {
 		expandListOfProcesses();
-		console.log("router subject id:'" + subjectID + "'")
 
 		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByIDs ) {
 			App.currentMainViewModel().loadProcessByIDs( processID, subjectID, globalCallback() );
@@ -33,8 +32,9 @@ define([ "director", "app"], function( Director, App ) {
 
 	// Show the home (index) page.
 	var showHome = function() {
-		App.currentMainViewModel(null);
-		App.loadTemplate( "home", null, globalCallback() );
+		if ( unloadViewModel ) {
+			App.loadTemplate( "home", null, globalCallback() );
+		}
 	}
 
 	var showNewProcess = function() {

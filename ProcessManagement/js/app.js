@@ -76,14 +76,8 @@ define([
 		}
 		args.push( callback )
 
-		if ( currentMainViewModel() ) {
-			// check if the unload method is actually set
-			if ( typeof currentMainViewModel().unload === 'function' ) {
-				// call "unload" and exit early if it retunes a falsey value
-				if ( !currentMainViewModel().unload() ) {
-					return;
-				}
-			}
+		if ( !unloadViewModel() ) {
+			return;
 		}
 
     // just load our new viewmodel and call the init method.
@@ -91,6 +85,35 @@ define([
 			viewModel.init.apply(viewModel, args );
 			currentMainViewModel( viewModel );
 		});
+	}
+
+	var unloadViewModel = function() {
+		if ( currentMainViewModel() ) {
+			// check if the unload method is actually set
+			if ( typeof currentMainViewModel().unload === 'function' ) {
+				// call "unload" and exit early if it retunes a falsey value
+				if ( !currentMainViewModel().unload() ) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	var viewCanUnload = function() {
+		console.log("can unload called")
+		if ( currentMainViewModel() ) {
+
+			console.log("viewmodel exists")
+			// check if the unload method is actually set
+			if ( typeof currentMainViewModel().canUnload === 'function' ) {
+				console.log("calling specific canUnload")
+				return currentMainViewModel().canUnload();
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -187,6 +210,8 @@ define([
 		loadTemplates: loadTemplates,
 		currentMainViewModel: currentMainViewModel,
 		loadView: loadView,
-		loadSubView: loadSubView
+		loadSubView: loadSubView,
+		viewCanUnload: viewCanUnload,
+		unloadViewModel: unloadViewModel
 	}
 });
