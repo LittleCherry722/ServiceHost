@@ -10,6 +10,7 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.event.Logging
 import spray.json._
+import de.tkip.sbpm.rest._
 
 object Entity {
   val PROCESS = "process"

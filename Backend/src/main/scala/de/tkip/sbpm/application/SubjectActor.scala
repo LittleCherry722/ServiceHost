@@ -14,7 +14,7 @@ class SubjectActor(processManagerRef: ProcessManagerRef, subjectName: SubjectNam
   case object JobDone
   case class IPRef(ipRef: ActorRef)
 
-  private val internalBehaviourActor = context.actorOf(Props[InternalBehaviourActor]) // create InternalBehaviorActor
+  private val internalBehaviourActor = context.actorOf(Props[InternalBehaviorActor]) // create InternalBehaviorActor
 
   def receive = {
     case ip: IPRef => ipRef = ip.ipRef
