@@ -22,6 +22,7 @@ define([ "director", "app"], function( Director, App ) {
 
 	var showProcess = function( processID, subjectID ) {
 		expandListOfProcesses();
+		console.log("router subject id:'" + subjectID + "'")
 
 		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByIDs ) {
 			App.currentMainViewModel().loadProcessByIDs( processID, subjectID, globalCallback() );
@@ -65,7 +66,7 @@ define([ "director", "app"], function( Director, App ) {
 			"/new": showNewProcess,
 			"/:process/": {
 				on: showProcess,
-				"/:subject": showProcess
+				"/(.+)": showProcess
 			}
 		}
 	}

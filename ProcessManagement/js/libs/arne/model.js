@@ -17,7 +17,7 @@ define([
 	// Basicly checks if a value is a string representation of any known
 	// JS keyword like true, false, undefined etc.
 	var jsonAssign = function(attribute, value) {
-		var castValue;
+		var castValue, trueValues;
 
 		// Try casting the value
 		if ( value === "false" ) {
@@ -222,10 +222,11 @@ define([
 			});
 
 			// The global reset method for our model instance.
-			// Resets every attribute of this model. Exactly the same as invoking
-			// hasChanged( false ) on the method, but more idiomatic.
+			// Resets every attribute of this model.
 			this.reset = function() {
-				this.hasChanged( false );
+				_(attrs).each(function( attr ) {
+					this[ attr + "Reset" ]();
+				}, this);
 			}
 			
 			// Initialize an empty error object.
@@ -418,7 +419,7 @@ define([
 						}
 					},
 					error: function( error ) {
-						if ( console && typeof console.log === "function" ) {
+						if ( console && typeof console.error === "function" ) {
 							console.error( error )
 						}
 
@@ -537,8 +538,8 @@ define([
 					}
 				},
 				error: function( error ) {
-					if ( console && typeof console.log === "function" ) {
-						console.log( error )
+					if ( console && typeof console.error === "function" ) {
+						console.error( error )
 					}
 
 					// If a callback was given, call it and set "this" inside the
@@ -588,8 +589,8 @@ define([
 					}
 				},
 				error: function( error ) {
-					if ( console && typeof console.log === "function" ) {
-						console.log( error )
+					if ( console && typeof console.error === "function" ) {
+						console.error( error )
 					}
 
 					// If a callback was given, call it and set "this" inside the
@@ -651,7 +652,7 @@ define([
 					} catch( error ) {
 						if ( console && typeof console.error === "function" ) {
 							console.error( "Service: Error parsing JSON: " + JSONString );
-							console.error( "Error: " + error )
+							console.error( "Error: " + error );
 						}
 
 						// We do not want to do anything else if we encoutnered an error
@@ -676,8 +677,8 @@ define([
 					}
 				},
 				error: function( error ) {
-					if ( console && typeof console.log === "function" ) {
-						console.log( error );
+					if ( console && typeof console.error === "function" ) {
+						console.error( error );
 					}
 					if( typeof callback === "function" ) {
 						callback.call(this, error);
@@ -1032,7 +1033,6 @@ define([
 
 						intermediateIndex = _( intermediateResults ).indexOf( existingRelations[0] )
 						toBeDeletedIntermediate = intermediateResults.splice( intermediateIndex, 1 )[0]
-						console.log( toBeDeletedIntermediate );
 						toBeDeletedIntermediate.destroy( callback );
 					}
 

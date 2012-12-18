@@ -23,15 +23,18 @@ if (isset($_REQUEST['action'])) {
 		$query = mysql_query("SELECT * FROM `groups` ORDER BY `ID`");
 		$results = array();
 		while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
-			array_push( $results, array( "id" => $result['ID'], "name" =>
-				$result['name'], "isActive" => $graph['active'] ) );
+			array_push( $results, array(
+				"id" => $result['ID'],
+				"name" => $result['name'],
+				"isActive" => ($result['active'] == "1")
+			));
 		}
 		$return = $results;
 
 		// Create a new graph
 	} elseif ($action == 'create') {
 		$attr_name = mysql_real_escape_string($_REQUEST['name']);
-		$attr_active = ($_REQUEST['isActive'] == "true" );
+		$attr_active = ($_REQUEST['isActive'] == "true" )? 1 : 0;
 		mysql_query("INSERT INTO `groups` ( `name`, `active` ) VALUES ( '" . $attr_name . "', '" . $attr_active . "' );");
 		$return['id'] = mysql_insert_id();
 		$return['name'] = $_REQUEST['name'];
@@ -52,15 +55,21 @@ if (isset($_REQUEST['action'])) {
 	} elseif ($action == 'save') {
 		$attr_id = mysql_real_escape_string($_REQUEST['id']);
 		$attr_name = mysql_real_escape_string($_REQUEST['name']);
-		$attr_active = ($_REQUEST['isActive'] == "true" );
+		$attr_active = ($_REQUEST['isActive'] == "true" )? 1 : 0;
     mysql_query("UPDATE `groups` SET `name` = '" . $attr_name . "', `active` = '" . $attr_active . "' WHERE `ID` = " . $attr_id);
 		$return['id'] = $_REQUEST['id'];
 		$return['name'] = $_REQUEST['name'];
 		$return['isActive'] = $_REQUEST['isActive'];
 	}
 
-	if (!empty($return)){
-		echo json_encode($return);
+	if (!empty($return)) {
+		if ( sizeof($return) == 0 ) {
+			echo "{}";
+		} else {
+			echo json_encode($return);
+		}
+	} else {
+		 echo "{}";
 	}
 }
 ?>

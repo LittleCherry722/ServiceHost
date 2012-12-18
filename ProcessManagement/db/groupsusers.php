@@ -65,8 +65,14 @@ if (isset($_REQUEST['action'])) {
 		$return['isActive'] = $_REQUEST['isActive'];
 	}
 
-	if (!empty($return)){
-		echo json_encode($return);
+	if (!empty($return)) {
+		if ( sizeof($return) == 0 ) {
+			echo "{}";
+		} else {
+			echo json_encode($return);
+		}
+	} else {
+		 echo "{}";
 	}
 }
 

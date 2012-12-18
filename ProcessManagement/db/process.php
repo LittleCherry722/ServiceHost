@@ -29,9 +29,12 @@ if (isset($_REQUEST['action'])) {
 		$result = mysql_query("SELECT * FROM `process` ORDER BY `ID`");
 		$processes = array();
 		while ($process = mysql_fetch_array($result, MYSQL_ASSOC)) {
-			array_push( $processes, array( "id" => $process['ID'], "name" =>
-				$process['name'], "isCase" => ( $process['isProcess'] == '0' ),
-				"graphID" => $process['graphID'] ) );
+			array_push( $processes, array(
+				"id" => $process['ID'],
+				"name" => $process['name'],
+				"isCase" => ( $process['isProcess'] == '0' ),
+				"graphID" => $process['graphID']
+			));
 		}
 		$return = $processes;
 
@@ -270,7 +273,13 @@ if (isset($_REQUEST['action'])) {
 	// }
 
 	if (!empty($return)) {
-		echo json_encode($return);
+		if ( sizeof($return) == 0 ) {
+			echo "{}";
+		} else {
+			echo json_encode($return);
+		}
+	} else {
+		 echo "{}";
 	}
 }
 ?>

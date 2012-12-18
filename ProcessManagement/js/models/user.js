@@ -42,6 +42,12 @@ define([
 			this.messageCount = ko.observable( data.messageCount );
 
 			this.groupIDs = ko.observable();
+			this.groupIDsReset = function() {
+				var groupIDs = _( this.groups() ).map(function( group ) {
+					return group.id();
+				});
+				this.groupIDs( groupIDs );
+			}
 		},
 
 		beforeSave: function() {
@@ -50,7 +56,7 @@ define([
 			groupsOld = this.groups();
 			newGroupIDs = this.groupIDs();
 			
-			oldGroupIDs = groupsOld.map(function( group ) {
+			oldGroupIDs = _( groupsOld ).map(function( group ) {
 				return group.id();
 			});
 

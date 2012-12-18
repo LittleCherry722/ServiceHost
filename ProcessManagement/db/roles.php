@@ -196,7 +196,14 @@ if (isset($_REQUEST['action'])){
 	
 
 
-	if (!empty($return))
+	if (!empty($return)) {
+		if ( sizeof($return) == 0 ) {
+			echo "{}";
+		} else {
 			echo json_encode($return);
+		}
+	} else {
+		 echo "{}";
+	}
 }
 ?>

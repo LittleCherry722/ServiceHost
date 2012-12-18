@@ -66,8 +66,14 @@ if (isset($_REQUEST['action'])) {
 		$return['processID'] = $_REQUEST['processID'];
 	}
 
-	if (!empty($return)){
-		echo json_encode($return);
+	if (!empty($return)) {
+		if ( sizeof($return) == 0 ) {
+			echo "{}";
+		} else {
+			echo json_encode($return);
+		}
+	} else {
+		 echo "{}";
 	}
 }
 ?>

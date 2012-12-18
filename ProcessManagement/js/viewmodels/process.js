@@ -162,6 +162,7 @@ define([
 	// When a subject is clicked in chosen, go to the internal behavior of the
 	// subject.
 	currentSubject.subscribe(function( subject ) {
+		console.log("'"+subject+"'")
 		var newRoute;
 
 		// Do not do anything if an empty subject is selected.
