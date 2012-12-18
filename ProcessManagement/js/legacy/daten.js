@@ -105,130 +105,10 @@ else {
 }
 */
 
-function GraphSpeichern() {
-
-    var graphAsJSON = gv_graph.saveToJSON();
-    
-    var startSubjects = [];
-    
-    for (var subject in gv_graph.subjects)
-        startSubjects.push(getGroupID(subject));
-    
-    var startSubjectsAsJSON = JSON.stringify(startSubjects);
-    
-      
-    if(saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
-    	$("#freeow").freeow("Save process", "Process \"" + processName +"\" successfully saved.", {
-    		classes: [,"ok"],
-    		autohide: true
-    	});
-    } else {
-    	$("#freeow").freeow("Save process", "Process \"" + processName + "\" could not be saved.", {
-    		classes: [,"error"],
-    		autohide: true
-    	});
-    }
-
-}
-
-function GraphSpeichernAls(newName) {
-
-	
-	var graphAsJSON = gv_graph.saveToJSON();
-    
-    var startSubjects = [];
-    
-    for (var subject in gv_graph.subjects)
-        startSubjects.push(getGroupID(subject));
-    
-    var startSubjectsAsJSON = JSON.stringify(startSubjects);
-		
-	createProcess(newName);
-	
-	//saveGraph(getProcessID(newName), graphAsJSON, startSubjectsAsJSON);
-	
-	    if(saveGraph(getProcessID(processName), graphAsJSON, startSubjectsAsJSON)) {
-    	$("#freeow").freeow("Save process", "Process \"" + newName +"\" successfully saved.", {
-    		classes: [,"ok"],
-    		autohide: true
-    	});
-    } else {
-    	$("#freeow").freeow("Save process", "Process \"" + newName + "\" could not be saved.", {
-    		classes: [,"error"],
-    		autohide: true
-    	});
-    }
-}
-function ProzessLaden(name) {
-
-    console.log(arguments.callee);
-
-    gv_graph.clearGraph();
-
-	gv_graph.loadFromJSON(loadGraph(getProcessID(name)));
-
-	processName = name;
-	document.getElementById("welcome").style.display = "none";
-	document.getElementById('ausfuehrung').style.display = 'none';
-	document.getElementById("graph").style.display = "block";
-	document.getElementById('process_name').innerHTML = "Process: " + processName;
-	document.getElementById("save").style.display = "block";
-	document.getElementById("saveAs").style.display = "block";
-	document.getElementById('tab3_user').innerHTML = "Person in charge for user: " + SBPM.Storage.get("loggedin_user");
-	shownothing();
-	setSubjectIDs();
-	$("#freeow").freeow("Load process", "Process \"" + name + "\" successfully loaded.", {
-		classes: [,"ok"],
-		autohide: true
-	});
-	updateListOfSubjects();
-	$("input[id=tab2]").trigger("click");  
-
-}
-
-
-function clearListOfChannels(){
-	console.log("Deprecated: daten.js");
-	$("#slctChan").val('').trigger("liszt:updated");
-	$("#slctChan").html('').trigger("liszt:updated");
-}
-
 function clearListOfMacros(){
 	console.log("Deprecated: daten.js");
 	$("#slctMacro").val('').trigger("liszt:updated");
 	$("#slctMacro").html('').trigger("liszt:updated");
-}
-
-function clearListOfSubjects(){
-	console.log("Deprecated: daten.js");
-	$("#slctSbj").val('').trigger("liszt:updated");
-	$("#slctSbj").html('').trigger("liszt:updated");
-}
-
-function updateListOfChannels(){
-	console.log("Deprecated: daten.js");
-
-	clearListOfChannels();
-	var html = "<option></option>";
-
-	var channelList	= gf_getChannels();
-
-	for(var chid in channelList){
-
-		if (""+chid == gf_getSelectedChannel()){
-
-			html += "<option selected id=\""+chid+"\">"+channelList[chid]+"</option>";
-
-		} else {
-			html += "<option id=\""+chid+"\">"+channelList[chid]+"</option>";
-		}
-	}
-
-
-	$('#slctChan').html(html);
-	$("#slctChan").trigger("liszt:updated");
-	//Workaround, Chosen fails to reset, can't select same internal behavior twice with dropdown. Fix: add click listener to every chosen option (not native select option).
-	$(".active-result").click(function(){gf_selectChannel($('#slctChan option:selected').attr('id'))});
 }
 
 function updateListOfMacros(){
@@ -264,53 +144,6 @@ function updateListOfMacros(){
 		$('#slctMacro').hide();
 	}
 }
-
-function updateListOfSubjects(){
-	console.log("Deprecated: daten.js");
-
-	//console.log(gv_graph.subjects);
-
-	clearListOfSubjects();
-	var html = "<option></option>";
-
-	for(var subject in gv_graph.subjects) {
-			if (!gv_graph.subjects[subject].isExternal() || gv_graph.subjects[subject].getExternalType() == "interface") {
-					if (""+subject == gv_graph.selectedNode) {
-							html += "<option selected id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
-						} else {
-							html += "<option id=\""+subject+"\">"+gv_graph.subjects[subject].getText()+"</option>";
-						}
-				}
-		}
-
-
-		$('#slctSbj').html(html);
-		$("#slctSbj").trigger("liszt:updated");
-
-		// Workaround, Chosen fails to reset, can't select same internal behavior
-		// twice with dropdown. Fix: add click listener to every chosen option
-		// (not native select option).
-		$(".active-result").click(function() {
-			goToInternalBehaviorOf($('#slctSbj option:selected').attr('id'))
-		});
-}
-
-
-
-
-function goToInternalBehaviorOf(subject){
-	console.log("Deprecated: daten.js");
-	//alert(subject);
-
-	gv_graph.selectedSubject = null;
-	gf_clickedCVnode(subject);
-	showtab1();
-	updateListOfSubjects();
-	
-	SBPM.VM.contentVM().activeViewIndex(1);
-}
-
-
 
 
 function addHistory(data, userid, subjectid, node){ 
@@ -396,13 +229,6 @@ function findNode(graph, subjectid, nodeid){
 }
 
 
-
-
-
-
-
-
-
 function sendTextMessage(type, receiver){
 	console.log("Deprecated: daten.js");
 	var data = JSON.parse("{}");
@@ -412,41 +238,5 @@ function sendTextMessage(type, receiver){
 	addHistoryMessage(SBPM.Storage.get("instancedata"), SBPM.Storage.get("userid"), getMessage(msgid), data, true);
 	return true;
 }
-/*
-function newInstance(name) {
-
-	// create the instance
-	SBPM.Storage.set("instanceid", createInstance(getProcessID(name)));
-	//instanceID        = createInstance(getProcessID(name));
-	SBPM.Storage.set("instanceProcessID", getProcessID(name));
-	// get the data
-	//var data          = loadInstanceData(instanceID);
-	SBPM.Storage.set("instancedata", loadInstanceData(SBPM.Storage.get("instanceid")));
-	// get the graph
-	//var instancegraph = loadInstanceGraph(instanceID);
-	SBPM.Storage.set("instancegraph", loadInstanceGraph(SBPM.Storage.get("instanceid")));
-	// get our groups
-	SBPM.Storage.set("userid", getUserID(SBPM.Storage.get("loggedin_user")));
-	var groups = getAllGroupsForUser(SBPM.Storage.get("userid"));
-
-	document.getElementById("welcome").style.display = "none";
-	document.getElementById('ausfuehrung').style.display = 'block';
-	document.getElementById("graph").style.display = "none";
-	document.getElementById('instance_from_process').innerHTML = "Instance of process: " + name;
-	document.getElementById("abortInstanceButton").style.display = "block";
-	
-	var insert = "<tr><td align=\"center\">Startknoten w&auml;hlen</td><td align=\"center\">";
-	insert += "<table class=\"data\" width=\"60%\" cellpadding=\"0\" cellspacing=\"0\"><thead><tr><th style=\"width:40%\">Subjekt</th><th style=\"width:60%\">Node</th></tr></thead><tbody>";
-	for (group in groups){
-		var groupid = groups[group];
-		var nodes = findStartNodesForGroup(SBPM.Storage.get("instancegraph"), groupid);
-		for (i = 0; i < nodes.length; i++){					
-			insert += "<tr><td align=\"center\">" + getGroupName(groupid) + "</td><td align=\"center\"><input type=\"button\" value=\""+ nodes[i].text +"\" onClick=\"selectNextNode('"+ groupid +"','"+ nodes[i].id +"');writeSumActiveInstances();\"/></td></tr>";
-		}
-	}
-	insert += "</tbody></table>";
-	document.getElementById('instance_history').innerHTML = insert;
-}
-*/
 
 

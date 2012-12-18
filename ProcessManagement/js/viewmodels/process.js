@@ -399,12 +399,6 @@ define([
 		$.subscribeOnce( "tk_graph/nodeClickedHook", showNodeFields );
 		$.subscribeOnce( "tk_graph/subjectClickedHook", showOrHideRoleWarning );
 		$.subscribeOnce( "tk_graph/subjectDblClickedExternal", goToExternalProcess);
-
-    window.onbeforeunload = function( e ) {
-      if ( graphHasUnsavedChanges() ) {
-        return "The graph has changed and not yet been saved. Are you sure you want to leave this site and loose all unsaved changes?";
-      }
-    }
 	}
 
 	// Unsubscreibe from all subscriptions thet we subscribed to on
@@ -418,8 +412,6 @@ define([
 		$.unsubscribe( "tk_graph/nodeClickedHook", showNodeFields );
 		$.unsubscribe( "tk_graph/subjectClickedHook", showOrHideRoleWarning );
 		$.unsubscribe( "tk_graph/subjectDblClickedExternal", goToExternalProcess);
-
-    window.onbeforeunload = undefined;
 	}
 
 

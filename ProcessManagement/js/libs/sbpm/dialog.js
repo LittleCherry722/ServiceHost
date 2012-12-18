@@ -16,7 +16,7 @@ define([], function() {
 			autoScale: true,
 			width : '400px',
 			content : '<div id="dialog-header"> <div id="dialog-logo"> <h3>' + title +
-				'</h3></div></div><div style="margin:10px; width:270px">' +
+				'</h3></div></div><div id="fancyboxGenericPopup" style="margin:10px; width:270px">' +
 				'	<br>' + text + '<br><br><br>' +
 				'	<div id="dialog-buttons" align="center" >' +
 				buildButtonString(buttons) + '</div></div>',
@@ -33,18 +33,17 @@ define([], function() {
 
 	var Dialog = function() {
 		this.urgentNotice = function(title, text) {
-			return Dialog.generic(title || "Notice", text);
+			return genericDialog(title || "Notice", text);
 		}
 
 		this.notice = function(title, text, okAction) {
-			return Dialog.generic(title || "Notice", text, [{
+			return genericDialog(title || "Notice", text, [{
 				id : "okBtn",
 				name : "Ok",
 				action : okAction ||
 					function() {
 					$.fancybox.close();
 				}
-
 			}]);
 		}
 
