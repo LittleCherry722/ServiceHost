@@ -741,8 +741,11 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 					
 					for (rrId in this.multiRR)
 		 			{
-						if (this.rectangle == null)
+						if (this.multiRR[rrId] == null)
+						{
 							this.multiRR[rrId]	= gv_paper.rect(0, 0, 0, 0, 0);
+							this.multiRR[rrId].toBack();
+						}
 							
 						this.multiRR[rrId].show();
 					}

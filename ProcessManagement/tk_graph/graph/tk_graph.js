@@ -136,6 +136,32 @@ var gv_times	= {};
 var gv_timeStart	= {};
 
 /**
+ * TODO
+ */
+function gf_callFunc (func, fallback)
+{
+	var gt_arguments	= Array.prototype.slice.call(arguments, 2);
+	var gt_funcInfo		= func.split(".");
+	
+	if (!gf_isStandAlone() && gf_hasSubscribers(gv_topics[gt_funcInfo[0]][gt_funcInfo[1]]))
+	{
+		$.publish(gv_topics[gt_funcInfo[0]][gt_funcInfo[1]], gt_arguments);
+	}
+	
+	var gt_values	= null;
+	if (!gf_isStandAlone() && gf_functionExists(gv_functions[gt_funcInfo[0]][gt_funcInfo[1]]))
+	{
+		gt_values	= this[gv_functions[gt_funcInfo[0]][gt_funcInfo[1]]].apply(this, gt_arguments);
+	}
+	else if (gf_isset(fallback))
+	{
+		gt_values	= this[fallback].apply(this, gt_arguments);
+	}
+	
+	return gt_values;
+}
+
+/**
  * Checks the cardinality of a node.
  * Returns false when the limit for outgoing edges of a node is reached.
  * This avoids changing the type of an edge although it is not permitted.
@@ -642,6 +668,25 @@ function gf_getTextPosition (textAlign, textVAlign)
 }
 
 /**
+ * TODO (by arne)
+ */
+function gf_hasSubscribers ()
+{
+	var gt_argv = arguments;
+	var gt_argc	= gt_argv.length;
+
+	for (var gt_i = 0; gt_i < gt_argc; gt_i++)
+	{
+		if ($.subscribers(gt_argv[gt_i]).length == 0)
+		{
+			return false;
+		}
+	}
+	return gt_argc > 0;
+}
+
+
+/**
  * Initialize the paper.
  * 
  * @private
@@ -924,20 +969,10 @@ function gf_paperClickEdge (id)
 		gv_objects_edges[id].select();
 		
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.edgeClickedHook))
-		{
-			window[gv_functions.events.edgeClickedHook](id);
-		}
+		gf_callFunc("events.edgeClickedHook", null, id);
 		
 		// call the gf_clickedBVedge method
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.edgeClicked))
-		{
-			window[gv_functions.events.edgeClicked](id);
-		}
-		else
-		{
-			gf_clickedBVedge(id);
-		}
+		gf_callFunc("events.edgeClicked", "gf_clickedBVedge", id);
 	}
 }
 
@@ -961,20 +996,10 @@ function gf_paperClickNodeB (id)
 		gv_objects_nodes[id].select();
 		
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.nodeClickedHook))
-		{
-			window[gv_functions.events.nodeClickedHook](id);
-		}
+		gf_callFunc("events.nodeClickedHook", null, id);
 		
 		// call the gf_clickedBVnode method
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.nodeClicked))
-		{
-			window[gv_functions.events.nodeClicked](id);
-		}
-		else
-		{
-			gf_clickedBVnode(id);
-		}
+		gf_callFunc("events.nodeClicked", "gf_clickedBVnode", id);
 	}
 }
 
@@ -999,21 +1024,23 @@ function gf_paperClickNodeC (id)
 		
 		
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectClickedHook))
-		{
-			window[gv_functions.events.subjectClickedHook](id);
-		}
+		gf_callFunc("events.subjectClickedHook", null, id);
 		
 		// call the gf_clickedCVnode method
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectClicked))
-		{
-			window[gv_functions.events.subjectClicked](id);
-		}
-		else
-		{
-			gf_clickedCVnode(id);
-		}
+		gf_callFunc("events.subjectClicked", "gf_clickedCVnode", id);
 	}
+}
+
+/**
+ * TODO
+ */
+function gf_paperClickNodeCAndToggle (id)
+{
+	// call the gf_paperClickNodeC method to select the node.
+	gf_paperClickNodeC(id);
+	
+	// call the gf_toggleBV method to load the internal behavior
+	gf_toggleBV();
 }
 
 /**
@@ -1051,10 +1078,7 @@ function gf_paperDblClickNodeC (id)
 	if (gf_isset(id) && gf_isset(gv_objects_nodes[id]))
 	{
 		// hook
-		if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedHook))
-		{
-			window[gv_functions.events.subjectDblClickedHook](id);
-		}
+		gf_callFunc("events.subjectDblClickedHook", null, id);
 		
 		// call actions depending on the subject's type
 		
@@ -1070,53 +1094,21 @@ function gf_paperDblClickNodeC (id)
 		if (gt_type == "internal")
 		{
 			// call the gf_clickedCVnode method
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInternal))
-			{
-				window[gv_functions.events.subjectDblClickedInternal](id);
-			}
-			else
-			{
-				// call the gf_paperClickNodeC method to select the node.
-				gf_paperClickNodeC(id);
-				
-				// call the gf_toggleBV method to load the internal behavior
-				gf_toggleBV();
-			}
+			gf_callFunc("events.subjectDblClickedInternal", "gf_paperClickNodeCAndToggle", id);
 		}
 		
 		// external subject: instant interface
 		else if (gt_type == "instantinterface")
 		{
 			// call the gf_clickedCVnode method
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInstantInterface))
-			{
-				window[gv_functions.events.subjectDblClickedInstantInterface](id);
-			}
-			else
-			{
-				// call the gf_paperClickNodeC method to select the node.
-				gf_paperClickNodeC(id);
-				
-				// no further action
-			}
+			gf_callFunc("events.subjectDblClickedInstantInterface", "gf_paperClickNodeC", id);
 		}
 		
 		// external subject: interface
 		else if (gt_type == "interface")
 		{
 			// call the gf_clickedCVnode method
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedInterface))
-			{
-				window[gv_functions.events.subjectDblClickedInterface](id);
-			}
-			else
-			{
-				// call the gf_paperClickNodeC method to select the node.
-				gf_paperClickNodeC(id);
-				
-				// call the gf_toggleBV method to load the internal behavior
-				gf_toggleBV();
-			}
+			gf_callFunc("events.subjectDblClickedInterface", "gf_paperClickNodeCAndToggle", id);
 		}
 		
 		// external subject: interface
@@ -1124,12 +1116,13 @@ function gf_paperDblClickNodeC (id)
 		{
 			var gt_process	= gt_subject != null ? gt_subject.getRelatedProcess() : "";
 			
-			// call the gf_clickedCVnode method
-			if (!gf_isStandAlone() && gf_functionExists(gv_functions.events.subjectDblClickedExternal) && gt_process != "")
+			if (gt_process != "")
 			{
-				window[gv_functions.events.subjectDblClickedExternal](gt_process);
-			}
-			else
+				gf_callFunc("events.subjectDblClickedExternal", null, gt_process);
+			}			
+			
+			// fallback
+			if (gf_isStandAlone() || !gf_functionExists(gv_functions.events.subjectDblClickedExternal) || gt_process == "")
 			{
 				// call the gf_paperClickNodeC method to select the node.
 				gf_paperClickNodeC(id);
@@ -1426,12 +1419,5 @@ function gf_timeReset (type)
  */
 function gf_toggleBV ()
 {
-	if (!gf_isStandAlone() && gf_functionExists(gv_functions.general.changeViewBV))
-	{
-		window[gv_functions.general.changeViewBV]();
-	}
-	else
-	{
-		gf_clickedCVbehavior();
-	}	
+	gf_callFunc("general.changeViewBV", "gf_clickedCVbehavior");
 }
