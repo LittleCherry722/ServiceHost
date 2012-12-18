@@ -32,9 +32,7 @@ define([ "director", "app"], function( Director, App ) {
 
 	// Show the home (index) page.
 	var showHome = function() {
-		if ( unloadViewModel ) {
-			App.loadTemplate( "home", null, globalCallback() );
-		}
+		App.loadTemplate( "home", null, globalCallback() );
 	}
 
 	var showNewProcess = function() {
