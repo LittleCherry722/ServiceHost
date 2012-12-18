@@ -15,7 +15,9 @@ define([
 	// Group.belongsTo( "graph" [>, { foreignKey: "graphID" } <] );
 	// Group.hasMany( "graphs" [>, { foreignModelName: "graph", foreignKey: "processID" } <] );
 
-	// Group.extend({);
+	// Group.extend({
+	//
+	// });
 
 	Group.include({
 		// Initialize is a special method defined as an instance method.  If any

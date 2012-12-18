@@ -13,8 +13,8 @@ define([
 	Process = Model( "Process", [ "name", "isCase", "graphID" ] );
 
 
-	Process.belongsTo( "graph" /*, { foreignKey: "graphID" } */ );
-	Process.hasMany( "graphs" /*, { foreignModelName: "graph", foreignKey: "processID" } */ );
+	Process.belongsTo( "graph" );
+	Process.hasMany( "graphs" );
 
 	// Process.extend({);
 
@@ -93,14 +93,6 @@ define([
 			return false;
 		}
 	};
-
-	/**
-	 *	Checks whether a Process with the given Name already exists.
-	 *	TODO should not really be here...
-	 */
-	Process.exists = function(name) {
-		return true;
-	}
 
 	return Process;
 });

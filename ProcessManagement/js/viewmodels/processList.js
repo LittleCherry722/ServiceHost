@@ -24,10 +24,6 @@ define([
 				parent.$.fancybox.close();
 			});
 		}
-
-		// self.isLocked = function(processName){
-		//   return (parent.SBPM.VM.contentVM() instanceof parent.ProcessViewModel && parent.SBPM.VM.contentVM().processName() === processName);
-		// }
 	}
 
 	var destroyProcess = function( process ) {
@@ -39,7 +35,6 @@ define([
 			}
 		});
 	}
-
 
 	var initialize = function() {
 		var viewModel = new ViewModel();
