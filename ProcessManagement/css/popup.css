@@ -4221,18 +4221,30 @@ a.label:hover, a.badge:hover {
 .table.table-striped-darker tbody tr:nth-child(odd) th {
   background-color: #efefef; }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000378}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000379}}
 .tooltip {
   font-size: 12px; }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000381}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000382}}
   .tooltip.in {
     opacity: 0.9; }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000386}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000387}}
 .tooltip-inner {
   padding: 4px 8px;
   text-shadow: none;
   color: #eee; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/bootstrap\.scss}line{font-family:\0000398}}
+input[type="text"]:focus, input[type="password"]:focus,
+input[type="datetime"]:focus, input[type="datetime-local"]:focus,
+input[type="date"]:focus, input[type="month"]:focus, input[type="time"]:focus,
+input[type="week"]:focus, input[type="number"]:focus,
+input[type="email"]:focus, input[type="url"]:focus, input[type="search"]:focus,
+input[type="tel"]:focus, input[type="color"]:focus, .uneditable-input:focus {
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(143, 178, 222, 0.6);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(143, 178, 222, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(143, 178, 222, 0.6);
+  border-color: rgba(143, 178, 222, 0.8); }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/arne\/Dropbox\/Uni\/Inf\%20S05\/Internet\%20Praktikum\/sbpm\/ProcessManagement\/scss\/popup\.scss}line{font-family:\000035}}
 body {

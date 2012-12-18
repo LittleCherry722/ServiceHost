@@ -13,7 +13,7 @@
 			<tr data-bind="attr: { id: 'user'+ id() }">
 				<td data-bind="text: id"></td>
 				<td>
-					<input class="inline" data-bind='value: name' />
+					<input type="text" class="inline" data-bind='value: name' />
 				</td>
 				<td>
 					<select data-bind="options: $parent.groups,
@@ -34,7 +34,7 @@
 		</tbody>
 	</table>
 
-	<input id="usersBtn" type="button" class="button" value="Create User" data-bind='click: create' />
+	<input type="button" class="button" value="Create User" data-bind='click: create' />
 
 	<div class="form-actions">
 		<input type="button" class="button" value="Reset" data-bind="click: resetAll" />

@@ -4,23 +4,37 @@
 			<tr>
 				<th>ID</th>
 				<th>Name</th>
-				<th>Groups</th>
+				<th>Group</th>
 				<th>Actions</th>
 			</tr>
 		</thead>
-		<tbody data-bind='foreach: {data : data(), afterRender : SBPM.Mediator.afterRenderRoleRow}'>
-			<tr>
-				<td data-bind="text: roleID"></td>
+		<tbody data-bind="foreach: roles">
+			<tr data-bind="attr: { id: 'role'+ id() }">
+				<td data-bind="text: id"></td>
 				<td>
-				<input class="inline"  data-bind='value: roleName' />
+					<input type="text" class="inline" data-bind='value: name' />
 				</td>
-				<td><select data-bind='options: $parent.options(), selectedOptions: groupID,  optionsText: "groupName", optionsValue : "groupID"' class="chzn-select" multiple="multiple" ></select></td>
 				<td>
-				<input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />
+					<select data-bind="options: $parent.groups,
+						optionsText: 'name', optionsValue : 'id',
+						selectedOptions: groupIDs"
+						class="chzn-select" multiple="multiple">
+					</select>
+				</td>
+				<td>
+					<input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />
+					<input type="button" class="button" value="Save changes" data-bind='click: $parent.save' />
+					<input type="button" class="button" value="Reset" data-bind='click: $parent.reset' />
 				</td>
 			</tr>
 		</tbody>
 	</table>
 
-	<input id="rolesBtn" type="button" class="button" value="Create Role" data-bind='click: create' />
+	<input type="button" class="button" value="Create Role" data-bind='click: create' />
+
+	<div class="form-actions">
+		<input type="button" class="button" value="Reset" data-bind="click: resetAll" />
+		<input type="button" class="button" value="Save" data-bind="click: saveAll" />
+	</div>
 </div>
+

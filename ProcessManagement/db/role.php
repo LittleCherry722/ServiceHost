@@ -20,14 +20,13 @@ if (isset($_REQUEST['action'])) {
 	$action = $_REQUEST['action'];
 
 	if ($action == 'all') {
-		$query = mysql_query("SELECT * FROM `users` ORDER BY `ID`");
+		$query = mysql_query("SELECT * FROM `roles` ORDER BY `ID`");
 		$results = array();
 		while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
 			array_push( $results, array(
 				"id" => $result['ID'],
 				"name" => $result['name'],
-				"isActive" => ($result['active'] == "1"),
-				"inputPoolSize" => $result['inputpoolsize']
+				"isActive" => ($result['active'] == "1")
 			));
 		}
 		$return = $results;
@@ -36,19 +35,17 @@ if (isset($_REQUEST['action'])) {
 	} elseif ($action == 'create') {
 		$attr_name = mysql_real_escape_string($_REQUEST['name']);
 		$attr_active = ($_REQUEST['isActive'] == "true" )? 1 : 0;
-		$attr_input_pool_size = mysql_real_escape_string($_REQUEST['inputPoolSize']);
-		mysql_query("INSERT INTO `users` ( `name`, `active`, `inputpoolsize` ) VALUES ( '" . $attr_name . "', '" . $attr_active . "', '" . $attr_input_pool_size . "' );");
+		mysql_query("INSERT INTO `roles` ( `name`, `active` ) VALUES ( '" . $attr_name . "', '" . $attr_active . "' );");
 		$return['id'] = mysql_insert_id();
 		$return['name'] = $_REQUEST['name'];
 		$return['isActive'] = $_REQUEST['isActive'];
-		$return['inputPoolSize'] = $_REQUEST['inputPoolSize'];
 
 	// destroy an existing graph
 	} elseif ($action == 'destroy') {
 		$attr_id = mysql_real_escape_string($_REQUEST['id']);
-		$results = mysql_query("SELECT * FROM `users` WHERE `ID` LIKE '" . $attr_id . "'");
+		$results = mysql_query("SELECT * FROM `roles` WHERE `ID` LIKE '" . $attr_id . "'");
 		if (mysql_num_rows($results) > 0) {
-			mysql_query("DELETE FROM `users` WHERE `ID` LIKE '" . $attr_id . "'");
+			mysql_query("DELETE FROM `roles` WHERE `ID` LIKE '" . $attr_id . "'");
 			$return['code'] = "removed";
 		} else {
 			$return['code'] = "error";
@@ -59,12 +56,10 @@ if (isset($_REQUEST['action'])) {
 		$attr_id = mysql_real_escape_string($_REQUEST['id']);
 		$attr_name = mysql_real_escape_string($_REQUEST['name']);
 		$attr_active = ($_REQUEST['isActive'] == "true" )? 1 : 0;
-		$attr_input_pool_size = mysql_real_escape_string($_REQUEST['inputPoolSize']);
-    mysql_query("UPDATE `users` SET `name` = '" . $attr_name . "', `active` = " . $attr_active . ", `inputpoolsize` = '" . $attr_input_pool_size . "' WHERE `ID` = " . $attr_id);
+    mysql_query("UPDATE `roles` SET `name` = '" . $attr_name . "', `active` = '" . $attr_active . "' WHERE `ID` = " . $attr_id);
 		$return['id'] = $_REQUEST['id'];
 		$return['name'] = $_REQUEST['name'];
 		$return['isActive'] = $_REQUEST['isActive'];
-		$return['inputPoolSize'] = $_REQUEST['inputPoolSize'];
 	}
 
 	if (empty($return) || sizeof($return) == 0 ) {
@@ -75,3 +70,4 @@ if (isset($_REQUEST['action'])) {
 }
 
 ?>
+

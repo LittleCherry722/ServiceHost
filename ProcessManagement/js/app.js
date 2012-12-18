@@ -32,7 +32,9 @@ define([
 			"models/process",
 			"models/graph",
 			"models/group",
-			"models/groupsUsers"
+			"models/groupsUsers",
+			"models/role",
+			"models/groupsRoles"
 			// "models/roles",
 		], function( Model, User ) {
 

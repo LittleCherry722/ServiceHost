@@ -20,12 +20,12 @@ if (isset($_REQUEST['action'])) {
 	$action = $_REQUEST['action'];
 
 	if ($action == 'all') {
-		$query = mysql_query("SELECT * FROM `group_x_users`");
+		$query = mysql_query("SELECT * FROM `group_x_roles`");
 
 		$results = array();
 		while ($result = mysql_fetch_array($query, MYSQL_ASSOC)) {
 			array_push( $results, array(
-				"userID" => $result['userID'],
+				"roleID" => $result['roleID'],
 				"groupID" => $result['groupID'],
 				"isActive" => $result['active']
 			));
@@ -35,20 +35,20 @@ if (isset($_REQUEST['action'])) {
 		// Create a new graph
 	} elseif ($action == 'create') {
 		$attr_active = ($_REQUEST['isActive'] == "true" );
-		$attr_userID = mysql_real_escape_string($_REQUEST['userID']);
+		$attr_roleID = mysql_real_escape_string($_REQUEST['roleID']);
 		$attr_groupID = mysql_real_escape_string($_REQUEST['groupID']);
-		mysql_query("INSERT INTO `group_x_users` ( `userID`, `groupID`, `active` ) VALUES ( '" . $attr_userID . "', '" . $attr_groupID . "', '" . $attr_active . "' );");
-		$return['userID'] = $_REQUEST['userID'];
+		mysql_query("INSERT INTO `group_x_roles` ( `roleID`, `groupID`, `active` ) VALUES ( '" . $attr_roleID . "', '" . $attr_groupID . "', '" . $attr_active . "' );");
+		$return['roleID'] = $_REQUEST['roleID'];
 		$return['groupID'] = $_REQUEST['groupID'];
 		$return['isActive'] = $_REQUEST['isActive'];
 
 	// destroy an existing graph
 	} elseif ($action == 'destroy') {
-		$attr_userID = mysql_real_escape_string($_REQUEST['userID']);
+		$attr_roleID = mysql_real_escape_string($_REQUEST['roleID']);
 		$attr_groupID = mysql_real_escape_string($_REQUEST['groupID']);
-		$results = mysql_query("SELECT * FROM `group_x_users` WHERE `userID` LIKE '" . $attr_userID . "' AND `groupID` LIKE '" . $attr_groupID . "'");
+		$results = mysql_query("SELECT * FROM `group_x_roles` WHERE `roleID` LIKE '" . $attr_roleID . "' AND `groupID` LIKE '" . $attr_groupID . "'");
 		if (mysql_num_rows($results) > 0) {
-			mysql_query("DELETE FROM `group_x_users` WHERE `userID` LIKE '" . $attr_userID . "' AND `groupID` LIKE '" . $attr_groupID . "'");
+			mysql_query("DELETE FROM `group_x_roles` WHERE `roleID` LIKE '" . $attr_roleID . "' AND `groupID` LIKE '" . $attr_groupID . "'");
 			$return['code'] = "removed";
 		} else {
 			$return['code'] = "error";
@@ -57,10 +57,10 @@ if (isset($_REQUEST['action'])) {
 	// save existing user
 	} elseif ($action == 'save') {
 		$attr_active = ($_REQUEST['isActive'] == "true" );
-		$attr_userID = mysql_real_escape_string($_REQUEST['userID']);
+		$attr_roleID = mysql_real_escape_string($_REQUEST['roleID']);
 		$attr_groupID = mysql_real_escape_string($_REQUEST['groupID']);
-    mysql_query("UPDATE `group_x_users` SET `userID` = '" . $attr_userID . "', `groupID` = '" . $attr_groupID . "', `active` = '" . $attr_active . "' WHERE `ID` = " . $attr_id);
-		$return['userID'] = $_REQUEST['userID'];
+    mysql_query("UPDATE `group_x_roles` SET `roleID` = '" . $attr_roleID . "', `groupID` = '" . $attr_groupID . "', `active` = '" . $attr_active . "' WHERE `ID` = " . $attr_id);
+		$return['roleID'] = $_REQUEST['roleID'];
 		$return['groupID'] = $_REQUEST['groupID'];
 		$return['isActive'] = $_REQUEST['isActive'];
 	}

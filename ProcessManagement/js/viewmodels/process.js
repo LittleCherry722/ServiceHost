@@ -179,7 +179,7 @@ define([
 			return;
 		}
 
-		// let the graph know we want to go to the internal view of a subejct.
+		// let the graph know we want to go to the internal view of a subject.
 		gv_graph.selectedSubject = null;
 		gf_clickedCVnode( subject );
 		loadBehaviorView( subject );
