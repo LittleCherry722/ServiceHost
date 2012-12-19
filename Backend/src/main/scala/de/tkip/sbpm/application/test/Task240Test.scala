@@ -1,17 +1,16 @@
-import akka.actor._
+package de.tkip.sbpm.application.test
 
+import akka.actor._
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 
-class Task240Test {
-
-}
-
 /**
- * kleiner Test der SubjectManagerProvider und ProcessManager instanziert, dann Subjekte und Verhalten hinzufügt und
+ * kleiner Test der SubjectManagerProvider und ProcessManager instanziert,
+ * dann Subjekte und Verhalten hinzufügt und
  * eine Statusabfrage sendet, die StateAusführung jedes Subjects erzwingt
- * 
- * Beispiel wurde aus dem alten Kernel übernommen und an die neue Struktur angepasst
+ *
+ * Beispiel wurde aus dem alten Kernel übernommen und an die neue Struktur
+ * angepasst
  */
 object Task240Test extends App {
 
@@ -27,9 +26,10 @@ object Task240Test extends App {
   val processID = 100
   subjectProviderManager ! CreateSubjectProvider(userID)
   processManager ! CreateProcess(processID)
+  processManager ! CreateProcess(11)
 
   // employee
-  val employeeName = "employee"
+  val employeeName = "Employee"
   val employeeStates = Array(
     new ActState("empl", "Fill out Application", Array(Transition("Done", "Do"))),
     new SendState("empl.br1", Array(Transition("BT Application", "Superior"))),
@@ -38,7 +38,7 @@ object Task240Test extends App {
     new EndState("End of the old one"))
 
   // Superior  
-  val superiorName = "superior"
+  val superiorName = "Superior"
   val superiorStates = Array(
     new ReceiveState("sup", Array(Transition("BT Application", "Employee"))),
     new ActState("sup.br1", "Check Application", Array(Transition("Approval", "Do"), Transition("Denial", "Do"))),
@@ -58,7 +58,21 @@ object Task240Test extends App {
   for (state <- superiorStates)
     subjectProviderManager ! AddState(userID, processID, superiorName, state)
 
+  println("add testsubjects")
+  processManager ! AddSubject(11, employeeName)
+  processManager ! AddSubject(11, superiorName)
+
+  // add behaviorStates
+  println("add behaviourStates")
+  for (state <- employeeStates)
+    subjectProviderManager ! AddState(userID, 11, employeeName, state)
+  for (state <- superiorStates)
+    subjectProviderManager ! AddState(userID, 11, superiorName, state)
+
   // execute states
   println("execute states")
   subjectProviderManager ! StatusRequest(userID, processID)
+
+  //  Man kann auch 2 Prozesse starten
+  //  subjectProviderManager ! StatusRequest(userID, 11)
 }

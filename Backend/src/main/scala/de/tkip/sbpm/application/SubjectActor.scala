@@ -9,7 +9,8 @@ import miscellaneous.ProcessAttributes._
  */
 class SubjectActor(processManagerRef: ProcessManagerRef, subjectName: SubjectName) extends Actor {
 
-  private var ipRef: ActorRef = _ // Ref to the ip of the subjectprovider
+  //	private var ipRef: ActorRef = _ // Ref to the ip of the subjectprovider
+  private val ipRef: ActorRef = context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + subjectName)
 
   case object JobDone
   case class IPRef(ipRef: ActorRef)
@@ -17,19 +18,23 @@ class SubjectActor(processManagerRef: ProcessManagerRef, subjectName: SubjectNam
   private val internalBehaviourActor = context.actorOf(Props[InternalBehaviorActor]) // create InternalBehaviorActor
 
   def receive = {
-    case ip: IPRef => ipRef = ip.ipRef
+    //    case ip: IPRef => ipRef = ip.ipRef
     case JobDone => processManagerRef ! End; context.stop(self)
     case sm: SubjectMessage => ipRef forward sm
 
     case sr: StatusRequest =>
-      val ip = context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + sr.userID)
-      context.parent ! IPRef(ip)
-      internalBehaviourActor ! ProcessBehaviour(processManagerRef, subjectName, sr.userID.toString(), ip)
-      context.parent ! JobDone
-      context.stop(self)
+      //      val ip = context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + sr.userID)
+      //      context.parent ! IPRef(ip)
+      //      internalBehaviourActor ! ProcessBehaviour(processManagerRef, subjectName, sr.userID.toString(), ip)
+      //      val ip = context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + sr.userID)
+      //      context.parent ! IPRef(ipRef)
+      internalBehaviourActor ! ProcessBehaviour(processManagerRef, subjectName, sr.userID.toString(), ipRef)
+
+    //      context.parent ! JobDone
+    //      context.stop(self)
 
     case b: BehaviourState => internalBehaviourActor ! b
-    
+
     case aac: AddActState => internalBehaviourActor ! ActState(aac.id, aac.stateAction, aac.transitions)
     case aes: AddEndState => internalBehaviourActor ! EndState(aes.StateID)
     case ars: AddReceiveState => internalBehaviourActor ! ReceiveState(ars.s, ars.transitions)

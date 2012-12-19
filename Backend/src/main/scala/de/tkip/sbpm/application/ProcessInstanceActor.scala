@@ -14,19 +14,24 @@ class ProcessInstanceActor extends Actor {
 
   def receive = {
     case as: AddSubject =>
-      val subjectRef = context.actorOf(Props(new SubjectActor(context.parent, as.subjectName)))
+      // TODO hier sollte man lieber self uebergeben, da man sonst selbst bei aufrufen übersprungen wird
+      // instanznamen von manager in instance ändern
+      //    val subjectRef = context.actorOf(Props(new SubjectActor(context.parent, as.subjectName)))
+      val subjectRef = context.actorOf(Props(new SubjectActor(self, as.subjectName)))
       subjectMap += as.subjectName -> subjectRef
       subjectCounter += 1
 
     case End =>
       subjectCounter -= 1
-      if (subjectCounter == 0) context.system.shutdown()
+      if (subjectCounter == 0) {
+        context.system.shutdown()
+      }
 
     case sm: SubjectMessage =>
-      subjectMap(sm.fromCond.subjectName) forward sm
+      subjectMap(sm.toCond.subjectName) forward sm
 
     case pr: StatusRequest =>
-    	subjectMap.values.map(_ ! pr) // TODO: send to all subjects?
+      subjectMap.values.map(_ ! pr) // TODO: send to all subjects?
 
     case asts: AddState =>
       if (subjectMap.contains(asts.subjectName))
