@@ -53,7 +53,9 @@
 						<div class="tab-dropdown" style="display: none;">
 							<select id="slctMacro" data-placeholder="Select Macro"
 								onchange="//gf_selectMacro($('#slctMacro option:selected').attr('id'));"
-								class="middle_switch chzn-select" tabindex="1" >
+								class="middle_switch chzn-select" tabindex="1"
+								data-bind="options: availableMacros, optionsText: 'value',
+								optionsValue: 'id', value: currentMacro, caption: ''">
 							</select>
 						</div>
 					</li>

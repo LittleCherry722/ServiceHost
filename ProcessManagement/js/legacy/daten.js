@@ -17,7 +17,7 @@ var processName = false; //aktueller Prozessname
 function testphp(){
 
 console.log("Deprecated: daten.js");
-	
+
 	 return error_log("false"=="false");
 }
 
@@ -63,7 +63,7 @@ function einloggen(name, password) {
 	console.log("Deprecated: daten.js");
     var json = SBPM.Service.Authentication.login(name, password);
     var user = json['user'];
-      
+
     if(json['code'] == 'ok') {
         SBPM.Storage.set("user", JSON.stringify(json['user']));
     	SBPM.Storage.set("loggedin_user", user.name);
@@ -88,7 +88,7 @@ else {
 		autohide: true
 	});
 	if(processName == false) {
-		
+
 		document.getElementById("welcome").style.display = "none";
 		//document.getElementById('ausfuehrung').style.display = 'none';
 		console.log("add ausfuehrung here again");
@@ -100,7 +100,7 @@ else {
 		processName = name;
 		setSubjectIDs();
 		//gv_graph.clearGraph();
-		
+
 	}
 }
 }
@@ -114,16 +114,16 @@ function clearListOfMacros(){
 
 function updateListOfMacros(){
 	console.log("Deprecated: daten.js");
-	
+
 	clearListOfMacros();
 	var macroList	= gf_getMacros();
-	
+
 	if (macroList.length > 0)
 	{
 		$('#slctMacro').chosen();
-		
+
 		var html = "<option></option>";
-		
+
 		for(var mid in macroList)
 		{
 			if ("" + mid == gf_getSelectedMacro())
@@ -135,7 +135,7 @@ function updateListOfMacros(){
 				html += "<option id=\""+mid+"\">"+macroList[mid]+"</option>";
 			}
 		}
-		
+
 		$('#slctMacro').html(html);
 		$("#slctMacro").trigger("liszt:updated");
 		$(".active-result").click(function(){gf_selectMacro($('#slctMacro option:selected').attr('id'))});
@@ -147,19 +147,19 @@ function updateListOfMacros(){
 }
 
 
-function addHistory(data, userid, subjectid, node){ 
+function addHistory(data, userid, subjectid, node){
 	console.log("Deprecated: daten.js");
-     if(typeof(data[userid]) == 'undefined') data[userid] = JSON.parse("{}"); 
-     if(typeof(data[userid]['history']) == 'undefined') data[userid]['history'] = new Array(); 
- 
-     var entry = JSON.parse("{}"); 
-      
-     entry['nodeid'] = node['id']; 
-     entry['text']   = node['text']; 
-     entry['type']   = "node"; 
- 
-     data[userid]['history'].push(entry); 
-     data[SBPM.Storage.get("userid")]['subjectid'] = subjectid; 
+     if(typeof(data[userid]) == 'undefined') data[userid] = JSON.parse("{}");
+     if(typeof(data[userid]['history']) == 'undefined') data[userid]['history'] = new Array();
+
+     var entry = JSON.parse("{}");
+
+     entry['nodeid'] = node['id'];
+     entry['text']   = node['text'];
+     entry['type']   = "node";
+
+     data[userid]['history'].push(entry);
+     data[SBPM.Storage.get("userid")]['subjectid'] = subjectid;
      //console.log(data);
      SBPM.Storage.set("instancedata", data);
 
@@ -182,14 +182,14 @@ function findStartNodesForGroup(graph, subjectid){
 		if (getGroupID(graph[group]['id']) == subjectid){
 					//if (graph[group]['id'] == subjectid){
 
-			for (node in graph[group]['nodes']){  
+			for (node in graph[group]['nodes']){
 				if (graph[group]['nodes'][node]['start']){
 					ret.push((graph[group]['nodes'][node]));
 				}
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
@@ -203,23 +203,23 @@ function findNodeEdges(graph, subjectid, node){
 
 	for (group in graph){
 		if (getGroupID(graph[group]['id']) == subjectid){
-			for (edge in graph[group]['edges']){  
+			for (edge in graph[group]['edges']){
 				if (graph[group]['edges'][edge]['start'] == node['id']){
 					ret.push(graph[group]['edges'][edge]);
 				}
 			}
 		}
 	}
-	
+
 	return ret;
 }
 
 function findNode(graph, subjectid, nodeid){
 	console.log("Deprecated: daten.js");
-	
+
 	for (group in graph){
 		if (getGroupID(graph[group]['id']) == subjectid){
-			for (node in graph[group]['nodes']){  
+			for (node in graph[group]['nodes']){
 				if (graph[group]['nodes'][node]['id'] == nodeid){
 					return (graph[group]['nodes'][node]);
 				}

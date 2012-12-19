@@ -129,6 +129,8 @@ define([
 	// Currently selected subejct and channel (in chosen)
 	var currentSubject = ko.observable();
 	var currentChannel = ko.observable();
+	var currentMacro   = ko.observable();
+
 
 	// Various observables to controll whether or not to show certain
 	// formfields in the internal view.
@@ -162,9 +164,16 @@ define([
 	});
 
 	// Do basicly the same for the list of channels (see above)
-	availableSubjects.subscribe(function( channels ) {
+	availableChannels.subscribe(function( channels ) {
 		setTimeout(function() {
 			$("#slctChan").trigger("liszt:updated");
+		}, 1);
+	});
+
+	// Do basicly the same for the list of macros (see above)
+	availableChannels.subscribe(function( channels ) {
+		setTimeout(function() {
+			$("#slctMacro").trigger("liszt:updated");
 		}, 1);
 	});
 
@@ -232,6 +241,14 @@ define([
 			// Graph already exists. Just load it.
 			loadGraph( process.graph() );
 		}
+	});
+
+	currentChannel.subscribe(function( channel ) {
+
+	})
+
+	currentMacro.subscribe(function( macro ) {
+
 	});
 
 
@@ -401,6 +418,7 @@ define([
 
 	var subscribeAll = function() {
 		$.subscribeOnce( "tk_graph/updateListOfSubjects", updateListOfSubjects );
+		$.subscribeOnce( "tk_graph/updateListOfMacros", updateListOfMacros );
 		$.subscribeOnce( "tk_graph/changeViewHook", viewChanged );
 		$.subscribeOnce( "tk_graph/changeViewBV", loadBehaviorView );
 		$.subscribeOnce( "tk_graph/subjectDblClickedInternal", currentSubject);
@@ -414,6 +432,7 @@ define([
 	// initialization.
 	var unsubscribeAll = function() {
 		$.unsubscribe( "tk_graph/updateListOfSubjects", updateListOfSubjects );
+		$.unsubscribe( "tk_graph/updateListOfMacros", updateListOfMacros );
 		$.unsubscribe( "tk_graph/changeViewHook", viewChanged );
 		$.unsubscribe( "tk_graph/changeViewBV", loadBehaviorView );
 		$.unsubscribe( "tk_graph/subjectDblClickedInternal", currentSubject);
@@ -458,6 +477,20 @@ define([
 		availableSubjects( subjects );
 	}
 
+	var updateListOfMacros = function() {
+		var macro,
+			macros = [{}];
+
+		_( gf_getMacros() ).each(function( value, key ) {
+			macro = {
+				id: key,
+				value: value
+			}
+			macros.push( macro );
+		});
+
+		availableMacros( macros );
+	}
 
 	// Updates the list of channels.
 	var updateListOfChannels = function() {
@@ -485,6 +518,11 @@ define([
 		setVisibleExclusive( isNodeSelected );
 	}
 
+	var updateMenuDropdowns = function() {
+		updateListOfSubjects();
+		updateListOfChannels();
+	}
+
 	// Is called whenenver the view changes from internal to external or vice
 	// versa. The view argument can be either "cv" for the subject interaction
 	// view or "bv" for the behavior aka internal view.
@@ -498,8 +536,7 @@ define([
 		}
 
 		// Always update the chosen selects since we don't know where we are going.
-		updateListOfSubjects();
-		updateListOfChannels();
+		updateMenuDropdowns();
 	}
 
 	// Sets the fields for the internal view to all be hidden exept
@@ -538,8 +575,7 @@ define([
 		selectTab( 1 );
 		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
-		updateListOfSubjects();
-		updateListOfChannels();
+		updateMenuDropdowns();
 	}
 
 	// Select a certain tab. Can either be directly attacthed to the click
@@ -577,8 +613,7 @@ define([
 			$( ".zoombutton" ).show();
 		}
 
-		updateListOfSubjects();
-		updateListOfChannels();
+		updateMenuDropdowns();
 	}
 
 
@@ -612,8 +647,7 @@ define([
 				// When this is called, everyting should be loaded and ready to go.
 				if ( typeof callback === "function" ) {
 					callback.call( this );
-					updateListOfSubjects();
-					updateListOfChannels();
+					updateMenuDropdowns();
 				}
 			});
 		});

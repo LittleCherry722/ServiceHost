@@ -401,7 +401,7 @@ var gv_topics	= {
 		/**
 		 * topic for updates on macro list
 		 */
-		updateListOfMacros:	""
+		updateListOfMacros:	"tk_graph/updateListOfMacros"
 	},
 	
 	/*
