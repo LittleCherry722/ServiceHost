@@ -65,6 +65,7 @@ define([
 		// The currently selected subject and channel (in chosen)
 		this.currentSubject = currentSubject;
 		this.currentChannel = currentChannel;
+		this.currentMacro   = currentMacro;
 
 		// should certain elements of the right form be visible?
 		this.isEdgeSelected        = isEdgeSelected;
@@ -171,7 +172,7 @@ define([
 	});
 
 	// Do basicly the same for the list of macros (see above)
-	availableChannels.subscribe(function( channels ) {
+	availableMacros.subscribe(function( channels ) {
 		setTimeout(function() {
 			$("#slctMacro").trigger("liszt:updated");
 		}, 1);
@@ -180,7 +181,6 @@ define([
 	// When a subject is clicked in chosen, go to the internal behavior of the
 	// subject.
 	currentSubject.subscribe(function( subject ) {
-		console.log("'"+subject+"'")
 		var newRoute;
 
 		// Do not do anything if an empty subject is selected.
@@ -244,11 +244,17 @@ define([
 	});
 
 	currentChannel.subscribe(function( channel ) {
-
+		if ( !channel || !gf_getChannels()[ channel ] ) {
+			return;
+		}
+		gf_selectChannel( channel );
 	})
 
 	currentMacro.subscribe(function( macro ) {
-
+		if ( !macro || !gf_getMacros()[ macro ] ) {
+			return;
+		}
+		gf_selectMacro( macro );
 	});
 
 
@@ -481,10 +487,13 @@ define([
 		var macro,
 			macros = [{}];
 
-		_( gf_getMacros() ).each(function( value, key ) {
+		_.chain( gf_getMacros() ).pairs().each(function( arr ) {
+			if ( arr[0] === "length" ) {
+				return
+			}
 			macro = {
-				id: key,
-				value: value
+				id: arr[0],
+				value: arr[1]
 			}
 			macros.push( macro );
 		});
@@ -521,6 +530,10 @@ define([
 	var updateMenuDropdowns = function() {
 		updateListOfSubjects();
 		updateListOfChannels();
+		updateListOfMacros();
+
+		currentMacro("##main##");
+		currentChannel("##all##");
 	}
 
 	// Is called whenenver the view changes from internal to external or vice
@@ -603,6 +616,7 @@ define([
 		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#saveProcessAsButton" ).parent().slideDown().next().slideUp();
+		$( "#slctMacroDropDown" ).hide();
 
 		// Hide the graph zoom Buttons n charge view. Show it in all other views.
 		if ( tabIndex === 3 ) {
@@ -611,6 +625,7 @@ define([
 			gv_graph.changeView('cv');
 		} else {
 			$( ".zoombutton" ).show();
+			$( "#slctMacroDropDown" ).show();
 		}
 
 		updateMenuDropdowns();
