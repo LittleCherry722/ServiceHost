@@ -9,16 +9,7 @@
 		<!-- Begin graph window -->
 		<div class="onecolumn">
 			<div class="header">
-				<ul class="nav pull-right" id="graphZoomButtons">
-					<li class="zoombutton">
-						<input id="zoominbutton" type="button" onclick="gf_paperZoomIn();" value="Zoom In" />
-					</li>
-					<li class="zoombutton">
-						<input id="zoomoutbutton" type="button" onclick="gf_paperZoomOut();" value="Zoom Out" />
-					</li>
-					<li class="zoombutton">
-						<input id="reset-button" type="button" onclick="gf_paperZoomReset();" value="Reset zoom" />
-					</li>
+				<ul class="nav pull-right" id="processHelpButtons">
 					<li>
 						<input id="help-button" type="button" href="help.html" value="Help" data-bind="fancybox : {width : '30', height : '41'}"/>
 					</li>
@@ -41,7 +32,6 @@
 					<li>
 						<div class="tab-dropdown">
 							<select id="slctChan" data-placeholder="Select Channel"
-								onchange="//gf_selectChannel($('#slctChan option:selected').attr('id'));"
 								class="middle_switch chzn-select" tabindex="1"
 								data-bind="options: availableChannels, optionsText: 'text',
 								optionsValue: 'channelID', value: currentChannel, caption: ''">
@@ -50,9 +40,8 @@
 					</li>
 
 					<li>
-						<div class="tab-dropdown" style="display: none;">
+						<div id="slctMacroDropDown" class="tab-dropdown" style="display: none;">
 							<select id="slctMacro" data-placeholder="Select Macro"
-								onchange="//gf_selectMacro($('#slctMacro option:selected').attr('id'));"
 								class="middle_switch chzn-select" tabindex="1"
 								data-bind="options: availableMacros, optionsText: 'value',
 								optionsValue: 'id', value: currentMacro, caption: ''">
@@ -60,17 +49,28 @@
 						</div>
 					</li>
 					<li>
-						<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" style="width:135px"/>
+						<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" />
 					</li>
 				</ul>
 			</div>
 
 
 			<!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
-			<div id="processContent" >
+			<div id="processContent">
+				<ul class="unstyled" id="graphZoombuttons">
+					<li>
+						<a href="#" onclick="gf_paperZoomIn();" >+</a>
+					</li>
+					<li>
+						<a href="#" onclick="gf_paperZoomOut();" >&minus;</a>
+					</li>
+					<li>
+						<a href="#" onclick="gf_paperZoomReset();" >±</a>
+					</li>
+				</ul>
 				<div id="tab1_content" class="tab_content hide"></div>
 				<div id="tab2_content" class="tab_content"></div>
-			<!--   <div id="tab3_content" class="tab_content hide" data-bind="templateWithListeners: { name: chargeVM.name, data: chargeVM, listeners: SBPM.Mediator.subviewListeners['chargeView']}"></div>-->
+				<!--   <div id="tab3_content" class="tab_content hide" data-bind="templateWithListeners: { name: chargeVM.name, data: chargeVM, listeners: SBPM.Mediator.subviewListeners['chargeView']}"></div>-->
 
 			</div>
 

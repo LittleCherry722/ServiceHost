@@ -680,10 +680,11 @@ table.data2 tr td {
 }
 
 #processContent {
+  position: relative;
   @include calc(height, "100% - 40px");
 }
 
-#graphZoomButtons {
+#processHelpButtons {
   @include clearfix();
 
   padding: 0;
@@ -693,6 +694,33 @@ table.data2 tr td {
     line-height: 38px;
     padding: 0 5px 2px 0;
     float: left;
+  }
+}
+
+#graphZoombuttons {
+  z-index: 9999; 
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  text-align: center;
+
+  li {
+    padding: 5px 0;
+    a {
+      @include border-radius(8px);
+      @include box-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+      display: inline-block;
+      background-color: #E6E6E6;
+      border: 1px solid #ccc;
+      color: #333;
+      width: 16px;
+      line-height: 16px;
+
+      &:last-child {
+        line-height: 14px;
+        padding-bottom: 2px;
+      }
+    }
   }
 }
 
