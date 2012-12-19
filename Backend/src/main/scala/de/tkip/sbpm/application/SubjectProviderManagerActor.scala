@@ -5,7 +5,7 @@ import miscellaneous._
 import miscellaneous.ProcessAttributes._
 
 class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
-    extends Actor {
+  extends Actor {
   private val subjectProviderMap =
     collection.mutable.Map[UserID, SubjectProviderRef]()
 
@@ -14,18 +14,26 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
       if (!subjectProviderMap.contains(rnu.userID))
         createNewSubjectProvider(rnu.userID)
 
-    case gpr: StatusRequest =>
+    case gpr: ExecuteRequest =>
       forwardControlMessageToProvider(gpr.userID, gpr)
 
     case as: AddState =>
       forwardControlMessageToProvider(as.userID, as)
+
+    case cp: CreateProcess =>
+      cp.sender = sender
+      forwardControlMessageToProvider(cp.userID, cp)
+
+    case pc: ProcessCreated =>
+      if (pc.cp.sender != null)
+        pc.cp.sender ! pc
 
     case _ => "not yet implemented"
   }
 
   // forward control message to subjectProvider that is mapped to a specific userID
   private def forwardControlMessageToProvider(userID: UserID,
-                                              controlMessage: ControlMessage) {
+    controlMessage: ControlMessage) {
     if (subjectProviderMap.contains(userID)) {
       subjectProviderMap(userID) ! controlMessage
     }
@@ -35,7 +43,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
   // (overrides the old entry)
   def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
-      context.actorOf(Props(new SubjectProviderActor(processManagerRef)))
+      context.actorOf(Props(new SubjectProviderActor(userID, processManagerRef)))
     subjectProviderMap += userID -> subjectProvider
     subjectProvider
   }

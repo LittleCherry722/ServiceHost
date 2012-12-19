@@ -30,7 +30,7 @@ class ProcessInstanceActor extends Actor {
     case sm: SubjectMessage =>
       subjectMap(sm.toCond.subjectName) forward sm
 
-    case pr: StatusRequest =>
+    case pr: ExecuteRequest =>
       subjectMap.values.map(_ ! pr) // TODO: send to all subjects?
 
     case asts: AddState =>

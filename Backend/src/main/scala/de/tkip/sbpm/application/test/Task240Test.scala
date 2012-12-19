@@ -71,8 +71,8 @@ object Task240Test extends App {
 
   // execute states
   println("execute states")
-  subjectProviderManager ! StatusRequest(userID, processID)
+  subjectProviderManager ! ExecuteRequest(userID, processID)
 
   //  Man kann auch 2 Prozesse starten
-  //  subjectProviderManager ! StatusRequest(userID, 11)
+  //  subjectProviderManager ! ExecuteRequest(userID, 11)
 }
