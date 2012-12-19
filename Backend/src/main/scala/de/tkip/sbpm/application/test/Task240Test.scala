@@ -1,6 +1,11 @@
 package de.tkip.sbpm.application.test
 
 import akka.actor._
+import akka.dispatch.Await
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
+
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 
@@ -16,6 +21,8 @@ object Task240Test extends App {
 
   println("Starting....")
 
+  implicit val timeout = Timeout(5 seconds)
+
   println("instantiating...")
   val system = ActorSystem("TextualEpassIos")
   val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
@@ -23,10 +30,15 @@ object Task240Test extends App {
 
   // instantiate subjectProvider and processes
   val userID = 10
-  val processID = 100
+
   subjectProviderManager ! CreateSubjectProvider(userID)
-  processManager ! CreateProcess(processID)
-  processManager ! CreateProcess(11)
+
+  // Blocking ask to create the process
+  val future = subjectProviderManager ? CreateProcess(userID)
+  val processID: Int =
+    Await.result(future, timeout.duration).asInstanceOf[ProcessCreated].processID
+
+  println(processID)
 
   // employee
   val employeeName = "Employee"
@@ -58,21 +70,7 @@ object Task240Test extends App {
   for (state <- superiorStates)
     subjectProviderManager ! AddState(userID, processID, superiorName, state)
 
-  println("add testsubjects")
-  processManager ! AddSubject(11, employeeName)
-  processManager ! AddSubject(11, superiorName)
-
-  // add behaviorStates
-  println("add behaviourStates")
-  for (state <- employeeStates)
-    subjectProviderManager ! AddState(userID, 11, employeeName, state)
-  for (state <- superiorStates)
-    subjectProviderManager ! AddState(userID, 11, superiorName, state)
-
   // execute states
   println("execute states")
   subjectProviderManager ! ExecuteRequest(userID, processID)
-
-  //  Man kann auch 2 Prozesse starten
-  //  subjectProviderManager ! ExecuteRequest(userID, 11)
 }
