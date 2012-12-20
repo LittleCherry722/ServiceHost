@@ -32,7 +32,7 @@ define([ "director", "app"], function( Director, App ) {
 
 	// Show the home (index) page.
 	var showHome = function() {
-		App.loadTemplate( "home", null, globalCallback() );
+		App.loadView( "home", null, globalCallback() );
 	}
 
 	var showNewProcess = function() {
@@ -45,8 +45,13 @@ define([ "director", "app"], function( Director, App ) {
 		loadView( "processList", null, globalCallback() );
 	}
 
-	var showAdministration = function( subSite ) {
-		loadView( "administration", subSite, globalCallback() );
+	var showAdministration = function( tab ) {
+		if ( App.currentMainViewModel() && App.currentMainViewModel().currentTab ) {
+			App.currentMainViewModel().currentTab( tab )
+		} else {
+			loadView( "administration", tab, globalCallback() );
+		}
+	}
 	}
 
 	/*
@@ -57,7 +62,7 @@ define([ "director", "app"], function( Director, App ) {
 		"/home":  showHome,
 		"/administration": {
 			on: showAdministration,
-			"/:subSite" : showAdministration
+			"/:tab" : showAdministration
 		},
 		"/processList":  showProcessList,
 		"/processes": {
