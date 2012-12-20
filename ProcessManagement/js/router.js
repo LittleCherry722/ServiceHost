@@ -52,6 +52,13 @@ define([ "director", "app"], function( Director, App ) {
 			loadView( "administration", tab, globalCallback() );
 		}
 	}
+
+	var showProcessExecution = function( tab ) {
+		if ( App.currentMainViewModel() && App.currentMainViewModel().currentTab ) {
+			App.currentMainViewModel().currentTab( tab )
+		} else {
+			loadView( "execution", [ tab ], globalCallback() );
+		}
 	}
 
 	/*
@@ -71,6 +78,10 @@ define([ "director", "app"], function( Director, App ) {
 				on: showProcess,
 				"/(.+)": showProcess
 			}
+		},
+		"/execution": {
+			on: showProcessExecution,
+			"/:tab": showProcessExecution
 		}
 	}
 
