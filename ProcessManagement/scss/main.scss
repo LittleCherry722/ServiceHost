@@ -226,16 +226,16 @@ h4 {
 	float: left;
 }
 
-a {
-	color: #1F92FF;
-	text-decoration: none;
-	text-shadow: 0 0 0 transparent;
-}
-a:hover {
-	color: #2F4E85;
-	text-decoration: none;
-	text-shadow: 0 0 0 transparent;
-}
+// a {
+//   color: #1F92FF;
+//   text-decoration: none;
+//   text-shadow: 0 0 0 transparent;
+// }
+// a:hover {
+//   color: #2F4E85;
+//   text-decoration: none;
+//   text-shadow: 0 0 0 transparent;
+// }
 a:active {
 	color: #000;
 	text-decoration: none;
@@ -252,6 +252,10 @@ a:active {
 	width: 210px;
   background-color: #ebebeb;
   border-right: 1px solid #bcbcbc;
+
+  a {
+    text-decoration: none;
+  }
 }
 
 #main_menu {
@@ -405,16 +409,8 @@ a#show_menu {
   }
 
   .header {
-    background: url(../images/bg_window_header.png) repeat-x;
-    height: 40px;
-    border-bottom: 1px solid #ccc;
-    @include border-radius(5px 5px 0 0);
-    position: relative;
-
     span {
-      display: block;
-      width: 100%;
-      float: left;
+      // float: left;
       cursor: n-resize;
     }
   }
@@ -681,7 +677,7 @@ table.data2 tr td {
 
 #processContent {
   position: relative;
-  @include calc(height, "100% - 40px");
+  @include calc(height, "100% - 36px");
 }
 
 #processHelpButtons {
@@ -689,16 +685,19 @@ table.data2 tr td {
 
   padding: 0;
   margin: 0;
+  margin-top: 1px;
 
-  > li {
-    line-height: 38px;
-    padding: 0 5px 2px 0;
-    float: left;
+  .btn {
+    @include border-radius(13px);
+    width: 25px;
+    height: 25px;
+    line-height: 25px;
+    padding: 0;
   }
 }
 
 #graphZoombuttons {
-  z-index: 9999; 
+  z-index: 100;
   position: absolute;
   top: 5px;
   left: 10px;
@@ -708,13 +707,17 @@ table.data2 tr td {
     padding: 5px 0;
     a {
       @include border-radius(8px);
-      @include box-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+      @include box-shadow(0 0 2px rgba(0, 0, 0, 0.2));
       display: inline-block;
-      background-color: #E6E6E6;
+      background-color: #EEE;
       border: 1px solid #ccc;
       color: #333;
       width: 16px;
       line-height: 16px;
+
+      &:hover {
+        cursor: pointer;
+      }
 
       &:last-child {
         line-height: 14px;
@@ -722,37 +725,6 @@ table.data2 tr td {
       }
     }
   }
-}
-
-#switch {
-  @include clearfix();
-
-  padding: 0;
-  margin: 0;
-  margin-left: 5px;
-
-  > li {
-    line-height: 40px;
-    float: left;
-  }
-}
-
-.tab-dropdown {
-  display: inline-block;
-  @include border-radius(0);
-  background: url(../images/bg_button_tab.png) repeat-x;
-  font-weight: bold;
-  margin: 0;
-  height: 28px;
-  line-height: 40px;
-  border: 1px solid #AAA9A9;
-  -moz-box-shadow: 0 1px 1px #fff;
-  -webkit-box-shadow: 0 1px 1px #fff;
-  box-shadow: 0 1px 1px #fff;
-  text-shadow: none;
-  color: #494949;
-  font-size: 12px;
-  vertical-align: middle;
 }
 
 .readonly {
@@ -786,8 +758,6 @@ table.data2 tr td {
 
 
 // Administration
-
-
 #adminContainer {
   @include display-box;
   @include calc(height, "100% - 45px");
@@ -876,6 +846,88 @@ table.data2 tr td {
 }
 
 
+// Process Execution view
+
+#processExecution {
+  ul.nav.nav-tabs {
+    border-bottom: 0;
+    margin-bottom: 0;
+    padding: 0 20px;
+
+    li {
+      display: block;
+      padding: 0;
+      margin-right: 5px;
+      @include border-radius(5px 5px 0 0);
+
+      a {
+        padding: 8px 25px;
+        margin: 0;
+        @include border-radius(5px 5px 0 0);
+
+        &:hover {
+          border-bottom: 1px solid #ccc;
+        }
+      }
+
+      &.active {
+        position: relative;
+        top: 2px;
+        height: 29px;
+        border: 1px solid #ccc;
+        border-bottom: none;
+
+        @include box-shadow(0 0 3px #ccc);
+
+        a {
+          height: 15px;
+          @include gradient-vertical(#fff, #f8f8f8);
+          border: none;
+        }
+      }
+    }
+  }
+}
+
+#executionContent {
+  @include display-box;
+  @include calc(height, "100% - 67px");
+  min-width: 1px;
+  background-color: #fff;
+  @include border-radius(5px);
+  border: 1px solid #cdcdcd;
+  @include box-shadow(0 0 3px #ccc);
+
+}
+
+.header {
+  height: 30px;
+  padding: 3px 5px;
+  @include box-flex(1);
+  @include gradient-vertical(#f8f8f8, #e6e6e6);
+  @include border-radius(5px 5px 0 0);
+  @include box-shadow(inset 0 1px 1px #fff);
+  border-bottom: 1px solid #ccc;
+
+  .btn {
+    padding: 7px 15px;
+    text-shadow: 0 1px 0 white;
+
+    &:hover, &:active, &.active {
+      text-shadow: none;
+    }
+    &:active, &.active {
+      background-color: #ddd;
+      background-image: none;
+    }
+  }
+
+  .tab-dropdown {
+    text-align: left;
+    padding: 0;
+    height: 28px;
+  }
+}
 
 .hide {
 	display: none;

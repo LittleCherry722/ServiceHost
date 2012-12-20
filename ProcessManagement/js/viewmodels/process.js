@@ -389,7 +389,7 @@ define([
 		// When a selectable tab is clicked, mark the tab as selected, update the
 		// list of subjects and channels.
 		// See "selectTab" for more Information,
-		$( ".switch input[id^='tab']" ).on( "click", selectTab )
+		$( ".switch .btn[id^='tab']" ).on( "click", selectTab )
 
 		// Tab2, "Subject Interaction View" clicked.
 		// let the graph not we changed views and update the list of subjects and
@@ -611,7 +611,7 @@ define([
 		// current tab contents and only selectively show the tab content of the
 		// currently clicked tab.
 		$( ".tab_content" ).addClass( "hide" );
-		$( "#switch input" ).removeClass( "active" );
+		$( "#switch .btn" ).removeClass( "active" );
 		$( "#tab" + tabIndex ).addClass( "active" );
 		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );

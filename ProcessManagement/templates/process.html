@@ -9,49 +9,40 @@
 		<!-- Begin graph window -->
 		<div class="onecolumn">
 			<div class="header">
-				<ul class="nav pull-right" id="processHelpButtons">
-					<li>
-						<input id="help-button" type="button" href="help.html" value="Help" data-bind="fancybox : {width : '30', height : '41'}"/>
-					</li>
-				</ul>
-				<ul class="nav" id="switch">
-					<li>
-						<input type="button"	id="tab2" name="tab2" class="left_switch" value="Subject-Interaction-View" />
-					</li>
+				<div class="pull-right" id="processHelpButtons">
+					<a id="help-button" class="btn btn-small" href="help.html" data-bind="fancybox : {width : '30', height : '41'}"/>
+						?
+					</a>
+				</div>
+				<div class="btn-group" id="switch">
+					<button	id="tab2" class="btn">Subject-Interaction-View</button>
 
-					<li>
-						<div class="tab-dropdown">
-							<select id="slctSbj" data-placeholder="Select Internal Behavior"
-								class="middle_switch chzn-select" tabindex="1"
-								data-bind="options: availableSubjects, optionsText: 'subjectText',
-								optionsValue: 'subjectID', value: currentSubject, caption: ''">
-							</select>
-						</div>
-					</li>
+					<div class="btn tab-dropdown">
+						<select id="slctSbj" data-placeholder="Select Internal Behavior"
+							class="middle_switch chzn-select" tabindex="1"
+							data-bind="options: availableSubjects, optionsText: 'subjectText',
+							optionsValue: 'subjectID', value: currentSubject, caption: ''">
+						</select>
+					</div>
 
-					<li>
-						<div class="tab-dropdown">
-							<select id="slctChan" data-placeholder="Select Channel"
-								class="middle_switch chzn-select" tabindex="1"
-								data-bind="options: availableChannels, optionsText: 'text',
-								optionsValue: 'channelID', value: currentChannel, caption: ''">
-							</select>
-						</div>
-					</li>
+					<div class="btn tab-dropdown">
+						<select id="slctChan" data-placeholder="Select Channel"
+							class="middle_switch chzn-select" tabindex="1"
+							data-bind="options: availableChannels, optionsText: 'text',
+							optionsValue: 'channelID', value: currentChannel, caption: ''">
+						</select>
+					</div>
 
-					<li>
-						<div id="slctMacroDropDown" class="tab-dropdown" style="display: none;">
-							<select id="slctMacro" data-placeholder="Select Macro"
-								class="middle_switch chzn-select" tabindex="1"
-								data-bind="options: availableMacros, optionsText: 'value',
-								optionsValue: 'id', value: currentMacro, caption: ''">
-							</select>
-						</div>
-					</li>
-					<li>
-						<input type="button" id="tab3" name="tab3" class="right_switch" value="Person in charge" />
-					</li>
-				</ul>
+					<div id="slctMacroDropDown" class="btn tab-dropdown" style="display: none;">
+						<select id="slctMacro" data-placeholder="Select Macro"
+							class="middle_switch chzn-select" tabindex="1"
+							data-bind="options: availableMacros, optionsText: 'value',
+							optionsValue: 'id', value: currentMacro, caption: ''">
+						</select>
+					</div>
+
+					<button id="tab3" class="btn">Person in charge</button>
+				</div>
 			</div>
 
 
@@ -59,13 +50,13 @@
 			<div id="processContent">
 				<ul class="unstyled" id="graphZoombuttons">
 					<li>
-						<a href="#" onclick="gf_paperZoomIn();" >+</a>
+						<a onclick="gf_paperZoomIn();" >+</a>
 					</li>
 					<li>
-						<a href="#" onclick="gf_paperZoomOut();" >&minus;</a>
+						<a onclick="gf_paperZoomOut();" >&minus;</a>
 					</li>
 					<li>
-						<a href="#" onclick="gf_paperZoomReset();" >±</a>
+						<a onclick="gf_paperZoomReset();" >±</a>
 					</li>
 				</ul>
 				<div id="tab1_content" class="tab_content hide"></div>
