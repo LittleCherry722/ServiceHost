@@ -1,21 +1,27 @@
+package de.tkip.sbpm.application.test
+
 import akka.actor._
+import akka.dispatch.Await
+import akka.pattern.ask
+import akka.util.Timeout
+import akka.util.duration._
 
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 
-class Task240Test {
-
-}
-
 /**
- * kleiner Test der SubjectManagerProvider und ProcessManager instanziert, dann Subjekte und Verhalten hinzufügt und
+ * kleiner Test der SubjectManagerProvider und ProcessManager instanziert,
+ * dann Subjekte und Verhalten hinzufügt und
  * eine Statusabfrage sendet, die StateAusführung jedes Subjects erzwingt
- * 
- * Beispiel wurde aus dem alten Kernel übernommen und an die neue Struktur angepasst
+ *
+ * Beispiel wurde aus dem alten Kernel übernommen und an die neue Struktur
+ * angepasst
  */
 object Task240Test extends App {
 
   println("Starting....")
+
+  implicit val timeout = Timeout(5 seconds)
 
   println("instantiating...")
   val system = ActorSystem("TextualEpassIos")
@@ -24,12 +30,18 @@ object Task240Test extends App {
 
   // instantiate subjectProvider and processes
   val userID = 10
-  val processID = 100
+
   subjectProviderManager ! CreateSubjectProvider(userID)
-  processManager ! CreateProcess(processID)
+
+  // Blocking ask to create the process
+  val future = subjectProviderManager ? CreateProcess(userID)
+  val processID: Int =
+    Await.result(future, timeout.duration).asInstanceOf[ProcessCreated].processID
+
+  println(processID)
 
   // employee
-  val employeeName = "employee"
+  val employeeName = "Employee"
   val employeeStates = Array(
     new ActState("empl", "Fill out Application", Array(Transition("Done", "Do"))),
     new SendState("empl.br1", Array(Transition("BT Application", "Superior"))),
@@ -38,7 +50,7 @@ object Task240Test extends App {
     new EndState("End of the old one"))
 
   // Superior  
-  val superiorName = "superior"
+  val superiorName = "Superior"
   val superiorStates = Array(
     new ReceiveState("sup", Array(Transition("BT Application", "Employee"))),
     new ActState("sup.br1", "Check Application", Array(Transition("Approval", "Do"), Transition("Denial", "Do"))),
@@ -60,5 +72,5 @@ object Task240Test extends App {
 
   // execute states
   println("execute states")
-  subjectProviderManager ! StatusRequest(userID, processID)
+  subjectProviderManager ! ExecuteRequest(userID, processID)
 }

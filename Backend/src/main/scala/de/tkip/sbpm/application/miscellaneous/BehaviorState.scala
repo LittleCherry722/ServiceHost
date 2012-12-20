@@ -11,18 +11,27 @@ import akka.dispatch.Await
 import akka.dispatch.Future
 
 /**
- * models the behaviour through linking certain ConcreteBehaviorStates and executing them
+ * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
-abstract class BehaviourState(val stateID: StateID, val stateAction: StateAction, transitions: Array[Transition]) {
+abstract class BehaviourState(val stateID: StateID,
+                              val stateAction: StateAction,
+                              transitions: Array[Transition]) {
 
   for (i <- 0 until transitions.length) {
-    if (transitions(i).successorID.isEmpty())
-      transitions(i) = Transition(transitions(i).messageType, transitions(i).subjectName, stateID + ".br" + (i + 1).toString())
+    if (transitions(i).successorID.isEmpty()) {
+      transitions(i) =
+        Transition(
+          transitions(i).messageType,
+          transitions(i).subjectName,
+          stateID + ".br" + (i + 1).toString())
+    }
   } // br for branch 
 
   private def build_transitionsMap(): Map[ExitCond, SuccessorID] = {
     val transitionsMap = collection.mutable.Map[ExitCond, SuccessorID]()
-    for (i <- 0 until transitions.length) transitionsMap += transitions(i).exitCond -> transitions(i).successorID
+    for (i <- 0 until transitions.length) {
+      transitionsMap += transitions(i).exitCond -> transitions(i).successorID
+    }
     return transitionsMap.toMap
   }
 
@@ -31,14 +40,20 @@ abstract class BehaviourState(val stateID: StateID, val stateAction: StateAction
 
   def exitConds: Array[ExitCond] = for (t <- transitions) yield (t.exitCond)
 
-  def performAction(processManager: ProcessManagerRef, subjectName: SubjectName, subjectProviderName: SubjectName, inputpool: ActorRef): StateID
+  def performAction(processManager: ProcessManagerRef,
+                    subjectName: SubjectName,
+                    subjectProviderName: SubjectName,
+                    inputpool: ActorRef): StateID
 
 }
 
 case class ActState(id: StateID, action: StateAction, transitions: Array[Transition])
-  extends BehaviourState(id, action, transitions) { // ActState = ActionState
+    extends BehaviourState(id, action, transitions) { // ActState = ActionState
 
-  def performAction(processManager: ProcessManagerRef, subjectName: SubjectName, subjectProviderName: SubjectName, inputpool: ActorRef): StateID = {
+  def performAction(processManager: ProcessManagerRef,
+                    subjectName: SubjectName,
+                    subjectProviderName: SubjectName,
+                    inputpool: ActorRef): StateID = {
     var action_choices: String = ""
     for (t <- transitions) action_choices += t.messageType + "\\"
 
@@ -49,11 +64,13 @@ case class ActState(id: StateID, action: StateAction, transitions: Array[Transit
       }
     }
 
-    var output: String = "Action@" + subjectProviderName + ": " + stateAction + "\nWhat is the result ?\n(" + action_choices + ")?\n> "
+    var output: String = "Action@" + subjectProviderName + ": " + stateAction +
+      "\nWhat is the result ?\n(" + action_choices + ")?\n> "
     var input = readLine(output)
 
     while (!validat_input(input)) {
-      println("Invalid input. Please enter one term of the selection:\n" + action_choices.toString())
+      println("Invalid input. Please enter one term of the selection:\n" +
+        action_choices.toString())
       input = readLine(output)
     }
 
@@ -75,7 +92,10 @@ case class EndState(id: StateID) extends BehaviourState(id, "End of Behavior: ",
 
 case class ReceiveState(s: StateID, val transitions: Array[Transition]) extends BehaviourState(s, "ReceiveAction", transitions) {
 
-  override def performAction(processManager: ProcessManagerRef, subjectName: SubjectName, subjectProviderName: SubjectName, inputpool: ActorRef): StateID = {
+  override def performAction(processManager: ProcessManagerRef,
+                             subjectName: SubjectName,
+                             subjectProviderName: SubjectName,
+                             inputpool: ActorRef): StateID = {
 
     var ret: StateID = "Default Receive return"
 
@@ -86,11 +106,13 @@ case class ReceiveState(s: StateID, val transitions: Array[Transition]) extends 
 
     ack match {
       case tm: TransportMessage =>
-        println("Receive@" + subjectProviderName + ": Message \"" + tm.fromCond.messageType + "\" from \"" + tm.fromCond.subjectName + "\" with content \"" + tm.messageContent + "\"")
+        println("Receive@" + subjectProviderName + ": Message \"" +
+          tm.fromCond.messageType + "\" from \"" + tm.fromCond.subjectName +
+          "\" with content \"" + tm.messageContent + "\"")
         ret = transitionsMap(tm.fromCond)
       case ss => println("Receive@ got something: " + ss); ret = "Timeout"
-
     }
+
     return ret
   }
 
@@ -98,7 +120,10 @@ case class ReceiveState(s: StateID, val transitions: Array[Transition]) extends 
 
 case class SendState(s: StateID, transitions: Array[Transition]) extends BehaviourState(s, "SendAction", transitions) {
 
-  def performAction(processManager: ProcessManagerRef, fromSubject: SubjectName, subjectProviderName: SubjectName, inputpool: ActorRef): StateID = {
+  def performAction(processManager: ProcessManagerRef,
+                    fromSubject: SubjectName,
+                    subjectProviderName: SubjectName,
+                    inputpool: ActorRef): StateID = {
 
     val messageName = transitions(0).messageType
     val toSubject = transitions(0).subjectName
@@ -110,13 +135,19 @@ case class SendState(s: StateID, transitions: Array[Transition]) extends Behavio
     var ret: StateID = "Default Send return"
 
     implicit val timeout = Timeout(365 days) // has to be adapted for timeout edges 
-    val future = processManager.ask(SubjectMessage(exitConds(0), ExitCond(exitConds(0).messageType, fromSubject), messageContent))
+    val future =
+      processManager.ask(
+        SubjectMessage(
+          ExitCond(exitConds(0).messageType, fromSubject),
+          exitConds(0),
+          messageContent))
 
     val ack = Await.result(future, timeout.duration)
 
     ack match {
       case Stored =>
-        println("Send@" + subjectProviderName + ": \"" + messageName + "\" to \"" + toSubject + "\"")
+        println("Send@" + subjectProviderName + ": \"" + messageName +
+          "\" to \"" + toSubject + "\"")
         ret = transitionsMap(exitCond)
       case ss => println("Send@ got something: " + ss); ret = "Timeout"
     }

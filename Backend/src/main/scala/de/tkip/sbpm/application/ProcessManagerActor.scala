@@ -9,26 +9,29 @@ import miscellaneous.ProcessAttributes._
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor/SubjectActor (TODO)
  */
 class ProcessManagerActor(private val name: String) extends Actor {
+  private var processCount = 0
   private val processMap = collection.mutable.Map[ProcessID, ProcessInstanceRef]()
 
   def receive = {
     case as: AddSubject =>
       forwardControlMessageToProcess(as.processID, as)
 
-    case sr: StatusRequest => // request the status of the process
+    // TODO - warum führt man einen process über StatusRequest aus?
+    case sr: ExecuteRequest => // request the status of the process
       forwardControlMessageToProcess(sr.processID, sr)
 
     case as: AddState => // forwards an AddState request to the process that corresponds to the given processID
       forwardControlMessageToProcess(as.processID, as)
 
     case cp: CreateProcess =>
-      if (!processMap.contains(cp.processID))
-        createNewProcessInstance(cp.processID)
-
+      createNewProcessInstance(processCount)
+      sender ! ProcessCreated(cp, processCount)
+      processCount += 1
   }
 
   // forward control message to processInstance with a given processID
-  private def forwardControlMessageToProcess(processID: ProcessID, controlMessage: ControlMessage) {
+  private def forwardControlMessageToProcess(processID: ProcessID,
+                                             controlMessage: ControlMessage) {
     if (processMap.contains(processID))
       processMap(processID) ! controlMessage
   }
