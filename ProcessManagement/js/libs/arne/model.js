@@ -308,7 +308,11 @@ define([
 			this.toJSON = function() {
 				json = {};
 				_( attrs ).each(function( attribute ) {
-					json[attribute] = this[attribute]();
+					if ( typeof this[attribute]() === "undefined" ) {
+						json[attribute] = "";
+					} else {
+						json[attribute] = this[attribute]();
+					}
 				}.bind( this ));
 
 				return json;
