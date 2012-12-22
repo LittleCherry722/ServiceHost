@@ -9,11 +9,21 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	User = Model( "User", [ "name", "isActive", "inputPoolSize" ] );
+	User = Model( "User" );
+
+	User.attrs({
+		name: "string",
+		isActive: {
+			type: "boolean",
+			defaults: true
+		},
+		inputPoolSize: {
+			type: "integer",
+			defaults: 8
+		}
+	});
 
 	User.hasMany( "groups", { through: "groupsUsers" } );
-
-	// Group.extend({);
 
 	User.include({
 		// Initialize is a special method defined as an instance method.  If any

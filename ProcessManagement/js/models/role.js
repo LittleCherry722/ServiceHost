@@ -9,7 +9,15 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	Role = Model( "Role", [ "name", "isActive" ] );
+	Role = Model( "Role" );
+	
+	Role.attrs({
+		name: "string",
+		isActive: {
+			type: "boolean",
+			defaults: true
+		}
+	});
 
 	Role.hasMany( "groups", { through: "groupsRoles" } );
 

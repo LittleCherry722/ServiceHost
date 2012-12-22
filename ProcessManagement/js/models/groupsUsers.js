@@ -9,7 +9,18 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	GroupsUsers = Model( "GroupsUsers", [ "isActive", "userID", "groupID" ], [ "userID", "groupID" ] );
+	GroupsUsers = Model( "GroupsUsers" );
+
+	GroupsUsers.attrs({
+		isActive: {
+			type: "boolean",
+			defaults: true
+		},
+		userID: "integer",
+		groupID: "integer"
+	});
+
+	GroupsUsers.ids([ "userID", "groupID" ]);
 
 	GroupsUsers.belongsTo( "user" );
 	GroupsUsers.belongsTo( "group" );
