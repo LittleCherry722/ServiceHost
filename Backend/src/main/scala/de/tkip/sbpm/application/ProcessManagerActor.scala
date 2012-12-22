@@ -16,7 +16,6 @@ class ProcessManagerActor(private val name: String) extends Actor {
     case as: AddSubject =>
       forwardControlMessageToProcess(as.processID, as)
 
-    // TODO - warum führt man einen process über StatusRequest aus?
     case sr: ExecuteRequest => // request the status of the process
       forwardControlMessageToProcess(sr.processID, sr)
 
@@ -38,7 +37,7 @@ class ProcessManagerActor(private val name: String) extends Actor {
 
   // creates a new processInstanceActor and registers it with the given processID (overrides the old entry)
   private def createNewProcessInstance(processID: ProcessID) = {
-    val process = context.actorOf(Props(new ProcessInstanceActor))
+    val process = context.actorOf(Props(new ProcessInstanceActor(processID)))
     processMap += processID -> process
     process
   }

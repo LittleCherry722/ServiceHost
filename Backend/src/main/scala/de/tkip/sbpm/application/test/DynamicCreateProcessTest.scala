@@ -1,23 +1,19 @@
 package de.tkip.sbpm.application.test
 
+import scala.collection.mutable.ArrayBuffer
+
 import akka.actor._
 import akka.dispatch.Await
+import akka.dispatch.Future
 import akka.pattern.ask
-import akka.util.Timeout
 import akka.util.duration._
+import akka.util.Timeout
 
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
-/**
- * kleiner Test der SubjectManagerProvider und ProcessManager instanziert,
- * dann Subjekte und Verhalten hinzufügt und
- * eine Statusabfrage sendet, die StateAusführung jedes Subjects erzwingt
- *
- * Beispiel wurde aus dem alten Kernel übernommen und an die neue Struktur
- * angepasst
- */
-object Task240Test extends App {
+object DynamicCreateProcessTest extends App {
 
   println("Starting....")
 
@@ -57,18 +53,16 @@ object Task240Test extends App {
     new EndState("The End"))
 
   // add subjects
-  println("add testsubjects")
+  println("add employesubject")
   processManager ! AddSubject(userID, processID, employeeName)
-  processManager ! AddSubject(userID, processID, superiorName)
 
   // add behaviorStates
   println("add behaviorStates")
   for (state <- employeeStates)
     subjectProviderManager ! AddState(userID, processID, employeeName, state)
-  for (state <- superiorStates)
-    subjectProviderManager ! AddState(userID, processID, superiorName, state)
 
   // execute states
   println("execute states")
   subjectProviderManager ! ExecuteRequest(userID, processID)
+
 }

@@ -7,20 +7,19 @@ import miscellaneous.ProcessAttributes._
 /**
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
-class SubjectActor(processManagerRef: ProcessManagerRef, subjectName: SubjectName) extends Actor {
-
-  //	private var ipRef: ActorRef = _ // Ref to the ip of the subjectprovider
-  private val ipRef: ActorRef = context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + subjectName)
+class SubjectActor(processInstanceRef: ProcessInstanceRef,
+                   subjectName: SubjectName) extends Actor {
 
   case object JobDone
-  case class IPRef(ipRef: ActorRef)
-
-  private val internalBehaviourActor = context.actorOf(Props[InternalBehaviorActor]) // create InternalBehaviorActor
+  private val inputPoolActor: ActorRef =
+    context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + subjectName)
+  private val internalBehaviourActor =
+    context.actorOf(Props[InternalBehaviorActor])
 
   def receive = {
     //    case ip: IPRef => ipRef = ip.ipRef
-    case JobDone => processManagerRef ! End; context.stop(self)
-    case sm: SubjectMessage => ipRef forward sm
+    case JobDone => processInstanceRef ! End; context.stop(self)
+    case sm: SubjectMessage => inputPoolActor forward sm
 
     case sr: ExecuteRequest =>
       //      val ip = context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + sr.userID)
@@ -28,7 +27,7 @@ class SubjectActor(processManagerRef: ProcessManagerRef, subjectName: SubjectNam
       //      internalBehaviourActor ! ProcessBehaviour(processManagerRef, subjectName, sr.userID.toString(), ip)
       //      val ip = context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + sr.userID)
       //      context.parent ! IPRef(ipRef)
-      internalBehaviourActor ! ProcessBehaviour(processManagerRef, subjectName, sr.userID.toString(), ipRef)
+      internalBehaviourActor ! ProcessBehaviour(processInstanceRef, subjectName, sr.userID.toString(), inputPoolActor)
 
     //      context.parent ! JobDone
     //      context.stop(self)
