@@ -10,8 +10,13 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	Process = Model( "Process", [ "name", "isCase", "graphID" ] );
-
+	Process = Model( "Process" );
+	
+	Process.attrs({
+		name: "string",
+		isCase: "boolean",
+		graphID: "integer"
+	});
 
 	Process.belongsTo( "graph" );
 	Process.hasMany( "graphs" );

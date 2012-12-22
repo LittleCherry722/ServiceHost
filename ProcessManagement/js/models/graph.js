@@ -11,13 +11,24 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	Graph = Model( "Graph", [ "graphString", "date", "processID" ] );
+	Graph = Model( "Graph" );
 
-	Graph.extend({
+	Graph.attrs({
+		graphString: {
+			type: "string",
+			defaults: "{}",
+			lazy: true
+		},
+		date: "string",
+		processID: "integer"
 	});
 
+	Graph.ids([ "id" ]);
+
+	Graph.belongsTo( "process" )
 
 	Graph.include({
+
 		// Initialize is a special method defined as an instance method.  If any
 		// method named "initializer" is given, it will be called upon object
 		// creation (when calling new model()) with the context of the model.

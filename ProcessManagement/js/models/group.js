@@ -10,16 +10,20 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	Group = Model( "Group", [ "name", "isActive" ] );
+	Group = Model( "Group" );
 
-	// Group.belongsTo( "graph" [>, { foreignKey: "graphID" } <] );
-	// Group.hasMany( "graphs" [>, { foreignModelName: "graph", foreignKey: "processID" } <] );
+	Group.attrs({
+		name: "string",
+		isActive: {
+			type: "boolean",
+			defaults: true
+		}
+	});
 
-	// Group.extend({
-	//
-	// });
+	Group.hasMany( "roles", { through: "groupsRoles" } );
 
 	Group.include({
+
 		// Initialize is a special method defined as an instance method.  If any
 		// method named "initializer" is given, it will be called upon object
 		// creation (when calling new model()) with the context of the model.
