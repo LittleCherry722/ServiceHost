@@ -25,9 +25,10 @@ object DynamicCreateProcessTest extends App {
   val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
 
   // instantiate subjectProvider and processes
-  val userID = 10
-
-  subjectProviderManager ! CreateSubjectProvider(userID)
+  // Blocking ask to create the subjectProvider
+  val future1 = subjectProviderManager ? CreateSubjectProvider()
+  val userID: Int =
+    Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
 
   // Blocking ask to create the process
   val future = subjectProviderManager ? CreateProcess(userID)

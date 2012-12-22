@@ -28,10 +28,12 @@ object Task240Test extends App {
   val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
   val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
 
-  // instantiate subjectProvider and processes
-  val userID = 10
+  // Blocking ask to create the subjectProvider
+  val future1 = subjectProviderManager ? CreateSubjectProvider()
+  val userID: Int =
+    Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
 
-  subjectProviderManager ! CreateSubjectProvider(userID)
+  println("UserID: " + userID)
 
   // Blocking ask to create the process
   val future = subjectProviderManager ? CreateProcess(userID)

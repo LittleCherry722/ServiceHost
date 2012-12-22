@@ -11,6 +11,9 @@ import miscellaneous.ProcessAttributes._
 class ProcessManagerActor(private val name: String) extends Actor {
   private var processCount = 0
   private val processMap = collection.mutable.Map[ProcessID, ProcessInstanceRef]()
+  
+  // used to map answermessages back to the subjectProvider who sent a request
+  private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
 
   def receive = {
     case as: AddSubject =>
@@ -18,6 +21,9 @@ class ProcessManagerActor(private val name: String) extends Actor {
 
     case sr: ExecuteRequest => // request the status of the process
       forwardControlMessageToProcess(sr.processID, sr)
+
+    case spc: SubjectProviderCreated =>
+      subjectProviderMap += spc.userID -> sender
 
     case as: AddState => // forwards an AddState request to the process that corresponds to the given processID
       forwardControlMessageToProcess(as.processID, as)
@@ -30,7 +36,7 @@ class ProcessManagerActor(private val name: String) extends Actor {
 
   // forward control message to processInstance with a given processID
   private def forwardControlMessageToProcess(processID: ProcessID,
-                                             controlMessage: ControlMessage) {
+    controlMessage: ControlMessage) {
     if (processMap.contains(processID))
       processMap(processID) ! controlMessage
   }

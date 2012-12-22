@@ -6,13 +6,18 @@ import miscellaneous.ProcessAttributes._
 
 class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
   extends Actor {
+  private var subjectCount = 0
   private val subjectProviderMap =
     collection.mutable.Map[UserID, SubjectProviderRef]()
 
   def receive = {
-    case rnu: CreateSubjectProvider =>
-      if (!subjectProviderMap.contains(rnu.userID))
-        createNewSubjectProvider(rnu.userID)
+    // create a new subject provider and send the ID to the requester.
+    // additionally send it to the subjectprovider who forwards 
+    // the message to the processmanager so he can register the new subjectprovider
+    case csp: CreateSubjectProvider =>
+      createNewSubjectProvider(subjectCount) ! SubjectProviderCreated(csp, subjectCount)
+      sender ! SubjectProviderCreated(csp, subjectCount) 
+      subjectCount += 1
 
     case gpr: ExecuteRequest =>
       forwardControlMessageToProvider(gpr.userID, gpr)

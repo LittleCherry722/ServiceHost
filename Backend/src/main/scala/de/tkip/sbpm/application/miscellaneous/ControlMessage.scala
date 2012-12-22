@@ -25,7 +25,7 @@ case class Successor(nextState: String) extends ControlMessage
 case class TransportMessage(fromCond: ExitCond, messageContent: MessageContent) extends ControlMessage
 case object End extends ControlMessage
 
-case class CreateSubjectProvider(userID: UserID) extends ControlMessage
+case class CreateSubjectProvider() extends ControlMessage
 case class CreateProcess(userID: UserID) extends ControlMessage with AnswerMessage // Tells the processManager to create a new process
 case class AddSubject(userID: UserID, processID: ProcessID, subjectName: SubjectName) extends ControlMessage
 
@@ -39,4 +39,5 @@ case class ProcessBehaviour(processManager: ProcessManagerRef, subjectName: Subj
 case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => ControlMessage)
 
 // answers
-case class ProcessCreated(cp: CreateProcess, processID: ProcessID)
+case class ProcessCreated(cp: CreateProcess, processID: ProcessID) 
+case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID)
