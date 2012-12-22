@@ -50,8 +50,10 @@ define([
 		}
 
 		this.create = function() {
-			new Role.build( { id: "Save to \nreceive ID" } )
-			$(".scrollable input.inline").last().focus()
+			Role.build().id("Save to \nreceive ID");
+
+			$("#listOfRoles input.inline").last().focus()
+			$("#listOfRoles tr:last-child .chzn-select").chosen();
 		}
 
 		this.remove = function( role ) {

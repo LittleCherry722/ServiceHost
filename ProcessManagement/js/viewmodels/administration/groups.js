@@ -28,9 +28,10 @@ define([
 		}
 
 		this.create = function() {
-			var group =  new Group( { id: "Save to \nreceive ID" } )
-			Group.all.push( group )
-			$(".scrollable input.inline").last().focus()
+			Group.build().id("Save to \nreceive ID")
+
+			$("#listOfGroups input.inline").last().focus()
+			$("#listOfGroups tr:last-child .chzn-select").chosen();
 		}
 
 		this.remove = function( group ) {

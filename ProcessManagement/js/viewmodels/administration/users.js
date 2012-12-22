@@ -50,8 +50,10 @@ define([
 		}
 
 		this.create = function() {
-			new User.build( { id: "Save to \nreceive ID" } )
-			$(".scrollable input.inline").last().focus()
+			User.build().id("Save to \nreceive ID");
+
+			$("#listOfUsers input.inline").last().focus()
+			$("#listOfUsers tr:last-child .chzn-select").chosen();
 		}
 
 		this.remove = function( user ) {
