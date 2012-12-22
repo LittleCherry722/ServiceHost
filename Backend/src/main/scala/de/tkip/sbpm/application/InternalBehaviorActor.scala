@@ -33,7 +33,6 @@ class InternalBehaviorActor extends Actor {
                                subjectProviderName: SubjectName,
                                inputPool: ActorRef) {
     var nextstate = startState
-
     while (nextstate != null) {
       nextstate =
         statesMap(nextstate).performAction(

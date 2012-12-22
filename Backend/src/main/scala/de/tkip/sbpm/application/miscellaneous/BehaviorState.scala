@@ -1,14 +1,16 @@
 package de.tkip.sbpm.application.miscellaneous
 
-import ProcessAttributes._
-import de.tkip.sbpm.application.miscellaneous._
+//import de.tkip.sbpm.application.miscellaneous._
+import scala.collection.mutable.ArrayBuffer
+
 import akka.actor._
 import akka.pattern.ask
 import akka.util.duration._
 import akka.util.Timeout
-import scala.collection.mutable.ArrayBuffer
 import akka.dispatch.Await
 import akka.dispatch.Future
+
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
@@ -84,7 +86,10 @@ case class ActState(id: StateID, action: StateAction, transitions: Array[Transit
 }
 
 case class EndState(id: StateID) extends BehaviourState(id, "End of Behavior: ", Array[Transition]()) {
-  def performAction(processManager: ProcessManagerRef, subjectName: SubjectName, subjectProviderName: SubjectName, inputpool: ActorRef): StateID = {
+  def performAction(processManager: ProcessManagerRef,
+                    subjectName: SubjectName,
+                    subjectProviderName: SubjectName,
+                    inputpool: ActorRef): StateID = {
     println("End@" + subjectProviderName)
     null
   }
@@ -110,7 +115,9 @@ case class ReceiveState(s: StateID, val transitions: Array[Transition]) extends 
           tm.fromCond.messageType + "\" from \"" + tm.fromCond.subjectName +
           "\" with content \"" + tm.messageContent + "\"")
         ret = transitionsMap(tm.fromCond)
-      case ss => println("Receive@ got something: " + ss); ret = "Timeout"
+      case ss =>
+        println("Receive@ got something: " + ss)
+        ret = "Timeout"
     }
 
     return ret
@@ -149,7 +156,9 @@ case class SendState(s: StateID, transitions: Array[Transition]) extends Behavio
         println("Send@" + subjectProviderName + ": \"" + messageName +
           "\" to \"" + toSubject + "\"")
         ret = transitionsMap(exitCond)
-      case ss => println("Send@ got something: " + ss); ret = "Timeout"
+      case ss =>
+        println("Send@ got something: " + ss)
+        ret = "Timeout"
     }
 
     return ret
