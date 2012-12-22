@@ -23,6 +23,10 @@ define([ "director", "app"], function( Director, App ) {
 	var showProcess = function( processID, subjectID ) {
 		expandListOfProcesses();
 
+		if ( subjectID ) {
+			subjectID = subjectID.replace(/___/, " ");
+		}
+
 		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByIDs ) {
 			App.currentMainViewModel().loadProcessByIDs( processID, subjectID, globalCallback() );
 		} else {
@@ -32,7 +36,7 @@ define([ "director", "app"], function( Director, App ) {
 
 	// Show the home (index) page.
 	var showHome = function() {
-		App.loadTemplate( "home", null, globalCallback() );
+		App.loadView( "home", null, globalCallback() );
 	}
 
 	var showNewProcess = function() {
@@ -45,8 +49,20 @@ define([ "director", "app"], function( Director, App ) {
 		loadView( "processList", null, globalCallback() );
 	}
 
-	var showAdministration = function( subSite ) {
-		loadView( "administration", subSite, globalCallback() );
+	var showAdministration = function( tab ) {
+		if ( App.currentMainViewModel() && App.currentMainViewModel().currentTab ) {
+			App.currentMainViewModel().currentTab( tab )
+		} else {
+			loadView( "administration", tab, globalCallback() );
+		}
+	}
+
+	var showProcessExecution = function( tab ) {
+		if ( App.currentMainViewModel() && App.currentMainViewModel().currentTab ) {
+			App.currentMainViewModel().currentTab( tab )
+		} else {
+			loadView( "execution", [ tab ], globalCallback() );
+		}
 	}
 
 	/*
@@ -57,7 +73,7 @@ define([ "director", "app"], function( Director, App ) {
 		"/home":  showHome,
 		"/administration": {
 			on: showAdministration,
-			"/:subSite" : showAdministration
+			"/:tab" : showAdministration
 		},
 		"/processList":  showProcessList,
 		"/processes": {
@@ -66,6 +82,10 @@ define([ "director", "app"], function( Director, App ) {
 				on: showProcess,
 				"/(.+)": showProcess
 			}
+		},
+		"/execution": {
+			on: showProcessExecution,
+			"/:tab": showProcessExecution
 		}
 	}
 
@@ -133,7 +153,14 @@ define([ "director", "app"], function( Director, App ) {
 		// If not, we assume it is a string or another type of object that the
 		// director library knows how to handle, so we supply it directly to our
 		// Router.
-		if ( typeof path === "object" ) {
+		//
+		// TODO: Could need a slight refactoring.
+		if ( _( path ).isArray() ) {
+			route = "";
+			_( path ).each( function( fragment ) {
+				route += "/" + fragment.replace(/ /, "___").replace(/^#/, "");
+			});
+		} else if ( typeof path === "object" ) {
 			route = modelPath( path );
 		} else if ( path ) {
 			route = path;
@@ -141,6 +168,7 @@ define([ "director", "app"], function( Director, App ) {
 			route = "/"
 		}
 
+		route = route.replace(/\/{2,}/, "/");
 		if ( route[0] === "#" ) {
 			route = route.substr(1);
 		}

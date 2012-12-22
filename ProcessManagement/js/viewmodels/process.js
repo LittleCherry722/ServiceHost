@@ -186,14 +186,15 @@ define([
 		// Do not do anything if an empty subject is selected.
 		// Happens every time chosen updates itself with a new list of available
 		// subjects.
-		if ( !subject || gv_graph.subjects[subject].isExternal() ) {
-			return;
-		}
-		if ( gv_graph.subjects[subject] && gv_graph.subjects[subject].isExternal() ) {
+		if ( !subject ) {
 			return;
 		}
 
-		if ( Router.goTo( Router.modelPath( currentProcess() ) + "/" + subject ) ) {
+		subject = subject.replace(/___/, " ");
+		if ( !gv_graph.subjects[subject] || gv_graph.subjects[subject].isExternal() ) {
+			return;
+		}
+		if ( Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {
 			return;
 		}
 

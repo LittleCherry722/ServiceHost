@@ -852,7 +852,6 @@ table.data2 tr td {
   ul.nav.nav-tabs {
     border-bottom: 0;
     margin-bottom: 0;
-    padding: 0 20px;
 
     li {
       display: block;
@@ -890,7 +889,6 @@ table.data2 tr td {
 }
 
 #executionContent {
-  @include display-box;
   @include calc(height, "100% - 67px");
   min-width: 1px;
   background-color: #fff;
@@ -898,6 +896,9 @@ table.data2 tr td {
   border: 1px solid #cdcdcd;
   @include box-shadow(0 0 3px #ccc);
 
+  .content {
+    padding: 5px;
+  }
 }
 
 .header {
@@ -907,6 +908,7 @@ table.data2 tr td {
   @include gradient-vertical(#f8f8f8, #e6e6e6);
   @include border-radius(5px 5px 0 0);
   @include box-shadow(inset 0 1px 1px #fff);
+  @include clearfix();
   border-bottom: 1px solid #ccc;
 
   .btn {
