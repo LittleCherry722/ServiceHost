@@ -25,6 +25,9 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
       processIDs += pc.processID
       context.parent ! pc
 
+    case kill: KillProcess =>
+      processManagerRef ! kill
+
     case _ => "not yet implemented"
   }
 }
