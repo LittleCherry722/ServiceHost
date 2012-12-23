@@ -20,6 +20,7 @@ define([
 
 	var canHaveAttributes = function( Result ) {
 		var attrs = {},
+			lazyAttributes = [],
 			attributeNames = [],
 			ids = [ "id" ];
 
@@ -41,21 +42,34 @@ define([
 			// The "type" attribute of the attribute object must always be set.
 			_( attributesObject ).each(function( value, key ) {
 				if ( typeof value === "string" ) {
-					attributeNames.push( key );
 					attrs[ key ] = attributeFromString( value );
 				} else if ( typeof value === "object" ) {
-					attributeNames.push( key );
 					attrs[ key ] = attributeFromObject( value );
 				} else {
 					throw "Invalid attribute format for key: '" + key +
 						"' with value: " + value + " [" + typeof value + "]"
 				}
-			});
 
-			// Return only the names of all attributes of the current model.
-			Result.attributeNames = function() {
-				return attributeNames;
-			}
+				attributeNames.push( key );
+
+				if ( attrs[ key ].lazy ) {
+					lazyAttributes.push( key );
+				}
+			});
+		}
+
+		// Return only the names of all attributes of the current model.
+		Result.attributeNames = function() {
+			return attributeNames;
+		}
+
+		// Return only the names of all attributes of the current model.
+		Result.lazyAttributes = function() {
+			return lazyAttributes;
+		}
+
+		Result.hasLazyAttributes = function() {
+			return lazyAttributes.length > 0;
 		}
 
 		// Return (no argument) or set (on array as argument) the IDs of the
@@ -175,6 +189,12 @@ define([
 		return function( instance, data ) {
 			var attrValue;
 
+			if ( Result.hasLazyAttributes() ) {
+				instance.attributesLoaded = ko.observable( false );
+			} else {
+				instance.attributesLoaded = ko.observable( true );
+			}
+
 			_( Result.attrs() ).each(function( attrOptions, attrName ) {
 				if ( typeof data[ attrName ] !== "undefined" ) {
 					attrValue = data[ attrName ];
@@ -190,10 +210,50 @@ define([
 				// Old values are mostly used internally to reset an attribute to the
 				// last saved state or determine if an attribute has changed but can
 				// just as well be accessed from the outside.
-				instance[ attrName ] = ko.observable( attrValue );
+				if ( attrOptions.lazy && !data[ attrName ] ) {
+					setupLazyAttribute( instance, attrName );
+				} else {
+					instance[ attrName ] = regularAttribute( attrValue );
+				}
 				instance[ attrName + "Old" ] = ko.observable();
 			});
 		}
+	}
+
+	var setupLazyAttribute = function( instance, attrName ) {
+		var observable,
+			subscribers = [];
+
+		instance[ attrName ] = function( value ) {
+			observable = ko.observable( value );
+
+			if ( typeof value === "undefined" ) {
+				if ( !instance.isBeingInitialized ) {
+					instance[ attrName ] = observable;
+					_( subscribers ).each(function( subscriber ) {
+						observable.subscribe( subscriber );
+					})
+
+					instance.loadAttributes({ async: false });
+					instance.attributesLoaded( true );
+				}
+
+				return observable();
+			} else {
+				instance[ attrName ] = observable;
+				_( subscribers ).each(function( subscriber ) {
+					observable.subscribe( subscriber );
+				})
+
+				return undefined;
+			}
+		}
+
+		instance[ attrName ].subscribe = subscribers.push;
+	}
+
+	var regularAttribute = function( attrValue ) {
+		return ko.observable( attrValue );
 	}
 
 
@@ -205,9 +265,7 @@ define([
 		var camelCasedAttributeName;
 
 		return function( instance, data ) {
-			console.log("setting up dynamic finders for: " + Result.className)
 			_( Result.attrs() ).each(function( attrOptions, attrName ) {
-				console.log("setting up dynamic finders for ")
 
 				// Create dynamic finder methods. This allows us to use for example
 				// Article.findByTitle("test") and we get back an array of Articles
@@ -245,13 +303,13 @@ define([
 			// specific attribute and return it.
 			if ( options.observable ) {
 				return ko.computed(function() {
-					return _( Result.all() ).filter(function( model ) {
-						return instance[ attrName ]() === search;
+					return _( Result.all() ).filter(function( result ) {
+						return result[ attrName ]() === search;
 					});
 				});
 			} else {
-				return _( Result.all() ).filter(function( model ) {
-					return instance[ attrName ]() === search;
+				return _( Result.all() ).filter(function( result ) {
+					return result[ attrName ]() === search;
 				});
 			}
 		}
@@ -329,19 +387,23 @@ define([
 	// last save and "nameReset()" that resets the name to the value
 	// at the last save.
 	var attributeHasChangedConstructor = function( instance, attrName ) {
+		var createComputed = function() {
 
-		// Method to check whether a specific attribute has changed
-		return ko.computed({
-			read: function() {
-				return instance[ attrName ]() !== instance[ attrName + "Old" ]();
-			},
-			write: function( bool ) {
-				if ( bool === false ) {
-					instance[ attrName + "Old" ]( instance[ attrName ]() );
+			// Method to check whether a specific attribute has changed
+			return ko.computed({
+				read: function() {
+					return instance[ attrName ]() !== instance[ attrName + "Old" ]();
+				},
+				write: function( bool ) {
+					if ( bool === false ) {
+						instance[ attrName + "Old" ]( instance[ attrName ]() );
+					}
+					return false;
 				}
-				return false;
-			}
-		});
+			});
+		}
+
+		return createComputed();
 	}
 
 

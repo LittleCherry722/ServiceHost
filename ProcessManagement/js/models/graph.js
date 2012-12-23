@@ -28,24 +28,6 @@ define([
 	Graph.belongsTo( "process" )
 
 	Graph.include({
-
-		// Initialize is a special method defined as an instance method.  If any
-		// method named "initializer" is given, it will be called upon object
-		// creation (when calling new model()) with the context of the model.
-		// That is, "this" refers to the model itself.
-		// This makes it possible to define defaults for attributes etc.
-		initialize: function( data ) {
-			if ( !data ) {
-				data = {};
-			}
-
-			_( data ).defaults({
-				graphString: "{}"
-			});
-
-			this.graphString( data.graphString );
-		},
-		
 		beforeSave: function() {
 			this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
 		}

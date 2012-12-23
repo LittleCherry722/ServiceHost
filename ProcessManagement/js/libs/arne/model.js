@@ -22,6 +22,7 @@ define([
 
 		// Define our Base model
 		var Result = function( data ) {
+			this.isBeingInitialized = true;
 
 			if ( !data ) {
 				data = {};
@@ -256,6 +257,72 @@ define([
 				});
 			}
 
+			this.loadAttributes = function( options, callback ) {
+				var JSONObject, data,
+					error = false,
+					instance = this;
+
+				// Allow the callback to be on first position if no options are given.
+				if ( typeof options === "function" ) {
+					callback = options;
+					options = {}
+				}
+
+				if ( instance.attributesLoaded() ) {
+					callback.call( instance, null );
+					return;
+				}
+
+				if ( !options ) { options = {}; }
+
+				_( options ).defaults({
+					async: true
+				});
+
+				data = {
+					action: "get"
+				}
+				_( Result.ids() ).each(function( id ) {
+					data[ id ] = instance[ id ]();
+				});
+
+				$.ajax({
+					url: modelPath + ".php",
+					data: data,
+					cache: false,
+					async: options.async,
+					type: "POST",
+					success: function( JSONString ) {
+						JSONObject = $.parseJSON( JSONString );
+
+						// Override all local attributes with attributes supplied by the Server
+						_( Result.attrs() ).each(function( attrOptions, attrName ) {
+							if ( _( JSONObject ).has( attrName ) ) {
+								instance[ attrName ]( attrOptions.fromJSON( JSONObject[ attrName ] ));
+							}
+						});
+
+						// If a callback was given, call it and set "this" inside the
+						// callback function to our model instance
+						if ( typeof callback === "function" ) {
+							callback.call( instance, null );
+						}
+					},
+					error: function( error ) {
+						if ( console && typeof console.error === "function" ) {
+							console.error( error )
+						}
+
+						// If a callback was given, call it and set "this" inside the
+						// callback function to our model instance
+						if ( typeof callback === "function" ) {
+							callback.call( instance, error );
+						}
+					}
+				});
+
+			}
+
 			// Duplicate the current Object. Does NOT do a deep copy, so obejcts,
 			// arrays, etc storede inside this copied object will reflect changes
 			// made to the original obect, array etc.
@@ -264,8 +331,11 @@ define([
 			// the object.
 			this.duplicate = function() {
 				var result = new Result();
-				
-				_.chain( Result.attrs() ).without( "id" ).each(function( attrOptions, attrName ) {
+
+				_.chain( Result.attrs() ).each(function( attrOptions, attrName ) {
+					if ( _( Result.ids ).contains( attrName ) ) {
+						return;
+					}
 					result[ attrName ]( this[ attrName ]() );
 				}.bind( this ));
 
@@ -273,7 +343,6 @@ define([
 			}
 
 			_( Result._initializers ).each(function( initializer ) {
-				console.log("running initializers")
 				initializer( this, data );
 			}, this);
 
@@ -283,6 +352,8 @@ define([
 			if ( typeof this.initialize === "function" ) {
 				this.initialize.call(this, data);
 			}
+
+			this.isBeingInitialized = false;
 		}
 
 		// Set the className as an static attribute to our newly created model.
@@ -297,11 +368,6 @@ define([
 		// from a JSON Object.
 		var newFromJSON = function(JSONObject) {
 			var newResult = new Result( JSONObject );
-
-			// If the server supplies an id, set the id of our current model.
-			if ( JSONObject['id'] ) {
-				newResult.id( parseInt( JSONObject['id'], 10 ) );
-			}
 
 			// Mark this Record as not new (and therefore as already persisted)
 			newResult.isNewRecord = false;
@@ -483,7 +549,9 @@ define([
 					// instance of our model
 					_( JSONObject ).each(function( resultJSON ) {
 						newResult = newFromJSON( resultJSON );
+						newResult.isBeingInitialized = true;
 						newResult.hasChanged( false );
+						newResult.isBeingInitialized = false;
 
 						// Append the new model to our collection of Models.
 						// Every observer will be notified about this event.

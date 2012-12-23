@@ -33,8 +33,8 @@ define([
 			// Actually set the options defaults.
 			_( options ).defaults({
 				foreignModelName: foreignModelName,
-				foreignKey: toAttributeName( this.className, "ID" ),
-				foreignSearchMethod: "findBy" + this.className + "ID",
+				foreignKey: toAttributeName( Result.className, "ID" ),
+				foreignSearchMethod: "findBy" + Result.className + "ID",
 				through: undefined
 			});
 

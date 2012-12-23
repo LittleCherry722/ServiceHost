@@ -26,8 +26,8 @@ if (isset($_REQUEST['action'])) {
 		$result = mysql_query("SELECT * FROM `process_graphs` ORDER BY `ID`");
 		$graphs = array();
 		while ($graph = mysql_fetch_array($result, MYSQL_ASSOC)) {
-			array_push( $graphs, array( "id" => $graph['ID'], "graphString" =>
-				$graph['graph'], "date" => $graph['date'],
+      array_push( $graphs, array( "id" => $graph['ID'],
+        "date" => $graph['date'],
 				"processID" => $graph['processID'] ) );
 		}
 		$return = $graphs;
@@ -45,7 +45,7 @@ if (isset($_REQUEST['action'])) {
 
 	// destroy an existing graph
 	} elseif ($action == 'destroy') {
-		$graphs = mysql_query("SELECT * FROM `process_graphs` WHERE `ID` LIKE '" . $_REQUEST['id'] . "'");
+		$graphs = mysql_query("SELECT * FROM `process_graphs` WHERE `ID` LIKE '" . $_REQUEST['id'] . "' LIMIT 1");
 		if (mysql_num_rows($graphs) > 0) {
 			mysql_query("DELETE FROM `process_graphs` WHERE `ID` LIKE '" . $_REQUEST['id'] . "'");
 			$return['code'] = "removed";
@@ -64,7 +64,17 @@ if (isset($_REQUEST['action'])) {
 		$return['graphString'] = $_REQUEST['graphString'];
 		$return['date'] = $_REQUEST['date'];
 		$return['processID'] = $_REQUEST['processID'];
-	}
+
+  } elseif ( $action == "get" ) {
+		$id = mysql_real_escape_string($_REQUEST['id']);
+		$result = mysql_query("SELECT * FROM `process_graphs` WHERE `ID` LIKE '" . $id . "' LIMIT 1");
+		while ($graph = mysql_fetch_array($result, MYSQL_ASSOC)) {
+			$return['id'] = $graph['ID'];
+			$return['graphString'] = $graph['graph'];
+			$return['date'] = $graph['date'];
+			$return['processID'] = $graph['processID'];
+		}
+  }
 
 	if (!empty($return)) {
 		if ( sizeof($return) == 0 ) {
