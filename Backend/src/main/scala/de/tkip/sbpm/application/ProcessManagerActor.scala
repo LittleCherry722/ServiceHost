@@ -11,7 +11,7 @@ import miscellaneous.ProcessAttributes._
 class ProcessManagerActor(private val name: String) extends Actor {
   private var processCount = 0
   private val processMap = collection.mutable.Map[ProcessID, ProcessInstanceRef]()
-  
+
   // used to map answermessages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
 
@@ -32,6 +32,10 @@ class ProcessManagerActor(private val name: String) extends Actor {
       createNewProcessInstance(processCount)
       sender ! ProcessCreated(cp, processCount)
       processCount += 1
+
+    case kill: KillProcess =>
+      killProcess(kill.processID)
+
   }
 
   // forward control message to processInstance with a given processID
