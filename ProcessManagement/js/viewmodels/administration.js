@@ -29,7 +29,7 @@ define([
 		}
 	}
 
-	var tabs = ['General', 'Users', 'Roles', 'Groups', 'Debug'];
+	var tabs = ['General', 'Users','Groups', 'Roles',  'Debug'];
 
 	var currentTab = ko.observable();
 

@@ -16,7 +16,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     // the message to the processmanager so he can register the new subjectprovider
     case csp: CreateSubjectProvider =>
       createNewSubjectProvider(subjectCount) ! SubjectProviderCreated(csp, subjectCount)
-      sender ! SubjectProviderCreated(csp, subjectCount) 
+      sender ! SubjectProviderCreated(csp, subjectCount)
       subjectCount += 1
 
     case gpr: ExecuteRequest =>
@@ -32,6 +32,9 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     case pc: ProcessCreated =>
       if (pc.cp.sender != null)
         pc.cp.sender ! pc
+
+    case kill: KillProcess =>
+      processManagerRef ! kill
 
     case _ => "not yet implemented"
   }
