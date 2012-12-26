@@ -1,7 +1,7 @@
 /* @group Base */
 .chzn-container {
 	margin-top: 0px;
-  height: 30px;
+  min-height: 30px;
   font-size: 12px;
   position: relative;
   display: inline-block;
