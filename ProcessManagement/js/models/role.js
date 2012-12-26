@@ -30,18 +30,6 @@ define([
 		// That is, "this" refers to the model itself.
 		// This makes it possible to define defaults for attributes etc.
 		initialize: function( data ) {
-			var self = this;
-
-			if ( !data ) {
-				data = {};
-			}
-
-			// Set some defaults for the data object (used as a hash)
-			_( data ).defaults({
-				name: "",
-				isActive: true
-			});
-
 			this.name( data.name );
 			this.isActive( data.isActive );
 

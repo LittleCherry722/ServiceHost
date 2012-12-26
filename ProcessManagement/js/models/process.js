@@ -24,10 +24,6 @@ define([
 	// Process.extend({);
 
 	Process.include({
-		subjects: [],
-		messages: [],
-		isCreatedFromTable: false,
-
 		menuName: function() {
 			if ( this.isCase() ) {
 				return "[C] " + this.name();
@@ -42,18 +38,9 @@ define([
 		// That is, "this" refers to the model itself.
 		// This makes it possible to define defaults for attributes etc.
 		initialize: function( data ) {
-			if ( !data ) {
-				data = {};
-			}
-
-			// Set some defaults for the data object (used as a hash)
-			_( data ).defaults({
-				name: "",
-				isCase: false
-			});
-
-			this.name( data.name );
-			this.isCase( data.isCase );
+			this.subjects = []
+			this.messages = [];
+			this.isCreatedFromTable = false;
 		},
 		
 		// Custom validator object. Validators are (like the initialize function)

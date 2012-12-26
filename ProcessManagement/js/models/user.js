@@ -32,23 +32,12 @@ define([
 		// That is, "this" refers to the model itself.
 		// This makes it possible to define defaults for attributes etc.
 		initialize: function( data ) {
-			var self = this;
-
-			if ( !data ) {
-				data = {};
-			}
 
 			// Set some defaults for the data object (used as a hash)
 			_( data ).defaults({
-				name: "",
-				isActive: true,
-				inputPoolSize: 8,
 				messageCount: 0
 			});
 
-			this.name( data.name );
-			this.isActive( data.isActive );
-			this.inputPoolSize( data.inputPoolSize );
 			this.messageCount = ko.observable( data.messageCount );
 
 			this.groupIDs = ko.observable();
