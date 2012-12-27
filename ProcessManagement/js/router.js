@@ -17,7 +17,7 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	/*
-	 * Custom route actions go here. Keep it concice!
+	 * Custom route actions go here. Keep it concise!
 	 */
 
 	var showProcess = function( processID, subjectID ) {

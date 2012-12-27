@@ -393,11 +393,20 @@ define([
 		$( ".switch .btn[id^='tab']" ).on( "click", selectTab )
 
 		// Tab2, "Subject Interaction View" clicked.
-		// let the graph not we changed views and update the list of subjects and
+		// let the graph know we changed views and update the list of subjects and
 		// channels.
 		$( "#tab2" ).on( "click", function() {
 			Router.goTo( currentProcess() );
 		});
+		
+		
+		// Tab3, "Routing" clicked.
+		// 
+		// 
+		$( "#tab3" ).on( "click", function() {
+			console.log("tab3 clicked");
+		});
+		
 		
 		// Save Process buttons behavior
 		$( "#saveProcessAsButton" ).live( "click", function() {
@@ -647,11 +656,12 @@ define([
 
 			// Load all sub templates. They are:
 			// Subject interaction view (tab 2)
-			// Internal view (tab1)
-			// Charge View (tab 3
+			// Internal view (tab 1)
+			// Routing View (tab 3)
 			App.loadTemplates([
 				[ "process/subject", "tab2_content" ],
-				[ "process/internal", "tab1_content" ]
+				[ "process/internal", "tab1_content" ],
+				[ "process/routing", "tab3_content" ]
 			], viewModel, function() {
 
 				// After all templates have been loaded and applied successfully,
