@@ -760,7 +760,7 @@ table.data2 tr td {
 // Administration
 #adminContainer {
   @include display-box;
-  @include calc(height, "100% - 45px");
+  @include calc(min-height, "100% - 45px");
   min-width: 1px;
   background-color: #fff;
   @include border-radius(5px);
@@ -896,6 +896,10 @@ table.data2 tr td {
   border: 1px solid #cdcdcd;
   @include box-shadow(0 0 3px #ccc);
 
+  &.first-tab-selected {
+    @include border-radius(0 5px 5px 5px);
+  }
+
   .content {
     padding: 5px;
   }
@@ -929,6 +933,9 @@ table.data2 tr td {
     padding: 0;
     height: 28px;
   }
+}
+.first-tab-selected .header {
+  @include border-radius(0 5px 0 0);
 }
 
 .hide {
