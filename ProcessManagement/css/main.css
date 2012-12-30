@@ -5158,10 +5158,10 @@ table.data2 tr td {
   display: -o-box;
   display: box;
   display: flex;
-  height: -moz-calc(100% - 45px);
-  height: -o-calc(100% - 45px);
-  height: -webkit-calc(100% - 45px);
-  height: calc(100% - 45px);
+  min-height: -moz-calc(100% - 45px);
+  min-height: -o-calc(100% - 45px);
+  min-height: -webkit-calc(100% - 45px);
+  min-height: calc(100% - 45px);
   min-width: 1px;
   background-color: #fff;
   -webkit-border-radius: 5px;
@@ -5306,6 +5306,11 @@ table.data2 tr td {
   -moz-box-shadow: 0 0 3px #cccccc;
   box-shadow: 0 0 3px #cccccc;
 }
+#executionContent.first-tab-selected {
+  -webkit-border-radius: 0 5px 5px 5px;
+  -moz-border-radius: 0 5px 5px 5px;
+  border-radius: 0 5px 5px 5px;
+}
 #executionContent .content {
   padding: 5px;
 }
@@ -5359,6 +5364,12 @@ table.data2 tr td {
   text-align: left;
   padding: 0;
   height: 28px;
+}
+
+.first-tab-selected .header {
+  -webkit-border-radius: 0 5px 0 0;
+  -moz-border-radius: 0 5px 0 0;
+  border-radius: 0 5px 0 0;
 }
 
 .hide {
