@@ -5,6 +5,13 @@ define([
 ], function( ko, App, _ ) {
 
 	var ViewModel = function() {
+		this.availableSubjects = ko.observableArray([]);
+		this.availableChannels = ko.observableArray([]);
+		this.availableMacros = ko.observableArray([]);
+
+		this.currentSubject = ko.observable();
+		this.currentChannel = ko.observable();
+		this.currentMacro = ko.observable();
 	}
 
 	var currentProcess = ko.observable();
@@ -19,7 +26,9 @@ define([
 		viewModel = new ViewModel();
 
 		App.loadTemplate( "execution/graph", viewModel, "executionContent", function() {
-			// Maybe do something?
+			$( "#slctSbj" ).chosen();
+			$( "#slctChan" ).chosen();
+			$( "#slctMacro" ).chosen();
 		});
 
 	}

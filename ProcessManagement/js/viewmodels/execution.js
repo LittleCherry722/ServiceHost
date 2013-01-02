@@ -1,11 +1,13 @@
 define([
 	"knockout",
 	"app",
-	"underscore"
-], function( ko, App, _ ) {
+	"underscore",
+	"router"
+], function( ko, App, _, Router ) {
 
 	var ViewModel = function() {
 		this.tabs = tabs;
+
 		this.currentTab = currentTab;
 	}
 
@@ -19,21 +21,36 @@ define([
 	});
 
 	currentTab.subscribe(function( newTab ) {
+		if ( !newTab ) {
+			currentTab( tabs[0] );
+			return;
+		}
+
 		App.loadSubView( "execution/" + newTab.toLowerCase(), currentProcess );
+		if ( newTab === tabs[0] ) {
+			$("#executionContent").addClass("first-tab-selected");
+		} else {
+			$("#executionContent").removeClass("first-tab-selected");
+		}
 	});
 
 
 	var initialize = function( subSite ) {
-		var viewModel;
+		var viewModel= new ViewModel();
 
-		viewModel = new ViewModel();
+		if ( !subSite ) {
+			subSite = tabs[0]
+		}
 
 		App.loadTemplate( "execution", viewModel, null, function() {
-			currentTab( subSite || tabs[0] )
+			if ( currentTab() == subSite ) {
+				currentTab.valueHasMutated()
+			} else {
+				currentTab( subSite )
+			}
 		});
-
 	}
-	
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize,

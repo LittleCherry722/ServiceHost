@@ -6,9 +6,7 @@ define([
 ], function( ko, require, _, async ) {
 	var currentUser = ko.observable();
 
-	var loadModels = function() {
-
-	}
+	var _loadedView = "";
 
 	var initializeViews = function( callback ) {
 		// initialize our header. We have to do this asynchronously
@@ -85,6 +83,20 @@ define([
 			viewModel.init.apply(viewModel, args );
 			currentMainViewModel( viewModel );
 		});
+
+		_loadedView = viewName;
+	}
+
+	var loadedView = function() {
+		if ( !currentMainViewModel() ) {
+			return "";
+		}
+
+		return _loadedView;
+	}
+
+	var isViewLoaded = function( viewName ) {
+		return loadedView() === viewName;
 	}
 
 	var unloadViewModel = function() {
@@ -102,7 +114,6 @@ define([
 	}
 
 	var viewCanUnload = function() {
-		console.log("can unload called")
 		if ( currentMainViewModel() ) {
 
 			console.log("viewmodel exists")
@@ -151,14 +162,13 @@ define([
 
 		// load the template from the server
 		require([ path ], function( template ) {
-			templateNode = document.getElementById(nodeID);
+			templateNode = document.getElementById( nodeID );
 
-			// load our template and insert it into the document.
 			templateNode.innerHTML = template;
 
 			// Apply the viewModel to the newly inserted content if available.
 			if ( viewModel ) {
-				ko.applyBindings(viewModel, templateNode)
+				ko.applyBindings( viewModel, templateNode )
 			}
 
 			// if a callback is set, execute it.
@@ -210,6 +220,7 @@ define([
 		loadTemplates: loadTemplates,
 		currentMainViewModel: currentMainViewModel,
 		loadView: loadView,
+		isViewLoaded: isViewLoaded,
 		loadSubView: loadSubView,
 		viewCanUnload: viewCanUnload,
 		unloadViewModel: unloadViewModel

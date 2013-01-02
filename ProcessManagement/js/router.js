@@ -50,7 +50,7 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	var showAdministration = function( tab ) {
-		if ( App.currentMainViewModel() && App.currentMainViewModel().currentTab ) {
+		if ( App.isViewLoaded( "administration" ) ) {
 			App.currentMainViewModel().currentTab( tab )
 		} else {
 			loadView( "administration", tab, globalCallback() );
@@ -58,7 +58,7 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	var showProcessExecution = function( tab ) {
-		if ( App.currentMainViewModel() && App.currentMainViewModel().currentTab ) {
+		if ( App.isViewLoaded( "execution" ) ) {
 			App.currentMainViewModel().currentTab( tab )
 		} else {
 			loadView( "execution", [ tab ], globalCallback() );
@@ -158,6 +158,9 @@ define([ "director", "app"], function( Director, App ) {
 		if ( _( path ).isArray() ) {
 			route = "";
 			_( path ).each( function( fragment ) {
+				if (!fragment) {
+					return;
+				}
 				route += "/" + fragment.replace(/ /, "___").replace(/^#/, "");
 			});
 		} else if ( typeof path === "object" ) {

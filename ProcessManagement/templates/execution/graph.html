@@ -1,14 +1,32 @@
 <div class="header">
-  <div class="btn-group">
-    <a class="btn" href="#">
-      a
-    </a>
-    <a class="btn" href="#">
-      b
-    </a>
-    <a class="btn" href="#">
-      c
-    </a>
+  <div class="btn-group" id="switch">
+    <button	id="tab2" class="btn">Subject-Interaction-View</button>
+
+    <div class="btn tab-dropdown">
+      <select id="slctSbj" data-placeholder="Select Internal Behavior"
+        class="middle_switch chzn-select" tabindex="1"
+        data-bind="options: availableSubjects, optionsText: 'subjectText',
+        optionsValue: 'subjectID', value: currentSubject, caption: ''">
+      </select>
+    </div>
+
+    <div class="btn tab-dropdown">
+      <select id="slctChan" data-placeholder="Select Channel"
+        class="middle_switch chzn-select" tabindex="1"
+        data-bind="options: availableChannels, optionsText: 'text',
+        optionsValue: 'channelID', value: currentChannel, caption: ''">
+      </select>
+    </div>
+
+    <div id="slctMacroDropDown" class="btn tab-dropdown" style="display: none;">
+      <select id="slctMacro" data-placeholder="Select Macro"
+        class="middle_switch chzn-select" tabindex="1"
+        data-bind="options: availableMacros, optionsText: 'value',
+        optionsValue: 'id', value: currentMacro, caption: ''">
+      </select>
+    </div>
+
+    <button id="tab3" class="btn">Person in charge</button>
   </div>
 </div>
 

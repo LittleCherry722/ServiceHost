@@ -34,6 +34,11 @@ define([
 	var currentTab = ko.observable();
 
 	currentTab.subscribe(function( newTab ) {
+		if ( !newTab ) {
+			currentTab( tabs[0] );
+			return;
+		}
+
 		App.loadSubView( "administration/" + newTab.toLowerCase() );
 	});
 
@@ -41,10 +46,18 @@ define([
 	var initialize = function( subSite ) {
 		var viewModel;
 
+		if ( !subSite ) {
+			subSite = tabs[0]
+		}
+
 		viewModel = new ViewModel();
 
 		App.loadTemplate( "administration", viewModel, null, function() {
-			currentTab( subSite || tabs[0] )
+			if ( currentTab() === subSite ) {
+				currentTab.valueHasMutated()
+			} else {
+				currentTab( subSite )
+			}
 		});
 
 	}
