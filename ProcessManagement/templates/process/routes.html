@@ -1,0 +1,31 @@
+<div class="inner">
+
+	<div id="contentHead">
+		<h3 id="processName" data-bind="text: currentProcess().name "></h3>
+	</div>
+
+	<div id="graph">
+		<!-- <h2 id="process_name" style="color:#525252" data-bind="text: activeView "></h2>-->
+		<!-- Begin graph window -->
+		<div class="onecolumn">
+			<div class="header">
+				<div class="btn-group" id="switch">
+          <a class="btn" data-bind="attr: { href: currentProcess().url() }">Subject-Interaction-View</a>
+
+					<button id="tab3" class="btn active">Routes</button>
+				</div>
+			</div>
+
+			<div id="processContent">
+        <div class="tab_content">
+          <p>
+            Routes Stuff goes here
+          </p>
+        </div>
+			</div>
+
+		</div>
+	</div>
+
+</div>
+
