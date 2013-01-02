@@ -423,7 +423,7 @@ define([
 		$('.tooltip-enabled *[title]').tooltip();
 
 		// Tab2, "Charge View" clicked.
-		// let the graph not we changed views and update the list of subjects.
+		// let the graph know we changed views and update the list of subjects. //TODO Tab2 oder Tab3???
 		$("#tab3").on( "click", function() {
 			gv_graph.selectedNode = null;
 		});
