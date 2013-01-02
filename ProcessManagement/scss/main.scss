@@ -596,8 +596,30 @@ table.data2 tr td {
     text-align: center;
   }
 
+  h3 {
+    font-size: 17px;
+    font-weight: normal;
+    text-shadow: inherit;
+  }
+  h4 {
+    font-size: 15px;
+    font-weight: normal;
+    text-shadow: inherit;
+  }
+
   p {
     text-align: center;
+  }
+
+  .action {
+    background-color: #EEE;
+    padding: 5px;
+    border: 1px solid #CFCFCF;
+    @include border-radius(4px);
+
+    p {
+      text-align: left;
+    }
   }
 
   label {
@@ -902,7 +924,20 @@ table.data2 tr td {
 
   .content {
     padding: 5px;
-    @include calc(height, "100% - 40px");
+    @include calc(height, "100% - 36px");
+
+    &.flexbox {
+      padding: 0;
+    }
+
+    .fluid {
+      display: block;
+      @include box-flex(1);
+      @include box-sizing(border-box);
+      height: 100%;
+      padding: 5px;
+      min-width: 1px;
+    }
   }
 }
 

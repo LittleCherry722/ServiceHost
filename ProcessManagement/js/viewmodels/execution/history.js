@@ -5,6 +5,9 @@ define([
 ], function( ko, App, _ ) {
 
 	var ViewModel = function() {
+		this.availableSubjects = ko.observableArray([]);
+
+		this.currentSubject = ko.observable();
 	}
 
 	var currentProcess = ko.observable();
@@ -13,13 +16,16 @@ define([
 		console.log("a new process has been loaded: " + process);
 	});
 
-	var initialize = function( subSite ) {
+	var initialize = function( process ) {
 		var viewModel;
+
+		currentProcess( process );
 
 		viewModel = new ViewModel();
 
 		App.loadTemplate( "execution/history", viewModel, "executionContent", function() {
-			// Maybe do something?
+			App.loadSubView( "execution/actions", currentProcess() );
+			$( "#slctSbj" ).chosen();
 		});
 
 	}

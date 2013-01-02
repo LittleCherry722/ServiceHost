@@ -9,29 +9,15 @@
         optionsValue: 'subjectID', value: currentSubject, caption: ''">
       </select>
     </div>
-
-    <div class="btn tab-dropdown">
-      <select id="slctChan" data-placeholder="Select Channel"
-        class="middle_switch chzn-select" tabindex="1"
-        data-bind="options: availableChannels, optionsText: 'text',
-        optionsValue: 'channelID', value: currentChannel, caption: ''">
-      </select>
-    </div>
-
-    <div id="slctMacroDropDown" class="btn tab-dropdown" style="display: none;">
-      <select id="slctMacro" data-placeholder="Select Macro"
-        class="middle_switch chzn-select" tabindex="1"
-        data-bind="options: availableMacros, optionsText: 'value',
-        optionsValue: 'id', value: currentMacro, caption: ''">
-      </select>
-    </div>
-
-    <button id="tab3" class="btn">Person in charge</button>
   </div>
 </div>
 
-<div class="content">
-  <p>
-    Some graph stuff
-  </p>
+<div id="processContent" class="content flexbox">
+  <div id="tab1_content" class="fluid">
+    <!-- <div id="graph_cv_outer" style="min-width: 1px; height: 100%; overflow:auto;">-->
+    <!--   <div style="width: 2000px; height: 2000px;"></div>-->
+    <!-- </div>-->
+    Some graph Stuff
+  </div>
+  <div id="actions" class="graphsettings"></div>
 </div>

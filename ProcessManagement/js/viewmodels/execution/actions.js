@@ -5,9 +5,7 @@ define([
 ], function( ko, App, _ ) {
 
 	var ViewModel = function() {
-		this.availableSubjects = ko.observableArray([]);
-
-		this.currentSubject = ko.observable();
+		this.currentProcess = currentProcess;
 	}
 
 	var currentProcess = ko.observable();
@@ -23,9 +21,8 @@ define([
 
 		viewModel = new ViewModel();
 
-		App.loadTemplate( "execution/graph", viewModel, "executionContent", function() {
-			App.loadSubView( "execution/actions", currentProcess() );
-			$( "#slctSbj" ).chosen();
+		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
+			// Maybe do something here?
 		});
 
 	}

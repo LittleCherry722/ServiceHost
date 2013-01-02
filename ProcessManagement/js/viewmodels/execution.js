@@ -26,7 +26,7 @@ define([
 			return;
 		}
 
-		App.loadSubView( "execution/" + newTab.toLowerCase(), currentProcess );
+		App.loadSubView( "execution/" + newTab.toLowerCase(), currentProcess() );
 		if ( newTab === tabs[0] ) {
 			$("#executionContent").addClass("first-tab-selected");
 		} else {
