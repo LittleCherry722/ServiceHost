@@ -35,13 +35,14 @@ define([
 		initialize: function() {
 			var self = this;
 
+			Graph.lazyComputed( this, 'graphObject', function() {
+				return $.parseJSON( self.graphString() )
+			});
+
 			Graph.lazyComputed( this, 'subjects', function() {
-				var graphObject = {},
-					subjects = {};
+				var subjects = {};
 
-				graphObject = $.parseJSON( self.graphString() )
-
-				_( graphObject.process ).each(function( element ) {
+				_( self.graphObject().process ).each(function( element ) {
 					subjects[ element['id'] ] = element['name'];
 				});
 
@@ -49,16 +50,29 @@ define([
 			});
 
 			Graph.lazyComputed( this, 'subjectIDs', function() {
-				var graphObject = {},
-					subjects = [];
+				var subjects = [];
 
-				graphObject = $.parseJSON( self.graphString() )
-
-				_( graphObject.process ).each(function( element ) {
+				_( self.graphObject().process ).each(function( element ) {
 					subjects.push( element['id'] );
 				});
 
 				return subjects;
+			});
+
+			Graph.lazyComputed( this, "routings", {
+				read: function() {
+					if ( self.graphObject().routings ) {
+						return self.graphObject().routings;
+					} else {
+						return [];
+					}
+				},
+				write: function( routings ) {
+					if ( !routings ) {
+						routings = [];
+					}
+					self.graphObject().routings = routings;
+				}
 			});
 		}
 	});
