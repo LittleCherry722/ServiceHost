@@ -1,9 +1,0 @@
-Freeow!
-Stylish, Growl-like message boxes
-
-Copyright (c) 2011 PJ Dietz
-Version: 1.0.0
-Licensed under the MIT license:
-http://www.opensource.org/licenses/mit-license.php
-
-http://pjdietz.com/jquery-plugins/freeow/
