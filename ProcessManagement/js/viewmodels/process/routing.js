@@ -12,6 +12,9 @@ define([
 
 		this.currentProcess = currentProcess;
 
+window.test = currentProcess;
+
+
 		var self = this;
 
 		self.name = "routingView";
@@ -121,6 +124,8 @@ define([
 
 
 	var currentProcess = ko.observable();
+
+window.test = currentProcess;
 
 	currentProcess.subscribe(function( process ) {
 		console.log( "a new process has been loaded: " + process.name() );
