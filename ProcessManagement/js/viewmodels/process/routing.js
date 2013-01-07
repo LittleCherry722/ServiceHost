@@ -4,7 +4,7 @@ define([
 	"underscore",
 	"models/user",
 	"models/group"
-], function( ko, App, _ ) {
+], function( ko, App, _, User, Group ) {
 
 
 
