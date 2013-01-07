@@ -65,8 +65,8 @@ define([ "director", "app"], function( Director, App ) {
 		}
 	}
 
-	var showRoutes = function( processID ) {
-		loadView( "process/routes", processID );
+	var showRouting = function( processID ) {
+		loadView( "process/routing", processID );
 	}
 
 	/*
@@ -84,7 +84,7 @@ define([ "director", "app"], function( Director, App ) {
 			"/new": showNewProcess,
 			"/:process/": {
 				on: showProcess,
-				"/routes": showRoutes,
+				"/routing": showRouting,
 				"/(.+)": showProcess
 			}
 		},

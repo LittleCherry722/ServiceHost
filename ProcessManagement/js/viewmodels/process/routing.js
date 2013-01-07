@@ -8,6 +8,10 @@ define([
 		this.currentProcess = currentProcess;
 	}
 
+
+
+
+
 	var currentProcess = ko.observable();
 
 	currentProcess.subscribe(function( process ) {
@@ -27,7 +31,7 @@ define([
 
 		viewModel = new ViewModel();
 
-		App.loadTemplate( "process/routes", viewModel, null, function() {
+		App.loadTemplate( "process/routing", viewModel, null, function() {
 			console.log("template loaded")
 		});
 	}

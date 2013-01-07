@@ -127,7 +127,7 @@ define([
 		return currentProcess().graphs( null, { observable: true } );
 	});
 
-	// Currently selected subejct and channel (in chosen)
+	// Currently selected subeject and channel (in chosen)
 	var currentSubject = ko.observable();
 	var currentChannel = ko.observable();
 	var currentMacro   = ko.observable();
@@ -404,7 +404,7 @@ define([
 		// 
 		// 
 		$( "#tab3" ).on( "click", function() {
-			console.log("tab3 clicked");
+			Router.goTo("/processes/"+currentProcess().id()+"/routing");
 		});
 		
 		
