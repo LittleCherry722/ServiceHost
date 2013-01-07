@@ -30,6 +30,23 @@ define([
 	Graph.include({
 		beforeSave: function() {
 			this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
+		},
+
+		initialize: function() {
+			var self = this;
+
+			Graph.lazyComputed( this, 'subjects', function() {
+				var graphObject = {},
+					subjects = {};
+
+				graphObject = $.parseJSON( self.graphString() )
+
+				_( graphObject.process ).each(function( element ) {
+					subjects[ element['id'] ] = element['name'];
+				});
+
+				return subjects;
+			});
 		}
 	});
 

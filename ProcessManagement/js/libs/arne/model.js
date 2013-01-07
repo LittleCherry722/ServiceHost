@@ -269,7 +269,9 @@ define([
 				}
 
 				if ( instance.attributesLoaded() ) {
-					callback.call( instance, null );
+					if ( typeof callback === "function" ) {
+						callback.call( instance, null );
+					}
 					return;
 				}
 
@@ -648,6 +650,37 @@ define([
 		 */
 		Result.include = function(obj) {
 			_(Result.prototype).extend(obj);
+		}
+
+		Result.lazyComputed = function( instance, name, computedBody ) {
+			var computed,
+				subscribers = [];
+
+			instance[ name ] = function( value ) {
+				computed = ko.computed( computedBody );
+
+				if ( typeof value === "undefined" ) {
+					if ( !instance.isBeingInitialized ) {
+						instance[ name ] = computed;
+						_( subscribers ).each(function( subscriber ) {
+							computed.subscribe( subscriber );
+						})
+
+						instance.loadAttributes({ async: false });
+						instance.attributesLoaded( true );
+					}
+
+					return computed();
+				} else {
+					computed( value )
+					instance[ name ] = computed;
+					_( subscribers ).each(function( subscriber ) {
+						computed.subscribe( subscriber );
+					})
+
+					return undefined;
+				}
+			}
 		}
 
 		models.push( Result );
