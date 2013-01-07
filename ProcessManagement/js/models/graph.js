@@ -47,6 +47,19 @@ define([
 
 				return subjects;
 			});
+
+			Graph.lazyComputed( this, 'subjectIDs', function() {
+				var graphObject = {},
+					subjects = [];
+
+				graphObject = $.parseJSON( self.graphString() )
+
+				_( graphObject.process ).each(function( element ) {
+					subjects.push( element['id'] );
+				});
+
+				return subjects;
+			});
 		}
 	});
 
