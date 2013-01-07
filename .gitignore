@@ -4,7 +4,3 @@
 *.jar
 *.war
 *.ear
-
-
-# brauchen wir das wirklich?
-bin

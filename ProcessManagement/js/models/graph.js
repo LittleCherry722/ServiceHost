@@ -30,6 +30,50 @@ define([
 	Graph.include({
 		beforeSave: function() {
 			this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
+		},
+
+		initialize: function() {
+			var self = this;
+
+			Graph.lazyComputed( this, 'graphObject', function() {
+				return $.parseJSON( self.graphString() )
+			});
+
+			Graph.lazyComputed( this, 'subjects', function() {
+				var subjects = {};
+
+				_( self.graphObject().process ).each(function( element ) {
+					subjects[ element['id'] ] = element['name'];
+				});
+
+				return subjects;
+			});
+
+			Graph.lazyComputed( this, 'subjectIDs', function() {
+				var subjects = [];
+
+				_( self.graphObject().process ).each(function( element ) {
+					subjects.push( element['id'] );
+				});
+
+				return subjects;
+			});
+
+			Graph.lazyComputed( this, "routings", {
+				read: function() {
+					if ( self.graphObject().routings ) {
+						return self.graphObject().routings;
+					} else {
+						return [];
+					}
+				},
+				write: function( routings ) {
+					if ( !routings ) {
+						routings = [];
+					}
+					self.graphObject().routings = routings;
+				}
+			});
 		}
 	});
 
