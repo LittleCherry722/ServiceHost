@@ -401,8 +401,6 @@ define([
 		
 		
 		// Tab3, "Routing" clicked.
-		// 
-		// 
 		$( "#tab3" ).on( "click", function() {
 			Router.goTo("/processes/"+currentProcess().id()+"/routing");
 		});
@@ -660,8 +658,7 @@ define([
 			// Routing View (tab 3)
 			App.loadTemplates([
 				[ "process/subject", "tab2_content" ],
-				[ "process/internal", "tab1_content" ],
-				[ "process/routing", "tab3_content" ]
+				[ "process/internal", "tab1_content" ]
 			], viewModel, function() {
 
 				// After all templates have been loaded and applied successfully,

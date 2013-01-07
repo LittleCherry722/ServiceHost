@@ -1,12 +1,14 @@
 define([
 	"knockout",
 	"app",
-	"underscore"
+	"underscore",
+	"models/user",
+	"models/group"
 ], function( ko, App, _ ) {
 
 
 
-	var ViewModel = require( ["models/user", "models/group"], function( Users, Groups ) {
+	var ViewModel = function() {
 
 		this.currentProcess = currentProcess;
 
@@ -19,10 +21,11 @@ define([
 
 		//Content dropdown
 		self.subject = ko.observableArray(gf_getSubjectIDs());
+
+		// TODO Subscribe to "/tk_graph/subjects" and trigger this function
 		self.populateSubject = function() {
 			self.subject(gf_getSubjectIDs())
 		};
-		// TODO Subscribe to "/tk_graph/subjects" and trigger this function
 
 		self.is = ko.observableArray(["is", "is not"]);
 		self.groupUser = ko.observableArray(["in group", "user"]);
@@ -53,6 +56,7 @@ define([
 			return preSave;
 
 		}
+
 		var Routing = function(subject1Value, is1Value, groupUser1Value, groupUser1ListValue, subject2Value, is2Value, groupUser2Value, groupUser2ListValue) {
 			var self = this;
 
@@ -70,17 +74,17 @@ define([
 			//Dynamic content of dropdown
 			self.groupUser1 = ko.computed(function() {
 				if (self.groupUser1Value() === "user") {
-					return Users.all();
+					return User.all();
 				} else {
-					return Groups.all();
+					return Group.all();
 				}
 			});
 
 			self.groupUser2 = ko.computed(function() {
 				if (self.groupUser2Value() === "user") {
-					return Users.all();
+					return User.all();
 				} else {
-					return Groups.all();
+					return Group.all();
 				}
 			});
 
@@ -109,7 +113,7 @@ define([
 		self.showView = function() {
 			//	SBPM.VM.contentVM().activeViewIndex(2);
 		}
-	}); 
+	};
 
 
 
@@ -134,6 +138,8 @@ define([
 		}
 
 		viewModel = new ViewModel();
+
+		window.viewModel = viewModel;
 
 		App.loadTemplate( "process/routing", viewModel, null, function() {
 			console.log("template loaded")
