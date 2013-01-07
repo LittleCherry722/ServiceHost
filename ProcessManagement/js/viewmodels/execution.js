@@ -1,9 +1,7 @@
 define([
 	"knockout",
-	"app",
-	"underscore",
-	"router"
-], function( ko, App, _, Router ) {
+	"app"
+], function( ko, App ) {
 
 	var ViewModel = function() {
 		this.tabs = tabs;
