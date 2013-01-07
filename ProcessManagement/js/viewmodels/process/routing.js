@@ -113,9 +113,6 @@ window.test = currentProcess;
 			self.routings.remove(element);
 		}
 
-		self.showView = function() {
-			//	SBPM.VM.contentVM().activeViewIndex(2);
-		}
 	};
 
 
