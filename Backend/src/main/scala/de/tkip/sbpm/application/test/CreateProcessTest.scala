@@ -3,10 +3,10 @@ package de.tkip.sbpm.application.test
 import scala.collection.mutable.ArrayBuffer
 
 import akka.actor._
-import akka.dispatch.Await
-import akka.dispatch.Future
+import scala.concurrent.Await
+import scala.concurrent.Future
 import akka.pattern.ask
-import akka.util.duration._
+import scala.concurrent.duration._
 import akka.util.Timeout
 
 import de.tkip.sbpm.application._
