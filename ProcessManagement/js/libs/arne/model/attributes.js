@@ -182,8 +182,7 @@ define([
 	 * persisted
 	 ***************************************************************************/
 	var canHaveComputedAttributes = function( Result ) {
-		var computedAttrs = {},
-			computedLazyAttributes = [];
+		var computedAttrs = {};
 
 		// Read the attribute Object (no argument given) or add a set of attributes
 		// to the attributes Object.
@@ -206,21 +205,7 @@ define([
 					throw "Invalid computed attribute format for key: '" + key +
 						"' with value: " + value + " [" + typeof value + "]"
 				}
-
-				if ( computedAttrs[ key ].lazy ) {
-					computedLazyAttributes.push( key );
-					delete computedAttrs[ key ].lazy;
-				}
 			});
-		}
-
-		// Return only the names of all attributes of the current model.
-		Result.computedLazyAttributes = function() {
-			return lazyAttributes;
-		}
-
-		Result.hasComputedLazyAttributes = function() {
-			return lazyAttributes.length > 0;
 		}
 	}
 
@@ -339,6 +324,7 @@ define([
 				if ( computedBody.lazy ) {
 					setupLazyComputed( instance, attrName, computedBody );
 				} else {
+					console.log("setting up regular computed: " + attrName);
 					instance[ attrName ] = regularComputed( computedBody );
 				}
 			});
@@ -346,6 +332,7 @@ define([
 	}
 
 	var setupLazyComputed = function( instance, name, computedBody ) {
+		console.log("setting up lazy computed:" + name);
 		var computed,
 			subscribers = [];
 
@@ -375,11 +362,11 @@ define([
 			}
 		}
 
-		instance[ attrName ].subscribe = subscribers.push;
+		instance[ name ].subscribe = subscribers.push;
 	}
 
 	var regularComputed = function( computedBody ) {
-		return ko.observable( computedBody );
+		return ko.computed( computedBody );
 	}
 
 	/***************************************************************************

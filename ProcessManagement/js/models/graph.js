@@ -44,7 +44,7 @@ define([
 			read: function() {
 				var subjects = {};
 
-				_( self.graphObject().process ).each(function( element ) {
+				_( this.graphObject().process ).each(function( element ) {
 					subjects[ element['id'] ] = element['name'];
 				});
 
@@ -56,7 +56,7 @@ define([
 			read: function() {
 				var subjects = [];
 
-				_( self.graphObject().process ).each(function( element ) {
+				_( this.graphObject().process ).each(function( element ) {
 					subjects.push( element['id'] );
 				});
 
