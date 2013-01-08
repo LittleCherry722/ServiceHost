@@ -6,11 +6,10 @@ define([
 	var ViewModel = function() {
 	
 		this.currentProcess = currentProcess;
-		/*
+
 		this.currentInstance = currentInstance;
-		this.activeSubjects = activeSubjects;
+		this.availableSubjects = availableSubjects;
 		this.currentSubject = currentSubject;
-		*/
 		
 		this.tabs = tabs;
 		this.currentTab = currentTab;
@@ -19,11 +18,11 @@ define([
 	}
 	
 	var currentProcess = ko.observable();
-	/*
+
 	var currentInstance = ko.observable();
-	var activeSubjects = ko.observableArray( [] );
+	var availableSubjects = ko.observableArray( [] );
 	var currentSubject = ko.observable();
-	*/
+
 	
 	var tabs = ['Graph', 'History' ];
 	var currentTab = ko.observable();
@@ -33,11 +32,9 @@ define([
 		console.log( "a new process has been loaded: " + process );
 	});
 	
-	/*
 	currentSubject.subscribe(function( subject ) {
 		console.log( "active subject was changed to: " + subject );
 	});
-	*/
 
 	currentTab.subscribe(function( newTab ) {
 		if ( !newTab ) {
