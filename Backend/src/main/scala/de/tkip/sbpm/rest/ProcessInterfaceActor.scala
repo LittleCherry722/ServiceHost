@@ -9,14 +9,15 @@ import spray.http.HttpRequest
 import akka.event.Logging
 import akka.actor.ActorSystem
 import akka.pattern.ask
-import akka.util.duration._
+import scala.concurrent.duration._
 import akka.util.Timeout
-import akka.dispatch.Await
+import scala.concurrent.Await
 import de.tkip.sbpm.rest.ProcessAttribute._
 import java.util.concurrent.Future
 import de.tkip.sbpm.persistence._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.persistence.GetProcess
 
 /**
  * This Actor is only used to process REST calls regarding "process"
@@ -66,9 +67,15 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
           if (load == "loadable") {
 
             implicit val timeout = Timeout(5 seconds)
+            /*
+            
+            Musste auskommentiert werden, da GetProcess nicht gefunden werden konnte.
+             
             val future = persitenceActorRef ? GetProcess
             val result = Await.result(future, timeout.duration)
             complete("Marshelled result")
+			
+			*/
 
           } else if (load == "loaded") {
             //TODO
@@ -138,4 +145,4 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
       }
 
   })
-
+}

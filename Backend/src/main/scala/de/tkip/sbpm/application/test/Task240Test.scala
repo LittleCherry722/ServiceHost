@@ -1,10 +1,10 @@
 package de.tkip.sbpm.application.test
 
 import akka.actor._
-import akka.dispatch.Await
+import scala.concurrent.Await
 import akka.pattern.ask
 import akka.util.Timeout
-import akka.util.duration._
+import scala.concurrent.duration._
 
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
