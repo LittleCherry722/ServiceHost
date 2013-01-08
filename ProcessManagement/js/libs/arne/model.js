@@ -215,6 +215,9 @@ define([
 					cache: false,
 					async: options.async,
 					type: "POST",
+					headers: {
+						debug: true
+					},
 					success: function( JSONString ) {
 						JSONObject = $.parseJSON( JSONString );
 
@@ -289,6 +292,9 @@ define([
 					cache: false,
 					async: options.async,
 					type: "POST",
+					headers: {
+						debug: true
+					},
 					success: function( JSONString ) {
 						JSONObject = $.parseJSON( JSONString );
 
@@ -397,6 +403,9 @@ define([
 				cache: false,
 				async: options.async,
 				type: "POST",
+				headers: {
+					debug: true
+				},
 				success: function( JSONString ) {
 					JSONObject = $.parseJSON( JSONString );
 
@@ -455,6 +464,9 @@ define([
 				cache: false,
 				async: options.async,
 				type: "POST",
+					headers: {
+						debug: true
+					},
 				success: function( JSONString ) {
 					JSONObject = $.parseJSON( JSONString );
 
@@ -527,6 +539,9 @@ define([
 				async: options.async,
 				cache: false,
 				type: "POST",
+				headers: {
+					debug: true
+				},
 				success: function( JSONString ) {
 					// Try to parse JSON String, if sucessfull continue, otherwise return
 					// early.
