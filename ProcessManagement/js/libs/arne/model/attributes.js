@@ -9,7 +9,9 @@ define([
 
 	var Attributes = function( Result ) {
 		canHaveAttributes( Result );
+		canHaveComputedAttributes( Result );
 		Result._initializers.push( attributeInitializer( Result ) );
+		Result._initializers.push( computedAttributeInitializer( Result ) );
 		Result._initializers.push( initializeChangableAttributes( Result ) );
 		Result._initializers.push( initializeDynamicFinders( Result ) )
 	}
@@ -175,6 +177,44 @@ define([
 		return _( obj ).defaults( attributeDefaultsFor( obj.type ) );
 	}
 
+	/***************************************************************************
+	 * Methods for virtual attributes that act like an attribute but do not get
+	 * persisted
+	 ***************************************************************************/
+	var canHaveComputedAttributes = function( Result ) {
+		var computedAttrs = {};
+
+		// Read the attribute Object (no argument given) or add a set of attributes
+		// to the attributes Object.
+		Result.computedAttrs = function( attributesObject ) {
+			if ( !attributesObject ) {
+				return computedAttrs;
+			}
+			
+			// Allow strings or objects as arguments. Strings will be looked
+			// up in our default arguments hash and given only the default values,
+			// objects allow for customization of attribute behavior by setting
+			// custom default values etc.
+			// The "type" attribute of the attribute object must always be set.
+			_( attributesObject ).each(function( value, key ) {
+				if ( typeof value === "function" ) {
+					computedAttrs[ key ] = computedAttributeFromFunction( value );
+				} else if ( typeof value === "object" ) {
+					computedAttrs[ key ] = value;
+				} else {
+					throw "Invalid computed attribute format for key: '" + key +
+						"' with value: " + value + " [" + typeof value + "]"
+				}
+			});
+		}
+	}
+
+	// Process an given attribute object so it can be stored in our attributes
+	// object array. Sets default values and ensures that an object type has been
+	// given.
+	var computedAttributeFromFunction = function( func ) {
+		return { read: func };
+	}
 
 	/***************************************************************************
 	 * Methods that add the attributes to each new record.
@@ -256,6 +296,78 @@ define([
 		return ko.observable( attrValue );
 	}
 
+
+	/***************************************************************************
+	 * Methods that add computed attributes to each new record.
+	 ***************************************************************************/
+	//
+	// Creates basic methods that depend on the attributes of a model.
+	// Parameters are in order: The specific instance of the model to which to
+	// assign the methods and an array of attributes as string that should be
+	// defined.
+	// The attributes should always include an "id" attribute.
+	var computedAttributeInitializer = function( Result ) {
+		return function( instance, data ) {
+			var attrValue;
+
+			_( Result.computedAttrs() ).each(function( computedBody, attrName ) {
+
+				// Set the owner of the computed observable since users would
+				// probably want to access the current instance as "this", rather
+				// than the window object
+				computedBody.owner = instance;
+
+				// Setup basic attribute accessors and oldValue accessors.
+				// Old values are mostly used internally to reset an attribute to the
+				// last saved state or determine if an attribute has changed but can
+				// just as well be accessed from the outside.
+				if ( computedBody.lazy ) {
+					setupLazyComputed( instance, attrName, computedBody );
+				} else {
+					console.log("setting up regular computed: " + attrName);
+					instance[ attrName ] = regularComputed( computedBody );
+				}
+			});
+		}
+	}
+
+	var setupLazyComputed = function( instance, name, computedBody ) {
+		console.log("setting up lazy computed:" + name);
+		var computed,
+			subscribers = [];
+
+		instance[ name ] = function( value ) {
+			computed = ko.computed( computedBody );
+
+			if ( typeof value === "undefined" ) {
+				if ( !instance.isBeingInitialized ) {
+					instance[ name ] = computed;
+					_( subscribers ).each(function( subscriber ) {
+						computed.subscribe( subscriber );
+					})
+
+					instance.loadAttributes({ async: false });
+					instance.attributesLoaded( true );
+				}
+
+				return computed();
+			} else {
+				computed( value )
+				instance[ name ] = computed;
+				_( subscribers ).each(function( subscriber ) {
+					computed.subscribe( subscriber );
+				})
+
+				return undefined;
+			}
+		}
+
+		instance[ name ].subscribe = subscribers.push;
+	}
+
+	var regularComputed = function( computedBody ) {
+		return ko.computed( computedBody );
+	}
 
 	/***************************************************************************
 	 * Dynamic Attribute finder methods

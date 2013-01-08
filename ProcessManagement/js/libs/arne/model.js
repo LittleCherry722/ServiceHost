@@ -6,8 +6,6 @@ define([
 	"async",
   "model/associations",
   "model/attributes"
-  // "arne/model/attributes"
-	// "jquery"
 ], function( _, ko, Router, require, async, Associations, Attributes ) {
 	var models = [];
 
@@ -30,9 +28,6 @@ define([
 
 			// needed only in rare cases, but invaluable there.
 			var self = this;
-
-			// The camelCase nam
-			var camelCasedAttribute;
 
 			this.isNewRecord = true;
 			this.isDestroyed = false;
@@ -220,6 +215,9 @@ define([
 					cache: false,
 					async: options.async,
 					type: "POST",
+					headers: {
+						Debug: true
+					},
 					success: function( JSONString ) {
 						JSONObject = $.parseJSON( JSONString );
 
@@ -294,6 +292,9 @@ define([
 					cache: false,
 					async: options.async,
 					type: "POST",
+					headers: {
+						Debug: true
+					},
 					success: function( JSONString ) {
 						JSONObject = $.parseJSON( JSONString );
 
@@ -402,6 +403,9 @@ define([
 				cache: false,
 				async: options.async,
 				type: "POST",
+				headers: {
+					Debug: true
+				},
 				success: function( JSONString ) {
 					JSONObject = $.parseJSON( JSONString );
 
@@ -460,6 +464,9 @@ define([
 				cache: false,
 				async: options.async,
 				type: "POST",
+					headers: {
+						Debug: true
+					},
 				success: function( JSONString ) {
 					JSONObject = $.parseJSON( JSONString );
 
@@ -532,6 +539,9 @@ define([
 				async: options.async,
 				cache: false,
 				type: "POST",
+				headers: {
+					Debug: true
+				},
 				success: function( JSONString ) {
 					// Try to parse JSON String, if sucessfull continue, otherwise return
 					// early.
@@ -650,37 +660,6 @@ define([
 		 */
 		Result.include = function(obj) {
 			_(Result.prototype).extend(obj);
-		}
-
-		Result.lazyComputed = function( instance, name, computedBody ) {
-			var computed,
-				subscribers = [];
-
-			instance[ name ] = function( value ) {
-				computed = ko.computed( computedBody );
-
-				if ( typeof value === "undefined" ) {
-					if ( !instance.isBeingInitialized ) {
-						instance[ name ] = computed;
-						_( subscribers ).each(function( subscriber ) {
-							computed.subscribe( subscriber );
-						})
-
-						instance.loadAttributes({ async: false });
-						instance.attributesLoaded( true );
-					}
-
-					return computed();
-				} else {
-					computed( value )
-					instance[ name ] = computed;
-					_( subscribers ).each(function( subscriber ) {
-						computed.subscribe( subscriber );
-					})
-
-					return undefined;
-				}
-			}
 		}
 
 		models.push( Result );

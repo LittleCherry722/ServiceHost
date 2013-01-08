@@ -30,50 +30,55 @@ define([
 	Graph.include({
 		beforeSave: function() {
 			this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
+		}
+	});
+
+	Graph.computedAttrs({
+		graphObject: {
+			read: function() {
+				return $.parseJSON( this.graphString() )
+			},
+			lazy: true
 		},
-
-		initialize: function() {
-			var self = this;
-
-			Graph.lazyComputed( this, 'graphObject', function() {
-				return $.parseJSON( self.graphString() )
-			});
-
-			Graph.lazyComputed( this, 'subjects', function() {
+		subjects: {
+			read: function() {
 				var subjects = {};
 
-				_( self.graphObject().process ).each(function( element ) {
+				_( this.graphObject().process ).each(function( element ) {
 					subjects[ element['id'] ] = element['name'];
 				});
 
 				return subjects;
-			});
-
-			Graph.lazyComputed( this, 'subjectIDs', function() {
+			},
+			lazy: true
+		},
+		subjectIDs: {
+			read: function() {
 				var subjects = [];
 
-				_( self.graphObject().process ).each(function( element ) {
+				_( this.graphObject().process ).each(function( element ) {
 					subjects.push( element['id'] );
 				});
 
 				return subjects;
-			});
-
-			Graph.lazyComputed( this, "routings", {
-				read: function() {
-					if ( self.graphObject().routings ) {
-						return self.graphObject().routings;
-					} else {
-						return [];
-					}
-				},
-				write: function( routings ) {
-					if ( !routings ) {
-						routings = [];
-					}
-					self.graphObject().routings = routings;
+			},
+			lazy: true
+		},
+		routings: {
+			read: function() {
+				if ( this.graphObject().routings ) {
+					return this.graphObject().routings;
+				} else {
+					return [];
 				}
-			});
+			},
+			write: function( routigns ) {
+				if ( !routings ) {
+					routings = [];
+				}
+				this.graphObject().routings = routings;
+			},
+			lazy: true
 		}
 	});
 
