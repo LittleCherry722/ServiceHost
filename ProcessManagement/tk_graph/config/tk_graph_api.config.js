@@ -179,7 +179,7 @@ var gv_functions	= {
 		 * @param {String} view Either "bv" or "cv" depending on the selected view
 		 * @returns {void}
 		 */
-		changeViewHook:		"mViewChanged",
+		changeViewHook:		"gf_empty",
 		
 		/**
 		 * clear the input fields for nodes and edges
@@ -197,7 +197,7 @@ var gv_functions	= {
 		 * @param {String} startType Type of the edge's start node.
 		 * @returns {void}
 		 */
-		displayEdge:		"mDisplayEdge",
+		displayEdge:		"",
 		
 		/**
 		 * displays the information of the selected node
@@ -255,7 +255,7 @@ var gv_functions	= {
 		 * 
 		 * @returns {void}
 		 */
-		updateListOfChannels:	"updateListOfChannels",
+		updateListOfChannels:	"",
 		
 		/**
 		 * updates the list of available subjects in the GUI
@@ -263,7 +263,7 @@ var gv_functions	= {
 		 * @see GCcommunication::selectNode()
 		 * @returns {void}
 		 */
-		updateListOfSubjects:	"updateListOfSubjects"
+		updateListOfSubjects:	""
 	},
 	
 	/*
@@ -287,7 +287,7 @@ var gv_functions	= {
 		 * @param {int} ID The id of the clicked edge.
 		 * @returns {void}
 		 */
-		edgeClickedHook:		"mEdgeClicked",
+		edgeClickedHook:		"",
 		
 		/**
 		 * called when a node is clicked
@@ -305,7 +305,7 @@ var gv_functions	= {
 		 * @param {int} ID The id of the clicked node.
 		 * @returns {void}
 		 */
-		nodeClickedHook:		"mNodeClicked",
+		nodeClickedHook:		"",
 		
 		/**
 		 * called when a subject is clicked
@@ -323,7 +323,7 @@ var gv_functions	= {
 		 * @param {String} ID The id of the clicked subject.
 		 * @returns {void}
 		 */
-		subjectClickedHook:		"mSubjectClicked",
+		subjectClickedHook:		"",
 		
 		/**
 		 * called when an external subject is double-clicked
@@ -332,7 +332,7 @@ var gv_functions	= {
 		 * @param {String} ID The id of the referenced process.
 		 * @returns {void}
 		 */
-		subjectDblClickedExternal:		"gf_guiLoadExternalProcess",
+		subjectDblClickedExternal:		"gf_empty",
 		
 		/**
 		 * called when an instant interface (external subject) is double-clicked
@@ -359,7 +359,7 @@ var gv_functions	= {
 		 * @param {String} ID The id of the double-clicked subject.
 		 * @returns {void}
 		 */
-		subjectDblClickedInternal:		"",
+		subjectDblClickedInternal:		"gf_empty",
 		
 		/**
 		 * called when a subject is double-clicked (pre-method-call-hook)
@@ -368,7 +368,7 @@ var gv_functions	= {
 		 * @param {String} ID The id of the double-clicked subject.
 		 * @returns {void}
 		 */
-		subjectDblClickedHook:	"mSubjectClicked"
+		subjectDblClickedHook:	""
 	},
 	
 	/*
@@ -382,7 +382,7 @@ var gv_functions	= {
 		 * @see tk_graph.js :: gf_toggleBV()
 		 * @returns {void}
 		 */
-		changeViewBV:		"showtab1"
+		changeViewBV:		"gf_empty"
 	}
 };
 
@@ -401,7 +401,7 @@ var gv_topics	= {
 		/**
 		 * topic for updates on macro list
 		 */
-		updateListOfMacros:	""
+		updateListOfMacros:	"tk_graph/updateListOfMacros"
 	},
 	
 	/*
@@ -422,7 +422,7 @@ var gv_topics	= {
 		 * 
 		 * @param {String} view Either "bv" or "cv" depending on the selected view
 		 */
-		changeViewHook:		"",
+		changeViewHook:		"tk_graph/changeViewHook",
 		
 		/**
 		 * topic for clear-requests for all input fields
@@ -495,7 +495,7 @@ var gv_topics	= {
 		 * 
 		 * @see GCcommunication::selectNode()
 		 */
-		updateListOfSubjects:	""
+		updateListOfSubjects:	"tk_graph/updateListOfSubjects"
 	},
 	
 	/*
@@ -517,7 +517,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperClickEdge()
 		 * @param {int} ID The id of the clicked edge.
 		 */
-		edgeClickedHook:		"",
+		edgeClickedHook:		"tk_graph/edgeClickedHook",
 		
 		/**
 		 * notifier topic for when a node is clicked
@@ -533,7 +533,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperClickNodeB()
 		 * @param {int} ID The id of the clicked node.
 		 */
-		nodeClickedHook:		"",
+		nodeClickedHook:		"tk_graph/nodeClickedHook",
 		
 		/**
 		 * notifier topic for when a subject is clicked
@@ -549,7 +549,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperClickNodeC()
 		 * @param {String} ID The id of the clicked subject.
 		 */
-		subjectClickedHook:		"",
+		subjectClickedHook:		"tk_graph/subjectClickedHook",
 		
 		/**
 		 * notifier topic for when an external subject is double clicked
@@ -557,7 +557,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperDblClickNodeC()
 		 * @param {String} ID The id of the referenced process.
 		 */
-		subjectDblClickedExternal:		"",
+		subjectDblClickedExternal:		"tk_graph/subjectDblClickedExternal",
 		
 		/**
 		 * notifier topic for when an instant interface (external subject) is double-clicked
@@ -581,7 +581,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperDblClickNodeC()
 		 * @param {String} ID The id of the double-clicked subject.
 		 */
-		subjectDblClickedInternal:		"",
+		subjectDblClickedInternal:		"tk_graph/subjectDblClickedInternal",
 		
 		/**
 		 * notifier topic for when a subject is double-clicked (before the actual click is processed)
@@ -602,7 +602,7 @@ var gv_topics	= {
 		 * 
 		 * @see tk_graph.js :: gf_toggleBV()
 		 */
-		changeViewBV:		"",
+		changeViewBV:		"tk_graph/changeViewBV",
 		
 		/**
 		 * topic for general updates on channels

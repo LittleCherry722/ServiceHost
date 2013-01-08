@@ -16,15 +16,15 @@
 @import "bootstrap/reset";
 
 // Grid system and page structure
-// @import "bootstrap/scaffolding";
-// @import "bootstrap/grid";
-// @import "bootstrap/layouts";
+@import "bootstrap/scaffolding";
+@import "bootstrap/grid";
+@import "bootstrap/layouts";
 
 // Base CSS
-// @import "bootstrap/type";
+@import "bootstrap/type";
 // @import "bootstrap/code";
-// @import "bootstrap/forms";
-// @import "bootstrap/tables";
+@import "bootstrap/forms";
+@import "bootstrap/tables";
 
 // Components: common
 // @import "bootstrap/sprites";
@@ -62,3 +62,37 @@
 // Utility classes
 @import "bootstrap/utilities"; // Has to be last to override when necessary
 
+
+.table.table-striped-darker {
+  tbody {
+    tr:nth-child(odd) td,
+    tr:nth-child(odd) th {
+      background-color: #efefef;
+    }
+  }
+}
+
+
+.tooltip {
+	font-size: 12px;
+
+	&.in {
+		opacity: 0.9;
+	}
+}
+
+.tooltip-inner {
+	padding: 4px 8px;
+	text-shadow: none;
+	color: #eee;
+}
+
+input[type="text"]:focus, input[type="password"]:focus,
+input[type="datetime"]:focus, input[type="datetime-local"]:focus,
+input[type="date"]:focus, input[type="month"]:focus, input[type="time"]:focus,
+input[type="week"]:focus, input[type="number"]:focus,
+input[type="email"]:focus, input[type="url"]:focus, input[type="search"]:focus,
+input[type="tel"]:focus, input[type="color"]:focus, .uneditable-input:focus {
+	@include box-shadow(inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(143, 178, 222, 0.6));
+	border-color: rgba(143, 178, 222, 0.8);
+}

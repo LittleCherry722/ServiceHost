@@ -1,35 +1,47 @@
+package de.tkip.sbpm.application.test
+
 import akka.actor._
+import scala.concurrent.Await
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.duration._
 
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 
-class Task240Test {
-
-}
-
 /**
- * kleiner Test der SubjectManagerProvider und ProcessManager instanziert, dann Subjekte und Verhalten hinzufügt und
+ * kleiner Test der SubjectManagerProvider und ProcessManager instanziert,
+ * dann Subjekte und Verhalten hinzufügt und
  * eine Statusabfrage sendet, die StateAusführung jedes Subjects erzwingt
- * 
- * Beispiel wurde aus dem alten Kernel übernommen und an die neue Struktur angepasst
+ *
+ * Beispiel wurde aus dem alten Kernel übernommen und an die neue Struktur
+ * angepasst
  */
 object Task240Test extends App {
 
   println("Starting....")
+
+  implicit val timeout = Timeout(5 seconds)
 
   println("instantiating...")
   val system = ActorSystem("TextualEpassIos")
   val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
   val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
 
-  // instantiate subjectProvider and processes
-  val userID = 10
-  val processID = 100
-  subjectProviderManager ! CreateSubjectProvider(userID)
-  processManager ! CreateProcess(processID)
+  // Blocking ask to create the subjectProvider
+  val future1 = subjectProviderManager ? CreateSubjectProvider()
+  val userID: Int =
+    Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
+
+  println("UserID: " + userID)
+
+  // Blocking ask to create the process
+  val future = subjectProviderManager ? CreateProcess(userID)
+  val processID: Int =
+    Await.result(future, timeout.duration).asInstanceOf[ProcessCreated].processID
 
   // employee
-  val employeeName = "employee"
+  val employeeName = "Employee"
   val employeeStates = Array(
     new ActState("empl", "Fill out Application", Array(Transition("Done", "Do"))),
     new SendState("empl.br1", Array(Transition("BT Application", "Superior"))),
@@ -38,7 +50,7 @@ object Task240Test extends App {
     new EndState("End of the old one"))
 
   // Superior  
-  val superiorName = "superior"
+  val superiorName = "Superior"
   val superiorStates = Array(
     new ReceiveState("sup", Array(Transition("BT Application", "Employee"))),
     new ActState("sup.br1", "Check Application", Array(Transition("Approval", "Do"), Transition("Denial", "Do"))),
@@ -48,11 +60,11 @@ object Task240Test extends App {
 
   // add subjects
   println("add testsubjects")
-  processManager ! AddSubject(processID, employeeName)
-  processManager ! AddSubject(processID, superiorName)
+  processManager ! AddSubject(userID, processID, employeeName)
+  processManager ! AddSubject(userID, processID, superiorName)
 
   // add behaviorStates
-  println("add behaviourStates")
+  println("add behaviorStates")
   for (state <- employeeStates)
     subjectProviderManager ! AddState(userID, processID, employeeName, state)
   for (state <- superiorStates)
@@ -60,5 +72,5 @@ object Task240Test extends App {
 
   // execute states
   println("execute states")
-  subjectProviderManager ! StatusRequest(userID, processID)
+  subjectProviderManager ! ExecuteRequest(userID, processID)
 }

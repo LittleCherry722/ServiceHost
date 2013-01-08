@@ -1,5 +1,9 @@
 
+// Typography
+$baseFontSize: 12px;
+$baseLineHeight: 14px;
+
 // Links
 // -------------------------
-$linkColor:             #4B4F5D !default;
+$linkColor:             #4B4F5D;
 $linkColorHover:        darken($linkColor, 15%) !default;

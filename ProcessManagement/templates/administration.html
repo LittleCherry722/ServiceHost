@@ -1,0 +1,21 @@
+<div class="inner">
+
+	<div id="contentHead">
+		<h3>Administration</h3>
+	</div>
+
+  <div id="adminContainer">
+    <div class="left">
+      <ul class="nav nav-list" data-bind="foreach: tabs">
+        <li data-bind="css: { active: $data === $root.currentTab() }">
+          <a data-bind="text: $data, attr: { href: '#/administration/' + $data }"></a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="right">
+      <div id="right_content"></div>
+    </div>
+  </div>
+
+</div>

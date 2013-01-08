@@ -1,0 +1,18 @@
+<div class="inner">
+
+	<div id="contentHead">
+		<h3>Process Execution</h3>
+	</div>
+
+  <div id="processExecution">
+    <ul class="nav nav-tabs" data-bind="foreach: tabs">
+      <li data-bind="css: { active: $data === $root.currentTab() }">
+        <a data-bind="text: $data, attr: { href: '#/execution/' + $data }"></a>
+      </li>
+    </ul>
+  </div>
+  <div id="executionContent">
+  </div>
+
+</div>
+

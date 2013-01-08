@@ -35,7 +35,7 @@ if(!SBPM.Constant.DEBUG || !window.console){
     }
 }
 
-SBPM.DB = {    
+SBPM.DB = {
     syncQuery : function(url, data, defaultreturn, successfunction ){
         var ret = defaultreturn;
         $.ajax({
@@ -140,7 +140,7 @@ function getUserID(name){
 	return syncQuery(db_directory + "users.php", {"username" : name, "action" : "getid"}, 0, defaultIDReturn);
 }
 function getGroupID(name){
-	return syncQuery(db_directory + "groups.php", {"groupname" : name, "action" : "getid"}, 0, defaultIDReturn);
+	return syncQuery(db_directory + "group.php", {"groupname" : name, "action" : "getid"}, 0, defaultIDReturn);
 }
 // get Names
 function getUserName(userid){
@@ -149,7 +149,7 @@ function getUserName(userid){
 			return json["name"];});
 }
 function getGroupName(groupid){
-	return syncQuery(db_directory + "groups.php", {"groupid" : groupid, "action" : "getname"}, "", function (json){
+	return syncQuery(db_directory + "group.php", {"groupid" : groupid, "action" : "getname"}, "", function (json){
 		if (json["code"] == "ok")
 			return json["name"];});
 }
@@ -161,12 +161,12 @@ function getAllUsers(){
 			return json["users"];});
 }
 function getAllGroups(){
-	return syncQuery(db_directory + "groups.php", {"action" : "getallgroups"}, {}, function (json){
+	return syncQuery(db_directory + "group.php", {"action" : "getallgroups"}, {}, function (json){
 		if (json["code"] == "ok")
 			return json["groups"];});
 }
 function getallusersforgroup(group){
-	return syncQuery(db_directory + "groups.php", {"action" : "getallusers", "groupid" : group}, {}, function (json){
+	return syncQuery(db_directory + "group.php", {"action" : "getallusers", "groupid" : group}, {}, function (json){
 		if (json["code"] == "ok")
 			return json["users"];});
 }

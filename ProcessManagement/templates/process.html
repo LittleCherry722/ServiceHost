@@ -1,0 +1,72 @@
+<div class="inner">
+
+	<div id="contentHead">
+		<h3 id="processName" data-bind="text: currentProcess().name "></h3>
+	</div>
+
+	<div id="graph">
+		<!-- <h2 id="process_name" style="color:#525252" data-bind="text: activeView "></h2>-->
+		<!-- Begin graph window -->
+		<div class="onecolumn">
+			<div class="header">
+				<div class="pull-right" id="processHelpButtons">
+					<a id="help-button" class="btn btn-small" href="help.html" data-bind="fancybox : {width : '30', height : '41'}"/>
+						?
+					</a>
+				</div>
+				<div class="btn-group" id="switch">
+					<button	id="tab2" class="btn">Subject-Interaction-View</button>
+
+					<div class="btn tab-dropdown">
+						<select id="slctSbj" data-placeholder="Select Internal Behavior"
+							class="middle_switch chzn-select" tabindex="1"
+							data-bind="options: availableSubjects, optionsText: 'subjectText',
+							optionsValue: 'subjectID', value: currentSubject, caption: ''">
+						</select>
+					</div>
+
+					<div class="btn tab-dropdown">
+						<select id="slctChan" data-placeholder="Select Channel"
+							class="middle_switch chzn-select" tabindex="1"
+							data-bind="options: availableChannels, optionsText: 'text',
+							optionsValue: 'channelID', value: currentChannel, caption: ''">
+						</select>
+					</div>
+
+					<div id="slctMacroDropDown" class="btn tab-dropdown" style="display: none;">
+						<select id="slctMacro" data-placeholder="Select Macro"
+							class="middle_switch chzn-select" tabindex="1"
+							data-bind="options: availableMacros, optionsText: 'value',
+							optionsValue: 'id', value: currentMacro, caption: ''">
+						</select>
+					</div>
+
+					<button id="tab3" class="btn">Person in charge</button>
+				</div>
+			</div>
+
+
+			<!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
+			<div id="processContent">
+				<ul class="unstyled" id="graphZoombuttons">
+					<li>
+						<a onclick="gf_paperZoomIn();" >+</a>
+					</li>
+					<li>
+						<a onclick="gf_paperZoomOut();" >&minus;</a>
+					</li>
+					<li>
+						<a onclick="gf_paperZoomReset();" >±</a>
+					</li>
+				</ul>
+				<div id="tab1_content" class="tab_content hide"></div>
+				<div id="tab2_content" class="tab_content"></div>
+				<!--   <div id="tab3_content" class="tab_content hide" data-bind="templateWithListeners: { name: chargeVM.name, data: chargeVM, listeners: SBPM.Mediator.subviewListeners['chargeView']}"></div>-->
+
+			</div>
+
+		</div>
+	</div>
+
+</div>
+

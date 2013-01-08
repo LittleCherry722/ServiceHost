@@ -1,0 +1,44 @@
+<div>
+	<table class="table table-striped table-bordered">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th>Group</th>
+				<th>Active</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody id="listOfUsers" data-bind="foreach: users">
+			<tr data-bind="attr: { id: 'user'+ id() }">
+				<td data-bind="text: id"></td>
+				<td>
+					<input type="text" class="inline" data-bind='value: name' />
+				</td>
+				<td>
+					<select data-bind="options: $parent.groups,
+						optionsText: 'name', optionsValue : 'id',
+						selectedOptions: groupIDs"
+						class="chzn-select" multiple="multiple">
+					</select>
+				</td>
+				<td>
+					<input type="checkbox" data-bind="checked: isActive" />
+				</td>
+				<td>
+					<input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />
+					<input type="button" class="button" value="Save changes" data-bind='click: $parent.save' />
+					<input type="button" class="button" value="Reset" data-bind='click: $parent.reset' />
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<input type="button" class="button" value="Create User" data-bind='click: create' />
+
+	<div class="form-actions">
+		<input type="button" class="button" value="Reset" data-bind="click: resetAll" />
+		<input type="button" class="button" value="Save" data-bind="click: saveAll" />
+	</div>
+</div>
+

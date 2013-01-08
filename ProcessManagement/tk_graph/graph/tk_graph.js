@@ -1421,3 +1421,4 @@ function gf_toggleBV ()
 {
 	gf_callFunc("general.changeViewBV", "gf_clickedCVbehavior");
 }
+

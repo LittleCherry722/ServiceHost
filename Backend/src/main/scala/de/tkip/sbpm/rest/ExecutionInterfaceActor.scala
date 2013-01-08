@@ -14,19 +14,44 @@ import akka.event.Logging
 class ExecutionInterfaceActor extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
-  
+
   override def preStart() {
     logger.debug(context.self + " starts.")
   }
-  
+
   override def postStop() {
     logger.debug(context.self + " stops.")
   }
-  
+
   def actorRefFactory = context
-  
-  def receive = runRoute({ 
-  	complete("not yet implemented")
+
+  def receive = runRoute({
+    put {
+      path(IntNumber) { id =>
+        parameters("userid") { (userid) =>
+          //execute Process(in ProcessManagerActor)
+          complete("excute not yet implemented (in ProcessManagerActor)")
+        }
+      }
+    }~
+    // returns Current Options
+    get {
+     path(IntNumber) { id =>
+        parameters("userid", "subject") { (userid, subject) =>
+          //current Options in ProcessActor
+          complete("current Options not yet implemented (in ProcessActor)")
+        }
+      }
+    }~  
+    post {
+     path(IntNumber) { id =>
+        parameters("command", "userid") { (command, userid) =>
+          //choose Option in ProcessActor
+          complete("error not yet implemented")
+        }
+      }
+    }
+
   })
-  
+
 }

@@ -1,10 +1,11 @@
 package de.tkip.sbpm.application
+
 import akka.actor._
 import miscellaneous._
 import miscellaneous.ProcessAttributes._
 
 /**
- * contains the businesslogic that will be modeled by the Graph
+ * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor extends Actor {
   private val statesMap = collection.mutable.Map[StateID, BehaviourState]()
@@ -12,7 +13,12 @@ class InternalBehaviorActor extends Actor {
 
   def receive = {
     case b: BehaviourState => addState(b)
-    case p: ProcessBehaviour => processBehaviour(p.processManager, p.subjectName, p.subjectProviderName, p.inputPool)
+    case p: ProcessBehaviour =>
+      processBehaviour(
+        p.processManager,
+        p.subjectName,
+        p.subjectProviderName,
+        p.inputPool)
     case _ => "not yet implemented"
   }
 
@@ -22,13 +28,18 @@ class InternalBehaviorActor extends Actor {
     statesMap += state.stateID -> state
   }
 
-  private def processBehaviour(processManager: ProcessManagerRef, subjectName: SubjectName, subjectProviderName: SubjectName, inputPool: ActorRef) {
+  private def processBehaviour(processManager: ProcessManagerRef,
+                               subjectName: SubjectName,
+                               subjectProviderName: SubjectName,
+                               inputPool: ActorRef) {
     var nextstate = startState
-
     while (nextstate != null) {
-      nextstate = statesMap(nextstate).performAction(processManager, subjectName, subjectProviderName, inputPool)
+      nextstate =
+        statesMap(nextstate).performAction(
+          processManager,
+          subjectName,
+          subjectProviderName,
+          inputPool)
     }
-
   }
-
 } // class InternalBehaviour
