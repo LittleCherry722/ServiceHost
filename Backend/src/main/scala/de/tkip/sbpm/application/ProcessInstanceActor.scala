@@ -3,11 +3,12 @@ package de.tkip.sbpm.application
 import akka.actor._
 import miscellaneous._
 import miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.model.ProcessModel
 
 /**
  * instantiates SubjectActor's and manages their interactions
  */
-class ProcessInstanceActor(val id: ProcessID) extends Actor {
+class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel) extends Actor {
 
   // TODO wie übergeben?
   private val contextResolver = context.actorOf(Props(new ContextResolverActor))
@@ -20,17 +21,19 @@ class ProcessInstanceActor(val id: ProcessID) extends Actor {
   private val subjectMap = collection.mutable.Map[SubjectName, SubjectRef]()
 
   def receive = {
+
     case as: AddSubject =>
-      val subjectRef = context.actorOf(Props(new SubjectActor(self, as.subjectName)))
-      subjectMap += as.subjectName -> subjectRef
+      println("addsubject" + as.subject)
+      val subjectRef = context.actorOf(Props(new SubjectActor(self, as.subject)))
+      subjectMap += as.subject.subjectName -> subjectRef
       subjectCounter += 1
 
-      println("process " + id + " created subject " + as.subjectName) //TODO
+      println("process " + id + " created subject " + as.subject.subjectName) //TODO
       if (!messagePool.isEmpty) {
-        for (sm <- messagePool if sm.toCond.subjectName == as.subjectName) {
+        for (sm <- messagePool if sm.toCond.subjectName == as.subject.subjectName) {
           subjectRef.forward(sm)
         }
-        messagePool = messagePool.filterNot(_.toCond.subjectName == as.subjectName)
+        messagePool = messagePool.filterNot(_.toCond.subjectName == as.subject.subjectName)
       }
 
     case End =>
@@ -49,13 +52,15 @@ class ProcessInstanceActor(val id: ProcessID) extends Actor {
         // store the message in the message-pool
         messagePool += sm
         // ask the Contextresolver for the userid to answer with an AddSubject
-        contextResolver !
-          RequestUserID(
-            SubjectInformation(sm.toCond.subjectName),
-            AddSubject(_, id, sm.toCond.subjectName))
+        // TODO subjecterstellung richtig
+        //        contextResolver !
+        //          RequestUserID(
+        //            SubjectInformation(sm.toCond.subjectName),
+        //            AddSubject(_, id, sm.toCond.subjectName))
       }
 
     case pr: ExecuteRequest =>
+      println("execute")
       subjectMap.values.map(_ ! pr) // TODO: send to all subjects?
 
     case asts: AddState =>

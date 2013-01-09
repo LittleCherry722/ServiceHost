@@ -1,16 +1,14 @@
-package de.tkip.sbpm.application.miscellaneous
+package de.tkip.sbpm.model
 
-//import de.tkip.sbpm.application.miscellaneous._
-import scala.collection.mutable.ArrayBuffer
-
-import akka.actor._
-import akka.pattern.ask
 import scala.concurrent.duration._
-import akka.util.Timeout
 import scala.concurrent.Await
 import scala.concurrent.Future
-
+import scala.Array.canBuildFrom
+import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.miscellaneous._
 
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
@@ -68,6 +66,7 @@ case class ActState(id: StateID, action: StateAction, transitions: Array[Transit
 
     var output: String = "Action@" + subjectProviderName + ": " + stateAction +
       "\nWhat is the result ?\n(" + action_choices + ")?\n> "
+    // TODO muss vom frontend angenommen werden
     var input = readLine(output)
 
     while (!validat_input(input)) {
@@ -83,6 +82,16 @@ case class ActState(id: StateID, action: StateAction, transitions: Array[Transit
     return transitionsMap(ExitCond(input, "Do"))
   }
 
+}
+
+case class StartState(id: StateID, transition: Transition) extends BehaviourState(id, "Start of Behavior", Array[Transition](transition)) {
+  def performAction(processManager: ProcessManagerRef,
+                    subjectName: SubjectName,
+                    subjectProviderName: SubjectName,
+                    inputpool: ActorRef): StateID = {
+    println("Start@" + subjectProviderName)
+    return transitionsMap(transition.exitCond)
+  }
 }
 
 case class EndState(id: StateID) extends BehaviourState(id, "End of Behavior: ", Array[Transition]()) {
@@ -122,7 +131,6 @@ case class ReceiveState(s: StateID, val transitions: Array[Transition]) extends 
 
     return ret
   }
-
 }
 
 case class SendState(s: StateID, transitions: Array[Transition]) extends BehaviourState(s, "SendAction", transitions) {

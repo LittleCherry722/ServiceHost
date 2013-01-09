@@ -4,6 +4,7 @@ import de.tkip.sbpm.rest._
 import ProcessAttributes._
 import akka.actor._
 import de.tkip.sbpm.application.SubjectInformation
+import de.tkip.sbpm.model.BehaviourState
 
 sealed trait ControlMessage // For system control tasks
 trait AnswerMessage {
@@ -27,7 +28,6 @@ case object End extends ControlMessage
 
 case class CreateSubjectProvider() extends ControlMessage
 case class CreateProcess(userID: UserID) extends ControlMessage with AnswerMessage // Tells the processManager to create a new process
-case class AddSubject(userID: UserID, processID: ProcessID, subjectName: SubjectName) extends ControlMessage
 
 case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage
 case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourState) extends ControlMessage
@@ -42,3 +42,6 @@ case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer:
 // answers
 case class ProcessCreated(cp: CreateProcess, processID: ProcessID) 
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID)
+
+import de.tkip.sbpm.model.Subject
+case class AddSubject(userID: UserID, processID: ProcessID, subject: Subject) extends ControlMessage

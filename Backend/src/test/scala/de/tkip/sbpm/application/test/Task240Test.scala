@@ -8,6 +8,8 @@ import scala.concurrent.duration._
 
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.model.Transition._
 
 /**
  * kleiner Test der SubjectManagerProvider und ProcessManager instanziert,
@@ -43,6 +45,7 @@ object Task240Test extends App {
   // employee
   val employeeName = "Employee"
   val employeeStates = Array(
+    new StartState("startempl", StartTransition("empl")),
     new ActState("empl", "Fill out Application", Array(Transition("Done", "Do"))),
     new SendState("empl.br1", Array(Transition("BT Application", "Superior"))),
     new ReceiveState("empl.br1.br1", Array(Transition("Approval", "Superior"), Transition("Denial", "Superior", "End of the old one"))),
@@ -52,16 +55,17 @@ object Task240Test extends App {
   // Superior  
   val superiorName = "Superior"
   val superiorStates = Array(
+    new StartState("start", StartTransition("sup")),
     new ReceiveState("sup", Array(Transition("BT Application", "Employee"))),
-    new ActState("sup.br1", "Check Application", Array(Transition("Approval", "Do"), Transition("Denial", "Do"))),
+    new ActState("sup.br1", "Check Application", Array(ActTransition("Approval"), ActTransition("Denial"))),
     new SendState("sup.br1.br1", Array(Transition("Approval", "Employee", "The End"))),
     new SendState("sup.br1.br2", Array(Transition("Denial", "Employee", "The End"))),
     new EndState("The End"))
 
-  // add subjects
+  // add subjects TODO 
   println("add testsubjects")
-  processManager ! AddSubject(userID, processID, employeeName)
-  processManager ! AddSubject(userID, processID, superiorName)
+//  processManager ! AddSubject(userID, processID, employeeName)
+//  processManager ! AddSubject(userID, processID, superiorName)
 
   // add behaviorStates
   println("add behaviorStates")

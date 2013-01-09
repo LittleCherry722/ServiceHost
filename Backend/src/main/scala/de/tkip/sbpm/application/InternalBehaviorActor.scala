@@ -3,6 +3,7 @@ package de.tkip.sbpm.application
 import akka.actor._
 import miscellaneous._
 import miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.model.BehaviourState
 
 /**
  * contains the business logic that will be modeled by the graph
