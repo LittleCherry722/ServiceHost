@@ -32,6 +32,7 @@ case class AddSubject(userID: UserID, processID: ProcessID, subjectName: Subject
 case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage
 case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourState) extends ControlMessage
 
+case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage
 // Message to tell IntervalBehaviorActor to process his states
 case class ProcessBehaviour(processManager: ProcessManagerRef, subjectName: SubjectName, subjectProviderName: SubjectName, inputPool: ActorRef) extends ControlMessage
 

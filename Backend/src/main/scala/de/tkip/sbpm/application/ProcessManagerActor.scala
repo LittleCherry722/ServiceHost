@@ -34,7 +34,7 @@ class ProcessManagerActor(private val name: String) extends Actor {
       processCount += 1
 
     case kill: KillProcess =>
-      killProcess(kill.processID)
+      killProcess(kill.processInstanceID)
 
   }
 
@@ -53,7 +53,7 @@ class ProcessManagerActor(private val name: String) extends Actor {
   }
 
   // kills the processInstanceActor with the given processID and unregisters it
-  private def killProcess(processID: ProcessID) = {
+  private def killProcess(processID: ProcessInstanceID) = {
     if (processMap.contains(processID)) {
       context.stop(processMap(processID))
       processMap -= processID
