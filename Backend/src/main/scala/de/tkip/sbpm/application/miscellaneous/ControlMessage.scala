@@ -43,5 +43,5 @@ case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer:
 case class ProcessCreated(cp: CreateProcess, processID: ProcessID) 
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID)
 
-import de.tkip.sbpm.model.Subject
-case class AddSubject(userID: UserID, processID: ProcessID, subject: Subject) extends ControlMessage
+//import de.tkip.sbpm.model.Subject
+case class AddSubject(userID: UserID, processID: ProcessID, subjectName: String) extends ControlMessage

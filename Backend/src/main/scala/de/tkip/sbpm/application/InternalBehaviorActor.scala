@@ -20,11 +20,10 @@ class InternalBehaviorActor extends Actor {
         p.subjectName,
         p.subjectProviderName,
         p.inputPool)
-    case _ => "not yet implemented"
+    case _ => println("not yet implemented")
   }
 
   private def addState(state: BehaviourState) {
-    println("add behaviorState: " + state.stateAction)
     if (startState.isEmpty()) startState = state.stateID
     statesMap += state.stateID -> state
   }

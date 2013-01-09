@@ -27,7 +27,8 @@ class SubjectActor(processInstanceRef: ProcessInstanceRef,
   def receive = {
     //    case ip: IPRef => ipRef = ip.ipRef
     case JobDone =>
-      processInstanceRef ! End; context.stop(self)
+      processInstanceRef ! End
+      context.stop(self)
     case sm: SubjectMessage => inputPoolActor forward sm
 
     case sr: ExecuteRequest =>
