@@ -36,9 +36,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       // forward them to the subject 
       if (!messagePool.isEmpty) {
         for ((orig, sm) <- messagePool if sm.toCond.subjectName == subject.subjectName) {
-          subjectRef ! sm
-          // TODO stored richtig zurueckrouten
-          orig ! Stored
+          subjectRef.!(sm)(orig)
         }
         messagePool = messagePool.filterNot(_._2.toCond.subjectName == subject.subjectName)
       }
