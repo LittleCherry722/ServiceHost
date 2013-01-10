@@ -24,7 +24,7 @@ import de.tkip.sbpm.persistence.GetProcess
  */
 // TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
-  val persitenceActorRef: PersistenceActorRef) extends Actor with HttpService {
+                            val persitenceActorRef: PersistenceActorRef) extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
 
@@ -73,9 +73,9 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
              
             val future = persitenceActorRef ? GetProcess
             val result = Await.result(future, timeout.duration)
-            complete("Marshelled result")
 			
 			*/
+            complete("Marshelled result")
 
           } else if (load == "loaded") {
             //TODO
@@ -101,7 +101,9 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
         path("") {
           parameters("graph", "subjects", "userid") { (graph, subjects, userid) =>
             implicit val timeout = Timeout(5 seconds)
-            val future = subjectProviderManagerActorRef ? de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider(userid.asInstanceOf[Int])
+            // TODO Wer vergibt die UserID
+            //            val future = subjectProviderManagerActorRef ? de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider(userid.asInstanceOf[Int])
+            val future = subjectProviderManagerActorRef ? de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider()
             val result = Await.result(future, timeout.duration)
             complete("Marshelled result")
           }
@@ -114,7 +116,8 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
           path(IntNumber) { id =>
             parameters("graph", "subjects", "userid") { (graph, subjects, userid) =>
               // TODO update process
-              persitenceActorRef ! SaveProcess(Option(id), "wo kommt der name her?", graph, subjects)
+              // Hier kam ein Fehler 
+              //              persitenceActorRef ! SaveProcess(Option(id), "wo kommt der name her?", graph, subjects)
 
               complete("error not yet implemented")
             }

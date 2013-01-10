@@ -12,6 +12,7 @@ import akka.util.Timeout
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.model._
 
 object DynamicCreateProcessTest extends App {
 
@@ -53,9 +54,9 @@ object DynamicCreateProcessTest extends App {
     new SendState("sup.br1.br2", Array(Transition("Denial", "Employee", "The End"))),
     new EndState("The End"))
 
-  // add subjects
+  // add subjects TODO
   println("add employesubject")
-  processManager ! AddSubject(userID, processID, employeeName)
+//  processManager ! AddSubject(userID, processID, employeeName)
 
   // add behaviorStates
   println("add behaviorStates")

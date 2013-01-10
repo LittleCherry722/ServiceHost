@@ -1,6 +1,7 @@
 package de.tkip.sbpm.application.miscellaneous
 
 import ProcessAttributes._
+import de.tkip.sbpm.model.Transition
 
 sealed trait AddStateMessage
 
