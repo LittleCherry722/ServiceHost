@@ -1,7 +1,8 @@
 package de.tkip.sbpm.persistence
-import akka.actor.Actor
-import akka.actor.Props
+
 import scala.slick.lifted
+
+import akka.actor.Actor
 
 /*
 * Messages for querying database
@@ -19,19 +20,15 @@ case class SaveGraph(id: Option[Int] = None, graph: String, date: java.sql.Times
 // delete graph with id from db (nothing is returned)
 case class DeleteGraph(id: Int) extends GraphAction
 
-package model {
-  // represents a graph in the db
-  case class Graph(id: Option[Int], graph: String, date: java.sql.Timestamp, processId: Int)
-}
 
 /**
  * Handles all database operations for table "process_graphs".
  */
 private[persistence] class GraphPersistenceActor extends Actor with DatabaseAccess {
-  import model._
-  // import driver loaded according to akka config
+
   import driver.simple._
   import DBType._
+  import de.tkip.sbpm.model._
 
   // represents the "process_graphs" table in the database
   object Graphs extends Table[Graph]("process_graphs") {

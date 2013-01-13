@@ -18,20 +18,15 @@ case class SaveRelation(userId: Int, groupId: Int, responsibleId: Int, processId
 // delete relation from db (nothing is returned)
 case class DeleteRelation(userId: Int, groupId: Int, responsibleId: Int, processId: Int) extends RelationAction
 
-package model {
-  // represents a relation in the db
-  case class Relation(userId: Int, groupId: Int, responsibleId: Int, processId: Int)
-}
-
 /**
  * Handles all database operations for table "relation".
  */
 private[persistence] class RelationPersistenceActor extends Actor with DatabaseAccess {
-  import model._
-  // import driver loaded according to akka config
+
   import driver.simple._
   import DBType._
-
+  import de.tkip.sbpm.model._
+  
   // represents the "relation" table in the database
   object Relations extends Table[Relation]("relation") {
     def userId = column[Int]("userID")

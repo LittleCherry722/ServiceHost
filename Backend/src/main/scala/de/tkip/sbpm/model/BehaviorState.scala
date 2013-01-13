@@ -79,7 +79,6 @@ case class ActState(id: StateID, action: StateAction, transitions: Array[Transit
       for (t <- transitions) if (t.messageType.equals(input)) return true
       false
     }
-    
     return transitionsMap(ExitCond(input, "Do"))
   }
 

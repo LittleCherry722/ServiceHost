@@ -19,6 +19,6 @@ object ProcessAttributes {
   type ProcessManagerRef = ActorRef
   type ProcessInstanceRef = ActorRef
   type SubjectRef = ActorRef
-  type ProcessInterfaceRef = ActorRef
+  type InterfaceRef = ActorRef
 
 }

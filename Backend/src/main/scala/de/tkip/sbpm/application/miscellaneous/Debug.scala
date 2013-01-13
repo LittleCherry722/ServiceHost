@@ -1,3 +1,7 @@
 package de.tkip.sbpm.application.miscellaneous
 
-trait Debug
+//This trait indicates a debug message 
+trait Debug {
+  
+
+}

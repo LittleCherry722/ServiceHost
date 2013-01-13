@@ -19,20 +19,15 @@ case class SaveRole(id: Option[Int], name: String, isActive: Boolean = true) ext
 // delete role with id from db
 case class DeleteRole(id: Int) extends RoleAction
 
-package model {
-  // represents a role in the db
-  case class Role(id: Option[Int], name: String, isActive: Boolean = true)
-}
-
 /**
  * Handles all database operations for table "roles".
  */
 private[persistence] class RolePersistenceActor extends Actor with DatabaseAccess {
-  import model._
   // import driver loaded according to akka config
   import driver.simple._
   import DBType._
-
+  import de.tkip.sbpm.model._
+  
   // represents the "roles" table in the database
   object Roles extends Table[Role]("roles") {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)

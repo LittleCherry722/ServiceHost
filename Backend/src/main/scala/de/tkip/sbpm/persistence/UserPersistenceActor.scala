@@ -2,6 +2,8 @@ package de.tkip.sbpm.persistence
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
+import de.tkip.sbpm.model.User
+import akka.event.Logging
 
 /*
 * Messages for querying database
@@ -15,23 +17,29 @@ sealed abstract class UserAction extends PersistenceAction
 */
 case class GetUser(id: Option[Int] = None) extends UserAction
 // save user to db, if id is None a new process is created and its id is returned
-case class SaveUser(id: Option[Int] = None, name: String, isActive: Boolean = true, inputPoolSize: Int = 8) extends UserAction
+case class SaveUser(user: User) extends UserAction
 // delete user with id from db
 case class DeleteUser(id: Int) extends UserAction
 
-package model {
-// represents a user in the db
-  case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8)
-}
 
 /**
  * Handles all database operations for table "users".
  */
 private[persistence] class UserPersistenceActor extends Actor with DatabaseAccess {
-	import model._
-	// import driver loaded according to akka config
+
+  val logger = Logging(context.system, this)
+  
+  override def preStart() {
+    logger.debug(context.self + " starts.")
+  }
+
+  override def postStop() {
+    logger.debug(context.self + " stops.")
+  }
+  
   import driver.simple._
   import DBType._
+  import de.tkip.sbpm.model._
   
   // represents the "users" table in the database
   object Users extends Table[User]("users") {
@@ -51,11 +59,12 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       // get user with given id
       case GetUser(id) => sender ! Users.where(_.id === id).firstOption
       // create new user
-      case SaveUser(None, name, isActive, inputPoolSize) => 
-        sender ! Users.autoInc.insert(User(None, name, isActive, inputPoolSize)) 
+      case SaveUser(User(None, name, isActive, inputPoolSize)) => 
+        //sender ! Users.autoInc.insert(User(None, name, isActive, inputPoolSize))
+        sender ! 1 
       // save existing user
-      case SaveUser(id, name, isActive, inputPoolSize) =>
-        Users.where(_.id === id).update(User(id, name, isActive, inputPoolSize))
+      case SaveUser(User(id, name, isActive, inputPoolSize)) =>
+        sender ! Users.where(_.id === id).update(User(id, name, isActive, inputPoolSize))
       // delete user with given id
       case DeleteUser(id) => Users.where(_.id === id).delete(session)
       // execute DDL for table "users"
