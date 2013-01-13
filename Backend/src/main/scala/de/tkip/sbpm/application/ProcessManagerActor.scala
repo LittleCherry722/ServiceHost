@@ -4,6 +4,7 @@ import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessModel
+import de.tkip.sbpm.persistence._
 
 /**
  * manages all processes and creates new ProcessInstance's on demand
@@ -18,7 +19,21 @@ class ProcessManagerActor(private val name: String) extends Actor {
   // used to map answermessages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
 
+   // initialize persistence actors
+  private lazy val testPersistenceActor = context.actorOf(Props[TestPersistenceActor], "testPersistenceActor")
+  private lazy val persistenceActor = context.actorOf(Props[PersistenceActor], "persistenceActor") 
+  
   def receive = {
+    
+    // persistence router - in case the debug flag is set, forward the message to
+    // test persistence actor
+    case pa: PersistenceAction => 
+      if (pa.isInstanceOf[Debug]) {
+        forwardToTestPersistenceActor(pa)
+      } else {
+        forwardToPersistenceActor(pa)
+      }
+    
     case as: AddSubject =>
       forwardControlMessageToProcess(as.processID, as)
 
@@ -41,6 +56,15 @@ class ProcessManagerActor(private val name: String) extends Actor {
 
   }
 
+  // forward persistence messages to persistenceActors
+  private def forwardToTestPersistenceActor(pa: PersistenceAction) {
+    testPersistenceActor.forward(pa)
+  }
+    
+  private def forwardToPersistenceActor(pa: PersistenceAction) {
+    persistenceActor.forward(pa)
+  }
+  
   // forward control message to processInstance with a given processID
   private def forwardControlMessageToProcess(processID: ProcessID,
     controlMessage: ControlMessage) {
