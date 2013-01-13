@@ -11,10 +11,6 @@ define([
 	var ViewModel = function() {
 
 		this.currentProcess = currentProcess;
-
-window.test = currentProcess;
-
-
 		var self = this;
 
 		self.name = "routingView";
@@ -53,12 +49,21 @@ window.test = currentProcess;
 		}
 
 		self.save = function() {
+		console.log(self.routings());
 			var preSave = {
 				routings : ko.mapping.toJS(self.routings())
 			};
 			return preSave;
 
 		}
+
+//Save
+self.bla = function() {
+currentProcess().graph().routings(["ddd","ddff"]);
+console.log(currentProcess().graph().routings());
+};
+
+self.bla();		
 
 		var Routing = function(subject1Value, is1Value, groupUser1Value, groupUser1ListValue, subject2Value, is2Value, groupUser2Value, groupUser2ListValue) {
 			var self = this;
