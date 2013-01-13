@@ -1,10 +1,21 @@
 package de.tkip.sbpm.application
 
 import akka.actor._
-import miscellaneous._
 import miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
+import java.util.Date
+import de.tkip.sbpm.application.miscellaneous.End
+import de.tkip.sbpm.application.miscellaneous.SubjectMessage
+import de.tkip.sbpm.application.miscellaneous.ExecuteRequest
+import de.tkip.sbpm.application.miscellaneous.ProcessBehaviour
+
+// sub package for history related classes
+package history {
+  // message to report a transition in the internal behavior
+  // to the corresponding subject actor
+  case class Transition(from: State, to: State, message: Message)
+}
 
 /**
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
@@ -43,6 +54,10 @@ class SubjectActor(processInstanceRef: ProcessInstanceRef,
     //      context.stop(self)
 
     case b: BehaviourState => internalBehaviourActor ! b
+    
+    // forward history entries from internal behavior up to instance actor
+    case history.Transition(from, to, msg) => 
+      context.parent ! history.Entry(new Date(), subjectName, from, to, msg)
   }
 
   def parseState(state: State) =

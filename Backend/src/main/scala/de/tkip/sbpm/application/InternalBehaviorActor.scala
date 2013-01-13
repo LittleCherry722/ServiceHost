@@ -40,6 +40,7 @@ class InternalBehaviorActor extends Actor {
           subjectName,
           subjectProviderName,
           inputPool)
+      // TODO log state change in history by sending history.Transition message to parent SubjectActor
     }
   }
 } // class InternalBehaviour
