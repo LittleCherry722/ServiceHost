@@ -24,7 +24,7 @@ import de.tkip.sbpm.persistence.GetProcess
  */
 // TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
-                            val persitenceActorRef: PersistenceActorRef) extends Actor with HttpService {
+                            val persistenceActorRef: PersistenceActorRef) extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
 
@@ -71,7 +71,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
             
             Musste auskommentiert werden, da GetProcess nicht gefunden werden konnte.
              
-            val future = persitenceActorRef ? GetProcess
+            val future = persistenceActorRef ? GetProcess
             val result = Await.result(future, timeout.duration)
 			
 			*/
@@ -85,7 +85,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
           parameters("id", "userid") { (id, userid) =>
             implicit val timeout = Timeout(5 seconds)
             // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-            val future = persitenceActorRef ? GetProcess(Option(id.asInstanceOf[Int]))
+            val future = persistenceActorRef ? GetProcess(Option(id.asInstanceOf[Int]))
             val result = Await.result(future, timeout.duration)
 
             complete("result")
@@ -117,7 +117,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
             parameters("graph", "subjects", "userid") { (graph, subjects, userid) =>
               // TODO update process
               // Hier kam ein Fehler 
-              //              persitenceActorRef ! SaveProcess(Option(id), "wo kommt der name her?", graph, subjects)
+              //              persistenceActorRef ! SaveProcess(Option(id), "wo kommt der name her?", graph, subjects)
 
               complete("error not yet implemented")
             }
@@ -131,7 +131,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
          */
         path(IntNumber) { id =>
           parameters("name", "userid") { (name, userid) =>
-            persitenceActorRef ! DeleteProcess(name.asInstanceOf[Int])
+            persistenceActorRef ! DeleteProcess(name.asInstanceOf[Int])
 
             complete("error not yet implemented")
 

@@ -1,6 +1,6 @@
 package de.tkip.sbpm.rest
 
-import java.util.concurrent.Future
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.actor._
 import akka.event.Logging
@@ -53,7 +53,7 @@ class UserInterfaceActor extends Actor with HttpService {
    *
    */
   def receive = runRoute({
-    parameters("userid") { (userId: String) =>
+    formFields("data") { (data: String) =>
       get {
         /**
          * get a list of all user
@@ -80,23 +80,24 @@ class UserInterfaceActor extends Actor with HttpService {
            * e.g. PUT http://localhost:8080/user
            */
           path("") {
-            parameters("user") { users: String =>
-              
-              val userArray = users.asJson.convertTo[Array[User]]
+        	// unmarshalling of an user (as json) into an object with spray and the defined JsonProtocol
+            val json = data.asJson
+            val user = json.convertTo[User]
 
-              implicit val timeout = Timeout(5 seconds)
-              val actor = context.actorFor("UserPersistenceActor")
-              
-              val f: Future[Int] =
-                for{
-                  user <- userArray
-                  x = actor ? SaveUser(user)
-                } yield x
+            implicit val timeout = Timeout(5 seconds)
+            val actor = context.actorFor("/user/PersistenceActor/user")
 
-              f pipeTo actor 
+            val future = (actor ? SaveUser(user)).mapTo[Int]
+
+            val ack = Await.result(future, timeout.duration)
+            
+            var status = "ok"
               
-              complete(new Envelope(None, "ok"))
-            }
+            if (ack == 0) // means nothing inserted/updated
+              status = "error"
+
+            complete(new Envelope(None, status))
+
           }
         } ~
         delete {

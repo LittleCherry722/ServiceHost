@@ -19,7 +19,7 @@ object Entity {
   // TODO define more entities if you need them  
 }
 class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef, 
-    val persitenceActorRef: PersistenceActorRef)extends Actor with HttpService {
+    val persistenceActorRef: PersistenceActorRef)extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
   override def preStart() {
@@ -36,7 +36,7 @@ class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProvider
      * e.g. GET http://localhost:8080/process/8
      */
     pathPrefix(Entity.PROCESS) { requestContext =>
-      	context.actorOf(Props(new ProcessInterfaceActor(subjectProviderManagerActorRef, persitenceActorRef))) ! requestContext
+      	context.actorOf(Props(new ProcessInterfaceActor(subjectProviderManagerActorRef, persistenceActorRef))) ! requestContext
     } ~
     /**
      * redirect all calls beginning with "execution" to ProcessInterfaceActor

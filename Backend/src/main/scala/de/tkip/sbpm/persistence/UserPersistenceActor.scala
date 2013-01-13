@@ -3,6 +3,7 @@ import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model.User
+import akka.event.Logging
 
 /*
 * Messages for querying database
@@ -26,6 +27,16 @@ case class DeleteUser(id: Int) extends UserAction
  */
 private[persistence] class UserPersistenceActor extends Actor with DatabaseAccess {
 
+  val logger = Logging(context.system, this)
+  
+  override def preStart() {
+    logger.debug(context.self + " starts.")
+  }
+
+  override def postStop() {
+    logger.debug(context.self + " stops.")
+  }
+  
   import driver.simple._
   import DBType._
   import de.tkip.sbpm.model._
@@ -49,7 +60,8 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       case GetUser(id) => sender ! Users.where(_.id === id).firstOption
       // create new user
       case SaveUser(User(None, name, isActive, inputPoolSize)) => 
-        sender ! Users.autoInc.insert(User(None, name, isActive, inputPoolSize)) 
+        //sender ! Users.autoInc.insert(User(None, name, isActive, inputPoolSize))
+        sender ! 1 
       // save existing user
       case SaveUser(User(id, name, isActive, inputPoolSize)) =>
         sender ! Users.where(_.id === id).update(User(id, name, isActive, inputPoolSize))

@@ -36,11 +36,12 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   def actorRefFactory = context
 
   def receive = runRoute({
-    parameters("userid") { (userId: String) =>
+    formField("userid") { userId =>
+
       get {
         //READ
         path(IntNumber) { processID =>
-          parameters("subject") { (subject) =>
+          formField("subject") { (subject) =>
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             complete("excute not yet implemented (in ProcessManagerActor)")
           }
@@ -63,20 +64,21 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         put {
           //CREATE
           path("") {
-            parameters("processId") { (processId: String) =>
+            formField("processId") { (processId) =>
               implicit val timeout = Timeout(5 seconds)
-              val future = context.actorFor("SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
               
-          	  val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].instanceID;
-           
+              val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
+
+              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].instanceID;
+
               complete(
-                  new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok")
-              )
+                  //marshalling
+                new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok"))
             }
           } ~
             //UPDATE
             path(IntNumber) { processID =>
-              parameters("actionID") { (actionID) =>
+              formField("actionID") { (actionID) =>
                 //execute next step (chosen by actionID)
                 complete("error not yet implemented")
               }
@@ -84,7 +86,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         }
 
     }
-
   })
 
 }
