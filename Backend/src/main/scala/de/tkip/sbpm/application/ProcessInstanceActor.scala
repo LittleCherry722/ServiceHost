@@ -70,7 +70,8 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
     case pr: ExecuteRequest =>
       println("execute")
       subjectMap.values.map(_ ! pr) // TODO: send to all subjects?
-
+      pr.sender ! id // answer to original sender
+      
     case asts: AddState =>
       if (subjectMap.contains(asts.subjectName))
         subjectMap(asts.subjectName) ! asts.behaviourState

@@ -2,7 +2,7 @@ package de.tkip.sbpm.persistence
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
-
+import de.tkip.sbpm.model._
 /*
 * Messages for querying database
 * all message classes that inherit GroupAction
@@ -19,13 +19,8 @@ case class SaveGroup(id: Option[Int], name: String, isActive: Boolean = true) ex
 // delete group with id from db (nothing is returned)
 case class DeleteGroup(id: Int) extends GroupAction
 
-package model {
-  // represents a group in the db
-  case class Group(id: Option[Int], name: String, isActive: Boolean = true)
-}
-
 private[persistence] class GroupPersistenceActor extends Actor with DatabaseAccess {
-  import model._
+  import de.tkip.sbpm.model._
   // import driver loaded according to akka config
   import driver.simple._
   import DBType._

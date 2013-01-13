@@ -16,13 +16,8 @@ case class SaveGroupUser(groupId: Int, userId: Int, isActive: Boolean = true) ex
 // delete group -> user mapping from db
 case class DeleteGroupUser(groupId: Int, userId: Int) extends GroupUserAction
 
-package model {
-  // represents a user in the db
-  case class GroupUser(groupId: Int, userId: Int, isActive: Boolean = true)
-}
-
 private[persistence] class GroupUserPersistenceActor extends Actor with DatabaseAccess {
-  import model._
+  import de.tkip.sbpm.model._
   // import driver loaded according to akka config
   import driver.simple._
 

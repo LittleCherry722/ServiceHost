@@ -16,18 +16,13 @@ case class SaveGroupRole(groupId: Int, roleId: Int, isActive: Boolean = true) ex
 // delete group -> role mapping from db
 case class DeleteGroupRole(groupId: Int, roleId: Int) extends GroupRoleAction
 
-package model {
-  // represents a group -> role mapping in the db
-  case class GroupRole(groupId: Int, roleId: Int, isActive: Boolean = true)
-}
-
 /**
  * Handles all DB operations for table "group_x_roles".
  */
 private[persistence] class GroupRolePersistenceActor extends Actor with DatabaseAccess {
-  import model._
-  // import driver loaded according to akka config
+
   import driver.simple._
+  import de.tkip.sbpm.model._
 
   // represents the "group_x_roles" table in the database
   object GroupRoles extends Table[GroupRole]("group_x_roles") {

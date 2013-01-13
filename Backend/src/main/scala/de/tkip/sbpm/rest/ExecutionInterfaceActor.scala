@@ -1,11 +1,21 @@
 package de.tkip.sbpm.rest
 
+import scala.concurrent.duration._
 import akka.actor.Actor
-import spray.routing._
-import spray.http._
-import MediaTypes._
-import spray.http.HttpRequest
 import akka.event.Logging
+import akka.pattern.ask
+import akka.util.Timeout
+import de.tkip.sbpm.application.miscellaneous.ExecuteRequest
+import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
+import spray.http.MediaTypes._
+import spray.routing._
+import scala.concurrent.Await
+import de.tkip.sbpm.model._
+import spray.json.JsObject
+import spray.json.JsNumber
+import de.tkip.sbpm.rest.JsonProtocol._
+import spray.httpx.SprayJsonSupport._
+import spray.json.JsValue
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -26,32 +36,56 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   def actorRefFactory = context
 
   def receive = runRoute({
-    put {
-      path(IntNumber) { id =>
-        parameters("userid") { (userid) =>
-          //execute Process(in ProcessManagerActor)
-          complete("excute not yet implemented (in ProcessManagerActor)")
+    parameters("userid") { (userId: String) =>
+      get {
+        //READ
+        path(IntNumber) { processID =>
+          parameters("subject") { (subject) =>
+            //return all information for a given process (graph, next actions (unique ID per available action), history)
+            complete("excute not yet implemented (in ProcessManagerActor)")
+          }
+        } ~
+          //LIST
+          path("") {
+            //List all executed process (for a given user)
+            complete("no.")
+
+          }
+
+      } ~
+        delete {
+          //DELETE
+          path(IntNumber) { processID =>
+            //stop and delete given process
+            complete("error not yet implemented")
+          }
+        } ~
+        put {
+          //CREATE
+          path("") {
+            parameters("processId") { (processId: String) =>
+              implicit val timeout = Timeout(5 seconds)
+              val future = context.actorFor("SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
+              
+          	  val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].instanceID;
+           
+              complete(
+                  new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok")
+              )
+            }
+          } ~
+            //UPDATE
+            path(IntNumber) { processID =>
+              parameters("actionID") { (actionID) =>
+                //execute next step (chosen by actionID)
+                complete("error not yet implemented")
+              }
+            }
         }
-      }
-    }~
-    // returns Current Options
-    get {
-     path(IntNumber) { id =>
-        parameters("userid", "subject") { (userid, subject) =>
-          //current Options in ProcessActor
-          complete("current Options not yet implemented (in ProcessActor)")
-        }
-      }
-    }~  
-    post {
-     path(IntNumber) { id =>
-        parameters("command", "userid") { (command, userid) =>
-          //choose Option in ProcessActor
-          complete("error not yet implemented")
-        }
-      }
+
     }
 
   })
 
 }
+

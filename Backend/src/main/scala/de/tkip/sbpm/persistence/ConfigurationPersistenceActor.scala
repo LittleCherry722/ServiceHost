@@ -19,19 +19,15 @@ case class SaveConfiguration(key: String, label: String, value: String, dataType
 // delete config with given key from db (nothing is returned)
 case class DeleteConfiguration(key: String) extends ConfigurationAction
 
-package model {
-  // represents a config entity in the db
-  case class Configuration(key: String, label: String, value: String, dataType: String = "String")
-}
 
 /**
  * Handles all database oparations for database table "configuration".
  */
 private[persistence] class ConfigurationPersistenceActor extends Actor with DatabaseAccess {
-  import model._
-  // import driver loaded according to akka config
+
   import driver.simple._
   import DBType._
+  import de.tkip.sbpm.model._
 
   // represents the "configuration" table in the database
   object Configurations extends Table[Configuration]("configuration") {
