@@ -61,7 +61,7 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
       // delete process with given id
       case DeleteProcess(id) => Processes.where(_.id === id).delete(session)
       // execute DDL for "process" table
-      case InitDatabase() => Processes.ddl.create(session)
+      case InitDatabase => Processes.ddl.create(session)
     }
   }
 

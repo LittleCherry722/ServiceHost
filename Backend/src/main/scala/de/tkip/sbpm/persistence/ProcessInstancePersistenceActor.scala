@@ -60,7 +60,7 @@ private[persistence] class ProcessInstancePersistenceActor extends Actor with Da
       // delete process instance with given id
       case DeleteProcessInstance(id) => ProcessInstances.where(_.id === id).delete(session)
       // execute DDL for creating "process_instance" table
-      case InitDatabase() => ProcessInstances.ddl.create(session)
+      case InitDatabase => ProcessInstances.ddl.create(session)
     }
   }
 

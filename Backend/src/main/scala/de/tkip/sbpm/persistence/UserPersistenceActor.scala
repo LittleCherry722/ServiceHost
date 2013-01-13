@@ -59,7 +59,7 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       // delete user with given id
       case DeleteUser(id) => Users.where(_.id === id).delete(session)
       // execute DDL for table "users"
-      case InitDatabase() => Users.ddl.create(session)
+      case InitDatabase => Users.ddl.create(session)
     }
   }
 

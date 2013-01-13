@@ -48,7 +48,7 @@ private[persistence] class GroupRolePersistenceActor extends Actor with Database
       // delete group -> role mapping
       case DeleteGroupRole(groupId, roleId) => delete(groupId, roleId)
       // execute DDL to create "group_x_roles" table
-      case InitDatabase() => GroupRoles.ddl.create(session)
+      case InitDatabase => GroupRoles.ddl.create(session)
     }
   }
 

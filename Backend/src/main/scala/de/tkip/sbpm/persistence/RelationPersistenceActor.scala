@@ -54,7 +54,7 @@ private[persistence] class RelationPersistenceActor extends Actor with DatabaseA
       case DeleteRelation(userId, groupId, responsibleId, processId) =>
         delete(userId, groupId, responsibleId, processId)
       // execute DDL for "relation" table
-      case InitDatabase() => Relations.ddl.create(session)
+      case InitDatabase => Relations.ddl.create(session)
     }
   }
 

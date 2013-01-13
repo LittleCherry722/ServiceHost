@@ -58,7 +58,7 @@ private[persistence] class RolePersistenceActor extends Actor with DatabaseAcces
       // delete role with given id
       case DeleteRole(id) => Roles.where(_.id === id).delete(session)
       // execute DDL for "roles" table
-      case InitDatabase() => Roles.ddl.create(session)
+      case InitDatabase => Roles.ddl.create(session)
     }
   }
 

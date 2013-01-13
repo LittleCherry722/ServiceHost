@@ -10,7 +10,7 @@ abstract class PersistenceAction
 // message to create database tables
 // this message is redirected to all sub actors
 // to execute the DDL commands to create their tables
-case class InitDatabase()
+case object InitDatabase
 
 /**
  * Handles all DB operations using slick (http://slick.typesafe.com/).
@@ -44,13 +44,13 @@ class PersistenceActor extends Actor with ActorLogging {
     case m: RelationAction => relationActor.forward(m)
     case m: ConfigurationAction => configurationActor.forward(m)
     // msg to initialize database
-    case InitDatabase() => init()
+    case InitDatabase => init()
   }
   
   private def init() {
     // send init message to all sub actors
     // each sub actor creates its tables on its own
-    val msg = InitDatabase()
+    val msg = InitDatabase
     processActor ! msg
     graphActor ! msg
     userActor ! msg

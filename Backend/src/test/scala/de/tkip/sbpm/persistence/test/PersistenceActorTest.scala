@@ -282,6 +282,6 @@ object PersistenceActorTest {
   
   @BeforeClass
   def init() {
-    actor ! InitDatabase()
+    actor ! InitDatabase
   }
 }

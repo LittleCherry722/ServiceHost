@@ -59,7 +59,7 @@ private[persistence] class GraphPersistenceActor extends Actor with DatabaseAcce
       // delete graph with given id
       case DeleteGraph(id) => Graphs.where(_.id === id).delete(session)
       // execute DDL to create "process_graphs" table
-      case InitDatabase() => Graphs.ddl.create(session)
+      case InitDatabase => Graphs.ddl.create(session)
     }
   }
 

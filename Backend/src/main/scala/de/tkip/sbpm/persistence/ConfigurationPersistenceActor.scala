@@ -55,7 +55,7 @@ private[persistence] class ConfigurationPersistenceActor extends Actor with Data
       // delete config with given key
       case DeleteConfiguration(key) => delete(key)
       // execute DDL for "configuration" table
-      case InitDatabase() => Configurations.ddl.create(session)
+      case InitDatabase => Configurations.ddl.create(session)
     }
   }
   
