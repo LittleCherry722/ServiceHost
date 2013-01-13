@@ -1,13 +1,12 @@
 define([
 	"knockout",
+	"knockout.mapping",
 	"app",
 	"underscore",
 	"models/user",
 	"models/group"
-], function( ko, App, _, User, Group ) {
-
-
-
+], function( ko,komapping, App, _, User, Group ) {
+	
 	var ViewModel = function() {
 
 		this.currentProcess = currentProcess;
@@ -21,49 +20,45 @@ define([
 		//Content dropdown
 		self.subject = ko.observableArray(gf_getSubjectIDs());
 
-		// TODO Subscribe to "/tk_graph/subjects" and trigger this function
+		// TODO Add Subjects to model
 		self.populateSubject = function() {
 			self.subject(gf_getSubjectIDs())
 		};
+
+		$.subscribeOnce("tk_graph/subjects", self.populateSubject());
 
 		self.is = ko.observableArray(["is", "is not"]);
 		self.groupUser = ko.observableArray(["in group", "user"]);
 
 		self.init = function() {
-			self.populateSubject();
+			self.load();
 			console.log("RoutingViewModel: initialized.");
 		}
 
-		self.load = function(graph) {
-			self.populateSubject();
+		self.load = function() {
+			console.log("load")
 			self.routings([]);
+			console.log(currentProcess().graph().routings());
 			//if routings exist
-			if (graph.routings) {
+			//if (currentProcess().graph().routings()) {
 				//add new Routings to routings
-				for (var i in graph.routings) {
-					z = graph.routings[i];
+				for (var i in currentProcess().graph().routings()) {
+					z = currentProcess().graph().routings()[i];
+					console.log(z);
 					y = new Routing(z.subject1Value, z.is1Value, z.groupUser1Value, z.groupUser1ListValue, z.subject2Value, z.is2Value, z.groupUser2Value, z.groupUser2ListValue);
 					self.routings.push(y);
 				}
-			}
+			//}
+		}
+		//Save
+		var mapping = {
+			'ignore' : ["groupUser1", "groupUser2"]
 		}
 
-		self.save = function() {
-		console.log(self.routings());
-			var preSave = {
-				routings : ko.mapping.toJS(self.routings())
-			};
-			return preSave;
-
-		}
-
-//Save
-self.bla = function() {
-currentProcess().graph().routings(["ddd","ddff"]);
-console.log(currentProcess().graph().routings());
-};
-
-self.bla();		
+		self.routings.subscribe(function() {
+			currentProcess().graph().routings(komapping.toJS(self.routings(), mapping));
+			//console.log(currentProcess().graph().routings());
+		});
 
 		var Routing = function(subject1Value, is1Value, groupUser1Value, groupUser1ListValue, subject2Value, is2Value, groupUser2Value, groupUser2ListValue) {
 			var self = this;
@@ -117,8 +112,8 @@ self.bla();
 		self.removeRouting = function(element) {
 			self.routings.remove(element);
 		}
+	}; 
 
-	};
 
 
 
@@ -145,7 +140,7 @@ window.test = currentProcess;
 		}
 
 		viewModel = new ViewModel();
-
+		viewModel.init();
 		window.viewModel = viewModel;
 
 		App.loadTemplate( "process/routing", viewModel, null, function() {
