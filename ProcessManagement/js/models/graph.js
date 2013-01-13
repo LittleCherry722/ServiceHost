@@ -35,8 +35,14 @@ define([
 		initialize: function() {
 			var self = this;
 
-			Graph.lazyComputed( this, 'graphObject', function() {
-				return $.parseJSON( self.graphString() )
+			Graph.lazyComputed( this, 'graphObject', {
+				read: function() {
+					return $.parseJSON( self.graphString() );
+				},
+				write: function( graphObject ) {
+					var graphString = JSON.stringify( graphObject );
+					self.graphString( graphString );
+				}
 			});
 
 			Graph.lazyComputed( this, 'subjects', function() {
@@ -71,7 +77,9 @@ define([
 					if ( !routings ) {
 						routings = [];
 					}
-					self.graphObject().routings = routings;
+					var graphObject = self.graphObject();
+					graphObject.routings = routings;
+					self.graphObject( graphObject );
 				}
 			});
 		}
