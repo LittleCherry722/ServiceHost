@@ -30,56 +30,58 @@ define([
 	Graph.include({
 		beforeSave: function() {
 			this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
-		}
-	});
-
-	Graph.computedAttrs({
-		graphObject: {
-			read: function() {
-				return $.parseJSON( this.graphString() )
-			},
-			lazy: true
 		},
-		subjects: {
-			read: function() {
+
+		initialize: function() {
+			var self = this;
+
+			Graph.lazyComputed( this, 'graphObject', {
+				read: function() {
+					return $.parseJSON( self.graphString() );
+				},
+				write: function( graphObject ) {
+					var graphString = JSON.stringify( graphObject );
+					self.graphString( graphString );
+				}
+			});
+
+			Graph.lazyComputed( this, 'subjects', function() {
 				var subjects = {};
 
-				_( this.graphObject().process ).each(function( element ) {
+				_( self.graphObject().process ).each(function( element ) {
 					subjects[ element['id'] ] = element['name'];
 				});
 
 				return subjects;
-			},
-			lazy: true
-		},
-		subjectIDs: {
-			read: function() {
+			});
+
+			Graph.lazyComputed( this, 'subjectIDs', function() {
 				var subjects = [];
 
-				_( this.graphObject().process ).each(function( element ) {
+				_( self.graphObject().process ).each(function( element ) {
 					subjects.push( element['id'] );
 				});
 
 				return subjects;
-			},
-			lazy: true
-		},
-		routings: {
-			read: function() {
-				if ( this.graphObject().routings ) {
-					return this.graphObject().routings;
-				} else {
-					return [];
+			});
+
+			Graph.lazyComputed( this, "routings", {
+				read: function() {
+					if ( self.graphObject().routings ) {
+						return self.graphObject().routings;
+					} else {
+						return [];
+					}
+				},
+				write: function( routings ) {
+					if ( !routings ) {
+						routings = [];
+					}
+					var graphObject = self.graphObject();
+					graphObject.routings = routings;
+					self.graphObject( graphObject );
 				}
-			},
-			write: function( routigns ) {
-				if ( !routings ) {
-					routings = [];
-				}
-				this.graphObject().routings = routings;
-			},
-			lazy: true
-		}
+			});		}
 	});
 
 	return Graph;
