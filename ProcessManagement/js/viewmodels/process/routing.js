@@ -34,25 +34,45 @@ define([
 			self.load();
 			console.log("RoutingViewModel: initialized.");
 		}
-
+self.klo = new Array();
 		self.load = function() {
 			console.log("load")
+			var newRoutings = ko.observableArray([]);
 			self.routings([]);
-			console.log(currentProcess().graph().routings());
+			currentProcess().graph().routings([{"groupUser1ListValue" : 1, "is1Value" : "is not"},{"groupUser1ListValue" : 2}]);
+			//console.log(currentProcess().graph().routings());
 			//if routings exist
 			//if (currentProcess().graph().routings()) {
 				//add new Routings to routings
 				for (var i in currentProcess().graph().routings()) {
+					console.log(currentProcess().graph().routings());
+					console.log("i");
+					console.log(i);
 					z = currentProcess().graph().routings()[i];
+					console.log(currentProcess().graph().routings());
+					console.log("z");
 					console.log(z);
+					console.log(z.groupUser1ListValue);
 					y = new Routing(z.subject1Value, z.is1Value, z.groupUser1Value, z.groupUser1ListValue, z.subject2Value, z.is2Value, z.groupUser2Value, z.groupUser2ListValue);
-					self.routings.push(y);
+					console.log("y");
+					console.log(y.groupUser1ListValue());
+					console.log(y);
+					console.log(newRoutings());
+					newRoutings().push(y);
+					console.log("in newRoutings")
+					console.log(newRoutings()[i].groupUser1Value());
+					console.log(newRoutings());
+					console.log("loop")
 				}
+				self.routings(newRoutings());
+				console.log(newRoutings());
+				console.log(self.routings());
 			//}
 		}
 		//Save
 		var mapping = {
 			'ignore' : ["groupUser1", "groupUser2"]
+			//,			'include' : ["subject1Value", "is1Value", "groupUser1Value", "groupUser1ListValue", "subject2Value", "is2Value", "groupUser2Value", "groupUser2ListValue"]
 		}
 
 		self.routings.subscribe(function() {
