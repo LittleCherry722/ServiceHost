@@ -43,7 +43,11 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
   private def forwardControlMessageToProvider(userID: UserID,
     controlMessage: ControlMessage) {
     if (subjectProviderMap.contains(userID)) {
-      subjectProviderMap(userID) ! controlMessage
+      
+      if(controlMessage.isInstanceOf[AnswerMessage])
+    	  controlMessage.asInstanceOf[AnswerMessage].sender = sender
+      
+    	  subjectProviderMap(userID) ! controlMessage
     }
   }
 

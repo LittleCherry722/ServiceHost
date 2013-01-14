@@ -1,6 +1,7 @@
 package de.tkip.sbpm.persistence
 
 import akka.actor.Actor
+import de.tkip.sbpm.model._
 import akka.actor.Props
 import scala.slick.lifted
 
@@ -18,20 +19,15 @@ case class SaveProcess(id: Option[Int] = None, name: String, graphId: Int, isPro
 // delete process with id from db (nothing is returned)
 case class DeleteProcess(id: Int) extends ProcessAction
 
-package model {
-  // represents a process in the db
-  case class Process(id: Option[Int], name: String, graphId: Int = -1, isProcess: Boolean = true, startSubjects: String = null)
-}
-
 /**
  * Handles database connection for "Process" entities using slick.
  */
 private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAccess {
-  import model._
-  // import driver loaded according to akka config
+
   import driver.simple._
   import DBType._
-
+  import de.tkip.sbpm.model._
+  
   // represents the "process" table in the database
   object Processes extends Table[Process]("process") {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
@@ -61,7 +57,7 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
       // delete process with given id
       case DeleteProcess(id) => Processes.where(_.id === id).delete(session)
       // execute DDL for "process" table
-      case InitDatabase() => Processes.ddl.create(session)
+      case InitDatabase => Processes.ddl.create(session)
     }
   }
 

@@ -8,11 +8,11 @@ import de.tkip.sbpm.model.BehaviourState
 
 sealed trait ControlMessage // For system control tasks
 trait AnswerMessage {
-  private var _sender: ProcessInterfaceRef = null
+  private var _sender: InterfaceRef = null
 
   def sender = _sender
 
-  def sender_=(sender: ProcessInterfaceRef) {
+  def sender_=(sender: InterfaceRef) {
     if (_sender == null) {
       _sender = sender
     }
@@ -29,7 +29,7 @@ case object End extends ControlMessage
 case class CreateSubjectProvider() extends ControlMessage
 case class CreateProcess(userID: UserID) extends ControlMessage with AnswerMessage // Tells the processManager to create a new process
 
-case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage
+case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
 case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourState) extends ControlMessage
 
 case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage
@@ -42,6 +42,7 @@ case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer:
 // answers
 case class ProcessCreated(cp: CreateProcess, processID: ProcessID) 
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID)
+case class ProcessInstanceCreated(er: ExecuteRequest, instanceID: ProcessInstanceID)
 
 //import de.tkip.sbpm.model.Subject
 case class AddSubject(userID: UserID, processID: ProcessID, subjectName: String) extends ControlMessage

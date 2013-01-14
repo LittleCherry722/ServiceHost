@@ -12,17 +12,17 @@ import akka.actor.ActorSystem
 import de.tkip.sbpm.persistence.PersistenceActor
 import akka.util.Timeout
 import de.tkip.sbpm.persistence._
-
+import de.tkip.sbpm.model._
 class PersistenceActorTest {
   
   import PersistenceActorTest._
-
+  import de.tkip.sbpm.model._
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
 
   @Test
   def configuration() {
-    type M = model.Configuration
+    type M = Configuration
     val id1 = "config1"
     val id2 = "config2"
     actor ! SaveConfiguration(id1, "Config 1", "xxx", "String")
@@ -49,7 +49,7 @@ class PersistenceActorTest {
 
   @Test
   def graph() {
-    type M = model.Graph
+    type M = Graph
 
     val idFuture1 = actor ? SaveGraph(None, "{}", DatabaseAccess.currentTimestamp, 1)
     val idFuture2 = actor ? SaveGraph(None, "{}", DatabaseAccess.currentTimestamp, 2)
@@ -77,7 +77,7 @@ class PersistenceActorTest {
 
   @Test
   def group() {
-    type M = model.Group
+    type M = Group
 
     val idFuture1 = actor ? SaveGroup(None, "Group 1")
     val idFuture2 = actor ? SaveGroup(None, "Group 2")
@@ -105,7 +105,7 @@ class PersistenceActorTest {
 
   @Test
   def groupRole() {
-    type M = model.GroupRole
+    type M = GroupRole
 
     actor ! SaveGroupRole(1, 2)
     actor ! SaveGroupRole(3, 4)
@@ -125,7 +125,7 @@ class PersistenceActorTest {
 
   @Test
   def groupUser() {
-    type M = model.GroupUser
+    type M = GroupUser
 
     actor ! SaveGroupUser(1, 2)
     actor ! SaveGroupUser(3, 4)
@@ -145,7 +145,7 @@ class PersistenceActorTest {
 
   @Test
   def message() {
-    type M = model.Message
+    type M = Message
     val time = DatabaseAccess.currentTimestamp
     time.setNanos(0)
     val idFuture1 = actor ? SaveMessage(None, 1, 2, 1, true, "Message 1", DatabaseAccess.currentTimestamp)
@@ -174,7 +174,7 @@ class PersistenceActorTest {
 
   @Test
   def processInstance() {
-    type M = model.ProcessInstance
+    type M = ProcessInstance
 
     val idFuture1 = actor ? SaveProcessInstance(None, 1, 2, "{}", "ProcessInstance 1")
     val idFuture2 = actor ? SaveProcessInstance(None, 3, 4, "{}", "ProcessInstance 2")
@@ -202,7 +202,7 @@ class PersistenceActorTest {
 
   @Test
   def relation() {
-    type M = model.Relation
+    type M = Relation
     actor ! SaveRelation(1, 2, 3, 4)
     actor ! SaveRelation(5, 6, 7, 8)
     val allFuture = actor ? GetRelation()
@@ -221,7 +221,7 @@ class PersistenceActorTest {
 
   @Test
   def role() {
-    type M = model.Role
+    type M = Role
 
     val idFuture1 = actor ? SaveRole(None, "Role 1")
     val idFuture2 = actor ? SaveRole(None, "Role 2")
@@ -249,10 +249,10 @@ class PersistenceActorTest {
 
   @Test
   def user() {
-    type M = model.User
+    type M = User
 
-    val idFuture1 = actor ? SaveUser(None, "User 1")
-    val idFuture2 = actor ? SaveUser(None, "User 2", true, 12)
+    val idFuture1 = actor ? SaveUser(User(None, "User 1"))
+    val idFuture2 = actor ? SaveUser(User(None, "User 2", true, 12))
     val id1 = Await.result(idFuture1.mapTo[Int], timeout.duration)
     val id2 = Await.result(idFuture2.mapTo[Int], timeout.duration)
     val allFuture = actor ? GetUser()
@@ -264,7 +264,7 @@ class PersistenceActorTest {
     assertEquals(Some(id1), one1.get.id)
     val one2 = Await.result(oneFuture2.mapTo[Option[M]], timeout.duration)
     assertEquals(12, one2.get.inputPoolSize)
-    actor ! SaveUser(Some(id2), "{}", false, 23)
+    actor ! SaveUser(User(Some(id2), "{}", false, 23))
     val oneFuture3 = actor ? GetUser(Some(id2))
     val one3 = Await.result(oneFuture3.mapTo[Option[M]], timeout.duration)
     assertEquals(23, one3.get.inputPoolSize)
@@ -282,6 +282,6 @@ object PersistenceActorTest {
   
   @BeforeClass
   def init() {
-    actor ! InitDatabase()
+    actor ! InitDatabase
   }
 }

@@ -2,6 +2,7 @@ package de.tkip.sbpm.persistence
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
+import de.tkip.sbpm.model._
 
 /*
 * Messages for querying database
@@ -19,20 +20,16 @@ case class SaveProcessInstance(id: Option[Int] = None, processId: Int, graphId: 
 // delete process instance with id from db
 case class DeleteProcessInstance(id: Int) extends ProcessInstanceAction
 
-package model {
-  // represents a process instance in the db
-  case class ProcessInstance(id: Option[Int], processId: Int, graphId: Int, involvedUsers: String, data: String)
-}
 
 /**
  * Handles all database operations for table "process_instance".
  */
 private[persistence] class ProcessInstancePersistenceActor extends Actor with DatabaseAccess {
-  import model._
-  // import driver loaded according to akka config
+
   import driver.simple._
   import DBType._
-
+  import de.tkip.sbpm.model._
+  
   // represents the "process_instance" table in the database
   object ProcessInstances extends Table[ProcessInstance]("process_instance") {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
@@ -60,7 +57,7 @@ private[persistence] class ProcessInstancePersistenceActor extends Actor with Da
       // delete process instance with given id
       case DeleteProcessInstance(id) => ProcessInstances.where(_.id === id).delete(session)
       // execute DDL for creating "process_instance" table
-      case InitDatabase() => ProcessInstances.ddl.create(session)
+      case InitDatabase => ProcessInstances.ddl.create(session)
     }
   }
 

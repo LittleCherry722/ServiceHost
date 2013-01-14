@@ -19,13 +19,9 @@ case class SaveMessage(id: Option[Int] = None, from: Int, to: Int, instanceId: I
 // delete message with id from db (nothing is returned)
 case class DeleteMessage(id: Int) extends MessageAction
 
-package model {
-  // represents a message in the db
-  case class Message(id: Option[Int], from: Int, to: Int, instanceId: Int, isRead: Boolean, data: String, date: java.sql.Timestamp)
-}
 
 private[persistence] class MessagePersistenceActor extends Actor with DatabaseAccess {
-  import model._
+  import de.tkip.sbpm.model._
   // import driver loaded according to akka config
   import driver.simple._
   import DBType._
@@ -59,7 +55,7 @@ private[persistence] class MessagePersistenceActor extends Actor with DatabaseAc
       // delete message with given id
       case DeleteMessage(id) => Messages.where(_.id === id).delete(session)
       // execute DDL for "messages" table
-      case InitDatabase() => Messages.ddl.create(session)
+      case InitDatabase => Messages.ddl.create(session)
     }
   }
 

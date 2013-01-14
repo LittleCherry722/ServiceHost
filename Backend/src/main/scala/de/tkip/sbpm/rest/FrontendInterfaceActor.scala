@@ -13,13 +13,13 @@ import spray.json._
 
 object Entity {
   val PROCESS = "process"
-  val	EXECUTION = "execution"
+  val	EXECUTION = "executed"
   val	USER = "user"
   val	ROLE = "role"
   // TODO define more entities if you need them  
 }
 class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef, 
-    val persitenceActorRef: PersistenceActorRef)extends Actor with HttpService {
+    val persistenceActorRef: PersistenceActorRef)extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
   override def preStart() {
@@ -36,7 +36,7 @@ class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProvider
      * e.g. GET http://localhost:8080/process/8
      */
     pathPrefix(Entity.PROCESS) { requestContext =>
-      	context.actorOf(Props(new ProcessInterfaceActor(subjectProviderManagerActorRef, persitenceActorRef))) ! requestContext
+      	context.actorOf(Props(new ProcessInterfaceActor(subjectProviderManagerActorRef, persistenceActorRef))) ! requestContext
     } ~
     /**
      * redirect all calls beginning with "execution" to ProcessInterfaceActor
@@ -45,24 +45,16 @@ class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProvider
      */
     pathPrefix(Entity.EXECUTION) { requestContext =>
       	context.actorOf(Props[ExecutionInterfaceActor]) ! requestContext
+    } ~
+    /**
+     * redirect all calls beginning with "user" to UserInterfaceActor
+     * 
+     * e.g. GET http://localhost:8080/user/8
+     */
+    pathPrefix(Entity.USER) { requestContext =>
+      	context.actorOf(Props[UserInterfaceActor]) ! requestContext
     }
-    // TODO add more entities here and redirect the requests to the specific actors
+    
   })
   
-  // Unmarshalling of a JSON to a message of type Communication
-  // Getting the message ready to be sent
-  def read(js: JsValue) = {
-    js match {
-      case JsArray(JsString(prefix) :: JsString(information) :: Nil) => 
-        new Message(prefix, information)
-      case _ => println("Unexpected Message Type")
-    }
-  }
-  
-  // Marshalling of a message of type Communication to a JSON structure
-  // After receiving the message, extracting the command prefix and the 
-  // information
-  def write(msg: Message) = {
-    JsArray(JsString(msg.prefix), JsString(msg.information))
-  }
 }
