@@ -18,6 +18,10 @@ define([
 
 		this.currentProcess = currentProcess;
 
+pB = function(){
+	console.log(currentProcess());
+}
+
 		// The currently displayed graph
 		this.currentGraph = currentGraph;
 
@@ -649,7 +653,7 @@ define([
 	// to be applied to the template.
 	var initialize = function( processID, subjectID, callback ) {
 		var viewModel = new ViewModel();
-
+		window.bam = viewModel;
 		App.loadTemplate( "process", viewModel, null, function() {
 
 			// Load all sub templates. They are:

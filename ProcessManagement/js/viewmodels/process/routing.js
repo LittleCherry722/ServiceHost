@@ -6,79 +6,54 @@ define([
 	"models/user",
 	"models/group"
 ], function( ko,komapping, App, _, User, Group ) {
-	
+	 var viewModel;
 	var ViewModel = function() {
-
+		this.currentProcessID = currentProcessID;
 		this.currentProcess = currentProcess;
 		var self = this;
 
 		self.name = "routingView";
 		self.label = "Routing";
 
-		self.routings = ko.observableArray([]);
+		self.routings = ko.observableArray( [] );
 
 		//Content dropdown
-		self.subject = ko.observableArray(gf_getSubjectIDs());
+		self.subject = currentProcess().graph().subjectIDs;
 
-		// TODO Add Subjects to model
-		self.populateSubject = function() {
-			self.subject(gf_getSubjectIDs())
-		};
 
-		$.subscribeOnce("tk_graph/subjects", self.populateSubject());
-
-		self.is = ko.observableArray(["is", "is not"]);
-		self.groupUser = ko.observableArray(["in group", "user"]);
+		self.is = ko.observableArray( ["is", "is not"] );
+		self.groupUser = ko.observableArray( ["in group", "user"] );
 
 		self.init = function() {
-			self.load();
+			self.load(currentProcess().graph().routings());
 			console.log("RoutingViewModel: initialized.");
 		}
-self.klo = new Array();
-		self.load = function() {
-			console.log("load")
+
+
+		self.load = function(arrayOfRoutings) {
 			var newRoutings = ko.observableArray([]);
 			self.routings([]);
-			currentProcess().graph().routings([{"groupUser1ListValue" : 1, "is1Value" : "is not"},{"groupUser1ListValue" : 2}]);
-			//console.log(currentProcess().graph().routings());
-			//if routings exist
-			//if (currentProcess().graph().routings()) {
-				//add new Routings to routings
-				for (var i in currentProcess().graph().routings()) {
-					console.log(currentProcess().graph().routings());
-					console.log("i");
-					console.log(i);
-					z = currentProcess().graph().routings()[i];
-					console.log(currentProcess().graph().routings());
-					console.log("z");
-					console.log(z);
-					console.log(z.groupUser1ListValue);
-					y = new Routing(z.subject1Value, z.is1Value, z.groupUser1Value, z.groupUser1ListValue, z.subject2Value, z.is2Value, z.groupUser2Value, z.groupUser2ListValue);
-					console.log("y");
-					console.log(y.groupUser1ListValue());
-					console.log(y);
-					console.log(newRoutings());
-					newRoutings().push(y);
-					console.log("in newRoutings")
-					console.log(newRoutings()[i].groupUser1Value());
-					console.log(newRoutings());
-					console.log("loop")
-				}
-				self.routings(newRoutings());
-				console.log(newRoutings());
-				console.log(self.routings());
-			//}
-		}
-		//Save
-		var mapping = {
-			'ignore' : ["groupUser1", "groupUser2"]
-			//,			'include' : ["subject1Value", "is1Value", "groupUser1Value", "groupUser1ListValue", "subject2Value", "is2Value", "groupUser2Value", "groupUser2ListValue"]
+
+			for ( var i in arrayOfRoutings ) {
+				z = arrayOfRoutings[i];
+				y = new Routing( z.subject1Value, z.is1Value, z.groupUser1Value, z.groupUser1ListValue, z.subject2Value, z.is2Value, z.groupUser2Value, z.groupUser2ListValue );
+				newRoutings().push( y );
+			}
+			self.routings( newRoutings() );
+
 		}
 
-		self.routings.subscribe(function() {
+		
+		//Save
+		// These values do not need to be saved, for they will be loaded from the model.
+		var mapping = {
+			'ignore' : ["groupUser1", "groupUser2"]
+		}
+		self.JSONRoutings = ko.computed(function(){
 			currentProcess().graph().routings(komapping.toJS(self.routings(), mapping));
-			//console.log(currentProcess().graph().routings());
+			return komapping.toJS(self.routings(), mapping);
 		});
+
 
 		var Routing = function(subject1Value, is1Value, groupUser1Value, groupUser1ListValue, subject2Value, is2Value, groupUser2Value, groupUser2ListValue) {
 			var self = this;
@@ -125,7 +100,6 @@ self.klo = new Array();
 		}
 
 		self.addRouting = function() {
-			self.populateSubject();
 			self.routings.push(new Routing());
 		}
 
@@ -146,11 +120,12 @@ window.test = currentProcess;
 
 	currentProcess.subscribe(function( process ) {
 		console.log( "a new process has been loaded: " + process.name() );
+	
 	});
 
 	var initialize = function( processID ) {
-		var viewModel, process;
-
+		var process;
+		currentProcessID = processID;
 		process = Process.find( processID )
 
 		if ( process === currentProcess() ) {
@@ -159,7 +134,9 @@ window.test = currentProcess;
 			currentProcess( process )
 		}
 
-		viewModel = new ViewModel();
+		if ( !viewModel || viewModel.currentProcessID != currentProcessID ) {
+  			viewModel = new ViewModel();
+		}
 		viewModel.init();
 		window.viewModel = viewModel;
 
