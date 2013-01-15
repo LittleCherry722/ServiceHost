@@ -65,14 +65,14 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
   private val executionHistory = History(process.name, id, new Date()) // TODO start time = creation time?
   // provider actor for debug payload used in history's debug data
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
-  
+
   def receive = {
 
     case as: AddSubject =>
       val subject: Subject = getSubject(as.subjectName)
 
       println("addsubject" + subject)
-      val subjectRef = context.actorOf(Props(new SubjectActor(self, subject)))
+      val subjectRef = context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
       subjectMap += subject.subjectName -> subjectRef
       subjectCounter += 1
 
@@ -86,8 +86,9 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         messagePool = messagePool.filterNot(_._2.toCond.subjectName == subject.subjectName)
       }
 
-      // TODO subjecte direkt ausfuehren?
-      subjectRef ! ExecuteRequest(as.userID, id)
+      // TODO subjecte mit welcher message ausfuehren?
+      //subjectRef ! ExecuteRequest(as.userID, id)
+      subjectRef ! ExecuteStartState()
 
     case End =>
       // log end time in history
@@ -115,11 +116,13 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
             AddSubject(_, id, sm.toCond.subjectName))
       }
 
+    // outdated
     case pr: ExecuteRequest =>
       println("execute")
       subjectMap.values.map(_ ! pr) // TODO: send to all subjects?
       pr.sender ! id // answer to original sender
-      
+
+    // outdated?
     case asts: AddState =>
       if (subjectMap.contains(asts.subjectName))
         subjectMap(asts.subjectName) ! asts.behaviourState
@@ -134,7 +137,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
     // (should be called by subject actors when a transition occurs)
     case he: history.Entry => executionHistory.entries += he
 
-    case ss => println("ProcessInstaceActor: not yet implemented Message: " + ss)
+    case ss                => println("ProcessInstaceActor: not yet implemented Message: " + ss)
   }
 
   private def getSubject(name: String): Subject = {

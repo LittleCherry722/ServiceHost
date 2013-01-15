@@ -13,14 +13,15 @@ case class SubjectInformation(subjectName: String)
  */
 class ContextResolverActor extends Actor {
 
-  val userID: UserID = 2
-
   def receive = {
 
     case ruid: RequestUserID =>
-      sender ! ruid.generateAnswer(userID)
+      sender ! ruid.generateAnswer(evaluateUserID(ruid.subjectInformation))
 
-    case ss => println("ContextResolver: not yet implemented Message: " + ss)
+    case ss => println("ContextResolver not yet implemented Message: " + ss)
   }
 
+  private def evaluateUserID(subjectInformation: SubjectInformation): UserID = {
+    2
+  }
 }

@@ -54,8 +54,10 @@ case class ActState(id: StateID, action: StateAction, transitions: Array[Transit
                     subjectName: SubjectName,
                     subjectProviderName: SubjectName,
                     inputpool: ActorRef): StateID = {
-    var action_choices: String = ""
-    for (t <- transitions) action_choices += t.messageType + "\\"
+    var actionChoices: String = ""
+    for (t <- transitions) {
+      actionChoices += t.messageType + "\\"
+    }
 
     if (transitions.length == 1) {
       if (transitions(0).exitCond.messageType.equals("Done")) {
@@ -65,18 +67,21 @@ case class ActState(id: StateID, action: StateAction, transitions: Array[Transit
     }
 
     var output: String = "Action@" + subjectProviderName + ": " + stateAction +
-      "\nWhat is the result ?\n(" + action_choices + ")?\n> "
-    // TODO muss vom frontend angenommen werden
+      "\nWhat is the result ?\n(" + actionChoices + ")?\n> "
+
+    // TODO Hier Userinteraktion: nach Aktion fragen
     var input = readLine(output)
 
-    while (!validat_input(input)) {
+    while (!validateInput(input)) {
       println("Invalid input. Please enter one term of the selection:\n" +
-        action_choices.toString())
+        actionChoices.toString())
       input = readLine(output)
     }
 
-    def validat_input(input: String): Boolean = {
-      for (t <- transitions) if (t.messageType.equals(input)) return true
+    def validateInput(input: String): Boolean = {
+      for (t <- transitions)
+        if (t.messageType.equals(input))
+          return true
       false
     }
     return transitionsMap(ExitCond(input, "Do"))
@@ -118,6 +123,8 @@ case class ReceiveState(s: StateID, val transitions: Array[Transition]) extends 
 
     val ack = Await.result(future, timeout.duration)
 
+    // TODO Hier Userinteraktion: Nachricht anzeigen (und auf ok warten)
+
     ack match {
       case tm: TransportMessage =>
         println("Receive@" + subjectProviderName + ": Message \"" +
@@ -144,6 +151,7 @@ case class SendState(s: StateID, transitions: Array[Transition]) extends Behavio
     val toSubject = transitions(0).subjectName
     val exitCond = transitions(0).exitCond
 
+    // TODO Hier Userinteraktion: nach Nachricht fragen
     //val messageContent = readLine("Send@" + toSubject + ": type in the content of the message " + messageName + " that will be send to the subject " + toSubject +"\n" )
     val messageContent = "The huge MessageContent" // for testruns
 
