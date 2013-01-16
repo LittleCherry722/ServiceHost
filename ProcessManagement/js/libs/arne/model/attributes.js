@@ -348,12 +348,13 @@ define([
 			// attributeHasChanged mehtod returns true. If so return early,
 			// otherwise return false at the end, meaning that nothing has changed.
 			read: function() {
+				hasChanged = false;
 				_( Result.attrs() ).each(function( attrOptions, attrName ){
 					if ( instance[ attrName + "HasChanged" ]() ) {
-						return true;
+						hasChanged =  true;
 					}
 				});
-				return false;
+				return hasChanged;
 			},
 
 			// Writing is similiar to reading the has changed value, only that we
