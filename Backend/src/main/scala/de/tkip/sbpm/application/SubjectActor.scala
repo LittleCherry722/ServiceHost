@@ -47,7 +47,7 @@ class SubjectActor(userID: UserID,
     case JobDone =>
       processInstanceRef ! End
       context.stop(self)
-    case sm: SubjectMessage => inputPoolActor forward sm
+    case sm: SubjectMessage => inputPoolActor.forward(sm)
 
     case sr: ExecuteRequest =>
       //internalBehaviourActor ! ProcessBehaviour(processInstanceRef, subjectName, sr.userID.toString(), inputPoolActor)
@@ -56,7 +56,7 @@ class SubjectActor(userID: UserID,
     case e: ExecuteStartState =>
       internalBehaviourActor ! ExecuteStartState()
       
-    case b: BehaviourState => internalBehaviourActor ! b
+    case b: BehaviourStateActor => internalBehaviourActor ! b
 
     // forward history entries from internal behavior up to instance actor
     case history.Transition(from, to, msg) =>

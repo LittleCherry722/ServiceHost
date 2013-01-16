@@ -64,7 +64,7 @@ object CreateProcessTest extends App {
             State("The End", "end superior", EndStateType, Array[Transition]()))),
         Subject("Employee",
           Array[State](
-            State("empl", "start", StartStateType, Array[Transition](StartTransition())),
+            State("empl", "start", StartStateType, Array[Transition](StartTransition("empl.br1"))),
             State("empl.br1", "Fill out Application", ActStateType, Array[Transition](ActTransition("Done"))),
             State("empl.br1.br1", "Send Application", SendStateType, Array[Transition](Transition("BT Application", "Superior"))),
             State("empl.br1.br1.br1", "Receive", ReceiveStateType, Array[Transition](Transition("Approval", "Superior"), Transition("Denial", "Superior", "End"))),

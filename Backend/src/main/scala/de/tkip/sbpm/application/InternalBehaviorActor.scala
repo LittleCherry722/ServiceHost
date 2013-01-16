@@ -3,7 +3,7 @@ package de.tkip.sbpm.application
 import akka.actor._
 import miscellaneous._
 import miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.BehaviourState
+import de.tkip.sbpm.model.BehaviourStateActor
 import de.tkip.sbpm.model.EndState
 import de.tkip.sbpm.model.ReceiveState
 import de.tkip.sbpm.model.StartState
@@ -23,15 +23,13 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
                             subjectName: String,
                             userID: UserID,
                             inputPoolActor: ActorRef) extends Actor {
-  private val statesMap = collection.mutable.Map[StateID, BehaviourState]()
+  private val statesMap = collection.mutable.Map[StateID, State]()
   private var startState: StateID = ""
-  private val currentState: StateID = ""
+  private var currentState: BehaviorStateRef = null
 
   def receive = {
-    // TODO das kommt raus
-    case b: BehaviourState => addState(b)
-
-    case state: State      => addState(parseState(state))
+    case state: State =>
+      addState(state)
 
     // TODO wie die states ausführen? Eigener Stateaktor oder useranfragen über internalbehavior
     case e: ExecuteStartState =>
@@ -48,46 +46,48 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
   }
 
   private def execute(state: StateID) {
-
-    if (statesMap(state).isInstanceOf[EndState]) {
-      println("Internalbehavior@" + subjectName + ": Exit")
-    } else {
-      val nextstate =
-        statesMap(state).performAction(
-          processInstanceRef,
-          subjectName,
-          userID.toString,
-          inputPoolActor)
-      self ! ExecuteState(nextstate)
+    //    currentState ! End // nötig?
+    if (currentState != null) {
+      context.stop(currentState)
+      currentState = null
     }
+
+    currentState = parseState(statesMap(state))
 
   }
 
-  private def addState(state: BehaviourState) {
-    // TODO raus momentan nur fuer kompatibilitaet vorheriger versionen
-    if (startState.isEmpty()) startState = state.stateID
 
-    if (state.isInstanceOf[StartState]) {
-      startState = state.stateID
+  private def addState(state: State) {
+    if (state.stateType == StartStateType) {
+      startState = state.id
     }
-
-    statesMap += state.stateID -> state
+    statesMap += state.id -> state
   }
 
-  private def parseState(state: State) =
+  private def parseState(state: State) = {
     state.stateType match {
       case StartStateType => if (state.transitions.size == 1) {
-        StartState(state.id, state.transitions(0))
+        context.actorOf(Props(
+          StartState(state.id, state.transitions(0), self, processInstanceRef, subjectName, userID, inputPoolActor)))
       } else {
         throw new IllegalArgumentException("Startstates may only have 1 Transition")
       }
       // TODO state action?
-      case ActStateType     => ActState(state.id, state.name, state.transitions)
+      case ActStateType =>
+        context.actorOf(Props(
+          ActState(state.id, state.name, state.transitions, self, processInstanceRef, subjectName, userID, inputPoolActor)))
 
-      case SendStateType    => SendState(state.id, state.transitions)
+      case SendStateType =>
+        context.actorOf(Props(
+          SendState(state.id, state.transitions, self, processInstanceRef, subjectName, userID, inputPoolActor)))
 
-      case ReceiveStateType => ReceiveState(state.id, state.transitions)
+      case ReceiveStateType =>
+        context.actorOf(Props(
+          ReceiveState(state.id, state.transitions, self, processInstanceRef, subjectName, userID, inputPoolActor)))
 
-      case EndStateType     => EndState(state.id)
+      case EndStateType =>
+        context.actorOf(Props(
+          EndState(state.id, self, processInstanceRef, subjectName, userID, inputPoolActor)))
     }
+  }
 }

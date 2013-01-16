@@ -372,9 +372,9 @@ pB = function(){
 
 		// Show or hide the role warning. Show it when no Role has been selected
 		// (empty val), otherwise hide it.
-		$( "#ge_cv_id" ).on( "change", showOrHideRoleWarning);
+		$( "#ge_cv_id" ).live( "change", showOrHideRoleWarning);
 
-		$( '#internalClearBehavior' ).on( "click", function() {
+		$( '#internalClearBehavior' ).live( "click", function() {
 			Dialog.yesNo( 'Warning', 'Do you really want to clear the behavior?', function(){
 				gv_graph.clearGraph();
 				parent.$.fancybox.close();
@@ -382,7 +382,7 @@ pB = function(){
 		})
 
 		var updateSubjectIDs = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
-		$(updateSubjectIDs).on("click", function() {
+		$(updateSubjectIDs).live("click", function() {
 			updateListOfSubjects();
 		})
 
@@ -394,18 +394,20 @@ pB = function(){
 		// When a selectable tab is clicked, mark the tab as selected, update the
 		// list of subjects and channels.
 		// See "selectTab" for more Information,
-		$( ".switch .btn[id^='tab']" ).on( "click", selectTab )
+		$( ".switch .btn[id^='tab']" ).live( "click", selectTab )
 
 		// Tab2, "Subject Interaction View" clicked.
 		// let the graph know we changed views and update the list of subjects and
 		// channels.
-		$( "#tab2" ).on( "click", function() {
+		$( "#tab2" ).live( "click", function() {
 			Router.goTo( currentProcess() );
 		});
 		
 		
 		// Tab3, "Routing" clicked.
-		$( "#tab3" ).on( "click", function() {
+
+		$( "#tab3" ).live( "click", function() {
+
 			Router.goTo("/processes/"+currentProcess().id()+"/routing");
 		});
 		
@@ -426,7 +428,9 @@ pB = function(){
 
 		// Tab2, "Charge View" clicked.
 		// let the graph know we changed views and update the list of subjects. //TODO Tab2 oder Tab3???
-		$("#tab3").on( "click", function() {
+
+		$("#tab3").live( "click", function() {
+
 			gv_graph.selectedNode = null;
 		});
 
@@ -648,6 +652,8 @@ pB = function(){
 	 * Initialization and unload methods
 	 ***************************************************************************/
 
+	var initialized = false;
+
 	// Initialize our View.
 	// Includes loading the template and creating the viewModel
 	// to be applied to the template.
@@ -668,7 +674,11 @@ pB = function(){
 				// After all templates have been loaded and applied successfully,
 				// set the current process and initialize the view Listeners.
 				loadProcessByIDs( processID, subjectID )
-				initializeListeners();
+
+				if ( !initialized ) {
+					initialized = true;
+					initializeListeners();
+				}
 
 				// Execute the callback if any was given.
 				// When this is called, everyting should be loaded and ready to go.
@@ -702,7 +712,7 @@ pB = function(){
 	//
 	// Must return true, otherwise the view will not be unloaded.
 	var unload = function() {
-		unsubscribeAll();
+		// unsubscribeAll();
 
 		// return true so the view actually gets unloaded.
     return true;
