@@ -12,12 +12,12 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     case gpr: ExecuteRequest =>
       processManagerRef ! gpr
 
- 	case hi: GetHistory => 
-       processManagerRef ! hi
+    case hi: GetHistory =>
+      processManagerRef ! hi
 
     case gpra: ExecuteRequestAll =>
       processManagerRef ! gpra
-      
+
     case re: ReadProcess =>
       processManagerRef ! re
 
@@ -37,6 +37,6 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     case kill: KillProcess =>
       processManagerRef ! kill
 
-    case _ => "not yet implemented"
+    case s => println("SubjectProvider not yet implemented: " + s)
   }
 }

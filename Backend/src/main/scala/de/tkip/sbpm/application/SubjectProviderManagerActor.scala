@@ -25,11 +25,13 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     case as: AddState =>
       forwardControlMessageToProvider(as.userID, as)
 
-    case hi: GetHistory => 
-      forwardControlMessageToProcess(hi.processID, hi)
-      
-    case sra: ExecuteRequestAll => 
-      sra.sender ! processInstanceMap.keys
+    case hi: GetHistory =>
+      forwardControlMessageToProvider(hi.userID, hi)
+
+    case sra: ExecuteRequestAll =>
+      // TODO was soll der Request genau ausführen?
+      //      sra.sender ! processInstanceMap.keys
+      forwardControlMessageToProvider(sra.userID, sra)
 
     case rp: ReadProcess =>
       forwardControlMessageToProvider(rp.userID, rp)
@@ -45,7 +47,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     case kill: KillProcess =>
       processManagerRef ! kill
 
-    case _ => "not yet implemented"
+    case s => println("SubjectProviderManger not yet implemented: " + s)
   }
 
   // forward control message to subjectProvider that is mapped to a specific userID

@@ -6,7 +6,12 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 
+// this are the information which are required to evaluate the user id
 case class SubjectInformation(subjectName: String)
+
+// this message is to Request the user id and will be answered
+// using generateAnswer with the userID
+case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => ControlMessage)
 
 /**
  * resolves the context of the subjects

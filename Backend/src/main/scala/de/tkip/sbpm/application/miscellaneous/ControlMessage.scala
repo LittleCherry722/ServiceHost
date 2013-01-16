@@ -48,26 +48,21 @@ case class Successor(nextState: String) extends ControlMessage
 
 case object End extends ControlMessage
 
-case class CreateSubjectProvider() extends ControlMessage
-
 case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
 case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourStateActor) extends ControlMessage
 case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage
 
 case class ReadProcess(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
-case class GetHistory(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
-case class ExecuteRequestAll(userID: UserID)extends ControlMessage with AnswerMessage
+case class GetHistory(userID: UserID, processID: ProcessInstanceID) extends ControlMessage with AnswerMessage
+case class ExecuteRequestAll(userID: UserID) extends ControlMessage with AnswerMessage
 
-// userid request
-case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => ControlMessage) extends ControlMessage
-
-// answers
+case class CreateSubjectProvider() extends ControlMessage
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID)
 
 case class LoadedProcessesList(era: ExecuteRequestAll)
 case class ReadProcessAnswer(rp: ReadProcess, pm: ProcessModel)
-case class HistoryAnswer(hi: GetHistory, h: History )
-case class ExecutedListAnswer(era: ExecuteRequestAll, li:  Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID])
+case class HistoryAnswer(hi: GetHistory, h: History)
+case class ExecutedListAnswer(era: ExecuteRequestAll, li: Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID])
 
 //import de.tkip.sbpm.model.Subject
 case class AddSubject(userID: UserID, processID: ProcessID, subjectName: String) extends ControlMessage

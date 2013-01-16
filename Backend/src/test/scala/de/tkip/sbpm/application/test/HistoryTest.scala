@@ -18,6 +18,8 @@ import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous.Debug
 import de.tkip.sbpm.model.ProcessModel
 
+import de.tkip.sbpm.application.miscellaneous.GetHistory
+
 class HistoryTest extends FunSuite {
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
@@ -25,7 +27,8 @@ class HistoryTest extends FunSuite {
   val actor = sys.actorOf(Props(new ProcessInstanceActor(1, ProcessModel(1, "process 1", null))))
 
   test("test history debug data structure") {
-    val future = actor ? new GetHistory() with Debug
+    // TODO ich hab hier die user und processInstanzid eingefuegt, weil es vorher einen Fehler gab
+    val future = actor ? new GetHistory(userID = 1, processID = 1) with Debug
     val result = Await.result(future.mapTo[History], timeout.duration)
     println(result)
     assert(result.entries.length === 13)

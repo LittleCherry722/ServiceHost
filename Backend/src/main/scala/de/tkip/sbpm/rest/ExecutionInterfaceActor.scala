@@ -46,7 +46,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             val future = context.actorFor("/user/SubjectProviderManager") ? new ReadProcess(userId.toInt, processID.toInt)
             val graph = Await.result(future, timeout.duration).asInstanceOf[ReadProcessAnswer].pm;
             val future1 = context.actorFor("/user/SubjectProviderManager") ? new GetHistory(userId.toInt, processID.toInt)
-            val history =  Await.result(future, timeout.duration).asInstanceOf[HistoryAnswer];
+            val history = Await.result(future, timeout.duration).asInstanceOf[HistoryAnswer];
             complete("is not yet marshelled")
           }
         } ~
@@ -76,7 +76,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
               val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
 
-              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].instanceID;
+              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
 
               complete(
                 //marshalling
