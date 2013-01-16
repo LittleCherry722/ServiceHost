@@ -9,21 +9,22 @@ import spray.http.HttpRequest
 import akka.event.Logging
 import akka.actor.ActorSystem
 import akka.pattern.ask
-import akka.util.duration._
+import scala.concurrent.duration._
 import akka.util.Timeout
-import akka.dispatch.Await
+import scala.concurrent.Await
 import de.tkip.sbpm.rest.ProcessAttribute._
 import java.util.concurrent.Future
 import de.tkip.sbpm.persistence._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.persistence.GetProcess
 
 /**
  * This Actor is only used to process REST calls regarding "process"
  */
 // TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
-  val persitenceActorRef: PersistenceActorRef) extends Actor with HttpService {
+                            val persistenceActorRef: PersistenceActorRef) extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
 
@@ -66,8 +67,14 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
           if (load == "loadable") {
 
             implicit val timeout = Timeout(5 seconds)
-            val future = persitenceActorRef ? GetProcess
+            /*
+            
+            Musste auskommentiert werden, da GetProcess nicht gefunden werden konnte.
+             
+            val future = persistenceActorRef ? GetProcess
             val result = Await.result(future, timeout.duration)
+			
+			*/
             complete("Marshelled result")
 
           } else if (load == "loaded") {
@@ -78,7 +85,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
           parameters("id", "userid") { (id, userid) =>
             implicit val timeout = Timeout(5 seconds)
             // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-            val future = persitenceActorRef ? GetProcess(Option(id.asInstanceOf[Int]))
+            val future = persistenceActorRef ? GetProcess(Option(id.asInstanceOf[Int]))
             val result = Await.result(future, timeout.duration)
 
             complete("result")
@@ -94,7 +101,9 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
         path("") {
           parameters("graph", "subjects", "userid") { (graph, subjects, userid) =>
             implicit val timeout = Timeout(5 seconds)
-            val future = subjectProviderManagerActorRef ? de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider(userid.asInstanceOf[Int])
+            // TODO Wer vergibt die UserID
+            //            val future = subjectProviderManagerActorRef ? de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider(userid.asInstanceOf[Int])
+            val future = subjectProviderManagerActorRef ? de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider()
             val result = Await.result(future, timeout.duration)
             complete("Marshelled result")
           }
@@ -107,7 +116,8 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
           path(IntNumber) { id =>
             parameters("graph", "subjects", "userid") { (graph, subjects, userid) =>
               // TODO update process
-              persitenceActorRef ! SaveProcess(Option(id), "wo kommt der name her?", graph, subjects)
+              // Hier kam ein Fehler 
+              //              persistenceActorRef ! SaveProcess(Option(id), "wo kommt der name her?", graph, subjects)
 
               complete("error not yet implemented")
             }
@@ -121,7 +131,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
          */
         path(IntNumber) { id =>
           parameters("name", "userid") { (name, userid) =>
-            persitenceActorRef ! DeleteProcess(name.asInstanceOf[Int])
+            persistenceActorRef ! DeleteProcess(name.asInstanceOf[Int])
 
             complete("error not yet implemented")
 
@@ -138,4 +148,4 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
       }
 
   })
-
+}

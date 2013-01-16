@@ -81,8 +81,7 @@ define([
 					graphObject.routings = routings;
 					self.graphObject( graphObject );
 				}
-			});
-		}
+			});		}
 	});
 
 	return Graph;

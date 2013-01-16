@@ -1,0 +1,26 @@
+Die History könnte etwa so aussehen:
+—
+Process <name> was stared at <datetime> by <subject>.
+In state <state> a <messagetype> Message was sent from <sendersubject> to <recieversubject> via <transportmethod> at <datetime>. 
+In state <state> a <messagetype> Message was sent from <sendersubject> to <recieversubject> via <transportmethod> at <datetime>. ReadText: <text-link>. Attached Files: <file-link>
+.
+.
+.
+Process <name> ended at <datetime>
+—
+Folgendermaßen der JSON string:
+{
+"processName": "name",
+"instance": "name/id",
+"datetime": "yyyy-mm-dd T hh:mm",
+"triggeredState": "stateName",
+"sender": "senderName",
+"reciever": "recieverName",
+"method": "transportMethod",
+"message":
+{ "type": "messageType", "text": "link to the text" "files": "link to files" }
+}
+—
+Es macht Sinn, eine "Tabelle" pro Instanz anzulegen, da der Prozess Name und die Instanz sich ja nicht während der Ausführung verändern.
+Für Nachrichten und Dateien macht es Sinn, diese in einer extra "Tabelle" pro Instanz zu halten.
+Pro Instanz gibt es dann also zwei Tabellen: Eine, die Transitionen enthält und eine, die den Payload enthält (mit link als key).

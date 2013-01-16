@@ -4,6 +4,18 @@
 		<h3>Process Execution</h3>
 	</div>
 
+	<span>
+		<span data-bind="text: currentProcess">Process Name </span>
+		<span> > </span>
+		<span data-bind="text: currentInstance">Instance Name</span>
+		<span> > </span>
+		<select id="slctctvSbj" data-placeholder="Select Active Subject"
+			class="middle_switch chzn-select" tabindex="1"
+			data-bind="options: availableSubjects, optionsText: 'subjectText',
+			optionsValue: 'subjectID', value: currentSubject, caption: ''">
+		</select>
+	</span>
+
   <div id="processExecution">
     <ul class="nav nav-tabs" data-bind="foreach: tabs">
       <li data-bind="css: { active: $data === $root.currentTab() }">
