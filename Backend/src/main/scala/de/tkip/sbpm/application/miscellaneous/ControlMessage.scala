@@ -5,6 +5,8 @@ import ProcessAttributes._
 import akka.actor._
 import de.tkip.sbpm.application.SubjectInformation
 import de.tkip.sbpm.model.BehaviourState
+import de.tkip.sbpm.model.Transition
+import de.tkip.sbpm.application.SubjectMessageRouting
 
 sealed trait ControlMessage // For system control tasks
 trait AnswerMessage {
@@ -20,10 +22,10 @@ trait AnswerMessage {
 }
 
 case object GetMessage extends ControlMessage
-case class RequestForMessages(exitConds: Array[ExitCond]) extends ControlMessage
+case class RequestForMessages(exitConds: Array[SubjectMessageRouting]) extends ControlMessage
 case object Stored extends ControlMessage
 case class Successor(nextState: String) extends ControlMessage
-case class TransportMessage(fromCond: ExitCond, messageContent: MessageContent) extends ControlMessage
+
 case object End extends ControlMessage
 
 case class CreateSubjectProvider() extends ControlMessage
@@ -33,8 +35,6 @@ case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlM
 case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourState) extends ControlMessage
 
 case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage
-// Message to tell IntervalBehaviorActor to process his states
-//case class ProcessBehaviour(processManager: ProcessManagerRef, subjectName: SubjectName, subjectProviderName: SubjectName, inputPool: ActorRef) extends ControlMessage
 
 // userid request
 case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => ControlMessage) extends ControlMessage

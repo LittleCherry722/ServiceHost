@@ -80,10 +80,10 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       // if there are messages to deliver to the new subject,
       // forward them to the subject 
       if (!messagePool.isEmpty) {
-        for ((orig, sm) <- messagePool if sm.toCond.subjectName == subject.subjectName) {
+        for ((orig, sm) <- messagePool if sm.to == subject.subjectName) {
           subjectRef.!(sm)(orig)
         }
-        messagePool = messagePool.filterNot(_._2.toCond.subjectName == subject.subjectName)
+        messagePool = messagePool.filterNot(_._2.to == subject.subjectName)
       }
 
       // TODO subjecte mit welcher message ausfuehren?
@@ -101,9 +101,9 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       }
 
     case sm: SubjectMessage =>
-      if (subjectMap.contains(sm.toCond.subjectName)) {
+      if (subjectMap.contains(sm.to)) {
         // if the subject already exist just forward the message
-        subjectMap(sm.toCond.subjectName).forward(sm)
+        subjectMap(sm.to).forward(sm)
       } else {
         // if the subject does not exist create the subject and forward the
         // message afterwards
@@ -112,8 +112,8 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         // ask the Contextresolver for the userid to answer with an AddSubject
         contextResolver !
           RequestUserID(
-            SubjectInformation(sm.toCond.subjectName),
-            AddSubject(_, id, sm.toCond.subjectName))
+            SubjectInformation(sm.to),
+            AddSubject(_, id, sm.to))
       }
 
     // outdated

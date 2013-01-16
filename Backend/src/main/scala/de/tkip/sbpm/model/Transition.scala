@@ -1,7 +1,6 @@
 package de.tkip.sbpm.model
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.miscellaneous.ExitCond
 
 /**
  * models references between certain BehaviourStates
@@ -9,7 +8,6 @@ import de.tkip.sbpm.application.miscellaneous.ExitCond
 case class Transition(val messageType: MessageType,
                       val subjectName: SubjectName,
                       val successorID: SuccessorID = "") {
-  val exitCond: ExitCond = ExitCond(messageType, subjectName)
 }
 
 object ActTransition {
@@ -18,5 +16,5 @@ object ActTransition {
 }
 
 object StartTransition {
-  def apply(successorID: SuccessorID = "") = Transition("Start", "Go", successorID)
+  def apply(successorID: SuccessorID) = Transition("Start", "Go", successorID)
 }

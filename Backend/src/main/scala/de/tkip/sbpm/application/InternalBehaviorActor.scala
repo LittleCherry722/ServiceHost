@@ -49,17 +49,15 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
 
   private def execute(state: StateID) {
 
-    if (statesMap(state).isInstanceOf[EndState]) {
-      println("Internalbehavior@" + subjectName + ": Exit")
-    } else {
-      val nextstate =
-        statesMap(state).performAction(
-          processInstanceRef,
-          subjectName,
-          userID.toString,
-          inputPoolActor)
+    val nextstate =
+      statesMap(state).performAction(
+        processInstanceRef,
+        subjectName,
+        userID.toString,
+        inputPoolActor)
+
+    if (nextstate != null)
       self ! ExecuteState(nextstate)
-    }
 
   }
 
