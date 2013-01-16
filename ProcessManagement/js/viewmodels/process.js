@@ -286,8 +286,6 @@ pB = function(){
 		graph = graph.duplicate();
 		graph.graphString( gv_graph.saveToJSON() );
 		graph.routings( routings );
-		console.log("graph:")
-		console.log(graph.graphString());
 		graph.processID( process.id() );
 		graph.save({ async: false });
 		process.graph( graph );

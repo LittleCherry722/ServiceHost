@@ -26,7 +26,7 @@ define([
 		}
 		self.routings.subscribe(function( newValue ) {
 			currentProcess().graph().routings(komapping.toJS(self.routings(), mapping));
-			console.log("has changed!")
+			//console.log("has changed!")
 			return komapping.toJS(self.routings(), mapping);
 		});
 
@@ -126,7 +126,6 @@ define([
 
 	var currentProcess = ko.observable();
 
-window.test = currentProcess;
 
 	currentProcess.subscribe(function( process ) {
 		console.log( "a new process has been loaded: " + process.name() );
