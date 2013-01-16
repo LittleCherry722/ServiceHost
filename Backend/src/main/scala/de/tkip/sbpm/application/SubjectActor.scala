@@ -56,7 +56,7 @@ class SubjectActor(userID: UserID,
     case e: ExecuteStartState =>
       internalBehaviourActor ! ExecuteStartState()
       
-    case b: BehaviourState => internalBehaviourActor ! b
+    case b: BehaviourStateActor => internalBehaviourActor ! b
 
     // forward history entries from internal behavior up to instance actor
     case history.Transition(from, to, msg) =>

@@ -21,4 +21,6 @@ object ProcessAttributes {
   type SubjectRef = ActorRef
   type InterfaceRef = ActorRef
 
+  type BehaviorStateRef = ActorRef
+  type InternalBehaviorRef = ActorRef
 }
