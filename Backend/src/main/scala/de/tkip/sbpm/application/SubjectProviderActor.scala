@@ -12,6 +12,15 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     case gpr: ExecuteRequest =>
       processManagerRef ! gpr
 
+ 	case hi: GetHistory => 
+       processManagerRef ! hi
+
+    case gpra: ExecuteRequestAll =>
+      processManagerRef ! gpra
+      
+    case re: ReadProcess =>
+      processManagerRef ! re
+
     case as: AddState =>
       processManagerRef ! as
 

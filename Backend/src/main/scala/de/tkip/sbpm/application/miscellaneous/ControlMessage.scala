@@ -8,6 +8,7 @@ import de.tkip.sbpm.model.BehaviourStateActor
 import de.tkip.sbpm.model.Transition
 import de.tkip.sbpm.application.SubjectMessageRouting
 import de.tkip.sbpm.model.ProcessModel
+import de.tkip.sbpm.application.History
 
 sealed trait ControlMessage // For system control tasks
 trait AnswerMessage {
@@ -53,11 +54,20 @@ case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlM
 case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourStateActor) extends ControlMessage
 case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage
 
+case class ReadProcess(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
+case class GetHistory(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
+case class ExecuteRequestAll(userID: UserID)extends ControlMessage with AnswerMessage
+
 // userid request
 case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => ControlMessage) extends ControlMessage
 
 // answers
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID)
+
+case class LoadedProcessesList(era: ExecuteRequestAll)
+case class ReadProcessAnswer(rp: ReadProcess, pm: ProcessModel)
+case class HistoryAnswer(hi: GetHistory, h: History )
+case class ExecutedListAnswer(era: ExecuteRequestAll, li:  Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID])
 
 //import de.tkip.sbpm.model.Subject
 case class AddSubject(userID: UserID, processID: ProcessID, subjectName: String) extends ControlMessage

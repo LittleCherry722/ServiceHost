@@ -10,7 +10,7 @@ import scala.collection.mutable.Buffer
 import scala.collection.mutable.ArrayBuffer
 
 // message to get history of project instance
-case class GetHistory()
+//case class GetHistory()
 
 // represents the history of the instance
 case class History(processName: String,
@@ -128,7 +128,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         subjectMap(asts.subjectName) ! asts.behaviourState
 
     // return current process instance history
-    case msg: GetHistory => sender ! {
+    case msg: GetHistory => msg.sender ! {
       if (msg.isInstanceOf[Debug]) HistoryTestData.generate(process.name, id)(debugMessagePayloadProvider)
       else executionHistory
     }

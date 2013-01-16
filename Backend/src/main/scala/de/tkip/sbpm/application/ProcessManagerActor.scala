@@ -35,6 +35,15 @@ class ProcessManagerActor(private val name: String) extends Actor {
         forwardToPersistenceActor(pa)
       }
 
+	case hi: GetHistory => 
+      forwardControlMessageToProcess(hi.processID, hi)
+      
+    case sra: ExecuteRequestAll => 
+      sra.sender ! processInstanceMap.keys
+
+     case rp: ReadProcess =>
+      rp.sender ! processDescritionMap
+
     case as: AddSubject =>
       forwardControlMessageToProcess(as.processID, as)
 

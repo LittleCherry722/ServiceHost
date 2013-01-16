@@ -25,6 +25,15 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     case as: AddState =>
       forwardControlMessageToProvider(as.userID, as)
 
+    case hi: GetHistory => 
+      forwardControlMessageToProcess(hi.processID, hi)
+      
+    case sra: ExecuteRequestAll => 
+      sra.sender ! processInstanceMap.keys
+
+    case rp: ReadProcess =>
+      forwardControlMessageToProvider(rp.userID, rp)
+
     case cp: CreateProcessInstance =>
       cp.sender = sender
       forwardControlMessageToProvider(cp.userID, cp)
