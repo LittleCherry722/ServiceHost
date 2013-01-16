@@ -7,6 +7,7 @@ import de.tkip.sbpm.application.SubjectInformation
 import de.tkip.sbpm.model.BehaviourStateActor
 import de.tkip.sbpm.model.Transition
 import de.tkip.sbpm.application.SubjectMessageRouting
+import de.tkip.sbpm.model.ProcessModel
 
 sealed trait ControlMessage // For system control tasks
 trait AnswerMessage {
@@ -21,6 +22,24 @@ trait AnswerMessage {
   }
 }
 
+// Konvention answers:
+// als erstes Attribut kommt die Anfrage (muss eine Answermessage sein)
+// damit man zurückrouten kann
+
+// modeling
+// request
+case class CreateProcess(processName: String, processModel: ProcessModel) extends ControlMessage with AnswerMessage
+case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends ControlMessage with AnswerMessage
+//answers
+case class ProcessCreated(cp: CreateProcess, processID: ProcessID) extends ControlMessage
+
+// execution
+// request
+case class CreateProcessInstance(userID: UserID) extends ControlMessage with AnswerMessage // Tells the processManager to create a new process
+//answers
+case class ProcessInstanceCreated(cp: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends ControlMessage
+
+// TODO nochmal drüber schaun 
 case object GetMessage extends ControlMessage
 case class RequestForMessages(exitConds: Array[SubjectMessageRouting]) extends ControlMessage
 case object Stored extends ControlMessage
@@ -29,20 +48,16 @@ case class Successor(nextState: String) extends ControlMessage
 case object End extends ControlMessage
 
 case class CreateSubjectProvider() extends ControlMessage
-case class CreateProcess(userID: UserID) extends ControlMessage with AnswerMessage // Tells the processManager to create a new process
 
 case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
 case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourStateActor) extends ControlMessage
-
 case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage
 
 // userid request
 case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => ControlMessage) extends ControlMessage
 
 // answers
-case class ProcessCreated(cp: CreateProcess, processID: ProcessID) 
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID)
-case class ProcessInstanceCreated(er: ExecuteRequest, instanceID: ProcessInstanceID)
 
 //import de.tkip.sbpm.model.Subject
 case class AddSubject(userID: UserID, processID: ProcessID, subjectName: String) extends ControlMessage

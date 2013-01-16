@@ -69,7 +69,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               
               val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
 
-              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].instanceID;
+              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
 
               complete(
                   //marshalling

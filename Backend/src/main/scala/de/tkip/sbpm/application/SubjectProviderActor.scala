@@ -15,14 +15,14 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     case as: AddState =>
       processManagerRef ! as
 
-    case cp: CreateProcess =>
+    case cp: CreateProcessInstance =>
       processManagerRef ! cp
 
     case spc: SubjectProviderCreated =>
       processManagerRef ! spc
 
-    case pc: ProcessCreated =>
-      processIDs += pc.processID
+    case pc: ProcessInstanceCreated =>
+      processIDs += pc.processInstanceID
       context.parent ! pc
 
     case kill: KillProcess =>
