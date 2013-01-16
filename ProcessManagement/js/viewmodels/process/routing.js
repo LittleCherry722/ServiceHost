@@ -6,16 +6,29 @@ define([
 	"models/user",
 	"models/group"
 ], function( ko,komapping, App, _, User, Group ) {
-	 var viewModel;
+	var viewModel;
 	var ViewModel = function() {
 		this.currentProcessID = currentProcessID;
 		this.currentProcess = currentProcess;
 		var self = this;
 
+		var _super = self;
+
 		self.name = "routingView";
 		self.label = "Routing";
 
 		self.routings = ko.observableArray( [] );
+
+		//Save
+		// These values do not need to be saved, for they will be loaded from the model.
+		var mapping = {
+			'ignore' : ["groupUser1", "groupUser2"]
+		}
+		self.routings.subscribe(function( newValue ) {
+			currentProcess().graph().routings(komapping.toJS(self.routings(), mapping));
+			console.log("has changed!")
+			return komapping.toJS(self.routings(), mapping);
+		});
 
 		//Content dropdown
 		self.subject = currentProcess().graph().subjectIDs;
@@ -43,18 +56,6 @@ define([
 
 		}
 
-		
-		//Save
-		// These values do not need to be saved, for they will be loaded from the model.
-		var mapping = {
-			'ignore' : ["groupUser1", "groupUser2"]
-		}
-		self.JSONRoutings = ko.computed(function(){
-			currentProcess().graph().routings(komapping.toJS(self.routings(), mapping));
-			return komapping.toJS(self.routings(), mapping);
-		});
-
-
 		var Routing = function(subject1Value, is1Value, groupUser1Value, groupUser1ListValue, subject2Value, is2Value, groupUser2Value, groupUser2ListValue) {
 			var self = this;
 
@@ -68,6 +69,15 @@ define([
 			self.is2Value = ko.observable(is2Value);
 			self.groupUser2Value = ko.observable(groupUser2Value);
 			self.groupUser2ListValue = ko.observable(groupUser2ListValue);
+
+			self.hasChanged = ko.computed(function() {
+				komapping.toJS(self);
+			});
+
+			self.hasChanged.subscribe(function() {
+				_super.routings.valueHasMutated();
+			});
+
 
 			//Dynamic content of dropdown
 			self.groupUser1 = ko.computed(function() {
@@ -106,7 +116,7 @@ define([
 		self.removeRouting = function(element) {
 			self.routings.remove(element);
 		}
-	}; 
+	};
 
 
 
@@ -135,9 +145,13 @@ window.test = currentProcess;
 		}
 
 		if ( !viewModel || viewModel.currentProcessID != currentProcessID ) {
-  			viewModel = new ViewModel();
+			viewModel = new ViewModel();
 		}
+
+		console.log(process.graph().routings());
+
 		viewModel.init();
+
 		window.viewModel = viewModel;
 
 		App.loadTemplate( "process/routing", viewModel, null, function() {

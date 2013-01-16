@@ -281,8 +281,13 @@ pB = function(){
 		// Final call to save can be non blocking because we probably dont need to
 		// hold the user back untill the graph is finally saved. Should only take a
 		// couple of ms anyway.
+		
+		routings = graph.routings()
 		graph = graph.duplicate();
 		graph.graphString( gv_graph.saveToJSON() );
+		graph.routings( routings );
+		console.log("graph:")
+		console.log(graph.graphString());
 		graph.processID( process.id() );
 		graph.save({ async: false });
 		process.graph( graph );
