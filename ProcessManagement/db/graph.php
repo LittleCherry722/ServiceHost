@@ -34,12 +34,12 @@ if (isset($_REQUEST['action'])) {
 
 		// Create a new graph
 	} elseif ($action == 'create') {
-		$graph = mysql_real_escape_string($_REQUEST['graphString']);
+		$graph = mysql_real_escape_string(str_replace('\\"', '"',$_REQUEST['graphString']));
 		$date = mysql_real_escape_string($_REQUEST['date']);
 		$processID = mysql_real_escape_string($_REQUEST['processID']);
 		mysql_query("INSERT INTO `process_graphs` (`graph`, `date`, `processID`) VALUES ('" . $graph . "', '" . $date . "', '" . $processID . "');");
 		$return['id'] = mysql_insert_id();
-		$return['graphString'] = $_REQUEST['graphString'];
+    $return['graphString'] = str_replace('\\"', '"',$_REQUEST['graphString']);
 		$return['date'] = $_REQUEST['date'];
 		$return['processID'] = $_REQUEST['processID'];
 
@@ -56,12 +56,12 @@ if (isset($_REQUEST['action'])) {
 	// save existing graph
 	} elseif ($action == 'save') {
 		$id = mysql_real_escape_string($_REQUEST['id']);
-		$graph = mysql_real_escape_string($_REQUEST['graphString']);
+		$graph = mysql_real_escape_string(str_replace('\\"', '"',$_REQUEST['graphString']));
 		$date = mysql_real_escape_string($_REQUEST['date']);
 		$processID = mysql_real_escape_string($_REQUEST['processID']);
     mysql_query("UPDATE `process_graphs` SET `graph` = '" . $graph . "', `date` = '" . $date . "', `processID = '" . $processID . "'` WHERE `ID` = " . $id);
 		$return['id'] = $_REQUEST['id'];
-		$return['graphString'] = $_REQUEST['graphString'];
+		$return['graphString'] = str_replace('\\"', '"',$_REQUEST['graphString']);
 		$return['date'] = $_REQUEST['date'];
 		$return['processID'] = $_REQUEST['processID'];
 
