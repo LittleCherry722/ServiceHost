@@ -19,11 +19,9 @@ import de.tkip.sbpm.persistence._
 import scala.concurrent.Await
 
 /**
- * This Actor is only used to process REST calls regarding "process"
+ * This Actor is only used to process REST calls regarding "user"
  */
-// TODO when to choose HttpService and when HttpServiceActor
-class UserInterfaceActor extends Actor with HttpService {
-
+class UserInterfaceActor extends Actor with PersistenceInterface with HttpService {
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -34,14 +32,12 @@ class UserInterfaceActor extends Actor with HttpService {
     logger.debug(context.self + " stops.")
   }
 
-  def actorRefFactory = context
-
   /**
    *
    * usually a REST Api should at least implement the following functions:
    * - GET withouht parameter => list of entity
    * - GET with id => specific entity
-   * - PUT without id => new entity
+   * - POST without id => new entity
    * - PUT with id => update entity
    * - DELETE with id => delete entity
    *
@@ -53,65 +49,67 @@ class UserInterfaceActor extends Actor with HttpService {
    *
    */
   def receive = runRoute({
-    formFields("data") { (data: String) =>
-      get {
+    get {
+      /**
+       * get a list of all user
+       *
+       * e.g. GET http://localhost:8080/user
+       */
+      path("") {
+        val res = request[Seq[User]](GetUser())
+        complete(Envelope(Some(res.toJson), STATUS_OK))
+      } ~
+        path(IntNumber) { id: Int =>
+          val res = request[Option[User]](GetUser(Some(id)))
+          var env = Envelope(None, STATUS_NOT_FOUND)
+          if (res.isDefined)
+            env = Envelope(Some(res.get.toJson), STATUS_OK)
+          complete(env)
+        }
+    } ~
+      delete {
         /**
-         * get a list of all user
+         * delete an user
          *
-         * e.g. GET http://localhost:8080/user
+         * e.g. DELETE http://localhost:8080/user/12
+         */
+        path(IntNumber) { id =>
+          execute(DeleteUser(id))
+          complete(Envelope(None, STATUS_OK))
+        }
+      } ~
+      post {
+        /**
+         * create new user
+         *
+         * e.g. POST http://localhost:8080/user
+         * 	data={ "name": "abc", "isActive": true, "inputPoolSize": 8 }
          */
         path("") {
-          complete("not yet implemented")
-        } ~
-          path(IntNumber) { id: Int =>
-            implicit val timeout = Timeout(5 seconds)
-            val future = context.actorFor("UserPersistenceActor") ? GetUser(Some(id))
-            val result = Await.result(future, timeout.duration)
-
-            // todo get user
-
-            complete("result")
-          }
-      } ~
-        put {
-          /**
-           * save the passed users
-           *
-           * e.g. PUT http://localhost:8080/user
-           */
-          path("") {
-        	// unmarshalling of an user (as json) into an object with spray and the defined JsonProtocol
-            val json = data.asJson
-            val user = json.convertTo[User]
-
-            implicit val timeout = Timeout(5 seconds)
-            val actor = context.actorFor("/user/PersistenceActor/user")
-
-            val future = (actor ? SaveUser(user)).mapTo[Int]
-
-            val ack = Await.result(future, timeout.duration)
-            
-            var status = "ok"
-              
-            if (ack == 0) // means nothing inserted/updated
-              status = "error"
-
-            complete(new Envelope(None, status))
-
-          }
-        } ~
-        delete {
-          /**
-           * delete an user
-           *
-           * e.g. DELETE http://localhost:8080/process/12
-           */
-          path(IntNumber) { id =>
-
-            complete("'delete with id' not yet implemented")
-
+          formFields("data") { implicit data: String =>
+            val user = data.asJson.convertTo[User]
+            user.id = None
+            val id = request[Int](SaveUser(user))
+            complete(Envelope(Some(id.toJson), STATUS_OK))
           }
         }
-    }
+      } ~
+      put {
+        /**
+         * update existing user
+         *
+         * e.g. PUT http://localhost:8080/user/2
+         * 	data={ "name": "abc", "isActive": true, "inputPoolSize": 8 }
+         */
+        path(IntNumber) { id =>
+          formFields("data") { implicit data: String =>
+            // unmarshalling of an user (as json) into an object with spray and the defined JsonProtocol
+            val user = data.asJson.convertTo[User]
+            user.id = Some(id)
+            execute(SaveUser(user))
+            complete(Envelope(None, STATUS_OK))
+          }
+        }
+      }
   })
 }
