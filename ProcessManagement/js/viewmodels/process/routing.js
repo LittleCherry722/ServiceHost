@@ -26,7 +26,6 @@ define([
 		}
 		self.routings.subscribe(function( newValue ) {
 			currentProcess().graph().routings(komapping.toJS(self.routings(), mapping));
-			//console.log("has changed!")
 			return komapping.toJS(self.routings(), mapping);
 		});
 
@@ -118,12 +117,6 @@ define([
 		}
 	};
 
-
-
-
-
-
-
 	var currentProcess = ko.observable();
 
 
@@ -150,8 +143,7 @@ define([
 		console.log(process.graph().routings());
 
 		viewModel.init();
-
-		window.viewModel = viewModel;
+;
 
 		App.loadTemplate( "process/routing", viewModel, null, function() {
 			console.log("template loaded")
