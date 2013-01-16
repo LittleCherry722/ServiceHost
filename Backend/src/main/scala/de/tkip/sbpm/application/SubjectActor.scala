@@ -47,7 +47,7 @@ class SubjectActor(userID: UserID,
     case JobDone =>
       processInstanceRef ! End
       context.stop(self)
-    case sm: SubjectMessage => inputPoolActor forward sm
+    case sm: SubjectMessage => inputPoolActor.forward(sm)
 
     case sr: ExecuteRequest =>
       //internalBehaviourActor ! ProcessBehaviour(processInstanceRef, subjectName, sr.userID.toString(), inputPoolActor)
