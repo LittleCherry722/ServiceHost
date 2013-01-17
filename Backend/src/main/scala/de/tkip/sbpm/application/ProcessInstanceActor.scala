@@ -73,17 +73,17 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
 
       println("addsubject" + subject)
       val subjectRef = context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
-      subjectMap += subject.subjectName -> subjectRef
+      subjectMap += subject.id -> subjectRef
       subjectCounter += 1
 
-      println("process " + id + " created subject " + subject.subjectName + " for user " + as.userID) //TODO
+      println("process " + id + " created subject " + subject.id + " for user " + as.userID) //TODO
       // if there are messages to deliver to the new subject,
       // forward them to the subject 
       if (!messagePool.isEmpty) {
-        for ((orig, sm) <- messagePool if sm.to == subject.subjectName) {
+        for ((orig, sm) <- messagePool if sm.to == subject.id) {
           subjectRef.!(sm)(orig)
         }
-        messagePool = messagePool.filterNot(_._2.to == subject.subjectName)
+        messagePool = messagePool.filterNot(_._2.to == subject.id)
       }
 
       // TODO subjecte mit welcher message ausfuehren?
@@ -142,6 +142,6 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
 
   private def getSubject(name: String): Subject = {
     // TODO increase performance
-    process.subjects.find(_.subjectName == name).get
+    process.subjects.find(_.id == name).get
   }
 }

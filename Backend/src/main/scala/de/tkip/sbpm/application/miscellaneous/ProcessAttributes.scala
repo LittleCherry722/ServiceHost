@@ -11,6 +11,7 @@ object ProcessAttributes {
   type MessageContent = String
   type StateAction = String
   type StateID = String
+  type SubjectID = String
 
   type SuccessorID = StateID
 

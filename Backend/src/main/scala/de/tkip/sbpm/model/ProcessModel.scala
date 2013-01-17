@@ -15,6 +15,6 @@ import StateType._
 // name raus ist ws in id
 case class State(id: String, name: String, stateType: StateType, transitions: Array[Transition])
 
-case class Subject(subjectName: String, states: Array[State])
+case class Subject(id: String, states: Array[State])
 // TODO id muss glaub ich hier raus
 case class ProcessModel(processID: ProcessID, name: String, subjects: Array[Subject])
