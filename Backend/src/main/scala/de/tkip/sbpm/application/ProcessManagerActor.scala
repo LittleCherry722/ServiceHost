@@ -59,7 +59,7 @@ class ProcessManagerActor(private val name: String) extends Actor {
     // modeling
     case cp: CreateProcess =>
       processDescritionMap += processCount -> cp.processModel
-      cp.sender ! ProcessCreated(cp, processCount)
+      sender ! ProcessCreated(cp, processCount)
       processCount += 1
 
     case up: UpdateProcess =>

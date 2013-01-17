@@ -5,7 +5,7 @@ import miscellaneous._
 import miscellaneous.ProcessAttributes._
 
 class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
-  extends Actor {
+    extends Actor {
   private var subjectCount = 0
   private val subjectProviderMap =
     collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -21,9 +21,6 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
 
     case gpr: ExecuteRequest =>
       forwardControlMessageToProvider(gpr.userID, gpr)
-
-    case as: AddState =>
-      forwardControlMessageToProvider(as.userID, as)
 
     case hi: GetHistory =>
       forwardControlMessageToProvider(hi.userID, hi)
@@ -44,23 +41,24 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
       cp.sender = sender
       forwardControlMessageToProvider(cp.userID, cp)
 
-    case pc: ProcessInstanceCreated =>
-      if (pc.cp.sender != null)
-        pc.cp.sender ! pc
-
     case kill: KillProcess =>
       processManagerRef ! kill
 
-    case s => println("SubjectProviderManger not yet implemented: " + s)
+    case answer: AnswerMessage[_] =>
+      if (answer.sender != null)
+        answer.sender ! answer
+
+    case s =>
+      println("SubjectProviderManger not yet implemented: " + s)
   }
 
   // forward control message to subjectProvider that is mapped to a specific userID
   private def forwardControlMessageToProvider(userID: UserID,
-    controlMessage: ControlMessage) {
+                                              controlMessage: ControlMessage) {
     if (subjectProviderMap.contains(userID)) {
 
-      if (controlMessage.isInstanceOf[AnswerMessage])
-        controlMessage.asInstanceOf[AnswerMessage].sender = sender
+      if (controlMessage.isInstanceOf[AnswerAbleMessage])
+        controlMessage.asInstanceOf[AnswerAbleMessage].sender = sender
 
       subjectProviderMap(userID) ! controlMessage
     }
@@ -68,7 +66,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
 
   // creates a new subject provider and registers it with the given userID 
   // (overrides the old entry)
-  def createNewSubjectProvider(userID: UserID) = {
+  private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
       context.actorOf(Props(new SubjectProviderActor(userID, processManagerRef)))
     subjectProviderMap += userID -> subjectProvider
@@ -76,7 +74,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
   }
 
   // kills the subject provider with the given userID and unregisters it
-  def killSubjectProvider(userID: UserID) = {
+  private def killSubjectProvider(userID: UserID) = {
     if (subjectProviderMap.contains(userID)) {
       context.stop(subjectProviderMap(userID))
       subjectProviderMap -= userID

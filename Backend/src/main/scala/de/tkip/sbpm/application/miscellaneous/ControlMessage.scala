@@ -11,7 +11,10 @@ import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.History
 
 sealed trait ControlMessage // For system control tasks
-trait AnswerMessage {
+// This trait is for messages which are send from the frontend
+// TODO man könnte hier (wenn immer vorhanden) oder in einem 2ten trait die userID wie beim
+// AnswerMessage reinmixen und somit den subjectprovidermanager (und vllt andere) lesbarer machen
+trait AnswerAbleMessage {
   private var _sender: InterfaceRef = null
 
   def sender = _sender
@@ -23,22 +26,33 @@ trait AnswerMessage {
   }
 }
 
+// This trait is for the answers of the messages with the previous trait
+trait AnswerMessage[A <: MessageType.Answer] {
+  self: A =>
+  def sender: ActorRef = self.request.sender
+}
+protected object MessageType {
+  type Answer = { def request: AnswerAbleMessage }
+}
+
 // Konvention answers:
 // als erstes Attribut kommt die Anfrage (muss eine Answermessage sein)
+// mit dem Namen "request"
 // damit man zurueckrouten kann
 
 // modeling
 // request
-case class CreateProcess(userID: UserID, processName: String, processModel: ProcessModel) extends ControlMessage with AnswerMessage
-case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends ControlMessage with AnswerMessage
+case class CreateProcess(userID: UserID, processName: String, processModel: ProcessModel) extends ControlMessage with AnswerAbleMessage
+case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends ControlMessage with AnswerAbleMessage
 //answers
-case class ProcessCreated(cp: CreateProcess, processID: ProcessID) extends ControlMessage
+case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends ControlMessage with AnswerMessage[ProcessCreated]
 
 // execution
 // request
-case class CreateProcessInstance(userID: UserID) extends ControlMessage with AnswerMessage // Tells the processManager to create a new process
+case class CreateProcessInstance(userID: UserID) extends ControlMessage with AnswerAbleMessage
+case class RequestAvailableActions(userID: UserID) extends ControlMessage with AnswerAbleMessage
 //answers
-case class ProcessInstanceCreated(cp: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends ControlMessage
+case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends ControlMessage with AnswerMessage[ProcessInstanceCreated]
 
 // TODO nochmal drueber schaun 
 case object GetMessage extends ControlMessage
@@ -48,17 +62,17 @@ case class Successor(nextState: String) extends ControlMessage
 
 case object End extends ControlMessage
 
-case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
+case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerAbleMessage
 case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourStateActor) extends ControlMessage
-case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage
 case class CreateSubjectProvider() extends ControlMessage
-case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID)
+case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID) extends ControlMessage
 
 //request
-case class ReadProcess(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerMessage
-case class GetHistory(userID: UserID, processID: ProcessInstanceID) extends ControlMessage with AnswerMessage
-case class ExecuteRequestAll(userID: UserID) extends ControlMessage with AnswerMessage
-case class RequestAnswer(processID: ProcessID, actionID: StateID) extends ControlMessage with AnswerMessage
+case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage with AnswerAbleMessage
+case class ReadProcess(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerAbleMessage
+case class GetHistory(userID: UserID, processID: ProcessInstanceID) extends ControlMessage with AnswerAbleMessage
+case class ExecuteRequestAll(userID: UserID) extends ControlMessage with AnswerAbleMessage
+case class RequestAnswer(processID: ProcessID, actionID: StateID) extends ControlMessage with AnswerAbleMessage
 //answers
 case class LoadedProcessesList(era: ExecuteRequestAll)
 case class ReadProcessAnswer(rp: ReadProcess, pm: ProcessModel)

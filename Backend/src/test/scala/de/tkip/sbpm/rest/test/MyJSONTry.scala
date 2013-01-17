@@ -66,7 +66,7 @@ object MyJSONTry extends App {
                                                             
                             "end":                 false,   
                                                             
-                            "typ":                "send",  
+                            "type":                "send",  
                                                             
                             "deactivated":         false,   
                             "options":                      
@@ -175,7 +175,7 @@ object MyJSONTry extends App {
   //  
   //  
 
-  val abc = graph.asJson
+  val abc = graph.replace("\"type\":", "\"typ\":").asJson
   println(abc)
 
   println(abc.convertTo[JSONProcess])

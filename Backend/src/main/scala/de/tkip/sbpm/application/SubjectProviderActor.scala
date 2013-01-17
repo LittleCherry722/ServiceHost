@@ -9,40 +9,25 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
   val processIDs = collection.mutable.Set[ProcessID]()
 
   def receive = {
-    case gpr: ExecuteRequest =>
-      processManagerRef ! gpr
-
-    case hi: GetHistory =>
-      processManagerRef ! hi
-
-    case gpra: ExecuteRequestAll =>
-      processManagerRef ! gpra
-
-    case re: ReadProcess =>
-      processManagerRef ! re
-
-    case ra: RequestAnswer =>
-      processManagerRef ! ra
-
-    case as: AddState =>
-      processManagerRef ! as
-
-    case cp: CreateProcessInstance =>
-      processManagerRef ! cp
-
-    case cp: CreateProcess =>
-      processManagerRef ! cp
-
     case spc: SubjectProviderCreated =>
-      processManagerRef ! spc
+      processManagerRef.forward(spc)
 
     case pc: ProcessInstanceCreated =>
       processIDs += pc.processInstanceID
-      context.parent ! pc
+      context.parent.forward(pc)
 
-    case kill: KillProcess =>
-      processManagerRef ! kill
+    case message: AnswerAbleMessage =>
+      // just forward all messages from the frontend which are not
+      // required in this Actor
+      processManagerRef.forward(message)
 
-    case s => println("SubjectProvider not yet implemented: " + s)
+    case message: AnswerMessage[_] =>
+      // send the Answermessages to the SubjectProviderManager
+
+      // TODO forward oder tell?
+      context.parent ! message
+
+    case s =>
+      println("SubjectProvider not yet implemented: " + s)
   }
 }

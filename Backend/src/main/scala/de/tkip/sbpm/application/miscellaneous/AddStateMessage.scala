@@ -2,7 +2,7 @@ package de.tkip.sbpm.application.miscellaneous
 
 import ProcessAttributes._
 import de.tkip.sbpm.model.Transition
-
+// TODO veraltet kommt raus
 sealed trait AddStateMessage
 
 case class AddStateToSubject(subjectName: SubjectName, addStateMessage: AddStateMessage) extends AddStateMessage

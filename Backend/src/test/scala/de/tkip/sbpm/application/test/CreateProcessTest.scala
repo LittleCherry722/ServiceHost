@@ -59,22 +59,33 @@ object CreateProcessTest extends App {
   }
 
   def testProcessAndSubjectCreation() {
+
     val system = ActorSystem("TextualEpassIos")
     val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
     val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
 
     implicit val timeout = Timeout(5 seconds)
 
-    //fuer CreateProcess wird die userId benoetigt
-    val future1 = processManager ? CreateProcess(2,"my process", processModel)
+    // Create the SubjectProvider for this user
+    val future1 = subjectProviderManager ? CreateSubjectProvider()
+    val userID: Int =
+      Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
 
+    println("User Created id: " + userID)
+
+    // Create a Process using the ProcessModel
+    val future2 = subjectProviderManager ? CreateProcess(userID, "my process", processModel)
     val processID: Int =
-      Await.result(future1, timeout.duration).asInstanceOf[ProcessCreated].processID
+      Await.result(future2, timeout.duration).asInstanceOf[ProcessCreated].processID
 
-    val future2 = processManager ? CreateProcessInstance(processID)
+    println("Process(Model) Created id: " + processID)
 
+    // Execute the ProcessInstance
+    val future3 = subjectProviderManager ? CreateProcessInstance(processID)
     val processInstanceID: Int =
-      Await.result(future2, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
+      Await.result(future3, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
+
+    println("ProcessInstance Executed id: " + processInstanceID)
 
     processManager ! ((processInstanceID, AddSubject(1, 2, "Employee")))
 
