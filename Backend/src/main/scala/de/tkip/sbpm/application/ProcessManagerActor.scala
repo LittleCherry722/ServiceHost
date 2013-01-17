@@ -59,11 +59,15 @@ class ProcessManagerActor(private val name: String) extends Actor {
     // modeling
     case cp: CreateProcess =>
       processDescritionMap += processCount -> cp.processModel
-      sender ! ProcessCreated(cp, processCount)
+      cp.sender ! ProcessCreated(cp, processCount)
       processCount += 1
 
     case up: UpdateProcess =>
       processDescritionMap(up.processID) = up.processModel
+      
+    case ra: RequestAnswer =>
+      //wo muss die entscheidung festgehalten werden
+      println("not yet implemnted")
 
     // execution
     case cp: CreateProcessInstance =>

@@ -65,7 +65,8 @@ object CreateProcessTest extends App {
 
     implicit val timeout = Timeout(5 seconds)
 
-    val future1 = processManager ? CreateProcess("my process", processModel)
+    //fuer CreateProcess wird die userId benoetigt
+    val future1 = processManager ? CreateProcess(2,"my process", processModel)
 
     val processID: Int =
       Await.result(future1, timeout.duration).asInstanceOf[ProcessCreated].processID

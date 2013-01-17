@@ -118,7 +118,7 @@ case class ActState(id: StateID,
   while (index == -1) {
     println("Invalid input. Please enter one term of the selection:\n" +
       actionChoices.toString())
-    // userinteraktion, wäre aber fehler im programm
+    // userinteraktion, waere aber fehler im programm
     input = readLine(output)
     index = indexOfInput(input)
   }

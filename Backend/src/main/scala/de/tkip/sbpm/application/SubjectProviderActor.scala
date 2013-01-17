@@ -21,10 +21,16 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     case re: ReadProcess =>
       processManagerRef ! re
 
+    case ra: RequestAnswer =>
+      processManagerRef ! ra
+
     case as: AddState =>
       processManagerRef ! as
 
     case cp: CreateProcessInstance =>
+      processManagerRef ! cp
+
+    case cp: CreateProcess =>
       processManagerRef ! cp
 
     case spc: SubjectProviderCreated =>

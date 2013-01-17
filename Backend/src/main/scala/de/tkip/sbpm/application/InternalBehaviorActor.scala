@@ -31,7 +31,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     case state: State =>
       addState(state)
 
-    // TODO wie die states ausführen? Eigener Stateaktor oder useranfragen über internalbehavior
+    // TODO wie die states ausfuehren? Eigener Stateaktor oder useranfragen ueber internalbehavior
     case e: ExecuteStartState =>
       println("execute: " + statesMap(startState))
       // TODO hier history log?
@@ -46,7 +46,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
   }
 
   private def execute(state: StateID) {
-    //    currentState ! End // nötig?
+    //    currentState ! End // nï¿½tig?
     if (currentState != null) {
       context.stop(currentState)
       currentState = null

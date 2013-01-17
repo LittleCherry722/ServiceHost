@@ -56,7 +56,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             implicit val timeout = Timeout(5 seconds)
             val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequestAll(userId.toInt)
             val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer];
-
             complete("is not yet marshelled")
           }
 
@@ -65,6 +64,8 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           //DELETE
           path(IntNumber) { processID =>
             //stop and delete given process
+            implicit val timeout = Timeout(5 seconds)
+            val future = context.actorFor("/user/SubjectProviderManager") ? new KillProcess(userId.toInt)
             complete("error not yet implemented")
           }
         } ~
@@ -73,11 +74,8 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("") {
             formField("processId") { (processId) =>
               implicit val timeout = Timeout(5 seconds)
-
               val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
-
               val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
-
               complete(
                 //marshalling
                 new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok"))
@@ -87,6 +85,9 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             path(IntNumber) { processID =>
               formField("actionID") { (actionID) =>
                 //execute next step (chosen by actionID)
+                implicit val timeout = Timeout(5 seconds)
+
+                val future = context.actorFor("/user/SubjectProviderManager") ? new RequestAnswer(processID.toInt, actionID)
                 complete("error not yet implemented")
               }
             }

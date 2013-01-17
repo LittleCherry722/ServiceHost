@@ -34,7 +34,7 @@ object Tab extends DefaultJsonProtocol {
   implicit val proFormat = jsonFormat1(JSONProcess)
 
 }
-// TODO im graph heißt es type nicht typ
+// TODO im graph heisst es type nicht typ
 object MyJSONTry extends App {
   val graph =
     """{
@@ -184,7 +184,7 @@ object MyJSONTry extends App {
 
   println(process.process(0).macros(0).nodes(0).typ)
 
-  // Ausführung wirft einen fehler weil der graph oben nicht vollständig ist
+  // Ausfuehrung wirft einen fehler weil der graph oben nicht vollstaendig ist
   ProcessExe.executeProcess(Fkts.parseProcess(process))
 }
 
@@ -196,8 +196,8 @@ object ProcessExe {
     val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
 
     implicit val timeout = Timeout(5)
-
-    val future1 = processManager ? CreateProcess("my process", processModel)
+    //fuer CreateProcess wird die userId benoetigt
+    val future1 = processManager ? CreateProcess(2, "my process", processModel)
 
     val processID: Int =
       Await.result(future1, timeout.duration).asInstanceOf[ProcessCreated].processID
@@ -270,7 +270,7 @@ object Fkts {
     }
 
     def parseEdges(edges: Array[Edge]) {
-      // hier werden die transitions in die states eingefügt
+      // hier werden die transitions in die states eingefuegt
       for (edge <- edges) {
         // TODO messagetype
         states(edge.start).addTransition(Transition("", edge.target.id, edge.end))
@@ -287,10 +287,10 @@ case class JSONProcess(process: Array[JSONSubject])
 
 case class JSONSubject(id: String, name: String, macros: Array[Macro])
 
-// nöetig? = internal behavior?
+// noeetig? = internal behavior?
 case class Macro(id: String, name: String, nodes: Array[Node], edges: Array[Edge])
 
-// type kann man nicht übernehmen! (heißt hier typ)
+// type kann man nicht uebernehmen! (heisst hier typ)
 case class Node(id: String, start: Boolean, end: Boolean, typ: String)
 case class Edge(start: String, end: String, target: Target)
 

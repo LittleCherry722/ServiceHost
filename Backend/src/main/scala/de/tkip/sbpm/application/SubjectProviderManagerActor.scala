@@ -5,7 +5,7 @@ import miscellaneous._
 import miscellaneous.ProcessAttributes._
 
 class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
-    extends Actor {
+  extends Actor {
   private var subjectCount = 0
   private val subjectProviderMap =
     collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -29,12 +29,16 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
       forwardControlMessageToProvider(hi.userID, hi)
 
     case sra: ExecuteRequestAll =>
-      // TODO was soll der Request genau ausführen?
-      //      sra.sender ! processInstanceMap.keys
       forwardControlMessageToProvider(sra.userID, sra)
 
     case rp: ReadProcess =>
       forwardControlMessageToProvider(rp.userID, rp)
+
+    case cp: CreateProcess =>
+      forwardControlMessageToProvider(cp.userID, cp)
+
+    case ra: RequestAnswer =>
+      forwardControlMessageToProvider(ra.processID, ra)
 
     case cp: CreateProcessInstance =>
       cp.sender = sender
@@ -52,7 +56,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
 
   // forward control message to subjectProvider that is mapped to a specific userID
   private def forwardControlMessageToProvider(userID: UserID,
-                                              controlMessage: ControlMessage) {
+    controlMessage: ControlMessage) {
     if (subjectProviderMap.contains(userID)) {
 
       if (controlMessage.isInstanceOf[AnswerMessage])
