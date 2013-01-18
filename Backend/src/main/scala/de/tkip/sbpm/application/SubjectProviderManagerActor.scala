@@ -22,7 +22,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     case gpr: ExecuteRequest =>
       forwardControlMessageToProvider(gpr.userID, gpr)
       
-    case gaa: ExecuteRequest =>
+    case gaa: GetAvailableActions =>
       forwardControlMessageToProvider(gaa.userID, gaa)
 
     case hi: GetHistory =>
