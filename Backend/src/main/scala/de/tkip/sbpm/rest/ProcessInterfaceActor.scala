@@ -71,6 +71,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
        *
        * e.g. GET http://localhost:8080/process
        */
+      // LIST
       path("") {
         formField("userid") { (userid) =>
           implicit val timeout = Timeout(5 seconds)
@@ -81,7 +82,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
           complete("not yet marsheld")
         }
       }
-      //Read
+      // READ
       path("processID") { processID =>
         formField("userid") { (userid) =>
           implicit val timeout = Timeout(5 seconds)
@@ -97,6 +98,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
          *
          * e.g. PUT http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
+    	// CREATE
         path("") {
           formField("userid", "name", "graph", "isCase") { (userid, name, graph, isCase) =>
             implicit val timeout = Timeout(5 seconds)
@@ -113,6 +115,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
            *
            * e.g. PUT http://localhost:8080/process/12?graph=GraphAsJSON&subjects=SubjectsAsJSON
            */
+          // UPDATE
           path(IntNumber) { procecssID =>
             formField("name", "graph", "isCase") { (name, graph, isCase) =>
               implicit val timeout = Timeout(5 seconds)
@@ -128,6 +131,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
          *
          * e.g. http://localhost:8080/process/12
          */
+        // DELETE
         path(IntNumber) { id =>
           formField("name", "userid") { (name, userid) =>
             persistenceActorRef ! DeleteProcess(name.asInstanceOf[Int])

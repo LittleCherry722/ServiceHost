@@ -50,7 +50,7 @@ case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends 
 // execution
 // request
 case class CreateProcessInstance(userID: UserID) extends ControlMessage with AnswerAbleMessage
-case class GetAvailableActions(userID: UserID) extends ControlMessage with AnswerAbleMessage
+case class GetAvailableActions(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerAbleMessage
 //answers
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends ControlMessage with AnswerMessage[ProcessInstanceCreated]
 case class AvailableActionsAnswer(request: GetAvailableActions) extends ControlMessage with AnswerMessage[AvailableActionsAnswer]
@@ -69,7 +69,7 @@ case class CreateSubjectProvider() extends ControlMessage
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID) extends ControlMessage
 
 //request
-case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage with AnswerAbleMessage
+case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage
 case class ReadProcess(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerAbleMessage
 case class GetHistory(userID: UserID, processID: ProcessInstanceID) extends ControlMessage with AnswerAbleMessage
 case class ExecuteRequestAll(userID: UserID) extends ControlMessage with AnswerAbleMessage
