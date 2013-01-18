@@ -2,6 +2,7 @@ package de.tkip.sbpm.persistence
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
+import de.tkip.sbpm.model._
 
 /*
 * Messages for querying database
@@ -15,7 +16,7 @@ sealed abstract class RoleAction extends PersistenceAction
 */
 case class GetRole(id: Option[Int] = None) extends RoleAction
 // save role to db, if id is None a new process is created and its id is returned
-case class SaveRole(id: Option[Int], name: String, isActive: Boolean = true) extends RoleAction
+case class SaveRole(role: Role) extends RoleAction
 // delete role with id from db
 case class DeleteRole(id: Int) extends RoleAction
 
@@ -26,7 +27,6 @@ private[persistence] class RolePersistenceActor extends Actor with DatabaseAcces
   // import driver loaded according to akka config
   import driver.simple._
   import DBType._
-  import de.tkip.sbpm.model._
   
   // represents the "roles" table in the database
   object Roles extends Table[Role]("roles") {
@@ -45,11 +45,11 @@ private[persistence] class RolePersistenceActor extends Actor with DatabaseAcces
       // get role with given id
       case GetRole(id) => sender ! Roles.where(_.id === id).firstOption
       // create new role
-      case SaveRole(None, name, isActive) =>
-        sender ! Roles.autoInc.insert(Role(None, name, isActive))
+      case SaveRole(r @ Role(None, _, _)) =>
+        sender ! Roles.autoInc.insert(r)
       // save existing role
-      case SaveRole(id, name, isActive) =>
-        Roles.where(_.id === id).update(Role(id, name, isActive))
+      case SaveRole(r @ Role(id, _, _)) =>
+        Roles.where(_.id === id).update(r)
       // delete role with given id
       case DeleteRole(id) => Roles.where(_.id === id).delete(session)
       // execute DDL for "roles" table

@@ -58,10 +58,10 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       // get user with given id
       case GetUser(id) => sender ! Users.where(_.id === id).firstOption
       // create new user
-      case SaveUser(u @ User(None, name, isActive, inputPoolSize)) =>
+      case SaveUser(u @ User(None, _, _, _)) =>
         sender ! Users.autoInc.insert(u)
       // save existing user
-      case SaveUser(u @ User(id, name, isActive, inputPoolSize)) =>
+      case SaveUser(u @ User(id, _, _, _)) =>
         sender ! Users.where(_.id === id).update(u)
       // delete user with given id
       case DeleteUser(id) => Users.where(_.id === id).delete(session)

@@ -15,7 +15,7 @@ sealed abstract class GroupAction extends PersistenceAction
 */
 case class GetGroup(id: Option[Int] = None) extends GroupAction
 // save group to db, if id is None a new group is created and its id is returned
-case class SaveGroup(id: Option[Int], name: String, isActive: Boolean = true) extends GroupAction
+case class SaveGroup(group: Group) extends GroupAction
 // delete group with id from db (nothing is returned)
 case class DeleteGroup(id: Int) extends GroupAction
 
@@ -42,11 +42,11 @@ private[persistence] class GroupPersistenceActor extends Actor with DatabaseAcce
       // get group with given id
       case GetGroup(id) => sender ! Groups.where(_.id === id).firstOption
       // create new group
-      case SaveGroup(None, name, isActive) =>
-        sender ! Groups.autoInc.insert(Group(None, name, isActive))
+      case SaveGroup(g @ Group(None, _, _)) =>
+        sender ! Groups.autoInc.insert(g)
       // save existing group
-      case SaveGroup(id, name, isActive) =>
-        Groups.where(_.id === id).update(Group(id, name, isActive))
+      case SaveGroup(g @ Group(id, _, _)) =>
+        Groups.where(_.id === id).update(g)
       // delete group with given id
       case DeleteGroup(id) => Groups.where(_.id === id).delete(session)
       // execute DDL for "groups" table
