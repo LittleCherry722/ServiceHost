@@ -13,48 +13,64 @@ import spray.json._
 
 object Entity {
   val PROCESS = "process"
-  val	EXECUTION = "executed"
-  val	USER = "user"
-  val	ROLE = "role"
+  val EXECUTION = "executed"
+  val USER = "user"
+  val ROLE = "role"
+  val GROUP = "group"
   // TODO define more entities if you need them  
 }
-class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef, 
-    val persistenceActorRef: PersistenceActorRef)extends Actor with HttpService {
+class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
+                             val persistenceActorRef: PersistenceActorRef) extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
   override def preStart() {
     logger.debug("REST Api starts.")
-   
+
   }
-  
+
   def actorRefFactory = context
 
   def receive = runRoute({
     /**
      * redirect all calls beginning with "process" to ProcessInterfaceActor
-     * 
+     *
      * e.g. GET http://localhost:8080/process/8
      */
     pathPrefix(Entity.PROCESS) { requestContext =>
-      	context.actorOf(Props(new ProcessInterfaceActor(subjectProviderManagerActorRef, persistenceActorRef))) ! requestContext
+      context.actorOf(Props(new ProcessInterfaceActor(subjectProviderManagerActorRef, persistenceActorRef))) ! requestContext
     } ~
-    /**
-     * redirect all calls beginning with "execution" to ProcessInterfaceActor
-     * 
-     * e.g. GET http://localhost:8080/process/8
-     */
-    pathPrefix(Entity.EXECUTION) { requestContext =>
-      	context.actorOf(Props[ExecutionInterfaceActor]) ! requestContext
-    } ~
-    /**
-     * redirect all calls beginning with "user" to UserInterfaceActor
-     * 
-     * e.g. GET http://localhost:8080/user/8
-     */
-    pathPrefix(Entity.USER) { requestContext =>
-      	context.actorOf(Props[UserInterfaceActor]) ! requestContext
-    }
-    
+      /**
+       * redirect all calls beginning with "execution" to ProcessInterfaceActor
+       *
+       * e.g. GET http://localhost:8080/process/8
+       */
+      pathPrefix(Entity.EXECUTION) { requestContext =>
+        context.actorOf(Props[ExecutionInterfaceActor]) ! requestContext
+      } ~
+      /**
+       * redirect all calls beginning with "user" to UserInterfaceActor
+       *
+       * e.g. GET http://localhost:8080/user/8
+       */
+      pathPrefix(Entity.USER) { requestContext =>
+        context.actorOf(Props[UserInterfaceActor]) ! requestContext
+      } ~
+      /**
+       * redirect all calls beginning with "role" to RoleInterfaceActor
+       *
+       * e.g. GET http://localhost:8080/role/8
+       */
+      pathPrefix(Entity.ROLE) { requestContext =>
+        context.actorOf(Props[RoleInterfaceActor]) ! requestContext
+      } ~
+      /**
+       * redirect all calls beginning with "group" to GroupInterfaceActor
+       *
+       * e.g. GET http://localhost:8080/group/8
+       */
+      pathPrefix(Entity.GROUP) { requestContext =>
+        context.actorOf(Props[GroupInterfaceActor]) ! requestContext
+      }
   })
-  
+
 }

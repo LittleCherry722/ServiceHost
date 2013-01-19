@@ -20,7 +20,7 @@ case class ExecuteStartState() // TODO noetig? / anders nennen?
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
-                            subjectName: String,
+                            subjectID: SubjectID,
                             userID: UserID,
                             inputPoolActor: ActorRef) extends Actor {
   private val statesMap = collection.mutable.Map[StateID, State]()
@@ -31,7 +31,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     case state: State =>
       addState(state)
 
-    // TODO wie die states ausführen? Eigener Stateaktor oder useranfragen über internalbehavior
+    // TODO wie die states ausfuehren? Eigener Stateaktor oder useranfragen ueber internalbehavior
     case e: ExecuteStartState =>
       println("execute: " + statesMap(startState))
       // TODO hier history log?
@@ -46,7 +46,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
   }
 
   private def execute(state: StateID) {
-    //    currentState ! End // nötig?
+    //    currentState ! End // nï¿½tig?
     if (currentState != null) {
       context.stop(currentState)
       currentState = null
@@ -55,7 +55,6 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     currentState = parseState(statesMap(state))
 
   }
-
 
   private def addState(state: State) {
     if (state.stateType == StartStateType) {
@@ -68,26 +67,26 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     state.stateType match {
       case StartStateType => if (state.transitions.size == 1) {
         context.actorOf(Props(
-          StartState(state.id, state.transitions(0), self, processInstanceRef, subjectName, userID, inputPoolActor)))
+          StartState(state.id, state.transitions(0), self, processInstanceRef, subjectID, userID, inputPoolActor)))
       } else {
         throw new IllegalArgumentException("Startstates may only have 1 Transition")
       }
       // TODO state action?
       case ActStateType =>
         context.actorOf(Props(
-          ActState(state.id, state.name, state.transitions, self, processInstanceRef, subjectName, userID, inputPoolActor)))
+          ActState(state.id, state.name, state.transitions, self, processInstanceRef, subjectID, userID, inputPoolActor)))
 
       case SendStateType =>
         context.actorOf(Props(
-          SendState(state.id, state.transitions, self, processInstanceRef, subjectName, userID, inputPoolActor)))
+          SendState(state.id, state.transitions, self, processInstanceRef, subjectID, userID, inputPoolActor)))
 
       case ReceiveStateType =>
         context.actorOf(Props(
-          ReceiveState(state.id, state.transitions, self, processInstanceRef, subjectName, userID, inputPoolActor)))
+          ReceiveState(state.id, state.transitions, self, processInstanceRef, subjectID, userID, inputPoolActor)))
 
       case EndStateType =>
         context.actorOf(Props(
-          EndState(state.id, self, processInstanceRef, subjectName, userID, inputPoolActor)))
+          EndState(state.id, self, processInstanceRef, subjectID, userID, inputPoolActor)))
     }
   }
 }

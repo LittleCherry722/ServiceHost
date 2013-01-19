@@ -79,8 +79,8 @@ class PersistenceActorTest {
   def group() {
     type M = Group
 
-    val idFuture1 = actor ? SaveGroup(None, "Group 1")
-    val idFuture2 = actor ? SaveGroup(None, "Group 2")
+    val idFuture1 = actor ? SaveGroup(Group(None, "Group 1"))
+    val idFuture2 = actor ? SaveGroup(Group(None, "Group 2"))
     val id1 = Await.result(idFuture1.mapTo[Int], timeout.duration)
     val id2 = Await.result(idFuture2.mapTo[Int], timeout.duration)
     val allFuture = actor ? GetGroup()
@@ -92,7 +92,7 @@ class PersistenceActorTest {
     assertEquals(Some(id1), one1.get.id)
     val one2 = Await.result(oneFuture2.mapTo[Option[M]], timeout.duration)
     assertTrue(one2.get.isActive)
-    actor ! SaveGroup(Some(id2), "{}", false)
+    actor ! SaveGroup(Group(Some(id2), "{}", false))
     val oneFuture3 = actor ? GetGroup(Some(id2))
     val one3 = Await.result(oneFuture3.mapTo[Option[M]], timeout.duration)
     assertFalse(one3.get.isActive)
@@ -223,8 +223,8 @@ class PersistenceActorTest {
   def role() {
     type M = Role
 
-    val idFuture1 = actor ? SaveRole(None, "Role 1")
-    val idFuture2 = actor ? SaveRole(None, "Role 2")
+    val idFuture1 = actor ? SaveRole(Role(None, "Role 1"))
+    val idFuture2 = actor ? SaveRole(Role(None, "Role 2"))
     val id1 = Await.result(idFuture1.mapTo[Int], timeout.duration)
     val id2 = Await.result(idFuture2.mapTo[Int], timeout.duration)
     val allFuture = actor ? GetRole()
@@ -236,7 +236,7 @@ class PersistenceActorTest {
     assertEquals(Some(id1), one1.get.id)
     val one2 = Await.result(oneFuture2.mapTo[Option[M]], timeout.duration)
     assertTrue(one2.get.isActive)
-    actor ! SaveRole(Some(id2), "{}", false)
+    actor ! SaveRole(Role(Some(id2), "{}", false))
     val oneFuture3 = actor ? GetRole(Some(id2))
     val one3 = Await.result(oneFuture3.mapTo[Option[M]], timeout.duration)
     assertFalse(one3.get.isActive)

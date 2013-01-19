@@ -5,8 +5,7 @@ import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
-import de.tkip.sbpm.application.miscellaneous.ExecuteRequest
-import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
+import de.tkip.sbpm.application.miscellaneous._
 import spray.http.MediaTypes._
 import spray.routing._
 import scala.concurrent.Await
@@ -43,14 +42,23 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         path(IntNumber) { processID =>
           formField("subject") { (subject) =>
             //return all information for a given process (graph, next actions (unique ID per available action), history)
-            complete("excute not yet implemented (in ProcessManagerActor)")
+            implicit val timeout = Timeout(5 seconds)
+            val future1 = context.actorFor("/user/SubjectProviderManager") ? new ReadProcess(userId.toInt, processID.toInt)
+            val graph = Await.result(future1, timeout.duration).asInstanceOf[ReadProcessAnswer].pm;
+            val future2 = context.actorFor("/user/SubjectProviderManager") ? new GetHistory(userId.toInt, processID.toInt)
+            val history = Await.result(future2, timeout.duration).asInstanceOf[HistoryAnswer];
+            val future3 = context.actorFor("/user/SubjectProviderManager") ? new GetAvailableActions(userId.toInt, processID.toInt)
+            val actions = Await.result(future3, timeout.duration).asInstanceOf[GetAvailableActions];
+            complete("is not yet marshelled")
           }
         } ~
           //LIST
           path("") {
             //List all executed process (for a given user)
-            complete("no.")
-
+            implicit val timeout = Timeout(5 seconds)
+            val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequestAll(userId.toInt)
+            val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer];
+            complete("is not yet marshelled")
           }
 
       } ~
@@ -58,7 +66,8 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           //DELETE
           path(IntNumber) { processID =>
             //stop and delete given process
-            complete("error not yet implemented")
+            context.actorFor("/user/SubjectProviderManager") ! new KillProcess(userId.toInt)
+            complete("Process deleted")
           }
         } ~
         put {
@@ -66,13 +75,10 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("") {
             formField("processId") { (processId) =>
               implicit val timeout = Timeout(5 seconds)
-              
               val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
-
-              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].instanceID;
-
+              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
               complete(
-                  //marshalling
+                //marshalling
                 new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok"))
             }
           } ~
@@ -80,7 +86,9 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             path(IntNumber) { processID =>
               formField("actionID") { (actionID) =>
                 //execute next step (chosen by actionID)
-                complete("error not yet implemented")
+
+                context.actorFor("/user/SubjectProviderManager") ! new RequestAnswer(processID.toInt, actionID)
+                complete("Process updated")
               }
             }
         }

@@ -23,7 +23,8 @@ class SubjectActor(userID: UserID,
                    processInstanceRef: ProcessInstanceRef,
                    subject: Subject) extends Actor {
 
-  val subjectName: String = subject.subjectName
+  private val subjectID: SubjectID = subject.id
+  private val subjectName: String = subject.id
 
   case object JobDone
   private val inputPoolActor: ActorRef =
@@ -33,7 +34,7 @@ class SubjectActor(userID: UserID,
       Props(
         new InternalBehaviorActor(
           processInstanceRef,
-          subjectName,
+          subject.id,
           userID,
           inputPoolActor)))
 
@@ -55,7 +56,7 @@ class SubjectActor(userID: UserID,
 
     case e: ExecuteStartState =>
       internalBehaviourActor ! ExecuteStartState()
-      
+
     case b: BehaviourStateActor => internalBehaviourActor ! b
 
     // forward history entries from internal behavior up to instance actor
