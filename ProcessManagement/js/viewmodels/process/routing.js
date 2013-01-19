@@ -6,7 +6,9 @@ define([
 	"models/user",
 	"models/group"
 ], function( ko,komapping, App, _, User, Group ) {
+	
 	var viewModel;
+	
 	var ViewModel = function() {
 		this.currentProcessID = currentProcessID;
 		this.currentProcess = currentProcess;
@@ -69,13 +71,7 @@ define([
 			self.groupUser2Value = ko.observable(groupUser2Value);
 			self.groupUser2ListValue = ko.observable(groupUser2ListValue);
 
-			self.hasChanged = ko.computed(function() {
-				komapping.toJS(self);
-			});
 
-			self.hasChanged.subscribe(function() {
-				_super.routings.valueHasMutated();
-			});
 
 
 			//Dynamic content of dropdown
@@ -104,6 +100,16 @@ define([
 			self.groupUser2Value.subscribe(function() {
 				self.groupUser2ListValue(undefined);
 
+			});
+
+			//Indicate change of content. "komapping.toJS(self)" is used to make sure "valueHasMutated()" is triggered
+
+			self.hasChanged = ko.computed(function() {
+				komapping.toJS(self);
+			});
+
+			self.hasChanged.subscribe(function() {
+				_super.routings.valueHasMutated();
 			});
 
 		}
@@ -136,6 +142,7 @@ define([
 			currentProcess( process )
 		}
 
+		//Check if process has changed!
 		if ( !viewModel || viewModel.currentProcessID != currentProcessID ) {
 			viewModel = new ViewModel();
 		}
