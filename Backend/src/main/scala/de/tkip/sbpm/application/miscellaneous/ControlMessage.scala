@@ -50,7 +50,7 @@ case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends 
 // execution
 // request
 case class CreateProcessInstance(userID: UserID) extends ControlMessage with AnswerAbleMessage
-case class GetAvailableActions(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerAbleMessage
+case class GetAvailableActions(userID: UserID, processInstanceID: ProcessInstanceID) extends ControlMessage with AnswerAbleMessage
 //answers
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends ControlMessage with AnswerMessage[ProcessInstanceCreated]
 case class AvailableActionsAnswer(request: GetAvailableActions) extends ControlMessage with AnswerMessage[AvailableActionsAnswer]
