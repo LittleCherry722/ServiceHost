@@ -18,6 +18,11 @@
         <input type="button" value="Cancel" />
         <input type="button" data-bind="click: saveCurrentProcessAs" value="Save" />
       </div>
+      <div>
+      	<input type="button" value="Export" data-bind="click: exportGraph"/>
+      	<input type="text" id="importExportText"  data-bind="value: graphText"/>
+      	<input type="button" value="Import" data-bind="click: importGraph"/>
+      </div>
     </div>
   </fieldset>
 
