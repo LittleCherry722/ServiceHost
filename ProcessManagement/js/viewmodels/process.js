@@ -95,6 +95,7 @@ define([
 	
 		this.importGraph = function() {
 			currentProcess().graph().graphString(this.graphText());
+			loadGraph(currentProcess().graph());
 		}
 		
 		
