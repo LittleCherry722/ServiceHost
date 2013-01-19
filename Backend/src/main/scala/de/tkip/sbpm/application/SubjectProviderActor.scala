@@ -21,6 +21,9 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
       println("abc")
       // remove terminated subjects
       subjects = subjects.filter(!_.ref.isTerminated)
+      // collect for the filtered list
+      // TODO start collecting
+      CollectAvailableActions(get, subjects.filter(_.processInstanceID == get.processInstanceID))
 
     case spc: SubjectProviderCreated =>
       processManagerRef.forward(spc)
@@ -44,10 +47,10 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
       println("SubjectProvider not yet implemented: " + s)
   }
 
-  private case class Collect(g: GetAvailableActions, set: Set[Subject])
+  private case class CollectAvailableActions(g: GetAvailableActions, set: Set[Subject])
   private class AvailableActionsCollector extends Actor {
     def receive = {
-      case Collect(g, s) =>
+      case CollectAvailableActions(g, s) =>
         println(s)
 
         implicit val timeout = akka.util.Timeout(500)
