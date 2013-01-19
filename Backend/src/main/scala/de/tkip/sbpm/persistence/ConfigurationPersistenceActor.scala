@@ -1,5 +1,6 @@
 package de.tkip.sbpm.persistence
 import akka.actor.Actor
+import de.tkip.sbpm.model._
 import akka.actor.Props
 import scala.slick.lifted
 
@@ -15,7 +16,7 @@ sealed abstract class ConfigurationAction extends PersistenceAction
 */
 case class GetConfiguration(key: Option[String] = None) extends ConfigurationAction
 // save config to db (nothing is returned)
-case class SaveConfiguration(key: String, label: String, value: String, dataType: String = "String") extends ConfigurationAction
+case class SaveConfiguration(config: Configuration) extends ConfigurationAction
 // delete config with given key from db (nothing is returned)
 case class DeleteConfiguration(key: String) extends ConfigurationAction
 
@@ -27,7 +28,7 @@ private[persistence] class ConfigurationPersistenceActor extends Actor with Data
 
   import driver.simple._
   import DBType._
-  import de.tkip.sbpm.model._
+  
 
   // represents the "configuration" table in the database
   object Configurations extends Table[Configuration]("configuration") {
@@ -46,8 +47,8 @@ private[persistence] class ConfigurationPersistenceActor extends Actor with Data
       // get config with given key as option (None if not found)
       case GetConfiguration(key) => sender ! Configurations.where(_.key === key).firstOption
       // save config entry
-      case SaveConfiguration(key, label, value, dataType) =>
-        save(key, label, value, dataType)
+      case SaveConfiguration(c: Configuration) =>
+        save(c)
       // delete config with given key
       case DeleteConfiguration(key) => delete(key)
       // execute DDL for "configuration" table
@@ -56,9 +57,9 @@ private[persistence] class ConfigurationPersistenceActor extends Actor with Data
   }
   
   // replaces the config entry with given key with new values
-  def save(key: String, label: String, value: String, dataType: String)(implicit session: Session) = {
-    delete(key)
-    Configurations.insert(Configuration(key, label, value, dataType))
+  def save(config: Configuration)(implicit session: Session) = {
+    delete(config.key)
+    Configurations.insert(config)
   }
 
   // delete config entry with given key

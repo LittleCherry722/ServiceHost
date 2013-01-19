@@ -25,8 +25,8 @@ class PersistenceActorTest {
     type M = Configuration
     val id1 = "config1"
     val id2 = "config2"
-    actor ! SaveConfiguration(id1, "Config 1", "xxx", "String")
-    actor ! SaveConfiguration(id2, "Config 2", "yyy", "Integer")
+    actor ! SaveConfiguration(Configuration(id1, "Config 1", "xxx", "String"))
+    actor ! SaveConfiguration(Configuration(id2, "Config 2", "yyy", "Integer"))
     val allFuture = actor ? GetConfiguration()
     val oneFuture1 = actor ? GetConfiguration(Some(id1))
     val oneFuture2 = actor ? GetConfiguration(Some(id2))
@@ -36,7 +36,7 @@ class PersistenceActorTest {
     assertEquals(id1, one1.get.key)
     val one2 = Await.result(oneFuture2.mapTo[Option[M]], timeout.duration)
     assertEquals("Config 2", one2.get.label)
-    actor ! SaveConfiguration(id2, "Config 3", "yyy", "Integer")
+    actor ! SaveConfiguration(Configuration(id2, "Config 3", "yyy", "Integer"))
     val oneFuture3 = actor ? GetConfiguration(Some(id2))
     val one3 = Await.result(oneFuture3.mapTo[Option[M]], timeout.duration)
     assertEquals("Config 3", one3.get.label)

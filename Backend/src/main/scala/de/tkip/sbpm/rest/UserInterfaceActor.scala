@@ -17,6 +17,7 @@ import spray.json._
 import spray.routing._
 import de.tkip.sbpm.persistence._
 import scala.concurrent.Await
+import spray.http.StatusCodes._
 
 /**
  * This Actor is only used to process REST calls regarding "user"
@@ -35,7 +36,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
   /**
    *
    * usually a REST Api should at least implement the following functions:
-   * - GET withouht parameter => list of entity
+   * - GET without parameter => list of entity
    * - GET with id => specific entity
    * - POST without id => new entity
    * - PUT with id => update entity
@@ -57,14 +58,18 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
        */
       path("") {
         val res = request[Seq[User]](GetUser())
-        complete(Envelope(Some(res.toJson), STATUS_OK))
+        complete(res)
       } ~
+      /**
+         * get user by id
+         *
+         * e.g. GET http://localhost:8080/user/8
+         */
         path(IntNumber) { id: Int =>
           val res = request[Option[User]](GetUser(Some(id)))
-          var env = Envelope(None, STATUS_NOT_FOUND)
           if (res.isDefined)
-            env = Envelope(Some(res.get.toJson), STATUS_OK)
-          complete(env)
+            complete(res.get)
+          complete(NotFound, "User with id %d not found.".format(id))
         }
     } ~
       delete {
@@ -75,7 +80,8 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
          */
         path(IntNumber) { id =>
           execute(DeleteUser(id))
-          complete(Envelope(None, STATUS_OK))
+          // async call to database -> only send Accepted status code
+          complete(Accepted)
         }
       } ~
       post {
@@ -83,14 +89,15 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
          * create new user
          *
          * e.g. POST http://localhost:8080/user
-         * 	data={ "name": "abc", "isActive": true, "inputPoolSize": 8 }
+         * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
          */
         path("") {
-          formFields("data") { implicit data: String =>
-            val user = data.asJson.convertTo[User]
+          entity(as[User]) { user =>
             user.id = None
             val id = request[Int](SaveUser(user))
-            complete(Envelope(Some(id.toJson), STATUS_OK))
+            user.id = Some(id)
+            // return created user with generated id
+            complete(Created, user)
           }
         }
       } ~
@@ -99,15 +106,14 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
          * update existing user
          *
          * e.g. PUT http://localhost:8080/user/2
-         * 	data={ "name": "abc", "isActive": true, "inputPoolSize": 8 }
+         * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
          */
         path(IntNumber) { id =>
-          formFields("data") { implicit data: String =>
-            // unmarshalling of an user (as json) into an object with spray and the defined JsonProtocol
-            val user = data.asJson.convertTo[User]
+          entity(as[User]) { user =>
             user.id = Some(id)
             execute(SaveUser(user))
-            complete(Envelope(None, STATUS_OK))
+            // async call to database -> only send Accepted status code
+            complete(Accepted)
           }
         }
       }

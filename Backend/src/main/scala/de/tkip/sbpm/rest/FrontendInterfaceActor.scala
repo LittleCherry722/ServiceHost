@@ -17,6 +17,7 @@ object Entity {
   val USER = "user"
   val ROLE = "role"
   val GROUP = "group"
+  val CONFIGURATION = "configuration"
   // TODO define more entities if you need them  
 }
 class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
@@ -70,7 +71,14 @@ class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProvider
        */
       pathPrefix(Entity.GROUP) { requestContext =>
         context.actorOf(Props[GroupInterfaceActor]) ! requestContext
+      } ~
+      /**
+       * redirect all calls beginning with "configuration" to ConfigurationInterfaceActor
+       *
+       * e.g. GET http://localhost:8080/configuration/sbpm.debug
+       */
+      pathPrefix(Entity.CONFIGURATION) { requestContext =>
+        context.actorOf(Props[ConfigurationInterfaceActor]) ! requestContext
       }
   })
-
 }

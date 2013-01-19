@@ -2,23 +2,24 @@ package de.tkip.sbpm.rest
 
 import akka.actor.Actor
 import akka.event.Logging
-import de.tkip.sbpm.model.Group
-import de.tkip.sbpm.persistence.DeleteGroup
-import de.tkip.sbpm.persistence.GetGroup
-import de.tkip.sbpm.persistence.SaveGroup
+import de.tkip.sbpm.model.Configuration
+import de.tkip.sbpm.persistence.DeleteConfiguration
+import de.tkip.sbpm.persistence.GetConfiguration
+import de.tkip.sbpm.persistence.SaveConfiguration
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import spray.json._
 import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
-import spray.routing.directives.FieldDefMagnet.apply
+import spray.routing.directives.ContentTypeResolver._
 import spray.http.StatusCodes._
+import spray.routing.directives.PathMatchers
 
 /**
- * This Actor is only used to process REST calls regarding "group"
+ * This Actor is only used to process REST calls regarding "configuration"
  */
-class GroupInterfaceActor extends Actor with PersistenceInterface with HttpService {
+class ConfigurationInterfaceActor extends Actor with PersistenceInterface with HttpService {
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -28,7 +29,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface with HttpServi
   override def postStop() {
     logger.debug(context.self + " stops.")
   }
-
+  
   /**
    *
    * usually a REST Api should at least implement the following functions:
@@ -48,67 +49,49 @@ class GroupInterfaceActor extends Actor with PersistenceInterface with HttpServi
   def receive = runRoute({
     get {
       /**
-       * get a list of all groups
+       * get a list of all configurations
        *
-       * e.g. GET http://localhost:8080/group
+       * e.g. GET http://localhost:8080/configuration
        */
       path("") {
-        val res = request[Seq[Group]](GetGroup())
+        val res = request[Seq[Configuration]](GetConfiguration())
         complete(res)
       } ~
-      /**
-         * get group by id
+        /**
+         * get configuration by key
          *
-         * e.g. GET http://localhost:8080/group/2
+         * e.g. GET http://localhost:8080/configuration/sbpm.debug
          */
-        path(IntNumber) { id: Int =>
-          val res = request[Option[Group]](GetGroup(Some(id)))
+        path(PathElement) { key =>
+          val res = request[Option[Configuration]](GetConfiguration(Some(key)))
           if (res.isDefined)
             complete(res.get)
           else
-            complete(NotFound, "Group with id %d not found.".format(id))
+            complete(NotFound, "Configuration with key '%s' not found.".format(key))
         }
     } ~
       delete {
         /**
-         * delete a group
+         * delete a configuration entry
          *
-         * e.g. DELETE http://localhost:8080/group/12
+         * e.g. DELETE http://localhost:8080/configuration/sbpm.debug
          */
-        path(IntNumber) { id =>
-          execute(DeleteGroup(id))
+        path(PathElement) { key =>
+          execute(DeleteConfiguration(key))
           // async call to database -> only send Accepted status code
           complete(Accepted)
         }
       } ~
-      post {
+      (put | post) {
         /**
-         * create new Group
+         * save configuration entry
          *
-         * e.g. POST http://localhost:8080/group
-         * payload: { "name": "abc", "isActive": true }
+         * e.g. POST/PUT http://localhost:8080/configuration
+         * payload:	{ "key": "sbpm.debug", "label": "Enable debug mode.", "value": "true", "dataType": "Boolean" }
          */
         path("") {
-          entity(as[Group]) { group =>
-            group.id = None
-            val id = request[Int](SaveGroup(group))
-            group.id = Some(id)
-            // return created group with generated id
-            complete(Created, group)
-          }
-        }
-      } ~
-      put {
-        /**
-         * update existing group
-         *
-         * e.g. PUT http://localhost:8080/group/2
-         * payload: { "name": "abc", "isActive": true }
-         */
-        path(IntNumber) { id =>
-          entity(as[Group]) { group =>
-            group.id = Some(id)
-            execute(SaveGroup(group))
+          entity(as[Configuration]) { configuration =>
+            execute(SaveConfiguration(configuration))
             // async call to database -> only send Accepted status code
             complete(Accepted)
           }

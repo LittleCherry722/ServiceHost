@@ -2,19 +2,17 @@ package de.tkip.sbpm.rest
 
 import akka.actor.Actor
 import akka.event.Logging
-import de.tkip.sbpm.model.Envelope
-import de.tkip.sbpm.model.Role
-import de.tkip.sbpm.persistence.DeleteRole
-import de.tkip.sbpm.persistence.GetRole
-import de.tkip.sbpm.persistence.SaveRole
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.persistence._
 import de.tkip.sbpm.rest.JsonProtocol._
-import spray.httpx.SprayJsonSupport.sprayJsonMarshaller
+import spray.httpx.SprayJsonSupport._
 import spray.json.pimpAny
 import spray.json.pimpString
 import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
-import spray.routing.directives.CompletionMagnet.fromObject
+import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
+import spray.http.StatusCodes._
 
 /**
  * This Actor is only used to process REST calls regarding "role"
@@ -55,14 +53,19 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
        */
       path("") {
         val res = request[Seq[Role]](GetRole())
-        complete(Envelope(Some(res.toJson), STATUS_OK))
+        complete(res)
       } ~
+       /**
+         * get role by id
+         *
+         * e.g. GET http://localhost:8080/role/2
+         */
         path(IntNumber) { id: Int =>
           val res = request[Option[Role]](GetRole(Some(id)))
-          var env = Envelope(None, STATUS_NOT_FOUND)
           if (res.isDefined)
-            env = Envelope(Some(res.get.toJson), STATUS_OK)
-          complete(env)
+            complete(res.get)
+          else
+            complete(NotFound, "Role with id %d not found.".format(id))
         }
     } ~
       delete {
@@ -73,7 +76,8 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
          */
         path(IntNumber) { id =>
           execute(DeleteRole(id))
-          complete(Envelope(None, STATUS_OK))
+          // async call to database -> only send Accepted status code
+          complete(Accepted)
         }
       } ~
       post {
@@ -81,14 +85,15 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
          * create new role
          *
          * e.g. POST http://localhost:8080/role
-         * 	data={ "name": "abc", "isActive": true }
+         * payload: { "name": "abc", "isActive": true }
          */
         path("") {
-          formFields("data") { implicit data: String =>
-            val role = data.asJson.convertTo[Role]
+          entity(as[Role]) { role =>
             role.id = None
             val id = request[Int](SaveRole(role))
-            complete(Envelope(Some(id.toJson), STATUS_OK))
+            role.id = Some(id)
+            // return created role with generated id
+            complete(Created, role)
           }
         }
       } ~
@@ -97,15 +102,14 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
          * update existing role
          *
          * e.g. PUT http://localhost:8080/role/2
-         * 	data={ "name": "abc", "isActive": true }
+         * payload: { "name": "abc", "isActive": true }
          */
         path(IntNumber) { id =>
-          formFields("data") { implicit data: String =>
-            // unmarshalling of an role (as json) into an object with spray and the defined JsonProtocol
-            val role = data.asJson.convertTo[Role]
+          entity(as[Role]) { role =>
             role.id = Some(id)
             execute(SaveRole(role))
-            complete(Envelope(None, STATUS_OK))
+            // async call to database -> only send Accepted status code
+            complete(Accepted)
           }
         }
       }
