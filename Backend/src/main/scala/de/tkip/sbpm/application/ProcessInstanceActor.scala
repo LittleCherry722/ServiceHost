@@ -34,7 +34,7 @@ package history {
                      messageType: String,
                      from: String, // sender subject of message
                      to: String, // receiver subject of message 
-                     data: MessagePayloadLink = null, // link to msg payload
+                     data: String, // link to msg payload
                      files: Seq[MessagePayloadLink] = null) // link to file attachments
   // represents a link to a message payload which contains a actor ref 
   // and a payload id that is needed by that actor to identify payload
@@ -128,7 +128,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         subjectMap(asts.subjectName) ! asts.behaviourState
 
     // return current process instance history
-    case msg: GetHistory => msg.sender ! {
+    case msg: GetHistory => if (msg.sender != null) msg.sender else sender ! {
       if (msg.isInstanceOf[Debug]) HistoryTestData.generate(process.name, id)(debugMessagePayloadProvider)
       else executionHistory
     }
@@ -136,8 +136,6 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
     // add an entry to the history
     // (should be called by subject actors when a transition occurs)
     case he: history.Entry => executionHistory.entries += he
-
-    case ss                => println("ProcessInstaceActor: not yet implemented Message: " + ss)
   }
 
   private def getSubject(name: String): Subject = {
