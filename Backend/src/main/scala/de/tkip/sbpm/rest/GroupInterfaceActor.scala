@@ -14,11 +14,13 @@ import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
+import spray.http.HttpHeader
+import spray.http.HttpHeaders
 
 /**
  * This Actor is only used to process REST calls regarding "group"
  */
-class GroupInterfaceActor extends Actor with PersistenceInterface with HttpService {
+class GroupInterfaceActor extends Actor with PersistenceInterface {
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -41,9 +43,6 @@ class GroupInterfaceActor extends Actor with PersistenceInterface with HttpServi
    * For more information about how to design a RESTful API see:
    * http://ajaxpatterns.org/RESTful_Service#RESTful_Principles
    *
-   * Nevertheless: If an URL does not represent a resource, like the "execution" API
-   * it makes sense to step away from this general template
-   *
    */
   def receive = runRoute({
     get {
@@ -51,22 +50,24 @@ class GroupInterfaceActor extends Actor with PersistenceInterface with HttpServi
        * get a list of all groups
        *
        * e.g. GET http://localhost:8080/group
+       * result: JSON array of entities
        */
       path("") {
         val res = request[Seq[Group]](GetGroup())
         complete(res)
       } ~
-      /**
+        /**
          * get group by id
          *
          * e.g. GET http://localhost:8080/group/2
+         * result: 404 Not Found or entity as JSON
          */
         path(IntNumber) { id: Int =>
           val res = request[Option[Group]](GetGroup(Some(id)))
           if (res.isDefined)
             complete(res.get)
           else
-            complete(NotFound, "Group with id %d not found.".format(id))
+            notFound("Group with id %d not found.", id)
         }
     } ~
       delete {
@@ -74,11 +75,12 @@ class GroupInterfaceActor extends Actor with PersistenceInterface with HttpServi
          * delete a group
          *
          * e.g. DELETE http://localhost:8080/group/12
+         * result: 202 Accepted -> content deleted asynchronously
          */
         path(IntNumber) { id =>
           execute(DeleteGroup(id))
           // async call to database -> only send Accepted status code
-          complete(Accepted)
+          accepted()
         }
       } ~
       post {
@@ -87,14 +89,15 @@ class GroupInterfaceActor extends Actor with PersistenceInterface with HttpServi
          *
          * e.g. POST http://localhost:8080/group
          * payload: { "name": "abc", "isActive": true }
+         * result: 	201 Created
+         * 			Location: /group/8
          */
         path("") {
           entity(as[Group]) { group =>
             group.id = None
             val id = request[Int](SaveGroup(group))
-            group.id = Some(id)
             // return created group with generated id
-            complete(Created, group)
+            created("/group/%d", id)
           }
         }
       } ~
@@ -104,13 +107,14 @@ class GroupInterfaceActor extends Actor with PersistenceInterface with HttpServi
          *
          * e.g. PUT http://localhost:8080/group/2
          * payload: { "name": "abc", "isActive": true }
+         * result: 202 Accepted -> content saved asynchronously
          */
         path(IntNumber) { id =>
           entity(as[Group]) { group =>
             group.id = Some(id)
             execute(SaveGroup(group))
             // async call to database -> only send Accepted status code
-            complete(Accepted)
+            accepted()
           }
         }
       }
