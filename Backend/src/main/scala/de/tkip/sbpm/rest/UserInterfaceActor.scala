@@ -22,7 +22,7 @@ import spray.http.StatusCodes._
 /**
  * This Actor is only used to process REST calls regarding "user"
  */
-class UserInterfaceActor extends Actor with PersistenceInterface with HttpService {
+class UserInterfaceActor extends Actor with PersistenceInterface {
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -45,9 +45,6 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
    * For more information about how to design a RESTful API see:
    * http://ajaxpatterns.org/RESTful_Service#RESTful_Principles
    *
-   * Nevertheless: If an URL does not represent a resource, like the "execution" API
-   * it makes sense to step away from this general template
-   *
    */
   def receive = runRoute({
     get {
@@ -55,21 +52,24 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
        * get a list of all user
        *
        * e.g. GET http://localhost:8080/user
+       * result: JSON array of entities
        */
       path("") {
         val res = request[Seq[User]](GetUser())
         complete(res)
       } ~
-      /**
+        /**
          * get user by id
          *
          * e.g. GET http://localhost:8080/user/8
+         * result: 404 Not Found or entity as JSON
          */
         path(IntNumber) { id: Int =>
           val res = request[Option[User]](GetUser(Some(id)))
           if (res.isDefined)
             complete(res.get)
-          complete(NotFound, "User with id %d not found.".format(id))
+          else
+            notFound("User with id %d not found.", id)
         }
     } ~
       delete {
@@ -77,11 +77,12 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
          * delete an user
          *
          * e.g. DELETE http://localhost:8080/user/12
+         * result: 202 Accepted -> content deleted asynchronously
          */
         path(IntNumber) { id =>
           execute(DeleteUser(id))
           // async call to database -> only send Accepted status code
-          complete(Accepted)
+          accepted()
         }
       } ~
       post {
@@ -90,6 +91,8 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
          *
          * e.g. POST http://localhost:8080/user
          * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
+         * result: 	201 Created
+         * 			Location: /user/8
          */
         path("") {
           entity(as[User]) { user =>
@@ -97,7 +100,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
             val id = request[Int](SaveUser(user))
             user.id = Some(id)
             // return created user with generated id
-            complete(Created, user)
+            created("/user/%d", id)
           }
         }
       } ~
@@ -113,7 +116,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface with HttpServic
             user.id = Some(id)
             execute(SaveUser(user))
             // async call to database -> only send Accepted status code
-            complete(Accepted)
+            accepted()
           }
         }
       }

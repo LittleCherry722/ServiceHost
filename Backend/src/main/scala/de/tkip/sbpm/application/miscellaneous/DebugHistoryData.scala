@@ -23,21 +23,21 @@ object HistoryTestData {
 
   def addEntries(h: History)(implicit payloadProvider: ActorRef) {
     implicit var time = h.processStarted.getTime()
-    h.entries += send(sub1, sub2, "Order request", 1, "req", null)
+    h.entries += send(sub1, sub2, "Order request", 1, "152876(2),4547984(3),546847(1),541754(1)", null)
     time = nextTime(time)
-    h.entries += receive(sub1, sub2, "Order request", 1, "req", null)
+    h.entries += receive(sub1, sub2, "Order request", 1, "152876(2),4547984(3),546847(1),541754(1)", null)
     time = nextTime(time)
     h.entries += action(sub2, "Check availability", h.entries.last.toState)
     time = nextTime(time)
-    h.entries += send(sub2, sub1, "Order availability", 2, "avail", null, h.entries.last.toState)
+    h.entries += send(sub2, sub1, "Order availability", 2, "152876(1),4547984(3),546847(0),541754(1)", null, h.entries.last.toState)
     time = nextTime(time)
-    h.entries += receive(sub2, sub1, "Order availability", 2, "avail", null, h.entries.head.toState)
+    h.entries += receive(sub2, sub1, "Order availability", 2, "152876(1),4547984(3),546847(0),541754(1)", null, h.entries.head.toState)
     time = nextTime(time)
     h.entries += action(sub1, "Review order", h.entries.last.toState)
     time = nextTime(time)
-    h.entries += send(sub1, sub2, "Order", 3, "order", null, h.entries.last.toState)
+    h.entries += send(sub1, sub2, "Order", 3, "152876(1),4547984(3),541754(1)", null, h.entries.last.toState)
     time = nextTime(time)
-    h.entries += receive(sub1, sub2, "Order", 3, "order", null, h.entries(3).toState)
+    h.entries += receive(sub1, sub2, "Order", 3, "152876(1),4547984(3),541754(1)", null, h.entries(3).toState)
     time = nextTime(time)
     h.entries += action(sub2, "Prepare delivery", h.entries.last.toState)
     time = nextTime(time)
@@ -68,7 +68,7 @@ object HistoryTestData {
 		      msgType,
 		      from,
 		      to,
-		      if (payload != null) MessagePayloadLink(payloadProvider, payload) else null,
+		      payload,
 		      if (files != null) files.map(MessagePayloadLink(payloadProvider, _)) else null)
 
   def action(sub: String, name: String, fromState: State = null)(implicit time: Long) =

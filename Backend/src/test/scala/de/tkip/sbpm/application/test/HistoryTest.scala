@@ -33,8 +33,7 @@ class HistoryTest extends FunSuite {
     println(result)
     assert(result.entries.length === 13)
     val msg = result.entries(6).message
-    val payloadFuture = msg.data.actor ? history.GetMessagePayload(msg.id, msg.data.payloadId)
-    val payloadResult = Await.result(payloadFuture.mapTo[String], timeout.duration)
+    val payloadResult = msg.data
     println(payloadResult)
     assert(payloadResult === "152876(1),4547984(3),541754(1)")
   }
