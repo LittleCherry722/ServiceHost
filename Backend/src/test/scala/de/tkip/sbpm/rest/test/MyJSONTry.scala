@@ -189,15 +189,15 @@ object MyJSONTry extends App {
 }
 
 object ProcessExe {
-  def executeProcess(processModel: ProcessModel) {
+  def executeProcess(processGraph: ProcessGraph) {
 
     val system = ActorSystem("TextualEpassIos")
     val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
     val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
 
-    implicit val timeout = Timeout(5)
+    implicit val timeout = Timeout(500)
     //fuer CreateProcess wird die userId benoetigt
-    val future1 = processManager ? CreateProcess(2, "my process", processModel)
+    val future1 = processManager ? CreateProcess(2, "my process", processGraph)
 
     val processID: Int =
       Await.result(future1, timeout.duration).asInstanceOf[ProcessCreated].processID
@@ -207,7 +207,7 @@ object ProcessExe {
     val processInstanceID: Int =
       Await.result(future2, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
 
-    processManager ! ((processInstanceID, AddSubject(1, 2, "S1")))
+    processManager ! ((processInstanceID, AddSubject(1, "S1")))
   }
 }
 
@@ -222,14 +222,11 @@ object Fkts {
     def createState: State = State(id, "", stateType, transitions.toArray)
   }
 
-  def parseProcess(process: JSONProcess): ProcessModel = {
+  def parseProcess(process: JSONProcess): ProcessGraph = {
 
     // TODO id muss richtig gesetz werden oder aus model raus
     // TODO name?
-    ProcessModel(
-      -1,
-      "name?",
-      process.process.map(parseSubject(_)))
+    ProcessGraph(process.process.map(parseSubject(_)))
   }
 
   def parseSubject(subject: JSONSubject): Subject = {

@@ -5,10 +5,11 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
-import de.tkip.sbpm.application.subject.BehaviorRequest
+import de.tkip.sbpm.application.subject.SubjectBehaviorRequest
 
-case class ExecuteState(state: StateID)
-case class ExecuteStartState() // TODO noetig? / anders nennen?
+// TODO hierher oder alle zusammen in eine Datei
+case class ExecuteState(state: StateID) extends SubjectBehaviorRequest
+case class ExecuteStartState() extends SubjectBehaviorRequest // TODO noetig? / anders nennen?
 
 /**
  * contains the business logic that will be modeled by the graph
@@ -35,7 +36,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
       // TODO hier history log?
       execute(e.state)
 
-    case br: BehaviorRequest =>
+    case br: SubjectBehaviorRequest =>
       if (currentState != null) {
         currentState.forward(br)
       }

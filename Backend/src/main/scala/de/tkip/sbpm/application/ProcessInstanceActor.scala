@@ -69,10 +69,12 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
   def receive = {
 
     case as: AddSubject =>
-      val subject: Subject = getSubject(as.subjectName)
+      val subject: Subject = getSubject(as.subjectID)
 
       println("addsubject" + subject)
+      // create the subject
       val subjectRef = context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
+      // add the subject to the management map
       subjectMap += subject.id -> subjectRef
       subjectCounter += 1
 
@@ -86,8 +88,11 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         messagePool = messagePool.filterNot(_._2.to == subject.id)
       }
 
-      // TODO subjecte mit welcher message ausfuehren?
-      //subjectRef ! ExecuteRequest(as.userID, id)
+      // inform the subject provider about his new subject
+      context.parent !
+        (as.userID, SubjectCreated(process.processID, id, subject.id, subjectRef))
+
+      // start the execution of the subject
       subjectRef ! ExecuteStartState()
 
     case End =>
@@ -113,7 +118,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         contextResolver !
           RequestUserID(
             SubjectInformation(sm.to),
-            AddSubject(_, id, sm.to))
+            AddSubject(_, sm.to))
       }
 
     // outdated
@@ -121,11 +126,6 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       println("execute")
       subjectMap.values.map(_ ! pr) // TODO: send to all subjects?
       pr.sender ! id // answer to original sender
-
-    // outdated?
-    case asts: AddState =>
-      if (subjectMap.contains(asts.subjectName))
-        subjectMap(asts.subjectName) ! asts.behaviourState
 
     // return current process instance history
     case msg: GetHistory => if (msg.sender != null) msg.sender else sender ! {

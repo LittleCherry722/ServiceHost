@@ -11,11 +11,13 @@ import de.tkip.sbpm.persistence._
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor/SubjectActor (TODO)
  */
 class ProcessManagerActor(private val name: String) extends Actor {
-  private var processInstanceCount = 0
-  private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceRef]()
-
+  // the process descriptions
   private var processCount = 0
   private val processDescritionMap = collection.mutable.Map[ProcessID, ProcessModel]()
+
+  // the process instances aka the processes in the execution
+  private var processInstanceCount = 0
+  private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceRef]()
 
   // used to map answermessages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -35,36 +37,32 @@ class ProcessManagerActor(private val name: String) extends Actor {
         forwardToPersistenceActor(pa)
       }
 
-	case hi: GetHistory => 
-      forwardControlMessageToProcess(hi.processID, hi)
-      
-    case sra: ExecuteRequestAll => 
+    case hi: GetHistory =>
+      forwardControlMessageToProcessInstance(hi.processID, hi)
+
+    case sra: ExecuteRequestAll =>
       sra.sender ! processInstanceMap.keys
 
-     case rp: ReadProcess =>
+    case rp: ReadProcess =>
       rp.sender ! processDescritionMap
 
-    case as: AddSubject =>
-      forwardControlMessageToProcess(as.processID, as)
-
     case sr: ExecuteRequest => // request the status of the process
-      forwardControlMessageToProcess(sr.processID, sr)
+      forwardControlMessageToProcessInstance(sr.processID, sr)
 
     case spc: SubjectProviderCreated =>
       subjectProviderMap += spc.userID -> sender
 
-    case as: AddState => // forwards an AddState request to the process that corresponds to the given processID
-      forwardControlMessageToProcess(as.processID, as)
-
     // modeling
     case cp: CreateProcess =>
-      processDescritionMap += processCount -> cp.processModel
+      val processModel: ProcessModel = ProcessModel(processCount, cp.processName, cp.processGraph)
+      processDescritionMap += processCount -> processModel
       sender ! ProcessCreated(cp, processCount)
       processCount += 1
 
     case up: UpdateProcess =>
       processDescritionMap(up.processID) = up.processModel
-      
+    // TODO was mit den laufen processinstanzen machen?
+
     case ra: RequestAnswer =>
       //wo muss die entscheidung festgehalten werden
       println("not yet implemnted")
@@ -76,11 +74,20 @@ class ProcessManagerActor(private val name: String) extends Actor {
       processInstanceCount += 1
 
     case kill: KillProcess =>
-      killProcess(kill.processInstanceID)
+      killProcessInstance(kill.processInstanceID)
+
+    // a process instance informs the subject provider that a subject has been created
+    case (userID: UserID, sc: SubjectCreated) =>
+      if (subjectProviderMap.contains(userID)) {
+        // forward the message to the correct subject provider
+        subjectProviderMap(userID).forward(sc)
+      } else {
+        println("SubjectProvider does not exists: " + userID)
+      }
 
     // for the Testcase
     case (id: Int, as: AddSubject) =>
-      processInstanceMap(id) forward as
+      processInstanceMap(id).forward(as)
   }
 
   // forward persistence messages to persistenceActors
@@ -93,10 +100,11 @@ class ProcessManagerActor(private val name: String) extends Actor {
   }
 
   // forward control message to processInstance with a given processID
-  private def forwardControlMessageToProcess(processID: ProcessID,
-                                             controlMessage: ControlMessage) {
-    if (processInstanceMap.contains(processID))
-      processInstanceMap(processID) ! controlMessage
+  // TODO braucht man überhaupt noch?
+  private def forwardControlMessageToProcessInstance(processInstanceID: ProcessInstanceID,
+                                                     controlMessage: ControlMessage) {
+    if (processInstanceMap.contains(processInstanceID))
+      processInstanceMap(processInstanceID) ! controlMessage
   }
 
   // creates a new processInstanceActor and registers it with the given processID (overrides the old entry)
@@ -108,10 +116,10 @@ class ProcessManagerActor(private val name: String) extends Actor {
   }
 
   // kills the processInstanceActor with the given processID and unregisters it
-  private def killProcess(processID: ProcessInstanceID) = {
-    if (processInstanceMap.contains(processID)) {
-      context.stop(processInstanceMap(processID))
-      processInstanceMap -= processID
+  private def killProcessInstance(processInstanceID: ProcessInstanceID) = {
+    if (processInstanceMap.contains(processInstanceID)) {
+      context.stop(processInstanceMap(processInstanceID))
+      processInstanceMap -= processInstanceID
     }
   }
 }

@@ -3,9 +3,10 @@ package de.tkip.sbpm.application.subject
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.StateType._
 
-sealed trait BehaviorRequest
+trait SubjectBehaviorRequest
 
-case class GetAvailableAction(processInstanceID: ProcessInstanceID) extends BehaviorRequest
+// The Request to get the available action from a single subject
+case class GetAvailableAction(processInstanceID: ProcessInstanceID) extends SubjectBehaviorRequest
 
 // Answer to the GetAvailable Action request
 case class AvailableAction(userID: UserID,
@@ -20,7 +21,7 @@ case class ExecuteAction(userID: UserID,
                          subjectID: SubjectID,
                          stateID: StateID,
                          stateType: StateType,
-                         actionInput: String) extends BehaviorRequest
+                         actionInput: String) extends SubjectBehaviorRequest
 
 // GetAction:
 //subjectinformation = processinstanceid, subjectid

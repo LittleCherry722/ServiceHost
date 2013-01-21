@@ -102,7 +102,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
         path("") {
           formField("userid", "name", "graph", "isCase") { (userid, name, graph, isCase) =>
             implicit val timeout = Timeout(5 seconds)
-            val future = context.actorFor("/usr/SubjectProviderManager") ? new CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessModel])
+            val future = context.actorFor("/usr/SubjectProviderManager") ? new CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessGraph])
             val instanceid = Await.result(future, timeout.duration).asInstanceOf[ProcessCreated].processID
 
               complete(

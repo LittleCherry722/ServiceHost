@@ -9,7 +9,7 @@ import de.tkip.sbpm.application.miscellaneous.End
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.miscellaneous.ExecuteRequest
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
-import de.tkip.sbpm.application.subject.BehaviorRequest
+import de.tkip.sbpm.application.subject.SubjectBehaviorRequest
 
 // sub package for history related classes
 package history {
@@ -66,7 +66,7 @@ class SubjectActor(userID: UserID,
     case history.Transition(from, to, msg) =>
       context.parent ! history.Entry(new Date(), subjectName, from, to, msg)
       
-    case br: BehaviorRequest =>
+    case br: SubjectBehaviorRequest =>
       internalBehaviourActor.forward(br)
   }
 }
