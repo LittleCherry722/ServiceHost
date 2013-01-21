@@ -12,6 +12,9 @@ object StateType extends Enumeration {
 }
 
 import StateType._
+
+case class Actions(stateType: StateType, actions: Array[String])
+
 // name raus ist ws in id
 case class State(id: String, name: String, stateType: StateType, transitions: Array[Transition])
 

@@ -4,7 +4,7 @@ import de.tkip.sbpm.rest._
 import ProcessAttributes._
 import akka.actor._
 import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.model.BehaviourStateActor
+import de.tkip.sbpm.application.BehaviorStateActor
 import de.tkip.sbpm.model.Transition
 import de.tkip.sbpm.application.SubjectMessageRouting
 import de.tkip.sbpm.model.ProcessModel
@@ -12,7 +12,7 @@ import de.tkip.sbpm.application.History
 
 sealed trait ControlMessage // For system control tasks
 // This trait is for messages which are send from the frontend
-// TODO man könnte hier (wenn immer vorhanden) oder in einem 2ten trait die userID wie beim
+// TODO man kï¿½nnte hier (wenn immer vorhanden) oder in einem 2ten trait die userID wie beim
 // AnswerMessage reinmixen und somit den subjectprovidermanager (und vllt andere) lesbarer machen
 trait AnswerAbleMessage {
   private var _sender: InterfaceRef = null
@@ -64,7 +64,7 @@ case class Successor(nextState: String) extends ControlMessage
 case object End extends ControlMessage
 
 case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerAbleMessage
-case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourStateActor) extends ControlMessage
+case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviorStateActor) extends ControlMessage
 case class CreateSubjectProvider() extends ControlMessage
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID) extends ControlMessage
 
