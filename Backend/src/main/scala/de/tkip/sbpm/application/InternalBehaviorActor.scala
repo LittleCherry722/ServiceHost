@@ -48,6 +48,9 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
       // TODO hier history log?
       setState(es.state)
       currentState ! es
+      
+    case ea: ExecuteAction =>
+      currentState ! ea
 
     case br: SubjectBehaviorRequest =>
       if (currentState != null) {
@@ -56,6 +59,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
       
     case ae: ActionExecuted =>
       setState(ae.stateID)
+      println("set state " + ae.stateID)
 
     case n => println("InternalBehavior - Not yet supported: " + n + " " + subjectID)
   }

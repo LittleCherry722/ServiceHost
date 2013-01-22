@@ -8,8 +8,8 @@ import scala.concurrent.Await
 
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.subject.AvailableAction
-import de.tkip.sbpm.application.subject.GetAvailableAction
+import de.tkip.sbpm.application.subject._
+import de.tkip.sbpm.application._
 
 case class SubjectCreated(processID: ProcessID,
                           processInstanceID: ProcessInstanceID,
@@ -27,17 +27,23 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
       subjects = subjects.filter(!_.ref.isTerminated)
       // collect for the filtered list
       // TODO start collecting
+      
       context.actorOf(Props(new AvailableActionsCollector)) !
-        CollectAvailableActions(get, subjects.filter(_.processInstanceID == get.processInstanceID))
+        CollectAvailableActions(get, subjects.filter(_.processInstanceID != get.processInstanceID))
     }
 
     case spc: SubjectProviderCreated => {
-      processManagerRef.forward(spc)
+      processManagerRef ! spc
     }
 
     case subject: SubjectCreated => {
       subjects += subject
     }
+    
+    case ea: ExecuteAction =>
+      for(subject <- subjects.filter(_.processInstanceID != ea.processInstanceID)) 
+        subject.ref ! ea
+      
 
     case message: AnswerAbleMessage => {
       // just forward all messages from the frontend which are not
@@ -59,7 +65,7 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
 
   private class AvailableActionsCollector extends Actor {
     def receive = {
-      case CollectAvailableActions(request, sub) => {
+      case CollectAvailableActions(request, sub) => {      
         implicit val timeout = akka.util.Timeout(500)
 
         val futures = ArrayBuffer[scala.concurrent.Future[Any]]()

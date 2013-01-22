@@ -15,7 +15,7 @@ import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
-object CreateProcessTest extends App {
+object ExecuteProcessInConsoleTest extends App {
 
   val processGraph =
     ProcessGraph(
@@ -60,7 +60,7 @@ object CreateProcessTest extends App {
 //  
 //  testProcessCreation()
 
-  def testProcessAndSubjectCreation() {
+  def testProcessAndSubjectCreationWithKonsole() {
 
     val system = ActorSystem("TextualEpassIos")
     val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
@@ -99,7 +99,7 @@ object CreateProcessTest extends App {
 
   }
 
-  testProcessAndSubjectCreation()
+  testProcessAndSubjectCreationWithKonsole()
 }
 
 

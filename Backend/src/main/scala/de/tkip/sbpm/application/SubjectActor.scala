@@ -9,7 +9,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.miscellaneous.ExecuteRequest
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
-import de.tkip.sbpm.application.subject.SubjectBehaviorRequest
+import de.tkip.sbpm.application.subject._
 
 // sub package for history related classes
 package history {
@@ -64,6 +64,9 @@ class SubjectActor(userID: UserID,
       else
         internalBehaviorActor ! ess
 
+    case ea: ExecuteAction =>
+      internalBehaviorActor ! ea
+        
     case bsa: BehaviorStateActor => internalBehaviorActor ! bsa
 
     case gaa: GetAvailableActions => if (gaa.userID == userID) internalBehaviorActor ! gaa

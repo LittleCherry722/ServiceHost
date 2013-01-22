@@ -44,7 +44,7 @@ abstract class BehaviorStateActor(val stateID: StateID,
   protected def getAvailableAction: (StateType, Array[String])
 
   def receive = {
-    case ga: GetAvailableActions =>
+    case ga: GetAvailableAction =>
       val (stateType, actionData) = getAvailableAction
       sender !
         AvailableAction(userID,

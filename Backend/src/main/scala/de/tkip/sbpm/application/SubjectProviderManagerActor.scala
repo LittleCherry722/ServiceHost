@@ -3,6 +3,7 @@ package de.tkip.sbpm.application
 import akka.actor._
 import miscellaneous._
 import miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.subject._
 
 class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     extends Actor {
@@ -43,6 +44,10 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     case cp: CreateProcessInstance =>
       cp.sender = sender
       forwardControlMessageToProvider(cp.userID, cp)
+      
+    case ea: ExecuteAction =>
+      if(subjectProviderMap.contains(ea.userID))
+          subjectProviderMap(ea.userID) ! ea
 
     case kill: KillProcess =>
       processManagerRef ! kill
@@ -63,7 +68,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
       if (controlMessage.isInstanceOf[AnswerAbleMessage])
         controlMessage.asInstanceOf[AnswerAbleMessage].sender = sender
 
-      subjectProviderMap(userID) ! controlMessage
+      subjectProviderMap(userID).forward(controlMessage)
     }
   }
 
