@@ -15,8 +15,8 @@
 
 	$dbConfig	= array (
 		"host"		=> "localhost",
-		"user"		=> "internet_praktik",
-		"pass"		=> "internet_praktikum",
+		"user"		=> "root",
+		"pass"		=> "",
 		"database"	=> "sbpm_groupware"	
 	);
 
