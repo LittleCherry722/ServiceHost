@@ -1,28 +1,26 @@
 package de.tkip.sbpm.rest
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import akka.actor._
+import akka.actor.Actor
 import akka.event.Logging
-import akka.pattern.ask
-import akka.util.Timeout
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.Envelope
-import de.tkip.sbpm.model.User
+import de.tkip.sbpm.model.Group
+import de.tkip.sbpm.persistence.DeleteGroup
+import de.tkip.sbpm.persistence.GetGroup
+import de.tkip.sbpm.persistence.SaveGroup
 import de.tkip.sbpm.rest.JsonProtocol._
-import de.tkip.sbpm.rest.ProcessAttribute._
-import spray.http.MediaTypes._
 import spray.httpx.SprayJsonSupport._
 import spray.json._
-import spray.routing._
-import de.tkip.sbpm.persistence._
-import scala.concurrent.Await
+import spray.routing.Directive.pimpApply
+import spray.routing.HttpService
+import spray.routing.directives.CompletionMagnet._
+import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
+import spray.http.HttpHeader
+import spray.http.HttpHeaders
 
 /**
- * This Actor is only used to process REST calls regarding "user"
+ * This Actor is only used to process REST calls regarding "group"
  */
-class UserInterfaceActor extends Actor with PersistenceInterface {
+class GroupInterfaceActor extends Actor with PersistenceInterface {
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -49,72 +47,72 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
   def receive = runRoute({
     get {
       /**
-       * get a list of all user
+       * get a list of all groups
        *
-       * e.g. GET http://localhost:8080/user
+       * e.g. GET http://localhost:8080/group
        * result: JSON array of entities
        */
       path("") {
-        val res = request[Seq[User]](GetUser())
+        val res = request[Seq[Group]](GetGroup())
         complete(res)
       } ~
         /**
-         * get user by id
+         * get group by id
          *
-         * e.g. GET http://localhost:8080/user/8
+         * e.g. GET http://localhost:8080/group/2
          * result: 404 Not Found or entity as JSON
          */
         path(IntNumber) { id: Int =>
-          val res = request[Option[User]](GetUser(Some(id)))
+          val res = request[Option[Group]](GetGroup(Some(id)))
           if (res.isDefined)
             complete(res.get)
           else
-            notFound("User with id %d not found.", id)
+            notFound("Group with id %d not found.", id)
         }
     } ~
       delete {
         /**
-         * delete an user
+         * delete a group
          *
-         * e.g. DELETE http://localhost:8080/user/12
+         * e.g. DELETE http://localhost:8080/group/12
          * result: 202 Accepted -> content deleted asynchronously
          */
         path(IntNumber) { id =>
-          execute(DeleteUser(id))
+          execute(DeleteGroup(id))
           // async call to database -> only send Accepted status code
           accepted()
         }
       } ~
       post {
         /**
-         * create new user
+         * create new Group
          *
-         * e.g. POST http://localhost:8080/user
-         * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
+         * e.g. POST http://localhost:8080/group
+         * payload: { "name": "abc", "isActive": true }
          * result: 	201 Created
-         * 			Location: /user/8
+         * 			Location: /group/8
          */
         path("") {
-          entity(as[User]) { user =>
-            user.id = None
-            val id = request[Int](SaveUser(user))
-            user.id = Some(id)
-            // return created user with generated id
-            created("/user/%d", id)
+          entity(as[Group]) { group =>
+            group.id = None
+            val id = request[Int](SaveGroup(group))
+            // return created group with generated id
+            created("/group/%d", id)
           }
         }
       } ~
       put {
         /**
-         * update existing user
+         * update existing group
          *
-         * e.g. PUT http://localhost:8080/user/2
-         * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
+         * e.g. PUT http://localhost:8080/group/2
+         * payload: { "name": "abc", "isActive": true }
+         * result: 202 Accepted -> content saved asynchronously
          */
         path(IntNumber) { id =>
-          entity(as[User]) { user =>
-            user.id = Some(id)
-            execute(SaveUser(user))
+          entity(as[Group]) { group =>
+            group.id = Some(id)
+            execute(SaveGroup(group))
             // async call to database -> only send Accepted status code
             accepted()
           }

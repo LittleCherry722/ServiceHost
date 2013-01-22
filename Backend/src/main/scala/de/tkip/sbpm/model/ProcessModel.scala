@@ -9,11 +9,28 @@ object StateType extends Enumeration {
   val SendStateType = Value("Send")
   val ReceiveStateType = Value("Receive")
   val EndStateType = Value("End")
+
+  // for marshalling and unmarshalling:
+  def fromStringtoStateType(stateType: String): StateType = {
+    // TODO
+    StartStateType
+  }
+
+  def fromStateTypetoString(stateType: StateType): String = {
+    // TODO
+    ""
+  }
 }
 
-import StateType._
+import StateType.StateType
+
+//case class Actions(stateType: StateType, actions: Array[String])
+
+// name raus ist ws in id
 case class State(id: String, name: String, stateType: StateType, transitions: Array[Transition])
 
-case class Subject(subjectName: String, states: Array[State])
-
-case class ProcessModel(processID: ProcessID, name: String, subjects: Array[Subject])
+case class Subject(id: String, states: Array[State])
+case class ProcessGraph(subjects: Array[Subject])
+case class ProcessModel(processID: ProcessID, name: String, graph: ProcessGraph) {
+  def subjects = graph.subjects
+}

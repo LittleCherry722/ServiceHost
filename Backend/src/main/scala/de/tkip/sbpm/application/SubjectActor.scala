@@ -8,6 +8,8 @@ import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.End
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.miscellaneous.ExecuteRequest
+import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
+import de.tkip.sbpm.application.subject.SubjectBehaviorRequest
 
 // sub package for history related classes
 package history {
@@ -23,7 +25,8 @@ class SubjectActor(userID: UserID,
                    processInstanceRef: ProcessInstanceRef,
                    subject: Subject) extends Actor {
 
-  val subjectName: String = subject.subjectName
+  private val subjectID: SubjectID = subject.id
+  private val subjectName: String = subject.id
 
   case object JobDone
   private val inputPoolActor: ActorRef =
@@ -33,7 +36,7 @@ class SubjectActor(userID: UserID,
       Props(
         new InternalBehaviorActor(
           processInstanceRef,
-          subjectName,
+          subject.id,
           userID,
           inputPoolActor)))
 
@@ -50,16 +53,20 @@ class SubjectActor(userID: UserID,
     case sm: SubjectMessage => inputPoolActor.forward(sm)
 
     case sr: ExecuteRequest =>
-      //internalBehaviourActor ! ProcessBehaviour(processInstanceRef, subjectName, sr.userID.toString(), inputPoolActor)
       internalBehaviourActor ! ExecuteStartState()
 
     case e: ExecuteStartState =>
       internalBehaviourActor ! ExecuteStartState()
-      
-    case b: BehaviourStateActor => internalBehaviourActor ! b
 
+    case bsa: BehaviorStateActor => internalBehaviourActor ! bsa
+
+    case gaa: GetAvailableActions => if(gaa.userID == userID) internalBehaviourActor ! gaa
+    
     // forward history entries from internal behavior up to instance actor
     case history.Transition(from, to, msg) =>
       context.parent ! history.Entry(new Date(), subjectName, from, to, msg)
+      
+    case br: SubjectBehaviorRequest =>
+      internalBehaviourActor.forward(br)
   }
 }

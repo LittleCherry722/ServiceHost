@@ -18,13 +18,22 @@ import de.tkip.sbpm.persistence._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.persistence.GetProcess
+import spray.http.MediaTypes._
+import spray.routing._
+import scala.concurrent.Await
+import de.tkip.sbpm.model._
+import spray.json.JsObject
+import spray.json.JsNumber
+import de.tkip.sbpm.rest.JsonProtocol._
+import spray.httpx.SprayJsonSupport._
+import spray.json.JsValue
 
 /**
  * This Actor is only used to process REST calls regarding "process"
  */
 // TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
-                            val persistenceActorRef: PersistenceActorRef) extends Actor with HttpService {
+  val persistenceActorRef: PersistenceActorRef) extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
 
@@ -62,34 +71,25 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
        *
        * e.g. GET http://localhost:8080/process
        */
+      // LIST
       path("") {
-        parameters("load") { load =>
-          if (load == "loadable") {
+        formField("userid") { (userid) =>
+          implicit val timeout = Timeout(5 seconds)
+          // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
+          val future = context.actorFor("/usr/PersistenceActor") ? new GetProcess(None, None)
+          val list = Await.result(future, timeout.duration)
 
-            implicit val timeout = Timeout(5 seconds)
-            /*
-            
-            Musste auskommentiert werden, da GetProcess nicht gefunden werden konnte.
-             
-            val future = persistenceActorRef ? GetProcess
-            val result = Await.result(future, timeout.duration)
-			
-			*/
-            complete("Marshelled result")
-
-          } else if (load == "loaded") {
-            //TODO
-            complete("error")
-          } else complete("'error")
-        } ~
-          parameters("id", "userid") { (id, userid) =>
-            implicit val timeout = Timeout(5 seconds)
-            // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-            val future = persistenceActorRef ? GetProcess(Option(id.asInstanceOf[Int]))
-            val result = Await.result(future, timeout.duration)
-
-            complete("result")
-          }
+          complete("not yet marsheld")
+        }
+      }
+      // READ
+      path("processID") { processID =>
+        formField("userid") { (userid) =>
+          implicit val timeout = Timeout(5 seconds)
+          val future = context.actorFor("/usr/PersistenceActor") ? new GetProcess(Option(processID.toString.toInt), None)
+          val process = Await.result(future, timeout.duration)
+          complete("not yet marsheld")
+        }
       }
     } ~
       put {
@@ -98,26 +98,28 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
          *
          * e.g. PUT http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
+    	// CREATE
         path("") {
-          parameters("graph", "subjects", "userid") { (graph, subjects, userid) =>
+          formField("userid", "name", "graph", "isCase") { (userid, name, graph, isCase) =>
             implicit val timeout = Timeout(5 seconds)
-            // TODO Wer vergibt die UserID
-            //            val future = subjectProviderManagerActorRef ? de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider(userid.asInstanceOf[Int])
-            val future = subjectProviderManagerActorRef ? de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider()
-            val result = Await.result(future, timeout.duration)
-            complete("Marshelled result")
+            val future = context.actorFor("/usr/SubjectProviderManager") ? new CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessGraph])
+            val instanceid = Await.result(future, timeout.duration).asInstanceOf[ProcessCreated].processID
+
+              complete(
+                //marshalling
+                new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceid))), "ok"))
           }
         } ~
           /**
-           * save an existing process
+           * update an existing process
            *
            * e.g. PUT http://localhost:8080/process/12?graph=GraphAsJSON&subjects=SubjectsAsJSON
            */
-          path(IntNumber) { id =>
-            parameters("graph", "subjects", "userid") { (graph, subjects, userid) =>
-              // TODO update process
-              // Hier kam ein Fehler 
-              //              persistenceActorRef ! SaveProcess(Option(id), "wo kommt der name her?", graph, subjects)
+          // UPDATE
+          path(IntNumber) { procecssID =>
+            formField("name", "graph", "isCase") { (name, graph, isCase) =>
+              implicit val timeout = Timeout(5 seconds)
+              val future = context.actorFor("/usr/SubjectProviderManager") ? new UpdateProcess(procecssID, name, graph.asInstanceOf[ProcessModel])
 
               complete("error not yet implemented")
             }
@@ -129,14 +131,15 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
          *
          * e.g. http://localhost:8080/process/12
          */
+        // DELETE
         path(IntNumber) { id =>
-          parameters("name", "userid") { (name, userid) =>
+          formField("name", "userid") { (name, userid) =>
             persistenceActorRef ! DeleteProcess(name.asInstanceOf[Int])
 
             complete("error not yet implemented")
 
           }
-          parameters("userid") { (userid) =>
+          formField("userid") { (userid) =>
             subjectProviderManagerActorRef ! KillProcess(id)
 
             complete("error not yet implemented")

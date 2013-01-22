@@ -5,17 +5,21 @@ import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
-import de.tkip.sbpm.application.miscellaneous.ExecuteRequest
-import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
+import de.tkip.sbpm.application._
 import spray.http.MediaTypes._
 import spray.routing._
 import scala.concurrent.Await
 import de.tkip.sbpm.model._
-import spray.json.JsObject
-import spray.json.JsNumber
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
-import spray.json.JsValue
+import spray.json._
+import scala.util.parsing.json.JSONArray
+import de.tkip.sbpm.application.miscellaneous._
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONArray
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -43,14 +47,40 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         path(IntNumber) { processID =>
           formField("subject") { (subject) =>
             //return all information for a given process (graph, next actions (unique ID per available action), history)
-            complete("excute not yet implemented (in ProcessManagerActor)")
+            implicit val timeout = Timeout(5 seconds)
+            var jsonResult = ""
+            val future1 = context.actorFor("/user/SubjectProviderManager") ? new ReadProcess(userId.toInt, processID.toInt)
+            val future2 = context.actorFor("/user/SubjectProviderManager") ? new GetHistory(userId.toInt, processID.toInt)
+            val future3 = context.actorFor("/user/SubjectProviderManager") ? new GetAvailableActions(userId.toInt, processID.toInt)
+            
+            val result = for {
+            	graph <- future1.mapTo[Process] 
+            	history <- future2.mapTo[History] 
+            	actions <- future3.mapTo[Action] 
+            } yield List(graph, history, actions)
+            
+            
+            result onSuccess {
+              case objlist: List[Object] => 
+                for (obj <- objlist) {
+                //jsonResult + obj.toJson
+                }
+            }
+            result onFailure {
+              case _ => 
+                jsonResult = "an error occured"
+            }
+            
+            complete(jsonResult)
           }
         } ~
           //LIST
           path("") {
             //List all executed process (for a given user)
-            complete("no.")
-
+            implicit val timeout = Timeout(5 seconds)
+            val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequestAll(userId.toInt)
+            val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer]
+            complete(s"list.toJson")
           }
 
       } ~
@@ -58,7 +88,8 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           //DELETE
           path(IntNumber) { processID =>
             //stop and delete given process
-            complete("error not yet implemented")
+            context.actorFor("/user/SubjectProviderManager") ! new KillProcess(userId.toInt)
+            complete("Process deleted")
           }
         } ~
         put {
@@ -66,13 +97,10 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("") {
             formField("processId") { (processId) =>
               implicit val timeout = Timeout(5 seconds)
-              
               val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
-
-              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].instanceID;
-
+              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
               complete(
-                  //marshalling
+                //marshalling
                 new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok"))
             }
           } ~
@@ -80,7 +108,9 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             path(IntNumber) { processID =>
               formField("actionID") { (actionID) =>
                 //execute next step (chosen by actionID)
-                complete("error not yet implemented")
+
+                context.actorFor("/user/SubjectProviderManager") ! new RequestAnswer(processID.toInt, actionID)
+                complete("Process updated")
               }
             }
         }

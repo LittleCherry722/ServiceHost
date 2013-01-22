@@ -10,7 +10,7 @@ import scala.collection.mutable.Buffer
 import scala.collection.mutable.ArrayBuffer
 
 // message to get history of project instance
-case class GetHistory()
+//case class GetHistory()
 
 // represents the history of the instance
 case class History(processName: String,
@@ -34,7 +34,7 @@ package history {
                      messageType: String,
                      from: String, // sender subject of message
                      to: String, // receiver subject of message 
-                     data: MessagePayloadLink = null, // link to msg payload
+                     data: String, // link to msg payload
                      files: Seq[MessagePayloadLink] = null) // link to file attachments
   // represents a link to a message payload which contains a actor ref 
   // and a payload id that is needed by that actor to identify payload
@@ -69,25 +69,30 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
   def receive = {
 
     case as: AddSubject =>
-      val subject: Subject = getSubject(as.subjectName)
+      val subject: Subject = getSubject(as.subjectID)
 
       println("addsubject" + subject)
+      // create the subject
       val subjectRef = context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
-      subjectMap += subject.subjectName -> subjectRef
+      // add the subject to the management map
+      subjectMap += subject.id -> subjectRef
       subjectCounter += 1
 
-      println("process " + id + " created subject " + subject.subjectName + " for user " + as.userID) //TODO
+      println("process " + id + " created subject " + subject.id + " for user " + as.userID) //TODO
       // if there are messages to deliver to the new subject,
       // forward them to the subject 
       if (!messagePool.isEmpty) {
-        for ((orig, sm) <- messagePool if sm.to == subject.subjectName) {
+        for ((orig, sm) <- messagePool if sm.to == subject.id) {
           subjectRef.!(sm)(orig)
         }
-        messagePool = messagePool.filterNot(_._2.to == subject.subjectName)
+        messagePool = messagePool.filterNot(_._2.to == subject.id)
       }
 
-      // TODO subjecte mit welcher message ausfuehren?
-      //subjectRef ! ExecuteRequest(as.userID, id)
+      // inform the subject provider about his new subject
+      context.parent !
+        (as.userID, SubjectCreated(process.processID, id, subject.id, subjectRef))
+
+      // start the execution of the subject
       subjectRef ! ExecuteStartState()
 
     case End =>
@@ -113,7 +118,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         contextResolver !
           RequestUserID(
             SubjectInformation(sm.to),
-            AddSubject(_, id, sm.to))
+            AddSubject(_, sm.to))
       }
 
     // outdated
@@ -122,13 +127,8 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       subjectMap.values.map(_ ! pr) // TODO: send to all subjects?
       pr.sender ! id // answer to original sender
 
-    // outdated?
-    case asts: AddState =>
-      if (subjectMap.contains(asts.subjectName))
-        subjectMap(asts.subjectName) ! asts.behaviourState
-
     // return current process instance history
-    case msg: GetHistory => sender ! {
+    case msg: GetHistory => if (msg.sender != null) msg.sender else sender ! {
       if (msg.isInstanceOf[Debug]) HistoryTestData.generate(process.name, id)(debugMessagePayloadProvider)
       else executionHistory
     }
@@ -136,12 +136,10 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
     // add an entry to the history
     // (should be called by subject actors when a transition occurs)
     case he: history.Entry => executionHistory.entries += he
-
-    case ss                => println("ProcessInstaceActor: not yet implemented Message: " + ss)
   }
 
   private def getSubject(name: String): Subject = {
     // TODO increase performance
-    process.subjects.find(_.subjectName == name).get
+    process.subjects.find(_.id == name).get
   }
 }

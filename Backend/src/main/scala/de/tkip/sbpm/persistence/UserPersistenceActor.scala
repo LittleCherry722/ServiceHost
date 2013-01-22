@@ -21,14 +21,13 @@ case class SaveUser(user: User) extends UserAction
 // delete user with id from db
 case class DeleteUser(id: Int) extends UserAction
 
-
 /**
  * Handles all database operations for table "users".
  */
 private[persistence] class UserPersistenceActor extends Actor with DatabaseAccess {
 
   val logger = Logging(context.system, this)
-  
+
   override def preStart() {
     logger.debug(context.self + " starts.")
   }
@@ -36,11 +35,11 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
   override def postStop() {
     logger.debug(context.self + " stops.")
   }
-  
+
   import driver.simple._
   import DBType._
   import de.tkip.sbpm.model._
-  
+
   // represents the "users" table in the database
   object Users extends Table[User]("users") {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
@@ -51,7 +50,7 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
     // auto increment method returning generated id
     def autoInc = * returning id
   }
-	
+
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all users ordered by id
@@ -59,12 +58,11 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       // get user with given id
       case GetUser(id) => sender ! Users.where(_.id === id).firstOption
       // create new user
-      case SaveUser(User(None, name, isActive, inputPoolSize)) => 
-        //sender ! Users.autoInc.insert(User(None, name, isActive, inputPoolSize))
-        sender ! 1 
+      case SaveUser(u @ User(None, _, _, _)) =>
+        sender ! Users.autoInc.insert(u)
       // save existing user
-      case SaveUser(User(id, name, isActive, inputPoolSize)) =>
-        sender ! Users.where(_.id === id).update(User(id, name, isActive, inputPoolSize))
+      case SaveUser(u @ User(id, _, _, _)) =>
+        sender ! Users.where(_.id === id).update(u)
       // delete user with given id
       case DeleteUser(id) => Users.where(_.id === id).delete(session)
       // execute DDL for table "users"

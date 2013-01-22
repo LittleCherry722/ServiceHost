@@ -79,7 +79,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     false
   }
 
-  // TODO exitcond namen überarbeiten
+  // TODO exitcond namen ueberarbeiten
   private class FIFO(exitCond: SubjectMessageRouting) {
     private val storrage = new ArrayBuffer[MessageContent]()
     private val waitForSend = new ArrayBuffer[(MessageContent, ActorRef)]()

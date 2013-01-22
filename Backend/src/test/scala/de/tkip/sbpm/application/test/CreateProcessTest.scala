@@ -17,42 +17,8 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 object CreateProcessTest extends App {
 
-  //  @Test
-  def testProcessInstanciation {
-
-    val system = ActorSystem("TextualEpassIos")
-    val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
-    val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
-
-    implicit val timeout = Timeout(5 seconds)
-
-    // instantiate subjectProvider
-    val future1 = subjectProviderManager ? CreateSubjectProvider()
-    val userID: Int =
-      Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
-
-    println("UserID: " + userID)
-
-    var range = (0 to 4).toSet
-    for (i <- (0 to 4)) {
-      val future2 = subjectProviderManager ? CreateProcess(userID)
-      val processID: Int =
-        Await.result(future2, timeout.duration).asInstanceOf[ProcessCreated].processID
-
-      //      assertTrue(range.contains(processID))
-      range -= processID
-
-      println("ProcessID: " + processID)
-    }
-
-    Thread.sleep(100)
-    //    assertTrue(range.isEmpty)
-  }
-
-  val processModel =
-    ProcessModel(
-      4,
-      "Urlaub",
+  val processGraph =
+    ProcessGraph(
       Array[Subject](
         Subject("Superior",
           Array[State](
@@ -71,7 +37,8 @@ object CreateProcessTest extends App {
             State("empl.br1.br1.br1.br1", "Make business trip", ActStateType, Array[Transition](ActTransition("Done", "End"))),
             State("End", "end state", EndStateType, Array[Transition]())))))
 
-  //  @Test
+  val processModel = ProcessModel(1, "Urlaub", processGraph)
+
   def testProcessCreation() {
 
     val system = ActorSystem("TextualEpassIos")
@@ -81,8 +48,8 @@ object CreateProcessTest extends App {
     implicit val timeout = Timeout(5 seconds)
     val processInstanceActor = system.actorOf(Props(new ProcessInstanceActor(1, processModel)))
 
-    processInstanceActor ! AddSubject(1, 2, "Superior")
-    processInstanceActor ! AddSubject(1, 2, "Employee")
+    processInstanceActor ! AddSubject(1, "Superior")
+    processInstanceActor ! AddSubject(1, "Employee")
 
     println("send executerequest")
     processInstanceActor ! ExecuteRequest(1, 2)
@@ -91,26 +58,46 @@ object CreateProcessTest extends App {
     Thread.sleep(12000)
   }
 
-  //  @Test
-  def testDynamicSubjectCreation() {
+  def testProcessAndSubjectCreation() {
 
     val system = ActorSystem("TextualEpassIos")
-//    val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
-//    val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
+    val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
+    val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
 
     implicit val timeout = Timeout(5 seconds)
-    val processInstanceActor = system.actorOf(Props(new ProcessInstanceActor(1, processModel)))
 
-    processInstanceActor ! AddSubject(1, 2, "Employee")
-    //    processInstanceActor ! ExecuteRequest(1, 2)
+    // Create the SubjectProvider for this user
+    val future1 = subjectProviderManager ? CreateSubjectProvider()
+    val userID: Int =
+      Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
+    val future12 = subjectProviderManager ? CreateSubjectProvider()
+    val userID2: Int =
+      Await.result(future12, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
+    val future13 = subjectProviderManager ? CreateSubjectProvider()
+    val userID3: Int =
+      Await.result(future13, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
 
-//    Thread.sleep(12000)
-//    
-//    processInstanceActor ! End
-//    system.shutdown
+    println("User Created id: " + userID)
+
+    // Create a Process using the ProcessModel
+    val future2 = subjectProviderManager ? CreateProcess(userID, "my process", processGraph)
+    val processID: Int =
+      Await.result(future2, timeout.duration).asInstanceOf[ProcessCreated].processID
+
+    println("Process(Model) Created id: " + processID)
+
+    // Execute the ProcessInstance
+    val future3 = subjectProviderManager ? CreateProcessInstance(processID)
+    val processInstanceID: Int =
+      Await.result(future3, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
+
+    println("ProcessInstance Executed id: " + processInstanceID)
+
+    processManager ! ((processInstanceID, AddSubject(userID2, "Employee")))
+
   }
 
-  testDynamicSubjectCreation()
+  testProcessAndSubjectCreation()
 }
 
 

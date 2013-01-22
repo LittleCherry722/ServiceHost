@@ -1,4 +1,4 @@
-package de.tkip.sbpm.model
+package de.tkip.sbpm.application
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -9,20 +9,21 @@ import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.SubjectMessageRouting
-import de.tkip.sbpm.application.ExecuteState
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.application.subject.AvailableAction
 
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
-abstract class BehaviourStateActor(val stateID: StateID,
-                                   val stateAction: StateAction,
-                                   transitions: Array[Transition],
-                                   internalBehavior: InternalBehaviorRef,
-                                   processInstance: ProcessInstanceRef,
-                                   subjectName: SubjectName,
-                                   userID: UserID, // TODO braucht man?
-                                   inputpool: ActorRef) extends Actor {
+abstract class BehaviorStateActor(val stateID: StateID,
+                                  val stateAction: StateAction,
+                                  transitions: Array[Transition],
+                                  internalBehavior: InternalBehaviorRef,
+                                  processInstance: ProcessInstanceRef,
+                                  subjectID: SubjectID,
+                                  userID: UserID, // TODO braucht ma, 
+                                  inputpool: ActorRef) extends Actor {
 
   for (i <- 0 until transitions.length) yield {
     if (transitions(i).successorID.isEmpty()) {
@@ -34,6 +35,27 @@ abstract class BehaviourStateActor(val stateID: StateID,
     }
   } // br for branch 
 
+  /**
+   *
+   * @return
+   *  (String, Array[String])
+   * (StateType, Actions), e.g. ("Act", ["Approval", "Denial"]), ("Send", []), ("Receive", ["The huge Message Content"])
+   */
+  protected def getAvailableAction: (StateType, Array[String])
+
+  def receive = {
+    case ga: GetAvailableActions =>
+      println("9")
+      val (stateType, actionData) = getAvailableAction
+      sender !
+        AvailableAction(userID,
+          ga.processInstanceID,
+          subjectID,
+          stateID,
+          stateType,
+          actionData)
+    case s => println("BehaviorStateActor does not support: " + s)
+  }
 }
 
 case class StartState(id: StateID,
@@ -43,23 +65,26 @@ case class StartState(id: StateID,
                       subjectName: SubjectName,
                       userID: UserID,
                       inputpool: ActorRef)
-    extends BehaviourStateActor(id,
-      "Start of Behavior",
-      Array[Transition](transition),
-      internalBehavior,
-      processInstance,
-      subjectName,
-      userID,
-      inputpool) {
+  extends BehaviorStateActor(id,
+    "Start of Behavior",
+    Array[Transition](transition),
+    internalBehavior,
+    processInstance,
+    subjectName,
+    userID,
+    inputpool) {
 
   println("Start@" + userID)
 
   internalBehavior ! ExecuteState(transition.successorID)
 
-  def receive = {
+  override def receive = {
 
-    case _ => println("abc")
+    case s => super.receive(s)
   }
+
+  override protected def getAvailableAction: (StateType, Array[String]) = (StartStateType, Array())
+
 }
 
 case class EndState(id: StateID,
@@ -68,21 +93,23 @@ case class EndState(id: StateID,
                     subjectName: SubjectName,
                     userID: UserID,
                     inputpool: ActorRef)
-    extends BehaviourStateActor(id,
-      "End of Behavior: ",
-      Array[Transition](),
-      internalBehavior,
-      processInstance,
-      subjectName,
-      userID,
-      inputpool) {
+  extends BehaviorStateActor(id,
+    "End of Behavior: ",
+    Array[Transition](),
+    internalBehavior,
+    processInstance,
+    subjectName,
+    userID,
+    inputpool) {
 
   println("End@" + userID)
 
-  def receive = {
+  override def receive = {
 
     case _ => println("abc")
   }
+
+  override protected def getAvailableAction: (StateType, Array[String]) = (EndStateType, Array())
 }
 
 case class ActState(id: StateID,
@@ -93,14 +120,14 @@ case class ActState(id: StateID,
                     subjectName: SubjectName,
                     userID: UserID,
                     inputpool: ActorRef)
-    extends BehaviourStateActor(id,
-      action,
-      transitions,
-      internalBehavior,
-      processInstance,
-      subjectName,
-      userID,
-      inputpool) { // ActState = ActionState
+  extends BehaviorStateActor(id,
+    action,
+    transitions,
+    internalBehavior,
+    processInstance,
+    subjectName,
+    userID,
+    inputpool) { // ActState = ActionState
 
   var actionChoices: String = ""
   for (t <- transitions) {
@@ -118,7 +145,7 @@ case class ActState(id: StateID,
   while (index == -1) {
     println("Invalid input. Please enter one term of the selection:\n" +
       actionChoices.toString())
-    // userinteraktion, wäre aber fehler im programm
+    // userinteraktion, waere aber fehler im programm
     input = readLine(output)
     index = indexOfInput(input)
   }
@@ -136,10 +163,13 @@ case class ActState(id: StateID,
 
   internalBehavior ! ExecuteState(transitions(index).successorID)
 
-  def receive = {
+  override def receive = {
 
     case _ => println("abc")
   }
+
+  override protected def getAvailableAction: (StateType, Array[String]) =
+    (ActStateType, transitions.map(_.messageType))
 }
 
 case class ReceiveState(s: StateID,
@@ -149,15 +179,15 @@ case class ReceiveState(s: StateID,
                         subjectName: SubjectName,
                         userID: UserID,
                         inputpool: ActorRef)
-    extends BehaviourStateActor(s,
-      "ReceiveAction",
-      transitions,
-      internalBehavior,
-      processInstance,
-      subjectName,
-      userID,
-      inputpool) {
-  def receive = {
+  extends BehaviorStateActor(s,
+    "ReceiveAction",
+    transitions,
+    internalBehavior,
+    processInstance,
+    subjectName,
+    userID,
+    inputpool) {
+  override def receive = {
 
     case _ => println("abc")
   }
@@ -194,6 +224,10 @@ case class ReceiveState(s: StateID,
   private def convertTransitionToRequest(transition: Transition) =
     SubjectMessageRouting(transition.subjectName,
       transition.messageType)
+
+  // TODO input muss dann richtig sein 
+  override protected def getAvailableAction: (StateType, Array[String]) =
+    (ReceiveStateType, Array(input))
 }
 
 case class SendState(s: StateID,
@@ -203,15 +237,15 @@ case class SendState(s: StateID,
                      subjectName: SubjectName,
                      userID: UserID,
                      inputpool: ActorRef)
-    extends BehaviourStateActor(s,
-      "SendAction",
-      transitions,
-      internalBehavior,
-      processInstance,
-      subjectName,
-      userID,
-      inputpool) {
-  def receive = {
+  extends BehaviorStateActor(s,
+    "SendAction",
+    transitions,
+    internalBehavior,
+    processInstance,
+    subjectName,
+    userID,
+    inputpool) {
+  override def receive = {
 
     case _ => println("abc")
   }
@@ -250,4 +284,7 @@ case class SendState(s: StateID,
 
   }
   internalBehavior ! ExecuteState(ret)
+
+  override protected def getAvailableAction: (StateType, Array[String]) =
+    (SendStateType, Array())
 }
