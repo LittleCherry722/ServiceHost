@@ -49,33 +49,21 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             implicit val timeout = Timeout(5 seconds)
             
-            //val future1 = context.actorFor("/user/SubjectProviderManager") ? new ReadProcess(userId.toInt, processID.toInt)
-            val future2 = context.actorFor("/user/SubjectProviderManager") ? new GetHistory(userID = 1, processID = 1) with Debug
-            //val future3 = context.actorFor("/user/SubjectProviderManager") ? new GetAvailableActions(userId.toInt, processID.toInt)
-            val history = Await.result(future2, timeout.duration).asInstanceOf[HistoryAnswer];
-            
-            
+            //val future1 = context.actorFor("/user/SubjectProviderManager") ? new ReadProcess(userId = 1, processID = 1) with Debug
+            //val graph = Await.result(future1, timeout.duration).asInstanceOf[ReadProcessAnswer].pm;
+
             /**
-            val result = for {
-            	graph <- future1.mapTo[Process] 
-            	history <- future2.mapTo[History] 
-            	actions <- future3.mapTo[Action] 
-            } yield List(graph, history, actions)
+             * get request is mixed with the debug trait which is evaluated in the processinstance actor and hardcoded data is sent back 
+             */
+            val future2 = context.actorFor("/user/SubjectProviderManager") ? new GetHistory(userID = 1, processID = 1) with Debug
+            val history = Await.result(future2, timeout.duration).asInstanceOf[History];
+            
+            //val future3 = context.actorFor("/user/SubjectProviderManager") ? new GetAvailableActions(userId = 1, processID = 1) with Debug
+            //val actions = Await.result(future3, timeout.duration).asInstanceOf[HistoryAnswer];
             
             
-            result onSuccess {
-              case jl: List[Object] => 
-                complete(new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok"))
-                
-            }
-            
-            result onFailure {
-              case _ => complete("an error occured")
-            }
-            
-            */
-    
-            complete(history.toJson)
+           //marshalling not implemented yet
+           complete("history.toJson")
           }
         } ~
           //LIST
@@ -84,40 +72,11 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
             implicit val timeout = Timeout(5 seconds)
             val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequestAll(userId.toInt)
             val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer]
-            complete(list.toJson)
+           //marshalling not implemented yet
+            complete("list.toJson")
           }
 
-      } ~
-        delete {
-          //DELETE
-          path(IntNumber) { processID =>
-            //stop and delete given process
-            context.actorFor("/user/SubjectProviderManager") ! new KillProcess(userId.toInt)
-            complete("Process deleted")
-          }
-        } ~
-        put {
-          //CREATE
-          path("") {
-            formField("processId") { (processId) =>
-              implicit val timeout = Timeout(5 seconds)
-              val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
-              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
-              complete(
-                //marshalling
-                new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok"))
-            }
-          } ~
-            //UPDATE
-            path(IntNumber) { processID =>
-              formField("actionID") { (actionID) =>
-                //execute next step (chosen by actionID)
-
-                context.actorFor("/user/SubjectProviderManager") ! new RequestAnswer(processID.toInt, actionID)
-                complete("Process updated")
               }
-            }
-        }
 
     }
   })
