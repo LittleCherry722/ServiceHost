@@ -457,10 +457,9 @@ function GCcommunication ()
 		// add the internal behavior
 		var gt_behav		= this.getBehavior("me");
 		gt_behav.addNode("start", "What to do?", "action", true, false, false);
-		
+		gt_behav.selectNode("start");
 		// toggle bv
 		gf_toggleBV();
-		
 		this.drawBehavior("me");
 	};
 	
