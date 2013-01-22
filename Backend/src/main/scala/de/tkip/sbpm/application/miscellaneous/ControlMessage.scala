@@ -4,15 +4,17 @@ import de.tkip.sbpm.rest._
 import ProcessAttributes._
 import akka.actor._
 import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.model.BehaviourStateActor
+import de.tkip.sbpm.application.BehaviorStateActor
 import de.tkip.sbpm.model.Transition
 import de.tkip.sbpm.application.SubjectMessageRouting
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.History
+import de.tkip.sbpm.application.subject.AvailableAction
+import de.tkip.sbpm.model.ProcessGraph
 
 sealed trait ControlMessage // For system control tasks
 // This trait is for messages which are send from the frontend
-// TODO man könnte hier (wenn immer vorhanden) oder in einem 2ten trait die userID wie beim
+// TODO man kï¿½nnte hier (wenn immer vorhanden) oder in einem 2ten trait die userID wie beim
 // AnswerMessage reinmixen und somit den subjectprovidermanager (und vllt andere) lesbarer machen
 trait AnswerAbleMessage {
   private var _sender: InterfaceRef = null
@@ -42,7 +44,7 @@ protected object MessageType {
 
 // modeling
 // request
-case class CreateProcess(userID: UserID, processName: String, processModel: ProcessModel) extends ControlMessage with AnswerAbleMessage
+case class CreateProcess(userID: UserID, processName: String, processGraph: ProcessGraph) extends ControlMessage with AnswerAbleMessage
 case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends ControlMessage with AnswerAbleMessage
 //answers
 case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends ControlMessage with AnswerMessage[ProcessCreated]
@@ -53,7 +55,7 @@ case class CreateProcessInstance(userID: UserID) extends ControlMessage with Ans
 case class GetAvailableActions(userID: UserID, processInstanceID: ProcessInstanceID) extends ControlMessage with AnswerAbleMessage
 //answers
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends ControlMessage with AnswerMessage[ProcessInstanceCreated]
-case class AvailableActionsAnswer(request: GetAvailableActions) extends ControlMessage with AnswerMessage[AvailableActionsAnswer]
+case class AvailableActionsAnswer(request: GetAvailableActions, availableActions: Array[AvailableAction]) extends ControlMessage with AnswerMessage[AvailableActionsAnswer]
 
 // TODO nochmal drueber schaun 
 case object GetMessage extends ControlMessage
@@ -64,7 +66,7 @@ case class Successor(nextState: String) extends ControlMessage
 case object End extends ControlMessage
 
 case class ExecuteRequest(userID: UserID, processID: ProcessID) extends ControlMessage with AnswerAbleMessage
-case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviourStateActor) extends ControlMessage
+case class AddState(userID: UserID, processID: ProcessID, subjectName: SubjectName, behaviourState: BehaviorStateActor) extends ControlMessage
 case class CreateSubjectProvider() extends ControlMessage
 case class SubjectProviderCreated(csp: CreateSubjectProvider, userID: UserID) extends ControlMessage
 
@@ -80,5 +82,4 @@ case class ReadProcessAnswer(rp: ReadProcess, pm: ProcessModel)
 case class HistoryAnswer(hi: GetHistory, h: History)
 case class ExecutedListAnswer(era: ExecuteRequestAll, li: Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID])
 
-//import de.tkip.sbpm.model.Subject
-case class AddSubject(userID: UserID, processID: ProcessID, subjectName: String) extends ControlMessage
+case class AddSubject(userID: UserID, subjectID: SubjectID) extends ControlMessage

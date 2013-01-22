@@ -1,20 +1,15 @@
 package de.tkip.sbpm.application
 
 import akka.actor._
-import miscellaneous._
-import miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.BehaviourStateActor
-import de.tkip.sbpm.model.EndState
-import de.tkip.sbpm.model.ReceiveState
-import de.tkip.sbpm.model.StartState
-import de.tkip.sbpm.model.SendState
-import de.tkip.sbpm.model.ActState
-import de.tkip.sbpm.model.State
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.model.EndState
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.application.subject.SubjectBehaviorRequest
 
-case class ExecuteState(state: StateID)
-case class ExecuteStartState() // TODO noetig? / anders nennen?
+// TODO hierher oder alle zusammen in eine Datei
+case class ExecuteState(state: StateID) extends SubjectBehaviorRequest
+case class ExecuteStartState() extends SubjectBehaviorRequest // TODO noetig? / anders nennen?
 
 /**
  * contains the business logic that will be modeled by the graph
@@ -30,7 +25,6 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
   def receive = {
     case state: State =>
       addState(state)
-
     // TODO wie die states ausfuehren? Eigener Stateaktor oder useranfragen ueber internalbehavior
     case e: ExecuteStartState =>
       println("execute: " + statesMap(startState))
@@ -42,7 +36,12 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
       // TODO hier history log?
       execute(e.state)
 
-    case s => println("InternalBehaviorActor not yet implemented: " + s)
+    case br: SubjectBehaviorRequest =>
+      if (currentState != null) {
+        currentState.forward(br)
+      }
+
+    case n => println("Not yet supported: " + n)
   }
 
   private def execute(state: StateID) {

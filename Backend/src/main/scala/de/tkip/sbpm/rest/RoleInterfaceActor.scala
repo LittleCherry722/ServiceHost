@@ -17,7 +17,7 @@ import spray.http.StatusCodes._
 /**
  * This Actor is only used to process REST calls regarding "role"
  */
-class RoleInterfaceActor extends Actor with PersistenceInterface with HttpService {
+class RoleInterfaceActor extends Actor with PersistenceInterface {
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -40,9 +40,6 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
    * For more information about how to design a RESTful API see:
    * http://ajaxpatterns.org/RESTful_Service#RESTful_Principles
    *
-   * Nevertheless: If an URL does not represent a resource, like the "execution" API
-   * it makes sense to step away from this general template
-   *
    */
   def receive = runRoute({
     get {
@@ -50,6 +47,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
        * get a list of all role
        *
        * e.g. GET http://localhost:8080/role
+       * result: JSON array with entities
        */
       path("") {
         val res = request[Seq[Role]](GetRole())
@@ -59,13 +57,14 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
          * get role by id
          *
          * e.g. GET http://localhost:8080/role/2
+         * result: 404 Not Found or entity as JSON
          */
         path(IntNumber) { id: Int =>
           val res = request[Option[Role]](GetRole(Some(id)))
           if (res.isDefined)
             complete(res.get)
           else
-            complete(NotFound, "Role with id %d not found.".format(id))
+            notFound("Role with id %d not found.", id)
         }
     } ~
       delete {
@@ -73,11 +72,12 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
          * delete a role
          *
          * e.g. DELETE http://localhost:8080/role/12
+         * result: 202 Accepted -> content deleted asynchronously
          */
         path(IntNumber) { id =>
           execute(DeleteRole(id))
           // async call to database -> only send Accepted status code
-          complete(Accepted)
+          accepted()
         }
       } ~
       post {
@@ -86,6 +86,8 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
          *
          * e.g. POST http://localhost:8080/role
          * payload: { "name": "abc", "isActive": true }
+         * result: 	201 Created
+         * 			Location: /role/8
          */
         path("") {
           entity(as[Role]) { role =>
@@ -93,7 +95,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
             val id = request[Int](SaveRole(role))
             role.id = Some(id)
             // return created role with generated id
-            complete(Created, role)
+            created("/role/%d", id)
           }
         }
       } ~
@@ -103,13 +105,14 @@ class RoleInterfaceActor extends Actor with PersistenceInterface with HttpServic
          *
          * e.g. PUT http://localhost:8080/role/2
          * payload: { "name": "abc", "isActive": true }
+         * result: 202 Accepted -> content saved asynchronously
          */
         path(IntNumber) { id =>
           entity(as[Role]) { role =>
             role.id = Some(id)
             execute(SaveRole(role))
             // async call to database -> only send Accepted status code
-            complete(Accepted)
+            accepted()
           }
         }
       }
