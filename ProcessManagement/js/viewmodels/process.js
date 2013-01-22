@@ -15,7 +15,6 @@ define([
 	// outside this viewmodel so it is immidiatly apparant which functions /
 	// observables are really used by the view.
 	var ViewModel = function() {
-
 		this.currentProcess = currentProcess;
 
 		pB = function(){
@@ -358,6 +357,14 @@ define([
 	 * Setup methdos for DOM and tk_graph Listeners
 	 ***************************************************************************/
 
+	var initializeDOM = function() {
+		// Initialize our chosen selects for subjects and channels.
+		$( "#slctSbj" ).chosen();
+		$( "#slctChan" ).chosen();
+		$( "#slctMacro" ).chosen();
+	}
+
+
 	// Initialize listeners. These are either bound to the DOM (for click events
 	// etc), or listeners for the graph library.
 	var initializeListeners = function() {
@@ -388,11 +395,6 @@ define([
 		$(updateSubjectIDs).live("click", function() {
 			updateListOfSubjects();
 		})
-
-		// Initialize our chosen selects for subjects and channels.
-		$( "#slctSbj" ).chosen();
-		$( "#slctChan" ).chosen();
-		$( "#slctMacro" ).chosen();
 
 		// When a selectable tab is clicked, mark the tab as selected, update the
 		// list of subjects and channels.
@@ -681,6 +683,8 @@ define([
 					initialized = true;
 					initializeListeners();
 				}
+
+				initializeDOM();
 
 				// Execute the callback if any was given.
 				// When this is called, everyting should be loaded and ready to go.
