@@ -14,6 +14,7 @@ import spray.json._
 object Entity {
   val PROCESS = "process"
   val EXECUTION = "executed"
+  val TESTEXECUTION = "testexecuted"
   val USER = "user"
   val ROLE = "role"
   val GROUP = "group"
@@ -41,13 +42,21 @@ class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProvider
       context.actorOf(Props(new ProcessInterfaceActor(subjectProviderManagerActorRef, persistenceActorRef))) ! requestContext
     } ~
       /**
-       * redirect all calls beginning with "execution" to ProcessInterfaceActor
+       * redirect all calls beginning with "execution" to ExecutionInterfaceActor
        *
-       * e.g. GET http://localhost:8080/process/8
+       * e.g. GET http://localhost:8080/execution/8
        */
       pathPrefix(Entity.EXECUTION) { requestContext =>
         context.actorOf(Props[ExecutionInterfaceActor]) ! requestContext
-      } ~
+    } ~
+      /**
+       * redirect all calls beginning with "testexecution" to TestExecutionInterfaceActor
+       * 
+       * e.g. GET http://localhost:8080/testexecution/8
+       */
+      pathPrefix(Entity.TESTEXECUTION) { requestContext =>
+        context.actorOf(Props[TestExecutionInterfaceActor]) ! requestContext
+      } ~ 
       /**
        * redirect all calls beginning with "user" to UserInterfaceActor
        *
