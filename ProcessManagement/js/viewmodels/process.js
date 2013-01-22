@@ -18,9 +18,9 @@ define([
 
 		this.currentProcess = currentProcess;
 
-pB = function(){
-	console.log(currentProcess());
-}
+		pB = function(){
+			console.log(currentProcess());
+		}
 
 		// The currently displayed graph
 		this.currentGraph = currentGraph;
