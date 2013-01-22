@@ -17,7 +17,7 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	/*
-	 * Custom route actions go here. Keep it concice!
+	 * Custom route actions go here. Keep it concise!
 	 */
 
 	var showProcess = function( processID, subjectID ) {
@@ -65,6 +65,10 @@ define([ "director", "app"], function( Director, App ) {
 		}
 	}
 
+	var showRouting = function( processID ) {
+		loadView( "process/routing", processID );
+	}
+
 	/*
 	 *	Every possible route gets defined here
 	 */
@@ -80,6 +84,7 @@ define([ "director", "app"], function( Director, App ) {
 			"/new": showNewProcess,
 			"/:process/": {
 				on: showProcess,
+				"/routing": showRouting,
 				"/(.+)": showProcess
 			}
 		},

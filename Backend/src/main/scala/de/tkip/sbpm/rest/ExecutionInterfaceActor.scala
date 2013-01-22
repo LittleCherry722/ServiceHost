@@ -5,16 +5,21 @@ import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
-import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application._
 import spray.http.MediaTypes._
 import spray.routing._
 import scala.concurrent.Await
 import de.tkip.sbpm.model._
-import spray.json.JsObject
-import spray.json.JsNumber
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
-import spray.json.JsValue
+import spray.json._
+import scala.util.parsing.json.JSONArray
+import de.tkip.sbpm.application.miscellaneous._
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONArray
+import scala.util.parsing.json.JSONArray
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -43,13 +48,30 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           formField("subject") { (subject) =>
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             implicit val timeout = Timeout(5 seconds)
+            var jsonResult = ""
             val future1 = context.actorFor("/user/SubjectProviderManager") ? new ReadProcess(userId.toInt, processID.toInt)
-            val graph = Await.result(future1, timeout.duration).asInstanceOf[ReadProcessAnswer].pm;
             val future2 = context.actorFor("/user/SubjectProviderManager") ? new GetHistory(userId.toInt, processID.toInt)
-            val history = Await.result(future2, timeout.duration).asInstanceOf[HistoryAnswer];
             val future3 = context.actorFor("/user/SubjectProviderManager") ? new GetAvailableActions(userId.toInt, processID.toInt)
-            val actions = Await.result(future3, timeout.duration).asInstanceOf[AvailableActionsAnswer];
-            complete("is not yet marshelled")
+            
+            val result = for {
+            	graph <- future1.mapTo[Process] 
+            	history <- future2.mapTo[History] 
+            	actions <- future3.mapTo[Action] 
+            } yield List(graph, history, actions)
+            
+            
+            result onSuccess {
+              case objlist: List[Object] => 
+                for (obj <- objlist) {
+                //jsonResult + obj.toJson
+                }
+            }
+            result onFailure {
+              case _ => 
+                jsonResult = "an error occured"
+            }
+            
+            complete(jsonResult)
           }
         } ~
           //LIST
@@ -57,8 +79,8 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             //List all executed process (for a given user)
             implicit val timeout = Timeout(5 seconds)
             val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequestAll(userId.toInt)
-            val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer];
-            complete("is not yet marshelled")
+            val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer]
+            complete(s"list.toJson")
           }
 
       } ~

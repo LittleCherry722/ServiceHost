@@ -15,8 +15,11 @@ define([
 	// outside this viewmodel so it is immidiatly apparant which functions /
 	// observables are really used by the view.
 	var ViewModel = function() {
-
 		this.currentProcess = currentProcess;
+
+		pB = function(){
+			console.log(currentProcess());
+		}
 
 		// The currently displayed graph
 		this.currentGraph = currentGraph;
@@ -127,7 +130,7 @@ define([
 		return currentProcess().graphs( null, { observable: true } );
 	});
 
-	// Currently selected subejct and channel (in chosen)
+	// Currently selected subeject and channel (in chosen)
 	var currentSubject = ko.observable();
 	var currentChannel = ko.observable();
 	var currentMacro   = ko.observable();
@@ -277,8 +280,11 @@ define([
 		// Final call to save can be non blocking because we probably dont need to
 		// hold the user back untill the graph is finally saved. Should only take a
 		// couple of ms anyway.
+		
+		routings = graph.routings()
 		graph = graph.duplicate();
 		graph.graphString( gv_graph.saveToJSON() );
+		graph.routings( routings );
 		graph.processID( process.id() );
 		graph.save({ async: false });
 		process.graph( graph );
@@ -351,6 +357,14 @@ define([
 	 * Setup methdos for DOM and tk_graph Listeners
 	 ***************************************************************************/
 
+	var initializeDOM = function() {
+		// Initialize our chosen selects for subjects and channels.
+		$( "#slctSbj" ).chosen();
+		$( "#slctChan" ).chosen();
+		$( "#slctMacro" ).chosen();
+	}
+
+
 	// Initialize listeners. These are either bound to the DOM (for click events
 	// etc), or listeners for the graph library.
 	var initializeListeners = function() {
@@ -382,18 +396,13 @@ define([
 			updateListOfSubjects();
 		})
 
-		// Initialize our chosen selects for subjects and channels.
-		$( "#slctSbj" ).chosen();
-		$( "#slctChan" ).chosen();
-		$( "#slctMacro" ).chosen();
-
 		// When a selectable tab is clicked, mark the tab as selected, update the
 		// list of subjects and channels.
 		// See "selectTab" for more Information,
 		$( ".switch .btn[id^='tab']" ).live( "click", selectTab )
 
 		// Tab2, "Subject Interaction View" clicked.
-		// let the graph not we changed views and update the list of subjects and
+		// let the graph know we changed views and update the list of subjects and
 		// channels.
 		$( "#tab2" ).live( "click", function() {
 			Router.goTo( currentProcess() );
@@ -401,7 +410,9 @@ define([
 		
 		
 		// Tab3, "Routing" clicked.
+
 		$( "#tab3" ).live( "click", function() {
+
 			Router.goTo("/processes/"+currentProcess().id()+"/routing");
 		});
 		
@@ -422,7 +433,9 @@ define([
 
 		// Tab2, "Charge View" clicked.
 		// let the graph know we changed views and update the list of subjects. //TODO Tab2 oder Tab3???
+
 		$("#tab3").live( "click", function() {
+
 			gv_graph.selectedNode = null;
 		});
 
@@ -651,13 +664,12 @@ define([
 	// to be applied to the template.
 	var initialize = function( processID, subjectID, callback ) {
 		var viewModel = new ViewModel();
-
 		App.loadTemplate( "process", viewModel, null, function() {
 
 			// Load all sub templates. They are:
 			// Subject interaction view (tab 2)
-			// Internal view (tab1)
-			// Charge View (tab 3
+			// Internal view (tab 1)
+			// Routing View (tab 3)
 			App.loadTemplates([
 				[ "process/subject", "tab2_content" ],
 				[ "process/internal", "tab1_content" ]
@@ -671,6 +683,8 @@ define([
 					initialized = true;
 					initializeListeners();
 				}
+
+				initializeDOM();
 
 				// Execute the callback if any was given.
 				// When this is called, everyting should be loaded and ready to go.
