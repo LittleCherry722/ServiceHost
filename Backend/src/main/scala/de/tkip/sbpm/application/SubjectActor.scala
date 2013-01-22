@@ -5,7 +5,7 @@ import miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import java.util.Date
-import de.tkip.sbpm.application.miscellaneous.End
+import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.miscellaneous.ExecuteRequest
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
@@ -22,8 +22,8 @@ package history {
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
 class SubjectActor(userID: UserID,
-                   processInstanceRef: ProcessInstanceRef,
-                   subject: Subject) extends Actor {
+  processInstanceRef: ProcessInstanceRef,
+  subject: Subject) extends Actor {
 
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
@@ -31,7 +31,7 @@ class SubjectActor(userID: UserID,
   case object JobDone
   private val inputPoolActor: ActorRef =
     context.actorOf(Props(new InputPoolActor(10)), name = "IP@" + subjectName)
-  private val internalBehaviourActor =
+  private val internalBehaviorActor =
     context.actorOf(
       Props(
         new InternalBehaviorActor(
@@ -42,7 +42,7 @@ class SubjectActor(userID: UserID,
 
   // add all states in the internal behavior
   for (state <- subject.states) {
-    internalBehaviourActor ! state
+    internalBehaviorActor ! state
   }
 
   def receive = {
@@ -53,20 +53,26 @@ class SubjectActor(userID: UserID,
     case sm: SubjectMessage => inputPoolActor.forward(sm)
 
     case sr: ExecuteRequest =>
-      internalBehaviourActor ! ExecuteStartState()
+      if (sr.isInstanceOf[Debug])
+        internalBehaviorActor ! new ExecuteStartState() with Debug
+      else
+        internalBehaviorActor ! ExecuteStartState()
 
-    case e: ExecuteStartState =>
-      internalBehaviourActor ! ExecuteStartState()
+    case ess: ExecuteStartState =>
+      if (ess.isInstanceOf[Debug])
+        internalBehaviorActor ! new ExecuteStartState() with Debug
+      else
+        internalBehaviorActor ! ess
 
-    case bsa: BehaviorStateActor => internalBehaviourActor ! bsa
+    case bsa: BehaviorStateActor => internalBehaviorActor ! bsa
 
-    case gaa: GetAvailableActions => if(gaa.userID == userID) internalBehaviourActor ! gaa
-    
+    case gaa: GetAvailableActions => if (gaa.userID == userID) internalBehaviorActor ! gaa
+
     // forward history entries from internal behavior up to instance actor
     case history.Transition(from, to, msg) =>
       context.parent ! history.Entry(new Date(), subjectName, from, to, msg)
-      
+
     case br: SubjectBehaviorRequest =>
-      internalBehaviourActor.forward(br)
+      internalBehaviorActor.forward(br)
   }
 }

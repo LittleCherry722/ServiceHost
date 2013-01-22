@@ -39,24 +39,26 @@ object CreateProcessTest extends App {
 
   val processModel = ProcessModel(1, "Urlaub", processGraph)
 
-  def testProcessCreation() {
-
-    val system = ActorSystem("TextualEpassIos")
-    val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
-    val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
-
-    implicit val timeout = Timeout(5 seconds)
-    val processInstanceActor = system.actorOf(Props(new ProcessInstanceActor(1, processModel)))
-
-    processInstanceActor ! AddSubject(1, "Superior")
-    processInstanceActor ! AddSubject(1, "Employee")
-
-    println("send executerequest")
-    processInstanceActor ! ExecuteRequest(1, 2)
-    println("done")
-
-    Thread.sleep(12000)
-  }
+//  def testProcessCreation() {
+//
+//    val system = ActorSystem("TextualEpassIos")
+//    val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
+//    val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
+//
+//    implicit val timeout = Timeout(5 seconds)
+//    val processInstanceActor = system.actorOf(Props(new ProcessInstanceActor(1, processModel)))
+//
+//    processInstanceActor ! AddSubject(1, "Superior")
+//    processInstanceActor ! AddSubject(1, "Employee")
+//
+//    println("send executerequest")
+//    processInstanceActor ! new ExecuteRequest(1, 2) with Debug
+//    println("done")
+//
+//    Thread.sleep(12000)
+//  }
+//  
+//  testProcessCreation()
 
   def testProcessAndSubjectCreation() {
 
@@ -93,7 +95,7 @@ object CreateProcessTest extends App {
 
     println("ProcessInstance Executed id: " + processInstanceID)
 
-    processManager ! ((processInstanceID, AddSubject(userID2, "Employee")))
+    processManager ! ((processInstanceID, new AddSubject(userID2, "Employee") with Debug))
 
   }
 

@@ -6,6 +6,8 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.application.subject.SubjectBehaviorRequest
+import de.tkip.sbpm.application.subject.ActionExecuted
+import de.tkip.sbpm.application.subject.ExecuteAction
 
 // TODO hierher oder alle zusammen in eine Datei
 case class ExecuteState(state: StateID) extends SubjectBehaviorRequest
@@ -15,9 +17,9 @@ case class ExecuteStartState() extends SubjectBehaviorRequest // TODO noetig? / 
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
-                            subjectID: SubjectID,
-                            userID: UserID,
-                            inputPoolActor: ActorRef) extends Actor {
+  subjectID: SubjectID,
+  userID: UserID,
+  inputPoolActor: ActorRef) extends Actor {
   private val statesMap = collection.mutable.Map[StateID, State]()
   private var startState: StateID = ""
   private var currentState: BehaviorStateRef = null
@@ -26,25 +28,39 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     case state: State =>
       addState(state)
     // TODO wie die states ausfuehren? Eigener Stateaktor oder useranfragen ueber internalbehavior
-    case e: ExecuteStartState =>
+    case ess: ExecuteStartState =>
       println("execute: " + statesMap(startState))
       // TODO hier history log?
-      execute(startState)
+      setState(startState)
+      if (ess.isInstanceOf[Debug]) {
+        currentState ! new ExecuteState(startState) with Debug
+      } else {
+        currentState ! ExecuteAction(userID,
+                         -1,
+                         subjectID,
+                         startState,
+                         StateType.StartStateType,
+                         null)
+      }
 
-    case e: ExecuteState =>
-      println("execute: " + statesMap(e.state))
+    case es: ExecuteState =>
+      println("execute: " + statesMap(es.state))
       // TODO hier history log?
-      execute(e.state)
+      setState(es.state)
+      currentState ! es
 
     case br: SubjectBehaviorRequest =>
       if (currentState != null) {
         currentState.forward(br)
       }
+      
+    case ae: ActionExecuted =>
+      setState(ae.stateID)
 
-    case n => println("Not yet supported: " + n)
+    case n => println("InternalBehavior - Not yet supported: " + n + " " + subjectID)
   }
 
-  private def execute(state: StateID) {
+  private def setState(state: StateID) {
     //    currentState ! End // n�tig?
     if (currentState != null) {
       context.stop(currentState)

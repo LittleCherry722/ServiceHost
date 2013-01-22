@@ -14,28 +14,28 @@ import scala.collection.mutable.ArrayBuffer
 
 // represents the history of the instance
 case class History(processName: String,
-                   instanceId: ProcessInstanceID,
-                   var processStarted: Date = null, // null if not started yet
-                   var processEnded: Date = null, // null if not started or still running
-                   entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
+  instanceId: ProcessInstanceID,
+  var processStarted: Date = null, // null if not started yet
+  var processEnded: Date = null, // null if not started or still running
+  entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
 // sub package for history related classes
 package history {
   // represents an entry in the history (a state transition inside a subject)
   case class Entry(timestamp: Date, // time transition occurred
-                   subject: String, // respective subject
-                   fromState: State = null, // transition initiating state (null if start state)
-                   toState: State, // end state of transition
-                   message: Message = null) // message that was sent in transition (null if none)
+    subject: String, // respective subject
+    fromState: State = null, // transition initiating state (null if start state)
+    toState: State, // end state of transition
+    message: Message = null) // message that was sent in transition (null if none)
   // describes properties of a state
   case class State(name: String, stateType: String)
   // message exchanged in a state transition
   case class Message(id: Int,
-                     messageType: String,
-                     from: String, // sender subject of message
-                     to: String, // receiver subject of message 
-                     data: String, // link to msg payload
-                     files: Seq[MessagePayloadLink] = null) // link to file attachments
+    messageType: String,
+    from: String, // sender subject of message
+    to: String, // receiver subject of message 
+    data: String, // link to msg payload
+    files: Seq[MessagePayloadLink] = null) // link to file attachments
   // represents a link to a message payload which contains a actor ref 
   // and a payload id that is needed by that actor to identify payload
   case class MessagePayloadLink(actor: ActorRef, payloadId: String)
@@ -93,7 +93,10 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         (as.userID, SubjectCreated(process.processID, id, subject.id, subjectRef))
 
       // start the execution of the subject
-      subjectRef ! ExecuteStartState()
+      if (as.isInstanceOf[Debug])
+        subjectRef ! new ExecuteStartState() with Debug
+      else
+        subjectRef ! new ExecuteStartState()
 
     case End =>
       // log end time in history
@@ -115,10 +118,16 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
         // store the message in the message-pool
         messagePool += ((sender, sm))
         // ask the Contextresolver for the userid to answer with an AddSubject
-        contextResolver !
-          RequestUserID(
-            SubjectInformation(sm.to),
-            AddSubject(_, sm.to))
+        if (sm.isInstanceOf[Debug])
+          contextResolver !
+            RequestUserID(
+              SubjectInformation(sm.to),
+              new AddSubject(_, sm.to) with Debug)
+        else
+          contextResolver !
+            RequestUserID(
+              SubjectInformation(sm.to),
+              AddSubject(_, sm.to))
       }
 
     // outdated

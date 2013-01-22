@@ -23,6 +23,8 @@ case class ExecuteAction(userID: UserID,
                          stateType: StateType,
                          actionInput: String) extends SubjectBehaviorRequest
 
+case class ActionExecuted(stateID: StateID)
+                         
 // GetAction:
 //subjectinformation = processinstanceid, subjectid
 //type (act, send, receive..)
