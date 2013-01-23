@@ -83,21 +83,24 @@ object ExecuteProcessTest extends App {
     val availableActions: Array[AvailableAction] =
       Await.result(future4, timeout.duration).asInstanceOf[AvailableActionsAnswer].availableActions
 
-      println("AnswerMessage: " + availableActions(0) + " Possible actions: " + availableActions(0).actionData.mkString("/"))
+    println("AnswerMessage: " + availableActions(0) + " Possible actions: " + availableActions(0).actionData.mkString("/"))
 
-    subjectProviderManager ! ExecuteAction(
-      userID2,
-      processInstanceID,
-      availableActions(0).subjectID,
-      availableActions(0).stateID,
-      availableActions(0).stateType,
-      "Done")
+    subjectProviderManager !
+      ExecuteAction(
+        userID2,
+        processInstanceID,
+        availableActions(0).subjectID,
+        availableActions(0).stateID,
+        availableActions(0).stateType,
+        "Done")
 
-      val future5 = subjectProviderManager ? GetAvailableActions(userID2, processInstanceID)
-      val availableActions2: Array[AvailableAction] =
+    Thread.sleep(200)
+
+    val future5 = subjectProviderManager ? GetAvailableActions(userID2, processInstanceID)
+    val availableActions2: Array[AvailableAction] =
       Await.result(future5, timeout.duration).asInstanceOf[AvailableActionsAnswer].availableActions
-      
-      println("AnswerMessage: " + availableActions2(0) + " Possible actions: " + availableActions2(0).actionData.mkString("/"))
+
+    println("AnswerMessage: " + availableActions2(0) + " Possible actions: " + availableActions2(0).actionData.mkString("/"))
 
   }
 

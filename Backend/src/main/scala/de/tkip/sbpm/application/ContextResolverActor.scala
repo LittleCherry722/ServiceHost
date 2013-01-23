@@ -27,6 +27,6 @@ class ContextResolverActor extends Actor {
   }
 
   private def evaluateUserID(subjectInformation: SubjectInformation): UserID = {
-    2
+    0
   }
 }

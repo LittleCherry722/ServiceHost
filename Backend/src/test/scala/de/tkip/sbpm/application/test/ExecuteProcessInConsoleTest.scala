@@ -14,8 +14,10 @@ import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.application.subject._
 
-object ExecuteProcessInConsoleTest extends App {
+object ExecuteProcessInConsoleTest {
 
   val processGraph =
     ProcessGraph(
@@ -39,32 +41,59 @@ object ExecuteProcessInConsoleTest extends App {
 
   val processModel = ProcessModel(1, "Urlaub", processGraph)
 
-//  def testProcessCreation() {
-//
-//    val system = ActorSystem("TextualEpassIos")
-//    val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
-//    val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
-//
-//    implicit val timeout = Timeout(5 seconds)
-//    val processInstanceActor = system.actorOf(Props(new ProcessInstanceActor(1, processModel)))
-//
-//    processInstanceActor ! AddSubject(1, "Superior")
-//    processInstanceActor ! AddSubject(1, "Employee")
-//
-//    println("send executerequest")
-//    processInstanceActor ! new ExecuteRequest(1, 2) with Debug
-//    println("done")
-//
-//    Thread.sleep(12000)
-//  }
-//  
-//  testProcessCreation()
+  private class FrontendSimulatorActor(subjectProviderManager: SubjectProviderManagerRef) extends Actor {
+
+    private case class SelfCommand
+    def receive = {
+
+      case a: ExecuteActionAnswer =>
+        println("FE: action executed: " + a)
+        Thread.sleep(100)
+        subjectProviderManager ! GetAvailableActions(a.request.userID, a.request.processInstanceID)
+
+      case AvailableActionsAnswer(request, available) =>
+        for (action <- available) {
+          executeAction(action)
+        }
+
+      case a: AvailableAction =>
+        executeAction(a)
+
+      //      case s: SelfCommand =>
+      //        readLine("Send available action request")
+
+      case s =>
+        println("FE received: " + s)
+    }
+
+    private def executeAction(avail: AvailableAction) {
+      print(avail.processInstanceID+"/"+avail.subjectID+"/"+avail.stateID+" - ")
+      avail.stateType match {
+        case ActStateType =>
+          val action = readLine("Execute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
+          subjectProviderManager ! ExecuteAction(avail, action)
+        case SendStateType =>
+          val message = readLine("Please insert message: ")
+          subjectProviderManager ! ExecuteAction(avail, message)
+        case ReceiveWaitingStateType => {
+          readLine("I am waiting for a message")
+//          subjectProviderManager ! GetAvailableActions(avail.userID, avail.processInstanceID)
+        }
+        case ReceiveStateType =>
+          val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
+          subjectProviderManager ! ExecuteAction(avail, "")
+        case EndStateType =>
+          println("Subject terminated: " + avail.subjectID)
+      }
+    }
+  }
 
   def testProcessAndSubjectCreationWithKonsole() {
 
     val system = ActorSystem("TextualEpassIos")
     val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
     val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
+    val console = system.actorOf(Props(new FrontendSimulatorActor(subjectProviderManager)))
 
     implicit val timeout = Timeout(5 seconds)
 
@@ -72,12 +101,6 @@ object ExecuteProcessInConsoleTest extends App {
     val future1 = subjectProviderManager ? CreateSubjectProvider()
     val userID: Int =
       Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
-    val future12 = subjectProviderManager ? CreateSubjectProvider()
-    val userID2: Int =
-      Await.result(future12, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
-    val future13 = subjectProviderManager ? CreateSubjectProvider()
-    val userID3: Int =
-      Await.result(future13, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
 
     println("User Created id: " + userID)
 
@@ -95,11 +118,20 @@ object ExecuteProcessInConsoleTest extends App {
 
     println("ProcessInstance Executed id: " + processInstanceID)
 
-    processManager ! ((processInstanceID, new AddSubject(userID2, "Employee") with Debug))
+    processManager ! ((processInstanceID, AddSubject(0, "Employee")))
+
+    //    subjectProviderManager.!(
+    //      GetAvailableActions(userID, processInstanceID))(console)
+
+    Thread.sleep(1000)
+    subjectProviderManager.!(
+      GetAvailableActions(userID, processInstanceID))(console)
 
   }
 
-  testProcessAndSubjectCreationWithKonsole()
+  def main(s: Array[String]) {
+    testProcessAndSubjectCreationWithKonsole()
+  }
 }
 
 

@@ -21,29 +21,27 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
 
   private var subjects = Set[Subject]()
 
+  processManagerRef ! RegisterSubjectProvider(userID, self)
+
   def receive = {
     case get: GetAvailableActions => {
       // remove terminated subjects
       subjects = subjects.filter(!_.ref.isTerminated)
       // collect for the filtered list
-      // TODO start collecting
-      
-      context.actorOf(Props(new AvailableActionsCollector)) !
+      context.actorOf(Props(new AvailableActionsCollectorActor)) !
         CollectAvailableActions(get, subjects.filter(_.processInstanceID != get.processInstanceID))
-    }
-
-    case spc: SubjectProviderCreated => {
-      processManagerRef ! spc
     }
 
     case subject: SubjectCreated => {
       subjects += subject
     }
-    
+
     case ea: ExecuteAction =>
-      for(subject <- subjects.filter(_.processInstanceID != ea.processInstanceID)) 
+      // TODO muss performanter gehen weils nur ein subject ist
+      for (subject <- subjects.filter(s => s.processInstanceID != ea.processInstanceID && s.subjectID == ea.subjectID)) {
+        //        context.actorOf(Props(new ActionExecuteActor)) ! (subject.ref, ea)
         subject.ref ! ea
-      
+      }
 
     case message: AnswerAbleMessage => {
       // just forward all messages from the frontend which are not
@@ -61,12 +59,35 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     }
   }
 
+  /**
+   * This class is responsible to send an execute action request and to handle the answer
+   */
+  private class ActionExecuteActor extends Actor {
+    def receive = {
+      case (subject: SubjectRef, action: ExecuteAction) =>
+        implicit val timeout = akka.util.Timeout(500)
+        val future = subject ? action
+        val answer = Await.result(future, timeout.duration)
+        answer match {
+          case ae: ActionExecuted =>
+            println("Action executed: " + ae)
+            context.stop(self)
+          case s =>
+            println("ActionExecuteActor does not support: " + s)
+            context.stop(self)
+        }
+    }
+  }
+
   private case class CollectAvailableActions(request: GetAvailableActions, subjects: Set[Subject])
 
-  private class AvailableActionsCollector extends Actor {
+  /**
+   * This class is responsible to collect the available actions of a set of subjects
+   */
+  private class AvailableActionsCollectorActor extends Actor {
     def receive = {
-      case CollectAvailableActions(request, sub) => {      
-        implicit val timeout = akka.util.Timeout(500)
+      case CollectAvailableActions(request, sub) => {
+        implicit val timeout = akka.util.Timeout(5000)
 
         val futures = ArrayBuffer[scala.concurrent.Future[Any]]()
         for (subject <- sub) {
@@ -76,10 +97,17 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
         // TODO non-blocking?
         //        val c = for (c <- futures.map(_.mapTo[Int])) yield c
         //        val x = Await.result(c, timeout.duration)
-
+        var h = null
         val actions = ArrayBuffer[AvailableAction]()
         for (f <- futures) {
-          actions += Await.result(f, timeout.duration).asInstanceOf[AvailableAction]
+          try {
+
+            actions += Await.result(f, timeout.duration).asInstanceOf[AvailableAction]
+          } catch {
+            case h: java.util.concurrent.TimeoutException => {
+              println(f + " timed out")
+            }
+          }
         }
 
         // results ready -> return

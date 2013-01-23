@@ -50,7 +50,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
       currentState ! es
       
     case ea: ExecuteAction =>
-      currentState ! ea
+      currentState.forward(ea)
 
     case br: SubjectBehaviorRequest =>
       if (currentState != null) {

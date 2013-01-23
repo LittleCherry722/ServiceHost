@@ -17,13 +17,13 @@ import de.tkip.sbpm.application.subject._
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
 abstract class BehaviorStateActor(val stateID: StateID,
-  val stateAction: StateAction,
-  transitions: Array[Transition],
-  internalBehavior: InternalBehaviorRef,
-  processInstance: ProcessInstanceRef,
-  subjectID: SubjectID,
-  userID: UserID, // TODO braucht ma, 
-  inputpool: ActorRef) extends Actor {
+                                  val stateAction: StateAction,
+                                  transitions: Array[Transition],
+                                  internalBehavior: InternalBehaviorRef,
+                                  processInstance: ProcessInstanceRef,
+                                  subjectID: SubjectID,
+                                  userID: UserID, // TODO braucht ma, 
+                                  inputpool: ActorRef) extends Actor {
 
   for (i <- 0 until transitions.length) yield {
     if (transitions(i).successorID.isEmpty()) {
@@ -58,20 +58,20 @@ abstract class BehaviorStateActor(val stateID: StateID,
 }
 
 case class StartState(id: StateID,
-  transition: Transition,
-  internalBehavior: InternalBehaviorRef,
-  processInstance: ProcessInstanceRef,
-  subjectName: SubjectName,
-  userID: UserID,
-  inputpool: ActorRef)
-  extends BehaviorStateActor(id,
-    "Start of Behavior",
-    Array[Transition](transition),
-    internalBehavior,
-    processInstance,
-    subjectName,
-    userID,
-    inputpool) {
+                      transition: Transition,
+                      internalBehavior: InternalBehaviorRef,
+                      processInstance: ProcessInstanceRef,
+                      subjectName: SubjectName,
+                      userID: UserID,
+                      inputpool: ActorRef)
+    extends BehaviorStateActor(id,
+      "Start of Behavior",
+      Array[Transition](transition),
+      internalBehavior,
+      processInstance,
+      subjectName,
+      userID,
+      inputpool) {
 
   println("Start@" + userID)
 
@@ -81,6 +81,7 @@ case class StartState(id: StateID,
       internalBehavior ! ExecuteState(transition.successorID)
 
     case ea: ExecuteAction =>
+      //      sender ! ExecuteActionAnswer(ea)
       internalBehavior ! ActionExecuted(transition.successorID)
 
     case s => super.receive(s)
@@ -92,19 +93,19 @@ case class StartState(id: StateID,
 }
 
 case class EndState(id: StateID,
-  internalBehavior: InternalBehaviorRef,
-  processInstance: ProcessInstanceRef,
-  subjectName: SubjectName,
-  userID: UserID,
-  inputpool: ActorRef)
-  extends BehaviorStateActor(id,
-    "End of Behavior: ",
-    Array[Transition](),
-    internalBehavior,
-    processInstance,
-    subjectName,
-    userID,
-    inputpool) {
+                    internalBehavior: InternalBehaviorRef,
+                    processInstance: ProcessInstanceRef,
+                    subjectName: SubjectName,
+                    userID: UserID,
+                    inputpool: ActorRef)
+    extends BehaviorStateActor(id,
+      "End of Behavior: ",
+      Array[Transition](),
+      internalBehavior,
+      processInstance,
+      subjectName,
+      userID,
+      inputpool) {
 
   override def receive = {
     case es: ExecuteState =>
@@ -121,31 +122,33 @@ case class EndState(id: StateID,
 }
 
 case class ActState(id: StateID,
-  action: StateAction,
-  transitions: Array[Transition],
-  internalBehavior: InternalBehaviorRef,
-  processInstance: ProcessInstanceRef,
-  subjectName: SubjectName,
-  userID: UserID,
-  inputpool: ActorRef)
-  extends BehaviorStateActor(id,
-    action,
-    transitions,
-    internalBehavior,
-    processInstance,
-    subjectName,
-    userID,
-    inputpool) { // ActState = ActionState
+                    action: StateAction,
+                    transitions: Array[Transition],
+                    internalBehavior: InternalBehaviorRef,
+                    processInstance: ProcessInstanceRef,
+                    subjectName: SubjectName,
+                    userID: UserID,
+                    inputpool: ActorRef)
+    extends BehaviorStateActor(id,
+      action,
+      transitions,
+      internalBehavior,
+      processInstance,
+      subjectName,
+      userID,
+      inputpool) { // ActState = ActionState
 
   override def receive = {
 
     case es: ExecuteState =>
-        processDebuggingMessage
-        internalBehavior ! new ExecuteState(transitions(index).successorID) with Debug
+      processDebuggingMessage
+      internalBehavior ! new ExecuteState(transitions(index).successorID) with Debug
 
     case ea: ExecuteAction =>
       index = indexOfInput(ea.actionInput)
       if (index != -1) {
+
+        sender ! ExecuteActionAnswer(ea)
         internalBehavior ! ActionExecuted(transitions(index).successorID)
       }
 
@@ -193,48 +196,69 @@ case class ActState(id: StateID,
 }
 
 case class ReceiveState(s: StateID,
-  transitions: Array[Transition],
-  internalBehavior: InternalBehaviorRef,
-  processInstance: ProcessInstanceRef,
-  subjectName: SubjectName,
-  userID: UserID,
-  inputpool: ActorRef)
-  extends BehaviorStateActor(s,
-    "ReceiveAction",
-    transitions,
-    internalBehavior,
-    processInstance,
-    subjectName,
-    userID,
-    inputpool) {
+                        transitions: Array[Transition],
+                        internalBehavior: InternalBehaviorRef,
+                        processInstance: ProcessInstanceRef,
+                        subjectName: SubjectName,
+                        userID: UserID,
+                        inputpool: ActorRef)
+    extends BehaviorStateActor(s,
+      "ReceiveAction",
+      transitions,
+      internalBehavior,
+      processInstance,
+      subjectName,
+      userID,
+      inputpool) {
+
+  var ret: StateID = "Default Receive return"
+  var messageContent: String = null
+  var stateType: StateType = ReceiveWaitingStateType
+
+  checkInputPoolForWaitingMessages()
+
   override def receive = {
 
     case es: ExecuteState =>
-        processDebuggingMessage()
-        internalBehavior ! new ExecuteState(ret) with Debug
-        
-    case ea: ActionExecuted =>
+      processDebuggingMessage()
+      internalBehavior ! new ExecuteState(ret) with Debug
+
+    case ea: ExecuteAction =>
       if (!transitions.isEmpty) {
-          checkInputPoolForWaitingMessages()
-          internalBehavior ! ActionExecuted(transitions(0).successorID)
-        }
-      
+        checkInputPoolForWaitingMessages()
+        sender ! ExecuteActionAnswer(ea)
+        internalBehavior ! ActionExecuted(transitions(0).successorID)
+      }
+
+    // TODO ueberpruefen das es die richtige ist usw...
+    case sm: TransportMessage => {
+      println("Receive@" + userID + ": Message \"" +
+        sm.messageType + "\" from \"" + sm.from +
+        "\" with content \"" + sm.messageContent + "\"")
+      messageContent = sm.messageContent
+      ret = transitions(0).successorID
+      stateType = ReceiveStateType
+    }
 
     case s => super.receive(s)
   }
 
-  var ret: StateID = "Default Receive return"
-  var messageContent: String = null
-
   private def processDebuggingMessage() {
     checkInputPoolForWaitingMessages()
 
-    var input = readLine("")
+    var input = readLine("Received?")
     // TODO Hier Userinteraktion: Nachricht anzeigen (und auf ok warten)
   }
 
   // if no message has been found so far -> ask inputpool if a message is waiting
   private def checkInputPoolForWaitingMessages() {
+    println("check inputpool")
+    inputpool.!(
+      RequestForMessages(
+        transitions.map(
+          convertTransitionToRequest(_))))
+  }
+  private def checkInputPoolForWaitingMessagesb() {
     if (messageContent == null) {
       implicit val timeout = Timeout(365 days)
       val future =
@@ -253,6 +277,7 @@ case class ReceiveState(s: StateID,
           // TODO richtigen index
           messageContent = sm.messageContent
           ret = transitions(0).successorID
+          stateType = ReceiveStateType
         case ss =>
           println("Receive@ got something: " + ss)
           ret = "Timeout"
@@ -266,34 +291,35 @@ case class ReceiveState(s: StateID,
       transition.messageType)
 
   // TODO input muss dann richtig sein 
-  override protected def getAvailableAction: (StateType, Array[String]) =
-    (ReceiveStateType, Array(messageContent))
+  override protected def getAvailableAction: (StateType, Array[String]) = {
+    (stateType, Array(messageContent))
+  }
 }
 
 case class SendState(s: StateID,
-  transitions: Array[Transition],
-  internalBehavior: InternalBehaviorRef,
-  processInstance: ProcessInstanceRef,
-  subjectName: SubjectName,
-  userID: UserID,
-  inputpool: ActorRef)
-  extends BehaviorStateActor(s,
-    "SendAction",
-    transitions,
-    internalBehavior,
-    processInstance,
-    subjectName,
-    userID,
-    inputpool) {
+                     transitions: Array[Transition],
+                     internalBehavior: InternalBehaviorRef,
+                     processInstance: ProcessInstanceRef,
+                     subjectName: SubjectName,
+                     userID: UserID,
+                     inputpool: ActorRef)
+    extends BehaviorStateActor(s,
+      "SendAction",
+      transitions,
+      internalBehavior,
+      processInstance,
+      subjectName,
+      userID,
+      inputpool) {
   override def receive = {
 
     case es: ExecuteState =>
-        processDebuggingMessage()
-        internalBehavior ! new ExecuteState(ret) with Debug
-      
+      processDebuggingMessage()
+      internalBehavior ! new ExecuteState(ret) with Debug
 
     case ea: ExecuteAction =>
       sendMessageToInputPool(ea.actionInput, false)
+      sender ! ExecuteActionAnswer(ea)
       internalBehavior ! ActionExecuted(ret)
 
     case s => super.receive(s)
@@ -309,7 +335,7 @@ case class SendState(s: StateID,
 
   private def processDebuggingMessage() {
     // TODO Hier Userinteraktion: nach Nachricht fragen
-    var messageContent = readLine("Send@" + toSubject + ": type in the content of the message " + messageName + " that will be send to the subject " + toSubject + "\n")
+    var messageContent = readLine("Send@" + toSubject + ": type in the content of the message " + messageName + " that will be send to the subject " + toSubject + "\nmessage:")
     //    val messageContent = "The huge MessageContent" // for testruns
 
     sendMessageToInputPool(messageContent, true)

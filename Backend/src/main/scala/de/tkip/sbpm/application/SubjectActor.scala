@@ -65,7 +65,7 @@ class SubjectActor(userID: UserID,
         internalBehaviorActor ! ess
 
     case ea: ExecuteAction =>
-      internalBehaviorActor ! ea
+      internalBehaviorActor.forward(ea)
         
     case bsa: BehaviorStateActor => internalBehaviorActor ! bsa
 

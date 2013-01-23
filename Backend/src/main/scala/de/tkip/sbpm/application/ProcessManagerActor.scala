@@ -6,6 +6,9 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.persistence._
 
+protected case class RegisterSubjectProvider(userID: UserID,
+                                             subjectProvider: SubjectProviderRef)
+
 /**
  * manages all processes and creates new ProcessInstance's on demand
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor/SubjectActor (TODO)
@@ -49,8 +52,8 @@ class ProcessManagerActor(private val name: String) extends Actor {
     case sr: ExecuteRequest => // request the status of the process
       forwardControlMessageToProcessInstance(sr.processID, sr)
 
-    case spc: SubjectProviderCreated =>
-      subjectProviderMap += spc.userID -> sender
+    case register: RegisterSubjectProvider =>
+      subjectProviderMap += register.userID -> register.subjectProvider
 
     // modeling
     case cp: CreateProcess =>

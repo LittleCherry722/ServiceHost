@@ -17,6 +17,7 @@ import de.tkip.sbpm.application.miscellaneous.AddSubject
 import scala.concurrent.Await
 import de.tkip.sbpm.application.miscellaneous.CreateProcess
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import de.tkip.sbpm.application.miscellaneous.Debug
 
 case class Abc(h: String, in: Int)
 case class Graph1(id: Option[Int], graph: String, abc: Abc, processId: Array[Int])
@@ -28,170 +29,37 @@ object Tab extends DefaultJsonProtocol {
 
   implicit val tarFormat = jsonFormat1(Target)
   implicit val nodeFormat = jsonFormat4(Node)
-  implicit val edgeFormat = jsonFormat3(Edge)
+  implicit val edgeFormat = jsonFormat4(Edge)
   implicit val macFormat = jsonFormat4(Macro)
   implicit val subFormat = jsonFormat3(JSONSubject)
   implicit val proFormat = jsonFormat1(JSONProcess)
 
 }
 // TODO im graph heisst es type nicht typ
-object MyJSONTry extends App {
-  val graph =
-    """{
-    "process": [
-        {
-            "id":               "S1",               
-            "name":             "Subject1",         
-            "type":             "single",           
-                                                    
-            "deactivated":      false,              
-            "inputPool":        -1,                 
-            "relatedProcess":   null,               
-            "relatedSubject":   null,               
-            "externalType":     "external",         
-                                                    
-            "role":             "S1",               
-            "comment":          "Any comment",      
-            "macros":   [
-                {
-                    "id":               "##main##",         
-                    "name":             "internal behavior",
-                    "nodeCounter":      3,                  
-                                                            
-                    "nodes":    [
-                        {
-                            "id":                  "n0",    
-                            "text":                "S",     
-                            "start":               true,    
-                                                            
-                            "end":                 false,   
-                                                            
-                            "type":                "send",  
-                                                            
-                            "deactivated":         false,   
-                            "options":                      
-                                {
-                                    "message":       "*",   
-                                    "subject":       "*",   
-                                                            
-                                    "correlationId": "*",   
-                                                            
-                                    "channel":        "*",   
-                                    "state":          ""     
-                                },
-                            "majorStartNode":      true,    
-                            "channel":             "c0",    
-                            "variable":            "",      
-                            "macro":               "",      
-                            "comment":      "Any comment",  
-                            "varMan":                       
-                                {
-                                    "var1":        "",
-                                    "var2":        "",   
-                                    "operation":   "and",   
-                                    "storevar":    ""       
-                                }
-                        }
-                    ],
-                    "edges":    [
-                        {
-                            "start":            "n0",                   
-                            "end":              "n1",                   
-                            "text":             "m0",                   
-                                                                        
-                                                                        
-                            "type":             "exitcondition",        
-                            "target":                         
-                                                              
-                                                              
-                                {
-                                    "id":           "S2",     
-                                                              
-                                    "min":          "-1",     
-                                                              
-                                                              
-                                    "max":          "-1",     
-                                                              
-                                                              
-                                    "createNew":    false,    
-                                                              
-                                                              
-                                    "variable":     ""        
-                                                              
-                                },
-                            "deactivated":      false,      
-                                                                     
-                            "optional":         false,               
-                                                                     
-                                                                     
-                            "priority":         1,                   
-                                                                     
-                                                                     
-                            "manualTimeout":    false,               
-                                                                     
-                            "variable":         "",                  
-                                                                     
-                            "correlationId":    "",                  
-                                                                     
-                            "comment":          "Any comment",       
-                            "transportMethod":  "googleMail"         
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "messages":                                 
-        {
-            "m0":        "some message"              
-        },
-    "messageCounter":    1,                          
-    "nodeCounter":       2,                           
-    "channels":                                       
-        {
-            "c0":        "Channel1"                
-        },
-    "channelCounter":    1                            
-}"""
+object MyJSONTry {
+  def main(a: Array[String]) {
 
-  val source = """ { "id":4, "hallo": "hallo", 
-    "graph":"Das ist ein Graph", "abc":{"h":"tet","in":32},"processI":32, "processId":[32, 21]} """
+    val graph = MyJSONTestGraph.processGraph;
 
-  import Tab._
+    import Tab._
 
-  val g = Graph1(Some(1), "{abcds}", Abc("abc start", 54), Array(2))
+    val abcd = graph.replace("\"type\":", "\"typ\":")
 
-  val j = g.toJson
-  println(j)
+    val abc = abcd.asJson
+    //  println(abc)
 
-  val s = j.convertTo[Graph1]
-  println(s)
+    println(abc.convertTo[JSONProcess])
+    //
+    val process = abc.convertTo[JSONProcess]
 
-  println("-" * 32)
-  println(source)
-  val c = source.asJson.convertTo[Graph1]
-  println(c)
-  println(c.processId.mkString(", "))
-  //  
-  //  
-
-  val abc = graph.replace("\"type\":", "\"typ\":").asJson
-  println(abc)
-
-  println(abc.convertTo[JSONProcess])
-
-  val process = abc.convertTo[JSONProcess]
-
-  println(process.process(0).macros(0).nodes(0).typ)
-
-  // Ausfuehrung wirft einen fehler weil der graph oben nicht vollstaendig ist
-  ProcessExe.executeProcess(Fkts.parseProcess(process))
+    ProcessExe.executeProcess(Fkts.parseProcess(process))
+  }
 }
 
 object ProcessExe {
   def executeProcess(processGraph: ProcessGraph) {
 
-    val system = ActorSystem("TextualEpassIos")
+    val system = ActorSystem("JSONParsedProcess")
     val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
     val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
 
@@ -207,7 +75,10 @@ object ProcessExe {
     val processInstanceID: Int =
       Await.result(future2, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
 
-    processManager ! ((processInstanceID, AddSubject(1, "S1")))
+    processManager ! ((processInstanceID, new AddSubject(0, "Subj1") with Debug))
+    processManager ! ((processInstanceID, new AddSubject(0, "Subj2") with Debug))
+    processManager ! ((processInstanceID, new AddSubject(0, "Subj3") with Debug))
+    processManager ! ((processInstanceID, new AddSubject(0, "Subj4") with Debug))
   }
 }
 
@@ -224,8 +95,6 @@ object Fkts {
 
   def parseProcess(process: JSONProcess): ProcessGraph = {
 
-    // TODO id muss richtig gesetz werden oder aus model raus
-    // TODO name?
     ProcessGraph(process.process.map(parseSubject(_)))
   }
 
@@ -234,7 +103,7 @@ object Fkts {
     // erstmal ein subject
     val internalBehavior = subject.macros(0)
 
-    // creater the states
+    // creater the states  
     parseNodes(internalBehavior.nodes)
     parseEdges(internalBehavior.edges)
 
@@ -246,13 +115,13 @@ object Fkts {
           // TODO unique IDs
           val startID = "StartState"
           states(startID) = new StateCreator(startID, StartStateType)
-          states(startID).addTransition(StartTransition(node.id))
+          states(startID).addTransition(StartTransition(node.id.toString))
         }
         if (node.end) {
           // create transition from this to the endstate
         }
 
-        if (states.contains(node.id)) {
+        if (states.contains(node.id.toString)) {
           // TODO darf nicht sein!
           println(node.id + " wird doppelt erstellt!")
           throw new Exception(node.id + " wird doppelt erstellt!")
@@ -260,8 +129,18 @@ object Fkts {
 
         node.typ match {
           case "send" =>
+            // TODO kann man davorziehen
             // create sendstate
-            states(node.id) = new StateCreator(node.id, SendStateType)
+            states(node.id.toString) = new StateCreator(node.id.toString, SendStateType)
+          case "action" =>
+            states(node.id.toString) = new StateCreator(node.id.toString, ActStateType)
+          case "receive" =>
+            states(node.id.toString) = new StateCreator(node.id.toString, ReceiveStateType)
+          case "end" =>
+            states(node.id.toString) = new StateCreator(node.id.toString, EndStateType)
+          case "start" =>
+            states(node.id.toString) = new StateCreator(node.id.toString, StartStateType)
+
         }
       }
     }
@@ -270,28 +149,26 @@ object Fkts {
       // hier werden die transitions in die states eingefuegt
       for (edge <- edges) {
         // TODO messagetype
-        states(edge.start).addTransition(Transition("", edge.target.id, edge.end))
+        var s: String = ""
+        import Tab._
+        if (!edge.target.isInstanceOf[JsString]) {
+          s = edge.target.convertTo[Target].id
+        }
+
+        states(edge.start.toString).addTransition(Transition(edge.text, s, edge.end.toString))
       }
     }
 
-    // TODO id oder name?
     Subject(subject.id, states.map(_._2.createState).toArray)
   }
 }
 
 ///////////////////////////////////////////////////////
 case class JSONProcess(process: Array[JSONSubject])
-
 case class JSONSubject(id: String, name: String, macros: Array[Macro])
-
-// noeetig? = internal behavior?
 case class Macro(id: String, name: String, nodes: Array[Node], edges: Array[Edge])
-
 // type kann man nicht uebernehmen! (heisst hier typ)
-case class Node(id: String, start: Boolean, end: Boolean, typ: String)
-case class Edge(start: String, end: String, target: Target)
-
+case class Node(id: Int, start: Boolean, end: Boolean, typ: String)
+case class Edge(start: Int, end: Int, text: String, target: JsValue)
 case class Target(id: String)
 ///////////////////////////////////////////////////////
-// TOO messages und channels
-case class Message()

@@ -7,6 +7,7 @@ object StateType extends Enumeration {
   val StartStateType = Value("Start")
   val ActStateType = Value("Action")
   val SendStateType = Value("Send")
+  val ReceiveWaitingStateType = Value("Receive: Waiting for message") // This type is to signalize that its a receive state, which is waiting for a message
   val ReceiveStateType = Value("Receive")
   val EndStateType = Value("End")
 

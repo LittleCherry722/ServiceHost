@@ -16,13 +16,13 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     // additionally send it to the subjectprovider who forwards 
     // the message to the processmanager so he can register the new subjectprovider
     case csp: CreateSubjectProvider =>
-      createNewSubjectProvider(subjectCount) ! SubjectProviderCreated(csp, subjectCount)
+      createNewSubjectProvider(subjectCount)
       sender ! SubjectProviderCreated(csp, subjectCount)
       subjectCount += 1
 
     case gpr: ExecuteRequest =>
       forwardControlMessageToProvider(gpr.userID, gpr)
-      
+
     case gaa: GetAvailableActions =>
       forwardControlMessageToProvider(gaa.userID, gaa)
 
@@ -44,10 +44,12 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     case cp: CreateProcessInstance =>
       cp.sender = sender
       forwardControlMessageToProvider(cp.userID, cp)
-      
+
     case ea: ExecuteAction =>
-      if(subjectProviderMap.contains(ea.userID))
-          subjectProviderMap(ea.userID) ! ea
+      if (subjectProviderMap.contains(ea.userID)) {
+        ea.sender = sender
+        subjectProviderMap(ea.userID) ! ea
+      }
 
     case kill: KillProcess =>
       processManagerRef ! kill
