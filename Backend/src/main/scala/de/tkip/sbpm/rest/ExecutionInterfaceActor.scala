@@ -20,6 +20,7 @@ import scala.util.parsing.json.JSONArray
 import scala.util.parsing.json.JSONArray
 import scala.util.parsing.json.JSONArray
 import scala.util.parsing.json.JSONArray
+import de.tkip.sbpm.ActorLocator
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -38,6 +39,8 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   }
 
   def actorRefFactory = context
+  
+  private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
 
   def receive = runRoute({
     formField("userid") { userId =>
@@ -49,9 +52,9 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             implicit val timeout = Timeout(5 seconds)
             var jsonResult = ""
-            val future1 = context.actorFor("/user/SubjectProviderManager") ? new ReadProcess(userId.toInt, processID.toInt)
-            val future2 = context.actorFor("/user/SubjectProviderManager") ? new GetHistory(userId.toInt, processID.toInt)
-            val future3 = context.actorFor("/user/SubjectProviderManager") ? new GetAvailableActions(userId.toInt, processID.toInt)
+            val future1 = subjectProviderManager ? new ReadProcess(userId.toInt, processID.toInt)
+            val future2 = subjectProviderManager ? new GetHistory(userId.toInt, processID.toInt)
+            val future3 = subjectProviderManager ? new GetAvailableActions(userId.toInt, processID.toInt)
             
             val result = for {
             	graph <- future1.mapTo[Process] 
@@ -78,7 +81,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("") {
             //List all executed process (for a given user)
             implicit val timeout = Timeout(5 seconds)
-            val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequestAll(userId.toInt)
+            val future = subjectProviderManager ? new ExecuteRequestAll(userId.toInt)
             val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer]
             complete(s"list.toJson")
           }
@@ -88,7 +91,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           //DELETE
           path(IntNumber) { processID =>
             //stop and delete given process
-            context.actorFor("/user/SubjectProviderManager") ! new KillProcess(userId.toInt)
+            subjectProviderManager ! new KillProcess(userId.toInt)
             complete("Process deleted")
           }
         } ~
@@ -97,7 +100,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("") {
             formField("processId") { (processId) =>
               implicit val timeout = Timeout(5 seconds)
-              val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequest(userId.toInt, processId.toInt)
+              val future = subjectProviderManager ? new ExecuteRequest(userId.toInt, processId.toInt)
               val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
               complete(
                 //marshalling
@@ -109,7 +112,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               formField("actionID") { (actionID) =>
                 //execute next step (chosen by actionID)
 
-                context.actorFor("/user/SubjectProviderManager") ! new RequestAnswer(processID.toInt, actionID)
+                subjectProviderManager ! new RequestAnswer(processID.toInt, actionID)
                 complete("Process updated")
               }
             }

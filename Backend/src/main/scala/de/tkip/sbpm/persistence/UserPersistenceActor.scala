@@ -54,19 +54,19 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all users ordered by id
-      case GetUser(None) => sender ! Users.sortBy(_.id).list
+      case GetUser(None) => answer { Users.sortBy(_.id).list }
       // get user with given id
-      case GetUser(id) => sender ! Users.where(_.id === id).firstOption
+      case GetUser(id) => answer { Users.where(_.id === id).firstOption }
       // create new user
       case SaveUser(u @ User(None, _, _, _)) =>
-        sender ! Users.autoInc.insert(u)
+        answer { Some(Users.autoInc.insert(u)) }
       // save existing user
       case SaveUser(u @ User(id, _, _, _)) =>
-        sender ! Users.where(_.id === id).update(u)
+        answer { Users.where(_.id === id).update(u); None }
       // delete user with given id
-      case DeleteUser(id) => Users.where(_.id === id).delete(session)
+      case DeleteUser(id) => answer { Users.where(_.id === id).delete(session) }
       // execute DDL for table "users"
-      case InitDatabase => Users.ddl.create(session)
+      case InitDatabase => answer { Users.ddl.create(session) }
     }
   }
 

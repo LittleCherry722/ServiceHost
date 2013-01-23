@@ -27,14 +27,15 @@ import spray.json.JsNumber
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import spray.json.JsValue
+import de.tkip.sbpm.ActorLocator
 
 /**
  * This Actor is only used to process REST calls regarding "process"
  */
 // TODO when to choose HttpService and when HttpServiceActor
-class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
-  val persistenceActorRef: PersistenceActorRef) extends Actor with HttpService {
-
+class ProcessInterfaceActor extends Actor with PersistenceInterface {
+  private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
+  
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -44,8 +45,6 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
   override def postStop() {
     logger.debug(context.self + " stops.")
   }
-
-  def actorRefFactory = context
 
   /**
    *
@@ -74,21 +73,14 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
       // LIST
       path("") {
         formField("userid") { (userid) =>
-          implicit val timeout = Timeout(5 seconds)
           // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-          val future = context.actorFor("/usr/PersistenceActor") ? new GetProcess(None, None)
-          val list = Await.result(future, timeout.duration)
-
-          complete("not yet marsheld")
+          completeWithQuery[Seq[Process]](GetProcess())
         }
-      }
+      } ~
       // READ
-      path("processID") { processID =>
-        formField("userid") { (userid) =>
-          implicit val timeout = Timeout(5 seconds)
-          val future = context.actorFor("/usr/PersistenceActor") ? new GetProcess(Option(processID.toString.toInt), None)
-          val process = Await.result(future, timeout.duration)
-          complete("not yet marsheld")
+      path(IntNumber) { id =>
+        formField("userid") { userid =>
+          completeWithQuery[Process](GetProcess(Some(id)))
         }
       }
     } ~
@@ -101,8 +93,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
     	// CREATE
         path("") {
           formField("userid", "name", "graph", "isCase") { (userid, name, graph, isCase) =>
-            implicit val timeout = Timeout(5 seconds)
-            val future = context.actorFor("/usr/SubjectProviderManager") ? new CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessGraph])
+            val future = subjectProviderManagerActor ? new CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessGraph])
             val instanceid = Await.result(future, timeout.duration).asInstanceOf[ProcessCreated].processID
 
               complete(
@@ -118,8 +109,7 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
           // UPDATE
           path(IntNumber) { procecssID =>
             formField("name", "graph", "isCase") { (name, graph, isCase) =>
-              implicit val timeout = Timeout(5 seconds)
-              val future = context.actorFor("/usr/SubjectProviderManager") ? new UpdateProcess(procecssID, name, graph.asInstanceOf[ProcessModel])
+              val future = subjectProviderManagerActor ? new UpdateProcess(procecssID, name, graph.asInstanceOf[ProcessModel])
 
               complete("error not yet implemented")
             }
@@ -134,19 +124,13 @@ class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderM
         // DELETE
         path(IntNumber) { id =>
           formField("name", "userid") { (name, userid) =>
-            persistenceActorRef ! DeleteProcess(name.asInstanceOf[Int])
-
-            complete("error not yet implemented")
-
-          }
+            completeWithDelete(DeleteProcess(id), "Process could not be deleted. Entitiy with id %d not found.", id)
+          } ~
           formField("userid") { (userid) =>
-            subjectProviderManagerActorRef ! KillProcess(id)
+            subjectProviderManagerActor ! KillProcess(id)
 
             complete("error not yet implemented")
           }
-
-          complete("'delete with id' not yet implemented")
-
         }
       }
 

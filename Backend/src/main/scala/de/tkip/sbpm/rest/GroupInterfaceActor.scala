@@ -53,8 +53,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("") {
-        val res = request[Seq[Group]](GetGroup())
-        complete(res)
+        completeWithQuery[Seq[Group]](GetGroup())
       } ~
         /**
          * get group by id
@@ -63,11 +62,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * result: 404 Not Found or entity as JSON
          */
         path(IntNumber) { id: Int =>
-          val res = request[Option[Group]](GetGroup(Some(id)))
-          if (res.isDefined)
-            complete(res.get)
-          else
-            notFound("Group with id %d not found.", id)
+          completeWithQuery[Group](GetGroup(Some(id)), "Group with id %d not found.", id)
         }
     } ~
       delete {
@@ -75,12 +70,10 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * delete a group
          *
          * e.g. DELETE http://localhost:8080/group/12
-         * result: 202 Accepted -> content deleted asynchronously
+         * result: 204 No Content
          */
         path(IntNumber) { id =>
-          execute(DeleteGroup(id))
-          // async call to database -> only send Accepted status code
-          accepted()
+          completeWithDelete(DeleteGroup(id), "Group could not be deleted. Entity with id %d not found.", id)
         }
       } ~
       post {
@@ -91,13 +84,11 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * payload: { "name": "abc", "isActive": true }
          * result: 	201 Created
          * 			Location: /group/8
+         * 			{ "id": 8, "name": "abc", "isActive": true }
          */
         path("") {
           entity(as[Group]) { group =>
-            group.id = None
-            val id = request[Int](SaveGroup(group))
-            // return created group with generated id
-            created("/group/%d", id)
+            save(group)
           }
         }
       } ~
@@ -107,16 +98,29 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          *
          * e.g. PUT http://localhost:8080/group/2
          * payload: { "name": "abc", "isActive": true }
-         * result: 202 Accepted -> content saved asynchronously
+         * result: 	200 OK
+         * 			{ "id": 2, "name": "abc", "isActive": true }
          */
         path(IntNumber) { id =>
           entity(as[Group]) { group =>
-            group.id = Some(id)
-            execute(SaveGroup(group))
-            // async call to database -> only send Accepted status code
-            accepted()
+            save(group, Some(id))
           }
         }
       }
   })
+
+  /**
+   * Save given entity with given id to database.
+   * id = None -> new entity
+   * completes with either 201 or 200 
+   */
+  def save(entity: Group, id: Option[Int] = None) = {
+    // set param from url to entity id 
+    // or delete id to create new entity
+    entity.id = id
+    completeWithSave(SaveGroup(entity),
+      entity,
+       pathForEntity(Entity.GROUP, "%d"),
+      (e: Group, i: Int) => { e.id = Some(i); e })
+  }
 }

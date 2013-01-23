@@ -38,19 +38,19 @@ private[persistence] class GroupPersistenceActor extends Actor with DatabaseAcce
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all groups ordered by id
-      case GetGroup(None) => sender ! Groups.sortBy(_.id).list
+      case GetGroup(None) => answer { Groups.sortBy(_.id).list }
       // get group with given id
-      case GetGroup(id) => sender ! Groups.where(_.id === id).firstOption
+      case GetGroup(id) => answer { Groups.where(_.id === id).firstOption }
       // create new group
       case SaveGroup(g @ Group(None, _, _)) =>
-        sender ! Groups.autoInc.insert(g)
+        answer { Some(Groups.autoInc.insert(g)) }
       // save existing group
       case SaveGroup(g @ Group(id, _, _)) =>
-        Groups.where(_.id === id).update(g)
+        answer { Groups.where(_.id === id).update(g); None }
       // delete group with given id
-      case DeleteGroup(id) => Groups.where(_.id === id).delete(session)
+      case DeleteGroup(id) => answer { Groups.where(_.id === id).delete(session) }
       // execute DDL for "groups" table
-      case InitDatabase => Groups.ddl.create(session)
+      case InitDatabase => answer { Groups.ddl.create(session) }
     }
   }
 

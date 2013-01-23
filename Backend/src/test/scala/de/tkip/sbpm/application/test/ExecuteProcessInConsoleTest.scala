@@ -16,8 +16,8 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.subject._
-
 import spray.json._
+import de.tkip.sbpm.ActorLocator
 
 object ExecuteProcessInConsoleTest {
 
@@ -95,8 +95,8 @@ object ExecuteProcessInConsoleTest {
   def testProcessAndSubjectCreationWithKonsole() {
 
     val system = ActorSystem("TextualEpassIos")
-    val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
-    val subjectProviderManager = system.actorOf(Props(new SubjectProviderManagerActor(processManager)))
+    val processManager = system.actorOf(Props[ProcessManagerActor], ActorLocator.processManagerActorName)
+    val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
     val console = system.actorOf(Props(new FrontendSimulatorActor(subjectProviderManager)))
 
     implicit val timeout = Timeout(5 seconds)

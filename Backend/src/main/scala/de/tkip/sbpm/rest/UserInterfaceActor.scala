@@ -55,8 +55,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("") {
-        val res = request[Seq[User]](GetUser())
-        complete(res)
+        completeWithQuery[Seq[User]](GetUser())
       } ~
         /**
          * get user by id
@@ -65,11 +64,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          * result: 404 Not Found or entity as JSON
          */
         path(IntNumber) { id: Int =>
-          val res = request[Option[User]](GetUser(Some(id)))
-          if (res.isDefined)
-            complete(res.get)
-          else
-            notFound("User with id %d not found.", id)
+          completeWithQuery[User](GetUser(Some(id)), "User with id %d not found.", id)
         }
     } ~
       delete {
@@ -77,12 +72,10 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          * delete an user
          *
          * e.g. DELETE http://localhost:8080/user/12
-         * result: 202 Accepted -> content deleted asynchronously
+         * result: 204 No Content
          */
         path(IntNumber) { id =>
-          execute(DeleteUser(id))
-          // async call to database -> only send Accepted status code
-          accepted()
+          completeWithDelete(DeleteUser(id), "User could not be deleted. Entity with id %d not found.", id)
         }
       } ~
       post {
@@ -93,14 +86,11 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
          * result: 	201 Created
          * 			Location: /user/8
+         * 			{ "id": 8, "name": "abc", "isActive": true, "inputPoolSize": 8 }
          */
         path("") {
           entity(as[User]) { user =>
-            user.id = None
-            val id = request[Int](SaveUser(user))
-            user.id = Some(id)
-            // return created user with generated id
-            created("/user/%d", id)
+            save(user)
           }
         }
       } ~
@@ -110,15 +100,29 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          *
          * e.g. PUT http://localhost:8080/user/2
          * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
+         * 	result: 200 OK
+         * 			{ "id": 2, "name": "abc", "isActive": true, "inputPoolSize": 8 }
          */
         path(IntNumber) { id =>
           entity(as[User]) { user =>
-            user.id = Some(id)
-            execute(SaveUser(user))
-            // async call to database -> only send Accepted status code
-            accepted()
+            save(user, Some(id))
           }
         }
       }
   })
+
+  /**
+   * Save given entity with given id to database.
+   * id = None -> new entity
+   * completes with either 201 or 200 
+   */
+  def save(entity: User, id: Option[Int] = None) = {
+    // set param from url to entity id 
+    // or delete id to create new entity
+    entity.id = id
+    completeWithSave(SaveUser(entity),
+      entity,
+       pathForEntity(Entity.USER, "%d"),
+      (e: User, i: Int) => { e.id = Some(i); e })
+  }
 }

@@ -21,13 +21,11 @@ object Entity {
   val CONFIGURATION = "configuration"
   // TODO define more entities if you need them  
 }
-class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
-                             val persistenceActorRef: PersistenceActorRef) extends Actor with HttpService {
+class FrontendInterfaceActor extends Actor with HttpService {
 
   val logger = Logging(context.system, this)
   override def preStart() {
     logger.debug("REST Api starts.")
-
   }
 
   def actorRefFactory = context
@@ -39,7 +37,7 @@ class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProvider
      * e.g. GET http://localhost:8080/process/8
      */
     pathPrefix(Entity.PROCESS) { requestContext =>
-      context.actorOf(Props(new ProcessInterfaceActor(subjectProviderManagerActorRef, persistenceActorRef))) ! requestContext
+      context.actorOf(Props[ProcessInterfaceActor]) ! requestContext
     } ~
       /**
        * redirect all calls beginning with "execution" to ExecutionInterfaceActor
@@ -48,15 +46,15 @@ class FrontendInterfaceActor(val subjectProviderManagerActorRef: SubjectProvider
        */
       pathPrefix(Entity.EXECUTION) { requestContext =>
         context.actorOf(Props[ExecutionInterfaceActor]) ! requestContext
-    } ~
+      } ~
       /**
        * redirect all calls beginning with "testexecution" to TestExecutionInterfaceActor
-       * 
+       *
        * e.g. GET http://localhost:8080/testexecution/8
        */
       pathPrefix(Entity.TESTEXECUTION) { requestContext =>
         context.actorOf(Props[TestExecutionInterfaceActor]) ! requestContext
-      } ~ 
+      } ~
       /**
        * redirect all calls beginning with "user" to UserInterfaceActor
        *
