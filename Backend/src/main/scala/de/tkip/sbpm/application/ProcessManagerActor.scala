@@ -77,15 +77,17 @@ class ProcessManagerActor(private val name: String) extends Actor {
       killProcessInstance(kill.processInstanceID)
     }
 
-    // TODO schoener
-    // a process instance informs the subject provider that a subject has been created
-    case (userID: UserID, sc: SubjectCreated) => {
+    case message: SubjectProviderMessage[_] => {
+      val userID = message.subjectProviderID
       if (subjectProviderMap.contains(userID)) {
-        // forward the message to the correct subject provider
-        subjectProviderMap(userID).forward(sc)
+        subjectProviderMap(userID).forward(message)
       } else {
-        println("SubjectProvider does not exists: " + userID)
+        println("Process Manager - User unknown: " + userID + " message: " + message)
       }
+    }
+
+    case answer: AnswerMessage[_] => {
+      answer.sender.forward(answer)
     }
 
     // TODO only for the Testcase

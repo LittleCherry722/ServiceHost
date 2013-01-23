@@ -11,10 +11,12 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application._
 
-protected case class SubjectCreated(processID: ProcessID,
+protected case class SubjectCreated(userID: UserID,
+                                    processID: ProcessID,
                                     processInstanceID: ProcessInstanceID,
                                     subjectID: SubjectID,
                                     ref: SubjectRef)
+    extends SubjectProviderMessage[SubjectCreated]
 
 class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessManagerRef) extends Actor {
 

@@ -10,7 +10,7 @@ object ProcessAttributes {
 
   type SubjectID = String
   type SubjectName = String
-  type StateID = String
+  type StateID = Int
   type SuccessorID = StateID
   type StateAction = String
 

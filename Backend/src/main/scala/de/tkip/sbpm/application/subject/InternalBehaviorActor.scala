@@ -14,7 +14,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
                             userID: UserID,
                             inputPoolActor: ActorRef) extends Actor {
   private val statesMap = collection.mutable.Map[StateID, State]()
-  private var startState: StateID = ""
+  private var startState: StateID = 0
   private var currentState: BehaviorStateRef = null
 
   def receive = {
@@ -30,6 +30,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     }
 
     case es: NextState => {
+      println(subjectID+": "+statesMap)
       println("execute: " + statesMap(es.state))
       // TODO hier history log?
       nextState(es.state)
@@ -55,6 +56,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
 
   private def addState(state: State) {
     if (state.stateType == StartStateType) {
+      println("startstate "+state)
       startState = state.id
     }
     statesMap += state.id -> state

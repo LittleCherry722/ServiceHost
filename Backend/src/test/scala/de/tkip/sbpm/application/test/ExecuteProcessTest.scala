@@ -19,24 +19,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 object ExecuteProcessTest extends App {
 
   val processGraph =
-    ProcessGraph(
-      Array[Subject](
-        Subject("Superior",
-          Array[State](
-            State("sup", "start", StartStateType, Array[Transition](StartTransition("sup.br1"))),
-            State("sup.br1", "receive", ReceiveStateType, Array[Transition](Transition("BT Application", "Employee"))),
-            State("sup.br1.br1", "act", ActStateType, Array[Transition](ActTransition("Approval"), ActTransition("Denial"))),
-            State("sup.br1.br1.br1", "send approval", SendStateType, Array[Transition](Transition("Approval", "Employee", "The End"))),
-            State("sup.br1.br1.br2", "send denial", SendStateType, Array[Transition](Transition("Denial", "Employee", "The End"))),
-            State("The End", "end superior", EndStateType, Array[Transition]()))),
-        Subject("Employee",
-          Array[State](
-            State("empl", "start", StartStateType, Array[Transition](StartTransition("empl.br1"))),
-            State("empl.br1", "Fill out Application", ActStateType, Array[Transition](ActTransition("Done"))),
-            State("empl.br1.br1", "Send Application", SendStateType, Array[Transition](Transition("BT Application", "Superior"))),
-            State("empl.br1.br1.br1", "Receive", ReceiveStateType, Array[Transition](Transition("Approval", "Superior"), Transition("Denial", "Superior", "End"))),
-            State("empl.br1.br1.br1.br1", "Make business trip", ActStateType, Array[Transition](ActTransition("Done", "End"))),
-            State("End", "end state", EndStateType, Array[Transition]())))))
+    ExecuteProcessInConsoleTest.processGraph
 
   val processModel = ProcessModel(1, "Urlaub", processGraph)
 

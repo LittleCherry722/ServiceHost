@@ -95,7 +95,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
 
       // inform the subject provider about his new subject
       context.parent !
-        (as.userID, SubjectCreated(process.processID, id, subject.id, subjectRef))
+        SubjectCreated(as.userID, process.processID, id, subject.id, subjectRef)
 
       // start the execution of the subject
       subjectRef ! StartSubjectExecution()
@@ -104,7 +104,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
     case st: SubjectTerminated => {
       // log end time in history
       subjectCounter -= 1
-      println("process instance" + id + ": subject terminated " + st.subjectID)
+      println("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (subjectCounter == 0) {
         executionHistory.processEnded = new Date()
         context.stop(self)
@@ -143,6 +143,10 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
     // (should be called by subject actors when a transition occurs)
     case he: history.Entry => {
       executionHistory.entries += he
+    }
+
+    case answer: AnswerMessage[_] => {
+      context.parent.forward(answer)
     }
   }
 

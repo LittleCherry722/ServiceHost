@@ -4,6 +4,7 @@ import akka.actor._
 import miscellaneous._
 import miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
+import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 
 class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     extends Actor {
@@ -22,12 +23,6 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
 
     case gpr: ExecuteRequest =>
       forwardControlMessageToProvider(gpr.userID, gpr)
-
-    case gaa: GetAvailableActions =>
-      forwardControlMessageToProvider(gaa.userID, gaa)
-
-    case hi: GetHistory =>
-      forwardControlMessageToProvider(hi.userID, hi)
 
     case sra: ExecuteRequestAll =>
       forwardControlMessageToProvider(sra.userID, sra)
@@ -54,21 +49,47 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
     case kill: KillProcess =>
       processManagerRef ! kill
 
-    case answer: AnswerMessage[_] =>
+    // general matching:
+    // first match the answers
+    // then SubjectProviderMessages
+
+    case answer: AnswerMessage[_] => {
       if (answer.sender != null)
         answer.sender ! answer
+    }
 
-    case s =>
+    case message: SubjectProviderMessage[_] => {
+      // TODO im moment doppelt drin
+      val userID: UserID = message.subjectProviderID
+      if (subjectProviderMap.contains(userID)) {
+        subjectProviderMap(userID).forward(withSender(message))
+      }
+    }
+
+    case s => {
       println("SubjectProviderManger not yet implemented: " + s)
+    }
+  }
+
+  /**
+   * Sets the sender of the message if the message is AnswerAble
+   * and returns the message
+   */
+  private def withSender(message: Any) = {
+    message match {
+      case answerAble: AnswerAbleMessage => answerAble.sender = sender
+      case _ =>
+    }
+    message
   }
 
   // forward control message to subjectProvider that is mapped to a specific userID
   private def forwardControlMessageToProvider(userID: UserID,
                                               controlMessage: ControlMessage) {
     if (subjectProviderMap.contains(userID)) {
-
-      if (controlMessage.isInstanceOf[AnswerAbleMessage])
+      if (controlMessage.isInstanceOf[AnswerAbleMessage]) {
         controlMessage.asInstanceOf[AnswerAbleMessage].sender = sender
+      }
 
       subjectProviderMap(userID).forward(controlMessage)
     }

@@ -17,6 +17,8 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.subject._
 
+import spray.json._
+
 object ExecuteProcessInConsoleTest {
 
   val processGraph =
@@ -24,20 +26,20 @@ object ExecuteProcessInConsoleTest {
       Array[Subject](
         Subject("Superior",
           Array[State](
-            State("sup", "start", StartStateType, Array[Transition](StartTransition("sup.br1"))),
-            State("sup.br1", "receive", ReceiveStateType, Array[Transition](Transition("BT Application", "Employee"))),
-            State("sup.br1.br1", "act", ActStateType, Array[Transition](ActTransition("Approval"), ActTransition("Denial"))),
-            State("sup.br1.br1.br1", "send approval", SendStateType, Array[Transition](Transition("Approval", "Employee", "The End"))),
-            State("sup.br1.br1.br2", "send denial", SendStateType, Array[Transition](Transition("Denial", "Employee", "The End"))),
-            State("The End", "end superior", EndStateType, Array[Transition]()))),
+            State(0, "start", StartStateType, Array[Transition](StartTransition(1))),
+            State(1, "receive", ReceiveStateType, Array[Transition](Transition("BT Application", "Employee", 2))),
+            State(2, "act", ActStateType, Array[Transition](ActTransition("Approval", 3), ActTransition("Denial", 4))),
+            State(3, "send approval", SendStateType, Array[Transition](Transition("Approval", "Employee", 5))),
+            State(4, "send denial", SendStateType, Array[Transition](Transition("Denial", "Employee", 5))),
+            State(5, "end superior", EndStateType, Array[Transition]()))),
         Subject("Employee",
           Array[State](
-            State("empl", "start", StartStateType, Array[Transition](StartTransition("empl.br1"))),
-            State("empl.br1", "Fill out Application", ActStateType, Array[Transition](ActTransition("Done"))),
-            State("empl.br1.br1", "Send Application", SendStateType, Array[Transition](Transition("BT Application", "Superior"))),
-            State("empl.br1.br1.br1", "Receive", ReceiveStateType, Array[Transition](Transition("Approval", "Superior"), Transition("Denial", "Superior", "End"))),
-            State("empl.br1.br1.br1.br1", "Make business trip", ActStateType, Array[Transition](ActTransition("Done", "End"))),
-            State("End", "end state", EndStateType, Array[Transition]())))))
+            State(0, "Start", StartStateType, Array[Transition](StartTransition(1))),
+            State(1, "Fill out Application", ActStateType, Array[Transition](ActTransition("Done", 2))),
+            State(2, "Send Application", SendStateType, Array[Transition](Transition("BT Application", "Superior", 3))),
+            State(3, "Receive", ReceiveStateType, Array[Transition](Transition("Approval", "Superior", 4), Transition("Denial", "Superior", 5))),
+            State(4, "Make business trip", ActStateType, Array[Transition](ActTransition("Done", 5))),
+            State(5, "End employee", EndStateType, Array[Transition]())))))
 
   val processModel = ProcessModel(1, "Urlaub", processGraph)
 
@@ -67,13 +69,12 @@ object ExecuteProcessInConsoleTest {
 
     private def executeAction(avail: AvailableAction) {
       print(avail.processInstanceID + "/" + avail.subjectID + "/" + avail.stateID + " - ")
-      avail.stateType match {
+      StateType.fromStringtoStateType(avail.stateType) match {
         case ActStateType =>
           var action = readLine("Execute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
           while (!avail.actionData.contains(action)) {
             action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
           }
-
           subjectProviderManager ! ExecuteAction(avail, action)
         case SendStateType =>
           val message = readLine("Please insert message: ")

@@ -4,6 +4,7 @@ import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.application.miscellaneous.AnswerMessage
+import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -28,19 +29,22 @@ case class AvailableAction(userID: UserID,
                            processInstanceID: ProcessInstanceID,
                            subjectID: SubjectID,
                            stateID: StateID,
-                           stateType: StateType,
+                           stateType: String,
                            actionData: Array[String])
+    extends SubjectProviderMessage[AvailableAction]
 
 // The Execution command from the user
 case class ExecuteAction(userID: UserID,
                          processInstanceID: ProcessInstanceID,
                          subjectID: SubjectID,
                          stateID: StateID,
-                         stateType: StateType,
+                         stateType: String,
                          actionInput: String)
     extends AnswerAbleMessage
     with SubjectBehaviorRequest
-// TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegtbare action
+    with SubjectProviderMessage[ExecuteAction]
+
+// TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
 case class ExecuteActionAnswer(request: ExecuteAction) extends AnswerMessage[ExecuteActionAnswer]
 
 object ExecuteAction {

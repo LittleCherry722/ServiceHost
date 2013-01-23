@@ -7,11 +7,11 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
  */
 case class Transition(val messageType: MessageType,
                       val subjectName: SubjectName,
-                      val successorID: SuccessorID = "") {
+                      val successorID: SuccessorID) {
 }
 
 object ActTransition {
-  def apply(actionType: MessageType, successorID: SuccessorID = "") =
+  def apply(actionType: MessageType, successorID: SuccessorID) =
     Transition(actionType, "Do", successorID)
 }
 

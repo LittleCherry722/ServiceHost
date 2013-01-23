@@ -24,15 +24,15 @@ protected abstract class BehaviorStateActor(val stateID: StateID,
                                             userID: UserID, // TODO braucht ma, 
                                             inputpool: ActorRef) extends Actor {
 
-  for (i <- 0 until transitions.length) yield {
-    if (transitions(i).successorID.isEmpty()) {
-      transitions(i) =
-        Transition(
-          transitions(i).messageType,
-          transitions(i).subjectName,
-          stateID + ".br" + (i + 1).toString())
-    }
-  } // br for branch 
+  //  for (i <- 0 until transitions.length) yield {
+  //    if (transitions(i).successorID.isEmpty()) {
+  //      transitions(i) =
+  //        Transition(
+  //          transitions(i).messageType,
+  //          transitions(i).subjectName,
+  //          stateID + ".br" + (i + 1).toString())
+  //    }
+  //  } // br for branch 
 
   /**
    *
@@ -54,7 +54,7 @@ protected abstract class BehaviorStateActor(val stateID: StateID,
           ga.processInstanceID,
           subjectID,
           stateID,
-          stateType,
+          StateType.fromStateTypetoString(stateType),
           actionData)
     }
 
@@ -188,7 +188,6 @@ protected case class ReceiveStateActor(s: StateID,
       userID,
       inputpool) {
 
-  var ret: StateID = "Default Receive return"
   var messageContent: String = ""
   var stateType: StateType = ReceiveWaitingStateType
 
@@ -210,7 +209,6 @@ protected case class ReceiveStateActor(s: StateID,
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
       messageContent = sm.messageContent
-      ret = transitions(0).successorID
       stateType = ReceiveStateType
     }
 
@@ -248,7 +246,6 @@ protected case class SendStateActor(s: StateID,
   val messageName = transitions(0).messageType
   val toSubject = transitions(0).subjectName
   val sucessorID = transitions(0).successorID
-  var ret: StateID = "Default Send return"
 
   // TODO sowas wie timeout ist nicht drin
   override def receive = {
