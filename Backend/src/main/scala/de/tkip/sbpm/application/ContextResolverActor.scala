@@ -11,7 +11,7 @@ case class SubjectInformation(subjectName: String)
 
 // this message is to Request the user id and will be answered
 // using generateAnswer with the userID
-case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => ControlMessage)
+case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => Any)
 
 /**
  * resolves the context of the subjects

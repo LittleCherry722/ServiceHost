@@ -11,7 +11,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
 
 /**
  * manages all processes and creates new ProcessInstance's on demand
- * information expert for relations between SubjectProviderActor/ProcessInstanceActor/SubjectActor (TODO)
+ * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor(private val name: String) extends Actor {
   // the process descriptions
@@ -22,7 +22,7 @@ class ProcessManagerActor(private val name: String) extends Actor {
   private var processInstanceCount = 0
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceRef]()
 
-  // used to map answermessages back to the subjectProvider who sent a request
+  // used to map answer messages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
 
   // initialize persistence actors
@@ -33,64 +33,69 @@ class ProcessManagerActor(private val name: String) extends Actor {
 
     // persistence router - in case the debug flag is set, forward the message to
     // test persistence actor
-    case pa: PersistenceAction =>
+    case pa: PersistenceAction => {
       if (pa.isInstanceOf[Debug]) {
         forwardToTestPersistenceActor(pa)
       } else {
         forwardToPersistenceActor(pa)
       }
+    }
 
-    case hi: GetHistory =>
+    case hi: GetHistory => {
       forwardControlMessageToProcessInstance(hi.processID, hi)
+    }
 
-    case sra: ExecuteRequestAll =>
+    case sra: ExecuteRequestAll => {
       sra.sender ! processInstanceMap.keys
+    }
 
-    case rp: ReadProcess =>
-      rp.sender ! processDescritionMap
-
-    case sr: ExecuteRequest => // request the status of the process
-      forwardControlMessageToProcessInstance(sr.processID, sr)
-
-    case register: RegisterSubjectProvider =>
+    case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProvider
+    }
 
     // modeling
-    case cp: CreateProcess =>
+    // TODO kommt hier raus und zur datenbank im moment aber noch nicht
+    case cp: CreateProcess => {
       val processModel: ProcessModel = ProcessModel(processCount, cp.processName, cp.processGraph)
       processDescritionMap += processCount -> processModel
       sender ! ProcessCreated(cp, processCount)
       processCount += 1
-
-    case up: UpdateProcess =>
+    }
+    // siehe create
+    case up: UpdateProcess => {
       processDescritionMap(up.processID) = up.processModel
-    // TODO was mit den laufen processinstanzen machen?
-
-    case ra: RequestAnswer =>
-      //wo muss die entscheidung festgehalten werden
-      println("not yet implemnted")
+    }
 
     // execution
-    case cp: CreateProcessInstance =>
+    case cp: CreateProcessInstance => {
       createNewProcessInstance(processInstanceCount)
       sender ! ProcessInstanceCreated(cp, processInstanceCount)
       processInstanceCount += 1
+    }
 
-    case kill: KillProcess =>
+    case kill: KillProcess => {
       killProcessInstance(kill.processInstanceID)
+    }
 
+    // TODO schoener
     // a process instance informs the subject provider that a subject has been created
-    case (userID: UserID, sc: SubjectCreated) =>
+    case (userID: UserID, sc: SubjectCreated) => {
       if (subjectProviderMap.contains(userID)) {
         // forward the message to the correct subject provider
         subjectProviderMap(userID).forward(sc)
       } else {
         println("SubjectProvider does not exists: " + userID)
       }
+    }
 
-    // for the Testcase
-    case (id: Int, as: AddSubject) =>
+    // TODO only for the Testcase
+    case (id: Int, as: AddSubject) => {
       processInstanceMap(id).forward(as)
+    }
+  }
+
+  private def forwardToPersistenceActor(pa: PersistenceAction) {
+    persistenceActor.forward(pa)
   }
 
   // forward persistence messages to persistenceActors
@@ -98,19 +103,18 @@ class ProcessManagerActor(private val name: String) extends Actor {
     testPersistenceActor.forward(pa)
   }
 
-  private def forwardToPersistenceActor(pa: PersistenceAction) {
-    persistenceActor.forward(pa)
-  }
-
   // forward control message to processInstance with a given processID
-  // TODO braucht man überhaupt noch?
+  // TODO braucht man ueberhaupt noch?
   private def forwardControlMessageToProcessInstance(processInstanceID: ProcessInstanceID,
                                                      controlMessage: ControlMessage) {
-    if (processInstanceMap.contains(processInstanceID))
+    if (processInstanceMap.contains(processInstanceID)) {
       processInstanceMap(processInstanceID) ! controlMessage
+    }
   }
 
-  // creates a new processInstanceActor and registers it with the given processID (overrides the old entry)
+  /**
+   * creates a new processInstanceActor and registers it with the given processID (overrides the old entry)
+   */
   private def createNewProcessInstance(processID: ProcessID) = {
     // TODO wenn processId nicht ovrhanden gibt es einen Fehler
     val process = context.actorOf(Props(new ProcessInstanceActor(processInstanceCount, processDescritionMap(processID))))
@@ -118,7 +122,9 @@ class ProcessManagerActor(private val name: String) extends Actor {
     process
   }
 
-  // kills the processInstanceActor with the given processID and unregisters it
+  /**
+   * kills the processInstanceActor with the given processID and unregisters it
+   */
   private def killProcessInstance(processInstanceID: ProcessInstanceID) = {
     if (processInstanceMap.contains(processInstanceID)) {
       context.stop(processInstanceMap(processInstanceID))

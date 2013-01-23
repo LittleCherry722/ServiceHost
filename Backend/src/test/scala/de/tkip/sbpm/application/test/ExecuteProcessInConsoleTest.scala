@@ -41,13 +41,15 @@ object ExecuteProcessInConsoleTest {
 
   val processModel = ProcessModel(1, "Urlaub", processGraph)
 
+  /**
+   * This class simulates the frontentinterfaceactor and runs by the console
+   */
   private class FrontendSimulatorActor(subjectProviderManager: SubjectProviderManagerRef) extends Actor {
 
-    private case class SelfCommand
     def receive = {
 
       case a: ExecuteActionAnswer =>
-        println("FE: action executed: " + a)
+        println("FE - action executed: " + a)
         Thread.sleep(100)
         subjectProviderManager ! GetAvailableActions(a.request.userID, a.request.processInstanceID)
 
@@ -59,25 +61,26 @@ object ExecuteProcessInConsoleTest {
       case a: AvailableAction =>
         executeAction(a)
 
-      //      case s: SelfCommand =>
-      //        readLine("Send available action request")
-
       case s =>
         println("FE received: " + s)
     }
 
     private def executeAction(avail: AvailableAction) {
-      print(avail.processInstanceID+"/"+avail.subjectID+"/"+avail.stateID+" - ")
+      print(avail.processInstanceID + "/" + avail.subjectID + "/" + avail.stateID + " - ")
       avail.stateType match {
         case ActStateType =>
-          val action = readLine("Execute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
+          var action = readLine("Execute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
+          while (!avail.actionData.contains(action)) {
+            action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
+          }
+
           subjectProviderManager ! ExecuteAction(avail, action)
         case SendStateType =>
           val message = readLine("Please insert message: ")
           subjectProviderManager ! ExecuteAction(avail, message)
         case ReceiveWaitingStateType => {
           readLine("I am waiting for a message")
-//          subjectProviderManager ! GetAvailableActions(avail.userID, avail.processInstanceID)
+          //          subjectProviderManager ! GetAvailableActions(avail.userID, avail.processInstanceID)
         }
         case ReceiveStateType =>
           val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
@@ -120,10 +123,8 @@ object ExecuteProcessInConsoleTest {
 
     processManager ! ((processInstanceID, AddSubject(0, "Employee")))
 
-    //    subjectProviderManager.!(
-    //      GetAvailableActions(userID, processInstanceID))(console)
+    Thread.sleep(1500)
 
-    Thread.sleep(1000)
     subjectProviderManager.!(
       GetAvailableActions(userID, processInstanceID))(console)
 

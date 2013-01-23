@@ -1,9 +1,11 @@
-package de.tkip.sbpm.application
+package de.tkip.sbpm.application.subject
+
+import scala.collection.mutable.ArrayBuffer
 
 import akka.actor._
-import scala.collection.mutable.ArrayBuffer
-import miscellaneous._
-import miscellaneous.ProcessAttributes._
+
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.Transition
 
 case class SubjectMessageRouting(from: SubjectName, messageType: MessageType)

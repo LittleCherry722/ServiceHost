@@ -11,10 +11,11 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application._
 
-case class SubjectCreated(processID: ProcessID,
-                          processInstanceID: ProcessInstanceID,
-                          subjectID: SubjectID,
-                          ref: SubjectRef)
+protected case class SubjectCreated(processID: ProcessID,
+                                    processInstanceID: ProcessInstanceID,
+                                    subjectID: SubjectID,
+                                    ref: SubjectRef)
+
 class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessManagerRef) extends Actor {
 
   private type Subject = SubjectCreated
@@ -24,6 +25,10 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
   processManagerRef ! RegisterSubjectProvider(userID, self)
 
   def receive = {
+    case subject: SubjectCreated => {
+      subjects += subject
+    }
+
     case get: GetAvailableActions => {
       // remove terminated subjects
       subjects = subjects.filter(!_.ref.isTerminated)
@@ -32,14 +37,9 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
         CollectAvailableActions(get, subjects.filter(_.processInstanceID != get.processInstanceID))
     }
 
-    case subject: SubjectCreated => {
-      subjects += subject
-    }
-
     case ea: ExecuteAction =>
       // TODO muss performanter gehen weils nur ein subject ist
       for (subject <- subjects.filter(s => s.processInstanceID != ea.processInstanceID && s.subjectID == ea.subjectID)) {
-        //        context.actorOf(Props(new ActionExecuteActor)) ! (subject.ref, ea)
         subject.ref ! ea
       }
 
@@ -59,28 +59,7 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     }
   }
 
-  /**
-   * This class is responsible to send an execute action request and to handle the answer
-   */
-  private class ActionExecuteActor extends Actor {
-    def receive = {
-      case (subject: SubjectRef, action: ExecuteAction) =>
-        implicit val timeout = akka.util.Timeout(500)
-        val future = subject ? action
-        val answer = Await.result(future, timeout.duration)
-        answer match {
-          case ae: ActionExecuted =>
-            println("Action executed: " + ae)
-            context.stop(self)
-          case s =>
-            println("ActionExecuteActor does not support: " + s)
-            context.stop(self)
-        }
-    }
-  }
-
   private case class CollectAvailableActions(request: GetAvailableActions, subjects: Set[Subject])
-
   /**
    * This class is responsible to collect the available actions of a set of subjects
    */
