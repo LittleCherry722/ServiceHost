@@ -2,6 +2,7 @@ package de.tkip.sbpm.persistence
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
+import de.tkip.sbpm.model._
 
 /*
 * Messages for querying database
@@ -14,14 +15,13 @@ sealed abstract class MessageAction extends PersistenceAction
 * None or empty Seq is returned if no entities where found
 */
 case class GetMessage(id: Option[Int] = None) extends MessageAction
-// save message to db, if id is None a new message is created and its id is returned
-case class SaveMessage(id: Option[Int] = None, from: Int, to: Int, instanceId: Int, isRead: Boolean, data: String, date: java.sql.Timestamp) extends MessageAction
+// save message to db, if id is None a new message is created 
+// and its id (Option[Int]) is returned (on update -> None)
+case class SaveMessage(message: Message) extends MessageAction
 // delete message with id from db (nothing is returned)
 case class DeleteMessage(id: Int) extends MessageAction
 
-
 private[persistence] class MessagePersistenceActor extends Actor with DatabaseAccess {
-  import de.tkip.sbpm.model._
   // import driver loaded according to akka config
   import driver.simple._
   import DBType._
@@ -43,19 +43,21 @@ private[persistence] class MessagePersistenceActor extends Actor with DatabaseAc
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all messages ordered by id
-      case GetMessage(None) => sender ! Messages.sortBy(_.id).list
+      case GetMessage(None) => answer { Messages.sortBy(_.id).list }
       // get message with given id
-      case GetMessage(id) => sender ! Messages.where(_.id === id).firstOption
+      case GetMessage(id) =>
+        answer { Messages.where(_.id === id).firstOption }
       // create new message
-      case SaveMessage(None, from, to, instanceId, isRead, data, date) =>
-        sender ! Messages.autoInc.insert(Message(None, from, to, instanceId, isRead, data, date))
+      case SaveMessage(m @ Message(None, _, _, _, _, _, _)) =>
+        answer { Some(Messages.autoInc.insert(m)) }
       // update existing message
-      case SaveMessage(id, from, to, instanceId, isRead, data, date) =>
-        Messages.where(_.id === id).update(Message(id, from, to, instanceId, isRead, data, date))
+      case SaveMessage(m @ Message(id, _, _, _, _, _, _)) =>
+        answer { Messages.where(_.id === id).update(m) }
       // delete message with given id
-      case DeleteMessage(id) => Messages.where(_.id === id).delete(session)
+      case DeleteMessage(id) =>
+        answer { Messages.where(_.id === id).delete(session); None }
       // execute DDL for "messages" table
-      case InitDatabase => Messages.ddl.create(session)
+      case InitDatabase => answer { Messages.ddl.create(session) }
     }
   }
 

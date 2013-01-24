@@ -15,11 +15,11 @@ sealed abstract class ProcessInstanceAction extends PersistenceAction
 * None or empty Seq is returned if no entities where found
 */
 case class GetProcessInstance(id: Option[Int] = None) extends ProcessInstanceAction
-// save process instance to db, if id is None a new process instance is created and its id is returned
-case class SaveProcessInstance(id: Option[Int] = None, processId: Int, graphId: Int, involvedUsers: String, data: String) extends ProcessInstanceAction
+// save process instance to db, if id is None a new process instance is created 
+// and its id (Option[Int]) is returned (on update None)
+case class SaveProcessInstance(processInstance: ProcessInstance) extends ProcessInstanceAction
 // delete process instance with id from db
 case class DeleteProcessInstance(id: Int) extends ProcessInstanceAction
-
 
 /**
  * Handles all database operations for table "process_instance".
@@ -29,7 +29,7 @@ private[persistence] class ProcessInstancePersistenceActor extends Actor with Da
   import driver.simple._
   import DBType._
   import de.tkip.sbpm.model._
-  
+
   // represents the "process_instance" table in the database
   object ProcessInstances extends Table[ProcessInstance]("process_instance") {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
@@ -45,19 +45,22 @@ private[persistence] class ProcessInstancePersistenceActor extends Actor with Da
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all process instance ordered by id
-      case GetProcessInstance(None) => sender ! ProcessInstances.sortBy(_.id).list
+      case GetProcessInstance(None) =>
+        answer { ProcessInstances.sortBy(_.id).list }
       // get process instance with given id
-      case GetProcessInstance(id) => sender ! ProcessInstances.where(_.id === id).firstOption
+      case GetProcessInstance(id) =>
+        answer { ProcessInstances.where(_.id === id).firstOption }
       // create new process instance
-      case SaveProcessInstance(None, processId, graphId, involvedUsers, data) =>
-        sender ! ProcessInstances.autoInc.insert(ProcessInstance(None, processId, graphId, involvedUsers, data))
+      case SaveProcessInstance(pi @ ProcessInstance(None, _, _, _, _)) =>
+        answer { Some(ProcessInstances.autoInc.insert(pi)) }
       // save existing process instance
-      case SaveProcessInstance(id, processId, graphId, involvedUsers, data) =>
-        ProcessInstances.where(_.id === id).update(ProcessInstance(id, processId, graphId, involvedUsers, data))
+      case SaveProcessInstance(pi @ ProcessInstance(id, _, _, _, _)) =>
+        answer { ProcessInstances.where(_.id === id).update(pi); None }
       // delete process instance with given id
-      case DeleteProcessInstance(id) => ProcessInstances.where(_.id === id).delete(session)
+      case DeleteProcessInstance(id) =>
+        answer { ProcessInstances.where(_.id === id).delete(session) }
       // execute DDL for creating "process_instance" table
-      case InitDatabase => ProcessInstances.ddl.create(session)
+      case InitDatabase => answer { ProcessInstances.ddl.create(session) }
     }
   }
 

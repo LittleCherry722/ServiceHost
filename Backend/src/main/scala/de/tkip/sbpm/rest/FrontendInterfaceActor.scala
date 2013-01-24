@@ -22,10 +22,14 @@ object Entity {
   // TODO define more entities if you need them  
 }
 class FrontendInterfaceActor extends Actor with HttpService {
-
   val logger = Logging(context.system, this)
+
   override def preStart() {
-    logger.debug("REST Api starts.")
+    logger.debug(getClass.getName + " starts...")
+  }
+
+  override def postStop() {
+    logger.debug(getClass.getName + " stopped.")
   }
 
   def actorRefFactory = context

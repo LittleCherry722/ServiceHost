@@ -31,15 +31,15 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   val logger = Logging(context.system, this)
 
   override def preStart() {
-    logger.debug(context.self + " starts.")
+    logger.debug(getClass.getName + " starts...")
   }
 
   override def postStop() {
-    logger.debug(context.self + " stops.")
+    logger.debug(getClass.getName + " stopped.")
   }
 
   def actorRefFactory = context
-  
+
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
 
   def receive = runRoute({
@@ -55,25 +55,24 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             val future1 = subjectProviderManager ? new ReadProcess(userId.toInt, processID.toInt)
             val future2 = subjectProviderManager ? new GetHistory(userId.toInt, processID.toInt)
             val future3 = subjectProviderManager ? new GetAvailableActions(userId.toInt, processID.toInt)
-            
+
             val result = for {
-            	graph <- future1.mapTo[Process] 
-            	history <- future2.mapTo[History] 
-            	actions <- future3.mapTo[Action] 
+              graph <- future1.mapTo[Process]
+              history <- future2.mapTo[History]
+              actions <- future3.mapTo[Action]
             } yield List(graph, history, actions)
-            
-            
+
             result onSuccess {
-              case objlist: List[Object] => 
+              case objlist: List[Object] =>
                 for (obj <- objlist) {
-                //jsonResult + obj.toJson
+                  //jsonResult + obj.toJson
                 }
             }
             result onFailure {
-              case _ => 
+              case _ =>
                 jsonResult = "an error occured"
             }
-            
+
             complete(jsonResult)
           }
         } ~

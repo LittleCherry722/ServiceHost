@@ -26,16 +26,6 @@ case class DeleteUser(id: Int) extends UserAction
  */
 private[persistence] class UserPersistenceActor extends Actor with DatabaseAccess {
 
-  val logger = Logging(context.system, this)
-
-  override def preStart() {
-    logger.debug(context.self + " starts.")
-  }
-
-  override def postStop() {
-    logger.debug(context.self + " stops.")
-  }
-
   import driver.simple._
   import DBType._
   import de.tkip.sbpm.model._

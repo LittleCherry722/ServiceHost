@@ -35,16 +35,6 @@ import de.tkip.sbpm.ActorLocator
 // TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor extends Actor with PersistenceInterface {
   private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
-  
-  val logger = Logging(context.system, this)
-
-  override def preStart() {
-    logger.debug(context.self + " starts.")
-  }
-
-  override def postStop() {
-    logger.debug(context.self + " stops.")
-  }
 
   /**
    *

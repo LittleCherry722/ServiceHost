@@ -27,7 +27,7 @@ private[persistence] class ConfigurationPersistenceActor extends Actor with Data
 
   import driver.simple._
   import DBType._
-
+  
   // represents the "configuration" table in the database
   object Configurations extends Table[Configuration]("configuration") {
     def key = column[String]("key", O.PrimaryKey, O.DBType(varchar(64)))

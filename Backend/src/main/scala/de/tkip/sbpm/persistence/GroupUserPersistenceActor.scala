@@ -2,6 +2,7 @@ package de.tkip.sbpm.persistence
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
+import de.tkip.sbpm.model._
 
 /*
 * Messages for querying database
@@ -11,13 +12,13 @@ import scala.slick.lifted
 sealed abstract class GroupUserAction extends PersistenceAction
 // get all group -> user mappings (Seq[model.GroupUser])
 case class GetGroupUser() extends GroupUserAction
-// save group -> user mapping to db (nothing is returned)
-case class SaveGroupUser(groupId: Int, userId: Int, isActive: Boolean = true) extends GroupUserAction
+// save group -> user mapping to db
+// returns primary key Some((groupId, userId)) if created otherwise None
+case class SaveGroupUser(groupUser: GroupUser) extends GroupUserAction
 // delete group -> user mapping from db
 case class DeleteGroupUser(groupId: Int, userId: Int) extends GroupUserAction
 
 private[persistence] class GroupUserPersistenceActor extends Actor with DatabaseAccess {
-  import de.tkip.sbpm.model._
   // import driver loaded according to akka config
   import driver.simple._
 
@@ -34,21 +35,27 @@ private[persistence] class GroupUserPersistenceActor extends Actor with Database
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all group -> user mappings ordered by group id
-      case GetGroupUser() => sender ! GroupUsers.sortBy(_.groupId).list
+      case GetGroupUser() =>
+        answer { GroupUsers.sortBy(_.groupId).list }
       // save group -> user mapping
-      case SaveGroupUser(groupId, userId, isActive) => save(groupId, userId, isActive)
+      case SaveGroupUser(gu: GroupUser) => answer { save(gu) }
       // delete group -> user mapping
-      case DeleteGroupUser(groupId, userId) => delete(groupId, userId)
+      case DeleteGroupUser(groupId, userId) =>
+        answer { delete(groupId, userId) }
       // execute DDL to create "group_x_users" table
-      case InitDatabase => GroupUsers.ddl.create(session)
+      case InitDatabase => answer { GroupUsers.ddl.create(session) }
     }
   }
 
   // delete existing exntry with given group an user id 
   // and insert new record with given values
-  private def save(groupId: Int, userId: Int, isActive: Boolean)(implicit session: Session) = {
-    delete(groupId, userId)
-    GroupUsers.insert(GroupUser(groupId, userId, isActive))
+  private def save(gu: GroupUser)(implicit session: Session) = {
+    val res = delete(gu.groupId, gu.userId)
+    GroupUsers.insert(gu)
+    if (res == 0)
+      Some((gu.groupId, gu.userId))
+    else
+      None
   }
 
   // delete existing entry with given group an user id 

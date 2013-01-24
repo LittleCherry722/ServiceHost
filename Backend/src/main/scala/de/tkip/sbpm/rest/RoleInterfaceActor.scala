@@ -18,16 +18,6 @@ import spray.http.StatusCodes._
  * This Actor is only used to process REST calls regarding "role"
  */
 class RoleInterfaceActor extends Actor with PersistenceInterface {
-  val logger = Logging(context.system, this)
-
-  override def preStart() {
-    logger.debug(context.self + " starts.")
-  }
-
-  override def postStop() {
-    logger.debug(context.self + " stops.")
-  }
-
   /**
    *
    * usually a REST Api should at least implement the following functions:

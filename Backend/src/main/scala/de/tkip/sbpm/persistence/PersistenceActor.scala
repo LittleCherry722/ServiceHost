@@ -26,7 +26,7 @@ class PersistenceActor extends Actor with ActorLogging {
   private lazy val groupRoleActor = context.actorOf(Props[GroupRolePersistenceActor], "group-role")
   private lazy val groupUserActor = context.actorOf(Props[GroupUserPersistenceActor], "group-user")
   private lazy val messageActor = context.actorOf(Props[MessagePersistenceActor], "message")
-  private lazy val processInstanceActor = context.actorOf(Props[ProcessInstancePersistenceActor], "process_instance")
+  private lazy val processInstanceActor = context.actorOf(Props[ProcessInstancePersistenceActor], "process-instance")
   private lazy val relationActor = context.actorOf(Props[RelationPersistenceActor], "relation")
   private lazy val configurationActor = context.actorOf(Props[ConfigurationPersistenceActor], "configuration")
 

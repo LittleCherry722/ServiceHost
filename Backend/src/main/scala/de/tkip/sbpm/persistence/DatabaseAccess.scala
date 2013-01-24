@@ -21,6 +21,15 @@ import scala.util.Failure
  * Actors who need DB access should mixin this trait.
  */
 private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
+  
+  override def preStart() {
+    log.debug(getClass.getName + " starts...")
+  }
+
+  override def postStop() {
+    log.debug(getClass.getName + " stopped.")
+  }
+  
   // akka config prefix
   protected val configPath = "sbpm.db."
 
