@@ -41,12 +41,8 @@ class ProcessManagerActor extends Actor {
       }
     }
 
-    case hi: GetHistory => {
-      forwardControlMessageToProcessInstance(hi.processID, hi)
-    }
-
     case sra: ExecuteRequestAll => {
-      sra.sender ! processInstanceMap.keys
+      sender ! processInstanceMap.keys
     }
 
     case register: RegisterSubjectProvider => {
@@ -77,8 +73,17 @@ class ProcessManagerActor extends Actor {
       killProcessInstance(kill.processInstanceID)
     }
 
-    case message: SubjectProviderMessage[_] => {
-      val userID = message.subjectProviderID
+    // TODO muesste man auch zusammenfassenkoennen
+    case message: ProcessInstanceMessage => {
+      forwardMessageToProcessInstance(message)
+    }
+
+    case message: SubjectMessage => {
+      forwardMessageToProcessInstance(message)
+    }
+
+    case message: SubjectProviderMessage => {
+      val userID = message.userID
       if (subjectProviderMap.contains(userID)) {
         subjectProviderMap(userID).forward(message)
       } else {
@@ -86,7 +91,7 @@ class ProcessManagerActor extends Actor {
       }
     }
 
-    case answer: AnswerMessage[_] => {
+    case answer: AnswerMessage => {
       answer.sender.forward(answer)
     }
 
@@ -105,12 +110,14 @@ class ProcessManagerActor extends Actor {
     testPersistenceActor.forward(pa)
   }
 
-  // forward control message to processInstance with a given processID
-  // TODO braucht man ueberhaupt noch?
-  private def forwardControlMessageToProcessInstance(processInstanceID: ProcessInstanceID,
-                                                     controlMessage: ControlMessage) {
-    if (processInstanceMap.contains(processInstanceID)) {
-      processInstanceMap(processInstanceID) ! controlMessage
+  private type ForwardProcessInstanceMessage = { def processInstanceID: ProcessInstanceID }
+
+  private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
+    if (processInstanceMap.contains(message.processInstanceID)) {
+      processInstanceMap(message.processInstanceID).!(message) // TODO mit forwards aber erstmal testen
+    } else {
+      println("ProcessManager - message for " + message.processInstanceID +
+        " but does not exist, " + message)
     }
   }
 

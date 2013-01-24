@@ -1,7 +1,7 @@
 package de.tkip.sbpm.rest
 
+import akka.actor._
 import java.sql.Timestamp
-
 import de.tkip.sbpm.model._
 import spray.json.DefaultJsonProtocol
 import spray.json.DeserializationException
@@ -9,6 +9,15 @@ import spray.json.JsNumber
 import spray.json.JsObject
 import spray.json.JsValue
 import spray.json.RootJsonFormat
+import spray.json._
+import de.tkip.sbpm.application.History
+import de.tkip.sbpm.application.history.Entry
+import de.tkip.sbpm.application.history.State
+import de.tkip.sbpm.application.history.Message
+import de.tkip.sbpm.application.history.MessagePayloadLink
+import de.tkip.sbpm.model.ProcessModel
+import de.tkip.sbpm.model.StateType
+import java.util.Date
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -18,6 +27,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   /**
    * primitive formater
    */
+
   implicit object TimestampFormat extends RootJsonFormat[Timestamp] {
     def write(obj: Timestamp) = {
       JsObject("date" -> JsNumber(obj.getTime))
@@ -27,6 +37,37 @@ object JsonProtocol extends DefaultJsonProtocol {
         case Seq(JsNumber(time)) => new Timestamp(time.toLong)
         case _ => throw new DeserializationException("Date expected")
       }
+    }
+  }
+
+  implicit object DateFormat extends RootJsonFormat[Date] {
+    def write(obj: Date) = {
+      JsObject("date" -> JsNumber(obj.getTime()))
+    }
+    def read(json: JsValue) = {
+      json.asJsObject().getFields("date") match {
+        case Seq(JsNumber(date)) => new Date(date.toLong)
+        case _ => throw new DeserializationException("Date expected")
+      }
+    }
+  }
+
+  //  TODO so richtig durchgereicht
+  implicit object RefFormat extends RootJsonFormat[ActorRef] {
+    def write(obj: ActorRef) = obj.toJson
+    def read(json: JsValue) = json.convertTo[ActorRef]
+  }
+  
+    implicit object ValueFormat extends RootJsonFormat[de.tkip.sbpm.model.StateType.StateType] {
+    def write(obj: de.tkip.sbpm.model.StateType.StateType) = obj.toJson
+    def read(json: JsValue) = json.convertTo[de.tkip.sbpm.model.StateType.StateType]
+  }
+
+  implicit def bufferFormat[T: JsonFormat] = new RootJsonFormat[scala.collection.mutable.Buffer[T]] {
+    def write(array: scala.collection.mutable.Buffer[T]) = JsArray(array.map(_.toJson).toList)
+    def read(value: JsValue) = value match {
+      case JsArray(elements) => scala.collection.mutable.Buffer[T]() ++ elements.map(_.convertTo[T])
+      case x => deserializationError("Expected Array as JsArray, but got " + x)
     }
   }
 
@@ -40,9 +81,24 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val roleFormat = jsonFormat3(Role)
   implicit val groupFormat = jsonFormat3(Group)
 
-  implicit val graphFormat = jsonFormat4(Graph)
-  implicit val ProcessFormat = jsonFormat5(Process)
-  implicit val processInstanceFormat = jsonFormat5(ProcessInstance)
+  //DomainModel
+  implicit val domainGraphFormat = jsonFormat4(Graph)
+  implicit val domainProcessFormat = jsonFormat5(Process)
+  implicit val actionFormat = jsonFormat2(Action)
+
+  //ProcessModel
+  implicit val transitionFormat = jsonFormat3(Transition)
+  implicit val processStateFormat = jsonFormat4(de.tkip.sbpm.model.State)
+  implicit val subjectFormat = jsonFormat2(Subject)
+  implicit val processGraphFormat = jsonFormat1(ProcessGraph)
+  implicit val ProcessFormat = jsonFormat3(ProcessModel)
+
+  implicit val stateFormat = jsonFormat2(State)
+  implicit val messagePayloadFormat = jsonFormat2(MessagePayloadLink)
+  implicit val messageFormat = jsonFormat6(Message)
+  implicit val entryFormat = jsonFormat5(Entry)
+  implicit val historyFormat = jsonFormat5(History)
   
+
 }
   

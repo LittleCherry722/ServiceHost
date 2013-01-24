@@ -15,19 +15,15 @@ import spray.httpx.SprayJsonSupport._
 import spray.json._
 import scala.util.parsing.json.JSONArray
 import de.tkip.sbpm.application.miscellaneous._
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONArray
 import de.tkip.sbpm.ActorLocator
+import spray.http.StatusCodes
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
  */
 // TODO when to choose HttpService and when HttpServiceActor
 class ExecutionInterfaceActor extends Actor with HttpService {
-
+  implicit val timeout = Timeout(5 seconds)
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -51,7 +47,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           formField("subject") { (subject) =>
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             implicit val timeout = Timeout(5 seconds)
-            var jsonResult = ""
             val future1 = subjectProviderManager ? new ReadProcess(userId.toInt, processID.toInt)
             val future2 = subjectProviderManager ? new GetHistory(userId.toInt, processID.toInt)
             val future3 = subjectProviderManager ? new GetAvailableActions(userId.toInt, processID.toInt)
@@ -60,17 +55,17 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               graph <- future1.mapTo[Process]
               history <- future2.mapTo[History]
               actions <- future3.mapTo[Action]
-            } yield List(graph, history, actions)
+            } yield JsObject("graph" -> graph.toJson, "history" -> history.toJson, "actions" -> actions.toJson)
 
+            var jsonResult: Envelope = null;
             result onSuccess {
-              case objlist: List[Object] =>
-                for (obj <- objlist) {
-                  //jsonResult + obj.toJson
-                }
+              case obj: JsObject =>
+                jsonResult = Envelope(Some(JsObject("result" -> obj)), StatusCodes.OK.toString)
             }
+
             result onFailure {
               case _ =>
-                jsonResult = "an error occured"
+                jsonResult = Envelope(Some(JsObject("result" -> JsObject())), StatusCodes.InternalServerError.toString)
             }
 
             complete(jsonResult)
@@ -80,9 +75,23 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("") {
             //List all executed process (for a given user)
             implicit val timeout = Timeout(5 seconds)
-            val future = subjectProviderManager ? new ExecuteRequestAll(userId.toInt)
-            val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer]
-            complete(s"list.toJson")
+            var jsonResult: Envelope = null
+            val future = subjectProviderManager ? ExecuteRequestAll(userId.toInt)
+
+            val result = for {
+              instanceids <- future.mapTo[Int]
+            } yield JsArray(instanceids.toJson)
+
+            result onSuccess {
+              case obj: JsArray =>
+                jsonResult = Envelope(Some(JsObject("list" -> obj)), StatusCodes.OK.toString)
+            }
+
+            result onFailure {
+              case _ =>
+                jsonResult = Envelope(Some(JsObject("list" -> JsObject())), StatusCodes.InternalServerError.toString)
+            }
+            complete(jsonResult)
           }
 
       } ~
@@ -91,34 +100,49 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path(IntNumber) { processID =>
             //stop and delete given process
             subjectProviderManager ! new KillProcess(userId.toInt)
-            complete("Process deleted")
+            complete(StatusCodes.NoContent)
           }
         } ~
         put {
-          //CREATE
+          //UPDATE
+          path(IntNumber) { processID =>
+            formField("actionID") { (actionID) =>
+              //execute next step (chosen by actionID)
+
+              val future = subjectProviderManager ! RequestAnswer(processID.toInt, actionID)
+              complete(StatusCodes.OK.toString)
+              //not yet implemented
+            }
+          }
+        } ~
+        post { //CREATE
           path("") {
             formField("processId") { (processId) =>
-              implicit val timeout = Timeout(5 seconds)
-              val future = subjectProviderManager ? new ExecuteRequest(userId.toInt, processId.toInt)
-              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
-              complete(
-                //marshalling
-                new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok"))
-            }
-          } ~
-            //UPDATE
-            path(IntNumber) { processID =>
-              formField("actionID") { (actionID) =>
-                //execute next step (chosen by actionID)
 
-                subjectProviderManager ! new RequestAnswer(processID.toInt, actionID)
-                complete("Process updated")
+              val future = subjectProviderManager ? ExecuteRequest(userId.toInt, processId.toInt)
+              var jsonResult: Envelope = null
+
+              val result = for {
+                instanceid <- future.mapTo[Int]
+              } yield JsObject("InstanceID" -> instanceid.toJson)
+
+              //              val aresult =   future.mapTo[Int]
+              //               JsObject( "InstanceID" -> aresult.toJson)
+
+              result onSuccess {
+                case obj: JsObject =>
+                  jsonResult = Envelope(Some(obj), StatusCodes.Created.toString)
               }
-            }
-        }
 
+              result onFailure {
+                case _ =>
+                  jsonResult = Envelope(Some(JsObject("InstanceID" -> JsObject())), StatusCodes.InternalServerError.toString)
+              }
+              complete(jsonResult)
+            }
+          }
+        }
     }
   })
 
 }
-

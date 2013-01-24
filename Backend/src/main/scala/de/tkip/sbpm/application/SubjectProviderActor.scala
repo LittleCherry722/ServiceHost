@@ -16,7 +16,7 @@ protected case class SubjectCreated(userID: UserID,
                                     processInstanceID: ProcessInstanceID,
                                     subjectID: SubjectID,
                                     ref: SubjectRef)
-    extends SubjectProviderMessage[SubjectCreated]
+    extends SubjectProviderMessage
 
 class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessManagerRef) extends Actor {
 
@@ -39,21 +39,28 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
         CollectAvailableActions(get, subjects.filter(_.processInstanceID != get.processInstanceID))
     }
 
-    case ea: ExecuteAction =>
+    // Route processInstance messages to the process manager
+    case message: ProcessInstanceMessage => {
+      processManagerRef ! message
+    }
+
+    // send subject messages direct to the subject
+    case message: SubjectMessage => {
       // TODO muss performanter gehen weils nur ein subject ist
-      for (subject <- subjects.filter(s => s.processInstanceID != ea.processInstanceID && s.subjectID == ea.subjectID)) {
-        subject.ref ! ea
+      for (subject <- subjects.filter(s => s.processInstanceID != message.processInstanceID && s.subjectID == message.subjectID)) {
+        subject.ref ! message
       }
+    }
+
+    case message: AnswerMessage => {
+      // send the Answermessages to the SubjectProviderManager
+      context.parent ! message // TODO forward oder tell?
+    }
 
     case message: AnswerAbleMessage => {
       // just forward all messages from the frontend which are not
       // required in this Actor
       processManagerRef.forward(message)
-    }
-
-    case message: AnswerMessage[_] => {
-      // send the Answermessages to the SubjectProviderManager
-      context.parent ! message // TODO forward oder tell?
     }
 
     case s => {

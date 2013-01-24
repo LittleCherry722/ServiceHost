@@ -28,7 +28,7 @@ class HistoryTest extends FunSuite {
 
   test("test history debug data structure") {
     // TODO ich hab hier die user und processInstanzid eingefuegt, weil es vorher einen Fehler gab
-    val future = actor ? new GetHistory(userID = 1, processID = 1) with Debug
+    val future = actor ? new GetHistory(userID = 1, processInstanceID = 1) with Debug
     val result = Await.result(future.mapTo[History], timeout.duration)
     println(result)
     assert(result.entries.length === 13)

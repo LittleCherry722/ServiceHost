@@ -67,43 +67,44 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
           completeWithQuery[Seq[Process]](GetProcess())
         }
       } ~
-      // READ
-      path(IntNumber) { id =>
-        formField("userid") { userid =>
-          completeWithQuery[Process](GetProcess(Some(id)))
+        // READ
+        path(IntNumber) { id =>
+          formField("userid") { userid =>
+            completeWithQuery[Process](GetProcess(Some(id)))
+          }
         }
-      }
     } ~
-      put {
+      post {
         /**
          * create a new process
          *
          * e.g. PUT http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
-    	// CREATE
+        // CREATE
         path("") {
           formField("userid", "name", "graph", "isCase") { (userid, name, graph, isCase) =>
-            val future = subjectProviderManagerActor ? new CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessGraph])
-            val instanceid = Await.result(future, timeout.duration).asInstanceOf[ProcessCreated].processID
+            val future = subjectProviderManagerActor ? CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessGraph])
+            var jsonResult: Envelope = null
 
-              complete(
-                //marshalling
-                new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceid))), "ok"))
-          }
-        } ~
-          /**
-           * update an existing process
-           *
-           * e.g. PUT http://localhost:8080/process/12?graph=GraphAsJSON&subjects=SubjectsAsJSON
-           */
-          // UPDATE
-          path(IntNumber) { procecssID =>
-            formField("name", "graph", "isCase") { (name, graph, isCase) =>
-              val future = subjectProviderManagerActor ? new UpdateProcess(procecssID, name, graph.asInstanceOf[ProcessModel])
+            val result = for {
+              instanceid <- future.mapTo[Int]
+            } yield JsObject("InstanceID" -> JsNumber(instanceid))
 
-              complete("error not yet implemented")
+            //              val aresult =   future.mapTo[Int]
+            //               JsObject( "InstanceID" -> aresult.toJson)
+
+            result onSuccess {
+              case obj: JsObject =>
+                jsonResult = Envelope(Some(obj), StatusCodes.Created.toString)
             }
+
+            result onFailure {
+              case _ =>
+                jsonResult = Envelope(Some(JsObject("InstanceID" -> JsObject())), StatusCodes.InternalServerError.toString)
+            }
+            complete(jsonResult)
           }
+        }
       } ~
       delete {
         /**
@@ -116,13 +117,29 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
           formField("name", "userid") { (name, userid) =>
             completeWithDelete(DeleteProcess(id), "Process could not be deleted. Entitiy with id %d not found.", id)
           } ~
-          formField("userid") { (userid) =>
-            subjectProviderManagerActor ! KillProcess(id)
+            formField("userid") { (userid) =>
+              subjectProviderManagerActor ! KillProcess(id)
 
-            complete("error not yet implemented")
+              complete(StatusCodes.NoContent)
+            }
+        }
+      } ~
+      put {
+        /**
+         * update an existing process
+         *
+         * e.g. PUT http://localhost:8080/process/12?graph=GraphAsJSON&subjects=SubjectsAsJSON
+         */
+        //UPDATE
+        path(IntNumber) { processID =>
+          formField("actionID") { (actionID) =>
+            //execute next step (chosen by actionID)
+
+            val future = subjectProviderManagerActor ! RequestAnswer(processID.toInt, actionID)
+            complete(StatusCodes.OK.toString)
+            //not yet implemented
           }
         }
       }
-
   })
 }
