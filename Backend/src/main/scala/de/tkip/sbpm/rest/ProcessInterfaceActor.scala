@@ -27,15 +27,17 @@ import spray.json.JsNumber
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import spray.json.JsValue
-import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.rest.JsonProtocol._
+import spray.httpx.SprayJsonSupport._
+import spray.json._
 
 /**
  * This Actor is only used to process REST calls regarding "process"
  */
 // TODO when to choose HttpService and when HttpServiceActor
-class ProcessInterfaceActor extends Actor with PersistenceInterface {
-  private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
-  
+class ProcessInterfaceActor(val subjectProviderManagerActorRef: SubjectProviderManagerActorRef,
+  val persistenceActorRef: PersistenceActorRef) extends Actor with HttpService {
+
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -45,6 +47,8 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
   override def postStop() {
     logger.debug(context.self + " stops.")
   }
+
+  def actorRefFactory = context
 
   /**
    *
@@ -73,14 +77,19 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       // LIST
       path("") {
         formField("userid") { (userid) =>
+          implicit val timeout = Timeout(5 seconds)
           // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-          completeWithQuery[Seq[Process]](GetProcess())
+          val future = context.actorFor("/usr/PersistenceActor") ? GetProcess(None, None)
+          complete("not yet marsheld")
         }
-      } ~
+      }
       // READ
-      path(IntNumber) { id =>
-        formField("userid") { userid =>
-          completeWithQuery[Process](GetProcess(Some(id)))
+      path("processID") { processID =>
+        formField("userid") { (userid) =>
+          implicit val timeout = Timeout(5 seconds)
+          val future = context.actorFor("/usr/PersistenceActor") ? new GetProcess(Option(processID.toString.toInt), None)
+          val process = Await.result(future, timeout.duration)
+          complete("not yet marsheld")
         }
       }
     } ~
@@ -90,31 +99,33 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          *
          * e.g. PUT http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
-    	// CREATE
+        // CREATE
         path("") {
           formField("userid", "name", "graph", "isCase") { (userid, name, graph, isCase) =>
-            val future = subjectProviderManagerActor ? new CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessGraph])
-            val instanceid = Await.result(future, timeout.duration).asInstanceOf[ProcessCreated].processID
+            implicit val timeout = Timeout(5 seconds)
+            val future = context.actorFor("/usr/SubjectProviderManager") ? CreateProcess(userid.toInt, name, graph.asInstanceOf[ProcessGraph])
+            var jsonResult: Envelope = null
 
-              complete(
-                //marshalling
-                new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceid))), "ok"))
-          }
-        } ~
-          /**
-           * update an existing process
-           *
-           * e.g. PUT http://localhost:8080/process/12?graph=GraphAsJSON&subjects=SubjectsAsJSON
-           */
-          // UPDATE
-          path(IntNumber) { procecssID =>
-            formField("name", "graph", "isCase") { (name, graph, isCase) =>
-              val future = subjectProviderManagerActor ? new UpdateProcess(procecssID, name, graph.asInstanceOf[ProcessModel])
+            val result = for {
+              instanceid <- future.mapTo[Int]
+            } yield JsObject("InstanceID" -> instanceid.toJson)
 
-              complete("error not yet implemented")
+            //              val aresult =   future.mapTo[Int]
+            //               JsObject( "InstanceID" -> aresult.toJson)
+
+            result onSuccess {
+              case obj: JsObject =>
+                jsonResult = Envelope(Some(obj), StatusCodes.Created.toString)
             }
+
+            result onFailure {
+              case _ =>
+                jsonResult = Envelope(Some(JsObject("InstanceID" -> JsObject())), StatusCodes.InternalServerError.toString)
+            }
+            complete(jsonResult)
           }
-      } ~
+        }
+    }
       delete {
         /**
          * delete a process
@@ -124,15 +135,37 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         // DELETE
         path(IntNumber) { id =>
           formField("name", "userid") { (name, userid) =>
-            completeWithDelete(DeleteProcess(id), "Process could not be deleted. Entitiy with id %d not found.", id)
-          } ~
-          formField("userid") { (userid) =>
-            subjectProviderManagerActor ! KillProcess(id)
+            persistenceActorRef ! DeleteProcess(name.asInstanceOf[Int])
+            complete(StatusCodes.OK.toString)
 
-            complete("error not yet implemented")
           }
+          formField("userid") { (userid) =>
+            subjectProviderManagerActorRef ! KillProcess(id)
+
+            complete(StatusCodes.OK.toString)
+          }
+
+          complete("'delete with id' not yet implemented")
+
         }
       }
+    put {
+                /**
+           * update an existing process
+           *
+           * e.g. PUT http://localhost:8080/process/12?graph=GraphAsJSON&subjects=SubjectsAsJSON
+           */
+      //UPDATE
+      path(IntNumber) { processID =>
+        formField("actionID") { (actionID) =>
+          //execute next step (chosen by actionID)
+
+          val future = context.actorFor("/user/SubjectProviderManager") ! RequestAnswer(processID.toInt, actionID)
+          complete(StatusCodes.OK.toString)
+          //not yet implemented
+        }
+      }
+    } 
 
   })
 }

@@ -44,6 +44,10 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
       for (subject <- subjects.filter(s => s.processInstanceID != ea.processInstanceID && s.subjectID == ea.subjectID)) {
         subject.ref ! ea
       }
+      
+      case cp: CreateProcess => {
+      processManagerRef.forward(cp)
+    }
 
     case message: AnswerAbleMessage => {
       // just forward all messages from the frontend which are not
