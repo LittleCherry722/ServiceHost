@@ -18,17 +18,17 @@ case object InitDatabase
  */
 class PersistenceActor extends Actor with ActorLogging {
   // define sub actors for handling actions for different tables
-  private val processActor = context.actorOf(Props[ProcessPersistenceActor], "process")
-  private val graphActor = context.actorOf(Props[GraphPersistenceActor], "graph")
-  private val userActor = context.actorOf(Props[UserPersistenceActor], "user")
-  private val roleActor = context.actorOf(Props[RolePersistenceActor], "role")
-  private val groupActor = context.actorOf(Props[GroupPersistenceActor], "group")
-  private val groupRoleActor = context.actorOf(Props[GroupRolePersistenceActor], "group-role")
-  private val groupUserActor = context.actorOf(Props[GroupUserPersistenceActor], "group-user")
-  private val messageActor = context.actorOf(Props[MessagePersistenceActor], "message")
-  private val processInstanceActor = context.actorOf(Props[ProcessInstancePersistenceActor], "process_instance")
-  private val relationActor = context.actorOf(Props[RelationPersistenceActor], "relation")
-  private val configurationActor = context.actorOf(Props[ConfigurationPersistenceActor], "configuration")
+  private lazy val processActor = context.actorOf(Props[ProcessPersistenceActor], "process")
+  private lazy val graphActor = context.actorOf(Props[GraphPersistenceActor], "graph")
+  private lazy val userActor = context.actorOf(Props[UserPersistenceActor], "user")
+  private lazy val roleActor = context.actorOf(Props[RolePersistenceActor], "role")
+  private lazy val groupActor = context.actorOf(Props[GroupPersistenceActor], "group")
+  private lazy val groupRoleActor = context.actorOf(Props[GroupRolePersistenceActor], "group-role")
+  private lazy val groupUserActor = context.actorOf(Props[GroupUserPersistenceActor], "group-user")
+  private lazy val messageActor = context.actorOf(Props[MessagePersistenceActor], "message")
+  private lazy val processInstanceActor = context.actorOf(Props[ProcessInstancePersistenceActor], "process_instance")
+  private lazy val relationActor = context.actorOf(Props[RelationPersistenceActor], "relation")
+  private lazy val configurationActor = context.actorOf(Props[ConfigurationPersistenceActor], "configuration")
 
   def receive = {
     // redirect all request to responsible sub actors

@@ -8,6 +8,11 @@ import akka.actor.Actor
 import akka.actor.ActorLogging
 import scala.slick.session.Session
 import akka.util.Timeout
+import akka.actor.ActorRef
+import akka.actor.Status
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 /**
  * Provides helper methods for connecting to database using slick.
@@ -39,6 +44,19 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
 
   // default timeout for akka message sending
   protected implicit val timeout = Timeout(10)
+
+  /**
+   * Send the result of the given function back to the sender
+   * or the Exception if one occurs.
+   */
+  protected def answer[A](f: => A)(implicit session: Session) {
+    sender ! {
+      Try(f) match {
+        case Success(result) => result
+        case Failure(e) => akka.actor.Status.Failure(e)
+      }
+    }
+  }
 
   /**
    * Provides shortcuts for specifying column data type strings

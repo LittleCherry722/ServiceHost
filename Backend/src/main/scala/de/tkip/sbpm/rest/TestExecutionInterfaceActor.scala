@@ -20,6 +20,7 @@ import scala.util.parsing.json.JSONArray
 import scala.util.parsing.json.JSONArray
 import scala.util.parsing.json.JSONArray
 import scala.util.parsing.json.JSONArray
+import de.tkip.sbpm.ActorLocator
 
 /**
  * This Actor is only used to process "get" REST calls regarding "execution" mixed with the debug trait
@@ -38,6 +39,8 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
   }
 
   def actorRefFactory = context
+  
+  private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
 
   def receive = runRoute({
     formField("userid") { userId =>
@@ -49,16 +52,16 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             implicit val timeout = Timeout(5 seconds)
             
-            //val future1 = context.actorFor("/user/SubjectProviderManager") ? new ReadProcess(userId = 1, processID = 1) with Debug
+            //val future1 = subjectProviderManager ? new ReadProcess(userId = 1, processID = 1) with Debug
             //val graph = Await.result(future1, timeout.duration).asInstanceOf[ReadProcessAnswer].pm;
 
             /**
              * get request is mixed with the debug trait which is evaluated in the processinstance actor and hardcoded data is sent back 
              */
-            val future2 = context.actorFor("/user/SubjectProviderManager") ? new GetHistory(userID = 1, processID = 1) with Debug
+            val future2 = subjectProviderManager ? new GetHistory(userID = 1, processID = 1) with Debug
             val history = Await.result(future2, timeout.duration).asInstanceOf[History];
             
-            //val future3 = context.actorFor("/user/SubjectProviderManager") ? new GetAvailableActions(userId = 1, processID = 1) with Debug
+            //val future3 = subjectProviderManager ? new GetAvailableActions(userId = 1, processID = 1) with Debug
             //val actions = Await.result(future3, timeout.duration).asInstanceOf[HistoryAnswer];
             
             
@@ -70,7 +73,7 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
           path("") {
             //List all executed process (for a given user)
             implicit val timeout = Timeout(5 seconds)
-            val future = context.actorFor("/user/SubjectProviderManager") ? new ExecuteRequestAll(userId.toInt)
+            val future = subjectProviderManager ? new ExecuteRequestAll(userId.toInt)
             val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer]
            //marshalling not implemented yet
             complete("list.toJson")

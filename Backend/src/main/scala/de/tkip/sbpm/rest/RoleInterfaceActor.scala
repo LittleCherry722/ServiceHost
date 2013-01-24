@@ -50,21 +50,16 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array with entities
        */
       path("") {
-        val res = request[Seq[Role]](GetRole())
-        complete(res)
+        completeWithQuery[Seq[Role]](GetRole())
       } ~
-       /**
+        /**
          * get role by id
          *
          * e.g. GET http://localhost:8080/role/2
          * result: 404 Not Found or entity as JSON
          */
         path(IntNumber) { id: Int =>
-          val res = request[Option[Role]](GetRole(Some(id)))
-          if (res.isDefined)
-            complete(res.get)
-          else
-            notFound("Role with id %d not found.", id)
+          completeWithQuery[Role](GetRole(Some(id)), "Role with id %d not found.", id)
         }
     } ~
       delete {
@@ -72,12 +67,10 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
          * delete a role
          *
          * e.g. DELETE http://localhost:8080/role/12
-         * result: 202 Accepted -> content deleted asynchronously
+         * result: 204 No Content
          */
         path(IntNumber) { id =>
-          execute(DeleteRole(id))
-          // async call to database -> only send Accepted status code
-          accepted()
+          completeWithDelete(DeleteRole(id), "Role could not be deleted. Entity with id %d not found.", id)
         }
       } ~
       post {
@@ -88,14 +81,11 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
          * payload: { "name": "abc", "isActive": true }
          * result: 	201 Created
          * 			Location: /role/8
+         * 			{ "id": 8, "name": "abc", "isActive": true }
          */
         path("") {
           entity(as[Role]) { role =>
-            role.id = None
-            val id = request[Int](SaveRole(role))
-            role.id = Some(id)
-            // return created role with generated id
-            created("/role/%d", id)
+            save(role)
           }
         }
       } ~
@@ -105,16 +95,29 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
          *
          * e.g. PUT http://localhost:8080/role/2
          * payload: { "name": "abc", "isActive": true }
-         * result: 202 Accepted -> content saved asynchronously
+         * result: 	200 OK
+         * 			{ "id": 2, "name": "abc", "isActive": true }
          */
         path(IntNumber) { id =>
           entity(as[Role]) { role =>
-            role.id = Some(id)
-            execute(SaveRole(role))
-            // async call to database -> only send Accepted status code
-            accepted()
+            save(role, Some(id))
           }
         }
       }
   })
+
+  /**
+   * Save given entity with given id to database.
+   * id = None -> new entity
+   * completes with either 201 or 200 
+   */
+  def save(entity: Role, id: Option[Int] = None) = {
+    // set param from url to entity id 
+    // or delete id to create new entity
+    entity.id = id
+    completeWithSave(SaveRole(entity),
+      entity,
+       pathForEntity(Entity.ROLE, "%d"),
+      (e: Role, i: Int) => { e.id = Some(i); e })
+  }
 }

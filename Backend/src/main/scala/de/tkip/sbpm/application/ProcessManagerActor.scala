@@ -13,7 +13,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * manages all processes and creates new ProcessInstance's on demand
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
-class ProcessManagerActor(private val name: String) extends Actor {
+class ProcessManagerActor extends Actor {
   // the process descriptions
   private var processCount = 0
   private val processDescritionMap = collection.mutable.Map[ProcessID, ProcessModel]()

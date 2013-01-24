@@ -5,9 +5,10 @@ import miscellaneous._
 import miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
+import de.tkip.sbpm.ActorLocator
 
-class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
-    extends Actor {
+class SubjectProviderManagerActor extends Actor {
+  private lazy val processManagerActor = ActorLocator.processManagerActor
   private var subjectCount = 0
   private val subjectProviderMap =
     collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -47,7 +48,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
       }
 
     case kill: KillProcess =>
-      processManagerRef ! kill
+      processManagerActor ! kill
 
     // general matching:
     // first match the answers
@@ -99,7 +100,7 @@ class SubjectProviderManagerActor(val processManagerRef: ProcessManagerRef)
   // (overrides the old entry)
   private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
-      context.actorOf(Props(new SubjectProviderActor(userID, processManagerRef)))
+      context.actorOf(Props(new SubjectProviderActor(userID, processManagerActor)))
     subjectProviderMap += userID -> subjectProvider
     subjectProvider
   }

@@ -51,8 +51,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("") {
-        val res = request[Seq[Configuration]](GetConfiguration())
-        complete(res)
+        completeWithQuery[Seq[Configuration]](GetConfiguration())
       } ~
         /**
          * get configuration by key
@@ -61,11 +60,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
          * result: 404 Not Found or JSON of entity
          */
         path(PathElement) { key =>
-          val res = request[Option[Configuration]](GetConfiguration(Some(key)))
-          if (res.isDefined)
-            complete(res.get)
-          else
-            notFound("Configuration with key '%s' not found.", key)
+          completeWithQuery[Configuration](GetConfiguration(Some(key)), "Configuration with key '%s' not found.", key)
         }
     } ~
       delete {
@@ -76,9 +71,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
          * result: 202 Accepted -> content deleted asynchronously
          */
         path(PathElement) { key =>
-          execute(DeleteConfiguration(key))
-          // async call to database -> only send Accepted status code
-          accepted()
+        	completeWithDelete(DeleteConfiguration(key), "Configuration could not be deleted. Entity with key '%s' not found.", key)
         }
       } ~
       put {
@@ -91,9 +84,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
          */
         path("") {
           entity(as[Configuration]) { configuration =>
-            execute(SaveConfiguration(configuration))
-            // async call to database -> only send Accepted status code
-            accepted()
+            completeWithSave[Configuration, String](SaveConfiguration(configuration), configuration, pathForEntity(Entity.CONFIGURATION, "%s"))
           }
         }
       }

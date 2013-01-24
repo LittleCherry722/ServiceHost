@@ -14,9 +14,10 @@ sealed abstract class ProcessAction extends PersistenceAction
 // get process (Option[model.Process]) by id or all process (Seq[model.Process]) by sending None as id
 // None or empty Seq is returned if no entities where found
 case class GetProcess(id: Option[Int] = None, name: Option[String] = None) extends ProcessAction
-// save process to db, if id is None a new process is created and its id is returned
-case class SaveProcess(id: Option[Int] = None, name: String, graphId: Int, isProcess: Boolean = true, startSubjects: String = null) extends ProcessAction
-// delete process with id from db (nothing is returned)
+// save process to db, if id is None a new process is created 
+// and its id (Option[Int]) is returned otherwise None
+case class SaveProcess(process: Process) extends ProcessAction
+// delete process with id from db (no. of deleted entities is returned)
 case class DeleteProcess(id: Int) extends ProcessAction
 
 /**
@@ -27,7 +28,7 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
   import driver.simple._
   import DBType._
   import de.tkip.sbpm.model._
-  
+
   // represents the "process" table in the database
   object Processes extends Table[Process]("process") {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
@@ -43,21 +44,24 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all processes ordered by id
-      case GetProcess(None, None) => sender ! Processes.sortBy(_.id).list
+      case GetProcess(None, None) => answer { Processes.sortBy(_.id).list }
       // get process with given id
-      case GetProcess(id, None) => sender ! Processes.where(_.id === id).firstOption
+      case GetProcess(id, None) =>
+        answer { Processes.where(_.id === id).firstOption }
       // get process with given name
-      case GetProcess(None, name) => sender ! Processes.where(_.name === name).firstOption
+      case GetProcess(None, name) =>
+        answer { Processes.where(_.name === name).firstOption }
       // create new process
-      case SaveProcess(None, name, graphId, isProcess, startSubjects) => 
-        sender ! Processes.autoInc.insert(Process(None, name, graphId, isProcess, startSubjects))
+      case SaveProcess(p @ Process(None, _, _, _, _)) =>
+        answer { Some(Processes.autoInc.insert(p)) }
       // save existing process
-      case SaveProcess(id, name, graphId, isProcess, startSubjects) =>
-        Processes.where(_.id === id).update(Process(id, name, graphId, isProcess))
+      case SaveProcess(p @ Process(id, _, _, _, _)) =>
+        answer { Processes.where(_.id === id).update(p); None }
       // delete process with given id
-      case DeleteProcess(id) => Processes.where(_.id === id).delete(session)
+      case DeleteProcess(id) =>
+        answer { Processes.where(_.id === id).delete(session) }
       // execute DDL for "process" table
-      case InitDatabase => Processes.ddl.create(session)
+      case InitDatabase => answer { Processes.ddl.create(session) }
     }
   }
 

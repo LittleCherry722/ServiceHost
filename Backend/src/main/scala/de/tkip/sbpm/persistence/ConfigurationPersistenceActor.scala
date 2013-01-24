@@ -20,15 +20,13 @@ case class SaveConfiguration(config: Configuration) extends ConfigurationAction
 // delete config with given key from db (nothing is returned)
 case class DeleteConfiguration(key: String) extends ConfigurationAction
 
-
 /**
- * Handles all database oparations for database table "configuration".
+ * Handles all database operations for database table "configuration".
  */
 private[persistence] class ConfigurationPersistenceActor extends Actor with DatabaseAccess {
 
   import driver.simple._
   import DBType._
-  
 
   // represents the "configuration" table in the database
   object Configurations extends Table[Configuration]("configuration") {
@@ -43,23 +41,26 @@ private[persistence] class ConfigurationPersistenceActor extends Actor with Data
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all configs ordered by key
-      case GetConfiguration(None) => sender ! Configurations.sortBy(_.key).list
+      case GetConfiguration(None) => answer { Configurations.sortBy(_.key).list }
       // get config with given key as option (None if not found)
-      case GetConfiguration(key) => sender ! Configurations.where(_.key === key).firstOption
+      case GetConfiguration(key) => answer { Configurations.where(_.key === key).firstOption }
       // save config entry
-      case SaveConfiguration(c: Configuration) =>
-        save(c)
+      case SaveConfiguration(c: Configuration) => answer { save(c) }
       // delete config with given key
-      case DeleteConfiguration(key) => delete(key)
+      case DeleteConfiguration(key) => answer { delete(key) }
       // execute DDL for "configuration" table
-      case InitDatabase => Configurations.ddl.create(session)
+      case InitDatabase => answer { Configurations.ddl.create(session) }
     }
   }
-  
+
   // replaces the config entry with given key with new values
   def save(config: Configuration)(implicit session: Session) = {
-    delete(config.key)
+    val exists = delete(config.key)
     Configurations.insert(config)
+    if (exists == 0)
+      Some(config.key)
+    else
+      None
   }
 
   // delete config entry with given key
