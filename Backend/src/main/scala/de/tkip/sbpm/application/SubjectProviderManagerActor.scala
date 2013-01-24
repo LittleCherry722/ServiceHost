@@ -41,30 +41,35 @@ class SubjectProviderManagerActor extends Actor {
       cp.sender = sender
       forwardControlMessageToProvider(cp.userID, cp)
 
-    case ea: ExecuteAction =>
-      if (subjectProviderMap.contains(ea.userID)) {
-        ea.sender = sender
-        subjectProviderMap(ea.userID) ! ea
-      }
-
-    case kill: KillProcess =>
-      processManagerActor ! kill
-
     // general matching:
     // first match the answers
     // then SubjectProviderMessages
-
-    case answer: AnswerMessage[_] => {
+    case answer: AnswerMessage => {
       if (answer.sender != null)
         answer.sender ! answer
     }
 
-    case message: SubjectProviderMessage[_] => {
-      // TODO im moment doppelt drin
-      val userID: UserID = message.subjectProviderID
-      if (subjectProviderMap.contains(userID)) {
-        subjectProviderMap(userID).forward(withSender(message))
+    // TODO werden noch zu forwards aber zum routing testen erstmal tells
+    case message: SubjectProviderMessage => {
+      if (subjectProviderMap.contains(message.userID)) {
+        subjectProviderMap(message.userID) ! withSender(message)
+      } else {
+        println("SubjectProvidermManger - Message for SP" + message.userID +
+          " but does not exist")
       }
+    }
+
+    // TODO muss man zusammenfassen koennen
+    case message: AnswerAbleMessage => {
+      processManagerActor ! message.withSender(sender)
+    }
+
+    case message: ControlMessage => {
+      processManagerActor ! message
+    }
+
+    case message: SubjectMessage => {
+      processManagerActor ! message
     }
 
     case s => {

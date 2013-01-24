@@ -58,7 +58,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
 
   // this pool stores the message to the subject, which does not exist,
   // but will be created soon (the UserID is requested)
-  private var messagePool = Set[(ActorRef, SubjectMessage)]()
+  private var messagePool = Set[(ActorRef, SubjectInternalMessage)]()
 
   private var subjectCounter = 0
   private val subjectMap = collection.mutable.Map[SubjectName, SubjectRef]()
@@ -107,11 +107,28 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       println("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (subjectCounter == 0) {
         executionHistory.processEnded = new Date()
-        context.stop(self)
+        context.stop(self)// TODO stop process instance?
       }
     }
 
-    case sm: SubjectMessage => {
+    // add an entry to the history
+    // (should be called by subject actors when a transition occurs)
+    case he: history.Entry => {
+      executionHistory.entries += he
+    }
+
+    // return current process instance history
+    case msg: GetHistory => {
+      sender ! {
+        if (msg.isInstanceOf[Debug]) {
+          HistoryTestData.generate(process.name, id)(debugMessagePayloadProvider)
+        } else {
+          executionHistory
+        }
+      }
+    }
+
+    case sm: SubjectInternalMessage => {
       if (subjectMap.contains(sm.to)) {
         // if the subject already exist just forward the message
         subjectMap(sm.to).forward(sm)
@@ -128,24 +145,20 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       }
     }
 
-    // return current process instance history
-    case msg: GetHistory => {
-      sender ! {
-        if (msg.isInstanceOf[Debug]) {
-          HistoryTestData.generate(process.name, id)(debugMessagePayloadProvider)
-        } else {
-          executionHistory
-        }
+    case message: SubjectMessage => {
+      if (subjectMap.contains(message.subjectID)) {
+        subjectMap(message.subjectID).!(message) // TODO mit forward
+      } else {
+        System.err.println("ProcessInstance has message for subject " +
+          message.subjectID + "but it does not exists")
       }
     }
 
-    // add an entry to the history
-    // (should be called by subject actors when a transition occurs)
-    case he: history.Entry => {
-      executionHistory.entries += he
+    case message: SubjectProviderMessage => {
+      context.parent ! message
     }
 
-    case answer: AnswerMessage[_] => {
+    case answer: AnswerMessage => {
       context.parent.forward(answer)
     }
   }

@@ -36,16 +36,19 @@ class SubjectActor(userID: UserID,
   }
 
   def receive = {
-    case sm: SubjectMessage => {
+    case sm: SubjectInternalMessage => {
       inputPoolActor.forward(sm)
     }
 
-    case exec: StartSubjectExecution => {
-      internalBehaviorActor ! exec
+    // forward history entries from internal behavior up to instance actor
+    case history.Transition(from, to, msg) => {
+      context.parent ! history.Entry(new Date(), subjectName, from, to, msg)
     }
 
-    case ea: ExecuteAction => {
-      internalBehaviorActor.forward(ea)
+    case terminated: SubjectTerminated => {
+      context.parent ! terminated
+      // TODO terminate?
+      context.stop(self)
     }
 
     case gaa: GetAvailableActions => {
@@ -54,19 +57,12 @@ class SubjectActor(userID: UserID,
       }
     }
 
-    // forward history entries from internal behavior up to instance actor
-    case history.Transition(from, to, msg) => {
-      context.parent ! history.Entry(new Date(), subjectName, from, to, msg)
-    }
-
     case br: SubjectBehaviorRequest => {
       internalBehaviorActor.forward(br)
     }
 
-    case terminated: SubjectTerminated => {
-      context.parent ! terminated
-      // TODO terminate?
-      context.stop(self)
+    case message: SubjectProviderMessage => {
+      context.parent ! message
     }
 
     case s => {

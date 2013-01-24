@@ -252,7 +252,7 @@ protected case class SendStateActor(s: StateID,
     case ea: ExecuteAction => {
       sender ! ExecuteActionAnswer(ea)
       processInstance !
-        SubjectMessage(subjectID,
+        SubjectInternalMessage(subjectID,
           toSubject,
           messageName,
           ea.actionInput)

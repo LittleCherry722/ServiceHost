@@ -52,16 +52,16 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             implicit val timeout = Timeout(5 seconds)
             
-            //val future1 = subjectProviderManager ? new ReadProcess(userId = 1, processID = 1) with Debug
+            //val future1 = subjectProviderManager ? new ReadProcess(userId = 1, processInstanceID = 1) with Debug
             //val graph = Await.result(future1, timeout.duration).asInstanceOf[ReadProcessAnswer].pm;
 
             /**
              * get request is mixed with the debug trait which is evaluated in the processinstance actor and hardcoded data is sent back 
              */
-            val future2 = subjectProviderManager ? new GetHistory(userID = 1, processID = 1) with Debug
+            val future2 = subjectProviderManager ? new GetHistory(userID = 1, processInstanceID = 1) with Debug
             val history = Await.result(future2, timeout.duration).asInstanceOf[History];
             
-            //val future3 = subjectProviderManager ? new GetAvailableActions(userId = 1, processID = 1) with Debug
+            //val future3 = subjectProviderManager ? new GetAvailableActions(userId = 1, processInstanceID = 1) with Debug
             //val actions = Await.result(future3, timeout.duration).asInstanceOf[HistoryAnswer];
             
             

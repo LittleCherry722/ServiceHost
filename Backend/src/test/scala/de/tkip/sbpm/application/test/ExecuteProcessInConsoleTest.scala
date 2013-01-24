@@ -136,7 +136,8 @@ object ExecuteProcessInConsoleTest {
       processManager ! ((processInstanceID, AddSubject(0, "Employee")))
     }
 
-    Thread.sleep(1500)
+    // increase the sleeping time, if it does not work
+    Thread.sleep(2000)
     println("Start First Request.")
 
     subjectProviderManager.!(
@@ -148,5 +149,3 @@ object ExecuteProcessInConsoleTest {
     testProcessAndSubjectCreationWithKonsole()
   }
 }
-
-

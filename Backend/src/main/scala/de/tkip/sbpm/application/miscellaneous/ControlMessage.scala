@@ -25,7 +25,7 @@ sealed trait AdministrationMessage extends ControlMessage
  * For the process execution, needs an userid
  * TODO vllt falscher name
  */
-sealed trait ExecutionMessage[A <: MessageType.User] extends ControlMessage with SubjectProviderMessage[A] { self: A => }
+sealed trait ExecutionMessage extends ControlMessage with SubjectProviderMessage
 
 /**
  * An answerable controlmessage
@@ -35,7 +35,7 @@ sealed trait AnswerAbleControlMessage extends ControlMessage with AnswerAbleMess
 /**
  * An answer to a controlmessage
  */
-sealed trait AnswerControlMessage[A <: MessageType.Answer] extends ControlMessage with AnswerMessage[A] { self: A => }
+sealed trait AnswerControlMessage extends ControlMessage with AnswerMessage
 
 // Konvention answers:
 // als erstes Attribut kommt die Anfrage (muss eine Answermessage sein)
@@ -48,29 +48,29 @@ case class ReadProcess(userID: UserID, processID: ProcessID) extends AnswerAbleC
 case class CreateProcess(userID: UserID, processName: String, processGraph: ProcessGraph) extends AnswerAbleControlMessage
 case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends AnswerAbleControlMessage
 //answers
-case class ReadProcessAnswer(request: ReadProcess, pm: ProcessModel) extends AnswerMessage[ReadProcessAnswer]
-case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends AnswerMessage[ProcessCreated]
+case class ReadProcessAnswer(request: ReadProcess, pm: ProcessModel) extends AnswerControlMessage
+case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends AnswerControlMessage
 
 // administration
 // request
 case class CreateSubjectProvider() extends AnswerAbleControlMessage
 // answer
-case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID) extends AnswerMessage[SubjectProviderCreated]
+case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID) extends AnswerControlMessage
 
 // execution
 // request
 case class CreateProcessInstance(userID: UserID) extends AnswerAbleControlMessage
 case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage //TODO vllt answer?
-case class GetAvailableActions(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ExecutionMessage[GetAvailableActions]
+case class GetAvailableActions(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ExecutionMessage
 //answers
-case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends AnswerMessage[ProcessInstanceCreated]
-case class AvailableActionsAnswer(request: GetAvailableActions, availableActions: Array[AvailableAction]) extends AnswerMessage[AvailableActionsAnswer]
+case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends AnswerControlMessage
+case class AvailableActionsAnswer(request: GetAvailableActions, availableActions: Array[AvailableAction]) extends AnswerControlMessage
 
 // history
 // request
-case class GetHistory(userID: UserID, processID: ProcessInstanceID) extends AnswerAbleControlMessage with ExecutionMessage[GetHistory]
+case class GetHistory(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ExecutionMessage with ProcessInstanceMessage
 // answer
-case class HistoryAnswer(request: GetHistory, h: History) extends AnswerMessage[HistoryAnswer]
+case class HistoryAnswer(request: GetHistory, h: History) extends AnswerControlMessage
 
 // TODO nochmal drueber schaun 
 case class ExecuteRequest(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage

@@ -38,14 +38,20 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     case ea: ExecuteAction =>
       currentState.forward(ea)
 
+    case terminated: SubjectTerminated => {
+      context.parent ! terminated
+    }
+
     case br: SubjectBehaviorRequest => {
       if (currentState != null) {
         currentState.forward(br)
+      } else {
+        // TODO signalisieren das die message nicht ausfuehrbar ist
       }
     }
 
-    case terminated: SubjectTerminated => {
-      context.parent ! terminated
+    case message: SubjectProviderMessage => {
+      context.parent ! message
     }
 
     case n => {
