@@ -16,8 +16,8 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.subject._
-
 import spray.json._
+import de.tkip.sbpm.rest.test.MyJSONTestGraph
 
 object ExecuteProcessInConsoleTest {
 
@@ -46,7 +46,7 @@ object ExecuteProcessInConsoleTest {
   /**
    * This class simulates the frontentinterfaceactor and runs by the console
    */
-  private class FrontendSimulatorActor(subjectProviderManager: SubjectProviderManagerRef) extends Actor {
+  class FrontendSimulatorActor(subjectProviderManager: SubjectProviderManagerRef) extends Actor {
 
     def receive = {
 
@@ -93,6 +93,13 @@ object ExecuteProcessInConsoleTest {
   }
 
   def testProcessAndSubjectCreationWithKonsole() {
+    val parseJson = false
+    var graph: ProcessGraph = null
+    if (parseJson) {
+      graph = ProcessMarshalling.parseGraph(MyJSONTestGraph.processGraph)
+    } else {
+      graph = processGraph
+    }
 
     val system = ActorSystem("TextualEpassIos")
     val processManager = system.actorOf(Props(new ProcessManagerActor("BT_Application")), name = "BT_Application")
@@ -109,7 +116,7 @@ object ExecuteProcessInConsoleTest {
     println("User Created id: " + userID)
 
     // Create a Process using the ProcessModel
-    val future2 = subjectProviderManager ? CreateProcess(userID, "my process", processGraph)
+    val future2 = subjectProviderManager ? CreateProcess(userID, "my process", graph)
     val processID: Int =
       Await.result(future2, timeout.duration).asInstanceOf[ProcessCreated].processID
 
@@ -122,9 +129,14 @@ object ExecuteProcessInConsoleTest {
 
     println("ProcessInstance Executed id: " + processInstanceID)
 
-    processManager ! ((processInstanceID, AddSubject(0, "Employee")))
+    if (parseJson) {
+      processManager ! ((processInstanceID, AddSubject(userID, "Subj1")))
+    } else {
+      processManager ! ((processInstanceID, AddSubject(0, "Employee")))
+    }
 
     Thread.sleep(1500)
+    println("Start First Request.")
 
     subjectProviderManager.!(
       GetAvailableActions(userID, processInstanceID))(console)

@@ -23,15 +23,14 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     }
 
     case ess: StartSubjectExecution => {
-      println("execute: " + statesMap(startState))
       // TODO hier history log?
       nextState(startState)
-      currentState ! ess
+      if (currentState != null) {
+        currentState ! ess
+      }
     }
 
     case es: NextState => {
-      println(subjectID+": "+statesMap)
-      println("execute: " + statesMap(es.state))
       // TODO hier history log?
       nextState(es.state)
     }
@@ -56,7 +55,7 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
 
   private def addState(state: State) {
     if (state.stateType == StartStateType) {
-      println("startstate "+state)
+      println("startstate " + state)
       startState = state.id
     }
     statesMap += state.id -> state
@@ -68,7 +67,13 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
       context.stop(currentState)
       currentState = null
     }
-    currentState = parseState(statesMap(state))
+
+    if (statesMap.contains(state)) {
+      println("Execute: /" + userID + "/" + subjectID + "/" + state)
+      currentState = parseState(statesMap(state))
+    } else {
+      System.err.println("ERROR: /" + userID + "/" + subjectID + "/" + state + "does not exist")
+    }
   }
 
   private def parseState(state: State) = {
