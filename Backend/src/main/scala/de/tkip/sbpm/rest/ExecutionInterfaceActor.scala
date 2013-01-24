@@ -7,20 +7,14 @@ import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.application._
 import spray.http.MediaTypes._
+import spray.http.StatusCodes
 import spray.routing._
 import scala.concurrent.Await
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import spray.json._
-import scala.util.parsing.json.JSONArray
 import de.tkip.sbpm.application.miscellaneous._
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONArray
-import scala.util.parsing.json.JSONArray
-import de.tkip.sbpm.ActorLocator
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -39,8 +33,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   }
 
   def actorRefFactory = context
-  
-  private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
 
   def receive = runRoute({
     formField("userid") { userId =>
@@ -51,29 +43,26 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           formField("subject") { (subject) =>
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             implicit val timeout = Timeout(5 seconds)
-            var jsonResult = ""
-            val future1 = subjectProviderManager ? new ReadProcess(userId.toInt, processID.toInt)
-            val future2 = subjectProviderManager ? new GetHistory(userId.toInt, processID.toInt)
-            val future3 = subjectProviderManager ? new GetAvailableActions(userId.toInt, processID.toInt)
-            
+            var jsonResult: Envelope = null
+            val future1 = context.actorFor("/user/SubjectProviderManager") ? ReadProcess(userId.toInt, processID.toInt)
+            val future2 = context.actorFor("/user/SubjectProviderManager") ? GetHistory(userId.toInt, processID.toInt)
+            val future3 = context.actorFor("/user/SubjectProviderManager") ? GetAvailableActions(userId.toInt, processID.toInt)
+
             val result = for {
-            	graph <- future1.mapTo[Process] 
-            	history <- future2.mapTo[History] 
-            	actions <- future3.mapTo[Action] 
-            } yield List(graph, history, actions)
-            
-            
+              graph <- future1.mapTo[ProcessModel]
+              history <- future2.mapTo[History]
+              actions <- future3.mapTo[Action]
+            } yield JsObject("graph" -> graph.toJson, "history" -> history.toJson, "actions" -> actions.toJson)
+
             result onSuccess {
-              case objlist: List[Object] => 
-                for (obj <- objlist) {
-                //jsonResult + obj.toJson
-                }
+              case obj: JsObject =>
+                jsonResult = Envelope(Some(JsObject("result" -> obj)), StatusCodes.OK.toString)
             }
+
             result onFailure {
-              case _ => 
-                jsonResult = "an error occured"
+              case _ =>
+                jsonResult = Envelope(Some(JsObject("result" -> JsObject())), StatusCodes.InternalServerError.toString)
             }
-            
             complete(jsonResult)
           }
         } ~
@@ -81,41 +70,71 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("") {
             //List all executed process (for a given user)
             implicit val timeout = Timeout(5 seconds)
-            val future = subjectProviderManager ? new ExecuteRequestAll(userId.toInt)
-            val list = Await.result(future, timeout.duration).asInstanceOf[ExecutedListAnswer]
-            complete(s"list.toJson")
-          }
+            var jsonResult: Envelope = null
+            val future = context.actorFor("/user/SubjectProviderManager") ? ExecuteRequestAll(userId.toInt)
 
+            val result = for {
+              instanceids <- future.mapTo[Int]
+            } yield JsArray(instanceids.toJson)
+
+            result onSuccess {
+              case obj: JsArray =>
+                jsonResult = Envelope(Some(JsObject("list" -> obj)), StatusCodes.OK.toString)
+            }
+
+            result onFailure {
+              case _ =>
+                jsonResult = Envelope(Some(JsObject("list" -> JsObject())), StatusCodes.InternalServerError.toString)
+            }
+            complete(jsonResult)
+          }
       } ~
         delete {
           //DELETE
           path(IntNumber) { processID =>
             //stop and delete given process
-            subjectProviderManager ! new KillProcess(userId.toInt)
-            complete("Process deleted")
+            context.actorFor("/user/SubjectProviderManager") ! KillProcess(userId.toInt)
+            complete(StatusCodes.OK.toString)
           }
         } ~
         put {
-          //CREATE
+          //UPDATE
+          path(IntNumber) { processID =>
+            formField("actionID") { (actionID) =>
+              //execute next step (chosen by actionID)
+
+              val future = context.actorFor("/user/SubjectProviderManager") ! RequestAnswer(processID.toInt, actionID)
+              complete(StatusCodes.OK.toString)
+              //not yet implemented
+            }
+          }
+        } ~
+        post { //CREATE
           path("") {
             formField("processId") { (processId) =>
               implicit val timeout = Timeout(5 seconds)
-              val future = subjectProviderManager ? new ExecuteRequest(userId.toInt, processId.toInt)
-              val instanceId: Int = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
-              complete(
-                //marshalling
-                new Envelope(Some(JsObject("instanceId" -> JsNumber(instanceId))), "ok"))
-            }
-          } ~
-            //UPDATE
-            path(IntNumber) { processID =>
-              formField("actionID") { (actionID) =>
-                //execute next step (chosen by actionID)
+              val future = context.actorFor("/user/SubjectProviderManager") ? ExecuteRequest(userId.toInt, processId.toInt)
+              var jsonResult: Envelope = null
 
-                subjectProviderManager ! new RequestAnswer(processID.toInt, actionID)
-                complete("Process updated")
+              val result = for {
+                instanceid <- future.mapTo[Int]
+              } yield JsObject("InstanceID" -> instanceid.toJson)
+
+              //              val aresult =   future.mapTo[Int]
+              //               JsObject( "InstanceID" -> aresult.toJson)
+
+              result onSuccess {
+                case obj: JsObject =>
+                  jsonResult = Envelope(Some(obj), StatusCodes.Created.toString)
               }
+
+              result onFailure {
+                case _ =>
+                  jsonResult = Envelope(Some(JsObject("InstanceID" -> JsObject())), StatusCodes.InternalServerError.toString)
+              }
+              complete(jsonResult)
             }
+          }
         }
 
     }
