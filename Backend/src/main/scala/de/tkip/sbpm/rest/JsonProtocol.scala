@@ -18,6 +18,9 @@ import de.tkip.sbpm.application.history.MessagePayloadLink
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.model.StateType
 import java.util.Date
+import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
+import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
+import de.tkip.sbpm.application.subject.AvailableAction
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -57,8 +60,8 @@ object JsonProtocol extends DefaultJsonProtocol {
     def write(obj: ActorRef) = obj.toJson
     def read(json: JsValue) = json.convertTo[ActorRef]
   }
-  
-    implicit object ValueFormat extends RootJsonFormat[de.tkip.sbpm.model.StateType.StateType] {
+
+  implicit object ValueFormat extends RootJsonFormat[de.tkip.sbpm.model.StateType.StateType] {
     def write(obj: de.tkip.sbpm.model.StateType.StateType) = obj.toJson
     def read(json: JsValue) = json.convertTo[de.tkip.sbpm.model.StateType.StateType]
   }
@@ -98,7 +101,10 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val messageFormat = jsonFormat6(Message)
   implicit val entryFormat = jsonFormat5(Entry)
   implicit val historyFormat = jsonFormat5(History)
-  
+
+  implicit val avaliableFormat = jsonFormat2(GetAvailableActions)
+  implicit val availableActionFormat = jsonFormat6(AvailableAction)
+  implicit val availableActionsFormat = jsonFormat2(AvailableActionsAnswer)
 
 }
   

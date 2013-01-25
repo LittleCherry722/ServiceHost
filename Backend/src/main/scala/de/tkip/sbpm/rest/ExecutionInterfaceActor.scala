@@ -44,7 +44,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
       get {
         //READ
         path(IntNumber) { processID =>
-          formField("subject") { (subject) =>
             //return all information for a given process (graph, next actions (unique ID per available action), history)
             implicit val timeout = Timeout(5 seconds)
             val future1 = subjectProviderManager ? new ReadProcess(userId.toInt, processID.toInt)
@@ -54,7 +53,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             val result = for {
               graph <- future1.mapTo[Process]
               history <- future2.mapTo[History]
-              actions <- future3.mapTo[Action]
+              actions <- future3.mapTo[AvailableActionsAnswer]
             } yield JsObject("graph" -> graph.toJson, "history" -> history.toJson, "actions" -> actions.toJson)
 
             var jsonResult: Envelope = null;
@@ -69,7 +68,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             }
 
             complete(jsonResult)
-          }
         } ~
           //LIST
           path("") {
@@ -125,9 +123,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               val result = for {
                 instanceid <- future.mapTo[Int]
               } yield JsObject("InstanceID" -> instanceid.toJson)
-
-              //              val aresult =   future.mapTo[Int]
-              //               JsObject( "InstanceID" -> aresult.toJson)
 
               result onSuccess {
                 case obj: JsObject =>

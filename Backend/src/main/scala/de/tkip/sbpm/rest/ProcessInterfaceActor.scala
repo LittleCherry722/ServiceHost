@@ -90,9 +90,6 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
               instanceid <- future.mapTo[Int]
             } yield JsObject("InstanceID" -> JsNumber(instanceid))
 
-            //              val aresult =   future.mapTo[Int]
-            //               JsObject( "InstanceID" -> aresult.toJson)
-
             result onSuccess {
               case obj: JsObject =>
                 jsonResult = Envelope(Some(obj), StatusCodes.Created.toString)
