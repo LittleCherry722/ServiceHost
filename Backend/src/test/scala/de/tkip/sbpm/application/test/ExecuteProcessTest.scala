@@ -53,7 +53,7 @@ object ExecuteProcessTest extends App {
     println("Process(Model) Created id: " + processID)
 
     // Execute the ProcessInstance
-    val future3 = subjectProviderManager ? CreateProcessInstance(processID)
+    val future3 = subjectProviderManager ? CreateProcessInstance(userID, processID)
     val processInstanceID: Int =
       Await.result(future3, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
 

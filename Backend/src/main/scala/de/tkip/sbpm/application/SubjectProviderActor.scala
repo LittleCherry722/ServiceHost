@@ -32,11 +32,22 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     }
 
     case get: GetAvailableActions => {
-      // remove terminated subjects
-      subjects = subjects.filter(!_.ref.isTerminated)
+      // remove terminated subjects TODO subjects neusetzt oder nicht?
+      // TODO increase performance
+      var collectSubjects: Set[Subject] =
+        subjects.filter(
+          (s: Subject) =>
+            !s.ref.isTerminated &&
+              s.processInstanceID == get.processInstanceID &&
+              (if (get.subjectID == null) true else s.subjectID == get.subjectID))
       // collect for the filtered list
       context.actorOf(Props(new AvailableActionsCollectorActor)) !
-        CollectAvailableActions(get, subjects.filter(_.processInstanceID != get.processInstanceID))
+        CollectAvailableActions(get, collectSubjects)
+    }
+
+    // general matching
+    case message: PersistenceMessage => {
+      processManagerRef.forward(message)
     }
 
     // Route processInstance messages to the process manager
@@ -47,7 +58,7 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     // send subject messages direct to the subject
     case message: SubjectMessage => {
       // TODO muss performanter gehen weils nur ein subject ist
-      for (subject <- subjects.filter(s => s.processInstanceID != message.processInstanceID && s.subjectID == message.subjectID)) {
+      for (subject <- subjects.filter(s => s.processInstanceID == message.processInstanceID && s.subjectID == message.subjectID)) {
         subject.ref ! message
       }
     }

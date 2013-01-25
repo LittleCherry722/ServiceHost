@@ -57,6 +57,9 @@ object ExecuteProcessInConsoleTest {
         subjectProviderManager ! GetAvailableActions(a.request.userID, a.request.processInstanceID)
 
       case AvailableActionsAnswer(request, available) =>
+        if (available.isEmpty) {
+          println("FE: No actions are available anymore")
+        }
         for (action <- available) {
           executeAction(action)
         }
@@ -72,7 +75,7 @@ object ExecuteProcessInConsoleTest {
       print(avail.processInstanceID + "/" + avail.subjectID + "/" + avail.stateID + " - ")
       StateType.fromStringtoStateType(avail.stateType) match {
         case ActStateType =>
-          var action = readLine("Execute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
+          var action = readLine("Execute one Action of " + avail.actionData.mkString("{", ", ", "}:"))
           while (!avail.actionData.contains(action)) {
             action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
           }
@@ -81,8 +84,9 @@ object ExecuteProcessInConsoleTest {
           val message = readLine("Please insert message: ")
           subjectProviderManager ! ExecuteAction(avail, message)
         case ReceiveWaitingStateType => {
-          readLine("I am waiting for a message")
-          //          subjectProviderManager ! GetAvailableActions(avail.userID, avail.processInstanceID)
+          readLine("I am waiting for a message...")
+          // always ask again if there is a new action for this subject
+          //          subjectProviderManager ! GetAvailableActions(avail.userID, avail.processInstanceID, avail.subjectID)
         }
         case ReceiveStateType =>
           val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
@@ -124,7 +128,7 @@ object ExecuteProcessInConsoleTest {
     println("Process(Model) Created id: " + processID)
 
     // Execute the ProcessInstance
-    val future3 = subjectProviderManager ? CreateProcessInstance(processID)
+    val future3 = subjectProviderManager ? CreateProcessInstance(userID, processID)
     val processInstanceID: Int =
       Await.result(future3, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
 

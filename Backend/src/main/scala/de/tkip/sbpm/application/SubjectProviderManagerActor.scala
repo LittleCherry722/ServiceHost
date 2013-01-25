@@ -37,9 +37,6 @@ class SubjectProviderManagerActor extends Actor {
     case ra: RequestAnswer =>
       forwardControlMessageToProvider(ra.processID, ra)
       
-    case ga: GetAvailableActions =>
-      forwardControlMessageToProvider(ga.processInstanceID, ga)
-      
     case cp: CreateProcessInstance =>
       cp.sender = sender
       forwardControlMessageToProvider(cp.userID, cp)
@@ -63,6 +60,10 @@ class SubjectProviderManagerActor extends Actor {
     }
 
     // TODO muss man zusammenfassen koennen
+    case message: PersistenceMessage => {
+      processManagerActor.forward(message)
+    }
+    
     case message: AnswerAbleMessage => {
       processManagerActor ! message.withSender(sender)
     }

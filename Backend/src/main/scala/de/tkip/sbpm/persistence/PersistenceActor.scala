@@ -3,9 +3,10 @@ import akka.actor.Actor
 import akka.actor.Props
 import akka.pattern.AskSupport
 import akka.actor.ActorLogging
+import de.tkip.sbpm.application.miscellaneous.PersistenceMessage
 
 // common message super class for all persistence related actions
-abstract class PersistenceAction
+trait PersistenceAction extends PersistenceMessage
 
 // message to create database tables
 // this message is redirected to all sub actors

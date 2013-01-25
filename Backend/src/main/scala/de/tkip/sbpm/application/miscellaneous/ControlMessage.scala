@@ -59,9 +59,10 @@ case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID
 
 // execution
 // request
-case class CreateProcessInstance(userID: UserID) extends AnswerAbleControlMessage
+case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
 case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage //TODO vllt answer?
-case class GetAvailableActions(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ExecutionMessage
+// GetAvailableActions collects all actions for the user if subjectID == null, else the action for this subject
+case class GetAvailableActions(userID: UserID, processInstanceID: ProcessInstanceID, subjectID: SubjectID = null) extends AnswerAbleControlMessage with ExecutionMessage
 //answers
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends AnswerControlMessage
 case class AvailableActionsAnswer(request: GetAvailableActions, availableActions: Array[AvailableAction]) extends AnswerControlMessage

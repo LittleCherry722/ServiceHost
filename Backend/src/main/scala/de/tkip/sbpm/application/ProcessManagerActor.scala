@@ -31,16 +31,6 @@ class ProcessManagerActor extends Actor {
 
   def receive = {
 
-    // persistence router - in case the debug flag is set, forward the message to
-    // test persistence actor
-    case pa: PersistenceAction => {
-      if (pa.isInstanceOf[Debug]) {
-        forwardToTestPersistenceActor(pa)
-      } else {
-        forwardToPersistenceActor(pa)
-      }
-    }
-
     case sra: ExecuteRequestAll => {
       sender ! processInstanceMap.keys
     }
@@ -64,13 +54,47 @@ class ProcessManagerActor extends Actor {
 
     // execution
     case cp: CreateProcessInstance => {
-      createNewProcessInstance(processInstanceCount)
-      sender ! ProcessInstanceCreated(cp, processInstanceCount)
-      processInstanceCount += 1
+      // TODO daten aus der datenbank holen
+      if (processDescritionMap.contains(cp.processID)) {
+        // if the process exists create the process instance
+        // set the id to a val to avoid errors
+        val processInstanceID = processInstanceCount
+        processInstanceMap +=
+          processInstanceID ->
+          context.actorOf(
+            Props(
+              new ProcessInstanceActor(
+                processInstanceID,
+                processDescritionMap(cp.processID))))
+        sender ! ProcessInstanceCreated(cp, processInstanceID)
+        // increase the count, so the next process instance gets a new unique id
+        processInstanceCount += 1
+      } else {
+        println("Process Manager - cant start process " + cp.processID +
+          ", it does not exist")
+      }
     }
 
     case kill: KillProcess => {
-      killProcessInstance(kill.processInstanceID)
+      if (processInstanceMap.contains(kill.processInstanceID)) {
+        context.stop(processInstanceMap(kill.processInstanceID))
+        processInstanceMap -= kill.processInstanceID
+      } else {
+        println("Process Manager - can't kill process instance: " +
+          kill.processInstanceID + ", it does not exists")
+
+      }
+    }
+
+    // general matching
+    // persistence router - in case the debug flag is set, forward the message to
+    // test persistence actor
+    case message: PersistenceMessage => {
+      if (message.isInstanceOf[Debug]) {
+        forwardToTestPersistenceActor(message)
+      } else {
+        forwardToPersistenceActor(message)
+      }
     }
 
     // TODO muesste man auch zusammenfassenkoennen
@@ -101,12 +125,12 @@ class ProcessManagerActor extends Actor {
     }
   }
 
-  private def forwardToPersistenceActor(pa: PersistenceAction) {
+  private def forwardToPersistenceActor(pa: PersistenceMessage) {
     persistenceActor.forward(pa)
   }
 
   // forward persistence messages to persistenceActors
-  private def forwardToTestPersistenceActor(pa: PersistenceAction) {
+  private def forwardToTestPersistenceActor(pa: PersistenceMessage) {
     testPersistenceActor.forward(pa)
   }
 
@@ -124,20 +148,25 @@ class ProcessManagerActor extends Actor {
   /**
    * creates a new processInstanceActor and registers it with the given processID (overrides the old entry)
    */
-  private def createNewProcessInstance(processID: ProcessID) = {
-    // TODO wenn processId nicht ovrhanden gibt es einen Fehler
-    val process = context.actorOf(Props(new ProcessInstanceActor(processInstanceCount, processDescritionMap(processID))))
-    processInstanceMap += processInstanceCount -> process
-    process
-  }
+  //  private def createNewProcessInstance(processInstanceID: ProcessInstanceID, processModel: ProcessModel) = {
+  //    // TODO wenn processId nicht ovrhanden gibt es einen Fehler
+  //    val processInstance =
+  //      context.actorOf(
+  //        Props(
+  //          new ProcessInstanceActor(
+  //            processInstanceCount,
+  //            processModel)))
+  //    processInstanceMap += processInstanceCount -> processInstance
+  //    processInstance
+  //  }
 
   /**
    * kills the processInstanceActor with the given processID and unregisters it
    */
-  private def killProcessInstance(processInstanceID: ProcessInstanceID) = {
-    if (processInstanceMap.contains(processInstanceID)) {
-      context.stop(processInstanceMap(processInstanceID))
-      processInstanceMap -= processInstanceID
-    }
-  }
+  //  private def killProcessInstance(processInstanceID: ProcessInstanceID) = {
+  //    if (processInstanceMap.contains(processInstanceID)) {
+  //      context.stop(processInstanceMap(processInstanceID))
+  //      processInstanceMap -= processInstanceID
+  //    }
+  //  }
 }

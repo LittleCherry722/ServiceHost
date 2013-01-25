@@ -51,7 +51,7 @@ case class AddSubject(userID: UserID, subjectID: SubjectID)
 /**
  * instantiates SubjectActor's and manages their interactions
  */
-class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel) extends Actor {
+class ProcessInstanceActor(id: ProcessInstanceID, process: ProcessModel) extends Actor {
 
   // TODO wie uebergeben?
   private val contextResolver = context.actorOf(Props(new ContextResolverActor))
@@ -107,7 +107,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       println("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (subjectCounter == 0) {
         executionHistory.processEnded = new Date()
-        context.stop(self)// TODO stop process instance?
+        context.stop(self) // TODO stop process instance?
       }
     }
 
