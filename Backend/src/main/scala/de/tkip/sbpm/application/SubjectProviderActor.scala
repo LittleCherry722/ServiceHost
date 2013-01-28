@@ -32,14 +32,23 @@ class SubjectProviderActor(val userID: UserID, val processManagerRef: ProcessMan
     }
 
     case get: GetAvailableActions => {
-      // remove terminated subjects TODO subjects neusetzt oder nicht?
       // TODO increase performance
-      var collectSubjects: Set[Subject] =
+      // remove the subjects the user is not interested about:
+      // - terminated
+      // - different process instance id
+      // - different subject id
+      val collectSubjects: Set[Subject] =
         subjects.filter(
           (s: Subject) =>
             !s.ref.isTerminated &&
-              s.processInstanceID == get.processInstanceID &&
-              (if (get.subjectID == null) true else s.subjectID == get.subjectID))
+              (if (get.processInstanceID == AllProcessInstances)
+                true
+              else
+                (if (get.subjectID == AllSubjects)
+                  get.processInstanceID == s.processInstanceID
+                else
+                  get.processInstanceID == s.processInstanceID &&
+                    get.subjectID == s.subjectID)))
       // collect for the filtered list
       context.actorOf(Props(new AvailableActionsCollectorActor)) !
         CollectAvailableActions(get, collectSubjects)
