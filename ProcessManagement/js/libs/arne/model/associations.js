@@ -120,7 +120,7 @@ define([
 			// If no ID could be found (probably because the record has not yet been
 			// persisted), save the record first.
 			// Also saves the foreign model after assigning the foreign key.
-			// Does so asynchronously if a callback is given or blockingly if
+			// Does so asynchronously if a callback is given or blocking if
 			// the callback is ommited.
 			results.push = function( item, callback ) {
 

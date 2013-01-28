@@ -26,15 +26,14 @@ define([
 		require([
 			"model",
 			"models/user",
-			"models/user",
 			"models/process",
 			"models/graph",
 			"models/group",
-			"models/groupsUsers",
 			"models/role",
+			"models/groupsUsers",
 			"models/groupsRoles"
 			// "models/roles",
-		], function( Model, User ) {
+		], function( Model, User, Process, Graph, Group, Role ) {
 
 			// The current user logged in to our system
 			currentUser( new User( { name: "no user" } ) );
@@ -43,7 +42,13 @@ define([
 			// Initially fetch all Models, then initialize the views and after that,
 			// tell everyone that we are done (call the callback).
 			async.auto({
-				fetchAll: Model.fetchAll,
+				// fetchAll: Model.fetchAll,
+				fetchAll: function( callback ) {
+					User.fetch();
+					Role.fetch();
+					Group.fetch();
+					callback();
+				},
 				initViews: [ "fetchAll", initializeViews ],
 				callback: [ "initViews", callback ]
 			});
