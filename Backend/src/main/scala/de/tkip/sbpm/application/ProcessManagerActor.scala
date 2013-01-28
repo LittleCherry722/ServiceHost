@@ -32,9 +32,12 @@ class ProcessManagerActor extends Actor {
   def receive = {
 
     case sra: ExecuteRequestAll => {
-      sender ! processInstanceMap.keys
+      sender ! ExecutedListAnswer(sra, processInstanceMap.keys)
     }
-
+    
+    case rp: ReadProcess =>{
+      sender ! ReadProcessAnswer(rp,processDescritionMap(rp.processID))
+    }
     case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProvider
     }
@@ -49,7 +52,18 @@ class ProcessManagerActor extends Actor {
     }
     // siehe create
     case up: UpdateProcess => {
-      processDescritionMap(up.processID) = up.processModel
+      if(processDescritionMap.contains(up.processID)){
+    	  processDescritionMap(up.processID) = up.processModel
+    	  UpdateSucess(up, true)
+      }
+      else{
+        UpdateSucess(up, false)
+      }
+    }
+    
+    case ur: UpdateRequest =>{
+      //TODO Update mit actionID
+      sender ! UpdateAnswer(ur, true)
     }
 
     // execution
@@ -79,9 +93,11 @@ class ProcessManagerActor extends Actor {
       if (processInstanceMap.contains(kill.processInstanceID)) {
         context.stop(processInstanceMap(kill.processInstanceID))
         processInstanceMap -= kill.processInstanceID
+        sender ! KillProcessAnswer(kill, true)
       } else {
         println("Process Manager - can't kill process instance: " +
           kill.processInstanceID + ", it does not exists")
+          sender ! KillProcessAnswer(kill, false)
 
       }
     }

@@ -50,6 +50,7 @@ case class UpdateProcess(processID: ProcessID, processName: String, processModel
 //answers
 case class ReadProcessAnswer(request: ReadProcess, pm: ProcessModel) extends AnswerControlMessage
 case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends AnswerControlMessage
+case class UpdateSucess(request: UpdateProcess, sucess: Boolean)extends AnswerControlMessage
 
 // administration
 // request
@@ -60,7 +61,7 @@ case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID
 // execution
 // request
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
-case class KillProcess(processInstanceID: ProcessInstanceID) extends ControlMessage //TODO vllt answer?
+case class KillProcess(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage 
 // GetAvailableActions collects all actions for the user if subjectID == null, else the action for this subject
 case class GetAvailableActions(userID: UserID,
                                processInstanceID: ProcessInstanceID = AllProcessInstances,
@@ -69,6 +70,7 @@ case class GetAvailableActions(userID: UserID,
 //answers
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends AnswerControlMessage
 case class AvailableActionsAnswer(request: GetAvailableActions, availableActions: Array[AvailableAction]) extends AnswerControlMessage
+case class KillProcessAnswer(request: KillProcess, sucess: Boolean)extends AnswerControlMessage
 
 // history
 // request
@@ -77,10 +79,11 @@ case class GetHistory(userID: UserID, processInstanceID: ProcessInstanceID) exte
 case class HistoryAnswer(request: GetHistory, h: History) extends AnswerControlMessage
 
 // TODO nochmal drueber schaun 
-case class ExecuteRequest(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
 //request
 case class ExecuteRequestAll(userID: UserID) extends AnswerAbleControlMessage
-case class RequestAnswer(processID: ProcessID, actionID: String) extends AnswerAbleControlMessage
+case class UpdateRequest(processID: ProcessID, actionID: String) extends AnswerAbleControlMessage
 //answers
-case class LoadedProcessesList(era: ExecuteRequestAll)
-case class ExecutedListAnswer(era: ExecuteRequestAll, li: Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID])
+case class ExecutedListAnswer(era: ExecuteRequestAll, li: Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID]) extends AnswerAbleControlMessage
+case class UpdateAnswer(request: UpdateRequest, sucess: Boolean)extends AnswerControlMessage
+
+

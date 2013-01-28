@@ -22,24 +22,24 @@ class SubjectProviderManagerActor extends Actor {
       sender ! SubjectProviderCreated(csp, subjectCount)
       subjectCount += 1
 
-    case gpr: ExecuteRequest =>
-      forwardControlMessageToProvider(gpr.userID, gpr)
-
-    case sra: ExecuteRequestAll =>
-      forwardControlMessageToProvider(sra.userID, sra)
-
-    case rp: ReadProcess =>
-      forwardControlMessageToProvider(rp.userID, rp)
-
-    case cp: CreateProcess =>
-      forwardControlMessageToProvider(cp.userID, cp)
-
-    case ra: RequestAnswer =>
-      forwardControlMessageToProvider(ra.processID, ra)
-      
-    case cp: CreateProcessInstance =>
-      cp.sender = sender
-      forwardControlMessageToProvider(cp.userID, cp)
+//    case gpr: ExecuteRequest =>
+//      forwardControlMessageToProvider(gpr.userID, gpr)
+//
+//    case sra: ExecuteRequestAll =>
+//      forwardControlMessageToProvider(sra.userID, sra)
+//
+//    case rp: ReadProcess =>
+//      forwardControlMessageToProvider(rp.userID, rp)
+//
+//    case cp: CreateProcess =>
+//      forwardControlMessageToProvider(cp.userID, cp)
+//
+//    case ra: UpdateRequest =>
+//      forwardControlMessageToProvider(ra.processID, ra)
+//      
+//    case cp: CreateProcessInstance =>
+//      cp.sender = sender
+//      forwardControlMessageToProvider(cp.userID, cp)
 
     // general matching:
     // first match the answers
