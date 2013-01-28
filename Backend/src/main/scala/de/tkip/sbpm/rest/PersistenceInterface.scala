@@ -95,11 +95,16 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
    * Location path is used as base for created resource in Location header.
    * idSetter function is used to inject generated id into entity.
    */
-  protected def completeWithSave[A, B](action: PersistenceAction, entity: A, locationPath: String, idSetter: (A, B) => A = (a: A, b: B) => a)(implicit marshaller: Marshaller[A]) = {
+  protected def completeWithSave[A, B](action: PersistenceAction, 
+		  							   entity: A, 
+		  							   locationPath: String, 
+		  							   idSetter: (A, B) => A = (a: A, b: B) => a, 
+		  							   idFormatArgs: (B) => Array[Any] = (b: B) => Array[Any](b))
+		  							   (implicit marshaller: Marshaller[A]) = {
     val id = request[Option[B]](action)
     if (id.isDefined) {
       val newEntity = idSetter(entity, id.get)
-      created(newEntity, locationPath, id.get)
+      created(newEntity, locationPath, idFormatArgs(id.get): _*)
     } else {
       complete(entity)
     }

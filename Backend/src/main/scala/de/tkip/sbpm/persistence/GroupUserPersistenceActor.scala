@@ -11,7 +11,9 @@ import de.tkip.sbpm.model._
 */
 sealed abstract class GroupUserAction extends PersistenceAction
 // get all group -> user mappings (Seq[model.GroupUser])
-case class GetGroupUser() extends GroupUserAction
+// optionally filtered by user id
+// if both ids given single entity Option[GroupUser] is returned
+case class GetGroupUser(groupId: Option[Int] = None, userId: Option[Int] = None) extends GroupUserAction
 // save group -> user mapping to db
 // returns primary key Some((groupId, userId)) if created otherwise None
 case class SaveGroupUser(groupUser: GroupUser) extends GroupUserAction
@@ -35,8 +37,17 @@ private[persistence] class GroupUserPersistenceActor extends Actor with Database
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all group -> user mappings ordered by group id
-      case GetGroupUser() =>
+      case GetGroupUser(None, None) =>
         answer { GroupUsers.sortBy(_.groupId).list }
+        // get all group -> user mappings for a user
+      case GetGroupUser(None, userId) =>
+        answer { GroupUsers.where(_.userId === userId).sortBy(_.groupId).list }
+        // get all group -> user mappings for a group
+      case GetGroupUser(groupId, None) =>
+        answer { GroupUsers.where(_.groupId === groupId).sortBy(_.userId).list }
+        // get group -> user mapping
+      case GetGroupUser(groupId, userId) =>
+        answer { GroupUsers.where(e => e.groupId === groupId && (e.userId === userId)).firstOption }
       // save group -> user mapping
       case SaveGroupUser(gu: GroupUser) => answer { save(gu) }
       // delete group -> user mapping
