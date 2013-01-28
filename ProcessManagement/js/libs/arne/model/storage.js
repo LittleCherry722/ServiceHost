@@ -17,7 +17,6 @@ define([
 		// some general ajax options. These are neede later on when performing the
 		// requests.
 		_( ajaxOptions ).defaults({
-			scalaBackend: true,
 			modelPath: "scala/" + Model.className.toLowerCase(),
 			methods: {
 				destroy: "DELETE",
@@ -47,7 +46,7 @@ define([
 		Model.prototype.save = abstractMethod( function( options, callback ) {
 			var saveFn;
 
-			if ( !this.beforeCreate.call( this ) ) {
+			if ( this.beforeSave.call( this ) === false ) {
 				return
 			}
 
@@ -70,7 +69,7 @@ define([
 
 		// DStringestroy method
 		Model.prototype.destroy = abstractMethod( function( options, callback ) {
-			if ( !this.beforeDestroy.call( this ) ) {
+			if ( this.beforeDestroy.call( this ) === false ) {
 				return
 			}
 
@@ -93,10 +92,10 @@ define([
 			var data,
 					model = this;
 
-			// if ( model.attributesLoaded() ) {
-			//   callback.call( model, null );
-			//   return;
-			// }
+			if ( model.attributesLoaded() ) {
+				callback.call( model, null );
+				return;
+			}
 
 			ajax = {
 				cache: false,
@@ -154,7 +153,7 @@ define([
 					// Mark the model as destroyed and remove it from the list of
 					// instances
 					model.isDestroyed = true;
-					Model.all.remove( this )
+					Model.all.remove( model )
 				},
 				error: function( jqXHR, textStatus, error ) {
 					// Some error handling maybe?
@@ -172,7 +171,7 @@ define([
 			var ajax,
 					model = this;
 
-			if ( !model.beforeCreate.call( this ) ) {
+			if ( model.beforeCreate.call( this ) === false ) {
 				return
 			}
 
@@ -211,12 +210,22 @@ define([
 		}
 
 		var saveExisting = function( options, callback ) {
-			var ajax,
+			var ajax, url,
 					model = this;
+
+			if ( ! model.hasChanged() ) {
+				callback.call( model );
+				return;
+			}
+
+			url = ajaxOptions.modelPath;
+			if ( Model.ids().length === 1 ) {
+				url += "/" + model.id();
+			}
 
 			ajax = {
 				cache: false,
-				url: ajaxOptions.modelPath + "/" + model.id(),
+				url: url,
 				type: ajaxOptions.methods.save,
 				async: options.async,
 				data: model.toJSONString(),

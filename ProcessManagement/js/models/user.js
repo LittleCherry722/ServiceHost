@@ -64,11 +64,15 @@ define([
 
 			_( toBePushedIDs ).each(function( toBePushedID ) {
 				groupsOld.push( Group.find( toBePushedID ) );
-			})
+			});
 
 			_( toBeDeletedIDs ).each(function( toBeDeletedID ) {
 				groupsOld.remove( Group.find( toBeDeletedID ) );
-			})
+			});
+		},
+
+		beforeCreate: function() {
+			this.id(-1);
 		}
 		
 		// Custom validator object. Validators are (like the initialize function)
