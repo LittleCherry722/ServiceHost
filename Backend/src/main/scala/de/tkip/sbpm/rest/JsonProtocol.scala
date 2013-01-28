@@ -105,6 +105,6 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val avaliableFormat = jsonFormat3(GetAvailableActions)
   implicit val availableActionFormat = jsonFormat6(AvailableAction)
   implicit val availableActionsFormat = jsonFormat2(AvailableActionsAnswer)
-
 }
+
   
