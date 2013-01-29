@@ -20,6 +20,12 @@ define([
 		}
 	});
 
+	Group.include({
+		beforeCreate: function() {
+			this.id(-1);
+		}
+	});
+
 	Group.hasMany( "roles", { through: "groupsRoles" } );
 
 	return Group;

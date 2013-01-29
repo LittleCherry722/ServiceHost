@@ -9,18 +9,18 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	GroupsUsers = Model( "GroupsUsers" );
+	GroupsUsers = Model( "GroupsUsers", { methods: { create: "PUT" } } );
 
 	GroupsUsers.attrs({
 		isActive: {
 			type: "boolean",
 			defaults: true
 		},
-		userID: "integer",
-		groupID: "integer"
+		userId: "integer",
+		groupId: "integer"
 	});
 
-	GroupsUsers.ids([ "userID", "groupID" ]);
+	GroupsUsers.ids([ "userId", "groupId" ]);
 
 	GroupsUsers.belongsTo( "user" );
 	GroupsUsers.belongsTo( "group" );
@@ -45,12 +45,12 @@ define([
 
 			this.isActive( data.isActive );
 		}
-		
+
 		// Custom validator object. Validators are (like the initialize function)
 		// special in a sense that this object will be iterated over when the
 		// "validate" method is executed.
 		// validators: { }
 	});
-	
+
 	return GroupsUsers;
 });

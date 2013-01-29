@@ -33,7 +33,7 @@ define([
 			_( attributesObject ).defaults({
 				id: "integer"
 			});
-			
+
 			// Allow strings or objects as arguments. Strings will be looked
 			// up in our default arguments hash and given only the default values,
 			// objects allow for customization of attribute behavior by setting
@@ -74,7 +74,7 @@ define([
 			return lazyAttributes.length > 0;
 		}
 
-		// Return (no argument) or set (on array as argument) the IDs of the
+		// Return (no argument) or set (on array as argument) the Ids of the
 		// current model.
 		Result.ids = function( idsArray ) {
 			if ( !idsArray ) {
@@ -262,7 +262,7 @@ define([
 	/***************************************************************************
 	 * Dynamic Attribute finder methods
 	 ***************************************************************************/
-	
+
 	var initializeDynamicFinders = function( Result, attrs ) {
 		var camelCasedAttributeName;
 

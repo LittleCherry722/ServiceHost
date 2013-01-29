@@ -20,17 +20,17 @@ define([ "director", "app"], function( Director, App ) {
 	 * Custom route actions go here. Keep it concise!
 	 */
 
-	var showProcess = function( processID, subjectID ) {
+	var showProcess = function( processId, subjectId ) {
 		expandListOfProcesses();
 
-		if ( subjectID ) {
-			subjectID = subjectID.replace(/___/, " ");
+		if ( subjectId ) {
+			subjectId = subjectId.replace(/___/, " ");
 		}
 
-		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByIDs ) {
-			App.currentMainViewModel().loadProcessByIDs( processID, subjectID, globalCallback() );
+		if ( App.currentMainViewModel() && App.currentMainViewModel().loadProcessByIds ) {
+			App.currentMainViewModel().loadProcessByIds( processId, subjectId, globalCallback() );
 		} else {
-			loadView( "process", [ processID, subjectID ], globalCallback() );
+			loadView( "process", [ processId, subjectId ], globalCallback() );
 		}
 	}
 
@@ -65,8 +65,8 @@ define([ "director", "app"], function( Director, App ) {
 		}
 	}
 
-	var showRouting = function( processID ) {
-		loadView( "process/routing", processID );
+	var showRouting = function( processId ) {
+		loadView( "process/routing", processId );
 	}
 
 	/*
@@ -205,7 +205,7 @@ define([ "director", "app"], function( Director, App ) {
 		window.r = router;
 		// Set our default route to "/" (if no /#/ could be found)
 		router.init("/");
-		
+
 	}
 
 	// Everything in this object will be the public API

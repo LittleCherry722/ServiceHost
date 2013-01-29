@@ -6,11 +6,11 @@ define([
 	"models/user",
 	"models/group"
 ], function( ko,komapping, App, _, User, Group ) {
-	
+
 	var viewModel;
-	
+
 	var ViewModel = function() {
-		this.currentProcessID = currentProcessID;
+		this.currentProcessId = currentProcessId;
 		this.currentProcess = currentProcess;
 		var self = this;
 
@@ -32,7 +32,7 @@ define([
 		});
 
 		//Content dropdown
-		self.subject = currentProcess().graph().subjectIDs;
+		self.subject = currentProcess().graph().subjectIds;
 
 
 		self.is = ko.observableArray( ["is", "is not"] );
@@ -128,13 +128,13 @@ define([
 
 	currentProcess.subscribe(function( process ) {
 		console.log( "a new process has been loaded: " + process.name() );
-	
+
 	});
 
-	var initialize = function( processID ) {
+	var initialize = function( processId ) {
 		var process;
-		currentProcessID = processID;
-		process = Process.find( processID )
+		currentProcessId = processId;
+		process = Process.find( processId )
 
 		if ( process === currentProcess() ) {
 			currentProcess.valueHasMutated();
@@ -143,7 +143,7 @@ define([
 		}
 
 		//Check if process has changed!
-		if ( !viewModel || viewModel.currentProcessID != currentProcessID ) {
+		if ( !viewModel || viewModel.currentProcessId != currentProcessId ) {
 			viewModel = new ViewModel();
 		}
 
@@ -155,8 +155,8 @@ define([
 		App.loadTemplate( "process/routing", viewModel, null, function() {
 			console.log("template loaded")
 		});
-		
-	
+
+
 	}
 
 	// Everything in this object will be the public API

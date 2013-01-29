@@ -11,11 +11,11 @@ define([
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
 	Process = Model( "Process" );
-	
+
 	Process.attrs({
 		name: "string",
 		isCase: "boolean",
-		graphID: "integer"
+		graphId: "integer"
 	});
 
 	Process.belongsTo( "graph" );
@@ -42,7 +42,7 @@ define([
 			this.messages = [];
 			this.isCreatedFromTable = false;
 		},
-		
+
 		// Custom validator object. Validators are (like the initialize function)
 		// special in a sense that this object will be iterated over when the
 		// "validate" method is executed.

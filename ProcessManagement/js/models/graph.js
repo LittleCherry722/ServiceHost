@@ -20,7 +20,7 @@ define([
 			lazy: true
 		},
 		date: "string",
-		processID: "integer"
+		processId: "integer"
 	});
 
 	Graph.ids([ "id" ]);
@@ -55,7 +55,7 @@ define([
 				return subjects;
 			});
 
-			Graph.lazyComputed( this, 'subjectIDs', function() {
+			Graph.lazyComputed( this, 'subjectIds', function() {
 				var subjects = [];
 
 				_( self.graphObject().process ).each(function( element ) {

@@ -8,7 +8,7 @@ define([
 	 ***************************************************************************/
 
 	var Storage = function( Model, ajaxOptions ) {
-		var query;
+		var pathBuilder = new PathBuilder( Model );
 
 		if ( typeof ajaxOptions === "undefined" ) {
 			ajaxOptions = {}
@@ -17,7 +17,6 @@ define([
 		// some general ajax options. These are neede later on when performing the
 		// requests.
 		_( ajaxOptions ).defaults({
-			modelPath: "scala/" + Model.className.toLowerCase(),
 			methods: {
 				destroy: "DELETE",
 				create: "POST",
@@ -26,6 +25,8 @@ define([
 				get: "GET"
 			}
 		});
+
+
 
 		// Setup prototype callback so we do not have to check for their existence every time.
 		_( [ "Save", "Create", "Destroy" ] ).each(function( event ) {
@@ -89,7 +90,7 @@ define([
 		});
 
 		Model.prototype.loadAttributes = abstractMethod(function( options, callback ) {
-			var data,
+			var data, ajax,
 					model = this;
 
 			if ( model.attributesLoaded() ) {
@@ -99,7 +100,7 @@ define([
 
 			ajax = {
 				cache: false,
-				url: ajaxOptions.modelPath + "/" + model.id(),
+				url: pathBuilder.getPath( model ),
 				type: ajaxOptions.methods.get,
 				async: options.async,
 				dataType: "json",
@@ -142,7 +143,7 @@ define([
 
 			ajax = {
 				cache: false,
-				url: ajaxOptions.modelPath + "/" + model.id(),
+				url: pathBuilder.destroyPath( model ),
 				type: ajaxOptions.methods.destroy,
 				async: options.async,
 				dataType: "json",
@@ -177,7 +178,7 @@ define([
 
 			ajax = {
 				cache: false,
-				url: ajaxOptions.modelPath,
+				url: pathBuilder.createPath( model ),
 				type: ajaxOptions.methods.create,
 				async: options.async,
 				data: model.toJSONString(),
@@ -218,14 +219,9 @@ define([
 				return;
 			}
 
-			url = ajaxOptions.modelPath;
-			if ( Model.ids().length === 1 ) {
-				url += "/" + model.id();
-			}
-
 			ajax = {
 				cache: false,
-				url: url,
+				url: pathBuilder.savePath( model ),
 				type: ajaxOptions.methods.save,
 				async: options.async,
 				data: model.toJSONString(),
@@ -272,7 +268,7 @@ define([
 			Model.all.removeAll();
 
 			ajax = {
-				url: ajaxOptions.modelPath,
+				url: pathBuilder.listPath(),
 				type: ajaxOptions.methods.list,
 				async: options.async,
 				dataType: "json",
@@ -308,8 +304,8 @@ define([
 			};
 			$.ajax( ajax );
 		});
-	}
 
+	}
 
 	var abstractMethod = function( fn ) {
 		return function( options, callback ) {
@@ -328,7 +324,67 @@ define([
 				async: true
 			})
 
-			fn.call( this, options, callback )
+			fn.call( this, options, callback );
+		}
+	}
+
+	var PathBuilder = function( Model ) {
+		var regularModelPath, relationModelPath, init,
+				isIntermediateModel,
+				pathPrefix = "scala/";
+
+		isIntermediateModel = function() {
+			if ( Model.belongsTo().length === Model.ids().length && Model.ids().length > 1 ) {
+				_( Model.belongsTo() ).each(function( o, idy ) {
+					if ( !_( Model.ids() ).contains( o.foreignKey ) ) {
+						return false;
+					}
+				});
+			} else {
+				return false;
+			}
+			return true;
+		}
+
+		regularModelPath = function( instance ) {
+			if ( typeof instance === "undefined" ) {
+				return pathPrefix + Model.className.toLowerCase();
+			} else {
+				return pathPrefix + Model.className.toLowerCase() + "/" + instance.id();
+			}
+		}
+		relationModelPath = function( instance ) {
+			if ( typeof instance === "undefined" ) {
+				return pathPrefix + _( Model.belongsTo() ).map(function( o ) {
+					return o.modelName;
+				}).join("/");
+			} else {
+				return pathPrefix + _.chain( Model.belongsTo() ).map(function( o ) {
+					return [ o.modelName, instance[ o.foreignKey ]() ];
+				}).flatten().value().join("/");
+			}
+		}
+
+		this.listPath = function() {
+			if ( Model.className == "GroupsUsers" ) {
+				console.log("GroupsUsers");
+				console.log("is intermediate? " + isIntermediateModel());
+			}
+			return isIntermediateModel() ? relationModelPath() : regularModelPath();
+		}
+		this.savePath = this.destroyPath = this.getPath = function( instance ) {
+			if ( isIntermediateModel ) {
+				return relationModelPath( instance );
+			} else {
+				return regularModelPath( instance );
+			}
+		}
+		this.createPath = function( instance ) {
+			if ( isIntermediateModel ) {
+				return relationModelPath( instance );
+			} else {
+				return regularModelPath();
+			}
 		}
 	}
 

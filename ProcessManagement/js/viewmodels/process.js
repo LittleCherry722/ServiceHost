@@ -116,7 +116,7 @@ define([
 			return currentProcess().graph();
 		},
 		write: function( graph ) {
-			if ( !graph || currentProcess().id() !== graph.processID() ) {
+			if ( !graph || currentProcess().id() !== graph.processId() ) {
 				return;
 			}
 
@@ -213,7 +213,7 @@ define([
 	// Clears the graph, and loads the new graph for the new process.
 	currentProcess.subscribe(function( process ) {
 		var graph, isNewRecord;
-		
+
 		// If there is no graph associated to the process so far, it is probably a new
 		// process that has not yet been loaded. In this case create a new Graph
 		// and act on it dependant on whether it is a process, case or has been
@@ -275,17 +275,17 @@ define([
 		// Get the graph JSON String, save it to the model attribute,
 		// save the graph, assign the graph to our process and save the process.
 		// Saving has to be blocking because we have to make sure that the graph
-		// is saved before we assign it to the process (graph needs an ID to be
+		// is saved before we assign it to the process (graph needs an Id to be
 		// assigned).
 		// Final call to save can be non blocking because we probably dont need to
 		// hold the user back untill the graph is finally saved. Should only take a
 		// couple of ms anyway.
-		
+
 		routings = graph.routings()
 		graph = graph.duplicate();
 		graph.graphString( gv_graph.saveToJSON() );
 		graph.routings( routings );
-		graph.processID( process.id() );
+		graph.processId( process.id() );
 		graph.save({ async: false });
 		process.graph( graph );
 		process.save(function() {
@@ -311,9 +311,9 @@ define([
 		}
 
 		graph.save({ async: false });
-		process.graphID( graph.id() );
+		process.graphId( graph.id() );
 		process.save({ async: false })
-		graph.processID( process.id() );
+		graph.processId( process.id() );
 		graph.save(function() {
 			Router.goTo( process );
 		});
@@ -336,17 +336,17 @@ define([
 		selectTab( 2 )
 	}
 
-	// Loads a Process given the ID of the process.
-	var loadProcessByIDs = function( processID, subjectID, callback ) {
+	// Loads a Process given the Id of the process.
+	var loadProcessByIds = function( processId, subjectId, callback ) {
 
-		if ( currentProcess().id() !== processID ) {
-			currentProcess( Process.find( processID ) );
+		if ( currentProcess().id() !== processId ) {
+			currentProcess( Process.find( processId ) );
 		}
 
-		if ( subjectID !== currentSubject() ) {
-			currentSubject( subjectID );
+		if ( subjectId !== currentSubject() ) {
+			currentSubject( subjectId );
 		}
-		
+
 		if ( typeof callback === "function" ) {
 			callback.call( this );
 		}
@@ -391,8 +391,8 @@ define([
 			});
 		})
 
-		var updateSubjectIDs = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
-		$(updateSubjectIDs).live("click", function() {
+		var updateSubjectIds = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
+		$(updateSubjectIds).live("click", function() {
 			updateListOfSubjects();
 		})
 
@@ -407,16 +407,16 @@ define([
 		$( "#tab2" ).live( "click", function() {
 			Router.goTo( currentProcess() );
 		});
-		
-		
+
+
 		// Tab3, "Routing" clicked.
 
 		$( "#tab3" ).live( "click", function() {
 
 			Router.goTo("/processes/"+currentProcess().id()+"/routing");
 		});
-		
-		
+
+
 		// Save Process buttons behavior
 		$( "#saveProcessAsButton" ).live( "click", function() {
 			$('#newProcessName').val( currentProcess().name() ).trigger('change');
@@ -493,7 +493,7 @@ define([
 
 			// create the subejct object
 			subject = {
-				subjectID: key,
+				subjectId: key,
 				subjectText: value.getText(),
 				subject: value
 			}
@@ -531,7 +531,7 @@ define([
 		// JS object from it. Than push this channel to the list of channels.
 		_( gf_getChannels() ).each(function( value, key ) {
 			channel = {
-				channelID: key,
+				channelId: key,
 				text: value
 			}
 
@@ -616,16 +616,16 @@ define([
 	// listener (or anything else) of a secific tab, or invoked with the number
 	// of the tab (id = "tab" + number) as first parameter.
 	var selectTab = function( tabIndex ) {
-		var tabID;
+		var tabId;
 
 		// if the first parameter is no number, we assume this method has been
 		// called by an event handler. We now need to extract the tabIndex from the
-		// ID of the tab (current this object = tab node) that issued the event.
+		// Id of the tab (current this object = tab node) that issued the event.
 		if ( typeof tabIndex !== "number" ) {
-			tabID = this.getAttribute("id");
-			// set tabIndex to be the integer value of the last character of the ID
+			tabId = this.getAttribute("id");
+			// set tabIndex to be the integer value of the last character of the Id
 			// string. (to base 10).
-			tabIndex = parseInt( tabID.substr( tabID.length - 1 ), 10 );
+			tabIndex = parseInt( tabId.substr( tabId.length - 1 ), 10 );
 		}
 
 		// Mark only the clicked tab as active, all other as inactive, hide all
@@ -662,7 +662,7 @@ define([
 	// Initialize our View.
 	// Includes loading the template and creating the viewModel
 	// to be applied to the template.
-	var initialize = function( processID, subjectID, callback ) {
+	var initialize = function( processId, subjectId, callback ) {
 		var viewModel = new ViewModel();
 		App.loadTemplate( "process", viewModel, null, function() {
 
@@ -677,7 +677,7 @@ define([
 
 				// After all templates have been loaded and applied successfully,
 				// set the current process and initialize the view Listeners.
-				loadProcessByIDs( processID, subjectID )
+				loadProcessByIds( processId, subjectId )
 
 				if ( !initialized ) {
 					initialized = true;
@@ -726,11 +726,11 @@ define([
 
   // check whether we can unload or not
   var canUnload = confirmExit;
-	
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		loadProcessByIDs: loadProcessByIDs,
+		loadProcessByIds: loadProcessByIds,
 		unload: unload
 	}
 });

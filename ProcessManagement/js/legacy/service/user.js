@@ -11,7 +11,7 @@ SBPM.Service.User = {
     getAll : function() {
         return this.query({
             "action" : "getall"
-        }, {}, function(data,json) {           
+        }, {}, function(data,json) {
             if (data["code"] == "ok")
                 return data["users"];
         });
@@ -56,20 +56,20 @@ SBPM.Service.User = {
     },
     /**
      * gets a list of roles by a user id
-     * 
-     * @param {int} userId 
+     *
+     * @param {int} userId
      */
     getRoleByUserId : function(userId) {
         return this.query({
             "action" : "getallgroupsbyuserid",
             "userid" : userId
-        }, {}, function(data) {           
+        }, {}, function(data) {
             if (data["code"] == "ok")
                 return data["groups"];
         });
     },
     /**
-     * deletes a user by his ID
+     * deletes a user by his Id
      *
      * @param {int} userId
      */
@@ -82,10 +82,10 @@ SBPM.Service.User = {
     /**
      * saves a list of users
      *
-     * @param {array of {userID, userName, groupID[]}} users
+     * @param {array of {userId, userName, groupId[]}} users
      */
     saveAll : function(users) {
-       	
+
         return this.query({
             "action" : "save",
             "users" : users

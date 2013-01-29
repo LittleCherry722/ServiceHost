@@ -40,46 +40,46 @@ define([
 
 			this.messageCount = ko.observable( data.messageCount );
 
-			this.groupIDs = ko.observable();
-			this.groupIDsReset = function() {
-				var groupIDs = _( this.groups() ).map(function( group ) {
+			this.groupIds = ko.observable();
+			this.groupIdsReset = function() {
+				var groupIds = _( this.groups() ).map(function( group ) {
 					return group.id();
 				});
-				this.groupIDs( groupIDs );
+				this.groupIds( groupIds );
 			}
 		},
 
 		beforeSave: function() {
-			var groupsNow, oldGroupIDs, newGroupIDs, toBePushedIDs, toBeDeletedIDs,
+			var groupsNow, oldGroupIds, newGroupIds, toBePushedIds, toBeDeletedIds,
 
 			groupsOld = this.groups();
-			newGroupIDs = this.groupIDs();
-			
-			oldGroupIDs = _( groupsOld ).map(function( group ) {
+			newGroupIds = this.groupIds();
+
+			oldGroupIds = _( groupsOld ).map(function( group ) {
 				return group.id();
 			});
 
-			toBePushedIDs = _.difference( newGroupIDs, oldGroupIDs );
-			toBeDeletedIDs = _.difference( oldGroupIDs, newGroupIDs );
+			toBePushedIds = _.difference( newGroupIds, oldGroupIds );
+			toBeDeletedIds = _.difference( oldGroupIds, newGroupIds );
 
-			_( toBePushedIDs ).each(function( toBePushedID ) {
-				groupsOld.push( Group.find( toBePushedID ) );
+			_( toBePushedIds ).each(function( toBePushedId ) {
+				groupsOld.push( Group.find( toBePushedId ) );
 			});
 
-			_( toBeDeletedIDs ).each(function( toBeDeletedID ) {
-				groupsOld.remove( Group.find( toBeDeletedID ) );
+			_( toBeDeletedIds ).each(function( toBeDeletedId ) {
+				groupsOld.remove( Group.find( toBeDeletedId ) );
 			});
 		},
 
 		beforeCreate: function() {
 			this.id(-1);
 		}
-		
+
 		// Custom validator object. Validators are (like the initialize function)
 		// special in a sense that this object will be iterated over when the
 		// "validate" method is executed.
 		// validators: { }
 	});
-	
+
 	return User;
 });

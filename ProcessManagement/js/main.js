@@ -5,7 +5,6 @@ require.config({
 		"text":                "libs/require/plugins/text",
 		"jade":                "libs/require/plugins/jade",
 		"director":            "libs/director/director",
-		// "jquery":           "libs/jquery/jquery",
 		"jquery.ui":           "libs/jquery/plugins/jquery-ui",
 		"jquery.freeow":       "libs/jquery/plugins/jquery.freeow",
 		"jquery.qtip":         "libs/jquery/plugins/jquery.qtip",

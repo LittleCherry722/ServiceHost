@@ -15,14 +15,14 @@ define([
 
 	// Our Model cunstructor function. Returns another constructor function.
 	Model = function( modelName, ajaxOptions ) {
-		var instances, Result;
+		var instances;
 
 		// All currently available instances this Model are stored in this
 		// observableArray.
 		instances = ko.observableArray([]);
 
 		// Define our Base model
-		Result = function( data ) {
+		var Result = function( data ) {
 			var camelCasedAttribute,
 					self = this;
 
@@ -47,7 +47,7 @@ define([
 					this[ attrName + "Reset" ]();
 				}, this);
 			}
-			
+
 			// Initialize an empty error object.
 			this.errors = ko.observableArray([]);
 
@@ -176,27 +176,24 @@ define([
 
 		// Set the className as an static attribute to our newly created model.
 		Result.className = modelName;
+		Result.prototype.classModel = Result;
 
 		Result._initializers = [];
-
-		Attributes( Result );
-		Associations( Result );
-		Storage( Result, ajaxOptions );
 
 		Result.build = function( data ) {
 			var result;
 
 			result = new Result( data );
 			instances.push( result );
-			
+
 			return result;
 		}
 
 		// Get one model instance by id
-		Result.find = function( processID ) {
-			processID = parseInt( processID, 10 );
+		Result.find = function( processId ) {
+			processId = parseInt( processId, 10 );
 			var foundInInstances = _( Result.all() ).filter(function( process ) {
-				return process.id() === processID;
+				return process.id() === processId;
 			});
 
 			if ( foundInInstances.length > 0 ) {
@@ -294,6 +291,10 @@ define([
 		}
 
 		models.push( Result );
+
+		Attributes( Result );
+		Associations( Result );
+		Storage( Result, ajaxOptions );
 
 		// Return our newly defined object.
 		return Result;

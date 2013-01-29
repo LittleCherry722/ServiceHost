@@ -95,7 +95,7 @@ var ProcessViewModel = function() {
 
       gv_graph.clearGraph(true);
 
-      var processId = SBPM.Service.Process.getProcessID(self.processName());
+      var processId = SBPM.Service.Process.getProcessId(self.processName());
 
       self.subjectVM.showView();
 
@@ -156,7 +156,7 @@ var ProcessViewModel = function() {
 
 
       // TODO replace this DEPRECATED CALLS!
-      setSubjectIDs();
+      setSubjectIds();
       $("#tab2").addClass("active");
       if (processState !== undefined && processState !== null) {
         console.log(processState);
@@ -247,7 +247,7 @@ self.processName = ko.observable("");
   }
 
   self.availableProcesses = ko.observableArray(SBPM.Service.Process.getAllProcesses());
-  
+
 
 
 	self.updateProcessList = ko.computed(function() {
@@ -256,11 +256,11 @@ self.processName = ko.observable("");
 		self.availableProcesses(filterArray.filter(function(element) {
 			return (element.name != self.processName());
 		}))
-	}); 
+	});
 
-  	
-  
-  
+
+
+
 console.log("self.availableProcesses = ko.observableArray(SBPM.Service.Process.getAllProcesses());")
 
 }
@@ -459,8 +459,8 @@ var ExecutionViewModel = function() {
   }
 
   self.newInstance = function (name){
-    SBPM.Storage.set("inctanceStepSubjectID",null);
-    SBPM.Storage.set("inctanceStepNodeID",null);
+    SBPM.Storage.set("inctanceStepSubjectId",null);
+    SBPM.Storage.set("inctanceStepNodeId",null);
     SBPM.Service.Instance.newInstance(name);
     self.showView();
 
@@ -585,14 +585,14 @@ var ExecutionViewModel = function() {
       else {
         if ( nodeedges[i]['target'] != ""){
           var receiver = "";
-          receiver = getResponsiblesForUserForGroup(SBPM.Storage.get("userid"), getGroupID(nodeedges[i].target), SBPM.Storage.get("instanceProcessID"));
+          receiver = getResponsiblesForUserForGroup(SBPM.Storage.get("userid"), getGroupId(nodeedges[i].target), SBPM.Storage.get("instanceProcessId"));
           if(receiver == "") {
-            var users = getallusersforgroup(getGroupID(nodeedges[i].target));
+            var users = getallusersforgroup(getGroupId(nodeedges[i].target));
             TableInsert += "<tr><td align=\"center\">"+ nodeedges[i].target + "</td><td align=\"center\"><select id=\"receive_user"+i+"\">";
             for(var x = 0; x < users.length; x++) {
               TableInsert += "<option>"+ getUserName(users[x]) +"</option>";
             }
-            TableInsert += "</select></td><td align=\"center\"><input type=\"button\" value=\""+ nodeedges[i].text.replace(/<br>/gi, " ") +"\" onClick=\"if (sendTextMessage('"+ buttonText +"', getUserID(this.form.receive_user"+i+".options[this.form.receive_user"+i+".selectedIndex].value))) SBPM.VM.executionVM.selectNextNode('"+ subjectid +"','"+ nodeedges[i]['end'] +"');\" /></td></tr>"
+            TableInsert += "</select></td><td align=\"center\"><input type=\"button\" value=\""+ nodeedges[i].text.replace(/<br>/gi, " ") +"\" onClick=\"if (sendTextMessage('"+ buttonText +"', getUserId(this.form.receive_user"+i+".options[this.form.receive_user"+i+".selectedIndex].value))) SBPM.VM.executionVM.selectNextNode('"+ subjectid +"','"+ nodeedges[i]['end'] +"');\" /></td></tr>"
           } else {
             for(var x = 0; x < receiver.length; x++)
             TableInsert += "<tr><td align=\"center\">"+ nodeedges[i].target + "</td><td align=\"center\">"+ getUserName(receiver[x]) +"</td><td align=\"center\"><input type=\"button\" value=\""+buttonText.replace(/<br>/gi, " ")+"\" onClick=\"if (sendTextMessage('"+ buttonText +"','"+ receiver[x] +"')) SBPM.VM.executionVM.selectNextNode('"+ subjectid +"','"+ nodeedges[i]['end'] +"');\" /></tr>";
@@ -623,11 +623,11 @@ var CourseViewModel = function() {
   self.showView = function() {
     SBPM.VM.contentVM().activeViewIndex(0);
 
-    if(SBPM.Storage.get("inctanceStepNodeID")==null ||SBPM.Storage.get("inctanceStepSubjectID")==null ){
+    if(SBPM.Storage.get("inctanceStepNodeId")==null ||SBPM.Storage.get("inctanceStepSubjectId")==null ){
       SBPM.VM.contentVM().drawHistory(loadInstanceData(SBPM.Storage.get("instanceid")));
     }
     else{
-      SBPM.VM.contentVM().selectNextNode(SBPM.Storage.get("inctanceStepSubjectID"),SBPM.Storage.get("inctanceStepNodeID"));
+      SBPM.VM.contentVM().selectNextNode(SBPM.Storage.get("inctanceStepSubjectId"),SBPM.Storage.get("inctanceStepNodeId"));
     }
 
   }
