@@ -28,3 +28,5 @@ case class Action(id: Option[Int], data: String) // TODO extend this case class 
 // Model for DB Relations 
 case class GroupRole(groupId: Int, roleId: Int, isActive: Boolean = true)
 case class GroupUser(groupId: Int, userId: Int, isActive: Boolean = true)
+
+case class Activatable(isActive: Boolean = false)
