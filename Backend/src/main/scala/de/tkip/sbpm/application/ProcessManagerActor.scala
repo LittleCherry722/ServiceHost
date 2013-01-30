@@ -7,7 +7,7 @@ import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.persistence._
 
 protected case class RegisterSubjectProvider(userID: UserID,
-                                             subjectProvider: SubjectProviderRef)
+                                             subjectProviderActor: SubjectProviderRef)
 
 /**
  * manages all processes and creates new ProcessInstance's on demand
@@ -30,42 +30,16 @@ class ProcessManagerActor extends Actor {
   private lazy val persistenceActor = context.actorOf(Props[PersistenceActor], "persistenceActor")
 
   def receive = {
-
-    //    case sra: ExecuteRequestAll => {
-    //      sender ! ExecutedListAnswer(sra, processInstanceMap.keys)
-    //    }
-
-    //    case rp: ReadProcess => {
-    //      sender ! ReadProcessAnswer(rp, processDescritionMap(rp.processID))
-    //    }
     case register: RegisterSubjectProvider => {
-      subjectProviderMap += register.userID -> register.subjectProvider
+      subjectProviderMap += register.userID -> register.subjectProviderActor
     }
 
-    // modeling
-    // TODO kommt hier raus und zur datenbank im moment aber noch nicht
-    //    case cp: CreateProcess => {
-    //      val processModel: ProcessModel = ProcessModel(processCount, cp.processName, cp.processGraph)
-    //      processDescritionMap += processCount -> processModel
-    //      sender ! ProcessCreated(cp, processCount)
-    //      processCount += 1
-    //    }
-    // siehe create
-    //    case up: UpdateProcess => {
-    //      if (processDescritionMap.contains(up.processID)) {
-    //        processDescritionMap(up.processID) = up.processModel
-    //        UpdateSucess(up, true)
-    //      } else {
-    //        UpdateSucess(up, false)
-    //      }
-    //    }
-
-    //    case ur: UpdateRequest => {
-    //      //TODO Update mit actionID
-    //      sender ! UpdateAnswer(ur, true)
-    //    }
-
     // execution
+    case getAll: GetAllProcessInstanceIDs => {
+      sender !
+        AllProcessInstanceIDsAnswer(getAll, processInstanceMap.keys.toArray)
+    }
+
     case cp: CreateProcessInstance => {
       // TODO daten aus der datenbank holen
       // TODO hier checken ob der process existiert?

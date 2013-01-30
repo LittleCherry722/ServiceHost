@@ -42,16 +42,6 @@ sealed trait AnswerControlMessage extends ControlMessage with AnswerMessage
 // mit dem Namen "request"
 // damit man zurueckrouten kann
 
-// modeling TODO modeling ist eigentlich in der Datenbank(persistance actor)
-// request
-case class ReadProcess(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
-case class CreateProcess(userID: UserID, processName: String, processGraph: ProcessGraph) extends AnswerAbleControlMessage
-case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends AnswerAbleControlMessage
-//answers
-case class ReadProcessAnswer(request: ReadProcess, pm: ProcessModel) extends AnswerControlMessage
-case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends AnswerControlMessage
-case class UpdateSucess(request: UpdateProcess, sucess: Boolean) extends AnswerControlMessage
-
 // administration
 // request
 case class CreateSubjectProvider() extends AnswerAbleControlMessage
@@ -60,7 +50,9 @@ case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID
 
 // execution
 // request
+case class GetAllProcessInstanceIDs() extends AnswerAbleControlMessage
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
+// TODO => KillProcessInstance
 case class KillProcess(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
 // GetAvailableActions collects all actions for the user if subjectID == null, else the action for this subject
 case class GetAvailableActions(userID: UserID,
@@ -68,6 +60,7 @@ case class GetAvailableActions(userID: UserID,
                                subjectID: SubjectID = AllSubjects)
     extends AnswerAbleControlMessage with ExecutionMessage
 //answers
+case class AllProcessInstanceIDsAnswer(request: GetAllProcessInstanceIDs, processInstanceIDs: Array[ProcessInstanceID]) extends AnswerControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends AnswerControlMessage
 // availableActions: Array[(Int, AvailableAction)] = (actionID, AvailableAction)
 // => (userID:Int, actionID:Int, actionInput:String?) 
@@ -82,12 +75,24 @@ case class HistoryAnswer(request: GetHistory, h: History) extends AnswerControlM
 
 // TODO nochmal drueber schaun 
 //request
-// name -> GetAllProcessInstanceIDs, was genau zurueckgeben? alle processinstancen?, alle wo der user beteiligt ist?
-case class ExecuteRequestAll(userID: UserID) extends AnswerAbleControlMessage
 // = SubjectMessage.ExecuteAction, wo wandelt man es um?
 case class UpdateRequest(processID: ProcessID, actionID: String) extends AnswerAbleControlMessage
+
 //answers
-case class ExecutedListAnswer(era: ExecuteRequestAll, li: Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID]) extends AnswerAbleControlMessage
 case class UpdateAnswer(request: UpdateRequest, sucess: Boolean) extends AnswerControlMessage
 
+// !!! kommt bald raus / wird nicht unterstuetzt:
+// modeling TODO modeling ist eigentlich in der Datenbank(persistance actor)
+// request
+case class ReadProcess(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
+case class CreateProcess(userID: UserID, processName: String, processGraph: ProcessGraph) extends AnswerAbleControlMessage
+case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends AnswerAbleControlMessage
+//answers
+case class ReadProcessAnswer(request: ReadProcess, pm: ProcessModel) extends AnswerControlMessage
+case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends AnswerControlMessage
+case class UpdateSucess(request: UpdateProcess, sucess: Boolean) extends AnswerControlMessage
 
+// wurde unbenannt:
+// ExecuteRequestAll =rename> GetAllProcessInstanceIDs, was genau zurueckgeben? alle processinstancen?, alle wo der user beteiligt ist?
+case class ExecuteRequestAll(userID: UserID) extends AnswerAbleControlMessage
+case class ExecutedListAnswer(era: ExecuteRequestAll, li: Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID]) extends AnswerAbleControlMessage
