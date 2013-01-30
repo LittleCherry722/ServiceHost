@@ -50,7 +50,7 @@ case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID
 
 // execution
 // request
-case class GetAllProcessInstanceIDs() extends AnswerAbleControlMessage
+case class GetAllProcessInstanceIDs(userID: UserID = AllUser) extends AnswerAbleControlMessage
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
 // TODO => KillProcessInstance
 case class KillProcess(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
@@ -65,7 +65,7 @@ case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanc
 // availableActions: Array[(Int, AvailableAction)] = (actionID, AvailableAction)
 // => (userID:Int, actionID:Int, actionInput:String?) 
 case class AvailableActionsAnswer(request: GetAvailableActions, availableActions: Array[AvailableAction]) extends AnswerControlMessage
-case class KillProcessAnswer(request: KillProcess, sucess: Boolean) extends AnswerControlMessage
+case class KillProcessAnswer(request: KillProcess, success: Boolean) extends AnswerControlMessage
 
 // history
 // request
@@ -84,15 +84,15 @@ case class UpdateAnswer(request: UpdateRequest, sucess: Boolean) extends AnswerC
 // !!! kommt bald raus / wird nicht unterstuetzt:
 // modeling TODO modeling ist eigentlich in der Datenbank(persistance actor)
 // request
-case class ReadProcess(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
-case class CreateProcess(userID: UserID, processName: String, processGraph: ProcessGraph) extends AnswerAbleControlMessage
-case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends AnswerAbleControlMessage
-//answers
-case class ReadProcessAnswer(request: ReadProcess, pm: ProcessModel) extends AnswerControlMessage
-case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends AnswerControlMessage
-case class UpdateSucess(request: UpdateProcess, sucess: Boolean) extends AnswerControlMessage
+//case class ReadProcess(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
+//case class CreateProcess(userID: UserID, processName: String, processGraph: ProcessGraph) extends AnswerAbleControlMessage
+//case class UpdateProcess(processID: ProcessID, processName: String, processModel: ProcessModel) extends AnswerAbleControlMessage
+////answers
+//case class ReadProcessAnswer(request: ReadProcess, pm: ProcessModel) extends AnswerControlMessage
+//case class ProcessCreated(request: CreateProcess, processID: ProcessID) extends AnswerControlMessage
+//case class UpdateSucess(request: UpdateProcess, sucess: Boolean) extends AnswerControlMessage
 
 // wurde unbenannt:
 // ExecuteRequestAll =rename> GetAllProcessInstanceIDs, was genau zurueckgeben? alle processinstancen?, alle wo der user beteiligt ist?
-case class ExecuteRequestAll(userID: UserID) extends AnswerAbleControlMessage
-case class ExecutedListAnswer(era: ExecuteRequestAll, li: Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID]) extends AnswerAbleControlMessage
+//case class ExecuteRequestAll(userID: UserID) extends AnswerAbleControlMessage
+//case class ExecutedListAnswer(era: ExecuteRequestAll, li: Iterable[de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceID]) extends AnswerAbleControlMessage

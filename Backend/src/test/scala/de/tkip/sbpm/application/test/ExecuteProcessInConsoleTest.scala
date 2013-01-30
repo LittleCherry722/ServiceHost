@@ -1,7 +1,5 @@
 package de.tkip.sbpm.application.test
 
-//import org.junit._
-//import org.junit.Assert._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.Future
@@ -28,15 +26,15 @@ import akka.actor.ActorContext
  * Creates all actors
  */
 object createTestRunSystem {
-  def apply(): ActorSystem = {
+  def apply(): (ActorSystem, ActorRef) = {
     val system = ActorSystem()
 
     system.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
     system.actorOf(Props[ContextResolverActor], ActorLocator.contextResolverActorName)
     system.actorOf(Props[ProcessManagerActor], ActorLocator.processManagerActorName)
-    system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
+    val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
 
-    system
+    (system, subjectProviderManager)
   }
 }
 
@@ -125,6 +123,7 @@ object ExecuteProcessInConsoleTest {
 
   def testProcessAndSubjectCreationWithKonsole() {
     val parseJson = true
+    implicit val timeout = Timeout(5 seconds)
     var graph: ProcessGraph = null
     if (parseJson) {
       graph = parseGraph(MyJSONTestGraph.processGraph)
@@ -132,10 +131,8 @@ object ExecuteProcessInConsoleTest {
       graph = processGraph
     }
 
-    val system = createTestRunSystem()
+    val (system, _) = createTestRunSystem()
     val console = system.actorOf(Props(new FrontendSimulatorActor()))
-
-    implicit val timeout = Timeout(5 seconds)
 
     // Create the SubjectProvider for this user
     val future1 = console ? CreateSubjectProvider()
