@@ -287,6 +287,7 @@ define([
 		graph.routings( routings );
 		graph.processID( process.id() );
 		graph.save({ async: false });
+
 		process.graph( graph );
 		process.save(function() {
 			Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved");

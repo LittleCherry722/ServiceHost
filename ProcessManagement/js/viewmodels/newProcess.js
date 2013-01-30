@@ -13,10 +13,17 @@ define([
 	var ViewModel = function() {
 		var self = this;
 
-		currentProcess( new Process() );
+		currentProcess( new Process({ isCase: false, name: "" }) );
 
 		// The current process Name
-		this.processName = ko.observable("");
+		this.processName = ko.computed({
+			read: function() {
+				return currentProcess().name();
+			},
+			write: function( name ) {
+				currentProcess().name( name );
+			}
+		});
 
 		// Validate the model on every change
 		this.processName.subscribe(function() {
@@ -24,9 +31,13 @@ define([
 		});
 
 		// Is it a Process or a Case?
-		this.isCase = ko.observable( currentProcess().isCase() );
-		this.isCase.subscribe( function( newValue ) {
-			currentProcess().isCase( newValue );
+		this.isCase = ko.computed({
+			read: function() {
+				return currentProcess().isCase();
+			},
+			write: function( bool ){
+				currentProcess().isCase( bool );
+			}
 		});
 
 		// Returns the Process Type if called without arguments.
@@ -50,7 +61,9 @@ define([
 		});
 
 		// is this a valid process?
-		this.processValid = currentProcess().isValid;
+		this.processValid = ko.computed(function() {
+			return currentProcess().isValid;
+		});
 
 		// Should error messages be displayed?
 		// We choose to not display error messages if the name text field is empty,
@@ -131,8 +144,7 @@ define([
 	var initialize = function() {
 		var viewModel = new ViewModel();
 
-		// Bind the name of our process to the process name input field
-		currentProcess().name = viewModel.processName;
+		window.currentProcess = currentProcess;
 
 		App.loadTemplate( "newProcess", viewModel, null, function() {
 			App.loadTemplate( "newProcess/quickView", viewModel, "quick_table" );
@@ -145,86 +157,4 @@ define([
 		init: initialize
 	}
 });
-
-
-
-
-// var ViewModel = function() {
-//   var self = this;
-
-//   self.createCheck = function() {
-//     var process = self.processName();
-//     console.log("createCheck " + process);
-
-//     if(!process || process.length < 1) {
-//       SBPM.Notification.Warning('Warning', 'Please enter a name for the process!');
-//       return;
-//     }
-
-//     SBPM.Service.Process.deleteProcess(process);
-//     self.goToProcess(process);
-//   }
-
-//   self.goToProcess = function(process) {
-//     processVM = parent.SBPM.VM.goToPage("process");
-//     processVM.showProcess(process, null, null, self.isProcess());
-//     processVM.isProcess(self.isProcess());
-
-//     if(self.quickVM.displayTable()) {
-//       self.quickVM.createProcessFromTable();
-//     }
-
-//     // update list of recent processes
-//     parent.$.publish("/process/change");
-
-//     // close layer
-//     self.close();
-//   }
-// }
-
-// var QuickViewModel = function() {
-//   var self = this;
-
-
-//   //Checks if message is complete.
-//   self.completeMessage = function(mesOb) {
-//     var bool = false;
-
-//     if(mesOb.message != null && mesOb.message.replace(" ", "") != "" && mesOb.sender != null && mesOb.sender.name().replace(" ", "") != "" && mesOb.receiver != null && mesOb.receiver.name().replace(" ", "") != "")
-//       bool = true;
-//     return bool;
-//   }
-//   //Returns an array to be used in SBPM.Service.Process.createProcessFromTable.
-//   self.cleanMessages = function() {
-//     var array = new Array();
-//     for( i = self.messageList().length - 1; i >= 0; i--) {
-//       if(self.completeMessage(self.messageList()[i]))
-//         array.push(self.messageList()[i]);
-//     }
-//     for( i = array.length - 1; i >= 0; i--) {
-//       array[i].sender = array[i].sender.name().toLowerCase();
-//       array[i].receiver = array[i].receiver.name().toLowerCase();
-//     }
-//     for( i = array.length - 1; i >= 0; i--) {
-//       array[i] = {
-//         message : array[i].message,
-//         sender : array[i].sender,
-//         receiver : array[i].receiver
-//       };
-
-//     }
-
-//     return array;
-//   }
-//   //Returns an array to be used in SBPM.Service.Process.createProcessFromTable.
-//   self.cleanSubjects = function() {
-//     var array = new Array();
-//     for( i = self.subjectList().length - 1; i >= 0; i--) {
-//       if(self.subjectList()[i].name().replace(" ", "") != "" && self.subjectList()[i].name() != null)
-//         array[i] = self.subjectList()[i].name();
-
-//     }
-//     return array;
-//   }
-// }
 
