@@ -66,7 +66,7 @@ import akka.actor.Props
               graph <- future1.mapTo[Process]
               history <- future2.mapTo[History]
               actions <- future3.mapTo[AvailableActionsAnswer]
-            } yield JsObject("graph" -> graph.toJson, "history" -> history.toJson, "actions" -> actions.toJson)
+            } yield JsObject("graph" -> graph.toJson, "history" -> history.toJson, "actions" -> actions.availableActions.toJson)
 
             result onSuccess {
              case obj: JsObject =>
