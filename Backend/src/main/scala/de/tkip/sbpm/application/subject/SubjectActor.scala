@@ -14,7 +14,7 @@ import de.tkip.sbpm.model.StateType._
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
 class SubjectActor(userID: UserID,
-                   processInstanceRef: ProcessInstanceRef,
+                   processInstanceActor: ProcessInstanceRef,
                    subject: Subject) extends Actor {
 
   private val subjectID: SubjectID = subject.id
@@ -25,7 +25,7 @@ class SubjectActor(userID: UserID,
     context.actorOf(
       Props(
         new InternalBehaviorActor(
-          processInstanceRef,
+          processInstanceActor,
           subject.id,
           userID,
           inputPoolActor)))

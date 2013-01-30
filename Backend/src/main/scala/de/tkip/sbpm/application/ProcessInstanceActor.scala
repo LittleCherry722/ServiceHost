@@ -54,7 +54,7 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
   val graph: ProcessGraph = parseGraph(graphString)
 
   // TODO wie uebergeben?
-  private val contextResolver = context.actorOf(Props(new ContextResolverActor))
+  private lazy val contextResolver = ActorLocator.contextResolverActor
 
   // this pool stores the message to the subject, which does not exist,
   // but will be created soon (the UserID is requested)

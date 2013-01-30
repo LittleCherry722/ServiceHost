@@ -20,6 +20,25 @@ import spray.json._
 import de.tkip.sbpm.rest.test.MyJSONTestGraph
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.persistence.TestPersistenceActor
+import ActorLocator._
+import akka.actor.ActorContext
+import akka.actor.ActorContext
+
+/**
+ * Creates all actors
+ */
+object createTestRunSystem {
+  def apply(): ActorSystem = {
+    val system = ActorSystem()
+
+    system.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
+    system.actorOf(Props[ContextResolverActor], ActorLocator.contextResolverActorName)
+    system.actorOf(Props[ProcessManagerActor], ActorLocator.processManagerActorName)
+    system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
+
+    system
+  }
+}
 
 object ExecuteProcessInConsoleTest {
 
@@ -48,14 +67,17 @@ object ExecuteProcessInConsoleTest {
   /**
    * This class simulates the frontentinterfaceactor and runs by the console
    */
-  class FrontendSimulatorActor(subjectProviderManager: SubjectProviderManagerRef) extends Actor {
+  class FrontendSimulatorActor() extends Actor {
+
+    private lazy val subjectProviderManagerActor =
+      ActorLocator.subjectProviderManagerActor
 
     def receive = {
 
       case a: ExecuteActionAnswer =>
         println("FE - action executed: " + a)
         Thread.sleep(100)
-        subjectProviderManager ! GetAvailableActions(a.request.userID, a.request.processInstanceID)
+        subjectProviderManagerActor ! GetAvailableActions(a.request.userID, a.request.processInstanceID)
 
       case AvailableActionsAnswer(request, available) =>
         if (available.isEmpty) {
@@ -67,6 +89,9 @@ object ExecuteProcessInConsoleTest {
 
       case a: AvailableAction =>
         executeAction(a)
+
+      case message: AnswerAbleControlMessage =>
+        subjectProviderManagerActor.forward(message)
 
       case s =>
         println("FE received: " + s)
@@ -80,10 +105,10 @@ object ExecuteProcessInConsoleTest {
           while (!avail.actionData.contains(action)) {
             action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
           }
-          subjectProviderManager ! ExecuteAction(avail, action)
+          subjectProviderManagerActor ! ExecuteAction(avail, action)
         case SendStateType =>
           val message = readLine("Please insert message: ")
-          subjectProviderManager ! ExecuteAction(avail, message)
+          subjectProviderManagerActor ! ExecuteAction(avail, message)
         case ReceiveWaitingStateType => {
           readLine("I am waiting for a message...")
           // always ask again if there is a new action for this subject
@@ -91,7 +116,7 @@ object ExecuteProcessInConsoleTest {
         }
         case ReceiveStateType =>
           val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
-          subjectProviderManager ! ExecuteAction(avail, "")
+          subjectProviderManagerActor ! ExecuteAction(avail, "")
         case EndStateType =>
           println("Subject terminated: " + avail.subjectID)
       }
@@ -107,48 +132,30 @@ object ExecuteProcessInConsoleTest {
       graph = processGraph
     }
 
-    val system = ActorSystem("TextualEpassIos")
-    val processManager = system.actorOf(Props[ProcessManagerActor], ActorLocator.processManagerActorName)
-    val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
-    val testPersistence = system.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
-    val console = system.actorOf(Props(new FrontendSimulatorActor(subjectProviderManager)))
+    val system = createTestRunSystem()
+    val console = system.actorOf(Props(new FrontendSimulatorActor()))
 
     implicit val timeout = Timeout(5 seconds)
 
     // Create the SubjectProvider for this user
-    val future1 = subjectProviderManager ? CreateSubjectProvider()
+    val future1 = console ? CreateSubjectProvider()
     val userID: Int =
       Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
-
     println("User Created id: " + userID)
-
-    // Create a Process using the ProcessModel
-    //    val future2 = subjectProviderManager ? CreateProcess(userID, "my process", graph)
-    //    val processID: Int =
-    //      Await.result(future2, timeout.duration).asInstanceOf[ProcessCreated].processID
-
-    //    println("Process(Model) Created id: " + processID)
 
     val processID = 2
     // Execute the ProcessInstance
-    val future3 = subjectProviderManager ? CreateProcessInstance(userID, processID)
+    val future3 = console ? CreateProcessInstance(userID, processID)
     val processInstanceID: Int =
       Await.result(future3, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
 
     println("ProcessInstance Executed id: " + processInstanceID)
 
-    //    if (parseJson) {
-    //      processManager ! ((processInstanceID, AddSubject(userID, "Subj1")))
-    //    } else {
-    //      processManager ! ((processInstanceID, AddSubject(0, "Employee")))
-    //    }
-
     // increase the sleeping time, if it does not work
     Thread.sleep(2000)
     println("Start First Request.")
 
-    subjectProviderManager.!(
-      GetAvailableActions(userID, processInstanceID))(console)
+    console.!(GetAvailableActions(userID, processInstanceID))(console)
 
   }
 
