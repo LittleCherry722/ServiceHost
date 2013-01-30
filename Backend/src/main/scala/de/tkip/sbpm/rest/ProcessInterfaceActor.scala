@@ -78,11 +78,14 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         // CREATE
         path("") {
           formField("id", "name", "graph", "isCase") { (id, name, graph, isCase) =>
-            val future = subjectProviderManagerActor ? CreateProcess(id.toInt, name, graph.asInstanceOf[ProcessGraph])
+
+            val future = ActorLocator.persistenceActor ? SaveProcess(Process(None, name))
+            val processID = future.mapTo[Int]
+            val future1 = ActorLocator.persistenceActor ? SaveGraph(Graph(None, graph, new java.sql.Timestamp(System.currentTimeMillis()), processID.asInstanceOf[Int]))
             val result = future.mapTo[Int]
             result onSuccess {
               case id: Int =>
-                val obj = JsObject("InstanceID" -> id.toJson)
+                val obj = JsObject("processID" -> id.toJson)
                 complete(StatusCodes.Created, obj)
             }
             result onFailure {
@@ -90,6 +93,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
                 complete(StatusCodes.InternalServerError)
             }
             complete(StatusCodes.InternalServerError)
+
           }
         }
       } ~
@@ -113,23 +117,18 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         //UPDATE
         path(IntNumber) { processID =>
           formField("id", "name", "graph", "isCase") { (id, name, graph, isCase) =>
-            entity(as[ProcessModel]) { graph =>
               //execute next step (chosen by actionID)
-              val future = subjectProviderManagerActor ? UpdateProcess(processID.toInt, name, graph)
-              val result = future.mapTo[Boolean]
-              result onSuccess {
-                case obj: Boolean =>
-                  if (obj)
-                    complete(StatusCodes.OK)
-                  else
-                    complete(StatusCodes.InternalServerError)
-              }
-              result onFailure {
-                case _ =>
-                  complete(StatusCodes.InternalServerError)
-              }
-              complete(StatusCodes.InternalServerError)
+            val future = ActorLocator.persistenceActor ? SaveGraph(Graph(Option[Int](id.toInt), graph, new java.sql.Timestamp(System.currentTimeMillis()), processID.asInstanceOf[Int]))
+            val result = future.mapTo[Int]
+            result onSuccess {
+              case id: Int =>
+                complete(StatusCodes.OK)
             }
+            result onFailure {
+              case _ =>
+                complete(StatusCodes.InternalServerError)
+            }
+            complete(StatusCodes.InternalServerError)
           }
         }
       }
