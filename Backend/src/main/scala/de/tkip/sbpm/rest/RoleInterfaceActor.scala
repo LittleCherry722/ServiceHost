@@ -43,24 +43,66 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
         completeWithQuery[Seq[Role]](GetRole())
       } ~
         /**
-         * get role by id
+         * get a list of all group <> role associations
          *
-         * e.g. GET http://localhost:8080/role/2
-         * result: 404 Not Found or entity as JSON
+         * e.g. GET http://localhost:8080/role/group
+         * result: JSON array of entities
          */
-        path(IntNumber) { id: Int =>
-          completeWithQuery[Role](GetRole(Some(id)), "Role with id %d not found.", id)
+        path(Entity.GROUP) {
+          completeWithQuery[Seq[GroupRole]](GetGroupRole())
+        } ~
+        pathPrefix(IntNumber) { id: Int =>
+          /**
+           * get role by id
+           *
+           * e.g. GET http://localhost:8080/role/2
+           * result: 404 Not Found or entity as JSON
+           */
+          path("") {
+            completeWithQuery[Role](GetRole(Some(id)), "Role with id %d not found.", id)
+          } ~
+            /**
+             * get all groups of the role
+             *
+             * e.g. GET http://localhost:8080/role/8/group
+             * result: JSON array of entities
+             */
+            pathPrefix(Entity.GROUP) {
+              path("") {
+                completeWithQuery[Seq[GroupRole]](GetGroupRole(None, Some(id)))
+              } ~
+                /**
+                 * get a specific group mapping of the role
+                 *
+                 * e.g. GET http://localhost:8080/role/8/group/2
+                 * result: JSON of entity
+                 */
+                path(IntNumber) { groupId =>
+                  completeWithQuery[GroupRole](GetGroupRole(Some(groupId), Some(id)), "Role with id %d has no group with id %d.", id, groupId)
+                }
+            }
         }
     } ~
       delete {
-        /**
-         * delete a role
-         *
-         * e.g. DELETE http://localhost:8080/role/12
-         * result: 204 No Content
-         */
-        path(IntNumber) { id =>
-          completeWithDelete(DeleteRole(id), "Role could not be deleted. Entity with id %d not found.", id)
+        pathPrefix(IntNumber) { id =>
+          /**
+           * delete a role
+           *
+           * e.g. DELETE http://localhost:8080/role/12
+           * result: 204 No Content
+           */
+          path("") {
+            completeWithDelete(DeleteRole(id), "Role could not be deleted. Entity with id %d not found.", id)
+          } ~
+            /**
+             * delete a group of the role
+             *
+             * e.g. DELETE http://localhost:8080/role/8/group/1
+             * result: 204 No Content
+             */
+            path(Entity.GROUP / IntNumber) { groupId =>
+              completeWithDelete(DeleteGroupRole(groupId, id), "Group could not be removed from role. Role with id %d has no group with id %d.", id, groupId)
+            }
         }
       } ~
       post {
@@ -80,18 +122,31 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
         }
       } ~
       put {
-        /**
-         * update existing role
-         *
-         * e.g. PUT http://localhost:8080/role/2
-         * payload: { "name": "abc", "isActive": true }
-         * result: 	200 OK
-         * 			{ "id": 2, "name": "abc", "isActive": true }
-         */
-        path(IntNumber) { id =>
-          entity(as[Role]) { role =>
-            save(role, Some(id))
-          }
+        pathPrefix(IntNumber) { id =>
+          /**
+           * update existing role
+           *
+           * e.g. PUT http://localhost:8080/role/2
+           * payload: { "name": "abc", "isActive": true }
+           * result: 	200 OK
+           * 			{ "id": 2, "name": "abc", "isActive": true }
+           */
+          path("") {
+            entity(as[Role]) { role =>
+              save(role, Some(id))
+            }
+          } ~
+            /**
+             * add role to a group
+             *
+             * e.g. PUT http://localhost:8080/role/2/group/2
+             * 	result: 201 Created or 200 OK
+             * 			{ "groupId": 2, "roleId": 2, "isActive": true }
+             */
+            path(Entity.GROUP / IntNumber) { groupId: Int =>
+              val groupRole = GroupRole(groupId, id)
+              saveGroup(groupRole)
+            }
         }
       }
   })
@@ -99,7 +154,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
   /**
    * Save given entity with given id to database.
    * id = None -> new entity
-   * completes with either 201 or 200 
+   * completes with either 201 or 200
    */
   def save(entity: Role, id: Option[Int] = None) = {
     // set param from url to entity id 
@@ -107,7 +162,20 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
     entity.id = id
     completeWithSave(SaveRole(entity),
       entity,
-       pathForEntity(Entity.ROLE, "%d"),
+      pathForEntity(Entity.ROLE, "%d"),
       (e: Role, i: Int) => { e.id = Some(i); e })
   }
+
+  /**
+   * Save role <> group association.
+   * completes with either 201 or 200
+   */
+  def saveGroup(groupRole: GroupRole) =
+    completeWithSave[GroupRole, (Int, Int)](
+      SaveGroupRole(groupRole),
+      groupRole,
+      pathForEntity(Entity.ROLE, "%d") + pathForEntity(Entity.GROUP, "%d"),
+      (entity, id) => GroupRole(id._1, id._2, entity.isActive),
+      (id) => Array(id._2, id._1))
+
 }

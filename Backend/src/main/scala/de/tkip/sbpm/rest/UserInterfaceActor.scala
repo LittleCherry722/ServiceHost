@@ -128,20 +128,17 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
         }
       } ~
       put {
-        /**
-         * update existing user
-         *
-         * e.g. PUT http://localhost:8080/user/2/group/2
-         * 	parameter: isActive=true
-         * 	result: 201 Created or 200 OK
-         * 			{ "groupId": 2, "userId": 2, "isActive": true }
-         */
         pathPrefix(IntNumber) { id =>
+          /**
+           * add user to a group
+           *
+           * e.g. PUT http://localhost:8080/user/2/group/2
+           * 	result: 201 Created or 200 OK
+           * 			{ "groupId": 2, "userId": 2, "isActive": true }
+           */
           path(Entity.GROUP / IntNumber) { groupId: Int =>
-            formField("isActive".as[Boolean]) { isActive: Boolean =>
-              val groupUser = GroupUser(groupId, id, isActive)
-              saveGroup(groupUser)
-            }
+            val groupUser = GroupUser(groupId, id)
+            saveGroup(groupUser)
           } ~
             /**
              * update existing user
@@ -185,5 +182,5 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
       groupUser,
       pathForEntity(Entity.USER, "%d") + pathForEntity(Entity.GROUP, "%d"),
       (entity, id) => GroupUser(id._1, id._2, entity.isActive),
-      (id) => Array(id._1, id._2))
+      (id) => Array(id._2, id._1))
 }
