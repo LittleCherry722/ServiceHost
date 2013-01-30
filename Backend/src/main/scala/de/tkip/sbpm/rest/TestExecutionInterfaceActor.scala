@@ -24,12 +24,13 @@ import spray.httpx.marshalling.Marshaller
 import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
 import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
 import akka.actor.Props
+import de.tkip.sbpm.persistence.GetProcess
 
 /**
  * This Actor is only used to process "get" REST calls regarding "execution" mixed with the debug trait
  */
- class TestExecutionInterfaceActor extends Actor with HttpService {
- implicit val timeout = Timeout(5 seconds)
+class TestExecutionInterfaceActor extends Actor with HttpService {
+  implicit val timeout = Timeout(5 seconds)
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -56,33 +57,34 @@ import akka.actor.Props
       get {
         //READ
         path(IntNumber) { processID =>
-            //return all information for a given process (graph, next actions (unique ID per available action), history)
-            implicit val timeout = Timeout(5 seconds)
-            val future1 = subjectProviderManager ? new ReadProcess(userId.toInt, processID.toInt) with Debug
-            val future2 = subjectProviderManager ? new GetHistory(userId.toInt, processID.toInt) with Debug
-            val future3 = subjectProviderManager ? new GetAvailableActions(userId.toInt, processID.toInt) with Debug
+          //return all information for a given process (graph, next actions (unique ID per available action), history)
+          implicit val timeout = Timeout(5 seconds)
+          //          val future1 = subjectProviderManager ? new GetProcess(Some(processID.toInt)) with Debug
+          val future2 = subjectProviderManager ? new GetHistory(userId.toInt, processID.toInt) with Debug
+          val future3 = subjectProviderManager ? new GetAvailableActions(userId.toInt, processID.toInt) with Debug
 
-            val result = for {
-              graph <- future1.mapTo[Process]
-              history <- future2.mapTo[History]
-              actions <- future3.mapTo[AvailableActionsAnswer]
-            } yield JsObject("graph" -> graph.toJson, "history" -> history.toJson, "actions" -> actions.availableActions.toJson)
+          val result = for {
+            // TODO result of GetProcess (look up at ExecutionInterfaceActor)
+            //            graph <- future1.mapTo[Process]
+            history <- future2.mapTo[History]
+            actions <- future3.mapTo[AvailableActionsAnswer]
+          } yield JsObject("history" -> history.toJson, "actions" -> actions.availableActions.toJson)
 
-            result onSuccess {
-             case obj: JsObject =>
-             complete(StatusCodes.OK, obj)
-            }
-            complete(StatusCodes.InternalServerError.toString)
-         } ~
-         //LIST
+          result onSuccess {
+            case obj: JsObject =>
+              complete(StatusCodes.OK, obj)
+          }
+          complete(StatusCodes.InternalServerError.toString)
+        } ~
+          //LIST
           path("") {
             //List all executed process (for a given user)
             implicit val timeout = Timeout(5 seconds)
-            val future = subjectProviderManager ? new ExecuteRequestAll(userId.toInt) with Debug 
+            val future = subjectProviderManager ? new GetAllProcessInstanceIDs(userId.toInt) with Debug
 
             val result = for {
-              instanceids <- future.mapTo[Int]
-            } yield JsArray(instanceids.toJson)
+              instanceids <- future.mapTo[AllProcessInstanceIDsAnswer]
+            } yield JsArray(instanceids.processInstanceIDs.toJson)
 
             result onSuccess {
               case array: JsArray =>
@@ -91,9 +93,7 @@ import akka.actor.Props
 
             complete(StatusCodes.InternalServerError.toString)
           }
-
       }
-
     }
   })
 

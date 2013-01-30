@@ -14,10 +14,6 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor extends Actor {
-  //  // the process descriptions
-  //  private var processCount = 0
-  //  private val processDescritionMap = collection.mutable.Map[ProcessID, ProcessModel]()
-
   // the process instances aka the processes in the execution
   private var processInstanceCount = 0
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceRef]()
@@ -129,29 +125,4 @@ class ProcessManagerActor extends Actor {
         " but does not exist, " + message)
     }
   }
-
-  /**
-   * creates a new processInstanceActor and registers it with the given processID (overrides the old entry)
-   */
-  //  private def createNewProcessInstance(processInstanceID: ProcessInstanceID, processModel: ProcessModel) = {
-  //    // TODO wenn processId nicht ovrhanden gibt es einen Fehler
-  //    val processInstance =
-  //      context.actorOf(
-  //        Props(
-  //          new ProcessInstanceActor(
-  //            processInstanceCount,
-  //            processModel)))
-  //    processInstanceMap += processInstanceCount -> processInstance
-  //    processInstance
-  //  }
-
-  /**
-   * kills the processInstanceActor with the given processID and unregisters it
-   */
-  //  private def killProcessInstance(processInstanceID: ProcessInstanceID) = {
-  //    if (processInstanceMap.contains(processInstanceID)) {
-  //      context.stop(processInstanceMap(processInstanceID))
-  //      processInstanceMap -= processInstanceID
-  //    }
-  //  }
 }
