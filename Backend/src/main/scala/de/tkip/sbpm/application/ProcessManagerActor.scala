@@ -5,6 +5,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.persistence._
+import de.tkip.sbpm.ActorLocator
 
 protected case class RegisterSubjectProvider(userID: UserID,
                                              subjectProviderActor: SubjectProviderRef)
@@ -27,7 +28,7 @@ class ProcessManagerActor extends Actor {
 
   // initialize persistence actors
   private lazy val testPersistenceActor = context.actorOf(Props[TestPersistenceActor], "testPersistenceActor")
-  private lazy val persistenceActor = context.actorOf(Props[PersistenceActor], "persistenceActor")
+  private lazy val persistenceActor = ActorLocator.persistenceActor
 
   def receive = {
     case register: RegisterSubjectProvider => {
