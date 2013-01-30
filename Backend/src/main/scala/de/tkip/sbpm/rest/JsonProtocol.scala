@@ -82,6 +82,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val groupFormat = jsonFormat3(Group)
   implicit val groupUserFormat = jsonFormat3(GroupUser)
   implicit val groupRoleFormat = jsonFormat3(GroupRole)
+  implicit val activatableFormat = jsonFormat1(Activatable)
 
   //DomainModel
   implicit val domainGraphFormat = jsonFormat4(Graph)
