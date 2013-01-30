@@ -53,7 +53,8 @@ case class ExecuteActionAnswer(request: ExecuteAction) extends AnswerMessage
 
 object ExecuteAction {
   def apply(available: AvailableAction, actionInput: String): ExecuteAction =
-    ExecuteAction(available.userID,
+    ExecuteAction(
+      available.userID,
       available.processInstanceID,
       available.subjectID,
       available.stateID,

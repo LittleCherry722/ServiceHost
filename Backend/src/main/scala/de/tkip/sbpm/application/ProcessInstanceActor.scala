@@ -1,14 +1,22 @@
 package de.tkip.sbpm.application
 
-import akka.actor._
-import miscellaneous._
-import miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.ProcessModel
-import de.tkip.sbpm.model.Subject
 import java.util.Date
 import scala.collection.mutable.Buffer
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent._
+import scala.concurrent.Future._
+import scala.concurrent.duration._
+import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.model.ProcessModel
+import de.tkip.sbpm.model.ProcessGraph
+import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.application.subject._
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.persistence._
 
 // message to get history of project instance
 //case class GetHistory()
@@ -20,41 +28,33 @@ case class History(processName: String,
                    var processEnded: Date = null, // null if not started or still running
                    entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
-// sub package for history related classes
-package history {
-  // represents an entry in the history (a state transition inside a subject)
-  case class Entry(timestamp: Date, // time transition occurred
-                   subject: String, // respective subject
-                   fromState: State = null, // transition initiating state (null if start state)
-                   toState: State, // end state of transition
-                   message: Message = null) // message that was sent in transition (null if none)
-  // describes properties of a state
-  case class State(name: String, stateType: String)
-  // message exchanged in a state transition
-  case class Message(id: Int,
-                     messageType: String,
-                     from: String, // sender subject of message
-                     to: String, // receiver subject of message 
-                     data: String, // link to msg payload
-                     files: Seq[MessagePayloadLink] = null) // link to file attachments
-  // represents a link to a message payload which contains a actor ref 
-  // and a payload id that is needed by that actor to identify payload
-  case class MessagePayloadLink(actor: ActorRef, payloadId: String)
-  // this message can be sent to message payload providing actors referenced in
-  // message payload link to retrieve actual payload
-  case class GetMessagePayload(messageId: Int, payloadId: String)
-}
-
 // TODO hier lassen oder woanders hin?
 case class AddSubject(userID: UserID, subjectID: SubjectID)
 
 /**
  * instantiates SubjectActor's and manages their interactions
  */
-class ProcessInstanceActor(id: ProcessInstanceID, process: ProcessModel) extends Actor {
+class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends Actor {
+
+  protected implicit val timeout = Timeout(10 seconds)
+
+  //  val future = ActorLocator.persistenceActor ? GetProcess(Some(2))
+  //  val future = ActorLocator.persistenceActor ? GetProcess(Some(processID))
+  // TODO irgentwie bekommt man dann die id
+  // get and unmarshall the graph
+
+  val processName = "MyProcess"
+  val startSubject: String = "Subj1" // TODO wie bekommen?
+
+  val graphID = 2
+  val graphFuture = ActorLocator.persistenceActor ? GetGraph(Some(graphID))
+  // TODO mit Await oder irgentwie anders?
+  val graphString = Await.result(graphFuture, timeout.duration).asInstanceOf[String]
+
+  val graph: ProcessGraph = parseGraph(graphString)
 
   // TODO wie uebergeben?
-  private val contextResolver = context.actorOf(Props(new ContextResolverActor))
+  private lazy val contextResolver = ActorLocator.contextResolverActor
 
   // this pool stores the message to the subject, which does not exist,
   // but will be created soon (the UserID is requested)
@@ -66,9 +66,13 @@ class ProcessInstanceActor(id: ProcessInstanceID, process: ProcessModel) extends
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
   // history.Entry messages to this actor
-  private val executionHistory = History(process.name, id, new Date()) // TODO start time = creation time?
+  private val executionHistory = History(processName, id, new Date()) // TODO start time = creation time?
   // provider actor for debug payload used in history's debug data
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
+
+  // add the first subject
+  contextResolver !
+    RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
 
   def receive = {
 
@@ -95,7 +99,7 @@ class ProcessInstanceActor(id: ProcessInstanceID, process: ProcessModel) extends
 
       // inform the subject provider about his new subject
       context.parent !
-        SubjectCreated(as.userID, process.processID, id, subject.id, subjectRef)
+        SubjectCreated(as.userID, processID, id, subject.id, subjectRef)
 
       // start the execution of the subject
       subjectRef ! StartSubjectExecution()
@@ -121,9 +125,9 @@ class ProcessInstanceActor(id: ProcessInstanceID, process: ProcessModel) extends
     case msg: GetHistory => {
       sender ! {
         if (msg.isInstanceOf[Debug]) {
-          HistoryTestData.generate(process.name, id)(debugMessagePayloadProvider)
+          HistoryTestData.generate(processName, id)(debugMessagePayloadProvider)
         } else {
-          executionHistory
+          HistoryAnswer(msg, executionHistory)
         }
       }
     }
@@ -165,6 +169,6 @@ class ProcessInstanceActor(id: ProcessInstanceID, process: ProcessModel) extends
 
   private def getSubject(name: String): Subject = {
     // TODO increase performance
-    process.subjects.find(_.id == name).get
+    graph.subjects.find(_.id == name).get
   }
 }

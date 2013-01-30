@@ -18,22 +18,11 @@ import de.tkip.sbpm.model.StateType._
 protected abstract class BehaviorStateActor(val stateID: StateID,
                                             val stateAction: StateAction,
                                             transitions: Array[Transition],
-                                            internalBehavior: InternalBehaviorRef,
+                                            internalBehaviorActor: InternalBehaviorRef,
                                             processInstance: ProcessInstanceRef,
                                             subjectID: SubjectID,
                                             userID: UserID, // TODO braucht ma, 
-                                            inputpool: ActorRef) extends Actor {
-
-  //  for (i <- 0 until transitions.length) yield {
-  //    if (transitions(i).successorID.isEmpty()) {
-  //      transitions(i) =
-  //        Transition(
-  //          transitions(i).messageType,
-  //          transitions(i).subjectName,
-  //          stateID + ".br" + (i + 1).toString())
-  //    }
-  //  } // br for branch 
-
+                                            inputPoolActor: ActorRef) extends Actor {
   /**
    *
    * @return
@@ -70,25 +59,25 @@ protected abstract class BehaviorStateActor(val stateID: StateID,
 
 protected case class StartStateActor(id: StateID,
                                      transition: Transition,
-                                     internalBehavior: InternalBehaviorRef,
+                                     internalBehaviorActor: InternalBehaviorRef,
                                      processInstance: ProcessInstanceRef,
                                      subjectID: SubjectID,
                                      userID: UserID,
-                                     inputpool: ActorRef)
+                                     inputPoolActor: ActorRef)
     extends BehaviorStateActor(id,
       "Start of Behavior",
       Array[Transition](transition),
-      internalBehavior,
+      internalBehaviorActor,
       processInstance,
       subjectID,
       userID,
-      inputpool) {
+      inputPoolActor) {
 
   println("Start@" + userID + ", " + subjectID)
 
   override def receive = {
     case ea: StartSubjectExecution => {
-      internalBehavior ! NextState(transition.successorID)
+      internalBehaviorActor ! NextState(transition.successorID)
     }
 
     case s => {
@@ -101,22 +90,22 @@ protected case class StartStateActor(id: StateID,
 }
 
 protected case class EndStateActor(id: StateID,
-                                   internalBehavior: InternalBehaviorRef,
+                                   internalBehaviorActor: InternalBehaviorRef,
                                    processInstance: ProcessInstanceRef,
                                    subjectID: SubjectID,
                                    userID: UserID,
-                                   inputpool: ActorRef)
+                                   inputPoolActor: ActorRef)
     extends BehaviorStateActor(id,
       "End of Behavior: ",
       Array[Transition](),
-      internalBehavior,
+      internalBehaviorActor,
       processInstance,
       subjectID,
       userID,
-      inputpool) {
+      inputPoolActor) {
 
   // TODO direct beenden?
-  internalBehavior ! SubjectTerminated(userID, subjectID)
+  internalBehaviorActor ! SubjectTerminated(userID, subjectID)
 
   override protected def getAvailableAction: (StateType, Array[String]) =
     (EndStateType, Array())
@@ -125,19 +114,19 @@ protected case class EndStateActor(id: StateID,
 protected case class ActStateActor(id: StateID,
                                    action: StateAction,
                                    transitions: Array[Transition],
-                                   internalBehavior: InternalBehaviorRef,
+                                   internalBehaviorActor: InternalBehaviorRef,
                                    processInstance: ProcessInstanceRef,
                                    subjectID: SubjectID,
                                    userID: UserID,
-                                   inputpool: ActorRef)
+                                   inputPoolActor: ActorRef)
     extends BehaviorStateActor(id,
       action,
       transitions,
-      internalBehavior,
+      internalBehaviorActor,
       processInstance,
       subjectID,
       userID,
-      inputpool) { // ActState = ActionState
+      inputPoolActor) { // ActState = ActionState
 
   override def receive = {
 
@@ -145,7 +134,7 @@ protected case class ActStateActor(id: StateID,
       val index = indexOfInput(ea.actionInput)
       if (index != -1) {
         sender ! ExecuteActionAnswer(ea)
-        internalBehavior ! NextState(transitions(index).successorID)
+        internalBehaviorActor ! NextState(transitions(index).successorID)
       } else {
         // invalid input
         sender ! ExecuteActionAnswer(ea)
@@ -174,32 +163,32 @@ protected case class ActStateActor(id: StateID,
 
 protected case class ReceiveStateActor(s: StateID,
                                        transitions: Array[Transition],
-                                       internalBehavior: InternalBehaviorRef,
+                                       internalBehaviorActor: InternalBehaviorRef,
                                        processInstance: ProcessInstanceRef,
                                        subjectID: SubjectID,
                                        userID: UserID,
-                                       inputpool: ActorRef)
+                                       inputPoolActor: ActorRef)
     extends BehaviorStateActor(s,
       "ReceiveAction",
       transitions,
-      internalBehavior,
+      internalBehaviorActor,
       processInstance,
       subjectID,
       userID,
-      inputpool) {
+      inputPoolActor) {
 
   var messageContent: String = ""
   var stateType: StateType = ReceiveWaitingStateType
 
   // request if there is a message for this subject
-  inputpool !
+  inputPoolActor !
     RequestForMessages(transitions.map(convertTransitionToRequest(_)))
 
   override def receive = {
     case ea: ExecuteAction => {
       if (!transitions.isEmpty) {
         sender ! ExecuteActionAnswer(ea)
-        internalBehavior ! NextState(transitions(0).successorID)
+        internalBehaviorActor ! NextState(transitions(0).successorID)
       }
     }
 
@@ -228,19 +217,19 @@ protected case class ReceiveStateActor(s: StateID,
 
 protected case class SendStateActor(s: StateID,
                                     transitions: Array[Transition],
-                                    internalBehavior: InternalBehaviorRef,
+                                    internalBehaviorActor: InternalBehaviorRef,
                                     processInstance: ProcessInstanceRef,
                                     subjectID: SubjectID,
                                     userID: UserID,
-                                    inputpool: ActorRef)
+                                    inputPoolActor: ActorRef)
     extends BehaviorStateActor(s,
       "SendAction",
       transitions,
-      internalBehavior,
+      internalBehaviorActor,
       processInstance,
       subjectID,
       userID,
-      inputpool) {
+      inputPoolActor) {
 
   // TODO mehrere nachrichten gleichzeitig?
   val messageName = transitions(0).messageType
@@ -260,7 +249,7 @@ protected case class SendStateActor(s: StateID,
 
     // TODO stored vielleicht besser spezifizieren
     case Stored => {
-      internalBehavior ! NextState(sucessorID)
+      internalBehaviorActor ! NextState(sucessorID)
     }
 
     case s => {

@@ -9,7 +9,7 @@ import de.tkip.sbpm.model._
 /**
  * contains the business logic that will be modeled by the graph
  */
-class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
+class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
                             subjectID: SubjectID,
                             userID: UserID,
                             inputPoolActor: ActorRef) extends Actor {
@@ -86,26 +86,26 @@ class InternalBehaviorActor(processInstanceRef: ProcessInstanceRef,
     state.stateType match {
       case StartStateType => if (state.transitions.size == 1) {
         context.actorOf(Props(
-          StartStateActor(state.id, state.transitions(0), self, processInstanceRef, subjectID, userID, inputPoolActor)))
+          StartStateActor(state.id, state.transitions(0), self, processInstanceActor, subjectID, userID, inputPoolActor)))
       } else {
         throw new IllegalArgumentException("Startstates may only have 1 Transition")
       }
       // TODO state action?
       case ActStateType =>
         context.actorOf(Props(
-          ActStateActor(state.id, state.name, state.transitions, self, processInstanceRef, subjectID, userID, inputPoolActor)))
+          ActStateActor(state.id, state.name, state.transitions, self, processInstanceActor, subjectID, userID, inputPoolActor)))
 
       case SendStateType =>
         context.actorOf(Props(
-          SendStateActor(state.id, state.transitions, self, processInstanceRef, subjectID, userID, inputPoolActor)))
+          SendStateActor(state.id, state.transitions, self, processInstanceActor, subjectID, userID, inputPoolActor)))
 
       case ReceiveStateType =>
         context.actorOf(Props(
-          ReceiveStateActor(state.id, state.transitions, self, processInstanceRef, subjectID, userID, inputPoolActor)))
+          ReceiveStateActor(state.id, state.transitions, self, processInstanceActor, subjectID, userID, inputPoolActor)))
 
       case EndStateType =>
         context.actorOf(Props(
-          EndStateActor(state.id, self, processInstanceRef, subjectID, userID, inputPoolActor)))
+          EndStateActor(state.id, self, processInstanceActor, subjectID, userID, inputPoolActor)))
     }
   }
 }
