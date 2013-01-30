@@ -19,6 +19,7 @@ import de.tkip.sbpm.application.subject._
 import spray.json._
 import de.tkip.sbpm.rest.test.MyJSONTestGraph
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.persistence.TestPersistenceActor
 
 object ExecuteProcessInConsoleTest {
 
@@ -98,10 +99,10 @@ object ExecuteProcessInConsoleTest {
   }
 
   def testProcessAndSubjectCreationWithKonsole() {
-    val parseJson = false
+    val parseJson = true
     var graph: ProcessGraph = null
     if (parseJson) {
-      graph = ProcessMarshalling.parseGraph(MyJSONTestGraph.processGraph)
+      graph = parseGraph(MyJSONTestGraph.processGraph)
     } else {
       graph = processGraph
     }
@@ -109,6 +110,7 @@ object ExecuteProcessInConsoleTest {
     val system = ActorSystem("TextualEpassIos")
     val processManager = system.actorOf(Props[ProcessManagerActor], ActorLocator.processManagerActorName)
     val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
+    val testPersistence = system.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
     val console = system.actorOf(Props(new FrontendSimulatorActor(subjectProviderManager)))
 
     implicit val timeout = Timeout(5 seconds)
@@ -121,12 +123,13 @@ object ExecuteProcessInConsoleTest {
     println("User Created id: " + userID)
 
     // Create a Process using the ProcessModel
-    val future2 = subjectProviderManager ? CreateProcess(userID, "my process", graph)
-    val processID: Int =
-      Await.result(future2, timeout.duration).asInstanceOf[ProcessCreated].processID
+    //    val future2 = subjectProviderManager ? CreateProcess(userID, "my process", graph)
+    //    val processID: Int =
+    //      Await.result(future2, timeout.duration).asInstanceOf[ProcessCreated].processID
 
-    println("Process(Model) Created id: " + processID)
+    //    println("Process(Model) Created id: " + processID)
 
+    val processID = 2
     // Execute the ProcessInstance
     val future3 = subjectProviderManager ? CreateProcessInstance(userID, processID)
     val processInstanceID: Int =
@@ -134,11 +137,11 @@ object ExecuteProcessInConsoleTest {
 
     println("ProcessInstance Executed id: " + processInstanceID)
 
-    if (parseJson) {
-      processManager ! ((processInstanceID, AddSubject(userID, "Subj1")))
-    } else {
-      processManager ! ((processInstanceID, AddSubject(0, "Employee")))
-    }
+    //    if (parseJson) {
+    //      processManager ! ((processInstanceID, AddSubject(userID, "Subj1")))
+    //    } else {
+    //      processManager ! ((processInstanceID, AddSubject(0, "Employee")))
+    //    }
 
     // increase the sleeping time, if it does not work
     Thread.sleep(2000)

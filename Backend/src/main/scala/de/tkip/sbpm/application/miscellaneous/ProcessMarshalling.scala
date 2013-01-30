@@ -10,7 +10,7 @@ import de.tkip.sbpm.model.StateType._
  * This object is responsible to create a ProcessGraph
  * out of the JSON representation
  */
-object ProcessMarshalling {
+object parseGraph {
   // The marshalling case classes
   // TODO wo genau steht die messagetype
   private case class JGraph(process: Array[JSubject])
@@ -50,7 +50,7 @@ object ProcessMarshalling {
     def createState: State = State(id, name, stateType, transitions.toArray)
   }
 
-  def parseGraph(graph: String): ProcessGraph = {
+  def apply(graph: String): ProcessGraph = {
     // TODO fehlerbehandlung bei falschem String
     ProcessGraph(
       graph.replace("\"type\":", "\"myType\":").asJson.convertTo[JGraph]

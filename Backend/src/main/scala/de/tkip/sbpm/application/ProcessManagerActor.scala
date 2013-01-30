@@ -14,9 +14,9 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor extends Actor {
-  // the process descriptions
-  private var processCount = 0
-  private val processDescritionMap = collection.mutable.Map[ProcessID, ProcessModel]()
+  //  // the process descriptions
+  //  private var processCount = 0
+  //  private val processDescritionMap = collection.mutable.Map[ProcessID, ProcessModel]()
 
   // the process instances aka the processes in the execution
   private var processInstanceCount = 0
@@ -31,45 +31,45 @@ class ProcessManagerActor extends Actor {
 
   def receive = {
 
-    case sra: ExecuteRequestAll => {
-      sender ! ExecutedListAnswer(sra, processInstanceMap.keys)
-    }
-    
-    case rp: ReadProcess =>{
-      sender ! ReadProcessAnswer(rp,processDescritionMap(rp.processID))
-    }
+    //    case sra: ExecuteRequestAll => {
+    //      sender ! ExecutedListAnswer(sra, processInstanceMap.keys)
+    //    }
+
+    //    case rp: ReadProcess => {
+    //      sender ! ReadProcessAnswer(rp, processDescritionMap(rp.processID))
+    //    }
     case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProvider
     }
 
     // modeling
     // TODO kommt hier raus und zur datenbank im moment aber noch nicht
-    case cp: CreateProcess => {
-      val processModel: ProcessModel = ProcessModel(processCount, cp.processName, cp.processGraph)
-      processDescritionMap += processCount -> processModel
-      sender ! ProcessCreated(cp, processCount)
-      processCount += 1
-    }
+    //    case cp: CreateProcess => {
+    //      val processModel: ProcessModel = ProcessModel(processCount, cp.processName, cp.processGraph)
+    //      processDescritionMap += processCount -> processModel
+    //      sender ! ProcessCreated(cp, processCount)
+    //      processCount += 1
+    //    }
     // siehe create
-    case up: UpdateProcess => {
-      if(processDescritionMap.contains(up.processID)){
-    	  processDescritionMap(up.processID) = up.processModel
-    	  UpdateSucess(up, true)
-      }
-      else{
-        UpdateSucess(up, false)
-      }
-    }
-    
-    case ur: UpdateRequest =>{
-      //TODO Update mit actionID
-      sender ! UpdateAnswer(ur, true)
-    }
+    //    case up: UpdateProcess => {
+    //      if (processDescritionMap.contains(up.processID)) {
+    //        processDescritionMap(up.processID) = up.processModel
+    //        UpdateSucess(up, true)
+    //      } else {
+    //        UpdateSucess(up, false)
+    //      }
+    //    }
+
+    //    case ur: UpdateRequest => {
+    //      //TODO Update mit actionID
+    //      sender ! UpdateAnswer(ur, true)
+    //    }
 
     // execution
     case cp: CreateProcessInstance => {
       // TODO daten aus der datenbank holen
-      if (processDescritionMap.contains(cp.processID)) {
+      // TODO hier checken ob der process existiert?
+      if (true) {
         // if the process exists create the process instance
         // set the id to a val to avoid errors
         val processInstanceID = processInstanceCount
@@ -79,7 +79,7 @@ class ProcessManagerActor extends Actor {
             Props(
               new ProcessInstanceActor(
                 processInstanceID,
-                processDescritionMap(cp.processID))))
+                cp.processID)))
         sender ! ProcessInstanceCreated(cp, processInstanceID)
         // increase the count, so the next process instance gets a new unique id
         processInstanceCount += 1
@@ -97,7 +97,7 @@ class ProcessManagerActor extends Actor {
       } else {
         println("Process Manager - can't kill process instance: " +
           kill.processInstanceID + ", it does not exists")
-          sender ! KillProcessAnswer(kill, false)
+        sender ! KillProcessAnswer(kill, false)
 
       }
     }
@@ -133,11 +133,6 @@ class ProcessManagerActor extends Actor {
 
     case answer: AnswerMessage => {
       answer.sender.forward(answer)
-    }
-
-    // TODO only for the Testcase
-    case (id: Int, as: AddSubject) => {
-      processInstanceMap(id).forward(as)
     }
   }
 
