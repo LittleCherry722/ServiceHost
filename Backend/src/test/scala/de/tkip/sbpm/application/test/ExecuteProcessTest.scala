@@ -1,7 +1,5 @@
 package de.tkip.sbpm.application.test
 
-//import org.junit._
-//import org.junit.Assert._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.Future
@@ -9,6 +7,7 @@ import scala.concurrent.duration._
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
+import akka.testkit.TestActorRef
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application._
@@ -16,78 +15,140 @@ import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.ActorLocator
+import org.scalatest.FunSuite
 
-object ExecuteProcessTest extends App {
+class ExecuteProcessTest extends FunSuite {
+  implicit val timeout = Timeout(5 seconds)
 
-  val processGraph =
-    ExecuteProcessInConsoleTest.processGraph
+  abstract class TestExectionActor(userID: UserID, processInstanceID: ProcessInstanceID) extends Actor {
 
-  val processModel = ProcessModel(1, "Urlaub", processGraph)
+    case class TestActionMatching(stateID: StateID, stateType: StateType, actionData: Array[String])
+    private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
 
-  def testProcessAndSubjectCreation() {
+    val subjectID: SubjectID
 
-    val system = ActorSystem("TextualEpassIos")
-    val processManager = system.actorOf(Props[ProcessManagerActor], ActorLocator.processManagerActorName)
-    val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
+    val executionData: Array[(TestActionMatching, String)] // AvailableAction, actionInput
 
-    implicit val timeout = Timeout(5 seconds)
+    def receive = {
+      case _ =>
+    }
 
-    // Create the SubjectProvider for this user
-    val future1 = subjectProviderManager ? CreateSubjectProvider()
-    val userID: Int =
-      Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
-    val future12 = subjectProviderManager ? CreateSubjectProvider()
-    val userID2: Int =
-      Await.result(future12, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
-    val future13 = subjectProviderManager ? CreateSubjectProvider()
-    val userID3: Int =
-      Await.result(future13, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
+    protected def assertAction(matching: TestActionMatching, action: AvailableAction) {
 
-    println("User Created id: " + userID)
+      if (matching == null) {
+        return
+      }
 
-    // Create a Process using the ProcessModel
-    val future2 = subjectProviderManager ? CreateProcess(userID, "my process", processGraph)
-    val processID: Int =
-      Await.result(future2, timeout.duration).asInstanceOf[ProcessCreated].processID
+      val stateType = matching.stateType.toString()
 
-    println("Process(Model) Created id: " + processID)
+      action match {
+        case AvailableAction(userID, processInstanceID, subjectID, matching.stateID, stateType, data) => {
+          if (matching.actionData.sameElements(data)) {
+            println(">>>>>>>>> Action does match")
+          } else {
+            println("<<<<<<<<< ACTION DOES NOT MATCH")
+            noError = false
+          }
+        }
+        case _ => {
+          println("<<<<>>>>> ACTION DOES NOT MATCH")
+          noError = false
+        }
+      }
 
-    // Execute the ProcessInstance
-    val future3 = subjectProviderManager ? CreateProcessInstance(userID, processID)
-    val processInstanceID: Int =
-      Await.result(future3, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
+    }
 
-    println("ProcessInstance Executed id: " + processInstanceID)
+    protected def askForActions(): Array[AvailableAction] = {
+      while (true) {
+        Thread.sleep(50)
+        val future = subjectProviderManagerActor ? GetAvailableActions(userID, processInstanceID)
+        val actions = Await.result(future, timeout.duration).asInstanceOf[AvailableActionsAnswer].availableActions
+        if (!actions.isEmpty) {
+          return actions
+        }
+      }
+      null
+    }
 
-    processManager ! ((processInstanceID, new AddSubject(userID2, "Employee")))
+    protected def askForAction(): AvailableAction = {
+      var action: AvailableAction = null
 
-    Thread.sleep(1000)
+      while (action == null) {
+        Thread.sleep(50)
+        val future = subjectProviderManagerActor ? GetAvailableActions(userID, processInstanceID, subjectID)
+        val actions = Await.result(future, timeout.duration).asInstanceOf[AvailableActionsAnswer].availableActions
+        if (!actions.isEmpty) {
+          action = actions(0)
+        }
+      }
+      action
+    }
 
-    val future4 = subjectProviderManager ? GetAvailableActions(userID2, processInstanceID)
-    val availableActions: Array[AvailableAction] =
-      Await.result(future4, timeout.duration).asInstanceOf[AvailableActionsAnswer].availableActions
+    protected def executeAction(action: ExecuteAction) {
+      val future = subjectProviderManagerActor ? action
+      Await.ready(future, timeout.duration)
+    }
+  }
 
-    println("AnswerMessage: " + availableActions(0) + " Possible actions: " + availableActions(0).actionData.mkString("/"))
+//  class Manager(userID: UserID, processInstanceID: ProcessInstanceID) extends TestExectionActor(userID, processInstanceID) {
+//
+//  }
 
-    subjectProviderManager !
-      ExecuteAction(
-        userID2,
-        processInstanceID,
-        availableActions(0).subjectID,
-        availableActions(0).stateID,
-        availableActions(0).stateType,
-        "Done")
+  class Purchaser(userID: UserID, processInstanceID: ProcessInstanceID) extends TestExectionActor(userID, processInstanceID) {
 
-    Thread.sleep(200)
+    val subjectID: SubjectID = "Subj1"
 
-    val future5 = subjectProviderManager ? GetAvailableActions(userID2, processInstanceID)
-    val availableActions2: Array[AvailableAction] =
-      Await.result(future5, timeout.duration).asInstanceOf[AvailableActionsAnswer].availableActions
+    val executionData =
+      Array[(TestActionMatching, String)](
+        (TestActionMatching(0, ActStateType, Array("Done")), "Done"),
+        (TestActionMatching(1, SendStateType, Array()), "The Message content"),
+        (TestActionMatching(2, ActStateType, Array("Await Denial", "Await Accept")), "Await Denial"))
 
-    println("AnswerMessage: " + availableActions2(0) + " Possible actions: " + availableActions2(0).actionData.mkString("/"))
+    private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
+
+    for ((matching, actionInput) <- executionData) {
+      val action = askForAction()
+      assertAction(matching, action)
+      println("action: " + action.stateType + action.actionData.mkString(" data: ", ", ", ">"))
+      executeAction(ExecuteAction(action, actionInput))
+    }
+    val action = askForAction()
+    println("next action: " + action.stateType + action.actionData.mkString(" data: ", ", ", ">"))
+
+    //    var action = askForAction()
+    //
+    //    println("action: " + action.stateType + action.actionData.mkString(" data: ", ", ", ">"))
+    //    println(AvailableAction(userID, processInstanceID, "Subj1", 0, ActStateType.toString(), Array("Done")) == action)
+    //    val a = ActStateType.toString()
+    //    action match {
+    //      case AvailableAction(userID, processInstanceID, "Subj1", 0, a, Array("Done")) => println("-.----y")
+    //      case _ => println("fffffffffffffff2")
+    //    }
+    //    println(action)
+    //    println(AvailableAction(userID, processInstanceID, "Subj1", 0, ActStateType.toString(), Array("Done")))
+    //    executeAction(ExecuteAction(action, "Done"))
+    //    action = askForAction()
+    //    println("action: " + action.stateType + action.actionData.mkString(" data: ", ", ", ">"))
+    //    executeAction(ExecuteAction(action, "Buy somethin from store."))
 
   }
 
-  testProcessAndSubjectCreation()
-}
+  var noError: Boolean = true
 
+  test("test process execution approval path") {
+    noError = true
+    val (system, subjectProviderManagerActor) = createTestRunSystem()
+
+    var future = subjectProviderManagerActor ? CreateSubjectProvider()
+    val userID = Await.result(future, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
+
+    future = subjectProviderManagerActor ? CreateProcessInstance(userID, 2)
+    val processInstanceID = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated].processInstanceID
+
+    val purchaser = system.actorOf(Props(new Purchaser(userID, processInstanceID)))
+
+    Thread.sleep(2000)
+    println("Error: ---" + noError)
+    assert(noError)
+  }
+}

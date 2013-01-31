@@ -15,7 +15,7 @@ import de.tkip.sbpm.persistence._
 import de.tkip.sbpm.model._
 
 class PersistenceActorTest {
-  
+
   import PersistenceActorTest._
   import de.tkip.sbpm.model._
   implicit val timeout = Timeout(100 seconds)
@@ -28,7 +28,7 @@ class PersistenceActorTest {
     val id2 = "config2"
     actor ! SaveConfiguration(Configuration(id1, "Config 1", "xxx", "String"))
     actor ! SaveConfiguration(Configuration(id2, "Config 2", "yyy", "Integer"))
-    val allFuture = actor ? GetConfiguration() 
+    val allFuture = actor ? GetConfiguration()
     val oneFuture1 = actor ? GetConfiguration(Some(id1))
     val oneFuture2 = actor ? GetConfiguration(Some(id2))
     val all = Await.result(allFuture.mapTo[Seq[M]], timeout.duration)
@@ -74,6 +74,11 @@ class PersistenceActorTest {
     val allFuture2 = actor ? GetGraph()
     val all2 = Await.result(allFuture2.mapTo[Seq[M]], timeout.duration)
     assertEquals(0, all2.length)
+
+    val idsFuture = actor ? SaveProcess(Process(None, "asdkj"), Some(Graph(None, "asldk", DatabaseAccess.currentTimestamp)))
+    val ids = Await.result(idsFuture.mapTo[(Option[Int], Option[Int])], timeout.duration)
+    assertTrue(ids._1.isDefined)
+    assertTrue(ids._2.isDefined)
   }
 
   @Test
@@ -280,7 +285,7 @@ class PersistenceActorTest {
 object PersistenceActorTest {
   val sys = ActorSystem()
   val actor = sys.actorOf(Props[PersistenceActor])
-  
+
   @BeforeClass
   def init() {
     actor ! InitDatabase
