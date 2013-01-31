@@ -53,7 +53,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   private lazy val processManager = ActorLocator.processManagerActor
 
   def receive = runRoute({
-    formField("userid") { userId =>
+    formField("userid") { userID =>
       get {
         //READ
         path(IntNumber) { processInstanceID =>
@@ -61,10 +61,11 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           implicit val timeout = Timeout(5 seconds)
 
           val composedFuture = for {
-            processInstanceFuture <- (processManager ? GetProcessInstance(userId.toInt, processInstanceID.toInt)).mapTo[ProcessInstanceAnswer]
-            historyFuture <- (processManager ? GetHistory(userId.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
-            availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userId.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
-          } yield JsObject("graph" -> processInstanceFuture.graphs.toJson,
+            processInstanceFuture <- (processManager ? GetProcessInstance(userID.toInt, processInstanceID.toInt)).mapTo[ProcessInstanceAnswer]
+            historyFuture <- (processManager ? GetHistory(userID.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
+            availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userID.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
+          } yield JsObject(
+            "graph" -> processInstanceFuture.graphs.toJson,
             "history" -> historyFuture.h.toJson,
             "actions" -> availableActionsFuture.availableActions.toJson)
 
@@ -76,7 +77,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             implicit val timeout = Timeout(5 seconds)
 
             val composedFuture = for {
-              instanceids <- (processManager ? GetAllProcessInstanceIDs(userId.toInt)).mapTo[AllProcessInstanceIDsAnswer]
+              instanceids <- (processManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
             } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
 
             complete(composedFuture)
@@ -85,13 +86,13 @@ class ExecutionInterfaceActor extends Actor with HttpService {
       } ~
         delete {
           //DELETE
-          path(IntNumber) { processID =>
-            //stop and delete given process
+          path(IntNumber) { processInstanceID =>
+            //stop and delete given process instance
 
             implicit val timeout = Timeout(5 seconds)
 
             val composedFuture = for {
-              kill <- (processManager ? KillProcess(userId.toInt)).mapTo[KillProcessAnswer]
+              kill <- (processManager ? KillProcessInstance(userID.toInt)).mapTo[KillProcessInstanceAnswer]
             } yield JsObject("instanceIDs" -> kill.success.toJson)
 
             complete(composedFuture)
@@ -140,12 +141,12 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         } ~
         post { //CREATE
           path("") {
-            formField("processID") { (processId) =>
+            formField("processID") { (processID) =>
 
               implicit val timeout = Timeout(5 seconds)
 
               val composedFuture = for {
-                instanceid <- (processManager ? CreateProcessInstance(userId.toInt, processId.toInt)).mapTo[ProcessInstanceCreated]
+                instanceid <- (processManager ? CreateProcessInstance(userID.toInt, processID.toInt)).mapTo[ProcessInstanceCreated]
               } yield JsObject("instanceIDs" -> instanceid.processInstanceID.toJson)
 
               complete(composedFuture)

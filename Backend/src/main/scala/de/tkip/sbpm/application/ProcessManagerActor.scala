@@ -61,16 +61,15 @@ class ProcessManagerActor extends Actor {
       }
     }
 
-    case kill: KillProcess => {
+    case kill: KillProcessInstance => {
       if (processInstanceMap.contains(kill.processInstanceID)) {
         context.stop(processInstanceMap(kill.processInstanceID))
         processInstanceMap -= kill.processInstanceID
-        sender ! KillProcessAnswer(kill, true)
+        sender ! KillProcessInstanceAnswer(kill, true)
       } else {
         logger.info("Process Manager - can't kill process instance: " +
           kill.processInstanceID + ", it does not exists")
-        sender ! KillProcessAnswer(kill, false)
-
+        sender ! KillProcessInstanceAnswer(kill, false)
       }
     }
 
@@ -102,15 +101,15 @@ class ProcessManagerActor extends Actor {
         logger.info("Process Manager - User unknown: " + userID + " message: " + message)
       }
     }
-    
+
     case message: GetHistory => {
       if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
-    	processInstanceMap(message.processInstanceID).forward(message)
-      }else{
-        logger.info("User or Process unknown: (user, process)=("+message.userID+", "+message.processInstanceID+")");
+        processInstanceMap(message.processInstanceID).forward(message)
+      } else {
+        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
       }
     }
-    
+
     case answer: AnswerMessage => {
       answer.sender.forward(answer)
     }
