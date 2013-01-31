@@ -73,7 +73,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           //LIST
           path("") {
             //List all executed process (for a given user)
-            val future = subjectProviderManager ? ExecuteRequestAll(userId.toInt)
+            val future = subjectProviderManager ? GetAllProcessInstanceIDs(userId.toInt)
 
             val result = for {
               instanceids <- future.mapTo[Int]
