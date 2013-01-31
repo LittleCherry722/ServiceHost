@@ -20,7 +20,9 @@ import de.tkip.sbpm.model.StateType
 import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.AvailableAction
+import de.tkip.sbpm.application.subject.ExecuteAction
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -105,6 +107,9 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val avaliableFormat = jsonFormat3(GetAvailableActions)
   implicit val availableActionFormat = jsonFormat6(AvailableAction)
   implicit val availableActionsFormat = jsonFormat2(AvailableActionsAnswer)
+  
+//  implicit val executeActionFormat = jsonFormat6(ExecuteAction)
+  
 }
 
   

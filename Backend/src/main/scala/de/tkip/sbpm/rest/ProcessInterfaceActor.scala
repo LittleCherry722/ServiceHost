@@ -82,13 +82,14 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             val future = ActorLocator.persistenceActor ? SaveProcess(Process(None, name))
             val processID = future.mapTo[Int]
             val future1 = ActorLocator.persistenceActor ? SaveGraph(Graph(None, graph, new java.sql.Timestamp(System.currentTimeMillis()), processID.asInstanceOf[Int]))
-            val result = future.mapTo[Int]
-            result onSuccess {
+            val graphID = future1.mapTo[Int]
+            val future2 = ActorLocator.persistenceActor ? SaveProcess(Process(Option(processID.asInstanceOf[Int]), name,graphID.asInstanceOf[Int]))
+            processID onSuccess {
               case id: Int =>
                 val obj = JsObject("processID" -> id.toJson)
                 complete(StatusCodes.Created, obj)
             }
-            result onFailure {
+            processID onFailure {
               case _ =>
                 complete(StatusCodes.InternalServerError)
             }
@@ -117,7 +118,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         //UPDATE
         path(IntNumber) { processID =>
           formField("id", "name", "graph", "isCase") { (id, name, graph, isCase) =>
-              //execute next step (chosen by actionID)
+            //execute next step (chosen by actionID)
             val future = ActorLocator.persistenceActor ? SaveGraph(Graph(Option[Int](id.toInt), graph, new java.sql.Timestamp(System.currentTimeMillis()), processID.asInstanceOf[Int]))
             val result = future.mapTo[Int]
             result onSuccess {
