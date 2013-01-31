@@ -23,6 +23,8 @@ import spray.util.LoggingContext
 import akka.actor.Props
 import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.subject.ExecuteActionAnswer
+import de.tkip.sbpm.persistence.GetProcessInstance
+import de.tkip.sbpm.persistence.GetGraph
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -50,7 +52,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   def actorRefFactory = context
 
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
-  private lazy val processManager = ActorLocator.processManagerActor
+  private lazy val persistanceActor = ActorLocator.persistenceActor
 
   def receive = runRoute({
     formField("userid") { userID =>
@@ -61,11 +63,14 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           implicit val timeout = Timeout(5 seconds)
 
           val composedFuture = for {
-            processInstanceFuture <- (processManager ? GetProcessInstance(userID.toInt, processInstanceID.toInt)).mapTo[ProcessInstanceAnswer]
-            historyFuture <- (processManager ? GetHistory(userID.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
+            //        	  processInstanceFuture <- (processManager ? GetProcessInstance(userID.toInt, processInstanceID.toInt)).mapTo[ProcessInstanceAnswer]
+            processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[ProcessInstance]
+            graphFuture <- (persistanceActor ? GetGraph(Some(processInstanceFuture.graphId))).mapTo[Graph]
+            historyFuture <- (subjectProviderManager ? GetHistory(userID.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
             availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userID.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
           } yield JsObject(
-            "graph" -> processInstanceFuture.graphs.toJson,
+            //            "graph" -> processInstanceFuture.graphs.toJson,
+            "graph" -> graphFuture.graph.toJson,
             "history" -> historyFuture.h.toJson,
             "actions" -> availableActionsFuture.availableActions.toJson)
 
@@ -77,7 +82,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             implicit val timeout = Timeout(5 seconds)
 
             val composedFuture = for {
-              instanceids <- (processManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
+              instanceids <- (subjectProviderManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
             } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
 
             complete(composedFuture)
@@ -92,7 +97,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             implicit val timeout = Timeout(5 seconds)
 
             val composedFuture = for {
-              kill <- (processManager ? KillProcessInstance(userID.toInt)).mapTo[KillProcessInstanceAnswer]
+              kill <- (subjectProviderManager ? KillProcessInstance(userID.toInt)).mapTo[KillProcessInstanceAnswer]
             } yield JsObject("instanceIDs" -> kill.success.toJson)
 
             complete(composedFuture)
@@ -146,7 +151,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               implicit val timeout = Timeout(5 seconds)
 
               val composedFuture = for {
-                instanceid <- (processManager ? CreateProcessInstance(userID.toInt, processID.toInt)).mapTo[ProcessInstanceCreated]
+                instanceid <- (subjectProviderManager ? CreateProcessInstance(userID.toInt, processID.toInt)).mapTo[ProcessInstanceCreated]
               } yield JsObject("instanceIDs" -> instanceid.processInstanceID.toJson)
 
               complete(composedFuture)

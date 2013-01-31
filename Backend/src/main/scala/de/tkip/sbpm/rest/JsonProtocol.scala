@@ -103,9 +103,9 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val availableActionFormat = jsonFormat6(AvailableAction)
 
   //ProcessModel TODO die braucht man doch garnicht, da das interne model nicht in json uebersetzt wird
-  implicit val transitionFormat = jsonFormat3(Transition)
-  implicit val processStateFormat = jsonFormat4(de.tkip.sbpm.model.State)
-  implicit val subjectFormat = jsonFormat2(Subject)
-  implicit val processGraphFormat = jsonFormat1(ProcessGraph)
-  implicit val processFormat = jsonFormat3(ProcessModel)
+  //  implicit val transitionFormat = jsonFormat3(Transition)
+  //  implicit val processStateFormat = jsonFormat4(de.tkip.sbpm.model.State)
+  //  implicit val subjectFormat = jsonFormat2(Subject)
+  //  implicit val processGraphFormat = jsonFormat1(ProcessGraph)
+  //  implicit val processFormat = jsonFormat3(ProcessModel)
 }
