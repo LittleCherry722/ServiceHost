@@ -94,7 +94,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val processStateFormat = jsonFormat4(de.tkip.sbpm.model.State)
   implicit val subjectFormat = jsonFormat2(Subject)
   implicit val processGraphFormat = jsonFormat1(ProcessGraph)
-  implicit val ProcessFormat = jsonFormat3(ProcessModel)
+  implicit val processFormat = jsonFormat3(ProcessModel)
 
   implicit val stateFormat = jsonFormat2(State)
   implicit val messagePayloadFormat = jsonFormat2(MessagePayloadLink)

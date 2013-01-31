@@ -1,27 +1,24 @@
 package de.tkip.sbpm.rest
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application._
-import spray.http.MediaTypes._
-import spray.routing._
-import scala.concurrent.Await
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.JsonProtocol._
-import spray.httpx.SprayJsonSupport._
-import spray.json._
-import scala.util.parsing.json.JSONArray
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.rest.SprayJsonSupport._
+import spray.http.MediaTypes._
 import spray.http.StatusCodes
-import spray.http.HttpHeader
-import spray.util.LoggingContext
 import spray.httpx.marshalling.Marshaller
-import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
-import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
+import spray.json._
+import spray.routing._
+import spray.util.LoggingContext
 import akka.actor.Props
 
 /**
@@ -50,34 +47,28 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   def actorRefFactory = context
 
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
-
+  private lazy val processManager = ActorLocator.processManagerActor
+  
   def receive = runRoute({
     formField("userid") { userId =>
-
       get {
         //READ
-        path(IntNumber) { processID =>
-          //return all information for a given process (graph, next actions (unique ID per available action), history)
+        path(IntNumber) { processInstanceID =>
+
           implicit val timeout = Timeout(5 seconds)
-          val future1 = subjectProviderManager ? ReadProcess(userId.toInt, processID.toInt)
-          val future2 = subjectProviderManager ? GetHistory(userId.toInt, processID.toInt)
-          val future3 = subjectProviderManager ? GetAvailableActions(userId.toInt, processID.toInt)
-
-          val result = for {
-            graph <- future1.mapTo[Process]
-            history <- future2.mapTo[History]
-            actions <- future3.mapTo[AvailableActionsAnswer]
-          } yield JsObject("graph" -> graph.toJson, "history" -> history.toJson, "actions" -> actions.toJson)
-
-          result onSuccess {
-            case obj: JsObject =>
-              complete(StatusCodes.OK, obj)
-          }
-          result onFailure {
-            case _ =>
-              complete(StatusCodes.InternalServerError)
-          }
-          complete(StatusCodes.InternalServerError)
+          
+          case class Result(pm: ProcessModel, history: History, actions: Array[AvailableAction])
+          
+          val composedFuture = for {
+            processInstanceFuture <- (processManager ? GetProcessInstance(userId.toInt, processInstanceID.toInt)).mapTo[ProcessInstanceAnswer]
+            historyFuture <- (processManager ? GetHistory(userId.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
+            availableActionsFuture <- (processManager ? GetAvailableActions(userId.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
+          } yield JsObject("graph" -> processInstanceFuture.graphs.toJson, 
+        		  		   "history" -> historyFuture.h.toJson,
+        		  		   "actions" -> availableActionsFuture.availableActions.toJson)
+          
+          complete(composedFuture)
+          
         } ~
           //LIST
           path("") {

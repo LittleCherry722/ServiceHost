@@ -7,6 +7,7 @@ object ProjectBuild extends Build {
     id = "root",
     base = file("."),
     settings = Project.defaultSettings ++ Seq(
+      mainClass := Some("de.tkip.sbpm.Boot"),
       name := "sbpm",
       organization := "tudarmstadt",
       version := "1.2",

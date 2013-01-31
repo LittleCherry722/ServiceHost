@@ -10,6 +10,7 @@ import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.model.ProcessGraph
+import de.tkip.sbpm.model.ProcessGraph
 
 /**
  * For system control tasks
@@ -59,6 +60,7 @@ case class GetAvailableActions(userID: UserID,
                                processInstanceID: ProcessInstanceID = AllProcessInstances,
                                subjectID: SubjectID = AllSubjects)
     extends AnswerAbleControlMessage with ExecutionMessage
+case class GetProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage;
 //answers
 case class AllProcessInstanceIDsAnswer(request: GetAllProcessInstanceIDs, processInstanceIDs: Array[ProcessInstanceID]) extends AnswerControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends AnswerControlMessage
@@ -66,6 +68,8 @@ case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanc
 // => (userID:Int, actionID:Int, actionInput:String?) 
 case class AvailableActionsAnswer(request: GetAvailableActions, availableActions: Array[AvailableAction]) extends AnswerControlMessage
 case class KillProcessAnswer(request: KillProcess, sucess: Boolean) extends AnswerControlMessage
+case class ProcessInstanceAnswer(request: GetProcessInstance, graphs: Array[ProcessGraph]) extends AnswerAbleControlMessage;
+
 
 // history
 // request

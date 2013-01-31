@@ -5,6 +5,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.persistence._
+import akka.event.Logging
 
 protected case class RegisterSubjectProvider(userID: UserID,
                                              subjectProviderActor: SubjectProviderRef)
@@ -14,6 +15,8 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor extends Actor {
+  
+  val logger = Logging(context.system, this)
   //  // the process descriptions
   //  private var processCount = 0
   //  private val processDescritionMap = collection.mutable.Map[ProcessID, ProcessModel]()
@@ -58,7 +61,7 @@ class ProcessManagerActor extends Actor {
         // increase the count, so the next process instance gets a new unique id
         processInstanceCount += 1
       } else {
-        println("Process Manager - cant start process " + cp.processID +
+        logger.info("Process Manager - cant start process " + cp.processID +
           ", it does not exist")
       }
     }
@@ -69,7 +72,7 @@ class ProcessManagerActor extends Actor {
         processInstanceMap -= kill.processInstanceID
         sender ! KillProcessAnswer(kill, true)
       } else {
-        println("Process Manager - can't kill process instance: " +
+        logger.info("Process Manager - can't kill process instance: " +
           kill.processInstanceID + ", it does not exists")
         sender ! KillProcessAnswer(kill, false)
 
@@ -101,13 +104,22 @@ class ProcessManagerActor extends Actor {
       if (subjectProviderMap.contains(userID)) {
         subjectProviderMap(userID).forward(message)
       } else {
-        println("Process Manager - User unknown: " + userID + " message: " + message)
+        logger.info("Process Manager - User unknown: " + userID + " message: " + message)
       }
     }
-
+    
+    case message: GetHistory => {
+      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
+    	processInstanceMap(message.processInstanceID).forward(message)
+      }else{
+        logger.info("User or Process unknown: (user, process)=("+message.userID+", "+message.processInstanceID+")");
+      }
+    }
+    
     case answer: AnswerMessage => {
       answer.sender.forward(answer)
     }
+
   }
 
   private def forwardToPersistenceActor(pa: PersistenceMessage) {
@@ -125,7 +137,7 @@ class ProcessManagerActor extends Actor {
     if (processInstanceMap.contains(message.processInstanceID)) {
       processInstanceMap(message.processInstanceID).!(message) // TODO mit forwards aber erstmal testen
     } else {
-      println("ProcessManager - message for " + message.processInstanceID +
+      logger.info("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)
     }
   }
