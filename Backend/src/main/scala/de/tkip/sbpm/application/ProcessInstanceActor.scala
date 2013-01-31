@@ -9,17 +9,17 @@ import scala.concurrent.duration._
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.model.ProcessGraph
 import de.tkip.sbpm.model.Subject
+import de.tkip.sbpm.model.Process
+import de.tkip.sbpm.model.ProcessInstance
+import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
-import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.persistence._
-
-// message to get history of project instance
-//case class GetHistory()
 
 // represents the history of the instance
 case class History(processName: String,
@@ -28,30 +28,38 @@ case class History(processName: String,
                    var processEnded: Date = null, // null if not started or still running
                    entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
-// TODO hier lassen oder woanders hin?
-case class AddSubject(userID: UserID, subjectID: SubjectID)
-
 /**
  * instantiates SubjectActor's and manages their interactions
  */
 class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends Actor {
+  // This case class is to add Subjects to this ProcessInstance
+  private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
-  protected implicit val timeout = Timeout(10 seconds)
+  import ExecutionContext.Implicits.global // TODO this import or something different?
+  implicit val timeout = Timeout(10 seconds)
 
-  //  val future = ActorLocator.persistenceActor ? GetProcess(Some(2))
-  //  val future = ActorLocator.persistenceActor ? GetProcess(Some(processID))
-  // TODO irgentwie bekommt man dann die id
-  // get and unmarshall the graph
+  // Get the ProcessGraph from the database and create the database entry
+  // for this process instance
+  val dataBaseAccessFuture = for {
+    // get the process
+    processFuture <- (ActorLocator.persistenceActor ?
+      GetProcess(Some(processID))).mapTo[Process]
+    // save this process instance in the persistence
+    processInstanceSavedFuture <- ActorLocator.persistenceActor ?
+      SaveProcessInstance(ProcessInstance(Some(id), processID, processFuture.graphId, "", ""))
+    // get the corresponding graph
+    graphFuture <- (ActorLocator.persistenceActor ?
+      GetGraph(Some(processFuture.graphId))).mapTo[Graph]
+  } yield (processFuture.name, processFuture.startSubjects, graphFuture.graph)
 
-  val processName = "MyProcess"
-  val startSubject: String = "Subj1" // TODO wie bekommen?
+  // evaluate the Future
+  val (processName: String, startSubjectsString: SubjectID, graphJSON: String) =
+    Await.result(dataBaseAccessFuture, timeout.duration)
 
-  val graphID = 2
-  val graphFuture = ActorLocator.persistenceActor ? GetGraph(Some(graphID))
-  // TODO mit Await oder irgentwie anders?
-  val graphString = Await.result(graphFuture, timeout.duration).asInstanceOf[String]
-
-  val graph: ProcessGraph = parseGraph(graphString)
+  // parse the start-subjects into an Array
+  val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
+  // parse the graph into the internal structure
+  val graph: ProcessGraph = parseGraph(graphJSON)
 
   // TODO wie uebergeben?
   private lazy val contextResolver = ActorLocator.contextResolverActor
@@ -60,8 +68,9 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
   // but will be created soon (the UserID is requested)
   private var messagePool = Set[(ActorRef, SubjectInternalMessage)]()
 
-  private var subjectCounter = 0
-  private val subjectMap = collection.mutable.Map[SubjectName, SubjectRef]()
+  // this map stores all Subjects with their IDs 
+  private var subjectCounter = 0 // TODO We dont really need counter
+  private val subjectMap = collection.mutable.Map[SubjectID, SubjectRef]()
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
@@ -70,9 +79,11 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
   // provider actor for debug payload used in history's debug data
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
-  // add the first subject
-  contextResolver !
-    RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
+  // add all start subjects
+  for (startSubject <- startSubjects) {
+    contextResolver !
+      RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
+  }
 
   def receive = {
 

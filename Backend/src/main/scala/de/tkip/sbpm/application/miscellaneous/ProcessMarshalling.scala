@@ -7,6 +7,17 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 
 /**
+ * This object is responsible to divide a string listing of subjects
+ * into the independet subjectIDs
+ */
+object parseSubjects {
+  def apply(subjects: String): Array[SubjectID] = {
+    // TODO noch nicht implementiert
+    Array(subjects.replace("[", "").replace("]", ""))
+  }
+}
+
+/**
  * This object is responsible to create a ProcessGraph
  * out of the JSON representation
  */
