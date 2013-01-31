@@ -57,8 +57,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
           implicit val timeout = Timeout(5 seconds)
           
-          case class Result(pm: ProcessModel, history: History, actions: Array[AvailableAction])
-          
           val composedFuture = for {
             processInstanceFuture <- (processManager ? GetProcessInstance(userId.toInt, processInstanceID.toInt)).mapTo[ProcessInstanceAnswer]
             historyFuture <- (processManager ? GetHistory(userId.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
