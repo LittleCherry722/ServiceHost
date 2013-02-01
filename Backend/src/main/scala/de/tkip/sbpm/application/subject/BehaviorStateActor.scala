@@ -204,7 +204,7 @@ protected case class ReceiveStateActor(id: StateID,
 
     case sm: TransportMessage => {
       // TODO checken ob richtige message
-      println("Receive@" + userID + ": Message \"" +
+      println("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
       messageContent = sm.messageContent

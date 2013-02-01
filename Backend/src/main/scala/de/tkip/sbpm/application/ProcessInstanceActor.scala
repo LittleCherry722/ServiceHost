@@ -38,19 +38,20 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
   import ExecutionContext.Implicits.global // TODO this import or something different?
   implicit val timeout = Timeout(10 seconds)
 
+  // TODO "None" rueckgaben behandeln
   // Get the ProcessGraph from the database and create the database entry
   // for this process instance
   val dataBaseAccessFuture = for {
     // get the process
     processFuture <- (ActorLocator.persistenceActor ?
-      GetProcess(Some(processID))).mapTo[Process]
+      GetProcess(Some(processID))).mapTo[Option[Process]]
     // save this process instance in the persistence
     processInstanceSavedFuture <- ActorLocator.persistenceActor ?
-      SaveProcessInstance(ProcessInstance(Some(id), processID, processFuture.graphId, "", ""))
+      SaveProcessInstance(ProcessInstance(Some(id), processID, processFuture.get.graphId, "", ""))
     // get the corresponding graph
     graphFuture <- (ActorLocator.persistenceActor ?
-      GetGraph(Some(processFuture.graphId))).mapTo[Graph]
-  } yield (processFuture.name, processFuture.startSubjects, graphFuture.graph)
+      GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
+  } yield (processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
 
   // evaluate the Future
   val (processName: String, startSubjectsString: SubjectID, graphJSON: String) =
@@ -90,30 +91,36 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
     case as: AddSubject => {
       val subject: Subject = getSubject(as.subjectID)
 
-      // create the subject
-      val subjectRef =
-        context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
-      // add the subject to the management map
-      subjectMap += subject.id -> subjectRef
-      subjectCounter += 1
+      // TODO was tun
+      if (subject == null) {
+        println("ProcessInstance " + id + " -- Subject unknown for " + as)
+      } else {
 
-      println("process " + id + " created subject " + subject.id + " for user " + as.userID)
+        // create the subject
+        val subjectRef =
+          context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
+        // add the subject to the management map
+        subjectMap += subject.id -> subjectRef
+        subjectCounter += 1
 
-      // if there are messages to deliver to the new subject,
-      // forward them to the subject 
-      if (!messagePool.isEmpty) {
-        for ((orig, sm) <- messagePool if sm.to == subject.id) {
-          subjectRef.!(sm)(orig)
+        println("process " + id + " created subject " + subject.id + " for user " + as.userID)
+
+        // if there are messages to deliver to the new subject,
+        // forward them to the subject 
+        if (!messagePool.isEmpty) {
+          for ((orig, sm) <- messagePool if sm.to == subject.id) {
+            subjectRef.!(sm)(orig)
+          }
+          messagePool = messagePool.filterNot(_._2.to == subject.id)
         }
-        messagePool = messagePool.filterNot(_._2.to == subject.id)
+
+        // inform the subject provider about his new subject
+        context.parent !
+          SubjectCreated(as.userID, processID, id, subject.id, subjectRef)
+
+        // start the execution of the subject
+        subjectRef ! StartSubjectExecution()
       }
-
-      // inform the subject provider about his new subject
-      context.parent !
-        SubjectCreated(as.userID, processID, id, subject.id, subjectRef)
-
-      // start the execution of the subject
-      subjectRef ! StartSubjectExecution()
     }
 
     case st: SubjectTerminated => {
@@ -122,7 +129,7 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
       println("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (subjectCounter == 0) {
         executionHistory.processEnded = new Date()
-        context.stop(self) // TODO stop process instance?
+        //        context.stop(self) // TODO stop process instance?
       }
     }
 
@@ -180,6 +187,10 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
 
   private def getSubject(name: String): Subject = {
     // TODO increase performance
-    graph.subjects.find(_.id == name).get
+    val subject = graph.subjects.find(_.id == name)
+    subject match {
+      case None => null
+      case _ => subject.get
+    }
   }
 }

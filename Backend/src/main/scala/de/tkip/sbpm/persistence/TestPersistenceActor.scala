@@ -199,7 +199,7 @@ class TestPersistenceActor extends Actor {
     case GetRelation() => sender ! processes.get(1).get.relation
 
     case GetProcess(_, _) => sender !
-      Process(Some(1), "DataBaseProcess", 2, true, "[Subj1]")
+      Some(Process(Some(1), "DataBaseProcess", 2, true, "[Subj1]"))
 
     case GetProcessInstance(_) => sender ! processes.get(1).get.name
 
@@ -212,7 +212,7 @@ class TestPersistenceActor extends Actor {
     case GetGroup(_) => sender ! processes.get(1).get.group
 
     case GetGraph(_) => sender !
-      Graph(Some(2), processes.get(2).get.graph, null, 1)
+      Some(Graph(Some(2), processes.get(2).get.graph, null, 1))
 
     case save: SaveProcessInstance => {
       println("TestPersistenceActor - ProcessInstance saved: " + save)
