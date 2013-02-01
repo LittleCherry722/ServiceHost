@@ -3,8 +3,18 @@ package de.tkip.sbpm.application.subject
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.history.{
+  Transition => HistoryTransition,
+  Message => HistoryMessage,
+  State => HistoryState
+}
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
+
+// TODO this is for history + statechange
+case class ChangeState(currenState: StateID,
+                       nextState: StateID,
+                       history: HistoryMessage)
 
 /**
  * contains the business logic that will be modeled by the graph
@@ -23,7 +33,6 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
     }
 
     case ess: StartSubjectExecution => {
-      // TODO hier history log?
       nextState(startState)
       if (currentState != null) {
         currentState ! ess
@@ -31,12 +40,26 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
     }
 
     case es: NextState => {
-      // TODO hier history log?
       nextState(es.state)
     }
 
-    case ea: ExecuteAction =>
+    case change: ChangeState => {
+      // TODO check if current state is correct?
+      nextState(change.nextState)
+
+      val current: State = statesMap(change.currenState)
+      val next: State = statesMap(change.nextState)
+      // create the History Entry and send it to the subject
+      context.parent !
+        HistoryTransition(
+          HistoryState(current.name, current.stateType.toString()),
+          HistoryState(next.name, next.stateType.toString()),
+          change.history)
+    }
+
+    case ea: ExecuteAction => {
       currentState.forward(ea)
+    }
 
     case terminated: SubjectTerminated => {
       context.parent ! terminated
@@ -50,6 +73,11 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
       }
     }
 
+    case h: de.tkip.sbpm.application.history.Transition => {
+      context.parent ! h
+    }
+
+    // general matching
     case message: SubjectProviderMessage => {
       context.parent ! message
     }

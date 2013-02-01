@@ -1,28 +1,30 @@
 package de.tkip.sbpm.rest
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application._
-import spray.http.MediaTypes._
-import spray.routing._
-import scala.concurrent.Await
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.JsonProtocol._
-import spray.httpx.SprayJsonSupport._
-import spray.json._
-import scala.util.parsing.json.JSONArray
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.rest.SprayJsonSupport._
+import spray.http.MediaTypes._
 import spray.http.StatusCodes
-import spray.http.HttpHeader
-import spray.util.LoggingContext
 import spray.httpx.marshalling.Marshaller
-import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
-import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
+import spray.json._
+import spray.routing._
+import spray.util.LoggingContext
 import akka.actor.Props
+import de.tkip.sbpm.application.subject.ExecuteAction
+import de.tkip.sbpm.application.subject.ExecuteActionAnswer
+import de.tkip.sbpm.persistence.GetProcessInstance
+import de.tkip.sbpm.persistence.GetGraph
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -50,131 +52,112 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   def actorRefFactory = context
 
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
+  private lazy val persistanceActor = ActorLocator.persistenceActor
 
   def receive = runRoute({
-    formField("userid") { userId =>
-
+    formField("userid") { userID =>
       get {
         //READ
-        path(IntNumber) { processID =>
-          //return all information for a given process (graph, next actions (unique ID per available action), history)
+        path(IntNumber) { processInstanceID =>
+
           implicit val timeout = Timeout(5 seconds)
-          val future1 = subjectProviderManager ? ReadProcess(userId.toInt, processID.toInt)
-          val future2 = subjectProviderManager ? GetHistory(userId.toInt, processID.toInt)
-          val future3 = subjectProviderManager ? GetAvailableActions(userId.toInt, processID.toInt)
 
-          val result = for {
-            graph <- future1.mapTo[Process]
-            history <- future2.mapTo[History]
-            actions <- future3.mapTo[AvailableActionsAnswer]
-          } yield JsObject("graph" -> graph.toJson, "history" -> history.toJson, "actions" -> actions.toJson)
+          val composedFuture = for {
+            //        	  processInstanceFuture <- (processManager ? GetProcessInstance(userID.toInt, processInstanceID.toInt)).mapTo[ProcessInstanceAnswer]
+            processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[ProcessInstance]
+            graphFuture <- (persistanceActor ? GetGraph(Some(processInstanceFuture.graphId))).mapTo[Graph]
+            historyFuture <- (subjectProviderManager ? GetHistory(userID.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
+            availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userID.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
+          } yield JsObject(
+            //            "graph" -> processInstanceFuture.graphs.toJson,
+            "graph" -> graphFuture.graph.toJson,
+            "history" -> historyFuture.h.toJson,
+            "actions" -> availableActionsFuture.availableActions.toJson)
 
-          result onSuccess {
-            case obj: JsObject =>
-              complete(StatusCodes.OK, obj)
-          }
-          result onFailure {
-            case _ =>
-              complete(StatusCodes.InternalServerError)
-          }
-          complete(StatusCodes.InternalServerError)
+          complete(composedFuture)
+
         } ~
           //LIST
           path("") {
-            //List all executed process (for a given user)
-            val future = subjectProviderManager ? ExecuteRequestAll(userId.toInt)
+            implicit val timeout = Timeout(5 seconds)
 
-            val result = for {
-              instanceids <- future.mapTo[Int]
-            } yield JsArray(instanceids.toJson)
+            val composedFuture = for {
+              instanceids <- (subjectProviderManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
+            } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
 
-            result onSuccess {
-              case array: JsArray =>
-                complete(StatusCodes.OK, array)
-            }
-            result onFailure {
-              case _ =>
-                complete(StatusCodes.InternalServerError)
-            }
-            complete(StatusCodes.InternalServerError)
+            complete(composedFuture)
           }
 
       } ~
         delete {
           //DELETE
-          path(IntNumber) { processID =>
-            //stop and delete given process
-            val future = context.actorOf(Props[ProcessManagerActor]) ? KillProcess(userId.toInt)
+          path(IntNumber) { processInstanceID =>
+            //stop and delete given process instance
 
-            val result = future.mapTo[Boolean]
+            implicit val timeout = Timeout(5 seconds)
 
-            result onSuccess {
-              case obj: Boolean =>
-                if (obj)
-                  complete(StatusCodes.OK)
-                else
-                  complete(StatusCodes.InternalServerError)
-            }
-            result onFailure {
-              case _ =>
-                complete(StatusCodes.InternalServerError)
-            }
-            complete(StatusCodes.InternalServerError)
+            val composedFuture = for {
+              kill <- (subjectProviderManager ? KillProcessInstance(userID.toInt)).mapTo[KillProcessInstanceAnswer]
+            } yield JsObject("instanceIDs" -> kill.success.toJson)
+
+            complete(composedFuture)
           }
         } ~
         put {
           //UPDATE
-          path(IntNumber) { processID =>
-            formField("actionID") { (actionID) =>
+          path(IntNumber) { processInstanceID =>
+            formField("ExecuteAction") { (action) =>
               //execute next step (chosen by actionID)
-              val future = subjectProviderManager ? UpdateRequest(processID.toInt, actionID)
-              val result = future.mapTo[Boolean]
-              result onSuccess {
-                case obj: Boolean =>
-                  if (obj)
-                    complete(StatusCodes.OK)
-                  else
-                    complete(StatusCodes.InternalServerError)
-              }
-              result onFailure {
-                case _ =>
-                  complete(StatusCodes.InternalServerError)
-              }
-              complete(StatusCodes.InternalServerError)
+
+              implicit val timeout = Timeout(5 seconds)
+
+              case class ExecuteActionCreator(userID: UserID,
+                                              processInstanceID: ProcessInstanceID,
+                                              subjectID: SubjectID,
+                                              stateID: StateID,
+                                              stateType: String,
+                                              actionInput: String)
+              implicit val executeActionFormat = jsonFormat6(ExecuteActionCreator)
+
+              val composedFuture = for {
+                update <- (subjectProviderManager ? ExecuteAction(action.asJson.convertTo[ExecuteActionCreator])).mapTo[ExecuteActionAnswer]
+              } yield JsObject()
+
+              //
+              complete(composedFuture)
+
+              //              val future = subjectProviderManager ? UpdateRequest(processID.toInt, actionID)
+              //              val result = future.mapTo[Boolean]
+              //              result onSuccess {
+              //                case obj: Boolean =>
+              //                  if (obj)
+              //                    complete(StatusCodes.OK)
+              //                  else
+              //                    complete(StatusCodes.InternalServerError)
+              //              }
+              //              result onFailure {
+              //                case _ =>
+              //                  complete(StatusCodes.InternalServerError)
+              //              }
+              //              complete(StatusCodes.InternalServerError)
             }
 
           }
         } ~
         post { //CREATE
           path("") {
-            formField("processID") { (processId) =>
-              val future = subjectProviderManager ? CreateProcessInstance(userId.toInt, processId.toInt)
-              val result = future.mapTo[Int]
-              result onSuccess {
-                case id: Int =>
-                  val obj = JsObject("InstanceID" -> id.toJson)
-                  complete(StatusCodes.Created, obj)
-              }
-              result onFailure {
-                case _ =>
-                  complete(StatusCodes.InternalServerError)
-              }
-              complete(StatusCodes.InternalServerError)
+            formField("processID") { (processID) =>
+
+              implicit val timeout = Timeout(5 seconds)
+
+              val composedFuture = for {
+                instanceid <- (subjectProviderManager ? CreateProcessInstance(userID.toInt, processID.toInt)).mapTo[ProcessInstanceCreated]
+              } yield JsObject("instanceIDs" -> instanceid.processInstanceID.toJson)
+
+              complete(composedFuture)
             }
           }
         }
     }
   })
-
-  //  case class Status(status: StatusCode) extends HttpHeader {
-  //    def name = "Status"
-  //    def lowercaseName = "status"
-  //    def value = status.toString
-  //  }
-  //
-  //  protected def complete[A](entity: A, status: StatusCode)(implicit marshaller: Marshaller[A]) =
-  //    respondWithHeader(Status(status)) {
-  //      _.complete(entity)
-  //    }
-
 }
