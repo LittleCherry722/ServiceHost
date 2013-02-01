@@ -17,9 +17,6 @@ define([
 	var ViewModel = function() {
 		this.currentProcess = currentProcess;
 
-		pB = function(){
-			console.log(currentProcess());
-		}
 
 		// The currently displayed graph
 		this.currentGraph = currentGraph;
@@ -81,6 +78,26 @@ define([
 		this.saveCurrentProcessAs = function() {
 			saveCurrentGraphAs( newProcessName() );
 		}
+		
+			//Import and export the graph.
+	
+		this.exportGraph = function() {
+			var graph = currentProcess().graph().graphString();
+			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
+			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
+			console.log(graph);
+			this.graphText(graph);
+			
+		}
+	
+		this.graphText = ko.observable("");
+	
+		this.importGraph = function() {
+			currentProcess().graph().graphString(this.graphText());
+			loadGraph(currentProcess().graph());
+		}
+		
+		
 	}
 
 
@@ -321,6 +338,9 @@ define([
 		});
 
 	}
+
+
+
 
 	// Basic graph loading.
 	// Just load the graph from a JSON String and display it.
