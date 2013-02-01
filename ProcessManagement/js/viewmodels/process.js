@@ -283,6 +283,7 @@ define([
 		
 		routings = graph.routings()
 		graph = graph.duplicate();
+		graph.attributesLoaded( true );
 		graph.graphString( gv_graph.saveToJSON() );
 		graph.routings( routings );
 		graph.processID( process.id() );
