@@ -14,6 +14,9 @@ object parseSubjects {
   def apply(subjects: String): Array[SubjectID] = {
     // TODO noch nicht implementiert
     Array(subjects.replace("[", "").replace("]", ""))
+    
+    // TODO for database read
+//    Array("Employee")
   }
 }
 
@@ -65,7 +68,7 @@ object parseGraph {
     // TODO fehlerbehandlung bei falschem String
     // TODO type ersetzung ist so nicht effizient
     ProcessGraph(
-      graph.replace("\"type\":", "\"myType\":").asJson.convertTo[JGraph]
+      graph.replace("\"type\":", "\"myType\":").replace("Human Resource", "HumanResource").asJson.convertTo[JGraph]
         .process.map(parseSubject(_)).toArray)
   }
 

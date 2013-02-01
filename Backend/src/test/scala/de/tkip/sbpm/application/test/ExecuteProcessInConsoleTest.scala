@@ -21,15 +21,20 @@ import de.tkip.sbpm.persistence.TestPersistenceActor
 import ActorLocator._
 import akka.actor.ActorContext
 import akka.actor.ActorContext
+import de.tkip.sbpm.persistence.PersistenceActor
 
 /**
  * Creates all actors
  */
 object createTestRunSystem {
-  def apply(): (ActorSystem, ActorRef) = {
+  def apply(testPersistence: Boolean = true): (ActorSystem, ActorRef) = {
     val system = ActorSystem()
 
-    system.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
+    if (testPersistence) {
+      system.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
+    } else {
+      system.actorOf(Props[PersistenceActor], ActorLocator.persistenceActorName)
+    }
     system.actorOf(Props[ContextResolverActor], ActorLocator.contextResolverActorName)
     system.actorOf(Props[ProcessManagerActor], ActorLocator.processManagerActorName)
     val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
@@ -38,29 +43,53 @@ object createTestRunSystem {
   }
 }
 
+object printHistory {
+  def apply(history: History): String = {
+    val sb: StringBuilder = new StringBuilder()
+
+    sb ++= "History for process: %s (Instance: %d)"
+      .format(history.processName, history.instanceId)
+    sb ++= "\nStarttime: " + history.processStarted
+    for (entry <- history.entries) {
+      sb ++= "\n\t%s from: %s to: %s @%s, with message:"
+        .format(entry.subject, entry.fromState, entry.toState, entry.timestamp)
+      val message = entry.message
+      if (message == null) {
+        sb ++= "\n\t\tNo Message"
+      } else {
+        sb ++= "\n\t\t [%d] from: %s to: %s channel: %s with content: %s"
+          .format(message.id, message.from, message.to, message.messageType, message.data)
+      }
+    }
+    sb ++= "\nEndtime: " + history.processEnded
+
+    sb.toString
+  }
+}
+
 object ExecuteProcessInConsoleTest {
 
-  val processGraph =
-    ProcessGraph(
-      Array[Subject](
-        Subject("Superior",
-          Array[State](
-            State(0, "start", StartStateType, Array[Transition](StartTransition(1))),
-            State(1, "receive", ReceiveStateType, Array[Transition](Transition("BT Application", "Employee", 2))),
-            State(2, "act", ActStateType, Array[Transition](ActTransition("Approval", 3), ActTransition("Denial", 4))),
-            State(3, "send approval", SendStateType, Array[Transition](Transition("Approval", "Employee", 5))),
-            State(4, "send denial", SendStateType, Array[Transition](Transition("Denial", "Employee", 5))),
-            State(5, "end superior", EndStateType, Array[Transition]()))),
-        Subject("Employee",
-          Array[State](
-            State(0, "Start", StartStateType, Array[Transition](StartTransition(1))),
-            State(1, "Fill out Application", ActStateType, Array[Transition](ActTransition("Done", 2))),
-            State(2, "Send Application", SendStateType, Array[Transition](Transition("BT Application", "Superior", 3))),
-            State(3, "Receive", ReceiveStateType, Array[Transition](Transition("Approval", "Superior", 4), Transition("Denial", "Superior", 5))),
-            State(4, "Make business trip", ActStateType, Array[Transition](ActTransition("Done", 5))),
-            State(5, "End employee", EndStateType, Array[Transition]())))))
-
-  val processModel = ProcessModel(1, "Urlaub", processGraph)
+  //  val processGraph =
+  //    ProcessGraph(
+  //      Array[Subject](
+  //        Subject("Superior",
+  //          Array[State](
+  //            State(0, "start", StartStateType, Array[Transition](StartTransition(1))),
+  //            State(1, "receive", ReceiveStateType, Array[Transition](Transition("BT Application", "Employee", 2))),
+  //            State(2, "act", ActStateType, Array[Transition](ActTransition("Approval", 3), ActTransition("Denial", 4))),
+  //            State(3, "send approval", SendStateType, Array[Transition](Transition("Approval", "Employee", 5))),
+  //            State(4, "send denial", SendStateType, Array[Transition](Transition("Denial", "Employee", 5))),
+  //            State(5, "end superior", EndStateType, Array[Transition]()))),
+  //        Subject("Employee",
+  //          Array[State](
+  //            State(0, "Start", StartStateType, Array[Transition](StartTransition(1))),
+  //            State(1, "Fill out Application", ActStateType, Array[Transition](ActTransition("Done", 2))),
+  //            State(2, "Send Application", SendStateType, Array[Transition](Transition("BT Application", "Superior", 3))),
+  //            State(3, "Receive", ReceiveStateType, Array[Transition](Transition("Approval", "Superior", 4), Transition("Denial", "Superior", 5))),
+  //            State(4, "Make business trip", ActStateType, Array[Transition](ActTransition("Done", 5))),
+  //            State(5, "End employee", EndStateType, Array[Transition]())))))
+  //
+  //  val processModel = ProcessModel(1, "Urlaub", processGraph)
 
   /**
    * This class simulates the frontentinterfaceactor and runs by the console
@@ -72,18 +101,27 @@ object ExecuteProcessInConsoleTest {
 
     def receive = {
 
-      case a: ExecuteActionAnswer =>
+      case a: ExecuteActionAnswer => {
         println("FE - action executed: " + a)
         Thread.sleep(100)
         subjectProviderManagerActor ! GetAvailableActions(a.request.userID, a.request.processInstanceID)
+      }
 
-      case AvailableActionsAnswer(request, available) =>
+      case AvailableActionsAnswer(request, available) => {
         if (available.isEmpty) {
-          println("FE: No actions are available anymore")
+          println("FE - No actions are available anymore...")
+          println("FE - Asking for history...")
+          subjectProviderManagerActor ! GetHistory(request.userID, request.processInstanceID)
         }
         for (action <- available) {
           executeAction(action)
         }
+      }
+
+      case HistoryAnswer(_, history) => {
+        println("\nExecutionHistory:\n")
+        println(printHistory(history))
+      }
 
       case a: AvailableAction =>
         executeAction(a)
@@ -100,9 +138,9 @@ object ExecuteProcessInConsoleTest {
       StateType.fromStringtoStateType(avail.stateType) match {
         case ActStateType =>
           var action = readLine("Execute one Action of " + avail.actionData.mkString("{", ", ", "}:"))
-          while (!avail.actionData.contains(action)) {
-            action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
-          }
+          //          while (!avail.actionData.contains(action)) {
+          //            action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
+          //          }
           subjectProviderManagerActor ! ExecuteAction(avail, action)
         case SendStateType =>
           val message = readLine("Please insert message: ")
@@ -122,14 +160,14 @@ object ExecuteProcessInConsoleTest {
   }
 
   def testProcessAndSubjectCreationWithKonsole() {
-    val parseJson = true
     implicit val timeout = Timeout(5 seconds)
-    var graph: ProcessGraph = null
-    if (parseJson) {
-      graph = parseGraph(MyJSONTestGraph.processGraph)
-    } else {
-      graph = processGraph
-    }
+    //    val parseJson = true
+    //    var graph: ProcessGraph = null
+    ////    if (parseJson) {
+    //      graph = parseGraph(MyJSONTestGraph.processGraph)
+    //    } else {
+    //      graph = processGraph
+    //    }
 
     val (system, _) = createTestRunSystem()
     val console = system.actorOf(Props(new FrontendSimulatorActor()))
@@ -140,7 +178,7 @@ object ExecuteProcessInConsoleTest {
       Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
     println("User Created id: " + userID)
 
-    val processID = 2
+    val processID = 1
     // Execute the ProcessInstance
     val future3 = console ? CreateProcessInstance(userID, processID)
     val processInstanceID: Int =
