@@ -422,12 +422,9 @@ define([
 		// Save Process buttons behavior
 		$( "#saveProcessAsButton" ).live( "click", function() {
 			$('#newProcessName').val( currentProcess().name() ).trigger('change');
-			$(this).parent().slideUp( 350 );
-			$(this).parent().next().slideDown( 350 );
-		});
-		$( "#saveProcessAs input[type='button']" ).live( "click", function() {
-			$(this).parent().slideUp( 350 );
-			$(this).parent().prev().slideDown( 350 );
+			setTimeout(function() {
+				$('#newProcessName').focus().select();
+			}, 150);
 		});
 
 		// tooltips
@@ -638,7 +635,6 @@ define([
 		$( "#tab" + tabIndex ).addClass( "active" );
 		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
-		$( "#saveProcessAsButton" ).parent().slideDown().next().slideUp();
 		$( "#slctMacroDropDown" ).hide();
 
 		// Hide the graph zoom Buttons n charge view. Show it in all other views.

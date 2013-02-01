@@ -1,26 +1,6 @@
 <div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
 
 <div class="graphsettings">
-  <fieldset class="clearfix hidden">
-    <legend>Process Settings<span class="processSettingsTrigger">Show</span></legend>
-    <div class="toggle-able">
-      <label>Change revision</label>
-      <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>
-      <br />
-      <div>
-        <input type="button" data-bind="click: saveCurrentProcess" value="Save Process" />
-        <input type="button" id="saveProcessAsButton" value="Save Process As" />
-      </div>
-      <div id="saveProcessAs" class="hidden">
-        <label>New process name</label>
-        <input id="newProcessName" type="text" data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
-        <p class="text-error" style="text-align: left;" data-bind="text: processNameError"></p>
-        <input type="button" value="Cancel" />
-        <input type="button" data-bind="click: saveCurrentProcessAs" value="Save" />
-      </div>
-    </div>
-  </fieldset>
-
   <fieldset class="tooltip-enabled">
     <legend>Subject settings</legend>
 
