@@ -46,7 +46,7 @@ private[persistence] class GroupRolePersistenceActor extends Actor with Database
       case GetGroupRole(groupId, None) =>
         answer { GroupRoles.where(_.groupId === groupId).sortBy(_.roleId).list }
         // get group -> role mapping
-      case GetGroupUser(groupId, roleId) =>
+      case GetGroupRole(groupId, roleId) =>
         answer { GroupRoles.where(e => e.groupId === groupId && (e.roleId === roleId)).firstOption }
       // save group -> role mapping
       case SaveGroupRole(gr: GroupRole) => answer { save(gr) }
