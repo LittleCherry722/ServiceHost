@@ -17,9 +17,6 @@ define([
 	var ViewModel = function() {
 		this.currentProcess = currentProcess;
 
-		pB = function(){
-			console.log(currentProcess());
-		}
 
 		// The currently displayed graph
 		this.currentGraph = currentGraph;
@@ -81,6 +78,26 @@ define([
 		this.saveCurrentProcessAs = function() {
 			saveCurrentGraphAs( newProcessName() );
 		}
+		
+			//Import and export the graph.
+	
+		this.exportGraph = function() {
+			var graph = currentProcess().graph().graphString();
+			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
+			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
+			console.log(graph);
+			this.graphText(graph);
+			
+		}
+	
+		this.graphText = ko.observable("");
+	
+		this.importGraph = function() {
+			currentProcess().graph().graphString(this.graphText());
+			loadGraph(currentProcess().graph());
+		}
+		
+		
 	}
 
 
@@ -283,10 +300,12 @@ define([
 
 		routings = graph.routings()
 		graph = graph.duplicate();
+		graph.attributesLoaded( true );
 		graph.graphString( gv_graph.saveToJSON() );
 		graph.routings( routings );
 		graph.processId( process.id() );
 		graph.save({ async: false });
+
 		process.graph( graph );
 		process.save(function() {
 			Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved");
@@ -319,6 +338,9 @@ define([
 		});
 
 	}
+
+
+
 
 	// Basic graph loading.
 	// Just load the graph from a JSON String and display it.
@@ -420,12 +442,9 @@ define([
 		// Save Process buttons behavior
 		$( "#saveProcessAsButton" ).live( "click", function() {
 			$('#newProcessName').val( currentProcess().name() ).trigger('change');
-			$(this).parent().slideUp( 350 );
-			$(this).parent().next().slideDown( 350 );
-		});
-		$( "#saveProcessAs input[type='button']" ).live( "click", function() {
-			$(this).parent().slideUp( 350 );
-			$(this).parent().prev().slideDown( 350 );
+			setTimeout(function() {
+				$('#newProcessName').focus().select();
+			}, 150);
 		});
 
 		// tooltips
@@ -636,7 +655,6 @@ define([
 		$( "#tab" + tabIndex ).addClass( "active" );
 		$( "#tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
-		$( "#saveProcessAsButton" ).parent().slideDown().next().slideUp();
 		$( "#slctMacroDropDown" ).hide();
 
 		// Hide the graph zoom Buttons n charge view. Show it in all other views.

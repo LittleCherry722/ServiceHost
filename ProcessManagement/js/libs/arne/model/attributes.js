@@ -105,9 +105,10 @@ define([
 		return parseFloat( value );
 	}
 
+	var truthyValues = ["true", "t", "1", 1, true]
 	// Convert a JSON value to a boolean value.
 	var booleanFromJSON = function( value ) {
-		return !!value;
+		return _( truthyValues ).contains( value );
 	}
 
 	// Default attributes Object.

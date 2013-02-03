@@ -1,17 +1,25 @@
 package de.tkip.sbpm.application
 
-import akka.actor._
-import miscellaneous._
-import miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.ProcessModel
-import de.tkip.sbpm.model.Subject
 import java.util.Date
 import scala.collection.mutable.Buffer
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent._
+import scala.concurrent.Future._
+import scala.concurrent.duration._
+import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.model.ProcessModel
+import de.tkip.sbpm.model.ProcessGraph
+import de.tkip.sbpm.model.Subject
+import de.tkip.sbpm.model.Process
+import de.tkip.sbpm.model.ProcessInstance
+import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
-
-// message to get history of project instance
-//case class GetHistory()
+import de.tkip.sbpm.persistence._
 
 // represents the history of the instance
 case class History(processName: String,
@@ -20,85 +28,99 @@ case class History(processName: String,
                    var processEnded: Date = null, // null if not started or still running
                    entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
-// sub package for history related classes
-package history {
-  // represents an entry in the history (a state transition inside a subject)
-  case class Entry(timestamp: Date, // time transition occurred
-                   subject: String, // respective subject
-                   fromState: State = null, // transition initiating state (null if start state)
-                   toState: State, // end state of transition
-                   message: Message = null) // message that was sent in transition (null if none)
-  // describes properties of a state
-  case class State(name: String, stateType: String)
-  // message exchanged in a state transition
-  case class Message(id: Int,
-                     messageType: String,
-                     from: String, // sender subject of message
-                     to: String, // receiver subject of message 
-                     data: String, // link to msg payload
-                     files: Seq[MessagePayloadLink] = null) // link to file attachments
-  // represents a link to a message payload which contains a actor ref 
-  // and a payload id that is needed by that actor to identify payload
-  case class MessagePayloadLink(actor: ActorRef, payloadId: String)
-  // this message can be sent to message payload providing actors referenced in
-  // message payload link to retrieve actual payload
-  case class GetMessagePayload(messageId: Int, payloadId: String)
-}
-
-// TODO hier lassen oder woanders hin?
-case class AddSubject(userID: UserID, subjectID: SubjectID)
-
 /**
  * instantiates SubjectActor's and manages their interactions
  */
-class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel) extends Actor {
+class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends Actor {
+  // This case class is to add Subjects to this ProcessInstance
+  private case class AddSubject(userID: UserID, subjectID: SubjectID)
+
+  import ExecutionContext.Implicits.global // TODO this import or something different?
+  implicit val timeout = Timeout(10 seconds)
+
+  // TODO "None" rueckgaben behandeln
+  // Get the ProcessGraph from the database and create the database entry
+  // for this process instance
+  val dataBaseAccessFuture = for {
+    // get the process
+    processFuture <- (ActorLocator.persistenceActor ?
+      GetProcess(Some(processID))).mapTo[Option[Process]]
+    // save this process instance in the persistence
+    processInstanceSavedFuture <- ActorLocator.persistenceActor ?
+      SaveProcessInstance(ProcessInstance(Some(id), processID, processFuture.get.graphId, "", ""))
+    // get the corresponding graph
+    graphFuture <- (ActorLocator.persistenceActor ?
+      GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
+  } yield (processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+
+  // evaluate the Future
+  val (processName: String, startSubjectsString: SubjectID, graphJSON: String) =
+    Await.result(dataBaseAccessFuture, timeout.duration)
+
+  // parse the start-subjects into an Array
+  val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
+  // parse the graph into the internal structure
+  val graph: ProcessGraph = parseGraph(graphJSON)
 
   // TODO wie uebergeben?
-  private val contextResolver = context.actorOf(Props(new ContextResolverActor))
+  private lazy val contextResolver = ActorLocator.contextResolverActor
 
   // this pool stores the message to the subject, which does not exist,
   // but will be created soon (the UserID is requested)
   private var messagePool = Set[(ActorRef, SubjectInternalMessage)]()
 
-  private var subjectCounter = 0
-  private val subjectMap = collection.mutable.Map[SubjectName, SubjectRef]()
+  // this map stores all Subjects with their IDs 
+  private var subjectCounter = 0 // TODO We dont really need counter
+  private val subjectMap = collection.mutable.Map[SubjectID, SubjectRef]()
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
   // history.Entry messages to this actor
-  private val executionHistory = History(process.name, id, new Date()) // TODO start time = creation time?
+  private val executionHistory = History(processName, id, new Date()) // TODO start time = creation time?
   // provider actor for debug payload used in history's debug data
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
+
+  // add all start subjects
+  for (startSubject <- startSubjects) {
+    contextResolver !
+      RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
+  }
 
   def receive = {
 
     case as: AddSubject => {
       val subject: Subject = getSubject(as.subjectID)
 
-      // create the subject
-      val subjectRef =
-        context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
-      // add the subject to the management map
-      subjectMap += subject.id -> subjectRef
-      subjectCounter += 1
+      // TODO was tun
+      if (subject == null) {
+        println("ProcessInstance " + id + " -- Subject unknown for " + as)
+      } else {
 
-      println("process " + id + " created subject " + subject.id + " for user " + as.userID)
+        // create the subject
+        val subjectRef =
+          context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
+        // add the subject to the management map
+        subjectMap += subject.id -> subjectRef
+        subjectCounter += 1
 
-      // if there are messages to deliver to the new subject,
-      // forward them to the subject 
-      if (!messagePool.isEmpty) {
-        for ((orig, sm) <- messagePool if sm.to == subject.id) {
-          subjectRef.!(sm)(orig)
+        println("process " + id + " created subject " + subject.id + " for user " + as.userID)
+
+        // if there are messages to deliver to the new subject,
+        // forward them to the subject 
+        if (!messagePool.isEmpty) {
+          for ((orig, sm) <- messagePool if sm.to == subject.id) {
+            subjectRef.!(sm)(orig)
+          }
+          messagePool = messagePool.filterNot(_._2.to == subject.id)
         }
-        messagePool = messagePool.filterNot(_._2.to == subject.id)
+
+        // inform the subject provider about his new subject
+        context.parent !
+          SubjectCreated(as.userID, processID, id, subject.id, subjectRef)
+
+        // start the execution of the subject
+        subjectRef ! StartSubjectExecution()
       }
-
-      // inform the subject provider about his new subject
-      context.parent !
-        SubjectCreated(as.userID, process.processID, id, subject.id, subjectRef)
-
-      // start the execution of the subject
-      subjectRef ! StartSubjectExecution()
     }
 
     case st: SubjectTerminated => {
@@ -107,7 +129,7 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
       println("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (subjectCounter == 0) {
         executionHistory.processEnded = new Date()
-        context.stop(self)// TODO stop process instance?
+        //        context.stop(self) // TODO stop process instance?
       }
     }
 
@@ -121,9 +143,9 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
     case msg: GetHistory => {
       sender ! {
         if (msg.isInstanceOf[Debug]) {
-          HistoryTestData.generate(process.name, id)(debugMessagePayloadProvider)
+          HistoryTestData.generate(processName, id)(debugMessagePayloadProvider)
         } else {
-          executionHistory
+          HistoryAnswer(msg, executionHistory)
         }
       }
     }
@@ -165,6 +187,10 @@ class ProcessInstanceActor(val id: ProcessInstanceID, val process: ProcessModel)
 
   private def getSubject(name: String): Subject = {
     // TODO increase performance
-    process.subjects.find(_.id == name).get
+    val subject = graph.subjects.find(_.id == name)
+    subject match {
+      case None => null
+      case _ => subject.get
+    }
   }
 }

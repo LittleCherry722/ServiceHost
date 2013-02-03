@@ -967,11 +967,40 @@ table.data2 tr td {
     padding: 0;
     height: 28px;
   }
+
+  .btn-group {
+    .btn-group {
+      .btn:first-child {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+        border-left: 0 none;
+      }
+    }
+  }
 }
 .first-tab-selected .header {
   @include border-radius(0 5px 0 0);
 }
 
+.btn.btn-primary {
+  text-shadow: none;
+
+  &:hover {
+    background-color: #453E55;
+  }
+}
+
 .hide {
 	display: none;
+}
+
+.save-dropdown {
+  li a {
+    padding: 6px 20px;
+    cursor: pointer;
+
+    &:hover {
+      text-shadow: 0px 1px #000;
+    }
+  }
 }

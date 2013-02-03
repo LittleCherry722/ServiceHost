@@ -6,8 +6,12 @@ import miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.ActorLocator
+import akka.event.Logging
 
 class SubjectProviderManagerActor extends Actor {
+  
+  val logger = Logging(context.system, this)
+  
   private lazy val processManagerActor = ActorLocator.processManagerActor
   private var subjectCount = 0
   private val subjectProviderMap =
@@ -22,25 +26,6 @@ class SubjectProviderManagerActor extends Actor {
       sender ! SubjectProviderCreated(csp, subjectCount)
       subjectCount += 1
 
-    case gpr: ExecuteRequest =>
-      forwardControlMessageToProvider(gpr.userID, gpr)
-
-    case sra: ExecuteRequestAll =>
-      forwardControlMessageToProvider(sra.userID, sra)
-
-    case rp: ReadProcess =>
-      forwardControlMessageToProvider(rp.userID, rp)
-
-    case cp: CreateProcess =>
-      forwardControlMessageToProvider(cp.userID, cp)
-
-    case ra: RequestAnswer =>
-      forwardControlMessageToProvider(ra.processID, ra)
-
-    case cp: CreateProcessInstance =>
-      cp.sender = sender
-      forwardControlMessageToProvider(cp.userID, cp)
-
     // general matching:
     // first match the answers
     // then SubjectProviderMessages
@@ -54,12 +39,16 @@ class SubjectProviderManagerActor extends Actor {
       if (subjectProviderMap.contains(message.userID)) {
         subjectProviderMap(message.userID) ! withSender(message)
       } else {
-        println("SubjectProvidermManger - Message for SP" + message.userID +
+        logger.info("SubjectProvidermManger - Message for SP" + message.userID +
           " but does not exist")
       }
     }
 
     // TODO muss man zusammenfassen koennen
+    case message: PersistenceMessage => {
+      processManagerActor.forward(message)
+    }
+    
     case message: AnswerAbleMessage => {
       processManagerActor ! message.withSender(sender)
     }
@@ -72,6 +61,14 @@ class SubjectProviderManagerActor extends Actor {
       processManagerActor ! message
     }
 
+    case message: GetAvailableActions => {
+      if (subjectProviderMap.contains(message.userID)) {
+        subjectProviderMap(message.userID).forward(message)
+      } else {
+        logger.info("Actions for subject "+message.userID+" but does not exist");
+      }
+    }
+    
     case s => {
       println("SubjectProviderManger not yet implemented: " + s)
     }
@@ -105,7 +102,7 @@ class SubjectProviderManagerActor extends Actor {
   // (overrides the old entry)
   private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
-      context.actorOf(Props(new SubjectProviderActor(userID, processManagerActor)))
+      context.actorOf(Props(new SubjectProviderActor(userID)))
     subjectProviderMap += userID -> subjectProvider
     subjectProvider
   }
@@ -117,5 +114,4 @@ class SubjectProviderManagerActor extends Actor {
       subjectProviderMap -= userID
     }
   }
-
 }

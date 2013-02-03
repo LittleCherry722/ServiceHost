@@ -42,6 +42,45 @@
 					</div>
 
 					<button id="tab3" class="btn">Routing</button>
+
+					<div class="btn-group">
+						<a class="btn" data-bind="click: saveCurrentProcess" title="Save Process">
+							<i class="icon-save icon-large"></i> Save
+						</a>
+						<a class="btn dropdown-toggle" data-toggle="dropdown">
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu save-dropdown">
+							<li>
+								<a data-bind="click: saveCurrentProcess" title="Save Process">
+									<i class="icon-save icon-large"></i> Save
+								</a>
+							</li>
+							<li>
+								<a href="#saveAsModal" id="saveProcessAsButton" data-toggle="modal">
+									<i class="icon-copy icon-large"></i> Save As
+								</a>
+							</li>
+						</ul>
+					</div>
+
+					<div id="saveAsModal" class="modal hide" tabindex="-1">
+						<div class="modal-header">
+							<a type="button" class="close" data-dismiss="modal">x</a>
+							<h3>Save Graph As</h3>
+						</div>
+						<div id="saveProcessAs" class="modal-body">
+							<label for="newProcessName">New Process Name</label>
+							<input id="newProcessName" type="text" data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
+						</div>
+						<div class="modal-footer">
+							<button class="btn" data-dismiss="modal">Close</button>
+							<button class="btn btn-primary" data-dismiss="modal" data-bind="click: saveCurrentProcessAs">
+								Save Process
+							</button>
+						</div>
+					</div>
+
 				</div>
 			</div>
 

@@ -17,17 +17,18 @@ import akka.util.Timeout
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous.Debug
 import de.tkip.sbpm.model.ProcessModel
-
 import de.tkip.sbpm.application.miscellaneous.GetHistory
+import de.tkip.sbpm.persistence.TestPersistenceActor
+import de.tkip.sbpm.ActorLocator
 
 class HistoryTest extends FunSuite {
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
   val sys = ActorSystem()
-  val actor = sys.actorOf(Props(new ProcessInstanceActor(1, ProcessModel(1, "process 1", null))))
+  val actor = sys.actorOf(Props(new ProcessInstanceActor(1, 1)))
+  val testPersistence = sys.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
 
   test("test history debug data structure") {
-    // TODO ich hab hier die user und processInstanzid eingefuegt, weil es vorher einen Fehler gab
     val future = actor ? new GetHistory(userID = 1, processInstanceID = 1) with Debug
     val result = Await.result(future.mapTo[History], timeout.duration)
     println(result)

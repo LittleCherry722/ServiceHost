@@ -34,7 +34,7 @@ case class AvailableAction(userID: UserID,
                            stateID: StateID,
                            stateType: String,
                            actionData: Array[String])
-    extends SubjectProviderMessage
+  extends SubjectProviderMessage
 
 // The Execution command from the user
 case class ExecuteAction(userID: UserID,
@@ -43,20 +43,42 @@ case class ExecuteAction(userID: UserID,
                          stateID: StateID,
                          stateType: String,
                          actionInput: String)
-    extends AnswerAbleMessage
-    with SubjectBehaviorRequest
-    with SubjectMessage
-    with SubjectProviderMessage
+  extends AnswerAbleMessage
+  with SubjectBehaviorRequest
+  with SubjectMessage
+  with SubjectProviderMessage
 
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
 case class ExecuteActionAnswer(request: ExecuteAction) extends AnswerMessage
 
+private object ExecuteActionType {
+
+  type ExecuteActionType = {
+    def userID: UserID
+    def processInstanceID: ProcessInstanceID
+    def subjectID: SubjectID
+    def stateID: StateID
+    def stateType: String
+    def actionInput: String
+  }
+}
+
 object ExecuteAction {
   def apply(available: AvailableAction, actionInput: String): ExecuteAction =
-    ExecuteAction(available.userID,
+    ExecuteAction(
+      available.userID,
       available.processInstanceID,
       available.subjectID,
       available.stateID,
       available.stateType,
       actionInput)
+
+  def apply(action: ExecuteActionType.ExecuteActionType): ExecuteAction =
+    ExecuteAction(
+      action.userID,
+      action.processInstanceID,
+      action.subjectID,
+      action.stateID,
+      action.stateType,
+      action.actionInput)
 }

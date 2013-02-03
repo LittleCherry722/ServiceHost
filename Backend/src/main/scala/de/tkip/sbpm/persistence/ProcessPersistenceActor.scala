@@ -4,6 +4,8 @@ import akka.actor.Actor
 import de.tkip.sbpm.model._
 import akka.actor.Props
 import scala.slick.lifted
+import akka.pattern._
+import scala.concurrent._
 
 /*
 * Messages for querying database
@@ -16,7 +18,10 @@ sealed abstract class ProcessAction extends PersistenceAction
 case class GetProcess(id: Option[Int] = None, name: Option[String] = None) extends ProcessAction
 // save process to db, if id is None a new process is created 
 // and its id (Option[Int]) is returned otherwise None
-case class SaveProcess(process: Process) extends ProcessAction
+// if a graph is given additionally, the graph is saved too and its id is injected into process entity
+// the result of this message is a tuple (processId: Option[Int], graphId: Option[Int])
+// values (if defined) are generated ids if entities were created
+case class SaveProcess(process: Process, graph: Option[Graph] = None) extends ProcessAction
 // delete process with id from db (no. of deleted entities is returned)
 case class DeleteProcess(id: Int) extends ProcessAction
 
@@ -52,10 +57,13 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
       case GetProcess(None, name) =>
         answer { Processes.where(_.name === name).firstOption }
       // create new process
-      case SaveProcess(p @ Process(None, _, _, _, _)) =>
+      case SaveProcess(p @ Process(None, _, _, _, _), None) =>
         answer { Some(Processes.autoInc.insert(p)) }
+      // create new process with a corresponding graph
+      case SaveProcess(p: Process, g: Option[Graph]) =>
+        answer { saveProcessWithGraph(p, g) }
       // save existing process
-      case SaveProcess(p @ Process(id, _, _, _, _)) =>
+      case SaveProcess(p @ Process(id, _, _, _, _), None) =>
         answer { Processes.where(_.id === id).update(p); None }
       // delete process with given id
       case DeleteProcess(id) =>
@@ -65,5 +73,33 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
     }
   }
 
+  /**
+   * Saves a process with the corresponding graph to the database.
+   */
+  private def saveProcessWithGraph(p: Process, g: Option[Graph])(implicit session: Session) = {
+    var resultId = p.id
+    // if id not defined -> save new process
+    if (!p.id.isDefined) {
+      var pId = Processes.autoInc.insert(p)
+      p.id = Some(pId)
+      g.get.id = None
+      resultId = p.id
+    } else {
+      resultId = None
+    }
+    // set process id in graph
+    g.get.processId = p.id.get
+    // save graph via persistence actor
+    val graphFuture = context.parent ? SaveGraph(g.get)
+    val gId = Await.result(graphFuture.mapTo[Option[Int]], timeout.duration)
+    // if graph was created retrieve id
+    if (gId.isDefined)
+      p.graphId = gId.get
+    else
+      p.graphId = g.get.id.get
+    // update process with graph id
+    Processes.where(_.id === p.id).update(p)
+    (resultId, gId)
+  }
 }
 

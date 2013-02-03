@@ -7,10 +7,24 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 
 /**
+ * This object is responsible to divide a string listing of subjects
+ * into the independet subjectIDs
+ */
+object parseSubjects {
+  def apply(subjects: String): Array[SubjectID] = {
+    // TODO noch nicht implementiert
+    Array(subjects.replace("[", "").replace("]", ""))
+    
+    // TODO for database read
+//    Array("Employee")
+  }
+}
+
+/**
  * This object is responsible to create a ProcessGraph
  * out of the JSON representation
  */
-object ProcessMarshalling {
+object parseGraph {
   // The marshalling case classes
   // TODO wo genau steht die messagetype
   private case class JGraph(process: Array[JSubject])
@@ -50,63 +64,66 @@ object ProcessMarshalling {
     def createState: State = State(id, name, stateType, transitions.toArray)
   }
 
-  def parseGraph(graph: String): ProcessGraph = {
+  def apply(graph: String): ProcessGraph = {
     // TODO fehlerbehandlung bei falschem String
+    // TODO type ersetzung ist so nicht effizient
     ProcessGraph(
-      graph.replace("\"type\":", "\"myType\":").asJson.convertTo[JGraph]
+      graph.replace("\"type\":", "\"myType\":").replace("Human Resource", "HumanResource").asJson.convertTo[JGraph]
         .process.map(parseSubject(_)).toArray)
   }
 
-  import scala.collection.mutable.{ Map => MutableMap }
-  // TODO irgentwie elegant loesen
-  private var states = MutableMap[StateID, StateCreator]()
-  // TODO unique id's
-  private var startID: StateID = -1
+  private object parseSubject {
+    import scala.collection.mutable.{ Map => MutableMap }
+    // TODO irgentwie elegant loesen
+    private var states = MutableMap[StateID, StateCreator]()
+    // TODO unique id's
+    private var startID: StateID = -1
 
-  private def parseSubject(subject: JSubject): Subject = {
-    states = MutableMap[StateID, StateCreator]()
-    // First create an unique start and end state
-    states(startID) = new StateCreator(startID, "StartState", StartStateType)
+    def apply(subject: JSubject): Subject = {
+      states = MutableMap[StateID, StateCreator]()
+      // First create an unique start and end state
+      states(startID) = new StateCreator(startID, "StartState", StartStateType)
 
-    // at the moment we only support one behavior
-    val behavior: JBehavior = subject.macros(0)
+      // at the moment we only support one behavior
+      val behavior: JBehavior = subject.macros(0)
 
-    // first parse the nodes then the edges
-    parseNodes(behavior.nodes)
-    parseEdges(behavior.edges)
+      // first parse the nodes then the edges
+      parseNodes(behavior.nodes)
+      parseEdges(behavior.edges)
 
-    // all parsed states are in the states map, convert the creators and return
-    // the subject
-    Subject(subject.id, states.map(_._2.createState).toArray)
-  }
-
-  private def parseNodes(nodes: Array[JNode]) {
-    for (node <- nodes) {
-      // if its the startstate add a transition from the startstate to this state
-      if (node.start) {
-        states(startID).addTransition(StartTransition(node.id))
-      }
-      if (states.contains(node.id)) {
-        throw new Exception("Parse failed state id: " + node.id + " is given 2 times")
-      }
-      // add the state creator for this state
-      states(node.id) =
-        new StateCreator(node.id, node.text, fromStringtoStateType(node.myType))
-      // TODO check if end state always is automatic parsed
+      // all parsed states are in the states map, convert the creators and return
+      // the subject
+      Subject(subject.id, states.map(_._2.createState).toArray)
     }
 
-  }
+    private def parseNodes(nodes: Array[JNode]) {
+      for (node <- nodes) {
+        // if its the startstate add a transition from the startstate to this state
+        if (node.start) {
+          states(startID).addTransition(StartTransition(node.id))
+        }
+        if (states.contains(node.id)) {
+          throw new Exception("Parse failed state id: " + node.id + " is given 2 times")
+        }
+        // add the state creator for this state
+        states(node.id) =
+          new StateCreator(node.id, node.text, fromStringtoStateType(node.myType))
+        // TODO check if end state always is automatic parsed
+      }
 
-  private def parseEdges(edges: Array[JEdge]) {
-    for (edge <- edges) {
-      val s =
-        if (!edge.target.isInstanceOf[JsString])
-          edge.target.convertTo[JEdgeTarget].id
-        else
-          "Me"
+    }
 
-      // TODO werden die transitions richtig gebuildet?
-      states(edge.start).addTransition(Transition(edge.text, s, edge.end))
+    private def parseEdges(edges: Array[JEdge]) {
+      for (edge <- edges) {
+        val s =
+          if (!edge.target.isInstanceOf[JsString])
+            edge.target.convertTo[JEdgeTarget].id
+          else
+            "Me"
+
+        // TODO werden die transitions richtig gebuildet?
+        states(edge.start).addTransition(Transition(edge.text, s, edge.end))
+      }
     }
   }
 }

@@ -67,7 +67,7 @@ define([
 
 			Graph.lazyComputed( this, "routings", {
 				read: function() {
-					if ( self.graphObject().routings ) {
+					if ( self.graphObject() && self.graphObject().routings ) {
 						return self.graphObject().routings;
 					} else {
 						return [];

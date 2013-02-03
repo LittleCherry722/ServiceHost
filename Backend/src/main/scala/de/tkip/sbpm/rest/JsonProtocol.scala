@@ -18,6 +18,11 @@ import de.tkip.sbpm.application.history.MessagePayloadLink
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.model.StateType
 import java.util.Date
+import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
+import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.subject.AvailableAction
+import de.tkip.sbpm.application.subject.ExecuteAction
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -57,8 +62,8 @@ object JsonProtocol extends DefaultJsonProtocol {
     def write(obj: ActorRef) = obj.toJson
     def read(json: JsValue) = json.convertTo[ActorRef]
   }
-  
-    implicit object ValueFormat extends RootJsonFormat[de.tkip.sbpm.model.StateType.StateType] {
+
+  implicit object ValueFormat extends RootJsonFormat[de.tkip.sbpm.model.StateType.StateType] {
     def write(obj: de.tkip.sbpm.model.StateType.StateType) = obj.toJson
     def read(json: JsValue) = json.convertTo[de.tkip.sbpm.model.StateType.StateType]
   }
@@ -76,6 +81,7 @@ object JsonProtocol extends DefaultJsonProtocol {
    */
   implicit val envelopeFormat = jsonFormat2(Envelope)
 
+  // administration
   implicit val configurationFormat = jsonFormat4(Configuration)
   implicit val userFormat = jsonFormat4(User)
   implicit val roleFormat = jsonFormat3(Role)
@@ -84,24 +90,25 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val groupRoleFormat = jsonFormat3(GroupRole)
   implicit val activatableFormat = jsonFormat1(Activatable)
 
-  //DomainModel
+  // DomainModel
   implicit val domainGraphFormat = jsonFormat4(Graph)
   implicit val domainProcessFormat = jsonFormat5(Process)
   implicit val actionFormat = jsonFormat2(Action)
 
-  //ProcessModel
-  implicit val transitionFormat = jsonFormat3(Transition)
-  implicit val processStateFormat = jsonFormat4(de.tkip.sbpm.model.State)
-  implicit val subjectFormat = jsonFormat2(Subject)
-  implicit val processGraphFormat = jsonFormat1(ProcessGraph)
-  implicit val ProcessFormat = jsonFormat3(ProcessModel)
-
+  // history
   implicit val stateFormat = jsonFormat2(State)
   implicit val messagePayloadFormat = jsonFormat2(MessagePayloadLink)
   implicit val messageFormat = jsonFormat6(Message)
   implicit val entryFormat = jsonFormat5(Entry)
   implicit val historyFormat = jsonFormat5(History)
-  
 
+  // action execution
+  implicit val availableActionFormat = jsonFormat6(AvailableAction)
+
+  //ProcessModel TODO die braucht man doch garnicht, da das interne model nicht in json uebersetzt wird
+  //  implicit val transitionFormat = jsonFormat3(Transition)
+  //  implicit val processStateFormat = jsonFormat4(de.tkip.sbpm.model.State)
+  //  implicit val subjectFormat = jsonFormat2(Subject)
+  //  implicit val processGraphFormat = jsonFormat1(ProcessGraph)
+  //  implicit val processFormat = jsonFormat3(ProcessModel)
 }
-  

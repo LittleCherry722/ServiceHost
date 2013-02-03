@@ -5,19 +5,17 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.persistence._
+import akka.event.Logging
 
 protected case class RegisterSubjectProvider(userID: UserID,
-                                             subjectProvider: SubjectProviderRef)
+                                             subjectProviderActor: SubjectProviderRef)
 
 /**
  * manages all processes and creates new ProcessInstance's on demand
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor extends Actor {
-  // the process descriptions
-  private var processCount = 0
-  private val processDescritionMap = collection.mutable.Map[ProcessID, ProcessModel]()
-
+  val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
   private var processInstanceCount = 0
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceRef]()
@@ -30,47 +28,60 @@ class ProcessManagerActor extends Actor {
   private lazy val persistenceActor = context.actorOf(Props[PersistenceActor], "persistenceActor")
 
   def receive = {
-
-    // persistence router - in case the debug flag is set, forward the message to
-    // test persistence actor
-    case pa: PersistenceAction => {
-      if (pa.isInstanceOf[Debug]) {
-        forwardToTestPersistenceActor(pa)
-      } else {
-        forwardToPersistenceActor(pa)
-      }
-    }
-
-    case sra: ExecuteRequestAll => {
-      sender ! processInstanceMap.keys
-    }
-
     case register: RegisterSubjectProvider => {
-      subjectProviderMap += register.userID -> register.subjectProvider
-    }
-
-    // modeling
-    // TODO kommt hier raus und zur datenbank im moment aber noch nicht
-    case cp: CreateProcess => {
-      val processModel: ProcessModel = ProcessModel(processCount, cp.processName, cp.processGraph)
-      processDescritionMap += processCount -> processModel
-      sender ! ProcessCreated(cp, processCount)
-      processCount += 1
-    }
-    // siehe create
-    case up: UpdateProcess => {
-      processDescritionMap(up.processID) = up.processModel
+      subjectProviderMap += register.userID -> register.subjectProviderActor
     }
 
     // execution
-    case cp: CreateProcessInstance => {
-      createNewProcessInstance(processInstanceCount)
-      sender ! ProcessInstanceCreated(cp, processInstanceCount)
-      processInstanceCount += 1
+    case getAll: GetAllProcessInstanceIDs => {
+      sender !
+        AllProcessInstanceIDsAnswer(getAll, processInstanceMap.keys.toArray)
     }
 
-    case kill: KillProcess => {
-      killProcessInstance(kill.processInstanceID)
+    case cp: CreateProcessInstance => {
+      // TODO daten aus der datenbank holen
+      // TODO hier checken ob der process existiert?
+      if (true) {
+        // if the process exists create the process instance
+        // set the id to a val to avoid errors
+        val processInstanceID = processInstanceCount
+        processInstanceMap +=
+          processInstanceID ->
+          context.actorOf(
+            Props(
+              new ProcessInstanceActor(
+                processInstanceID,
+                cp.processID)))
+        sender ! ProcessInstanceCreated(cp, processInstanceID)
+        // increase the count, so the next process instance gets a new unique id
+        processInstanceCount += 1
+      } else {
+        logger.info("Process Manager - cant start process " + cp.processID +
+          ", it does not exist")
+      }
+    }
+
+    case kill: KillProcessInstance => {
+      if (processInstanceMap.contains(kill.processInstanceID)) {
+        context.stop(processInstanceMap(kill.processInstanceID))
+        processInstanceMap -= kill.processInstanceID
+        sender ! KillProcessInstanceAnswer(kill, true)
+      } else {
+        logger.info("Process Manager - can't kill process instance: " +
+          kill.processInstanceID + ", it does not exists")
+        sender ! KillProcessInstanceAnswer(kill, false)
+      }
+    }
+
+    // general matching
+    // persistence router - in case the debug flag is set, forward the message to
+    // test persistence actor
+    case message: PersistenceMessage => {
+      if (message.isInstanceOf[Debug]) {
+        forwardToTestPersistenceActor(message)
+      } else {
+        forwardToPersistenceActor(message)
+      }
     }
 
     // TODO muesste man auch zusammenfassenkoennen
@@ -87,7 +98,15 @@ class ProcessManagerActor extends Actor {
       if (subjectProviderMap.contains(userID)) {
         subjectProviderMap(userID).forward(message)
       } else {
-        println("Process Manager - User unknown: " + userID + " message: " + message)
+        logger.info("Process Manager - User unknown: " + userID + " message: " + message)
+      }
+    }
+
+    case message: GetHistory => {
+      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
+        processInstanceMap(message.processInstanceID).forward(message)
+      } else {
+        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
       }
     }
 
@@ -95,18 +114,14 @@ class ProcessManagerActor extends Actor {
       answer.sender.forward(answer)
     }
 
-    // TODO only for the Testcase
-    case (id: Int, as: AddSubject) => {
-      processInstanceMap(id).forward(as)
-    }
   }
 
-  private def forwardToPersistenceActor(pa: PersistenceAction) {
+  private def forwardToPersistenceActor(pa: PersistenceMessage) {
     persistenceActor.forward(pa)
   }
 
   // forward persistence messages to persistenceActors
-  private def forwardToTestPersistenceActor(pa: PersistenceAction) {
+  private def forwardToTestPersistenceActor(pa: PersistenceMessage) {
     testPersistenceActor.forward(pa)
   }
 
@@ -116,28 +131,8 @@ class ProcessManagerActor extends Actor {
     if (processInstanceMap.contains(message.processInstanceID)) {
       processInstanceMap(message.processInstanceID).!(message) // TODO mit forwards aber erstmal testen
     } else {
-      println("ProcessManager - message for " + message.processInstanceID +
+      logger.info("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)
-    }
-  }
-
-  /**
-   * creates a new processInstanceActor and registers it with the given processID (overrides the old entry)
-   */
-  private def createNewProcessInstance(processID: ProcessID) = {
-    // TODO wenn processId nicht ovrhanden gibt es einen Fehler
-    val process = context.actorOf(Props(new ProcessInstanceActor(processInstanceCount, processDescritionMap(processID))))
-    processInstanceMap += processInstanceCount -> process
-    process
-  }
-
-  /**
-   * kills the processInstanceActor with the given processID and unregisters it
-   */
-  private def killProcessInstance(processInstanceID: ProcessInstanceID) = {
-    if (processInstanceMap.contains(processInstanceID)) {
-      context.stop(processInstanceMap(processInstanceID))
-      processInstanceMap -= processInstanceID
     }
   }
 }
