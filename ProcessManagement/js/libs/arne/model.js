@@ -204,10 +204,6 @@ define([
 			return undefined;
 		}
 
-		Result.destroy = function( process, callback ) {
-			process.destroy( callback );
-		}
-
 		Result.all = instances;
 
 		// Resets all attributes of all models currently available / known by

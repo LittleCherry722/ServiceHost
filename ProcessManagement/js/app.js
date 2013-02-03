@@ -27,13 +27,12 @@ define([
 			"model",
 			"models/user",
 			"models/process",
-			"models/graph",
 			"models/group",
 			"models/role",
 			"models/groupsUsers",
 			"models/groupsRoles"
 			// "models/roles",
-		], function( Model, User, Process, Graph, Group, Role ) {
+		], function( Model, User, Process, Group, Role ) {
 
 			// The current user logged in to our system
 			currentUser( new User( { name: "no user" } ) );

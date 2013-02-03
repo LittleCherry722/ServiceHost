@@ -17,13 +17,10 @@ define([
 	var ViewModel = function() {
 		this.currentProcess = currentProcess;
 
-
-		// The currently displayed graph
-		this.currentGraph = currentGraph;
-
 		// The history of the graph. Used to let the user switch between different
 		// revisions of a graph for the current process.
-		this.graphHistory = graphHistory;
+		// TODO: Not available in the new backend
+		// this.graphHistory = graphHistory;
 
 		// Needed for saving a process under a different name
 		this.newProcessName = newProcessName;
@@ -82,7 +79,7 @@ define([
 			//Import and export the graph.
 	
 		this.exportGraph = function() {
-			var graph = currentProcess().graph().graphString();
+			var graph = currentProcess().graph();
 			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
 			console.log(graph);
@@ -93,7 +90,7 @@ define([
 		this.graphText = ko.observable("");
 	
 		this.importGraph = function() {
-			currentProcess().graph().graphString(this.graphText());
+			currentProcess().graph(this.graphText());
 			loadGraph(currentProcess().graph());
 		}
 		
@@ -119,33 +116,6 @@ define([
 	var currentProcess = ko.observable( new Process() );
 
 	var newProcessName = ko.observable("");
-
-	/*
-	 * The current Graph.
-	 *
-	 * Depends  on th current Process and may change over time
-	 * for example when loading an older graph from history.
-	 *
-	 * Can be used as both gettet and setter like ko.observables.
-	 */
-	var currentGraph = ko.computed({
-		read: function() {
-			return currentProcess().graph();
-		},
-		write: function( graph ) {
-			if ( !graph || currentProcess().id() !== graph.processId() ) {
-				return;
-			}
-
-			currentProcess().graph( graph );
-			loadGraph( graph );
-			return graph
-		}
-	});
-
-	var graphHistory = ko.computed(function() {
-		return currentProcess().graphs( null, { observable: true } );
-	});
 
 	// Currently selected subeject and channel (in chosen)
 	var currentSubject = ko.observable();
@@ -236,7 +206,6 @@ define([
 		// and act on it dependant on whether it is a process, case or has been
 		// created from a table input.
 		if ( !process.graph() ) {
-			graph = new Graph();
 
 			// If it has been created from a table input, let the graph library do
 			// the heavy lifting and create the graph.
@@ -257,7 +226,7 @@ define([
 			}
 
 			// in any case, save the graph.
-			saveGraph( process, graph );
+			saveGraph( process );
 		} else {
 			// Graph already exists. Just load it.
 			loadGraph( process.graph() );
@@ -284,29 +253,16 @@ define([
 	 ***************************************************************************/
 
 	// Save the graph to the database.
-	var saveGraph = function( process, graph ) {
-		if ( !graph ) {
-			graph = process.graph();
-		}
+	var saveGraph = function( process ) {
+		var routings;
 
-		// Get the graph JSON String, save it to the model attribute,
-		// save the graph, assign the graph to our process and save the process.
-		// Saving has to be blocking because we have to make sure that the graph
-		// is saved before we assign it to the process (graph needs an Id to be
-		// assigned).
-		// Final call to save can be non blocking because we probably dont need to
-		// hold the user back untill the graph is finally saved. Should only take a
-		// couple of ms anyway.
+		// save the routings attribute of the graph in a local variable becouse
+		// it would be overwritten by setting the graph to the current
+		// graph that is displayed via the gv_graph.saveToJSON() method.
+		routings = process.routings()
+		process.graph( gv_graph.saveToJSON() );
+		process.routings( routings );
 
-		routings = graph.routings()
-		graph = graph.duplicate();
-		graph.attributesLoaded( true );
-		graph.graphString( gv_graph.saveToJSON() );
-		graph.routings( routings );
-		graph.processId( process.id() );
-		graph.save({ async: false });
-
-		process.graph( graph );
 		process.save(function() {
 			Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved");
 		});
@@ -314,7 +270,7 @@ define([
 
 	// Saves the currently displayed graph to the database.
 	var saveCurrentGraph = function( name ) {
-		saveGraph( currentProcess(), currentGraph() );
+		saveGraph( currentProcess() );
 	}
 
 	// Saves a duplicate of the current Graph under a given Name.
@@ -349,7 +305,7 @@ define([
 
 		// Clear the graph canvas
 		gv_graph.clearGraph( true );
-		gf_loadGraph( graph.graphString(), undefined );
+		gf_loadGraph( graph, undefined );
 
 		// TODO
 		// var graph = JSON.parse(graphAsJson);
@@ -716,7 +672,7 @@ define([
 
   // check if the graph has unsaved changes. We wouldnt want to loose them.
   var graphHasUnsavedChanges = function() {
-		return currentGraph().graphString() !=  gv_graph.saveToJSON();
+		return currentGraph() !=  gv_graph.saveToJSON();
   }
 
   var confirmExit = function( callback ) {
