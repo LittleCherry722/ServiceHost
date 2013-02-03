@@ -48,6 +48,7 @@ define([
 					Role.fetch();
 					Group.fetch();
 					GroupsUsers.fetch();
+					Process.fetch();
 					// GrupsRoles.fetch();
 					callback();
 				},

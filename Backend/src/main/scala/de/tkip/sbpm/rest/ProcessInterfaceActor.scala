@@ -57,16 +57,12 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
        */
       // LIST
       path("") {
-        formField("userid") { (userid) =>
           // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
           completeWithQuery[Seq[Process]](GetProcess())
-        }
       } ~
         // READ
         path(IntNumber) { id =>
-          formField("userid") { userid =>
             completeWithQuery[Process](GetProcess(Some(id)))
-          }
         }
     } ~
       post {

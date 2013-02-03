@@ -13,17 +13,18 @@ define([
 		if ( typeof ajaxOptions === "undefined" ) {
 			ajaxOptions = {}
 		}
+		if ( typeof ajaxOptions.methods === "undefined" ) {
+			ajaxOptions.methods = {}
+		}
 
 		// some general ajax options. These are neede later on when performing the
 		// requests.
-		_( ajaxOptions ).defaults({
-			methods: {
-				destroy: "DELETE",
-				create: "POST",
-				save: "PUT",
-				list: "GET",
-				get: "GET"
-			}
+		_( ajaxOptions.methods ).defaults({
+			destroy: "DELETE",
+			create: "POST",
+			save: "PUT",
+			list: "GET",
+			get: "GET"
 		});
 
 
@@ -148,7 +149,6 @@ define([
 				async: options.async,
 				dataType: "json",
 				contentType: "application/json; charset=UTF-8",
-				data: "{}",
 				success: function( data, textStatus, jqXHR ) {
 
 					// Mark the model as destroyed and remove it from the list of
@@ -366,21 +366,17 @@ define([
 		}
 
 		this.listPath = function() {
-			if ( Model.className == "GroupsUsers" ) {
-				console.log("GroupsUsers");
-				console.log("is intermediate? " + isIntermediateModel());
-			}
 			return isIntermediateModel() ? relationModelPath() : regularModelPath();
 		}
 		this.savePath = this.destroyPath = this.getPath = function( instance ) {
-			if ( isIntermediateModel ) {
+			if ( isIntermediateModel() ) {
 				return relationModelPath( instance );
 			} else {
 				return regularModelPath( instance );
 			}
 		}
 		this.createPath = function( instance ) {
-			if ( isIntermediateModel ) {
+			if ( isIntermediateModel() ) {
 				return relationModelPath( instance );
 			} else {
 				return regularModelPath();
