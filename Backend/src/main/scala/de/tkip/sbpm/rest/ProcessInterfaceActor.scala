@@ -23,6 +23,7 @@ import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
 import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
 import de.tkip.sbpm.application.ProcessManagerActor
 import de.tkip.sbpm.model.ProcessModel
+import scala.concurrent.Await
 
 /**
  * This Actor is only used to process REST calls regarding "process"
@@ -63,13 +64,28 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         // READ
         pathPrefix(IntNumber) { id =>
 
-          val process = request[Option[Process]](GetProcess(Some(id)))
-          val graph = request[Option[Graph]](GetGraph(Some(id)))
-          
-          if (process.isDefined && graph.isDefined)
-            complete(process, graph)
-          else
-            notFound("Process with id " + id + " not found")
+          try {
+            val persistenceActor = ActorLocator.persistenceActor
+            val dataBaseQueryFuture = for {
+              processFuture <- (persistenceActor ? GetProcess(Some(id))).mapTo[Option[Process]]
+              graphFuture <- (persistenceActor ? GetGraph(processFuture.get.id)).mapTo[Option[Graph]]
+            } yield JsObject(
+              "id" -> processFuture.get.id.toJson,
+              "name" -> processFuture.get.name.toJson,
+              "graph" -> graphFuture.get.graph.toJson)
+
+            complete(Await.result(dataBaseQueryFuture, timeout.duration))
+          } catch {
+            case _ => notFound("Process with id " + id + " not found")
+          }
+
+          //          val process = request[Option[Process]](GetProcess(Some(id)))
+          //          val graph = request[Option[Graph]](GetGraph(Some(id)))
+          //
+          //          if (process.isDefined && graph.isDefined)
+          //            complete(process, graph)
+          //          else
+          //            notFound("Process with id " + id + " not found")
         }
     } ~
       post {
