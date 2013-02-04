@@ -1,5 +1,6 @@
 package de.tkip.sbpm.rest
 import spray.routing.directives.CompletionMagnet
+import scala.language.postfixOps
 import akka.actor.Actor
 import de.tkip.sbpm.persistence.PersistenceAction
 import akka.util.Timeout

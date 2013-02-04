@@ -9,6 +9,7 @@ import akka.util.Timeout
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.Envelope
 import de.tkip.sbpm.model.User
+import scala.language.postfixOps
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.ProcessAttribute._
 import spray.http.MediaTypes._
@@ -46,7 +47,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
        * e.g. GET http://localhost:8080/user
        * result: JSON array of entities
        */
-      path("") {
+      path("^$"r) { regex => 
         completeWithQuery[Seq[User]](GetUser())
       } ~
         /**
@@ -65,7 +66,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * e.g. GET http://localhost:8080/user/8
            * result: 404 Not Found or entity as JSON
            */
-          path("") {
+          path("^$"r) { regex => 
             completeWithQuery[User](GetUser(Some(id)), "User with id %d not found.", id)
           } ~
             /**
@@ -75,7 +76,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * result: JSON array of entities
              */
             pathPrefix(Entity.GROUP) {
-              path("") {
+              path("^$"r) { regex => 
                 completeWithQuery[Seq[GroupUser]](GetGroupUser(None, Some(id)))
               } ~
                 /**
@@ -98,7 +99,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * e.g. DELETE http://localhost:8080/user/12
            * result: 204 No Content
            */
-          path("") {
+          path("^$"r) { regex =>
             completeWithDelete(DeleteUser(id), "User could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
@@ -122,7 +123,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          * 			Location: /user/8
          * 			{ "id": 8, "name": "abc", "isActive": true, "inputPoolSize": 8 }
          */
-        path("") {
+        path("^$"r) { regex => 
           entity(as[User]) { user =>
             saveUser(user)
           }
@@ -149,7 +150,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * 	result: 200 OK
              * 			{ "id": 2, "name": "abc", "isActive": true, "inputPoolSize": 8 }
              */
-            path("") {
+            path("^$"r) { regex => 
               entity(as[User]) { user =>
                 saveUser(user, Some(id))
               }

@@ -1,6 +1,7 @@
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
+import scala.language.postfixOps
 import akka.event.Logging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence._
@@ -39,7 +40,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
        * e.g. GET http://localhost:8080/role
        * result: JSON array with entities
        */
-      path("") {
+      path("^$"r) { regex => 
         completeWithQuery[Seq[Role]](GetRole())
       } ~
         /**
@@ -58,7 +59,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
            * e.g. GET http://localhost:8080/role/2
            * result: 404 Not Found or entity as JSON
            */
-          path("") {
+          path("^$"r) { regex => 
             completeWithQuery[Role](GetRole(Some(id)), "Role with id %d not found.", id)
           } ~
             /**
@@ -68,7 +69,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
              * result: JSON array of entities
              */
             pathPrefix(Entity.GROUP) {
-              path("") {
+              path("^$"r) { regex => 
                 completeWithQuery[Seq[GroupRole]](GetGroupRole(None, Some(id)))
               } ~
                 /**
@@ -91,7 +92,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
            * e.g. DELETE http://localhost:8080/role/12
            * result: 204 No Content
            */
-          path("") {
+          path("^$"r) { regex => 
             completeWithDelete(DeleteRole(id), "Role could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
@@ -115,7 +116,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
          * 			Location: /role/8
          * 			{ "id": 8, "name": "abc", "isActive": true }
          */
-        path("") {
+        path("^$"r) { regex => 
           entity(as[Role]) { role =>
             save(role)
           }
@@ -131,7 +132,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
            * result: 	200 OK
            * 			{ "id": 2, "name": "abc", "isActive": true }
            */
-          path("") {
+          path("^$"r) { regex => 
             entity(as[Role]) { role =>
               save(role, Some(id))
             }

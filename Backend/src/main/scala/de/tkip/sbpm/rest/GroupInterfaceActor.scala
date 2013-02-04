@@ -1,6 +1,7 @@
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
+import scala.language.postfixOps
 import akka.event.Logging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence._
@@ -40,7 +41,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
        * e.g. GET http://localhost:8080/group
        * result: JSON array of entities
        */
-      path("") {
+      path("^$"r) { regex => 
         completeWithQuery[Seq[Group]](GetGroup())
       } ~
         /**
@@ -68,7 +69,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
            * e.g. GET http://localhost:8080/group/2
            * result: 404 Not Found or entity as JSON
            */
-          path("") {
+          path("^$"r) { regex => 
             completeWithQuery[Group](GetGroup(Some(id)), "Group with id %d not found.", id)
           } ~
             /**
@@ -99,7 +100,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * result: 204 No Content
          */
         pathPrefix(IntNumber) { id =>
-          path("") {
+          path("^$"r) { regex => 
             completeWithDelete(DeleteGroup(id), "Group could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
@@ -132,7 +133,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * 			Location: /group/8
          * 			{ "id": 8, "name": "abc", "isActive": true }
          */
-        path("") {
+        path("^$"r) { regex => 
           entity(as[Group]) { group =>
             save(group)
           }
@@ -170,7 +171,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: 	200 OK
              * 			{ "id": 2, "name": "abc", "isActive": true }
              */
-            path("") {
+            path("^$"r) { regex => 
               entity(as[Group]) { group =>
                 save(group, Some(id))
               }
