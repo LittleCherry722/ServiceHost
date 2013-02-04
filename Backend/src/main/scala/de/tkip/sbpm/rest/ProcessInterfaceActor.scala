@@ -57,13 +57,20 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
        */
       // LIST
       path("") {
-          // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-          completeWithQuery[Seq[Process]](GetProcess())
+        // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
+        completeWithQuery[Seq[Process]](GetProcess())
       } ~
         // READ
         pathPrefix(IntNumber) { id =>
-            completeWithQuery[Process](GetProcess(Some(id)), "Process with id %d not found", id)
-      }
+
+          val process = request[Option[Process]](GetProcess(Some(id)))
+          val graph = request[Option[Graph]](GetGraph(Some(id)))
+          
+          if (process.isDefined && graph.isDefined)
+            complete(process, graph)
+          else
+            notFound("Process with id " + id + " not found")
+        }
     } ~
       post {
         /**
@@ -79,7 +86,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             val processID = future.mapTo[Int]
             val future1 = ActorLocator.persistenceActor ? SaveGraph(Graph(None, graph, new java.sql.Timestamp(System.currentTimeMillis()), processID.asInstanceOf[Int]))
             val graphID = future1.mapTo[Int]
-            val future2 = ActorLocator.persistenceActor ? SaveProcess(Process(Option(processID.asInstanceOf[Int]), name,graphID.asInstanceOf[Int]))
+            val future2 = ActorLocator.persistenceActor ? SaveProcess(Process(Option(processID.asInstanceOf[Int]), name, graphID.asInstanceOf[Int]))
             processID onSuccess {
               case id: Int =>
                 val obj = JsObject("processID" -> id.toJson)
