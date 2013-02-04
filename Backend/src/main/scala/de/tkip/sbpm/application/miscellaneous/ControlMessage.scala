@@ -56,7 +56,7 @@ case class GetAllProcessInstanceIDs(userID: UserID = AllUser) extends AnswerAble
 case class AllProcessInstanceIDsAnswer(request: GetAllProcessInstanceIDs, processInstanceIDs: Array[ProcessInstanceID]) extends AnswerControlMessage
 
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
-case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID) extends AnswerControlMessage
+case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID, processInstanceActor: ProcessInstanceRef) extends AnswerControlMessage
 
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
 case class KillProcessInstanceAnswer(request: KillProcessInstance, success: Boolean) extends AnswerControlMessage
