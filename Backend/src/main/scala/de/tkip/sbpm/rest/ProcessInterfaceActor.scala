@@ -68,7 +68,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             val persistenceActor = ActorLocator.persistenceActor
             val dataBaseQueryFuture = for {
               processFuture <- (persistenceActor ? GetProcess(Some(id))).mapTo[Option[Process]]
-              graphFuture <- (persistenceActor ? GetGraph(processFuture.get.id)).mapTo[Option[Graph]]
+              graphFuture <- (persistenceActor ? GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
             } yield JsObject(
               "id" -> processFuture.get.id.toJson,
               "name" -> processFuture.get.name.toJson,
