@@ -61,9 +61,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
           completeWithQuery[Seq[Process]](GetProcess())
       } ~
         // READ
-        path(IntNumber) { id =>
-            completeWithQuery[Process](GetProcess(Some(id)))
-        }
+        pathPrefix(IntNumber) { id =>
+            completeWithQuery[Process](GetProcess(Some(id)), "Process with id %d not found", id)
+      }
     } ~
       post {
         /**
