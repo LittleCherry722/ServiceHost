@@ -27,19 +27,19 @@ define([
 			'ignore' : ["groupUser1", "groupUser2"]
 		}
 		self.routings.subscribe(function( newValue ) {
-			currentProcess().graph().routings(komapping.toJS(self.routings(), mapping));
+			currentProcess().routings(komapping.toJS(self.routings(), mapping));
 			return komapping.toJS(self.routings(), mapping);
 		});
 
 		//Content dropdown
-		self.subject = currentProcess().graph().subjectIds;
+		self.subject = currentProcess().subjectIds;
 
 
 		self.is = ko.observableArray( ["is", "is not"] );
 		self.groupUser = ko.observableArray( ["in group", "user"] );
 
 		self.init = function() {
-			self.load(currentProcess().graph().routings());
+			self.load(currentProcess().routings());
 			console.log("RoutingViewModel: initialized.");
 		}
 
@@ -147,7 +147,7 @@ define([
 			viewModel = new ViewModel();
 		}
 
-		console.log(process.graph().routings());
+		console.log(process.routings());
 
 		viewModel.init();
 ;

@@ -15,7 +15,6 @@ define([
 	Process.attrs({
 		name: "string",
 		isCase: "boolean",
-		graphId: "integer",
 		graph: {
 			type: "string",
 			defaults: "{}",

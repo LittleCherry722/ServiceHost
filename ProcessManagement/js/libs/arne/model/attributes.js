@@ -228,7 +228,8 @@ define([
 			subscribers = [];
 
 		instance[ attrName ] = function( value ) {
-			observable = ko.observable( value );
+			observable = ko.observable();
+			observable( value );
 
 			if ( typeof value === "undefined" ) {
 				if ( !instance.isBeingInitialized ) {
@@ -238,6 +239,9 @@ define([
 					})
 
 					instance.loadAttributes({ async: false });
+
+					instance[ attrName + "Old" ]( observable() );
+
 					instance.attributesLoaded( true );
 				}
 
@@ -247,6 +251,7 @@ define([
 				_( subscribers ).each(function( subscriber ) {
 					observable.subscribe( subscriber );
 				})
+				instance[ attrName + "Old" ]( value );
 
 				return undefined;
 			}

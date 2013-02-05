@@ -259,7 +259,7 @@ define([
 		// save the routings attribute of the graph in a local variable becouse
 		// it would be overwritten by setting the graph to the current
 		// graph that is displayed via the gv_graph.saveToJSON() method.
-		routings = process.routings()
+		routings = process.routings();
 		process.graph( gv_graph.saveToJSON() );
 		process.routings( routings );
 
