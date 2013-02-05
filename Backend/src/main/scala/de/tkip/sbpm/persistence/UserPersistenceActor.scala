@@ -51,8 +51,7 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       case SaveUser(u @ User(None, _, _, _)) =>
         answer { Some(Users.autoInc.insert(u)) }
       // save existing user
-      case SaveUser(u @ User(id, _, _, _)) =>
-        answer { Users.where(_.id === id).update(u); None }
+      case SaveUser(u @ User(id, _, _, _)) => update(id, u)
       // delete user with given id
       case DeleteUser(id) => answer { Users.where(_.id === id).delete(session) }
       // execute DDL for table "users"
@@ -60,4 +59,11 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
     }
   }
 
+  // update entity or throw exception if it does not exist
+  def update(id: Option[Int], u: User)(implicit session: Session) = answer {
+    val res = Users.where(_.id === id).update(u)
+    if (res == 0)
+      throw new EntityNotFoundException("User with id %d does not exist.", id.get)
+    None
+  }
 }

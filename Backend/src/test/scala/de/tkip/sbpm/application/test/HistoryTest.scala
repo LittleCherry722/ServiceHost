@@ -25,7 +25,7 @@ class HistoryTest extends FunSuite {
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
   val sys = ActorSystem()
-  val actor = sys.actorOf(Props(new ProcessInstanceActor(1, 1)))
+  val actor = sys.actorOf(Props(new ProcessInstanceActor(1, null)))
   val testPersistence = sys.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
 
   test("test history debug data structure") {

@@ -31,7 +31,7 @@ case class History(processName: String,
 /**
  * instantiates SubjectActor's and manages their interactions
  */
-class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends Actor {
+class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance) extends Actor {
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
@@ -46,15 +46,16 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
     processFuture <- (ActorLocator.persistenceActor ?
       GetProcess(Some(processID))).mapTo[Option[Process]]
     // save this process instance in the persistence
-    processInstanceSavedFuture <- ActorLocator.persistenceActor ?
-      SaveProcessInstance(ProcessInstance(Some(id), processID, processFuture.get.graphId, "", ""))
+    processInstanceIDFuture <- (ActorLocator.persistenceActor ?
+      SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
+      .mapTo[Option[Int]]
     // get the corresponding graph
     graphFuture <- (ActorLocator.persistenceActor ?
       GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-  } yield (processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+  } yield (processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
 
   // evaluate the Future
-  val (processName: String, startSubjectsString: SubjectID, graphJSON: String) =
+  val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJSON: String) =
     Await.result(dataBaseAccessFuture, timeout.duration)
 
   // parse the start-subjects into an Array
@@ -85,6 +86,9 @@ class ProcessInstanceActor(id: ProcessInstanceID, processID: ProcessID) extends 
     contextResolver !
       RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
   }
+
+  // inform the process manager that this process instance has been created
+  context.parent ! ProcessInstanceCreated(request, id, self)
 
   def receive = {
 

@@ -13,10 +13,13 @@ import de.tkip.sbpm.model.StateType._
 object parseSubjects {
   def apply(subjects: String): Array[SubjectID] = {
     // TODO noch nicht implementiert
-    Array(subjects.replace("[", "").replace("]", ""))
+    case class Subject(name: String)
+    import de.tkip.sbpm.rest.JsonProtocol._
+    implicit val subjectFormat = jsonFormat1(Subject)
+
+    val subjects1 = subjects.replace("'", "\"")
     
-    // TODO for database read
-//    Array("Employee")
+    subjects1.asJson.convertTo[Array[Subject]].map(_.name)
   }
 }
 

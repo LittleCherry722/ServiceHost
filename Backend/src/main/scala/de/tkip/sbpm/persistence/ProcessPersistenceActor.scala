@@ -60,11 +60,9 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
       case SaveProcess(p @ Process(None, _, _, _, _), None) =>
         answer { Some(Processes.autoInc.insert(p)) }
       // create new process with a corresponding graph
-      case SaveProcess(p: Process, g: Option[Graph]) =>
-        answer { saveProcessWithGraph(p, g) }
+      case SaveProcess(p: Process, g: Option[Graph]) => saveProcessWithGraph(p, g)
       // save existing process
-      case SaveProcess(p @ Process(id, _, _, _, _), None) =>
-        answer { Processes.where(_.id === id).update(p); None }
+      case SaveProcess(p @ Process(id, _, _, _, _), None) => update(id, p)
       // delete process with given id
       case DeleteProcess(id) =>
         answer { Processes.where(_.id === id).delete(session) }
@@ -73,10 +71,18 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
     }
   }
 
+  // update entity or throw exception if it does not exist
+  def update(id: Option[Int], p: Process)(implicit session: Session) = answer {
+    val res = Processes.where(_.id === id).update(p)
+    if (res == 0)
+      throw new EntityNotFoundException("Process with id %d does not exist.", id.get)
+    None
+  }
+  
   /**
    * Saves a process with the corresponding graph to the database.
    */
-  private def saveProcessWithGraph(p: Process, g: Option[Graph])(implicit session: Session) = {
+  private def saveProcessWithGraph(p: Process, g: Option[Graph])(implicit session: Session) = answer {
     var resultId = p.id
     // if id not defined -> save new process
     if (!p.id.isDefined) {
@@ -85,6 +91,8 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
       g.get.id = None
       resultId = p.id
     } else {
+      if (!Processes.where(_.id === p.id).firstOption.isDefined)
+        throw new EntityNotFoundException("Process with id %d does not exist.", p.id.get)
       resultId = None
     }
     // set process id in graph

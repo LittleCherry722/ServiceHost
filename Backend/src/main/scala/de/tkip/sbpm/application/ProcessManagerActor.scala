@@ -17,7 +17,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
 class ProcessManagerActor extends Actor {
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
-  private var processInstanceCount = 0
+  //  private var processInstanceCount = 0
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceRef]()
 
   // used to map answer messages back to the subjectProvider who sent a request
@@ -44,21 +44,41 @@ class ProcessManagerActor extends Actor {
       if (true) {
         // if the process exists create the process instance
         // set the id to a val to avoid errors
-        val processInstanceID = processInstanceCount
-        processInstanceMap +=
-          processInstanceID ->
-          context.actorOf(
-            Props(
-              new ProcessInstanceActor(
-                processInstanceID,
-                cp.processID)))
-        sender ! ProcessInstanceCreated(cp, processInstanceID)
+        //        val processInstanceID = processInstanceCount
+        context.actorOf(Props(
+          new ProcessInstanceActor(cp.processID, cp)))
+
+        //        		processInstanceMap +=
+        //        		processInstanceID ->
+        //        context.actorOf(
+        //        		Props(
+        //        				new ProcessInstanceActor(
+        //        						processInstanceID,
+        //        						cp.processID)))
+        //        processInstanceMap +=
+        //          processInstanceID ->
+        //          context.actorOf(
+        //            Props(
+        //              new ProcessInstanceActor(
+        //                processInstanceID,
+        //                cp.processID)))
+        //        sender ! ProcessInstanceCreated(cp, processInstanceID)
         // increase the count, so the next process instance gets a new unique id
-        processInstanceCount += 1
+        //        processInstanceCount += 1
       } else {
         logger.info("Process Manager - cant start process " + cp.processID +
           ", it does not exist")
       }
+    }
+
+    case pc: ProcessInstanceCreated => {
+      if (pc.sender != null){
+        pc.sender ! pc
+      }
+      //      processInstanceCount += 1
+      processInstanceMap +=
+        pc.processInstanceID -> pc.processInstanceActor
+
     }
 
     case kill: KillProcessInstance => {
