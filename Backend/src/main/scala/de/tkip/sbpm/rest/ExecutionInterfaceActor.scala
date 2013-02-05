@@ -25,6 +25,7 @@ import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.subject.ExecuteActionAnswer
 import de.tkip.sbpm.persistence.GetProcessInstance
 import de.tkip.sbpm.persistence.GetGraph
+import scala.concurrent.Await
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -55,6 +56,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   private lazy val persistanceActor = ActorLocator.persistenceActor
 
   def receive = runRoute({
+    // TODO: aus cookie auslesen
     formField("userid") { userID =>
       get {
         //READ
@@ -62,10 +64,11 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
           implicit val timeout = Timeout(5 seconds)
 
+          val future = persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))
+          val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
+
           val composedFuture = for {
-            //        	  processInstanceFuture <- (processManager ? GetProcessInstance(userID.toInt, processInstanceID.toInt)).mapTo[ProcessInstanceAnswer]
-            processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[ProcessInstance]
-            graphFuture <- (persistanceActor ? GetGraph(Some(processInstanceFuture.graphId))).mapTo[Graph]
+            graphFuture <- (persistanceActor ? GetGraph(Some(result.get.graphId))).mapTo[Graph]
             historyFuture <- (subjectProviderManager ? GetHistory(userID.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
             availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userID.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
           } yield JsObject(
@@ -105,56 +108,41 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         } ~
         put {
           //UPDATE
-          path(IntNumber) { processInstanceID =>
-            formField("ExecuteAction") { (action) =>
-              //execute next step (chosen by actionID)
+          pathPrefix(IntNumber) { processInstanceID =>
+                formField("ExecuteAction") { (action) =>
+                  //execute next step
 
-              implicit val timeout = Timeout(5 seconds)
+                  implicit val timeout = Timeout(5 seconds)
 
-              case class ExecuteActionCreator(userID: UserID,
-                                              processInstanceID: ProcessInstanceID,
-                                              subjectID: SubjectID,
-                                              stateID: StateID,
-                                              stateType: String,
-                                              actionInput: String)
-              implicit val executeActionFormat = jsonFormat6(ExecuteActionCreator)
+                  case class ExecuteActionCreator(userID: UserID,
+                    processInstanceID: ProcessInstanceID,
+                    subjectID: SubjectID,
+                    stateID: StateID,
+                    stateType: String,
+                    actionInput: String)
+                  implicit val executeActionFormat = jsonFormat6(ExecuteActionCreator)
 
-              val composedFuture = for {
-                update <- (subjectProviderManager ? ExecuteAction(action.asJson.convertTo[ExecuteActionCreator])).mapTo[ExecuteActionAnswer]
-              } yield JsObject()
+                  val composedFuture = for {
+                    update <- (subjectProviderManager ? ExecuteAction(action.asJson.convertTo[ExecuteActionCreator])).mapTo[ExecuteActionAnswer]
+                  } yield JsObject()
 
-              //
-              complete(composedFuture)
-
-              //              val future = subjectProviderManager ? UpdateRequest(processID.toInt, actionID)
-              //              val result = future.mapTo[Boolean]
-              //              result onSuccess {
-              //                case obj: Boolean =>
-              //                  if (obj)
-              //                    complete(StatusCodes.OK)
-              //                  else
-              //                    complete(StatusCodes.InternalServerError)
-              //              }
-              //              result onFailure {
-              //                case _ =>
-              //                  complete(StatusCodes.InternalServerError)
-              //              }
-              //              complete(StatusCodes.InternalServerError)
-            }
-
+                  complete(composedFuture)
+                }
           }
         } ~
         post { //CREATE
-          path("") {
-            formField("processID") { (processID) =>
+          pathPrefix("") {
+            path("^$"r) { regex =>
+              entity(as[ProcessIdHeader]) { json =>
 
-              implicit val timeout = Timeout(5 seconds)
+                implicit val timeout = Timeout(5 seconds)
 
-              val composedFuture = for {
-                instanceid <- (subjectProviderManager ? CreateProcessInstance(userID.toInt, processID.toInt)).mapTo[ProcessInstanceCreated]
-              } yield JsObject("instanceIDs" -> instanceid.processInstanceID.toJson)
+                val composedFuture = for {
+                  instanceid <- (subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processid)).mapTo[ProcessInstanceCreated]
+                } yield JsObject("instanceIDs" -> instanceid.processInstanceID.toJson)
 
-              complete(composedFuture)
+                complete(composedFuture)
+              }
             }
           }
         }

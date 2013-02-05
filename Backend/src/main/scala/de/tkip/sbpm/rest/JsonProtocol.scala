@@ -111,4 +111,15 @@ object JsonProtocol extends DefaultJsonProtocol {
   //  implicit val subjectFormat = jsonFormat2(Subject)
   //  implicit val processGraphFormat = jsonFormat1(ProcessGraph)
   //  implicit val processFormat = jsonFormat3(ProcessModel)
+  implicit val createGraphHeaderFormat = jsonFormat4(GraphHeader)
+  case class GraphHeader(userid: String, name: String, graph: String, isCase:Boolean)
+  implicit val createActionIdHeaderFormat = jsonFormat6(ActionIdHeader)
+  case class ActionIdHeader(userID: UserID,
+                    processInstanceID: ProcessInstanceID,
+                    subjectID: SubjectID,
+                    stateID: StateID,
+                    stateType: String,
+                    actionInput: String)
+  implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
+  case class ProcessIdHeader(processid: Int)
 }
