@@ -22,6 +22,8 @@ define([
 		}
 	});
 
+	Process.hasMany( "ProcessInstances" );
+
 	Process.include({
 
 		// Initialize is a special method defined as an instance method.  If any
