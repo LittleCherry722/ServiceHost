@@ -116,26 +116,27 @@ define([
 	});
 
 	Process.nameAlreadyTaken = function( name ) {
-		var json,
-			data = {
-				name: name,
-				action: "getid"
-			}
-		$.ajax({
-			url: 'db/process.php',
-			data: data,
-			cache: false,
-			type: "POST",
-			async: false,
-			success: function( data ) {
-				json = JSON.parse( data );
-			}
-		});
-		if ((json["code"] == "added") || (json["code"] == "ok")) {
-			return json["id"] > 0;
-		} else {
-			return false;
-		}
+		// var json,
+		//   data = {
+		//     name: name,
+		//     action: "getid"
+		//   }
+		// $.ajax({
+		//   url: 'db/process.php',
+		//   data: data,
+		//   cache: false,
+		//   type: "POST",
+		//   async: false,
+		//   success: function( data ) {
+		//     json = JSON.parse( data );
+		//   }
+		// });
+		// if ((json["code"] == "added") || (json["code"] == "ok")) {
+		//   return json["id"] > 0;
+		// } else {
+		//   return false;
+		// }
+		return false;
 	};
 
 	return Process;
