@@ -5,6 +5,8 @@ import akka.actor.Props
 import spray.routing._
 import spray.http._
 import akka.event.Logging
+import akka.util.Timeout
+import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import de.tkip.sbpm.rest.ProcessAttribute._
@@ -24,6 +26,7 @@ import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
 import de.tkip.sbpm.application.ProcessManagerActor
 import de.tkip.sbpm.model.ProcessModel
 import scala.concurrent.Await
+import spray.util.LoggingContext
 
 /**
  * This Actor is only used to process REST calls regarding "process"
@@ -31,6 +34,7 @@ import scala.concurrent.Await
 // TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor extends Actor with PersistenceInterface {
   private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
+  private lazy val persistanceActor = ActorLocator.persistenceActor
 
   /**
    *
@@ -79,13 +83,6 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             case _ => notFound("Process with id " + id + " not found")
           }
 
-          //          val process = request[Option[Process]](GetProcess(Some(id)))
-          //          val graph = request[Option[Graph]](GetGraph(Some(id)))
-          //
-          //          if (process.isDefined && graph.isDefined)
-          //            complete(process, graph)
-          //          else
-          //            notFound("Process with id " + id + " not found")
         }
     } ~
       post {
@@ -95,24 +92,15 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          * e.g. PUT http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
         // CREATE
-        path("") {
-          formField("id", "name", "graph", "isCase") { (id, name, graph, isCase) =>
-
-            val future = ActorLocator.persistenceActor ? SaveProcess(Process(None, name))
-            val processID = future.mapTo[Int]
-            val future1 = ActorLocator.persistenceActor ? SaveGraph(Graph(None, graph, new java.sql.Timestamp(System.currentTimeMillis()), processID.asInstanceOf[Int]))
-            val graphID = future1.mapTo[Int]
-            val future2 = ActorLocator.persistenceActor ? SaveProcess(Process(Option(processID.asInstanceOf[Int]), name, graphID.asInstanceOf[Int]))
-            processID onSuccess {
-              case id: Int =>
-                val obj = JsObject("processID" -> id.toJson)
-                complete(StatusCodes.Created, obj)
-            }
-            processID onFailure {
-              case _ =>
-                complete(StatusCodes.InternalServerError)
-            }
-            complete(StatusCodes.InternalServerError)
+        path("^$"r) { regex =>
+          entity(as[GraphHeader]) { json =>
+          	implicit val timeout = Timeout(5 seconds)
+            val composedFuture = for {
+              processInstanceFuture <- (persistanceActor ? SaveProcess(Process(None, json.name),
+                Option(Graph(None, json.graph, new java.sql.Timestamp(System.currentTimeMillis()), -1)))).mapTo[(Some[Int], Some[Int])]
+            } yield JsObject(
+              "processID" -> processInstanceFuture._1.get.toJson)
+            complete(composedFuture)
 
           }
         }
@@ -135,11 +123,20 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          * e.g. PUT http://localhost:8080/process/12?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
         //UPDATE
-        path(IntNumber) { processID =>
-          formField("id", "name", "graph", "isCase") { (id, name, graph, isCase) =>
-            //execute next step (chosen by actionID)
-            val future = ActorLocator.persistenceActor ? SaveGraph(Graph(Option[Int](id.toInt), graph, new java.sql.Timestamp(System.currentTimeMillis()), processID.asInstanceOf[Int]))
-            val result = future.mapTo[Int]
+        pathPrefix(IntNumber) { id =>
+          path("^$"r) { regex =>
+            entity(as[GraphHeader]) { json =>
+          	implicit val timeout = Timeout(5 seconds)
+              //execute next step (chosen by actionID)
+              val future = (persistanceActor ? GetProcess(Option(id),None))
+              val result = Await.result(future, timeout.duration).asInstanceOf[Some[Process]]
+
+              val composedFuture = for {
+                grapInstanceFuture <- (persistanceActor ? SaveGraph(Graph(Option(result.get.graphId), json.graph, new java.sql.Timestamp(System.currentTimeMillis()), id)))
+              } yield JsObject()
+              complete(composedFuture)
+
+              /*
             result onSuccess {
               case id: Int =>
                 complete(StatusCodes.OK)
@@ -148,9 +145,11 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
               case _ =>
                 complete(StatusCodes.InternalServerError)
             }
-            complete(StatusCodes.InternalServerError)
+            * */
+            }
           }
         }
       }
   })
+
 }
