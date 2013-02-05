@@ -109,25 +109,29 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         put {
           //UPDATE
           pathPrefix(IntNumber) { processInstanceID =>
-                formField("ExecuteAction") { (action) =>
+            path("^$"r) { regex =>
+              entity(as[ActionIdHeader]) { json =>
+//                formField("ExecuteAction") { (action) =>
                   //execute next step
 
                   implicit val timeout = Timeout(5 seconds)
 
                   case class ExecuteActionCreator(userID: UserID,
-                    processInstanceID: ProcessInstanceID,
-                    subjectID: SubjectID,
-                    stateID: StateID,
-                    stateType: String,
-                    actionInput: String)
+                                                  processInstanceID: ProcessInstanceID,
+                                                  subjectID: SubjectID,
+                                                  stateID: StateID,
+                                                  stateType: String,
+                                                  actionInput: String)
                   implicit val executeActionFormat = jsonFormat6(ExecuteActionCreator)
 
                   val composedFuture = for {
-                    update <- (subjectProviderManager ? ExecuteAction(action.asJson.convertTo[ExecuteActionCreator])).mapTo[ExecuteActionAnswer]
+                    update <- (subjectProviderManager ? ExecuteAction(json)).mapTo[ExecuteActionAnswer]
                   } yield JsObject()
 
                   complete(composedFuture)
-                }
+//                }
+              }
+            }
           }
         } ~
         post { //CREATE
