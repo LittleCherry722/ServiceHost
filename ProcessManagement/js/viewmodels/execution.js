@@ -1,34 +1,36 @@
 define([
 	"knockout",
-	"app"
-], function( ko, App ) {
+	"app",
+	"models/processInstance"
+], function( ko, App, ProcessInstance ) {
 
 	var ViewModel = function() {
 	
-		this.currentProcess = currentProcess;
+		this.processInstance = processInstance;
 
-		this.currentInstance = currentInstance;
 		this.availableSubjects = availableSubjects;
 		this.currentSubject = currentSubject;
 		
 		this.tabs = tabs;
 		this.currentTab = currentTab;
-
-		
 	}
 	
-	var currentProcess = ko.observable();
+	var processInstance = ko.observable();
 
-	var currentInstance = ko.observable();
 	var availableSubjects = ko.observableArray( [] );
 	var currentSubject = ko.observable();
-
 	
 	var tabs = ['Graph', 'History' ];
 	var currentTab = ko.observable();
 
 
-	currentProcess.subscribe(function( process ) {
+	var setView = function( id, tab ) {
+		processInstance( ProcessInstance.find( id ) );
+		currentTab( tab );
+	}
+
+
+	processInstance.subscribe(function( process ) {
 		console.log( "a new process has been loaded: " + process );
 	});
 	
@@ -42,7 +44,7 @@ define([
 			return;
 		}
 
-		App.loadSubView( "execution/" + newTab.toLowerCase(), currentProcess() );
+		App.loadSubView( "execution/" + newTab.toLowerCase(), processInstance() );
 		if ( newTab === tabs[0] ) {
 			$("#executionContent").addClass("first-tab-selected");
 		} else {
@@ -51,8 +53,13 @@ define([
 	});
 
 
-	var initialize = function( subSite ) {
-		var viewModel= new ViewModel();
+	var initialize = function( processInstanceId, subSite ) {
+		var viewmodel;
+
+		viewModel = new ViewModel();
+
+		processInstance( ProcessInstance.find( processInstanceId ) );
+
 
 		if ( !subSite ) {
 			subSite = tabs[0]
@@ -70,7 +77,7 @@ define([
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		currentTab: currentTab
+		setView: setView
 	}
 });
 

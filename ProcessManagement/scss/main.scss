@@ -997,10 +997,36 @@ table.data2 tr td {
 .save-dropdown {
   li a {
     padding: 6px 20px;
+  }
+}
+
+.dropdown-menu {
+  li a {
     cursor: pointer;
 
     &:hover {
       text-shadow: 0px 1px #000;
     }
+  }
+
+  li.disabled a {
+    &:hover {
+      text-shadow: none;
+    }
+  }
+}
+
+span.divider {
+  color: #ccc;
+  padding: 0 5px;
+}
+
+.btn .caret {
+  margin-top: 5px;
+}
+
+.table-middle {
+  td, th {
+    vertical-align: middle;
   }
 }

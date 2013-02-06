@@ -1,36 +1,69 @@
 <div class="inner">
 
 	<div id="contentHead" class="clearfix">
-    <h3 id="processName" style="color:#525252" >
-      Process administration
-    </h3>
+		<h3 id="processName" style="color:#525252" >
+			Currently available Processes
+		</h3>
 	</div>
-  <!-- End header -->
+	<!-- End header -->
 
-  <div style="margin:10px;">
-    <h4>Delete or load a process.</h4>
-
-    <div>
-      <table class="table table-striped-darker table-bordered" style="width: 550px;">
-        <thead>
-          <tr>
-            <th style="width: 60%" > Name </th>
-            <th  colspan="2" style="width: 40%"> Actions </th>
-          </tr>
-        </thead>
-        <tbody data-bind='foreach: {data : processes()}'>
-          <tr>
-            <td><span data-bind="text: menuName()"> </span></td>
-            <td>
-              <a data-bind="attr: { href: url() } ">Go to process</a>
-            </td>
-            <td>
-              <input type="button" class="button" value="Delete" data-bind="click: $parent.remove" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+	<div>
+		<table class="table table-middle" style="width: 600px;">
+			<thead>
+				<tr>
+					<th style="width: 60%" > Name </th>
+					<th  colspan="2" style="width: 40%"> Actions </th>
+				</tr>
+			</thead>
+			<tbody data-bind='foreach: processes'>
+				<tr>
+					<td>
+						<a data-bind="attr: { href: url() }, text: menuName()"></a>
+					</td>
+					<td>
+						<div class="btn-group">
+							<div class="btn-group">
+								<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"
+										style="border-top-right-radius: 0;
+										border-bottom-right-radius: 0; border-right: 0 none;">
+									(<span data-bind="text: instanceCount"></span>)
+									Instances
+									<b class="caret"></b>
+								</a>
+								<ul class="dropdown-menu">
+									<li>
+										<a href="#" data-bind="click: $parent.newInstance">New Instance</a>
+									</li>
+									<!-- ko if: $data.hasInstances -->
+									<li class="divider"></li>
+									<!-- ko foreach: $data.processInstances -->
+									<li>
+										<a data-bind="attr: { href: url() }">
+											Instance
+											<span data-bind="text: $index() + 1"></span>
+										</a>
+									</li>
+									<!-- /ko -->
+									<!-- /ko -->
+									<!-- ko ifnot: $data.hasInstances -->
+									<li class="divider"></li>
+									<li class="disabled">
+										<a href="#">No Instances running</a>
+									</li>
+									<!-- /ko -->
+								</ul>
+							</div>
+							<a class="btn" data-bind="attr: { href: url() }">
+								Edit
+							</a>
+							<button class="btn" data-bind="click: $parent.remove">
+								Delete
+							</button>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
 </div>

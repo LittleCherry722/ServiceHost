@@ -10,20 +10,25 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	ProcessInstance = Model( "Process" );
+	ProcessInstance = Model( "ProcessInstance" );
 
 	ProcessInstance.belongsTo( "process" );
 
 	ProcessInstance.attrs({
-		processId: "integer"
+		processId: "integer",
+		graph: {
+			type: "string",
+			defaults: "{}",
+			lazy: true
+		}
 	});
 
 	ProcessInstance.include({
 		initialize: function() {
 			var self = this;
 
-			self.instanceName = ko.computed(function() {
-				return "Instance " + self.id();
+			this.instanceName = ko.computed(function() {
+				return "Instance #" + self.id();
 			});
 		}
 	});

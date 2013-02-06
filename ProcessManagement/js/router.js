@@ -57,15 +57,11 @@ define([ "director", "app"], function( Director, App ) {
 		}
 	}
 
-	var showProcessExecution = function( tab ) {
-		if ( !tab ) {
-			loadView( "processExecutionList", [ tab ], globalCallback() );
+	var showProcessExecution = function( id, tab ) {
+		if ( App.isViewLoaded( "execution" ) ) {
+			App.currentMainViewModel().setView( id, tab )
 		} else {
-			if ( App.isViewLoaded( "execution" ) ) {
-				App.currentMainViewModel().currentTab( tab )
-			} else {
-				loadView( "execution", [ tab ], globalCallback() );
-			}
+			loadView( "execution", [ id, tab ], globalCallback() );
 		}
 	}
 
@@ -92,9 +88,11 @@ define([ "director", "app"], function( Director, App ) {
 				"/(.+)": showProcess
 			}
 		},
-		"/execution": {
-			on: showProcessExecution,
-			"/:tab": showProcessExecution
+		"/processinstances": {
+			"/:process/": {
+				on: showProcessExecution,
+				"/:tab": showProcessExecution
+			}
 		}
 	}
 

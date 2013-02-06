@@ -46,6 +46,20 @@ define([
 				}
 			});
 
+			this.instanceCount = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					return self.processInstances().length
+				}
+			});
+
+			this.hasInstances = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					return self.instanceCount() > 0;
+				}
+			});
+
 			Process.lazyComputed( this, 'graphObject', {
 				read: function() {
 					return $.parseJSON( self.graph() );

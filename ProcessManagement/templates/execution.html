@@ -5,10 +5,11 @@
 	</div>
 
 	<span>
-		<span data-bind="text: currentProcess">Process Name </span>
-		<span> > </span>
-		<span data-bind="text: currentInstance">Instance Name</span>
-		<span> > </span>
+		<span data-bind="text: processInstance().process().name()"></span>
+		<span class="divider"> / </span>
+		<span data-bind="text: processInstance().instanceName()"></span>
+		<span class="divider"> / </span>
+
 		<select id="slctctvSbj" data-placeholder="Select Active Subject"
 			class="middle_switch chzn-select" tabindex="1"
 			data-bind="options: availableSubjects, optionsText: 'subjectText',
@@ -16,15 +17,15 @@
 		</select>
 	</span>
 
-  <div id="processExecution">
-    <ul class="nav nav-tabs" data-bind="foreach: tabs">
-      <li data-bind="css: { active: $data === $root.currentTab() }">
-        <a data-bind="text: $data, attr: { href: '#/execution/' + $data }"></a>
-      </li>
-    </ul>
-  </div>
-  <div id="executionContent">
-  </div>
+	<div id="processExecution">
+		<ul class="nav nav-tabs" data-bind="foreach: tabs">
+			<li data-bind="css: { active: $data === $root.currentTab() }">
+				<a data-bind="text: $data, attr: { href: '#/execution/' + $data }"></a>
+			</li>
+		</ul>
+	</div>
+	<div id="executionContent">
+	</div>
 
 </div>
 

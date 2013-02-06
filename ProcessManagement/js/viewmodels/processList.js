@@ -4,9 +4,11 @@ define([
 	"notify",
 	"dialog",
 	"models/process",
-	"underscore"
+	"models/processInstance",
+	"underscore",
+	"router"
 	// "tk_graph"
-], function( ko, App, Notify, Dialog, Process, _ ) {
+], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router ) {
 	var ViewModel = function() {
 
 		var self = this;
@@ -23,6 +25,12 @@ define([
 				destroyProcess( process )
 				parent.$.fancybox.close();
 			});
+		}
+
+		self.newInstance = function() {
+			instance = new ProcessInstance( { processId: this.id() } );
+			instance.save( { async: false } );
+			Router.goTo( instance );
 		}
 	}
 
