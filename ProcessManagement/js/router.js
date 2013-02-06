@@ -58,10 +58,14 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	var showProcessExecution = function( tab ) {
-		if ( App.isViewLoaded( "execution" ) ) {
-			App.currentMainViewModel().currentTab( tab )
+		if ( !tab ) {
+			loadView( "processExecutionList", [ tab ], globalCallback() );
 		} else {
-			loadView( "execution", [ tab ], globalCallback() );
+			if ( App.isViewLoaded( "execution" ) ) {
+				App.currentMainViewModel().currentTab( tab )
+			} else {
+				loadView( "execution", [ tab ], globalCallback() );
+			}
 		}
 	}
 

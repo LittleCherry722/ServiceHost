@@ -1,6 +1,7 @@
 define([
-	"underscore"
-], function( _ ) {
+	"underscore",
+	"knockout"
+], function( _, ko ) {
 
 	var Association = function( Result ) {
 
@@ -57,11 +58,15 @@ define([
 			// relation has been defined.
 			require( requireArray, function( ForeignModel, IntermediateModel ) {
 				if ( options.through ) {
-					Result.prototype[ foreignModelPluralName ] =
-						createHasManyThroughAccessors.call( this, ForeignModel, IntermediateModel, options );
+					Result._initializers.push(function ( model, data  ) {
+						model[ foreignModelPluralName ] =
+							createHasManyThroughAccessors.call( model, ForeignModel, IntermediateModel, options );
+					});
 				} else {
-					Result.prototype[ foreignModelPluralName ] =
-						createHasManyAccessors.call( this, ForeignModel, options );
+					Result._initializers.push(function( model, data  ) {
+						model[ foreignModelPluralName ] =
+							createHasManyAccessors.call( model, ForeignModel, options );
+					});
 				}
 			});
 		}
@@ -121,184 +126,196 @@ define([
 	// setup of the method. This creates a new method that is called like
 	// the modelPluralName, for example "articles".
 	var createHasManyAccessors = function( ForeignModel, options ) {
-		return function() {
-			results = ForeignModel[ options.foreignSearchMethod ]( this.id() );
+		var self = this;
+		return ko.computed({
+			deferEvaluation: true,
+			read: function() {
+				var results, _push;
 
-			// we want to be able to easily add or remove models to our relation.
-			// This is done by overriding the push method of the array we return
-			// and add a handy little remove method.
-			_push = results.push;
+				results = ForeignModel[ options.foreignSearchMethod ]( self.id() );
 
-			// Push a new object to the array of results and save the pushed model.
-			// Sets the foreign key of the foreign model to the id of our current model.
-			// If no Id could be found (probably because the record has not yet been
-			// persisted), save the record first.
-			// Also saves the foreign model after assigning the foreign key.
-			// Does so asynchronously if a callback is given or blocking if
-			// the callback is ommited.
-			results.push = function( item, callback ) {
+				// we want to be able to easily add or remove models to our relation.
+				// This is done by overriding the push method of the array we return
+				// and add a handy little remove method.
+				_push = results.push;
 
-				// Return if the item already exists in this relation
-				if ( _( results ).contains( item ) ) {
-					return;
+				// Push a new object to the array of results and save the pushed model.
+				// Sets the foreign key of the foreign model to the id of our current model.
+				// If no Id could be found (probably because the record has not yet been
+				// persisted), save the record first.
+				// Also saves the foreign model after assigning the foreign key.
+				// Does so asynchronously if a callback is given or blocking if
+				// the callback is ommited.
+				results.push = function( item, callback ) {
+
+					// Return if the item already exists in this relation
+					if ( _( results ).contains( item ) ) {
+						return;
+					}
+
+					// call the native push method.
+					_push.call( results, item );
+
+					// Save the record if it has not yet been saved
+					if ( !self.id() || self.isNewRecord ) {
+						self.save({ async: false });
+					}
+
+					// Set the forign key of the item to be added to our current Id.
+					item[ options.foreignKey ]( self.id() )
+
+						// If no callback was given, save blockingly, otherwise just
+						// supply the callback to the save method.
+						if ( !callback ) {
+							callback = { async: false }
+						}
+					item.save( callback );
+
+					return results;
 				}
 
-				// call the native push method.
-				_push.call( results, item );
+				results.remove = function( item, callback ) {
+					// Return if the item does not exist in this relation
+					if ( !_( results ).contains( item ) ) {
+						return;
+					}
 
-				// Save the record if it has not yet been saved
-				if ( !this.id() || this.isNewRecord ) {
-					this.save({ async: false });
+					// Reove the model from this relation array
+					results.splice( _(results).indexOf( item ), 1 );
+
+					// Save the record if it has not yet been saved.
+					if ( !self.id() || self.isNewRecord ) {
+						self.save({ async: false });
+					}
+
+					// Empty the foreign key of the item to be removed.
+					item[ options.foreignKey ]( -1 )
+
+						// If no callback was given, save blockingly, otherwise just
+						// supply the callback to the save method.
+						if ( !callback ) {
+							callback = { async: false }
+						}
+					item.save( callback );
 				}
 
-				// Set the forign key of the item to be added to our current Id.
-				item[ options.foreignKey ]( this.id() )
-
-				// If no callback was given, save blockingly, otherwise just
-				// supply the callback to the save method.
-				if ( !callback ) {
-					callback = { async: false }
-				}
-				item.save( callback );
-
-				return results;
+				// if no foreign models were given, this method is just a getter and
+				// return every foreign model matching
+				// the request.
+				return results
 			}
-
-			results.remove = function( item, callback ) {
-				// Return if the item does not exist in this relation
-				if ( !_( results ).contains( item ) ) {
-					return;
-				}
-
-				// Reove the model from this relation array
-				results.splice( _(results).indexOf( item ), 1 );
-
-				// Save the record if it has not yet been saved.
-				if ( !this.id() || this.isNewRecord ) {
-					this.save({ async: false });
-				}
-
-				// Empty the foreign key of the item to be removed.
-				item[ options.foreignKey ]( -1 )
-
-				// If no callback was given, save blockingly, otherwise just
-				// supply the callback to the save method.
-				if ( !callback ) {
-					callback = { async: false }
-				}
-				item.save( callback );
-			}
-
-			// if no foreign models were given, this method is just a getter and
-			// return every foreign model matching
-			// the request.
-			return results
-		}
+		});
 	}
 
 	// This is where things get complicated.
 	// Setting up a has many association through a foreign model in order
 	// to get a many to many relation working.
 	var createHasManyThroughAccessors = function( ForeignModel, IntermediateModel, options ) {
-		return function(arrayOfForeignModels) {
-			var _push, intermediateResults, results, existingRelations,
-			intermediateForeignKey, intermediateModelObject, toBeDeletedIntermediate,
-			intermediateIndex,
-			self = this;
+		var model = this;
 
-			// First get all intermediate model instances whose foreignKey equal
-			// the Id of our current model.
-			intermediateResults = IntermediateModel[ options.foreignSearchMethod ]( self.id() );
+		return ko.computed({
+			owner: model,
+			deferEvaluation: true,
+			read: function(arrayOfForeignModels) {
+				var _push, intermediateResults, results, existingRelations,
+					intermediateForeignKey, intermediateModelObject, toBeDeletedIntermediate,
+					intermediateIndex,
+					self = this;
 
-			// The results array will hold all final results, that is
-			// the foreign models that we want to access.
-			results = [];
+				// First get all intermediate model instances whose foreignKey equal
+				// the Id of our current model.
+				intermediateResults = IntermediateModel[ options.foreignSearchMethod ]( self.id() );
 
-			// Iterate over every intermediate result and push the result of
-			// the "belongsTo" relation accessor that has been setup with the same
-			// name as our initial "hasMany X" relation.
-			// For example: Author hasMany("articles" { through: "articlesAuthor" })
-			// ArticlesAuthor belongsTo( "articles" ).
-			_( intermediateResults ).each(function( result ) {
-				results.push( result[ options.foreignModelName ]() )
-			});
+				// The results array will hold all final results, that is
+				// the foreign models that we want to access.
+				results = [];
 
-			// we want to be able to easily add or remove models to our relation.
-			// This is done by overriding the push method of the array we return
-			// and add a handy little remove method.
-			_push = results.push;
-
-			// Push a new object to the array of results and save the pushed model -
-			// That is create a new intermediate model with the Ids of our current
-			// model and the foreign model.
-			// But only, if no intermediate Model with this exact relation already
-			// exists. We can leverage our existing intermediate results for this.
-			results.push = function( item, callback ) {
-				intermediateForeignKey = toAttributeName( item.className, "Id" );
-
-				if ( !item.id() || item.isNewRecord ) {
-					item.save({ async: false });
-				}
-
-				// Array of existing relations that, in the end, match the Id of our
-				// current model and the Id of the foreignModel to be added to the
-				// relation.
-				existingRelations = _( intermediateResults ).filter(function( result ) {
-					return result[ intermediateForeignKey ]() === item.id();
+				// Iterate over every intermediate result and push the result of
+				// the "belongsTo" relation accessor that has been setup with the same
+				// name as our initial "hasMany X" relation.
+				// For example: Author hasMany("articles" { through: "articlesAuthor" })
+				// ArticlesAuthor belongsTo( "articles" ).
+				_( intermediateResults ).each(function( result ) {
+					results.push( result[ options.foreignModelName ]() )
 				});
 
-				// if no existing relations were found for this constellation of
-				// models, add it.
-				if ( existingRelations.length === 0 ) {
-					_push.call( results, item );
+				// we want to be able to easily add or remove models to our relation.
+				// This is done by overriding the push method of the array we return
+				// and add a handy little remove method.
+				_push = results.push;
 
-					intermediateModelObject = {};
-					intermediateModelObject[ intermediateForeignKey ] = item.id();
-					intermediateModelObject[ options.foreignKey ]     = self.id();
+				// Push a new object to the array of results and save the pushed model -
+				// That is create a new intermediate model with the Ids of our current
+				// model and the foreign model.
+				// But only, if no intermediate Model with this exact relation already
+				// exists. We can leverage our existing intermediate results for this.
+				results.push = function( item, callback ) {
+					intermediateForeignKey = toAttributeName( item.className, "Id" );
 
-					if ( !callback ) {
-						callback = { async: false };
+					if ( !item.id() || item.isNewRecord ) {
+						item.save({ async: false });
 					}
-					IntermediateModel.build( intermediateModelObject ).save( callback );
+
+					// Array of existing relations that, in the end, match the Id of our
+					// current model and the Id of the foreignModel to be added to the
+					// relation.
+					existingRelations = _( intermediateResults ).filter(function( result ) {
+						return result[ intermediateForeignKey ]() === item.id();
+					});
+
+					// if no existing relations were found for this constellation of
+					// models, add it.
+					if ( existingRelations.length === 0 ) {
+						_push.call( results, item );
+
+						intermediateModelObject = {};
+						intermediateModelObject[ intermediateForeignKey ] = item.id();
+						intermediateModelObject[ options.foreignKey ]     = self.id();
+
+						if ( !callback ) {
+							callback = { async: false };
+						}
+						IntermediateModel.build( intermediateModelObject ).save( callback );
+					}
+
+					return results;
+				}
+
+				// add a remove method to the array for easy deletion of models from
+				// an association.
+				// Does only delete (from the DB) the intermediate relation, not the
+				// model itself.
+				results.remove = function( item, callback ) {
+					intermediateForeignKey = toAttributeName( item.className, "Id" );
+
+					// Array of existing relations that, in the end, match the Id of our
+					// current model and the Id of the foreignModel to be added to the
+					// relation.
+					existingRelations = _( intermediateResults ).filter(function( result ) {
+						return ( result[ intermediateForeignKey ]() === item.id() );
+					});
+
+					// If the DB was engineered sanely, we only get at most one result we
+					// have to delete now.
+					if ( existingRelations.length > 0 ) {
+						// Splice the results (js way of deleting array elements in place
+						// and returning the deleted element), and destroy the intermediate
+						// model in question (delete it from the DB).
+						if ( !callback ) {
+							callback = { async: false };
+						}
+
+						intermediateIndex = _( intermediateResults ).indexOf( existingRelations[0] )
+						toBeDeletedIntermediate = intermediateResults.splice( intermediateIndex, 1 )[0]
+						toBeDeletedIntermediate.destroy( callback );
+					}
+
+					return results;
 				}
 
 				return results;
 			}
-
-			// add a remove method to the array for easy deletion of models from
-			// an association.
-			// Does only delete (from the DB) the intermediate relation, not the
-			// model itself.
-			results.remove = function( item, callback ) {
-				intermediateForeignKey = toAttributeName( item.className, "Id" );
-
-				// Array of existing relations that, in the end, match the Id of our
-				// current model and the Id of the foreignModel to be added to the
-				// relation.
-				existingRelations = _( intermediateResults ).filter(function( result ) {
-					return ( result[ intermediateForeignKey ]() === item.id() );
-				});
-
-				// If the DB was engineered sanely, we only get at most one result we
-				// have to delete now.
-				if ( existingRelations.length > 0 ) {
-					// Splice the results (js way of deleting array elements in place
-					// and returning the deleted element), and destroy the intermediate
-					// model in question (delete it from the DB).
-					if ( !callback ) {
-						callback = { async: false };
-					}
-
-					intermediateIndex = _( intermediateResults ).indexOf( existingRelations[0] )
-					toBeDeletedIntermediate = intermediateResults.splice( intermediateIndex, 1 )[0]
-					toBeDeletedIntermediate.destroy( callback );
-				}
-
-				return results;
-			}
-
-			return results;
-		}
+		});
 	}
 
 	// Transforms an String to an attribute name.

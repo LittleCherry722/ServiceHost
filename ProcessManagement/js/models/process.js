@@ -22,7 +22,7 @@ define([
 		}
 	});
 
-	Process.hasMany( "ProcessInstances" );
+	Process.hasMany( "processInstances" );
 
 	Process.include({
 

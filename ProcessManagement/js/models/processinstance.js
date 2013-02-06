@@ -12,8 +12,20 @@ define([
 	// validating the current process etc.
 	ProcessInstance = Model( "Process" );
 
+	ProcessInstance.belongsTo( "process" );
+
 	ProcessInstance.attrs({
 		processId: "integer"
+	});
+
+	ProcessInstance.include({
+		initialize: function() {
+			var self = this;
+
+			self.instanceName = ko.computed(function() {
+				return "Instance " + self.id();
+			});
+		}
 	});
 
 	return ProcessInstance;
