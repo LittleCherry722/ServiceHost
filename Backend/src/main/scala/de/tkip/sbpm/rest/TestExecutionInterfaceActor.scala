@@ -1,34 +1,35 @@
 package de.tkip.sbpm.rest
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application._
-import spray.http.MediaTypes._
-import spray.routing._
-import scala.concurrent.Await
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.JsonProtocol._
-import spray.httpx.SprayJsonSupport._
-import spray.json._
-import scala.util.parsing.json.JSONArray
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.rest.SprayJsonSupport._
+import spray.http.MediaTypes._
 import spray.http.StatusCodes
-import spray.http.StatusCode
-import spray.http.HttpHeader
-import spray.util.LoggingContext
 import spray.httpx.marshalling.Marshaller
-import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
-import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
+import spray.json._
+import spray.routing._
+import spray.util.LoggingContext
 import akka.actor.Props
-import de.tkip.sbpm.persistence.GetProcess
+import de.tkip.sbpm.application.subject.ExecuteAction
+import de.tkip.sbpm.application.subject.ExecuteActionAnswer
+import de.tkip.sbpm.persistence.GetProcessInstance
+import de.tkip.sbpm.persistence.GetGraph
 
 /**
- * This Actor is only used to process "get" REST calls regarding "execution" mixed with the debug trait
+ * This Actor is only used to process REST calls regarding "execution"
  */
+// TODO when to choose HttpService and when HttpServiceActor
 class TestExecutionInterfaceActor extends Actor with HttpService {
   implicit val timeout = Timeout(5 seconds)
   val logger = Logging(context.system, this)
@@ -51,49 +52,43 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
   def actorRefFactory = context
 
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
+  private lazy val persistanceActor = ActorLocator.persistenceActor
 
   def receive = runRoute({
-    formField("userid") { userId =>
+    formField("userid") { userID =>
       get {
         //READ
-        path(IntNumber) { processID =>
-          //return all information for a given process (graph, next actions (unique ID per available action), history)
+        path(IntNumber) { processInstanceID =>
+
           implicit val timeout = Timeout(5 seconds)
-          //          val future1 = subjectProviderManager ? new GetProcess(Some(processID.toInt)) with Debug
-          val future2 = subjectProviderManager ? new GetHistory(userId.toInt, processID.toInt) with Debug
-          val future3 = subjectProviderManager ? new GetAvailableActions(userId.toInt, processID.toInt) with Debug
 
-          val result = for {
-            // TODO result of GetProcess (look up at ExecutionInterfaceActor)
-            //            graph <- future1.mapTo[Process]
-            history <- future2.mapTo[History]
-            actions <- future3.mapTo[AvailableActionsAnswer]
-          } yield JsObject("history" -> history.toJson, "actions" -> actions.availableActions.toJson)
+          //same get "composedFutur" as in ExecutionInterfaceActor but as instance of Debug trait
+          val composedFuture = for {
+            processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[ProcessInstance]
+            graphFuture <- (persistanceActor ? GetGraph(Some(processInstanceFuture.graphId)).asInstanceOf[Debug]).mapTo[Graph]
+            historyFuture <- (subjectProviderManager ? GetHistory(userID.toInt, processInstanceID.toInt).asInstanceOf[Debug]).mapTo[HistoryAnswer]
+            availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userID.toInt, processInstanceID.toInt).asInstanceOf[Debug]).mapTo[AvailableActionsAnswer]
+          } yield JsObject(
+            //            "graph" -> processInstanceFuture.graphs.toJson,
+            "graph" -> graphFuture.graph.toJson,
+            "history" -> historyFuture.h.toJson,
+            "actions" -> availableActionsFuture.availableActions.toJson)
 
-          result onSuccess {
-            case obj: JsObject =>
-              complete(StatusCodes.OK, obj)
-          }
-          complete(StatusCodes.InternalServerError.toString)
+          complete(composedFuture)
+
         } ~
           //LIST
           path("") {
-            //List all executed process (for a given user)
             implicit val timeout = Timeout(5 seconds)
-            val future = subjectProviderManager ? new GetAllProcessInstanceIDs(userId.toInt) with Debug
 
-            val result = for {
-              instanceids <- future.mapTo[AllProcessInstanceIDsAnswer]
-            } yield JsArray(instanceids.processInstanceIDs.toJson)
+            val composedFuture = for {
+              instanceids <- (subjectProviderManager ? GetAllProcessInstanceIDs(userID.toInt).asInstanceOf[Debug]).mapTo[AllProcessInstanceIDsAnswer]
+            } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
 
-            result onSuccess {
-              case array: JsArray =>
-                complete(StatusCodes.OK, array)
-            }
-
-            complete(StatusCodes.InternalServerError.toString)
+            complete(composedFuture)
           }
       }
+      
     }
   })
 

@@ -199,7 +199,7 @@ class TestPersistenceActor extends Actor {
     case GetRelation() => sender ! processes.get(1).get.relation
 
     case GetProcess(_, _) => sender !
-      Some(Process(Some(1), "DataBaseProcess", 2, true, "[Subj1]"))
+      Some(Process(Some(1), "DataBaseProcess", 2, true, "[{'ID':'1','name':'Subj1','active':'1'}]"))
 
     case GetProcessInstance(_) => sender ! processes.get(1).get.name
 
@@ -216,7 +216,7 @@ class TestPersistenceActor extends Actor {
 
     case save: SaveProcessInstance => {
       println("TestPersistenceActor - ProcessInstance saved: " + save)
-      sender ! None
+      sender ! Some(2)
     }
 
     case s => println("TestPersistenceActor - This feature is not yet implemented: " + s)

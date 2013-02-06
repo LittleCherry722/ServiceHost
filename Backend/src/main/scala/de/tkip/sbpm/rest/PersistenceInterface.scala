@@ -20,6 +20,7 @@ import spray.routing.ExceptionHandler
 import de.tkip.sbpm.ActorLocator
 import akka.actor.PoisonPill
 import akka.actor.ActorLogging
+import de.tkip.sbpm.persistence.EntityNotFoundException
 
 /**
  * Inheriting actors have simplified access to persistence actor.
@@ -36,7 +37,7 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
   override def postStop() {
     log.debug(getClass.getName + " stopped.")
   }
-  
+
   // is required by spray HttpService trait
   def actorRefFactory = context
 
@@ -45,15 +46,17 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
   // with exception message as payload (also logs the exception)
   implicit def exceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler.fromPF {
+      case e: EntityNotFoundException => ctx =>
+        ctx.complete(StatusCodes.NotFound, e.getMessage)
       case e: Exception => ctx =>
         log.error(e, e.getMessage)
         ctx.complete(StatusCodes.InternalServerError, e.getMessage)
     }
-  
+
   /**
    * Completes the request and stops the actor afterwards via PoisonPill.
    */
-  def complete(magnet: CompletionMagnet): StandardRoute ={
+  def complete(magnet: CompletionMagnet): StandardRoute = {
     self.self ! PoisonPill
     super.complete(magnet)
   }

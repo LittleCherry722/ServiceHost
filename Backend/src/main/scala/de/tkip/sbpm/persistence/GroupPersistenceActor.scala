@@ -45,13 +45,20 @@ private[persistence] class GroupPersistenceActor extends Actor with DatabaseAcce
       case SaveGroup(g @ Group(None, _, _)) =>
         answer { Some(Groups.autoInc.insert(g)) }
       // save existing group
-      case SaveGroup(g @ Group(id, _, _)) =>
-        answer { Groups.where(_.id === id).update(g); None }
+      case SaveGroup(g @ Group(id, _, _)) => update(id, g)
       // delete group with given id
       case DeleteGroup(id) => answer { Groups.where(_.id === id).delete(session) }
       // execute DDL for "groups" table
       case InitDatabase => answer { Groups.ddl.create(session) }
     }
+  }
+
+  // update entity or throw exception if it does not exist
+  def update(id: Option[Int], g: Group)(implicit session: Session) = answer {
+    val res = Groups.where(_.id === id).update(g)
+    if (res == 0)
+      throw new EntityNotFoundException("Group with id %d does not exist.", id.get)
+    None
   }
 
 }
