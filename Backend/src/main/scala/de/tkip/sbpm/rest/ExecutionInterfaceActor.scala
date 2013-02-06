@@ -79,8 +79,9 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             "history" -> historyFuture.h.toJson,
             "actions" -> availableActionsFuture.availableActions.toJson)
           complete(composedFuture)
+        } else {
+        	complete("The requested process is not running")
         }
-        complete("The requested process is not running")
       } ~
         //LIST
         path("") {

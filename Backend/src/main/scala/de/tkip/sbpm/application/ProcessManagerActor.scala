@@ -94,13 +94,13 @@ class ProcessManagerActor extends Actor {
       }
     }
 
-    case message: GetHistory => {
-      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
-        processInstanceMap(message.processInstanceID)._1.forward(message)
-      } else {
-        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
-      }
-    }
+//    case message: GetHistory => {
+//      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
+//        processInstanceMap(message.processInstanceID)._1.forward(message)
+//      } else {
+//        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
+//      }
+//    }
 
     case answer: AnswerMessage => {
       answer.sender.forward(answer)
@@ -123,6 +123,10 @@ class ProcessManagerActor extends Actor {
     if (processInstanceMap.contains(message.processInstanceID)) {
       processInstanceMap(message.processInstanceID)._1.!(message) // TODO mit forwards aber erstmal testen
     } else {
+      if(message.isInstanceOf[AnswerAbleMessage]) {
+        // TODO create an answertrait for this error
+        message.asInstanceOf[AnswerAbleMessage].sender ! None
+      }
       logger.error("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)
     }
