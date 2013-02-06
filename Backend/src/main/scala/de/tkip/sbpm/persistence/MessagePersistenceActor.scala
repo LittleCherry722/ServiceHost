@@ -51,8 +51,7 @@ private[persistence] class MessagePersistenceActor extends Actor with DatabaseAc
       case SaveMessage(m @ Message(None, _, _, _, _, _, _)) =>
         answer { Some(Messages.autoInc.insert(m)) }
       // update existing message
-      case SaveMessage(m @ Message(id, _, _, _, _, _, _)) =>
-        answer { Messages.where(_.id === id).update(m) }
+      case SaveMessage(m @ Message(id, _, _, _, _, _, _)) => update(id, m)
       // delete message with given id
       case DeleteMessage(id) =>
         answer { Messages.where(_.id === id).delete(session); None }
@@ -61,4 +60,11 @@ private[persistence] class MessagePersistenceActor extends Actor with DatabaseAc
     }
   }
 
+  // update entity or throw exception if it does not exist
+  def update(id: Option[Int], m: Message)(implicit session: Session) = answer {
+    val res = Messages.where(_.id === id).update(m)
+    if (res == 0)
+      throw new EntityNotFoundException("Message with id %d does not exist.", id.get)
+    None
+  }
 }
