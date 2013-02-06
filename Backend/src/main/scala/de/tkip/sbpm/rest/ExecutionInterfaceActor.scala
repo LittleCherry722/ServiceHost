@@ -67,18 +67,16 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
         implicit val timeout = Timeout(5 seconds)
 
-        val future = persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))
-        val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
-
         val composedFuture = for {
-          graphFuture <- (persistanceActor ? GetGraph(Some(result.get.graphId))).mapTo[Option[Graph]]
+          processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[Option[ProcessInstance]]
+          graphFuture <- (persistanceActor ? GetGraph(Some(processInstanceFuture.get.graphId))).mapTo[Option[Graph]]
           historyFuture <- (subjectProviderManager ? new GetHistory(userID.toInt, processInstanceID.toInt) with Debug).mapTo[HistoryAnswer]
           availableActionsFuture <- (subjectProviderManager ? new GetAvailableActions(userID.toInt, processInstanceID.toInt) with Debug).mapTo[AvailableActionsAnswer]
         } yield JsObject(
+          "processId" -> processInstanceFuture.get.processId.toJson,
           "graph" -> graphFuture.get.graph.toJson,
           "history" -> historyFuture.h.toJson,
-          "actions" -> availableActionsFuture.availableActions.toJson
-          )
+          "actions" -> availableActionsFuture.availableActions.toJson)
 
         complete(composedFuture)
 
@@ -87,11 +85,14 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         path("") {
           implicit val timeout = Timeout(5 seconds)
 
-          val composedFuture = for {
-            instanceids <- (subjectProviderManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
-          } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
+          //          val composedFuture = for {
+          //            instanceids <- (subjectProviderManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
+          //          } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
 
-          complete(composedFuture)
+          val future = (subjectProviderManager ? GetAllProcessInstances(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
+          val result = Await.result(future, timeout.duration)
+
+          complete(result.processInstanceInfo)
         }
 
     } ~

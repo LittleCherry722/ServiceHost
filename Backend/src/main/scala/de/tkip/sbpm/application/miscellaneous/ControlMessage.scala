@@ -47,13 +47,15 @@ sealed trait AnswerControlMessage extends ControlMessage with AnswerMessage
 // request
 // answer
 
+
 // administration
 case class CreateSubjectProvider(userID: UserID) extends AnswerAbleControlMessage
 case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID) extends AnswerControlMessage
 
 // execution
-case class GetAllProcessInstanceIDs(userID: UserID = AllUser) extends AnswerAbleControlMessage
-case class AllProcessInstanceIDsAnswer(request: GetAllProcessInstanceIDs, processInstanceIDs: Array[ProcessInstanceID]) extends AnswerControlMessage
+case class ProcessInstanceInfo(processInstanceId: ProcessInstanceID, processId: ProcessID)
+case class GetAllProcessInstances(userID: UserID = AllUser) extends AnswerAbleControlMessage
+case class AllProcessInstanceIDsAnswer(request: GetAllProcessInstances, processInstanceInfo: Array[ProcessInstanceInfo]) extends AnswerControlMessage
 
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID, processInstanceActor: ProcessInstanceRef) extends AnswerControlMessage

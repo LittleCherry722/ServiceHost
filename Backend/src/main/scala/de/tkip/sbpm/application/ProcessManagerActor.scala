@@ -17,7 +17,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
 class ProcessManagerActor extends Actor {
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
-  private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceRef]()
+  private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, (ProcessInstanceRef, ProcessID)]()
 
   // used to map answer messages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -32,9 +32,10 @@ class ProcessManagerActor extends Actor {
     }
 
     // execution
-    case getAll: GetAllProcessInstanceIDs => {
+    case getAll: GetAllProcessInstances => {
+
       sender !
-        AllProcessInstanceIDsAnswer(getAll, processInstanceMap.keys.toArray)
+        AllProcessInstanceIDsAnswer(getAll, processInstanceMap.map(s => ProcessInstanceInfo(s._1, 1)).toArray)
     }
 
     case cp: CreateProcessInstance => {
@@ -49,12 +50,12 @@ class ProcessManagerActor extends Actor {
         logger.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
       }
       processInstanceMap +=
-        pc.processInstanceID -> pc.processInstanceActor
+        pc.processInstanceID -> (pc.processInstanceActor, pc.request.processID)
     }
 
     case kill: KillProcessInstance => {
       if (processInstanceMap.contains(kill.processInstanceID)) {
-        context.stop(processInstanceMap(kill.processInstanceID))
+        context.stop(processInstanceMap(kill.processInstanceID)._1)
         processInstanceMap -= kill.processInstanceID
         sender ! KillProcessInstanceAnswer(kill, true)
       } else {
@@ -95,7 +96,7 @@ class ProcessManagerActor extends Actor {
 
     case message: GetHistory => {
       if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
-        processInstanceMap(message.processInstanceID).forward(message)
+        processInstanceMap(message.processInstanceID)._1.forward(message)
       } else {
         logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
       }
@@ -120,7 +121,7 @@ class ProcessManagerActor extends Actor {
 
   private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
     if (processInstanceMap.contains(message.processInstanceID)) {
-      processInstanceMap(message.processInstanceID).!(message) // TODO mit forwards aber erstmal testen
+      processInstanceMap(message.processInstanceID)._1.!(message) // TODO mit forwards aber erstmal testen
     } else {
       logger.error("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)

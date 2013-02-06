@@ -23,6 +23,7 @@ import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.application.subject.ExecuteAction
+import de.tkip.sbpm.application.miscellaneous.ProcessInstanceInfo
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -103,6 +104,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val historyFormat = jsonFormat5(History)
 
   // action execution
+  implicit val processInstanceInfoFormat = jsonFormat2(ProcessInstanceInfo)
   implicit val availableActionFormat = jsonFormat6(AvailableAction)
 
   //ProcessModel TODO die braucht man doch garnicht, da das interne model nicht in json uebersetzt wird
