@@ -11,11 +11,15 @@ import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 case class StartSubjectExecution() extends SubjectBehaviorRequest
 protected case class NextState(state: StateID) extends SubjectBehaviorRequest
 
-// internal subject messages
+// internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
 sealed trait MessageObject
+// message from subject to subject
 protected case class SubjectInternalMessage(from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+// stored message in the inputpool
 protected case class TransportMessage(from: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+// acknowledge, that a message is stored in the input pool
 protected case object Stored extends MessageObject
+// request for the input pool that a state want to know his messages
 protected case class RequestForMessages(exitConds: Array[SubjectMessageRouting])
 
 // TODO richtig einordnern
@@ -27,6 +31,7 @@ sealed trait SubjectBehaviorRequest
 case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
+// TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
 // Answer to the GetAvailable Action request
 case class AvailableAction(userID: UserID,
                            processInstanceID: ProcessInstanceID,
@@ -34,7 +39,7 @@ case class AvailableAction(userID: UserID,
                            stateID: StateID,
                            stateType: String,
                            actionData: Array[String])
-  extends SubjectProviderMessage
+    extends SubjectProviderMessage
 
 // The Execution command from the user
 case class ExecuteAction(userID: UserID,
@@ -42,43 +47,20 @@ case class ExecuteAction(userID: UserID,
                          subjectID: SubjectID,
                          stateID: StateID,
                          stateType: String,
-                         actionInput: String)
-  extends AnswerAbleMessage
-  with SubjectBehaviorRequest
-  with SubjectMessage
-  with SubjectProviderMessage
+                         actionData: String)
 
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
-case class ExecuteActionAnswer(request: ExecuteAction) extends AnswerMessage
-
-private object ExecuteActionType {
-
-  type ExecuteActionType = {
-    def userID: UserID
-    def processInstanceID: ProcessInstanceID
-    def subjectID: SubjectID
-    def stateID: StateID
-    def stateType: String
-    def actionInput: String
-  }
+case class ExecuteActionAnswer(execute: ExecuteAction) extends AnswerMessage {
+  def request = execute.asInstanceOf[AnswerAbleMessage]
 }
 
-object ExecuteAction {
-  def apply(available: AvailableAction, actionInput: String): ExecuteAction =
-    ExecuteAction(
-      available.userID,
-      available.processInstanceID,
-      available.subjectID,
-      available.stateID,
-      available.stateType,
-      actionInput)
-
-  def apply(action: ExecuteActionType.ExecuteActionType): ExecuteAction =
-    ExecuteAction(
+object mixExecuteActionWithRouting {
+  def apply(action: ExecuteAction): ExecuteAction =
+    new ExecuteAction(
       action.userID,
       action.processInstanceID,
       action.subjectID,
       action.stateID,
       action.stateType,
-      action.actionInput)
+      action.actionData) with AnswerAbleMessage with SubjectProviderMessage with SubjectMessage with SubjectBehaviorRequest
 }

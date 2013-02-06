@@ -68,6 +68,15 @@ object printHistory {
 }
 
 object ExecuteProcessInConsoleTest {
+  def createExecuteAction(available: AvailableAction, actionInput: String): ExecuteAction =
+      mixExecuteActionWithRouting(
+        ExecuteAction(
+          available.userID,
+          available.processInstanceID,
+          available.subjectID,
+          available.stateID,
+          available.stateType,
+          actionInput))
 
   //  val processGraph =
   //    ProcessGraph(
@@ -104,7 +113,7 @@ object ExecuteProcessInConsoleTest {
       case a: ExecuteActionAnswer => {
         println("FE - action executed: " + a)
         Thread.sleep(100)
-        subjectProviderManagerActor ! GetAvailableActions(a.request.userID, a.request.processInstanceID)
+        subjectProviderManagerActor ! GetAvailableActions(a.execute.userID, a.execute.processInstanceID)
       }
 
       case AvailableActionsAnswer(request, available) => {
@@ -133,6 +142,8 @@ object ExecuteProcessInConsoleTest {
         println("FE received: " + s)
     }
 
+    
+
     private def executeAction(avail: AvailableAction) {
       print(avail.processInstanceID + "/" + avail.subjectID + "/" + avail.stateID + " - ")
       StateType.fromStringtoStateType(avail.stateType) match {
@@ -141,10 +152,10 @@ object ExecuteProcessInConsoleTest {
           //          while (!avail.actionData.contains(action)) {
           //            action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
           //          }
-          subjectProviderManagerActor ! ExecuteAction(avail, action)
+          subjectProviderManagerActor ! createExecuteAction(avail, action)
         case SendStateType =>
           val message = readLine("Please insert message: ")
-          subjectProviderManagerActor ! ExecuteAction(avail, message)
+          subjectProviderManagerActor ! createExecuteAction(avail, message)
         case ReceiveWaitingStateType => {
           readLine("I am waiting for a message...")
           // always ask again if there is a new action for this subject
@@ -152,7 +163,7 @@ object ExecuteProcessInConsoleTest {
         }
         case ReceiveStateType =>
           val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
-          subjectProviderManagerActor ! ExecuteAction(avail, "")
+          subjectProviderManagerActor ! createExecuteAction(avail, "")
         case EndStateType =>
           println("Subject terminated: " + avail.subjectID)
       }

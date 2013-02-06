@@ -26,6 +26,7 @@ import de.tkip.sbpm.application.subject.ExecuteActionAnswer
 import de.tkip.sbpm.persistence.GetProcessInstance
 import de.tkip.sbpm.persistence.GetGraph
 import scala.concurrent.Await
+import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -110,7 +111,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           //UPDATE
           pathPrefix(IntNumber) { processInstanceID =>
             path("^$"r) { regex =>
-              entity(as[ActionIdHeader]) { json =>
+              entity(as[ExecuteAction]) { json =>
 //                formField("ExecuteAction") { (action) =>
                   //execute next step
 
@@ -125,7 +126,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
                   implicit val executeActionFormat = jsonFormat6(ExecuteActionCreator)
 
                   val composedFuture = for {
-                    update <- (subjectProviderManager ? ExecuteAction(json)).mapTo[ExecuteActionAnswer]
+                    update <- (subjectProviderManager ? mixExecuteActionWithRouting(json)).mapTo[ExecuteActionAnswer]
                   } yield JsObject()
 
                   complete(composedFuture)

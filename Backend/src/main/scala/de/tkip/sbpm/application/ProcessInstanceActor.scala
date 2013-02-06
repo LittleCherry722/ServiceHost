@@ -99,7 +99,6 @@ class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance)
       if (subject == null) {
         println("ProcessInstance " + id + " -- Subject unknown for " + as)
       } else {
-
         // create the subject
         val subjectRef =
           context.actorOf(Props(new SubjectActor(as.userID, self, subject)))

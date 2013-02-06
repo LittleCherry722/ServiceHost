@@ -21,8 +21,8 @@ import akka.event.Logging
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
-protected abstract class BehaviorStateActor(val stateID: StateID,
-                                            val stateAction: StateAction,
+protected abstract class BehaviorStateActor(stateID: StateID,
+                                            stateAction: StateAction,
                                             transitions: Array[Transition],
                                             internalBehaviorActor: InternalBehaviorRef,
                                             processInstance: ProcessInstanceRef,
