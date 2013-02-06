@@ -36,20 +36,20 @@ class FrontendInterfaceActor extends Actor with HttpService {
 
   def receive = runRoute({
     /**
-     * redirect all calls beginning with "process" to ProcessInterfaceActor
+     * redirect all calls beginning with "execution" to ExecutionInterfaceActor
      *
-     * e.g. GET http://localhost:8080/process/8
+     * e.g. GET http://localhost:8080/execution/8
      */
-    pathPrefix(Entity.PROCESS) { requestContext =>
-      context.actorOf(Props[ProcessInterfaceActor]) ! requestContext
+    pathPrefix(Entity.EXECUTION) { requestContext =>
+      context.actorOf(Props[ExecutionInterfaceActor]) ! requestContext
     } ~
       /**
-       * redirect all calls beginning with "execution" to ExecutionInterfaceActor
+       * redirect all calls beginning with "process" to ProcessInterfaceActor
        *
-       * e.g. GET http://localhost:8080/execution/8
+       * e.g. GET http://localhost:8080/process/8
        */
-      pathPrefix(Entity.EXECUTION) { requestContext =>
-        context.actorOf(Props[ExecutionInterfaceActor]) ! requestContext
+      pathPrefix(Entity.PROCESS) { requestContext =>
+        context.actorOf(Props[ProcessInterfaceActor]) ! requestContext
       } ~
       /**
        * redirect all calls beginning with "testexecution" to TestExecutionInterfaceActor

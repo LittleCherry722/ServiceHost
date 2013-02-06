@@ -56,101 +56,103 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
   private lazy val persistanceActor = ActorLocator.persistenceActor
 
+  private val userID = 1 // TODO erstmal fest setzen spaeter aus cookies 
+
   def receive = runRoute({
     // TODO: aus cookie auslesen
-    formField("userid") { userID =>
-      get {
-        //READ
+    //    formField("userid") { userID =>
+    get {
+      //READ
+      path(IntNumber) { processInstanceID =>
+
+        implicit val timeout = Timeout(5 seconds)
+
+        val future = persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))
+        val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
+
+        val composedFuture = for {
+          graphFuture <- (persistanceActor ? GetGraph(Some(result.get.graphId))).mapTo[Graph]
+          historyFuture <- (subjectProviderManager ? GetHistory(userID.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
+          availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userID.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
+        } yield JsObject(
+          //            "graph" -> processInstanceFuture.graphs.toJson,
+          "graph" -> graphFuture.graph.toJson,
+          "history" -> historyFuture.h.toJson,
+          "actions" -> availableActionsFuture.availableActions.toJson)
+
+        complete(composedFuture)
+
+      } ~
+        //LIST
+        path("") {
+          implicit val timeout = Timeout(5 seconds)
+
+          val composedFuture = for {
+            instanceids <- (subjectProviderManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
+          } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
+
+          complete(composedFuture)
+        }
+
+    } ~
+      delete {
+        //DELETE
         path(IntNumber) { processInstanceID =>
+          //stop and delete given process instance
 
           implicit val timeout = Timeout(5 seconds)
 
-          val future = persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))
-          val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
-
           val composedFuture = for {
-            graphFuture <- (persistanceActor ? GetGraph(Some(result.get.graphId))).mapTo[Graph]
-            historyFuture <- (subjectProviderManager ? GetHistory(userID.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
-            availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userID.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
-          } yield JsObject(
-            //            "graph" -> processInstanceFuture.graphs.toJson,
-            "graph" -> graphFuture.graph.toJson,
-            "history" -> historyFuture.h.toJson,
-            "actions" -> availableActionsFuture.availableActions.toJson)
+            kill <- (subjectProviderManager ? KillProcessInstance(userID.toInt)).mapTo[KillProcessInstanceAnswer]
+          } yield JsObject("instanceIDs" -> kill.success.toJson)
 
           complete(composedFuture)
-
-        } ~
-          //LIST
-          path("") {
-            implicit val timeout = Timeout(5 seconds)
-
-            val composedFuture = for {
-              instanceids <- (subjectProviderManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
-            } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
-
-            complete(composedFuture)
-          }
-
+        }
       } ~
-        delete {
-          //DELETE
-          path(IntNumber) { processInstanceID =>
-            //stop and delete given process instance
+      put {
+        //UPDATE
+        pathPrefix(IntNumber) { processInstanceID =>
+          path("^$"r) { regex =>
+            entity(as[ExecuteAction]) { json =>
+              //                formField("ExecuteAction") { (action) =>
+              //execute next step
 
-            implicit val timeout = Timeout(5 seconds)
+              implicit val timeout = Timeout(5 seconds)
 
-            val composedFuture = for {
-              kill <- (subjectProviderManager ? KillProcessInstance(userID.toInt)).mapTo[KillProcessInstanceAnswer]
-            } yield JsObject("instanceIDs" -> kill.success.toJson)
+              case class ExecuteActionCreator(userID: UserID,
+                                              processInstanceID: ProcessInstanceID,
+                                              subjectID: SubjectID,
+                                              stateID: StateID,
+                                              stateType: String,
+                                              actionInput: String)
+              implicit val executeActionFormat = jsonFormat6(ExecuteActionCreator)
 
-            complete(composedFuture)
-          }
-        } ~
-        put {
-          //UPDATE
-          pathPrefix(IntNumber) { processInstanceID =>
-            path("^$"r) { regex =>
-              entity(as[ExecuteAction]) { json =>
-//                formField("ExecuteAction") { (action) =>
-                  //execute next step
+              val composedFuture = for {
+                update <- (subjectProviderManager ? mixExecuteActionWithRouting(json)).mapTo[ExecuteActionAnswer]
+              } yield JsObject()
 
-                  implicit val timeout = Timeout(5 seconds)
-
-                  case class ExecuteActionCreator(userID: UserID,
-                                                  processInstanceID: ProcessInstanceID,
-                                                  subjectID: SubjectID,
-                                                  stateID: StateID,
-                                                  stateType: String,
-                                                  actionInput: String)
-                  implicit val executeActionFormat = jsonFormat6(ExecuteActionCreator)
-
-                  val composedFuture = for {
-                    update <- (subjectProviderManager ? mixExecuteActionWithRouting(json)).mapTo[ExecuteActionAnswer]
-                  } yield JsObject()
-
-                  complete(composedFuture)
-//                }
-              }
-            }
-          }
-        } ~
-        post { //CREATE
-          pathPrefix("") {
-            path("^$"r) { regex =>
-              entity(as[ProcessIdHeader]) { json =>
-
-                implicit val timeout = Timeout(5 seconds)
-
-                val composedFuture = for {
-                  instanceid <- (subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processid)).mapTo[ProcessInstanceCreated]
-                } yield JsObject("instanceIDs" -> instanceid.processInstanceID.toJson)
-
-                complete(composedFuture)
-              }
+              complete(composedFuture)
+              //                }
             }
           }
         }
-    }
+      } ~
+      post { //CREATE
+        pathPrefix("") {
+          path("^$"r) { regex =>
+            entity(as[ProcessIdHeader]) { json =>
+
+              implicit val timeout = Timeout(5 seconds)
+
+              val composedFuture = for {
+                instanceid <- (subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processid)).mapTo[ProcessInstanceCreated]
+              } yield JsObject("instanceIDs" -> instanceid.processInstanceID.toJson)
+
+              complete(composedFuture)
+            }
+          }
+        }
+      }
+    //    }
   })
 }
