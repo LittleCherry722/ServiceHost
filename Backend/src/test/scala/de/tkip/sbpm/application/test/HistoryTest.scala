@@ -20,21 +20,24 @@ import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.miscellaneous.GetHistory
 import de.tkip.sbpm.persistence.TestPersistenceActor
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import de.tkip.sbpm.application.miscellaneous.HistoryAnswer
 
 class HistoryTest extends FunSuite {
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
   val sys = ActorSystem()
-  val actor = sys.actorOf(Props(new ProcessInstanceActor(1, null)))
+  val actor = sys.actorOf(Props(new ProcessInstanceActor(CreateProcessInstance(1, 1))))
   val testPersistence = sys.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
 
   test("test history debug data structure") {
     val future = actor ? new GetHistory(userID = 1, processInstanceID = 1) with Debug
-    val result = Await.result(future.mapTo[History], timeout.duration)
-    println(result)
-    assert(result.entries.length === 13)
-    val msg = result.entries(6).message
-    val payloadResult = msg.data
+    val result = Await.result(future.mapTo[HistoryAnswer], timeout.duration)
+    val history = result.h
+    println(history)
+    assert(history.entries.length === 11)
+    val msg = history.entries(6).message
+    val payloadResult = msg.get.data
     println(payloadResult)
     assert(payloadResult === "152876(1),4547984(3),541754(1)")
   }

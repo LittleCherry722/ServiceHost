@@ -140,7 +140,7 @@ class ExecuteProcessTest extends FunSuite {
     noError = true
     val (system, subjectProviderManagerActor) = createTestRunSystem()
 
-    var future = subjectProviderManagerActor ? CreateSubjectProvider()
+    var future = subjectProviderManagerActor ? CreateSubjectProvider(1)
     val userID = Await.result(future, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
 
     future = subjectProviderManagerActor ? CreateProcessInstance(userID, 2)

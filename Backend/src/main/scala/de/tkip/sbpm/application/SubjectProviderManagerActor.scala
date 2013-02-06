@@ -13,7 +13,6 @@ class SubjectProviderManagerActor extends Actor {
   val logger = Logging(context.system, this)
   
   private lazy val processManagerActor = ActorLocator.processManagerActor
-  private var subjectCount = 0
   private val subjectProviderMap =
     collection.mutable.Map[UserID, SubjectProviderRef]()
 
@@ -21,10 +20,10 @@ class SubjectProviderManagerActor extends Actor {
     // create a new subject provider and send the ID to the requester.
     // additionally send it to the subjectprovider who forwards 
     // the message to the processmanager so he can register the new subjectprovider
-    case csp: CreateSubjectProvider =>
-      createNewSubjectProvider(subjectCount)
-      sender ! SubjectProviderCreated(csp, subjectCount)
-      subjectCount += 1
+    case csp@ CreateSubjectProvider(userID) =>
+      createNewSubjectProvider(userID)
+      if(subjectProviderMap.contains(userID))
+      sender ! SubjectProviderCreated(csp, userID)
 
     // general matching:
     // first match the answers

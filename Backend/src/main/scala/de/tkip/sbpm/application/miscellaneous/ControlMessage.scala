@@ -48,7 +48,7 @@ sealed trait AnswerControlMessage extends ControlMessage with AnswerMessage
 // answer
 
 // administration
-case class CreateSubjectProvider() extends AnswerAbleControlMessage
+case class CreateSubjectProvider(userID: UserID) extends AnswerAbleControlMessage
 case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID) extends AnswerControlMessage
 
 // execution

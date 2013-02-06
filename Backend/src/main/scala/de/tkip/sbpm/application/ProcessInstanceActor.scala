@@ -20,27 +20,32 @@ import de.tkip.sbpm.model.ProcessInstance
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.persistence._
+import akka.event.Logging
 
 // represents the history of the instance
 case class History(processName: String,
                    instanceId: ProcessInstanceID,
-                   var processStarted: Date = null, // null if not started yet
-                   var processEnded: Date = null, // null if not started or still running
+                   var processStarted: Option[Date] = None, // None if not started yet
+                   var processEnded: Option[Date] = None, // None if not started or still running
                    entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
 /**
  * instantiates SubjectActor's and manages their interactions
  */
-class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance) extends Actor {
+class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
+  val logger = Logging(context.system, this)
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
   import ExecutionContext.Implicits.global // TODO this import or something different?
   implicit val timeout = Timeout(10 seconds)
 
+  val processID = request.processID
+
   // TODO "None" rueckgaben behandeln
   // Get the ProcessGraph from the database and create the database entry
   // for this process instance
+  // TODO momentan wird der process auf instanceid 1 gezwungen 
   val dataBaseAccessFuture = for {
     // get the process
     processFuture <- (ActorLocator.persistenceActor ?
@@ -49,10 +54,14 @@ class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance)
     processInstanceIDFuture <- (ActorLocator.persistenceActor ?
       SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
       .mapTo[Option[Int]]
+    // save this process instance in the persistence
+    processInstanceIDFuture <- (ActorLocator.persistenceActor ?
+      SaveProcessInstance(ProcessInstance(Some(1), processID, processFuture.get.graphId, "", "")))
+      .mapTo[Option[Int]]
     // get the corresponding graph
     graphFuture <- (ActorLocator.persistenceActor ?
       GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-  } yield (processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+  } yield (if (false) processInstanceIDFuture.get else 1, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
 
   // evaluate the Future
   val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJSON: String) =
@@ -77,7 +86,7 @@ class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance)
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
   // history.Entry messages to this actor
-  private val executionHistory = History(processName, id, new Date()) // TODO start time = creation time?
+  private val executionHistory = History(processName, id, Some(new Date())) // TODO start time = creation time?
   // provider actor for debug payload used in history's debug data
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
@@ -97,7 +106,7 @@ class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance)
 
       // TODO was tun
       if (subject == null) {
-        println("ProcessInstance " + id + " -- Subject unknown for " + as)
+        logger.error("ProcessInstance " + id + " -- Subject unknown for " + as)
       } else {
         // create the subject
         val subjectRef =
@@ -106,7 +115,7 @@ class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance)
         subjectMap += subject.id -> subjectRef
         subjectCounter += 1
 
-        println("process " + id + " created subject " + subject.id + " for user " + as.userID)
+        logger.info("processinstance " + id + " created subject " + subject.id + " for user " + as.userID)
 
         // if there are messages to deliver to the new subject,
         // forward them to the subject 
@@ -129,9 +138,9 @@ class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance)
     case st: SubjectTerminated => {
       // log end time in history
       subjectCounter -= 1
-      println("process instance [" + id + "]: subject terminated " + st.subjectID)
+      logger.info("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (subjectCounter == 0) {
-        executionHistory.processEnded = new Date()
+        executionHistory.processEnded = Some(new Date())
         //        context.stop(self) // TODO stop process instance?
       }
     }
@@ -146,7 +155,7 @@ class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance)
     case msg: GetHistory => {
       sender ! {
         if (msg.isInstanceOf[Debug]) {
-          HistoryTestData.generate(processName, id)(debugMessagePayloadProvider)
+          HistoryAnswer(msg, HistoryTestData.generate(processName, id)(debugMessagePayloadProvider))
         } else {
           HistoryAnswer(msg, executionHistory)
         }
@@ -174,7 +183,7 @@ class ProcessInstanceActor(processID: ProcessID, request: CreateProcessInstance)
       if (subjectMap.contains(message.subjectID)) {
         subjectMap(message.subjectID).!(message) // TODO mit forward
       } else {
-        System.err.println("ProcessInstance has message for subject " +
+        logger.error("ProcessInstance has message for subject " +
           message.subjectID + "but it does not exists")
       }
     }

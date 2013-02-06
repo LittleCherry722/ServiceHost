@@ -71,14 +71,14 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
 
         val composedFuture = for {
-          graphFuture <- (persistanceActor ? GetGraph(Some(result.get.graphId))).mapTo[Graph]
-          historyFuture <- (subjectProviderManager ? GetHistory(userID.toInt, processInstanceID.toInt)).mapTo[HistoryAnswer]
-          availableActionsFuture <- (subjectProviderManager ? GetAvailableActions(userID.toInt, processInstanceID.toInt)).mapTo[AvailableActionsAnswer]
+          graphFuture <- (persistanceActor ? GetGraph(Some(result.get.graphId))).mapTo[Option[Graph]]
+          historyFuture <- (subjectProviderManager ? new GetHistory(userID.toInt, processInstanceID.toInt) with Debug).mapTo[HistoryAnswer]
+          availableActionsFuture <- (subjectProviderManager ? new GetAvailableActions(userID.toInt, processInstanceID.toInt) with Debug).mapTo[AvailableActionsAnswer]
         } yield JsObject(
-          //            "graph" -> processInstanceFuture.graphs.toJson,
-          "graph" -> graphFuture.graph.toJson,
+          "graph" -> graphFuture.get.graph.toJson,
           "history" -> historyFuture.h.toJson,
-          "actions" -> availableActionsFuture.availableActions.toJson)
+          "actions" -> availableActionsFuture.availableActions.toJson
+          )
 
         complete(composedFuture)
 

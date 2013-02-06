@@ -26,7 +26,7 @@ class CreateSubjectProviderTest extends FunSuite {
 
     for (i <- 0 to 4) {
       // instantiate subjectProvider
-      val future = subjectProviderManager ? CreateSubjectProvider()
+      val future = subjectProviderManager ? CreateSubjectProvider(i)
       val userID: UserID =
         Await.result(future, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
 

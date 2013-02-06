@@ -32,13 +32,6 @@ protected abstract class BehaviorStateActor(stateID: StateID,
   
   val logger = Logging(context.system, this)
 
-  override def preStart() {
-    logger.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    logger.debug(getClass.getName + " stopped.")
-  }
   /**
    *
    * @return
