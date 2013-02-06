@@ -42,15 +42,7 @@ define([
 			// tell everyone that we are done (call the callback).
 			async.auto({
 				// fetchAll: Model.fetchAll,
-				fetchAll: function( callback ) {
-					User.fetch();
-					Role.fetch();
-					Group.fetch();
-					GroupsUsers.fetch();
-					Process.fetch();
-					// GrupsRoles.fetch();
-					callback();
-				},
+				fetchAll: Model.fetchAll,
 				initViews: [ "fetchAll", initializeViews ],
 				callback: [ "initViews", callback ]
 			});
