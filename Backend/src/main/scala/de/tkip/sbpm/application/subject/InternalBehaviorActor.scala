@@ -10,6 +10,7 @@ import de.tkip.sbpm.application.history.{
 }
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
+import akka.event.Logging
 
 // TODO this is for history + statechange
 case class ChangeState(currenState: StateID,
@@ -27,6 +28,17 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
   private var startState: StateID = 0
   private var currentState: BehaviorStateRef = null
 
+  
+  val logger = Logging(context.system, this)
+
+  override def preStart() {
+    logger.debug(getClass.getName + " starts...")
+  }
+
+  override def postStop() {
+    logger.debug(getClass.getName + " stopped.")
+  }
+  
   def receive = {
     case state: State => {
       addState(state)
@@ -83,13 +95,13 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
     }
 
     case n => {
-      println("InternalBehavior - Not yet supported: " + n + " " + subjectID)
+      logger.error("InternalBehavior - Not yet supported: " + n + " " + subjectID)
     }
   }
 
   private def addState(state: State) {
     if (state.stateType == StartStateType) {
-      println("startstate " + state)
+      logger.debug("startstate " + state)
       startState = state.id
     }
     statesMap += state.id -> state
@@ -103,10 +115,10 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
     }
 
     if (statesMap.contains(state)) {
-      println("Execute: /" + userID + "/" + subjectID + "/" + state)
+      logger.debug("Execute: /" + userID + "/" + subjectID + "/" + state)
       currentState = parseState(statesMap(state))
     } else {
-      System.err.println("ERROR: /" + userID + "/" + subjectID + "/" + state + "does not exist")
+      logger.error("ERROR: /" + userID + "/" + subjectID + "/" + state + "does not exist")
     }
   }
 

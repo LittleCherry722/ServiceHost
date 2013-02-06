@@ -16,6 +16,7 @@ import de.tkip.sbpm.application.history.{
 }
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
+import akka.event.Logging
 
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
@@ -28,6 +29,16 @@ protected abstract class BehaviorStateActor(val stateID: StateID,
                                             subjectID: SubjectID,
                                             userID: UserID, // TODO braucht ma, 
                                             inputPoolActor: ActorRef) extends Actor {
+  
+  val logger = Logging(context.system, this)
+
+  override def preStart() {
+    logger.debug(getClass.getName + " starts...")
+  }
+
+  override def postStop() {
+    logger.debug(getClass.getName + " stopped.")
+  }
   /**
    *
    * @return
@@ -53,11 +64,11 @@ protected abstract class BehaviorStateActor(val stateID: StateID,
     }
 
     case action: ExecuteAction => {
-      println("/" + userID + "/" + subjectID + "/" + stateID + " does not support " + action)
+      logger.error("/" + userID + "/" + subjectID + "/" + stateID + " does not support " + action)
     }
 
     case s => {
-      println("BehaviorStateActor does not support: " + s)
+      logger.error("BehaviorStateActor does not support: " + s)
     }
   }
 }
@@ -78,7 +89,7 @@ protected case class StartStateActor(id: StateID,
       userID,
       inputPoolActor) {
 
-  println("Start@" + userID + ", " + subjectID)
+  logger.debug("Start@" + userID + ", " + subjectID)
 
   override def receive = {
     case ea: StartSubjectExecution => {
@@ -135,11 +146,10 @@ protected case class ActStateActor(id: StateID,
 
   override def receive = {
 
-    case ea: ExecuteAction => {
-      val index = indexOfInput(ea.actionInput)
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, _, input) => {
+      val index = indexOfInput(input)
       if (index != -1) {
         sender ! ExecuteActionAnswer(ea)
-        //        internalBehaviorActor ! NextState(transitions(index).successorID)
 
         internalBehaviorActor ! ChangeState(id, transitions(index).successorID, null)
       } else {
@@ -192,19 +202,18 @@ protected case class ReceiveStateActor(id: StateID,
     RequestForMessages(transitions.map(convertTransitionToRequest(_)))
 
   override def receive = {
-    case ea: ExecuteAction => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, _, input) => {
       if (!transitions.isEmpty) {
         sender ! ExecuteActionAnswer(ea)
 
         val message = HistoryMessage(-1, transitions(0).messageType, transitions(0).subjectName, subjectID, messageContent)
-        //        internalBehaviorActor ! NextState(transitions(0).successorID)
         internalBehaviorActor ! ChangeState(id, transitions(0).successorID, message)
       }
     }
 
     case sm: TransportMessage => {
       // TODO checken ob richtige message
-      println("Receive@" + userID + "/" + subjectID + ": Message \"" +
+      logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
       messageContent = sm.messageContent
@@ -250,9 +259,9 @@ protected case class SendStateActor(id: StateID,
 
   // TODO sowas wie timeout ist nicht drin
   override def receive = {
-    case ea: ExecuteAction => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, _, input) => {
       sender ! ExecuteActionAnswer(ea)
-      messageData = ea.actionInput
+      messageData = input
       processInstance !
         SubjectInternalMessage(subjectID,
           toSubject,
@@ -265,11 +274,8 @@ protected case class SendStateActor(id: StateID,
       // create the History Entry
       if (messageData == null) {
         // TODO was tun?
-        System.err.println("Stored received before sending the message")
+        logger.error("Stored received before sending the message")
       }
-      //      val message =
-      //        HistoryMessage(-1, messageName, subjectID, toSubject, messageData)
-      //        internalBehaviorActor ! NextState(sucessorID)
       internalBehaviorActor !
         ChangeState(id, sucessorID,
           HistoryMessage(-1, messageType, subjectID, toSubject, messageData))
