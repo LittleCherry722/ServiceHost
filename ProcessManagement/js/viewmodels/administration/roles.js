@@ -33,7 +33,7 @@ define([
 
 		this.reset = function( role ) {
 			role.reset();
-			role.groupIDsReset();
+			role.groupIdsReset();
 			setTimeout(function() {
 				$('#role' + role.id()).find("select.chzn-select").trigger("liszt:updated");
 			}, 1);
@@ -42,7 +42,7 @@ define([
 		this.resetAll = function() {
 			Role.resetAll();
 			_( Role.all() ).each(function( role ) {
-				role.groupIDsReset();
+				role.groupIdsReset();
 			});
 			setTimeout(function() {
 				$(".chzn-select").trigger("liszt:updated");
@@ -50,7 +50,7 @@ define([
 		}
 
 		this.create = function() {
-			Role.build().id("Save to \nreceive ID");
+			Role.build().id("Save to \nreceive Id");
 
 			$("#listOfRoles input.inline").last().focus()
 			$("#listOfRoles tr:last-child .chzn-select").chosen();
@@ -76,10 +76,10 @@ define([
 		});
 
 		_( Role.all() ).each(function( role ) {
-			groupIDs = _( role.groups() ).map(function( group ) {
+			groupIds = _( role.groups() ).map(function( group ) {
 				return group.id();
 			});
-			role.groupIDs( groupIDs );
+			role.groupIds( groupIds );
 		});
 	}
 	// Everything in this object will be the public API

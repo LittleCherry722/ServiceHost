@@ -6,11 +6,11 @@ define([
 	"models/user",
 	"models/group"
 ], function( ko,komapping, App, _, User, Group ) {
-	
+
 	var viewModel;
-	
+
 	var ViewModel = function() {
-		this.currentProcessID = currentProcessID;
+		this.currentProcessId = currentProcessId;
 		this.currentProcess = currentProcess;
 		var self = this;
 
@@ -27,19 +27,19 @@ define([
 			'ignore' : ["groupUser1", "groupUser2"]
 		}
 		self.routings.subscribe(function( newValue ) {
-			currentProcess().graph().routings(komapping.toJS(self.routings(), mapping));
+			currentProcess().routings(komapping.toJS(self.routings(), mapping));
 			return komapping.toJS(self.routings(), mapping);
 		});
 
 		//Content dropdown
-		self.subject = currentProcess().graph().subjectIDs;
+		self.subject = currentProcess().subjectIds;
 
 
 		self.is = ko.observableArray( ["is", "is not"] );
 		self.groupUser = ko.observableArray( ["in group", "user"] );
 
 		self.init = function() {
-			self.load(currentProcess().graph().routings());
+			self.load(currentProcess().routings());
 			console.log("RoutingViewModel: initialized.");
 		}
 
@@ -128,13 +128,13 @@ define([
 
 	currentProcess.subscribe(function( process ) {
 		console.log( "a new process has been loaded: " + process.name() );
-	
+
 	});
 
-	var initialize = function( processID ) {
+	var initialize = function( processId ) {
 		var process;
-		currentProcessID = processID;
-		process = Process.find( processID )
+		currentProcessId = processId;
+		process = Process.find( processId )
 
 		if ( process === currentProcess() ) {
 			currentProcess.valueHasMutated();
@@ -143,11 +143,11 @@ define([
 		}
 
 		//Check if process has changed!
-		if ( !viewModel || viewModel.currentProcessID != currentProcessID ) {
+		if ( !viewModel || viewModel.currentProcessId != currentProcessId ) {
 			viewModel = new ViewModel();
 		}
 
-		console.log(process.graph().routings());
+		console.log(process.routings());
 
 		viewModel.init();
 ;
@@ -155,8 +155,8 @@ define([
 		App.loadTemplate( "process/routing", viewModel, null, function() {
 			console.log("template loaded")
 		});
-		
-	
+
+
 	}
 
 	// Everything in this object will be the public API

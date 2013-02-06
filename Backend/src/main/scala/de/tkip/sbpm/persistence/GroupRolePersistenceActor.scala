@@ -11,7 +11,7 @@ import de.tkip.sbpm.model._
 */
 sealed abstract class GroupRoleAction extends PersistenceAction
 // get all group -> role mappings (Seq[model.GroupRole])
-case class GetGroupRole() extends GroupRoleAction
+case class GetGroupRole(groupId: Option[Int] = None, roleId: Option[Int] = None) extends GroupRoleAction
 // save group -> role mapping to db
 // returns primary key Some((groupId, roleId)) if created otherwise None
 case class SaveGroupRole(groupRole: GroupRole) extends GroupRoleAction
@@ -38,7 +38,16 @@ private[persistence] class GroupRolePersistenceActor extends Actor with Database
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all group -> role mappings ordered by group id
-      case GetGroupRole() => answer { GroupRoles.sortBy(_.groupId).list }
+      case GetGroupRole(None, None) => answer { GroupRoles.sortBy(_.groupId).list }
+       // get all group -> role mappings for a role
+      case GetGroupRole(None, roleId) =>
+        answer { GroupRoles.where(_.roleId === roleId).sortBy(_.groupId).list }
+        // get all group -> role mappings for a group
+      case GetGroupRole(groupId, None) =>
+        answer { GroupRoles.where(_.groupId === groupId).sortBy(_.roleId).list }
+        // get group -> role mapping
+      case GetGroupRole(groupId, roleId) =>
+        answer { GroupRoles.where(e => e.groupId === groupId && (e.roleId === roleId)).firstOption }
       // save group -> role mapping
       case SaveGroupRole(gr: GroupRole) => answer { save(gr) }
       // delete group -> role mapping

@@ -5,34 +5,32 @@ define([
 	"require",
 	"async",
   "model/associations",
-  "model/attributes"
+  "model/attributes",
+  "model/storage"
   // "arne/model/attributes"
 	// "jquery"
-], function( _, ko, Router, require, async, Associations, Attributes ) {
-	var models = [];
+], function( _, ko, Router, require, async, Associations, Attributes, Storage ) {
+	var Model,
+			models = [];
 
 	// Our Model cunstructor function. Returns another constructor function.
-	var Model = function( modelName ) {
-
-		var modelPath = "db/" + modelName.toLowerCase();
+	Model = function( modelName, ajaxOptions ) {
+		var instances;
 
 		// All currently available instances this Model are stored in this
 		// observableArray.
-		var instances = ko.observableArray([]);
+		instances = ko.observableArray([]);
 
 		// Define our Base model
 		var Result = function( data ) {
+			var camelCasedAttribute,
+					self = this;
+
 			this.isBeingInitialized = true;
 
 			if ( !data ) {
 				data = {};
 			}
-
-			// needed only in rare cases, but invaluable there.
-			var self = this;
-
-			// The camelCase nam
-			var camelCasedAttribute;
 
 			this.isNewRecord = true;
 			this.isDestroyed = false;
@@ -49,7 +47,7 @@ define([
 					this[ attrName + "Reset" ]();
 				}, this);
 			}
-			
+
 			// Initialize an empty error object.
 			this.errors = ko.observableArray([]);
 
@@ -69,7 +67,7 @@ define([
 			this.validate = function() {
 				var validator, message, newErrors;
 
-				newErrors = [];
+				newErrors = []
 
 				// lets assume there are no errors;
 				valid = true;
@@ -139,190 +137,8 @@ define([
 				return json;
 			}
 
-			/*
-			 * Save the current Record.
-			 * Saves only this model to the database, no related structures.
-			 * Sabes the initial set of attributes to the databse.
-			 * Only saves the object if it passes validation.
-			 *
-			 * It may be possible (but uncommon) that the the server alters the
-			 * models attributes.
-			 */
-			this.save = function( options, callback ) {
-
-				// Allow the callback to be on first position if no options are given.
-				if ( typeof options === "function" ) {
-					callback = options;
-					options = {}
-				}
-
-				if ( !options ) { options = {}; }
-
-				_( options ).defaults({
-					async: true
-				});
-
-				// Initiate the beforeSave callback if it was defined
-				if ( typeof this.beforeSave === "function" ) {
-					this.beforeSave.call( this );
-				}
-
-				// If this is a new record that has not yet been saved, create a new
-				// record. Otherwise, just save it.
-				if ( this.isNewRecord ) {
-					Result._createFromExisting( this, options, callback );
-				} else {
-					Result._saveExisting( this, options, callback );
-				}
-
-				this.hasChanged( false );
-			}
-
-			// Delete a specific record from the database
-			this.destroy = function( options, callback ) {
-				var JSONObject, data,
-					error = false,
-					model = this;
-
-				// Allow the callback to be on first position if no options are given.
-				if ( typeof options === "function" ) {
-					callback = options;
-					options = {}
-				}
-
-				if ( this.isNewRecord ) {
-					if ( _( instances() ).contains( this ) ) {
-						instances.remove( this )
-					}
-
-					if ( typeof callback === "function" ) {
-						callback();
-					}
-					return;
-				}
-
-				if ( !options ) { options = {}; }
-
-				_( options ).defaults({
-					async: true
-				});
-
-				data = {
-					action: "destroy"
-				}
-				_( Result.ids() ).each(function( id ) {
-					data[ id ] = this[ id ]();
-				}, this);
-
-				$.ajax({
-					url: modelPath + ".php",
-					data: data,
-					cache: false,
-					async: options.async,
-					type: "POST",
-					success: function( JSONString ) {
-						JSONObject = $.parseJSON( JSONString );
-
-						// We successfully removed the model from the DB if
-						// we get back the code "removed"
-						if ( JSONObject["code"] === "removed" ) {
-
-							// Mark the model as destroyed and remove it from the list of
-							// models
-							model.isDestroyed = true;
-							instances.remove(model);
-						} else {
-
-							// set the error message
-							error = "Could not delete " + model.className + ": ";
-						}
-
-						// If a callback was given, call it and set "this" inside the
-						// callback function to our model instance
-						if ( typeof callback === "function" ) {
-							callback.call( model, error );
-						}
-					},
-					error: function( error ) {
-						if ( console && typeof console.error === "function" ) {
-							console.error( error )
-						}
-
-						// If a callback was given, call it and set "this" inside the
-						// callback function to our model instance
-						if ( typeof callback === "function" ) {
-							callback.call( model, error );
-						}
-					}
-				});
-			}
-
-			this.loadAttributes = function( options, callback ) {
-				var JSONObject, data,
-					error = false,
-					instance = this;
-
-				// Allow the callback to be on first position if no options are given.
-				if ( typeof options === "function" ) {
-					callback = options;
-					options = {}
-				}
-
-				if ( instance.attributesLoaded() ) {
-					if ( typeof callback === "function" ) {
-						callback.call( instance, null );
-					}
-					return;
-				}
-
-				if ( !options ) { options = {}; }
-
-				_( options ).defaults({
-					async: true
-				});
-
-				data = {
-					action: "get"
-				}
-				_( Result.ids() ).each(function( id ) {
-					data[ id ] = instance[ id ]();
-				});
-
-				$.ajax({
-					url: modelPath + ".php",
-					data: data,
-					cache: false,
-					async: options.async,
-					type: "POST",
-					success: function( JSONString ) {
-						JSONObject = $.parseJSON( JSONString );
-
-						// Override all local attributes with attributes supplied by the Server
-						_( Result.attrs() ).each(function( attrOptions, attrName ) {
-							if ( _( JSONObject ).has( attrName ) ) {
-								instance[ attrName ]( attrOptions.fromJSON( JSONObject[ attrName ] ));
-							}
-						});
-
-						// If a callback was given, call it and set "this" inside the
-						// callback function to our model instance
-						if ( typeof callback === "function" ) {
-							callback.call( instance, null );
-						}
-					},
-					error: function( error ) {
-						if ( console && typeof console.error === "function" ) {
-							console.error( error )
-						}
-
-						// If a callback was given, call it and set "this" inside the
-						// callback function to our model instance
-						if ( typeof callback === "function" ) {
-							callback.call( instance, error );
-						}
-					}
-				});
-
+			this.toJSONString = function() {
+				return JSON.stringify( this.toJSON() );
 			}
 
 			// Duplicate the current Object. Does NOT do a deep copy, so obejcts,
@@ -360,228 +176,24 @@ define([
 
 		// Set the className as an static attribute to our newly created model.
 		Result.className = modelName;
+		Result.prototype.classModel = Result;
 
 		Result._initializers = [];
-
-		Attributes( Result );
-		Associations( Result );
-
-		// Create a new Result object (an instance of model subclass)
-		// from a JSON Object.
-		var newFromJSON = function(JSONObject) {
-			var newResult = new Result( JSONObject );
-
-			// Mark this Record as not new (and therefore as already persisted)
-			newResult.isNewRecord = false;
-
-			return newResult;
-		}
 
 		Result.build = function( data ) {
 			var result;
 
 			result = new Result( data );
 			instances.push( result );
-			
+
 			return result;
 		}
 
-		/*
-		 *  DB interaction behavior.
-		 */
-		Result._createFromExisting = function( model, options, callback ) {
-			var newResult, JSONObject, attribute, data,
-				self = this;
-
-			data = model.toJSON();
-			data.action = "create";
-			
-			$.ajax({
-				url: modelPath + ".php",
-				data: data,
-				cache: false,
-				async: options.async,
-				type: "POST",
-				success: function( JSONString ) {
-					JSONObject = $.parseJSON( JSONString );
-
-					// Override all local attributes with attributes supplied by the Server
-					_( Result.attrs() ).each(function( attrOptions, attrName ) {
-						if ( _( JSONObject ).has( attrName ) ) {
-							model[ attrName ]( attrOptions.fromJSON( JSONObject[ attrName ] ));
-						}
-					});
-
-					// Mark this model as persisted (not new)
-					model.isNewRecord = false;
-					model.hasChanged( false );
-					if ( ! _( instances() ).contains( model ) ) {
-						instances.push( model );
-					}
-
-					// If a callback was given, call it and set "this" inside the
-					// callback function to our model instance
-					if ( typeof callback === "function" ) {
-						callback.call( model, null );
-					}
-				},
-				error: function( error ) {
-					if ( console && typeof console.error === "function" ) {
-						console.error( error )
-					}
-
-					// If a callback was given, call it and set "this" inside the
-					// callback function to our model instance
-					if ( typeof callback === "function" ) {
-						callback.call( model, error );
-					}
-				}
-			});
-		}
-
-		// Saves an existing record to the database.
-		Result._saveExisting = function( model, options, callback ) {
-			var newResult, JSONObject, attribute, data,
-				self = this;
-
-			if ( ! model.hasChanged() ) {
-				if ( typeof callback === "function" ) {
-					callback.call( model );
-				}
-				return;
-			}
-
-			data = model.toJSON();
-			data.action = "save";
-			
-			$.ajax({
-				url: modelPath + ".php",
-				data: data,
-				cache: false,
-				async: options.async,
-				type: "POST",
-				success: function( JSONString ) {
-					JSONObject = $.parseJSON( JSONString );
-
-					// Override all local attributes with attributes supplied by the Server
-					_( Result.attrs() ).each(function( attrOptions, attrName ) {
-						if ( _( JSONObject ).has( attrName ) ) {
-							model[ attrName ]( attrOptions.fromJSON( JSONObject[ attrName ] ));
-						}
-					});
-
-					// If a callback was given, call it and set "this" inside the
-					// callback function to our model instance
-					if ( typeof callback === "function" ) {
-						callback.call( model, null );
-					}
-				},
-				error: function( error ) {
-					if ( console && typeof console.error === "function" ) {
-						console.error( error )
-					}
-
-					// If a callback was given, call it and set "this" inside the
-					// callback function to our model instance
-					if ( typeof callback === "function" ) {
-						callback.call( model, error );
-					}
-				}
-			});
-		}
-
-		// Fetch a list of all model instances from the Server.
-		// (At the moment) fetches the entire object.
-		// TODO Only get a list of objects and then upon first load, get all the
-		// details needed. This WILL BE NEEDED to be able to scale reasonably.
-		// Options hash can be omitted and callback can be the only argument.
-		//
-		// Options descriptions:
-		//	async: Whether the query should be performed asynchronously or not.
-		//	It is strongly recommended to perform async requests and only wait
-		//	for it to finish if really necessary.
-		//
-		// Options defaults are:
-		//	{
-		//		async: true
-		//	}
-		//
-		Result.fetch = function( options, callback ) {
-			var data, newResult, JSONObject;
-
-			instances.removeAll();
-
-			if ( typeof options === "function" ) {
-				callback = options;
-				options = {}
-			}
-
-			if ( !options ) {
-				options = {};
-			}
-
-			_( options ).defaults({
-				async: true
-			});
-
-			data = { action: "all" }
-			
-			$.ajax({
-				url: modelPath + ".php",
-				data: data,
-				async: options.async,
-				cache: false,
-				type: "POST",
-				success: function( JSONString ) {
-					// Try to parse JSON String, if sucessfull continue, otherwise return
-					// early.
-					try {
-						JSONObject = $.parseJSON( JSONString );
-					} catch( error ) {
-						if ( console && typeof console.error === "function" ) {
-							console.error( "Service: Error parsing JSON: " + JSONString );
-							console.error( "Error: " + error );
-						}
-
-						// We do not want to do anything else if we encoutnered an error
-						return;
-					}
-
-					// If previous statement was excuted successfully, create new
-					// instance of our model
-					_( JSONObject ).each(function( resultJSON ) {
-						newResult = newFromJSON( resultJSON );
-						newResult.isBeingInitialized = true;
-						newResult.hasChanged( false );
-						newResult.isBeingInitialized = false;
-
-						// Append the new model to our collection of Models.
-						// Every observer will be notified about this event.
-						if ( ! _( instances() ).contains( newResult ) ) {
-							instances.push( newResult );
-						}
-					});
-
-					if( typeof callback === "function" ) {
-						callback.call(this);
-					}
-				},
-				error: function( error ) {
-					if ( console && typeof console.error === "function" ) {
-						console.error( error );
-					}
-					if( typeof callback === "function" ) {
-						callback.call(this, error);
-					}
-				}
-			});
-		}
-
 		// Get one model instance by id
-		Result.find = function( processID ) {
-			processID = parseInt( processID, 10 );
+		Result.find = function( processId ) {
+			processId = parseInt( processId, 10 );
 			var foundInInstances = _( Result.all() ).filter(function( process ) {
-				return process.id() === processID;
+				return process.id() === processId;
 			});
 
 			if ( foundInInstances.length > 0 ) {
@@ -592,16 +204,7 @@ define([
 			return undefined;
 		}
 
-		Result.destroy = function( process, callback ) {
-			process.destroy( callback );
-		}
-
-		/*
-		 * end DB interaction bavior.
-		 */
-
 		Result.all = instances;
-
 
 		// Resets all attributes of all models currently available / known by
 		// the instance (Model.all()) array.
@@ -684,6 +287,10 @@ define([
 		}
 
 		models.push( Result );
+
+		Attributes( Result );
+		Associations( Result );
+		Storage( Result, ajaxOptions );
 
 		// Return our newly defined object.
 		return Result;

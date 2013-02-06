@@ -16,11 +16,17 @@ define([
 		 * So for example:
 		 *	Author.hasMany("articles")
 		 *		This creates an Author.articles() method that loads the Article Model,
-		 *		checks the authorID on this Model (or to be more specific calls the
-		 *		"findByAuthorID" method) and returns an array of articles.
+		 *		checks the authorId on this Model (or to be more specific calls the
+		 *		"findByAuthorId" method) and returns an array of articles.
 		 *	Aquarium.hasMany("octopi", { : foreignModelName: "octopus" })
 		 */
+		var hasMany = [],
+				belongsTo = [];
 		Result.hasMany = function( foreignModelPluralName, options ) {
+			if ( arguments.length === 0 ) {
+				return hasMany;
+			}
+
 			var foreignKey, keyToSet, foreignModelName, requireArray;
 
 			if ( !options ) { options = {}; }
@@ -33,10 +39,12 @@ define([
 			// Actually set the options defaults.
 			_( options ).defaults({
 				foreignModelName: foreignModelName,
-				foreignKey: toAttributeName( Result.className, "ID" ),
-				foreignSearchMethod: "findBy" + Result.className + "ID",
+				foreignKey: toAttributeName( Result.className, "Id" ),
+				foreignSearchMethod: "findBy" + Result.className + "Id",
 				through: undefined
 			});
+
+			hasMany.push( options );
 
 			// Build the array with all paths to our needed models in advance.
 			// Needed because we are not certain if we need any intermediate model.
@@ -62,24 +70,30 @@ define([
 		/**
 		 * Set up a belongs to association.
 		 * This assumes, that the models to be associated have a foreign key called
-		 * like the model name + "ID".
+		 * like the model name + "Id".
 		 *
 		 * Example: Given the models Author and Article. An article belongsTo
 		 * author (Article.belongsTo( "author" )), the Article model needs and
-		 * attribute called "authorID".
+		 * attribute called "authorId".
 		 *
 		 * Creates a method on the Model called like the association.
 		 * For example: Article.belongsTo( "author" ) makes the method
 		 * Article.author() available.
 		 */
 		Result.belongsTo = function( modelName, options ) {
+			if ( arguments.length === 0 ) {
+				return belongsTo;
+			}
 			var foreignKey, keyToSet;
 
 			if ( !options ) { options = {}; }
 
 			_( options ).defaults({
-				foreignKey: modelName + "ID"
+				modelName: modelName,
+				foreignKey: modelName + "Id"
 			});
+
+			belongsTo.push( options );
 
 			require( [ "models/" + modelName ], function( model ) {
 
@@ -88,7 +102,7 @@ define([
 				// "author") that optionally accepts a model as attribute.
 				Result.prototype[ modelName ] = function( foreignModel ) {
 					if ( foreignModel ) {
-						keyToSet = toAttributeName( this.className.toLowerCase(), "ID" );
+						keyToSet = toAttributeName( this.className.toLowerCase(), "Id" );
 						if ( !foreignModel.id() || foreignModel.isNewRecord ) {
 							if ( console && typeof console.error === "function" ) {
 								console.error("Foreign Model must be saved bevor it can be assigned. ")
@@ -117,10 +131,10 @@ define([
 
 			// Push a new object to the array of results and save the pushed model.
 			// Sets the foreign key of the foreign model to the id of our current model.
-			// If no ID could be found (probably because the record has not yet been
+			// If no Id could be found (probably because the record has not yet been
 			// persisted), save the record first.
 			// Also saves the foreign model after assigning the foreign key.
-			// Does so asynchronously if a callback is given or blockingly if
+			// Does so asynchronously if a callback is given or blocking if
 			// the callback is ommited.
 			results.push = function( item, callback ) {
 
@@ -137,7 +151,7 @@ define([
 					this.save({ async: false });
 				}
 
-				// Set the forign key of the item to be added to our current ID.
+				// Set the forign key of the item to be added to our current Id.
 				item[ options.foreignKey ]( this.id() )
 
 				// If no callback was given, save blockingly, otherwise just
@@ -193,7 +207,7 @@ define([
 			self = this;
 
 			// First get all intermediate model instances whose foreignKey equal
-			// the ID of our current model.
+			// the Id of our current model.
 			intermediateResults = IntermediateModel[ options.foreignSearchMethod ]( self.id() );
 
 			// The results array will hold all final results, that is
@@ -215,19 +229,19 @@ define([
 			_push = results.push;
 
 			// Push a new object to the array of results and save the pushed model -
-			// That is create a new intermediate model with the IDs of our current
+			// That is create a new intermediate model with the Ids of our current
 			// model and the foreign model.
 			// But only, if no intermediate Model with this exact relation already
 			// exists. We can leverage our existing intermediate results for this.
 			results.push = function( item, callback ) {
-				intermediateForeignKey = toAttributeName( item.className, "ID" );
+				intermediateForeignKey = toAttributeName( item.className, "Id" );
 
 				if ( !item.id() || item.isNewRecord ) {
 					item.save({ async: false });
 				}
 
-				// Array of existing relations that, in the end, match the ID of our
-				// current model and the ID of the foreignModel to be added to the
+				// Array of existing relations that, in the end, match the Id of our
+				// current model and the Id of the foreignModel to be added to the
 				// relation.
 				existingRelations = _( intermediateResults ).filter(function( result ) {
 					return result[ intermediateForeignKey ]() === item.id();
@@ -256,10 +270,10 @@ define([
 			// Does only delete (from the DB) the intermediate relation, not the
 			// model itself.
 			results.remove = function( item, callback ) {
-				intermediateForeignKey = toAttributeName( item.className, "ID" );
+				intermediateForeignKey = toAttributeName( item.className, "Id" );
 
-				// Array of existing relations that, in the end, match the ID of our
-				// current model and the ID of the foreignModel to be added to the
+				// Array of existing relations that, in the end, match the Id of our
+				// current model and the Id of the foreignModel to be added to the
 				// relation.
 				existingRelations = _( intermediateResults ).filter(function( result ) {
 					return ( result[ intermediateForeignKey ]() === item.id() );
@@ -291,7 +305,7 @@ define([
 	// lowecases the first letter, does not change the case of any other
 	// Letter and appends the 2nd argument to the string.
 	//
-	// For Example: toAttributeName( "Process", "ID" ) // => "processID"
+	// For Example: toAttributeName( "Process", "Id" ) // => "processId"
 	var toAttributeName = function( string, append ) {
 		if ( !append || typeof append !== "string" ) {
 			append = "";

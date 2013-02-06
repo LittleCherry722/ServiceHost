@@ -13,7 +13,7 @@ import spray.json._
 
 object Entity {
   val PROCESS = "process"
-  val EXECUTION = "executed"
+  val EXECUTION = "processinstance"
   val TESTEXECUTION = "testexecuted"
   val USER = "user"
   val ROLE = "role"

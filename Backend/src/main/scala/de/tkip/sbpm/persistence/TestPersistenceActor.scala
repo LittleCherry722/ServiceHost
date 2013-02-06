@@ -205,7 +205,7 @@ class TestPersistenceActor extends Actor {
 
     case GetMessage(_) => sender ! processes.get(1).get.message
 
-    case GetGroupUser() => sender ! processes.get(1).get.groupUser
+    case GetGroupUser => sender ! processes.get(1).get.groupUser
 
     case GetGroupRole => sender ! processes.get(1).get.groupRole
 

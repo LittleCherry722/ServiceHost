@@ -22,7 +22,7 @@ var ViewModel = function() {
 		}
 	}
 
-	self.processes = parent.SBPM.Service.Process.getAllProcessesIDs();
+	self.processes = parent.SBPM.Service.Process.getAllProcessesIds();
 	self.processArray = self.processes.map(function(element) {
 		return new self.Process(element);
 

@@ -86,6 +86,9 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val userFormat = jsonFormat4(User)
   implicit val roleFormat = jsonFormat3(Role)
   implicit val groupFormat = jsonFormat3(Group)
+  implicit val groupUserFormat = jsonFormat3(GroupUser)
+  implicit val groupRoleFormat = jsonFormat3(GroupRole)
+  implicit val activatableFormat = jsonFormat1(Activatable)
 
   // DomainModel
   implicit val domainGraphFormat = jsonFormat4(Graph)
@@ -108,4 +111,16 @@ object JsonProtocol extends DefaultJsonProtocol {
   //  implicit val subjectFormat = jsonFormat2(Subject)
   //  implicit val processGraphFormat = jsonFormat1(ProcessGraph)
   //  implicit val processFormat = jsonFormat3(ProcessModel)
+  implicit val createGraphHeaderFormat = jsonFormat4(GraphHeader)
+  case class GraphHeader(userid: String, name: String, graph: String, isCase:Boolean)
+  implicit val createActionIdHeaderFormat = jsonFormat6(ActionIdHeader)
+  case class ActionIdHeader(userID: UserID,
+                    processInstanceID: ProcessInstanceID,
+                    subjectID: SubjectID,
+                    stateID: StateID,
+                    stateType: String,
+                    actionInput: String)
+  implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
+  case class ProcessIdHeader(processid: Int)
+  
 }

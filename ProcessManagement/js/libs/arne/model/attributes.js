@@ -11,7 +11,6 @@ define([
 		canHaveAttributes( Result );
 		Result._initializers.push( attributeInitializer( Result ) );
 		Result._initializers.push( initializeChangableAttributes( Result ) );
-		Result._initializers.push( initializeDynamicFinders( Result ) )
 	}
 
 	/***************************************************************************
@@ -34,7 +33,7 @@ define([
 			_( attributesObject ).defaults({
 				id: "integer"
 			});
-			
+
 			// Allow strings or objects as arguments. Strings will be looked
 			// up in our default arguments hash and given only the default values,
 			// objects allow for customization of attribute behavior by setting
@@ -56,6 +55,9 @@ define([
 					lazyAttributes.push( key );
 				}
 			});
+
+
+			initializeDynamicFinders( Result, attrs );
 		}
 
 		// Return only the names of all attributes of the current model.
@@ -72,7 +74,7 @@ define([
 			return lazyAttributes.length > 0;
 		}
 
-		// Return (no argument) or set (on array as argument) the IDs of the
+		// Return (no argument) or set (on array as argument) the Ids of the
 		// current model.
 		Result.ids = function( idsArray ) {
 			if ( !idsArray ) {
@@ -226,7 +228,8 @@ define([
 			subscribers = [];
 
 		instance[ attrName ] = function( value ) {
-			observable = ko.observable( value );
+			observable = ko.observable();
+			observable( value );
 
 			if ( typeof value === "undefined" ) {
 				if ( !instance.isBeingInitialized ) {
@@ -236,6 +239,9 @@ define([
 					})
 
 					instance.loadAttributes({ async: false });
+
+					instance[ attrName + "Old" ]( observable() );
+
 					instance.attributesLoaded( true );
 				}
 
@@ -245,6 +251,7 @@ define([
 				_( subscribers ).each(function( subscriber ) {
 					observable.subscribe( subscriber );
 				})
+				instance[ attrName + "Old" ]( value );
 
 				return undefined;
 			}
@@ -261,21 +268,19 @@ define([
 	/***************************************************************************
 	 * Dynamic Attribute finder methods
 	 ***************************************************************************/
-	
-	var initializeDynamicFinders = function( Result ) {
+
+	var initializeDynamicFinders = function( Result, attrs ) {
 		var camelCasedAttributeName;
 
-		return function( instance, data ) {
-			_( Result.attrs() ).each(function( attrOptions, attrName ) {
+		_( attrs ).each(function( attrOptions, attrName ) {
 
-				// Create dynamic finder methods. This allows us to use for example
-				// Article.findByTitle("test") and we get back an array of Articles
-				// that match this exact title.
-				camelCasedAttributeName = attrName[0].toUpperCase() + attrName.slice( 1, attrName.length );
-				// Create dynamic attribute Finder
-				Result[ "findBy" + camelCasedAttributeName ] = dynamicFinderForAttribute( Result, instance, attrName );
-			});
-		}
+			// Create dynamic finder methods. This allows us to use for example
+			// Article.findByTitle("test") and we get back an array of Articles
+			// that match this exact title.
+			camelCasedAttributeName = attrName[0].toUpperCase() + attrName.slice( 1, attrName.length );
+			// Create dynamic attribute Finder
+			Result[ "findBy" + camelCasedAttributeName ] = dynamicFinderForAttribute( Result, attrName );
+		});
 	}
 
 	// Creates a dynamic attribute finder for a given attribute.
@@ -287,7 +292,7 @@ define([
 	//		If a computed object is wanted, to get to the actual results
 	//		the method has to be called:
 	//		Article.findById(2, { observable: true })();
-	var dynamicFinderForAttribute = function( Result, instance, attrName ) {
+	var dynamicFinderForAttribute = function( Result, attrName ) {
 		return function( search, options ) {
 
 			// Initialize the options hash and set some default values.
@@ -304,13 +309,13 @@ define([
 			// specific attribute and return it.
 			if ( options.observable ) {
 				return ko.computed(function() {
-					return _( Result.all() ).filter(function( result ) {
-						return result[ attrName ]() === search;
+					return _( Result.all() ).filter(function( instance ) {
+						return instance[ attrName ]() === search;
 					});
 				});
 			} else {
-				return _( Result.all() ).filter(function( result ) {
-					return result[ attrName ]() === search;
+				return _( Result.all() ).filter(function( instance ) {
+					return instance[ attrName ]() === search;
 				});
 			}
 		}

@@ -1,11 +1,10 @@
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
+import scala.language.postfixOps
 import akka.event.Logging
-import de.tkip.sbpm.model.Group
-import de.tkip.sbpm.persistence.DeleteGroup
-import de.tkip.sbpm.persistence.GetGroup
-import de.tkip.sbpm.persistence.SaveGroup
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.persistence._
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import spray.json._
@@ -42,17 +41,55 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
        * e.g. GET http://localhost:8080/group
        * result: JSON array of entities
        */
-      path("") {
+      path("^$"r) { regex => 
         completeWithQuery[Seq[Group]](GetGroup())
       } ~
         /**
-         * get group by id
+         * get a list of all group <> role associations
          *
-         * e.g. GET http://localhost:8080/group/2
-         * result: 404 Not Found or entity as JSON
+         * e.g. GET http://localhost:8080/group/role
+         * result: JSON array of entities
          */
-        path(IntNumber) { id: Int =>
-          completeWithQuery[Group](GetGroup(Some(id)), "Group with id %d not found.", id)
+        path(Entity.ROLE) {
+          completeWithQuery[Seq[GroupRole]](GetGroupRole())
+        } ~
+        /**
+         * get a list of all group <> user associations
+         *
+         * e.g. GET http://localhost:8080/group/user
+         * result: JSON array of entities
+         */
+        path(Entity.USER) {
+          completeWithQuery[Seq[GroupUser]](GetGroupUser())
+        } ~
+        pathPrefix(IntNumber) { id: Int =>
+          /**
+           * get group by id
+           *
+           * e.g. GET http://localhost:8080/group/2
+           * result: 404 Not Found or entity as JSON
+           */
+          path("^$"r) { regex => 
+            completeWithQuery[Group](GetGroup(Some(id)), "Group with id %d not found.", id)
+          } ~
+            /**
+             * get a specific role mapping of the group
+             *
+             * e.g. GET http://localhost:8080/group/8/role/2
+             * result: JSON of entity
+             */
+            path(Entity.ROLE / IntNumber) { roleId =>
+              completeWithQuery[GroupRole](GetGroupRole(Some(id), Some(roleId)), "Group with id %d has no role with id %d.", id, roleId)
+            } ~
+            /**
+             * get a specific user mapping of the group
+             *
+             * e.g. GET http://localhost:8080/group/8/user/2
+             * result: JSON of entity
+             */
+            path(Entity.USER / IntNumber) { userId =>
+              completeWithQuery[GroupUser](GetGroupUser(Some(id), Some(userId)), "Group with id %d has no user with id %d.", id, userId)
+            }
         }
     } ~
       delete {
@@ -62,8 +99,28 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * e.g. DELETE http://localhost:8080/group/12
          * result: 204 No Content
          */
-        path(IntNumber) { id =>
-          completeWithDelete(DeleteGroup(id), "Group could not be deleted. Entity with id %d not found.", id)
+        pathPrefix(IntNumber) { id =>
+          path("^$"r) { regex => 
+            completeWithDelete(DeleteGroup(id), "Group could not be deleted. Entity with id %d not found.", id)
+          } ~
+            /**
+             * delete a user from the group
+             *
+             * e.g. DELETE http://localhost:8080/group/8/user/1
+             * result: 204 No Content
+             */
+            path(Entity.GROUP / IntNumber) { userId =>
+              completeWithDelete(DeleteGroupUser(id, userId), "User could not be removed from group. Group with id %d has no user with id %d.", id, userId)
+            } ~
+            /**
+             * delete a role from the group
+             *
+             * e.g. DELETE http://localhost:8080/group/8/role/1
+             * result: 204 No Content
+             */
+            path(Entity.ROLE / IntNumber) { roleId =>
+              completeWithDelete(DeleteGroupRole(id, roleId), "Role could not be removed from group. Group with id %d has no role with id %d.", id, roleId)
+            }
         }
       } ~
       post {
@@ -76,25 +133,49 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * 			Location: /group/8
          * 			{ "id": 8, "name": "abc", "isActive": true }
          */
-        path("") {
+        path("^$"r) { regex => 
           entity(as[Group]) { group =>
             save(group)
           }
         }
       } ~
       put {
-        /**
-         * update existing group
-         *
-         * e.g. PUT http://localhost:8080/group/2
-         * payload: { "name": "abc", "isActive": true }
-         * result: 	200 OK
-         * 			{ "id": 2, "name": "abc", "isActive": true }
-         */
-        path(IntNumber) { id =>
-          entity(as[Group]) { group =>
-            save(group, Some(id))
-          }
+        pathPrefix(IntNumber) { id =>
+          /**
+           * add user to a group
+           *
+           * e.g. PUT http://localhost:8080/group/2/user/2
+           * 	result: 201 Created or 200 OK
+           * 			{ "groupId": 2, "userId": 2, "isActive": true }
+           */
+          path(Entity.USER / IntNumber) { userId: Int =>
+            val groupUser = GroupUser(id, userId)
+            saveUser(groupUser)
+          } ~
+            /**
+             * add role to a group
+             *
+             * e.g. PUT http://localhost:8080/group/2/role/2
+             * 	result: 201 Created or 200 OK
+             * 			{ "groupId": 2, "roleId": 2, "isActive": true }
+             */
+            path(Entity.ROLE / IntNumber) { roleId: Int =>
+              val groupRole = GroupRole(id, roleId)
+              saveRole(groupRole)
+            } ~
+            /**
+             * update existing group
+             *
+             * e.g. PUT http://localhost:8080/group/2
+             * payload: { "name": "abc", "isActive": true }
+             * result: 	200 OK
+             * 			{ "id": 2, "name": "abc", "isActive": true }
+             */
+            path("^$"r) { regex => 
+              entity(as[Group]) { group =>
+                save(group, Some(id))
+              }
+            }
         }
       }
   })
@@ -102,7 +183,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
   /**
    * Save given entity with given id to database.
    * id = None -> new entity
-   * completes with either 201 or 200 
+   * completes with either 201 or 200
    */
   def save(entity: Group, id: Option[Int] = None) = {
     // set param from url to entity id 
@@ -110,7 +191,31 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
     entity.id = id
     completeWithSave(SaveGroup(entity),
       entity,
-       pathForEntity(Entity.GROUP, "%d"),
+      pathForEntity(Entity.GROUP, "%d"),
       (e: Group, i: Int) => { e.id = Some(i); e })
   }
+
+  /**
+   * Save user <> group association.
+   * completes with either 201 or 200
+   */
+  def saveUser(groupUser: GroupUser) =
+    completeWithSave[GroupUser, (Int, Int)](
+      SaveGroupUser(groupUser),
+      groupUser,
+      pathForEntity(Entity.GROUP, "%d") + pathForEntity(Entity.USER, "%d"),
+      (entity, id) => GroupUser(id._1, id._2, entity.isActive),
+      (id) => Array(id._1, id._2))
+
+  /**
+   * Save role <> group association.
+   * completes with either 201 or 200
+   */
+  def saveRole(groupRole: GroupRole) =
+    completeWithSave[GroupRole, (Int, Int)](
+      SaveGroupRole(groupRole),
+      groupRole,
+      pathForEntity(Entity.GROUP, "%d") + pathForEntity(Entity.ROLE, "%d"),
+      (entity, id) => GroupRole(id._1, id._2, entity.isActive),
+      (id) => Array(id._1, id._2))
 }

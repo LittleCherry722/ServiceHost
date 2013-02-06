@@ -23,7 +23,11 @@ define([
 				model.save( callback );
 			}, 5);
 			queue.drain = function( error, results) {
-				notify.info( "Succcess", "All users have successfully been saved." )
+				if ( error ) {
+					notify.error( "Error", "Not all users could be saved." )
+				} else {
+					notify.info( "Succcess", "All users have successfully been saved." )
+				}
 			}
 
 			_( User.all() ).each(function( user ) {
@@ -33,7 +37,7 @@ define([
 
 		this.reset = function( user ) {
 			user.reset();
-			user.groupIDsReset();
+			user.groupIdsReset();
 			setTimeout(function() {
 				$('#user' + user.id()).find("select.chzn-select").trigger("liszt:updated");
 			}, 1);
@@ -42,7 +46,7 @@ define([
 		this.resetAll = function() {
 			User.resetAll();
 			_( User.all() ).each(function( user ) {
-				user.groupIDsReset();
+				user.groupIdsReset();
 			});
 			setTimeout(function() {
 				$(".chzn-select").trigger("liszt:updated");
@@ -50,7 +54,7 @@ define([
 		}
 
 		this.create = function() {
-			User.build().id("Save to \nreceive ID");
+			User.build().id("Save to \nreceive Id");
 
 			$("#listOfUsers input.inline").last().focus()
 			$("#listOfUsers tr:last-child .chzn-select").chosen();
@@ -76,10 +80,10 @@ define([
 		});
 
 		_( User.all() ).each(function( user ) {
-			groupIDs = _( user.groups() ).map(function( group ) {
+			groupIds = _( user.groups() ).map(function( group ) {
 				return group.id();
 			});
-			user.groupIDs( groupIDs );
+			user.groupIds( groupIds );
 		});
 	}
 	// Everything in this object will be the public API

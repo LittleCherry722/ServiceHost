@@ -26,15 +26,13 @@ define([
 		require([
 			"model",
 			"models/user",
-			"models/user",
 			"models/process",
-			"models/graph",
 			"models/group",
-			"models/groupsUsers",
 			"models/role",
+			"models/groupsUsers",
 			"models/groupsRoles"
 			// "models/roles",
-		], function( Model, User ) {
+		], function( Model, User, Process, Group, Role ) {
 
 			// The current user logged in to our system
 			currentUser( new User( { name: "no user" } ) );
@@ -43,6 +41,7 @@ define([
 			// Initially fetch all Models, then initialize the views and after that,
 			// tell everyone that we are done (call the callback).
 			async.auto({
+				// fetchAll: Model.fetchAll,
 				fetchAll: Model.fetchAll,
 				initViews: [ "fetchAll", initializeViews ],
 				callback: [ "initViews", callback ]
@@ -138,7 +137,7 @@ define([
 	 * @param {ViewModel} viewModel the viewModel to be applied to the new content.
 	 *  Optional.
 	 *
-	 * @param {String} nodeID the id of the element whose content (innerHTML) is
+	 * @param {String} nodeId the id of the element whose content (innerHTML) is
 	 *  to be replaced by the template. Defaults to "main".
 	 *
 	 * @param {Function} callback the function to be executed after the template
@@ -146,12 +145,12 @@ define([
 	 *
 	 * example: loadTemplate('home', new ViewModel(), 'text')
 		 */
-	var loadTemplate = function( templateName, viewModel, nodeID, callback ) {
+	var loadTemplate = function( templateName, viewModel, nodeId, callback ) {
 		var path;
 
-		// Set the defaults for nodeID
-		if ( !nodeID ) {
-			nodeID = "main"
+		// Set the defaults for nodeId
+		if ( !nodeId ) {
+			nodeId = "main"
 		}
 
 		// create the path from:
@@ -162,7 +161,7 @@ define([
 
 		// load the template from the server
 		require([ path ], function( template ) {
-			templateNode = document.getElementById( nodeID );
+			templateNode = document.getElementById( nodeId );
 
 			templateNode.innerHTML = template;
 
@@ -195,14 +194,14 @@ define([
 	 */
 	var loadTemplates = function( templates, viewModel, callback ) {
 		var templateName, templateNode;
-		
+
 		// for every array in our array of templates, apply a function that
 		// calls loadTemplate with the appropiate params and execute the
 		// callback needed for async.js once the template has successfully been
 		// applied.
 		async.map( templates , function( template, cb ) {
 
-			// First array entry must be the template name, second one the nodeID this
+			// First array entry must be the template name, second one the nodeId this
 			// template should be inseted into
 			templateName = template[0];
 			templateNode = template[1];

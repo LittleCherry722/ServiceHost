@@ -10,23 +10,11 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	Group = Model( "Group" );
+	ProcessInstance = Model( "Process" );
 
-	Group.attrs({
-		name: "string",
-		isActive: {
-			type: "boolean",
-			defaults: true
-		}
+	ProcessInstance.attrs({
+		processId: "integer"
 	});
 
-	Group.include({
-		beforeCreate: function() {
-			this.id(-1);
-		}
-	});
-
-	Group.hasMany( "roles", { through: "groupsRoles" } );
-
-	return Group;
+	return ProcessInstance;
 });
