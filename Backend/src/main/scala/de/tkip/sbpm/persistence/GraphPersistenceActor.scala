@@ -44,20 +44,27 @@ private[persistence] class GraphPersistenceActor extends Actor with DatabaseAcce
       // get all graphs ordered by id
       case GetGraph(None) => answer { Graphs.sortBy(_.id).list }
       // get graph with given id as Option (None if not found)
-      case GetGraph(id) => 
+      case GetGraph(id) =>
         answer { Graphs.where(_.id === id).firstOption }
       // create new graph
       case SaveGraph(g @ Graph(None, _, _, _)) =>
         answer { Some(Graphs.autoInc.insert(g)) }
       // save existing graph
-      case SaveGraph(g @ Graph(id, _, _, _)) =>
-        answer { Graphs.where(_.id === id).update(g); None }
+      case SaveGraph(g @ Graph(id, _, _, _)) => update(id, g)
       // delete graph with given id
-      case DeleteGraph(id) => 
+      case DeleteGraph(id) =>
         answer { Graphs.where(_.id === id).delete(session) }
       // execute DDL to create "process_graphs" table
       case InitDatabase => answer { Graphs.ddl.create(session) }
     }
+  }
+
+  // update entity or throw exception if it does not exist
+  def update(id: Option[Int], g: Graph)(implicit session: Session) = answer {
+    val res = Graphs.where(_.id === id).update(g)
+    if (res == 0)
+      throw new EntityNotFoundException("Graph with id %d does not exist.", id.get)
+    None
   }
 
 }

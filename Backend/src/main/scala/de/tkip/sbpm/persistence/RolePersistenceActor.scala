@@ -48,13 +48,20 @@ private[persistence] class RolePersistenceActor extends Actor with DatabaseAcces
       case SaveRole(r @ Role(None, _, _)) =>
         answer { Some(Roles.autoInc.insert(r)) }
       // save existing role
-      case SaveRole(r @ Role(id, _, _)) =>
-        answer { Roles.where(_.id === id).update(r); None }
+      case SaveRole(r @ Role(id, _, _)) => update(id, r)
       // delete role with given id
       case DeleteRole(id) => answer { Roles.where(_.id === id).delete(session) }
       // execute DDL for "roles" table
       case InitDatabase => answer { Roles.ddl.create(session) }
     }
+  }
+  
+  // update entity or throw exception if it does not exist
+  def update(id: Option[Int], r: Role)(implicit session: Session) = answer {
+    val res = Roles.where(_.id === id).update(r)
+    if (res == 0)
+      throw new EntityNotFoundException("Role with id %d does not exist.", id.get)
+    None
   }
 
 }
