@@ -67,20 +67,19 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       } ~
         // READ
         pathPrefix(IntNumber) { id =>
-
           try {
             val persistenceActor = ActorLocator.persistenceActor
-            val dataBaseQueryFuture = for {
-              processFuture <- (persistenceActor ? GetProcess(Some(id))).mapTo[Option[Process]]
-              graphFuture <- (persistenceActor ? GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-            } yield JsObject(
-              "id" -> processFuture.get.id.toJson,
-              "name" -> processFuture.get.name.toJson,
-              "graph" -> graphFuture.get.graph.toJson)
-
-            complete(Await.result(dataBaseQueryFuture, timeout.duration))
-          } catch {
-            case _ => notFound("Process with id " + id + " not found")
+            val processFuture = (persistenceActor ? GetProcess(Some(id)))
+            val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
+            if (processResult.isDefined) {
+              val graphFuture = (persistenceActor ? GetGraph(Some(processResult.get.graphId)))
+              val graphResult = Await.result(graphFuture, timeout.duration).asInstanceOf[Option[Graph]]
+              complete(JsObject(
+                "id" -> processResult.get.id.toJson,
+                "name" -> processResult.get.name.toJson,
+                "graph" -> graphResult.get.graph.toJson))
+            }
+            complete("Process with id " + id + " not found")
           }
 
         }
@@ -94,14 +93,11 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         // CREATE
         path("^$"r) { regex =>
           entity(as[GraphHeader]) { json =>
-          	implicit val timeout = Timeout(5 seconds)
-            val composedFuture = for {
-              processInstanceFuture <- (persistanceActor ? SaveProcess(Process(None, json.name),
-                Option(Graph(None, json.graph, new java.sql.Timestamp(System.currentTimeMillis()), -1)))).mapTo[(Some[Int], Some[Int])]
-            } yield JsObject(
-              "processID" -> processInstanceFuture._1.get.toJson)
-            complete(composedFuture)
-
+            implicit val timeout = Timeout(5 seconds)
+            val future = (persistanceActor ? SaveProcess(Process(None, json.name),
+              Option(Graph(None, json.graph, new java.sql.Timestamp(System.currentTimeMillis()), -1))))
+            val result = Await.result(future, timeout.duration).asInstanceOf[(Some[Int], Some[Int])]
+            complete(JsObject("processID" -> result._1.get.toJson))
           }
         }
       } ~
@@ -126,26 +122,16 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         pathPrefix(IntNumber) { id =>
           path("^$"r) { regex =>
             entity(as[GraphHeader]) { json =>
-          	implicit val timeout = Timeout(5 seconds)
+              implicit val timeout = Timeout(5 seconds)
               //execute next step (chosen by actionID)
-              val future = (persistanceActor ? GetProcess(Option(id),None))
+              val future = (persistanceActor ? GetProcess(Option(id), None))
               val result = Await.result(future, timeout.duration).asInstanceOf[Some[Process]]
-
-              val composedFuture = for {
-                grapInstanceFuture <- (persistanceActor ? SaveGraph(Graph(Option(result.get.graphId), json.graph, new java.sql.Timestamp(System.currentTimeMillis()), id)))
-              } yield JsObject()
-              complete(composedFuture)
-
-              /*
-            result onSuccess {
-              case id: Int =>
+              if (result.isDefined) {
+                val future1 = (persistanceActor ? SaveGraph(Graph(Option(result.get.graphId), json.graph, new java.sql.Timestamp(System.currentTimeMillis()), id)))
+                val result1 = Await.result(future1, timeout.duration)
                 complete(StatusCodes.OK)
-            }
-            result onFailure {
-              case _ =>
-                complete(StatusCodes.InternalServerError)
-            }
-            * */
+              }
+              complete("The requested process does not exist")
             }
           }
         }

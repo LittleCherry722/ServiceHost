@@ -66,29 +66,25 @@ class ExecutionInterfaceActor extends Actor with HttpService {
       path(IntNumber) { processInstanceID =>
 
         implicit val timeout = Timeout(5 seconds)
-
-        val composedFuture = for {
-          processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[Option[ProcessInstance]]
-          graphFuture <- (persistanceActor ? GetGraph(Some(processInstanceFuture.get.graphId))).mapTo[Option[Graph]]
-          historyFuture <- (subjectProviderManager ? new GetHistory(userID.toInt, processInstanceID.toInt) with Debug).mapTo[HistoryAnswer]
-          availableActionsFuture <- (subjectProviderManager ? new GetAvailableActions(userID.toInt, processInstanceID.toInt) with Debug).mapTo[AvailableActionsAnswer]
-        } yield JsObject(
-          "processId" -> processInstanceFuture.get.processId.toJson,
-          "graph" -> graphFuture.get.graph.toJson,
-          "history" -> historyFuture.h.toJson,
-          "actions" -> availableActionsFuture.availableActions.toJson)
-
-        complete(composedFuture)
-
+        val future = persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))
+        val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
+        if (result.isDefined) {
+          val composedFuture = for {
+            graphFuture <- (persistanceActor ? GetGraph(Some(result.get.graphId))).mapTo[Option[Graph]]
+            historyFuture <- (subjectProviderManager ? new GetHistory(userID.toInt, processInstanceID.toInt) with Debug).mapTo[HistoryAnswer]
+            availableActionsFuture <- (subjectProviderManager ? new GetAvailableActions(userID.toInt, processInstanceID.toInt) with Debug).mapTo[AvailableActionsAnswer]
+          } yield JsObject(
+            "processId" -> result.get.processId.toJson,
+            "graph" -> graphFuture.get.graph.toJson,
+            "history" -> historyFuture.h.toJson,
+            "actions" -> availableActionsFuture.availableActions.toJson)
+          complete(composedFuture)
+        }
+        complete("The requested process is not running")
       } ~
         //LIST
         path("") {
           implicit val timeout = Timeout(5 seconds)
-
-          //          val composedFuture = for {
-          //            instanceids <- (subjectProviderManager ? GetAllProcessInstanceIDs(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
-          //          } yield JsObject("instanceIDs" -> instanceids.processInstanceIDs.toJson)
-
           val future = (subjectProviderManager ? GetAllProcessInstances(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
           val result = Await.result(future, timeout.duration)
 
@@ -100,14 +96,11 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         //DELETE
         path(IntNumber) { processInstanceID =>
           //stop and delete given process instance
-
           implicit val timeout = Timeout(5 seconds)
-
-          val composedFuture = for {
-            kill <- (subjectProviderManager ? KillProcessInstance(userID.toInt)).mapTo[KillProcessInstanceAnswer]
-          } yield JsObject("instanceIDs" -> kill.success.toJson)
-
-          complete(composedFuture)
+          // error gets caught automatically by the exception handler
+          val future = subjectProviderManager ? KillProcessInstance(userID.toInt)
+          val result = Await.result(future, timeout.duration).asInstanceOf[KillProcessInstanceAnswer]
+          complete(StatusCodes.OK)
         }
       } ~
       put {
@@ -115,25 +108,11 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         pathPrefix(IntNumber) { processInstanceID =>
           path("^$"r) { regex =>
             entity(as[ExecuteAction]) { json =>
-              //                formField("ExecuteAction") { (action) =>
               //execute next step
-
               implicit val timeout = Timeout(5 seconds)
-
-              case class ExecuteActionCreator(userID: UserID,
-                                              processInstanceID: ProcessInstanceID,
-                                              subjectID: SubjectID,
-                                              stateID: StateID,
-                                              stateType: String,
-                                              actionInput: String)
-              implicit val executeActionFormat = jsonFormat6(ExecuteActionCreator)
-
-              val composedFuture = for {
-                update <- (subjectProviderManager ? mixExecuteActionWithRouting(json)).mapTo[ExecuteActionAnswer]
-              } yield JsObject()
-
-              complete(composedFuture)
-              //                }
+              val future = (subjectProviderManager ? mixExecuteActionWithRouting(json))
+               val result = Await.result(future, timeout.duration).asInstanceOf[ExecuteActionAnswer]
+              complete(StatusCodes.OK)
             }
           }
         }
@@ -142,18 +121,13 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         pathPrefix("") {
           path("^$"r) { regex =>
             entity(as[ProcessIdHeader]) { json =>
-
               implicit val timeout = Timeout(5 seconds)
-
-              val composedFuture = for {
-                instanceid <- (subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processid)).mapTo[ProcessInstanceCreated]
-              } yield JsObject("instanceIDs" -> instanceid.processInstanceID.toJson)
-
-              complete(composedFuture)
+              val future = subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processid)
+              val result = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated]
+              complete(JsObject("processInstanceId" -> result.processInstanceID.toJson))
             }
           }
         }
       }
-    //    }
   })
 }
