@@ -53,10 +53,11 @@ object printHistory {
     for (entry <- history.entries) {
       sb ++= "\n\t%s from: %s to: %s @%s, with message:"
         .format(entry.subject, entry.fromState, entry.toState, entry.timestamp)
-      val message = entry.message
-      if (message == null) {
+      val messageOption = entry.message
+      if (messageOption == None) {
         sb ++= "\n\t\tNo Message"
       } else {
+        val message = messageOption.get
         sb ++= "\n\t\t [%d] from: %s to: %s channel: %s with content: %s"
           .format(message.id, message.from, message.to, message.messageType, message.data)
       }
@@ -68,28 +69,15 @@ object printHistory {
 }
 
 object ExecuteProcessInConsoleTest {
-
-  //  val processGraph =
-  //    ProcessGraph(
-  //      Array[Subject](
-  //        Subject("Superior",
-  //          Array[State](
-  //            State(0, "start", StartStateType, Array[Transition](StartTransition(1))),
-  //            State(1, "receive", ReceiveStateType, Array[Transition](Transition("BT Application", "Employee", 2))),
-  //            State(2, "act", ActStateType, Array[Transition](ActTransition("Approval", 3), ActTransition("Denial", 4))),
-  //            State(3, "send approval", SendStateType, Array[Transition](Transition("Approval", "Employee", 5))),
-  //            State(4, "send denial", SendStateType, Array[Transition](Transition("Denial", "Employee", 5))),
-  //            State(5, "end superior", EndStateType, Array[Transition]()))),
-  //        Subject("Employee",
-  //          Array[State](
-  //            State(0, "Start", StartStateType, Array[Transition](StartTransition(1))),
-  //            State(1, "Fill out Application", ActStateType, Array[Transition](ActTransition("Done", 2))),
-  //            State(2, "Send Application", SendStateType, Array[Transition](Transition("BT Application", "Superior", 3))),
-  //            State(3, "Receive", ReceiveStateType, Array[Transition](Transition("Approval", "Superior", 4), Transition("Denial", "Superior", 5))),
-  //            State(4, "Make business trip", ActStateType, Array[Transition](ActTransition("Done", 5))),
-  //            State(5, "End employee", EndStateType, Array[Transition]())))))
-  //
-  //  val processModel = ProcessModel(1, "Urlaub", processGraph)
+  def createExecuteAction(available: AvailableAction, actionInput: String): ExecuteAction =
+      mixExecuteActionWithRouting(
+        ExecuteAction(
+          available.userID,
+          available.processInstanceID,
+          available.subjectID,
+          available.stateID,
+          available.stateType,
+          actionInput))
 
   /**
    * This class simulates the frontentinterfaceactor and runs by the console
@@ -104,7 +92,7 @@ object ExecuteProcessInConsoleTest {
       case a: ExecuteActionAnswer => {
         println("FE - action executed: " + a)
         Thread.sleep(100)
-        subjectProviderManagerActor ! GetAvailableActions(a.request.userID, a.request.processInstanceID)
+        subjectProviderManagerActor ! GetAvailableActions(a.execute.userID, a.execute.processInstanceID)
       }
 
       case AvailableActionsAnswer(request, available) => {
@@ -133,6 +121,8 @@ object ExecuteProcessInConsoleTest {
         println("FE received: " + s)
     }
 
+    
+
     private def executeAction(avail: AvailableAction) {
       print(avail.processInstanceID + "/" + avail.subjectID + "/" + avail.stateID + " - ")
       StateType.fromStringtoStateType(avail.stateType) match {
@@ -141,10 +131,10 @@ object ExecuteProcessInConsoleTest {
           //          while (!avail.actionData.contains(action)) {
           //            action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
           //          }
-          subjectProviderManagerActor ! ExecuteAction(avail, action)
+          subjectProviderManagerActor ! createExecuteAction(avail, action)
         case SendStateType =>
           val message = readLine("Please insert message: ")
-          subjectProviderManagerActor ! ExecuteAction(avail, message)
+          subjectProviderManagerActor ! createExecuteAction(avail, message)
         case ReceiveWaitingStateType => {
           readLine("I am waiting for a message...")
           // always ask again if there is a new action for this subject
@@ -152,7 +142,7 @@ object ExecuteProcessInConsoleTest {
         }
         case ReceiveStateType =>
           val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
-          subjectProviderManagerActor ! ExecuteAction(avail, "")
+          subjectProviderManagerActor ! createExecuteAction(avail, "")
         case EndStateType =>
           println("Subject terminated: " + avail.subjectID)
       }
@@ -161,19 +151,12 @@ object ExecuteProcessInConsoleTest {
 
   def testProcessAndSubjectCreationWithKonsole() {
     implicit val timeout = Timeout(5 seconds)
-    //    val parseJson = true
-    //    var graph: ProcessGraph = null
-    ////    if (parseJson) {
-    //      graph = parseGraph(MyJSONTestGraph.processGraph)
-    //    } else {
-    //      graph = processGraph
-    //    }
 
-    val (system, _) = createTestRunSystem()
+    val (system, _) = createTestRunSystem(false)
     val console = system.actorOf(Props(new FrontendSimulatorActor()))
 
     // Create the SubjectProvider for this user
-    val future1 = console ? CreateSubjectProvider()
+    val future1 = console ? CreateSubjectProvider(1)
     val userID: Int =
       Await.result(future1, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
     println("User Created id: " + userID)

@@ -17,7 +17,6 @@ protected case class RegisterSubjectProvider(userID: UserID,
 class ProcessManagerActor extends Actor {
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
-  //  private var processInstanceCount = 0
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceRef]()
 
   // used to map answer messages back to the subjectProvider who sent a request
@@ -39,46 +38,18 @@ class ProcessManagerActor extends Actor {
     }
 
     case cp: CreateProcessInstance => {
-      // TODO daten aus der datenbank holen
-      // TODO hier checken ob der process existiert?
-      if (true) {
-        // if the process exists create the process instance
-        // set the id to a val to avoid errors
-        //        val processInstanceID = processInstanceCount
-        context.actorOf(Props(
-          new ProcessInstanceActor(cp.processID, cp)))
-
-        //        		processInstanceMap +=
-        //        		processInstanceID ->
-        //        context.actorOf(
-        //        		Props(
-        //        				new ProcessInstanceActor(
-        //        						processInstanceID,
-        //        						cp.processID)))
-        //        processInstanceMap +=
-        //          processInstanceID ->
-        //          context.actorOf(
-        //            Props(
-        //              new ProcessInstanceActor(
-        //                processInstanceID,
-        //                cp.processID)))
-        //        sender ! ProcessInstanceCreated(cp, processInstanceID)
-        // increase the count, so the next process instance gets a new unique id
-        //        processInstanceCount += 1
-      } else {
-        logger.info("Process Manager - cant start process " + cp.processID +
-          ", it does not exist")
-      }
+      // create the process instance
+      context.actorOf(Props(new ProcessInstanceActor(cp)))
     }
 
     case pc: ProcessInstanceCreated => {
-      if (pc.sender != null){
+      if (pc.sender != null) {
         pc.sender ! pc
+      } else {
+        logger.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
       }
-      //      processInstanceCount += 1
       processInstanceMap +=
         pc.processInstanceID -> pc.processInstanceActor
-
     }
 
     case kill: KillProcessInstance => {
@@ -151,7 +122,7 @@ class ProcessManagerActor extends Actor {
     if (processInstanceMap.contains(message.processInstanceID)) {
       processInstanceMap(message.processInstanceID).!(message) // TODO mit forwards aber erstmal testen
     } else {
-      logger.info("ProcessManager - message for " + message.processInstanceID +
+      logger.error("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)
     }
   }

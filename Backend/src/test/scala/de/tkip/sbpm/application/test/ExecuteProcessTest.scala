@@ -7,6 +7,7 @@ import scala.concurrent.duration._
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
+import ExecuteProcessInConsoleTest.createExecuteAction
 import akka.testkit.TestActorRef
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
@@ -110,7 +111,7 @@ class ExecuteProcessTest extends FunSuite {
       val action = askForAction()
       assertAction(matching, action)
       println("action: " + action.stateType + action.actionData.mkString(" data: ", ", ", ">"))
-      executeAction(ExecuteAction(action, actionInput))
+      executeAction(createExecuteAction(action, actionInput))
     }
     val action = askForAction()
     println("next action: " + action.stateType + action.actionData.mkString(" data: ", ", ", ">"))
@@ -139,7 +140,7 @@ class ExecuteProcessTest extends FunSuite {
     noError = true
     val (system, subjectProviderManagerActor) = createTestRunSystem()
 
-    var future = subjectProviderManagerActor ? CreateSubjectProvider()
+    var future = subjectProviderManagerActor ? CreateSubjectProvider(1)
     val userID = Await.result(future, timeout.duration).asInstanceOf[SubjectProviderCreated].userID
 
     future = subjectProviderManagerActor ? CreateProcessInstance(userID, 2)

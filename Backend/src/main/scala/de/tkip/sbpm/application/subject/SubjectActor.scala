@@ -42,7 +42,8 @@ class SubjectActor(userID: UserID,
 
     // forward history entries from internal behavior up to instance actor
     case history.Transition(from, to, msg) => {
-      context.parent ! history.Entry(new Date(), subjectName, from, to, msg)
+      context.parent !
+        history.Entry(new Date(), subjectName, from, to, if (msg != null) Some(msg) else None)
     }
 
     case terminated: SubjectTerminated => {

@@ -11,8 +11,9 @@ object HistoryTestData {
   def start = new Date()
 
   def generate(processName: String, instanceId: Int)(implicit payloadProvider: ActorRef) = {
-    val h = History(processName, instanceId, start)
+    val h = History(processName, instanceId, Some(start))
     addEntries(h)
+    println(h)
     h
   }
 
@@ -22,10 +23,10 @@ object HistoryTestData {
   def nextTime(time: Long) = time + random.nextInt(3600 * 1000)
 
   def addEntries(h: History)(implicit payloadProvider: ActorRef) {
-    implicit var time = h.processStarted.getTime()
-    h.entries += send(sub1, sub2, "Order request", 1, "152876(2),4547984(3),546847(1),541754(1)", null)
+    implicit var time = h.processStarted.get.getTime()
+    h.entries += send(sub1, sub2, "Order request", 1, "152876(2),4547984(3),546847(1),541754(1)", null, State("first", "start"))
     time = nextTime(time)
-    h.entries += receive(sub1, sub2, "Order request", 1, "152876(2),4547984(3),546847(1),541754(1)", null)
+    h.entries += receive(sub1, sub2, "Order request", 1, "152876(2),4547984(3),546847(1),541754(1)", null, State("2nd", "start"))
     time = nextTime(time)
     h.entries += action(sub2, "Check availability", h.entries.last.toState)
     time = nextTime(time)
@@ -41,37 +42,37 @@ object HistoryTestData {
     time = nextTime(time)
     h.entries += action(sub2, "Prepare delivery", h.entries.last.toState)
     time = nextTime(time)
-    h.entries += send(sub2, sub1, "Goods", 4, null, List("invoice"), h.entries.last.toState)
+//    h.entries += send(sub2, sub1, "Goods", 4, null, List("invoice"), h.entries.last.toState)
     h.entries += end(sub2, h.entries.last.toState)
     time = nextTime(time)
-    h.entries += receive(sub2, sub1, "Order availability", 4, null, List("invoice"), h.entries(4).toState)
+//    h.entries += receive(sub2, sub1, "Order availability", 4, null, List("invoice"), h.entries(4).toState)
     h.entries += end(sub1, h.entries.last.toState)
-    h.processEnded = new Date(time)
+    h.processEnded = Some(new Date(time))
   }
 
-  def send(from: String, to: String, msgType: String, msgId: Int, payload: String, files: Seq[String], fromState: State = null)(implicit payloadProvider: ActorRef, time: Long) =
+  def send(from: String, to: String, msgType: String, msgId: Int, payload: String, files: Seq[String], fromState: State)(implicit payloadProvider: ActorRef, time: Long) =
     Entry(new Date(time),
       from,
       fromState,
       State("Send " + msgType, "send"),
-      createMessage(msgId, msgType, from, to, payload, files))
+      Some(createMessage(msgId, msgType, from, to, payload, files)))
 
-  def receive(from: String, to: String, msgType: String, msgId: Int, payload: String, files: Seq[String], fromState: State = null)(implicit payloadProvider: ActorRef, time: Long) =
+  def receive(from: String, to: String, msgType: String, msgId: Int, payload: String, files: Seq[String], fromState: State)(implicit payloadProvider: ActorRef, time: Long) =
     Entry(new Date(time),
-	      to,
-	      fromState,
-	      State("Receive " + msgType, "receive"),
-	      createMessage(msgId, msgType, from, to, payload, files))
+      to,
+      fromState,
+      State("Receive " + msgType, "receive"),
+      Some(createMessage(msgId, msgType, from, to, payload, files)))
 
   def createMessage(msgId: Int, msgType: String, from: String, to: String, payload: String, files: Seq[String])(implicit payloadProvider: ActorRef) =
     Message(msgId,
-		      msgType,
-		      from,
-		      to,
-		      payload,
-		      if (files != null) files.map(MessagePayloadLink(payloadProvider, _)) else null)
+      msgType,
+      from,
+      to,
+      payload,
+      if (files != null) Some(files.map(MessagePayloadLink(payloadProvider, _))) else None)
 
-  def action(sub: String, name: String, fromState: State = null)(implicit time: Long) =
+  def action(sub: String, name: String, fromState: State)(implicit time: Long) =
     Entry(new Date(time),
       sub,
       fromState,

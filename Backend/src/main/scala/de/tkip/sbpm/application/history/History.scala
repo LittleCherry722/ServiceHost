@@ -2,13 +2,13 @@ package de.tkip.sbpm.application.history
 
 import java.util.Date
 import akka.actor.ActorRef
- 
+
 // represents an entry in the history (a state transition inside a subject)
 case class Entry(timestamp: Date, // time transition occurred
                  subject: String, // respective subject
-                 fromState: State = null, // transition initiating state (null if start state)
+                 fromState: State, // transition initiating state
                  toState: State, // end state of transition
-                 message: Message = null) // message that was sent in transition (null if none)
+                 message: Option[Message] = None) // message that was sent in transition (None if none)
 // describes properties of a state
 case class State(name: String, stateType: String)
 // message exchanged in a state transition
@@ -17,7 +17,7 @@ case class Message(id: Int,
                    from: String, // sender subject of message
                    to: String, // receiver subject of message 
                    data: String, // link to msg payload
-                   files: Seq[MessagePayloadLink] = null) // link to file attachments
+                   files: Option[Seq[MessagePayloadLink]] = None) // link to file attachments
 // represents a link to a message payload which contains a actor ref 
 // and a payload id that is needed by that actor to identify payload
 case class MessagePayloadLink(actor: ActorRef, payloadId: String)
