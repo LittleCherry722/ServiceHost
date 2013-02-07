@@ -13,16 +13,6 @@ import de.tkip.sbpm.rest.JsonProtocol._
  */
 object parseSubjects {
   def apply(subjects: String): Array[SubjectID] = {
-    // TODO noch nicht implementiert
-    //    case class Subject(name: String)
-    //    import de.tkip.sbpm.rest.JsonProtocol._
-    //    implicit val subjectFormat = jsonFormat1(Subject)
-    //
-    //    val subjects1 = subjects.replace("'", "\"")
-
-    //    subjects1.asJson.convertTo[Array[Subject]].map(_.name)
-
-    //    Array("Employee")
     try {
       subjects.asJson.convertTo[Array[String]]
     } catch {
@@ -30,6 +20,7 @@ object parseSubjects {
         System.err.println("cant parse start subjects")
         Array()
       }
+      //    Array("Employee")
     }
   }
 }
