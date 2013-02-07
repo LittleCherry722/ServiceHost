@@ -8,24 +8,26 @@ define([
 		this.availableSubjects = ko.observableArray([]);
 
 		this.currentSubject = ko.observable();
+
+		this.processInstance = processInstance;
 	}
 
-	var currentProcess = ko.observable();
+	var processInstance = ko.observable( new ProcessInstance() );
 
-	currentProcess.subscribe(function( process ) {
-		console.log("a new process has been loaded: " + process);
+	processInstance.subscribe(function( process ) {
+		// console.log("a new process has been loaded: " + process);
 	});
 
-	var initialize = function( process ) {
+	var initialize = function( instance ) {
 		var viewModel;
 
-		currentProcess( process );
+		processInstance( instance );
 
 		viewModel = new ViewModel();
 
 		App.loadTemplate( "execution/history", viewModel, "executionContent", function() {
-			App.loadSubView( "execution/actions", currentProcess() );
 			$( "#slctSbj" ).chosen();
+			// App.loadSubView( "execution/actions", processInstance() );
 		});
 
 	}

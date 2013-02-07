@@ -30,7 +30,8 @@ define([
 			"models/group",
 			"models/role",
 			"models/groupsUsers",
-			"models/groupsRoles"
+			"models/groupsRoles",
+			"models/processInstance"
 			// "models/roles",
 		], function( Model, User, Process, Group, Role ) {
 
@@ -58,9 +59,14 @@ define([
 	// Does exactly what "loadView" does but does not set the current main
 	// ViewModel and does not unload the old viewModel.
 	var loadSubView = function( viewName, args, callback ) {
+		if ( !_.isArray(args) ) {
+			args = [ args ];
+		}
+		args.push( callback )
+
     // just load our new viewmodel and call the init method.
 		require([ "viewmodels/" + viewName ], function( viewModel ) {
-      viewModel.init( callback );
+      viewModel.init.apply( viewModel, args );
 		});
 	}
 
@@ -79,7 +85,7 @@ define([
 
     // just load our new viewmodel and call the init method.
 		require([ "viewmodels/" + viewName ], function( viewModel ) {
-			viewModel.init.apply(viewModel, args );
+			viewModel.init.apply( viewModel, args );
 			currentMainViewModel( viewModel );
 		});
 

@@ -10,17 +10,17 @@
 		<span data-bind="text: processInstance().instanceName()"></span>
 		<span class="divider"> / </span>
 
-		<select id="slctctvSbj" data-placeholder="Select Active Subject"
-			class="middle_switch chzn-select" tabindex="1"
-			data-bind="options: availableSubjects, optionsText: 'subjectText',
-			optionsValue: 'subjectId', value: currentSubject, caption: ''">
-		</select>
+		<!-- <select id="slctctvSbj" data-placeholder="Select Active Subject"-->
+		<!--   class="middle_switch chzn-select" tabindex="1"-->
+		<!--   data-bind="options: availableSubjects, optionsText: 'subjectText',-->
+		<!--   optionsValue: 'subjectId', value: currentSubject, caption: ''">-->
+		<!-- </select>-->
 	</span>
 
 	<div id="processExecution">
 		<ul class="nav nav-tabs" data-bind="foreach: tabs">
 			<li data-bind="css: { active: $data === $root.currentTab() }">
-				<a data-bind="text: $data, attr: { href: '#/execution/' + $data }"></a>
+				<a data-bind="text: $data, attr: { href: '#/processinstances/' + $parent.processInstance().id() + '/' + $data }"></a>
 			</li>
 		</ul>
 	</div>

@@ -31,11 +31,11 @@ define([
 
 
 	processInstance.subscribe(function( process ) {
-		console.log( "a new process has been loaded: " + process );
+		// console.log( "a new process has been loaded: " + process );
 	});
 	
 	currentSubject.subscribe(function( subject ) {
-		console.log( "active subject was changed to: " + subject );
+		// console.log( "active subject was changed to: " + subject );
 	});
 
 	currentTab.subscribe(function( newTab ) {
@@ -44,7 +44,7 @@ define([
 			return;
 		}
 
-		App.loadSubView( "execution/" + newTab.toLowerCase(), processInstance() );
+		App.loadSubView( "execution/" + newTab.toLowerCase(), [ processInstance() ] );
 		if ( newTab === tabs[0] ) {
 			$("#executionContent").addClass("first-tab-selected");
 		} else {
@@ -60,12 +60,12 @@ define([
 
 		processInstance( ProcessInstance.find( processInstanceId ) );
 
-
 		if ( !subSite ) {
 			subSite = tabs[0]
 		}
 
 		App.loadTemplate( "execution", viewModel, null, function() {
+			$( "#slctSbj" ).chosen();
 			if ( currentTab() == subSite ) {
 				currentTab.valueHasMutated()
 			} else {

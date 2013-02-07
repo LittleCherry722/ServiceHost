@@ -912,7 +912,7 @@ table.data2 tr td {
 }
 
 #executionContent {
-  @include calc(height, "100% - 67px");
+  @include calc(height, "100% - 97px");
   background-color: #fff;
   @include border-radius(5px);
   border: 1px solid #cdcdcd;

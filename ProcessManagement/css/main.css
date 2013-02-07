@@ -6837,10 +6837,10 @@ table.data2 tr td {
 }
 
 #executionContent {
-  height: -moz-calc(100% - 67px);
-  height: -o-calc(100% - 67px);
-  height: -webkit-calc(100% - 67px);
-  height: calc(100% - 67px);
+  height: -moz-calc(100% - 97px);
+  height: -o-calc(100% - 97px);
+  height: -webkit-calc(100% - 97px);
+  height: calc(100% - 97px);
   background-color: #fff;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
