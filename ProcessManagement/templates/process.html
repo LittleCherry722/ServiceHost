@@ -4,6 +4,28 @@
 		<h3 id="processName" data-bind="text: currentProcess().name "></h3>
 	</div>
 
+	<ul class="breadcrumb">
+		<li>
+			<a href="#/processList">Processes</a>
+			<span class="divider">/</span>
+		</li>
+    <!-- ko ifnot: currentSubject() -->
+      <li class="active">
+        <span data-bind="text: currentProcess().name()"></span>
+      </li>
+    <!-- /ko -->
+    <!-- ko if: currentSubject() -->
+      <li>
+        <a data-bind="text: currentProcess().name(), attr: {
+          href: currentProcess().url() }"></a>
+        <span class="divider">/</span>
+      </li>
+      <li class="active">
+        <span data-bind="text: currentSubject()"></span>
+      </li>
+    <!-- /ko -->
+	</ul>
+
 	<div id="graph">
 		<!-- <h2 id="process_name" style="color:#525252" data-bind="text: activeView "></h2>-->
 		<!-- Begin graph window -->

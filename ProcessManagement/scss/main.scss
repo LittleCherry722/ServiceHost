@@ -691,7 +691,7 @@ table.data2 tr td {
 }
 
 #graph {
-  @include calc(height, "100% - 45px");
+  @include calc(height, "100% - 80px");
 
   .onecolumn {
     height: 100%;
@@ -912,7 +912,7 @@ table.data2 tr td {
 }
 
 #executionContent {
-  @include calc(height, "100% - 97px");
+  @include calc(height, "100% - 110px");
   background-color: #fff;
   @include border-radius(5px);
   border: 1px solid #cdcdcd;
@@ -1016,9 +1016,8 @@ table.data2 tr td {
   }
 }
 
-span.divider {
-  color: #ccc;
-  padding: 0 5px;
+.breadcrumb {
+	background-color: #eee;
 }
 
 .btn .caret {

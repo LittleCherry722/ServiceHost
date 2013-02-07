@@ -128,7 +128,11 @@ define([
 				json = {};
 				_( Result.attrs() ).each(function( attrOptions, attrName ) {
 					if ( typeof this[ attrName ]() === "undefined" ) {
-						json[ attrName ] = "";
+						if ( attrOptions.lazy && attrOptions.defaults ) {
+							json[ attrName ] = attrOptions.defaults;
+						} else {
+							json[ attrName ] = "";
+						}
 					} else {
 						json[ attrName ] = this[ attrName ]();
 					}

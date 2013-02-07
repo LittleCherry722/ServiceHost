@@ -6,40 +6,15 @@
     </a>
   </li>
   <li>
-    <a href="" id="processListLink">
+    <a id="processList" href="#/processList" class="link">
+      <img src="images/icons/folder_48.png" width="16px" height="16px" alt="Processes"/>
+      Processes
+    </a>
+  </li>
+  <li>
+    <a id="newProcess" href="#/processes/new" class="link">
       <img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>
-      Process Management
-    </a>
-    <ul>
-      <li>
-        <a id="newProcess" href="#/processes/new">
-          Create new process
-        </a>
-      </li>
-      <li>
-        <a id="processList" href="#/processList">
-          View existing processes
-        </a>
-      </li>
-      <li>
-        <ul data-bind="foreach: allProcesses">
-          <li>
-            <a data-bind="text: menuName(), attr: { href: url() } "></a>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li data-bind="visible: visible().save">
-    <a id="save" data-bind="click : save">
-      <img src="images/icons/floppy_disk_48.png" width="16px" height="16px"/>
-      Save Process
-    </a>
-  </li>
-  <li data-bind="visible: visible().saveAs">
-    <a id="saveAs" href="saveAsProcess.html" data-bind="fancybox : {width : '50', height : '40'}">
-      <img src="images/icons/floppy_disk_48.png" width="16px" height="16px"/>
-      Save Process As
+      Create new process
     </a>
   </li>
   <li data-bind="visible: visible().messages">

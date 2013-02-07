@@ -4,18 +4,27 @@
 		<h3>Process Execution</h3>
 	</div>
 
-	<span>
-		<span data-bind="text: processInstance().process().name()"></span>
-		<span class="divider"> / </span>
-		<span data-bind="text: processInstance().instanceName()"></span>
-		<span class="divider"> / </span>
-
+	<ul class="breadcrumb">
+		<li>
+			<a href="#/processList">Processes</a>
+			<span class="divider">/</span>
+		</li>
+		<li>
+			<a data-bind="text: processInstance().process().name(), attr: {
+				href: processInstance().process().url() }"></a>
+			<span class="divider">/</span>
+		</li>
+		<li class="active">
+			<span data-bind="text: processInstance().instanceName(), attr: {
+				href: processInstance().url() }"></span>
+			<!-- <span class="divider">/</span>-->
+		</li>
 		<!-- <select id="slctctvSbj" data-placeholder="Select Active Subject"-->
-		<!--   class="middle_switch chzn-select" tabindex="1"-->
-		<!--   data-bind="options: availableSubjects, optionsText: 'subjectText',-->
-		<!--   optionsValue: 'subjectId', value: currentSubject, caption: ''">-->
-		<!-- </select>-->
-	</span>
+			<!--   class="middle_switch chzn-select" tabindex="1"-->
+			<!--   data-bind="options: availableSubjects, optionsText: 'subjectText',-->
+			<!--   optionsValue: 'subjectId', value: currentSubject, caption: ''">-->
+			<!-- </select>-->
+	</ul>
 
 	<div id="processExecution">
 		<ul class="nav nav-tabs" data-bind="foreach: tabs">

@@ -176,22 +176,17 @@ define([
 		// Do not do anything if an empty subject is selected.
 		// Happens every time chosen updates itself with a new list of available
 		// subjects.
-		if ( !subject ) {
-			return;
+		if ( subject ) {
+			subject = subject.replace(/___/, " ");
+			if ( gv_graph.subjects[subject] && !gv_graph.subjects[subject].isExternal() ) {
+				if ( !Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {
+				// let the graph know we want to go to the internal view of a subject.
+				gv_graph.selectedSubject = null;
+				gf_clickedCVnode( subject );
+				loadBehaviorView( subject );
+				}
+			}
 		}
-
-		subject = subject.replace(/___/, " ");
-		if ( !gv_graph.subjects[subject] || gv_graph.subjects[subject].isExternal() ) {
-			return;
-		}
-		if ( Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {
-			return;
-		}
-
-		// let the graph know we want to go to the internal view of a subject.
-		gv_graph.selectedSubject = null;
-		gf_clickedCVnode( subject );
-		loadBehaviorView( subject );
 	});
 
 	// Subscribe to the change of the current Process.
@@ -321,9 +316,7 @@ define([
 			currentProcess( Process.find( processId ) );
 		}
 
-		if ( subjectId !== currentSubject() ) {
-			currentSubject( subjectId );
-		}
+		currentSubject( subjectId );
 
 		if ( typeof callback === "function" ) {
 			callback.call( this );
@@ -406,9 +399,6 @@ define([
 		// tooltips
 		$('.tooltip-enabled *[title]').tooltip();
 
-		// Tab2, "Charge View" clicked.
-		// let the graph know we changed views and update the list of subjects. //TODO Tab2 oder Tab3???
-
 		$("#tab3").live( "click", function() {
 
 			gv_graph.selectedNode = null;
@@ -418,30 +408,29 @@ define([
 		subscribeAll()
 	}
 
+	var subscriptions = [];
+
 	var subscribeAll = function() {
-		$.subscribeOnce( "tk_graph/updateListOfSubjects", updateListOfSubjects );
-		$.subscribeOnce( "tk_graph/updateListOfMacros", updateListOfMacros );
-		$.subscribeOnce( "tk_graph/changeViewHook", viewChanged );
-		$.subscribeOnce( "tk_graph/changeViewBV", loadBehaviorView );
-		$.subscribeOnce( "tk_graph/subjectDblClickedInternal", currentSubject);
-		$.subscribeOnce( "tk_graph/edgeClickedHook", showEdgeFields );
-		$.subscribeOnce( "tk_graph/nodeClickedHook", showNodeFields );
-		$.subscribeOnce( "tk_graph/subjectClickedHook", showOrHideRoleWarning );
-		$.subscribeOnce( "tk_graph/subjectDblClickedExternal", goToExternalProcess);
+		subscriptions = [
+			$.subscribeOnce( "tk_graph/updateListOfSubjects", updateListOfSubjects ),
+			$.subscribeOnce( "tk_graph/updateListOfMacros", updateListOfMacros ),
+			$.subscribeOnce( "tk_graph/changeViewHook", viewChanged ),
+			$.subscribeOnce( "tk_graph/changeViewBV", loadBehaviorView ),
+			$.subscribeOnce( "tk_graph/subjectDblClickedInternal", currentSubject),
+			$.subscribeOnce( "tk_graph/edgeClickedHook", showEdgeFields ),
+			$.subscribeOnce( "tk_graph/nodeClickedHook", showNodeFields ),
+			$.subscribeOnce( "tk_graph/subjectClickedHook", showOrHideRoleWarning ),
+			$.subscribeOnce( "tk_graph/subjectDblClickedExternal", goToExternalProcess)
+		]
 	}
 
-	// Unsubscreibe from all subscriptions thet we subscribed to on
+	// Unsubscribe from all subscriptions thet we subscribed to on
 	// initialization.
 	var unsubscribeAll = function() {
-		$.unsubscribe( "tk_graph/updateListOfSubjects", updateListOfSubjects );
-		$.unsubscribe( "tk_graph/updateListOfMacros", updateListOfMacros );
-		$.unsubscribe( "tk_graph/changeViewHook", viewChanged );
-		$.unsubscribe( "tk_graph/changeViewBV", loadBehaviorView );
-		$.unsubscribe( "tk_graph/subjectDblClickedInternal", currentSubject);
-		$.unsubscribe( "tk_graph/edgeClickedHook", showEdgeFields );
-		$.unsubscribe( "tk_graph/nodeClickedHook", showNodeFields );
-		$.unsubscribe( "tk_graph/subjectClickedHook", showOrHideRoleWarning );
-		$.unsubscribe( "tk_graph/subjectDblClickedExternal", goToExternalProcess);
+		console.log("unsubscribing");
+		_( subscriptions ).each(function( element, list ) {
+			$.unsubscribe( element );
+		});
 	}
 
 
@@ -692,7 +681,7 @@ define([
 	//
 	// Must return true, otherwise the view will not be unloaded.
 	var unload = function() {
-		// unsubscribeAll();
+		unsubscribeAll();
 
 		// return true so the view actually gets unloaded.
     return true;
