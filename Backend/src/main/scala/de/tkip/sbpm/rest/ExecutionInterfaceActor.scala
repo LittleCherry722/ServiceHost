@@ -98,7 +98,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             else
               "".toJson
           },
-          "history" -> historyFuture.h.toJson,
+          "history" -> historyFuture.history.toJson,
           "actions" -> availableActionsFuture.availableActions.toJson)
         complete(composedFuture)
         //        } else {
@@ -147,7 +147,12 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               implicit val timeout = Timeout(5 seconds)
               val future = subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processid)
               val result = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated]
-              complete(JsObject("processInstanceId" -> result.processInstanceID.toJson))
+              complete(
+                JsObject(
+                  "processInstanceId" -> result.processInstanceID.toJson,
+                  "graph" -> result.graphJson.toJson,
+                  "history" -> result.history.toJson,
+                  "actions" -> result.availableActions.toJson))
             }
           }
         }

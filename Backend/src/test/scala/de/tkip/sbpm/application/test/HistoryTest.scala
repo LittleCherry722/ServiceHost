@@ -33,7 +33,7 @@ class HistoryTest extends FunSuite {
   test("test history debug data structure") {
     val future = actor ? new GetHistory(userID = 1, processInstanceID = 1) with Debug
     val result = Await.result(future.mapTo[HistoryAnswer], timeout.duration)
-    val history = result.h
+    val history = result.history
     println(history)
     assert(history.entries.length === 11)
     val msg = history.entries(6).message

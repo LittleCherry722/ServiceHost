@@ -68,8 +68,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       .mapTo[Option[Int]]
     // save this process instance in the persistence
     // Just of debug reasons
-    processInstanceIDFuture1 <- 
-    if(isStart)
+    processInstanceIDFuture1 <- if (isStart)
       (ActorLocator.persistenceActor ?
         SaveProcessInstance(ProcessInstance(Some(1), processID, processFuture.get.graphId, "", "")))
         .mapTo[Option[Int]]
@@ -77,14 +76,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       (ActorLocator.persistenceActor ?
         SaveProcessInstance(ProcessInstance(processInstanceIDFuture, processID, processFuture.get.graphId, "", "")))
         .mapTo[Option[Int]]
-      //      } else {
-      //        processInstanceIDFuture
-      //      }
-    
+    //      } else {
+    //        processInstanceIDFuture
+    //      }
+
     // get the corresponding graph
     graphFuture <- (ActorLocator.persistenceActor ?
       GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-  } yield (if(isStart) 1 else processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+  } yield (if (isStart) 1 else processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
 
   // evaluate the Future
   val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJSON: String) =
@@ -120,7 +119,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   // inform the process manager that this process instance has been created
-  context.parent ! ProcessInstanceCreated(request, id, self)
+  context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
 
   def receive = {
 
