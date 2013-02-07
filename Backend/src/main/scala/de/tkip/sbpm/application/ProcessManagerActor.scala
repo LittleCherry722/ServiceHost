@@ -6,6 +6,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.persistence._
 import akka.event.Logging
+import de.tkip.sbpm.ActorLocator
 
 protected case class RegisterSubjectProvider(userID: UserID,
                                              subjectProviderActor: SubjectProviderRef)
@@ -53,16 +54,18 @@ class ProcessManagerActor extends Actor {
         pc.processInstanceID -> (pc.processInstanceActor, pc.request.processID)
     }
 
-    case kill: KillProcessInstance => {
-      if (processInstanceMap.contains(kill.processInstanceID)) {
-        context.stop(processInstanceMap(kill.processInstanceID)._1)
-        processInstanceMap -= kill.processInstanceID
+    case kill @ KillProcessInstance(id) => {
+      if (processInstanceMap.contains(id)) {
+        context.stop(processInstanceMap(id)._1)
+        processInstanceMap -= id
         sender ! KillProcessInstanceAnswer(kill, true)
       } else {
         logger.info("Process Manager - can't kill process instance: " +
-          kill.processInstanceID + ", it does not exists")
+          id + ", it does not exists")
         sender ! KillProcessInstanceAnswer(kill, false)
       }
+      // TODO always try to delete it from the database?
+      //      ActorLocator.persistenceActor ! DeleteProcessInstance(id)
     }
 
     // general matching
@@ -94,13 +97,13 @@ class ProcessManagerActor extends Actor {
       }
     }
 
-//    case message: GetHistory => {
-//      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
-//        processInstanceMap(message.processInstanceID)._1.forward(message)
-//      } else {
-//        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
-//      }
-//    }
+    //    case message: GetHistory => {
+    //      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
+    //        processInstanceMap(message.processInstanceID)._1.forward(message)
+    //      } else {
+    //        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
+    //      }
+    //    }
 
     case answer: AnswerMessage => {
       answer.sender.forward(answer)
@@ -123,7 +126,7 @@ class ProcessManagerActor extends Actor {
     if (processInstanceMap.contains(message.processInstanceID)) {
       processInstanceMap(message.processInstanceID)._1.!(message) // TODO mit forwards aber erstmal testen
     } else {
-      if(message.isInstanceOf[AnswerAbleMessage]) {
+      if (message.isInstanceOf[AnswerAbleMessage]) {
         // TODO create an answertrait for this error
         message.asInstanceOf[AnswerAbleMessage].sender ! None
       }

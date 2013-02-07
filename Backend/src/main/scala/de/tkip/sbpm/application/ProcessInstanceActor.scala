@@ -29,6 +29,15 @@ case class History(processName: String,
                    var processEnded: Option[Date] = None, // None if not started or still running
                    entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
+// TODO This object just exists for debug reasons
+protected object firstrun {
+  private var start = true
+  def apply() = {
+    val temp = start
+    start = false
+    temp
+  }
+}
 /**
  * instantiates SubjectActor's and manages their interactions
  */
@@ -41,6 +50,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   implicit val timeout = Timeout(10 seconds)
 
   val processID = request.processID
+
+  // TODO just for debug reasons, delete later
+  val isStart: Boolean = firstrun()
 
   // TODO "None" rueckgaben behandeln
   // Get the ProcessGraph from the database and create the database entry
@@ -55,13 +67,24 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
       .mapTo[Option[Int]]
     // save this process instance in the persistence
-    processInstanceIDFuture <- (ActorLocator.persistenceActor ?
-      SaveProcessInstance(ProcessInstance(Some(1), processID, processFuture.get.graphId, "", "")))
-      .mapTo[Option[Int]]
+    // Just of debug reasons
+    processInstanceIDFuture1 <- 
+    if(isStart)
+      (ActorLocator.persistenceActor ?
+        SaveProcessInstance(ProcessInstance(Some(1), processID, processFuture.get.graphId, "", "")))
+        .mapTo[Option[Int]]
+    else
+      (ActorLocator.persistenceActor ?
+        SaveProcessInstance(ProcessInstance(processInstanceIDFuture, processID, processFuture.get.graphId, "", "")))
+        .mapTo[Option[Int]]
+      //      } else {
+      //        processInstanceIDFuture
+      //      }
+    
     // get the corresponding graph
     graphFuture <- (ActorLocator.persistenceActor ?
       GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-  } yield (if (false) processInstanceIDFuture.get else 1, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+  } yield (if(isStart) 1 else processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
 
   // evaluate the Future
   val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJSON: String) =
