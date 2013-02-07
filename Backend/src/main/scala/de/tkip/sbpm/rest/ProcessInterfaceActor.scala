@@ -78,8 +78,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
                 "id" -> processResult.get.id.toJson,
                 "name" -> processResult.get.name.toJson,
                 "graph" -> graphResult.get.graph.toJson))
+            } else {
+              complete("Process with id " + id + " not found")
             }
-            complete("Process with id " + id + " not found")
           }
 
         }

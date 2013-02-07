@@ -13,7 +13,6 @@ object HistoryTestData {
   def generate(processName: String, instanceId: Int)(implicit payloadProvider: ActorRef) = {
     val h = History(processName, instanceId, Some(start))
     addEntries(h)
-    println(h)
     h
   }
 
