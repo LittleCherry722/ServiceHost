@@ -61,7 +61,8 @@ define([
 				}
 			});
 
-			Process.lazyComputed( this, 'graphObject', {
+			this.graphObject = ko.computed({
+				deferEvaluation: true,
 				read: function() {
 					return $.parseJSON( self.graph() );
 				},

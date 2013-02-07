@@ -300,10 +300,6 @@ define([
 		gv_graph.clearGraph( true );
 		gf_loadGraph( graph, undefined );
 
-		// TODO
-		// var graph = JSON.parse(graphAsJson);
-		// self.chargeVM.load(graph);
-
 		selectTab( 2 )
 	}
 

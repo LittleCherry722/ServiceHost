@@ -21,7 +21,6 @@ define([
 
 	var reloadGraph = function() {
 		gv_graph.clearGraph();
-		window.p = processInstance();
 		gf_loadGraph( processInstance().graph() );
 	}
 
@@ -35,9 +34,8 @@ define([
 			$( "#slctSbj" ).chosen();
 			processInstance( instance )
 		});
-
 	}
-	
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize
