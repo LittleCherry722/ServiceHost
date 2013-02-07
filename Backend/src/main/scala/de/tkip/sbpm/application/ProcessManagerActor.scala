@@ -38,7 +38,7 @@ class ProcessManagerActor extends Actor {
     case getAll: GetAllProcessInstances => {
 
       sender !
-        AllProcessInstancesAnswer(getAll, processInstanceMap.map(s => ProcessInstanceInfo(s._1, s._2.processID)).toArray)
+        AllProcessInstancesAnswer(getAll, processInstanceMap.map(s => ProcessInstanceInfo(s._1, s._2.processID)).toArray.sortBy(_.id))
     }
 
     case cp: CreateProcessInstance => {

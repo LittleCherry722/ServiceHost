@@ -59,10 +59,10 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
       // create new process
       case SaveProcess(p @ Process(None, _, _, _, _), None) =>
         answer { Some(Processes.autoInc.insert(p)) }
-      // create new process with a corresponding graph
-      case SaveProcess(p: Process, g: Option[Graph]) => saveProcessWithGraph(p, g)
       // save existing process
       case SaveProcess(p @ Process(id, _, _, _, _), None) => update(id, p)
+      // create new process with a corresponding graph
+      case SaveProcess(p: Process, g: Option[Graph]) => saveProcessWithGraph(p, g)
       // delete process with given id
       case DeleteProcess(id) =>
         answer { Processes.where(_.id === id).delete(session) }

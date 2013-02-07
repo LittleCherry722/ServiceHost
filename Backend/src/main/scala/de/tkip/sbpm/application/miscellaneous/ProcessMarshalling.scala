@@ -5,6 +5,7 @@ import spray.json._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.rest.JsonProtocol._
 
 /**
  * This object is responsible to divide a string listing of subjects
@@ -21,7 +22,15 @@ object parseSubjects {
 
     //    subjects1.asJson.convertTo[Array[Subject]].map(_.name)
 
-    Array("Employee")
+    //    Array("Employee")
+    try {
+      subjects.asJson.convertTo[Array[String]]
+    } catch {
+      case _: Throwable => {
+        System.err.println("cant parse start subjects")
+        Array()
+      }
+    }
   }
 }
 
@@ -49,7 +58,6 @@ object parseGraph {
     implicit val behaviorFormat = jsonFormat2(JBehavior)
     implicit val subjectFormat = jsonFormat3(JSubject)
     implicit val graphFormat = jsonFormat1(JGraph)
-
   }
   import JsonFormats._
 
