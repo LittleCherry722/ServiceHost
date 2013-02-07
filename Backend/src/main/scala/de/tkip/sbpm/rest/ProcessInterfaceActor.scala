@@ -109,8 +109,11 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          * e.g. http://localhost:8080/process/12
          */
         // DELETE
-        path(IntNumber) { id =>
-          completeWithDelete(DeleteProcess(id), "Process could not be deleted. Entitiy with id %d not found.", id)
+        path(IntNumber) { processID =>
+          completeWithDelete(
+            DeleteProcess(processID),
+            "Process could not be deleted. Entitiy with id %d not found.",
+            processID)
         }
       } ~
       put {
@@ -123,20 +126,22 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         pathPrefix(IntNumber) { id =>
           path("^$"r) { regex =>
             entity(as[GraphHeader]) { json =>
+              // TODO warum macht man es bei POST mit einem befehl und bei PUT
+              // mit 2 Befehlen?
               implicit val timeout = Timeout(5 seconds)
               //execute next step (chosen by actionID)
-              val future = (persistanceActor ? GetProcess(Option(id), None))
-              val result = Await.result(future, timeout.duration).asInstanceOf[Some[Process]]
+              val processFuture = (persistanceActor ? GetProcess(Option(id), None))
+              val result = Await.result(processFuture, timeout.duration).asInstanceOf[Some[Process]]
               if (result.isDefined) {
-                val future1 = (persistanceActor ? SaveGraph(Graph(Option(result.get.graphId), json.graph, new java.sql.Timestamp(System.currentTimeMillis()), id)))
-                val result1 = Await.result(future1, timeout.duration)
+                val graphFuture = (persistanceActor ? SaveGraph(Graph(Option(result.get.graphId), json.graph, new java.sql.Timestamp(System.currentTimeMillis()), id)))
+                Await.result(graphFuture, timeout.duration)
                 complete(StatusCodes.OK)
+              } else {
+                complete("The requested process does not exist")
               }
-              complete("The requested process does not exist")
             }
           }
         }
       }
   })
-
 }

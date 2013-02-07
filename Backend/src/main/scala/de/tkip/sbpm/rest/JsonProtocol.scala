@@ -78,6 +78,12 @@ object JsonProtocol extends DefaultJsonProtocol {
   }
 
   /**
+   * header case classes
+   */
+  case class ProcessIdHeader(processid: Int)
+  case class GraphHeader(name: String, graph: String, isCase: Boolean)
+
+  /**
    * case class formater
    */
   implicit val envelopeFormat = jsonFormat2(Envelope)
@@ -107,22 +113,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val processInstanceInfoFormat = jsonFormat2(ProcessInstanceInfo)
   implicit val availableActionFormat = jsonFormat6(AvailableAction)
 
-  //ProcessModel TODO die braucht man doch garnicht, da das interne model nicht in json uebersetzt wird
-  //  implicit val transitionFormat = jsonFormat3(Transition)
-  //  implicit val processStateFormat = jsonFormat4(de.tkip.sbpm.model.State)
-  //  implicit val subjectFormat = jsonFormat2(Subject)
-  //  implicit val processGraphFormat = jsonFormat1(ProcessGraph)
-  //  implicit val processFormat = jsonFormat3(ProcessModel)
-  implicit val createGraphHeaderFormat = jsonFormat4(GraphHeader)
-  case class GraphHeader(userid: String, name: String, graph: String, isCase:Boolean)
-  implicit val createActionIdHeaderFormat = jsonFormat6(ExecuteAction)
-  case class ActionIdHeader(userID: UserID,
-                    processInstanceID: ProcessInstanceID,
-                    subjectID: SubjectID,
-                    stateID: StateID,
-                    stateType: String,
-                    actionInput: String)
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
-  case class ProcessIdHeader(processId: Int)
-  
+  implicit val createGraphHeaderFormat = jsonFormat3(GraphHeader)
+  implicit val createActionIdHeaderFormat = jsonFormat6(ExecuteAction)
 }
