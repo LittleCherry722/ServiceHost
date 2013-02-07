@@ -21,7 +21,7 @@
         <span class="divider">/</span>
       </li>
       <li class="active">
-        <span data-bind="text: currentSubject()"></span>
+        <span data-bind="text: currentSubjectName()"></span>
       </li>
     <!-- /ko -->
 	</ul>
@@ -37,14 +37,27 @@
 					</a>
 				</div>
 				<div class="btn-group" id="switch">
-					<button	id="tab2" class="btn">Subject-Interaction-View</button>
+					<button	id="tab2" class="btn" data-bind="click: goToRoot">
+						Subject-Interaction-View
+					</button>
 
-					<div class="btn tab-dropdown">
-						<select id="slctSbj" data-placeholder="Select Internal Behavior"
-							class="middle_switch chzn-select" tabindex="1"
-							data-bind="options: availableSubjects, optionsText: 'subjectText',
-							optionsValue: 'subjectID', value: currentSubject(), caption: ''">
-						</select>
+					<div class="btn-group">
+						<a class="btn dropdown-toggle" data-toggle="dropdown">
+							<!-- ko ifnot: currentSubject() -->
+								Select Internal behavior
+							<!-- /ko -->
+							<!-- ko if: currentSubject() -->
+								<span data-bind="text: currentSubjectName()"></span>
+							<!-- /ko -->
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu save-dropdown" data-bind="foreach: availableSubjects">
+							<li data-bind="css: { active: $parent.currentSubject() == $data['subjectId'] }">
+								<a data-bind="attr: { href: $parent.currentProcess().url() +
+									'/' + $data['subjectId'] }, text: $data['subjectText']">
+								</a>
+							</li>
+						</ul>
 					</div>
 
 					<div class="btn tab-dropdown">
@@ -63,7 +76,9 @@
 						</select>
 					</div>
 
-					<button id="tab3" class="btn">Routing</button>
+					<button id="tab3" class="btn" data-bind="click: goToRoutings">
+						Routing
+					</button>
 
 					<div class="btn-group">
 						<a class="btn" data-bind="click: saveCurrentProcess" title="Save Process">
@@ -86,23 +101,23 @@
 						</ul>
 					</div>
 
-					<div id="saveAsModal" class="modal hide" tabindex="-1">
-						<div class="modal-header">
-							<a type="button" class="close" data-dismiss="modal">x</a>
-							<h3>Save Graph As</h3>
-						</div>
-						<div id="saveProcessAs" class="modal-body">
-							<label for="newProcessName">New Process Name</label>
-							<input id="newProcessName" type="text" data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
-						</div>
-						<div class="modal-footer">
-							<button class="btn" data-dismiss="modal">Close</button>
-							<button class="btn btn-primary" data-dismiss="modal" data-bind="click: saveCurrentProcessAs">
-								Save Process
-							</button>
-						</div>
-					</div>
+				</div>
+			</div>
 
+			<div id="saveAsModal" class="modal hide" tabindex="-1">
+				<div class="modal-header">
+					<a type="button" class="close" data-dismiss="modal">x</a>
+					<h3>Save Graph As</h3>
+				</div>
+				<div id="saveProcessAs" class="modal-body">
+					<label for="newProcessName">New Process Name</label>
+					<input id="newProcessName" type="text" data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
+				</div>
+				<div class="modal-footer">
+					<button class="btn" data-dismiss="modal">Close</button>
+					<button class="btn btn-primary" data-dismiss="modal" data-bind="click: saveCurrentProcessAs">
+						Save Process
+					</button>
 				</div>
 			</div>
 

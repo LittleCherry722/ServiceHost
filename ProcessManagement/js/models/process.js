@@ -72,27 +72,47 @@ define([
 				}
 			});
 
-			Process.lazyComputed( this, 'subjects', function() {
-				var subjects = {};
+			this.subjects = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					var subjects = {};
 
-				_( self.graphObject().process ).each(function( element ) {
-					subjects[ element['id'] ] = element['name'];
-				});
+					_( self.graphObject().process ).each(function( element ) {
+						subjects[ element['id'] ] = element['name'];
+					});
 
-				return subjects;
+					return subjects;
+				}
 			});
 
-			Process.lazyComputed( this, 'subjectIds', function() {
-				var subjects = [];
+			this.subjectsArray = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					var subjects = [];
 
-				_( self.graphObject().process ).each(function( element ) {
-					subjects.push( element['id'] );
-				});
+					_( self.graphObject().process ).each(function( element ) {
+						subjects.push( [ element['id'], element['name'] ] );
+					});
 
-				return subjects;
+					return subjects;
+				}
 			});
 
-			Process.lazyComputed( this, "routings", {
+			this.subjectIds = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					var subjects = [];
+
+					_( self.graphObject().process ).each(function( element ) {
+						subjects.push( element['id'] );
+					});
+
+					return subjects;
+				}
+			});
+
+			this.routings = ko.computed({
+				deferEvaluation: true,
 				read: function() {
 					if ( self.graphObject() && self.graphObject().routings ) {
 						return self.graphObject().routings;

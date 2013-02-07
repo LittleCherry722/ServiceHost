@@ -61,6 +61,17 @@ define([
 
 		// The currently selected subject and channel (in chosen)
 		this.currentSubject = currentSubject;
+		this.currentSubjectName = ko.computed({
+			deferEvaluation: true,
+			read: function() {
+				var subject =  _( availableSubjects() ).find(function( element ) {
+					return element['subjectId'] == currentSubject();
+				});
+				if ( subject ) {
+					return subject['subjectText']
+				}
+			}
+		});
 		this.currentChannel = currentChannel;
 		this.currentMacro   = currentMacro;
 
@@ -94,7 +105,13 @@ define([
 			loadGraph(currentProcess().graph());
 		}
 		
-		
+		this.goToRoot = function() {
+			Router.goTo( currentProcess() );
+		}
+
+		this.goToRoutings = function() {
+			Router.goTo("/processes/"+currentProcess().id()+"/routing");
+		}
 	}
 
 
@@ -300,6 +317,10 @@ define([
 		gv_graph.clearGraph( true );
 		gf_loadGraph( graph, undefined );
 
+		// TODO
+		// var graph = JSON.parse(graphAsJson);
+		// self.chargeVM.load(graph);
+
 		selectTab( 2 )
 	}
 
@@ -366,22 +387,6 @@ define([
 		// See "selectTab" for more Information,
 		$( ".switch .btn[id^='tab']" ).live( "click", selectTab )
 
-		// Tab2, "Subject Interaction View" clicked.
-		// let the graph know we changed views and update the list of subjects and
-		// channels.
-		$( "#tab2" ).live( "click", function() {
-			Router.goTo( currentProcess() );
-		});
-
-
-		// Tab3, "Routing" clicked.
-
-		$( "#tab3" ).live( "click", function() {
-
-			Router.goTo("/processes/"+currentProcess().id()+"/routing");
-		});
-
-
 		// Save Process buttons behavior
 		$( "#saveProcessAsButton" ).live( "click", function() {
 			$('#newProcessName').val( currentProcess().name() ).trigger('change');
@@ -438,7 +443,7 @@ define([
 	// methods.
 	var updateListOfSubjects = function() {
 		var subject,
-			subjects = [{}];
+			subjects = [];
 
 		// Iterate over every subject available in the graph and build a nice
 		// JS object from it. Than push this subject to the list of subjects.
