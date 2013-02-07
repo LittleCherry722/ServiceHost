@@ -21,6 +21,7 @@ define([
 
 	var reloadGraph = function() {
 		gv_graph.clearGraph();
+		window.p = processInstance();
 		gf_loadGraph( processInstance().graph() );
 	}
 
