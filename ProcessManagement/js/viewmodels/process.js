@@ -662,13 +662,13 @@ define([
 		return currentGraph() !=  gv_graph.saveToJSON();
   }
 
-  var confirmExit = function( callback ) {
-    if ( graphHasUnsavedChanges() ) {
-      return confirm("The graph has changed and not yet been saved. Are you sure you want to leave this site and loose all unsaved changes?");
-    } else {
-      return true;
-    }
-  }
+	var confirmExit = function( callback ) {
+		if ( graphHasUnsavedChanges() ) {
+			return confirm("The graph has changed and not yet been saved. Are you sure you want to leave this site and loose all unsaved changes?");
+		} else {
+			return true;
+		}
+	}
 
 	// This function gets called when another view is loaded.
 	// At the moment, just unsubscribe all listeners we have set up that are not
