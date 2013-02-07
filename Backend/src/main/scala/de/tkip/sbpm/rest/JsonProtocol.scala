@@ -80,7 +80,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   /**
    * header case classes
    */
-  case class ProcessIdHeader(processid: Int)
+  case class ProcessIdHeader(processId: Int)
   case class GraphHeader(name: String, graph: String, isCase: Boolean)
 
   /**
