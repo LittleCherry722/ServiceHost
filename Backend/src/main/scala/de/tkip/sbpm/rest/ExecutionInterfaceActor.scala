@@ -108,7 +108,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         //LIST
         path("") {
           implicit val timeout = Timeout(5 seconds)
-          val future = (subjectProviderManager ? GetAllProcessInstances(userID.toInt)).mapTo[AllProcessInstanceIDsAnswer]
+          val future = (subjectProviderManager ? GetAllProcessInstances(userID.toInt)).mapTo[AllProcessInstancesAnswer]
           val result = Await.result(future, timeout.duration)
 
           complete(result.processInstanceInfo)

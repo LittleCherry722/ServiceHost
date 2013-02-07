@@ -29,7 +29,7 @@ protected abstract class BehaviorStateActor(stateID: StateID,
                                             subjectID: SubjectID,
                                             userID: UserID, // TODO braucht ma, 
                                             inputPoolActor: ActorRef) extends Actor {
-  
+
   val logger = Logging(context.system, this)
 
   /**
@@ -139,7 +139,7 @@ protected case class ActStateActor(id: StateID,
 
   override def receive = {
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, _, input) => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ActStateString, input) => {
       val index = indexOfInput(input)
       if (index != -1) {
         sender ! ExecuteActionAnswer(ea)
@@ -188,14 +188,14 @@ protected case class ReceiveStateActor(id: StateID,
       inputPoolActor) {
 
   var messageContent: String = ""
-  var stateType: StateType = ReceiveWaitingStateType
+  var stateType: StateType = WaitingStateType
 
   // request if there is a message for this subject
   inputPoolActor !
     RequestForMessages(transitions.map(convertTransitionToRequest(_)))
 
   override def receive = {
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, _, input) => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ReceiveStateString, input) => {
       if (!transitions.isEmpty) {
         sender ! ExecuteActionAnswer(ea)
 
@@ -252,7 +252,7 @@ protected case class SendStateActor(id: StateID,
 
   // TODO sowas wie timeout ist nicht drin
   override def receive = {
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, _, input) => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) => {
       sender ! ExecuteActionAnswer(ea)
       messageData = input
       processInstance !
@@ -280,5 +280,5 @@ protected case class SendStateActor(id: StateID,
   }
 
   override protected def getAvailableAction: (StateType, Array[String]) =
-    (SendStateType, Array())
+    (if (messageData == null) SendStateType else WaitingStateType, Array())
 }
