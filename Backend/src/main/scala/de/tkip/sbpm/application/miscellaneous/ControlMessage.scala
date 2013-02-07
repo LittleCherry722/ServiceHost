@@ -47,7 +47,6 @@ sealed trait AnswerControlMessage extends ControlMessage with AnswerMessage
 // request
 // answer
 
-
 // administration
 case class CreateSubjectProvider(userID: UserID) extends AnswerAbleControlMessage
 case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID) extends AnswerControlMessage
@@ -58,7 +57,13 @@ case class GetAllProcessInstances(userID: UserID = AllUser) extends AnswerAbleCo
 case class AllProcessInstancesAnswer(request: GetAllProcessInstances, processInstanceInfo: Array[ProcessInstanceInfo]) extends AnswerControlMessage
 
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
-case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID, processInstanceActor: ProcessInstanceRef) extends AnswerControlMessage
+case class ProcessInstanceCreated(request: CreateProcessInstance,
+                                  processInstanceID: ProcessInstanceID,
+                                  processInstanceActor: ProcessInstanceRef,
+                                  graphJson: String,
+                                  history: History,
+                                  availableActions: Array[AvailableAction])
+    extends AnswerControlMessage
 
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
 case class KillProcessInstanceAnswer(request: KillProcessInstance, success: Boolean) extends AnswerControlMessage
@@ -74,4 +79,4 @@ case class AvailableActionsAnswer(request: GetAvailableActions, availableActions
 
 // history
 case class GetHistory(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ExecutionMessage with ProcessInstanceMessage
-case class HistoryAnswer(request: GetHistory, h: History) extends AnswerControlMessage
+case class HistoryAnswer(request: GetHistory, history: History) extends AnswerControlMessage

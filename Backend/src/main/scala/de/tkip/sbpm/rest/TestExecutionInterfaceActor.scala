@@ -71,7 +71,7 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
           } yield JsObject(
             //            "graph" -> processInstanceFuture.graphs.toJson,
             "graph" -> graphFuture.graph.toJson,
-            "history" -> historyFuture.h.toJson,
+            "history" -> historyFuture.history.toJson,
             "actions" -> availableActionsFuture.availableActions.toJson)
 
           complete(composedFuture)
