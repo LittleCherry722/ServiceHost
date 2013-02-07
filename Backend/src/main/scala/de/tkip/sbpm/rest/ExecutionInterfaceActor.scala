@@ -123,7 +123,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("^$"r) { regex =>
             entity(as[ProcessIdHeader]) { json =>
               implicit val timeout = Timeout(5 seconds)
-              val future = subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processid)
+              val future = subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processId)
               val result = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated]
               complete(JsObject("processInstanceId" -> result.processInstanceID.toJson))
             }

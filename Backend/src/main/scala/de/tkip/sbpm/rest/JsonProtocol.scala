@@ -123,6 +123,6 @@ object JsonProtocol extends DefaultJsonProtocol {
                     stateType: String,
                     actionInput: String)
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
-  case class ProcessIdHeader(processid: Int)
+  case class ProcessIdHeader(processId: Int)
   
 }

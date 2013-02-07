@@ -30,6 +30,7 @@ define([
 		self.newInstance = function() {
 			instance = new ProcessInstance( { processId: this.id() } );
 			instance.save( { async: false } );
+			console.log("switching")
 			Router.goTo( instance );
 		}
 	}

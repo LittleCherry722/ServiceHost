@@ -176,6 +176,8 @@ define([
 				return
 			}
 
+			model.attributesLoaded( true );
+
 			ajax = {
 				cache: false,
 				url: pathBuilder.createPath( model ),
@@ -192,7 +194,6 @@ define([
 							model[ attrName ]( attrOptions.fromJSON( data[ attrName ] ));
 						}
 					});
-
 
 					model.isNewRecord = false;
 					if ( ! _( Model.all() ).contains( model ) ) {
