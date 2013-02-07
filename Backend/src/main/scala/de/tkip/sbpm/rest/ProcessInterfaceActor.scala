@@ -98,7 +98,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             val future = (persistanceActor ? SaveProcess(Process(None, json.name),
               Option(Graph(None, json.graph, new java.sql.Timestamp(System.currentTimeMillis()), -1))))
             val result = Await.result(future, timeout.duration).asInstanceOf[(Some[Int], Some[Int])]
-            complete(JsObject("processID" -> result._1.get.toJson))
+            complete(JsObject("id" -> result._1.get.toJson))
           }
         }
       } ~

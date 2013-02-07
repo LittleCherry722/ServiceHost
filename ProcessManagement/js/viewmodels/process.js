@@ -112,6 +112,9 @@ define([
 		this.goToRoutings = function() {
 			Router.goTo("/processes/"+currentProcess().id()+"/routing");
 		}
+
+		// Subscribe to all graph events we need to listen to.
+		subscribeAll()
 	}
 
 
@@ -402,9 +405,6 @@ define([
 
 			gv_graph.selectedNode = null;
 		});
-
-		// Subscribe to all graph events we need to listen to.
-		subscribeAll()
 	}
 
 	var subscriptions = [];
