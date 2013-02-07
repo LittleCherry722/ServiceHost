@@ -38,21 +38,25 @@ class SubjectProviderActor(userID: UserID) extends Actor {
       // - terminated
       // - different process instance id
       // - different subject id
-      val collectSubjects: Set[Subject] =
-        subjects.filter(
-          (s: Subject) =>
-            !s.ref.isTerminated &&
-              (if (get.processInstanceID == AllProcessInstances)
-                true
-              else
-                (if (get.subjectID == AllSubjects)
-                  get.processInstanceID == s.processInstanceID
+      if (get.isInstanceOf[Debug]) {
+        sender ! AvailableActionsAnswer(get, DebugActionData.generateActions(get.userID, get.processInstanceID))
+      } else {
+        val collectSubjects: Set[Subject] =
+          subjects.filter(
+            (s: Subject) =>
+              !s.ref.isTerminated &&
+                (if (get.processInstanceID == AllProcessInstances)
+                  true
                 else
-                  get.processInstanceID == s.processInstanceID &&
-                    get.subjectID == s.subjectID)))
-      // collect for the filtered list
-      context.actorOf(Props(new AvailableActionsCollectorActor)) !
-        CollectAvailableActions(get, collectSubjects)
+                  (if (get.subjectID == AllSubjects)
+                    get.processInstanceID == s.processInstanceID
+                  else
+                    get.processInstanceID == s.processInstanceID &&
+                      get.subjectID == s.subjectID)))
+        // collect for the filtered list
+        context.actorOf(Props(new AvailableActionsCollectorActor)) !
+          CollectAvailableActions(get, collectSubjects)
+      }
     }
 
     // general matching

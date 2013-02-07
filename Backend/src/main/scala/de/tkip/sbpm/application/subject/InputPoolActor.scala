@@ -1,12 +1,11 @@
 package de.tkip.sbpm.application.subject
 
 import scala.collection.mutable.ArrayBuffer
-
 import akka.actor._
-
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.Transition
+import akka.event.Logging
 
 case class SubjectMessageRouting(from: SubjectName, messageType: MessageType)
 
@@ -25,12 +24,14 @@ object SubjectMessageRouting {
  */
 class InputPoolActor(messageLimit: Int) extends Actor {
 
+  val logger = Logging(context.system, this)
+
   def receive = {
 
     // a receive asked before a send
     case sm: SubjectInternalMessage if subjectIsWaitingForMessageIn(SubjectMessageRouting(sm)) =>
       sender ! Stored // unlock Sender
-      println(self + "Inputpool: Message transported: " + sm.from + ", " +
+      logger.debug(self + "Inputpool: Message transported: " + sm.from + ", " +
         sm.messageType + ", \"" +
         sm.messageContent + "\"")
       // transport it to waiting receive message of the internal behavior
@@ -40,14 +41,14 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     // input pool limit is high enough to store message
     case sm: SubjectInternalMessage if messagesStoredFor(SubjectMessageRouting(sm)) < messageLimit =>
       storeMessageContent(sm)
-      println(self + "Inputpool: Message stored: " + sm.from + ", " +
+      logger.debug(self + "Inputpool: Message stored: " + sm.from + ", " +
         sm.messageType + ", \"" +
         sm.messageContent + "\"")
       sender ! Stored // unlock Sender
 
     case sm: SubjectInternalMessage =>
       putInWaitForSend(sm, sender)
-      println(self + "Message putInWaitForSend: " + sm.from + ", " +
+      logger.debug(self + "Message putInWaitForSend: " + sm.from + ", " +
         sm.messageType + ", \"" + sm.messageContent + "\"")
 
     case RequestForMessages(exitConds) =>
@@ -65,7 +66,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
         }
       }
 
-    case sw => println("Inputpool hat sonst was erhalten " + sw)
+    case sw => logger.error("Inputpool got message but can't use: " + sw)
   }
 
   private def tryTransport(smr: SubjectMessageRouting, s: ActorRef): Boolean = {
@@ -74,7 +75,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     }
     if (messagesStoredFor(smr) > 0) {
       val content = getMessageContentOf(smr)
-      println("Inputpool: e, getMessageContentOf(e) : " + smr + " " + content)
+      logger.debug("Inputpool: e, getMessageContentOf(e) : " + smr + " " + content)
       s ! TransportMessage(smr.from, smr.messageType, content)
       return true
     }
@@ -167,4 +168,4 @@ class InputPoolActor(messageLimit: Int) extends Actor {
   private def getWaitingSubject(e: SubjectMessageRouting): ActorRef =
     exitcond_to_FIFOs(e).getWaitingSubject
 
-} // class Inputpool
+}

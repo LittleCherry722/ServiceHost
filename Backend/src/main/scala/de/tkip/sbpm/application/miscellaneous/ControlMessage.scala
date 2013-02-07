@@ -55,7 +55,7 @@ case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID
 // execution
 case class ProcessInstanceInfo(id: ProcessInstanceID, processId: ProcessID)
 case class GetAllProcessInstances(userID: UserID = AllUser) extends AnswerAbleControlMessage
-case class AllProcessInstanceIDsAnswer(request: GetAllProcessInstances, processInstanceInfo: Array[ProcessInstanceInfo]) extends AnswerControlMessage
+case class AllProcessInstancesAnswer(request: GetAllProcessInstances, processInstanceInfo: Array[ProcessInstanceInfo]) extends AnswerControlMessage
 
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance, processInstanceID: ProcessInstanceID, processInstanceActor: ProcessInstanceRef) extends AnswerControlMessage

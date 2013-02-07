@@ -6,6 +6,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.persistence._
 import akka.event.Logging
+import de.tkip.sbpm.ActorLocator
 
 protected case class RegisterSubjectProvider(userID: UserID,
                                              subjectProviderActor: SubjectProviderRef)
@@ -15,9 +16,11 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor extends Actor {
+  private case class ProcessInstanceData(processID: ProcessID, processInstanceActor: ProcessInstanceRef)
+
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
-  private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, (ProcessInstanceRef, ProcessID)]()
+  private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceData]()
 
   // used to map answer messages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -35,7 +38,7 @@ class ProcessManagerActor extends Actor {
     case getAll: GetAllProcessInstances => {
 
       sender !
-        AllProcessInstanceIDsAnswer(getAll, processInstanceMap.map(s => ProcessInstanceInfo(s._1, 1)).toArray)
+        AllProcessInstancesAnswer(getAll, processInstanceMap.map(s => ProcessInstanceInfo(s._1, s._2.processID)).toArray.sortBy(_.id))
     }
 
     case cp: CreateProcessInstance => {
@@ -50,19 +53,21 @@ class ProcessManagerActor extends Actor {
         logger.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
       }
       processInstanceMap +=
-        pc.processInstanceID -> (pc.processInstanceActor, pc.request.processID)
+        pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.processInstanceActor)
     }
 
-    case kill: KillProcessInstance => {
-      if (processInstanceMap.contains(kill.processInstanceID)) {
-        context.stop(processInstanceMap(kill.processInstanceID)._1)
-        processInstanceMap -= kill.processInstanceID
+    case kill @ KillProcessInstance(id) => {
+      if (processInstanceMap.contains(id)) {
+        context.stop(processInstanceMap(id).processInstanceActor)
+        processInstanceMap -= id
         sender ! KillProcessInstanceAnswer(kill, true)
       } else {
         logger.info("Process Manager - can't kill process instance: " +
-          kill.processInstanceID + ", it does not exists")
+          id + ", it does not exists")
         sender ! KillProcessInstanceAnswer(kill, false)
       }
+      // TODO always try to delete it from the database?
+      //      ActorLocator.persistenceActor ! DeleteProcessInstance(id)
     }
 
     // general matching
@@ -94,13 +99,13 @@ class ProcessManagerActor extends Actor {
       }
     }
 
-//    case message: GetHistory => {
-//      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
-//        processInstanceMap(message.processInstanceID)._1.forward(message)
-//      } else {
-//        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
-//      }
-//    }
+    //    case message: GetHistory => {
+    //      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
+    //        processInstanceMap(message.processInstanceID)._1.forward(message)
+    //      } else {
+    //        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
+    //      }
+    //    }
 
     case answer: AnswerMessage => {
       answer.sender.forward(answer)
@@ -121,9 +126,9 @@ class ProcessManagerActor extends Actor {
 
   private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
     if (processInstanceMap.contains(message.processInstanceID)) {
-      processInstanceMap(message.processInstanceID)._1.!(message) // TODO mit forwards aber erstmal testen
+      processInstanceMap(message.processInstanceID).processInstanceActor.!(message) // TODO mit forwards aber erstmal testen
     } else {
-      if(message.isInstanceOf[AnswerAbleMessage]) {
+      if (message.isInstanceOf[AnswerAbleMessage]) {
         // TODO create an answertrait for this error
         message.asInstanceOf[AnswerAbleMessage].sender ! None
       }

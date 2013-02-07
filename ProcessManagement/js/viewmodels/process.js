@@ -12,7 +12,7 @@ define([
 
 	// The main viewmodel. Every observable defined inside can be used by the
 	// view. Lets keep it clean and define functions and other helper variables
-	// outside this viewmodel so it is immidiatly apparant which functions /
+	// outside this viewmodel so it is immediately apparent which functions /
 	// observables are really used by the view.
 	var ViewModel = function() {
 		this.currentProcess = currentProcess;
@@ -123,15 +123,15 @@ define([
 	var currentMacro   = ko.observable();
 
 
-	// Various observables to controll whether or not to show certain
-	// formfields in the internal view.
+	// Various observables to control whether or not to show certain
+	// form fields in the internal view.
 	var isEdgeSelected        = ko.observable( false );
 	var isNodeSelected        = ko.observable( false );
 	var isShowRoleWarning     = ko.observable( true );
 	var isShowEdgeInformation = ko.observable( false );
 
-	// ko.observables for similiar named attributes of the viewmodel.
-	// Reference it outside the viewmodel so we dont have to declare every
+	// ko.observables for similar named attributes of the viewmodel.
+	// Reference it outside the viewmodel so we don't have to declare every
 	// function inside the viewmodel to get a reference to these objects.
 	var availableSubjects = ko.observableArray([]);
 	var availableChannels = ko.observableArray([]);
@@ -139,7 +139,7 @@ define([
 
 	/***************************************************************************
 	 * Subscriptions to our observables. Used
-	 * For exmaple to load the current Graph.
+	 * For example to load the current Graph.
 	 ***************************************************************************/
 
 	// On change of the available Subjects, let chosen know we updated the list
@@ -161,7 +161,7 @@ define([
 		}, 1);
 	});
 
-	// Do basicly the same for the list of macros (see above)
+	// Do basically the same for the list of macros (see above)
 	availableMacros.subscribe(function( channels ) {
 		setTimeout(function() {
 			$("#slctMacro").trigger("liszt:updated");
@@ -244,14 +244,14 @@ define([
 
 
 	/***************************************************************************
-	 * Graph and Process helper funcitons
+	 * Graph and Process helper functions
 	 ***************************************************************************/
 
 	// Save the graph to the database.
 	var saveGraph = function( process ) {
 		var routings;
 
-		// save the routings attribute of the graph in a local variable becouse
+		// save the routings attribute of the graph in a local variable because
 		// it would be overwritten by setting the graph to the current
 		// graph that is displayed via the gv_graph.saveToJSON() method.
 		routings = process.routings();
@@ -291,8 +291,6 @@ define([
 	}
 
 
-
-
 	// Basic graph loading.
 	// Just load the graph from a JSON String and display it.
 	// no saving needed.
@@ -325,7 +323,7 @@ define([
 
 
 	/***************************************************************************
-	 * Setup methdos for DOM and tk_graph Listeners
+	 * Setup methods for DOM and tk_graph Listeners
 	 ***************************************************************************/
 
 	var initializeDOM = function() {
@@ -337,7 +335,7 @@ define([
 
 
 	// Initialize listeners. These are either bound to the DOM (for click events
-	// etc), or listeners for the graph library.
+	// etc.), or listeners for the graph library.
 	var initializeListeners = function() {
 
 		// Make internal settings screens toggle-able
@@ -396,7 +394,7 @@ define([
 			}, 150);
 		});
 
-		// tooltips
+		// tool tips
 		$('.tooltip-enabled *[title]').tooltip();
 
 		$("#tab3").live( "click", function() {
@@ -424,7 +422,7 @@ define([
 		]
 	}
 
-	// Unsubscribe from all subscriptions thet we subscribed to on
+	// Unsubscribe from all subscriptions that we subscribed to on
 	// initialization.
 	var unsubscribeAll = function() {
 		console.log("unsubscribing");
@@ -446,16 +444,16 @@ define([
 		var subject,
 			subjects = [{}];
 
-		// Iterate over every subject available in the graph and buld a nice
+		// Iterate over every subject available in the graph and build a nice
 		// JS object from it. Than push this subject to the list of subjects.
 		_( gv_graph.subjects ).each(function( value, key ) {
 
-			// we dont want external subjects in the list of (local) subjects
+			// we don't want external subjects in the list of (local) subjects
 			if ( value.isExternal() ) {
 				return;
 			}
 
-			// create the subejct object
+			// create the subject object
 			subject = {
 				subjectId: key,
 				subjectText: value.getText(),
@@ -491,7 +489,7 @@ define([
 		var channel,
 			channels = [{}];
 
-		// Iterate over every channel available in the graph and buld a nice
+		// Iterate over every channel available in the graph and build a nice
 		// JS object from it. Than push this channel to the list of channels.
 		_( gf_getChannels() ).each(function( value, key ) {
 			channel = {
@@ -521,12 +519,12 @@ define([
 		currentChannel("##all##");
 	}
 
-	// Is called whenenver the view changes from internal to external or vice
+	// Is called whenever the view changes from internal to external or vice
 	// versa. The view argument can be either "cv" for the subject interaction
 	// view or "bv" for the behavior aka internal view.
 	var viewChanged = function( view ) {
 
-		// start with every view beeing invisible since we should not have anything selected
+		// start with every view being invisible since we should not have anything selected
 		setVisibleExclusive();
 
 		if ( view === "cv" ) {
@@ -537,13 +535,13 @@ define([
 		updateMenuDropdowns();
 	}
 
-	// Sets the fields for the internal view to all be hidden exept
+	// Sets the fields for the internal view to all be hidden except
 	// for the observer passed in as function.
 	//
-	// So for example if every field execpt the Edge Fields should be hidden,
+	// So for example if every field except the Edge Fields should be hidden,
 	// invoke it like: setVisibleExclusive( isEdgeSelected ).
 	//
-	// this marks the observer as false and therfore hides the fields.
+	// this marks the observer as false and therefore hides the fields.
 	//
 	// Can also be invoked without any arguments. Then everything will be hidden.
 	var setVisibleExclusive = function( fn ) {
@@ -576,8 +574,8 @@ define([
 		updateMenuDropdowns();
 	}
 
-	// Select a certain tab. Can either be directly attacthed to the click
-	// listener (or anything else) of a secific tab, or invoked with the number
+	// Select a certain tab. Can either be directly attached to the click
+	// listener (or anything else) of a specific tab, or invoked with the number
 	// of the tab (id = "tab" + number) as first parameter.
 	var selectTab = function( tabIndex ) {
 		var tabId;
@@ -602,7 +600,7 @@ define([
 		$( "#instance_tab" + tabIndex + "_content" ).removeClass( "hide" );
 		$( "#slctMacroDropDown" ).hide();
 
-		// Hide the graph zoom Buttons n charge view. Show it in all other views.
+		// Hide the graph zoom Buttons and charge view. Show it in all other views.
 		if ( tabIndex === 3 ) {
 			$( ".zoombutton" ).hide();
 		} else if( tabIndex === 2 ) {
@@ -659,7 +657,7 @@ define([
 		});
 	}
 
-  // check if the graph has unsaved changes. We wouldnt want to loose them.
+  // check if the graph has unsaved changes. We would not want to loose them.
   var graphHasUnsavedChanges = function() {
 		return currentGraph() !=  gv_graph.saveToJSON();
   }

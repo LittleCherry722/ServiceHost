@@ -82,7 +82,7 @@ class TestExecutionInterfaceActor extends Actor with HttpService {
             implicit val timeout = Timeout(5 seconds)
 
             val composedFuture = for {
-              instanceids <- (subjectProviderManager ? GetAllProcessInstances(userID.toInt).asInstanceOf[Debug]).mapTo[AllProcessInstanceIDsAnswer]
+              instanceids <- (subjectProviderManager ? GetAllProcessInstances(userID.toInt).asInstanceOf[Debug]).mapTo[AllProcessInstancesAnswer]
             } yield JsObject("instanceIDs" -> instanceids.processInstanceInfo.toJson)
 
             complete(composedFuture)
