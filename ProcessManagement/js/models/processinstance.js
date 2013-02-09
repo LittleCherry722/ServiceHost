@@ -20,7 +20,8 @@ define([
 			type: "string",
 			defaults: "{}",
 			lazy: true
-		}
+		},
+		actions: "json"
 	});
 
 	ProcessInstance.include({
