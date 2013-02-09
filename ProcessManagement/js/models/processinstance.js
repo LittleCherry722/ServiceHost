@@ -21,7 +21,11 @@ define([
 			defaults: "{}",
 			lazy: true
 		},
-		actions: "json"
+		actions: {
+			type: "json",
+			defaults: [],
+			lazy: true
+		}
 	});
 
 	ProcessInstance.include({
