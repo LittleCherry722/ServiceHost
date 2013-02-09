@@ -95,6 +95,14 @@ define([
 		return "" + value;
 	}
 
+	var jsonFromX = function( value ) {
+		if ( typeof value === "string" ) {
+			return JSON.parse( value );
+		} else {
+			return value;
+		}
+	}
+
 	// Convert a JSON value to an integer value.
 	var integerFromJSON = function( value ) {
 		return parseInt( value, 10 );
@@ -134,6 +142,13 @@ define([
 			defaults: 0.0,
 			lazy: false,
 			fromJSON: decimalFromJSON
+		},
+
+		json: {
+			type: "json",
+			defaults: "{}",
+			lazy: true,
+			fromJSON: jsonFromX
 		},
 
 		boolean: {

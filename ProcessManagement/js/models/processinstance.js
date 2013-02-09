@@ -20,6 +20,11 @@ define([
 			type: "string",
 			defaults: "{}",
 			lazy: true
+		},
+		actions: {
+			type: "json",
+			defaults: [],
+			lazy: true
 		}
 	});
 
