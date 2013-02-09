@@ -1,42 +1,36 @@
 <a id="hide_menu" href="javascript:;">&laquo;</a>
 <ul id="main_menu">
-  <li data-bind="visible: visible().home">
-    <a href="#/home" class="link">
-      <img alt="Home" height="16px" src="images/icons/home_48.png" width="16px"/> Home
-    </a>
-  </li>
-  <li>
-    <a id="processList" href="#/processList" class="link">
-      <img src="images/icons/folder_48.png" width="16px" height="16px" alt="Processes"/>
-      Processes
-    </a>
-  </li>
-  <li>
-    <a id="newProcess" href="#/processes/new" class="link">
-      <img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>
-      Create new process
-    </a>
-  </li>
-  <li data-bind="visible: visible().messages">
-    <a href="">
-      <img src="images/icons/mail_48.png" width="16px" height="16px" alt="Messages"/>
-      Messages
-    </a>
-    <ul>
-      <li>
-        <a id="MSGInbox" href="MSGInbox.html" data-bind="fancybox : {}">Inbox</a>
-      </li>
-      <li>
-        <a id="MSGOutbox" href="MSGOutbox.html" data-bind="fancybox : {}">Outbox</a>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <a href="#/execution" class="link">
-      <img src="images/icons/arrow_right_48.png" height="16" width="16" alt="Process Execution"/>
-      Process Execution
-    </a>
-  </li>
+	<li data-bind="visible: visible().home">
+		<a href="#/home" class="link">
+			<img alt="Home" height="16px" src="images/icons/home_48.png" width="16px"/> Home
+		</a>
+	</li>
+	<li>
+		<a id="processList" href="#/processList" class="link">
+			<img src="images/icons/folder_48.png" width="16px" height="16px" alt="Processes"/>
+			Processes
+		</a>
+	</li>
+	<li>
+		<a id="newProcess" href="#/processes/new" class="link">
+			<img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>
+			Create new process
+		</a>
+	</li>
+	<li data-bind="visible: visible().messages">
+		<a href="">
+			<img src="images/icons/mail_48.png" width="16px" height="16px" alt="Messages"/>
+			Messages
+		</a>
+		<ul>
+			<li>
+				<a id="MSGInbox" href="MSGInbox.html" data-bind="fancybox : {}">Inbox</a>
+			</li>
+			<li>
+				<a id="MSGOutbox" href="MSGOutbox.html" data-bind="fancybox : {}">Outbox</a>
+			</li>
+		</ul>
+	</li>
 </ul>
 
 <br class="clear"/>
