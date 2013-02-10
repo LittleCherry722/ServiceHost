@@ -49,13 +49,61 @@ define([
 	
 	var isReceiveType;
 	
+ 
 
+	
 	var action = function(action) {
-		console.log("action: "+ action)
-	}
+		console.log("action: " + action)
+		data = actionOfCurrentSubject()
+		id = data.processInstanceID;
+		data.actionData = action;
+		data = JSON.stringify(data);
+		console.log(data);
+
+		$.ajax({
+			url : '/ProcessManagement/scala/processinstance/' + id,
+			type : "PUT",
+			data : data,
+			async : true, // defaults to false
+			dataType : "json",
+			contentType : "application/json; charset=UTF-8",
+			success : function(data, textStatus, jqXHR) {
+				console.log(data);
+			},
+			error : function(jqXHR, textStatus, error) {
+				// Some error handling maybe?
+			},
+			complete : function(jqXHR, textStatus) {
+				// Always after success or error
+			}
+		});
+
+	};
+
+
 	var send = function() {
 		console.log("send: "+ messageText())
-	}
+		data = actionOfCurrentSubject()
+		id = data.processInstanceID;
+			$.ajax({
+			url : '/ProcessManagement/scala/processinstance/' + id,
+			type : "PUT",
+			data: data,
+			async : true, // defaults to false
+			dataType : "json",
+			contentType : "application/json; charset=UTF-8",
+			success : function(data, textStatus, jqXHR) {
+				console.log(data);
+			},
+			error : function(jqXHR, textStatus, error) {
+				// Some error handling maybe?
+			},
+			complete : function(jqXHR, textStatus) {
+				// Always after success or error
+			}
+		});
+		
+	};
 
 	
 		
@@ -101,6 +149,7 @@ define([
 				return false
 			}
 		}); 
+
 
 
 

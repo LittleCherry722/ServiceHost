@@ -11,9 +11,12 @@
 		<tr><th><span data-bind="text: $parent.actionOfCurrentSubject().stateType"></th>
 		
 			<td><a class="btn" data-bind="text: $data, visible: ! $parent.isReceiveType(),click: $parent.action"></td>
+			
 			<td data-bind="visible: $parent.isReceiveType()"><span data-bind="text: $data"> waitng!</span></td>	
+			
 		</tr>
 	</tbody>
 </table>
-
+<a class="btn" data-bind=" visible:isSendType(),click: send">Send</a>
 <input type="text" data-bind="visible: isSendType, value: messageText" />
+
