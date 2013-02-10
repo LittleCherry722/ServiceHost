@@ -60,7 +60,7 @@ class FrontendInterfaceActor extends Actor with HttpService {
        */
       pathPrefix(Entity.TESTEXECUTION) { requestContext =>
         context.actorOf(Props[TestExecutionInterfaceActor]) ! requestContext
-      } ~
+      } 
       /**
        * redirect all calls beginning with "user" to UserInterfaceActor
        *
@@ -94,15 +94,26 @@ class FrontendInterfaceActor extends Actor with HttpService {
         context.actorOf(Props[ConfigurationInterfaceActor]) ! requestContext
       } ~
       /**
-       * DOES NOT WORK!
+       * redirect /sbpm/ to the index.html in ../ProcessMangement/
        */
-      pathPrefix("ProcessManagement") { requestContext =>
-        getFromDirectory("../ProcessManagement/");
+      path("sbpm/") {
+        get {
+        	getFromFile("../ProcessManagement/index.html")
+        }
+      } ~
+      /**
+       * Serve static files under ../ProcessManagement/
+       */
+      pathPrefix("sbpm") {
+        get {
+        	getFromDirectory("../ProcessManagement/")
+        }
       } ~
       /**
        * Catch all
        */
       path(PathElement) { requestedEntity =>
+        logger.debug("catchall")
       	complete(StatusCodes.NotFound, "Please choose an valid endpoint. (Requested="+requestedEntity+")")
       }
   })
