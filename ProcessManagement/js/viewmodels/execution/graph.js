@@ -25,12 +25,13 @@ define([
 	}
 
 	var initialize = function( instance ) {
+		console.log("init g");
 		var viewModel;
 
 		viewModel = new ViewModel();
 
 		App.loadTemplate( "execution/graph", viewModel, "executionContent", function() {
-			// App.loadSubView( "execution/actions", processInstance() );
+			App.loadSubView( "execution/actions", instance );
 			$( "#slctSbj" ).chosen();
 			processInstance( instance )
 		});

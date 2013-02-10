@@ -1,12 +1,19 @@
 <h3>Actions</h3>
 
-<div class="action">
-  <h4>Action 1</h4>
-  <p>
-    Some description for this action
-  </p>
-  <div class="clearfix">
-    <button class="btn btn-inverse pull-left">Choice 1</button>
-    <button class="btn pull-right">Choice 2</button>
-  </div>
-</div>
+<select id="slctSbj" class="chzn-select" data-bind="options: availableSubjects, value: currentSubject, optionsCaption: 'Choose subject'"></select>
+
+<span data-bind="text: actionData().length"></span>
+
+<table>
+	<tbody data-bind="foreach: actionData">
+		
+		
+		<tr><th><span data-bind="text: $parent.actionOfCurrentSubject().stateType"></th>
+		
+			<td><a class="btn" data-bind="text: $data, visible: ! $parent.isReceiveType(),click: $parent.action"></td>
+			<td data-bind="visible: $parent.isReceiveType()"><span data-bind="text: $data"> waitng!</span></td>	
+		</tr>
+	</tbody>
+</table>
+
+<input type="text" data-bind="visible: isSendType, value: messageText" />

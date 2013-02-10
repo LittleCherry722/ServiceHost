@@ -19,6 +19,7 @@ define([
 	});
 
 	var initialize = function( instance ) {
+		console.log("init h");
 		var viewModel;
 
 		processInstance( instance );
@@ -27,7 +28,7 @@ define([
 
 		App.loadTemplate( "execution/history", viewModel, "executionContent", function() {
 			$( "#slctSbj" ).chosen();
-			// App.loadSubView( "execution/actions", processInstance() );
+			App.loadSubView( "execution/actions", instance );
 		});
 
 	}

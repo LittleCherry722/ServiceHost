@@ -7,9 +7,14 @@ define([
 	var ViewModel = function() {
 	
 		this.processInstance = processInstance;
-
+		
+		window.PI= processInstance; //TODO
+		
 		this.availableSubjects = availableSubjects;
 		this.currentSubject = currentSubject;
+		this.availableActions = availableActions;
+		
+		
 		
 		this.tabs = tabs;
 		this.currentTab = currentTab;
@@ -19,6 +24,12 @@ define([
 
 	var availableSubjects = ko.observableArray( [] );
 	var currentSubject = ko.observable();
+	var availableActions = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					return processInstance().actions();
+				}
+			});
 	
 	var tabs = ['Graph', 'History' ];
 	var currentTab = ko.observable();
@@ -27,7 +38,7 @@ define([
 	var setView = function( id, tab ) {
 		processInstance( ProcessInstance.find( id ) );
 		currentTab( tab );
-	}
+		}
 
 
 	processInstance.subscribe(function( process ) {
@@ -45,6 +56,7 @@ define([
 		}
 
 		App.loadSubView( "execution/" + newTab.toLowerCase(), [ processInstance() ] );
+		
 		if ( newTab === tabs[0] ) {
 			$("#executionContent").addClass("first-tab-selected");
 		} else {
@@ -54,12 +66,15 @@ define([
 
 
 	var initialize = function( processInstanceId, subSite ) {
+		console.log("init");
 		var viewmodel;
 
 		viewModel = new ViewModel();
 
-		processInstance( ProcessInstance.find( processInstanceId ) );
+		window.PIview = viewModel; //TODO
 
+		processInstance( ProcessInstance.find( processInstanceId ) );
+		
 		if ( !subSite ) {
 			subSite = tabs[0]
 		}

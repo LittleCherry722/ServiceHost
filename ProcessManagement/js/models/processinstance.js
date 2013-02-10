@@ -24,7 +24,7 @@ define([
 		actions: {
 			type: "json",
 			defaults: [],
-			lazy: true
+			lazy: false
 		}
 	});
 
