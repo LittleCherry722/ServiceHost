@@ -10,6 +10,7 @@ import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import akka.event.Logging
 import spray.json._
+import java.io.File
 
 object Entity {
   val PROCESS = "process"
@@ -19,6 +20,7 @@ object Entity {
   val ROLE = "role"
   val GROUP = "group"
   val CONFIGURATION = "configuration"
+
   // TODO define more entities if you need them  
 }
 class FrontendInterfaceActor extends Actor with HttpService {
@@ -90,6 +92,18 @@ class FrontendInterfaceActor extends Actor with HttpService {
        */
       pathPrefix(Entity.CONFIGURATION) { requestContext =>
         context.actorOf(Props[ConfigurationInterfaceActor]) ! requestContext
+      } ~
+      /**
+       * DOES NOT WORK!
+       */
+      pathPrefix("ProcessManagement") { requestContext =>
+        getFromDirectory("../ProcessManagement/");
+      } ~
+      /**
+       * Catch all
+       */
+      path(PathElement) { requestedEntity =>
+      	complete(StatusCodes.NotFound, "Please choose an valid endpoint. (Requested="+requestedEntity+")")
       }
   })
 }
