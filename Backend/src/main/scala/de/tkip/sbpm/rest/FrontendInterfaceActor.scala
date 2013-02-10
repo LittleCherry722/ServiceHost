@@ -113,7 +113,6 @@ class FrontendInterfaceActor extends Actor with HttpService {
        * Catch all
        */
       path(PathElement) { requestedEntity =>
-        logger.debug("catchall")
       	complete(StatusCodes.NotFound, "Please choose an valid endpoint. (Requested="+requestedEntity+")")
       }
   })
