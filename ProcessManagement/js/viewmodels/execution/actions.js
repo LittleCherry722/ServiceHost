@@ -28,6 +28,7 @@ define([
 		
 		this.send = send;
 		
+
 	
 	}
 
@@ -49,7 +50,7 @@ define([
 	
 	var isReceiveType;
 	
- 
+
 
 	
 	var action = function(action) {
@@ -58,7 +59,7 @@ define([
 		id = data.processInstanceID;
 		data.actionData = action;
 		data = JSON.stringify(data);
-		console.log(data);
+		//console.log(data);
 
 		$.ajax({
 			url : '/ProcessManagement/scala/processinstance/' + id,
@@ -68,13 +69,15 @@ define([
 			dataType : "json",
 			contentType : "application/json; charset=UTF-8",
 			success : function(data, textStatus, jqXHR) {
+				console.log("success")
 				console.log(data);
 			},
 			error : function(jqXHR, textStatus, error) {
-				// Some error handling maybe?
+				console.log("Error")
+				console.log(error)
 			},
 			complete : function(jqXHR, textStatus) {
-				// Always after success or error
+				console.log("complete")
 			}
 		});
 
@@ -93,13 +96,15 @@ define([
 			dataType : "json",
 			contentType : "application/json; charset=UTF-8",
 			success : function(data, textStatus, jqXHR) {
+				console.log("success")
 				console.log(data);
 			},
 			error : function(jqXHR, textStatus, error) {
-				// Some error handling maybe?
+				console.log("Error")
+				console.log(error)
 			},
 			complete : function(jqXHR, textStatus) {
-				// Always after success or error
+				console.log("complete")
 			}
 		});
 		
@@ -112,6 +117,8 @@ define([
 		var viewModel;
 		
 		processInstance( instance );
+
+		console.log(processInstance().actions());
 
 		availableActions = instance.actions;
 
@@ -154,7 +161,7 @@ define([
 
 
 		actionData = ko.computed({
-			deferEvaluation : true,
+			//deferEvaluation : false,
 			read : function() {
 				if (actionOfCurrentSubject() != undefined && actionOfCurrentSubject().actionData != undefined) {
 					return actionOfCurrentSubject().actionData;

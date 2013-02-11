@@ -2,7 +2,7 @@
 
 <select id="slctSbj" class="chzn-select" data-bind="options: availableSubjects, value: currentSubject, optionsCaption: 'Choose subject'"></select>
 
-<span data-bind="text: actionData().length"></span>
+<span data-bind="text: availableSubjects().length"></span>
 
 <table>
 	<tbody data-bind="foreach: actionData">
