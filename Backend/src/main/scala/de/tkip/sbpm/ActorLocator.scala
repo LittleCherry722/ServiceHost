@@ -1,6 +1,6 @@
 package de.tkip.sbpm
 
-import akka.actor.ActorContext
+import akka.actor.ActorRefFactory
 
 object ActorLocator {
   val persistenceActorName = "persistence"
@@ -8,11 +8,17 @@ object ActorLocator {
   val processManagerActorName = "process-manager"
   val subjectProviderManagerActorName = "subject-provider-manager"
   val frontendInterfaceActorName = "frontend-interface"
+  val sessionActorName = "session"
+  val basicAuthActorName = "basic-auth"
+  val oAuth2ActorName = "o-auth"
+  val userPassAuthActorName = "user-pass-auth"
 
-  def actor(name: String)(implicit ctx: ActorContext) = ctx.actorFor("/user/" + name)
+  def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
 
-  def persistenceActor(implicit ctx: ActorContext) = actor(persistenceActorName)
-  def contextResolverActor(implicit ctx: ActorContext) = actor(contextResolverActorName)
-  def processManagerActor(implicit ctx: ActorContext) = actor(processManagerActorName)
-  def subjectProviderManagerActor(implicit ctx: ActorContext) = actor(subjectProviderManagerActorName)
+  def persistenceActor(implicit ctx: ActorRefFactory) = actor(persistenceActorName)
+  def contextResolverActor(implicit ctx: ActorRefFactory) = actor(contextResolverActorName)
+  def processManagerActor(implicit ctx: ActorRefFactory) = actor(processManagerActorName)
+  def subjectProviderManagerActor(implicit ctx: ActorRefFactory) = actor(subjectProviderManagerActorName)
+  def sessionActor(implicit ctx: ActorRefFactory) = actor(sessionActorName)
+  def userPassAuthActor(implicit ctx: ActorRefFactory) = actor(userPassAuthActorName)
 }
