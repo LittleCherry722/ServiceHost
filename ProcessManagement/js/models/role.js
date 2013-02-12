@@ -37,7 +37,28 @@ define([
 			}
 		},
 
-		beforeSave: function() {
+		validators: {
+			hasUniqueName: function() {
+				var self = this;
+				var results = Role.findByName( this.name() ).filter(function( result ) {
+					return result != self;
+				});
+				if ( results.length > 0 ) {
+					return "Roles must have an unique name.";
+				}
+			},
+			nameNotNull: function() {
+				if ( this.name().length < 3 ) {
+					return "Name must be at least 3 characters long."
+				}
+			}
+		},
+
+		afterSave: function() {
+			if ( !this.validate() ) {
+				return;
+			}
+
 			var groupsNow, oldGroupIds, newGroupIds, toBePushedIds, toBeDeletedIds,
 
 			groupsOld = this.groups();
@@ -62,11 +83,6 @@ define([
 		beforeCreate: function() {
 			this.id(-1);
 		}
-
-		// Custom validator object. Validators are (like the initialize function)
-		// special in a sense that this object will be iterated over when the
-		// "validate" method is executed.
-		// validators: { }
 	});
 
 	return Role;

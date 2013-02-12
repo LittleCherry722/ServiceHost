@@ -13,8 +13,16 @@ define([
 		this.groups = Group.all;
 
 		this.save = function( user ) {
-			user.save(function() {
-				notify.info( "Succcess", "User " + user.name() + " has successfully been saved." )
+			user.save(function( error ) {
+				if ( error ) {
+					if ( user.errors().length > 0 ) {
+						notify.error( "Error", error + " Errors: " + user.errors().join(" ") );
+					} else {
+						notify.error( "Error", error )
+					}
+				} else {
+					notify.info( "Succcess", "User " + user.name() + " has successfully been saved." )
+				}
 			});
 		}
 

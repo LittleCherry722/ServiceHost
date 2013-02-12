@@ -49,7 +49,28 @@ define([
 			}
 		},
 
-		beforeSave: function() {
+		validators: {
+			hasUniqueName: function() {
+				var self = this;
+				var results = User.findByName( this.name() ).filter(function( result ) {
+					return result != self;
+				});
+				if ( results.length > 0 ) {
+					return "All users must have an unique name.";
+				}
+			},
+			nameNotNull: function() {
+				if ( this.name().length < 3 ) {
+					return "Name must be at least 3 characters long."
+				}
+			}
+		},
+
+		afterSave: function() {
+			if ( !this.validate() ) {
+				return;
+			}
+
 			var groupsNow, oldGroupIds, newGroupIds, toBePushedIds, toBeDeletedIds,
 
 			groupsOld = this.groups();
