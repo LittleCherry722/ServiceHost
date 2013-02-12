@@ -18,6 +18,12 @@ protected case class SubjectCreated(userID: UserID,
                                     ref: SubjectRef)
     extends SubjectProviderMessage
 
+case class AskSubjectsForAvailableActions(userID: UserID,
+                                          processInstanceID: ProcessInstanceID = AllProcessInstances,
+                                          subjectID: SubjectID = AllSubjects,
+                                          generateAnswer: Array[AvailableAction] => Any)
+    extends SubjectProviderMessage
+
 class SubjectProviderActor(userID: UserID) extends Actor {
 
   val logger = Logging(context.system, this)
@@ -42,29 +48,23 @@ class SubjectProviderActor(userID: UserID) extends Actor {
       // - different process instance id
       // - different subject id
       if (get.isInstanceOf[Debug]) {
-        sender ! AvailableActionsAnswer(get, DebugActionData.generateActions(get.userID, get.processInstanceID))
+        sender !
+          AvailableActionsAnswer(get, DebugActionData.generateActions(get.userID, get.processInstanceID))
       } else {
-        val collectSubjects: Set[Subject] =
-          subjects.filter(
-            (s: Subject) =>
-              !s.ref.isTerminated &&
-                (if (get.processInstanceID == AllProcessInstances)
-                  true
-                else
-                  (if (get.subjectID == AllSubjects)
-                    get.processInstanceID == s.processInstanceID
-                  else
-                    get.processInstanceID == s.processInstanceID &&
-                      get.subjectID == s.subjectID)))
-
-        // collect actions and generate answer for the filtered subject list
-        context.actorOf(Props(new SubjectActionsCollector)) !
-          CollectAvailableActions(
-            collectSubjects.map(_.ref),
-            get.processInstanceID,
-            (actions: Array[AvailableAction]) =>
-              AvailableActionsAnswer(get, actions))
+        askSubjectsForAvailableActions(
+          get.processInstanceID,
+          get.subjectID,
+          (actions: Array[AvailableAction]) =>
+            AvailableActionsAnswer(get, actions))
       }
+    }
+
+    // TODO momentan ist es nicht moeglich den sender zu verwalten
+    case AskSubjectsForAvailableActions(_, processInstanceID, subjectID, generateAnswer) => {
+      askSubjectsForAvailableActions(
+        processInstanceID,
+        subjectID,
+        generateAnswer)
     }
 
     // general matching
@@ -105,5 +105,30 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     case s => {
       logger.error("SubjectProvider not yet implemented: " + s)
     }
+  }
+
+  private def askSubjectsForAvailableActions(processInstanceID: ProcessInstanceID,
+                                             subjectID: SubjectID,
+                                             generateAnswer: Array[AvailableAction] => Any) {
+
+    val collectSubjects: Set[Subject] =
+      subjects.filter(
+        (s: Subject) =>
+          !s.ref.isTerminated &&
+            (if (processInstanceID == AllProcessInstances)
+              true
+            else
+              (if (subjectID == AllSubjects)
+                processInstanceID == s.processInstanceID
+              else
+                processInstanceID == s.processInstanceID &&
+                  subjectID == s.subjectID)))
+
+    // collect actions and generate answer for the filtered subject list
+    context.actorOf(Props(new SubjectActionsCollector)) !
+      CollectAvailableActions(
+        collectSubjects.map(_.ref),
+        processInstanceID,
+        generateAnswer)
   }
 }

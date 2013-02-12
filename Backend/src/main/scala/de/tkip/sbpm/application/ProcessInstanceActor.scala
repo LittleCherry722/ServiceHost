@@ -121,6 +121,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // inform the process manager that this process instance has been created
   context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
 
+  //  context.parent !
+  //    AskSubjectsForAvailableActions(request.userID,
+  //      id,
+  //      AllSubjects,
+  //      (actions: Array[AvailableAction]) =>
+  //        ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
+
   def receive = {
 
     case as: AddSubject => {
@@ -217,6 +224,24 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case answer: AnswerMessage => {
       context.parent.forward(answer)
     }
+  }
+
+  private def createExecuteActionAnswer(req: ExecuteAction) {
+    context.parent !
+      AskSubjectsForAvailableActions(req.userID,
+        id,
+        AllSubjects,
+        (actions: Array[AvailableAction]) =>
+          ExecuteActionAnswer(req, processID, graphJSON, executionHistory, actions))
+  }
+
+  /**
+   * This method checks if all subjects are parsed and ready to ask for actions
+   * etc.
+   */
+  private def allSubjectsReady: Boolean = {
+    // TODO
+    true
   }
 
   private def getSubject(name: String): Subject = {
