@@ -6,6 +6,7 @@ import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.application.miscellaneous.AnswerMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
+import de.tkip.sbpm.application.History
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -50,7 +51,12 @@ case class ExecuteAction(userID: UserID,
                          actionData: String)
 
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
-case class ExecuteActionAnswer(execute: ExecuteAction) extends AnswerMessage {
+// TODO keine defaultparameter
+case class ExecuteActionAnswer(execute: ExecuteAction,
+                               processID: ProcessID = -1,
+                               graphJson: String = null,
+                               history: History = null,
+                               availableActions: Array[AvailableAction] = null) extends AnswerMessage {
   def request = execute.asInstanceOf[AnswerAbleMessage]
 }
 
