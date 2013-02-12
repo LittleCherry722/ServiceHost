@@ -38,6 +38,7 @@ case class AvailableAction(userID: UserID,
                            processInstanceID: ProcessInstanceID,
                            subjectID: SubjectID,
                            stateID: StateID,
+                           stateName: String,
                            stateType: String,
                            actionData: Array[String])
     extends SubjectProviderMessage

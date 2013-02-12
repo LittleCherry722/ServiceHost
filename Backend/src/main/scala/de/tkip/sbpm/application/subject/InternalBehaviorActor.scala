@@ -28,7 +28,6 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
   private var startState: StateID = 0
   private var currentState: BehaviorStateRef = null
 
-  
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -38,7 +37,7 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
   override def postStop() {
     logger.debug(getClass.getName + " stopped.")
   }
-  
+
   def receive = {
     case state: State => {
       addState(state)
@@ -123,29 +122,37 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
   }
 
   private def parseState(state: State) = {
+    val data = StateData(
+      userID,
+      subjectID,
+      state.id,
+      state.name,
+      state.transitions,
+      self,
+      processInstanceActor,
+      inputPoolActor)
+
     state.stateType match {
       case StartStateType => if (state.transitions.size == 1) {
-        context.actorOf(Props(
-          StartStateActor(state.id, state.transitions(0), self, processInstanceActor, subjectID, userID, inputPoolActor)))
+        context.actorOf(Props(StartStateActor(data)))
       } else {
         throw new IllegalArgumentException("Startstates may only have 1 Transition")
       }
-      // TODO state action?
-      case ActStateType =>
-        context.actorOf(Props(
-          ActStateActor(state.id, state.name, state.transitions, self, processInstanceActor, subjectID, userID, inputPoolActor)))
+      case ActStateType => {
+        context.actorOf(Props(ActStateActor(data)))
+      }
 
-      case SendStateType =>
-        context.actorOf(Props(
-          SendStateActor(state.id, state.transitions, self, processInstanceActor, subjectID, userID, inputPoolActor)))
+      case SendStateType => {
+        context.actorOf(Props(SendStateActor(data)))
+      }
 
-      case ReceiveStateType =>
-        context.actorOf(Props(
-          ReceiveStateActor(state.id, state.transitions, self, processInstanceActor, subjectID, userID, inputPoolActor)))
+      case ReceiveStateType => {
+        context.actorOf(Props(ReceiveStateActor(data)))
+      }
 
-      case EndStateType =>
-        context.actorOf(Props(
-          EndStateActor(state.id, self, processInstanceActor, subjectID, userID, inputPoolActor)))
+      case EndStateType => {
+        context.actorOf(Props(EndStateActor(data)))
+      }
     }
   }
 }
