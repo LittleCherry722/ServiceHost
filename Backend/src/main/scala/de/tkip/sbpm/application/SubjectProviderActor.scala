@@ -9,6 +9,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.ActorLocator
+import akka.event.Logging
 
 protected case class SubjectCreated(userID: UserID,
                                     processID: ProcessID,
@@ -18,6 +19,8 @@ protected case class SubjectCreated(userID: UserID,
     extends SubjectProviderMessage
 
 class SubjectProviderActor(userID: UserID) extends Actor {
+
+  val logger = Logging(context.system, this)
 
   private type Subject = SubjectCreated
 
@@ -53,9 +56,14 @@ class SubjectProviderActor(userID: UserID) extends Actor {
                   else
                     get.processInstanceID == s.processInstanceID &&
                       get.subjectID == s.subjectID)))
-        // collect for the filtered list
-        context.actorOf(Props(new AvailableActionsCollectorActor)) !
-          CollectAvailableActions(get, collectSubjects)
+
+        // collect actions and generate answer for the filtered subject list
+        context.actorOf(Props(new SubjectActionsCollector)) !
+          CollectAvailableActions(
+            collectSubjects.map(_.ref),
+            get.processInstanceID,
+            (actions: Array[AvailableAction]) =>
+              AvailableActionsAnswer(get, actions))
       }
     }
 
@@ -72,7 +80,13 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     // send subject messages direct to the subject
     case message: SubjectMessage => {
       // TODO muss performanter gehen weils nur ein subject ist
-      for (subject <- subjects.filter(s => s.processInstanceID == message.processInstanceID && s.subjectID == message.subjectID)) {
+      for (
+        subject <- subjects.filter({
+          s: Subject =>
+            s.processInstanceID == message.processInstanceID &&
+              s.subjectID == message.subjectID
+        })
+      ) {
         subject.ref ! message
       }
     }
@@ -89,46 +103,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     }
 
     case s => {
-      println("SubjectProvider not yet implemented: " + s)
-    }
-  }
-
-  private case class CollectAvailableActions(request: GetAvailableActions, subjects: Set[Subject])
-  /**
-   * This class is responsible to collect the available actions of a set of subjects
-   */
-  private class AvailableActionsCollectorActor extends Actor {
-    def receive = {
-      case CollectAvailableActions(request, sub) => {
-        implicit val timeout = akka.util.Timeout(5000)
-
-        val futures = ArrayBuffer[scala.concurrent.Future[Any]]()
-        for (subject <- sub) {
-          val future = subject.ref ? GetAvailableAction(request.processInstanceID)
-          futures += future
-        }
-        // TODO non-blocking?
-        //        val c = for (c <- futures.map(_.mapTo[Int])) yield c
-        //        val x = Await.result(c, timeout.duration)
-        var h = null
-        val actions = ArrayBuffer[AvailableAction]()
-        for (f <- futures) {
-          try {
-
-            actions += Await.result(f, timeout.duration).asInstanceOf[AvailableAction]
-          } catch {
-            case h: java.util.concurrent.TimeoutException => {
-              println(f + " timed out")
-            }
-          }
-        }
-
-        // results ready -> return
-        sender ! AvailableActionsAnswer(request, actions.toArray)
-
-        // actions collected -> stop this actor
-        context.stop(self)
-      }
+      logger.error("SubjectProvider not yet implemented: " + s)
     }
   }
 }
