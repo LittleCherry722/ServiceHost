@@ -11,6 +11,11 @@ import akka.actor.ActorSystem
 import akka.event.Logging
 import spray.json._
 import java.io.File
+import scala.reflect.ClassTag
+import akka.actor.PoisonPill
+import de.tkip.sbpm.rest.auth.CookieAuthenticator
+import de.tkip.sbpm.rest.auth.SessionDirectives._
+import de.tkip.sbpm.model.User
 
 object Entity {
   val PROCESS = "process"
@@ -36,84 +41,154 @@ class FrontendInterfaceActor extends Actor with HttpService {
 
   def actorRefFactory = context
 
+  // akka config prefix
+  protected val configPath = "sbpm."
+
+  // read string from akka config
+  protected def configString(key: String) =
+    context.system.settings.config.getString(configPath + key)
+
+  // read bool from akka config
+  protected def configFlag(key: String) =
+    context.system.settings.config.getBoolean(configPath + key)
+
+  private val frontendBaseUrl = configString("frontend.baseUrl")
+  private val frontendIndexFile = configString("frontend.indexFile")
+  private val frontendBaseDir = configString("frontend.baseDirectory")
+  private val authenticationEnabled = configFlag("rest.authentication")
+
+  implicit val rejectionHandler = RejectionHandler.fromPF {
+    // on authorization required rejection -> provide user a set of
+    // supported auth schemes in the WWW-Authenticate header
+    // and delete invalid session cookies
+    case auth.AuthenticationRejection(schemes, realm, sessionId) :: _ => {
+      respondWithHeader(HttpHeaders.`WWW-Authenticate`(schemes.map(HttpChallenge(_, realm)))) {
+        if (sessionId.isDefined) {
+          setSessionCookie(sessionId.get)(context) {
+            complete(StatusCodes.Unauthorized)
+          }
+        } else {
+          deleteSession(actorRefFactory) {
+            complete(StatusCodes.Unauthorized)
+          }
+        }
+      }
+    }
+  }
+
   def receive = runRoute({
     /**
      * redirect all calls beginning with "execution" to ExecutionInterfaceActor
      *
      * e.g. GET http://localhost:8080/execution/8
      */
-    pathPrefix(Entity.EXECUTION) { requestContext =>
-      context.actorOf(Props[ExecutionInterfaceActor]) ! requestContext
+    pathPrefix(Entity.EXECUTION) {
+      authenticateAndHandleWith[ExecutionInterfaceActor]
     } ~
       /**
        * redirect all calls beginning with "process" to ProcessInterfaceActor
        *
        * e.g. GET http://localhost:8080/process/8
        */
-      pathPrefix(Entity.PROCESS) { requestContext =>
-        context.actorOf(Props[ProcessInterfaceActor]) ! requestContext
+      pathPrefix(Entity.PROCESS) {
+        authenticateAndHandleWith[ProcessInterfaceActor]
       } ~
       /**
        * redirect all calls beginning with "testexecution" to TestExecutionInterfaceActor
        *
        * e.g. GET http://localhost:8080/testexecution/8
        */
-      pathPrefix(Entity.TESTEXECUTION) { requestContext =>
-        context.actorOf(Props[TestExecutionInterfaceActor]) ! requestContext
+      pathPrefix(Entity.TESTEXECUTION) {
+        authenticateAndHandleWith[TestExecutionInterfaceActor]
       } ~
-      /**
-       * redirect all calls beginning with "user" to UserInterfaceActor
-       *
-       * e.g. GET http://localhost:8080/user/8
-       */
-      pathPrefix(Entity.USER) { requestContext =>
-        context.actorOf(Props[UserInterfaceActor]) ! requestContext
+      pathPrefix(Entity.USER) {
+        /**
+         * redirect posts to /user/login to UserInterfaceActor
+         * without authentication
+         */
+        (pathTest("login") & post) {
+          handleWith[UserInterfaceActor]
+        } ~
+          /**
+           * redirect all other calls beginning with "user" to UserInterfaceActor
+           * after authentication
+           * e.g. GET http://localhost:8080/user/8
+           */
+          authenticateAndHandleWith[UserInterfaceActor]
       } ~
       /**
        * redirect all calls beginning with "role" to RoleInterfaceActor
        *
        * e.g. GET http://localhost:8080/role/8
        */
-      pathPrefix(Entity.ROLE) { requestContext =>
-        context.actorOf(Props[RoleInterfaceActor]) ! requestContext
+      pathPrefix(Entity.ROLE) {
+        authenticateAndHandleWith[RoleInterfaceActor]
       } ~
       /**
        * redirect all calls beginning with "group" to GroupInterfaceActor
        *
        * e.g. GET http://localhost:8080/group/8
        */
-      pathPrefix(Entity.GROUP) { requestContext =>
-        context.actorOf(Props[GroupInterfaceActor]) ! requestContext
+      pathPrefix(Entity.GROUP) {
+        authenticateAndHandleWith[GroupInterfaceActor]
       } ~
       /**
        * redirect all calls beginning with "configuration" to ConfigurationInterfaceActor
        *
        * e.g. GET http://localhost:8080/configuration/sbpm.debug
        */
-      pathPrefix(Entity.CONFIGURATION) { requestContext =>
-        context.actorOf(Props[ConfigurationInterfaceActor]) ! requestContext
+      pathPrefix(Entity.CONFIGURATION) {
+        authenticateAndHandleWith[ConfigurationInterfaceActor]
       } ~
-      /**
-       * redirect /sbpm/ to the index.html in ../ProcessMangement/
-       */
-      path("sbpm/") {
-        get {
-          getFromFile("../ProcessManagement/index.html")
-        }
-      } ~
-      /**
-       * Serve static files under ../ProcessManagement/
-       */
-      pathPrefix("sbpm") {
-        get {
-          getFromDirectory("../ProcessManagement/")
-        }
-      } ~
-      /**
-       * Catch all
-       */
-      path(PathElement) { requestedEntity =>
-        complete(StatusCodes.NotFound, "Please choose an valid endpoint. (Requested=" + requestedEntity + ")")
+      get {
+        /**
+         * Serve static files under ../ProcessManagement/
+         */
+        // trailing / -> get index
+        path(frontendBaseUrl + "/") {
+          getFromFile(frontendBaseDir + frontendIndexFile)
+        } ~
+          // no trailing slash -> redirect to index
+          path(frontendBaseUrl) {
+            redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
+          } ~
+          // server other static content from dir
+          pathPrefix(frontendBaseUrl) {
+            getFromDirectory(frontendBaseDir)
+          }
       }
   })
+
+  /**
+   * Redirect the current request to the specified *InterfaceActor
+   * without authentication.
+   */
+  private def handleWith[A <: Actor: ClassTag]: RequestContext => Unit = {
+    requestContext =>
+      var actor = context.actorOf(Props[A])
+      actor ! requestContext
+      // kill actor after handling the request
+      actor ! PoisonPill
+  }
+
+  /**
+   * Redirect the current request to the specified *InterfaceActor
+   * and checks if user is authenticated or tries to authenticate
+   * him respectively.
+   * Cancels the request, if user cannot be authenticated.
+   */
+  private def authenticateAndHandleWith[A <: Actor: ClassTag]: RequestContext => Unit = {
+    if (authenticationEnabled) {
+      // authenticate using session cookie or Authorization header 
+      authenticate(new CookieAuthenticator) { session =>
+        // auth successful -> set session cookie
+        setSessionCookie(session.id)(context) {
+          handleWith[A]
+        }
+      }
+    } else {
+      handleWith[A]
+    }
+  }
+
 }

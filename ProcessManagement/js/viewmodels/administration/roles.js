@@ -13,8 +13,16 @@ define([
 		this.groups = Group.all;
 
 		this.save = function( role ) {
-			role.save(function() {
-				notify.info( "Succcess", "Role " + role.name() + " has successfully been saved." )
+			role.save(function( error ) {
+				if ( error ) {
+					if ( role.errors().length > 0 ) {
+						notify.error( "Error", error + " Errors: " + role.errors().join(" ") );
+					} else {
+						notify.error( "Error", error )
+					}
+				} else {
+					notify.info( "Succcess", "Role " + role.name() + " has successfully been saved." )
+				}
 			});
 		}
 

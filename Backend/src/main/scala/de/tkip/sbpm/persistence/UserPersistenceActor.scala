@@ -11,11 +11,11 @@ import akka.event.Logging
 * are redirected to UserPersistenceActor
 */
 sealed abstract class UserAction extends PersistenceAction
-/* get user entry (Option[model.User]) by id 
-* or all entries (Seq[model.User]) by sending None as id
+/* get user entry (Option[model.User]) by id, name
+* or all entries (Seq[model.User]) by sending None as id and name
 * None or empty Seq is returned if no entities where found
 */
-case class GetUser(id: Option[Int] = None) extends UserAction
+case class GetUser(id: Option[Int] = None, name: Option[String] = None) extends UserAction
 // save user to db, if id is None a new process is created and its id is returned
 case class SaveUser(user: User) extends UserAction
 // delete user with id from db
@@ -44,9 +44,11 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all users ordered by id
-      case GetUser(None) => answer { Users.sortBy(_.id).list }
+      case GetUser(None, None) => answer { Users.sortBy(_.id).list }
       // get user with given id
-      case GetUser(id) => answer { Users.where(_.id === id).firstOption }
+      case GetUser(id, None) => answer { Users.where(_.id === id).firstOption }
+      // get user with given name
+      case GetUser(None, name) => answer { Users.where(_.name === name).firstOption }
       // create new user
       case SaveUser(u @ User(None, _, _, _)) =>
         answer { Some(Users.autoInc.insert(u)) }

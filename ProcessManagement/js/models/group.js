@@ -23,6 +23,23 @@ define([
 	Group.include({
 		beforeCreate: function() {
 			this.id(-1);
+		},
+
+		validators: {
+			hasUniqueName: function() {
+				var self = this;
+				var results = Group.findByName( this.name() ).filter(function( result ) {
+					return result != self;
+				});
+				if ( results.length > 0 ) {
+					return "all groups must have an unique name.";
+				}
+			},
+			nameNotNull: function() {
+				if ( this.name().length < 3 ) {
+					return "Name must be at least 3 characters long."
+				}
+			}
 		}
 	});
 

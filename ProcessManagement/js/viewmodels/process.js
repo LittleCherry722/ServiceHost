@@ -293,18 +293,13 @@ define([
 	// duplicated Process.
 	// After saving, load the newly created Process and Graph.
 	var saveCurrentGraphAs = function( name ) {
-		var graph = currentGraph().duplicate(),
-			process = currentProcess().duplicate();
+		var process = currentProcess().duplicate();
 
 		if ( name ) {
 			process.name( name );
 		}
 
-		graph.save({ async: false });
-		process.graphId( graph.id() );
-		process.save({ async: false })
-		graph.processId( process.id() );
-		graph.save(function() {
+		process.save(function() {
 			Router.goTo( process );
 		});
 
