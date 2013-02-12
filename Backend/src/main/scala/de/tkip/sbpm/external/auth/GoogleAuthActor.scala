@@ -12,7 +12,7 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.services.drive.DriveScopes
 import java.util.ArrayList
 import java.util.Collections
-import java.io.InputStream
+import scala.io.Source
 import java.io.FileInputStream
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl
 import com.google.api.client.auth.oauth2.CredentialStoreRefreshListener
@@ -26,7 +26,7 @@ trait GoogleAuthAction extends GoogleMessage
 case class deleteCredential(id: String) extends GoogleAuthAction
 case class getCredential(id: String) extends GoogleAuthAction
 case class googleResponse(id: String, response: String) extends GoogleAuthAction
-
+case class getAuthUrl(id: String) extends GoogleAuthAction
 
 
 object GoogleAuthActor extends Actor with ActorLogging {
@@ -36,8 +36,9 @@ object GoogleAuthActor extends Actor with ActorLogging {
   val HTTP_TRANSPORT = new NetHttpTransport()
   val JSON_FACTORY = new JacksonFactory()
   
+  
   // load application settings from config file stored in resources folder
-  val clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileInputStream("/client_secrets.json"))
+  val clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileInputStream("client_secrets.json"))
   
   // currently no persistence
   val credentialStore = new MemoryCredentialStore()
@@ -56,6 +57,7 @@ object GoogleAuthActor extends Actor with ActorLogging {
     
     case googleResponse(id, response) => handelResponse(response, id)
     
+    case getAuthUrl(id) => sender ! formAuthUrl
 
     case _ => sender ! "not implemented yet"
   }
@@ -73,8 +75,8 @@ object GoogleAuthActor extends Actor with ActorLogging {
   }
   
    
-  def formAuthUrl(): GoogleAuthorizationCodeRequestUrl = {
-    flow.newAuthorizationUrl()
+  def formAuthUrl(): String = {
+    flow.newAuthorizationUrl().setRedirectUri("http://localhost:8080/oauth2callback").build()
   }
   
   /** Receives google post and exchanges it to an access token */
