@@ -21,8 +21,6 @@ define([
 
 	Role.hasMany( "groups", { through: "groupsRoles" } );
 
-	// Group.extend({);
-
 	Role.include({
 		// Initialize is a special method defined as an instance method.  If any
 		// method named "initializer" is given, it will be called upon object
@@ -30,9 +28,6 @@ define([
 		// That is, "this" refers to the model itself.
 		// This makes it possible to define defaults for attributes etc.
 		initialize: function( data ) {
-			this.name( data.name );
-			this.isActive( data.isActive );
-
 			this.groupIds = ko.observable();
 			this.groupIdsReset = function() {
 				var groupIds = _( this.groups() ).map(function( group ) {
