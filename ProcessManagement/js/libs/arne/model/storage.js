@@ -69,6 +69,29 @@ define([
 			});
 		});
 
+		Model.prototype.refresh = function( callback ) {
+			this.attributesLoaded = false;
+			this.loadAttributes( callback );
+		};
+
+		Model.prototype.applyData = abstractMethod(function( input, callback ) {
+			var data = input,
+				instance = this;
+
+			if ( typeof input === "string" ) {
+				data = JSON.parse( input );
+			}
+
+			// Override all local attributes with attributes supplied by the Server
+			_( Model.attrs() ).each(function( attrOptions, attrName ) {
+				if ( _( data ).has( attrName ) ) {
+					instance[ attrName ]( attrOptions.fromJSON( data[ attrName ] ));
+				}
+			});
+
+			callback.call( this );
+		});
+
 		// DStringestroy method
 		Model.prototype.destroy = abstractMethod( function( options, callback ) {
 			if ( this.beforeDestroy.call( this ) === false ) {
@@ -109,11 +132,7 @@ define([
 				success: function( data, textStatus, jqXHR ) {
 
 					// Override all local attributes with attributes supplied by the Server
-					_( Model.attrs() ).each(function( attrOptions, attrName ) {
-						if ( _( data ).has( attrName ) ) {
-							model[ attrName ]( attrOptions.fromJSON( data[ attrName ] ));
-						}
-					});
+					model.applyData( data );
 				},
 				error: function( jqXHR, textStatus, error ) {
 					// Some error handling maybe?
@@ -189,11 +208,7 @@ define([
 				success: function( data, textStatus, jqXHR ) {
 
 					// Override all local attributes with attributes supplied by the Server
-					_( Model.attrs() ).each(function( attrOptions, attrName ) {
-						if ( _( data ).has( attrName ) ) {
-							model[ attrName ]( attrOptions.fromJSON( data[ attrName ] ));
-						}
-					});
+					model.applyData( data );
 
 					model.isNewRecord = false;
 					if ( ! _( Model.all() ).contains( model ) ) {
@@ -231,11 +246,7 @@ define([
 				success: function( data, textStatus, jqXHR ) {
 
 					// Override all local attributes with attributes supplied by the Server
-					_( Model.attrs() ).each(function( attrOptions, attrName ) {
-						if ( _( data ).has( attrName ) ) {
-							model[ attrName ]( attrOptions.fromJSON( data[ attrName ] ));
-						}
-					});
+					model.applyData( data );
 				},
 				error: function( jqXHR, textStatus, error ) {
 					// Some error handling maybe?

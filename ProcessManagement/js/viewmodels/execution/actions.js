@@ -107,7 +107,6 @@ define([
 				console.log("complete")
 			}
 		});
-		
 	};
 
 	
@@ -128,34 +127,34 @@ define([
 			return availableActions().map(function(action) {
 				return action.subjectID;
 			});
-		}); 
+		});
 
 		//Only one currentSubject possible.
 		actionOfCurrentSubject = ko.computed(function() {
 			return availableActions().filter(function(action) {
 				return action.subjectID === currentSubject();
 			})[0];
-		}); 
+		});
 
 
 
 
 
 		isSendType = ko.computed(function() {
-			if (actionOfCurrentSubject() != undefined && actionOfCurrentSubject().stateType != undefined && actionOfCurrentSubject().stateType === "send") {
+			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().stateType !== undefined && actionOfCurrentSubject().stateType === "send") {
 				return true
 			} else {
 				return false
 			}
-		}); 
+		});
 
 		isReceiveType = ko.computed(function() {
-			if (actionOfCurrentSubject() != undefined && actionOfCurrentSubject().stateType != undefined && actionOfCurrentSubject().stateType === "receive") {
+			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().stateType !== undefined && actionOfCurrentSubject().stateType === "receive") {
 				return true
 			} else {
 				return false
 			}
-		}); 
+		});
 
 
 
@@ -163,14 +162,14 @@ define([
 		actionData = ko.computed({
 			//deferEvaluation : false,
 			read : function() {
-				if (actionOfCurrentSubject() != undefined && actionOfCurrentSubject().actionData != undefined) {
+				if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().actionData !== undefined) {
 					return actionOfCurrentSubject().actionData;
 				} else {
 					return [];
 
 				}
 			}
-		}); 
+		});
 
 
 		
