@@ -21,6 +21,11 @@ define([
 			defaults: "{}",
 			lazy: true
 		},
+		history: {
+			type: "json",
+			defaults: "{}",
+			lazy: true
+		},
 		actions: {
 			type: "json",
 			defaults: [],
