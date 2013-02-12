@@ -30,5 +30,13 @@
 	<classpathentry kind="lib" path="lib/spray-util-1.1-M7.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.22-bin.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/google-api-client-java6-1.13.2-beta.jar"/>
+	<classpathentry kind="lib" path="lib/google-oauth-client-java6-1.13.1-beta.jar"/>
+	<classpathentry kind="lib" path="lib/google-api-client-1.13.2-beta.jar"/>
+	<classpathentry kind="lib" path="lib/google-oauth-client-1.13.1-beta.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/google-http-client-jackson2-1.13.1-beta.jar"/>
+	<classpathentry kind="lib" path="lib/google-http-client-1.13.1-beta.jar"/>
+	<classpathentry kind="lib" path="lib/google-api-services-drive-v2-rev47-1.13.2-beta.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
