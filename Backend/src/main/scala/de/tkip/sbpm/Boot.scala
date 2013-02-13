@@ -29,8 +29,7 @@ object Boot extends App with SprayCanHttpServerApp {
   newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = 8080)
 
   persistenceActor ! InitDatabase
-  
+
   // TODO create a processinstance for testreason: history, actions, graph etc...
-  subjectProviderManagerActor ! de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider(1)
   subjectProviderManagerActor ! de.tkip.sbpm.application.miscellaneous.CreateProcessInstance(1, 1)
 }

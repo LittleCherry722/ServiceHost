@@ -55,7 +55,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
           get.processInstanceID,
           get.subjectID,
           (actions: Array[AvailableAction]) =>
-            AvailableActionsAnswer(get, actions))
+            AvailableActionsAnswer(get, actions))()
       }
     }
 
@@ -64,7 +64,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
       askSubjectsForAvailableActions(
         processInstanceID,
         subjectID,
-        generateAnswer)
+        generateAnswer)(sender)
     }
 
     // general matching
@@ -109,7 +109,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
 
   private def askSubjectsForAvailableActions(processInstanceID: ProcessInstanceID,
                                              subjectID: SubjectID,
-                                             generateAnswer: Array[AvailableAction] => Any) {
+                                             generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
 
     val collectSubjects: Set[Subject] =
       subjects.filter(
@@ -125,10 +125,10 @@ class SubjectProviderActor(userID: UserID) extends Actor {
                   subjectID == s.subjectID)))
 
     // collect actions and generate answer for the filtered subject list
-    context.actorOf(Props(new SubjectActionsCollector)) !
+    context.actorOf(Props(new SubjectActionsCollector)).!(
       CollectAvailableActions(
         collectSubjects.map(_.ref),
         processInstanceID,
-        generateAnswer)
+        generateAnswer))(returnAdress)
   }
 }
