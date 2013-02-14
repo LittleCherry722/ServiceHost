@@ -18,6 +18,8 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import akka.event.Logging
 
+case class SubjectStarted
+
 protected case class StateData(userID: UserID,
                                subjectID: SubjectID,
                                stateID: StateID,
@@ -81,13 +83,14 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 }
 
 protected case class StartStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   logger.debug("Start@" + userID + ", " + subjectID)
 
   override def receive = {
     case ea: StartSubjectExecution => {
       internalBehaviorActor ! NextState(transitions(0).successorID)
+      processInstanceActor ! SubjectStarted()
     }
 
     case s => {
@@ -100,7 +103,7 @@ protected case class StartStateActor(data: StateData)
 }
 
 protected case class EndStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   // TODO direct beenden?
   internalBehaviorActor ! SubjectTerminated(userID, subjectID)
@@ -110,7 +113,7 @@ protected case class EndStateActor(data: StateData)
 }
 
 protected case class ActStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   override def receive = {
 
@@ -147,7 +150,7 @@ protected case class ActStateActor(data: StateData)
 }
 
 protected case class ReceiveStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   var messageContent: String = ""
   var stateType: StateType = WaitingStateType
@@ -190,7 +193,7 @@ protected case class ReceiveStateActor(data: StateData)
 }
 
 protected case class SendStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   // TODO mehrere nachrichten gleichzeitig?
   val messageType = transitions(0).messageType
@@ -202,13 +205,17 @@ protected case class SendStateActor(data: StateData)
   // TODO sowas wie timeout ist nicht drin
   override def receive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) => {
-      sender ! ExecuteActionAnswer(ea)
+      // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
+      // can be blocked until a potentially new subject is created to ensure all available actions will 
+      // be returned when asking
       messageData = input
       processInstanceActor !
         SubjectInternalMessage(subjectID,
           toSubject,
           messageType,
           messageData)
+
+      sender ! ExecuteActionAnswer(ea)
     }
 
     // TODO stored vielleicht besser spezifizieren

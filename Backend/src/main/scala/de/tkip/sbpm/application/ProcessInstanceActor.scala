@@ -128,9 +128,23 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   //      (actions: Array[AvailableAction]) =>
   //        ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
 
+  // variables to help blocking of ActionExecutionAnswers
+  var waitingForSubjectCreation = false
+  var blockedExecuteActionAnswer: ExecuteActionAnswer = null
+
   def receive = {
 
     case as: AddSubject => {
+      // if subjectProvider of the new subject is not the same as the one that asked for execution
+      // forward blocked ExecuteActionAnswer
+      if (waitingForSubjectCreation) {
+        if (blockedExecuteActionAnswer != null && !as.subjectID.equals(blockedExecuteActionAnswer.execute.userID)) {
+          context.parent.forward(blockedExecuteActionAnswer)
+          blockedExecuteActionAnswer = null;
+          waitingForSubjectCreation = false;
+        }
+      }
+
       val subject: Subject = getSubject(as.subjectID)
 
       // TODO was tun
@@ -196,6 +210,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // if the subject already exist just forward the message
         subjectMap(sm.to).forward(sm)
       } else {
+        waitingForSubjectCreation = true;
+
         // if the subject does not exist create the subject and forward the
         // message afterwards
         // store the message in the message-pool
@@ -205,6 +221,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           RequestUserID(
             SubjectInformation(sm.to),
             AddSubject(_, sm.to))
+
       }
     }
 
@@ -219,6 +236,25 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case message: SubjectProviderMessage => {
       context.parent ! message
+    }
+
+    case message: SubjectStarted => {
+      if (waitingForSubjectCreation) {
+        waitingForSubjectCreation = false;
+        if (blockedExecuteActionAnswer != null) {
+          context.parent.forward(blockedExecuteActionAnswer)
+          blockedExecuteActionAnswer = null;
+        }
+      }
+    }
+
+    // send forward if no subject has to be created else wait
+    case message: ExecuteActionAnswer => {
+      if (!waitingForSubjectCreation)
+        context.parent.forward(message)
+      else {
+        blockedExecuteActionAnswer = message
+      }
     }
 
     case answer: AnswerMessage => {
