@@ -96,7 +96,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         path("^$"r) { regex =>
           entity(as[GraphHeader]) { json =>
             implicit val timeout = Timeout(5 seconds)
-            val future = (persistanceActor ? SaveProcess(Process(None, json.name),
+            val future = (persistanceActor ? SaveProcess(Process(None, json.name, -1, json.isCase, json.startSubjects),
               Option(Graph(None, json.graph, new java.sql.Timestamp(System.currentTimeMillis()), -1))))
             val result = Await.result(future, timeout.duration).asInstanceOf[(Some[Int], Some[Int])]
             complete(JsObject("id" -> result._1.get.toJson))

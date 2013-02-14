@@ -82,7 +82,7 @@ object JsonProtocol extends DefaultJsonProtocol {
    * header case classes
    */
   case class ProcessIdHeader(processId: Int)
-  case class GraphHeader(name: String, graph: String, isCase: Boolean)
+  case class GraphHeader(name: String, graph: String, isCase: Boolean, startSubjects:String)
 
   /**
    * case class formater
@@ -117,6 +117,6 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val availableActionFormat = jsonFormat7(AvailableAction)
 
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
-  implicit val createGraphHeaderFormat = jsonFormat3(GraphHeader)
+  implicit val createGraphHeaderFormat = jsonFormat4(GraphHeader)
   implicit val createActionIdHeaderFormat = jsonFormat6(ExecuteAction)
 }
