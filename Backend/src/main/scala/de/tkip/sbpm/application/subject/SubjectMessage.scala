@@ -54,10 +54,10 @@ case class ExecuteAction(userID: UserID,
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
 // TODO keine defaultparameter
 case class ExecuteActionAnswer(execute: ExecuteAction,
-                               processID: ProcessID = -1,
-                               graphJson: String = null,
-                               history: History = null,
-                               availableActions: Array[AvailableAction] = null) extends AnswerMessage {
+                               processID: ProcessID,
+                               graphJson: String,
+                               history: History,
+                               availableActions: Array[AvailableAction]) extends AnswerMessage {
   def request = execute.asInstanceOf[AnswerAbleMessage]
 }
 

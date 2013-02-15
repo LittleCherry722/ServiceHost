@@ -242,8 +242,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     // send forward if no subject has to be created else wait
     case message: ActionExecuted => {
+      System.err.println("Executed "+message)
       if (allSubjectsReady(message.ea.userID))
-        context.parent.forward(createExecuteActionAnswer(message.ea))
+        createExecuteActionAnswer(message.ea)
       else {
         blockedAnswers += message.ea.userID -> message
       }
@@ -301,7 +302,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     // if message is waiting and the list of tasks that have to be done is empty for the userID -> forward message 
     if (allSubjectsReady(waitingForContextResolver.head) && blockedAnswers.contains(waitingForContextResolver.head)) {
-      context.parent.forward(createExecuteActionAnswer(blockedAnswers(waitingForContextResolver.head).ea))
+      createExecuteActionAnswer(blockedAnswers(waitingForContextResolver.head).ea)
       blockedAnswers -= waitingForContextResolver.head
     }
 
@@ -318,7 +319,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     // if the given userID has no tasks that are blocking it -> forward message if one exists
     if (allSubjectsReady(userID) && blockedAnswers.contains(userID)) {
-      context.parent.forward(createExecuteActionAnswer(blockedAnswers(userID).ea))
+      createExecuteActionAnswer(blockedAnswers(userID).ea)
       blockedAnswers -= userID
     }
 
