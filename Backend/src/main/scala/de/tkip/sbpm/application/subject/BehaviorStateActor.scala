@@ -18,7 +18,8 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import akka.event.Logging
 
-case class SubjectStarted
+case class ActionExecuted(ea: ExecuteAction)
+case class SubjectStarted(userID: UserID)
 
 protected case class StateData(userID: UserID,
                                subjectID: SubjectID,
@@ -90,7 +91,7 @@ protected case class StartStateActor(data: StateData)
   override def receive = {
     case ea: StartSubjectExecution => {
       internalBehaviorActor ! NextState(transitions(0).successorID)
-      processInstanceActor ! SubjectStarted()
+      processInstanceActor ! SubjectStarted(userID)
     }
 
     case s => {
@@ -120,12 +121,12 @@ protected case class ActStateActor(data: StateData)
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ActStateString, input) => {
       val index = indexOfInput(input)
       if (index != -1) {
-        sender ! ExecuteActionAnswer(ea)
-
         internalBehaviorActor ! ChangeState(stateID, transitions(index).successorID, null)
+
+        processInstanceActor ! ActionExecuted(ea)
       } else {
         // invalid input
-        sender ! ExecuteActionAnswer(ea)
+        processInstanceActor ! ActionExecuted(ea)
       }
     }
 
@@ -162,10 +163,10 @@ protected case class ReceiveStateActor(data: StateData)
   override def receive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ReceiveStateString, input) => {
       if (!transitions.isEmpty) {
-        sender ! ExecuteActionAnswer(ea)
-
         val message = HistoryMessage(-1, transitions(0).messageType, transitions(0).subjectName, subjectID, messageContent)
         internalBehaviorActor ! ChangeState(id, transitions(0).successorID, message)
+
+        processInstanceActor ! ActionExecuted(ea)
       }
     }
 
@@ -210,12 +211,13 @@ protected case class SendStateActor(data: StateData)
       // be returned when asking
       messageData = input
       processInstanceActor !
-        SubjectInternalMessage(subjectID,
+        SubjectInternalMessage(userID,
+          subjectID,
           toSubject,
           messageType,
           messageData)
 
-      sender ! ExecuteActionAnswer(ea)
+      processInstanceActor ! ActionExecuted(ea)
     }
 
     // TODO stored vielleicht besser spezifizieren
