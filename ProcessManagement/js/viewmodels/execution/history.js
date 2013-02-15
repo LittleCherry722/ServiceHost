@@ -15,14 +15,11 @@ define([
 		this.processStarted = processStarted;
 		this.processEnded = processEnded;
 		this.historicEntries = historicEntries;
-
-		this.JSONtimestampToString = JSONtimestampToString;
 	}
 
 	var processStarted = ko.observable();
 	var processEnded = ko.observable();
 	var historicEntries = ko.observableArray([]);
-	//historicEntries = [{subject: "laPlome"}, {subject: "Calr Sagan"}];
 
 	var processInstance = ko.observable( new ProcessInstance() );
 
@@ -32,17 +29,36 @@ define([
 
 	var updateHistory = function() {
 		
+		newHistory = setTimeFormat( processInstance().history() );
+
+		processStarted = newHistory.processStarted;
+		processEnded = newHistory.processEnded;
+		/*
 		startdate =  processInstance().history().processStarted;
 		processStarted = JSONtimestampToString( startdate );
 
 		enddate = processInstance().history().processEnded;
 		processEnded = JSONtimestampToString( enddate );
+		*/
 
-		historicEntries = processInstance().history().entries;
+		historicEntries = newHistory.entries;
+	}
+
+	var setTimeFormat = function( processHistory ){
+		newHistory = processHistory;
+
+		newHistory.processStarted.date = JSONtimestampToString( newHistory.processStarted.date );
+		newHistory.processEnded.date = JSONtimestampToString( newHistory.processEnded.date );
+
+		for( i=0; i<newHistory.entries.length; i++ ){
+			newHistory.entries[i].timestamp.date = JSONtimestampToString( newHistory.entries[i].timestamp.date );
+		}
+
+		return newHistory;
 	}
 
 	var JSONtimestampToString = function( JSONtimestamp ){
-		newDate = new Date( JSONtimestamp.date );
+		newDate = new Date( JSONtimestamp );
 		return newDate.toGMTString();
 	}
 
