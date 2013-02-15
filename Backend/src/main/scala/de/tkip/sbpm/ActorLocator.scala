@@ -12,6 +12,7 @@ object ActorLocator {
   val basicAuthActorName = "basic-auth"
   val oAuth2ActorName = "o-auth"
   val userPassAuthActorName = "user-pass-auth"
+  val googleAuthActorName = "google-auth"
 
   def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
 
@@ -21,4 +22,5 @@ object ActorLocator {
   def subjectProviderManagerActor(implicit ctx: ActorRefFactory) = actor(subjectProviderManagerActorName)
   def sessionActor(implicit ctx: ActorRefFactory) = actor(sessionActorName)
   def userPassAuthActor(implicit ctx: ActorRefFactory) = actor(userPassAuthActorName)
+  def googlAuthActor(implicit ctx: ActorRefFactory) = actor(googleAuthActorName)
 }

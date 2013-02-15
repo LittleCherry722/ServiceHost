@@ -106,9 +106,7 @@ class FrontendInterfaceActor extends Actor with HttpService {
        * forward all posts to /oauth2callback unauthenticated to GoogleAuthActor 
        */
       pathPrefix(Entity.OAUTH2CALLBACK) {
-        (post) {
           handleWith[GoogleResponseActor]
-        }
       } ~
       pathPrefix(Entity.USER) {
         /**
