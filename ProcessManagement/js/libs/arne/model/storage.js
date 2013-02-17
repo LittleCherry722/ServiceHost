@@ -52,6 +52,11 @@ define([
 				return
 			}
 
+			if( !this.validate() ) {
+				callback.call( this, "Did not pass validation." );
+				return;
+			}
+
 			// If this is a new record that has not yet been saved, create a new
 			// record. Otherwise, just save it.
 			if ( this.isNewRecord ) {
@@ -63,7 +68,7 @@ define([
 			// execute the correct save function and execute the callback aftewards.
 			// Also execute the afterSave Callback and mark the model as not changed.
 			saveFn.call( this, options, function() {
-				this.afterDestroy.call( this );
+				this.afterSave.call( this );
 				callback.call( this );
 				this.hasChanged( false );
 			});
@@ -343,7 +348,7 @@ define([
 	var PathBuilder = function( Model ) {
 		var regularModelPath, relationModelPath, init,
 				isIntermediateModel,
-				pathPrefix = "scala/";
+				pathPrefix = "/";
 
 		isIntermediateModel = function() {
 			if ( Model.belongsTo().length === Model.ids().length && Model.ids().length > 1 ) {

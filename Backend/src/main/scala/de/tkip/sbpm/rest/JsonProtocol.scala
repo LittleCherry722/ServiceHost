@@ -24,6 +24,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceInfo
+import spray.routing.authentication.UserPass
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -81,7 +82,7 @@ object JsonProtocol extends DefaultJsonProtocol {
    * header case classes
    */
   case class ProcessIdHeader(processId: Int)
-  case class GraphHeader(name: String, graph: String, isCase: Boolean)
+  case class GraphHeader(name: String, graph: String, isCase: Boolean, startSubjects:String)
 
   /**
    * case class formater
@@ -96,6 +97,8 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val groupUserFormat = jsonFormat3(GroupUser)
   implicit val groupRoleFormat = jsonFormat3(GroupRole)
   implicit val activatableFormat = jsonFormat1(Activatable)
+  // used for login
+  implicit val userPassFormat = jsonFormat2(UserPass)
 
   // DomainModel
   implicit val domainGraphFormat = jsonFormat4(Graph)
@@ -111,9 +114,9 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   // action execution
   implicit val processInstanceInfoFormat = jsonFormat2(ProcessInstanceInfo)
-  implicit val availableActionFormat = jsonFormat6(AvailableAction)
+  implicit val availableActionFormat = jsonFormat7(AvailableAction)
 
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
-  implicit val createGraphHeaderFormat = jsonFormat3(GraphHeader)
+  implicit val createGraphHeaderFormat = jsonFormat4(GraphHeader)
   implicit val createActionIdHeaderFormat = jsonFormat6(ExecuteAction)
 }

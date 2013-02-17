@@ -3,14 +3,25 @@ define([
 	"app",
 	"underscore",
 	"models/group",
-	"async"
-], function( ko, App, _, Group, async ) {
+	"async",
+	"notify"
+], function( ko, App, _, Group, async, notify ) {
 
 	var ViewModel = function() {
 		this.groups = Group.all;
 
 		this.save = function( group ) {
-			group.save();
+			group.save(function( error ) {
+				if ( error ) {
+					if ( group.errors().length > 0 ) {
+						notify.error( "Error", error + " Errors: " + group.errors().join(" ") );
+					} else {
+						notify.error( "Error", error )
+					}
+				} else {
+					notify.info( "Succcess", "Group " + group.name() + " has successfully been saved." )
+				}
+			});
 		}
 
 		this.saveAll = function() {

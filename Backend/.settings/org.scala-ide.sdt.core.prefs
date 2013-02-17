@@ -127,6 +127,6 @@ syntaxColouring.xml.tagName.colour=63,127,127
 syntaxColouring.xml.tagName.italic=false
 syntaxColouring.xml.tagName.strikethrough=false
 syntaxColouring.xml.tagName.underline=false
-target=jvm-1.6
+target=jvm-1.7
 unchecked=true
 verbose=false

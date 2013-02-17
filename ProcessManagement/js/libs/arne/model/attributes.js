@@ -220,7 +220,7 @@ define([
 					attrValue = attrOptions.defaults;
 				}
 
-				// The attribute value to be assigned, converted to the specific file type of the
+				// The attribute value to be assigned, converted to the specific data type of the
 				// attribute if necessary.
 				attrValue = attrOptions.fromJSON( attrValue );
 

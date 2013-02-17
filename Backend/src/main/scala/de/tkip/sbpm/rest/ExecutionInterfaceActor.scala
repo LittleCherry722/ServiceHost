@@ -27,6 +27,7 @@ import de.tkip.sbpm.persistence.GetProcessInstance
 import de.tkip.sbpm.persistence.GetGraph
 import scala.concurrent.Await
 import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
+import scala.concurrent.ExecutionContext
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -34,6 +35,7 @@ import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
 // TODO when to choose HttpService and when HttpServiceActor
 class ExecutionInterfaceActor extends Actor with HttpService {
   implicit val timeout = Timeout(5 seconds)
+  override implicit def executionContext = ExecutionContext.Implicits.global
   val logger = Logging(context.system, this)
 
   override def preStart() {
@@ -135,7 +137,12 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               implicit val timeout = Timeout(5 seconds)
               val future = (subjectProviderManager ? mixExecuteActionWithRouting(json))
               val result = Await.result(future, timeout.duration).asInstanceOf[ExecuteActionAnswer]
-              complete(StatusCodes.OK)
+              complete(
+                JsObject(
+                  "processId" -> result.processID.toJson,
+                  "graph" -> result.graphJson.toJson,
+                  "history" -> result.history.toJson,
+                  "actions" -> result.availableActions.toJson))
             }
           }
         }

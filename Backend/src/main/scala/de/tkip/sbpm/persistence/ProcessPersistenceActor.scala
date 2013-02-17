@@ -41,9 +41,10 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
     def startSubjects = column[String]("startSubjects", O.DBType(varchar(128)))
     def graphId = column[Int]("graphID")
     def isProcess = column[Boolean]("isProcess", O.Default(true))
-    def * = id.? ~ name ~ graphId ~ isProcess ~ startSubjects <> (Process, Process.unapply _)
+    def * = id.? ~ name ~ graphId ~ !isProcess ~ startSubjects <> (Process, Process.unapply _)
+    def tmp = id.? ~ name ~ graphId ~ isProcess ~ startSubjects <> (Process, Process.unapply _)
     // auto increment method returning generated id
-    def autoInc = * returning id
+    def autoInc = tmp returning id
   }
 
   def receive = database.withSession { implicit session => // execute all db operations in a session
@@ -58,7 +59,7 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
         answer { Processes.where(_.name === name).firstOption }
       // create new process
       case SaveProcess(p @ Process(None, _, _, _, _), None) =>
-        answer { Some(Processes.autoInc.insert(p)) }
+        answer { Some(Processes.autoInc.insert(invertIsCase(p))) }
       // save existing process
       case SaveProcess(p @ Process(id, _, _, _, _), None) => update(id, p)
       // create new process with a corresponding graph
@@ -70,19 +71,25 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
       case InitDatabase => answer { Processes.ddl.create(session) }
     }
   }
-
+  
   // update entity or throw exception if it does not exist
-  def update(id: Option[Int], p: Process)(implicit session: Session) = answer {
-    val res = Processes.where(_.id === id).update(p)
+  private def update(id: Option[Int], p: Process)(implicit session: Session) = answer {
+    val res = Processes.where(_.id === id).map(_.tmp).update(invertIsCase(p))
     if (res == 0)
       throw new EntityNotFoundException("Process with id %d does not exist.", id.get)
     None
+  }
+  
+  private def invertIsCase(p: Process) = {
+    p.isCase = !p.isCase
+    p
   }
   
   /**
    * Saves a process with the corresponding graph to the database.
    */
   private def saveProcessWithGraph(p: Process, g: Option[Graph])(implicit session: Session) = answer {
+    invertIsCase(p)
     var resultId = p.id
     // if id not defined -> save new process
     if (!p.id.isDefined) {
@@ -106,7 +113,7 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
     else
       p.graphId = g.get.id.get
     // update process with graph id
-    Processes.where(_.id === p.id).update(p)
+    Processes.where(_.id === p.id).map(_.tmp).update(p)
     (resultId, gId)
   }
 }

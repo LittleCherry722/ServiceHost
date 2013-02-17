@@ -27,6 +27,9 @@ import de.tkip.sbpm.persistence.EntityNotFoundException
  * Inheriting actors have simplified access to persistence actor.
  */
 trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =>
+  // is required by spray HttpService trait
+  def actorRefFactory = context
+  
   // reference to persistence actor
   protected val persistenceActor = ActorLocator.persistenceActor
   protected implicit val timeout = Timeout(10 seconds)
@@ -39,9 +42,6 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
     log.debug(getClass.getName + " stopped.")
   }
 
-  // is required by spray HttpService trait
-  def actorRefFactory = context
-
   // spray exception handler: turns exceptions that occur while
   // processing the request into internal server error response
   // with exception message as payload (also logs the exception)
@@ -53,14 +53,6 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
         log.error(e, e.getMessage)
         ctx.complete(StatusCodes.InternalServerError, e.getMessage)
     }
-
-  /**
-   * Completes the request and stops the actor afterwards via PoisonPill.
-   */
-  def complete(magnet: CompletionMagnet): StandardRoute = {
-    self.self ! PoisonPill
-    super.complete(magnet)
-  }
 
   /**
    * Sends a message to the persistence actor and waits
