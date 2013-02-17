@@ -70,7 +70,7 @@ define([
 		});
 
 		Model.prototype.refresh = function( callback ) {
-			this.attributesLoaded = false;
+			this.attributesLoaded( false );
 			this.loadAttributes( callback );
 		};
 
@@ -117,7 +117,7 @@ define([
 			var data, ajax,
 					model = this;
 
-			if ( model.attributesLoaded ) {
+			if ( model.attributesLoaded() ) {
 				callback.call( model, null );
 				return;
 			}
@@ -195,7 +195,7 @@ define([
 				return
 			}
 
-			model.attributesLoaded = true;
+			model.attributesLoaded( true );
 
 			ajax = {
 				cache: false,
