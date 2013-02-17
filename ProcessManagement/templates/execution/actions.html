@@ -3,19 +3,23 @@
 <select id="slctSbj" class="chzn-select" data-bind="options: availableSubjects, value: currentSubject, optionsCaption: 'Choose subject'"></select>
 
 <span data-bind="text: availableSubjects().length"></span>
-
+<span data-bind="text: stateName()"></span>
+	
 <table>
-	<tbody data-bind="foreach: actionData">
-		
-		
-		<tr><th><span data-bind="text: $parent.actionOfCurrentSubject().stateType"></th>
-		
-			<td><a class="btn" data-bind="text: $data, visible: ! $parent.isReceiveType(),click: $parent.action"></td>
-			
-			<td data-bind="visible: $parent.isReceiveType()"><span data-bind="text: $data"> waitng!</span></td>	
-			
-		</tr>
-	</tbody>
+	
+<tbody data-bind="foreach: actionData">
+
+<tr>
+
+<th><span data-bind="text: $parent.actionOfCurrentSubject().stateType"></th>
+
+<td><a class="btn" data-bind="text: $data, visible: ! $parent.isReceiveType(),click: $parent.action"></td>
+
+<td data-bind="visible: $parent.isReceiveType()"><span data-bind="text: $data"></span></td>
+<td><a class="btn" data-bind="visible: $parent.isReceiveType(),click: $parent.action">Received</a></td>
+
+</tr>
+</tbody>
 </table>
 <a class="btn" data-bind=" visible:isSendType(),click: send">Send</a>
 <input type="text" data-bind="visible: isSendType, value: messageText" />

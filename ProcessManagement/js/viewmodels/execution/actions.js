@@ -28,7 +28,7 @@ define([
 		
 		this.send = send;
 		
-
+		this.stateName = stateName;
 	
 	}
 
@@ -50,7 +50,7 @@ define([
 	
 	var isReceiveType;
 	
-
+	var stateName;
 
 	
 	var action = function(action) {
@@ -59,10 +59,8 @@ define([
 		id = data.processInstanceID;
 		data.actionData = action;
 		data = JSON.stringify(data);
-		//console.log(data);
-
 		$.ajax({
-			url : '/ProcessManagement/scala/processinstance/' + id,
+			url : '/processinstance/' + id,
 			type : "PUT",
 			data : data,
 			async : true, // defaults to false
@@ -71,6 +69,7 @@ define([
 			success : function(data, textStatus, jqXHR) {
 				console.log("success")
 				console.log(data);
+				
 			},
 			error : function(jqXHR, textStatus, error) {
 				console.log("Error")
@@ -84,12 +83,18 @@ define([
 	};
 
 
+	var refresh = function(data){
+		
+	}
+
 	var send = function() {
 		console.log("send: "+ messageText())
 		data = actionOfCurrentSubject()
+		data.actionData = messageText();
 		id = data.processInstanceID;
+		data = JSON.stringify(data);
 			$.ajax({
-			url : '/ProcessManagement/scala/processinstance/' + id,
+			url : '/processinstance/' + id,
 			type : "PUT",
 			data: data,
 			async : true, // defaults to false
@@ -121,7 +126,7 @@ define([
 
 		availableActions = instance.actions;
 
-
+		
 
 		availableSubjects = ko.computed(function() {
 			return availableActions().map(function(action) {
@@ -137,7 +142,7 @@ define([
 		});
 
 
-
+	
 
 
 		isSendType = ko.computed(function() {
@@ -157,7 +162,13 @@ define([
 		});
 
 
-
+		stateName = ko.computed(function() {
+			if (actionOfCurrentSubject() !== undefined) {
+				return actionOfCurrentSubject().stateName;
+			} else {
+				return "";
+			}
+		});
 
 		actionData = ko.computed({
 			//deferEvaluation : false,
