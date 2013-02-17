@@ -4,23 +4,28 @@
 
 <span data-bind="text: availableSubjects().length"></span>
 <span data-bind="text: stateName()"></span>
-	
-<table>
-	
-<tbody data-bind="foreach: actionData">
 
-<tr>
+<div data-bind="visible: isTypeOf()==='action',foreach: actionData">
+	<div>
+	<span>Do:</span>
+	<input class="btn" type="button" data-bind="value: $data,click: $parent.action, enable: $parent.serverDone()"></a>
+	</div>
+</div>
 
-<th><span data-bind="text: $parent.actionOfCurrentSubject().stateType"></th>
+<div data-bind="visible: isTypeOf()==='send'">
+	<input type="text" data-bind="value: messageText" />
+	<span  data-bind="visible: isTypeOf()==='send'">Send:</span>
+	<input type="button" value="Send" class="btn" data-bind="click: send, enable: serverDone()">Send</a>
+</div>
 
-<td><a class="btn" data-bind="text: $data, visible: ! $parent.isReceiveType(),click: $parent.action"></td>
+<div data-bind="visible: isTypeOf()==='waiting'">
+	<span>Waiting!!</span>
+</div>
 
-<td data-bind="visible: $parent.isReceiveType()"><span data-bind="text: $data"></span></td>
-<td><a class="btn" data-bind="visible: $parent.isReceiveType(),click: $parent.action">Received</a></td>
-
-</tr>
-</tbody>
-</table>
-<a class="btn" data-bind=" visible:isSendType(),click: send">Send</a>
-<input type="text" data-bind="visible: isSendType, value: messageText" />
-
+<div data-bind="visible: isTypeOf()==='receive',foreach: actionData">
+	<div>
+	<span>Receive:</span>
+	<span data-bind="text: $data"></span>
+	<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone()">
+	</div>
+</div>

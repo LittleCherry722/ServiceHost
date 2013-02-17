@@ -20,16 +20,16 @@ define([
 		
 		this.messageText = messageText;
 		
-		this.isSendType = isSendType;
-		
-		this.isReceiveType = isReceiveType;
-		
 		this.action = action;
 		
 		this.send = send;
 		
 		this.stateName = stateName;
 	
+		this.isTypeOf = isTypeOf;
+		
+		this.serverDone = serverDone;
+		
 	}
 
 	var processInstance = ko.observable();
@@ -46,14 +46,14 @@ define([
 			
 	var actionData;
 	
-	var isSendType;
-	
-	var isReceiveType;
-	
 	var stateName;
 
+	var isTypeOf;
+	
+	var serverDone = ko.observable(true);
 	
 	var action = function(action) {
+		serverDone(false);
 		console.log("action: " + action)
 		data = actionOfCurrentSubject()
 		id = data.processInstanceID;
@@ -69,6 +69,7 @@ define([
 			success : function(data, textStatus, jqXHR) {
 				console.log("success")
 				console.log(data);
+				processInstance().refresh();
 				
 			},
 			error : function(jqXHR, textStatus, error) {
@@ -77,6 +78,7 @@ define([
 			},
 			complete : function(jqXHR, textStatus) {
 				console.log("complete")
+				serverDone(true);
 			}
 		});
 
@@ -89,6 +91,7 @@ define([
 
 	var send = function() {
 		console.log("send: "+ messageText())
+		serverDone(false);
 		data = actionOfCurrentSubject()
 		data.actionData = messageText();
 		id = data.processInstanceID;
@@ -103,6 +106,7 @@ define([
 			success : function(data, textStatus, jqXHR) {
 				console.log("success")
 				console.log(data);
+				processInstance().refresh();
 			},
 			error : function(jqXHR, textStatus, error) {
 				console.log("Error")
@@ -110,6 +114,7 @@ define([
 			},
 			complete : function(jqXHR, textStatus) {
 				console.log("complete")
+				serverDone(true);
 			}
 		});
 	};
@@ -121,6 +126,7 @@ define([
 		var viewModel;
 		
 		processInstance( instance );
+		processInstance().refresh();
 
 		console.log(processInstance().actions());
 
@@ -142,25 +148,13 @@ define([
 		});
 
 
-	
-
-
-		isSendType = ko.computed(function() {
-			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().stateType !== undefined && actionOfCurrentSubject().stateType === "send") {
-				return true
+		isTypeOf = ko.computed(function() {
+			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().stateType !== undefined) {
+				return  actionOfCurrentSubject().stateType;
 			} else {
-				return false
+				return undefined;
 			}
 		});
-
-		isReceiveType = ko.computed(function() {
-			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().stateType !== undefined && actionOfCurrentSubject().stateType === "receive") {
-				return true
-			} else {
-				return false
-			}
-		});
-
 
 		stateName = ko.computed(function() {
 			if (actionOfCurrentSubject() !== undefined) {
