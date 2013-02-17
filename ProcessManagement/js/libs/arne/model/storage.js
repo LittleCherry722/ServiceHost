@@ -75,7 +75,7 @@ define([
 		});
 
 		Model.prototype.refresh = function( callback ) {
-			this.attributesLoaded = false;
+			this.attributesLoaded( false );
 			this.loadAttributes( callback );
 		};
 
