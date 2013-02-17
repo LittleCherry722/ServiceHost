@@ -114,7 +114,7 @@ define([
 		});
 	};
 
-	
+	 
 		
 	var initialize = function( instance ) {
 		console.log("init a");
