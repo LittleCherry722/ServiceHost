@@ -16,21 +16,31 @@ import java.util.Collections
 import scala.io.Source
 import java.io.FileInputStream
 import de.tkip.sbpm.application.miscellaneous.GoogleMessage
+import com.google.api.client.auth.oauth2.TokenResponseException
 
 
 // message types for google specific communication
 trait GoogleAuthAction extends GoogleMessage
 
 
-//case clases for authentication purpose
-case class deleteCredential(id: String) extends GoogleAuthAction
-case class getCredential(id: String) extends GoogleAuthAction
-case class googleResponse(response: String) extends GoogleAuthAction
-case class getAuthUrl(id: String) extends GoogleAuthAction
+//case classes for authentication purpose
+case class DeleteCredential(id: String) extends GoogleAuthAction
+
+case class GetCredential(id: String) extends GoogleAuthAction
+
+case class GetNewCredential(id: String) extends GoogleAuthAction
+
+case class GetAuthUrl(id: String) extends GoogleAuthAction
+
+case class GoogleResponse(id: String, response: String) extends GoogleAuthAction
+
+
 
 
 class GoogleAuthActor extends Actor with ActorLogging {
 
+  def actorRefFactory = context
+  
   override def preStart() {
     log.debug(getClass.getName + " starts...")
   }
@@ -59,13 +69,17 @@ class GoogleAuthActor extends Actor with ActorLogging {
 
   
   def receive = {
-    case deleteCredential(id) => sender ! deleteCredential(id)
+    case DeleteCredential(id) => sender ! deleteCredential(id)
     
-    case getCredential(id) => sender ! getUserCredential(id)
+    case GetCredential(id) => sender ! getUserCredential(id)
     
-    case googleResponse(response) => handelResponse(response, "User_1")
+    case GoogleResponse(id, response) => handelResponse(id, response)
     
-    case getAuthUrl(id) => sender ! formAuthUrl
+    case GetAuthUrl(id) => sender ! formAuthUrl(id)
+    
+    
+    // implement a callback to have non-blocking struktures
+    case GetNewCredential(id) => sender ! "callback"
 
     case _ => sender ! "not implemented yet"
   }
@@ -78,6 +92,14 @@ class GoogleAuthActor extends Actor with ActorLogging {
    * 4. AuthorizationCodeFlow.createAndStoreCredential(TokenResponse, String) to store
    */
   
+  /** Method that handels the whole message flow necessary for
+   * new creadentials
+   
+  def getNewUserCredentials(id: String): Credential = {
+    new Credential()
+  }
+  */
+  
   
   /** Loads user credentials from database, in case user is
    * unknown it returns null
@@ -87,24 +109,32 @@ class GoogleAuthActor extends Actor with ActorLogging {
   }
   
   /** Generate autorization URL */ 
-  def formAuthUrl(): String = {
-    flow.newAuthorizationUrl().setRedirectUri("http://localhost:8080/oauth2callback").build()
+  def formAuthUrl(id: String): String = {
+    flow.newAuthorizationUrl().setRedirectUri("http://localhost:8080/oauth2callback").setState(id).build()
   }
-  
-  //TODO - Catch exceptions 
+   
   /** Receives google post and exchanges it to an access token */
-  def handelResponse(response : String, id : String) = {
+  def handelResponse(id : String, response : String) = {
     log.debug(getClass().getName() + " Response: " + response)
-    val tokenRequest = flow.newTokenRequest(response).execute()
-    flow.createAndStoreCredential(tokenRequest, id.toString)
+    try {  
+    val tokenRequest = flow.newTokenRequest(response).setRedirectUri("http://localhost:8080/oauth2callback")
+    
+    // for debug purpose
+    log.debug(getClass().getName() + " TokenRequest: " + "{Code: " + tokenRequest.getCode() + " RURI: " + tokenRequest.getRedirectUri() + "}")
+    
+    flow.createAndStoreCredential(tokenRequest.execute(), id)
+    } catch {
+    case m : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + m.getDetails() + "\n" + m.getMessage())
+}
   }
   
   /** Delete access token if user wants to retrieve access for application*/
   def deleteCredential(id : String): Boolean = {
-    flow.getCredentialStore().delete(id, getUserCredential(id))
-    //check if access token for specific user is empty
-    flow.loadCredential(id.toString).getAccessToken().isEmpty()
-    
+    if (id != null) {
+      val credential = flow.loadCredential(id)
+      flow.getCredentialStore().delete(id, credential)
+    }
+   flow.loadCredential(id).getAccessToken().isEmpty()
   }
   
   

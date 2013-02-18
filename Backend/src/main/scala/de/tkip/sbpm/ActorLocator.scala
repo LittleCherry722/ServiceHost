@@ -22,5 +22,5 @@ object ActorLocator {
   def subjectProviderManagerActor(implicit ctx: ActorRefFactory) = actor(subjectProviderManagerActorName)
   def sessionActor(implicit ctx: ActorRefFactory) = actor(sessionActorName)
   def userPassAuthActor(implicit ctx: ActorRefFactory) = actor(userPassAuthActorName)
-  def googlAuthActor(implicit ctx: ActorRefFactory) = actor(googleAuthActorName)
+  def googleAuthActor(implicit ctx: ActorRefFactory) = actor(googleAuthActorName)
 }

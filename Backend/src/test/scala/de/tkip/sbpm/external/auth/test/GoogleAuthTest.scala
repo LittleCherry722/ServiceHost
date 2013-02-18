@@ -23,8 +23,9 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.application.miscellaneous.HistoryAnswer
 import de.tkip.sbpm.external.auth.GoogleAuthActor
-import de.tkip.sbpm.external.auth.getAuthUrl
-import de.tkip.sbpm.external.auth.getCredential
+import de.tkip.sbpm.external.auth.GetAuthUrl
+import de.tkip.sbpm.external.auth.GetCredential
+import com.google.api.client.auth.oauth2.Credential
 
 
 
@@ -37,14 +38,14 @@ class GoogleAuthTest extends FunSuite {
   val actor = sys.actorOf(Props[GoogleAuthActor])
   
   test("Test if GoogleAuthActor builds a valid authentication url") {
-    val future = actor ? new getAuthUrl("User_1")
+    val future = actor ? new GetAuthUrl("User_1")
     val result = Await.result(future.mapTo[String], timeout.duration)
     println(result)
-    assert(result === "https://accounts.google.com/o/oauth2/auth?client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive")
+    assert(result === "https://accounts.google.com/o/oauth2/auth?client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive&state=User_1")
   }
   
   test("Check if google response is routed from frontend to backend correctly") {
-    val future = actor ? new getAuthUrl("User_1")
+    val future = actor ? new GetAuthUrl("User_1")
     val result = Await.result(future.mapTo[String], timeout.duration)
     println(result)
     println("Type in url in your browser and authorize the app to get a google response")
@@ -53,9 +54,10 @@ class GoogleAuthTest extends FunSuite {
   
   
   test("Load a credential for a new user") {
-    val future = actor ? new getCredential("User_1")
-    val result = Await.result(future.mapTo[String], timeout.duration)
-    println(result)
+    val future = actor ? new GetCredential("User_1")
+    val result = Await.result(future.mapTo[Credential], timeout.duration)
+    println(result.getAccessToken())
+    println(result.getClientAuthentication())
   }
 }
   
