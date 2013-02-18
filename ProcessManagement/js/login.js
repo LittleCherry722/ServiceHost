@@ -2,13 +2,34 @@ var LoginViewModel = function() {
 window.Lview = this;
 
 self = this;
-self.name = ko.observable("");
+self.user = ko.observable("");
 self.pass = ko.observable("");
 
 self.login = function(){
-	console.log("login: "+ self.name() +" "+self.pass());
+	console.log("login: "+ self.user() +" "+self.pass());
 	
-	http://localhost:8080/user/login
+
+	
+
+$.ajax({
+url : '/user/login',
+type : "POST",
+data : '{user: '+self.user()+', pass: '+self.pass()+'}',
+async : true, // defaults to false
+//dataType : "json",
+//contentType : "application/json; charset=UTF-8",
+success : function(data, textStatus, jqXHR) {
+	console.log("success")
+
+}, error : function(jqXHR, textStatus, error) {
+	console.log("Error")
+	console.log(error)
+}, complete : function(jqXHR, textStatus) {
+	console.log("complete")
+
+}
+});
+
 	
 }
 	
