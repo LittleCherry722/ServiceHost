@@ -51,7 +51,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
   import ExecutionContext.Implicits.global // TODO this import or something different?
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(30 seconds)
 
   val processID = request.processID
 

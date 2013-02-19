@@ -55,6 +55,7 @@ private[persistence] class GroupRolePersistenceActor extends Actor with Database
         answer { delete(groupId, roleId) }
       // execute DDL to create "group_x_roles" table
       case InitDatabase => answer { GroupRoles.ddl.create(session) }
+      case DropDatabase => answer { dropIgnoreErrors(GroupRoles.ddl) }
     }
   }
 
