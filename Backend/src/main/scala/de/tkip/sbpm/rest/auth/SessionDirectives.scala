@@ -140,7 +140,8 @@ trait SessionDirectives {
       if (session.isDefined) {
         ActorLocator.sessionActor ! DeleteSession(session.get.id)
       }
-      deleteCookie(HttpCookie(defaultRealm, "", path = Some("/")))
+      deleteCookie(HttpCookie(defaultRealm, "", path = Some("/"))) & 
+      deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
     }
   }
 
