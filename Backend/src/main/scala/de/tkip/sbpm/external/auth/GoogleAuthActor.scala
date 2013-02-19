@@ -56,13 +56,13 @@ class GoogleAuthActor extends Actor with ActorLogging {
   
   
   // load application settings from config file stored in resources folder
-  val clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileInputStream("resources/client_secrets.json"))
+  val CLIENT_SECRETS = GoogleClientSecrets.load(JSON_FACTORY, new FileInputStream("resources/client_secrets.json"))
   
   // currently no persistence
   val credentialStore = new FileCredentialStore(new java.io.File(System.getProperty("user.home"), ".credentials/drive.json"), JSON_FACTORY)
   
   // instanciate new code flow
-  val flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPE)
+  val flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, CLIENT_SECRETS, SCOPE)
     .setCredentialStore(credentialStore).build()
     
   
@@ -123,6 +123,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
     log.debug(getClass().getName() + " TokenRequest: " + "{Code: " + tokenRequest.getCode() + " RURI: " + tokenRequest.getRedirectUri() + "}")
     
     flow.createAndStoreCredential(tokenRequest.execute(), id)
+    
     } catch {
     case m : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + m.getDetails() + "\n" + m.getMessage())
 }

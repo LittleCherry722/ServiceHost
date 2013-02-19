@@ -1,4 +1,4 @@
-package de.tkip.sbpm.external.auth.test
+package de.tkip.sbpm.external.api.test
 
 import scala.collection.Seq
 import org.scalatest.FunSuite
@@ -26,16 +26,15 @@ import de.tkip.sbpm.external.auth.GoogleAuthActor
 import de.tkip.sbpm.external.auth.GetAuthUrl
 import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.auth.oauth2.Credential
+import de.tkip.sbpm.external.api.GoogleDriveActor
 
 
-
-
-class GoogleAuthTest extends FunSuite {
+class GoogleDriveTest extends FunSuite {
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
  
   val sys = ActorSystem()
-  val actor = sys.actorOf(Props[GoogleAuthActor])
+  val actor = sys.actorOf(Props[GoogleDriveActor])
   
   test("Test if GoogleAuthActor builds a valid authentication url") {
     val future = actor ? new GetAuthUrl("User_1")
