@@ -15,7 +15,7 @@ protected case class NextState(state: StateID) extends SubjectBehaviorRequest
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
 sealed trait MessageObject
 // message from subject to subject
-protected case class SubjectInternalMessage(from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+protected case class SubjectInternalMessage(userID: UserID, from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // stored message in the inputpool
 protected case class TransportMessage(from: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // acknowledge, that a message is stored in the input pool
@@ -38,6 +38,7 @@ case class AvailableAction(userID: UserID,
                            processInstanceID: ProcessInstanceID,
                            subjectID: SubjectID,
                            stateID: StateID,
+                           stateName: String,
                            stateType: String,
                            actionData: Array[String])
     extends SubjectProviderMessage
@@ -53,10 +54,10 @@ case class ExecuteAction(userID: UserID,
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
 // TODO keine defaultparameter
 case class ExecuteActionAnswer(execute: ExecuteAction,
-                               processID: ProcessID = -1,
-                               graphJson: String = null,
-                               history: History = null,
-                               availableActions: Array[AvailableAction] = null) extends AnswerMessage {
+                               processID: ProcessID,
+                               graphJson: String,
+                               history: History,
+                               availableActions: Array[AvailableAction]) extends AnswerMessage {
   def request = execute.asInstanceOf[AnswerAbleMessage]
 }
 

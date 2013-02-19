@@ -9,9 +9,9 @@ import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
 
 class SubjectProviderManagerActor extends Actor {
-  
+
   val logger = Logging(context.system, this)
-  
+
   private lazy val processManagerActor = ActorLocator.processManagerActor
   private val subjectProviderMap =
     collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -20,17 +20,19 @@ class SubjectProviderManagerActor extends Actor {
     // create a new subject provider and send the ID to the requester.
     // additionally send it to the subjectprovider who forwards 
     // the message to the processmanager so he can register the new subjectprovider
-    case csp@ CreateSubjectProvider(userID) =>
+    case csp @ CreateSubjectProvider(userID) =>
       createNewSubjectProvider(userID)
-      if(subjectProviderMap.contains(userID))
-      sender ! SubjectProviderCreated(csp, userID)
+      if (subjectProviderMap.contains(userID)) {
+        sender ! SubjectProviderCreated(csp, userID)
+      }
 
     // general matching:
     // first match the answers
     // then SubjectProviderMessages
     case answer: AnswerMessage => {
-      if (answer.sender != null)
+      if (answer.sender != null) {
         answer.sender ! answer
+      }
     }
 
     // TODO werden noch zu forwards aber zum routing testen erstmal tells
@@ -38,8 +40,9 @@ class SubjectProviderManagerActor extends Actor {
       if (subjectProviderMap.contains(message.userID)) {
         subjectProviderMap(message.userID) ! withSender(message)
       } else {
-        logger.info("SubjectProvidermManger - Message for SP" + message.userID +
-          " but does not exist")
+        // TODO dynamisch erstellen?
+        createNewSubjectProvider(message.userID)
+        subjectProviderMap(message.userID).forward(withSender(message))
       }
     }
 
@@ -47,7 +50,7 @@ class SubjectProviderManagerActor extends Actor {
     case message: PersistenceMessage => {
       processManagerActor.forward(message)
     }
-    
+
     case message: AnswerAbleMessage => {
       processManagerActor ! message.withSender(sender)
     }
@@ -64,10 +67,10 @@ class SubjectProviderManagerActor extends Actor {
       if (subjectProviderMap.contains(message.userID)) {
         subjectProviderMap(message.userID).forward(message)
       } else {
-        logger.info("Actions for subject "+message.userID+" but does not exist");
+        logger.info("Actions for subject " + message.userID + " but does not exist");
       }
     }
-    
+
     case s => {
       println("SubjectProviderManger not yet implemented: " + s)
     }

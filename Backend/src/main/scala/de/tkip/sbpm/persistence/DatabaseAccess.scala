@@ -8,6 +8,7 @@ import akka.actor.Actor
 import akka.actor.ActorLogging
 import scala.slick.session.Session
 import akka.util.Timeout
+import scala.concurrent.duration._
 import akka.actor.ActorRef
 import akka.actor.Status
 import scala.util.Try
@@ -52,7 +53,7 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
     Database.forURL(config("uri"), driver = config("jdbcDriver"))
 
   // default timeout for akka message sending
-  protected implicit val timeout = Timeout(10)
+  protected implicit val timeout = Timeout(10 seconds)
 
   /**
    * Send the result of the given function back to the sender

@@ -77,7 +77,8 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
               complete(JsObject(
                 "id" -> processResult.get.id.toJson,
                 "name" -> processResult.get.name.toJson,
-                "graph" -> graphResult.get.graph.toJson))
+                "graph" -> graphResult.get.graph.toJson,
+                "isCase" -> processResult.get.isCase.toJson))
             } else {
               complete("Process with id " + id + " not found")
             }
@@ -89,13 +90,13 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         /**
          * create a new process
          *
-         * e.g. PUT http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
+         * e.g. POST http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
         // CREATE
         path("^$"r) { regex =>
           entity(as[GraphHeader]) { json =>
             implicit val timeout = Timeout(5 seconds)
-            val future = (persistanceActor ? SaveProcess(Process(None, json.name),
+            val future = (persistanceActor ? SaveProcess(Process(None, json.name, -1, json.isCase, json.startSubjects),
               Option(Graph(None, json.graph, new java.sql.Timestamp(System.currentTimeMillis()), -1))))
             val result = Await.result(future, timeout.duration).asInstanceOf[(Some[Int], Some[Int])]
             complete(JsObject("id" -> result._1.get.toJson))

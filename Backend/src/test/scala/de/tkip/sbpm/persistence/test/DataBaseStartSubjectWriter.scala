@@ -36,7 +36,7 @@ object DataBaseStartSubjectWriter {
         println("Old Entry: " + result)
         val process = result.get
         // create the new entry
-        val entry = Process(process.id, process.name, process.graphId, process.isProcess, startSubjects)
+        val entry = Process(process.id, process.name, process.graphId, process.isCase, startSubjects)
         // write it into the database
         if (write) {
           persistenceActor ! SaveProcess(entry)

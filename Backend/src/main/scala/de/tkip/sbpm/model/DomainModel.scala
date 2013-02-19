@@ -20,7 +20,7 @@ case class Group(var id: Option[Int], name: String, isActive: Boolean = true)
 // Model for Modeling/Execution
 case class Graph(var id: Option[Int], graph: String, date: java.sql.Timestamp, var processId: Int = -1)
 case class ProcessInstance(var id: Option[Int], processId: Int, graphId: Int, involvedUsers: String, data: String)
-case class Process(var id: Option[Int], name: String, var graphId: Int = -1, isProcess: Boolean = true, startSubjects: String = "[]")
+case class Process(var id: Option[Int], name: String, var graphId: Int = -1, var isCase: Boolean = false, startSubjects: String = "[]")
 case class Relation(userId: Int, groupId: Int, responsibleId: Int, processId: Int)
 case class Message(var id: Option[Int], from: Int, to: Int, instanceId: Int, isRead: Boolean, data: String, date: java.sql.Timestamp)
 case class Action(id: Option[Int], data: String) // TODO extend this case class to fit the requirements

@@ -91,21 +91,19 @@ class ProcessManagerActor extends Actor {
     }
 
     case message: SubjectProviderMessage => {
+      // TODO besser damit umgehen wenn subjectProvider nicht existiert
       val userID = message.userID
       if (subjectProviderMap.contains(userID)) {
         subjectProviderMap(userID).forward(message)
       } else {
+        // TODO testweise
+        // if the subjectprovider does not exist forward the message to
+        // the subjectprovidermanager, so he can create the user dynamicly
+        ActorLocator.subjectProviderManagerActor.forward(message)
+
         logger.info("Process Manager - User unknown: " + userID + " message: " + message)
       }
     }
-
-    //    case message: GetHistory => {
-    //      if (subjectProviderMap.contains(message.userID) && processInstanceMap.contains(message.processInstanceID)) {
-    //        processInstanceMap(message.processInstanceID)._1.forward(message)
-    //      } else {
-    //        logger.info("User or Process unknown: (user, process)=(" + message.userID + ", " + message.processInstanceID + ")");
-    //      }
-    //    }
 
     case answer: AnswerMessage => {
       answer.sender.forward(answer)

@@ -21,6 +21,10 @@ import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.persistence._
 import akka.event.Logging
+import scala.collection.mutable.SortedSet
+import scala.collection.mutable.Set
+import scala.collection.mutable.LinkedList
+import scala.collection.mutable.Map
 
 // represents the history of the instance
 case class History(processName: String,
@@ -128,9 +132,18 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   //      (actions: Array[AvailableAction]) =>
   //        ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
 
+  // variables to help blocking of ActionExecuted messages
+  var waitingForContextResolver = ArrayBuffer[UserID]()
+  var waitingUserMap = Map[UserID, Int]()
+  var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]()
+
   def receive = {
 
     case as: AddSubject => {
+      // if subjectProvider of the new subject is not the same as the one that asked for execution
+      // forward blocked ExecuteActionAnswer
+      handleAddSubjectBlocking(as.userID)
+
       val subject: Subject = getSubject(as.subjectID)
 
       // TODO was tun
@@ -196,6 +209,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // if the subject already exist just forward the message
         subjectMap(sm.to).forward(sm)
       } else {
+        handleSubjectInternalMessageBlocking(sm.userID)
+
         // if the subject does not exist create the subject and forward the
         // message afterwards
         // store the message in the message-pool
@@ -221,6 +236,20 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       context.parent ! message
     }
 
+    case message: SubjectStarted => {
+      handleSubjectStartedMessage(message.userID)
+    }
+
+    // send forward if no subject has to be created else wait
+    case message: ActionExecuted => {
+      System.err.println("Executed "+message)
+      if (allSubjectsReady(message.ea.userID))
+        createExecuteActionAnswer(message.ea)
+      else {
+        blockedAnswers += message.ea.userID -> message
+      }
+    }
+
     case answer: AnswerMessage => {
       context.parent.forward(answer)
     }
@@ -239,9 +268,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
    * This method checks if all subjects are parsed and ready to ask for actions
    * etc.
    */
-  private def allSubjectsReady: Boolean = {
-    // TODO
-    true
+  private def allSubjectsReady(userID: UserID): Boolean = {
+    !waitingForContextResolver.contains(userID) && waitingUserMap.getOrElse(userID, 1) == 0
   }
 
   private def getSubject(name: String): Subject = {
@@ -251,5 +279,50 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       case None => null
       case _ => subject.get
     }
+  }
+  
+  /**
+   * adds the userID to the waiting list for answers of the contextResolver
+   */
+  private def handleSubjectInternalMessageBlocking(userID: UserID) {
+    // set userID on waiting list for answer of contextresolver
+    waitingForContextResolver += userID
+  }
+
+  /**
+   * handle contextResolverAnswer to ensure blocking of ExecuteActionAnswers until all subjects (owned by the
+   * subjectProvider that created the ExecuteAction request) have been created and started
+   */
+  private def handleAddSubjectBlocking(userID: UserID) {
+    if(waitingForContextResolver.size == 0)
+      return
+    
+    // add userID to waiting list -> new subject is owned by the subjectProvider with the given userID   
+    waitingUserMap += userID -> (waitingUserMap.getOrElse(userID, 0) + 1)
+
+    // if message is waiting and the list of tasks that have to be done is empty for the userID -> forward message 
+    if (allSubjectsReady(waitingForContextResolver.head) && blockedAnswers.contains(waitingForContextResolver.head)) {
+      createExecuteActionAnswer(blockedAnswers(waitingForContextResolver.head).ea)
+      blockedAnswers -= waitingForContextResolver.head
+    }
+
+    // delete userID from waiting list for answers of the contextresolver
+    waitingForContextResolver = waitingForContextResolver.tail
+  }
+
+  /**
+   * handles SubjectStartedMessages and checks if no other subjectcreation is blocking the userID
+   * if thats the case -> forward message else wait
+   */
+  private def handleSubjectStartedMessage(userID: UserID) {
+    waitingUserMap += userID -> (waitingUserMap.getOrElse(userID, 1) - 1)
+
+    // if the given userID has no tasks that are blocking it -> forward message if one exists
+    if (allSubjectsReady(userID) && blockedAnswers.contains(userID)) {
+      createExecuteActionAnswer(blockedAnswers(userID).ea)
+      blockedAnswers -= userID
+    }
+
+    // else some other task is blocking forwarding so wait
   }
 }
