@@ -2,7 +2,9 @@ package de.tkip.sbpm.persistence
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
+import scala.slick.lifted.ForeignKeyAction._
 import de.tkip.sbpm.model.User
+import de.tkip.sbpm.model.UserIdentity
 import akka.event.Logging
 
 /*
@@ -20,6 +22,10 @@ case class GetUser(id: Option[Int] = None, name: Option[String] = None) extends 
 case class SaveUser(user: User) extends UserAction
 // delete user with id from db
 case class DeleteUser(id: Int) extends UserAction
+// retrieve user by identity provider and eMail
+case class GetUserIdentity(provider: String, eMail: String) extends UserAction
+// sets identity params for user and provider
+case class SetUserIdentity(userId: Int, provider: String, eMail: String, password: Option[String] = None)  extends UserAction
 
 /**
  * Handles all database operations for table "users".
@@ -39,6 +45,24 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
     def * = id.? ~ name ~ isActive ~ inputPoolSize <> (User, User.unapply _)
     // auto increment method returning generated id
     def autoInc = * returning id
+    def uniqueName = index("unique_name", name, unique = true)
+  }
+
+  // represents the "user_identities" table in the database
+  object UserIdentities extends Table[(Int, String, String, Option[String])]("user_identities") {
+    def userId = column[Int]("user_id")
+    def provider = column[String]("provider", O.DBType(varchar(32)))
+    def eMail = column[String]("e_mail", O.DBType(varchar(255)))
+    def password = column[Option[String]]("active", O.DBType(char(60)))
+    def * = userId ~ provider ~ eMail ~ password
+    // composite primary key
+    def pk = primaryKey("pk", (userId, provider))
+    def user = foreignKey("user_fk", userId, Users)(_.id, NoAction, Cascade)
+    def uniqueEmail = index("unique_email", (provider, eMail), unique = true)
+    def includeUser(provider: String, eMail: String) = for {
+      i <- UserIdentities.where(e => e.provider === provider && e.eMail === eMail)
+      u <- i.user
+    } yield (i, u)
   }
 
   def receive = database.withSession { implicit session => // execute all db operations in a session
@@ -56,8 +80,19 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       case SaveUser(u @ User(id, _, _, _)) => update(id, u)
       // delete user with given id
       case DeleteUser(id) => answer { Users.where(_.id === id).delete(session) }
+      // retrieve identity for provider and email
+      case GetUserIdentity(provider, eMail) => answer {
+    	  UserIdentities.includeUser(provider, eMail).firstOption.map {
+    	    case (i, u) => UserIdentity(u, i._2, i._3, i._4)
+    	  }
+      }
+      case SetUserIdentity(userId, provider, eMail, password) => answer {
+        UserIdentities.where(i => i.userId === userId && i.provider === provider).delete(session)
+        UserIdentities.insert(userId, provider, eMail, password)
+      }
       // execute DDL for table "users"
-      case InitDatabase => answer { Users.ddl.create(session) }
+      case InitDatabase => answer { (Users.ddl ++ UserIdentities.ddl).create(session) }
+      case DropDatabase => answer { dropIgnoreErrors(UserIdentities.ddl ++ Users.ddl) }
     }
   }
 
