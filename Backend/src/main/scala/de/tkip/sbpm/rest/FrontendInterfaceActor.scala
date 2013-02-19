@@ -64,8 +64,10 @@ class FrontendInterfaceActor extends Actor with HttpService {
     case auth.AuthenticationRejection(schemes, realm, sessionId) :: _ => {
       respondWithHeader(HttpHeaders.`WWW-Authenticate`(schemes.map(HttpChallenge(_, realm)))) {
         if (sessionId.isDefined) {
-          setSessionCookie(sessionId.get)(context) {
-            complete(StatusCodes.Unauthorized)
+          session(sessionId.get)(context) { session =>
+            setSessionCookie(session)(context) {
+              complete(StatusCodes.Unauthorized)
+            }
           }
         } else {
           deleteSession(actorRefFactory) {
@@ -182,7 +184,7 @@ class FrontendInterfaceActor extends Actor with HttpService {
       // authenticate using session cookie or Authorization header 
       authenticate(new CookieAuthenticator) { session =>
         // auth successful -> set session cookie
-        setSessionCookie(session.id)(context) {
+        setSessionCookie(session)(context) {
           handleWith[A]
         }
       }
