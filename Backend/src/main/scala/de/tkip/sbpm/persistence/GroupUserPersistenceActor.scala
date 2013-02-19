@@ -55,6 +55,7 @@ private[persistence] class GroupUserPersistenceActor extends Actor with Database
         answer { delete(groupId, userId) }
       // execute DDL to create "group_x_users" table
       case InitDatabase => answer { GroupUsers.ddl.create(session) }
+      case DropDatabase => answer { dropIgnoreErrors(GroupUsers.ddl) }
     }
   }
 

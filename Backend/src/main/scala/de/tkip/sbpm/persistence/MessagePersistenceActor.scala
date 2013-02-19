@@ -57,6 +57,7 @@ private[persistence] class MessagePersistenceActor extends Actor with DatabaseAc
         answer { Messages.where(_.id === id).delete(session); None }
       // execute DDL for "messages" table
       case InitDatabase => answer { Messages.ddl.create(session) }
+      case DropDatabase => answer { dropIgnoreErrors(Messages.ddl) }
     }
   }
 
