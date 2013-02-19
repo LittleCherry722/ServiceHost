@@ -53,7 +53,7 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
     def userId = column[Int]("user_id")
     def provider = column[String]("provider", O.DBType(varchar(32)))
     def eMail = column[String]("e_mail", O.DBType(varchar(255)))
-    def password = column[Option[String]]("active", O.DBType(char(60)))
+    def password = column[Option[String]]("password", O.DBType(char(60)))
     def * = userId ~ provider ~ eMail ~ password
     // composite primary key
     def pk = primaryKey("pk", (userId, provider))
