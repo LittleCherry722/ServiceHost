@@ -8,18 +8,19 @@ self.pass = ko.observable("");
 self.login = function(){
 	console.log("login: "+ self.user() +" "+self.pass());
 	
-
-	
+var data = '{"user" : "'+self.user()+'" , "pass" : "'+self.pass()+'"}';
+self.pass = ko.observable("");	 
+console.log(data);
 
 $.ajax({
 url : '/user/login',
 type : "POST",
-data : '{user: '+self.user()+', pass: '+self.pass()+'}',
+data : data,
 async : true, // defaults to false
-//dataType : "json",
-//contentType : "application/json; charset=UTF-8",
+dataType : "json",
+contentType : "application/json; charset=UTF-8",
 success : function(data, textStatus, jqXHR) {
-	console.log("success")
+	window.location = "http://localhost/ProcessManagement/index.html";
 
 }, error : function(jqXHR, textStatus, error) {
 	console.log("Error")
