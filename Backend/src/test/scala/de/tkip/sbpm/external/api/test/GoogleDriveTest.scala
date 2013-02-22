@@ -27,29 +27,34 @@ import de.tkip.sbpm.external.auth.GetAuthUrl
 import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.auth.oauth2.Credential
 import de.tkip.sbpm.external.api.GoogleDriveActor
+import de.tkip.sbpm.external.api._
 
 
 class GoogleDriveTest extends FunSuite {
+  val credential = "ya29.AHES6ZQznVYPEtUp4oVNLW5QtJFd4jRx7_g8HdmMuBIvUA"
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
  
   val sys = ActorSystem()
   val actor = sys.actorOf(Props[GoogleDriveActor])
-  
-  test("Test if GoogleAuthActor builds a valid authentication url") {
-    val future = actor ? new GetAuthUrl("User_1")
-    val result = Await.result(future.mapTo[String], timeout.duration)
-    println(result)
-    assert(result === "https://accounts.google.com/o/oauth2/auth?client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive&state=User_1")
-  }
-  
-  
-  test("Load a credential for a new user") {
-    val future = actor ? new GetCredential("User_1")
+  /**
+  test("Test if GoogelDriveActor is able to get a valid credential from GoogleAuthActor") {
+    val future = actor ? HasAccessToValidGDriveToken
     val result = Await.result(future.mapTo[Credential], timeout.duration)
     println("Token: " + result.getAccessToken())
-    println("Expires in: " + (result.getExpiresInSeconds() / 3600) + " hours")
+    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
     println("Refresh Token: " + result.getRefreshToken())
   }
+  */
+  
+  test("Test if GoogleDriveActor is able to establish connection to google drive") {
+    val future = actor ? ListGDriveDirectory(None)
+    val result = Await.result(future.mapTo[String], timeout.duration)
+    println(result)
+    
+  }
+  
+  
+  
 }
   

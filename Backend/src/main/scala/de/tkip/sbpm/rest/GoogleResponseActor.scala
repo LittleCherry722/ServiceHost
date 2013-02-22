@@ -37,16 +37,5 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
         }   
       }
     } 
-    /**
-    post {
-      path("") {
-    	  entity(as[String]) { json =>
-    	    log.debug(getClass.getName + " received: " + json)
-            googleAuthActor ! new GoogleResponse(json)
-            complete("")
-    	  }
-      }
-    }
-    */
   })
 }

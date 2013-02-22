@@ -17,10 +17,14 @@ import scala.io.Source
 import java.io.FileInputStream
 import de.tkip.sbpm.application.miscellaneous.GoogleMessage
 import com.google.api.client.auth.oauth2.TokenResponseException
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
+import com.google.api.client.auth.oauth2.CredentialRefreshListener
+import com.google.api.client.auth.oauth2.TokenResponse
+import com.google.api.client.auth.oauth2.TokenErrorResponse
 
 
 // message types for google specific communication
-trait GoogleAuthAction extends GoogleMessage
+sealed trait GoogleAuthAction extends GoogleMessage
 
 
 //case classes for authentication purpose
@@ -31,6 +35,8 @@ case class GetCredential(id: String) extends GoogleAuthAction
 case class GetNewCredential(id: String) extends GoogleAuthAction
 
 case class GetAuthUrl(id: String) extends GoogleAuthAction
+
+case class InitUser(id: String) extends GoogleAuthAction
 
 case class GoogleResponse(id: String, response: String) extends GoogleAuthAction
 
@@ -56,8 +62,9 @@ class GoogleAuthActor extends Actor with ActorLogging {
   
   
   // load application settings from config file stored in resources folder
+  //TODO use class.get.resources ... 
   val CLIENT_SECRETS = GoogleClientSecrets.load(JSON_FACTORY, new FileInputStream("resources/client_secrets.json"))
-  
+  val CALLBACK_URL = "http://localhost:8080/oauth2callback"
   // currently no persistence
   val credentialStore = new FileCredentialStore(new java.io.File(System.getProperty("user.home"), ".credentials/drive.json"), JSON_FACTORY)
   
@@ -69,6 +76,11 @@ class GoogleAuthActor extends Actor with ActorLogging {
 
   
   def receive = {
+        
+	// starts authentication flow
+    //TODO implement flow management
+  	case InitUser(id) => sender ! "success"
+  
     case DeleteCredential(id) => sender ! deleteCredential(id)
     
     case GetCredential(id) => sender ! getUserCredential(id)
@@ -76,56 +88,51 @@ class GoogleAuthActor extends Actor with ActorLogging {
     case GoogleResponse(id, response) => handelResponse(id, response)
     
     case GetAuthUrl(id) => sender ! formAuthUrl(id)
-    
-    
+   
     // implement a callback to have non-blocking struktures
     case GetNewCredential(id) => sender ! "callback"
 
     case _ => sender ! "not implemented yet"
   }
-  
-  /**
-   * 1. AuthorizationCodeFlow.loadCredential(String) available?
-   * 2. If not, call newAuthorizationUrl() and direct the end-user's browser to an authorization page. 
-   * 3. Redirect to the redirect URL with a "code" query parameter which can then be used to request an 
-   * 	access token using newTokenRequest(String)
-   * 4. AuthorizationCodeFlow.createAndStoreCredential(TokenResponse, String) to store
-   */
-  
-  /** Method that handels the whole message flow necessary for
-   * new creadentials
-   
-  def getNewUserCredentials(id: String): Credential = {
-    new Credential()
-  }
-  */
-  
+
   
   /** Loads user credentials from database, in case user is
    * unknown it returns null
    */
   def getUserCredential(id : String): Credential = {
-      flow.loadCredential(id)
+    refreshToken(id)  
+    flow.loadCredential(id)
   }
   
   /** Generate autorization URL */ 
   def formAuthUrl(id: String): String = {
-    flow.newAuthorizationUrl().setRedirectUri("http://localhost:8080/oauth2callback").setState(id).build()
+    flow.newAuthorizationUrl().setRedirectUri(CALLBACK_URL).setState(id).setAccessType("offline").build()
   }
    
   /** Receives google post and exchanges it to an access token */
   def handelResponse(id : String, response : String) = {
-    log.debug(getClass().getName() + " Response: " + response)
+    //log.debug(getClass().getName() + " Response: " + response)
     try {  
-    val tokenRequest = flow.newTokenRequest(response).setRedirectUri("http://localhost:8080/oauth2callback")
-    
-    // for debug purpose
-    log.debug(getClass().getName() + " TokenRequest: " + "{Code: " + tokenRequest.getCode() + " RURI: " + tokenRequest.getRedirectUri() + "}")
-    
-    flow.createAndStoreCredential(tokenRequest.execute(), id)
-    
+    val tokenRequest = flow.newTokenRequest(response).setRedirectUri(CALLBACK_URL)
+    val tokenResponse = tokenRequest.execute()
+    val credential = new GoogleCredential.Builder()
+    .setTransport(new NetHttpTransport)
+    .setJsonFactory(new JacksonFactory)
+    .setClientSecrets(CLIENT_SECRETS)
+    .addRefreshListener(new CredentialRefreshListener() {
+      
+      def onTokenResponse(credential : Credential , tokenResponse : TokenResponse) {
+        log.debug(getClass().getName() + " Refresh credential for User " + id + ": OK")
+      }
+      
+      def onTokenErrorResponse(credential : Credential, tokenErrorResponse : TokenErrorResponse) {
+        log.debug(getClass().getName() + " Refresh credential for User: " + id + ": FAIL")
+      }
+    }).addRefreshListener(new CredentialStoreRefreshListener(id, credentialStore))
+    .build()
+    credential.setFromTokenResponse(tokenResponse)
     } catch {
-    case m : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + m.getDetails() + "\n" + m.getMessage())
+    case e : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + e.getDetails() + "\n" + e.getMessage())
 }
   }
   
@@ -136,6 +143,11 @@ class GoogleAuthActor extends Actor with ActorLogging {
       flow.getCredentialStore().delete(id, credential)
     }
    flow.loadCredential(id).getAccessToken().isEmpty()
+  }
+  
+  /** refresh specific tokens */
+  def refreshToken(id : String) {
+    flow.loadCredential(id).refreshToken()
   }
   
   
