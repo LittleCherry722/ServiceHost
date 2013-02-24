@@ -54,6 +54,7 @@ define([
 
 	currentSubject.subscribe(function( subject ) {
 		if ( currentSubView() ) {
+		console.log("setting subview")
 			currentSubView().setSubject( subject );
 		}
 	});
