@@ -15,10 +15,10 @@
 			<span class="divider">/</span>
 		</li>
 		<li data-bind="css: { active: !currentSubject() }">
-			<!-- ko if: !currentSubject() -->
+			<!-- ko if: !currentSubject() && false -->
 				<span data-bind="text: processInstance().instanceName()" ></span>
 			<!-- /ko -->
-			<!-- ko if: currentSubject() -->
+			<!-- ko if: currentSubject() || true -->
 				<a data-bind="text: processInstance().instanceName(), attr: {
 					href: processInstance().url() + 'Overview' }"></a>
 			<!-- /ko -->
