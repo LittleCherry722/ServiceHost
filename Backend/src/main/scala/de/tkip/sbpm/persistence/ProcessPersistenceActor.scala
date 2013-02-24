@@ -69,8 +69,11 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
         answer { Processes.where(_.id === id).delete(session) }
       // execute DDL for "process" table
       case InitDatabase => answer { Processes.ddl.create(session) }
+      case DropDatabase => answer { dropIgnoreErrors(Processes.ddl) }
     }
   }
+  
+  private val graphActor = context.actorFor(context.parent.path / "graph")
   
   // update entity or throw exception if it does not exist
   private def update(id: Option[Int], p: Process)(implicit session: Session) = answer {
@@ -105,7 +108,7 @@ private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAc
     // set process id in graph
     g.get.processId = p.id.get
     // save graph via persistence actor
-    val graphFuture = context.parent ? SaveGraph(g.get)
+    val graphFuture = graphActor ? SaveGraph(g.get)
     val gId = Await.result(graphFuture.mapTo[Option[Int]], timeout.duration)
     // if graph was created retrieve id
     if (gId.isDefined)

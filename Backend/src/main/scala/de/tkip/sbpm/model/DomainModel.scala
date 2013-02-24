@@ -14,6 +14,7 @@ case class Envelope(data: Option[JsValue], code: String)
 // Model for Administration
 case class Configuration(key: String, label: String, value: String, dataType: String = "String")
 case class User(var id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8)
+case class UserIdentity(user: User, provider: String, eMail: String, password: Option[String])
 case class Role(var id: Option[Int], name: String, isActive: Boolean = true)
 case class Group(var id: Option[Int], name: String, isActive: Boolean = true)
 
@@ -28,5 +29,3 @@ case class Action(id: Option[Int], data: String) // TODO extend this case class 
 // Model for DB Relations 
 case class GroupRole(groupId: Int, roleId: Int, isActive: Boolean = true)
 case class GroupUser(groupId: Int, userId: Int, isActive: Boolean = true)
-
-case class Activatable(isActive: Boolean = false)

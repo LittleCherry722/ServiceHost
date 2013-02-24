@@ -1,6 +1,5 @@
 *.class
 *.log
 .scala_dependencies
-*.jar
 *.war
 *.ear

@@ -64,8 +64,10 @@ class FrontendInterfaceActor extends Actor with HttpService {
     case auth.AuthenticationRejection(schemes, realm, sessionId) :: _ => {
       respondWithHeader(HttpHeaders.`WWW-Authenticate`(schemes.map(HttpChallenge(_, realm)))) {
         if (sessionId.isDefined) {
-          setSessionCookie(sessionId.get)(context) {
-            complete(StatusCodes.Unauthorized)
+          session(sessionId.get)(context) { session =>
+            setSessionCookie(session)(context) {
+              complete(StatusCodes.Unauthorized)
+            }
           }
         } else {
           deleteSession(actorRefFactory) {
@@ -148,14 +150,14 @@ class FrontendInterfaceActor extends Actor with HttpService {
         path(frontendBaseUrl + "/") {
           getFromFile(frontendBaseDir + frontendIndexFile)
         } ~
-          // no trailing slash -> redirect to index
-          path(frontendBaseUrl) {
-            redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
-          } ~
-          // server other static content from dir
-          pathPrefix(frontendBaseUrl) {
-            getFromDirectory(frontendBaseDir)
-          }
+	      // no trailing slash -> redirect to index OR root folder -> redirect to frontendBaseUrl
+	      (path(frontendBaseUrl) | path("")) {
+	        redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
+	      } ~
+	      // server other static content from dir
+	      pathPrefix(frontendBaseUrl) {
+	        getFromDirectory(frontendBaseDir)
+	      }
       }
   })
 
@@ -182,7 +184,7 @@ class FrontendInterfaceActor extends Actor with HttpService {
       // authenticate using session cookie or Authorization header 
       authenticate(new CookieAuthenticator) { session =>
         // auth successful -> set session cookie
-        setSessionCookie(session.id)(context) {
+        setSessionCookie(session)(context) {
           handleWith[A]
         }
       }

@@ -50,6 +50,7 @@ private[persistence] class GroupPersistenceActor extends Actor with DatabaseAcce
       case DeleteGroup(id) => answer { Groups.where(_.id === id).delete(session) }
       // execute DDL for "groups" table
       case InitDatabase => answer { Groups.ddl.create(session) }
+      case DropDatabase => answer { dropIgnoreErrors(Groups.ddl) }
     }
   }
 

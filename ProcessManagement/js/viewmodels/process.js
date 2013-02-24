@@ -421,7 +421,6 @@ define([
 	// Unsubscribe from all subscriptions that we subscribed to on
 	// initialization.
 	var unsubscribeAll = function() {
-		console.log("unsubscribing");
 		_( subscriptions ).each(function( element, list ) {
 			$.unsubscribe( element );
 		});

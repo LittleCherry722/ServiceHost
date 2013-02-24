@@ -2,7 +2,6 @@ package de.tkip.sbpm
 
 import java.security.KeyStore
 import java.security.SecureRandom
-
 import ActorLocator._
 import akka.actor.Props
 import akka.actor.actorRef2Scala
@@ -14,8 +13,18 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 import spray.can.server.SprayCanHttpServerApp
+import akka.util.Timeout
+import akka.pattern._
+import scala.concurrent.duration._
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
+import scala.actors.Logger
+import scala.concurrent.Future
+import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 
 object Boot extends App with SprayCanHttpServerApp {
+  val logging = system.log
 
   // for SSL support (if enabled in application.conf)
   implicit def sslContext: SSLContext = {
@@ -32,7 +41,7 @@ object Boot extends App with SprayCanHttpServerApp {
     context.init(keyManagerFactory.getKeyManagers, trustManagerFactory.getTrustManagers, new SecureRandom)
     context
   }
-  
+
   // create and start our service actor
   val persistenceActor = system.actorOf(Props[PersistenceActor], persistenceActorName)
   val contextResolver = system.actorOf(Props[ContextResolverActor], contextResolverActorName)
@@ -47,8 +56,29 @@ object Boot extends App with SprayCanHttpServerApp {
   // create a new HttpServer using our handler tell it where to bind to
   newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = 8080)
 
-  persistenceActor ! InitDatabase
+  // db init code below
+  implicit val timout = Timeout(30 seconds)
+  implicit val context = system
+  implicit val executionContext = system.dispatcher
+
+  // check startup actions defined in config
+  val startupAction = system.settings.config.getString("sbpm.db.startupAction")
+  val dropAction = startupAction matches "^recreate(-debug)?$"
+  val createAction = startupAction matches "^(re)?create(-debug)?$"
+  val debugAction = startupAction matches "^(re)?create-debug$"
+
+  var dbFuture = Future()
+  if (dropAction)
+    dbFuture = dbFuture map { case _ => persistenceActor ? DropDatabase }
+  if (createAction)
+    dbFuture = dbFuture map { case _ => persistenceActor ? InitDatabase }
+  if (debugAction)
+    dbFuture = dbFuture map { case _ => TestData.insert(persistenceActor) }
 
   // TODO create a processinstance for testreason: history, actions, graph etc...
-  subjectProviderManagerActor ! de.tkip.sbpm.application.miscellaneous.CreateProcessInstance(1, 1)
+  dbFuture.map(_ => CreateProcessInstance(1, 1)).pipeTo(subjectProviderManagerActor)
+  
+  dbFuture.onFailure {
+    case e => logging.error(e, e.getMessage)
+  }
 }
