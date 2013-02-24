@@ -25,20 +25,28 @@ define([
 			return [];
 		}
 	});
+	var subjectsArray = ko.computed(function() {
+		if ( processInstance() && processInstance().process() ) {
+			return processInstance().process().subjectsArray();
+		} else {
+			return []
+		}
+	});
 
 	var currentSubject = ko.observable();
 
 	currentSubject.subscribe(function( subjectId ) {
 		var newRoute;
-		console.log("haha?")
 
 		if( subjectId ) {
 			subject = subjectId.replace(/___/, " ");
 			if ( gv_graph.subjects[subject] && !gv_graph.subjects[subject].isExternal() ) {
 				// let the graph know we want to go to the internal view of a subject.
+				Router.goTo([ "processinstances", processInstance().id(), "Graph", subject ]);
 				gv_graph.selectedSubject = null;
 				gf_clickedCVnode( subject );
 				loadBehaviorView( subject );
+				$('#graph_cv_outer').show();
 			}
 		}
 	});
@@ -94,7 +102,10 @@ define([
 			// App.loadSubView( "execution/actions", processInstance() );
 			$( "#slctSbj" ).chosen();
 			processInstance( instance )
-			currentSubject( subjectId )
+			gf_paperZoomOut();
+			gf_paperZoomOut();
+			var subject = subjectId || subjectsArray()[0][0];
+			currentSubject( subject )
 		});
 	}
 

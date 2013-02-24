@@ -42,7 +42,7 @@ define([
 
 	currentSubView = ko.observable();
 	
-	var tabs = ['Overview', 'Graph', 'History' ];
+	var tabs = [ 'Graph', 'History' ];
 	var currentTab = ko.observable();
 
 
@@ -54,7 +54,6 @@ define([
 
 	currentSubject.subscribe(function( subject ) {
 		if ( currentSubView() ) {
-		console.log("setting subview")
 			currentSubView().setSubject( subject );
 		}
 	});
