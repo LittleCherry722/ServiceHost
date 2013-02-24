@@ -566,7 +566,6 @@ define([
 		selectTab( 1 );
 		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
-		updateMenuDropdowns();
 	}
 
 	// Select a certain tab. Can either be directly attached to the click

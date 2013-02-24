@@ -9,21 +9,21 @@
 			<a href="#/processList">Processes</a>
 			<span class="divider">/</span>
 		</li>
-    <!-- ko ifnot: currentSubject() -->
-      <li class="active">
-        <span data-bind="text: currentProcess().name()"></span>
-      </li>
-    <!-- /ko -->
-    <!-- ko if: currentSubject() -->
-      <li>
-        <a data-bind="text: currentProcess().name(), attr: {
-          href: currentProcess().url() }"></a>
-        <span class="divider">/</span>
-      </li>
-      <li class="active">
-        <span data-bind="text: currentSubjectName()"></span>
-      </li>
-    <!-- /ko -->
+		<!-- ko ifnot: currentSubject() -->
+			<li class="active">
+				<span data-bind="text: currentProcess().name()"></span>
+			</li>
+		<!-- /ko -->
+		<!-- ko if: currentSubject() -->
+			<li>
+				<a data-bind="text: currentProcess().name(), attr: {
+					href: currentProcess().url() }"></a>
+				<span class="divider">/</span>
+			</li>
+			<li class="active">
+				<span data-bind="text: currentSubjectName()"></span>
+			</li>
+		<!-- /ko -->
 	</ul>
 
 	<div id="graph">

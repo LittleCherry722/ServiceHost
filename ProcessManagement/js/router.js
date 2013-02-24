@@ -57,11 +57,13 @@ define([ "director", "app"], function( Director, App ) {
 		}
 	}
 
-	var showProcessExecution = function( id, tab ) {
+	var showProcessExecution = function( id, tab, subject ) {
+		subjectId = subject ? subject.replace(/___/, " ") : undefined;
+
 		if ( App.isViewLoaded( "execution" ) ) {
-			App.currentMainViewModel().setView( id, tab )
+			App.currentMainViewModel().setView( id, tab, subjectId )
 		} else {
-			loadView( "execution", [ id, tab ], globalCallback() );
+			loadView( "execution", [ id, tab, subjectId ], globalCallback() );
 		}
 	}
 
@@ -91,7 +93,10 @@ define([ "director", "app"], function( Director, App ) {
 		"/processinstances": {
 			"/:process/": {
 				on: showProcessExecution,
-				"/:tab": showProcessExecution
+				"/:tab": {
+					on: showProcessExecution,
+					":subject": showProcessExecution
+				}
 			}
 		}
 	}
@@ -168,7 +173,7 @@ define([ "director", "app"], function( Director, App ) {
 				if (!fragment) {
 					return;
 				}
-				route += "/" + fragment.replace(/ /, "___").replace(/^#/, "");
+				route += "/" + fragment.toString().replace(/ /, "___").replace(/^#/, "");
 			});
 		} else if ( typeof path === "object" ) {
 			route = modelPath( path );
