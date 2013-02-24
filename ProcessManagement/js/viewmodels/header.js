@@ -7,13 +7,45 @@ define([
 
 	// Our header viewmodel. Make this private and only export some methods as
 	// public API so we stay in tighter controll of everything.
-	var viewModel = {
-		currentUser: App.currentUser
+	
+	var ViewModel = function() {
+		currentUser = App.currentUser;
+		this.logout = logout;
+		
 	}
+	
+	var logout = function() {
+		console.log("logout");
+
+		$.ajax({
+			url : '/user/logout',
+			type : "POST",
+
+			async : true, // defaults to false
+
+			success : function(data, textStatus, jqXHR) {
+				window.location = "http://localhost:8080/sbpm/login.html";
+
+			},
+			error : function(jqXHR, textStatus, error) {
+				console.log("Error")
+				console.log(error)
+			},
+			complete : function(jqXHR, textStatus) {
+				console.log("complete")
+
+			}
+		});
+
+	}; 
+
 
 	var initialize = function() {
 		headerNode = document.getElementById( 'header' )
 		headerNode.innerHTML = headerTemplate;
+		
+		viewModel = new ViewModel();
+		
 		ko.applyBindings( viewModel, headerNode )
 	}
 

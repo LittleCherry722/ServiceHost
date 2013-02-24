@@ -34,22 +34,44 @@ define([
 			"models/processInstance"
 			// "models/roles",
 		], function( Model, User, Process, Group, Role ) {
-
-			// The current user logged in to our system
-			currentUser( new User( { name: "no user" } ) );
-
-
 			// Initially fetch all Models, then initialize the views and after that,
 			// tell everyone that we are done (call the callback).
+
+			
+
 			async.auto({
-				// fetchAll: Model.fetchAll,
-				fetchAll: Model.fetchAll,
-				initViews: [ "fetchAll", initializeViews ],
-				callback: [ "initViews", callback ]
-			});
+				fetchAll : Model.fetchAll,
+				setCurrentUser : ["fetchAll", function(callback) {
+					loadCurrentUser();
+					callback();
+				}],
+				initViews : ["fetchAll", "setCurrentUser", initializeViews],
+				callback : ["initViews", callback]
+			}); 
 
 		});
+	};
+
+
+
+
+
+	var readCookie = function(key) {
+		var result;
+		return ( result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? (result[1]) : null;
 	}
+	var loadCurrentUser = function() {
+
+		if (readCookie("sbpm-userId")) {
+
+			currentUser(User.find(readCookie("sbpm-userId").replace(/"/g, '')));
+		} else { //TODO Kein Cookie gesetzt, kein Zugang.
+			currentUser(new User({
+				name : "no user"
+			}));
+		}
+	}; 
+
 
 
 	// The current ViewModel loaded for the "main" view
@@ -229,5 +251,6 @@ define([
 		loadSubView: loadSubView,
 		viewCanUnload: viewCanUnload,
 		unloadViewModel: unloadViewModel
+
 	}
 });
