@@ -28,8 +28,6 @@ import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.auth.oauth2.Credential
 
 
-
-
 class GoogleAuthTest extends FunSuite {
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
@@ -44,7 +42,6 @@ class GoogleAuthTest extends FunSuite {
     assert(result === "https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive&state=User_1")
   }
   
-  
   test("Load a credential for a new user") {
     val future = actor ? new GetCredential("User_1")
     val result = Await.result(future.mapTo[Credential], timeout.duration)
@@ -53,4 +50,14 @@ class GoogleAuthTest extends FunSuite {
     println("Refresh Token: " + result.getRefreshToken())
   }
 }
-  
+
+  //TODO integration des tests in das laufende aktoren systen, nicht in ein temporäres system
+  /**
+  test("Check if the token can be refreshed")
+  	val future = actor ? new GetCredential("User_1")
+    val result = Await.result(future.mapTo[Credential], timeout.duration)
+    println("Token: " + result.getAccessToken())
+    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
+    println("Refresh Token: " + result.getRefreshToken())
+}
+  */

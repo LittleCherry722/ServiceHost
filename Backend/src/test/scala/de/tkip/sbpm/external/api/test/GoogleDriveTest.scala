@@ -31,7 +31,6 @@ import de.tkip.sbpm.external.api._
 
 
 class GoogleDriveTest extends FunSuite {
-  val credential = "ya29.AHES6ZQznVYPEtUp4oVNLW5QtJFd4jRx7_g8HdmMuBIvUA"
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
  
