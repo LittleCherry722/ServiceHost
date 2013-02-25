@@ -18,7 +18,7 @@ object ProjectBuild extends Build {
       libraryDependencies ++= Seq(
         "com.typesafe.akka" % "akka-actor_2.10"   % "2.1.0",
         "com.typesafe.akka" % "akka-testkit_2.10" % "2.1.0" % "test",
-        "com.typesafe.slick" %% "slick"           % "1.0.0",
+        "com.typesafe.slick" % "slick_2.10"       % "1.0.0",
         "junit"             % "junit"             % "4.5"        % "test",
         "org.scalatest"     % "scalatest_2.10"    % "1.9.1",
         "io.spray"          % "spray-can"         % "1.1-M7",
