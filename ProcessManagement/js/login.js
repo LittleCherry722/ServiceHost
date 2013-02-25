@@ -1,16 +1,14 @@
 var LoginViewModel = function() {
-	window.Lview = this;
+	//window.Lview = this;
 
 	self = this;
 	self.user = ko.observable("");
 	self.pass = ko.observable("");
 
 	self.login = function() {
-		console.log("login: " + self.user() + " " + self.pass());
+		var data = '{"user" : "' + escape(self.user()) + '" , "pass" : "' + escape(self.pass()) + '"}';
 
-		var data = '{"user" : "' + self.user() + '" , "pass" : "' + self.pass() + '"}';
 		self.pass("");
-		console.log(data);
 
 		$.ajax({
 			url : '/user/login',
@@ -24,11 +22,10 @@ var LoginViewModel = function() {
 
 			},
 			error : function(jqXHR, textStatus, error) {
-				console.log("Error")
-				console.log(error)
+				alert("E-Mail or Password wrong, please try again.");
+
 			},
 			complete : function(jqXHR, textStatus) {
-				console.log("complete")
 
 			}
 		});
