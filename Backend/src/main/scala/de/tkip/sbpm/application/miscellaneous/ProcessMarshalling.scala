@@ -33,7 +33,7 @@ object parseGraph {
   // The marshalling case classes
   // TODO wo genau steht die messagetype
   private case class JGraph(process: Array[JSubject])
-  private case class JSubject(id: SubjectID, name: SubjectName, macros: Array[JBehavior])
+  private case class JSubject(id: SubjectID, name: SubjectName, inputPool: Int, macros: Array[JBehavior])
   private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
   private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
   private case class JNodeOption(message: MessageType)
@@ -47,7 +47,7 @@ object parseGraph {
     implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
     implicit val nodeFormat = jsonFormat6(JNode)
     implicit val behaviorFormat = jsonFormat2(JBehavior)
-    implicit val subjectFormat = jsonFormat3(JSubject)
+    implicit val subjectFormat = jsonFormat4(JSubject)
     implicit val graphFormat = jsonFormat1(JGraph)
   }
   import JsonFormats._
@@ -97,7 +97,7 @@ object parseGraph {
 
       // all parsed states are in the states map, convert the creators and return
       // the subject
-      Subject(subject.id, states.map(_._2.createState).toArray)
+      Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray)
     }
 
     private def parseNodes(nodes: Array[JNode]) {

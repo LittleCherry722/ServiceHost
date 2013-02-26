@@ -15,11 +15,11 @@ protected case class NextState(state: StateID) extends SubjectBehaviorRequest
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
 sealed trait MessageObject
 // message from subject to subject
-protected case class SubjectInternalMessage(userID: UserID, from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+protected case class SubjectInternalMessage(messageID: MessageID, userID: UserID, from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // stored message in the inputpool
-protected case class TransportMessage(from: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+protected case class TransportMessage(messageID: MessageID, from: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // acknowledge, that a message is stored in the input pool
-protected case object Stored extends MessageObject
+protected case class Stored(messageID: MessageID) extends MessageObject
 // request for the input pool that a state want to know his messages
 protected case class RequestForMessages(exitConds: Array[SubjectMessageRouting])
 

@@ -17,6 +17,7 @@ import de.tkip.sbpm.application.history.{
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import akka.event.Logging
+import scala.collection.mutable.ArrayBuffer
 
 case class ActionExecuted(ea: ExecuteAction)
 case class SubjectStarted(userID: UserID)
@@ -84,7 +85,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 }
 
 protected case class StartStateActor(data: StateData)
-  extends BehaviorStateActor(data) {
+    extends BehaviorStateActor(data) {
 
   logger.debug("Start@" + userID + ", " + subjectID)
 
@@ -104,7 +105,7 @@ protected case class StartStateActor(data: StateData)
 }
 
 protected case class EndStateActor(data: StateData)
-  extends BehaviorStateActor(data) {
+    extends BehaviorStateActor(data) {
 
   // TODO direct beenden?
   internalBehaviorActor ! SubjectTerminated(userID, subjectID)
@@ -114,7 +115,7 @@ protected case class EndStateActor(data: StateData)
 }
 
 protected case class ActStateActor(data: StateData)
-  extends BehaviorStateActor(data) {
+    extends BehaviorStateActor(data) {
 
   override def receive = {
 
@@ -151,10 +152,11 @@ protected case class ActStateActor(data: StateData)
 }
 
 protected case class ReceiveStateActor(data: StateData)
-  extends BehaviorStateActor(data) {
+    extends BehaviorStateActor(data) {
 
   var messageContent: String = ""
   var stateType: StateType = WaitingStateType
+  var messageID: MessageID = -1
 
   // request if there is a message for this subject
   inputPoolActor !
@@ -163,7 +165,7 @@ protected case class ReceiveStateActor(data: StateData)
   override def receive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ReceiveStateString, input) => {
       if (!transitions.isEmpty) {
-        val message = HistoryMessage(-1, transitions(0).messageType, transitions(0).subjectName, subjectID, messageContent)
+        val message = HistoryMessage(messageID, transitions(0).messageType, transitions(0).subjectName, subjectID, messageContent)
         internalBehaviorActor ! ChangeState(id, transitions(0).successorID, message)
 
         processInstanceActor ! ActionExecuted(ea)
@@ -175,6 +177,7 @@ protected case class ReceiveStateActor(data: StateData)
       logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
+      messageID = sm.messageID
       messageContent = sm.messageContent
       stateType = ReceiveStateType
     }
@@ -185,7 +188,8 @@ protected case class ReceiveStateActor(data: StateData)
   }
 
   private def convertTransitionToRequest(transition: Transition) =
-    SubjectMessageRouting(transition.subjectName,
+    SubjectMessageRouting(
+      transition.subjectName,
       transition.messageType)
 
   override protected def getAvailableAction: (StateType, Array[String]) = {
@@ -194,7 +198,7 @@ protected case class ReceiveStateActor(data: StateData)
 }
 
 protected case class SendStateActor(data: StateData)
-  extends BehaviorStateActor(data) {
+    extends BehaviorStateActor(data) {
 
   // TODO mehrere nachrichten gleichzeitig?
   val messageType = transitions(0).messageType
@@ -202,8 +206,10 @@ protected case class SendStateActor(data: StateData)
   val sucessorID = transitions(0).successorID
 
   var messageData: String = null
+  val unsentMessageIDs: ArrayBuffer[MessageID] = ArrayBuffer[MessageID]()
 
   // TODO sowas wie timeout ist nicht drin
+  // TODO message ids
   override def receive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) => {
       // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
@@ -211,7 +217,9 @@ protected case class SendStateActor(data: StateData)
       // be returned when asking
       messageData = input
       processInstanceActor !
-        SubjectInternalMessage(userID,
+        SubjectInternalMessage(
+          nextMessageID(),
+          userID,
           subjectID,
           toSubject,
           messageType,
@@ -221,7 +229,7 @@ protected case class SendStateActor(data: StateData)
     }
 
     // TODO stored vielleicht besser spezifizieren
-    case Stored => {
+    case Stored(messageID) if (unsentMessageIDs.contains(messageID)) => {
       // create the History Entry
       if (messageData == null) {
         // TODO was tun?
@@ -229,7 +237,7 @@ protected case class SendStateActor(data: StateData)
       }
       internalBehaviorActor !
         ChangeState(id, sucessorID,
-          HistoryMessage(-1, messageType, subjectID, toSubject, messageData))
+          HistoryMessage(messageID, messageType, subjectID, toSubject, messageData))
     }
 
     case s => {
@@ -239,4 +247,13 @@ protected case class SendStateActor(data: StateData)
 
   override protected def getAvailableAction: (StateType, Array[String]) =
     (if (messageData == null) SendStateType else WaitingStateType, Array())
+
+  /**
+   * Returns and adds a new message ID for the next message
+   */
+  private def nextMessageID(): Int = {
+    val messageID = scala.util.Random.nextInt
+    unsentMessageIDs += messageID
+    messageID
+  }
 }

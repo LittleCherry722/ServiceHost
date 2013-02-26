@@ -29,7 +29,7 @@ object StateType extends Enumeration {
 import StateType.StateType
 // name raus ist ws in id
 case class State(id: StateID, name: String, stateType: StateType, transitions: Array[Transition])
-case class Subject(id: String, states: Array[State])
+case class Subject(id: String, inputPool: Int, states: Array[State])
 case class ProcessGraph(subjects: Array[Subject])
 case class ProcessModel(processID: ProcessID, name: String, graph: ProcessGraph) {
   def subjects = graph.subjects

@@ -27,7 +27,8 @@ class SubjectActionsCollector extends Actor {
 
   def receive = {
     case CollectAvailableActions(subjects, processInstanceID, generateAnswer) => {
-      implicit val timeout = akka.util.Timeout(5 seconds)
+      implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
+      // TODO might check if some subjects has terminated
 
       // ask every subjects for the available action
       val futures: Array[Future[AvailableAction]] =
@@ -43,25 +44,6 @@ class SubjectActionsCollector extends Actor {
 
       // actions collected -> stop this actor
       context.stop(self)
-
-      //        val future = subject ? GetAvailableAction(processInstanceID)
-      //        futures += future.asInstanceOf[Future[AvailableAction]]
-      // TODO non-blocking?
-      //      val actionFutures =
-      //        for (actionFuture <- futures)
-      //          yield actionFuture
-
-      //      var h = null
-      //      val actions = ArrayBuffer[AvailableAction]()
-      //      for (f <- futures) {
-      //        try {
-      //          actions += Await.result(f, timeout.duration).asInstanceOf[AvailableAction]
-      //        } catch {
-      //          case h: java.util.concurrent.TimeoutException => {
-      //            logger.error(f + " timed out")
-      //          }
-      //        }
-      //      }
     }
   }
 }
