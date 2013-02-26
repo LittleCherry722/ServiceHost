@@ -136,7 +136,12 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
       case StartStateType => if (state.transitions.size == 1) {
         context.actorOf(Props(StartStateActor(data)))
       } else {
-        throw new IllegalArgumentException("Startstates may only have 1 Transition")
+        if (state.transitions.size == 0) {
+          logger.error("Startstate has no successor state, terminating subject")
+          context.actorOf(Props(EndStateActor(data)))
+        } else {
+          throw new IllegalArgumentException("Startstates may only have 1 Transition")
+        }
       }
       case ActStateType => {
         context.actorOf(Props(ActStateActor(data)))
