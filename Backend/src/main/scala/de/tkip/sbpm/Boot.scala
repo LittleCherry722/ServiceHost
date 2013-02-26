@@ -22,6 +22,9 @@ import scala.util.Failure
 import scala.actors.Logger
 import scala.concurrent.Future
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import de.tkip.sbpm.external.auth.GoogleAuthActor
+import de.tkip.sbpm.external.api.GoogleDriveActor
+
 
 object Boot extends App with SprayCanHttpServerApp {
   val logging = system.log
@@ -52,6 +55,8 @@ object Boot extends App with SprayCanHttpServerApp {
   val basicAuthActor = system.actorOf(Props[BasicAuthActor], basicAuthActorName)
   val oAuth2Actor = system.actorOf(Props[OAuth2Actor], oAuth2ActorName)
   val userPassAuthActor = system.actorOf(Props[UserPassAuthActor], userPassAuthActorName)
+  val googleAuthActor = system.actorOf(Props[GoogleAuthActor], googleAuthActorName)
+  val googleDriveActor = system.actorOf(Props[GoogleDriveActor], googleDriveActorName)
 
   // create a new HttpServer using our handler tell it where to bind to
   newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = 8080)

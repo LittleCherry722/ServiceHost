@@ -100,8 +100,8 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             val processFuture = (persistenceActor ? GetProcess(None, Some(json.name)))
             val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
 
-            // Prüfen, ob der Prozess bereits existiert
-            // Prüfen, ob der Name 3 oder mehr Buchstaben enthält
+            // PrÃœfen, ob der Prozess bereits existiert
+            // PrÃ¼fen, ob der Name 3 oder mehr Buchstaben enthÃ¤lt
             validate(!processResult.isDefined, "The processes name has to be unique!") {
               validate(json.name.length() >= 3, "The name hast to contain 3 or more letters!") {
                 implicit val timeout = Timeout(5 seconds)
@@ -145,8 +145,8 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
               val processFuture = (persistanceActor ? GetProcess(Option(id), None))
               val result = Await.result(processFuture, timeout.duration).asInstanceOf[Some[Process]]
 
-              // Prüfen, ob der Prozess existiert
-              // Prüfen, ob der Name 3 oder mehr Buchstaben enthält
+              // Prï¿½fen, ob der Prozess existiert
+              // Prï¿½fen, ob der Name 3 oder mehr Buchstaben enthï¿½lt
               validate(result.isDefined, "The requested process does not exist") {
                 validate(json.name.length() >= 3, "The name hast to contain 3 or more letters!") {
                   val graphFuture = (persistanceActor ? SaveGraph(Graph(Option(result.get.graphId), json.graph, new java.sql.Timestamp(System.currentTimeMillis()), id)))
