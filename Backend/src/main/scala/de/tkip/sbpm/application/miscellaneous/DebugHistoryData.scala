@@ -45,8 +45,8 @@ object HistoryTestData {
     h.entries += end(sub2, h.entries.last.toState)
     time = nextTime(time)
 //    h.entries += receive(sub2, sub1, "Order availability", 4, null, List("invoice"), h.entries(4).toState)
-    h.entries += end(sub1, h.entries.last.toState)
-    h.processEnded = Some(new Date(time))
+//    h.entries += end(sub1, h.entries.last.toState)
+//    h.processEnded = Some(new Date(time))
   }
 
   def send(from: String, to: String, msgType: String, msgId: Int, payload: String, files: Seq[String], fromState: State)(implicit payloadProvider: ActorRef, time: Long) =

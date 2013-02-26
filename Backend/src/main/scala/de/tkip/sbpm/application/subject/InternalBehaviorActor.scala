@@ -107,7 +107,7 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
   }
 
   private def nextState(state: StateID) {
-    //    currentState ! End // n�tig?
+    //    currentState ! End // noetig?
     if (currentState != null) {
       context.stop(currentState)
       currentState = null
