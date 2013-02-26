@@ -9,6 +9,7 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.http.HttpResponseException
 import com.google.api.services.drive.Drive
+import com.google.api.services.drive.model.File
 import com.google.api.services.drive.model.FileList
 import scala.collection.immutable.Map
 import scala.reflect.Manifest
@@ -173,16 +174,31 @@ class GoogleDriveActor extends Actor with ActorLogging {
   }
       
   /** returns user specific drive object from DRIVE_SET */
-  def getDriveObject(id: String): Drive = {
+  def getGDriveObject(id: String): Drive = {
     DRIVE_SET.get(id).get
   }
   
   /** lists directory on the google drive, in case the method does not get a parameter it lists the root directory */
-  def listFiles(id: String): FileList = {
-    val drive = getDriveObject(id)
+  def listFiles(id: String): java.util.List[File] = {
+    val drive = getGDriveObject(id)
+    val files = drive.files().list().execute()
+    files.getItems()
+  }
+  
+  
+  //TODO implement directory filtering
+  /** browse google drive or a specific directory */
+  def browseGDrive(id: String, directory: Option[String]): FileList = {
+    val drive = getGDriveObject(id)
     val files = drive.files().list().execute()
     files
   }
+  
+  //TODO implement sharing via url 
+  /** get a public accessable url for a specific file */
+  
+  
+  
 
   
 }

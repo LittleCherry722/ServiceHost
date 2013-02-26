@@ -36,20 +36,29 @@ class GoogleAuthTest extends FunSuite {
   val actor = sys.actorOf(Props[GoogleAuthActor])
   
   test("Test if GoogleAuthActor builds a valid authentication url") {
-    val future = actor ? new GetAuthUrl("User_1")
+    val future = actor ? GetAuthUrl("User_1")
     val result = Await.result(future.mapTo[String], timeout.duration)
     println(result)
     assert(result === "https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive&state=User_1")
   }
   
   test("Load a credential for a new user") {
-    val future = actor ? new GetCredential("User_1")
+    val future = actor ? GetCredential("User_1")
     val result = Await.result(future.mapTo[Credential], timeout.duration)
     println("Token: " + result.getAccessToken())
     println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
     println("Refresh Token: " + result.getRefreshToken())
   }
+  
+  test("Test if credentials can be refreshed") {
+    val future = actor ? GetCredential("User_1")
+    val result = Await.result(future.mapTo[Credential], timeout.duration)
+    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
+    println("Refresh token: " + result.refreshToken())
+    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
+  }
 }
+
 
   //TODO integration des tests in das laufende aktoren systen, nicht in ein temporäres system
   /**

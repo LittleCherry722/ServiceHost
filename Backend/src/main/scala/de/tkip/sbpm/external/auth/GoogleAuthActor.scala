@@ -38,6 +38,9 @@ case class GetAuthUrl(id: String) extends GoogleAuthAction
 
 case class InitUser(id: String) extends GoogleAuthAction
 
+
+
+// message that keeps response of google authentication service 
 case class GoogleResponse(id: String, response: String) extends GoogleAuthAction
 
 
