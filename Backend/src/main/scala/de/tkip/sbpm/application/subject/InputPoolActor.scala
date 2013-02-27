@@ -7,14 +7,13 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.Transition
 import akka.event.Logging
 
-// TODO subjectID nicht subjectName
 case class SubjectMessageRouting(from: SubjectID, messageType: MessageType)
 
 object SubjectMessageRouting {
   // TODO passt nur fuer receivestate
   def apply(to: SubjectID, transition: Transition): SubjectMessageRouting =
     SubjectMessageRouting(
-      transition.subjectName,
+      transition.subjectID,
       transition.messageType)
   def apply(sm: SubjectInternalMessage): SubjectMessageRouting =
     SubjectMessageRouting(sm.from, sm.messageType)

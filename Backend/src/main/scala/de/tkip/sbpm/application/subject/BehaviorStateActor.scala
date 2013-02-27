@@ -25,7 +25,7 @@ case class SubjectStarted(userID: UserID)
 protected case class StateData(userID: UserID,
                                subjectID: SubjectID,
                                stateID: StateID,
-                               stateName: String,
+                               stateText: String,
                                transitions: Array[Transition],
                                internalBehaviorActor: InternalBehaviorRef,
                                processInstanceActor: ProcessInstanceRef,
@@ -41,7 +41,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val id = data.stateID
   protected val userID = data.userID
   protected val subjectID = data.subjectID
-  protected val stateName = data.stateName
+  protected val stateText = data.stateText
   protected val transitions = data.transitions
   protected val internalBehaviorActor = data.internalBehaviorActor
   protected val processInstanceActor = data.processInstanceActor
@@ -81,7 +81,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       processInstanceID,
       subjectID,
       id,
-      stateName,
+      stateText,
       StateType.fromStateTypetoString(stateType),
       actionData)
   }
@@ -167,7 +167,7 @@ protected case class ReceiveStateActor(data: StateData)
   // this map in the whole actor
   private val transitionsMap: Map[(SubjectID, MessageType), ExtendedTransition] =
     transitions.map((t: Transition) =>
-      ((t.subjectName, t.messageType), ExtendedTransition(t.subjectName, t.messageType, t.successorID)))
+      ((t.subjectID, t.messageType), ExtendedTransition(t.subjectID, t.messageType, t.successorID)))
       .toMap[(SubjectID, MessageType), ExtendedTransition]
 
   // request if there is a message for this subject
@@ -228,7 +228,7 @@ protected case class ReceiveStateActor(data: StateData)
    */
   private def convertTransitionToRequest(transition: Transition) =
     SubjectMessageRouting(
-      transition.subjectName,
+      transition.subjectID,
       transition.messageType)
 
   /**
@@ -279,7 +279,7 @@ protected case class SendStateActor(data: StateData)
         messageContent = input.messageContent
         for (transition <- transitions) {
           val messageType = transition.messageType
-          val toSubject = transition.subjectName
+          val toSubject = transition.subjectID
           val messageID = nextMessageID
           unsentMessageIDs(messageID) = transition
           processInstanceActor !
@@ -305,7 +305,7 @@ protected case class SendStateActor(data: StateData)
       val transition = unsentMessageIDs(messageID)
       // Create the history message
       val message =
-        HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectName, messageContent.get)
+        HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
       // Change the state and enter the History entry
       internalBehaviorActor ! ChangeState(id, transition.successorID, message)
     }
@@ -321,11 +321,10 @@ protected case class SendStateActor(data: StateData)
         ActionData(
           t.messageType,
           !messageContent.isDefined,
-          relatedSubject = Some(t.subjectName))))
+          relatedSubject = Some(t.subjectID))))
 
   /**
    * Generates a new message ID
    */
-  private def nextMessageID: Int =
-    scala.util.Random.nextInt
+  private def nextMessageID: Int = scala.util.Random.nextInt
 }

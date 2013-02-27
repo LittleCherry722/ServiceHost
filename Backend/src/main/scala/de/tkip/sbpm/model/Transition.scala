@@ -6,7 +6,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
  * models references between certain BehaviourStates
  */
 case class Transition(messageType: MessageType,
-                      subjectName: SubjectID,// TODO in subjectID umbennenn
+                      subjectID: SubjectID,
                       successorID: SuccessorID) {
 }
 
