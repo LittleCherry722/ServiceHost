@@ -43,7 +43,7 @@ class ExecuteProcessTest extends FunSuite {
       val stateType = matching.stateType.toString()
 
       action match {
-        case AvailableAction(userID, processInstanceID, subjectID, matching.stateID, stateName,stateType, data) => {
+        case AvailableAction(userID, processInstanceID, subjectID, matching.stateID, stateName, stateType, data) => {
           if (matching.actionData.sameElements(data)) {
             println(">>>>>>>>> Action does match")
           } else {
@@ -91,9 +91,9 @@ class ExecuteProcessTest extends FunSuite {
     }
   }
 
-//  class Manager(userID: UserID, processInstanceID: ProcessInstanceID) extends TestExectionActor(userID, processInstanceID) {
-//
-//  }
+  //  class Manager(userID: UserID, processInstanceID: ProcessInstanceID) extends TestExectionActor(userID, processInstanceID) {
+  //
+  //  }
 
   class Purchaser(userID: UserID, processInstanceID: ProcessInstanceID) extends TestExectionActor(userID, processInstanceID) {
 
@@ -111,7 +111,7 @@ class ExecuteProcessTest extends FunSuite {
       val action = askForAction()
       assertAction(matching, action)
       println("action: " + action.stateType + action.actionData.mkString(" data: ", ", ", ">"))
-      executeAction(createExecuteAction(action, actionInput))
+      executeAction(createExecuteAction(action, null))//TODO nicht null sondern sinnvoll
     }
     val action = askForAction()
     println("next action: " + action.stateType + action.actionData.mkString(" data: ", ", ", ">"))

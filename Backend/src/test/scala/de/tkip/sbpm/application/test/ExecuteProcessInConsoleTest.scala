@@ -64,7 +64,7 @@ object printHistory {
 }
 
 object ExecuteProcessInConsoleTest {
-  def createExecuteAction(available: AvailableAction, actionInput: String): ExecuteAction =
+  def createExecuteAction(available: AvailableAction, actionInput: ActionData): ExecuteAction =
       mixExecuteActionWithRouting(
         ExecuteAction(
           available.userID,
@@ -126,10 +126,10 @@ object ExecuteProcessInConsoleTest {
           //          while (!avail.actionData.contains(action)) {
           //            action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
           //          }
-          subjectProviderManagerActor ! createExecuteAction(avail, action)
+          subjectProviderManagerActor ! createExecuteAction(avail, avail.actionData.find(_.text == action).get)
         case SendStateType =>
           val message = readLine("Please insert message: ")
-          subjectProviderManagerActor ! createExecuteAction(avail, message)
+          subjectProviderManagerActor ! createExecuteAction(avail, avail.actionData(0))
         case WaitingStateType => {
           readLine("I am waiting for a something...")
           // always ask again if there is a new action for this subject
@@ -137,7 +137,7 @@ object ExecuteProcessInConsoleTest {
         }
         case ReceiveStateType =>
           val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
-          subjectProviderManagerActor ! createExecuteAction(avail, "")
+          subjectProviderManagerActor ! createExecuteAction(avail, avail.actionData(0))
         case EndStateType =>
           println("Subject terminated: " + avail.subjectID)
       }

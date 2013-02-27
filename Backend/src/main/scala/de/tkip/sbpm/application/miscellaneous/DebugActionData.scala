@@ -13,14 +13,14 @@ object DebugActionData {
     val waiting = WaitingStateString
 
     val buffer = ArrayBuffer[AvailableAction]()
-    buffer += AvailableAction(userID, processInstanceID, "Employee", 1, "Fill out Application", act, Array("Fill out application for vacations."))
-    buffer += AvailableAction(userID, processInstanceID, "Superior", 2, "Wait for Application", receive, Array("I want to go to holidays."))
-    buffer += AvailableAction(userID, processInstanceID, "The Manager", 1, "Decide", act, Array("Approval", "Denial"))
-    buffer += AvailableAction(userID, processInstanceID, "The Person, who does nothing", 3, "Chill", waiting, Array())
-    buffer += AvailableAction(userID, processInstanceID, "Manager", 7, "Receive a message.", receive, Array("This is a message."))
-    buffer += AvailableAction(userID, processInstanceID, "Warehouse", 1, "Send a message", send, Array())
-    buffer += AvailableAction(userID, processInstanceID, "Warehouse2", 1, "Wait", waiting, Array())
-    buffer += AvailableAction(userID, processInstanceID, "Many Actions", 27, "Choose an action", act, Array("First Action", "2nd Action", "3", "4. Action", "five", "6", "seven", "last action"))
+    //    buffer += AvailableAction(userID, processInstanceID, "Employee", 1, "Fill out Application", act, Array("Fill out application for vacations."))
+    //    buffer += AvailableAction(userID, processInstanceID, "Superior", 2, "Wait for Application", receive, Array("I want to go to holidays."))
+    //    buffer += AvailableAction(userID, processInstanceID, "The Manager", 1, "Decide", act, Array("Approval", "Denial"))
+    //    buffer += AvailableAction(userID, processInstanceID, "The Person, who does nothing", 3, "Chill", waiting, Array())
+    //    buffer += AvailableAction(userID, processInstanceID, "Manager", 7, "Receive a message.", receive, Array("This is a message."))
+    //    buffer += AvailableAction(userID, processInstanceID, "Warehouse", 1, "Send a message", send, Array())
+    //    buffer += AvailableAction(userID, processInstanceID, "Warehouse2", 1, "Wait", waiting, Array())
+    //    buffer += AvailableAction(userID, processInstanceID, "Many Actions", 27, "Choose an action", act, Array("First Action", "2nd Action", "3", "4. Action", "five", "6", "seven", "last action"))
 
     buffer.toArray
   }

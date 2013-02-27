@@ -17,7 +17,7 @@ sealed trait MessageObject
 // message from subject to subject
 protected case class SubjectInternalMessage(messageID: MessageID, userID: UserID, from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // stored message in the inputpool
-protected case class TransportMessage(messageID: MessageID, from: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+protected case class TransportMessage(messageID: MessageID, from: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // acknowledge, that a message is stored in the input pool
 protected case class Stored(messageID: MessageID) extends MessageObject
 // request for the input pool that a state want to know his messages
@@ -33,14 +33,19 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
+case class ActionData(text: String,// = messagetype
+                      executeAble: Boolean = false,
+                      correspondingSubject: Option[String] = None,
+                      messageContent: Option[String] = None)
+
 // Answer to the GetAvailable Action request
 case class AvailableAction(userID: UserID,
                            processInstanceID: ProcessInstanceID,
                            subjectID: SubjectID,
                            stateID: StateID,
-                           stateName: String,
+                           stateText: String,
                            stateType: String,
-                           actionData: Array[String])
+                           actionData: Array[ActionData])
     extends SubjectProviderMessage
 
 // The Execution command from the user
@@ -49,7 +54,7 @@ case class ExecuteAction(userID: UserID,
                          subjectID: SubjectID,
                          stateID: StateID,
                          stateType: String,
-                         actionData: String)
+                         actionData: ActionData)
 
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
 // TODO keine defaultparameter

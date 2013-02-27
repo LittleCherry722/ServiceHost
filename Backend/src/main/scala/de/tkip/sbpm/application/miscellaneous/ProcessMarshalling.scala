@@ -31,7 +31,7 @@ object parseSubjects {
  */
 object parseGraph {
   // The marshalling case classes
-  // TODO wo genau steht die messagetype
+  // TODO messageType umwandeln zB m0 -> Receive Acbdas
   private case class JGraph(process: Array[JSubject])
   private case class JSubject(id: SubjectID, name: SubjectName, inputPool: Int, macros: Array[JBehavior])
   private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
@@ -72,7 +72,7 @@ object parseGraph {
     // TODO fehlerbehandlung bei falschem String
     // TODO type ersetzung ist so nicht effizient
     ProcessGraph(
-      graph.replace("\"type\":", "\"myType\":").replace("Human Resource", "HumanResource").asJson.convertTo[JGraph]
+      graph.replace("\"type\":", "\"myType\":").asJson.convertTo[JGraph]
         .process.map(parseSubject(_)).toArray)
   }
 

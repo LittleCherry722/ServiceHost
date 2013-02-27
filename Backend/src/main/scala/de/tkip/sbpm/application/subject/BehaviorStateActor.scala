@@ -57,20 +57,23 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
    * ("Send", []),
    * ("Receive", ["The huge Message Content"])
    */
-  protected def getAvailableAction: (StateType, Array[String])
+  protected def getAvailableAction: (StateType, Array[ActionData])
+
+  protected def createAvailableAction(processInstanceID: ProcessInstanceID) = {
+    val (stateType, actionData) = getAvailableAction
+    AvailableAction(
+      userID,
+      processInstanceID,
+      subjectID,
+      id,
+      stateName,
+      StateType.fromStateTypetoString(stateType),
+      actionData)
+  }
 
   def receive = {
     case ga: GetAvailableAction => {
-      val (stateType, actionData) = getAvailableAction
-      sender !
-        AvailableAction(
-          userID,
-          ga.processInstanceID,
-          subjectID,
-          id,
-          stateName,
-          StateType.fromStateTypetoString(stateType),
-          actionData)
+      sender ! createAvailableAction(ga.processInstanceID)
     }
 
     case action: ExecuteAction => {
@@ -100,7 +103,7 @@ protected case class StartStateActor(data: StateData)
     }
   }
 
-  override protected def getAvailableAction: (StateType, Array[String]) =
+  override protected def getAvailableAction: (StateType, Array[ActionData]) =
     (StartStateType, Array())
 }
 
@@ -110,7 +113,7 @@ protected case class EndStateActor(data: StateData)
   // TODO direct beenden?
   internalBehaviorActor ! SubjectTerminated(userID, subjectID)
 
-  override protected def getAvailableAction: (StateType, Array[String]) =
+  override protected def getAvailableAction: (StateType, Array[ActionData]) =
     (EndStateType, Array())
 }
 
@@ -120,7 +123,7 @@ protected case class ActStateActor(data: StateData)
   override def receive = {
 
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ActStateString, input) => {
-      val index = indexOfInput(input)
+      val index = indexOfInput(input.text)
       if (index != -1) {
         internalBehaviorActor ! ChangeState(stateID, transitions(index).successorID, null)
 
@@ -146,17 +149,35 @@ protected case class ActStateActor(data: StateData)
     }
     -1
   }
-
-  override protected def getAvailableAction: (StateType, Array[String]) =
-    (ActStateType, transitions.map(_.messageType))
+  //TODO messageType =! label
+  override protected def getAvailableAction: (StateType, Array[ActionData]) =
+    //		  (ActStateType, transitions.map(_.messageType))
+    (ActStateType,
+      transitions.map((t: Transition) => ActionData(t.messageType, true)))
 }
 
 protected case class ReceiveStateActor(data: StateData)
     extends BehaviorStateActor(data) {
 
-  var messageContent: String = ""
-  var stateType: StateType = WaitingStateType
-  var messageID: MessageID = -1
+  private case class TransitionMeta(
+      from: SubjectID,
+      messageType: MessageType,
+      successorID: StateID,
+      var messageID: MessageID = -1,
+      var messageContent: Option[MessageContent] = None) {
+    var ready = false
+    def apply(message: TransportMessage) {
+      ready = true
+      messageID = message.messageID
+      messageContent = Some(message.messageContent)
+      // TODO validatecheck
+    }
+  }
+
+  private val meta: Map[(SubjectID, MessageType), TransitionMeta] =
+    transitions.map((t: Transition) =>
+      ((t.subjectName, t.messageType), TransitionMeta(t.subjectName, t.messageType, t.successorID)))
+      .toMap[(SubjectID, MessageType), TransitionMeta]
 
   // request if there is a message for this subject
   inputPoolActor !
@@ -165,8 +186,10 @@ protected case class ReceiveStateActor(data: StateData)
   override def receive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ReceiveStateString, input) => {
       if (!transitions.isEmpty) {
-        val message = HistoryMessage(messageID, transitions(0).messageType, transitions(0).subjectName, subjectID, messageContent)
-        internalBehaviorActor ! ChangeState(id, transitions(0).successorID, message)
+        // TODO richtige metatatransition, TODO correspontingsubject isDefined
+        val transition = meta((input.correspondingSubject.get, input.text)) // TODO name
+        val message = HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
+        internalBehaviorActor ! ChangeState(id, transition.successorID, message)
 
         processInstanceActor ! ActionExecuted(ea)
       }
@@ -177,9 +200,7 @@ protected case class ReceiveStateActor(data: StateData)
       logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
-      messageID = sm.messageID
-      messageContent = sm.messageContent
-      stateType = ReceiveStateType
+      meta(sm.from, sm.messageType)(sm)
     }
 
     case s => {
@@ -192,21 +213,26 @@ protected case class ReceiveStateActor(data: StateData)
       transition.subjectName,
       transition.messageType)
 
-  override protected def getAvailableAction: (StateType, Array[String]) = {
-    (stateType, Array(messageContent))
+  // TODO label richtig, gedanken machen
+  override protected def getAvailableAction: (StateType, Array[ActionData]) = {
+    //    	  (stateType, Array(messageContent))TODO
+    (ReceiveStateType,
+      (for ((k, t) <- meta) yield {
+        ActionData(
+          t.messageType,
+          t.ready,
+          correspondingSubject = Some(t.from),
+          messageContent = t.messageContent)
+      }).toArray)
   }
 }
 
 protected case class SendStateActor(data: StateData)
     extends BehaviorStateActor(data) {
 
-  // TODO mehrere nachrichten gleichzeitig?
-  val messageType = transitions(0).messageType
-  val toSubject = transitions(0).subjectName
-  val sucessorID = transitions(0).successorID
-
-  var messageData: String = null
-  val unsentMessageIDs: ArrayBuffer[MessageID] = ArrayBuffer[MessageID]()
+  import scala.collection.mutable.{ Map => MutableMap }
+  var messageData: Option[String] = None
+  val unsentMessageIDs: MutableMap[MessageID, Transition] = MutableMap[MessageID, Transition]()
 
   // TODO sowas wie timeout ist nicht drin
   // TODO message ids
@@ -215,29 +241,39 @@ protected case class SendStateActor(data: StateData)
       // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
       // can be blocked until a potentially new subject is created to ensure all available actions will 
       // be returned when asking
-      messageData = input
-      processInstanceActor !
-        SubjectInternalMessage(
-          nextMessageID(),
-          userID,
-          subjectID,
-          toSubject,
-          messageType,
-          messageData)
+      messageData = input.messageContent
+      for (transition <- transitions) {
+        if (messageData.isDefined) {
+          val messageType = transition.messageType
+          val toSubject = transition.subjectName
+          val messageID = nextMessageID
+          unsentMessageIDs(messageID) = transition
+          processInstanceActor !
+            SubjectInternalMessage(
+              messageID,
+              userID,
+              subjectID,
+              toSubject,
+              messageType,
+              messageData.get)
+        }
 
-      processInstanceActor ! ActionExecuted(ea)
+        processInstanceActor ! ActionExecuted(ea)
+      }
     }
 
     // TODO stored vielleicht besser spezifizieren
     case Stored(messageID) if (unsentMessageIDs.contains(messageID)) => {
       // create the History Entry
-      if (messageData == null) {
+      if (messageData.isDefined) {
+        val transition = unsentMessageIDs(messageID)
+        internalBehaviorActor !
+          ChangeState(id, transition.successorID,
+            HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectName, messageData.get))
+      } else {
         // TODO was tun?
         logger.error("Stored received before sending the message")
       }
-      internalBehaviorActor !
-        ChangeState(id, sucessorID,
-          HistoryMessage(messageID, messageType, subjectID, toSubject, messageData))
     }
 
     case s => {
@@ -245,15 +281,18 @@ protected case class SendStateActor(data: StateData)
     }
   }
 
-  override protected def getAvailableAction: (StateType, Array[String]) =
-    (if (messageData == null) SendStateType else WaitingStateType, Array())
+  override protected def getAvailableAction: (StateType, Array[ActionData]) =
+    (SendStateType,
+      transitions.map((t: Transition) =>
+        ActionData(
+          t.messageType,
+          !messageData.isDefined,
+          correspondingSubject = Some(t.subjectName))))
 
   /**
    * Returns and adds a new message ID for the next message
    */
-  private def nextMessageID(): Int = {
-    val messageID = scala.util.Random.nextInt
-    unsentMessageIDs += messageID
-    messageID
+  private def nextMessageID: Int = {
+    scala.util.Random.nextInt
   }
 }
