@@ -130,11 +130,6 @@ object ExecuteProcessInConsoleTest {
         case SendStateType =>
           val message = readLine("Please insert message: ")
           subjectProviderManagerActor ! createExecuteAction(avail, avail.actionData(0))
-        case WaitingStateType => {
-          readLine("I am waiting for a something...")
-          // always ask again if there is a new action for this subject
-          //          subjectProviderManager ! GetAvailableActions(avail.userID, avail.processInstanceID, avail.subjectID)
-        }
         case ReceiveStateType =>
           val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
           subjectProviderManagerActor ! createExecuteAction(avail, avail.actionData(0))

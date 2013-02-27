@@ -10,7 +10,6 @@ object DebugActionData {
     val receive = ReceiveStateString
     val act = ActStateString
     val send = SendStateString
-    val waiting = WaitingStateString
 
     val buffer = ArrayBuffer[AvailableAction]()
     //    buffer += AvailableAction(userID, processInstanceID, "Employee", 1, "Fill out Application", act, Array("Fill out application for vacations."))
