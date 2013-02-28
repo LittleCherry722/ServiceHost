@@ -17,7 +17,6 @@ import de.tkip.sbpm.application.subject._
 import spray.json._
 import de.tkip.sbpm.rest.test.MyJSONTestGraph
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.persistence.TestPersistenceActor
 import ActorLocator._
 import akka.actor.ActorContext
 import akka.actor.ActorContext
@@ -30,11 +29,7 @@ object createTestRunSystem {
   def apply(testPersistence: Boolean = true): (ActorSystem, ActorRef) = {
     val system = ActorSystem()
 
-    if (testPersistence) {
-      system.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
-    } else {
-      system.actorOf(Props[PersistenceActor], ActorLocator.persistenceActorName)
-    }
+    system.actorOf(Props[PersistenceActor], ActorLocator.persistenceActorName)
     system.actorOf(Props[ContextResolverActor], ActorLocator.contextResolverActorName)
     system.actorOf(Props[ProcessManagerActor], ActorLocator.processManagerActorName)
     val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
@@ -69,7 +64,7 @@ object printHistory {
 }
 
 object ExecuteProcessInConsoleTest {
-  def createExecuteAction(available: AvailableAction, actionInput: String): ExecuteAction =
+  def createExecuteAction(available: AvailableAction, actionInput: ActionData): ExecuteAction =
       mixExecuteActionWithRouting(
         ExecuteAction(
           available.userID,
@@ -131,18 +126,13 @@ object ExecuteProcessInConsoleTest {
           //          while (!avail.actionData.contains(action)) {
           //            action = readLine("Invalid Input\nExecute one Action of " + avail.actionData.mkString("[", ", ", "]:"))
           //          }
-          subjectProviderManagerActor ! createExecuteAction(avail, action)
+          subjectProviderManagerActor ! createExecuteAction(avail, avail.actionData.find(_.text == action).get)
         case SendStateType =>
           val message = readLine("Please insert message: ")
-          subjectProviderManagerActor ! createExecuteAction(avail, message)
-        case WaitingStateType => {
-          readLine("I am waiting for a something...")
-          // always ask again if there is a new action for this subject
-          //          subjectProviderManager ! GetAvailableActions(avail.userID, avail.processInstanceID, avail.subjectID)
-        }
+          subjectProviderManagerActor ! createExecuteAction(avail, avail.actionData(0))
         case ReceiveStateType =>
           val ack = readLine("Got message " + avail.actionData.mkString(",") + ", ok?")
-          subjectProviderManagerActor ! createExecuteAction(avail, "")
+          subjectProviderManagerActor ! createExecuteAction(avail, avail.actionData(0))
         case EndStateType =>
           println("Subject terminated: " + avail.subjectID)
       }

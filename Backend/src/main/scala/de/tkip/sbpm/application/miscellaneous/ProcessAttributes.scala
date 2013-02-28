@@ -16,6 +16,7 @@ object ProcessAttributes {
 
   type MessageType = String
   type MessageContent = String
+  type MessageID = Int
 
   type SubjectProviderManagerRef = ActorRef
   type SubjectProviderRef = ActorRef

@@ -51,7 +51,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
   import ExecutionContext.Implicits.global // TODO this import or something different?
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(30 seconds)
 
   val processID = request.processID
 
@@ -263,9 +263,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     // send forward if no subject has to be created else wait
     case message: ActionExecuted => {
-      if (allSubjectsReady(message.ea.userID)) {
-        // println("forward message directly")
-        context.parent.forward(createExecuteActionAnswer(message.ea))
+      System.err.println("Executed "+message)
+      if (allSubjectsReady(message.ea.userID))
+        createExecuteActionAnswer(message.ea)
       } else {
         // println("store message")
         blockedAnswers += message.ea.userID -> message
@@ -337,8 +337,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     if (waitingForContextResolver.size == 0)
       return
 
-    // println("blockingForSubjectCreation: " + userID)
-
+    }
     // block user twice. once for subject creation and once for message delivery  
     blockUserID(userID)
     blockUserID(userID)
@@ -366,7 +365,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private def tryToReleaseBlocking(userID: UserID) {
     // if the given userID has no tasks that are blocking it -> forward message if one exists
     if (allSubjectsReady(userID) && blockedAnswers.contains(userID)) {
-      context.parent.forward(createExecuteActionAnswer(blockedAnswers(userID).ea))
+      createExecuteActionAnswer(blockedAnswers(userID).ea)
       // println("forward: " + blockedAnswers.mkString(","))
       blockedAnswers -= userID
     }

@@ -25,6 +25,7 @@ import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceInfo
 import spray.routing.authentication.UserPass
+import de.tkip.sbpm.application.subject.ActionData
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -96,7 +97,6 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val groupFormat = jsonFormat3(Group)
   implicit val groupUserFormat = jsonFormat3(GroupUser)
   implicit val groupRoleFormat = jsonFormat3(GroupRole)
-  implicit val activatableFormat = jsonFormat1(Activatable)
   // used for login
   implicit val userPassFormat = jsonFormat2(UserPass)
 
@@ -114,6 +114,7 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   // action execution
   implicit val processInstanceInfoFormat = jsonFormat2(ProcessInstanceInfo)
+  implicit val actionDataFormat = jsonFormat4(ActionData)
   implicit val availableActionFormat = jsonFormat7(AvailableAction)
 
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)

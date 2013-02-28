@@ -1,8 +1,7 @@
 package de.tkip.sbpm.persistence
+
 import akka.actor.Actor
-import akka.actor.Props
-import scala.slick.lifted
-import de.tkip.sbpm.model._
+import de.tkip.sbpm.model.Relation
 
 /*
 * Messages for querying database
@@ -52,6 +51,7 @@ private[persistence] class RelationPersistenceActor extends Actor with DatabaseA
         answer { delete(userId, groupId, responsibleId, processId) }
       // execute DDL for "relation" table
       case InitDatabase => answer { Relations.ddl.create(session) }
+      case DropDatabase => answer { dropIgnoreErrors(Relations.ddl) }
     }
   }
 

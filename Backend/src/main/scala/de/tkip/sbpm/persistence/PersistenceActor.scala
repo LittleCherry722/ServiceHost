@@ -3,7 +3,13 @@ import akka.actor.Actor
 import akka.actor.Props
 import akka.pattern.AskSupport
 import akka.actor.ActorLogging
+import akka.pattern._
 import de.tkip.sbpm.application.miscellaneous.PersistenceMessage
+import akka.util.Timeout
+import scala.concurrent.duration._
+import scala.util.{ Success, Failure }
+import akka.actor.ActorRef
+import scala.concurrent.Await
 
 // common message super class for all persistence related actions
 trait PersistenceAction extends PersistenceMessage
@@ -11,7 +17,12 @@ trait PersistenceAction extends PersistenceMessage
 // message to create database tables
 // this message is redirected to all sub actors
 // to execute the DDL commands to create their tables
-case object InitDatabase
+case object InitDatabase extends PersistenceAction
+
+// message to drop database tables
+// this message is redirected to all sub actors
+// to execute the DDL commands to drop their tables
+case object DropDatabase extends PersistenceAction
 
 /**
  * Handles all DB operations using slick (http://slick.typesafe.com/).
@@ -20,7 +31,7 @@ case object InitDatabase
 class PersistenceActor extends Actor with ActorLogging {
   // define sub actors for handling actions for different tables
   private lazy val processActor = context.actorOf(Props[ProcessPersistenceActor], "process")
-  private lazy val graphActor = context.actorOf(Props[GraphPersistenceActor], "graph")
+  private val graphActor = context.actorOf(Props[GraphPersistenceActor], "graph")
   private lazy val userActor = context.actorOf(Props[UserPersistenceActor], "user")
   private lazy val roleActor = context.actorOf(Props[RolePersistenceActor], "role")
   private lazy val groupActor = context.actorOf(Props[GroupPersistenceActor], "group")
@@ -33,36 +44,67 @@ class PersistenceActor extends Actor with ActorLogging {
 
   def receive = {
     // redirect all request to responsible sub actors
-    case m: ProcessAction => processActor.forward(m)
-    case m: GraphAction => graphActor.forward(m)
-    case m: UserAction => userActor.forward(m)
-    case m: GroupAction => groupActor.forward(m)
-    case m: RoleAction => roleActor.forward(m)
-    case m: GroupRoleAction => groupRoleActor.forward(m)
-    case m: GroupUserAction => groupUserActor.forward(m)
-    case m: MessageAction => messageActor.forward(m)
-    case m: ProcessInstanceAction => processInstanceActor.forward(m)
-    case m: RelationAction => relationActor.forward(m)
-    case m: ConfigurationAction => configurationActor.forward(m)
+    case m: ProcessAction => forwardTo(m, processActor)
+    case m: GraphAction => forwardTo(m, graphActor)
+    case m: UserAction => forwardTo(m, userActor)
+    case m: GroupAction => forwardTo(m, groupActor)
+    case m: RoleAction => forwardTo(m, roleActor)
+    case m: GroupRoleAction => forwardTo(m, groupRoleActor)
+    case m: GroupUserAction => forwardTo(m, groupUserActor)
+    case m: MessageAction => forwardTo(m, messageActor)
+    case m: ProcessInstanceAction => forwardTo(m, processInstanceActor)
+    case m: RelationAction => forwardTo(m, relationActor)
+    case m: ConfigurationAction => forwardTo(m, configurationActor)
     // msg to initialize database
     case InitDatabase => init()
+    // msg to destroy database
+    case DropDatabase => destroy()
   }
-  
+
+  implicit val timeout = Timeout(30 seconds)
+  implicit val execCtx = context.system.dispatcher
+
+  private def forwardTo(m: PersistenceAction, actor: ActorRef) = {
+    sender ! Await.result(actor ? m, timeout.duration)
+  }
+
   private def init() {
     // send init message to all sub actors
     // each sub actor creates its tables on its own
-    val msg = InitDatabase
-    processActor ! msg
-    graphActor ! msg
-    userActor ! msg
-    roleActor ! msg
-    groupActor ! msg
-    groupRoleActor ! msg
-    groupUserActor ! msg
-    messageActor ! msg
-    processInstanceActor ! msg
-    relationActor ! msg
-    configurationActor ! msg
+    execOnAllActors(InitDatabase)
   }
 
+  private def destroy() {
+    // send init message to all sub actors
+    // each sub actor creates its tables on its own
+    execOnAllActors(DropDatabase)
+  }
+
+  private def execOnAllActors(msg: PersistenceAction) {
+    // send message to all sub actors
+    val actors = List(
+      processActor,
+      graphActor,
+      userActor,
+      roleActor,
+      groupActor,
+      groupRoleActor,
+      groupUserActor,
+      messageActor,
+      processInstanceActor,
+      relationActor,
+      configurationActor)
+
+    for (actor <- actors) {
+      Await.result(actor ? msg, timeout.duration) match {
+        case f: akka.actor.Status.Failure => {
+          sender ! f
+          return
+        }
+        case _ =>
+      }
+    }
+
+    sender ! true
+  }
 }

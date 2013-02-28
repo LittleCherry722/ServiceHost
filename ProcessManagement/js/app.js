@@ -38,13 +38,15 @@ define([
 			// The current user logged in to our system
 			currentUser( new User( { name: "no user" } ) );
 
-
 			// Initially fetch all Models, then initialize the views and after that,
 			// tell everyone that we are done (call the callback).
 			async.auto({
-				// fetchAll: Model.fetchAll,
 				fetchAll: Model.fetchAll,
-				initViews: [ "fetchAll", initializeViews ],
+				setCurrentUser: function( callback ) {
+					// hier den current user setzen
+					callback();
+				},
+				initViews: [ "fetchAll", "setCurrentUser", initializeViews ],
 				callback: [ "initViews", callback ]
 			});
 

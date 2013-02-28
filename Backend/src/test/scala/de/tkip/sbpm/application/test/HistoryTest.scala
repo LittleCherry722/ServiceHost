@@ -18,7 +18,6 @@ import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous.Debug
 import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.miscellaneous.GetHistory
-import de.tkip.sbpm.persistence.TestPersistenceActor
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.application.miscellaneous.HistoryAnswer
@@ -28,7 +27,6 @@ class HistoryTest extends FunSuite {
   implicit val executionContext = scala.concurrent.ExecutionContext.global
   val sys = ActorSystem()
   val actor = sys.actorOf(Props(new ProcessInstanceActor(CreateProcessInstance(1, 1))))
-  val testPersistence = sys.actorOf(Props[TestPersistenceActor], ActorLocator.persistenceActorName)
 
   test("test history debug data structure") {
     val future = actor ? new GetHistory(userID = 1, processInstanceID = 1) with Debug

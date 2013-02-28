@@ -137,7 +137,12 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               implicit val timeout = Timeout(5 seconds)
               val future = (subjectProviderManager ? mixExecuteActionWithRouting(json))
               val result = Await.result(future, timeout.duration).asInstanceOf[ExecuteActionAnswer]
-              complete(StatusCodes.OK)
+              complete(
+                JsObject(
+                  "processId" -> result.processID.toJson,
+                  "graph" -> result.graphJson.toJson,
+                  "history" -> result.history.toJson,
+                  "actions" -> result.availableActions.toJson))
             }
           }
         }
