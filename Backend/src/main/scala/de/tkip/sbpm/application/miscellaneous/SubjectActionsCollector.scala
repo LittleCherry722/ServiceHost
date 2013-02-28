@@ -4,11 +4,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.event.Logging
-
 import akka.actor._
 import akka.pattern.ask
 import scala.concurrent.Future
-
 import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.SubjectActor
@@ -32,7 +30,7 @@ class SubjectActionsCollector extends Actor {
 
       // ask every subjects for the available action
       val futures: Array[Future[AvailableAction]] =
-        for (subject <- subjects.toArray)
+        for (subject <- subjects.filterNot(_.isTerminated).toArray)
           yield (subject ? GetAvailableAction(processInstanceID)).asInstanceOf[Future[AvailableAction]]
 
       // await all question results parallel
@@ -40,7 +38,8 @@ class SubjectActionsCollector extends Actor {
         yield Await.result(future, timeout.duration)
 
       // results ready -> generate answer -> return
-      sender ! generateAnswer(actions.toArray)
+      // TODO for the moment filter endstatetype, later think about a better idea
+      sender ! generateAnswer(actions.toArray.filterNot(_.stateType == de.tkip.sbpm.model.StateType.EndStateType))
 
       // actions collected -> stop this actor
       context.stop(self)

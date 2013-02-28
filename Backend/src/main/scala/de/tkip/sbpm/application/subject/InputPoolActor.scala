@@ -56,9 +56,10 @@ class InputPoolActor(messageLimit: Int) extends Actor {
         sm.messageType + ", \"" + sm.messageContent + "\"")
       context.parent ! SubjectInternalMessageProcessed(sm.to)
 
-    case RequestForMessages(exitConds) =>
+    case RequestForMessages(exitConds) => {
       var break = false
 
+      // TODO nochmal ueberarbeiten
       for (e <- exitConds if break == false) {
         if (tryTransport(e, sender)) {
           break = true
@@ -69,7 +70,9 @@ class InputPoolActor(messageLimit: Int) extends Actor {
         for (e <- exitConds) {
           putInWaitForMessage(e, sender)
         }
+        sender ! InputPoolEmpty
       }
+    }
 
     case sw => logger.error("Inputpool got message but can't use: " + sw)
   }

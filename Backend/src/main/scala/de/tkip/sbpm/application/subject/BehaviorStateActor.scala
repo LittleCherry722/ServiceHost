@@ -20,13 +20,11 @@ import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 
 case class ActionExecuted(ea: ExecuteAction)
-case class SubjectStarted(userID: UserID)
+case class SubjectStarted(userID: UserID, subjectID: SubjectID)
 
-protected case class StateData(userID: UserID,
+protected case class StateData(stateModel: State,
+                               userID: UserID,
                                subjectID: SubjectID,
-                               stateID: StateID,
-                               stateText: String,
-                               transitions: Array[Transition],
                                internalBehaviorActor: InternalBehaviorRef,
                                processInstanceActor: ProcessInstanceRef,
                                inputPoolActor: ActorRef)
@@ -38,14 +36,20 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 
   protected val logger = Logging(context.system, this)
 
-  protected val id = data.stateID
+  protected val model = data.stateModel
+  protected val id = model.id
   protected val userID = data.userID
   protected val subjectID = data.subjectID
-  protected val stateText = data.stateText
-  protected val transitions = data.transitions
+  protected val stateText = model.text
+  protected val startState = model.startState
+  protected val transitions = model.transitions
   protected val internalBehaviorActor = data.internalBehaviorActor
   protected val processInstanceActor = data.processInstanceActor
   protected val inputPoolActor = data.inputPoolActor
+
+  if (startState && !delaySubjectReady) {
+    processInstanceActor ! SubjectStarted(userID, subjectID)
+  }
 
   def receive = {
     case ga: GetAvailableAction => {
@@ -61,6 +65,8 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       logger.error("BehaviorStateActor does not support: " + s)
     }
   }
+
+  protected def delaySubjectReady = false
 
   /**
    *
@@ -85,28 +91,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       StateType.fromStateTypetoString(stateType),
       actionData)
   }
-}
-
-protected case class StartStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
-
-  override def receive = {
-    case ea: StartSubjectExecution => {
-      internalBehaviorActor ! NextState(transitions(0).successorID)
-      processInstanceActor ! SubjectStarted(userID)
-    }
-
-    case s => {
-      super.receive(s)
-    }
-  }
-
-  override def preStart() {
-    logger.debug("Start@" + userID + ", " + subjectID + "starts...")
-  }
-
-  override protected def getAvailableAction: (StateType, Array[ActionData]) =
-    (StartStateType, Array())
 }
 
 protected case class EndStateActor(data: StateData)
@@ -206,10 +190,28 @@ protected case class ReceiveStateActor(data: StateData)
         "\" with content \"" + sm.messageContent + "\"")
 
       transitionsMap(sm.from, sm.messageType).addMessage(sm)
+
+      trySendSubjectStarted()
+    }
+
+    case InputPoolEmpty => {
+      // if startstate inform the processinstance that this subject has started
+      trySendSubjectStarted()
     }
 
     case s => {
       super.receive(s)
+    }
+  }
+
+  override protected def delaySubjectReady = true
+
+  // only for startstate creation, check if subjectready should be sent
+  var sendSubjectReady = startState
+  private def trySendSubjectStarted() {
+    if (sendSubjectReady) {
+      processInstanceActor ! SubjectStarted(userID, subjectID)
+      sendSubjectReady = false
     }
   }
 

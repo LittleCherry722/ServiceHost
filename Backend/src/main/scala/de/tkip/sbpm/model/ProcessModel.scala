@@ -4,13 +4,13 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 object StateType extends Enumeration {
   type StateType = Value
-  val StartStateString = "start"
+//  val StartStateString = "start"
   val ActStateString = "action"
   val SendStateString = "send"
   val ReceiveStateString = "receive"
   val EndStateString = "end"
 
-  val StartStateType = Value(StartStateString)
+//  val StartStateType = Value(StartStateString)
   val ActStateType = Value(ActStateString)
   val SendStateType = Value(SendStateString)
   val ReceiveStateType = Value(ReceiveStateString)
@@ -26,7 +26,7 @@ object StateType extends Enumeration {
 
 import StateType.StateType
 // name raus ist ws in id
-case class State(id: StateID, name: String, stateType: StateType, transitions: Array[Transition])
+case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, transitions: Array[Transition])
 case class Subject(id: SubjectID, inputPool: Int, states: Array[State])
 case class ProcessGraph(subjects: Array[Subject])
 case class ProcessModel(processID: ProcessID, name: String, graph: ProcessGraph) {

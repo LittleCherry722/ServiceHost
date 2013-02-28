@@ -80,7 +80,7 @@ object parseGraph {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
       // First create an unique start and end state
-      states(startID) = new StateCreator(startID, "StartState", StartStateType)
+      //      states(startID) = new StateCreator(startID, "StartState", StartStateType)
 
       // at the moment we only support one behavior
       val behavior: JBehavior = subject.macros(0)
@@ -97,15 +97,12 @@ object parseGraph {
     private def parseNodes(nodes: Array[JNode]) {
       for (node <- nodes) {
         // if its the startstate add a transition from the startstate to this state
-        if (node.start) {
-          states(startID).addTransition(StartTransition(node.id))
-        }
         if (states.contains(node.id)) {
           throw new Exception("Parse failed state id: " + node.id + " is given 2 times")
         }
         // add the state creator for this state
         states(node.id) =
-          new StateCreator(node.id, node.text, fromStringtoStateType(node.myType))
+          new StateCreator(node.id, node.text, fromStringtoStateType(node.myType), node.start)
         // TODO check if end state always is automatic parsed
       }
 
@@ -129,16 +126,17 @@ object parseGraph {
    * This class holds a state while it is in creation, so it is possible
    * to add transitions
    */
-  private class StateCreator(val id: StateID,
-                             val name: SubjectName,
-                             val stateType: StateType) {
+  private class StateCreator(id: StateID,
+                             name: SubjectName,
+                             stateType: StateType,
+                             startState: Boolean) {
     private val transitions = new ArrayBuffer[Transition]
 
     def addTransition(transition: Transition) {
       transitions += updateMessageType(transition)
     }
 
-    def createState: State = State(id, name, stateType, transitions.toArray)
+    def createState: State = State(id, name, stateType, startState, transitions.toArray)
 
     /**
      * Updates the MessageType of a transition, but only if this

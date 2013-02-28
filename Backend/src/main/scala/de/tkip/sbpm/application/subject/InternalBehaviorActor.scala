@@ -50,10 +50,6 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
       }
     }
 
-    case es: NextState => {
-      nextState(es.state)
-    }
-
     case change: ChangeState => {
       // TODO check if current state is correct?
       nextState(change.nextState)
@@ -63,8 +59,8 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
       // create the History Entry and send it to the subject
       context.parent !
         HistoryTransition(
-          HistoryState(current.name, current.stateType.toString()),
-          HistoryState(next.name, next.stateType.toString()),
+          HistoryState(current.text, current.stateType.toString()),
+          HistoryState(next.text, next.stateType.toString()),
           change.history)
     }
 
@@ -99,7 +95,7 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
   }
 
   private def addState(state: State) {
-    if (state.stateType == StartStateType) {
+    if (state.startState) {
       logger.debug("startstate " + state)
       startState = state.id
     }
@@ -123,26 +119,14 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
 
   private def parseState(state: State) = {
     val data = StateData(
+      state,
       userID,
       subjectID,
-      state.id,
-      state.name,
-      state.transitions,
       self,
       processInstanceActor,
       inputPoolActor)
 
     state.stateType match {
-      case StartStateType => if (state.transitions.size == 1) {
-        context.actorOf(Props(StartStateActor(data)))
-      } else {
-        if (state.transitions.size == 0) {
-          logger.error("Startstate has no successor state, terminating subject")
-          context.actorOf(Props(EndStateActor(data)))
-        } else {
-          throw new IllegalArgumentException("Startstates may only have 1 Transition")
-        }
-      }
       case ActStateType => {
         context.actorOf(Props(ActStateActor(data)))
       }
