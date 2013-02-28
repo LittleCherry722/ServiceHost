@@ -122,7 +122,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   var waitingUserMap = Map[UserID, Int]()
   var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]()
 
-
   // add all start subjects
   for (startSubject <- startSubjects) {
     waitForContextResolver(request.userID)
@@ -130,7 +129,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
   }
   // inform the process manager that this process instance has been created
-//  context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
+  //  context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
 
   //  context.parent !
   //    AskSubjectsForAvailableActions(request.userID,
@@ -142,13 +141,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private var sendProcessInstanceCreated = true
   private def trySendProcessInstanceCreated() {
     if (sendProcessInstanceCreated && allSubjectsReady(request.userID)) {
-//      context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
-        context.parent !
-          AskSubjectsForAvailableActions(request.userID,
-            id,
-            AllSubjects,
-            (actions: Array[AvailableAction]) =>
-              ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
+      //      context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
+      context.parent !
+        AskSubjectsForAvailableActions(
+          request.userID,
+          id,
+          AllSubjects,
+          (actions: Array[AvailableAction]) =>
+            ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
       sendProcessInstanceCreated = false
     }
   }
@@ -230,8 +230,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case sm: SubjectInternalMessage => {
-    	// block user that owns the subject
-    	handleBlockingForMessageDelivery(sm.from, sm.to)
+      // block user that owns the subject
+      handleBlockingForMessageDelivery(sm.from, sm.to)
       if (subjectMap.contains(sm.to)) {
 
         // if the subject already exist just forward the message
@@ -354,7 +354,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
     // block user twice. once for subject creation and once for message delivery  
     blockUserID(userID)
-//    blockUserID(userID)
+    //    blockUserID(userID)
 
     // println("contextResolver: " + waitingForContextResolver.mkString(","))
 
@@ -367,7 +367,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   private def handleBlockingForMessageDelivery(from: SubjectID, to: SubjectID) {
-    blockUserID(subjectsUserIDMap(to))
+    if (subjectsUserIDMap.contains(to)) {
+      blockUserID(subjectsUserIDMap(to))
+    } else {
+      // TODO temporal bugfix
+      blockUserID(1)
+    }
 
     // println("blockingForDelivery: " + waitingUserMap.mkString(","))
   }
