@@ -114,10 +114,10 @@ object parseGraph {
           if (!edge.target.isInstanceOf[JsString])
             edge.target.convertTo[JEdgeTarget].id
           else
-            "Me"
+            "None"
 
         // TODO werden die transitions richtig gebuildet?
-        states(edge.start).addTransition(Transition(edge.text, s, edge.end))
+        states(edge.start).addTransition(Transition(ExitCond(edge.text, s), edge.end))
       }
     }
   }
@@ -150,7 +150,7 @@ object parseGraph {
           return transition
         }
 
-        Transition(messageMap(oldMessageType), transition.subjectID, transition.successorID)
+        Transition(ExitCond(messageMap(oldMessageType), transition.subjectID), transition.successorID)
       }
       stateType match {
         case ReceiveStateType => {
