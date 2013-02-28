@@ -40,6 +40,10 @@ class SubjectActor(userID: UserID,
       inputPoolActor.forward(sm)
     }
 
+    case message: SubjectInternalMessageProcessed => {
+    	context.parent.forward(message)
+    }
+
     // forward history entries from internal behavior up to instance actor
     case history.Transition(from, to, msg) => {
       context.parent !
@@ -49,7 +53,7 @@ class SubjectActor(userID: UserID,
     case terminated: SubjectTerminated => {
       context.parent ! terminated
       // TODO terminate?
-      context.stop(self)
+//      context.stop(self)
     }
 
     case gaa: GetAvailableActions => {

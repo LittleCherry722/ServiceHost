@@ -7,6 +7,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.Transition
 import akka.event.Logging
 
+case class SubjectInternalMessageProcessed(subjectID: SubjectID)
 case class SubjectMessageRouting(from: SubjectName, messageType: MessageType)
 
 object SubjectMessageRouting {
@@ -37,6 +38,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
       // transport it to waiting receive message of the internal behavior
       getWaitingSubject(SubjectMessageRouting(sm)) !
         TransportMessage(sm.from, sm.messageType, sm.messageContent)
+      context.parent ! SubjectInternalMessageProcessed(sm.to)
 
     // input pool limit is high enough to store message
     case sm: SubjectInternalMessage if messagesStoredFor(SubjectMessageRouting(sm)) < messageLimit =>
@@ -45,11 +47,13 @@ class InputPoolActor(messageLimit: Int) extends Actor {
         sm.messageType + ", \"" +
         sm.messageContent + "\"")
       sender ! Stored // unlock Sender
+      context.parent ! SubjectInternalMessageProcessed(sm.to)
 
     case sm: SubjectInternalMessage =>
       putInWaitForSend(sm, sender)
       logger.debug(self + "Message putInWaitForSend: " + sm.from + ", " +
         sm.messageType + ", \"" + sm.messageContent + "\"")
+      context.parent ! SubjectInternalMessageProcessed(sm.to)
 
     case RequestForMessages(exitConds) =>
       var break = false
