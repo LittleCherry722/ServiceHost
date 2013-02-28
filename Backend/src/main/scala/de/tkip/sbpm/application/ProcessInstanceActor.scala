@@ -264,7 +264,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     // send forward if no subject has to be created else wait
     case message: ActionExecuted => {
       System.err.println("Executed "+message)
-      if (allSubjectsReady(message.ea.userID))
+      if (allSubjectsReady(message.ea.userID)) {
         createExecuteActionAnswer(message.ea)
       } else {
         // println("store message")
@@ -334,9 +334,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
    * subjectProvider that created the ExecuteAction request) have been created and started
    */
   private def handleBlockingForSubjectCreation(userID: UserID) {
-    if (waitingForContextResolver.size == 0)
+    if (waitingForContextResolver.size == 0) {
       return
-
     }
     // block user twice. once for subject creation and once for message delivery  
     blockUserID(userID)
