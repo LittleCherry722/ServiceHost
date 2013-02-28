@@ -37,13 +37,13 @@ object parseGraph {
   private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
   private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
   private case class JNodeOption(message: MessageType)
-  private case class JEdge(start: StateID, end: StateID, target: JsValue, text: MessageType)
+  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, target: JsValue)
   private case class JEdgeTarget(id: SubjectID)
 
   // The marshalling formats for the case classes
   private object JsonFormats extends DefaultJsonProtocol {
     implicit val edgeTargetFormat = jsonFormat1(JEdgeTarget)
-    implicit val edgeFormat = jsonFormat4(JEdge)
+    implicit val edgeFormat = jsonFormat5(JEdge)
     implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
     implicit val nodeFormat = jsonFormat6(JNode)
     implicit val behaviorFormat = jsonFormat2(JBehavior)
@@ -110,14 +110,28 @@ object parseGraph {
 
     private def parseEdges(edges: Array[JEdge]) {
       for (edge <- edges) {
-        val s =
-          if (!edge.target.isInstanceOf[JsString])
-            edge.target.convertTo[JEdgeTarget].id
-          else
-            "None"
 
-        // TODO werden die transitions richtig gebuildet?
-        states(edge.start).addTransition(Transition(ExitCond(edge.text, s), edge.end))
+        edge.myType match {
+          case "exitcondition" => {
+            val s =
+              if (!edge.target.isInstanceOf[JsString])
+                edge.target.convertTo[JEdgeTarget].id
+              else
+                "None"
+            states(edge.start).addTransition(Transition(ExitCond(edge.text, s), edge.end))
+          }
+
+          case "timeout" => {
+            states(edge.start).addTransition(TimeoutTransition(Integer.parseInt(edge.text), edge.end))
+          }
+
+          case s => {
+            // TODO error loggen
+            System.err.println("Cant parse edgetype: " + s)
+          }
+
+        }
+
       }
     }
   }
@@ -144,6 +158,7 @@ object parseGraph {
      */
     private def updateMessageType(transition: Transition): Transition = {
       def transitionWithNewMessageType: Transition = {
+        // TODO check if its an exitcond (not critical but timeout will print error
         val oldMessageType = transition.messageType
         if (!messageMap.contains(oldMessageType)) {
           System.err.println("Cant update MessageType") // TODO log error
