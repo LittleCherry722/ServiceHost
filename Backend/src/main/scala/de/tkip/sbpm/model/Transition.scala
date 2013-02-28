@@ -6,8 +6,8 @@ sealed trait TransitionType
 case class ExitCond(messageType: MessageType, subjectID: SubjectID) extends TransitionType {
   def actionType = messageType
 }
-case class Errorcond() extends TransitionType
-case class Timeout(duration: Int) extends TransitionType
+case class ErrorCond() extends TransitionType
+case class TimeoutCond(duration: Int) extends TransitionType
 /**
  * models references between certain BehaviorStates
  */
@@ -25,5 +25,5 @@ object ActTransition {
 
 object TimeoutTransition {
   def apply(duration: Int, successorID: SuccessorID) =
-    Transition(Timeout(duration), successorID)
+    Transition(TimeoutCond(duration), successorID)
 }
