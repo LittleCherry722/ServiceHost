@@ -6,8 +6,8 @@ var LoginViewModel = function() {
 	self.pass = ko.observable("");
 
 	self.login = function() {
-		var data = '{"user" : "' + escape(self.user()) + '" , "pass" : "' + escape(self.pass()) + '"}';
-
+		var data = { user: self.user(), pass: self.pass()};
+		data = JSON.stringify(data); 
 		self.pass("");
 
 		$.ajax({
