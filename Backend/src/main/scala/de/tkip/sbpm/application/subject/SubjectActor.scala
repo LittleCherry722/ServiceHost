@@ -20,7 +20,7 @@ class SubjectActor(userID: UserID,
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
   private val inputPoolActor: ActorRef =
-    context.actorOf(Props(new InputPoolActor(10)))
+    context.actorOf(Props(new InputPoolActor(subject.inputPool)))
   private val internalBehaviorActor =
     context.actorOf(
       Props(
@@ -38,6 +38,10 @@ class SubjectActor(userID: UserID,
   def receive = {
     case sm: SubjectInternalMessage => {
       inputPoolActor.forward(sm)
+    }
+
+    case message: SubjectInternalMessageProcessed => {
+      context.parent.forward(message)
     }
 
     // forward history entries from internal behavior up to instance actor

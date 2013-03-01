@@ -34,12 +34,19 @@ define([
 			"models/processInstance"
 			// "models/roles",
 		], function( Model, User, Process, Group, Role ) {
+
+
+			// The current user logged in to our system
+			currentUser( new User( { name: "no user" } ) );
+
+
 			// Initially fetch all Models, then initialize the views and after that,
 			// tell everyone that we are done (call the callback).
 
 			
 
 			async.auto({
+
 				fetchAll : Model.fetchAll,
 				setCurrentUser : ["fetchAll", function(callback) {
 					loadCurrentUser();
@@ -48,6 +55,7 @@ define([
 				initViews : ["fetchAll", "setCurrentUser", initializeViews],
 				callback : ["initViews", callback]
 			}); 
+
 
 		});
 	};

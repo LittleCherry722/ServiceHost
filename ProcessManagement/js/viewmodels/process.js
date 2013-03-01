@@ -556,7 +556,9 @@ define([
 	// Compute whether to show or hide the role warning.
 	// Is based upon the selected role in subject settings.
 	var showOrHideRoleWarning = function() {
-		isShowRoleWarning( !$( "#ge_cv_id" ).val() );
+		setTimeout(function() {
+			isShowRoleWarning( !$( "#ge_cv_id" ).val() );
+		}, 10)
 	}
 
 	// Method called when the graph view is changed to internal view.
@@ -566,7 +568,6 @@ define([
 		selectTab( 1 );
 		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
-		updateMenuDropdowns();
 	}
 
 	// Select a certain tab. Can either be directly attached to the click
