@@ -21,7 +21,6 @@ import de.tkip.sbpm.persistence._
 import scala.concurrent.Await
 import spray.http.StatusCodes._
 import de.tkip.sbpm.model.GroupUser
-import de.tkip.sbpm.model.Activatable
 import spray.http.StatusCodes
 import spray.routing.authentication.UserPass
 import de.tkip.sbpm.ActorLocator

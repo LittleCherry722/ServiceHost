@@ -9,7 +9,7 @@ import akka.event.Logging
 import de.tkip.sbpm.ActorLocator
 
 protected case class RegisterSubjectProvider(userID: UserID,
-                                             subjectProviderActor: SubjectProviderRef)
+  subjectProviderActor: SubjectProviderRef)
 
 /**
  * manages all processes and creates new ProcessInstance's on demand
@@ -26,8 +26,7 @@ class ProcessManagerActor extends Actor {
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
 
   // initialize persistence actors
-  private lazy val testPersistenceActor = context.actorOf(Props[TestPersistenceActor], "testPersistenceActor")
-  private lazy val persistenceActor = context.actorOf(Props[PersistenceActor], "persistenceActor")
+  private lazy val persistenceActor = ActorLocator.persistenceActor
 
   def receive = {
     case register: RegisterSubjectProvider => {
@@ -73,13 +72,7 @@ class ProcessManagerActor extends Actor {
     // general matching
     // persistence router - in case the debug flag is set, forward the message to
     // test persistence actor
-    case message: PersistenceMessage => {
-      if (message.isInstanceOf[Debug]) {
-        forwardToTestPersistenceActor(message)
-      } else {
-        forwardToPersistenceActor(message)
-      }
-    }
+    case message: PersistenceMessage => forwardToPersistenceActor(message)
 
     // TODO muesste man auch zusammenfassenkoennen
     case message: ProcessInstanceMessage => {
@@ -113,11 +106,6 @@ class ProcessManagerActor extends Actor {
 
   private def forwardToPersistenceActor(pa: PersistenceMessage) {
     persistenceActor.forward(pa)
-  }
-
-  // forward persistence messages to persistenceActors
-  private def forwardToTestPersistenceActor(pa: PersistenceMessage) {
-    testPersistenceActor.forward(pa)
   }
 
   private type ForwardProcessInstanceMessage = { def processInstanceID: ProcessInstanceID }

@@ -14,16 +14,36 @@
 				href: processInstance().process().url() }"></a>
 			<span class="divider">/</span>
 		</li>
-		<li class="active">
-			<span data-bind="text: processInstance().instanceName(), attr: {
-				href: processInstance().url() }"></span>
-			<!-- <span class="divider">/</span>-->
+		<li data-bind="css: { active: !currentSubject() }">
+			<!-- ko if: !currentSubject() && false -->
+				<span data-bind="text: processInstance().instanceName()" ></span>
+			<!-- /ko -->
+			<!-- ko if: currentSubject() || true -->
+				<a data-bind="text: processInstance().instanceName(), attr: {
+					href: processInstance().url() + 'Overview' }"></a>
+			<!-- /ko -->
+				<span class="divider">/</span>
 		</li>
-		<!-- <select id="slctctvSbj" data-placeholder="Select Active Subject"-->
-			<!--   class="middle_switch chzn-select" tabindex="1"-->
-			<!--   data-bind="options: availableSubjects, optionsText: 'subjectText',-->
-			<!--   optionsValue: 'subjectId', value: currentSubject, caption: ''">-->
-			<!-- </select>-->
+		<li data-bind="css: { active: !currentSubject() }">
+			<div class="btn-group">
+				<a class="btn dropdown-toggle" data-toggle="dropdown">
+					<!-- ko ifnot: currentSubject() -->
+						Select Internal behavior
+					<!-- /ko -->
+					<!-- ko if: currentSubject() -->
+						<span data-bind="text: currentSubjectName()"></span>
+					<!-- /ko -->
+					<b class="caret"></b>
+				</a>
+				<ul class="dropdown-menu save-dropdown" data-bind="foreach: subjects">
+					<li data-bind="css: { active: $parent.currentSubject() == $data[0] }">
+						<a data-bind="attr: { href: $parent.processInstance().url() +
+							'/' + $parent.currentTab() + '/' + $data[0].replace(/ /, '___') }, text: $data[1]">
+						</a>
+					</li>
+				</ul>
+			</div>
+		</li>
 	</ul>
 
 	<div id="processExecution">

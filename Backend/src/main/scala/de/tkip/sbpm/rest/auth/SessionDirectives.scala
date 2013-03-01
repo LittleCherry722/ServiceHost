@@ -37,45 +37,56 @@ trait SessionDirectives {
   /**
    * Reject request with "missing session" error.
    */
-  private def rejectSession(implicit cookie: HttpCookie): StandardRoute =
-    reject(MissingSessionRejection(cookie.content))
+  private def rejectSession(sessionId: String): StandardRoute =
+    reject(MissingSessionRejection(sessionId))
 
-    /**
-     * Reject request with "missong user" error.
-     */
+  /**
+   * Reject request with "missong user" error.
+   */
   private def rejectUser: StandardRoute =
     reject(MissingUserRejection)
 
-    /**
-     * Retrieve session, referenced in the cookie from SessionActor.
-     */
-  private def getSession(cookie: HttpCookie)(implicit refFactory: ActorRefFactory): Option[Session] = {
-    val sessionId = UUID.fromString(cookie.content)
+  /**
+   * Retrieve session, referenced in the cookie from SessionActor.
+   */
+  private def getSession(sessionId: UUID)(implicit refFactory: ActorRefFactory): Option[Session] = {
     val sessionFuture = ActorLocator.sessionActor ? GetSession(sessionId)
     Await.result(sessionFuture.mapTo[Option[Session]], timeout.duration)
   }
+  
+  /**
+   * Directive to read the session with the given id.
+   */
+  def session(id: UUID)(implicit refFactory: ActorRefFactory): Directive[Session :: HNil] = {
+        val session = getSession(id)
+        if (session.isDefined)
+          provide(session.get)
+        else
+          rejectSession(id.toString)
+  }
 
   /**
-   * Directive to read the session. 
+   * Directive to read the session.
    * Requires a valid session cookie.
    */
   def session(implicit refFactory: ActorRefFactory): Directive[Session :: HNil] = {
     cookie(defaultRealm) flatMap { implicit cookie =>
       try {
-        val session = getSession(cookie)
+        val sessionId = UUID.fromString(cookie.content)
+        val session = getSession(sessionId)
         if (session.isDefined)
           provide(session.get)
         else
-          rejectSession
+          rejectSession(cookie.content)
       } catch {
         // UUID could not be parsed
-        case _: IllegalArgumentException => rejectSession
+        case _: IllegalArgumentException => rejectSession(cookie.content)
       }
     }
   }
 
   /**
-   * Directive to read the session. 
+   * Directive to read the session.
    * In case session could not be found or an invalid session cookie,
    * Nothing is returned.
    */
@@ -84,7 +95,8 @@ trait SessionDirectives {
       case None => provide(None)
       case Some(cookie) =>
         try {
-          provide(getSession(cookie))
+          val sessionId = UUID.fromString(cookie.content)
+          provide(getSession(sessionId))
         } catch {
           // UUID could not be parsed
           case _: IllegalArgumentException => provide(None)
@@ -111,18 +123,25 @@ trait SessionDirectives {
   /**
    * Sets a session cookie with given session id.
    */
-  def setSessionCookie(sessionId: UUID)(implicit refFactory: ActorRefFactory): Directive0 =
-    setCookie(HttpCookie(defaultRealm, sessionId.toString, path = Some("/")))
-
-    /**
-     * Delete current session if it exists.
-     */
+  def setSessionCookie(session: Session)(implicit refFactory: ActorRefFactory): Directive0 =
+    setCookie(HttpCookie(defaultRealm, session.id.toString, path = Some("/"))) & {
+      if (session.userId.isDefined)
+        setCookie(HttpCookie(defaultRealm + "-userId", session.userId.get.toString, path = Some("/")))
+      else
+        deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
+  }
+ 
+  
+  /**
+   * Delete current session if it exists.
+   */
   def deleteSession(implicit refFactory: ActorRefFactory): Directive0 = {
     optionalSession flatMap { session =>
       if (session.isDefined) {
         ActorLocator.sessionActor ! DeleteSession(session.get.id)
       }
-      deleteCookie(HttpCookie(defaultRealm, "", path = Some("/")))
+      deleteCookie(HttpCookie(defaultRealm, "", path = Some("/"))) & 
+      deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
     }
   }
 
@@ -140,8 +159,8 @@ trait SessionDirectives {
         rejectUser
     }
   }
-  
-/**
+
+  /**
    * Directive to get id of user from current session.
    * Rejects if either session could not be found.
    * For performance reasons there's not lookup in the database
@@ -165,7 +184,7 @@ trait SessionDirectives {
     val user = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
     if (user.isDefined)
       saveSession(user.get.id) flatMap { s =>
-        setSessionCookie(s.id) & provide(user.get)
+        setSessionCookie(s) & provide(user.get)
       }
     else
       reject(AuthenticationFailedRejection(defaultRealm))

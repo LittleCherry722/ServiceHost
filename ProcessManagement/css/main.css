@@ -6867,10 +6867,10 @@ table.data2 tr td {
 }
 
 #executionContent {
-  height: -moz-calc(100% - 110px);
-  height: -o-calc(100% - 110px);
-  height: -webkit-calc(100% - 110px);
-  height: calc(100% - 110px);
+  height: -moz-calc(100% - 120px);
+  height: -o-calc(100% - 120px);
+  height: -webkit-calc(100% - 120px);
+  height: calc(100% - 120px);
   background-color: #fff;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -7002,6 +7002,9 @@ table.data2 tr td {
 
 .breadcrumb {
   background-color: #eee;
+}
+.breadcrumb .dropdown-menu li {
+  display: block;
 }
 
 .btn .caret {

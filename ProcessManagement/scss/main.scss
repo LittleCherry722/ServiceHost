@@ -912,7 +912,7 @@ table.data2 tr td {
 }
 
 #executionContent {
-  @include calc(height, "100% - 110px");
+  @include calc(height, "100% - 120px");
   background-color: #fff;
   @include border-radius(5px);
   border: 1px solid #cdcdcd;
@@ -1036,6 +1036,12 @@ table.data2 tr td {
 
 .breadcrumb {
 	background-color: #eee;
+
+	.dropdown-menu {
+		li {
+			display: block;
+		}
+	}
 }
 
 .btn .caret {

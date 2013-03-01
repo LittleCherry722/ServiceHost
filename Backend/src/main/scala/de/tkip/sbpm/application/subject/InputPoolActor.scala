@@ -7,12 +7,14 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.Transition
 import akka.event.Logging
 
+case class SubjectInternalMessageProcessed(subjectID: SubjectID)
 case class SubjectMessageRouting(from: SubjectName, messageType: MessageType)
 
 object SubjectMessageRouting {
   // TODO passt nur fuer receivestate
-  def apply(to: SubjectName, transition: Transition): SubjectMessageRouting =
-    SubjectMessageRouting(transition.subjectName,
+  def apply(to: SubjectID, transition: Transition): SubjectMessageRouting =
+    SubjectMessageRouting(
+      transition.subjectID,
       transition.messageType)
   def apply(sm: SubjectInternalMessage): SubjectMessageRouting =
     SubjectMessageRouting(sm.from, sm.messageType)
@@ -30,13 +32,14 @@ class InputPoolActor(messageLimit: Int) extends Actor {
 
     // a receive asked before a send
     case sm: SubjectInternalMessage if subjectIsWaitingForMessageIn(SubjectMessageRouting(sm)) =>
-      sender ! Stored // unlock Sender
+      sender ! Stored(sm.messageID) // unlock Sender
       logger.debug(self + "Inputpool: Message transported: " + sm.from + ", " +
         sm.messageType + ", \"" +
         sm.messageContent + "\"")
       // transport it to waiting receive message of the internal behavior
       getWaitingSubject(SubjectMessageRouting(sm)) !
-        TransportMessage(sm.from, sm.messageType, sm.messageContent)
+        TransportMessage(sm.messageID, sm.from, sm.messageType, sm.messageContent)
+      context.parent ! SubjectInternalMessageProcessed(sm.to)
 
     // input pool limit is high enough to store message
     case sm: SubjectInternalMessage if messagesStoredFor(SubjectMessageRouting(sm)) < messageLimit =>
@@ -44,16 +47,19 @@ class InputPoolActor(messageLimit: Int) extends Actor {
       logger.debug(self + "Inputpool: Message stored: " + sm.from + ", " +
         sm.messageType + ", \"" +
         sm.messageContent + "\"")
-      sender ! Stored // unlock Sender
+      sender ! Stored(sm.messageID) // unlock Sender
+      context.parent ! SubjectInternalMessageProcessed(sm.to)
 
     case sm: SubjectInternalMessage =>
       putInWaitForSend(sm, sender)
       logger.debug(self + "Message putInWaitForSend: " + sm.from + ", " +
         sm.messageType + ", \"" + sm.messageContent + "\"")
+      context.parent ! SubjectInternalMessageProcessed(sm.to)
 
-    case RequestForMessages(exitConds) =>
+    case RequestForMessages(exitConds) => {
       var break = false
 
+      // TODO nochmal ueberarbeiten
       for (e <- exitConds if break == false) {
         if (tryTransport(e, sender)) {
           break = true
@@ -64,19 +70,22 @@ class InputPoolActor(messageLimit: Int) extends Actor {
         for (e <- exitConds) {
           putInWaitForMessage(e, sender)
         }
+        sender ! InputPoolEmpty
       }
+    }
 
     case sw => logger.error("Inputpool got message but can't use: " + sw)
   }
 
   private def tryTransport(smr: SubjectMessageRouting, s: ActorRef): Boolean = {
     if (messageIsWaitingForSendIn(smr)) {
-      moveMessageToStor(smr) ! Stored // re lock sender
+      val (id, actor) = moveMessageToStor(smr)
+      actor ! Stored(id) // re lock sender TODO
     }
     if (messagesStoredFor(smr) > 0) {
-      val content = getMessageContentOf(smr)
+      val (id, content) = popMessageContentOf(smr)
       logger.debug("Inputpool: e, getMessageContentOf(e) : " + smr + " " + content)
-      s ! TransportMessage(smr.from, smr.messageType, content)
+      s ! TransportMessage(id, smr.from, smr.messageType, content)
       return true
     }
     false
@@ -84,34 +93,35 @@ class InputPoolActor(messageLimit: Int) extends Actor {
 
   // TODO exitcond namen ueberarbeiten
   private class FIFO(exitCond: SubjectMessageRouting) {
-    private val storrage = new ArrayBuffer[MessageContent]()
-    private val waitForSend = new ArrayBuffer[(MessageContent, ActorRef)]()
-    private val waitForMessageStorrage = new ArrayBuffer[ActorRef]()
+    private val storage = new ArrayBuffer[(MessageID, MessageContent)]()
+    private val waitForSend = new ArrayBuffer[(MessageID, MessageContent, ActorRef)]()
+    private val waitForMessageStorage = new ArrayBuffer[ActorRef]()
 
-    def put(content: MessageContent) { storrage += content }
+    def put(id: MessageID, content: MessageContent) { storage += ((id, content)) }
 
-    def get(): MessageContent = storrage.remove(0)
+    def pop(): (MessageID, MessageContent) = storage.remove(0)
 
-    def putInWaitForSend(m: MessageContent, _sender: ActorRef) {
-      waitForSend += ((m, _sender))
+    def putInWaitForSend(id: MessageID, m: MessageContent, _sender: ActorRef) {
+      waitForSend += ((id, m, _sender))
     }
 
-    def messagesStored = storrage.length
+    def messagesStored = storage.length
 
     def messageIsWaitingForSend = (waitForSend.length > 0)
 
-    def moveMessageToStor: ActorRef = {
-      storrage += waitForSend(0)._1
-      waitForSend.remove(0)._2
+    def moveMessageToStor: (MessageID, ActorRef) = {
+      val (id, content, actor) = waitForSend.remove(0)
+      storage += ((id, content))
+      (id, actor)
     }
 
     def putInWaitForMessage(_sender: ActorRef) {
-      waitForMessageStorrage += _sender
+      waitForMessageStorage += _sender
     }
 
-    def waitForMessage = (waitForMessageStorrage.length > 0)
+    def waitForMessage = (waitForMessageStorage.length > 0)
 
-    def getWaitingSubject = waitForMessageStorrage.remove(0)
+    def getWaitingSubject = waitForMessageStorage.remove(0)
   } // Class FIFO
 
   private val exitcond_to_FIFOs = collection.mutable.Map[SubjectMessageRouting, FIFO]()
@@ -128,7 +138,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     if (exitcond_to_FIFOs.contains(smr) == false) {
       exitcond_to_FIFOs += smr -> new FIFO(smr)
     }
-    exitcond_to_FIFOs(smr).put(sm.messageContent)
+    exitcond_to_FIFOs(smr).put(sm.messageID, sm.messageContent)
   }
 
   private def putInWaitForSend(sm: SubjectInternalMessage,
@@ -137,11 +147,11 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     if (exitcond_to_FIFOs.contains(smr) == false) {
       exitcond_to_FIFOs += smr -> new FIFO(smr)
     }
-    exitcond_to_FIFOs(smr).putInWaitForSend(sm.messageContent, sender)
+    exitcond_to_FIFOs(smr).putInWaitForSend(sm.messageID, sm.messageContent, sender)
   }
 
-  private def getMessageContentOf(e: SubjectMessageRouting): MessageContent =
-    exitcond_to_FIFOs(e).get()
+  private def popMessageContentOf(e: SubjectMessageRouting): (MessageID, MessageContent) =
+    exitcond_to_FIFOs(e).pop()
 
   private def subjectIsWaitingForMessageIn(e: SubjectMessageRouting): Boolean = {
     if (exitcond_to_FIFOs.contains(e) == false) {
@@ -155,7 +165,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     exitcond_to_FIFOs(e).messageIsWaitingForSend
   }
 
-  private def moveMessageToStor(e: SubjectMessageRouting): ActorRef =
+  private def moveMessageToStor(e: SubjectMessageRouting): (MessageID, ActorRef) =
     exitcond_to_FIFOs(e).moveMessageToStor
 
   private def putInWaitForMessage(e: SubjectMessageRouting, _sender: ActorRef) {
@@ -167,5 +177,4 @@ class InputPoolActor(messageLimit: Int) extends Actor {
 
   private def getWaitingSubject(e: SubjectMessageRouting): ActorRef =
     exitcond_to_FIFOs(e).getWaitingSubject
-
 }

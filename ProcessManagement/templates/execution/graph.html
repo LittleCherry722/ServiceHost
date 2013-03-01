@@ -1,25 +1,10 @@
 <div class="header">
-  <div class="btn-group" id="switch">
-    <button	id="tab2" class="btn">Subject-Interaction-View</button>
-
-    <div class="btn tab-dropdown">
-      <select id="slctSbj" data-placeholder="Select Internal Behavior"
-        class="middle_switch chzn-select" tabindex="1"
-        data-bind="options: availableSubjects, optionsText: 'subjectText',
-        optionsValue: 'subjectID', value: currentSubject, caption: ''">
-      </select>
-    </div>
-  </div>
 </div>
 
 <div id="processContent" class="content flexbox">
-  <div id="tab1_content" class="fluid">
-    <div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;http://sbpm:8888/tk_graph/graph/tk_graph.js"></div>
-    <div id="graph_bv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
-    <!-- <div id="graph_cv_outer" style="min-width: 1px; height: 100%; overflow:auto;">-->
-    <!--   <div style="width: 2000px; height: 2000px;"></div>-->
-    <!-- </div>-->
-    <!-- Some graph Stuff-->
+  <div id="tab1_content" class="fluid" style="padding: 0;">
+    <div id="graph_bv_outer" class="fluid" style="min-width: 1px; height: 75%; padding: 0; overflow:auto;"></div>
+    <div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 25%; padding: 0; border-top: 1px solid #ccc; overflow:auto;"></div>
   </div>
   <div id="actions" class="graphsettings" >
   	

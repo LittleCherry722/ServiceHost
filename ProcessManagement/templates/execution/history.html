@@ -1,15 +1,4 @@
 <div class="header">
-  <div class="btn-group">
-    <button	id="tab2" class="btn">Subject-Interaction-View</button>
-
-    <div class="btn tab-dropdown">
-      <select id="slctSbj" data-placeholder="Select Internal Behavior"
-        class="middle_switch chzn-select" tabindex="1"
-        data-bind="options: availableSubjects, optionsText: 'subjectText',
-        optionsValue: 'subjectID', value: currentSubject, caption: ''">
-      </select>
-    </div>
-  </div>
 </div>
 <div id="processHistory">
   <div class="content flexbox">
@@ -55,8 +44,49 @@
     </div>
   </div>
 
-  <div id="actions" class="graphsettings">
-  	
-  	
+
+<div id="processHistory">
+  <div class="content flexbox">
+      <div class="fluid">
+        Process started at: <span data-bind="text: processStarted.date"></span>
+        <table class="table">
+          <thead>
+            <th>Time</th>
+            <th>Subject</th>
+            <th>From</th>
+            <th>@State</th>
+            <th>To</th>
+            <th>@State</th>
+            <th>MessageId</th>
+            <th>MessageType</th>
+            <th>MessageFrom</th>
+            <th>MessageTo</th>
+            <th>MessageData</th>
+          </thead>
+          <tbody data-bind="foreach: historicEntries">
+            <tr>
+              <td data-bind="text: timestamp.date"></td>
+              <td data-bind="text: subject"></td>
+              <td data-bind="text: fromState.name"></td>
+              <td data-bind="text: fromState.stateType"></td>
+              <td data-bind="text: toState.name"></td>
+              <td data-bind="text: toState.stateType"></td>
+              <!-- Line below will be recognized by ko parser-->
+              <!-- ko if: $data.hasOwnProperty("message") -->
+                <td data-bind="text: message.id "></td>
+                <td data-bind="text: message.messageType"></td>
+                <td data-bind="text: message.from"></td>
+                <td data-bind="text: message.to"></td>
+                <td data-bind="text: message.data"></td>
+              <!-- /ko -->
+              </div>
+            </tr>    
+          </tbody>
+        </table>
+        Process ended at: <span data-bind="text: processEnded.date"></span>
+      </div>
+      <div id="actions" class="graphsettings"></div>
+    </div>
   </div>
+</div>
 

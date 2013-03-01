@@ -7,46 +7,71 @@ define([
 	var ViewModel = function() {
 	
 		this.processInstance = processInstance;
-		
-		window.PI= processInstance; //TODO
-		
-		this.availableSubjects = availableSubjects;
 		this.currentSubject = currentSubject;
 		this.availableActions = availableActions;
 		
 		
+
+		this.subjects = subjects;
+
+		
+		this.currentSubjectName = currentSubjectName;
+
 		
 		this.tabs = tabs;
 		this.currentTab = currentTab;
+
 	}
-	
+
 	var processInstance = ko.observable();
 
-	var availableSubjects = ko.observableArray( [] );
+	var subjects = ko.computed(function() {
+		if ( processInstance() && processInstance().process() ) {
+			return processInstance().process().subjectsArray();
+		} else {
+			return []
+		}
+	});
+
 	var currentSubject = ko.observable();
+
 	var availableActions = ko.computed({
 				deferEvaluation: true,
 				read: function() {
 					return processInstance().actions();
 				}
 			});
+
+	var currentSubjectName = ko.computed({
+		deferEvaluation: true,
+		read: function() {
+			var subject =  _( subjects() ).find(function( element ) {
+				return element[0] == currentSubject();
+			});
+			if ( subject ) {
+				return subject[1]
+			}
+		}
+	});
+
+	currentSubView = ko.observable();
+
 	
-	var tabs = ['Graph', 'History' ];
+	var tabs = [ 'Graph', 'History' ];
 	var currentTab = ko.observable();
 
 
-	var setView = function( id, tab ) {
+	var setView = function( id, tab, subjectId ) {
 		processInstance( ProcessInstance.find( id ) );
 		currentTab( tab );
-		}
+		currentSubject( subjectId );
+	}
 
 
-	processInstance.subscribe(function( process ) {
-		// console.log( "a new process has been loaded: " + process );
-	});
-	
 	currentSubject.subscribe(function( subject ) {
-		// console.log( "active subject was changed to: " + subject );
+		if ( currentSubView() ) {
+			currentSubView().setSubject( subject );
+		}
 	});
 
 	currentTab.subscribe(function( newTab ) {
@@ -55,8 +80,14 @@ define([
 			return;
 		}
 
-		App.loadSubView( "execution/" + newTab.toLowerCase(), [ processInstance() ] );
-		
+
+    // just load our new viewmodel and call the init method.
+		require([ "viewmodels/execution/" + newTab.toLowerCase() ], function( viewModel ) {
+			currentSubView( viewModel );
+      viewModel.init.apply( viewModel, [ processInstance(), currentSubject() ] );
+		});
+
+
 		if ( newTab === tabs[0] ) {
 			$("#executionContent").addClass("first-tab-selected");
 		} else {
@@ -65,13 +96,15 @@ define([
 	});
 
 
-	var initialize = function( processInstanceId, subSite ) {
-		console.log("init");
+
+	var initialize = function( processInstanceId, subSite, subjectId ) {
+
 		var viewmodel;
+
+		processInstance( ProcessInstance.find( processInstanceId ) );
 
 		viewModel = new ViewModel();
 
-		window.PIview = viewModel; //TODO
 
 		processInstance( ProcessInstance.find( processInstanceId ) );
 		
@@ -80,8 +113,9 @@ define([
 			subSite = tabs[0]
 		}
 
+		currentSubject( subjectId );
+
 		App.loadTemplate( "execution", viewModel, null, function() {
-			$( "#slctSbj" ).chosen();
 			if ( currentTab() == subSite ) {
 				currentTab.valueHasMutated()
 			} else {

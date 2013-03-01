@@ -1,19 +1,20 @@
 
 package de.tkip.sbpm.persistence
-import scala.slick.session.Session
+
+import scala.concurrent.duration.DurationInt
 import scala.reflect.runtime.universe
 import scala.slick.driver.ExtendedProfile
+import scala.slick.lifted.DDL
 import scala.slick.session.Database
+import scala.slick.session.Session
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
+
 import akka.actor.Actor
 import akka.actor.ActorLogging
-import scala.slick.session.Session
+import akka.actor.actorRef2Scala
 import akka.util.Timeout
-import scala.concurrent.duration._
-import akka.actor.ActorRef
-import akka.actor.Status
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
 
 /**
  * Provides helper methods for connecting to database using slick.
@@ -22,7 +23,7 @@ import scala.util.Failure
  * Actors who need DB access should mixin this trait.
  */
 private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
-  
+
   override def preStart() {
     log.debug(getClass.getName + " starts...")
   }
@@ -30,7 +31,7 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
   override def postStop() {
     log.debug(getClass.getName + " stopped.")
   }
-  
+
   // akka config prefix
   protected val configPath = "sbpm.db."
 
@@ -53,7 +54,7 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
     Database.forURL(config("uri"), driver = config("jdbcDriver"))
 
   // default timeout for akka message sending
-  protected implicit val timeout = Timeout(10 seconds)
+  protected implicit val timeout = Timeout(30 seconds)
 
   /**
    * Send the result of the given function back to the sender
@@ -68,6 +69,15 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
     }
   }
 
+  protected def dropIgnoreErrors(ddl: DDL)(implicit session: Session): Unit =
+    for (s <- ddl.dropStatements) {
+      try {
+        session.withPreparedStatement(s)(_.execute)
+      } catch {
+        case e: Throwable => log.warning(e.getMessage)
+      }
+    }
+
   /**
    * Provides shortcuts for specifying column data type strings
    * used in slick's lifted table configuration.
@@ -76,6 +86,7 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
     def varchar(length: Int) = "varchar(%d)".format(length)
     val blob = "blob"
     val smallint = "smallint"
+    def char(length: Int) = "char(%d)".format(length)
   }
 }
 

@@ -24,6 +24,11 @@ trait ProcessInstanceMessage {
 }
 
 /**
+ * Extend this trait if you want to send a message to the google Actors
+ */
+trait GoogleMessage
+
+/**
  * Extend this trait if you want to send a message to a subject
  */
 trait SubjectMessage {

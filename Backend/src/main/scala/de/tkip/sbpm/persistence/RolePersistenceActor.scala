@@ -14,7 +14,7 @@ sealed abstract class RoleAction extends PersistenceAction
 * or all entries (Seq[model.Role]) by sending None as id
 * None or empty Seq is returned if no entities where found
 */
-case class GetRole(id: Option[Int] = None) extends RoleAction
+case class GetRole(id: Option[Int] = None, name: Option[String] = None) extends RoleAction
 // save role to db, if id is None a new process is created and its id is returned
 case class SaveRole(role: Role) extends RoleAction
 // delete role with id from db
@@ -41,9 +41,11 @@ private[persistence] class RolePersistenceActor extends Actor with DatabaseAcces
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all roles ordered by id
-      case GetRole(None) => answer { Roles.sortBy(_.id).list }
+      case GetRole(None, None) => answer { Roles.sortBy(_.id).list }
       // get role with given id
-      case GetRole(id) => answer { Roles.where(_.id === id).firstOption }
+      case GetRole(id, None) => answer { Roles.where(_.id === id).firstOption }
+      // get role with given name
+      case GetRole(None, name) => answer { Roles.where(_.name === name).firstOption }
       // create new role
       case SaveRole(r @ Role(None, _, _)) =>
         answer { Some(Roles.autoInc.insert(r)) }
@@ -53,6 +55,7 @@ private[persistence] class RolePersistenceActor extends Actor with DatabaseAcces
       case DeleteRole(id) => answer { Roles.where(_.id === id).delete(session) }
       // execute DDL for "roles" table
       case InitDatabase => answer { Roles.ddl.create(session) }
+      case DropDatabase => answer { dropIgnoreErrors(Roles.ddl) }
     }
   }
   
