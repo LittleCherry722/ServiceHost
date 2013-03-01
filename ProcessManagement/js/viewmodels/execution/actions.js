@@ -23,6 +23,8 @@ define([
 		this.send = send;
 		
 		this.stateName = stateName;
+		
+		this.stateText = stateText;
 	
 		this.isTypeOf = isTypeOf;
 		
@@ -43,6 +45,8 @@ define([
 	var actionData;
 	
 	var stateName;
+
+	var stateText;
 
 	var isTypeOf;
 	
@@ -87,9 +91,12 @@ define([
 
 	var send = function() {
 		console.log("send: "+ messageText())
+		var deArray;
 		serverDone(false);
 		data = actionOfCurrentSubject()
-		data.actionData = messageText();
+		deArray = data.actionData[0];
+		deArray["messageContent"] = messageText();
+		data.actionData=deArray;
 		id = data.processInstanceID;
 		data = JSON.stringify(data);
 		
@@ -152,6 +159,14 @@ define([
 		stateName = ko.computed(function() {
 			if (actionOfCurrentSubject() !== undefined) {
 				return actionOfCurrentSubject().stateName;
+			} else {
+				return "";
+			}
+		});
+
+		stateText = ko.computed(function() {
+			if (actionOfCurrentSubject() !== undefined) {
+				return actionOfCurrentSubject().stateText;
 			} else {
 				return "";
 			}
