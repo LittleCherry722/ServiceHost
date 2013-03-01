@@ -101,7 +101,7 @@ define([
 		viewModel = new ViewModel();
 
 		App.loadTemplate( "execution/graph", viewModel, "executionContent", function() {
-			App.loadSubView( "execution/actions", instance );
+			App.loadSubView( "execution/actions", [instance, currentSubject] );
 			$( "#slctSbj" ).chosen();
 			processInstance( instance )
 			gf_paperZoomOut();

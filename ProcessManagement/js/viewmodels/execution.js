@@ -108,7 +108,7 @@ define([
 
 		processInstance( ProcessInstance.find( processInstanceId ) );
 		
-		console.log(processInstance());
+
 		if ( !subSite ) {
 			subSite = tabs[0]
 		}

@@ -1,21 +1,25 @@
 <h3>Actions</h3>
 
-<select id="slctSbj" class="chzn-select" data-bind="options: availableSubjects, value: currentSubject, optionsCaption: 'Choose subject'"></select>
-
-<span data-bind="text: availableSubjects().length"></span>
 <span data-bind="text: stateName()"></span>
+<span data-bind="text: actionOfCurrentSubject().stateText"></span>
+
 
 <div data-bind="visible: isTypeOf()==='action',foreach: actionData">
 	<div>
-	<span>Do:</span>
-	<input class="btn" type="button" data-bind="value: $data,click: $parent.action, enable: $parent.serverDone()"></a>
+	<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone()"/>
 	</div>
 </div>
 
-<div data-bind="visible: isTypeOf()==='send'">
-	<input type="text" data-bind="value: messageText" />
-	<span  data-bind="visible: isTypeOf()==='send'">Send:</span>
-	<input type="button" value="Send" class="btn" data-bind="click: send, enable: serverDone()">Send</a>
+<div data-bind="visible: isTypeOf()==='send',foreach: actionData">
+	<div>
+	<span >Send:</span>
+	<span data-bind="text: $data.text"></span>
+	<span>to </span><br />
+	<span data-bind="text: $data.relatedSubject"></span>
+	<input type="text" data-bind="value: $parent.messageText" />
+	<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone()" />
+	
+	</div>
 </div>
 
 <div data-bind="visible: isTypeOf()==='waiting'">
@@ -26,6 +30,6 @@
 	<div>
 	<span>Receive:</span>
 	<span data-bind="text: $data"></span>
-	<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone()">
+	<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone()" />
 	</div>
 </div>

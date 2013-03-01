@@ -8,8 +8,6 @@ define([
 	var ViewModel = function() {
 		this.processInstance = processInstance;
 		
-		this.availableSubjects = availableSubjects;
-		
 		this.availableActions = availableActions;
 
 		this.currentSubject = currentSubject;
@@ -36,11 +34,9 @@ define([
 
 	var availableActions;
 	
-	var availableSubjects;
+	var currentSubject= ko.observable();
 	
-	var currentSubject = ko.observable();
-	
-	var actionOfCurrentSubject = ko.observable();
+	var actionOfCurrentSubject;
 	
 	var messageText = ko.observable();
 			
@@ -96,6 +92,8 @@ define([
 		data.actionData = messageText();
 		id = data.processInstanceID;
 		data = JSON.stringify(data);
+		
+		console.log(data)
 			$.ajax({
 			url : '/processinstance/' + id,
 			type : "PUT",
@@ -120,33 +118,28 @@ define([
 	};
 
 	 
+
+
+
+
+	 
+	 
 		
-	var initialize = function( instance ) {
-		console.log("init a");
+	var initialize = function( instance, subjectId ) {
+		
 		var viewModel;
 		
 		processInstance( instance );
 		processInstance().refresh();
-
-		console.log(processInstance().actions());
-
 		availableActions = instance.actions;
+		currentSubject = subjectId;
 
-		
-
-		availableSubjects = ko.computed(function() {
-			return availableActions().map(function(action) {
-				return action.subjectID;
-			});
-		});
-
-		//Only one currentSubject possible.
+			//Only one currentSubject possible.
 		actionOfCurrentSubject = ko.computed(function() {
 			return availableActions().filter(function(action) {
 				return action.subjectID === currentSubject();
 			})[0];
 		});
-
 
 		isTypeOf = ko.computed(function() {
 			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().stateType !== undefined) {
@@ -174,7 +167,7 @@ define([
 
 				}
 			}
-		});
+		}); 
 
 
 		
@@ -184,7 +177,6 @@ define([
 		window.aView = viewModel;
 
 		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
-		$( "#slctSbj" ).chosen();
 		});
 
 
