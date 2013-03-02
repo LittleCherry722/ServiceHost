@@ -53,7 +53,7 @@ class SubjectActor(userID: UserID,
     case terminated: SubjectTerminated => {
       context.parent ! terminated
       // TODO terminate?
-      context.stop(self)
+//      context.stop(self)
     }
 
     case gaa: GetAvailableActions => {

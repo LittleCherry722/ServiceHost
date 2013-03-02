@@ -117,10 +117,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
   // variables to help blocking of ActionExecuted messages
-  var subjectsUserIDMap = Map[SubjectID, UserID]()
-  var waitingForContextResolver = ArrayBuffer[UserID]()
-  var waitingUserMap = Map[UserID, Int]()
-  var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]()
+  private var subjectsUserIDMap = Map[SubjectID, UserID]()
+  private var waitingForContextResolver = ArrayBuffer[UserID]()
+  private var waitingUserMap = Map[UserID, Int]()
+  private var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]()
 
   // add all start subjects
   for (startSubject <- startSubjects) {
@@ -138,21 +138,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   //      (actions: Array[AvailableAction]) =>
   //        ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
 
-  private var sendProcessInstanceCreated = true
-  private def trySendProcessInstanceCreated() {
-    if (sendProcessInstanceCreated && allSubjectsReady(request.userID)) {
-      //      context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
-      context.parent !
-        AskSubjectsForAvailableActions(
-          request.userID,
-          id,
-          AllSubjects,
-          (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
-      sendProcessInstanceCreated = false
-    }
-  }
-
   def receive = {
 
     case as: AddSubject => {
@@ -167,10 +152,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
         waitingForContextResolver = waitingForContextResolver.tail
       } else {
-        handleBlockingForSubjectCreation(as.userID)
-
         // safe userID that owns the subject
         subjectsUserIDMap += subject.id -> as.userID
+
+        // handle blocking
+        handleBlockingForSubjectCreation(as.userID)
 
         // create the subject
         val subjectRef =
@@ -185,6 +171,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // forward them to the subject 
         if (!messagePool.isEmpty) {
           for ((orig, sm) <- messagePool if sm.to == subject.id) {
+            handleBlockingForMessageDelivery(as.subjectID)
             subjectRef.!(sm)(orig)
           }
           messagePool = messagePool.filterNot(_._2.to == subject.id)
@@ -231,9 +218,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case sm: SubjectInternalMessage => {
       // block user that owns the subject
-      handleBlockingForMessageDelivery(sm.from, sm.to)
       if (subjectMap.contains(sm.to)) {
-
+        handleBlockingForMessageDelivery(sm.to)
         // if the subject already exist just forward the message
         subjectMap(sm.to).forward(sm)
       } else {
@@ -366,14 +352,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     // println("contextResolver: " + waitingForContextResolver.mkString(","))
   }
 
-  private def handleBlockingForMessageDelivery(from: SubjectID, to: SubjectID) {
-    if (subjectsUserIDMap.contains(to)) {
-      blockUserID(subjectsUserIDMap(to))
-    } else {
-      // TODO temporal bugfix
-      blockUserID(1)
-    }
-
+  private def handleBlockingForMessageDelivery(to: SubjectID) {
+    blockUserID(subjectsUserIDMap(to))
     // println("blockingForDelivery: " + waitingUserMap.mkString(","))
   }
 
@@ -388,7 +368,21 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // println("forward: " + blockedAnswers.mkString(","))
       blockedAnswers -= userID
     }
-
-    // else some other task is blocking forwarding so wait
   }
+  
+  private var sendProcessInstanceCreated = true
+  private def trySendProcessInstanceCreated() {
+    if (sendProcessInstanceCreated && allSubjectsReady(request.userID)) {
+      //      context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
+      context.parent !
+        AskSubjectsForAvailableActions(
+          request.userID,
+          id,
+          AllSubjects,
+          (actions: Array[AvailableAction]) =>
+            ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
+      sendProcessInstanceCreated = false
+    }
+  }
+
 }
