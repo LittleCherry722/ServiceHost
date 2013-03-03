@@ -14,35 +14,30 @@ You can obtain one at http://mozilla.org/MPL/2.0/.
 
 REQUIREMENTS
 -----------------------------------
-1)	You need to run an Apache server and a MySQL server on your machine.
-	You can obtain a copy at
-		Windows:	http://www.apachefriends.org/de/xampp-windows.html
-		Max:		http://www.apachefriends.org/de/xampp-macosx.html
-		Linux:		http://www.apachefriends.org/de/xampp-linux.html
+1)	You need to have a Java Development Kit (JDK) installed, as well as Simple
+	Build Tool (SBT) for Scala to run the startup scripts. Alternatively, Eclipse or any other Java IDE with a Scala Plugin will do. 
+		to Install SBT: http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html#installing-sbt
 		
 2)	The software was tested with the following browsers:
-	- Chrome 10+
-	- Chromium 12+
-	- Firefox 8+
-	- Opera 11+
-	- Internet Explorer 9+
-	- Safari 5+
-	- Konqueror 4.7+
+	- Chrome 24+
+	- Chromium 26+
+	- Firefox 19+
+	- Opera 12.14+
+	- Internet Explorer 10+
+	- Safari 6+
 	If you experience any problems try updating your browser or use one of the browsers listed above.
-	As this software uses the HTML canvas element it is likely that this software will not run on older browser (especially IE prior to version 9).
+	As this software uses the HTML canvas element and css flexbox, it is likely that this software will not run on older browser (especially IE prior to version 9).
 
 
 
 
 INSTALLATION
 -----------------------------------
-1)	Extract all files of the ZIP / tar.gz / tar.bz2 file and copy the folder "ProcessManagement" to the root of your webserver (like /htdocs/).
+1)	Extract all files of the ZIP / tar.gz / tar.bz2 file and copy the folder "ProcessManagement" anywhere you like.
 
-2)	Access the file "Processmanagement/db/include/db.config.php" and enter the correct data for your database server.
+3)	Start the Server
+	3.1) SBT: run the startup.bat (Windows) or startup.sh (Unix) scripts in the Backend/ Folder.
+	3.2) Eclipse / other IDEs: Open the Projekt and run the Boot.scala file as a Scala Application.
 
-3)	Start your Apache server and the MySQL server.
+4)	You can now access the site via http://localhost:8080/sbpm
 
-4)	You can now access the site via http://localhost/ProcessManagement.
-	The software will automatically create the database and the tables needed.
-
-NOTE: Currently it is not possible to prefix the database tables. To avoid trouble please use a separate database for this software.  
