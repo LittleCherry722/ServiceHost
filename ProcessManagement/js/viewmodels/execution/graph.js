@@ -60,6 +60,7 @@ define([
 		gf_loadGraph( processInstance().graph() );
 	}
 
+
 	var viewChanged = function( view ) {
 		if ( view === "cv" ) {
 			currentSubject( undefined );
@@ -94,12 +95,13 @@ define([
 	}
 
 	var initialize = function( instance, subjectId ) {
+
 		var viewModel;
 
 		viewModel = new ViewModel();
 
 		App.loadTemplate( "execution/graph", viewModel, "executionContent", function() {
-			// App.loadSubView( "execution/actions", processInstance() );
+			App.loadSubView( "execution/actions", [instance, currentSubject] );
 			$( "#slctSbj" ).chosen();
 			processInstance( instance )
 			gf_paperZoomOut();

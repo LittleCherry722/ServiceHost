@@ -13,7 +13,7 @@ sealed abstract class GroupAction extends PersistenceAction
 * or all entries (Seq[model.Group]) by sending None as id
 * None or empty Seq is returned if no entities where found
 */
-case class GetGroup(id: Option[Int] = None) extends GroupAction
+case class GetGroup(id: Option[Int] = None, name: Option[String] = None) extends GroupAction
 // save group to db, if id is None a new group is created and its id is returned
 case class SaveGroup(group: Group) extends GroupAction
 // delete group with id from db (nothing is returned)
@@ -38,9 +38,11 @@ private[persistence] class GroupPersistenceActor extends Actor with DatabaseAcce
   def receive = database.withSession { implicit session => // execute all db operations in a session
     {
       // get all groups ordered by id
-      case GetGroup(None) => answer { Groups.sortBy(_.id).list }
+      case GetGroup(None, None) => answer { Groups.sortBy(_.id).list }
       // get group with given id
-      case GetGroup(id) => answer { Groups.where(_.id === id).firstOption }
+      case GetGroup(id, None) => answer { Groups.where(_.id === id).firstOption }
+      // get group with given name
+      case GetGroup(None, name) => answer { Groups.where(_.name === name).firstOption }
       // create new group
       case SaveGroup(g @ Group(None, _, _)) =>
         answer { Some(Groups.autoInc.insert(g)) }

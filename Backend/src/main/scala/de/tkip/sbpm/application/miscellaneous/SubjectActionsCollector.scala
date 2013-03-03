@@ -4,11 +4,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.event.Logging
-
 import akka.actor._
 import akka.pattern.ask
 import scala.concurrent.Future
-
 import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.SubjectActor
@@ -27,11 +25,12 @@ class SubjectActionsCollector extends Actor {
 
   def receive = {
     case CollectAvailableActions(subjects, processInstanceID, generateAnswer) => {
-      implicit val timeout = akka.util.Timeout(5 seconds)
+      implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
+      // TODO might check if some subjects has terminated
 
       // ask every subjects for the available action
       val futures: Array[Future[AvailableAction]] =
-        for (subject <- subjects.toArray)
+        for (subject <- subjects.filterNot(_.isTerminated).toArray)
           yield (subject ? GetAvailableAction(processInstanceID)).asInstanceOf[Future[AvailableAction]]
 
       // await all question results parallel
@@ -39,29 +38,11 @@ class SubjectActionsCollector extends Actor {
         yield Await.result(future, timeout.duration)
 
       // results ready -> generate answer -> return
-      sender ! generateAnswer(actions.toArray)
+      // TODO for the moment filter endstatetype, later think about a better idea
+      sender ! generateAnswer(actions.toArray.filterNot(_.stateType == de.tkip.sbpm.model.StateType.EndStateType.toString()))
 
       // actions collected -> stop this actor
       context.stop(self)
-
-      //        val future = subject ? GetAvailableAction(processInstanceID)
-      //        futures += future.asInstanceOf[Future[AvailableAction]]
-      // TODO non-blocking?
-      //      val actionFutures =
-      //        for (actionFuture <- futures)
-      //          yield actionFuture
-
-      //      var h = null
-      //      val actions = ArrayBuffer[AvailableAction]()
-      //      for (f <- futures) {
-      //        try {
-      //          actions += Await.result(f, timeout.duration).asInstanceOf[AvailableAction]
-      //        } catch {
-      //          case h: java.util.concurrent.TimeoutException => {
-      //            logger.error(f + " timed out")
-      //          }
-      //        }
-      //      }
     }
   }
 }

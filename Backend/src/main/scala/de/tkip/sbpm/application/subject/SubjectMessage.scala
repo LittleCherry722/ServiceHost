@@ -10,16 +10,17 @@ import de.tkip.sbpm.application.History
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
-protected case class NextState(state: StateID) extends SubjectBehaviorRequest
 
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
 sealed trait MessageObject
 // message from subject to subject
-protected case class SubjectInternalMessage(userID: UserID, from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+protected case class SubjectInternalMessage(messageID: MessageID, var userID: UserID, from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // stored message in the inputpool
-protected case class TransportMessage(from: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+protected case class TransportMessage(messageID: MessageID, from: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+// message to inform the receive state, that the inputpool has no messages for him
+protected case object InputPoolEmpty
 // acknowledge, that a message is stored in the input pool
-protected case object Stored extends MessageObject
+protected case class Stored(messageID: MessageID) extends MessageObject
 // request for the input pool that a state want to know his messages
 protected case class RequestForMessages(exitConds: Array[SubjectMessageRouting])
 
@@ -33,14 +34,19 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
+case class ActionData(text: String, // = messagetype
+                      executeAble: Boolean = false,
+                      relatedSubject: Option[String] = None,
+                      messageContent: Option[String] = None)
+
 // Answer to the GetAvailable Action request
 case class AvailableAction(userID: UserID,
                            processInstanceID: ProcessInstanceID,
                            subjectID: SubjectID,
                            stateID: StateID,
-                           stateName: String,
+                           stateText: String,
                            stateType: String,
-                           actionData: Array[String])
+                           actionData: Array[ActionData])
     extends SubjectProviderMessage
 
 // The Execution command from the user
@@ -49,7 +55,7 @@ case class ExecuteAction(userID: UserID,
                          subjectID: SubjectID,
                          stateID: StateID,
                          stateType: String,
-                         actionData: String)
+                         actionData: ActionData)
 
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
 // TODO keine defaultparameter

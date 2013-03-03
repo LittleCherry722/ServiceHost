@@ -8,7 +8,7 @@ define([
 	//
 	// Process is responsivle for everything associated with processes directly.
 	//
-	// For example: Getting a list of all processes, savin a process,
+	// For example: Getting a list of all processes, saving a process,
 	// validating the current process etc.
 	ProcessInstance = Model( "ProcessInstance" );
 

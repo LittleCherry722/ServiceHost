@@ -1,12 +1,35 @@
 <h3>Actions</h3>
 
-<div class="action">
-  <h4>Action 1</h4>
-  <p>
-    Some description for this action
-  </p>
-  <div class="clearfix">
-    <button class="btn btn-inverse pull-left">Choice 1</button>
-    <button class="btn pull-right">Choice 2</button>
-  </div>
+<span data-bind="text: stateName()"></span>
+<span data-bind="text: stateText()"></span>
+
+
+<div data-bind="visible: isTypeOf()==='action',foreach: actionData">
+	<div>
+	<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone()"/>
+	</div>
+</div>
+
+<div data-bind="visible: isTypeOf()==='send',foreach: actionData">
+	<div>
+	<span >Send:</span>
+	<span data-bind="text: $data.text"></span>
+	<span>to </span><br />
+	<span data-bind="text: $data.relatedSubject"></span>
+	<input type="text" data-bind="value: $parent.messageText" />
+	<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone()" />
+	
+	</div>
+</div>
+
+<div data-bind="visible: isTypeOf()==='waiting'">
+	<span>Waiting!!</span>
+</div>
+
+<div data-bind="visible: isTypeOf()==='receive',foreach: actionData">
+	<div>
+	<span>Receive:</span>
+	<span data-bind="text: $data.text"></span>
+	<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone()" />
+	</div>
 </div>

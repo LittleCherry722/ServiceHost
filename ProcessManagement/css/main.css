@@ -6718,6 +6718,12 @@ table.data2 tr td {
 
 #processHistory {
   margin-left: 10px;
+  height: 100%;
+}
+
+#processHistory .fluid {
+  overflow: auto;
+  clear:both;
 }
 
 #adminContainer {

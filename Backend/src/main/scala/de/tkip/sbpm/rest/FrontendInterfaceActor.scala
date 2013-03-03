@@ -25,6 +25,7 @@ object Entity {
   val ROLE = "role"
   val GROUP = "group"
   val CONFIGURATION = "configuration"
+  val OAUTH2CALLBACK = "oauth2callback"
 
   // TODO define more entities if you need them  
 }
@@ -102,6 +103,12 @@ class FrontendInterfaceActor extends Actor with HttpService {
        */
       pathPrefix(Entity.TESTEXECUTION) {
         authenticateAndHandleWith[TestExecutionInterfaceActor]
+      } ~
+      /**
+       * forward all posts to /oauth2callback unauthenticated to GoogleAuthActor 
+       */
+      pathPrefix(Entity.OAUTH2CALLBACK) {
+          handleWith[GoogleResponseActor]
       } ~
       pathPrefix(Entity.USER) {
         /**

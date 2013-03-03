@@ -71,7 +71,7 @@ define([
 
 		App.loadTemplate( "execution/history", viewModel, "executionContent", function() {
 			$( "#slctSbj" ).chosen();
-			// App.loadSubView( "execution/actions", processInstance() );
+			App.loadSubView( "execution/actions", [instance, subjectId] );
 		});
 
 	}
