@@ -11,8 +11,8 @@ define([
 		toUserId: 'integer'
 	});
 
-	Message.belongsTo( "fromUser", { modelName: "User" } );
-	Message.belongsTo( "toUser",   { modelName: "User" } );
+	Message.belongsTo( "fromUser", { modelName: "user" } );
+	Message.belongsTo( "toUser",   { modelName: "user" } );
 
 
 	Message.fetch = function( callback ) { if ( callback ) { callback() } };
