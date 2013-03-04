@@ -9,8 +9,8 @@ import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.rest.JsonProtocol._
 
 /**
- * This object is responsible to divide a string listing of subjects
- * into the independet subjectIDs
+ * This objectfunction is responsible to divide a string listing of subjects
+ * into the independent subjectIDs
  */
 object parseSubjects {
   def apply(subjects: String): Array[SubjectID] = {
@@ -37,13 +37,13 @@ object parseGraph {
   private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
   private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
   private case class JNodeOption(message: MessageType)
-  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, target: JsValue)
+  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, manualTimeout: Boolean, target: JsValue)
   private case class JEdgeTarget(id: SubjectID)
 
   // The marshalling formats for the case classes
   private object JsonFormats extends DefaultJsonProtocol {
     implicit val edgeTargetFormat = jsonFormat1(JEdgeTarget)
-    implicit val edgeFormat = jsonFormat5(JEdge)
+    implicit val edgeFormat = jsonFormat6(JEdge)
     implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
     implicit val nodeFormat = jsonFormat6(JNode)
     implicit val behaviorFormat = jsonFormat2(JBehavior)
@@ -52,13 +52,13 @@ object parseGraph {
   }
   import JsonFormats._
 
-  // This map matches the shortversions and real versions of the message types
+  // This map matches the short versions and real versions of the message types
   private var messageMap: Map[String, String] = null
 
   def apply(graph: String): ProcessGraph = {
     // TODO fehlerbehandlung bei falschem String
-    // TODO type ersetzung ist so nicht effizient
 
+    // TODO type replacement is not efficient
     // parse the graph message count and the message object from the graph
     val jgraph = graph.replace("\"type\":", "\"myType\":").asJson.convertTo[JGraph]
     val jmessages = jgraph.messages.asJsObject()
@@ -71,16 +71,11 @@ object parseGraph {
   }
 
   private object parseSubject {
-    // TODO irgentwie elegant loesen
     private var states: MutableMap[StateID, StateCreator] = null
-    // TODO unique id's
-    private var startID: StateID = -1
 
     def apply(subject: JSubject): Subject = {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
-      // First create an unique start and end state
-      //      states(startID) = new StateCreator(startID, "StartState", StartStateType)
 
       // at the moment we only support one behavior
       val behavior: JBehavior = subject.macros(0)
@@ -89,49 +84,47 @@ object parseGraph {
       parseNodes(behavior.nodes)
       parseEdges(behavior.edges)
 
-      // all parsed states are in the states map, convert the creators and return
-      // the subject
+      // all parsed states are in the states map, convert the creators,
+      // create and return the subject
       Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray)
     }
 
     private def parseNodes(nodes: Array[JNode]) {
       for (node <- nodes) {
-        // if its the startstate add a transition from the startstate to this state
-        if (states.contains(node.id)) {
-          throw new Exception("Parse failed state id: " + node.id + " is given 2 times")
-        }
-        // add the state creator for this state
+        // create and add a state creator for this state
         states(node.id) =
           new StateCreator(node.id, node.text, fromStringtoStateType(node.myType), node.start)
-        // TODO check if end state always is automatic parsed
       }
-
     }
 
     private def parseEdges(edges: Array[JEdge]) {
       for (edge <- edges) {
-
+        // match the edgetype and create the corresponding transition
         edge.myType match {
+
           case "exitcondition" => {
+            //  get the id of the target subject
             val s =
               if (!edge.target.isInstanceOf[JsString])
                 edge.target.convertTo[JEdgeTarget].id
               else
                 "None"
+            // at the transition to the state
             states(edge.start).addTransition(Transition(ExitCond(edge.text, s), edge.end))
           }
 
           case "timeout" => {
-            states(edge.start).addTransition(TimeoutTransition(Integer.parseInt(edge.text), edge.end))
+            // get the duration only if i
+            val duration = if (edge.manualTimeout) -1 else Integer.parseInt(edge.text)
+            // at the transition to the state
+            states(edge.start).addTransition(TimeoutTransition(edge.manualTimeout, duration, edge.end))
           }
 
           case s => {
             // TODO error loggen
             System.err.println("Cant parse edgetype: " + s)
           }
-
         }
-
       }
     }
   }
@@ -140,43 +133,49 @@ object parseGraph {
    * This class holds a state while it is in creation, so it is possible
    * to add transitions
    */
-  private class StateCreator(id: StateID,
-                             name: SubjectName,
-                             stateType: StateType,
-                             startState: Boolean) {
+  private class StateCreator(
+    id: StateID,
+    name: SubjectName,
+    stateType: StateType,
+    startState: Boolean) {
+
+    // store all transitions in this Buffer
     private val transitions = new ArrayBuffer[Transition]
 
+    /**
+     * Add a transition to this state creator
+     */
     def addTransition(transition: Transition) {
       transitions += updateMessageType(transition)
     }
 
-    def createState: State = State(id, name, stateType, startState, transitions.toArray)
+    /**
+     * Creates and returns the state for this state creator
+     */
+    def createState: State =
+      State(id, name, stateType, startState, transitions.toArray)
 
     /**
      * Updates the MessageType of a transition, but only if this
      * StateCreator is for a Send- or ReceiveState
      */
     private def updateMessageType(transition: Transition): Transition = {
-      def transitionWithNewMessageType: Transition = {
-        // TODO check if its an exitcond (not critical but timeout will print error
-        val oldMessageType = transition.messageType
-        if (!messageMap.contains(oldMessageType)) {
-          System.err.println("Cant update MessageType") // TODO log error
-          return transition
+        def transitionWithNewMessageType: Transition = {
+          // only update exitconds, only update existing message types
+          if (transition.isExitCond && messageMap.contains(transition.messageType)) {
+            Transition(
+              ExitCond(messageMap(transition.messageType), transition.subjectID),
+              transition.successorID)
+          } else {
+            transition
+          }
         }
 
-        Transition(ExitCond(messageMap(oldMessageType), transition.subjectID), transition.successorID)
-      }
+      // only update message type for receive- and send states
       stateType match {
-        case ReceiveStateType => {
-          transitionWithNewMessageType
-        }
-        case SendStateType => {
-          transitionWithNewMessageType
-        }
-        case _ => {
-          transition
-        }
+        case ReceiveStateType => transitionWithNewMessageType
+        case SendStateType    => transitionWithNewMessageType
+        case _                => transition
       }
     }
   }
