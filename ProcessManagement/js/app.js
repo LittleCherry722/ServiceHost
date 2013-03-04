@@ -22,44 +22,36 @@ define([
 		});
 	}
 
-	var initialize = function( callback ) {
-		require([
-			"model",
-			"models/user",
-			"models/process",
-			"models/group",
-			"models/role",
-			"models/groupsUsers",
-			"models/groupsRoles",
-			"models/processInstance",
-			"models/message"
-			// "models/roles",
-		], function( Model, User, Process, Group, Role ) {
+var initialize = function( callback ) {
+	require([
+		"model",
+		"models/user",
+		"models/process",
+		"models/group",
+		"models/role",
+		"models/groupsUsers",
+		"models/groupsRoles",
+		"models/processInstance",
+		"models/message"
+		// "models/roles",
+	], function( Model, User, Process, Group, Role ) {
 
+		// The current user logged in to our system
+		currentUser( new User( { name: "no user" } ) );
 
-			// The current user logged in to our system
-			currentUser( new User( { name: "no user" } ) );
-
-
-			// Initially fetch all Models, then initialize the views and after that,
-			// tell everyone that we are done (call the callback).
-
-			
-
-			async.auto({
-
-				fetchAll : Model.fetchAll,
-				setCurrentUser : ["fetchAll", function(callback) {
-					loadCurrentUser();
-					callback();
-				}],
-				initViews : ["fetchAll", "setCurrentUser", initializeViews],
-				callback : ["initViews", callback]
-			}); 
-
-
+		// Initially fetch all Models, then initialize the views and after that,
+		// tell everyone that we are done (call the callback).
+		async.auto({
+			fetchAll : Model.fetchAll,
+			setCurrentUser : ["fetchAll", function(callback) {
+				loadCurrentUser();
+				callback();
+			}],
+			initViews : ["fetchAll", "setCurrentUser", initializeViews],
+			callback : ["initViews", callback]
 		});
-	};
+	});
+};
 
 
 
@@ -79,7 +71,7 @@ define([
 				name : "no user"
 			}));
 		}
-	}; 
+	};
 
 
 
