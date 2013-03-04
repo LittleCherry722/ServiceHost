@@ -1,4 +1,7 @@
 /.cache
 .cache
 /target
+/log
+/bin
+/lib_managed
 project/target
