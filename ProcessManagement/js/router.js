@@ -71,6 +71,10 @@ define([ "director", "app"], function( Director, App ) {
 		loadView( "process/routing", processId );
 	}
 
+	var showMessages = function() {
+		App.loadView( "messages", null, globalCallback() );
+	}
+
 	/*
 	 *	Every possible route gets defined here
 	 */
@@ -98,7 +102,8 @@ define([ "director", "app"], function( Director, App ) {
 					":subject": showProcessExecution
 				}
 			}
-		}
+		},
+		"/messages": showMessages
 	}
 
 	var expandListOfProcesses = function() {

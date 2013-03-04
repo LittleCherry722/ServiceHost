@@ -4,7 +4,7 @@ define([
 	"notify",
 	"router",
 	"models/process",
-	"models/message",
+	"models/processmessage",
 	"models/subject"
 	// "tk_graph"
 ], function( ko, App, Notify, Router, Process, Message, Subject ) {
