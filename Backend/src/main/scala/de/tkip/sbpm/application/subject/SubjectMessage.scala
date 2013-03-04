@@ -23,6 +23,9 @@ protected case object InputPoolEmpty
 protected case class Stored(messageID: MessageID) extends MessageObject
 // request for the input pool that a state want to know his messages
 protected case class RequestForMessages(exitConds: Array[SubjectMessageRouting])
+// request for the input pool that a state terminated and the inputpool should
+// delete the remaining message requests
+protected case class RemoveMessageRequests(exitConds: Array[SubjectMessageRouting])
 
 // TODO richtig einordnern
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)

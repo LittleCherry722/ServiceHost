@@ -23,11 +23,11 @@ case class ActionExecuted(ea: ExecuteAction)
 case class SubjectStarted(userID: UserID, subjectID: SubjectID)
 
 protected case class StateData(stateModel: State,
-                               userID: UserID,
-                               subjectID: SubjectID,
-                               internalBehaviorActor: InternalBehaviorRef,
-                               processInstanceActor: ProcessInstanceRef,
-                               inputPoolActor: ActorRef)
+  userID: UserID,
+  subjectID: SubjectID,
+  internalBehaviorActor: InternalBehaviorRef,
+  processInstanceActor: ProcessInstanceRef,
+  inputPoolActor: ActorRef)
 
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
@@ -94,7 +94,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 }
 
 protected case class EndStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   // TODO direct beenden?
   internalBehaviorActor ! SubjectTerminated(userID, subjectID)
@@ -108,7 +108,7 @@ protected case class EndStateActor(data: StateData)
 }
 
 protected case class ActStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   override def receive = {
 
@@ -145,7 +145,7 @@ protected case class ActStateActor(data: StateData)
 }
 
 protected case class ReceiveStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   // convert the transitions into a map of extended transitions, to work with
   // this map in the whole actor
@@ -171,6 +171,11 @@ protected case class ReceiveStateActor(data: StateData)
           transitionsMap((from, messageType)).ready
       }
     }) => {
+      val routing =
+        (for ((k, v) <- transitionsMap if (!v.ready))
+          yield SubjectMessageRouting(v.from, v.messageType)).toArray
+      inputPoolActor ! RemoveMessageRequests(routing)
+
       // get the transition from the map
       val transition = transitionsMap((input.relatedSubject.get, input.text))
       // create the Historymessage
@@ -237,9 +242,9 @@ protected case class ReceiveStateActor(data: StateData)
    * This case class extends an transition with information about the related message
    */
   private case class ExtendedTransition(
-      from: SubjectID,
-      messageType: MessageType,
-      successorID: StateID) {
+    from: SubjectID,
+    messageType: MessageType,
+    successorID: StateID) {
 
     var ready = false
     var messageID: MessageID = -1
@@ -261,7 +266,7 @@ protected case class ReceiveStateActor(data: StateData)
 }
 
 protected case class SendStateActor(data: StateData)
-    extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) {
 
   import scala.collection.mutable.{ Map => MutableMap }
   var messageContent: Option[String] = None

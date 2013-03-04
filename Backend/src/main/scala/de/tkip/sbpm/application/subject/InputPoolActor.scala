@@ -8,7 +8,7 @@ import de.tkip.sbpm.model.Transition
 import akka.event.Logging
 
 case class SubjectInternalMessageProcessed(subjectID: SubjectID)
-case class SubjectMessageRouting(from: SubjectName, messageType: MessageType)
+case class SubjectMessageRouting(from: SubjectID, messageType: MessageType)
 
 object SubjectMessageRouting {
   // TODO passt nur fuer receivestate
@@ -73,6 +73,12 @@ class InputPoolActor(messageLimit: Int) extends Actor {
         sender ! InputPoolEmpty
       }
     }
+    
+    case RemoveMessageRequests(exitConds) => {
+      for(e <- exitConds) {
+        exitcond_to_FIFOs(e).pop()
+      }
+    }
 
     case sw => logger.error("Inputpool got message but can't use: " + sw)
   }
@@ -122,7 +128,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     def waitForMessage = (waitForMessageStorage.length > 0)
 
     def getWaitingSubject = waitForMessageStorage.remove(0)
-  } // Class FIFO
+  }
 
   private val exitcond_to_FIFOs = collection.mutable.Map[SubjectMessageRouting, FIFO]()
 
