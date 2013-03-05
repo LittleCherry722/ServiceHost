@@ -53,11 +53,8 @@ class InternalBehaviorActor(
       addState(state)
     }
 
-    case ess: StartSubjectExecution => {
+    case message: StartSubjectExecution => {
       nextState(startState)
-      if (currentState != null) {
-        currentState ! ess
-      }
     }
 
     case change: ChangeState => {

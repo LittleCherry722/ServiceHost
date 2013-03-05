@@ -156,9 +156,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // safe userID that owns the subject
         subjectsUserIDMap += subject.id -> as.userID
 
-        // handle blocking
-        handleBlockingForSubjectCreation(as.userID)
-
         val container = subjectMap.getOrElse(subject.id, SubjectContainer())
         val subjectRef = container.createAndAddSubject(as.userID, subject)
         // add the subject to the management map
@@ -167,6 +164,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
         logger.info("processinstance " + id + " created subject " + subject.id + " for user " + as.userID)
 
+        // TODO move to container
         // if there are messages to deliver to the new subject,
         // forward them to the subject 
         if (!messagePool.isEmpty) {
@@ -196,7 +194,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case st: SubjectTerminated => {
       //      subjectMap -= st.subjectID
-      subjectsUserIDMap -= st.subjectID // TODO umbauen fuer multisubjecte
+      //      subjectsUserIDMap -= st.subjectID // TODO umbauen fuer multisubjecte
       subjectMap(st.subjectID).hasTerminated(st)
 
       // log end time in history TODO
@@ -217,10 +215,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case sm: SubjectToSubject => {
       // block user that owns the subject
       if (subjectMap.contains(sm.to)) {
-        handleBlockingForMessageDelivery(sm.to)
         // if the subject already exist just forward the message
-        subjectMap(sm.to).forward(sm)
+        subjectMap(sm.to).forwardToAll(sm)
       } else {
+        // TODO in container
         waitForContextResolver(sm.userID)
 
         // if the subject does not exist create the subject and forward the
@@ -252,14 +250,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-    case message: SubjectMessage => {
-      if (subjectMap.contains(message.subjectID)) {
-        subjectMap(message.subjectID).forward(message)
-      } else {
-        logger.error("ProcessInstance has message for subject " +
-          message.subjectID + "but it does not exists")
-      }
-    }
+//    case message: SubjectMessage => { //TODO raus fuer multisubjecte problematisch?
+//      if (subjectMap.contains(message.subjectID)) {
+//        subjectMap(message.subjectID).forwardToAll(message)
+//      } else {
+//        logger.error("ProcessInstance has message for subject " +
+//          message.subjectID + "but it does not exists")
+//      }
+//    }
 
     case message: SubjectProviderMessage => {
       context.parent ! message
@@ -401,6 +399,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
      */
     def createAndAddSubject(userID: UserID, subject: Subject) = {
       val subjectSessionID = nextSubjectSessionID
+
+      // handle blocking
+      handleBlockingForSubjectCreation(userID)
+
       val subjectRef =
         context.actorOf(Props(new SubjectActor(userID, subjectSessionID, self, subject)))
       subjects += subjectSessionID -> SubjectInfo(subjectRef, userID)
@@ -418,21 +420,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     /**
-     * Forwards a message to this Subject
-     */
-    def forward(message: Any) {
-      // TODO wie bei multisubjecten?
-      //      subject.forward(message)
-      forwardToAll(message)
-    }
-
-    /**
      * Forwards a message to all Subjects of this MultiSubject
      */
-    def forwardToAll(message: Any) {
+    def forwardToAll(message: SubjectToSubject) {
       for ((k, subjectInfo) <- subjects) {
         if (subjectInfo.running) {
           subjectInfo.ref.forward(message)
+          handleBlockingForMessageDelivery(message.to)
         } else {
           subjectInfo.ref ! StartSubjectExecution()
           handleBlockingForSubjectCreation(subjectInfo.userID)
