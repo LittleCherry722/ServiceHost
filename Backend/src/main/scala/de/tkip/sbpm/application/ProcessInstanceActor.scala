@@ -107,7 +107,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private var messagePool = Set[(ActorRef, SubjectToSubjectMessage)]()
 
   // whether the process instance is terminated or not
-  private var isTerminated = startSubjects.length == 0
+  private var isTerminated = true
   private var subjectCounter = 0 // TODO We dont really need counter
   // this map stores all Subjects with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
@@ -125,21 +125,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private var waitingUserMap = Map[UserID, Int]()
   private var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]()
 
-  // add all start subjects
-  for (startSubject <- startSubjects) {
+  // add all start subjects (only if they exist!)
+  for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
+    isTerminated = false
+
     waitForContextResolver(request.userID)
+
     contextResolver !
       RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
-  }
-  // inform the process manager that this process instance has been created
-  //  context.parent ! ProcessInstanceCreated(request, id, self, graphJson, executionHistory, Array())
 
-  //  context.parent !
-  //    AskSubjectsForAvailableActions(request.userID,
-  //      id,
-  //      AllSubjects,
-  //      (actions: Array[AvailableAction]) =>
-  //        ProcessInstanceCreated(request, id, self, graphJson, executionHistory, actions))
+    subjectMap(startSubject) = SubjectContainer(graph.subject(startSubject))
+  }
 
   def receive = {
 
@@ -158,8 +154,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // safe userID that owns the subject
         subjectsUserIDMap += subject.id -> as.userID
 
-        val container = subjectMap.getOrElse(subject.id, SubjectContainer())
-        val subjectRef = container.createAndAddSubject(as.userID, subject)
+        val container = subjectMap.getOrElse(subject.id, SubjectContainer(subject))
+        val subjectRef = container.createAndAddSubject(as.userID)
         // add the subject to the management map
         subjectMap += subject.id -> container
         subjectCounter += 1
@@ -218,7 +214,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // block user that owns the subject
       if (subjectMap.contains(sm.to)) {
         // if the subject already exist just forward the message
-        subjectMap(sm.to).forwardToAll(sm)
+        subjectMap(sm.to).send(sm)
       } else {
         // TODO in container
         waitForContextResolver(sm.userID)
@@ -369,6 +365,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private def trySendProcessInstanceCreated() {
     if (sendProcessInstanceCreated && allSubjectsReady(request.userID)) {
       //      context.parent ! ProcessInstanceCreated(request, id, self, graphJson, executionHistory, Array())
+      logger.debug("Send ProcessInstance " + id + " created")
       context.parent !
         AskSubjectsForAvailableActions(
           request.userID,
@@ -384,8 +381,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
    * This class is responsible to hold a subjects, and can represent
    * a single subject or a multisubject
    */
-  private case class SubjectContainer(val multi: Boolean = false) {
+  private case class SubjectContainer(subject: Subject) {
     import scala.collection.mutable.{ Map => MutableMap }
+
+    val multi = subject.multi
+    val external = subject.external
 
     private case class SubjectInfo(
       ref: SubjectRef,
@@ -394,12 +394,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     private val subjects = MutableMap[SubjectSessionID, SubjectInfo]()
     private var nextSubjectSessionID = 0
-    //    subjects += subject
 
     /**
      * Adds a Subject to this multisubject
      */
-    def createAndAddSubject(userID: UserID, subject: Subject) = {
+    def createAndAddSubject(userID: UserID) = {
       val subjectSessionID = nextSubjectSessionID
 
       // handle blocking
@@ -424,8 +423,26 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     /**
      * Forwards a message to all Subjects of this MultiSubject
      */
-    def forwardToAll(message: SubjectToSubjectMessage) {
-      for ((k, subjectInfo) <- subjects) {
+    def send(message: SubjectToSubjectMessage) {
+      if (message.target.toAll) {
+        // TODO whats about running/ not running subjects?
+        sendTo(subjects.map(_._2).toArray, message)
+      } else if (message.target.variable.isDefined) {
+        // TODO send messages to the subjects in the variable
+      } else if (message.target.min <= subjects.size) {
+        // Send to <= max random subjects
+      } else if (message.target.createNew) {
+        // Create min new subjects and send to them
+      } else {
+        logger.error("Cant send messages " + message + " invalid number of subjects")
+      }
+    }
+
+    /**
+     * Forwards the message to the array of subjects
+     */
+    private def sendTo(targetSubjects: Array[SubjectInfo], message: SubjectToSubjectMessage) {
+      for (subjectInfo <- targetSubjects) {
         if (subjectInfo.running) {
           subjectInfo.ref.forward(message)
           handleBlockingForMessageDelivery(message.to)
@@ -433,6 +450,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           subjectInfo.ref ! StartSubjectExecution()
           handleBlockingForSubjectCreation(subjectInfo.userID)
           subjectInfo.ref.forward(message)
+          handleBlockingForMessageDelivery(message.to)
         }
       }
     }

@@ -27,12 +27,17 @@ object StateType extends Enumeration {
 import StateType.StateType
 // name raus ist ws in id
 case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, transitions: Array[Transition])
-case class Subject(id: SubjectID, inputPool: Int, states: Array[State])
+case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean = false, external: Boolean = false)
 case class ProcessGraph(subjects: Array[Subject]) {
 
   // This map matches SubjectIDs to their indexes in the subjectarray
   private val subjectToIndexMap: Map[SubjectID, Int] =
     (subjects.map(_.id)).zip(0 until subjects.length).toMap
+
+  /**
+   * Returns whether this graph has a subjects
+   */
+  def hasSubject(id: SubjectID): Boolean = subjectToIndexMap.contains(id)
 
   /**
    * Returns the Subject with this id,

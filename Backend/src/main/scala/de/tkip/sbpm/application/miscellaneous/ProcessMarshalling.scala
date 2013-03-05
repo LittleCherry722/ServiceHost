@@ -33,7 +33,7 @@ object parseSubjects {
 object parseGraph {
   // The marshalling case classes
   private case class JGraph(process: Array[JSubject], messages: JsValue)
-  private case class JSubject(id: SubjectID, name: SubjectName, inputPool: Int, macros: Array[JBehavior])
+  private case class JSubject(id: SubjectID, name: SubjectName, myType: String, inputPool: Int, macros: Array[JBehavior])
   private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
   private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
   private case class JNodeOption(message: MessageType)
@@ -46,7 +46,7 @@ object parseGraph {
     implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
     implicit val nodeFormat = jsonFormat6(JNode)
     implicit val behaviorFormat = jsonFormat2(JBehavior)
-    implicit val subjectFormat = jsonFormat4(JSubject)
+    implicit val subjectFormat = jsonFormat5(JSubject)
     implicit val graphFormat = jsonFormat2(JGraph)
   }
   import JsonFormats._
@@ -83,9 +83,13 @@ object parseGraph {
       parseNodes(behavior.nodes)
       parseEdges(behavior.edges)
 
+      // extract the subject types
+      val multi = subject.myType.matches("\\Amulti")
+      val external = subject.myType.matches("(multi)?external")
+
       // all parsed states are in the states map, convert the creators,
       // create and return the subject
-      Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray)
+      Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi, external)
     }
 
     private def parseNodes(nodes: Array[JNode]) {
