@@ -3,7 +3,6 @@ package de.tkip.sbpm.application
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.persistence._
 import akka.event.Logging
 import de.tkip.sbpm.ActorLocator

@@ -39,7 +39,7 @@ class SubjectActionsCollector extends Actor {
 
       // results ready -> generate answer -> return
       // TODO for the moment filter endstatetype, later think about a better idea
-      sender ! generateAnswer(actions.toArray.filterNot(_.stateType == de.tkip.sbpm.model.StateType.EndStateType.toString()))
+      sender ! generateAnswer(actions.toArray)
 
       // actions collected -> stop this actor
       context.stop(self)

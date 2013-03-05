@@ -15,8 +15,6 @@ import de.tkip.sbpm.application.history.Entry
 import de.tkip.sbpm.application.history.State
 import de.tkip.sbpm.application.history.Message
 import de.tkip.sbpm.application.history.MessagePayloadLink
-import de.tkip.sbpm.model.ProcessModel
-import de.tkip.sbpm.model.StateType
 import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
