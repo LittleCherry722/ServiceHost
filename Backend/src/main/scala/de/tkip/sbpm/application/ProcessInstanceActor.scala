@@ -12,7 +12,6 @@ import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.model.ProcessGraph
 import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.model.Process
@@ -298,14 +297,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     !waitingForContextResolver.contains(userID) && waitingUserMap.getOrElse(userID, 1) == 0
   }
 
-  private def getSubject(name: String): Subject = {
-    // TODO increase performance
-    val subject = graph.subjects.find(_.id == name)
-    subject match {
-      case None => null
-      case _    => subject.get
-    }
-  }
+  private def getSubject(id: SubjectID): Subject = graph.subject(id)
 
   /**
    * adds the userID to the waiting list for answers of the contextResolver
@@ -391,18 +383,31 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
    * This class is responsible to hold a subjects, and can represent
    * a single subject or a multisubject
    */
-  private case class SubjectContainer(subject: SubjectRef, multi: Boolean = false) {
+  private case class SubjectContainer(subject: SubjectRef, val multi: Boolean = false) {
 
-    private val subjects = ArrayBuffer[SubjectRef]()
-    subjects += subject
+    private val subjects = ArrayBuffer[SubjectRef](subject)
+    //    subjects += subject
 
+    /**
+     * Adds a Subject to this multisubject
+     */
     def addSubject(subject: SubjectRef) {
       subjects += subject
     }
 
+    /**
+     * Forwards a message to this Subject
+     */
     def forward(message: Any) {
       // TODO wie bei multisubjecten?
       subject.forward(message)
+    }
+
+    /**
+     * Forwards a message to all Subjects of this MultiSubject
+     */
+    def forwardToAll(message: Any) {
+      subjects.map(_.forward(message))
     }
   }
 }
