@@ -43,8 +43,6 @@ define([
 			// Initially fetch all Models, then initialize the views and after that,
 			// tell everyone that we are done (call the callback).
 
-			
-
 			async.auto({
 
 				fetchAll : Model.fetchAll,
@@ -54,12 +52,10 @@ define([
 				}],
 				initViews : ["fetchAll", "setCurrentUser", initializeViews],
 				callback : ["initViews", callback]
-			}); 
-
+			});
 
 		});
 	};
-
 
 
 
@@ -78,7 +74,7 @@ define([
 				name : "no user"
 			}));
 		}
-	}; 
+	};
 
 
 

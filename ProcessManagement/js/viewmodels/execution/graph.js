@@ -91,6 +91,7 @@ define([
 	}
 
 	var unload = function() {
+		console.log( "undloading" );
 		_( subscriptions ).each(function( element, list ) {
 			$.unsubscribe( element );
 		});
