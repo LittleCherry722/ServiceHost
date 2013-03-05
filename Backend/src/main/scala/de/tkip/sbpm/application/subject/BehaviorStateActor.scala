@@ -351,5 +351,5 @@ protected case class SendStateActor(data: StateData)
   /**
    * Generates a new message ID
    */
-  private def nextMessageID: Int = scala.util.Random.nextInt
+  private def nextMessageID: Int = MessageIDProvider.nextMessageID()
 }
