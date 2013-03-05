@@ -47,11 +47,20 @@ define([
 	var setTimeFormat = function( processHistory ){
 		newHistory = processHistory;
 
-		newHistory.processStarted.date = JSONtimestampToString( newHistory.processStarted.date );
-		
-		if (newHistory.processEnded){
-		newHistory.processEnded.date = JSONtimestampToString( newHistory.processEnded.date );
+		if( newHistory.hasOwnProperty( "processStarted" ) ){
+			newHistory.processStarted.date = JSONtimestampToString( newHistory.processStarted.date );
 		}
+		else {
+			newHistory.processStarted = { date: "Has not ended yet." }
+		}
+
+		if( newHistory.hasOwnProperty( "processEnded" ) ){
+			newHistory.processEnded.date = JSONtimestampToString( newHistory.processEnded.date );
+		}
+		else {
+			newHistory.processEnded = { date: "Has not ended yet." };
+		}
+
 		
 		for( i=0; i<newHistory.entries.length; i++ ){
 			newHistory.entries[i].timestamp.date = JSONtimestampToString( newHistory.entries[i].timestamp.date );
