@@ -24,7 +24,6 @@ import spray.httpx.marshalling.Marshaller
 import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
 import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
 import de.tkip.sbpm.application.ProcessManagerActor
-import de.tkip.sbpm.model.ProcessModel
 import scala.concurrent.Await
 import spray.util.LoggingContext
 
