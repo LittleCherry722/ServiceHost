@@ -16,7 +16,7 @@ object SubjectMessageRouting {
     SubjectMessageRouting(
       transition.subjectID,
       transition.messageType)
-  def apply(sm: SubjectInternalMessage): SubjectMessageRouting =
+  def apply(sm: SubjectToSubject): SubjectMessageRouting =
     SubjectMessageRouting(sm.from, sm.messageType)
 }
 
@@ -31,7 +31,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
   def receive = {
 
     // a receive asked before a send
-    case sm: SubjectInternalMessage if subjectIsWaitingForMessageIn(SubjectMessageRouting(sm)) =>
+    case sm: SubjectToSubject if subjectIsWaitingForMessageIn(SubjectMessageRouting(sm)) =>
       sender ! Stored(sm.messageID) // unlock Sender
       logger.debug(self + "Inputpool: Message transported: " + sm.from + ", " +
         sm.messageType + ", \"" +
@@ -42,7 +42,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
       context.parent ! SubjectInternalMessageProcessed(sm.to)
 
     // input pool limit is high enough to store message
-    case sm: SubjectInternalMessage if messagesStoredFor(SubjectMessageRouting(sm)) < messageLimit =>
+    case sm: SubjectToSubject if messagesStoredFor(SubjectMessageRouting(sm)) < messageLimit =>
       storeMessageContent(sm)
       logger.debug(self + "Inputpool: Message stored: " + sm.from + ", " +
         sm.messageType + ", \"" +
@@ -50,7 +50,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
       sender ! Stored(sm.messageID) // unlock Sender
       context.parent ! SubjectInternalMessageProcessed(sm.to)
 
-    case sm: SubjectInternalMessage =>
+    case sm: SubjectToSubject =>
       putInWaitForSend(sm, sender)
       logger.debug(self + "Message putInWaitForSend: " + sm.from + ", " +
         sm.messageType + ", \"" + sm.messageContent + "\"")
@@ -139,7 +139,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     exitcond_to_FIFOs(exitCond).messagesStored
   }
 
-  private def storeMessageContent(sm: SubjectInternalMessage) {
+  private def storeMessageContent(sm: SubjectToSubject) {
     val smr = SubjectMessageRouting(sm)
     if (exitcond_to_FIFOs.contains(smr) == false) {
       exitcond_to_FIFOs += smr -> new FIFO(smr)
@@ -147,7 +147,7 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     exitcond_to_FIFOs(smr).put(sm.messageID, sm.messageContent)
   }
 
-  private def putInWaitForSend(sm: SubjectInternalMessage,
+  private def putInWaitForSend(sm: SubjectToSubject,
                                sender: ActorRef) {
     val smr = SubjectMessageRouting(sm)
     if (exitcond_to_FIFOs.contains(smr) == false) {

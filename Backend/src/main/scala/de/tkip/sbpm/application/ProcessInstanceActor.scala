@@ -28,10 +28,10 @@ import scala.collection.mutable.Map
 
 // represents the history of the instance
 case class History(processName: String,
-                   instanceId: ProcessInstanceID,
-                   var processStarted: Option[Date] = None, // None if not started yet
-                   var processEnded: Option[Date] = None, // None if not started or still running
-                   entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
+  instanceId: ProcessInstanceID,
+  var processStarted: Option[Date] = None, // None if not started yet
+  var processEnded: Option[Date] = None, // None if not started or still running
+  entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
 // TODO This object just exists for debug reasons
 protected object firstrun {
@@ -42,15 +42,17 @@ protected object firstrun {
     temp
   }
 }
+
+import ExecutionContext.Implicits.global // TODO this import or something different?
+
 /**
  * instantiates SubjectActor's and manages their interactions
  */
 class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
-  val logger = Logging(context.system, this)
+  private val logger = Logging(context.system, this)
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
-  import ExecutionContext.Implicits.global // TODO this import or something different?
   implicit val timeout = Timeout(30 seconds)
 
   val processID = request.processID
@@ -103,11 +105,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this pool stores the message to the subject, which does not exist,
   // but will be created soon (the UserID is requested)
-  private var messagePool = Set[(ActorRef, SubjectInternalMessage)]()
+  private var messagePool = Set[(ActorRef, SubjectToSubject)]()
 
   // this map stores all Subjects with their IDs 
   private var subjectCounter = 0 // TODO We dont really need counter
-  private val subjectMap = collection.mutable.Map[SubjectID, SubjectRef]()
+  private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
@@ -162,7 +164,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         val subjectRef =
           context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
         // add the subject to the management map
-        subjectMap += subject.id -> subjectRef
+        subjectMap += subject.id -> SubjectContainer(subjectRef)
         subjectCounter += 1
 
         logger.info("processinstance " + id + " created subject " + subject.id + " for user " + as.userID)
@@ -216,7 +218,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-    case sm: SubjectInternalMessage => {
+    case sm: SubjectToSubject => {
       // block user that owns the subject
       if (subjectMap.contains(sm.to)) {
         handleBlockingForMessageDelivery(sm.to)
@@ -239,7 +241,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case message: SubjectMessage => {
       if (subjectMap.contains(message.subjectID)) {
-        subjectMap(message.subjectID).!(message) // TODO mit forward
+        subjectMap(message.subjectID).forward(message)
       } else {
         logger.error("ProcessInstance has message for subject " +
           message.subjectID + "but it does not exists")
@@ -301,7 +303,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     val subject = graph.subjects.find(_.id == name)
     subject match {
       case None => null
-      case _ => subject.get
+      case _    => subject.get
     }
   }
 
@@ -369,7 +371,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       blockedAnswers -= userID
     }
   }
-  
+
   private var sendProcessInstanceCreated = true
   private def trySendProcessInstanceCreated() {
     if (sendProcessInstanceCreated && allSubjectsReady(request.userID)) {
@@ -385,4 +387,22 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
   }
 
+  /**
+   * This class is responsible to hold a subjects, and can represent
+   * a single subject or a multisubject
+   */
+  private case class SubjectContainer(subject: SubjectRef, multi: Boolean = false) {
+
+    private val subjects = ArrayBuffer[SubjectRef]()
+    subjects += subject
+
+    def addSubject(subject: SubjectRef) {
+      subjects += subject
+    }
+
+    def forward(message: Any) {
+      // TODO wie bei multisubjecten?
+      subject.forward(message)
+    }
+  }
 }

@@ -14,19 +14,28 @@ import akka.event.Logging
 
 // TODO this is for history + statechange
 case class ChangeState(currenState: StateID,
-                       nextState: StateID,
-                       history: HistoryMessage)
+  nextState: StateID,
+  internalStatus: InternalStatus,
+  history: HistoryMessage)
+
+/**
+ * This class holds the InternalStatus of an Internalbehavior, defined by:
+ * - Variables
+ */
+case class InternalStatus()
 
 /**
  * contains the business logic that will be modeled by the graph
  */
-class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
-                            subjectID: SubjectID,
-                            userID: UserID,
-                            inputPoolActor: ActorRef) extends Actor {
+class InternalBehaviorActor(
+  processInstanceActor: ProcessInstanceRef,
+  subjectID: SubjectID,
+  userID: UserID,
+  inputPoolActor: ActorRef) extends Actor {
   private val statesMap = collection.mutable.Map[StateID, State]()
   private var startState: StateID = 0
   private var currentState: BehaviorStateRef = null
+  private var internalStatus: InternalStatus = InternalStatus()
 
   val logger = Logging(context.system, this)
 
@@ -51,6 +60,7 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
     }
 
     case change: ChangeState => {
+      internalStatus = change.internalStatus
       // TODO check if current state is correct?
       nextState(change.nextState)
 
@@ -124,7 +134,8 @@ class InternalBehaviorActor(processInstanceActor: ProcessInstanceRef,
       subjectID,
       self,
       processInstanceActor,
-      inputPoolActor)
+      inputPoolActor,
+      internalStatus)
 
     state.stateType match {
       case ActStateType => {

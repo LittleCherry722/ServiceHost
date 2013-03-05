@@ -14,7 +14,7 @@ case class StartSubjectExecution() extends SubjectBehaviorRequest
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
 sealed trait MessageObject
 // message from subject to subject
-protected case class SubjectInternalMessage(messageID: MessageID, var userID: UserID, from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+protected case class SubjectToSubject(messageID: MessageID, var userID: UserID, from: SubjectID, to: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // stored message in the inputpool
 protected case class TransportMessage(messageID: MessageID, from: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // message to inform the receive state, that the inputpool has no messages for him
