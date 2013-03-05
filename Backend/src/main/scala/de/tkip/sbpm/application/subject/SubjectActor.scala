@@ -39,7 +39,7 @@ class SubjectActor(
   }
 
   def receive = {
-    case sm: SubjectToSubject => {
+    case sm: SubjectToSubjectMessage => {
       inputPoolActor.forward(sm)
     }
 

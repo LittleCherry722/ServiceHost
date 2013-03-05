@@ -104,7 +104,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this pool stores the message to the subject, which does not exist,
   // but will be created soon (the UserID is requested)
-  private var messagePool = Set[(ActorRef, SubjectToSubject)]()
+  private var messagePool = Set[(ActorRef, SubjectToSubjectMessage)]()
 
   // this map stores all Subjects with their IDs 
   private var subjectCounter = 0 // TODO We dont really need counter
@@ -212,7 +212,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       tryToReleaseBlocking(subjectsUserIDMap(message.subjectID))
     }
 
-    case sm: SubjectToSubject => {
+    case sm: SubjectToSubjectMessage => {
       // block user that owns the subject
       if (subjectMap.contains(sm.to)) {
         // if the subject already exist just forward the message
@@ -422,7 +422,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     /**
      * Forwards a message to all Subjects of this MultiSubject
      */
-    def forwardToAll(message: SubjectToSubject) {
+    def forwardToAll(message: SubjectToSubjectMessage) {
       for ((k, subjectInfo) <- subjects) {
         if (subjectInfo.running) {
           subjectInfo.ref.forward(message)

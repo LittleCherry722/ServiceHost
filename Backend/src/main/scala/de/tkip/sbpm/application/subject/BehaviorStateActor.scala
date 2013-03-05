@@ -196,7 +196,7 @@ protected case class ReceiveStateActor(data: StateData)
       processInstanceActor ! ActionExecuted(ea)
     }
 
-    case sm: TransportMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
+    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
       // TODO checken ob richtige message
       logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
@@ -268,7 +268,7 @@ protected case class ReceiveStateActor(data: StateData)
     var messageID: MessageID = -1
     var messageContent: Option[MessageContent] = None
 
-    def addMessage(message: TransportMessage) {
+    def addMessage(message: SubjectToSubjectMessage) {
       // validate
       if (!(message.messageType == messageType && message.from == from)) {
         logger.error("Transportmessage is invalid to transition: " + message +
@@ -308,11 +308,12 @@ protected case class SendStateActor(data: StateData)
           val messageID = nextMessageID
           unsentMessageIDs(messageID) = transition
           processInstanceActor !
-            SubjectToSubject(
+            SubjectToSubjectMessage(
               messageID,
               userID,
               subjectID,
-              toSubject,
+              subjectSessionID,
+              Target(toSubject),
               messageType,
               messageContent.get)
 
