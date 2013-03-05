@@ -80,9 +80,9 @@ define([
 			return;
 		}
 
-
     // just load our new viewmodel and call the init method.
 		require([ "viewmodels/execution/" + newTab.toLowerCase() ], function( viewModel ) {
+			unloadSubView();
 			currentSubView( viewModel );
       viewModel.init.apply( viewModel, [ processInstance(), currentSubject() ] );
 		});
@@ -94,6 +94,16 @@ define([
 			$("#executionContent").removeClass("first-tab-selected");
 		}
 	});
+
+
+	var unloadSubView = function() {
+		if ( currentSubView() && typeof currentSubView().unload === "function" ) {
+			console.log( "triggering unload" );
+			currentSubView().unload();
+		} else {
+			console.log( "not trigerung unload" );
+		}
+	}
 
 
 
@@ -124,10 +134,16 @@ define([
 		});
 	}
 
+	var unload = function() {
+		unloadSubView();
+		return true;
+	}
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
-		setView: setView
+		setView: setView,
+		unload: unload
 	}
 });
 
