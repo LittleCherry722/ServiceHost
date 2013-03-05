@@ -13,9 +13,11 @@ import de.tkip.sbpm.model.StateType._
 /**
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
-class SubjectActor(userID: UserID,
-                   processInstanceActor: ProcessInstanceRef,
-                   subject: Subject) extends Actor {
+class SubjectActor(
+  userID: UserID,
+  sessionID: Int,
+  processInstanceActor: ProcessInstanceRef,
+  subject: Subject) extends Actor {
 
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
@@ -27,6 +29,7 @@ class SubjectActor(userID: UserID,
         new InternalBehaviorActor(
           processInstanceActor,
           subject.id,
+          sessionID,
           userID,
           inputPoolActor)))
 
@@ -53,7 +56,7 @@ class SubjectActor(userID: UserID,
     case terminated: SubjectTerminated => {
       context.parent ! terminated
       // TODO terminate?
-//      context.stop(self)
+      //      context.stop(self)
     }
 
     case gaa: GetAvailableActions => {

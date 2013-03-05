@@ -159,11 +159,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // handle blocking
         handleBlockingForSubjectCreation(as.userID)
 
-        // create the subject
-        val subjectRef =
-          context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
+        val container = subjectMap.getOrElse(subject.id, SubjectContainer())
+        val subjectRef = container.createAndAddSubject(as.userID, subject)
         // add the subject to the management map
-        subjectMap += subject.id -> SubjectContainer(subjectRef)
+        subjectMap += subject.id -> container
         subjectCounter += 1
 
         logger.info("processinstance " + id + " created subject " + subject.id + " for user " + as.userID)
@@ -187,11 +186,20 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-    case st: SubjectTerminated => {
-      subjectMap -= st.subjectID
-      subjectsUserIDMap -= st.subjectID
+    case message: SubjectStarted => {
+      // println("subjectstarted")
+      subjectMap(message.subjectID).hasStarted(message)
+      unblockUserID(message.userID)
+      tryToReleaseBlocking(message.userID)
+      trySendProcessInstanceCreated()
+    }
 
-      // log end time in history
+    case st: SubjectTerminated => {
+      //      subjectMap -= st.subjectID
+      subjectsUserIDMap -= st.subjectID // TODO umbauen fuer multisubjecte
+      subjectMap(st.subjectID).hasTerminated(st)
+
+      // log end time in history TODO
       subjectCounter -= 1
       logger.info("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (subjectCounter == 0) {
@@ -200,21 +208,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-    // add an entry to the history
-    // (should be called by subject actors when a transition occurs)
-    case he: history.Entry => {
-      executionHistory.entries += he
-    }
-
-    // return current process instance history
-    case msg: GetHistory => {
-      sender ! {
-        if (msg.isInstanceOf[Debug]) {
-          HistoryAnswer(msg, HistoryTestData.generate(processName, id)(debugMessagePayloadProvider))
-        } else {
-          HistoryAnswer(msg, executionHistory)
-        }
-      }
+    case message: SubjectInternalMessageProcessed => {
+      // println("subjectInternalMessageProcessed")
+      unblockUserID(subjectsUserIDMap(message.subjectID))
+      tryToReleaseBlocking(subjectsUserIDMap(message.subjectID))
     }
 
     case sm: SubjectToSubject => {
@@ -238,6 +235,23 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
+    // add an entry to the history
+    // (should be called by subject actors when a transition occurs)
+    case he: history.Entry => {
+      executionHistory.entries += he
+    }
+
+    // return current process instance history
+    case msg: GetHistory => {
+      sender ! {
+        if (msg.isInstanceOf[Debug]) {
+          HistoryAnswer(msg, HistoryTestData.generate(processName, id)(debugMessagePayloadProvider))
+        } else {
+          HistoryAnswer(msg, executionHistory)
+        }
+      }
+    }
+
     case message: SubjectMessage => {
       if (subjectMap.contains(message.subjectID)) {
         subjectMap(message.subjectID).forward(message)
@@ -249,19 +263,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case message: SubjectProviderMessage => {
       context.parent ! message
-    }
-
-    case message: SubjectStarted => {
-      // println("subjectstarted")
-      unblockUserID(message.userID)
-      tryToReleaseBlocking(message.userID)
-      trySendProcessInstanceCreated()
-    }
-
-    case message: SubjectInternalMessageProcessed => {
-      // println("subjectInternalMessageProcessed")
-      unblockUserID(subjectsUserIDMap(message.subjectID))
-      tryToReleaseBlocking(subjectsUserIDMap(message.subjectID))
     }
 
     // send forward if no subject has to be created else wait
@@ -383,16 +384,37 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
    * This class is responsible to hold a subjects, and can represent
    * a single subject or a multisubject
    */
-  private case class SubjectContainer(subject: SubjectRef, val multi: Boolean = false) {
+  private case class SubjectContainer(val multi: Boolean = false) {
+    import scala.collection.mutable.{ Map => MutableMap }
 
-    private val subjects = ArrayBuffer[SubjectRef](subject)
+    private case class SubjectInfo(
+      ref: SubjectRef,
+      userID: UserID,
+      var running: Boolean = true)
+
+    private val subjects = MutableMap[SubjectSessionID, SubjectInfo]()
+    private var nextSubjectSessionID = 0
     //    subjects += subject
 
     /**
      * Adds a Subject to this multisubject
      */
-    def addSubject(subject: SubjectRef) {
-      subjects += subject
+    def createAndAddSubject(userID: UserID, subject: Subject) = {
+      val subjectSessionID = nextSubjectSessionID
+      val subjectRef =
+        context.actorOf(Props(new SubjectActor(userID, subjectSessionID, self, subject)))
+      subjects += subjectSessionID -> SubjectInfo(subjectRef, userID)
+
+      nextSubjectSessionID += 1
+      subjectRef
+    }
+
+    def hasStarted(message: SubjectStarted) {
+      subjects(message.subjectSessionID).running = true
+    }
+
+    def hasTerminated(message: SubjectTerminated) {
+      subjects(message.subjectSessionID).running = false
     }
 
     /**
@@ -400,14 +422,23 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
      */
     def forward(message: Any) {
       // TODO wie bei multisubjecten?
-      subject.forward(message)
+      //      subject.forward(message)
+      forwardToAll(message)
     }
 
     /**
      * Forwards a message to all Subjects of this MultiSubject
      */
     def forwardToAll(message: Any) {
-      subjects.map(_.forward(message))
+      for ((k, subjectInfo) <- subjects) {
+        if (subjectInfo.running) {
+          subjectInfo.ref.forward(message)
+        } else {
+          subjectInfo.ref ! StartSubjectExecution()
+          handleBlockingForSubjectCreation(subjectInfo.userID)
+          subjectInfo.ref.forward(message)
+        }
+      }
     }
   }
 }

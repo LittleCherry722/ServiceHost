@@ -20,12 +20,13 @@ import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 
 case class ActionExecuted(ea: ExecuteAction)
-case class SubjectStarted(userID: UserID, subjectID: SubjectID)
+case class SubjectStarted(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 
 protected case class StateData(
   stateModel: State,
   userID: UserID,
   subjectID: SubjectID,
+  subjectSessionID: SubjectSessionID,
   internalBehaviorActor: InternalBehaviorRef,
   processInstanceActor: ProcessInstanceRef,
   inputPoolActor: ActorRef,
@@ -42,6 +43,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val id = model.id
   protected val userID = data.userID
   protected val subjectID = data.subjectID
+  protected val subjectSessionID = data.subjectSessionID
   protected val stateText = model.text
   protected val startState = model.startState
   protected val stateType = model.stateType
@@ -53,8 +55,9 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 
   protected val exitTransitions = transitions.filter(_.isExitCond)
 
+  // FIXME check if the message has already sent via internalStatus
   if (startState && !delaySubjectReady) {
-    processInstanceActor ! SubjectStarted(userID, subjectID)
+    processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
   }
 
   def receive = {
@@ -107,7 +110,7 @@ protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   // TODO direct beenden?
-  internalBehaviorActor ! SubjectTerminated(userID, subjectID)
+  internalBehaviorActor ! SubjectTerminated(userID, subjectID, subjectSessionID)
 
   override def postStop() {
     logger.debug("End@" + userID + ", " + subjectID + "stops...")
@@ -220,7 +223,7 @@ protected case class ReceiveStateActor(data: StateData)
   var sendSubjectReady = startState
   private def trySendSubjectStarted() {
     if (sendSubjectReady) {
-      processInstanceActor ! SubjectStarted(userID, subjectID)
+      processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
       sendSubjectReady = false
     }
   }

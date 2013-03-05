@@ -30,6 +30,7 @@ case class InternalStatus()
 class InternalBehaviorActor(
   processInstanceActor: ProcessInstanceRef,
   subjectID: SubjectID,
+  subjectSessionID: SubjectSessionID,
   userID: UserID,
   inputPoolActor: ActorRef) extends Actor {
   private val statesMap = collection.mutable.Map[StateID, State]()
@@ -132,6 +133,7 @@ class InternalBehaviorActor(
       state,
       userID,
       subjectID,
+      subjectSessionID,
       self,
       processInstanceActor,
       inputPoolActor,

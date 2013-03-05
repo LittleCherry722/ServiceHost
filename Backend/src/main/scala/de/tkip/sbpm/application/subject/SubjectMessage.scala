@@ -15,6 +15,16 @@ case class StartSubjectExecution() extends SubjectBehaviorRequest
 sealed trait MessageObject
 // message from subject to subject
 protected case class SubjectToSubject(messageID: MessageID, var userID: UserID, from: SubjectID, to: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
+
+
+protected case class SubjectToMultiSubjectMessage(message: SubjectToSubject) {
+  def toAll = true
+  def min = 1
+  def max = 5
+  def createNew = true
+  def toVar: Array[String] = null
+  // variabeln?
+}
 // stored message in the inputpool
 protected case class TransportMessage(messageID: MessageID, from: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // message to inform the receive state, that the inputpool has no messages for him
@@ -28,7 +38,7 @@ protected case class RequestForMessages(exitConds: Array[SubjectMessageRouting])
 protected case class RemoveMessageRequests(exitConds: Array[SubjectMessageRouting])
 
 // TODO richtig einordnern
-case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
+case class SubjectTerminated(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 
 // external subject interaction messages
 sealed trait SubjectBehaviorRequest
