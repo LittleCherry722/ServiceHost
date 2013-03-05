@@ -11,7 +11,7 @@ object ProcessAttributes {
   type SubjectID = String; val AllSubjects = ""
   type SubjectName = String
   type StateID = Int
-  type SuccessorID = StateID
+  type SuccessorID = StateID// TODO SuccessorID als extra attribut?
   type StateAction = String
 
   type MessageType = String

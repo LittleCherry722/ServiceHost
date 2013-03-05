@@ -6,7 +6,7 @@
 
 <div data-bind="visible: isTypeOf()==='action',foreach: actionData">
 	<div>
-	<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone()"/>
+	<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble"/>
 	</div>
 </div>
 
@@ -17,19 +17,15 @@
 	<span>to </span><br />
 	<span data-bind="text: $data.relatedSubject"></span>
 	<input type="text" data-bind="value: $parent.messageText" />
-	<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone()" />
+	<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone(),enable: $data.executeAble" />
 	
 	</div>
-</div>
-
-<div data-bind="visible: isTypeOf()==='waiting'">
-	<span>Waiting!!</span>
 </div>
 
 <div data-bind="visible: isTypeOf()==='receive',foreach: actionData">
 	<div>
 	<span>Receive:</span>
 	<span data-bind="text: $data.text"></span>
-	<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone()" />
+	<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble" />
 	</div>
 </div>

@@ -48,8 +48,11 @@ define([
 		newHistory = processHistory;
 
 		newHistory.processStarted.date = JSONtimestampToString( newHistory.processStarted.date );
+		
+		if (newHistory.processEnded){
 		newHistory.processEnded.date = JSONtimestampToString( newHistory.processEnded.date );
-
+		}
+		
 		for( i=0; i<newHistory.entries.length; i++ ){
 			newHistory.entries[i].timestamp.date = JSONtimestampToString( newHistory.entries[i].timestamp.date );
 		}
