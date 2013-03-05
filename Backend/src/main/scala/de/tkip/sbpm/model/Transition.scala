@@ -3,11 +3,25 @@ package de.tkip.sbpm.model
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 sealed trait TransitionType
-case class ExitCond(messageType: MessageType, subjectID: SubjectID) extends TransitionType {
+case class ExitCond(messageType: MessageType, target: Option[Target] = None) extends TransitionType {
   def actionType = messageType
+
+  def subjectID = if (target.isDefined) target.get.subjectID else "None"
 }
-case class ErrorCond() extends TransitionType
 case class TimeoutCond(manual: Boolean, duration: Int) extends TransitionType
+case class ErrorCond() extends TransitionType
+
+case class Target(
+  subjectID: SubjectID,
+  min: Int = -1,
+  max: Int = -1,
+  createNew: Boolean = false,
+  variable: Option[String] = None) {
+  // TODO validate
+  val toAll = min == -1 && max == -1 && !createNew && variable == None
+  // TODO fill in variable
+}
+
 /**
  * models references between certain BehaviorStates
  */
@@ -21,12 +35,13 @@ case class Transition(
   def isErrorCond = myType.isInstanceOf[ErrorCond]
 
   def messageType = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].messageType else ""
+  def target = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].target else None
   def subjectID = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].subjectID else ""
 }
 
 object ActTransition {
   def apply(actionType: MessageType, successorID: SuccessorID) =
-    Transition(ExitCond(actionType, "None"), successorID)
+    Transition(ExitCond(actionType), successorID)
 }
 
 object TimeoutTransition {

@@ -38,11 +38,10 @@ object parseGraph {
   private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
   private case class JNodeOption(message: MessageType)
   private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, manualTimeout: Boolean, target: JsValue)
-  private case class JEdgeTarget(id: SubjectID)
-
+  private case class JEdgeTarget(id: SubjectID, min: JsValue, max: JsValue, createNew: Boolean, variable: JsValue)
   // The marshalling formats for the case classes
   private object JsonFormats extends DefaultJsonProtocol {
-    implicit val edgeTargetFormat = jsonFormat1(JEdgeTarget)
+    implicit val edgeTargetFormat = jsonFormat5(JEdgeTarget)
     implicit val edgeFormat = jsonFormat6(JEdge)
     implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
     implicit val nodeFormat = jsonFormat6(JNode)
@@ -103,18 +102,35 @@ object parseGraph {
         edge.myType match {
 
           case "exitcondition" => {
-            //  get the id of the target subject
-            val s =
-              if (!edge.target.isInstanceOf[JsString])
-                edge.target.convertTo[JEdgeTarget].id
-              else
-                "None"
+            // parse the target
+            val target =
+              if (!edge.target.isInstanceOf[JsString]) {
+                val jtarget = edge.target.convertTo[JEdgeTarget]
+                  // TODO Currently the graph contains e.g. -1 and "-1" for
+                  // min and max values, this function parses both to an Int
+                  // delete if its not needed anymore
+                  def parseInt(value: JsValue): Int = value match {
+                    case s: JsString => Integer.parseInt(s.convertTo[String])
+                    case i: JsNumber => i.convertTo[Int]
+                    case _           => -1
+                  }
+
+                val variable = jtarget.variable match {
+                  case s: JsString => Some(s.convertTo[String])
+                  case _           => None
+                }
+
+                Some(Target(jtarget.id, parseInt(jtarget.min), parseInt(jtarget.max), jtarget.createNew, variable))
+              } else {
+                None
+              }
+
             // at the transition to the state
-            states(edge.start).addTransition(Transition(ExitCond(edge.text, s), edge.end))
+            states(edge.start).addTransition(Transition(ExitCond(edge.text, target), edge.end))
           }
 
           case "timeout" => {
-            // get the duration only if i
+            // get the duration only if its not manual
             val duration = if (edge.manualTimeout) -1 else Integer.parseInt(edge.text)
             // at the transition to the state
             states(edge.start).addTransition(TimeoutTransition(edge.manualTimeout, duration, edge.end))
@@ -164,7 +180,7 @@ object parseGraph {
           // only update exitconds, only update existing message types
           if (transition.isExitCond && messageMap.contains(transition.messageType)) {
             Transition(
-              ExitCond(messageMap(transition.messageType), transition.subjectID),
+              ExitCond(messageMap(transition.messageType), transition.myType.asInstanceOf[ExitCond].target),
               transition.successorID)
           } else {
             transition

@@ -7,6 +7,7 @@ import de.tkip.sbpm.application.miscellaneous.AnswerMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.History
+import de.tkip.sbpm.model.Target
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -29,9 +30,6 @@ protected case class SubjectToSubjectMessage(
 // (+)bestimmtes ziel
 // createnew
 // toall
-protected case class Target(subjectID: SubjectID) {
-
-}
 
 protected case class SubjectToMultiSubjectMessage(message: SubjectToSubjectMessage) {
   def toAll = true
