@@ -91,13 +91,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   } yield (if (isStart) 1 else processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
 
   // evaluate the Future
-  val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJSON: String) =
+  val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJson: String) =
     Await.result(dataBaseAccessFuture, timeout.duration)
 
   // parse the start-subjects into an Array
   val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
   // parse the graph into the internal structure
-  val graph: ProcessGraph = parseGraph(graphJSON)
+  val graph: ProcessGraph = parseGraph(graphJson)
 
   // TODO wie uebergeben?
   private lazy val contextResolver = ActorLocator.contextResolverActor
@@ -106,8 +106,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // but will be created soon (the UserID is requested)
   private var messagePool = Set[(ActorRef, SubjectToSubjectMessage)]()
 
-  // this map stores all Subjects with their IDs 
+  // whether the process instance is terminated or not
+  private var isTerminated = startSubjects.length == 0
   private var subjectCounter = 0 // TODO We dont really need counter
+  // this map stores all Subjects with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
   // recorded transitions in the subjects of this instance
@@ -130,14 +132,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
   }
   // inform the process manager that this process instance has been created
-  //  context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
+  //  context.parent ! ProcessInstanceCreated(request, id, self, graphJson, executionHistory, Array())
 
   //  context.parent !
   //    AskSubjectsForAvailableActions(request.userID,
   //      id,
   //      AllSubjects,
   //      (actions: Array[AvailableAction]) =>
-  //        ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
+  //        ProcessInstanceCreated(request, id, self, graphJson, executionHistory, actions))
 
   def receive = {
 
@@ -201,8 +203,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subjectCounter -= 1
       logger.info("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (subjectCounter == 0) {
+        isTerminated = true
         executionHistory.processEnded = Some(new Date())
-        //        context.stop(self) // TODO stop process instance?
       }
     }
 
@@ -250,14 +252,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-//    case message: SubjectMessage => { //TODO raus fuer multisubjecte problematisch?
-//      if (subjectMap.contains(message.subjectID)) {
-//        subjectMap(message.subjectID).forwardToAll(message)
-//      } else {
-//        logger.error("ProcessInstance has message for subject " +
-//          message.subjectID + "but it does not exists")
-//      }
-//    }
+    //    case message: SubjectMessage => { //TODO raus fuer multisubjecte problematisch?
+    //      if (subjectMap.contains(message.subjectID)) {
+    //        subjectMap(message.subjectID).forwardToAll(message)
+    //      } else {
+    //        logger.error("ProcessInstance has message for subject " +
+    //          message.subjectID + "but it does not exists")
+    //      }
+    //    }
 
     case message: SubjectProviderMessage => {
       context.parent ! message
@@ -285,7 +287,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, processID, graphJSON, executionHistory, actions))
+          ExecuteActionAnswer(req, processID, isTerminated, graphJson, executionHistory, actions))
   }
 
   /**
@@ -366,14 +368,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private var sendProcessInstanceCreated = true
   private def trySendProcessInstanceCreated() {
     if (sendProcessInstanceCreated && allSubjectsReady(request.userID)) {
-      //      context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
+      //      context.parent ! ProcessInstanceCreated(request, id, self, graphJson, executionHistory, Array())
       context.parent !
         AskSubjectsForAvailableActions(
           request.userID,
           id,
           AllSubjects,
           (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
+            ProcessInstanceCreated(request, id, self, false, graphJson, executionHistory, actions))
       sendProcessInstanceCreated = false
     }
   }

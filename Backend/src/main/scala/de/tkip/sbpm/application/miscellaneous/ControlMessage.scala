@@ -59,6 +59,7 @@ case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends A
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceID: ProcessInstanceID,
                                   processInstanceActor: ProcessInstanceRef,
+                                  isTerminated: Boolean,
                                   graphJson: String,
                                   history: History,
                                   availableActions: Array[AvailableAction])

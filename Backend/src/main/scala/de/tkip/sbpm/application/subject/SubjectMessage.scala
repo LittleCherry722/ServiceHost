@@ -69,7 +69,8 @@ case class ActionData(text: String, // = messagetype
   messageContent: Option[String] = None)
 
 // Answer to the GetAvailable Action request
-case class AvailableAction(userID: UserID,
+case class AvailableAction(
+  userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
   stateID: StateID,
@@ -79,7 +80,8 @@ case class AvailableAction(userID: UserID,
   extends SubjectProviderMessage
 
 // The Execution command from the user
-case class ExecuteAction(userID: UserID,
+case class ExecuteAction(
+  userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
   stateID: StateID,
@@ -88,8 +90,10 @@ case class ExecuteAction(userID: UserID,
 
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
 // TODO keine defaultparameter
-case class ExecuteActionAnswer(execute: ExecuteAction,
+case class ExecuteActionAnswer(
+  execute: ExecuteAction,
   processID: ProcessID,
+  isTerminated: Boolean,
   graphJson: String,
   history: History,
   availableActions: Array[AvailableAction]) extends AnswerMessage {
