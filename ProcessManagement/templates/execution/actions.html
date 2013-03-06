@@ -16,7 +16,7 @@
 <div data-bind="visible: isTypeOf()==='send',foreach: actionData">
 	<div>
 	<span >Send:</span>
-	<span data-bind="text: $data.text"></span>
+	<span data-bind="html: $data.text"></span>
 	<span>to </span><br />
 	<span data-bind="text: $data.relatedSubject"></span>
 	<input type="text" data-bind="value: $parent.messageText" />
@@ -28,7 +28,7 @@
 <div data-bind="visible: isTypeOf()==='receive',foreach: actionData">
 	<div>
 	<span>Receive:</span>
-	<span data-bind="text: $data.text"></span>
+	<span data-bind="html: $data.text"></span>
 	<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble" />
 	</div>
 </div>
