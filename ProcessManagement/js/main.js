@@ -38,11 +38,32 @@ require.config({
 
 require([ "app", "router", "knockout.custom" ], function( App, Router ){
 	
-	$(function() {
-		// Initialize our application.
-		App.init(function() {
-			// And load our router so we can actually navigate the page.
-			Router.init();
-		});
-	});
+			
+	$.ajax({
+		url : '/isalive',
+		type : "GET",
+		async : false, // defaults to false
+		success : function(data, textStatus, jqXHR) {
+
+			$(function() {
+				// Initialize our application.
+				App.init(function() {
+					// And load our router so we can actually navigate the page.
+					Router.init();
+				});
+			});
+
+		},
+		error : function(jqXHR, textStatus, error) {
+
+		alert("Can not reach backend!");
+
+		},
+		complete : function(jqXHR, textStatus) {
+
+		}
+	}); 
+
+	
+
 });
