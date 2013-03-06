@@ -100,6 +100,8 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             else
               "".toJson
           },
+          // TODO make isTerminated nicer
+          "isTerminated" -> (historyFuture.history.processEnded.isDefined).toJson,
           "history" -> historyFuture.history.toJson,
           "actions" -> availableActionsFuture.availableActions.toJson)
         complete(composedFuture)
@@ -141,13 +143,15 @@ class ExecutionInterfaceActor extends Actor with HttpService {
                 JsObject(
                   "processId" -> result.processID.toJson,
                   "graph" -> result.graphJson.toJson,
+                  "isTerminated" -> result.isTerminated.toJson,
                   "history" -> result.history.toJson,
                   "actions" -> result.availableActions.toJson))
             }
           }
         }
       } ~
-      post { //CREATE
+      post {
+        //CREATE
         pathPrefix("") {
           path("^$"r) { regex =>
             entity(as[ProcessIdHeader]) { json =>
@@ -158,6 +162,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
                 JsObject(
                   "id" -> result.processInstanceID.toJson,
                   "graph" -> result.graphJson.toJson,
+                  "isTerminated" -> result.isTerminated.toJson,
                   "history" -> result.history.toJson,
                   "actions" -> result.availableActions.toJson))
             }

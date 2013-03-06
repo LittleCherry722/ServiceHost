@@ -20,14 +20,16 @@ import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 
 case class ActionExecuted(ea: ExecuteAction)
-case class SubjectStarted(userID: UserID, subjectID: SubjectID)
 
-protected case class StateData(stateModel: State,
+protected case class StateData(
+  stateModel: State,
   userID: UserID,
   subjectID: SubjectID,
+  subjectSessionID: SubjectSessionID,
   internalBehaviorActor: InternalBehaviorRef,
   processInstanceActor: ProcessInstanceRef,
-  inputPoolActor: ActorRef)
+  inputPoolActor: ActorRef,
+  internalStatus: InternalStatus)
 
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
@@ -40,15 +42,22 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val id = model.id
   protected val userID = data.userID
   protected val subjectID = data.subjectID
+  protected val subjectSessionID = data.subjectSessionID
   protected val stateText = model.text
   protected val startState = model.startState
+  protected val stateType = model.stateType
   protected val transitions = model.transitions
   protected val internalBehaviorActor = data.internalBehaviorActor
   protected val processInstanceActor = data.processInstanceActor
   protected val inputPoolActor = data.inputPoolActor
+  protected val internalStatus = data.internalStatus
+  protected val variables = internalStatus.variables
+  protected val exitTransitions = transitions.filter(_.isExitCond)
 
-  if (startState && !delaySubjectReady) {
-    processInstanceActor ! SubjectStarted(userID, subjectID)
+  // FIXME check if the message has already sent via internalStatus
+  if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
+    internalStatus.subjectStartedSent = true
+    processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
   }
 
   def receive = {
@@ -78,17 +87,22 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
    * ("Send", []),
    * ("Receive", ["The huge Message Content"])
    */
-  protected def getAvailableAction: (StateType, Array[ActionData])
+  protected def getAvailableAction: Array[ActionData]
+
+  protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
+    internalBehaviorActor ! ChangeState(id, successorID, internalStatus, historyMessage)
+  }
 
   protected def createAvailableAction(processInstanceID: ProcessInstanceID) = {
-    val (stateType, actionData) = getAvailableAction
+    val actionData = getAvailableAction
     AvailableAction(
       userID,
       processInstanceID,
       subjectID,
+      subjectSessionID,
       id,
       stateText,
-      StateType.fromStateTypetoString(stateType),
+      stateType.toString(),
       actionData)
   }
 }
@@ -96,15 +110,14 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
-  // TODO direct beenden?
-  internalBehaviorActor ! SubjectTerminated(userID, subjectID)
+  internalBehaviorActor ! SubjectTerminated(userID, subjectID, subjectSessionID)
 
   override def postStop() {
     logger.debug("End@" + userID + ", " + subjectID + "stops...")
   }
 
-  override protected def getAvailableAction: (StateType, Array[ActionData]) =
-    (EndStateType, Array())
+  override protected def getAvailableAction: Array[ActionData] =
+    Array()
 }
 
 protected case class ActStateActor(data: StateData)
@@ -112,10 +125,10 @@ protected case class ActStateActor(data: StateData)
 
   override def receive = {
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ActStateString, input) => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ActStateString, input) => {
       val index = indexOfInput(input.text)
       if (index != -1) {
-        internalBehaviorActor ! ChangeState(stateID, transitions(index).successorID, null)
+        changeState(exitTransitions(index).successorID, null)
         processInstanceActor ! ActionExecuted(ea)
       } else {
         // TODO invalid input
@@ -128,13 +141,12 @@ protected case class ActStateActor(data: StateData)
     }
   }
 
-  override protected def getAvailableAction: (StateType, Array[ActionData]) =
-    (ActStateType,
-      transitions.map((t: Transition) => ActionData(t.messageType, true)))
+  override protected def getAvailableAction: Array[ActionData] =
+    exitTransitions.map((t: Transition) => ActionData(t.messageType, true))
 
   private def indexOfInput(input: String): Int = {
     var i = 0
-    for (t <- transitions) {
+    for (t <- exitTransitions) {
       if (t.messageType.equals(input)) {
         return i
       }
@@ -149,52 +161,55 @@ protected case class ReceiveStateActor(data: StateData)
 
   // convert the transitions into a map of extended transitions, to work with
   // this map in the whole actor
-  private val transitionsMap: Map[(SubjectID, MessageType), ExtendedTransition] =
-    transitions.map((t: Transition) =>
-      ((t.subjectID, t.messageType), ExtendedTransition(t.subjectID, t.messageType, t.successorID)))
+  private val exitTransitionsMap: Map[(SubjectID, MessageType), ExtendedTransition] =
+    exitTransitions.map((t: Transition) =>
+      ((t.subjectID, t.messageType), new ExtendedTransition(t)))
       .toMap[(SubjectID, MessageType), ExtendedTransition]
 
   // request if there is a message for this subject
   inputPoolActor !
-    RequestForMessages(transitions.map(convertTransitionToRequest(_)))
+    RequestForMessages(exitTransitions.map(convertTransitionToRequest(_)))
 
   override def receive = {
     // execute an action
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ReceiveStateString, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ReceiveStateString, input) if ({
       // check if the related subject exists
       input.relatedSubject.isDefined && {
         val from = input.relatedSubject.get
         val messageType = input.text
         // check if the related transition exists
-        transitionsMap.contains((from, messageType)) &&
+        exitTransitionsMap.contains((from, messageType)) &&
           // only execute transitions, which are ready to execute
-          transitionsMap((from, messageType)).ready
+          exitTransitionsMap((from, messageType)).ready
       }
     }) => {
-      val routing =
-        (for ((k, v) <- transitionsMap if (!v.ready))
-          yield SubjectMessageRouting(v.from, v.messageType)).toArray
-      inputPoolActor ! RemoveMessageRequests(routing)
 
       // get the transition from the map
-      val transition = transitionsMap((input.relatedSubject.get, input.text))
+      val transition = exitTransitionsMap((input.relatedSubject.get, input.text))
       // create the Historymessage
       val message =
         HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
       // change the state and enter the history entry
-      internalBehaviorActor ! ChangeState(id, transition.successorID, message)
+      changeState(transition.successorID, message)
 
       // inform the processinstance, that this action is executed
       processInstanceActor ! ActionExecuted(ea)
     }
 
-    case sm: TransportMessage if (transitionsMap.contains((sm.from, sm.messageType))) => {
+    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
       // TODO checken ob richtige message
       logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
 
-      transitionsMap(sm.from, sm.messageType).addMessage(sm)
+      exitTransitionsMap(sm.from, sm.messageType).addMessage(sm)
+
+      val t = exitTransitionsMap(sm.from, sm.messageType).transition
+      val varID = t.storeVar
+      if (t.storeToVar) {
+        variables.getOrElseUpdate(varID, Variable(varID)).addMessage(sm)
+        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}"))//TODO
+      }
 
       trySendSubjectStarted()
     }
@@ -215,20 +230,30 @@ protected case class ReceiveStateActor(data: StateData)
   var sendSubjectReady = startState
   private def trySendSubjectStarted() {
     if (sendSubjectReady) {
-      processInstanceActor ! SubjectStarted(userID, subjectID)
+      processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
       sendSubjectReady = false
     }
   }
 
-  override protected def getAvailableAction: (StateType, Array[ActionData]) =
-    (ReceiveStateType,
-      (for ((k, t) <- transitionsMap) yield {
-        ActionData(
-          t.messageType,
-          t.ready,
-          relatedSubject = Some(t.from),
-          messageContent = t.messageContent)
-      }).toArray)
+  override protected def getAvailableAction: Array[ActionData] =
+    (for ((k, t) <- exitTransitionsMap) yield {
+      ActionData(
+        t.messageType,
+        t.ready,
+        relatedSubject = Some(t.from),
+        messageContent = t.messageContent)
+    }).toArray
+
+  override protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
+    // inform the inputpool, that this state is not waiting for messages anymore
+    val routing =
+      (for ((k, v) <- exitTransitionsMap if (!v.ready))
+        yield SubjectMessageRouting(v.from, v.messageType)).toArray
+    inputPoolActor ! RemoveMessageRequests(routing)
+
+    // change the state
+    super.changeState(successorID, historyMessage)
+  }
 
   /**
    * Creates the SubjectMessageRouting for a Transition
@@ -241,16 +266,16 @@ protected case class ReceiveStateActor(data: StateData)
   /**
    * This case class extends an transition with information about the related message
    */
-  private case class ExtendedTransition(
-    from: SubjectID,
-    messageType: MessageType,
-    successorID: StateID) {
+  private class ExtendedTransition(val transition: Transition) {
+    val from: SubjectID = transition.subjectID
+    val messageType: MessageType = transition.messageType
+    val successorID: StateID = transition.successorID
 
     var ready = false
     var messageID: MessageID = -1
     var messageContent: Option[MessageContent] = None
 
-    def addMessage(message: TransportMessage) {
+    def addMessage(message: SubjectToSubjectMessage) {
       // validate
       if (!(message.messageType == messageType && message.from == from)) {
         logger.error("Transportmessage is invalid to transition: " + message +
@@ -276,7 +301,7 @@ protected case class SendStateActor(data: StateData)
   // TODO sowas wie timeout ist nicht drin
   // TODO message ids vllt nicht zufaellig
   override def receive = {
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, SendStateString, input) if ({
       input.messageContent.isDefined
     }) => {
       if (!messageContent.isDefined) {
@@ -284,17 +309,28 @@ protected case class SendStateActor(data: StateData)
         // can be blocked until a potentially new subject is created to ensure all available actions will 
         // be returned when asking
         messageContent = input.messageContent
-        for (transition <- transitions) {
+        for (transition <- exitTransitions if (transition.target.isDefined)) {
           val messageType = transition.messageType
           val toSubject = transition.subjectID
           val messageID = nextMessageID
           unsentMessageIDs(messageID) = transition
+
+          logger.debug("Send@" + userID + "/" + subjectID + ": Message[" +
+            messageID + "} \"" + messageType + "to " + transition.target +
+            "\" with content \"" + messageContent.get + "\"")
+
+          val target = transition.target.get
+          if (target.toVariable) {
+            target.insertVariable(variables(target.variable.get))
+          }
+
           processInstanceActor !
-            SubjectInternalMessage(
+            SubjectToSubjectMessage(
               messageID,
               userID,
               subjectID,
-              toSubject,
+              subjectSessionID,
+              target,
               messageType,
               messageContent.get)
 
@@ -314,7 +350,7 @@ protected case class SendStateActor(data: StateData)
       val message =
         HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
       // Change the state and enter the History entry
-      internalBehaviorActor ! ChangeState(id, transition.successorID, message)
+      changeState(transition.successorID, message)
     }
 
     case s => {
@@ -322,16 +358,15 @@ protected case class SendStateActor(data: StateData)
     }
   }
 
-  override protected def getAvailableAction: (StateType, Array[ActionData]) =
-    (SendStateType,
-      transitions.map((t: Transition) =>
-        ActionData(
-          t.messageType,
-          !messageContent.isDefined,
-          relatedSubject = Some(t.subjectID))))
+  override protected def getAvailableAction: Array[ActionData] =
+    exitTransitions.map((t: Transition) =>
+      ActionData(
+        t.messageType,
+        !messageContent.isDefined,
+        relatedSubject = Some(t.subjectID)))
 
   /**
    * Generates a new message ID
    */
-  private def nextMessageID: Int = scala.util.Random.nextInt
+  private def nextMessageID: Int = MessageIDProvider.nextMessageID()
 }

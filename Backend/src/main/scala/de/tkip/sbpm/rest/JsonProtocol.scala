@@ -15,8 +15,6 @@ import de.tkip.sbpm.application.history.Entry
 import de.tkip.sbpm.application.history.State
 import de.tkip.sbpm.application.history.Message
 import de.tkip.sbpm.application.history.MessagePayloadLink
-import de.tkip.sbpm.model.ProcessModel
-import de.tkip.sbpm.model.StateType
 import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
@@ -83,7 +81,7 @@ object JsonProtocol extends DefaultJsonProtocol {
    * header case classes
    */
   case class ProcessIdHeader(processId: Int)
-  case class GraphHeader(name: String, graph: String, isCase: Boolean, startSubjects:String){
+  case class GraphHeader(name: String, graph: String, isCase: Boolean){
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
   }
 
@@ -117,9 +115,9 @@ object JsonProtocol extends DefaultJsonProtocol {
   // action execution
   implicit val processInstanceInfoFormat = jsonFormat2(ProcessInstanceInfo)
   implicit val actionDataFormat = jsonFormat4(ActionData)
-  implicit val availableActionFormat = jsonFormat7(AvailableAction)
+  implicit val availableActionFormat = jsonFormat8(AvailableAction)
 
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
-  implicit val createGraphHeaderFormat = jsonFormat4(GraphHeader)
-  implicit val createActionIdHeaderFormat = jsonFormat6(ExecuteAction)
+  implicit val createGraphHeaderFormat = jsonFormat3(GraphHeader)
+  implicit val createActionIdHeaderFormat = jsonFormat7(ExecuteAction)
 }

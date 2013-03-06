@@ -100,7 +100,7 @@ define([
 
 			belongsTo.push( options );
 
-			require( [ "models/" + modelName ], function( model ) {
+			require( [ "models/" + options.modelName ], function( model ) {
 
 				// setup of the method.
 				// Creates a new method that is called like the modelName (for example

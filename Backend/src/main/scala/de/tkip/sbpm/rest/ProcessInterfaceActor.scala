@@ -24,7 +24,6 @@ import spray.httpx.marshalling.Marshaller
 import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
 import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
 import de.tkip.sbpm.application.ProcessManagerActor
-import de.tkip.sbpm.model.ProcessModel
 import scala.concurrent.Await
 import spray.util.LoggingContext
 
@@ -106,7 +105,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             validate(!processResult.isDefined, "The processes name has to be unique!") {
               validate(json.name.length() >= 3, "The name hast to contain 3 or more letters!") {
                 implicit val timeout = Timeout(5 seconds)
-                val future = (persistanceActor ? SaveProcess(Process(None, json.name, -1, json.isCase, json.startSubjects),
+                val future = (persistanceActor ? SaveProcess(Process(None, json.name, -1, json.isCase, ""),
                   Option(Graph(None, json.graph, new java.sql.Timestamp(System.currentTimeMillis()), -1))))
                 val result = Await.result(future, timeout.duration).asInstanceOf[(Some[Int], Some[Int])]
                 complete(JsObject("id" -> result._1.get.toJson))

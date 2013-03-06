@@ -56,7 +56,10 @@ define([
 	});
 
 	var reloadGraph = function() {
-		gv_graph.clearGraph();
+		if( gv_paper ) {
+			gv_graph.changeView('cv');
+			gf_clearGraph();
+		}
 		gf_loadGraph( processInstance().graph() );
 	}
 
@@ -88,6 +91,7 @@ define([
 	}
 
 	var unload = function() {
+		console.log( "undloading" );
 		_( subscriptions ).each(function( element, list ) {
 			$.unsubscribe( element );
 		});
@@ -106,6 +110,7 @@ define([
 			processInstance( instance )
 			gf_paperZoomOut();
 			gf_paperZoomOut();
+			
 			var subject = subjectId || subjectsArray()[0][0];
 			currentSubject( subject )
 		});

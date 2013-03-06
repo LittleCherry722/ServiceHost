@@ -4,13 +4,13 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 object StateType extends Enumeration {
   type StateType = Value
-//  val StartStateString = "start"
+  // The string identifier in the graph
   val ActStateString = "action"
   val SendStateString = "send"
   val ReceiveStateString = "receive"
   val EndStateString = "end"
 
-//  val StartStateType = Value(StartStateString)
+  // the internal enums
   val ActStateType = Value(ActStateString)
   val SendStateType = Value(SendStateString)
   val ReceiveStateType = Value(ReceiveStateString)
@@ -27,8 +27,22 @@ object StateType extends Enumeration {
 import StateType.StateType
 // name raus ist ws in id
 case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, transitions: Array[Transition])
-case class Subject(id: SubjectID, inputPool: Int, states: Array[State])
-case class ProcessGraph(subjects: Array[Subject])
-case class ProcessModel(processID: ProcessID, name: String, graph: ProcessGraph) {
-  def subjects = graph.subjects
+case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean = false, external: Boolean = false)
+case class ProcessGraph(subjects: Array[Subject]) {
+
+  // This map matches SubjectIDs to their indexes in the subjectarray
+  private val subjectToIndexMap: Map[SubjectID, Int] =
+    (subjects.map(_.id)).zipWithIndex.toMap
+
+  /**
+   * Returns whether this graph has a subjects
+   */
+  def hasSubject(id: SubjectID): Boolean = subjectToIndexMap.contains(id)
+
+  /**
+   * Returns the Subject with this id,
+   * returns null, if this subject does not exists
+   */
+  def subject(id: SubjectID): Subject =
+    if (subjectToIndexMap.contains(id)) subjects(subjectToIndexMap(id)) else null
 }

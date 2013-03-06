@@ -16,7 +16,7 @@ object SubjectMessageRouting {
     SubjectMessageRouting(
       transition.subjectID,
       transition.messageType)
-  def apply(sm: SubjectInternalMessage): SubjectMessageRouting =
+  def apply(sm: SubjectToSubjectMessage): SubjectMessageRouting =
     SubjectMessageRouting(sm.from, sm.messageType)
 }
 
@@ -31,26 +31,28 @@ class InputPoolActor(messageLimit: Int) extends Actor {
   def receive = {
 
     // a receive asked before a send
-    case sm: SubjectInternalMessage if subjectIsWaitingForMessageIn(SubjectMessageRouting(sm)) =>
+    case sm: SubjectToSubjectMessage if subjectIsWaitingForMessageIn(SubjectMessageRouting(sm)) =>
       sender ! Stored(sm.messageID) // unlock Sender
       logger.debug(self + "Inputpool: Message transported: " + sm.from + ", " +
-        sm.messageType + ", \"" +
-        sm.messageContent + "\"")
+        sm.messageType + ", \"" + sm.messageContent + "\"")
       // transport it to waiting receive message of the internal behavior
-      getWaitingSubject(SubjectMessageRouting(sm)) !
-        TransportMessage(sm.messageID, sm.from, sm.messageType, sm.messageContent)
+      // TODO just test multisubj
+//      while(subjectIsWaitingForMessageIn(SubjectMessageRouting(sm))) 
+      getWaitingSubject(SubjectMessageRouting(sm)) ! sm
+      
+      //        TransportMessage(sm.messageID, sm.from, sm.messageType, sm.messageContent)
       context.parent ! SubjectInternalMessageProcessed(sm.to)
 
     // input pool limit is high enough to store message
-    case sm: SubjectInternalMessage if messagesStoredFor(SubjectMessageRouting(sm)) < messageLimit =>
-      storeMessageContent(sm)
+    case sm: SubjectToSubjectMessage if messagesStoredFor(SubjectMessageRouting(sm)) < messageLimit =>
+      storeMessage(sm)
       logger.debug(self + "Inputpool: Message stored: " + sm.from + ", " +
         sm.messageType + ", \"" +
         sm.messageContent + "\"")
       sender ! Stored(sm.messageID) // unlock Sender
       context.parent ! SubjectInternalMessageProcessed(sm.to)
 
-    case sm: SubjectInternalMessage =>
+    case sm: SubjectToSubjectMessage =>
       putInWaitForSend(sm, sender)
       logger.debug(self + "Message putInWaitForSend: " + sm.from + ", " +
         sm.messageType + ", \"" + sm.messageContent + "\"")
@@ -73,10 +75,10 @@ class InputPoolActor(messageLimit: Int) extends Actor {
         sender ! InputPoolEmpty
       }
     }
-    
+
     case RemoveMessageRequests(exitConds) => {
-      for(e <- exitConds) {
-        exitcond_to_FIFOs(e).pop()
+      for (e <- exitConds) {
+        exitcond_to_FIFOs(e).popWaiting() // TODO man muss den actor poppen nicht die message?
       }
     }
 
@@ -89,9 +91,9 @@ class InputPoolActor(messageLimit: Int) extends Actor {
       actor ! Stored(id) // re lock sender TODO
     }
     if (messagesStoredFor(smr) > 0) {
-      val (id, content) = popMessageContentOf(smr)
-      logger.debug("Inputpool: e, getMessageContentOf(e) : " + smr + " " + content)
-      s ! TransportMessage(id, smr.from, smr.messageType, content)
+      val message = popMessageOf(smr)
+      logger.debug("Inputpool: e, getMessageContentOf(e) : " + smr + " " + message.messageContent)
+      s ! message
       return true
     }
     false
@@ -99,16 +101,19 @@ class InputPoolActor(messageLimit: Int) extends Actor {
 
   // TODO exitcond namen ueberarbeiten
   private class FIFO(exitCond: SubjectMessageRouting) {
-    private val storage = new ArrayBuffer[(MessageID, MessageContent)]()
-    private val waitForSend = new ArrayBuffer[(MessageID, MessageContent, ActorRef)]()
+    // TODO was ist storage, was wait for send ueberpruefen
+    private val storage = new ArrayBuffer[SubjectToSubjectMessage]()
+    private val waitForSend = new ArrayBuffer[(SubjectToSubjectMessage, ActorRef)]()
     private val waitForMessageStorage = new ArrayBuffer[ActorRef]()
 
-    def put(id: MessageID, content: MessageContent) { storage += ((id, content)) }
+    def put(message: SubjectToSubjectMessage) { storage += message }
 
-    def pop(): (MessageID, MessageContent) = storage.remove(0)
+    def pop(): SubjectToSubjectMessage = storage.remove(0)
 
-    def putInWaitForSend(id: MessageID, m: MessageContent, _sender: ActorRef) {
-      waitForSend += ((id, m, _sender))
+    def popWaiting(): ActorRef = waitForMessageStorage.remove(0)
+
+    def putInWaitForSend(message: SubjectToSubjectMessage, _sender: ActorRef) {
+      waitForSend += ((message, _sender))
     }
 
     def messagesStored = storage.length
@@ -116,9 +121,9 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     def messageIsWaitingForSend = (waitForSend.length > 0)
 
     def moveMessageToStor: (MessageID, ActorRef) = {
-      val (id, content, actor) = waitForSend.remove(0)
-      storage += ((id, content))
-      (id, actor)
+      val (message, actor) = waitForSend.remove(0)
+      storage += message
+      (message.messageID, actor)
     }
 
     def putInWaitForMessage(_sender: ActorRef) {
@@ -127,7 +132,9 @@ class InputPoolActor(messageLimit: Int) extends Actor {
 
     def waitForMessage = (waitForMessageStorage.length > 0)
 
-    def getWaitingSubject = waitForMessageStorage.remove(0)
+    def getWaitingSubject =  {
+      waitForMessageStorage.remove(0)
+    }
   }
 
   private val exitcond_to_FIFOs = collection.mutable.Map[SubjectMessageRouting, FIFO]()
@@ -139,24 +146,23 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     exitcond_to_FIFOs(exitCond).messagesStored
   }
 
-  private def storeMessageContent(sm: SubjectInternalMessage) {
+  private def storeMessage(sm: SubjectToSubjectMessage) {
     val smr = SubjectMessageRouting(sm)
     if (exitcond_to_FIFOs.contains(smr) == false) {
       exitcond_to_FIFOs += smr -> new FIFO(smr)
     }
-    exitcond_to_FIFOs(smr).put(sm.messageID, sm.messageContent)
+    exitcond_to_FIFOs(smr).put(sm)
   }
 
-  private def putInWaitForSend(sm: SubjectInternalMessage,
-                               sender: ActorRef) {
+  private def putInWaitForSend(sm: SubjectToSubjectMessage, sender: ActorRef) {
     val smr = SubjectMessageRouting(sm)
     if (exitcond_to_FIFOs.contains(smr) == false) {
       exitcond_to_FIFOs += smr -> new FIFO(smr)
     }
-    exitcond_to_FIFOs(smr).putInWaitForSend(sm.messageID, sm.messageContent, sender)
+    exitcond_to_FIFOs(smr).putInWaitForSend(sm, sender)
   }
 
-  private def popMessageContentOf(e: SubjectMessageRouting): (MessageID, MessageContent) =
+  private def popMessageOf(e: SubjectMessageRouting): SubjectToSubjectMessage =
     exitcond_to_FIFOs(e).pop()
 
   private def subjectIsWaitingForMessageIn(e: SubjectMessageRouting): Boolean = {

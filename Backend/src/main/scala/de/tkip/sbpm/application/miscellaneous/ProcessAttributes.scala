@@ -10,8 +10,10 @@ object ProcessAttributes {
 
   type SubjectID = String; val AllSubjects = ""
   type SubjectName = String
+  type SubjectSessionID = Int // This ID is used to differ the Subjects in a Multisubject,
+  // although also SingeSubject has this id 
   type StateID = Int
-  type SuccessorID = StateID
+  type SuccessorID = StateID // TODO SuccessorID als extra attribut?
   type StateAction = String
 
   type MessageType = String

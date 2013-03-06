@@ -1,5 +1,5 @@
-<h3>Actions</h3>
-
+<h3 data-bind="visible: !processInstance().isTerminated()">Actions</h3>
+<h3 data-bind="visible: processInstance().isTerminated()">Process has ended</h3>
 <span data-bind="text: stateName()"></span>
 <span data-bind="text: stateText()"></span>
 

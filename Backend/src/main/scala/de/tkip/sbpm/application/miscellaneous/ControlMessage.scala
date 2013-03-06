@@ -6,7 +6,6 @@ import akka.actor._
 import de.tkip.sbpm.application.SubjectInformation
 import de.tkip.sbpm.application.subject.BehaviorStateActor
 import de.tkip.sbpm.model.Transition
-import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.model.ProcessGraph
@@ -60,6 +59,7 @@ case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends A
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceID: ProcessInstanceID,
                                   processInstanceActor: ProcessInstanceRef,
+                                  isTerminated: Boolean,
                                   graphJson: String,
                                   history: History,
                                   availableActions: Array[AvailableAction])
