@@ -26,6 +26,7 @@ object Entity {
   val GROUP = "group"
   val CONFIGURATION = "configuration"
   val OAUTH2CALLBACK = "oauth2callback"
+  val ISALIVE = "isalive"
 
   // TODO define more entities if you need them  
 }
@@ -165,6 +166,12 @@ class FrontendInterfaceActor extends Actor with HttpService {
 	      pathPrefix(frontendBaseUrl) {
 	        getFromDirectory(frontendBaseDir)
 	      }
+      } ~
+      pathPrefix(Entity.ISALIVE){
+    	  get {
+		      complete(StatusCodes.OK)
+		      // TODO do some health check stuff and return StatusCodes.OK    
+    	  }
       }
   })
 
