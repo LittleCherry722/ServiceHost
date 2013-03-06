@@ -54,7 +54,7 @@ define([
 	
 	var action = function(action) {
 		serverDone(false);
-		console.log("action: " + action)
+		
 		data = actionOfCurrentSubject()
 		id = data.processInstanceID;
 		data.actionData = action;
@@ -67,17 +67,15 @@ define([
 			dataType : "json",
 			contentType : "application/json; charset=UTF-8",
 			success : function(data, textStatus, jqXHR) {
-				console.log("success")
-				console.log(data);
+				
 				processInstance().refresh();
 				
 			},
 			error : function(jqXHR, textStatus, error) {
-				console.log("Error")
-				console.log(error)
+				
 			},
 			complete : function(jqXHR, textStatus) {
-				console.log("complete")
+				
 				serverDone(true);
 			}
 		});
@@ -90,7 +88,7 @@ define([
 	}
 
 	var send = function() {
-		console.log("send: "+ messageText())
+		
 		var deArray;
 		serverDone(false);
 		data = actionOfCurrentSubject()
@@ -100,7 +98,7 @@ define([
 		id = data.processInstanceID;
 		data = JSON.stringify(data);
 		
-		console.log(data)
+		
 			$.ajax({
 			url : '/processinstance/' + id,
 			type : "PUT",
@@ -109,16 +107,14 @@ define([
 			dataType : "json",
 			contentType : "application/json; charset=UTF-8",
 			success : function(data, textStatus, jqXHR) {
-				console.log("success")
-				console.log(data);
+			
 				processInstance().refresh();
 			},
 			error : function(jqXHR, textStatus, error) {
-				console.log("Error")
-				console.log(error)
+			
 			},
 			complete : function(jqXHR, textStatus) {
-				console.log("complete")
+			
 				serverDone(true);
 			}
 		});
@@ -189,7 +185,7 @@ define([
 		
 		viewModel = new ViewModel();
 		
-		window.aView = viewModel;
+		//window.aView = viewModel;
 
 		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
 		});
