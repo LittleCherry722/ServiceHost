@@ -51,11 +51,12 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val processInstanceActor = data.processInstanceActor
   protected val inputPoolActor = data.inputPoolActor
   protected val internalStatus = data.internalStatus
-
+  protected val variables = internalStatus.variables
   protected val exitTransitions = transitions.filter(_.isExitCond)
 
   // FIXME check if the message has already sent via internalStatus
-  if (startState && !delaySubjectReady) {
+  if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
+    internalStatus.subjectStartedSent = true
     processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
   }
 
@@ -162,7 +163,7 @@ protected case class ReceiveStateActor(data: StateData)
   // this map in the whole actor
   private val exitTransitionsMap: Map[(SubjectID, MessageType), ExtendedTransition] =
     exitTransitions.map((t: Transition) =>
-      ((t.subjectID, t.messageType), ExtendedTransition(t.subjectID, t.messageType, t.successorID)))
+      ((t.subjectID, t.messageType), new ExtendedTransition(t)))
       .toMap[(SubjectID, MessageType), ExtendedTransition]
 
   // request if there is a message for this subject
@@ -202,6 +203,13 @@ protected case class ReceiveStateActor(data: StateData)
         "\" with content \"" + sm.messageContent + "\"")
 
       exitTransitionsMap(sm.from, sm.messageType).addMessage(sm)
+
+      val t = exitTransitionsMap(sm.from, sm.messageType).transition
+      val varID = t.storeVar
+      if (t.storeToVar) {
+        variables.getOrElseUpdate(varID, Variable(varID)).addMessage(sm)
+        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}"))//TODO
+      }
 
       trySendSubjectStarted()
     }
@@ -258,10 +266,10 @@ protected case class ReceiveStateActor(data: StateData)
   /**
    * This case class extends an transition with information about the related message
    */
-  private case class ExtendedTransition(
-    from: SubjectID,
-    messageType: MessageType,
-    successorID: StateID) {
+  private class ExtendedTransition(val transition: Transition) {
+    val from: SubjectID = transition.subjectID
+    val messageType: MessageType = transition.messageType
+    val successorID: StateID = transition.successorID
 
     var ready = false
     var messageID: MessageID = -1
@@ -306,13 +314,23 @@ protected case class SendStateActor(data: StateData)
           val toSubject = transition.subjectID
           val messageID = nextMessageID
           unsentMessageIDs(messageID) = transition
+
+          logger.debug("Send@" + userID + "/" + subjectID + ": Message[" +
+            messageID + "} \"" + messageType + "to " + transition.target +
+            "\" with content \"" + messageContent.get + "\"")
+
+          val target = transition.target.get
+          if (target.toVariable) {
+            target.insertVariable(variables(target.variable.get))
+          }
+
           processInstanceActor !
             SubjectToSubjectMessage(
               messageID,
               userID,
               subjectID,
               subjectSessionID,
-              transition.target.get,
+              target,
               messageType,
               messageContent.get)
 

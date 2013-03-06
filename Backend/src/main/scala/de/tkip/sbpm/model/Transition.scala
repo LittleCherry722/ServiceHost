@@ -1,6 +1,7 @@
 package de.tkip.sbpm.model
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.subject.Variable
 
 sealed trait TransitionType
 case class ExitCond(messageType: MessageType, target: Option[Target] = None) extends TransitionType {
@@ -18,8 +19,16 @@ case class Target(
   createNew: Boolean = false,
   variable: Option[String] = None) {
   // TODO validate
-  val toAll = min == -1 && max == -1 && !createNew
+  val toVariable = variable.isDefined && variable.get != ""
+  val toAll = min == -1 && max == -1 && !createNew && !toVariable
   // TODO fill in variable
+
+  def varSubjects = _vars
+  private var _vars: Array[(SubjectID, SubjectSessionID)] = Array()
+
+  def insertVariable(v: Variable) {
+    _vars = for (m <- v.messages) yield ((m.from, m.fromSession))
+  }
 }
 
 /**
@@ -39,7 +48,7 @@ case class Transition(
   def target = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].target else None
   def subjectID = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].subjectID else ""
 
-  def storeToVar: Boolean = storeVar == ""
+  def storeToVar: Boolean = storeVar != ""
 }
 
 object ActTransition {

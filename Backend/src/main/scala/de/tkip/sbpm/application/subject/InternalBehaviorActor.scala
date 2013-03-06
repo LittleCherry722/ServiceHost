@@ -19,12 +19,6 @@ case class ChangeState(currenState: StateID,
   history: HistoryMessage)
 
 /**
- * This class holds the InternalStatus of an Internalbehavior, defined by:
- * - Variables
- */
-case class InternalStatus()
-
-/**
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(

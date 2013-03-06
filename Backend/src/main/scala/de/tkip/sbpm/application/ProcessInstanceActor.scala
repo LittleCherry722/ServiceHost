@@ -434,8 +434,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // multisubject send to all and singlesubject
         // only restart subjects, which are not multisubjects
         sendTo(subjects.map(_._2).toArray, message, !multi)
-      } else if (false && message.target.variable.isDefined) {
+      } else if (message.target.toVariable) {
         // TODO send messages to the subjects in the variable
+        val targetSubjects =
+          for ((subjectID, sessionID) <- message.target.varSubjects)
+            yield subjects(sessionID)
+        sendTo(targetSubjects, message) // TODO create new?
       } else if (message.target.min <= subjects.filter(_._2.running).size) {
         // Send to <= max random subjects
         // create a random subset by shuffling the subjects randomly,
@@ -444,6 +448,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // and taking the first max elements
         val partialSubjects =
           shuffle(subjects.filter(_._2.running)).map(_._2).toArray.take(message.target.max)
+
         // send to random subset of the subjects
         sendTo(partialSubjects, message)
       } else if (message.target.createNew) {

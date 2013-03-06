@@ -8,6 +8,7 @@ import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.model.Target
+import scala.collection.mutable.ArrayBuffer
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -23,7 +24,9 @@ protected case class SubjectToSubjectMessage(
   target: Target,
   messageType: MessageType,
   messageContent: MessageContent) extends MessageObject {
+
   def to = target.subjectID
+
 }
 
 // stored message in the inputpool

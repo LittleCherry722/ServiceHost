@@ -34,10 +34,12 @@ class InputPoolActor(messageLimit: Int) extends Actor {
     case sm: SubjectToSubjectMessage if subjectIsWaitingForMessageIn(SubjectMessageRouting(sm)) =>
       sender ! Stored(sm.messageID) // unlock Sender
       logger.debug(self + "Inputpool: Message transported: " + sm.from + ", " +
-        sm.messageType + ", \"" +
-        sm.messageContent + "\"")
+        sm.messageType + ", \"" + sm.messageContent + "\"")
       // transport it to waiting receive message of the internal behavior
+      // TODO just test multisubj
+//      while(subjectIsWaitingForMessageIn(SubjectMessageRouting(sm))) 
       getWaitingSubject(SubjectMessageRouting(sm)) ! sm
+      
       //        TransportMessage(sm.messageID, sm.from, sm.messageType, sm.messageContent)
       context.parent ! SubjectInternalMessageProcessed(sm.to)
 
@@ -130,7 +132,9 @@ class InputPoolActor(messageLimit: Int) extends Actor {
 
     def waitForMessage = (waitForMessageStorage.length > 0)
 
-    def getWaitingSubject = waitForMessageStorage.remove(0)
+    def getWaitingSubject =  {
+      waitForMessageStorage.remove(0)
+    }
   }
 
   private val exitcond_to_FIFOs = collection.mutable.Map[SubjectMessageRouting, FIFO]()

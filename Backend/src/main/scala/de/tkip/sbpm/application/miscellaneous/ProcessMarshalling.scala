@@ -139,7 +139,7 @@ object parseGraph {
               case s: JsString => s.convertTo[String]
               case _           => ""
             }
-
+            
             // at the transition to the state
             states(edge.start).addTransition(
               Transition(ExitCond(edge.text, target), edge.end, storeVariable))
@@ -198,7 +198,8 @@ object parseGraph {
           if (transition.isExitCond && messageMap.contains(transition.messageType)) {
             Transition(
               ExitCond(messageMap(transition.messageType), transition.myType.asInstanceOf[ExitCond].target),
-              transition.successorID)
+              transition.successorID,
+              transition.storeVar)
           } else {
             transition
           }
