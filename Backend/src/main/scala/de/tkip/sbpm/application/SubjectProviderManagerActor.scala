@@ -63,14 +63,6 @@ class SubjectProviderManagerActor extends Actor {
       processManagerActor ! message
     }
 
-    case message: GetAvailableActions => {
-      if (subjectProviderMap.contains(message.userID)) {
-        subjectProviderMap(message.userID).forward(message)
-      } else {
-        logger.info("Actions for subject " + message.userID + " but does not exist");
-      }
-    }
-
     case s => {
       println("SubjectProviderManger not yet implemented: " + s)
     }

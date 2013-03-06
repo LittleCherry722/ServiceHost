@@ -208,7 +208,7 @@ protected case class ReceiveStateActor(data: StateData)
       val varID = t.storeVar
       if (t.storeToVar) {
         variables.getOrElseUpdate(varID, Variable(varID)).addMessage(sm)
-        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}"))//TODO
+        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
 
       trySendSubjectStarted()
@@ -275,6 +275,9 @@ protected case class ReceiveStateActor(data: StateData)
     var messageID: MessageID = -1
     var messageContent: Option[MessageContent] = None
 
+    private var remaining = transition.target.get.min
+    remaining = if (remaining < 1) 1 else remaining
+
     def addMessage(message: SubjectToSubjectMessage) {
       // validate
       if (!(message.messageType == messageType && message.from == from)) {
@@ -283,7 +286,16 @@ protected case class ReceiveStateActor(data: StateData)
         return
       }
 
-      ready = true
+      remaining -= 1
+
+      ready = remaining <= 0
+      // TODO test
+        // request if there is a message for this subject
+      if(!ready)
+  inputPoolActor !
+    RequestForMessages(exitTransitions.map(convertTransitionToRequest(_)))
+      
+      // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
     }
