@@ -32,7 +32,7 @@ case class ProcessGraph(subjects: Array[Subject]) {
 
   // This map matches SubjectIDs to their indexes in the subjectarray
   private val subjectToIndexMap: Map[SubjectID, Int] =
-    (subjects.map(_.id)).zip(0 until subjects.length).toMap
+    (subjects.map(_.id)).zipWithIndex.toMap
 
   /**
    * Returns whether this graph has a subjects
