@@ -12,17 +12,18 @@ import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
 
 protected case class SubjectCreated(userID: UserID,
-                                    processID: ProcessID,
-                                    processInstanceID: ProcessInstanceID,
-                                    subjectID: SubjectID,
-                                    ref: SubjectRef)
-    extends SubjectProviderMessage
+  processID: ProcessID,
+  processInstanceID: ProcessInstanceID,
+  subjectID: SubjectID,
+  subjectSessionID: SubjectSessionID,
+  ref: SubjectRef)
+  extends SubjectProviderMessage
 
 case class AskSubjectsForAvailableActions(userID: UserID,
-                                          processInstanceID: ProcessInstanceID = AllProcessInstances,
-                                          subjectID: SubjectID = AllSubjects,
-                                          generateAnswer: Array[AvailableAction] => Any)
-    extends SubjectProviderMessage
+  processInstanceID: ProcessInstanceID = AllProcessInstances,
+  subjectID: SubjectID = AllSubjects,
+  generateAnswer: Array[AvailableAction] => Any)
+  extends SubjectProviderMessage
 
 class SubjectProviderActor(userID: UserID) extends Actor {
 
@@ -84,7 +85,8 @@ class SubjectProviderActor(userID: UserID) extends Actor {
         subject <- subjects.filter({
           s: Subject =>
             s.processInstanceID == message.processInstanceID &&
-              s.subjectID == message.subjectID
+              s.subjectID == message.subjectID &&
+              s.subjectSessionID == message.subjectSessionID
         })
       ) {
         subject.ref ! message
@@ -108,8 +110,8 @@ class SubjectProviderActor(userID: UserID) extends Actor {
   }
 
   private def askSubjectsForAvailableActions(processInstanceID: ProcessInstanceID,
-                                             subjectID: SubjectID,
-                                             generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
+    subjectID: SubjectID,
+    generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
 
     val collectSubjects: Set[Subject] =
       subjects.filter(

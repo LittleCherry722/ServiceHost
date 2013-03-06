@@ -17,7 +17,7 @@ trait SubjectProviderMessage {
 trait PersistenceMessage
 
 /**
- * Extend this trait if you want to send a message to / over a process instance 
+ * Extend this trait if you want to send a message to / over a process instance
  */
 trait ProcessInstanceMessage {
   def processInstanceID: ProcessInstanceID
@@ -34,6 +34,7 @@ trait GoogleMessage
 trait SubjectMessage {
   def processInstanceID: ProcessInstanceID
   def subjectID: SubjectID
+  def subjectSessionID: SubjectSessionID
 }
 
 /**

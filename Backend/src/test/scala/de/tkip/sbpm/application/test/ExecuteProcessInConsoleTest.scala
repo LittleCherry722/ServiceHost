@@ -70,6 +70,7 @@ object ExecuteProcessInConsoleTest {
           available.userID,
           available.processInstanceID,
           available.subjectID,
+          available.subjectSessionID,
           available.stateID,
           available.stateType,
           actionInput))

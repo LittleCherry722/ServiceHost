@@ -53,6 +53,7 @@ protected case class RemoveMessageRequests(exitConds: Array[SubjectMessageRoutin
 
 // TODO richtig einordnern
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
+case class SubjectStarted(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 
 // external subject interaction messages
 sealed trait SubjectBehaviorRequest
@@ -71,6 +72,7 @@ case class AvailableAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
+  subjectSessionID: SubjectSessionID,
   stateID: StateID,
   stateText: String,
   stateType: String,
@@ -82,6 +84,7 @@ case class ExecuteAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
+  subjectSessionID: SubjectSessionID,
   stateID: StateID,
   stateType: String,
   actionData: ActionData)
@@ -104,6 +107,7 @@ object mixExecuteActionWithRouting {
       action.userID,
       action.processInstanceID,
       action.subjectID,
+      action.subjectSessionID,
       action.stateID,
       action.stateType,
       action.actionData) with AnswerAbleMessage with SubjectProviderMessage with SubjectMessage with SubjectBehaviorRequest

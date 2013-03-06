@@ -20,7 +20,6 @@ import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 
 case class ActionExecuted(ea: ExecuteAction)
-case class SubjectStarted(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 
 protected case class StateData(
   stateModel: State,
@@ -99,6 +98,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       userID,
       processInstanceID,
       subjectID,
+      subjectSessionID,
       id,
       stateText,
       stateType.toString(),
@@ -125,7 +125,7 @@ protected case class ActStateActor(data: StateData)
 
   override def receive = {
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ActStateString, input) => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ActStateString, input) => {
       val index = indexOfInput(input.text)
       if (index != -1) {
         changeState(exitTransitions(index).successorID, null)
@@ -172,7 +172,7 @@ protected case class ReceiveStateActor(data: StateData)
 
   override def receive = {
     // execute an action
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ReceiveStateString, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ReceiveStateString, input) if ({
       // check if the related subject exists
       input.relatedSubject.isDefined && {
         val from = input.relatedSubject.get
@@ -294,7 +294,7 @@ protected case class SendStateActor(data: StateData)
   // TODO sowas wie timeout ist nicht drin
   // TODO message ids vllt nicht zufaellig
   override def receive = {
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, SendStateString, input) if ({
       input.messageContent.isDefined
     }) => {
       if (!messageContent.isDefined) {

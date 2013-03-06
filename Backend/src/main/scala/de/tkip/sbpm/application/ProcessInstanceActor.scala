@@ -139,51 +139,45 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   def receive = {
 
-    case as: AddSubject => {
+    case as: AddSubject if (graph.hasSubject(as.subjectID)) => {
       // if subjectProvider of the new subject is not the same as the one that asked for execution
       // try to forward blocked ExecuteActionAnswer
 
-      val subject: Subject = getSubject(as.subjectID)
+      val subject: Subject = graph.subject(as.subjectID)
 
-      // TODO was tun
-      if (subject == null) {
-        logger.error("ProcessInstance " + id + " -- Subject unknown for " + as)
+      // safe userID that owns the subject
+      subjectsUserIDMap += subject.id -> as.userID
 
-        waitingForContextResolver = waitingForContextResolver.tail
-      } else {
-        // safe userID that owns the subject
-        subjectsUserIDMap += subject.id -> as.userID
+      val container = subjectMap.getOrElse(subject.id, SubjectContainer(subject))
+      val (subjectSessionID, subjectRef) = container.createAndAddSubject(as.userID)
+      // add the subject to the management map
+      subjectMap += subject.id -> container
+      subjectCounter += 1
 
-        val container = subjectMap.getOrElse(subject.id, SubjectContainer(subject))
-        val subjectRef = container.createAndAddSubject(as.userID)
-        // add the subject to the management map
-        subjectMap += subject.id -> container
-        subjectCounter += 1
+      logger.info("processinstance " + id + " created subject " + subject.id + " for user " + as.userID)
 
-        logger.info("processinstance " + id + " created subject " + subject.id + " for user " + as.userID)
-
-        // TODO move to container
-        // if there are messages to deliver to the new subject,
-        // forward them to the subject 
-        if (!messagePool.isEmpty) {
-          for ((orig, sm) <- messagePool if sm.to == subject.id) {
-            handleBlockingForMessageDelivery(as.subjectID)
-            subjectRef.!(sm)(orig)
-          }
-          messagePool = messagePool.filterNot(_._2.to == subject.id)
+      // TODO move to container
+      // if there are messages to deliver to the new subject,
+      // forward them to the subject 
+      if (!messagePool.isEmpty) {
+        for ((orig, sm) <- messagePool if sm.to == subject.id) {
+          handleBlockingForMessageDelivery(as.subjectID)
+          subjectRef.!(sm)(orig)
         }
-
-        // inform the subject provider about his new subject
-        context.parent !
-          SubjectCreated(as.userID, processID, id, subject.id, subjectRef)
-
-        // start the execution of the subject
-        subjectRef ! StartSubjectExecution()
+        messagePool = messagePool.filterNot(_._2.to == subject.id)
       }
+
+      // inform the subject provider about his new subject
+      context.parent !
+        SubjectCreated(as.userID, processID, id, subject.id, subjectSessionID, subjectRef)
+
+      // start the execution of the subject
+      subjectRef ! StartSubjectExecution()
     }
 
     case message: SubjectStarted => {
       // println("subjectstarted")
+
       subjectMap(message.subjectID).hasStarted(message)
       unblockUserID(message.userID)
       tryToReleaseBlocking(message.userID)
@@ -395,6 +389,18 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     private val subjects = MutableMap[SubjectSessionID, SubjectInfo]()
     private var nextSubjectSessionID = 0
 
+    // this pool contains the unsent messages, which will be sent to subjects
+    // which are created first
+    //----------------------------------------
+    // #remaining subjects
+    // orig sender
+    // SubjectToSubjectMessage
+    private case class MessagePoolEntry(
+      var subjectCount: Int,
+      orig: ActorRef,
+      message: SubjectToSubjectMessage)
+    private val messagePool: Set[MessagePoolEntry] = Set()
+
     /**
      * Adds a Subject to this multisubject
      */
@@ -409,7 +415,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subjects += subjectSessionID -> SubjectInfo(subjectRef, userID)
 
       nextSubjectSessionID += 1
-      subjectRef
+      (nextSubjectSessionID - 1, subjectRef)
     }
 
     def hasStarted(message: SubjectStarted) {
