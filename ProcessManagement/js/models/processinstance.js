@@ -30,7 +30,13 @@ define([
 			type: "json",
 			defaults: [],
 			lazy: true
-		}
+		},
+		isTerminated: {
+			type: "boolean",
+			defaults: false,
+			lazy: true
+		}		
+		
 	});
 
 	ProcessInstance.include({
