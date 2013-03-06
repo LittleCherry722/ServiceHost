@@ -38,8 +38,8 @@ require.config({
 
 require([ "app", "router", "knockout.custom" ], function( App, Router ){
 	
-			
-	$.ajax({
+			//Is backend reachable? -> Start application.
+	$.ajax({ 
 		url : '/isalive',
 		type : "GET",
 		async : false, // defaults to false
@@ -60,7 +60,6 @@ require([ "app", "router", "knockout.custom" ], function( App, Router ){
 
 		},
 		complete : function(jqXHR, textStatus) {
-
 		}
 	}); 
 
