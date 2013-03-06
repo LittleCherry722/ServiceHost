@@ -1,8 +1,11 @@
 <h3 data-bind="visible: !processInstance().isTerminated()">Actions</h3>
 <h3 data-bind="visible: processInstance().isTerminated()">Process has ended</h3>
 <span data-bind="text: stateName()"></span>
-<span data-bind="text: stateText()"></span>
+<span data-bind="text: stateText(), visible: isTypeOf()<>'end'"></span>
 
+<div data-bind="visible: isTypeOf()==='end'">
+<span>This subject has no further tasks in this process!</span>	
+</div>	
 
 <div data-bind="visible: isTypeOf()==='action',foreach: actionData">
 	<div>
