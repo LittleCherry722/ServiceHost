@@ -37,12 +37,12 @@ object parseGraph {
   private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
   private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
   private case class JNodeOption(message: MessageType)
-  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, manualTimeout: Boolean, target: JsValue)
+  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, manualTimeout: Boolean, target: JsValue, variable: JsValue)
   private case class JEdgeTarget(id: SubjectID, min: JsValue, max: JsValue, createNew: Boolean, variable: JsValue)
   // The marshalling formats for the case classes
   private object JsonFormats extends DefaultJsonProtocol {
     implicit val edgeTargetFormat = jsonFormat5(JEdgeTarget)
-    implicit val edgeFormat = jsonFormat6(JEdge)
+    implicit val edgeFormat = jsonFormat7(JEdge)
     implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
     implicit val nodeFormat = jsonFormat6(JNode)
     implicit val behaviorFormat = jsonFormat2(JBehavior)
@@ -101,6 +101,7 @@ object parseGraph {
     }
 
     private def parseEdges(edges: Array[JEdge]) {
+      import Integer.parseInt
       for (edge <- edges) {
         // match the edgetype and create the corresponding transition
         edge.myType match {
@@ -113,31 +114,43 @@ object parseGraph {
                   // TODO Currently the graph contains e.g. -1 and "-1" for
                   // min and max values, this function parses both to an Int
                   // delete if its not needed anymore
-                  def parseInt(value: JsValue): Int = value match {
-                    case s: JsString => Integer.parseInt(s.convertTo[String])
+                  def parseNumber(value: JsValue): Int = value match {
+                    case s: JsString => parseInt(s.convertTo[String])
                     case i: JsNumber => i.convertTo[Int]
                     case _           => -1
                   }
 
-                val variable = jtarget.variable match {
-                  case s: JsString => Some(s.convertTo[String])
+                val targetVariable: Option[String] = jtarget.variable match {
+                  case s: JsString => if (s != "") Some(s.convertTo[String]) else None
                   case _           => None
                 }
 
-                Some(Target(jtarget.id, parseInt(jtarget.min), parseInt(jtarget.max), jtarget.createNew, variable))
+                Some(Target(
+                  jtarget.id,
+                  parseNumber(jtarget.min),
+                  parseNumber(jtarget.max),
+                  jtarget.createNew,
+                  targetVariable))
               } else {
                 None
               }
 
+            val storeVariable: String = edge.variable match {
+              case s: JsString => s.convertTo[String]
+              case _           => ""
+            }
+
             // at the transition to the state
-            states(edge.start).addTransition(Transition(ExitCond(edge.text, target), edge.end))
+            states(edge.start).addTransition(
+              Transition(ExitCond(edge.text, target), edge.end, storeVariable))
           }
 
           case "timeout" => {
             // get the duration only if its not manual
-            val duration = if (edge.manualTimeout) -1 else Integer.parseInt(edge.text)
+            val duration = if (edge.manualTimeout) -1 else parseInt(edge.text)
             // at the transition to the state
-            states(edge.start).addTransition(TimeoutTransition(edge.manualTimeout, duration, edge.end))
+            states(edge.start).addTransition(
+              TimeoutTransition(edge.manualTimeout, duration, edge.end))
           }
 
           case s => {

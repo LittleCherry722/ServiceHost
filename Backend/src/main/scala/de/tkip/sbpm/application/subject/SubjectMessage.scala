@@ -26,19 +26,6 @@ protected case class SubjectToSubjectMessage(
   def to = target.subjectID
 }
 
-// range
-// (+)bestimmtes ziel
-// createnew
-// toall
-
-protected case class SubjectToMultiSubjectMessage(message: SubjectToSubjectMessage) {
-  def toAll = true
-  def min = 1
-  def max = 5
-  def createNew = true
-  def toVar: Array[String] = null
-  // variabeln?
-}
 // stored message in the inputpool
 protected case class TransportMessage(messageID: MessageID, from: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
 // message to inform the receive state, that the inputpool has no messages for him

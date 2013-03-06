@@ -18,7 +18,7 @@ case class Target(
   createNew: Boolean = false,
   variable: Option[String] = None) {
   // TODO validate
-  val toAll = min == -1 && max == -1 && !createNew && variable == None
+  val toAll = min == -1 && max == -1 && !createNew
   // TODO fill in variable
 }
 
@@ -27,7 +27,8 @@ case class Target(
  */
 case class Transition(
   myType: TransitionType,
-  successorID: SuccessorID) {
+  successorID: SuccessorID,
+  storeVar: String = "") {
 
   // boolean type check functions
   def isExitCond = myType.isInstanceOf[ExitCond]
@@ -37,6 +38,8 @@ case class Transition(
   def messageType = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].messageType else ""
   def target = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].target else None
   def subjectID = if (myType.isInstanceOf[ExitCond]) myType.asInstanceOf[ExitCond].subjectID else ""
+
+  def storeToVar: Boolean = storeVar == ""
 }
 
 object ActTransition {

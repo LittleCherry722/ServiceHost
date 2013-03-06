@@ -109,7 +109,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
-  // TODO direct beenden?
   internalBehaviorActor ! SubjectTerminated(userID, subjectID, subjectSessionID)
 
   override def postStop() {
@@ -302,7 +301,7 @@ protected case class SendStateActor(data: StateData)
         // can be blocked until a potentially new subject is created to ensure all available actions will 
         // be returned when asking
         messageContent = input.messageContent
-        for (transition <- exitTransitions) {
+        for (transition <- exitTransitions if (transition.target.isDefined)) {
           val messageType = transition.messageType
           val toSubject = transition.subjectID
           val messageID = nextMessageID
@@ -313,7 +312,7 @@ protected case class SendStateActor(data: StateData)
               userID,
               subjectID,
               subjectSessionID,
-              Target(toSubject),
+              transition.target.get,
               messageType,
               messageContent.get)
 

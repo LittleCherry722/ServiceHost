@@ -392,6 +392,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // remove all entry, which has been sent to enough subjects
       messagePool = messagePool.filter(_.subjectCount > 0)
 
+      logger.debug("Processinstance [" + id + "] created Subject " +
+        subject.id + "[" + subjectSessionID + "] for user " + userID)
+
       // inform the subject provider about his new subject
       context.parent !
         SubjectCreated(userID, processID, id, subject.id, subjectSessionID, subjectRef)
@@ -401,10 +404,18 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     def handleSubjectStarted(message: SubjectStarted) {
+
+      logger.debug("Processinstance [" + id + "] Subject " + subject.id + "[" +
+        message.subjectSessionID + "] started")
+
       subjects(message.subjectSessionID).running = true
     }
 
     def handleSubjectTerminated(message: SubjectTerminated) {
+
+      logger.debug("Processinstance [" + id + "] Subject " + subject.id + "[" +
+        message.subjectSessionID + "] terminated")
+
       subjects(message.subjectSessionID).running = false
     }
 
@@ -423,7 +434,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // multisubject send to all and singlesubject
         // only restart subjects, which are not multisubjects
         sendTo(subjects.map(_._2).toArray, message, !multi)
-      } else if (message.target.variable.isDefined) {
+      } else if (false && message.target.variable.isDefined) {
         // TODO send messages to the subjects in the variable
       } else if (message.target.min <= subjects.filter(_._2.running).size) {
         // Send to <= max random subjects
@@ -456,14 +467,18 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // if the subject does not exist create the subject and forward the
       // message afterwards
       // store the message in the message-pool
-      if (message.isDefined) {
+      if (message.isDefined && count > 0) {
         messagePool += MessagePoolEntry(count, sender, message.get)
       }
 
-      // ask the Contextresolver for the userid to answer with an AddSubject
-      waitForContextResolver(userID)
-      contextResolver !
-        RequestUserID(SubjectInformation(subject.id), AddSubject(_, subject.id))
+      logger.debug("Processinstance [" + id + "] creates Subject " + subject.id)
+
+      for (i <- (1 to count)) {
+        // ask the Contextresolver for the userid to answer with an AddSubject
+        waitForContextResolver(userID)
+        contextResolver !
+          RequestUserID(SubjectInformation(subject.id), AddSubject(_, subject.id))
+      }
     }
 
     private def requestSubjectCreation(message: SubjectToSubjectMessage, count: Int) {
