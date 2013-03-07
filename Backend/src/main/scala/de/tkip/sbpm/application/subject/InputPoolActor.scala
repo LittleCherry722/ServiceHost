@@ -8,17 +8,16 @@ import de.tkip.sbpm.model.Transition
 import akka.event.Logging
 import scala.collection.mutable.Queue
 
-case class SubjectInternalMessageProcessed(subjectID: SubjectID)
 // TODO in eine message buendeln
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state
   fromSubject: SubjectID,
   messageType: MessageType,
-  private var _count: Int = 1) { // the number of messages the state want to receive
+  private var remainingCount: Int = 1) { // the number of messages the state want to receive
 
   private var stateActor: ActorRef = null
 
-  def count = _count
+  def count = remainingCount
 
   def setStateActor(sender: ActorRef) {
     if (stateActor == null) stateActor = sender
@@ -27,13 +26,17 @@ protected case class SubscribeIncomingMessages(
   def !(message: Any) {
     if (stateActor != null) {
       stateActor ! message
-      _count -= 1
+      remainingCount -= 1
     }
   }
 }
-
+// message to inform the inputpool that the state, does not subscribe anything anymore
 protected case class UnSubscribeIncomingMessages(stateID: StateID)
 
+// message to inform the receive state, that the inputpool has no messages for him
+protected case object InputPoolEmpty
+
+// TODO inputpoolempty einbauen
 class InputPoolActor(private val messageLimit: Int) extends Actor {
 
   // this map holds the queue of the income messages for a channel
@@ -49,7 +52,10 @@ class InputPoolActor(private val messageLimit: Int) extends Actor {
       // Set the state actor in the request
       register.setStateActor(sender)
       // try to transport the messages to the state
-      tryTransportMessagesTo(register)
+      val success = tryTransportMessagesTo(register)
+      if(!success) {
+        sender ! InputPoolEmpty// TODO needed?
+      }
     }
 
     case UnSubscribeIncomingMessages(stateID) => {
@@ -72,10 +78,14 @@ class InputPoolActor(private val messageLimit: Int) extends Actor {
    * Tries to transport the messages, which are already in the pool
    * to the state described by the input
    * Will also register the state as waiting in the map, if needed
+   *
+   * @return whether at least 1 message has been transported
    */
-  private def tryTransportMessagesTo(state: SubscribeIncomingMessages) {
+  private def tryTransportMessagesTo(state: SubscribeIncomingMessages): Boolean = {
     val key = (state.fromSubject, state.messageType)
+    var messageTransported = false
     while (state.count > 0 && !messageQueueIsEmpty(key)) {
+      messageTransported = true
       // get the message
       val message = dequeueMessage(key)
       // transport the message
@@ -86,6 +96,8 @@ class InputPoolActor(private val messageLimit: Int) extends Actor {
     if (state.count > 0) {
       getWaitingStatesList(key).add(state)
     }
+
+    messageTransported
   }
 
   /**
@@ -153,7 +165,6 @@ private class WaitingStateList {
   private val queue = Queue[SubscribeIncomingMessages]()
 
   def add(state: SubscribeIncomingMessages) {
-    // TODO might check if this state is listening and remove the old one
     // a state can not register twice
     remove(state.stateID)
     // enqueue the state at the back of the queue

@@ -13,7 +13,8 @@ import de.tkip.sbpm.model._
 import akka.event.Logging
 
 // TODO this is for history + statechange
-case class ChangeState(currenState: StateID,
+case class ChangeState(
+  currenState: StateID,
   nextState: StateID,
   internalStatus: InternalStatus,
   history: HistoryMessage)

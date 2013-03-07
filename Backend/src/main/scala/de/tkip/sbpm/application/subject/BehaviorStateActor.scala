@@ -19,8 +19,6 @@ import de.tkip.sbpm.model.StateType._
 import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 
-case class ActionExecuted(ea: ExecuteAction)
-
 protected case class StateData(
   stateModel: State,
   userID: UserID,
@@ -54,7 +52,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val variables = internalStatus.variables
   protected val exitTransitions = transitions.filter(_.isExitCond)
 
-  // FIXME check if the message has already sent via internalStatus
   if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
     internalStatus.subjectStartedSent = true
     processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
@@ -161,15 +158,14 @@ protected case class ReceiveStateActor(data: StateData)
 
   // convert the transitions into a map of extended transitions, to work with
   // this map in the whole actor
-  private val exitTransitionsMap: Map[(SubjectID, MessageType), ExtendedTransition] =
+  private val exitTransitionsMap: Map[(SubjectID, MessageType), ExtendedExitTransition] =
     exitTransitions.map((t: Transition) =>
-      ((t.subjectID, t.messageType), new ExtendedTransition(t)))
-      .toMap[(SubjectID, MessageType), ExtendedTransition]
+      ((t.subjectID, t.messageType), new ExtendedExitTransition(t)))
+      .toMap[(SubjectID, MessageType), ExtendedExitTransition]
 
   for (transition <- exitTransitions if (transition.target.isDefined)) {
-
-    val maxValue = transition.target.get.max
-    val count = if (maxValue > 1) maxValue else 1
+    // maximum number of messages the state is able to process
+    val count = transition.target.get.max
     inputPoolActor !
       SubscribeIncomingMessages(id, transition.subjectID, transition.messageType, count)
   }
@@ -201,7 +197,6 @@ protected case class ReceiveStateActor(data: StateData)
     }
 
     case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
-      // TODO checken ob richtige message
       logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
@@ -259,7 +254,7 @@ protected case class ReceiveStateActor(data: StateData)
   /**
    * This case class extends an transition with information about the related message
    */
-  private class ExtendedTransition(val transition: Transition) {
+  private class ExtendedExitTransition(val transition: Transition) {
     val from: SubjectID = transition.subjectID
     val messageType: MessageType = transition.messageType
     val successorID: StateID = transition.successorID
@@ -279,7 +274,6 @@ protected case class ReceiveStateActor(data: StateData)
       }
 
       remaining -= 1
-
       ready = remaining <= 0
 
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
@@ -299,8 +293,6 @@ protected case class SendStateActor(data: StateData)
   val unsentMessageIDs: MutableMap[MessageID, Transition] =
     MutableMap[MessageID, Transition]()
 
-  // TODO sowas wie timeout ist nicht drin
-  // TODO message ids vllt nicht zufaellig
   override def receive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, SendStateString, input) if ({
       input.messageContent.isDefined
@@ -324,6 +316,7 @@ protected case class SendStateActor(data: StateData)
           if (target.toVariable) {
             target.insertVariable(variables(target.variable.get))
           }
+
           remainingStored += target.min
 
           processInstanceActor !
@@ -339,19 +332,19 @@ protected case class SendStateActor(data: StateData)
           processInstanceActor ! ActionExecuted(ea)
         }
       } else {
-        logger.error("2 send-message request received")
+        logger.error("Second send-message action request received")
       }
     }
 
     case Stored(messageID) if ({
       messageContent.isDefined &&
         unsentMessageIDs.contains(messageID)
+        // TODO might remove the message ID from unsentMessageIDs?
     }) => {
       val transition = unsentMessageIDs(messageID)
       // Create the history message
       val message =
         HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
-      // FIXME changestate wird bei mehrere messages mehrmals ausgeführt
       // Change the state and enter the History entry
       remainingStored -= 1
       if (remainingStored == 0) {

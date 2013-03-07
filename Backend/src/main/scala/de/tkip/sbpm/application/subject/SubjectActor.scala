@@ -47,16 +47,14 @@ class SubjectActor(
       context.parent.forward(message)
     }
 
-    // forward history entries from internal behavior up to instance actor
     case history.Transition(from, to, msg) => {
+      // forward history entries from internal behavior up to instance actor
       context.parent !
         history.Entry(new Date(), subjectName, from, to, if (msg != null) Some(msg) else None)
     }
 
     case terminated: SubjectTerminated => {
       context.parent ! terminated
-      // TODO terminate?
-      //      context.stop(self)
     }
 
     case gaa: GetAvailableActions => {
