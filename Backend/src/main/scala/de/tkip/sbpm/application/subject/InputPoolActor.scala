@@ -8,7 +8,6 @@ import de.tkip.sbpm.model.Transition
 import akka.event.Logging
 import scala.collection.mutable.Queue
 
-// TODO in eine message buendeln
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state
   fromSubject: SubjectID,
@@ -36,7 +35,6 @@ protected case class UnSubscribeIncomingMessages(stateID: StateID)
 // message to inform the receive state, that the inputpool has no messages for him
 protected case object InputPoolEmpty
 
-// TODO inputpoolempty einbauen
 class InputPoolActor(private val messageLimit: Int) extends Actor {
 
   // this map holds the queue of the income messages for a channel
@@ -48,14 +46,12 @@ class InputPoolActor(private val messageLimit: Int) extends Actor {
 
   def receive = {
 
+    case registerAll: Array[SubscribeIncomingMessages] => {
+      handleSubscribers(registerAll)
+    }
+
     case register: SubscribeIncomingMessages => {
-      // Set the state actor in the request
-      register.setStateActor(sender)
-      // try to transport the messages to the state
-      val success = tryTransportMessagesTo(register)
-      if(!success) {
-        sender ! InputPoolEmpty// TODO needed?
-      }
+      handleSubscribers(Array(register))
     }
 
     case UnSubscribeIncomingMessages(stateID) => {
@@ -72,6 +68,23 @@ class InputPoolActor(private val messageLimit: Int) extends Actor {
       // inform the processinstance, that this message has been processed
       context.parent ! SubjectInternalMessageProcessed(message.to)
     }
+  }
+
+  private def handleSubscribers(registerAll: Array[SubscribeIncomingMessages]) {
+    // set all state actors to the sender
+    registerAll.map(_.setStateActor(sender))
+
+    var success = false
+    for (register <- registerAll) {
+      // try to transport all messages, transport was successfull, if at least
+      // one massage has been transported
+      // note: use |= not ||= 
+      success |= tryTransportMessagesTo(register)
+    }
+    if (!success) {
+      sender ! InputPoolEmpty // TODO needed?
+    }
+
   }
 
   /**
