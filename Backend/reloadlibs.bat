@@ -1,1 +1,1 @@
-sbt ;clean;update;eclipse
+bin/sbt.bat ;clean;update;eclipse
