@@ -13,7 +13,7 @@ import de.tkip.sbpm.rest.JsonProtocol._
  * into the independent subjectIDs
  */
 object parseSubjects {
-  def apply(subjects: String): Array[SubjectID] = {
+  def apply(subjects: String): Array[SubjectID] = synchronized {
     try {
       subjects.asJson.convertTo[Array[String]]
     } catch {
@@ -21,7 +21,6 @@ object parseSubjects {
         System.err.println("cant parse start subjects")
         Array()
       }
-      //    Array("Employee")
     }
   }
 }
@@ -54,7 +53,7 @@ object parseGraph {
   // This map matches the short versions and real versions of the message types
   private var messageMap: Map[String, String] = null
 
-  def apply(graph: String): ProcessGraph = {
+  def apply(graph: String): ProcessGraph = synchronized {
     // TODO fehlerbehandlung bei falschem String
 
     // TODO type replacement is not efficient
@@ -102,8 +101,6 @@ object parseGraph {
       val behavior: JBehavior = subject.macros(0)
 
       // extract the subject types
-      //      val multi = subject.myType.matches("\\Amulti")
-      //      val external = subject.myType.matches("(multi)?external")
       val id = subject.id
       val multi = subjectMap(id).multi
       val external = subjectMap(id).external
@@ -165,13 +162,7 @@ object parseGraph {
                       1
                 }
 
-                Some(Target(
-                  jtarget.id,
-                  minValue,
-                  maxValue,
-                  jtarget.createNew,
-                  targetVariable,
-                  default))
+                Some(Target(jtarget.id, minValue, maxValue, jtarget.createNew, targetVariable, default))
               } else {
                 None
               }
@@ -181,9 +172,20 @@ object parseGraph {
               case _           => ""
             }
 
+            val state = states(edge.start)
+            val text = edge.text
+            // the messageType is the edge text
+            // for receive and send states the edgetext is the short form
+            // so replace it with the real form, if possible
+            val messageType = state.stateType match {
+              case ReceiveStateType => messageMap.getOrElse(text, text)
+              case SendStateType    => messageMap.getOrElse(text, text)
+              case _                => text
+            }
+
             // at the transition to the state
-            states(edge.start).addTransition(
-              Transition(ExitCond(edge.text, target), edge.end, storeVariable))
+            state.addTransition(
+              Transition(ExitCond(messageType, target), edge.end, storeVariable))
           }
 
           case "timeout" => {
@@ -208,10 +210,10 @@ object parseGraph {
    * to add transitions
    */
   private class StateCreator(
-    id: StateID,
-    name: SubjectName,
-    stateType: StateType,
-    startState: Boolean) {
+    val id: StateID,
+    val text: String,
+    val stateType: StateType,
+    val startState: Boolean) {
 
     // store all transitions in this Buffer
     private val transitions = new ArrayBuffer[Transition]
@@ -220,38 +222,13 @@ object parseGraph {
      * Add a transition to this state creator
      */
     def addTransition(transition: Transition) {
-      transitions += updateMessageType(transition)
+      transitions += transition
     }
 
     /**
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, name, stateType, startState, transitions.toArray)
-    // TODO in transitionerstellung
-    /**
-     * Updates the MessageType of a transition, but only if this
-     * StateCreator is for a Send- or ReceiveState
-     */
-    private def updateMessageType(transition: Transition): Transition = {
-        def transitionWithNewMessageType: Transition = {
-          // only update exitconds, only update existing message types
-          if (transition.isExitCond && messageMap.contains(transition.messageType)) {
-            Transition(
-              ExitCond(messageMap(transition.messageType), transition.myType.asInstanceOf[ExitCond].target),
-              transition.successorID,
-              transition.storeVar)
-          } else {
-            transition
-          }
-        }
-
-      // only update message type for receive- and send states
-      stateType match {
-        case ReceiveStateType => transitionWithNewMessageType
-        case SendStateType    => transitionWithNewMessageType
-        case _                => transition
-      }
-    }
+      State(id, text, stateType, startState, transitions.toArray)
   }
 }
