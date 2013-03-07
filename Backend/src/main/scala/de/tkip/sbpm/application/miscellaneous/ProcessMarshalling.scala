@@ -65,27 +65,52 @@ object parseGraph {
     // parse the message map from the json graph
     messageMap = for ((k, v) <- jmessages.fields) yield (k, v.convertTo[String])
 
-    // create the processGraph by parsing all subjects
-    ProcessGraph(jgraph.process.map(parseSubject(_)).toArray)
+    // parse the subjects and return the resulting processgraph
+    ProcessGraph(parseSubjects(jgraph.process))
   }
 
-  private object parseSubject {
+  private object parseSubjects {
+    // stores the information, which is extracted in the preparse
+    private case class PreSubjectInfo(multi: Boolean, external: Boolean)
+    // this map will be filled during the preparse
+    private val subjectMap = MutableMap[SubjectID, PreSubjectInfo]()
+
+    def apply(subjects: Array[JSubject]): Array[Subject] = {
+      // first preparse the subjects, to extract information
+      // e.g. which subject is a multisubject
+      subjects.map(preParseSubject(_))
+      // parse the subjects to the internal model
+      subjects.map(parseSubject(_))
+    }
+
+    def preParseSubject(subject: JSubject) = {
+      val id = subject.id
+      // extract the subject types
+      val multi = subject.myType.matches("\\Amulti")
+      val external = subject.myType.matches("(multi)?external")
+      subjectMap(id) = PreSubjectInfo(multi, external)
+    }
+
+    // the Statesmap
     private var states: MutableMap[StateID, StateCreator] = null
 
-    def apply(subject: JSubject): Subject = {
+    def parseSubject(subject: JSubject): Subject = {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
 
       // at the moment we only support one behavior
       val behavior: JBehavior = subject.macros(0)
 
+      // extract the subject types
+      //      val multi = subject.myType.matches("\\Amulti")
+      //      val external = subject.myType.matches("(multi)?external")
+      val id = subject.id
+      val multi = subjectMap(id).multi
+      val external = subjectMap(id).external
+
       // first parse the nodes then the edges
       parseNodes(behavior.nodes)
       parseEdges(behavior.edges)
-
-      // extract the subject types
-      val multi = subject.myType.matches("\\Amulti")
-      val external = subject.myType.matches("(multi)?external")
 
       // all parsed states are in the states map, convert the creators,
       // create and return the subject
@@ -125,12 +150,28 @@ object parseGraph {
                   case _           => None
                 }
 
+                var minValue = parseNumber(jtarget.min)
+                var maxValue = parseNumber(jtarget.max)
+                var default = minValue < 1 && maxValue < 1
+
+                if (minValue < 1) minValue = 1
+                if (minValue < 1) {
+                  // maxValue should be infinity, if the other one is a multisubject
+                  // if the other one is a single subject await only one message
+                  maxValue =
+                    if (subjectMap(jtarget.id).multi)
+                      Int.MaxValue
+                    else
+                      1
+                }
+
                 Some(Target(
                   jtarget.id,
-                  parseNumber(jtarget.min),
-                  parseNumber(jtarget.max),
+                  minValue,
+                  maxValue,
                   jtarget.createNew,
-                  targetVariable))
+                  targetVariable,
+                  default))
               } else {
                 None
               }
@@ -139,7 +180,7 @@ object parseGraph {
               case s: JsString => s.convertTo[String]
               case _           => ""
             }
-            
+
             // at the transition to the state
             states(edge.start).addTransition(
               Transition(ExitCond(edge.text, target), edge.end, storeVariable))
@@ -187,7 +228,7 @@ object parseGraph {
      */
     def createState: State =
       State(id, name, stateType, startState, transitions.toArray)
-
+    // TODO in transitionerstellung
     /**
      * Updates the MessageType of a transition, but only if this
      * StateCreator is for a Send- or ReceiveState

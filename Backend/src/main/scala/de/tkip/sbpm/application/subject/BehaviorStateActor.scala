@@ -167,6 +167,7 @@ protected case class ReceiveStateActor(data: StateData)
       .toMap[(SubjectID, MessageType), ExtendedTransition]
 
   for (transition <- exitTransitions if (transition.target.isDefined)) {
+
     val maxValue = transition.target.get.max
     val count = if (maxValue > 1) maxValue else 1
     inputPoolActor !
@@ -256,14 +257,6 @@ protected case class ReceiveStateActor(data: StateData)
   }
 
   /**
-   * Creates the SubjectMessageRouting for a Transition
-   */
-  //  private def convertTransitionToRequest(transition: Transition) =
-  //    SubjectMessageRouting(
-  //      transition.subjectID,
-  //      transition.messageType)
-
-  /**
    * This case class extends an transition with information about the related message
    */
   private class ExtendedTransition(val transition: Transition) {
@@ -276,7 +269,6 @@ protected case class ReceiveStateActor(data: StateData)
     var messageContent: Option[MessageContent] = None
 
     private var remaining = transition.target.get.min
-    remaining = if (remaining < 1) 1 else remaining
 
     def addMessage(message: SubjectToSubjectMessage) {
       // validate
@@ -289,11 +281,6 @@ protected case class ReceiveStateActor(data: StateData)
       remaining -= 1
 
       ready = remaining <= 0
-      // TODO test
-      // request if there is a message for this subject
-      //      if(!ready)
-      //  inputPoolActor !
-      //    RequestForMessages(exitTransitions.map(convertTransitionToRequest(_)))
 
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
@@ -306,6 +293,8 @@ protected case class SendStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   import scala.collection.mutable.{ Map => MutableMap }
+
+  var remainingStored = 0
   var messageContent: Option[String] = None
   val unsentMessageIDs: MutableMap[MessageID, Transition] =
     MutableMap[MessageID, Transition]()
@@ -335,6 +324,7 @@ protected case class SendStateActor(data: StateData)
           if (target.toVariable) {
             target.insertVariable(variables(target.variable.get))
           }
+          remainingStored += target.min
 
           processInstanceActor !
             SubjectToSubjectMessage(
@@ -361,9 +351,12 @@ protected case class SendStateActor(data: StateData)
       // Create the history message
       val message =
         HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
-        // FIXME changestate wird bei mehrere messages mehrmals ausgeführt
+      // FIXME changestate wird bei mehrere messages mehrmals ausgeführt
       // Change the state and enter the History entry
-      changeState(transition.successorID, message)
+      remainingStored -= 1
+      if (remainingStored == 0) {
+        changeState(transition.successorID, message)
+      }
     }
 
     case s => {

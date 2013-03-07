@@ -14,17 +14,22 @@ case class ErrorCond() extends TransitionType
 
 case class Target(
   subjectID: SubjectID,
-  min: Int = -1,
-  max: Int = -1,
-  createNew: Boolean = false,
-  variable: Option[String] = None) {
+  private var minValue: Int,
+  private var maxValue: Int,
+  createNew: Boolean,
+  variable: Option[String],
+  private val defaultValues: Boolean) {
   // TODO validate
-  val toVariable = variable.isDefined && variable.get != ""
-  val toAll = min == -1 && max == -1 && !createNew && !toVariable
-  // TODO fill in variable
+  if (minValue < 1) minValue = 1
+  def min = minValue
+  if (maxValue < 1) maxValue = 1 //TODO set maxvalue
+  def max = maxValue
 
-  def varSubjects = _vars
+  val toVariable = variable.isDefined && variable.get != ""
+  val toAll = defaultValues && !createNew && !toVariable
+
   private var _vars: Array[(SubjectID, SubjectSessionID)] = Array()
+  def varSubjects = _vars
 
   def insertVariable(v: Variable) {
     _vars = for (m <- v.messages) yield ((m.from, m.fromSession))
