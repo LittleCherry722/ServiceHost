@@ -107,9 +107,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   //  private var messagePool = Set[(ActorRef, SubjectToSubjectMessage)]()
 
   // whether the process instance is terminated or not
-  private var isTerminated = true
-  private var subjectCounter = 0 // TODO We dont really need counter
-  // this map stores all Subjects with their IDs 
+  private var runningSubjectCounter = 0
+  private def isTerminated = runningSubjectCounter == 0
+  // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
   // recorded transitions in the subjects of this instance
@@ -127,12 +127,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // add all start subjects (only if they exist!)
   for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
-    isTerminated = false
-
-    //    waitForContextResolver(request.userID)
-    //
-    //    contextResolver !
-    //      RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
 
     // Create the subjectContainer
     subjectMap(startSubject) = SubjectContainer(graph.subject(startSubject))
@@ -155,7 +149,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         .createAndAddSubject(as.userID)
 
       // increase the subjectcounter
-      subjectCounter += 1
+      //      subjectCounter += 1
     }
 
     case message: SubjectStarted => {
@@ -171,10 +165,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subjectMap(st.subjectID).handleSubjectTerminated(st)
 
       // log end time in history TODO
-      subjectCounter -= 1
-      logger.info("process instance [" + id + "]: subject terminated " + st.subjectID)
-      if (subjectCounter == 0) {
-        isTerminated = true
+      //      subjectCounter -= 1
+      logger.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
+      if (isTerminated) {
         executionHistory.processEnded = Some(new Date())
       }
     }
@@ -416,6 +409,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       logger.debug("Processinstance [" + id + "] Subject " + subject.id + "[" +
         message.subjectSessionID + "] terminated")
 
+      // decrease the subject counter
+      runningSubjectCounter -= 1
+
       subjects(message.subjectSessionID).running = false
     }
 
@@ -479,6 +475,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       logger.debug("Processinstance [" + id + "] creates Subject " + subject.id)
 
       for (i <- (1 to count)) {
+
+        // increase the subject counter
+        runningSubjectCounter += 1
+
         // ask the Contextresolver for the userid to answer with an AddSubject
         waitForContextResolver(userID)
         contextResolver !

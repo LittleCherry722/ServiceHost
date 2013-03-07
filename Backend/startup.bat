@@ -25,5 +25,5 @@ IF EXIST "%FILENAME%" (
 echo Starting server... (see %FILENAME% for further details)
 
 rem and finally run sbpm in silent mode...
-sbt ;clean;run > "%FILENAME%"
+bin/sbt.bat ;clean;run > "%FILENAME%"
 
