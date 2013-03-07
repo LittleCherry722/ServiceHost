@@ -34,6 +34,8 @@ import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.auth.oauth2.Credential
 import java.util.HashMap
 import de.tkip.sbpm.application.miscellaneous.GoogleMessage
+import com.google.api.services.drive.model.Permission
+import java.io.IOException
 
 // message types for google specific communication
 sealed trait GoogleDriveAction extends GoogleMessage
@@ -192,9 +194,26 @@ class GoogleDriveActor extends Actor with ActorLogging {
     files
   }
   
-  //TODO implement sharing via url 
-  /** get a public accessable url for a specific file */
-  
+  /** add read permissions for a specific user to a file in a foreign google drive and return the access url */
+  def manageGDrivePermissions(id: String, foreignUserID: String, perimssion: String, fileId: String): String = {
+    val drive = getGDriveObject(id)
+    val newPermission = new Permission()
+    
+    // user or group id
+    newPermission.setValue(foreignUserID)
+    
+    // type of permission - user, group, domain, default
+    newPermission.setType("user")
+    
+    // owner, writer or reader
+    newPermission.setRole("reader")
+    try {
+      drive.permissions().insert(fileId, newPermission).execute()
+    } catch {
+      case e: IOException => log.debug(getClass().getName() + " Exception occurred: " + e)  
+    } 
+    "URL"
+  }
   
   
 
