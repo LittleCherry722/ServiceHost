@@ -166,9 +166,12 @@ protected case class ReceiveStateActor(data: StateData)
       ((t.subjectID, t.messageType), new ExtendedTransition(t)))
       .toMap[(SubjectID, MessageType), ExtendedTransition]
 
-  // request if there is a message for this subject
-  inputPoolActor !
-    RequestForMessages(exitTransitions.map(convertTransitionToRequest(_)))
+  for (transition <- exitTransitions if (transition.target.isDefined)) {
+    val maxValue = transition.target.get.max
+    val count = if (maxValue > 1) maxValue else 1
+    inputPoolActor !
+      SubscribeIncomingMessages(id, transition.subjectID, transition.messageType, count)
+  }
 
   override def receive = {
     // execute an action
@@ -246,10 +249,7 @@ protected case class ReceiveStateActor(data: StateData)
 
   override protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
     // inform the inputpool, that this state is not waiting for messages anymore
-    val routing =
-      (for ((k, v) <- exitTransitionsMap if (!v.ready))
-        yield SubjectMessageRouting(v.from, v.messageType)).toArray
-    inputPoolActor ! RemoveMessageRequests(routing)
+    inputPoolActor ! UnSubscribeIncomingMessages(id)
 
     // change the state
     super.changeState(successorID, historyMessage)
@@ -258,10 +258,10 @@ protected case class ReceiveStateActor(data: StateData)
   /**
    * Creates the SubjectMessageRouting for a Transition
    */
-  private def convertTransitionToRequest(transition: Transition) =
-    SubjectMessageRouting(
-      transition.subjectID,
-      transition.messageType)
+  //  private def convertTransitionToRequest(transition: Transition) =
+  //    SubjectMessageRouting(
+  //      transition.subjectID,
+  //      transition.messageType)
 
   /**
    * This case class extends an transition with information about the related message
@@ -290,11 +290,11 @@ protected case class ReceiveStateActor(data: StateData)
 
       ready = remaining <= 0
       // TODO test
-        // request if there is a message for this subject
-      if(!ready)
-  inputPoolActor !
-    RequestForMessages(exitTransitions.map(convertTransitionToRequest(_)))
-      
+      // request if there is a message for this subject
+      //      if(!ready)
+      //  inputPoolActor !
+      //    RequestForMessages(exitTransitions.map(convertTransitionToRequest(_)))
+
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
@@ -361,6 +361,7 @@ protected case class SendStateActor(data: StateData)
       // Create the history message
       val message =
         HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
+        // FIXME changestate wird bei mehrere messages mehrmals ausgeführt
       // Change the state and enter the History entry
       changeState(transition.successorID, message)
     }

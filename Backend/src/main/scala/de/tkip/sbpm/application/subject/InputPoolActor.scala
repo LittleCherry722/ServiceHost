@@ -8,6 +8,8 @@ import de.tkip.sbpm.model.Transition
 import akka.event.Logging
 import scala.collection.mutable.Queue
 
+case class SubjectInternalMessageProcessed(subjectID: SubjectID)
+// TODO in eine message buendeln
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state
   fromSubject: SubjectID,
@@ -17,12 +19,12 @@ protected case class SubscribeIncomingMessages(
   private var _stateActor: ActorRef = null
   def stateActor = _stateActor
   def stateActor_=(sender: ActorRef) {
-    if (_stateActor != null) _stateActor = sender
+    if (_stateActor == null) _stateActor = sender
   }
 }
 protected case class UnSubscribeIncomingMessages(stateID: StateID)
 
-class MyInputPool(private val messageLimit: Int) extends Actor {
+class InputPoolActor(private val messageLimit: Int) extends Actor {
 
   // this map holds the queue of the income messages for a channel
   private val messageQueueMap =
@@ -51,6 +53,8 @@ class MyInputPool(private val messageLimit: Int) extends Actor {
       sender ! Stored(message.messageID)
       // try to transport the message
       tryTransportMessage(message)
+      // inform the processinstance, that this message has been processed
+      context.parent ! SubjectInternalMessageProcessed(message.to)
     }
   }
 
@@ -128,7 +132,7 @@ class MyInputPool(private val messageLimit: Int) extends Actor {
    * (A not existing queue is seen as empty)
    */
   private def messageQueueIsEmpty(key: (SubjectID, MessageType)) =
-    messageQueueMap.contains(key) && messageQueueMap(key).isEmpty
+    !messageQueueMap.contains(key) || messageQueueMap(key).isEmpty
 
 }
 
@@ -141,6 +145,8 @@ private class WaitingStateList {
   private var queue = Queue[SubscribeIncomingMessages]()
 
   def add(state: SubscribeIncomingMessages) {
+    // TODO might check if this state is listening and remove the old one
+    queue.dequeueAll(_ == state) // TODO this removes the contained equal states, improve!
     queue.enqueue(state)
   }
 
@@ -165,7 +171,7 @@ private class WaitingStateList {
   }
 }
 
-case class SubjectInternalMessageProcessed(subjectID: SubjectID)
+/*
 case class SubjectMessageRouting(from: SubjectID, messageType: MessageType)
 
 object SubjectMessageRouting {
@@ -181,7 +187,7 @@ object SubjectMessageRouting {
  * Mailbox of SubjectActor (FIFO)
  * capacity can be limited
  */
-class InputPoolActor(messageLimit: Int) extends Actor {
+class YInputPoolActor(messageLimit: Int) extends Actor {
 
   val logger = Logging(context.system, this)
 
@@ -194,9 +200,9 @@ class InputPoolActor(messageLimit: Int) extends Actor {
         sm.messageType + ", \"" + sm.messageContent + "\"")
       // transport it to waiting receive message of the internal behavior
       // TODO just test multisubj
-//      while(subjectIsWaitingForMessageIn(SubjectMessageRouting(sm))) 
+      //      while(subjectIsWaitingForMessageIn(SubjectMessageRouting(sm))) 
       getWaitingSubject(SubjectMessageRouting(sm)) ! sm
-      
+
       //        TransportMessage(sm.messageID, sm.from, sm.messageType, sm.messageContent)
       context.parent ! SubjectInternalMessageProcessed(sm.to)
 
@@ -347,3 +353,4 @@ class InputPoolActor(messageLimit: Int) extends Actor {
   private def getWaitingSubject(e: SubjectMessageRouting): ActorRef =
     exitcond_to_FIFOs(e).getWaitingSubject
 }
+*/
