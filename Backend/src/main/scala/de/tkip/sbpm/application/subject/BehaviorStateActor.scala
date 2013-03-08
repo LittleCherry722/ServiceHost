@@ -163,11 +163,15 @@ protected case class ReceiveStateActor(data: StateData)
       ((t.subjectID, t.messageType), new ExtendedExitTransition(t)))
       .toMap[(SubjectID, MessageType), ExtendedExitTransition]
 
-  for (transition <- exitTransitions if (transition.target.isDefined)) {
-    // maximum number of messages the state is able to process
-    val count = transition.target.get.max
-    inputPoolActor !
+  // register to subscribe the messages at the inputpool
+  inputPoolActor ! {
+    // convert the transition array into the request array
+    for (transition <- exitTransitions if (transition.target.isDefined)) yield {
+      // maximum number of messages the state is able to process
+      val count = transition.target.get.max
+      // the register-message for the inputpool
       SubscribeIncomingMessages(id, transition.subjectID, transition.messageType, count)
+    }
   }
 
   override def receive = {
@@ -339,7 +343,7 @@ protected case class SendStateActor(data: StateData)
     case Stored(messageID) if ({
       messageContent.isDefined &&
         unsentMessageIDs.contains(messageID)
-        // TODO might remove the message ID from unsentMessageIDs?
+      // TODO might remove the message ID from unsentMessageIDs?
     }) => {
       val transition = unsentMessageIDs(messageID)
       // Create the history message

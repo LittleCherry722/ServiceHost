@@ -501,8 +501,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           handleBlockingForMessageDelivery(message.to)
           subjectInfo.ref.forward(message)
         } else if (restartSubject) {
+          // subjectcreation = subjectrestart
+          // increase the subject counter
+          runningSubjectCounter += 1
           handleBlockingForSubjectCreation(subjectInfo.userID)
+          // start the execution
           subjectInfo.ref ! StartSubjectExecution()
+
           handleBlockingForMessageDelivery(message.to)
           subjectInfo.ref.forward(message)
         }
