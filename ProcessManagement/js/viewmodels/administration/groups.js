@@ -11,22 +11,36 @@ define([
 		this.groups = Group.all;
 
 		this.save = function( group ) {
-			group.save(function( error ) {
-				if ( error ) {
+			group.save(null, {
+				error: function( textStatus, error ) {
 					if ( group.errors().length > 0 ) {
 						notify.error( "Error", error + " Errors: " + group.errors().join(" ") );
 					} else {
 						notify.error( "Error", error )
 					}
-				} else {
+				},
+				success: function( textStatus ) {
 					notify.info( "Succcess", "Group " + group.name() + " has successfully been saved." )
 				}
 			});
 		}
 
 		this.saveAll = function() {
-			_( Group.all() ).each(function( group ) {
-				group.save();
+			async.eachLimit(Group.all(), 5, function( model, callback ) {
+				model.save(null, {
+					success: function( textStatus ) {
+						callback();
+					},
+					error: function( textStatus, error ) {
+						callback( "error" );
+					}
+				});
+			}, function( error, results ) {
+				if ( error ) {
+					notify.error( "Error", "Error saving groups. Not all groups have been saved. Please check your input and try again." );
+				} else {
+					notify.info( "Succcess", "All groups have successfully been saved." );
+				}
 			});
 		}
 

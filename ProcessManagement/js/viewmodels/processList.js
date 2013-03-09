@@ -28,19 +28,31 @@ define([
 		}
 
 		self.newInstance = function() {
-			instance = new ProcessInstance( { processId: this.id() } );
-			instance.save( { async: false } );
-			instance.graph( this.graph() );
-			Router.goTo( instance );
+			var process = this;
+			
+			instance = new ProcessInstance( {
+				processId: process.id(),
+				graph: process.graph()
+			});
+
+			instance.save(null, {
+				success: function() {
+					Router.goTo( instance );
+				},
+				error: function() {
+					Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
+				}
+			});
 		}
 	}
 
 	var destroyProcess = function( process ) {
-		process.destroy(function( error ) {
-			if ( error ) {
-				Notify.error( "Error", "Deleting the process failed." );
-			} else {
+		process.destroy(null, {
+			success: function( textStatus ) {
 				Notify.info( "Success", "Process " + this.name() + " has successfully been deleted" );
+			},
+			error :function( textStatus, error ) {
+				Notify.error( "Error", "Deleting the process failed." );
 			}
 		});
 	}

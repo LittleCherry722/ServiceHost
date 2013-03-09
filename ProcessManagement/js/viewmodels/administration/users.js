@@ -13,33 +13,38 @@ define([
 		this.groups = Group.all;
 
 		this.save = function( user ) {
-			user.save(function( error ) {
-				if ( error ) {
+			user.save(null, {
+				success: function( error ) {
+					notify.info( "Succcess", "User " + user.name() + " has successfully been saved." )
+				},
+				error: function( textStatus, error ) {
 					if ( user.errors().length > 0 ) {
 						notify.error( "Error", error + " Errors: " + user.errors().join(" ") );
 					} else {
 						notify.error( "Error", error )
 					}
-				} else {
-					notify.info( "Succcess", "User " + user.name() + " has successfully been saved." )
 				}
 			});
 		}
 
 		this.saveAll = function() {
-			queue = async.queue(function( model, callback ) {
-				model.save( callback );
-			}, 5);
-			queue.drain = function( error, results) {
-				if ( error ) {
-					notify.error( "Error", "Not all users could be saved." )
-				} else {
-					notify.info( "Succcess", "All users have successfully been saved." )
-				}
-			}
+			var self = this;
 
-			_( User.all() ).each(function( user ) {
-				queue.push( user );
+			async.eachLimit( User.all(), 5, function( model, callback ) {
+				model.save(null, {
+					success: function( textStatus ) {
+						callback();
+					},
+					error: function( textStatus, error ) {
+						callback( "error" );
+					}
+				});
+			}, function( error, results) {
+				if ( error ) {
+					notify.error( "Error", "Error saving users. Not all users have been saved. Please check your input and try again." );
+				} else {
+					notify.info( "Succcess", "All users have successfully been saved." );
+				}
 			});
 		}
 

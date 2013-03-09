@@ -278,8 +278,13 @@ define([
 		process.graph( gv_graph.saveToJSON() );
 		process.routings( routings );
 
-		process.save(function() {
-			Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved");
+		process.save(null, {
+			success: function( textStatus ) {
+				Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved.");
+			},
+			error: function( textStatus, error ) {
+				Notify.error("Error", "Process '" + currentProcess().name() + "' could not be saved.");
+			}
 		});
 	}
 

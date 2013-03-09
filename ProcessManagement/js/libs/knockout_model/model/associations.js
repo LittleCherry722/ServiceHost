@@ -146,42 +146,46 @@ define([
 				// Also saves the foreign model after assigning the foreign key.
 				// Does so asynchronously if a callback is given or blocking if
 				// the callback is ommited.
-				results.push = function( item, callback ) {
+				results.push = function( item, callbacks ) {
+					var localOptions = null;
 
 					// Return if the item already exists in this relation
 					if ( _( results ).contains( item ) ) {
 						return;
 					}
 
-					// call the native push method.
-					_push.call( results, item );
-
 					// Save the record if it has not yet been saved
 					if ( !self.id() || self.isNewRecord ) {
 						self.save({ async: false });
 					}
 
-					// Set the forign key of the item to be added to our current Id.
+					// Set the foreign key of the item to be added to our current Id.
 					item[ options.foreignKey ]( self.id() )
 
-						// If no callback was given, save blockingly, otherwise just
-						// supply the callback to the save method.
-						if ( !callback ) {
-							callback = { async: false }
-						}
-					item.save( callback );
+					// If no callback was given, save blockingly, otherwise just
+					// supply the callback to the save method.
+					if ( typeof callbacks !== "object" ) {
+						localOptions = { async: false }
+						callbacks = {}
+					}
+
+					callbacks.success = function( textStatus ) {
+						_push.call( results, item );
+						callbacks.success.call( this, textStatus );
+					}
+
+					item.save( localOptions, callbacks );
 
 					return results;
 				}
 
-				results.remove = function( item, callback ) {
+				results.remove = function( item, callbacks ) {
+					var localOptions = null;
+
 					// Return if the item does not exist in this relation
 					if ( !_( results ).contains( item ) ) {
 						return;
 					}
-
-					// Reove the model from this relation array
-					results.splice( _(results).indexOf( item ), 1 );
 
 					// Save the record if it has not yet been saved.
 					if ( !self.id() || self.isNewRecord ) {
@@ -191,12 +195,19 @@ define([
 					// Empty the foreign key of the item to be removed.
 					item[ options.foreignKey ]( -1 )
 
-						// If no callback was given, save blockingly, otherwise just
-						// supply the callback to the save method.
-						if ( !callback ) {
-							callback = { async: false }
-						}
-					item.save( callback );
+					// If no callback was given, save blockingly, otherwise just
+					// supply the callback to the save method.
+					if ( typeof callbacks !== "object" ) {
+						localOptions = { async: false }
+						callbacks = {}
+					}
+
+					callbacks.success = function( textStatus ) {
+						results.splice( _(results).indexOf( item ), 1 );
+						callbacks.success.call( this, textStatus );
+					}
+
+					item.save( localOptions, callbacks );
 				}
 
 				// if no foreign models were given, this method is just a getter and
@@ -249,7 +260,9 @@ define([
 				// model and the foreign model.
 				// But only, if no intermediate Model with this exact relation already
 				// exists. We can leverage our existing intermediate results for this.
-				results.push = function( item, callback ) {
+				results.push = function( item, callbacks ) {
+					var localOptions = null;
+
 					intermediateForeignKey = toAttributeName( item.className, "Id" );
 
 					if ( !item.id() || item.isNewRecord ) {
@@ -272,10 +285,10 @@ define([
 						intermediateModelObject[ intermediateForeignKey ] = item.id();
 						intermediateModelObject[ options.foreignKey ]     = self.id();
 
-						if ( !callback ) {
-							callback = { async: false };
+						if ( !callbacks ) {
+							localOptions = { async: false };
 						}
-						IntermediateModel.build( intermediateModelObject ).save( callback );
+						IntermediateModel.build( intermediateModelObject ).save( localOptions, callbacks );
 					}
 
 					return results;
@@ -285,7 +298,9 @@ define([
 				// an association.
 				// Does only delete (from the DB) the intermediate relation, not the
 				// model itself.
-				results.remove = function( item, callback ) {
+				results.remove = function( item, callbacks ) {
+					var localOptions = null;
+
 					intermediateForeignKey = toAttributeName( item.className, "Id" );
 
 					// Array of existing relations that, in the end, match the Id of our
@@ -301,13 +316,13 @@ define([
 						// Splice the results (js way of deleting array elements in place
 						// and returning the deleted element), and destroy the intermediate
 						// model in question (delete it from the DB).
-						if ( !callback ) {
-							callback = { async: false };
+						if ( !callbacks ) {
+							options = { async: false };
 						}
 
 						intermediateIndex = _( intermediateResults ).indexOf( existingRelations[0] )
 						toBeDeletedIntermediate = intermediateResults.splice( intermediateIndex, 1 )[0]
-						toBeDeletedIntermediate.destroy( callback );
+						toBeDeletedIntermediate.destroy( options, callbacks );
 					}
 
 					return results;

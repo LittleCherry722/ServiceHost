@@ -98,10 +98,7 @@ define([
 
 	var unloadSubView = function() {
 		if ( currentSubView() && typeof currentSubView().unload === "function" ) {
-			console.log( "triggering unload" );
 			currentSubView().unload();
-		} else {
-			console.log( "not trigerung unload" );
 		}
 	}
 

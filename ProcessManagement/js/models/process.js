@@ -64,6 +64,9 @@ define([
 			this.graphObject = ko.computed({
 				deferEvaluation: true,
 				read: function() {
+					if ( !self.attributesLoaded() ) {
+						self.loadAttributes( { async: false } );
+					}
 					return $.parseJSON( self.graph() );
 				},
 				write: function( graphObject ) {
