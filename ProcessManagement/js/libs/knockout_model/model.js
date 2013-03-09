@@ -274,7 +274,6 @@ define([
 						})
 
 						instance.loadAttributes({ async: false });
-						instance.attributesLoaded( true );
 					}
 
 					return computed();

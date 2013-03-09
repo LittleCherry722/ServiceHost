@@ -138,6 +138,7 @@ define([
 
 					// Override all local attributes with attributes supplied by the Server
 					model.applyData( data );
+					model.attributesLoaded( true );
 				},
 				error: function( jqXHR, textStatus, error ) {
 					// Some error handling maybe?
