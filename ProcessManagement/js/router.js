@@ -39,6 +39,10 @@ define([ "director", "app"], function( Director, App ) {
 		App.loadView( "home", null, globalCallback() );
 	}
 
+	var showAccount = function() {
+		App.loadView( "account", null, globalCallback() );
+	}
+
 	var showNewProcess = function() {
 		expandListOfProcesses();
 		loadView( "newProcess", null, globalCallback() );
@@ -77,6 +81,7 @@ define([ "director", "app"], function( Director, App ) {
 	var routes = {
 		"/":  showHome,
 		"/home":  showHome,
+		"/account": showAccount,
 		"/administration": {
 			on: showAdministration,
 			"/:tab" : showAdministration
