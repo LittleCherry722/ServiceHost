@@ -57,7 +57,16 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
   }
 
-  def receive = {
+  // first try the "receive" function of the inheritance state
+  // then use the "receive" function of this behavior state
+  final def receive = stateReceive orElse generalReceive
+
+  // the inheritance state must implement this function
+  protected def stateReceive: Receive
+
+  // the receive of this behavior state, it will be executed
+  // if the state-receive does not match
+  private def generalReceive: Receive = {
     case ga: GetAvailableAction => {
       sender ! createAvailableAction(ga.processInstanceID)
     }
@@ -72,17 +81,18 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     }
   }
 
+  /**
+   * This function returns if the subjectready message should be delayed,
+   * default value is false
+   * 
+   * override this function to delay the subject ready message
+   * 
+   * @return whether the subject ready message should be delayed
+   */
   protected def delaySubjectReady = false
 
   /**
-   *
-   * @return
-   *  (String, Array[String])
-   * (StateType, Actions),
-   * e.g.
-   * ("Act", ["Approval", "Denial"]),
-   * ("Send", []),
-   * ("Receive", ["The huge Message Content"])
+   * Returns the available actions of the state
    */
   protected def getAvailableAction: Array[ActionData]
 
@@ -107,8 +117,12 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
+  // Inform the processinstance that this subject has terminated
   internalBehaviorActor ! SubjectTerminated(userID, subjectID, subjectSessionID)
 
+  // nothing to receive for this state
+  protected def stateReceive = FSM.NullFunction
+  
   override def postStop() {
     logger.debug("End@" + userID + ", " + subjectID + "stops...")
   }
@@ -120,7 +134,7 @@ protected case class EndStateActor(data: StateData)
 protected case class ActStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
-  override def receive = {
+  protected def stateReceive = {
 
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ActStateString, input) => {
       val index = indexOfInput(input.text)
@@ -130,10 +144,6 @@ protected case class ActStateActor(data: StateData)
       } else {
         // TODO invalid input
       }
-    }
-
-    case s => {
-      super.receive(s)
     }
   }
 
@@ -173,7 +183,7 @@ protected case class ReceiveStateActor(data: StateData)
     }
   }
 
-  override def receive = {
+  protected def stateReceive = {
     // execute an action
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ReceiveStateString, input) if ({
       // check if the related subject exists
@@ -218,10 +228,6 @@ protected case class ReceiveStateActor(data: StateData)
       // if this state is the startstate inform the processinstance,
       // that this subject has started
       trySendSubjectStarted()
-    }
-
-    case s => {
-      super.receive(s)
     }
   }
 
@@ -290,50 +296,50 @@ protected case class SendStateActor(data: StateData)
 
   import scala.collection.mutable.{ Map => MutableMap }
 
-  var remainingStored = 0
-  var messageContent: Option[String] = None
-  val unsentMessageIDs: MutableMap[MessageID, Transition] =
+  private var remainingStored = 0
+  private var messageContent: Option[String] = None
+  private val unsentMessageIDs: MutableMap[MessageID, Transition] =
     MutableMap[MessageID, Transition]()
 
-  override def receive = {
+  protected def stateReceive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, SendStateString, input) if ({
       input.messageContent.isDefined
     }) => {
       if (!messageContent.isDefined) {
-        // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
-        // can be blocked until a potentially new subject is created to ensure all available actions will 
-        // be returned when asking
-        messageContent = input.messageContent
-        for (transition <- exitTransitions if (transition.target.isDefined)) {
-          val messageType = transition.messageType
-          val toSubject = transition.subjectID
-          val messageID = nextMessageID
-          unsentMessageIDs(messageID) = transition
+            // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
+            // can be blocked until a potentially new subject is created to ensure all available actions will 
+            // be returned when asking
+            messageContent = input.messageContent
+            for (transition <- exitTransitions if transition.target.isDefined) yield {
+              val messageType = transition.messageType
+              val toSubject = transition.subjectID
+              val messageID = nextMessageID
+              unsentMessageIDs(messageID) = transition
 
-          logger.debug("Send@" + userID + "/" + subjectID + ": Message[" +
-            messageID + "} \"" + messageType + "to " + transition.target +
-            "\" with content \"" + messageContent.get + "\"")
+              logger.debug("Send@" + userID + "/" + subjectID + ": Message[" +
+                messageID + "} \"" + messageType + "to " + transition.target +
+                "\" with content \"" + messageContent.get + "\"")
 
-          val target = transition.target.get
-          if (target.toVariable) {
-            target.insertVariable(variables(target.variable.get))
-          }
+              val target = transition.target.get
+              if (target.toVariable) {
+                target.insertVariable(variables(target.variable.get))
+              }
 
-          remainingStored += target.min
+              remainingStored += target.min
 
-          processInstanceActor !
-            SubjectToSubjectMessage(
-              messageID,
-              userID,
-              subjectID,
-              subjectSessionID,
-              target,
-              messageType,
-              messageContent.get)
+              processInstanceActor !
+                SubjectToSubjectMessage(
+                  messageID,
+                  userID,
+                  subjectID,
+                  subjectSessionID,
+                  target,
+                  messageType,
+                  messageContent.get)
 
-          processInstanceActor ! ActionExecuted(ea)
-        }
-      } else {
+              processInstanceActor ! ActionExecuted(ea)
+            }
+          } else {
         logger.error("Second send-message action request received")
       }
     }
@@ -352,10 +358,6 @@ protected case class SendStateActor(data: StateData)
       if (remainingStored == 0) {
         changeState(transition.successorID, message)
       }
-    }
-
-    case s => {
-      super.receive(s)
     }
   }
 
