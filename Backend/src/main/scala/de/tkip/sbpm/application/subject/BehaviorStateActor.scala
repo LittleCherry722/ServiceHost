@@ -129,7 +129,6 @@ protected case class ActStateActor(data: StateData)
         processInstanceActor ! ActionExecuted(ea)
       } else {
         // TODO invalid input
-        processInstanceActor ! ActionExecuted(ea)
       }
     }
 
@@ -213,12 +212,11 @@ protected case class ReceiveStateActor(data: StateData)
         variables.getOrElseUpdate(varID, Variable(varID)).addMessage(sm)
         System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
-
-      trySendSubjectStarted()
     }
 
-    case InputPoolEmpty => {
-      // if startstate inform the processinstance that this subject has started
+    case InputPoolSubscriptionPerformed => {
+      // if this state is the startstate inform the processinstance,
+      // that this subject has started
       trySendSubjectStarted()
     }
 
