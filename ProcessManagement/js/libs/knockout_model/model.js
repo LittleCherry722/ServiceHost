@@ -259,37 +259,6 @@ define([
 			_(Result.prototype).extend(obj);
 		}
 
-		Result.lazyComputed = function( instance, name, computedBody ) {
-			var computed,
-				subscribers = [];
-
-			instance[ name ] = function( value ) {
-				computed = ko.computed( computedBody );
-
-				if ( typeof value === "undefined" ) {
-					if ( !instance.isBeingInitialized ) {
-						instance[ name ] = computed;
-						_( subscribers ).each(function( subscriber ) {
-							computed.subscribe( subscriber );
-						})
-
-						instance.loadAttributes({ async: false });
-						instance.attributesLoaded( true );
-					}
-
-					return computed();
-				} else {
-					computed( value )
-					instance[ name ] = computed;
-					_( subscribers ).each(function( subscriber ) {
-						computed.subscribe( subscriber );
-					})
-
-					return undefined;
-				}
-			}
-		}
-
 		models.push( Result );
 
 		Attributes( Result );
@@ -303,7 +272,10 @@ define([
 	// Fetch all resources of all models
 	Model.fetchAll = function( callback ) {
 		async.map( models, function( model, cb ) {
-			model.fetch( cb );
+			model.fetch( null, {
+				error: function( textStatus, error ) { cb( error ); },
+				success: function() { cb() }
+			});
 		}, function( error, results ) {
 			if ( error ) {
 				if (console && typeof console.error === "function") {

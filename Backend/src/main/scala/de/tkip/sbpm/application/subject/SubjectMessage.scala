@@ -29,19 +29,11 @@ protected case class SubjectToSubjectMessage(
 
 }
 
-// stored message in the inputpool
-protected case class TransportMessage(messageID: MessageID, from: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
-// message to inform the receive state, that the inputpool has no messages for him
-protected case object InputPoolEmpty
 // acknowledge, that a message is stored in the input pool
 protected case class Stored(messageID: MessageID) extends MessageObject
-// request for the input pool that a state want to know his messages
-//protected case class RequestForMessages(exitConds: Array[SubjectMessageRouting])
-// request for the input pool that a state terminated and the inputpool should
-// delete the remaining message requests
-//protected case class RemoveMessageRequests(exitConds: Array[SubjectMessageRouting])
 
 // TODO richtig einordnern
+case class SubjectInternalMessageProcessed(subjectID: SubjectID)
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 case class SubjectStarted(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 
@@ -78,6 +70,8 @@ case class ExecuteAction(
   stateID: StateID,
   stateType: String,
   actionData: ActionData)
+// The response to an ExecuteAction Message
+case class ActionExecuted(ea: ExecuteAction)
 
 // TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
 // TODO keine defaultparameter

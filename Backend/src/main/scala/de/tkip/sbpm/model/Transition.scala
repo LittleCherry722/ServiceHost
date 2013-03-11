@@ -42,6 +42,7 @@ case class Target(
 case class Transition(
   myType: TransitionType,
   successorID: SuccessorID,
+  priority: Int,
   storeVar: String = "") {
 
   // boolean type check functions
@@ -58,15 +59,15 @@ case class Transition(
 
 object ActTransition {
   def apply(actionType: MessageType, successorID: SuccessorID) =
-    Transition(ExitCond(actionType), successorID)
+    Transition(ExitCond(actionType), successorID, 1)
 }
 
 object TimeoutTransition {
   def apply(manual: Boolean, successorID: SuccessorID) = {
     if (!manual)
       throw new RuntimeException("A timeout which is not manual needs a duration.")
-    Transition(TimeoutCond(manual, -1), successorID)
+    Transition(TimeoutCond(manual, -1), successorID, -1)
   }
   def apply(manual: Boolean, duration: Int, successorID: SuccessorID) =
-    Transition(TimeoutCond(manual, duration), successorID)
+    Transition(TimeoutCond(manual, duration), successorID, -1)
 }

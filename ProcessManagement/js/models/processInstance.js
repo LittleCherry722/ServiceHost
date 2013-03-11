@@ -35,7 +35,7 @@ define([
 			type: "boolean",
 			defaults: false,
 			lazy: true
-		}		
+		}
 		
 	});
 

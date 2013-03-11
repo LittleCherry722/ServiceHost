@@ -1,8 +1,10 @@
 define([
 	"knockout",
 	"model",
-	"underscore"
-], function( ko, Model, _ ) {
+	"underscore",
+	"async",
+	"notify"
+], function( ko, Model, _, async, notify ) {
 	// Our main model that will be returned at the end of the function.
 	//
 	// Process is responsivle for everything associated with processes directly.
@@ -60,6 +62,7 @@ define([
 			}
 
 			var groupsNow, oldGroupIds, newGroupIds, toBePushedIds, toBeDeletedIds,
+				modifiedGroups = [];
 
 			groupsOld = this.groups();
 			newGroupIds = this.groupIds();
@@ -71,19 +74,47 @@ define([
 			toBePushedIds = _.difference( newGroupIds, oldGroupIds );
 			toBeDeletedIds = _.difference( oldGroupIds, newGroupIds );
 
-			_( toBePushedIds ).each(function( toBePushedId ) {
-				groupsOld.push( Group.find( toBePushedId ) );
-			})
+			if ( toBePushedIds.length === 0 && toBeDeletedIds.length === 0 ) {
+				return;
+			}
 
-			_( toBeDeletedIds ).each(function( toBeDeletedId ) {
-				groupsOld.remove( Group.find( toBeDeletedId ) );
-			})
+			_( toBePushedIds ).each( function( toBePushedId ) {
+				modifiedGroups.push({
+					handleMethodName: "push",
+					instance: Group.find( toBePushedIds )
+				});
+			});
+			_( toBeDeletedIds ).each( function( toBeDeletedId ) {
+				modifiedGroups.push({
+					handleMethodName: "remove",
+					instance: Group.find( toBeDeletedId )
+				});
+			});
+
+			asyncHandleAssociations( groupsOld, modifiedGroups );
 		},
 
 		beforeCreate: function() {
 			this.id(-1);
 		}
 	});
+
+	var asyncHandleAssociations = function( oldModels, modifiedModels ) {
+		async.eachLimit( modifiedModels, 5, function( model, callback ) {
+			oldModels[ model.handleMethodName ]( model.instance, {
+				success: function( textStatus ) {
+					callback();
+				},
+				error: function( textStatus, error ) {
+					callback( "error" );
+				}
+			});
+		}, function( error, results ) {
+			if ( error ) {
+				notify.error( "Error", "Error adding group to user. Not all groups have been added." )
+			}
+		});
+	}
 
 	return Role;
 });

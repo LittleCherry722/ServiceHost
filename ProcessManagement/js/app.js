@@ -147,10 +147,8 @@ define([
 	var viewCanUnload = function() {
 		if ( currentMainViewModel() ) {
 
-			console.log("viewmodel exists")
 			// check if the unload method is actually set
 			if ( typeof currentMainViewModel().canUnload === 'function' ) {
-				console.log("calling specific canUnload")
 				return currentMainViewModel().canUnload();
 			}
 		}

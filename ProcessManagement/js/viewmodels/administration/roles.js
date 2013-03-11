@@ -13,29 +13,38 @@ define([
 		this.groups = Group.all;
 
 		this.save = function( role ) {
-			role.save(function( error ) {
-				if ( error ) {
+			role.save(null, {
+				success: function( textStatus ) {
+					notify.info( "Succcess", "Role " + role.name() + " has successfully been saved." )
+				},
+				error: function( textStatus, error ) {
 					if ( role.errors().length > 0 ) {
 						notify.error( "Error", error + " Errors: " + role.errors().join(" ") );
 					} else {
 						notify.error( "Error", error )
 					}
-				} else {
-					notify.info( "Succcess", "Role " + role.name() + " has successfully been saved." )
 				}
 			});
 		}
 
 		this.saveAll = function() {
-			queue = async.queue(function( model, callback ) {
-				model.save( callback );
-			}, 5);
-			queue.drain = function( error, results) {
-				notify.info( "Succcess", "All roles have successfully been saved." )
-			}
+			var self = this;
 
-			_( Role.all() ).each(function( role ) {
-				queue.push( role );
+			async.eachLimit( Role.all(), 5, function( model, callback ) {
+				model.save(null, {
+					success: function( textStatus ) {
+						callback();
+					},
+					error: function( textStatus, error ) {
+						callback( "error" );
+					}
+				});
+			}, function( error, results ) {
+				if ( error ) {
+					notify.error( "Error", "Error saving roles. Not all roles have been saved. Please check your input and try again." )
+				} else {
+					notify.info( "Succcess", "All roles have successfully been saved." )
+				}
 			});
 		}
 
