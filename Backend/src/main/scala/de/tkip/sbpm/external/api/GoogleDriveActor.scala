@@ -216,6 +216,12 @@ class GoogleDriveActor extends Actor with ActorLogging {
   }
   
   
+  /** get download URL for a specific user file stored in a google drive */
+  def getFileURL(id: String, fileId: String): String = {
+    "hello"
+  }
+  
+  
 
   
 }
