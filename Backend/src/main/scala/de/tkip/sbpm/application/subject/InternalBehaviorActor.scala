@@ -53,8 +53,10 @@ class InternalBehaviorActor(
     }
 
     case change: ChangeState => {
+      // update the internal status
       internalStatus = change.internalStatus
       // TODO check if current state is correct?
+      // change the state
       nextState(change.nextState)
 
       val current: State = statesMap(change.currenState)
@@ -83,8 +85,8 @@ class InternalBehaviorActor(
       }
     }
 
-    case h: de.tkip.sbpm.application.history.Transition => {
-      context.parent ! h
+    case historyTransition: de.tkip.sbpm.application.history.Transition => {
+      context.parent ! historyTransition
     }
 
     // general matching
@@ -97,6 +99,9 @@ class InternalBehaviorActor(
     }
   }
 
+  /**
+   * Adds a state to the internal model
+   */
   private def addState(state: State) {
     if (state.startState) {
       logger.debug("startstate " + state)
@@ -105,8 +110,10 @@ class InternalBehaviorActor(
     statesMap += state.id -> state
   }
 
+  /**
+   * Executes the nextstate and terminates the currentstate
+   */
   private def nextState(state: StateID) {
-    //    currentState ! End // noetig?
     if (currentState != null) {
       context.stop(currentState)
       currentState = null
@@ -120,7 +127,11 @@ class InternalBehaviorActor(
     }
   }
 
+  /**
+   * Parses a state and create the corresponding state actor
+   */
   private def parseState(state: State) = {
+    // create the data every state needs
     val data = StateData(
       state,
       userID,
@@ -131,6 +142,7 @@ class InternalBehaviorActor(
       inputPoolActor,
       internalStatus)
 
+    // create the actor which matches to the statetype
     state.stateType match {
       case ActStateType => {
         context.actorOf(Props(ActStateActor(data)))
