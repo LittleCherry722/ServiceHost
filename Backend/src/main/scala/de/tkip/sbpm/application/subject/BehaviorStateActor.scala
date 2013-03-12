@@ -32,6 +32,22 @@ protected case class StateData(
   inputPoolActor: ActorRef,
   internalStatus: InternalStatus)
 
+private case object TimeoutExpired
+private class TimeoutActor(time: Int) extends Actor {
+
+  override def preStart() {
+    // just wait the time
+    Thread.sleep(time)
+    // inform the parent
+    context.parent ! TimeoutExpired
+    // and kill this actor
+    context.stop(self)
+  }
+
+  def receive = FSM.NullFunction
+
+}
+
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
@@ -56,17 +72,20 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val timeoutTransition = transitions.find(_.isTimeout)
   protected val exitTransitions = transitions.filter(_.isExitCond)
 
-  // if it is needed, send a SubjectStarted message
-  if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
-    internalStatus.subjectStartedSent = true
-    processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
-  }
+  override def preStart() {
 
-  // if the state has a(n automatic) timeout transition, start the timeout timer
-  if (timeoutTransition.isDefined) {
-    val stateTimeout = timeoutTransition.get.myType.asInstanceOf[TimeoutCond]
-    if (!stateTimeout.manual) {
-      // TODO start timeout!
+    // if it is needed, send a SubjectStarted message
+    if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
+      internalStatus.subjectStartedSent = true
+      processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
+    }
+
+    // if the state has a(n automatic) timeout transition, start the timeout timer
+    if (timeoutTransition.isDefined) {
+      val stateTimeout = timeoutTransition.get.myType.asInstanceOf[TimeoutCond]
+      if (!stateTimeout.manual) {
+        context.actorOf(Props(new TimeoutActor(stateTimeout.duration * 1000)))
+      }
     }
   }
 
@@ -84,6 +103,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       sender ! createAvailableAction(ga.processInstanceID)
     }
 
+    case TimeoutExpired => {
+      executeTimeout()
+    }
+
     case action: ExecuteAction => {
       logger.error("/" + userID + "/" + subjectID + "/" +
         id + " does not support " + action)
@@ -99,7 +122,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
    *
    * override this function to execute an other transition when a timeout appears
    */
-  protected def executeTimeout {
+  protected def executeTimeout() {
     if (timeoutTransition.isDefined) {
       changeState(timeoutTransition.get.successorID, null)
     }
@@ -269,6 +292,20 @@ protected case class ReceiveStateActor(data: StateData)
     if (sendSubjectReady) {
       processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
       sendSubjectReady = false
+    }
+  }
+
+  override protected def executeTimeout() {
+    val exitTransition =
+      exitTransitionsMap.map(_._2).filter(_.ready).map(_.transition)
+        .reduceOption((t1, t2) => if (t1.priority < t2.priority) t1 else t2)
+    System.err.println(exitTransition)
+
+    if (exitTransition.isDefined) {
+      // TODO richtige historymessage
+      changeState(exitTransition.get.successorID, null)
+    } else {
+      super.executeTimeout()
     }
   }
 
