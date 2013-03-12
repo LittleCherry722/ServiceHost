@@ -44,12 +44,18 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
+case class MessageData(userID: UserID, messageContent: String)
+
+case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
+
 case class ActionData(
   text: String, // = messagetype
   executeAble: Boolean,
-  transitionType: String, // exitcondition oder timeout
-  relatedSubject: Option[String] = None,
-  messageContent: Option[String] = None)
+  transitionType: String, // exitcondition or timeout
+  targetUsersData: Option[TargetUser] = None, // target user of a send message
+  relatedSubject: Option[String] = None, // the related subject of a send-/receive state
+  messageContent: Option[String] = None, // for the send state
+  messages: Option[Array[MessageData]] = None) // for the receive state
 
 // Answer to the GetAvailable Action request
 case class AvailableAction(

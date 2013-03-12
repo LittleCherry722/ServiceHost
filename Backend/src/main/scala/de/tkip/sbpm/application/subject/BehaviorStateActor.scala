@@ -33,8 +33,16 @@ protected case class StateData(
   inputPoolActor: ActorRef,
   internalStatus: InternalStatus)
 
+  // the message to signal, that a timeout has expired
 private case object TimeoutExpired
-private class TimeoutActor(time: Int) extends Actor {
+
+/**
+ * The actor to perform a timeout
+ * waits the given time (in millis)
+ * then informs the parent, that the timeout has expired
+ * and kills itself
+ */
+private class TimeoutActor(time: Long) extends Actor {
 
   override def preStart() {
     // just wait the time
@@ -111,7 +119,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, _, input) if ({
       input.transitionType == timeoutLabel
     }) => {
-      System.err.println("HERE"*20);
       executeTimeout()
       processInstanceActor ! ActionExecuted(ea)
     }
@@ -121,7 +128,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     case action: ExecuteAction => {
       logger.error("/" + userID + "/" + subjectID + "/" +
         id + " does not support " + action)
-      System.err.println("2342342666666666666")
     }
 
     case s => {
@@ -315,7 +321,6 @@ protected case class ReceiveStateActor(data: StateData)
     val exitTransition =
       exitTransitionsMap.map(_._2).filter(_.ready).map(_.transition)
         .reduceOption((t1, t2) => if (t1.priority < t2.priority) t1 else t2)
-    System.err.println(exitTransition)
 
     if (exitTransition.isDefined) {
       // TODO richtige historymessage
@@ -332,7 +337,8 @@ protected case class ReceiveStateActor(data: StateData)
         t.ready,
         exitCondLabel,
         relatedSubject = Some(t.from),
-        messageContent = t.messageContent)
+        messageContent = t.messageContent,// TODO delete
+        messages = Some(t.messages))
     }).toArray
 
   override protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
@@ -354,6 +360,10 @@ protected case class ReceiveStateActor(data: StateData)
     var ready = false
     var messageID: MessageID = -1
     var messageContent: Option[MessageContent] = None
+    
+    val messageData: ArrayBuffer[MessageData] = ArrayBuffer[MessageData]()
+    
+    def messages = messageData.toArray
 
     private var remaining = transition.target.get.min
 
@@ -371,6 +381,8 @@ protected case class ReceiveStateActor(data: StateData)
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
+      
+      messageData += MessageData(message.userID, message.messageContent)
     }
   }
 }
