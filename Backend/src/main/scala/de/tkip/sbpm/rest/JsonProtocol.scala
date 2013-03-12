@@ -114,7 +114,7 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   // action execution
   implicit val processInstanceInfoFormat = jsonFormat2(ProcessInstanceInfo)
-  implicit val actionDataFormat = jsonFormat4(ActionData)
+  implicit val actionDataFormat = jsonFormat5(ActionData)
   implicit val availableActionFormat = jsonFormat8(AvailableAction)
 
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)

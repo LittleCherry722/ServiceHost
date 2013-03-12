@@ -47,6 +47,7 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
 case class ActionData(
   text: String, // = messagetype
   executeAble: Boolean,
+  transitionType: String, // exitcondition oder timeout
   relatedSubject: Option[String] = None,
   messageContent: Option[String] = None)
 

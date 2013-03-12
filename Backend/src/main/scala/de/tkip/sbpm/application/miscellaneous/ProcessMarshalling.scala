@@ -8,6 +8,11 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.rest.JsonProtocol._
 
+object MarshallingAttributes {
+  val exitCondLabel = "exitcondition"
+  val timeoutLabel = "timeout"
+}
+
 /**
  * This objectfunction is responsible to divide a string listing of subjects
  * into the independent subjectIDs

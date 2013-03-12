@@ -16,6 +16,7 @@ import de.tkip.sbpm.application.history.{
 }
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 
@@ -91,7 +92,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 
   // first try the "receive" function of the inheritance state
   // then use the "receive" function of this behavior state
-  final def receive = stateReceive orElse generalReceive
+  final def receive = generalReceive orElse stateReceive orElse errorReceive
 
   // the inheritance state must implement this function
   protected def stateReceive: Receive
@@ -107,9 +108,20 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       executeTimeout()
     }
 
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, _, input) if ({
+      input.transitionType == timeoutLabel
+    }) => {
+      System.err.println("HERE"*20);
+      executeTimeout()
+      processInstanceActor ! ActionExecuted(ea)
+    }
+  }
+
+  private def errorReceive: Receive = {
     case action: ExecuteAction => {
       logger.error("/" + userID + "/" + subjectID + "/" +
         id + " does not support " + action)
+      System.err.println("2342342666666666666")
     }
 
     case s => {
@@ -154,7 +166,11 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
    * Creates the Available Action, which belongs to this state
    */
   protected def createAvailableAction(processInstanceID: ProcessInstanceID) = {
-    val actionData = getAvailableAction
+    var actionData = getAvailableAction
+    if (timeoutTransition.isDefined) {
+      actionData ++= Array(ActionData("timeout", true, timeoutLabel))
+    }
+
     AvailableAction(
       userID,
       processInstanceID,
@@ -201,7 +217,7 @@ protected case class ActStateActor(data: StateData)
   }
 
   override protected def getAvailableAction: Array[ActionData] =
-    exitTransitions.map((t: Transition) => ActionData(t.messageType, true))
+    exitTransitions.map((t: Transition) => ActionData(t.messageType, true, exitCondLabel))
 
   private def indexOfInput(input: String): Int = {
     var i = 0
@@ -314,6 +330,7 @@ protected case class ReceiveStateActor(data: StateData)
       ActionData(
         t.messageType,
         t.ready,
+        exitCondLabel,
         relatedSubject = Some(t.from),
         messageContent = t.messageContent)
     }).toArray
@@ -433,6 +450,7 @@ protected case class SendStateActor(data: StateData)
       ActionData(
         t.messageType,
         !messageContent.isDefined,
+        exitCondLabel,
         relatedSubject = Some(t.subjectID)))
 
   /**
