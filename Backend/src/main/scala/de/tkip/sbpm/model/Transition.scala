@@ -24,10 +24,22 @@ case class Target(
   val toAll = defaultValues && !createNew && !toVariable
 
   private var _vars: Array[(SubjectID, SubjectSessionID)] = Array()
+  private var _targetUsers = Array[UserID]()
+
   def varSubjects = _vars
+  def targetUsers: Array[UserID] = _targetUsers
 
   def insertVariable(v: Variable) {
     _vars = for (m <- v.messages) yield ((m.from, m.fromSession))
+  }
+
+  def insertTargetUsers(userIDs: Array[UserID]) {
+    if (min <= userIDs.length && userIDs.length <= max) {
+      _targetUsers = userIDs
+
+    } else {
+      throw new RuntimeException("Cant target more users than given in the range")
+    }
   }
 }
 

@@ -14,6 +14,9 @@ import de.tkip.sbpm.application.history.{
   Message => HistoryMessage,
   State => HistoryState
 }
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.SubjectInformation
+import de.tkip.sbpm.application.RequestUserID
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
@@ -33,7 +36,7 @@ protected case class StateData(
   inputPoolActor: ActorRef,
   internalStatus: InternalStatus)
 
-  // the message to signal, that a timeout has expired
+// the message to signal, that a timeout has expired
 private case object TimeoutExpired
 
 /**
@@ -337,7 +340,7 @@ protected case class ReceiveStateActor(data: StateData)
         t.ready,
         exitCondLabel,
         relatedSubject = Some(t.from),
-        messageContent = t.messageContent,// TODO delete
+        messageContent = t.messageContent, // TODO delete
         messages = Some(t.messages))
     }).toArray
 
@@ -360,9 +363,9 @@ protected case class ReceiveStateActor(data: StateData)
     var ready = false
     var messageID: MessageID = -1
     var messageContent: Option[MessageContent] = None
-    
+
     val messageData: ArrayBuffer[MessageData] = ArrayBuffer[MessageData]()
-    
+
     def messages = messageData.toArray
 
     private var remaining = transition.target.get.min
@@ -381,7 +384,7 @@ protected case class ReceiveStateActor(data: StateData)
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
-      
+
       messageData += MessageData(message.userID, message.messageContent)
     }
   }
@@ -397,8 +400,30 @@ protected case class SendStateActor(data: StateData)
   private val unsentMessageIDs: MutableMap[MessageID, Transition] =
     MutableMap[MessageID, Transition]()
 
+  // TODO
+  private val sendTransition: Transition =
+    transitions.find(_.isExitCond).get
+  private val sendExitCond = sendTransition.myType.asInstanceOf[ExitCond]
+  private val sendTarget = sendExitCond.target.get
+
+  //  override def preStart() {
+  // TODO so ist das noch nicht, besser machen!
+  // ask the ContextResolver for the targetIDs
+  // store them in a val
+  implicit val timeout = Timeout(2000)
+  val future =
+    (ActorLocator.contextResolverActor
+      ? (RequestUserID(
+        SubjectInformation(sendTransition.subjectID),
+        _.toArray)))
+  val userIDs = Await.result(future, timeout.duration).asInstanceOf[Array[UserID]]
+  System.err.println(userIDs.mkString(", "));
+
+  //  }
+
   protected def stateReceive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, SendStateString, input) if ({
+      // the message needs a content
       input.messageContent.isDefined
     }) => {
       if (!messageContent.isDefined) {
@@ -421,8 +446,19 @@ protected case class SendStateActor(data: StateData)
             target.insertVariable(variables(target.variable.get))
           }
 
+          if (userIDs.length == target.min == target.max) {
+            target.insertTargetUsers(userIDs)
+          } else if (input.targetUsersData.isDefined) {
+            val targetUserData = input.targetUsersData.get
+            // TODO validate?
+            target.insertTargetUsers(targetUserData.targetUsers)
+          } else {
+            // TODO error?
+          }
+
           remainingStored += target.min
 
+          // TODO send to ausgewaehlten users
           processInstanceActor !
             SubjectToSubjectMessage(
               messageID,
@@ -457,13 +493,16 @@ protected case class SendStateActor(data: StateData)
     }
   }
 
+  // TODO only send targetUserData when its not trivial
   override protected def getAvailableAction: Array[ActionData] =
-    exitTransitions.map((t: Transition) =>
+    Array(
       ActionData(
-        t.messageType,
-        !messageContent.isDefined,
+        sendTransition.messageType,
+        !messageContent.isDefined && userIDs.length >= sendTarget.min,
         exitCondLabel,
-        relatedSubject = Some(t.subjectID)))
+        relatedSubject = Some(sendTransition.subjectID),
+        targetUsersData =
+          Some(TargetUser(sendTarget.min, sendTarget.max, userIDs))))
 
   /**
    * Generates a new message ID

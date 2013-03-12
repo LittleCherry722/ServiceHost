@@ -123,7 +123,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private var subjectsUserIDMap = Map[SubjectID, UserID]()
   private var waitingForContextResolver = ArrayBuffer[UserID]()
   private var waitingUserMap = Map[UserID, Int]()
-  private var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]()
+  private var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]() // TODO mehrere actionexe..
 
   // add all start subjects (only if they exist!)
   for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
@@ -473,16 +473,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
 
       logger.debug("Processinstance [" + id + "] creates Subject " + subject.id)
-
       for (i <- (1 to count)) {
 
         // increase the subject counter
         runningSubjectCounter += 1
 
         // ask the Contextresolver for the userid to answer with an AddSubject
+        // TODO whom is the first subject????
         waitForContextResolver(userID)
         contextResolver !
-          RequestUserID(SubjectInformation(subject.id), AddSubject(_, subject.id))
+          // TODO userID ist in hier falsch gesetzt
+          RequestUserID(SubjectInformation(subject.id), s => AddSubject(request.userID, subject.id))
       }
     }
 

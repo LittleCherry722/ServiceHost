@@ -12,7 +12,7 @@ case class SubjectInformation(subjectID: String)
 
 // this message is to Request the user id and will be answered
 // using generateAnswer with the userID
-case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: UserID => Any)
+case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer: Array[UserID] => Any)
 
 /**
  * resolves the context of the subjects
@@ -29,7 +29,7 @@ class ContextResolverActor extends Actor {
     case ss => logger.error("ContextResolver not yet implemented Message: " + ss)
   }
 
-  private def evaluateUserID(subjectInformation: SubjectInformation): UserID = {
-    1
+  private def evaluateUserID(subjectInformation: SubjectInformation): Array[UserID] = {
+    Array(1)
   }
 }
