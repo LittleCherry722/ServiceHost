@@ -22,7 +22,7 @@ class SubjectActor(
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
   private val inputPoolActor: ActorRef =
-    context.actorOf(Props(new InputPoolActor(subject.inputPool)))
+    context.actorOf(Props(new InputPoolActor(userID, subject.inputPool)))
   private val internalBehaviorActor =
     context.actorOf(
       Props(

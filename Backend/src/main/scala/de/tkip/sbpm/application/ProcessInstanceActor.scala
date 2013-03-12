@@ -174,8 +174,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case message: SubjectInternalMessageProcessed => {
       // println("subjectInternalMessageProcessed")
-      unblockUserID(subjectsUserIDMap(message.subjectID))
-      tryToReleaseBlocking(subjectsUserIDMap(message.subjectID))
+      unblockUserID(message.userID)
+      tryToReleaseBlocking(message.userID)
     }
 
     case sm: SubjectToSubjectMessage if (graph.hasSubject(sm.to)) => {

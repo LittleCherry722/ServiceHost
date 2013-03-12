@@ -33,7 +33,7 @@ protected case class SubjectToSubjectMessage(
 protected case class Stored(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
-case class SubjectInternalMessageProcessed(subjectID: SubjectID)
+case class SubjectInternalMessageProcessed(userID: UserID)
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 case class SubjectStarted(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 
