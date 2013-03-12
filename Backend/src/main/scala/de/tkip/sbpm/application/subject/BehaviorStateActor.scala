@@ -19,6 +19,9 @@ import de.tkip.sbpm.model.StateType._
 import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 
+/**
+ * The data, which is necessary to create any state
+ */
 protected case class StateData(
   stateModel: State,
   userID: UserID,
@@ -50,11 +53,21 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val inputPoolActor = data.inputPoolActor
   protected val internalStatus = data.internalStatus
   protected val variables = internalStatus.variables
+  protected val timeoutTransition = transitions.find(_.isTimeout)
   protected val exitTransitions = transitions.filter(_.isExitCond)
 
+  // if it is needed, send a SubjectStarted message
   if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
     internalStatus.subjectStartedSent = true
     processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
+  }
+
+  // if the state has a(n automatic) timeout transition, start the timeout timer
+  if (timeoutTransition.isDefined) {
+    val stateTimeout = timeoutTransition.get.myType.asInstanceOf[TimeoutCond]
+    if (!stateTimeout.manual) {
+      // TODO start timeout!
+    }
   }
 
   // first try the "receive" function of the inheritance state
@@ -82,24 +95,41 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   }
 
   /**
+   * Executes a timeout by executing the timeout edge
+   *
+   * override this function to execute an other transition when a timeout appears
+   */
+  protected def executeTimeout {
+    if (timeoutTransition.isDefined) {
+      changeState(timeoutTransition.get.successorID, null)
+    }
+  }
+
+  /**
    * This function returns if the subjectready message should be delayed,
    * default value is false
-   * 
+   *
    * override this function to delay the subject ready message
-   * 
+   *
    * @return whether the subject ready message should be delayed
    */
   protected def delaySubjectReady = false
+
+  /**
+   * Changes the state and creates a history entry with the history message
+   */
+  protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
+    internalBehaviorActor ! ChangeState(id, successorID, internalStatus, historyMessage)
+  }
 
   /**
    * Returns the available actions of the state
    */
   protected def getAvailableAction: Array[ActionData]
 
-  protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
-    internalBehaviorActor ! ChangeState(id, successorID, internalStatus, historyMessage)
-  }
-
+  /**
+   * Creates the Available Action, which belongs to this state
+   */
   protected def createAvailableAction(processInstanceID: ProcessInstanceID) = {
     val actionData = getAvailableAction
     AvailableAction(
@@ -122,7 +152,7 @@ protected case class EndStateActor(data: StateData)
 
   // nothing to receive for this state
   protected def stateReceive = FSM.NullFunction
-  
+
   override def postStop() {
     logger.debug("End@" + userID + ", " + subjectID + "stops...")
   }
@@ -306,40 +336,40 @@ protected case class SendStateActor(data: StateData)
       input.messageContent.isDefined
     }) => {
       if (!messageContent.isDefined) {
-            // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
-            // can be blocked until a potentially new subject is created to ensure all available actions will 
-            // be returned when asking
-            messageContent = input.messageContent
-            for (transition <- exitTransitions if transition.target.isDefined) yield {
-              val messageType = transition.messageType
-              val toSubject = transition.subjectID
-              val messageID = nextMessageID
-              unsentMessageIDs(messageID) = transition
+        // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
+        // can be blocked until a potentially new subject is created to ensure all available actions will 
+        // be returned when asking
+        messageContent = input.messageContent
+        for (transition <- exitTransitions if transition.target.isDefined) yield {
+          val messageType = transition.messageType
+          val toSubject = transition.subjectID
+          val messageID = nextMessageID
+          unsentMessageIDs(messageID) = transition
 
-              logger.debug("Send@" + userID + "/" + subjectID + ": Message[" +
-                messageID + "} \"" + messageType + "to " + transition.target +
-                "\" with content \"" + messageContent.get + "\"")
+          logger.debug("Send@" + userID + "/" + subjectID + ": Message[" +
+            messageID + "} \"" + messageType + "to " + transition.target +
+            "\" with content \"" + messageContent.get + "\"")
 
-              val target = transition.target.get
-              if (target.toVariable) {
-                target.insertVariable(variables(target.variable.get))
-              }
+          val target = transition.target.get
+          if (target.toVariable) {
+            target.insertVariable(variables(target.variable.get))
+          }
 
-              remainingStored += target.min
+          remainingStored += target.min
 
-              processInstanceActor !
-                SubjectToSubjectMessage(
-                  messageID,
-                  userID,
-                  subjectID,
-                  subjectSessionID,
-                  target,
-                  messageType,
-                  messageContent.get)
+          processInstanceActor !
+            SubjectToSubjectMessage(
+              messageID,
+              userID,
+              subjectID,
+              subjectSessionID,
+              target,
+              messageType,
+              messageContent.get)
 
-              processInstanceActor ! ActionExecuted(ea)
-            }
-          } else {
+          processInstanceActor ! ActionExecuted(ea)
+        }
+      } else {
         logger.error("Second send-message action request received")
       }
     }

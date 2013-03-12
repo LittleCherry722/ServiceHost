@@ -44,8 +44,9 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
-case class ActionData(text: String, // = messagetype
-  executeAble: Boolean = false,
+case class ActionData(
+  text: String, // = messagetype
+  executeAble: Boolean,
   relatedSubject: Option[String] = None,
   messageContent: Option[String] = None)
 

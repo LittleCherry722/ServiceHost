@@ -152,7 +152,7 @@ object parseGraph {
                 var default = minValue < 1 && maxValue < 1
 
                 if (minValue < 1) minValue = 1
-                if (minValue < 1) {
+                if (maxValue < 1) {
                   // maxValue should be infinity, if the other one is a multisubject
                   // if the other one is a single subject await only one message
                   maxValue =

@@ -14,16 +14,11 @@ case class ErrorCond() extends TransitionType
 
 case class Target(
   subjectID: SubjectID,
-  private var minValue: Int,
-  private var maxValue: Int,
+  min: Int,
+  max: Int,
   createNew: Boolean,
   variable: Option[String],
   private val defaultValues: Boolean) {
-  // TODO validate
-  if (minValue < 1) minValue = 1
-  def min = minValue
-  if (maxValue < 1) maxValue = 1 //TODO set maxvalue
-  def max = maxValue
 
   val toVariable = variable.isDefined && variable.get != ""
   val toAll = defaultValues && !createNew && !toVariable
