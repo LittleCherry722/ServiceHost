@@ -120,7 +120,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
   // variables to help blocking of ActionExecuted messages
-  private var subjectsUserIDMap = Map[SubjectID, UserID]()
   private var waitingForContextResolver = ArrayBuffer[UserID]()
   private var waitingUserMap = Map[UserID, Int]()
   private var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]() // TODO mehrere actionexe..
@@ -140,9 +139,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // if subjectProvider of the new subject is not the same as the one that asked for execution
       // try to forward blocked ExecuteActionAnswer
       val subject: Subject = graph.subject(as.subjectID)
-
-      // safe userID that owns the subject
-      subjectsUserIDMap += subject.id -> as.userID
 
       // Create the subject for the subject container in the given map position
       subjectMap.getOrElseUpdate(subject.id, SubjectContainer(subject))
@@ -299,8 +295,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     // println("contextResolver: " + waitingForContextResolver.mkString(","))
   }
 
-  private def handleBlockingForMessageDelivery(to: SubjectID) {
-    blockUserID(subjectsUserIDMap(to))
+  private def handleBlockingForMessageDelivery(userID: UserID) {
+    blockUserID(userID)
     // println("blockingForDelivery: " + waitingUserMap.mkString(","))
   }
 
@@ -378,7 +374,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // if there are messages to deliver to the new subject,
       // forward them to the subject 
       for (entry <- messagePool) {
-        handleBlockingForMessageDelivery(subject.id)
+        handleBlockingForMessageDelivery(userID)
         subjectRef.!(entry.message)(entry.orig)
         entry.subjectCount -= 1
       }
@@ -499,7 +495,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       restartSubject: Boolean = false) {
       for (subjectInfo <- targetSubjects) {
         if (subjectInfo.running) {
-          handleBlockingForMessageDelivery(message.to)
+          handleBlockingForMessageDelivery(message.userID)
           subjectInfo.ref.forward(message)
         } else if (restartSubject) {
           // subjectcreation = subjectrestart
@@ -509,7 +505,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           // start the execution
           subjectInfo.ref ! StartSubjectExecution()
 
-          handleBlockingForMessageDelivery(message.to)
+          handleBlockingForMessageDelivery(message.userID)
           subjectInfo.ref.forward(message)
         }
       }
