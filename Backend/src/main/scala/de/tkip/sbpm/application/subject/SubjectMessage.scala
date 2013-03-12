@@ -81,8 +81,6 @@ case class ExecuteAction(
 // The response to an ExecuteAction Message
 case class ActionExecuted(ea: ExecuteAction)
 
-// TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
-// TODO keine defaultparameter
 case class ExecuteActionAnswer(
   execute: ExecuteAction,
   processID: ProcessID,
