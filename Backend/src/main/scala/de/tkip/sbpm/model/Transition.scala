@@ -23,14 +23,14 @@ case class Target(
   val toVariable = variable.isDefined && variable.get != ""
   val toAll = defaultValues && !createNew && !toVariable
 
-  private var _vars: Array[(SubjectID, SubjectSessionID)] = Array()
+  private var _vars: Array[(SubjectID, UserID)] = Array()
   private var _targetUsers = Array[UserID]()
 
   def varSubjects = _vars
   def targetUsers: Array[UserID] = _targetUsers
 
   def insertVariable(v: Variable) {
-    _vars = for (m <- v.messages) yield ((m.from, m.fromSession))
+    _vars = for (m <- v.messages) yield ((m.from, m.userID))
   }
 
   def insertTargetUsers(userIDs: Array[UserID]) {

@@ -277,8 +277,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       userID: UserID,
       var running: Boolean = true)
 
-    private val subjects = MutableMap[SubjectSessionID, SubjectInfo]()
-    private var nextSubjectSessionID = 0
+    private val subjects = MutableMap[UserID, SubjectInfo]()
 
     // an entry for the messagepool
     private case class MessagePoolEntry(
@@ -293,16 +292,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
      * Adds a Subject to this multisubject
      */
     def createAndAddSubject(userID: UserID) {
-      val subjectSessionID = nextSubjectSessionID
-      nextSubjectSessionID += 1
-
       // handle blocking
       handleBlockingForSubjectCreation(userID)
       // create subject
       val subjectRef =
-        context.actorOf(Props(new SubjectActor(userID, subjectSessionID, self, subject)))
+        context.actorOf(Props(new SubjectActor(userID, self, subject)))
       // and store it in the map
-      subjects += subjectSessionID -> SubjectInfo(subjectRef, userID)
+      subjects += userID -> SubjectInfo(subjectRef, userID)
 
       // if there are messages to deliver to the new subject,
       // forward them to the subject 
@@ -315,11 +311,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       messagePool = messagePool.filter(_.subjectCount > 0)
 
       logger.debug("Processinstance [" + id + "] created Subject " +
-        subject.id + "[" + subjectSessionID + "] for user " + userID)
+        subject.id +  " for user " + userID)
 
       // inform the subject provider about his new subject
       context.parent !
-        SubjectCreated(userID, processID, id, subject.id, subjectSessionID, subjectRef)
+        SubjectCreated(userID, processID, id, subject.id, subjectRef)
 
       // start the execution of the subject
       subjectRef ! StartSubjectExecution()
@@ -328,20 +324,20 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     def handleSubjectStarted(message: SubjectStarted) {
 
       logger.debug("Processinstance [" + id + "] Subject " + subject.id + "[" +
-        message.subjectSessionID + "] started")
+        message.userID + "] started")
 
-      subjects(message.subjectSessionID).running = true
+      subjects(message.userID).running = true
     }
 
     def handleSubjectTerminated(message: SubjectTerminated) {
 
       logger.debug("Processinstance [" + id + "] Subject " + subject.id + "[" +
-        message.subjectSessionID + "] terminated")
+        message.userID + "] terminated")
 
       // decrease the subject counter
       runningSubjectCounter -= 1
 
-      subjects(message.subjectSessionID).running = false
+      subjects(message.userID).running = false
     }
 
     /**

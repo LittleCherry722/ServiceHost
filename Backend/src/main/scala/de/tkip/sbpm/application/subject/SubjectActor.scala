@@ -15,7 +15,6 @@ import de.tkip.sbpm.model.StateType._
  */
 class SubjectActor(
   userID: UserID,
-  sessionID: Int,
   processInstanceActor: ProcessInstanceRef,
   subject: Subject) extends Actor {
 
@@ -31,7 +30,6 @@ class SubjectActor(
         new InternalBehaviorActor(
           processInstanceActor,
           subject.id,
-          sessionID,
           userID,
           inputPoolActor)))
 

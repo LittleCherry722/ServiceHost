@@ -121,9 +121,9 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val targetUserFormat = jsonFormat3(TargetUser)
   implicit val messageDataFormat = jsonFormat2(MessageData)
   implicit val actionDataFormat = jsonFormat7(ActionData)
-  implicit val availableActionFormat = jsonFormat8(AvailableAction)
+  implicit val availableActionFormat = jsonFormat7(AvailableAction)
 
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
   implicit val createGraphHeaderFormat = jsonFormat3(GraphHeader)
-  implicit val createActionIdHeaderFormat = jsonFormat7(ExecuteAction)
+  implicit val createActionIdHeaderFormat = jsonFormat6(ExecuteAction)
 }

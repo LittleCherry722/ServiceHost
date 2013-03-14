@@ -18,9 +18,8 @@ sealed trait MessageObject
 // message from subject to subject
 protected case class SubjectToSubjectMessage(
   messageID: MessageID,
-  var userID: UserID,
+  var userID: UserID,// TODO why is this a var?
   from: SubjectID,
-  fromSession: SubjectSessionID,
   target: Target,
   messageType: MessageType,
   messageContent: MessageContent) extends MessageObject {
@@ -34,8 +33,8 @@ protected case class Stored(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
 case class SubjectInternalMessageProcessed(userID: UserID)
-case class SubjectTerminated(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
-case class SubjectStarted(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
+case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
+case class SubjectStarted(userID: UserID, subjectID: SubjectID)
 
 // external subject interaction messages
 sealed trait SubjectBehaviorRequest
@@ -62,7 +61,6 @@ case class AvailableAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
-  subjectSessionID: SubjectSessionID,
   stateID: StateID,
   stateText: String,
   stateType: String,
@@ -74,7 +72,6 @@ case class ExecuteAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
-  subjectSessionID: SubjectSessionID,
   stateID: StateID,
   stateType: String,
   actionData: ActionData)
@@ -97,7 +94,6 @@ object mixExecuteActionWithRouting {
       action.userID,
       action.processInstanceID,
       action.subjectID,
-      action.subjectSessionID,
       action.stateID,
       action.stateType,
       action.actionData) with AnswerAbleMessage with SubjectProviderMessage with SubjectMessage with SubjectBehaviorRequest
