@@ -99,7 +99,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // parse the graph into the internal structure
   val graph: ProcessGraph = parseGraph(graphJson)
 
-  // TODO wie uebergeben?
   private lazy val contextResolver = ActorLocator.contextResolverActor
 
   // this pool stores the message to the subject, which does not exist,
@@ -119,11 +118,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // provider actor for debug payload used in history's debug data
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
-  // variables to help blocking of ActionExecuted messages
-  private var subjectsUserIDMap = Map[SubjectID, UserID]()
-  private var waitingForContextResolver = ArrayBuffer[UserID]()
-  private var waitingUserMap = Map[UserID, Int]()
-  private var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]()
+  private val blockingHandler = new BlockingHandler(createExecuteActionAnswer _)
 
   // add all start subjects (only if they exist!)
   for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
@@ -141,9 +136,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // try to forward blocked ExecuteActionAnswer
       val subject: Subject = graph.subject(as.subjectID)
 
-      // safe userID that owns the subject
-      subjectsUserIDMap += subject.id -> as.userID
-
       // Create the subject for the subject container in the given map position
       subjectMap.getOrElseUpdate(subject.id, SubjectContainer(subject))
         .createAndAddSubject(as.userID)
@@ -154,9 +146,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case message: SubjectStarted => {
       subjectMap(message.subjectID).handleSubjectStarted(message)
-      unblockUserID(message.userID)
-      tryToReleaseBlocking(message.userID)
-      trySendProcessInstanceCreated()
+      handleSubjectStarted(message.userID)
     }
 
     case st: SubjectTerminated => {
@@ -174,8 +164,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case message: SubjectInternalMessageProcessed => {
       // println("subjectInternalMessageProcessed")
-      unblockUserID(subjectsUserIDMap(message.subjectID))
-      tryToReleaseBlocking(subjectsUserIDMap(message.subjectID))
+      handleSubjectInternalMessageProcessed(message.userID)
     }
 
     case sm: SubjectToSubjectMessage if (graph.hasSubject(sm.to)) => {
@@ -226,7 +215,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         createExecuteActionAnswer(message.ea)
       } else {
         // println("store message")
-        blockedAnswers += message.ea.userID -> message
+        storeActionExecuted(message)
       }
     }
 
@@ -235,6 +224,18 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
   }
 
+  
+  private def allSubjectsReady = blockingHandler.allSubjectsReady _
+  private def handleSubjectStarted(userID: UserID) = {
+      blockingHandler.handleUnblocking(userID)
+      trySendProcessInstanceCreated()
+   }
+  private def handleSubjectInternalMessageProcessed = blockingHandler.handleUnblocking _
+  private def handleBlockingForSubjectCreation = blockingHandler.handleBlockingForSubjectCreation _
+  private def handleBlockingForMessageDelivery = blockingHandler.handleBlockingForMessageDelivery _
+  private def waitForContextResolver = blockingHandler.waitForContextResolver _
+  private def storeActionExecuted = blockingHandler.storeActionExecuted _
+  
   private def createExecuteActionAnswer(req: ExecuteAction) {
     context.parent !
       AskSubjectsForAvailableActions(req.userID,
@@ -244,84 +245,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           ExecuteActionAnswer(req, processID, isTerminated, graphJson, executionHistory, actions))
   }
 
-  /**
-   * This method checks if all subjects are parsed and ready to ask for actions
-   * etc.
-   */
-  private def allSubjectsReady(userID: UserID): Boolean = {
-    !waitingForContextResolver.contains(userID) && waitingUserMap.getOrElse(userID, 1) == 0
-  }
-
-  /**
-   * adds the userID to the waiting list for answers of the contextResolver
-   */
-  private def waitForContextResolver(userID: UserID) {
-    // set userID on waiting list for answer of contextresolver
-    waitingForContextResolver += userID
-  }
-
-  /**
-   * increases the number of tasks that are blocking the given userID from sending ExecuteActionAnswers by one
-   */
-  private def blockUserID(userID: UserID) {
-    waitingUserMap += userID -> (waitingUserMap.getOrElse(userID, 0) + 1)
-    // println("blockuser: " + waitingUserMap.mkString(","))
-  }
-
-  /**
-   * decrease the number of tasks that are blocking the given userID from sending ExecuteActionAnswers by one
-   */
-  private def unblockUserID(userID: UserID) {
-    val numberOfTasks = (waitingUserMap.getOrElse(userID, 1) - 1)
-    waitingUserMap += userID -> (if (numberOfTasks < 0) 0 else numberOfTasks)
-    // println("after unblocked: " + waitingUserMap.mkString(","))
-  }
-
-  /**
-   * handle contextResolverAnswer to ensure blocking of ExecuteActionAnswers until all subjects (owned by the
-   * subjectProvider that created the ExecuteAction request) have been created and started
-   */
-  private def handleBlockingForSubjectCreation(userID: UserID) {
-    if (waitingForContextResolver.size == 0) {
-      return
-    }
-    // block user twice. once for subject creation and once for message delivery  
-    blockUserID(userID)
-    //    blockUserID(userID)
-
-    // println("contextResolver: " + waitingForContextResolver.mkString(","))
-
-    tryToReleaseBlocking(waitingForContextResolver.head)
-
-    // delete userID from waiting list for answers of the contextresolver
-    waitingForContextResolver = waitingForContextResolver.tail
-
-    // println("contextResolver: " + waitingForContextResolver.mkString(","))
-  }
-
-  private def handleBlockingForMessageDelivery(to: SubjectID) {
-    blockUserID(subjectsUserIDMap(to))
-    // println("blockingForDelivery: " + waitingUserMap.mkString(","))
-  }
-
-  /**
-   * handles SubjectStartedMessages and checks if no other task is blocking
-   * if thats the case -> forward message else wait
-   */
-  private def tryToReleaseBlocking(userID: UserID) {
-    // if the given userID has no tasks that are blocking it -> forward message if one exists
-    if (allSubjectsReady(userID) && blockedAnswers.contains(userID)) {
-      createExecuteActionAnswer(blockedAnswers(userID).ea)
-      // println("forward: " + blockedAnswers.mkString(","))
-      blockedAnswers -= userID
-    }
-  }
-
   private var sendProcessInstanceCreated = true
   private def trySendProcessInstanceCreated() {
-    if (sendProcessInstanceCreated && allSubjectsReady(request.userID)) {
+    if (sendProcessInstanceCreated && blockingHandler.allSubjectsReady(request.userID)) {
       //      context.parent ! ProcessInstanceCreated(request, id, self, graphJson, executionHistory, Array())
-      logger.debug("Send ProcessInstance " + id + " created")
       context.parent !
         AskSubjectsForAvailableActions(
           request.userID,
@@ -332,6 +259,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       sendProcessInstanceCreated = false
     }
   }
+  
+  
 
   /**
    * This class is responsible to hold a subjects, and can represent
@@ -378,7 +307,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // if there are messages to deliver to the new subject,
       // forward them to the subject 
       for (entry <- messagePool) {
-        handleBlockingForMessageDelivery(subject.id)
+        handleBlockingForMessageDelivery(userID)
         subjectRef.!(entry.message)(entry.orig)
         entry.subjectCount -= 1
       }
@@ -473,16 +402,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
 
       logger.debug("Processinstance [" + id + "] creates Subject " + subject.id)
-
       for (i <- (1 to count)) {
 
         // increase the subject counter
         runningSubjectCounter += 1
 
         // ask the Contextresolver for the userid to answer with an AddSubject
+        // TODO whom is the first subject????
         waitForContextResolver(userID)
         contextResolver !
-          RequestUserID(SubjectInformation(subject.id), AddSubject(_, subject.id))
+          // TODO userID ist in hier falsch gesetzt
+          RequestUserID(SubjectInformation(subject.id), s => AddSubject(request.userID, subject.id))
       }
     }
 
@@ -498,7 +428,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       restartSubject: Boolean = false) {
       for (subjectInfo <- targetSubjects) {
         if (subjectInfo.running) {
-          handleBlockingForMessageDelivery(message.to)
+          handleBlockingForMessageDelivery(message.userID)
           subjectInfo.ref.forward(message)
         } else if (restartSubject) {
           // subjectcreation = subjectrestart
@@ -508,7 +438,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           // start the execution
           subjectInfo.ref ! StartSubjectExecution()
 
-          handleBlockingForMessageDelivery(message.to)
+          handleBlockingForMessageDelivery(message.userID)
           subjectInfo.ref.forward(message)
         }
       }

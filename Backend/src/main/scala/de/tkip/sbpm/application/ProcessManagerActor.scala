@@ -107,11 +107,16 @@ class ProcessManagerActor extends Actor {
     persistenceActor.forward(pa)
   }
 
+  // to forward a message to the process instance it needs a function to 
+  // get the processinstance id
   private type ForwardProcessInstanceMessage = { def processInstanceID: ProcessInstanceID }
 
+  /**
+   * Forwards a message to a processinstance
+   */
   private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
     if (processInstanceMap.contains(message.processInstanceID)) {
-      processInstanceMap(message.processInstanceID).processInstanceActor.!(message) // TODO mit forwards aber erstmal testen
+      processInstanceMap(message.processInstanceID).processInstanceActor.forward(message)
     } else {
       if (message.isInstanceOf[AnswerAbleMessage]) {
         // TODO create an answertrait for this error

@@ -33,7 +33,7 @@ protected case class SubjectToSubjectMessage(
 protected case class Stored(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
-case class SubjectInternalMessageProcessed(subjectID: SubjectID)
+case class SubjectInternalMessageProcessed(userID: UserID)
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 case class SubjectStarted(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
 
@@ -44,10 +44,18 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
-case class ActionData(text: String, // = messagetype
-  executeAble: Boolean = false,
-  relatedSubject: Option[String] = None,
-  messageContent: Option[String] = None)
+case class MessageData(userID: UserID, messageContent: String)
+
+case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
+
+case class ActionData(
+  text: String, // = messagetype
+  executeAble: Boolean,
+  transitionType: String, // exitcondition or timeout
+  targetUsersData: Option[TargetUser] = None, // target user of a send message
+  relatedSubject: Option[String] = None, // the related subject of a send-/receive state
+  messageContent: Option[String] = None, // for the send state
+  messages: Option[Array[MessageData]] = None) // for the receive state
 
 // Answer to the GetAvailable Action request
 case class AvailableAction(
@@ -73,8 +81,6 @@ case class ExecuteAction(
 // The response to an ExecuteAction Message
 case class ActionExecuted(ea: ExecuteAction)
 
-// TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
-// TODO keine defaultparameter
 case class ExecuteActionAnswer(
   execute: ExecuteAction,
   processID: ProcessID,
