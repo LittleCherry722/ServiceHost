@@ -248,6 +248,11 @@ define([
 
 			if ( typeof value === "undefined" ) {
 				if ( !instance.isBeingInitialized ) {
+					instance[ attrName ] = observable;
+					_( subscribers ).each(function( subscriber ) {
+						observable.subscribe( subscriber );
+					})
+
 					instance.loadAttributes({ async: false });
 				}
 

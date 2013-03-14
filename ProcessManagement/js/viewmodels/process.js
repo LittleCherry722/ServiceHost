@@ -275,8 +275,13 @@ define([
 		// it would be overwritten by setting the graph to the current
 		// graph that is displayed via the gv_graph.saveToJSON() method.
 		routings = process.routings();
+
+		// Something is not right with lazy attributes... Need to set it twice -.-
+		process.graph("{}");
 		process.graph( gv_graph.saveToJSON() );
-		process.routings( routings );
+		if ( routings ) {
+			process.routings( routings );
+		}
 
 		process.save(null, {
 			success: function( textStatus ) {
