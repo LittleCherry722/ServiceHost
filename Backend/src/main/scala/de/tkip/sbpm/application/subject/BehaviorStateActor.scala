@@ -14,11 +14,18 @@ import de.tkip.sbpm.application.history.{
   Message => HistoryMessage,
   State => HistoryState
 }
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.SubjectInformation
+import de.tkip.sbpm.application.RequestUserID
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 
+/**
+ * The data, which is necessary to create any state
+ */
 protected case class StateData(
   stateModel: State,
   userID: UserID,
@@ -28,6 +35,30 @@ protected case class StateData(
   processInstanceActor: ProcessInstanceRef,
   inputPoolActor: ActorRef,
   internalStatus: InternalStatus)
+
+// the message to signal, that a timeout has expired
+private case object TimeoutExpired
+
+/**
+ * The actor to perform a timeout
+ * waits the given time (in millis)
+ * then informs the parent, that the timeout has expired
+ * and kills itself
+ */
+private class TimeoutActor(time: Long) extends Actor {
+
+  override def preStart() {
+    // just wait the time
+    Thread.sleep(time)
+    // inform the parent
+    context.parent ! TimeoutExpired
+    // and kill this actor
+    context.stop(self)
+  }
+
+  def receive = FSM.NullFunction
+
+}
 
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
@@ -50,18 +81,53 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val inputPoolActor = data.inputPoolActor
   protected val internalStatus = data.internalStatus
   protected val variables = internalStatus.variables
+  protected val timeoutTransition = transitions.find(_.isTimeout)
   protected val exitTransitions = transitions.filter(_.isExitCond)
 
-  if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
-    internalStatus.subjectStartedSent = true
-    processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
+  override def preStart() {
+
+    // if it is needed, send a SubjectStarted message
+    if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
+      internalStatus.subjectStartedSent = true
+      processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
+    }
+
+    // if the state has a(n automatic) timeout transition, start the timeout timer
+    if (timeoutTransition.isDefined) {
+      val stateTimeout = timeoutTransition.get.myType.asInstanceOf[TimeoutCond]
+      if (!stateTimeout.manual) {
+        context.actorOf(Props(new TimeoutActor(stateTimeout.duration * 1000)))
+      }
+    }
   }
 
-  def receive = {
+  // first try the "receive" function of the inheritance state
+  // then use the "receive" function of this behavior state
+  final def receive = generalReceive orElse stateReceive orElse errorReceive
+
+  // the inheritance state must implement this function
+  protected def stateReceive: Receive
+
+  // the receive of this behavior state, it will be executed
+  // if the state-receive does not match
+  private def generalReceive: Receive = {
     case ga: GetAvailableAction => {
       sender ! createAvailableAction(ga.processInstanceID)
     }
 
+    case TimeoutExpired => {
+      executeTimeout()
+    }
+
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, _, input) if ({
+      input.transitionType == timeoutLabel
+    }) => {
+      executeTimeout()
+      processInstanceActor ! ActionExecuted(ea)
+    }
+  }
+
+  private def errorReceive: Receive = {
     case action: ExecuteAction => {
       logger.error("/" + userID + "/" + subjectID + "/" +
         id + " does not support " + action)
@@ -72,26 +138,48 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     }
   }
 
+  /**
+   * Executes a timeout by executing the timeout edge
+   *
+   * override this function to execute an other transition when a timeout appears
+   */
+  protected def executeTimeout() {
+    if (timeoutTransition.isDefined) {
+      changeState(timeoutTransition.get.successorID, null)
+    }
+  }
+
+  /**
+   * This function returns if the subjectready message should be delayed,
+   * default value is false
+   *
+   * override this function to delay the subject ready message
+   *
+   * @return whether the subject ready message should be delayed
+   */
   protected def delaySubjectReady = false
 
   /**
-   *
-   * @return
-   *  (String, Array[String])
-   * (StateType, Actions),
-   * e.g.
-   * ("Act", ["Approval", "Denial"]),
-   * ("Send", []),
-   * ("Receive", ["The huge Message Content"])
+   * Changes the state and creates a history entry with the history message
    */
-  protected def getAvailableAction: Array[ActionData]
-
   protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
     internalBehaviorActor ! ChangeState(id, successorID, internalStatus, historyMessage)
   }
 
+  /**
+   * Returns the available actions of the state
+   */
+  protected def getAvailableAction: Array[ActionData]
+
+  /**
+   * Creates the Available Action, which belongs to this state
+   */
   protected def createAvailableAction(processInstanceID: ProcessInstanceID) = {
-    val actionData = getAvailableAction
+    var actionData = getAvailableAction
+    if (timeoutTransition.isDefined) {
+      actionData ++= Array(ActionData("timeout", true, timeoutLabel))
+    }
+
     AvailableAction(
       userID,
       processInstanceID,
@@ -107,7 +195,11 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
+  // Inform the processinstance that this subject has terminated
   internalBehaviorActor ! SubjectTerminated(userID, subjectID, subjectSessionID)
+
+  // nothing to receive for this state
+  protected def stateReceive = FSM.NullFunction
 
   override def postStop() {
     logger.debug("End@" + userID + ", " + subjectID + "stops...")
@@ -120,7 +212,7 @@ protected case class EndStateActor(data: StateData)
 protected case class ActStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
-  override def receive = {
+  protected def stateReceive = {
 
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ActStateString, input) => {
       val index = indexOfInput(input.text)
@@ -129,17 +221,12 @@ protected case class ActStateActor(data: StateData)
         processInstanceActor ! ActionExecuted(ea)
       } else {
         // TODO invalid input
-        processInstanceActor ! ActionExecuted(ea)
       }
-    }
-
-    case s => {
-      super.receive(s)
     }
   }
 
   override protected def getAvailableAction: Array[ActionData] =
-    exitTransitions.map((t: Transition) => ActionData(t.messageType, true))
+    exitTransitions.map((t: Transition) => ActionData(t.messageType, true, exitCondLabel))
 
   private def indexOfInput(input: String): Int = {
     var i = 0
@@ -174,7 +261,7 @@ protected case class ReceiveStateActor(data: StateData)
     }
   }
 
-  override def receive = {
+  protected def stateReceive = {
     // execute an action
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ReceiveStateString, input) if ({
       // check if the related subject exists
@@ -213,17 +300,12 @@ protected case class ReceiveStateActor(data: StateData)
         variables.getOrElseUpdate(varID, Variable(varID)).addMessage(sm)
         System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
-
-      trySendSubjectStarted()
     }
 
-    case InputPoolEmpty => {
-      // if startstate inform the processinstance that this subject has started
+    case InputPoolSubscriptionPerformed => {
+      // if this state is the startstate inform the processinstance,
+      // that this subject has started
       trySendSubjectStarted()
-    }
-
-    case s => {
-      super.receive(s)
     }
   }
 
@@ -238,13 +320,28 @@ protected case class ReceiveStateActor(data: StateData)
     }
   }
 
+  override protected def executeTimeout() {
+    val exitTransition =
+      exitTransitionsMap.map(_._2).filter(_.ready).map(_.transition)
+        .reduceOption((t1, t2) => if (t1.priority < t2.priority) t1 else t2)
+
+    if (exitTransition.isDefined) {
+      // TODO richtige historymessage
+      changeState(exitTransition.get.successorID, null)
+    } else {
+      super.executeTimeout()
+    }
+  }
+
   override protected def getAvailableAction: Array[ActionData] =
     (for ((k, t) <- exitTransitionsMap) yield {
       ActionData(
         t.messageType,
         t.ready,
+        exitCondLabel,
         relatedSubject = Some(t.from),
-        messageContent = t.messageContent)
+        messageContent = t.messageContent, // TODO delete
+        messages = Some(t.messages))
     }).toArray
 
   override protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
@@ -267,6 +364,10 @@ protected case class ReceiveStateActor(data: StateData)
     var messageID: MessageID = -1
     var messageContent: Option[MessageContent] = None
 
+    val messageData: ArrayBuffer[MessageData] = ArrayBuffer[MessageData]()
+
+    def messages = messageData.toArray
+
     private var remaining = transition.target.get.min
 
     def addMessage(message: SubjectToSubjectMessage) {
@@ -283,6 +384,8 @@ protected case class ReceiveStateActor(data: StateData)
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
+
+      messageData += MessageData(message.userID, message.messageContent)
     }
   }
 }
@@ -292,13 +395,35 @@ protected case class SendStateActor(data: StateData)
 
   import scala.collection.mutable.{ Map => MutableMap }
 
-  var remainingStored = 0
-  var messageContent: Option[String] = None
-  val unsentMessageIDs: MutableMap[MessageID, Transition] =
+  private var remainingStored = 0
+  private var messageContent: Option[String] = None
+  private val unsentMessageIDs: MutableMap[MessageID, Transition] =
     MutableMap[MessageID, Transition]()
 
-  override def receive = {
+  // TODO
+  private val sendTransition: Transition =
+    transitions.find(_.isExitCond).get
+  private val sendExitCond = sendTransition.myType.asInstanceOf[ExitCond]
+  private val sendTarget = sendExitCond.target.get
+
+  //  override def preStart() {
+  // TODO so ist das noch nicht, besser machen!
+  // ask the ContextResolver for the targetIDs
+  // store them in a val
+  implicit val timeout = Timeout(2000)
+  val future =
+    (ActorLocator.contextResolverActor
+      ? (RequestUserID(
+        SubjectInformation(sendTransition.subjectID),
+        _.toArray)))
+  val userIDs = Await.result(future, timeout.duration).asInstanceOf[Array[UserID]]
+  System.err.println(userIDs.mkString(", "));
+
+  //  }
+
+  protected def stateReceive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, SendStateString, input) if ({
+      // the message needs a content
       input.messageContent.isDefined
     }) => {
       if (!messageContent.isDefined) {
@@ -306,7 +431,7 @@ protected case class SendStateActor(data: StateData)
         // can be blocked until a potentially new subject is created to ensure all available actions will 
         // be returned when asking
         messageContent = input.messageContent
-        for (transition <- exitTransitions if (transition.target.isDefined)) {
+        for (transition <- exitTransitions if transition.target.isDefined) yield {
           val messageType = transition.messageType
           val toSubject = transition.subjectID
           val messageID = nextMessageID
@@ -321,8 +446,19 @@ protected case class SendStateActor(data: StateData)
             target.insertVariable(variables(target.variable.get))
           }
 
+          if (userIDs.length == target.min == target.max) {
+            target.insertTargetUsers(userIDs)
+          } else if (input.targetUsersData.isDefined) {
+            val targetUserData = input.targetUsersData.get
+            // TODO validate?
+            target.insertTargetUsers(targetUserData.targetUsers)
+          } else {
+            // TODO error?
+          }
+
           remainingStored += target.min
 
+          // TODO send to ausgewaehlten users
           processInstanceActor !
             SubjectToSubjectMessage(
               messageID,
@@ -355,18 +491,18 @@ protected case class SendStateActor(data: StateData)
         changeState(transition.successorID, message)
       }
     }
-
-    case s => {
-      super.receive(s)
-    }
   }
 
+  // TODO only send targetUserData when its not trivial
   override protected def getAvailableAction: Array[ActionData] =
-    exitTransitions.map((t: Transition) =>
+    Array(
       ActionData(
-        t.messageType,
-        !messageContent.isDefined,
-        relatedSubject = Some(t.subjectID)))
+        sendTransition.messageType,
+        !messageContent.isDefined && userIDs.length >= sendTarget.min,
+        exitCondLabel,
+        relatedSubject = Some(sendTransition.subjectID),
+        targetUsersData =
+          Some(TargetUser(sendTarget.min, sendTarget.max, userIDs))))
 
   /**
    * Generates a new message ID

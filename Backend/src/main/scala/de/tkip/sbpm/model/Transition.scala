@@ -14,25 +14,32 @@ case class ErrorCond() extends TransitionType
 
 case class Target(
   subjectID: SubjectID,
-  private var minValue: Int,
-  private var maxValue: Int,
+  min: Int,
+  max: Int,
   createNew: Boolean,
   variable: Option[String],
   private val defaultValues: Boolean) {
-  // TODO validate
-  if (minValue < 1) minValue = 1
-  def min = minValue
-  if (maxValue < 1) maxValue = 1 //TODO set maxvalue
-  def max = maxValue
 
   val toVariable = variable.isDefined && variable.get != ""
   val toAll = defaultValues && !createNew && !toVariable
 
   private var _vars: Array[(SubjectID, SubjectSessionID)] = Array()
+  private var _targetUsers = Array[UserID]()
+
   def varSubjects = _vars
+  def targetUsers: Array[UserID] = _targetUsers
 
   def insertVariable(v: Variable) {
     _vars = for (m <- v.messages) yield ((m.from, m.fromSession))
+  }
+
+  def insertTargetUsers(userIDs: Array[UserID]) {
+    if (min <= userIDs.length && userIDs.length <= max) {
+      _targetUsers = userIDs
+
+    } else {
+      throw new RuntimeException("Cant target more users than given in the range")
+    }
   }
 }
 
@@ -42,6 +49,7 @@ case class Target(
 case class Transition(
   myType: TransitionType,
   successorID: SuccessorID,
+  priority: Int,
   storeVar: String = "") {
 
   // boolean type check functions
@@ -58,15 +66,15 @@ case class Transition(
 
 object ActTransition {
   def apply(actionType: MessageType, successorID: SuccessorID) =
-    Transition(ExitCond(actionType), successorID)
+    Transition(ExitCond(actionType), successorID, 1)
 }
 
 object TimeoutTransition {
   def apply(manual: Boolean, successorID: SuccessorID) = {
     if (!manual)
       throw new RuntimeException("A timeout which is not manual needs a duration.")
-    Transition(TimeoutCond(manual, -1), successorID)
+    Transition(TimeoutCond(manual, -1), successorID, -1)
   }
   def apply(manual: Boolean, duration: Int, successorID: SuccessorID) =
-    Transition(TimeoutCond(manual, duration), successorID)
+    Transition(TimeoutCond(manual, duration), successorID, -1)
 }

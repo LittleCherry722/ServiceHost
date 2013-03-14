@@ -21,8 +21,10 @@ class SubjectActor(
 
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
+  // create the inputpool
   private val inputPoolActor: ActorRef =
-    context.actorOf(Props(new InputPoolActor(subject.inputPool)))
+    context.actorOf(Props(new InputPoolActor(userID, subject.inputPool)))
+  // and the internal behavior
   private val internalBehaviorActor =
     context.actorOf(
       Props(
@@ -33,16 +35,20 @@ class SubjectActor(
           userID,
           inputPoolActor)))
 
-  // add all states in the internal behavior
-  for (state <- subject.states) {
-    internalBehaviorActor ! state
+  override def preStart() {
+    // add all states in the internal behavior
+    for (state <- subject.states) {
+      internalBehaviorActor ! state
+    }
   }
 
   def receive = {
     case sm: SubjectToSubjectMessage => {
+      // a message from an other subject can be forwarded into the inputpool
       inputPoolActor.forward(sm)
     }
 
+    // TODO raus?
     case message: SubjectInternalMessageProcessed => {
       context.parent.forward(message)
     }
@@ -59,6 +65,7 @@ class SubjectActor(
 
     case gaa: GetAvailableActions => {
       if (gaa.userID == userID) {
+        // forward the request to the inputpool actor
         internalBehaviorActor ! gaa
       }
     }
@@ -68,6 +75,7 @@ class SubjectActor(
     }
 
     case message: SubjectProviderMessage => {
+      // a message to the subject provider will be send over the process instance
       context.parent ! message
     }
 

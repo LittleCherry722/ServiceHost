@@ -29,13 +29,14 @@ protected case class SubscribeIncomingMessages(
     }
   }
 }
+
 // message to inform the inputpool that the state, does not subscribe anything anymore
 protected case class UnSubscribeIncomingMessages(stateID: StateID)
 
 // message to inform the receive state, that the inputpool has no messages for him
-protected case object InputPoolEmpty
+protected case object InputPoolSubscriptionPerformed
 
-class InputPoolActor(private val messageLimit: Int) extends Actor {
+class InputPoolActor(userID: UserID, messageLimit: Int) extends Actor {
 
   // this map holds the queue of the income messages for a channel
   private val messageQueueMap =
@@ -66,39 +67,38 @@ class InputPoolActor(private val messageLimit: Int) extends Actor {
       // try to transport the message
       tryTransportMessage(message)
       // inform the processinstance, that this message has been processed
-      context.parent ! SubjectInternalMessageProcessed(message.to)
+      context.parent ! SubjectInternalMessageProcessed(userID)
     }
   }
 
+  /**
+   * Handles the subscription for one or more messages, which means:
+   * - Set all actors to the sender in the class instances
+   * - try to transport all messages to the requesting state
+   * - inform the sender, that the subscription has been performed
+   */
   private def handleSubscribers(registerAll: Array[SubscribeIncomingMessages]) {
     // set all state actors to the sender
     registerAll.map(_.setStateActor(sender))
 
-    var success = false
     for (register <- registerAll) {
-      // try to transport all messages, transport was successfull, if at least
-      // one massage has been transported
-      // note: use |= not ||= 
-      success |= tryTransportMessagesTo(register)
-    }
-    if (!success) {
-      sender ! InputPoolEmpty // TODO needed?
+      // try to transport all messages
+      tryTransportMessagesTo(register)
     }
 
+    // inform the sender, that this subscription has been performed
+    sender ! InputPoolSubscriptionPerformed
   }
 
   /**
    * Tries to transport the messages, which are already in the pool
    * to the state described by the input
    * Will also register the state as waiting in the map, if needed
-   *
-   * @return whether at least 1 message has been transported
    */
-  private def tryTransportMessagesTo(state: SubscribeIncomingMessages): Boolean = {
+  private def tryTransportMessagesTo(state: SubscribeIncomingMessages) {
     val key = (state.fromSubject, state.messageType)
-    var messageTransported = false
+    // while it is needed and it is possible, send the message to the request state
     while (state.count > 0 && !messageQueueIsEmpty(key)) {
-      messageTransported = true
       // get the message
       val message = dequeueMessage(key)
       // transport the message
@@ -109,8 +109,6 @@ class InputPoolActor(private val messageLimit: Int) extends Actor {
     if (state.count > 0) {
       getWaitingStatesList(key).add(state)
     }
-
-    messageTransported
   }
 
   /**
@@ -165,7 +163,6 @@ class InputPoolActor(private val messageLimit: Int) extends Actor {
    */
   private def messageQueueIsEmpty(key: (SubjectID, MessageType)) =
     !messageQueueMap.contains(key) || messageQueueMap(key).isEmpty
-
 }
 
 /**

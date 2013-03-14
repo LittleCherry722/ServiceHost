@@ -8,6 +8,11 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.rest.JsonProtocol._
 
+object MarshallingAttributes {
+  val exitCondLabel = "exitcondition"
+  val timeoutLabel = "timeout"
+}
+
 /**
  * This objectfunction is responsible to divide a string listing of subjects
  * into the independent subjectIDs
@@ -36,12 +41,12 @@ object parseGraph {
   private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
   private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
   private case class JNodeOption(message: MessageType)
-  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, manualTimeout: Boolean, target: JsValue, variable: JsValue)
+  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, target: JsValue, priority: Int, manualTimeout: Boolean, variable: JsValue)
   private case class JEdgeTarget(id: SubjectID, min: JsValue, max: JsValue, createNew: Boolean, variable: JsValue)
   // The marshalling formats for the case classes
   private object JsonFormats extends DefaultJsonProtocol {
     implicit val edgeTargetFormat = jsonFormat5(JEdgeTarget)
-    implicit val edgeFormat = jsonFormat7(JEdge)
+    implicit val edgeFormat = jsonFormat8(JEdge)
     implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
     implicit val nodeFormat = jsonFormat6(JNode)
     implicit val behaviorFormat = jsonFormat2(JBehavior)
@@ -152,7 +157,7 @@ object parseGraph {
                 var default = minValue < 1 && maxValue < 1
 
                 if (minValue < 1) minValue = 1
-                if (minValue < 1) {
+                if (maxValue < 1) {
                   // maxValue should be infinity, if the other one is a multisubject
                   // if the other one is a single subject await only one message
                   maxValue =
@@ -185,7 +190,7 @@ object parseGraph {
 
             // at the transition to the state
             state.addTransition(
-              Transition(ExitCond(messageType, target), edge.end, storeVariable))
+              Transition(ExitCond(messageType, target), edge.end, edge.priority, storeVariable))
           }
 
           case "timeout" => {
