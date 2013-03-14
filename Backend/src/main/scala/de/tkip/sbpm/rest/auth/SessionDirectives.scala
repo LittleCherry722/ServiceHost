@@ -180,7 +180,6 @@ trait SessionDirectives {
    * Rejects if authentication fails.
    */
   def login(userPass: UserPass)(implicit refFactory: ActorRefFactory): Directive[User :: HNil] = {
-    println(userPass)
     val authFuture = ActorLocator.userPassAuthActor ? userPass
     val user = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
     if (user.isDefined)
