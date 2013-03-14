@@ -32,16 +32,6 @@ case class History(processName: String,
   var processEnded: Option[Date] = None, // None if not started or still running
   entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
-// TODO This object just exists for debug reasons
-protected object firstrun {
-  private var start = true
-  def apply() = {
-    val temp = start
-    start = false
-    temp
-  }
-}
-
 import ExecutionContext.Implicits.global // TODO this import or something different?
 
 /**
@@ -56,13 +46,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   val processID = request.processID
 
-  // TODO just for debug reasons, delete later
-  val isStart: Boolean = firstrun()
-
   // TODO "None" rueckgaben behandeln
   // Get the ProcessGraph from the database and create the database entry
   // for this process instance
-  // TODO momentan wird der process auf instanceid 1 gezwungen 
   val dataBaseAccessFuture = for {
     // get the process
     processFuture <- (ActorLocator.persistenceActor ?
@@ -71,24 +57,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     processInstanceIDFuture <- (ActorLocator.persistenceActor ?
       SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
       .mapTo[Option[Int]]
-    // save this process instance in the persistence
-    // Just of debug reasons
-    processInstanceIDFuture1 <- if (isStart)
-      (ActorLocator.persistenceActor ?
-        SaveProcessInstance(ProcessInstance(Some(1), processID, processFuture.get.graphId, "", "")))
-        .mapTo[Option[Int]]
-    else
-      (ActorLocator.persistenceActor ?
-        SaveProcessInstance(ProcessInstance(processInstanceIDFuture, processID, processFuture.get.graphId, "", "")))
-        .mapTo[Option[Int]]
-    //      } else {
-    //        processInstanceIDFuture
-    //      }
 
     // get the corresponding graph
     graphFuture <- (ActorLocator.persistenceActor ?
       GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-  } yield (if (isStart) 1 else processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+  } yield (processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
 
   // evaluate the Future
   val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJson: String) =
@@ -114,7 +87,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
   // history.Entry messages to this actor
-  private val executionHistory = History(processName, id, Some(new Date())) // TODO start time = creation time?
+  private val executionHistory = History(processName, id, Some(new Date()))
   // provider actor for debug payload used in history's debug data
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
@@ -150,14 +123,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case st: SubjectTerminated => {
-      //      subjectMap -= st.subjectID
-      //      subjectsUserIDMap -= st.subjectID // TODO umbauen fuer multisubjecte
       subjectMap(st.subjectID).handleSubjectTerminated(st)
 
-      // log end time in history TODO
-      //      subjectCounter -= 1
       logger.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
       if (isTerminated) {
+        // log end time in history
         executionHistory.processEnded = Some(new Date())
       }
     }

@@ -80,9 +80,6 @@ object Boot extends App with SprayCanHttpServerApp {
   if (debugAction)
     dbFuture = dbFuture map { case _ => TestData.insert(persistenceActor) }
 
-  // TODO create a processinstance for testreason: history, actions, graph etc...
-  dbFuture.map(_ => CreateProcessInstance(1, 1)).pipeTo(subjectProviderManagerActor)
-  
   dbFuture.onFailure {
     case e => logging.error(e, e.getMessage)
   }
