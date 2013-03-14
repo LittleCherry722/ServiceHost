@@ -65,7 +65,7 @@ class PersistenceActor extends Actor with ActorLogging {
   implicit val execCtx = context.system.dispatcher
 
   private def forwardTo(m: PersistenceAction, actor: ActorRef) = {
-    sender ! Await.result(actor ? m, timeout.duration)
+    actor.forward(m)
   }
 
   private def init() {
