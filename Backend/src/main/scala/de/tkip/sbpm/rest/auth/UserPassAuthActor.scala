@@ -49,7 +49,7 @@ class UserPassAuthActor extends Actor {
    */
   private def checkCredentials(user: String, pass: String, receiver: ActorRef) = {
     val future = (persistenceActor ? GetUserIdentity("sbpm", user)).map {
-    // return none if user not found, no password in identity or failure  
+    // return none if user not found, no password in identity or failure 
     case None => None
       case Some(UserIdentity(_, _, _, None)) => None
       case Some(identity: UserIdentity) =>

@@ -24,6 +24,9 @@ import de.tkip.sbpm.model.GroupUser
 import spray.http.StatusCodes
 import spray.routing.authentication.UserPass
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.model.UserIdentity
+import de.tkip.sbpm.model.Credentials
+import ua.t3hnar.bcrypt._
 
 /**
  * This Actor is only used to process REST calls regarding "user"
@@ -142,11 +145,11 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
             }
           }
         } ~
-        /**
-         * Performs a user logout by deleting current session.
-         * e.g. POST http://localhost:8080/user/logout
-         * result: 204 No Content
-         */
+          /**
+           * Performs a user logout by deleting current session.
+           * e.g. POST http://localhost:8080/user/logout
+           * result: 204 No Content
+           */
           (path("logout") & deleteSession) {
             noContent()
           } ~
@@ -190,6 +193,19 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
               entity(as[User]) { user =>
                 saveUser(user, Some(id))
               }
+            } ~
+            /**
+             * update credentials of an existing user
+             *
+             * e.g. PUT http://localhost:8080/user/2
+             * 	payload: { "provider": "sbpm", "eMail": "exa@mple.com", "oldPassword": "old", "password": "new" }
+             * 	result: 200 OK
+             *
+             */
+            path("^$"r) { regex =>
+              entity(as[Credentials]) { credentials =>
+                setUserIdentity(id, credentials)
+              }
             }
         }
       }
@@ -208,6 +224,37 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
       entity,
       pathForEntity(Entity.USER, "%d"),
       (e: User, i: Int) => { e.id = Some(i); e })
+  }
+
+  def setUserIdentity(id: Int, entity: Credentials) = {
+    //check if the user exists
+    val userFuture = persistenceActor ? GetUser(Some(id), None)
+    val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
+
+    if (user.isDefined) {
+      // check if the old password is correct
+      val authFuture = ActorLocator.userPassAuthActor ? UserPass(entity.oldEMail, entity.oldPassword)
+      val auth = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
+
+      if (auth.isDefined) {
+        // check what has to be changed
+        var eMail = entity.oldEMail
+        var password = entity.oldPassword
+
+        if (entity.eMail.isDefined)
+          eMail = entity.eMail.get
+        if (entity.password.isDefined)
+          password = entity.password.get
+
+        // set the new password, eMail and provider
+        val future = persistenceActor ? SetUserIdentity(id, entity.provider, eMail, Some(password.bcrypt))
+        val res = Await.result(future, timeout.duration)
+
+        complete(StatusCodes.OK)
+      } else
+        complete(StatusCodes.Unauthorized)
+    } else
+      throw new Exception("User '" + id + "' does not exist.")
   }
 
   /**

@@ -25,7 +25,7 @@ case class DeleteUser(id: Int) extends UserAction
 // retrieve user by identity provider and eMail
 case class GetUserIdentity(provider: String, eMail: String) extends UserAction
 // sets identity params for user and provider
-case class SetUserIdentity(userId: Int, provider: String, eMail: String, password: Option[String] = None)  extends UserAction
+case class SetUserIdentity(userId: Int, provider: String, eMail: String, password: Option[String] = None) extends UserAction
 
 /**
  * Handles all database operations for table "users".
@@ -70,7 +70,7 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       // get all users ordered by id
       case GetUser(None, None) => answer { Users.sortBy(_.id).list }
       // get user with given id
-      case GetUser(id, None) => answer { Users.where(_.id === id).firstOption }
+      case GetUser(id, None)   => answer { Users.where(_.id === id).firstOption }
       // get user with given name
       case GetUser(None, name) => answer { Users.where(_.name === name).firstOption }
       // create new user
@@ -79,12 +79,12 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       // save existing user
       case SaveUser(u @ User(id, _, _, _)) => update(id, u)
       // delete user with given id
-      case DeleteUser(id) => answer { Users.where(_.id === id).delete(session) }
+      case DeleteUser(id)                  => answer { Users.where(_.id === id).delete(session) }
       // retrieve identity for provider and email
       case GetUserIdentity(provider, eMail) => answer {
-    	  UserIdentities.includeUser(provider, eMail).firstOption.map {
-    	    case (i, u) => UserIdentity(u, i._2, i._3, i._4)
-    	  }
+        UserIdentities.includeUser(provider, eMail).firstOption.map {
+          case (i, u) => UserIdentity(u, i._2, i._3, i._4)
+        }
       }
       case SetUserIdentity(userId, provider, eMail, password) => answer {
         UserIdentities.where(i => i.userId === userId && i.provider === provider).delete(session)
