@@ -98,14 +98,6 @@ class FrontendInterfaceActor extends Actor with HttpService {
         authenticateAndHandleWith[ProcessInterfaceActor]
       } ~
       /**
-       * redirect all calls beginning with "testexecution" to TestExecutionInterfaceActor
-       *
-       * e.g. GET http://localhost:8080/testexecution/8
-       */
-      pathPrefix(Entity.TESTEXECUTION) {
-        authenticateAndHandleWith[TestExecutionInterfaceActor]
-      } ~
-      /**
        * forward all posts to /oauth2callback unauthenticated to GoogleAuthActor 
        */
       pathPrefix(Entity.OAUTH2CALLBACK) {

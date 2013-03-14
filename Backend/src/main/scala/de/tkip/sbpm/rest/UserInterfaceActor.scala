@@ -8,7 +8,6 @@ import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.Envelope
 import de.tkip.sbpm.model.User
 import scala.language.postfixOps
 import de.tkip.sbpm.rest.JsonProtocol._
@@ -25,6 +24,7 @@ import spray.http.StatusCodes
 import spray.routing.authentication.UserPass
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.model.UserIdentity
+import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.model.Credentials
 import ua.t3hnar.bcrypt._
 
@@ -56,7 +56,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("^$"r) { regex =>
-        completeWithQuery[Seq[User]](GetUser())
+        completeWithQuery[Seq[User]](Users.Read())
       } ~
         /**
          * Return currently logged in user.
@@ -73,7 +73,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          * result: JSON array of entities
          */
         path(Entity.GROUP) {
-          completeWithQuery[Seq[GroupUser]](GetGroupUser())
+          completeWithQuery[Seq[GroupUser]](GroupsUsers.Read())
         } ~
         pathPrefix(IntNumber) { id: Int =>
           /**
@@ -83,7 +83,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * result: 404 Not Found or entity as JSON
            */
           path("^$"r) { regex =>
-            completeWithQuery[User](GetUser(Some(id)), "User with id %d not found.", id)
+            completeWithQuery[User](Users.Read.ById(id), "User with id %d not found.", id)
           } ~
             /**
              * get all groups of the user
@@ -93,7 +93,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              */
             pathPrefix(Entity.GROUP) {
               path("^$"r) { regex =>
-                completeWithQuery[Seq[GroupUser]](GetGroupUser(None, Some(id)))
+                completeWithQuery[Seq[GroupUser]](GroupsUsers.Read.ByUserId(id))
               } ~
                 /**
                  * get a specific group mapping of the user
@@ -102,7 +102,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
                  * result: JSON of entity
                  */
                 path(IntNumber) { groupId =>
-                  completeWithQuery[GroupUser](GetGroupUser(Some(groupId), Some(id)), "User with id %d has no group with id %d.", id, groupId)
+                  completeWithQuery[GroupUser](GroupsUsers.Read.ById(groupId, id), "User with id %d has no group with id %d.", id, groupId)
                 }
             }
         }
@@ -116,7 +116,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * result: 204 No Content
            */
           path("^$"r) { regex =>
-            completeWithDelete(DeleteUser(id), "User could not be deleted. Entity with id %d not found.", id)
+            completeWithDelete(Users.Delete.ById(id), "User could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
              * delete a group of the user
@@ -125,7 +125,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * result: 204 No Content
              */
             path(Entity.GROUP / IntNumber) { groupId =>
-              completeWithDelete(DeleteGroupUser(groupId, id), "Group could not be removed from user. User with id %d has no group with id %d.", id, groupId)
+              completeWithDelete(GroupsUsers.Delete.ById(groupId, id), "Group could not be removed from user. User with id %d has no group with id %d.", id, groupId)
             }
         }
       } ~
@@ -219,11 +219,11 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
   def saveUser(entity: User, id: Option[Int] = None) = {
     // set param from url to entity id 
     // or delete id to create new entity
-    entity.id = id
-    completeWithSave(SaveUser(entity),
+    val e = entity.copy(id)
+    completeWithSave(Users.Save(entity),
       entity,
       pathForEntity(Entity.USER, "%d"),
-      (e: User, i: Int) => { e.id = Some(i); e })
+      (e: User, i: Int) => { e.copy(Some(i)) })
   }
 
   def setUserIdentity(id: Int, entity: Credentials) = {
@@ -263,9 +263,9 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
    */
   def saveGroup(groupUser: GroupUser) =
     completeWithSave[GroupUser, (Int, Int)](
-      SaveGroupUser(groupUser),
+      GroupsUsers.Save(groupUser),
       groupUser,
       pathForEntity(Entity.USER, "%d") + pathForEntity(Entity.GROUP, "%d"),
-      (entity, id) => GroupUser(id._1, id._2, entity.isActive),
+      (entity, id) => GroupUser(id._1, id._2),
       (id) => Array(id._2, id._1))
 }

@@ -3,9 +3,7 @@ package de.tkip.sbpm.rest
 import akka.actor.Actor
 import akka.event.Logging
 import de.tkip.sbpm.model.Configuration
-import de.tkip.sbpm.persistence.DeleteConfiguration
-import de.tkip.sbpm.persistence.GetConfiguration
-import de.tkip.sbpm.persistence.SaveConfiguration
+import de.tkip.sbpm.persistence.query.Configurations._
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import spray.json._
@@ -41,7 +39,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("") {
-        completeWithQuery[Seq[Configuration]](GetConfiguration())
+        completeWithQuery[Seq[Configuration]](Read.All)
       } ~
         /**
          * get configuration by key
@@ -50,7 +48,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
          * result: 404 Not Found or JSON of entity
          */
         path(PathElement) { key =>
-          completeWithQuery[Configuration](GetConfiguration(Some(key)), "Configuration with key '%s' not found.", key)
+          completeWithQuery[Configuration](Read.ByKey(key), "Configuration with key '%s' not found.", key)
         }
     } ~
       delete {
@@ -61,7 +59,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
          * result: 202 Accepted -> content deleted asynchronously
          */
         path(PathElement) { key =>
-        	completeWithDelete(DeleteConfiguration(key), "Configuration could not be deleted. Entity with key '%s' not found.", key)
+        	completeWithDelete(Delete.ByKey(key), "Configuration could not be deleted. Entity with key '%s' not found.", key)
         }
       } ~
       put {
@@ -74,7 +72,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
          */
         path("") {
           entity(as[Configuration]) { configuration =>
-            completeWithSave[Configuration, String](SaveConfiguration(configuration), configuration, pathForEntity(Entity.CONFIGURATION, "%s"))
+            completeWithSave[Configuration, String](Save(configuration), configuration, pathForEntity(Entity.CONFIGURATION, "%s"))
           }
         }
       }

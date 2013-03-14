@@ -5,7 +5,6 @@ import spray.http.HttpCredentials
 import spray.http.BasicHttpCredentials
 import de.tkip.sbpm.ActorLocator
 import akka.pattern._
-import de.tkip.sbpm.persistence.GetUser
 import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global

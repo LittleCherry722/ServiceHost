@@ -26,6 +26,7 @@ import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
 import de.tkip.sbpm.application.ProcessManagerActor
 import scala.concurrent.Await
 import spray.util.LoggingContext
+import de.tkip.sbpm.persistence.query._
 
 /**
  * This Actor is only used to process REST calls regarding "process"
@@ -38,7 +39,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
   /**
    *
    * usually a REST Api should at least implement the following functions:
-   * - GET withouht parameter => list of entity
+   * - GET without parameter => list of entity
    * - GET with id => specific entity
    * - PUT without id => new entity
    * - PUT with id => update entity
@@ -62,16 +63,16 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       // LIST
       path("") {
         // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-        completeWithQuery[Seq[Process]](GetProcess())
-      } ~
+        completeWithQuery[Seq[Process]](Processes.Read())
+      } /*~
         // READ
         pathPrefix(IntNumber) { id =>
           try {
             val persistenceActor = ActorLocator.persistenceActor
-            val processFuture = (persistenceActor ? GetProcess(Some(id)))
+            val processFuture = (persistenceActor ? Processes.Read.ById(id))
             val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
             if (processResult.isDefined) {
-              val graphFuture = (persistenceActor ? GetGraph(Some(processResult.get.graphId)))
+              val graphFuture = (persistenceActor ? Graphs.Read.ById(processResult.get.activeGraphId.get))
               val graphResult = Await.result(graphFuture, timeout.duration).asInstanceOf[Option[Graph]]
               complete(JsObject(
                 "id" -> processResult.get.id.toJson,
@@ -156,7 +157,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
               }
             }
           }
-        }
+        }*/
       }
   })
 }

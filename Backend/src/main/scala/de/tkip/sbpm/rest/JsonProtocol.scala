@@ -62,7 +62,7 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   //  TODO so richtig durchgereicht
   implicit object RefFormat extends RootJsonFormat[ActorRef] {
-    def write(obj: ActorRef) = obj.toJson
+    def write(obj: ActorRef) = pimpAny(obj).toJson
     def read(json: JsValue) = json.convertTo[ActorRef]
   }
 
@@ -87,27 +87,23 @@ object JsonProtocol extends DefaultJsonProtocol {
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
   }
 
-  /**
-   * case class formater
-   */
-  implicit val envelopeFormat = jsonFormat2(Envelope)
 
   // administration
-  implicit val configurationFormat = jsonFormat4(Configuration)
   implicit val userFormat = jsonFormat4(User)
   implicit val userIdentityFormat = jsonFormat4(UserIdentity)
   implicit val cerentialsFormat = jsonFormat5(Credentials)
   implicit val roleFormat = jsonFormat3(Role)
   implicit val groupFormat = jsonFormat3(Group)
-  implicit val groupUserFormat = jsonFormat3(GroupUser)
-  implicit val groupRoleFormat = jsonFormat3(GroupRole)
+  implicit val groupUserFormat = jsonFormat2(GroupUser)
+  implicit val groupRoleFormat = jsonFormat2(GroupRole)
   // used for login
   implicit val userPassFormat = jsonFormat2(UserPass)
 
   // DomainModel
-  implicit val domainGraphFormat = jsonFormat4(Graph)
-  implicit val domainProcessFormat = jsonFormat5(Process)
+  implicit val domainProcessFormat = jsonFormat4(Process)
   implicit val actionFormat = jsonFormat2(Action)
+  
+  implicit val configFormat = jsonFormat4(Configuration)
 
   // history
   implicit val stateFormat = jsonFormat2(State)

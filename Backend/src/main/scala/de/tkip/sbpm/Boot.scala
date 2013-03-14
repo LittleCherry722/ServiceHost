@@ -23,6 +23,7 @@ import scala.actors.Logger
 import scala.concurrent.Future
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.external.auth.GoogleAuthActor
+import de.tkip.sbpm.persistence.query.Schema
 import de.tkip.sbpm.external.api.GoogleDriveActor
 
 
@@ -72,14 +73,15 @@ object Boot extends App with SprayCanHttpServerApp {
   val createAction = startupAction matches "^(re)?create(-debug)?$"
   val debugAction = startupAction matches "^(re)?create-debug$"
 
-  var dbFuture = Future()
+  var dbFuture = Future[Any]()
   if (dropAction)
-    dbFuture = dbFuture map { case _ => persistenceActor ? DropDatabase }
+    dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Drop }
   if (createAction)
-    dbFuture = dbFuture map { case _ => persistenceActor ? InitDatabase }
+    dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Create }
   if (debugAction)
-    dbFuture = dbFuture map { case _ => TestData.insert(persistenceActor) }
+    dbFuture = dbFuture flatMap { case _ => TestData.insert(persistenceActor) }
 
+  
   // TODO create a processinstance for testreason: history, actions, graph etc...
   dbFuture.map(_ => CreateProcessInstance(1, 1)).pipeTo(subjectProviderManagerActor)
   

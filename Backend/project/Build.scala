@@ -15,6 +15,7 @@ object ProjectBuild extends Build {
       resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
       resolvers += "spray repo" at "http://repo.spray.io",
       resolvers += "Nexus Releases" at "http://nexus.thenewmotion.com/content/repositories/releases-public/",
+      resolvers += "Sonatype Releases"  at "http://oss.sonatype.org/content/repositories/releases",
       resolvers += "google-api-services" at "http://mavenrepo.google-api-java-client.googlecode.com/hg",
       libraryDependencies ++= Seq(
         "org.scala-lang"     % "scala-actors"   % "2.10.0",
@@ -27,6 +28,7 @@ object ProjectBuild extends Build {
         "junit"              %  "junit"         % "4.5"     % "test",
         "org.scalatest"      %% "scalatest"     % "1.9.1"   % "test",
         "io.spray"           %  "spray-can"     % "1.1-M7",
+        "com.mchange"        %  "c3p0"          % "0.9.2",
         "io.spray"           %  "spray-routing" % "1.1-M7",
         "io.spray"           %  "spray-testkit" % "1.1-M7"  % "test",
         "io.spray"           %% "spray-json"    % "1.2.3",

@@ -14,6 +14,7 @@ import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
+import de.tkip.sbpm.persistence.query._
 
 /**
  * This Actor is only used to process REST calls regarding "role"
@@ -41,7 +42,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array with entities
        */
       path("^$"r) { regex => 
-        completeWithQuery[Seq[Role]](GetRole())
+        completeWithQuery[Seq[Role]](Roles.Read())
       } ~
         /**
          * get a list of all group <> role associations
@@ -50,7 +51,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
          * result: JSON array of entities
          */
         path(Entity.GROUP) {
-          completeWithQuery[Seq[GroupRole]](GetGroupRole())
+          completeWithQuery[Seq[GroupRole]](GroupsRoles.Read())
         } ~
         pathPrefix(IntNumber) { id: Int =>
           /**
@@ -60,7 +61,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
            * result: 404 Not Found or entity as JSON
            */
           path("^$"r) { regex => 
-            completeWithQuery[Role](GetRole(Some(id)), "Role with id %d not found.", id)
+            completeWithQuery[Role](Roles.Read.ById(id), "Role with id %d not found.", id)
           } ~
             /**
              * get all groups of the role
@@ -70,7 +71,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
              */
             pathPrefix(Entity.GROUP) {
               path("^$"r) { regex => 
-                completeWithQuery[Seq[GroupRole]](GetGroupRole(None, Some(id)))
+                completeWithQuery[Seq[GroupRole]](GroupsRoles.Read.ByGroupId(id))
               } ~
                 /**
                  * get a specific group mapping of the role
@@ -79,7 +80,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
                  * result: JSON of entity
                  */
                 path(IntNumber) { groupId =>
-                  completeWithQuery[GroupRole](GetGroupRole(Some(groupId), Some(id)), "Role with id %d has no group with id %d.", id, groupId)
+                  completeWithQuery[GroupRole](GroupsRoles.Read.ById(groupId, id), "Role with id %d has no group with id %d.", id, groupId)
                 }
             }
         }
@@ -93,7 +94,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
            * result: 204 No Content
            */
           path("^$"r) { regex => 
-            completeWithDelete(DeleteRole(id), "Role could not be deleted. Entity with id %d not found.", id)
+            completeWithDelete(Roles.Delete.ById(id), "Role could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
              * delete a group of the role
@@ -102,7 +103,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
              * result: 204 No Content
              */
             path(Entity.GROUP / IntNumber) { groupId =>
-              completeWithDelete(DeleteGroupRole(groupId, id), "Group could not be removed from role. Role with id %d has no group with id %d.", id, groupId)
+              completeWithDelete(GroupsRoles.Delete.ById(groupId, id), "Group could not be removed from role. Role with id %d has no group with id %d.", id, groupId)
             }
         }
       } ~
@@ -160,11 +161,11 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
   def save(entity: Role, id: Option[Int] = None) = {
     // set param from url to entity id 
     // or delete id to create new entity
-    entity.id = id
-    completeWithSave(SaveRole(entity),
-      entity,
+    val e = entity.copy(id)
+    completeWithSave(Roles.Save(e),
+      e,
       pathForEntity(Entity.ROLE, "%d"),
-      (e: Role, i: Int) => { e.id = Some(i); e })
+      (e: Role, i: Int) => { e.copy(Some(i))})
   }
 
   /**
@@ -173,10 +174,10 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
    */
   def saveGroup(groupRole: GroupRole) =
     completeWithSave[GroupRole, (Int, Int)](
-      SaveGroupRole(groupRole),
+      GroupsRoles.Save(groupRole),
       groupRole,
       pathForEntity(Entity.ROLE, "%d") + pathForEntity(Entity.GROUP, "%d"),
-      (entity, id) => GroupRole(id._1, id._2, entity.isActive),
+      (entity, id) => GroupRole(id._1, id._2),
       (id) => Array(id._2, id._1))
 
 }

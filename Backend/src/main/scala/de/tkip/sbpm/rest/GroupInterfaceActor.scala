@@ -4,7 +4,7 @@ import akka.actor.Actor
 import scala.language.postfixOps
 import akka.event.Logging
 import de.tkip.sbpm.model._
-import de.tkip.sbpm.persistence._
+import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
 import spray.json._
@@ -42,7 +42,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("^$"r) { regex => 
-        completeWithQuery[Seq[Group]](GetGroup())
+        completeWithQuery[Seq[Group]](Groups.Read())
       } ~
         /**
          * get a list of all group <> role associations
@@ -51,7 +51,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * result: JSON array of entities
          */
         path(Entity.ROLE) {
-          completeWithQuery[Seq[GroupRole]](GetGroupRole())
+          completeWithQuery[Seq[GroupRole]](GroupsRoles.Read())
         } ~
         /**
          * get a list of all group <> user associations
@@ -60,7 +60,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * result: JSON array of entities
          */
         path(Entity.USER) {
-          completeWithQuery[Seq[GroupUser]](GetGroupUser())
+          completeWithQuery[Seq[GroupUser]](GroupsUsers.Read())
         } ~
         pathPrefix(IntNumber) { id: Int =>
           /**
@@ -70,7 +70,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
            * result: 404 Not Found or entity as JSON
            */
           path("^$"r) { regex => 
-            completeWithQuery[Group](GetGroup(Some(id)), "Group with id %d not found.", id)
+            completeWithQuery[Group](Groups.Read.ById(id), "Group with id %d not found.", id)
           } ~
             /**
              * get a specific role mapping of the group
@@ -79,7 +79,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: JSON of entity
              */
             path(Entity.ROLE / IntNumber) { roleId =>
-              completeWithQuery[GroupRole](GetGroupRole(Some(id), Some(roleId)), "Group with id %d has no role with id %d.", id, roleId)
+              completeWithQuery[GroupRole](GroupsRoles.Read.ById(id, roleId), "Group with id %d has no role with id %d.", id, roleId)
             } ~
             /**
              * get a specific user mapping of the group
@@ -88,7 +88,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: JSON of entity
              */
             path(Entity.USER / IntNumber) { userId =>
-              completeWithQuery[GroupUser](GetGroupUser(Some(id), Some(userId)), "Group with id %d has no user with id %d.", id, userId)
+              completeWithQuery[GroupUser](GroupsUsers.Read.ById(id, userId), "Group with id %d has no user with id %d.", id, userId)
             }
         }
     } ~
@@ -101,7 +101,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          */
         pathPrefix(IntNumber) { id =>
           path("^$"r) { regex => 
-            completeWithDelete(DeleteGroup(id), "Group could not be deleted. Entity with id %d not found.", id)
+            completeWithDelete(Groups.Delete.ById(id), "Group could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
              * delete a user from the group
@@ -110,7 +110,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: 204 No Content
              */
             path(Entity.GROUP / IntNumber) { userId =>
-              completeWithDelete(DeleteGroupUser(id, userId), "User could not be removed from group. Group with id %d has no user with id %d.", id, userId)
+              completeWithDelete(GroupsUsers.Delete.ById(id, userId), "User could not be removed from group. Group with id %d has no user with id %d.", id, userId)
             } ~
             /**
              * delete a role from the group
@@ -119,7 +119,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: 204 No Content
              */
             path(Entity.ROLE / IntNumber) { roleId =>
-              completeWithDelete(DeleteGroupRole(id, roleId), "Role could not be removed from group. Group with id %d has no role with id %d.", id, roleId)
+              completeWithDelete(GroupsRoles.Delete.ById(id, roleId), "Role could not be removed from group. Group with id %d has no role with id %d.", id, roleId)
             }
         }
       } ~
@@ -188,11 +188,11 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
   def save(entity: Group, id: Option[Int] = None) = {
     // set param from url to entity id 
     // or delete id to create new entity
-    entity.id = id
-    completeWithSave(SaveGroup(entity),
-      entity,
+    val e = entity.copy(id)
+    completeWithSave(Groups.Save(e),
+      e,
       pathForEntity(Entity.GROUP, "%d"),
-      (e: Group, i: Int) => { e.id = Some(i); e })
+      (e: Group, i: Int) => { e.copy(Some(i)) })
   }
 
   /**
@@ -201,10 +201,10 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
    */
   def saveUser(groupUser: GroupUser) =
     completeWithSave[GroupUser, (Int, Int)](
-      SaveGroupUser(groupUser),
+      GroupsUsers.Save(groupUser),
       groupUser,
       pathForEntity(Entity.GROUP, "%d") + pathForEntity(Entity.USER, "%d"),
-      (entity, id) => GroupUser(id._1, id._2, entity.isActive),
+      (entity, id) => GroupUser(id._1, id._2),
       (id) => Array(id._1, id._2))
 
   /**
@@ -213,9 +213,9 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
    */
   def saveRole(groupRole: GroupRole) =
     completeWithSave[GroupRole, (Int, Int)](
-      SaveGroupRole(groupRole),
+      GroupsRoles.Save(groupRole),
       groupRole,
       pathForEntity(Entity.GROUP, "%d") + pathForEntity(Entity.ROLE, "%d"),
-      (entity, id) => GroupRole(id._1, id._2, entity.isActive),
+      (entity, id) => GroupRole(id._1, id._2),
       (id) => Array(id._1, id._2))
 }

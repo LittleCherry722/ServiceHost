@@ -17,6 +17,7 @@ import de.tkip.sbpm.model.UserIdentity
 import scala.util.{ Try, Success, Failure }
 import ua.t3hnar.bcrypt._
 import scala.concurrent.Await
+import de.tkip.sbpm.persistence.query.Users
 
 /**
  * Provides support for form/json based or basic authentication.
@@ -48,7 +49,7 @@ class UserPassAuthActor extends Actor {
    * to the database and sends user back to sender.
    */
   private def checkCredentials(user: String, pass: String, receiver: ActorRef) = {
-    val future = (persistenceActor ? GetUserIdentity("sbpm", user)).map {
+    val future = (persistenceActor ? Users.Read.Identity("sbpm", user)).map {
     // return none if user not found, no password in identity or failure 
     case None => None
       case Some(UserIdentity(_, _, _, None)) => None

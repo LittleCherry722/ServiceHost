@@ -4,66 +4,46 @@ import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
 
-/*
-* Messages for querying database
-* all message classes that inherit MessageAction
-* are redirected to MessagePersistenceActor
-*/
-sealed abstract class MessageAction extends PersistenceAction
-/* get entry (Option[model.Message]) by id 
-* or all entries (Seq[model.Message]) by sending None as id
-* None or empty Seq is returned if no entities where found
-*/
-case class GetMessage(id: Option[Int] = None) extends MessageAction
-// save message to db, if id is None a new message is created 
-// and its id (Option[Int]) is returned (on update -> None)
-case class SaveMessage(message: Message) extends MessageAction
-// delete message with id from db (nothing is returned)
-case class DeleteMessage(id: Int) extends MessageAction
-
-private[persistence] class MessagePersistenceActor extends Actor with DatabaseAccess {
-  // import driver loaded according to akka config
+private[persistence] class MessagePersistenceActor extends Actor
+  with DatabaseAccess with schema.MessagesSchema {
   import driver.simple._
-  import DBType._
+  import mapping.PrimitiveMappings._
+  import query.Messages._
 
-  // represents the "messages" table in the database
-  object Messages extends Table[Message]("messages") {
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-    def from = column[Int]("from")
-    def to = column[Int]("to")
-    def instanceId = column[Int]("instanceID")
-    def isRead = column[Boolean]("read")
-    def data = column[String]("data", O.DBType(blob))
-    def date = column[java.sql.Timestamp]("date")
-    def * = id.? ~ from ~ to ~ instanceId ~ isRead ~ data ~ date <> (Message, Message.unapply _)
-    // auto increment method returning generated id
-    def autoInc = * returning id
-  }
+  def toDomainModel(u: mapping.Message) =
+    convert(u, Persistence.message, Domain.message)
 
-  def receive = database.withSession { implicit session => // execute all db operations in a session
-    {
-      // get all messages ordered by id
-      case GetMessage(None) => answer { Messages.sortBy(_.id).list }
-      // get message with given id
-      case GetMessage(id) =>
-        answer { Messages.where(_.id === id).firstOption }
-      // create new message
-      case SaveMessage(m @ Message(None, _, _, _, _, _, _)) =>
-        answer { Some(Messages.autoInc.insert(m)) }
-      // update existing message
-      case SaveMessage(m @ Message(id, _, _, _, _, _, _)) => update(id, m)
-      // delete message with given id
-      case DeleteMessage(id) =>
-        answer { Messages.where(_.id === id).delete(session); None }
-      // execute DDL for "messages" table
-      case InitDatabase => answer { Messages.ddl.create(session) }
-      case DropDatabase => answer { dropIgnoreErrors(Messages.ddl) }
+  def toDomainModel(u: Option[mapping.Message]) =
+    convert(u, Persistence.message, Domain.message)
+
+  def toPersistenceModel(u: Message) =
+    convert(u, Domain.message, Persistence.message)
+
+  def receive = {
+    // get all messages ordered by id
+    case Read.All => answer { implicit session =>
+      Query(Messages).list.map(toDomainModel)
+    }
+    // get message with given id
+    case Read.ById(id) => answer { implicit session =>
+      toDomainModel(Query(Messages).where(_.id === id).firstOption)
+    }
+    // create new message
+    case Save.Entity(ms @ _*) => answer { implicit session =>
+      ms.map {
+        case m @ Message(None, _, _, _, _, _, _) => Some(Messages.autoInc.insert(toPersistenceModel(m)))
+        case m @ Message(id, _, _, _, _, _, _) => update(id, m)
+      }
+    }
+    // delete message with given id
+    case Delete.ById(id) => answer { session =>
+      Messages.where(_.id === id).delete(session)
     }
   }
 
   // update entity or throw exception if it does not exist
-  def update(id: Option[Int], m: Message)(implicit session: Session) = answer {
-    val res = Messages.where(_.id === id).update(m)
+  def update(id: Option[Int], m: Message) = answer { implicit session =>
+    val res = Messages.where(_.id === id).update(toPersistenceModel(m))
     if (res == 0)
       throw new EntityNotFoundException("Message with id %d does not exist.", id.get)
     None

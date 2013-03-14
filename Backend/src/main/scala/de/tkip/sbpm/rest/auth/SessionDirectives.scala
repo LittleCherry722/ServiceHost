@@ -18,8 +18,8 @@ import spray.http._
 import akka.actor.ActorRefFactory
 import akka.actor.ActorSystem
 import de.tkip.sbpm.model.User
-import de.tkip.sbpm.persistence.GetUser
 import spray.routing.authentication.UserPass
+import de.tkip.sbpm.persistence.query.Users
 
 case class MissingSessionRejection(sessionId: String) extends Rejection
 case object MissingUserRejection extends Rejection
@@ -151,7 +151,7 @@ trait SessionDirectives {
    */
   def user(implicit refFactory: ActorRefFactory): Directive[User :: HNil] = {
     userId flatMap { id =>
-      val userFuture = ActorLocator.persistenceActor ? GetUser(Some(id))
+      val userFuture = ActorLocator.persistenceActor ? Users.Read.ById(id)
       val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
       if (user.isDefined)
         provide(user.get)

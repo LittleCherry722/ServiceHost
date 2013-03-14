@@ -3,61 +3,50 @@ import akka.actor.Actor
 import de.tkip.sbpm.model._
 import akka.actor.Props
 import scala.slick.lifted
-
-/*
-* Messages for querying database
-* all message classes that inherit ConfigurationAction
-* are redirected to ConfigurationPersistenceActor
-*/
-sealed abstract class ConfigurationAction extends PersistenceAction
-/* get entry (Option[model.Configuration]) by key 
-* or all entries (Seq[model.Configuration]) by sending None as key
-* None or empty Seq is returned if no entities where found
-*/
-case class GetConfiguration(key: Option[String] = None) extends ConfigurationAction
-// save config to db (nothing is returned)
-case class SaveConfiguration(config: Configuration) extends ConfigurationAction
-// delete config with given key from db (nothing is returned)
-case class DeleteConfiguration(key: String) extends ConfigurationAction
+import de.tkip.sbpm.persistence.schema.ConfigurationsSchema
 
 /**
  * Handles all database operations for database table "configuration".
  */
-private[persistence] class ConfigurationPersistenceActor extends Actor with DatabaseAccess {
-
+private[persistence] class ConfigurationPersistenceActor extends Actor
+  with DatabaseAccess
+  with ConfigurationsSchema {
+  import query.Configurations._
+  import mapping.PrimitiveMappings._
   import driver.simple._
-  import DBType._
-  
-  // represents the "configuration" table in the database
-  object Configurations extends Table[Configuration]("configuration") {
-    def key = column[String]("key", O.PrimaryKey, O.DBType(varchar(64)))
-    def label = column[String]("label", O.DBType(varchar(64)))
-    def value = column[String]("value", O.DBType(varchar(128)))
-    def dataType = column[String]("type", O.DBType(varchar(16)), O.Default("String"))
-    // map table to Configuration case class
-    def * = key ~ label ~ value ~ dataType <> (Configuration, Configuration.unapply _)
-  }
 
-  def receive = database.withSession { implicit session => // execute all db operations in a session
-    {
-      // get all configs ordered by key
-      case GetConfiguration(None) => answer { Configurations.sortBy(_.key).list }
-      // get config with given key as option (None if not found)
-      case GetConfiguration(key) => answer { Configurations.where(_.key === key).firstOption }
-      // save config entry
-      case SaveConfiguration(c: Configuration) => answer { save(c) }
-      // delete config with given key
-      case DeleteConfiguration(key) => answer { delete(key) }
-      // execute DDL for "configuration" table
-      case InitDatabase => answer { Configurations.ddl.create(session) }
-      case DropDatabase => answer { dropIgnoreErrors(Configurations.ddl) }
+  def toDomainModel(c: mapping.Configuration) =
+    convert(c, Persistence.configuration, Domain.configuration)
+
+  def toDomainModel(c: Option[mapping.Configuration]) =
+    convert(c, Persistence.configuration, Domain.configuration)
+
+  def toPersistenceModel(c: Configuration) =
+    convert(c, Domain.configuration, Persistence.configuration)
+
+  def receive = {
+    // get all configs ordered by key
+    case Read.All => answer { implicit session: Session =>
+      Query(Configurations).list.map(toDomainModel)
+    }
+    // get config with given key as option (None if not found)
+    case Read.ByKey(key) => answer { implicit session: Session =>
+      toDomainModel(Query(Configurations).where(_.key === key).firstOption)
+    }
+    // save config entry
+    case Save.Entity(c: Configuration) => answer { implicit session: Session =>
+      save(c)
+    }
+    // delete config with given key
+    case Delete.ByKey(key) => answer { implicit session: Session =>
+      delete(key)
     }
   }
 
   // replaces the config entry with given key with new values
   def save(config: Configuration)(implicit session: Session) = {
     val exists = delete(config.key)
-    Configurations.insert(config)
+    Configurations.insert(toPersistenceModel(config))
     if (exists == 0)
       Some(config.key)
     else

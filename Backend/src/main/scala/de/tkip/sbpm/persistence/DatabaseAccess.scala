@@ -10,11 +10,12 @@ import scala.slick.session.Session
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.actorRef2Scala
 import akka.util.Timeout
+import com.mchange.v2.c3p0._
+import com.typesafe.config.Config
 
 /**
  * Provides helper methods for connecting to database using slick.
@@ -32,26 +33,10 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
     log.debug(getClass.getName + " stopped.")
   }
 
-  // akka config prefix
-  protected val configPath = "sbpm.db."
+  protected implicit val config = context.system.settings.config
+  protected val configPath = DatabaseAccess.configPath
 
-  // read string from akka config
-  protected def config(key: String) =
-    context.system.settings.config.getString(configPath + key)
-
-  /**
-   * provides the driver profile specified in akka config
-   * sub classes can import driver.simple._ to get access
-   * to driver specific classes and methods
-   */
-  protected val driver: ExtendedProfile =
-    DatabaseAccess.loadDriver(config("slickDriver"))
-
-  /**
-   * Create slick database connection using settings from akka config.
-   */
-  protected val database =
-    Database.forURL(config("uri"), driver = config("jdbcDriver"))
+  protected val database = DatabaseAccess.connection
 
   // default timeout for akka message sending
   protected implicit val timeout = Timeout(30 seconds)
@@ -60,14 +45,42 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
    * Send the result of the given function back to the sender
    * or the Exception if one occurs.
    */
-  protected def answer[A](f: => A)(implicit session: Session) {
-    sender ! {
-      Try(f) match {
-        case Success(result) => result
-        case Failure(e) => akka.actor.Status.Failure(e)
-      }
+  protected def answer[A](exec: Session => A) = sender ! {
+    withTransaction(exec) match {
+      case Success(result) => result
+      case Failure(e) => akka.actor.Status.Failure(e)
     }
   }
+
+  protected def answerProcessed[A, B](exec: Session => A)(postProcess: A => B) = sender ! {
+    withTransaction(exec) match {
+      case Success(preResult) =>
+        Try(postProcess(preResult)) match {
+          case Success(result) => result
+          case Failure(e) => akka.actor.Status.Failure(e)
+        }
+      case Failure(e) => akka.actor.Status.Failure(e)
+    }
+  }
+
+  protected def answerOptionProcessed[A, B](exec: Session => Option[A])(postProcess: A => B) = sender ! {
+    withTransaction(exec) match {
+      case Success(None) => None
+      case Success(Some(preResult)) =>
+        Try(postProcess(preResult)) match {
+          case Success(result) => Some(result)
+          case Failure(e) => akka.actor.Status.Failure(e)
+        }
+      case Failure(e) => akka.actor.Status.Failure(e)
+    }
+  }
+
+  private def withTransaction[A](exec: Session => A) =
+    database.withSession { session: Session =>
+      session.withTransaction {
+        Try(exec(session))
+      }
+    }
 
   protected def dropIgnoreErrors(ddl: DDL)(implicit session: Session): Unit =
     for (s <- ddl.dropStatements) {
@@ -78,53 +91,37 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
       }
     }
 
-  /**
-   * Provides shortcuts for specifying column data type strings
-   * used in slick's lifted table configuration.
-   */
-  object DBType {
-    def varchar(length: Int) = "varchar(%d)".format(length)
-    val blob = "blob"
-    val smallint = "smallint"
-    def char(length: Int) = "char(%d)".format(length)
-  }
 }
 
-/**
- * Companion object for DatabaseAccess trait,
- * providing static methods used across JVM.
- */
 private[persistence] object DatabaseAccess {
-  /* store for currently loaded drivers by class name
-  * objects cannot be loaded multiple times using reflection
-  * and should therefore be stored if first loaded
-  */
-  private var loadedDrivers: Map[String, ExtendedProfile] = Map()
-  // the scala reflection mirror for the current class loader
-  private val reflection = universe.runtimeMirror(getClass.getClassLoader)
+  private var dataSources = Map[String, ComboPooledDataSource]()
 
-  /**
-   * Load the slick driver object with the given class name using reflection.
-   * If driver was loaded before the cached object instance is returned.
-   * Executed synchronized to avoid race conditions.
-   */
-  def loadDriver(name: String): ExtendedProfile = this.synchronized {
-    // try to use cached object, if not existent the object is
-    // loaded using reflection
-    loadedDrivers.getOrElse(name, reflectDriver(name))
+  // akka config prefix
+  val configPath = "sbpm.db."
+
+  // read string from akka config
+  private def configString(key: String)(implicit config: Config) =
+    config.getString(configPath + key)
+
+  private def configInt(key: String)(implicit config: Config) =
+    config.getInt(configPath + key)
+
+  def connection(implicit config: Config) = {
+    val uri = configString("uri")
+    if (!dataSources.contains(uri)) {
+      val ds = new ComboPooledDataSource
+      ds.setDriverClass(configString("jdbcDriver"))
+      ds.setJdbcUrl(uri)
+      ds.setMinPoolSize(configInt("minPoolSize"));
+      ds.setAcquireIncrement(configInt("poolAcquireIncrement"));
+      ds.setMaxPoolSize(configInt("maxPoolSize"));
+      dataSources += (uri -> ds)
+    }
+    Database.forDataSource(dataSources(uri))
   }
 
-  // load driver by class name using reflection
-  private def reflectDriver(name: String) = {
-    // get object symbol
-    val driverModule = reflection.staticModule(name)
-    // get instance from object symbol
-    val driver = reflection.reflectModule(driverModule).instance.asInstanceOf[ExtendedProfile]
-    // save to cache
-    loadedDrivers = loadedDrivers + (name -> driver)
-    driver
+  def cleanup() = {
+    dataSources.values.foreach(DataSources.destroy)
+    dataSources = Map()
   }
-
-  // returns current timestamp in database format
-  def currentTimestamp = new java.sql.Timestamp(java.lang.System.currentTimeMillis())
 }
