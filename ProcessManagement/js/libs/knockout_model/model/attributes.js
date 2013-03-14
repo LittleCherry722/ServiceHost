@@ -254,6 +254,7 @@ define([
 					})
 
 					instance.loadAttributes({ async: false });
+					instance[ attrName + "Old" ]( observable() );
 				}
 
 				return observable();
