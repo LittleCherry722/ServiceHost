@@ -1,3 +1,5 @@
+scalaVersion := "2.10.0"
+
 // Parameters for Eclipse
 
 retrieveManaged := true
