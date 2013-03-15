@@ -233,18 +233,18 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
     if (user.isDefined) {
       // check if the old password is correct
-      val authFuture = ActorLocator.userPassAuthActor ? UserPass(entity.oldEMail, entity.oldPassword)
+      val authFuture = ActorLocator.userPassAuthActor ? UserPass(entity.oldEmail, entity.oldPassword)
       val auth = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
 
       if (auth.isDefined) {
         // check what has to be changed
-        var eMail = entity.oldEMail
+        var eMail = entity.oldEmail
         var password = entity.oldPassword
 
-        if (entity.eMail.isDefined)
-          eMail = entity.eMail.get
-        if (entity.password.isDefined)
-          password = entity.password.get
+        if (entity.newEmail.isDefined)
+          eMail = entity.newEmail.get
+        if (entity.newPassword.isDefined)
+          password = entity.newPassword.get
 
         // set the new password, eMail and provider
         val future = persistenceActor ? SetUserIdentity(id, entity.provider, eMail, Some(password.bcrypt))

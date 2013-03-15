@@ -17,7 +17,7 @@ case class User(var id: Option[Int], name: String, isActive: Boolean = true, inp
 case class UserIdentity(user: User, provider: String, eMail: String, password: Option[String])
 case class Role(var id: Option[Int], name: String, isActive: Boolean = true)
 case class Group(var id: Option[Int], name: String, isActive: Boolean = true)
-case class Credentials(provider: String, oldEMail: String, eMail: Option[String], oldPassword: String, password: Option[String])
+case class Credentials(provider: String, oldEmail: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
 
 // Model for Modeling/Execution
 case class Graph(var id: Option[Int], graph: String, date: java.sql.Timestamp, var processId: Int = -1)
