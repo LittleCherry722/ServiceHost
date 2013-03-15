@@ -22,36 +22,44 @@ import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.auth.oauth2.Credential
 import de.tkip.sbpm.external.api.GoogleDriveActor
 import de.tkip.sbpm.external.api._
+import com.google.api.services.drive.model.FileList
+import com.google.api.services.drive.model.File
 
 
 class GoogleDriveTest extends FunSuite {
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(20 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
  
   val sys = ActorSystem()
-  val actor1 = sys.actorOf(Props[GoogleDriveActor])
-  val actor2 = sys.actorOf(Props[GoogleAuthActor],"google-auth")
+  val driveActor = sys.actorOf(Props[GoogleDriveActor])
+  val authActor = sys.actorOf(Props[GoogleAuthActor],"google-auth")
+  
+  
   
   test("Test if GoogelDriveActor is able to get a valid credential from GoogleAuthActor") {
-    val future = actor1 ? HasAccessToValidGDriveToken("User_1")
+    val future = driveActor ? HasAccessToValidGDriveToken("User_1")
     val result = Await.result(future.mapTo[Credential], timeout.duration)
-    println("Token: " + result.getAccessToken())
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
-    println("Refresh Token: " + result.getRefreshToken())
-    println("Refresh credential: " + result.refreshToken())
-    println("Token: " + result.getAccessToken())
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
-    println("Refresh Token: " + result.getRefreshToken())
+    assert( (result.getExpiresInSeconds() / 60) > 55 ) 
+    assert(!result.getRefreshToken().isEmpty())
   }
   
-  /**
-  test("Test if GoogleDriveActor is able to establish connection to google drive") {
-    val future = actor ? ListGDriveDirectory(None)
-    val result = Await.result(future.mapTo[String], timeout.duration)
-    println(result)
-    
+  
+  test("Test if a new drive object can be added to the drive set") {
+    val future = driveActor ? InitUserGDrive("User_1")
+    val result = Await.result(future.mapTo[Boolean], timeout.duration)
+    assert(result == true)
   }
-  */
+  
+  
+  test("Test if GoogleDriveActor is able to establish connection to google drive") {
+    val future = driveActor ? ListGDriveFiles("User_1")
+    val result = Await.result(future.mapTo[java.util.List[File]], timeout.duration)
+    println(result.get(0).getOriginalFilename())
+    println(result.get(0).getId())
+    
+  }  
+  
+  
   
   
 }

@@ -98,7 +98,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
   
   def receive = {
     // init google drive instance for user 
-    case InitUserGDrive(id) => initUser(id)
+    case InitUserGDrive(id) => sender ! initUser(id)
     
     // delete a google drive instance 
     case DeleteUserGDrive(id) => deleteUserDrive(id)
@@ -130,12 +130,12 @@ class GoogleDriveActor extends Actor with ActorLogging {
   }
   
   /** add new google drive connection to DRIVE_SET or check if there is still a valid connection */
-  def initUser(id: String) = {
+  def initUser(id: String): Boolean = {
     if (DRIVE_SET.contains(id)) {
       //still valid? / renew or add new one
       log.debug(getClass.getName + "Drive already existed for user: " + id)
       if (isGDriveValid(id, DRIVE_SET.get(id).get)) {
-      log.debug(getClass.getName + "Drive for user: " + id + " is still valid")  
+      log.debug(getClass.getName + "Drive for user: " + id + " is still valid")
       } else {
         log.info(getClass.getName + "Drive for user: " + id + " is not valid, will create a new one")
         deleteUserDrive(id)
@@ -144,7 +144,10 @@ class GoogleDriveActor extends Actor with ActorLogging {
     } else {
       //add new one
       addUserDrive(id)
-    }    
+    }
+   
+   DRIVE_SET.contains(id) 
+    
   }
   
   /** add a new drive object to the DRIVE_SET with the user_id as hash value */
@@ -201,7 +204,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
   }
   
   /** add read permissions for a specific user to a file in a foreign google drive and return the access url */
-  def manageGDrivePermissions(id: String, foreignUserID: String, perimssion: String, fileId: String): Boolean = {
+  def manageGDrivePermissions(id: String, foreignUserID: String, role: String, fileId: String): Boolean = {
     val drive = getGDriveObject(id)
     val newPermission = new Permission()
     
@@ -211,8 +214,8 @@ class GoogleDriveActor extends Actor with ActorLogging {
     // type of permission - user, group, domain, default
     newPermission.setType("user")
     
-    // owner, writer or reader
-    newPermission.setRole("reader")
+    // role of new user (owner, writer or reader)
+    newPermission.setRole(role)
     try {
       drive.permissions().insert(fileId, newPermission).execute()
     } catch {
@@ -224,7 +227,6 @@ class GoogleDriveActor extends Actor with ActorLogging {
     } 
     true
   }
-  
   
   /** get download URL for a specific user file stored in a google drive */
   def getFileURL(id: String, fileId: String): String = {
