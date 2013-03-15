@@ -29,24 +29,29 @@ class GoogleDriveTest extends FunSuite {
   implicit val executionContext = scala.concurrent.ExecutionContext.global
  
   val sys = ActorSystem()
-  val actor = sys.actorOf(Props[GoogleDriveActor])
-  /**
+  val actor1 = sys.actorOf(Props[GoogleDriveActor])
+  val actor2 = sys.actorOf(Props[GoogleAuthActor],"google-auth")
+  
   test("Test if GoogelDriveActor is able to get a valid credential from GoogleAuthActor") {
-    val future = actor ? HasAccessToValidGDriveToken
+    val future = actor1 ? HasAccessToValidGDriveToken("User_1")
     val result = Await.result(future.mapTo[Credential], timeout.duration)
     println("Token: " + result.getAccessToken())
     println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
     println("Refresh Token: " + result.getRefreshToken())
+    println("Refresh credential: " + result.refreshToken())
+    println("Token: " + result.getAccessToken())
+    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
+    println("Refresh Token: " + result.getRefreshToken())
   }
-  */
   
+  /**
   test("Test if GoogleDriveActor is able to establish connection to google drive") {
     val future = actor ? ListGDriveDirectory(None)
     val result = Await.result(future.mapTo[String], timeout.duration)
     println(result)
     
   }
-  
+  */
   
   
 }

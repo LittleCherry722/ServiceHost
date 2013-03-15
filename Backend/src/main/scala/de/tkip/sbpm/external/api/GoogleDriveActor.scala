@@ -48,15 +48,21 @@ case  class ListGDriveDirectory(folder: Option[String] = None) extends GoogleDri
 
 case  class ListGDriveFiles(id: String) extends GoogleDriveAction
 
+case  class GetFileUrl(id: String, fileId: String) extends GoogleDriveAction
+
 case  class DownloadFromGDrive(item: String) extends GoogleDriveAction
 
-case  class CreateNewFile(file: String) extends GoogleDriveAction
+case  class CreateNewFile(id: String, fileId: String) extends GoogleDriveAction
 
-case  class CreateNewDirectory(directory: String) extends GoogleDriveAction
+case  class CreateNewDirectory(id: String, directory: String) extends GoogleDriveAction
 
 case  class HasAccessToValidGDriveToken(id: String) extends GoogleDriveAction
 
 case  class DeleteUserGDrive(id: String) extends GoogleDriveAction
+
+case  class GetFilePermission(id: String, fileId: String) extends GoogleDriveAction
+
+case  class SetFilePermission(id: String, foreignUserID: String, perimssion: String, fileId: String) extends GoogleDriveAction
 
 // case class to establish initial drive connection when user logs in 
 case  class InitUserGDrive(id: String) extends GoogleDriveAction
@@ -88,20 +94,17 @@ class GoogleDriveActor extends Actor with ActorLogging {
   //map that keeps track of the different drive connections of all user
   val DRIVE_SET = new scala.collection.mutable.HashMap[String, Drive]()
   
-  //just for testing purpose
-  //val CREDENTIAL = getUserToken("User_1")
-  //log.debug(getClass.getName + "Got Auth Token: " + CREDENTIAL.getAccessToken())
-  
-  //val drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, CREDENTIAL).setApplicationName("SBPM-oAuth").build()
-  //var files = drive.files().list().execute()
-  //log.debug(getClass.getName + " About: " + files.toString())   //testing purpose
-  //files = drive.getBaseUrl
-  //log.debug(getClass.getName + " Files: " + files.toString())   //testing purpose
-  
-  
   
   
   def receive = {
+    // init google drive instance for user 
+    case InitUserGDrive(id) => initUser(id)
+    
+    // delete a google drive instance 
+    case DeleteUserGDrive(id) => deleteUserDrive(id)
+    
+    
+    
     //case ListGDriveDirectory(folder) => sender ! "listDirectory(folder)" 
     
     case ListGDriveFiles(id) => sender ! listFiles(id) 
@@ -109,9 +112,12 @@ class GoogleDriveActor extends Actor with ActorLogging {
     // just for testing purpose
     case HasAccessToValidGDriveToken(id) => sender ! getUserToken(id)
     
-    case InitUserGDrive(id) => initUser(id) 
     
-    case DeleteUserGDrive(id) => deleteUserDrive(id)
+    //case GetFilePermission(id, fileId) => sender ! getFilePermission(id, fileId)
+    
+    //case SetFilePermission
+    
+    //case 
     
     case _ => sender ! "not yet implemented"
   }
@@ -195,7 +201,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
   }
   
   /** add read permissions for a specific user to a file in a foreign google drive and return the access url */
-  def manageGDrivePermissions(id: String, foreignUserID: String, perimssion: String, fileId: String): String = {
+  def manageGDrivePermissions(id: String, foreignUserID: String, perimssion: String, fileId: String): Boolean = {
     val drive = getGDriveObject(id)
     val newPermission = new Permission()
     
@@ -210,17 +216,22 @@ class GoogleDriveActor extends Actor with ActorLogging {
     try {
       drive.permissions().insert(fileId, newPermission).execute()
     } catch {
-      case e: IOException => log.debug(getClass().getName() + " Exception occurred: " + e)  
+      case e: IOException => {
+        log.debug(getClass().getName() + " Exception occurred while adding permissions: " + e)
+        return false
+      }
+      
     } 
-    "URL"
+    true
   }
   
   
   /** get download URL for a specific user file stored in a google drive */
   def getFileURL(id: String, fileId: String): String = {
-    "hello"
+    val drive = getGDriveObject(id)
+    val fileUrl = drive.files().get(fileId).execute.getDownloadUrl()
+    fileUrl
   }
-  
   
 
   
