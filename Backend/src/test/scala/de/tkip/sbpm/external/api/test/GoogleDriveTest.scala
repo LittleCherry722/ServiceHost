@@ -52,13 +52,17 @@ class GoogleDriveTest extends FunSuite {
   
   
   test("Test if GoogleDriveActor is able to establish connection to google drive") {
-    val future = driveActor ? ListGDriveFiles("User_1")
+    val future = driveActor ? ListGDriveFiles("dp.dornseifer@googlemail.com")
     val result = Await.result(future.mapTo[java.util.List[File]], timeout.duration)
-    println(result.get(0).getOriginalFilename())
-    println(result.get(0).getId())
-    
+    println(result.toString())
   }  
   
+  
+  test("Test if the google drive object can be deleted") {
+    val future = driveActor ? DeleteUserGDrive("User_1")
+    val result = Await.result(future.mapTo[Boolean], timeout.duration)
+    assert(result == true)
+  }
   
   
   

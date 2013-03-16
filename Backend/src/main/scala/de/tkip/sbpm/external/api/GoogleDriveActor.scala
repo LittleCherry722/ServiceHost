@@ -86,7 +86,6 @@ class GoogleDriveActor extends Actor with ActorLogging {
     log.debug(getClass.getName + " stopped.")
   }
 
-  
   //google drive classes
   val HTTP_TRANSPORT = new NetHttpTransport()
   val JSON_FACTORY = new JacksonFactory()
@@ -97,27 +96,24 @@ class GoogleDriveActor extends Actor with ActorLogging {
   
   
   def receive = {
-    // init google drive instance for user 
-    case InitUserGDrive(id) => sender ! initUser(id)
-    
-    // delete a google drive instance 
-    case DeleteUserGDrive(id) => deleteUserDrive(id)
-    
-    
-    
-    //case ListGDriveDirectory(folder) => sender ! "listDirectory(folder)" 
-    
-    case ListGDriveFiles(id) => sender ! listFiles(id) 
     
     // just for testing purpose
     case HasAccessToValidGDriveToken(id) => sender ! getUserToken(id)
     
+    // init google drive instance for user 
+    case InitUserGDrive(id) => sender ! initUser(id)
     
-    //case GetFilePermission(id, fileId) => sender ! getFilePermission(id, fileId)
+    // delete a google drive instance 
+    case DeleteUserGDrive(id) => sender ! deleteUserDrive(id)
     
-    //case SetFilePermission
+    //case ListGDriveDirectory(folder) => sender ! "listDirectory(folder)" 
+    case ListGDriveFiles(id) => sender ! listFiles(id) 
+        
+    // TODO case GetFilePermission(id, fileId) => sender ! getFilePermission(id, fileId)
     
-    //case 
+    // TODO case SetFilePermission
+    
+    // TODO case 
     
     case _ => sender ! "not yet implemented"
   }
@@ -189,11 +185,19 @@ class GoogleDriveActor extends Actor with ActorLogging {
   
   /** lists directory on the google drive, in case the method does not get a parameter it lists the root directory */
   def listFiles(id: String): java.util.List[File] = {
-    val drive = getGDriveObject(id)
-    val files = drive.files().list().execute()
+    
+    // TODO for testing purpose fixed to user_1
+    val drive = getGDriveObject("User_1")
+    
+    // define query with trashed = false and user-permission = owner and type = user 
+    val query = "trashed = false and mimeType != 'application/vnd.google-apps.folder' and '" + id +"' in owners" 
+    
+    // select specific fields 
+    val fields = "items(description,downloadUrl,iconLink,id,mimeType,ownerNames,title)"
+    
+    val files = drive.files().list().setPrettyPrint(true).setQ(query).setFields(fields).execute()
     files.getItems()
   }
-  
   
   //TODO implement directory filtering
   /** browse google drive or a specific directory */
@@ -222,8 +226,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
       case e: IOException => {
         log.debug(getClass().getName() + " Exception occurred while adding permissions: " + e)
         return false
-      }
-      
+      }    
     } 
     true
   }
@@ -234,7 +237,4 @@ class GoogleDriveActor extends Actor with ActorLogging {
     val fileUrl = drive.files().get(fileId).execute.getDownloadUrl()
     fileUrl
   }
-  
-
-  
 }
