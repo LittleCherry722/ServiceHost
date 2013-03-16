@@ -36,20 +36,20 @@ class GoogleAuthTest extends FunSuite {
     assert(result === "https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive&state=User_1")
   }
   
-  test("Load a credential for a new user") {
+  test("Test if a credential for a user can be loaded from credential store") {
     val future = actor ? GetCredential("User_1")
     val result = Await.result(future.mapTo[Credential], timeout.duration)
-    println("Token: " + result.getAccessToken())
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
-    println("Refresh Token: " + result.getRefreshToken())
+    assert(!result.getAccessToken().isEmpty())
+    assert((result.getExpiresInSeconds() / 60) > 55)
+    assert(!result.getRefreshToken().isEmpty())
   }
   
   test("Test if credentials can be refreshed") {
     val future = actor ? GetCredential("User_1")
     val result = Await.result(future.mapTo[Credential], timeout.duration)
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
-    println("Refresh token: " + result.refreshToken())
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
+    assert((result.getExpiresInSeconds() / 60) > 55)
+    assert(result.refreshToken() == true)
+    assert((result.getExpiresInSeconds() / 60) == 60)
   }
 }
 
