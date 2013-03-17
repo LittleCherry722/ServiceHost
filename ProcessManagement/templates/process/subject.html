@@ -1,17 +1,7 @@
 <div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
 
 <div class="graphsettings">
-	<fieldset class="clearfix">
-		<legend>Import &amp; Export<span class="processSettingsTrigger">Hide</span></legend>
-		<div class="toggle-able">
-			<!-- <label for="timestamps">Change revision</label>-->
-			<!-- <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>-->
-			<!-- <br />-->
-			<input type="button" value="Export" data-bind="click: exportGraph"/>
-			<input type="text" id="importExportText"  data-bind="value: graphText"/>
-			<input type="button" value="Import" data-bind="click: importGraph"/>
-		</div>
-	</fieldset>
+
 	<fieldset class="tooltip-enabled">
 		<legend>Subject settings</legend>
 
@@ -85,6 +75,21 @@
 		<br/>
 		-->
 
+
+
 	</fieldset>
+	
+		<fieldset class="clearfix">
+		<legend>Import &amp; Export<span class="processSettingsTrigger">Hide</span></legend>
+		<div class="toggle-able">
+			<!-- <label for="timestamps">Change revision</label>-->
+			<!-- <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>-->
+			<!-- <br />-->
+			<input type="button" value="Export" data-bind="click: exportGraph"/>
+			<input type="text" id="importExportText"  data-bind="value: graphText"/>
+			<input type="button" value="Import" data-bind="click: importGraph"/>
+		</div>
+	</fieldset>
+	
 </div>
 
