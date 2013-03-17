@@ -74,10 +74,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private lazy val contextResolver = ActorLocator.contextResolverActor
 
-  // this pool stores the message to the subject, which does not exist,
-  // but will be created soon (the UserID is requested)
-  //  private var messagePool = Set[(ActorRef, SubjectToSubjectMessage)]()
-
   // whether the process instance is terminated or not
   private var runningSubjectCounter = 0
   private def isTerminated = runningSubjectCounter == 0
@@ -112,9 +108,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // Create the subject for the subject container in the given map position
       subjectMap.getOrElseUpdate(subject.id, SubjectContainer(subject))
         .createAndAddSubject(as.userID)
-
-      // increase the subjectcounter
-      //      subjectCounter += 1
     }
 
     case message: SubjectStarted => {
@@ -258,6 +251,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     // which are created first
     private var messagePool: Set[MessagePoolEntry] = Set()
 
+    
+    def insertUserIDs(userIDs: Array[UserID]) {
+      
+    }
+    
     /**
      * Adds a Subject to this multisubject
      */

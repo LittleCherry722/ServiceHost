@@ -22,7 +22,8 @@ protected case class SubjectToSubjectMessage(
   from: SubjectID,
   target: Target,
   messageType: MessageType,
-  messageContent: MessageContent) extends MessageObject {
+  messageContent: MessageContent,
+  fileID: Option[String] = None) extends MessageObject {
 
   def to = target.subjectID
 
@@ -43,7 +44,7 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
-case class MessageData(userID: UserID, messageContent: String)
+case class MessageData(userID: UserID, messageContent: String, fileId: Option[String] = None)
 
 case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
 
@@ -53,7 +54,8 @@ case class ActionData(
   transitionType: String, // exitcondition or timeout
   targetUsersData: Option[TargetUser] = None, // target user of a send message
   relatedSubject: Option[String] = None, // the related subject of a send-/receive state
-  messageContent: Option[String] = None, // for the send state
+  messageContent: Option[String] = None, // for the send state: the message
+  fileId: Option[String] = None, // for the send state: google drive id
   messages: Option[Array[MessageData]] = None) // for the receive state
 
 // Answer to the GetAvailable Action request

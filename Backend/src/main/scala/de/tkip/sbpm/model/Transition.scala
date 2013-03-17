@@ -16,7 +16,7 @@ case class Target(
   subjectID: SubjectID,
   min: Int,
   max: Int,
-  createNew: Boolean,
+  createNew: Boolean, // TODO we dont need create new
   variable: Option[String],
   private val defaultValues: Boolean) {
 
