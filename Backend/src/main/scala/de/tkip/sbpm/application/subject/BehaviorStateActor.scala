@@ -382,7 +382,7 @@ protected case class ReceiveStateActor(data: StateData)
       messageID = message.messageID
       messageContent = Some(message.messageContent)
 
-      messageData += MessageData(message.userID, message.messageContent)
+      messageData += MessageData(message.userID, message.messageContent, message.fileID)
     }
   }
 }
@@ -463,7 +463,8 @@ protected case class SendStateActor(data: StateData)
               subjectID,
               target,
               messageType,
-              messageContent.get)
+              messageContent.get,
+              input.fileId)
 
           processInstanceActor ! ActionExecuted(ea)
         }
