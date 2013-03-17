@@ -48,7 +48,7 @@ class UserPassAuthActor extends Actor {
    * to the database and sends user back to sender.
    */
   private def checkCredentials(user: String, pass: String, receiver: ActorRef) = {
-    val future = (persistenceActor ? GetUserIdentity("sbpm", user)).map {
+    val future = (persistenceActor ? GetUserIdentity("sbpm", eMail = Some(user))).map {
     // return none if user not found, no password in identity or failure 
     case None => None
       case Some(UserIdentity(_, _, _, None)) => None

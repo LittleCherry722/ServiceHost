@@ -23,7 +23,7 @@ case class SaveUser(user: User) extends UserAction
 // delete user with id from db
 case class DeleteUser(id: Int) extends UserAction
 // retrieve user by identity provider and eMail
-case class GetUserIdentity(provider: String, eMail: String) extends UserAction
+case class GetUserIdentity(provider: String, userId: Option[Int] = None, eMail: Option[String] = None) extends UserAction
 // sets identity params for user and provider
 case class SetUserIdentity(userId: Int, provider: String, eMail: String, password: Option[String] = None) extends UserAction
 
@@ -63,6 +63,10 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       i <- UserIdentities.where(e => e.provider === provider && e.eMail === eMail)
       u <- i.user
     } yield (i, u)
+    def includeUser(provider: String, userId: Int) = for {
+      i <- UserIdentities.where(e => e.provider === provider && e.userId === userId)
+      u <- i.user
+    } yield (i, u)
   }
 
   def receive = database.withSession { implicit session => // execute all db operations in a session
@@ -81,8 +85,13 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       // delete user with given id
       case DeleteUser(id)                  => answer { Users.where(_.id === id).delete(session) }
       // retrieve identity for provider and email
-      case GetUserIdentity(provider, eMail) => answer {
+      case GetUserIdentity(provider, None, Some(eMail)) => answer {
         UserIdentities.includeUser(provider, eMail).firstOption.map {
+          case (i, u) => UserIdentity(u, i._2, i._3, i._4)
+        }
+      }
+      case GetUserIdentity(provider, Some(userId), None) => answer {
+        UserIdentities.includeUser(provider, userId).firstOption.map {
           case (i, u) => UserIdentity(u, i._2, i._3, i._4)
         }
       }
