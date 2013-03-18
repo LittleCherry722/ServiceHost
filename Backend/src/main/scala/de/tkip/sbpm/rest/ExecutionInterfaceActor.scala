@@ -109,7 +109,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           // error gets caught automatically by the exception handler
           val future = subjectProviderManager ? KillProcessInstance(processInstanceID)
           val result = Await.result(future, timeout.duration).asInstanceOf[KillProcessInstanceAnswer]
-          complete(StatusCodes.OK)
+          complete(StatusCodes.NoContent)
         }
       } ~
       put {
