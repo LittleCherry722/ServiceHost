@@ -184,7 +184,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * update an existing user and his credentials
              *
              * e.g. PUT http://localhost:8080/user/2
-             * 	payload: { "provider": "sbpm", "newEmail": "exa@mple.com", "oldPassword": "old", "newPassword": "new" }
+             * 	payload: {"name":"example name","isActive":true,"inputPoolSize":6,"provider":"sbpm","newEmail":"superuser@sbpm.com","oldPassword":"s1234","newPassword":"pass"}
              * 	result: 200 OK
              *
              */
