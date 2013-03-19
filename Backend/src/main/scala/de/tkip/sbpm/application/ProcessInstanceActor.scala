@@ -89,26 +89,35 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private val blockingHandler = new BlockingHandler(createExecuteActionAnswer _)
 
-  // add all start subjects (only if they exist!)
-  for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
+  //  // add all start subjects (only if they exist!)
+  //  for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
+  //
+  //    // Create the subjectContainer
+  //    subjectMap(startSubject) = SubjectContainer(graph.subject(startSubject))
+  //    // the container shall contain a subject -> request creation
+  //    subjectMap(startSubject).requestSubjectCreation(request.userID)
+  //  }
 
-    // Create the subjectContainer
-    subjectMap(startSubject) = SubjectContainer(graph.subject(startSubject))
-    // the container shall contain a subject -> request creation
-    subjectMap(startSubject).requestSubjectCreation(request.userID)
+  override def preStart() {
+    for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
+      // Create the subjectContainer
+      subjectMap(startSubject) = SubjectContainer(graph.subject(startSubject))
+      // the container shall contain a subject -> create
+      subjectMap(startSubject).createSubject(request.userID)
+    }
   }
 
   def receive = {
 
-    case as: AddSubject if (graph.hasSubject(as.subjectID)) => {
-      // if subjectProvider of the new subject is not the same as the one that asked for execution
-      // try to forward blocked ExecuteActionAnswer
-      val subject: Subject = graph.subject(as.subjectID)
-
-      // Create the subject for the subject container in the given map position
-      subjectMap.getOrElseUpdate(subject.id, SubjectContainer(subject))
-        .createAndAddSubject(as.userID)
-    }
+    //    case as: AddSubject if (graph.hasSubject(as.subjectID)) => {
+    //      // if subjectProvider of the new subject is not the same as the one that asked for execution
+    //      // try to forward blocked ExecuteActionAnswer
+    //      val subject: Subject = graph.subject(as.subjectID)
+    //
+    //      // Create the subject for the subject container in the given map position
+    //      subjectMap.getOrElseUpdate(subject.id, SubjectContainer(subject))
+    //        .createAndAddSubject(as.userID)
+    //    }
 
     case message: SubjectStarted => {
       subjectMap(message.subjectID).handleSubjectStarted(message)
@@ -132,13 +141,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case sm: SubjectToSubjectMessage if (graph.hasSubject(sm.to)) => {
       val to = sm.to
+      // TODO mit getOrElse
       // block user that owns the subject
-      if (!subjectMap.contains(to)) {
-        // if the subjectcontainer does not exists, create it
-        subjectMap(to) = SubjectContainer(graph.subject(to))
-      }
+      //      if (!subjectMap.contains(to)) {
+      //        // if the subjectcontainer does not exists, create it
+      //        subjectMap(to) = SubjectContainer(graph.subject(to))
+      //      }
       // Send the message to the container, it will deal with it
-      subjectMap(to).send(sm)
+      subjectMap.getOrElseUpdate(to, SubjectContainer(graph.subject(to))).send(sm)
     }
 
     // add an entry to the history
@@ -187,18 +197,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
   }
 
-  
   private def allSubjectsReady = blockingHandler.allSubjectsReady _
   private def handleSubjectStarted(userID: UserID) = {
-      blockingHandler.handleUnblocking(userID)
-      trySendProcessInstanceCreated()
-   }
+    blockingHandler.handleUnblocking(userID)
+    trySendProcessInstanceCreated()
+  }
   private def handleSubjectInternalMessageProcessed = blockingHandler.handleUnblocking _
   private def handleBlockingForSubjectCreation = blockingHandler.handleBlockingForSubjectCreation _
   private def handleBlockingForMessageDelivery = blockingHandler.handleBlockingForMessageDelivery _
   private def waitForContextResolver = blockingHandler.waitForContextResolver _
   private def storeActionExecuted = blockingHandler.storeActionExecuted _
-  
+
   private def createExecuteActionAnswer(req: ExecuteAction) {
     context.parent !
       AskSubjectsForAvailableActions(req.userID,
@@ -222,8 +231,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       sendProcessInstanceCreated = false
     }
   }
-  
-  
 
   /**
    * This class is responsible to hold a subjects, and can represent
@@ -232,36 +239,24 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private case class SubjectContainer(subject: Subject) {
     import scala.collection.mutable.{ Map => MutableMap }
 
-    val multi = subject.multi
-    val external = subject.external
-
-    private case class SubjectInfo(
-      ref: SubjectRef,
-      userID: UserID,
-      var running: Boolean = true)
+    private val multi = subject.multi
+    private val external = subject.external
 
     private val subjects = MutableMap[UserID, SubjectInfo]()
 
-    // an entry for the messagepool
-    private case class MessagePoolEntry(
-      var subjectCount: Int,
-      orig: ActorRef,
-      message: SubjectToSubjectMessage)
     // this pool contains the unsent messages, which will be sent to subjects
     // which are created first
-    private var messagePool: Set[MessagePoolEntry] = Set()
+    // TODO unneded when every subject is created
+    //    private var messagePool: Set[MessagePoolEntry] = Set()
 
-    
-    def insertUserIDs(userIDs: Array[UserID]) {
-      
-    }
-    
     /**
      * Adds a Subject to this multisubject
      */
-    def createAndAddSubject(userID: UserID) {
+    // TODO ueberarbeiten
+    def createSubject(userID: UserID) {
       // handle blocking
       handleBlockingForSubjectCreation(userID)
+      runningSubjectCounter += 1
       // create subject
       val subjectRef =
         context.actorOf(Props(new SubjectActor(userID, self, subject)))
@@ -270,16 +265,16 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
       // if there are messages to deliver to the new subject,
       // forward them to the subject 
-      for (entry <- messagePool) {
-        handleBlockingForMessageDelivery(userID)
-        subjectRef.!(entry.message)(entry.orig)
-        entry.subjectCount -= 1
-      }
-      // remove all entry, which has been sent to enough subjects
-      messagePool = messagePool.filter(_.subjectCount > 0)
+      //      for (entry <- messagePool) {
+      //        handleBlockingForMessageDelivery(userID)
+      //        subjectRef.!(entry.message)(entry.orig)
+      //        entry.subjectCount -= 1
+      //      }
+      //      // remove all entry, which has been sent to enough subjects
+      //      messagePool = messagePool.filter(_.subjectCount > 0)
 
       logger.debug("Processinstance [" + id + "] created Subject " +
-        subject.id +  " for user " + userID)
+        subject.id + " for user " + userID)
 
       // inform the subject provider about his new subject
       context.parent !
@@ -313,8 +308,16 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
      */
     def send(message: SubjectToSubjectMessage) {
       import scala.util.Random.shuffle
-      // TODO start for singlesubjects, of no subjects exists, create one
+      if (message.target.toVariable) {
+        // TODO why not targetUsers = var subjects?
+        sendTo(message.target.varSubjects.map(_._2), message)
+      } else {
+        sendTo(message.target.targetUsers, message)
+      }
 
+      return
+
+      // TODO out
       if (!multi && subjects.isEmpty) {
         // if its not a multisubject and no subject exists, create 1 subject
         // = singlsubject and send the message to it
@@ -357,13 +360,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
+    // TODO weg
     def requestSubjectCreation(userID: UserID, message: Option[SubjectToSubjectMessage] = None, count: Int = 1) {
       // if the subject does not exist create the subject and forward the
       // message afterwards
       // store the message in the message-pool
-      if (message.isDefined && count > 0) {
-        messagePool += MessagePoolEntry(count, sender, message.get)
-      }
+      //      if (message.isDefined && count > 0) {
+      //        messagePool += MessagePoolEntry(count, sender, message.get)
+      //      }
 
       logger.debug("Processinstance [" + id + "] creates Subject " + subject.id)
       for (i <- (1 to count)) {
@@ -380,6 +384,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
+    // TODO weg
     private def requestSubjectCreation(message: SubjectToSubjectMessage, count: Int) {
       requestSubjectCreation(message.userID, Some(message), count)
     }
@@ -387,6 +392,28 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     /**
      * Forwards the message to the array of subjects
      */
+    private def sendTo(targetSubjects: Array[UserID],
+      message: SubjectToSubjectMessage) {
+
+      for (userID <- targetSubjects) {
+        if (!subjects.contains(userID)) {
+          createSubject(userID)
+        } else if (!subjects(userID).running) {
+          handleBlockingForSubjectCreation(userID)
+          runningSubjectCounter += 1
+          // start the execution
+          subjects(userID).ref ! StartSubjectExecution()
+        }
+
+        handleBlockingForMessageDelivery(userID)
+        subjects(userID).ref.forward(message)
+      }
+    }
+
+    /**
+     * Forwards the message to the array of subjects
+     */
+    // TODO outdated
     private def sendTo(targetSubjects: Array[SubjectInfo],
       message: SubjectToSubjectMessage,
       restartSubject: Boolean = false) {
@@ -407,5 +434,16 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         }
       }
     }
+
+    private case class SubjectInfo(
+      ref: SubjectRef,
+      userID: UserID,
+      var running: Boolean = true)
+
+    //    // an entry for the messagepool
+    //    private case class MessagePoolEntry(
+    //      var subjectCount: Int,
+    //      orig: ActorRef,
+    //      message: SubjectToSubjectMessage)
   }
 }
