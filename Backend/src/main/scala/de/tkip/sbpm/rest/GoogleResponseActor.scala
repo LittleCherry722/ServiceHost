@@ -9,6 +9,8 @@ import scala.util.parsing.json.JSONObject
 import scala.util.parsing.json.JSONObject
 import spray.json.JsonFormat
 import de.tkip.sbpm.external.auth.GoogleResponse
+import de.tkip.sbpm.external.auth.GetAuthenticationState
+import de.tkip.sbpm.external.auth.InitUser
 
 class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   
@@ -25,17 +27,39 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   }
   
   
-  // just forward the post from google to googleAuthActor
+  // just forward the query parameters from google to googleAuthActor
   def receive = runRoute({
     get {
+      
+      path("authstate") {
+        parameters("id") {(id) => {
+          log.debug(getClass.getName + " received question for auth state from user: " + id)
+          googleAuthActor ! GetAuthenticationState(id)
+          // TODO add http status code or marshal response to json
+          complete("")
+        }
+        
+      } 
+      }~
       path("") {
         parameters("code", "state") {(code, state) => {
-          log.debug(getClass.getName + " received: " + "name: " + state + ", code: " + code)
+          log.debug(getClass.getName + " received from google response: " + "name: " + state + ", code: " + code)
           googleAuthActor ! GoogleResponse(state, code)
           complete("")
         } 
         }   
       }
-    } 
+    }~
+    post {
+      path("initAuth") {
+        parameters("id") {(id) => {
+          log.debug(getClass.getName + " received authentication init post from user: " + id)
+          googleAuthActor ! InitUser(id)
+          // TODO add http response -> authentication url or in case the user is alread authenticated send back a error code
+          complete("")
+        }
+        }
+      }
+     }
   })
 }

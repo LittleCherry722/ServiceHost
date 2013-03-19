@@ -27,7 +27,7 @@ import com.google.api.services.drive.model.File
 
 
 class GoogleDriveTest extends FunSuite {
-  implicit val timeout = Timeout(20 seconds)
+  implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
  
   val sys = ActorSystem()
