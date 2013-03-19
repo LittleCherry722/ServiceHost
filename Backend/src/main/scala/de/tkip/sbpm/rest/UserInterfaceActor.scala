@@ -228,7 +228,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
   def setUserIdentity(id: Int, entity: Credentials) = {
     //check if the user exists
-    val userFuture = persistenceActor ? GetUser(Some(id), None)
+    val userFuture = persistenceActor ? Users.Read.ById(id)
     val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
 
     if (user.isDefined) {
@@ -247,7 +247,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
           password = entity.password.get
 
         // set the new password, eMail and provider
-        val future = persistenceActor ? SetUserIdentity(id, entity.provider, eMail, Some(password.bcrypt))
+        val future = persistenceActor ? Users.Save.Identity(id, entity.provider, eMail, Some(password.bcrypt))
         val res = Await.result(future, timeout.duration)
 
         complete(StatusCodes.OK)

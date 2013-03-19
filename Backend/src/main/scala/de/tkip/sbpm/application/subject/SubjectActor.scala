@@ -17,7 +17,7 @@ class SubjectActor(
   userID: UserID,
   sessionID: Int,
   processInstanceActor: ProcessInstanceRef,
-  subject: Subject) extends Actor {
+  subject: GraphSubject) extends Actor {
 
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
@@ -37,7 +37,7 @@ class SubjectActor(
 
   override def preStart() {
     // add all states in the internal behavior
-    for (state <- subject.states) {
+    for (state <- subject.macros("##main##").nodes) {
       internalBehaviorActor ! state
     }
   }

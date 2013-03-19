@@ -8,6 +8,7 @@ import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.model.Target
+import de.tkip.sbpm.model.Graph
 import scala.collection.mutable.ArrayBuffer
 
 // switch state messages 
@@ -85,7 +86,7 @@ case class ExecuteActionAnswer(
   execute: ExecuteAction,
   processID: ProcessID,
   isTerminated: Boolean,
-  graphJson: String,
+  graph: Graph,
   history: History,
   availableActions: Array[AvailableAction]) extends AnswerMessage {
   def request = execute.asInstanceOf[AnswerAbleMessage]

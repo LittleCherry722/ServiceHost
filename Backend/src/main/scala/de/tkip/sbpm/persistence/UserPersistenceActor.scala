@@ -50,9 +50,17 @@ private[persistence] class UserPersistenceActor extends Actor
       Users.where(_.id === id).delete
     }
     // retrieve identity for provider and email
-    case Read.Identity(provider, eMail) => answerOptionProcessed { implicit session: Session =>
+    case Read.Identity.ByEMail(provider, eMail) => answerOptionProcessed { implicit session: Session =>
       val q = for {
         i <- UserIdentities if (i.eMail === eMail && i.provider === provider)
+        u <- i.user
+      } yield (i, u)
+      q.firstOption
+    }(t => mapping.UserMappings.convert(t._1, t._2))
+    // retrieve identity for provider and userId
+    case Read.Identity.ById(provider, userId) => answerOptionProcessed { implicit session: Session =>
+      val q = for {
+        i <- UserIdentities if (i.userId === userId && i.provider === provider)
         u <- i.user
       } yield (i, u)
       q.firstOption

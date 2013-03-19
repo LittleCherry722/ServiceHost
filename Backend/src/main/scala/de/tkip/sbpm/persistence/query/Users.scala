@@ -10,7 +10,11 @@ object Users {
     case object All extends Query
     case class ById(id: Int) extends Query
     case class ByName(name: String) extends Query
-    case class Identity(provider: String, eMail: String) extends Query
+    object Identity {
+    	def apply(provider: String, eMail: String) = ByEMail(provider, eMail)
+    	case class ByEMail(provider: String, eMail: String) extends Query
+    	case class ById(provider: String, userId: Int) extends Query
+    }
   }
 
   object Save {

@@ -12,13 +12,9 @@ import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.ProcessGraph
-import de.tkip.sbpm.model.Subject
-import de.tkip.sbpm.model.Process
-import de.tkip.sbpm.model.ProcessInstance
-import de.tkip.sbpm.model.Graph
+import de.tkip.sbpm.model._
 import de.tkip.sbpm.application.subject._
-import de.tkip.sbpm.persistence._
+import de.tkip.sbpm.persistence.query._
 import akka.event.Logging
 import scala.collection.mutable.SortedSet
 import scala.collection.mutable.Set
@@ -66,20 +62,20 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   val dataBaseAccessFuture = for {
     // get the process
     processFuture <- (ActorLocator.persistenceActor ?
-      GetProcess(Some(processID))).mapTo[Option[Process]]
+      Processes.Read.ById(processID)).mapTo[Option[Process]]
     // save this process instance in the persistence
     processInstanceIDFuture <- (ActorLocator.persistenceActor ?
-      SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
+      ProcessInstances.Save(ProcessInstance(None, processID, processFuture.get.activeGraphId.get)))
       .mapTo[Option[Int]]
     // save this process instance in the persistence
     // Just of debug reasons
     processInstanceIDFuture1 <- if (isStart)
       (ActorLocator.persistenceActor ?
-        SaveProcessInstance(ProcessInstance(Some(1), processID, processFuture.get.graphId, "", "")))
+        ProcessInstances.Save(ProcessInstance(Some(1), processID, processFuture.get.activeGraphId.get)))
         .mapTo[Option[Int]]
     else
       (ActorLocator.persistenceActor ?
-        SaveProcessInstance(ProcessInstance(processInstanceIDFuture, processID, processFuture.get.graphId, "", "")))
+        ProcessInstances.Save(ProcessInstance(processInstanceIDFuture, processID, processFuture.get.activeGraphId.get)))
         .mapTo[Option[Int]]
     //      } else {
     //        processInstanceIDFuture
@@ -87,17 +83,16 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     // get the corresponding graph
     graphFuture <- (ActorLocator.persistenceActor ?
-      GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-  } yield (if (isStart) 1 else processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+      Graphs.Read.ById(processFuture.get.activeGraphId.get)).mapTo[Option[Graph]]
+  } yield (if (isStart) 1 else processInstanceIDFuture.get, processFuture.get.name, graphFuture.get)
 
   // evaluate the Future
-  val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJson: String) =
+  val (id: ProcessInstanceID, processName: String, graph: Graph) =
     Await.result(dataBaseAccessFuture, timeout.duration)
 
   // parse the start-subjects into an Array
-  val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
-  // parse the graph into the internal structure
-  val graph: ProcessGraph = parseGraph(graphJson)
+  val startSubjects: Iterable[SubjectID] = 
+    graph.subjects.values.filter(_.isStartSubject.getOrElse(false)).map(_.id)
 
   private lazy val contextResolver = ActorLocator.contextResolverActor
 
@@ -120,21 +115,20 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private val blockingHandler = new BlockingHandler(createExecuteActionAnswer _)
 
-  // add all start subjects (only if they exist!)
-  for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
-
+  // add all start subjects
+  for (startSubject <- startSubjects) {
     // Create the subjectContainer
-    subjectMap(startSubject) = SubjectContainer(graph.subject(startSubject))
+    subjectMap(startSubject) = SubjectContainer(graph.subjects(startSubject))
     // the container shall contain a subject -> request creation
     subjectMap(startSubject).requestSubjectCreation(request.userID)
   }
 
   def receive = {
 
-    case as: AddSubject if (graph.hasSubject(as.subjectID)) => {
+    case as: AddSubject if (graph.subjects.contains(as.subjectID)) => {
       // if subjectProvider of the new subject is not the same as the one that asked for execution
       // try to forward blocked ExecuteActionAnswer
-      val subject: Subject = graph.subject(as.subjectID)
+      val subject: GraphSubject = graph.subjects(as.subjectID)
 
       // Create the subject for the subject container in the given map position
       subjectMap.getOrElseUpdate(subject.id, SubjectContainer(subject))
@@ -167,12 +161,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       handleSubjectInternalMessageProcessed(message.userID)
     }
 
-    case sm: SubjectToSubjectMessage if (graph.hasSubject(sm.to)) => {
+    case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to)) => {
       val to = sm.to
       // block user that owns the subject
       if (!subjectMap.contains(to)) {
         // if the subjectcontainer does not exists, create it
-        subjectMap(to) = SubjectContainer(graph.subject(to))
+        subjectMap(to) = SubjectContainer(graph.subjects(to))
       }
       // Send the message to the container, it will deal with it
       subjectMap(to).send(sm)
@@ -242,7 +236,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, processID, isTerminated, graphJson, executionHistory, actions))
+          ExecuteActionAnswer(req, processID, isTerminated, graph, executionHistory, actions))
   }
 
   private var sendProcessInstanceCreated = true
@@ -255,7 +249,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           id,
           AllSubjects,
           (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, id, self, false, graphJson, executionHistory, actions))
+            ProcessInstanceCreated(request, id, self, false, graph, executionHistory, actions))
       sendProcessInstanceCreated = false
     }
   }
@@ -266,7 +260,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
    * This class is responsible to hold a subjects, and can represent
    * a single subject or a multisubject
    */
-  private case class SubjectContainer(subject: Subject) {
+  private case class SubjectContainer(subject: GraphSubject) {
     import scala.collection.mutable.{ Map => MutableMap }
 
     val multi = subject.multi

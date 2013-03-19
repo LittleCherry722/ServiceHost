@@ -26,6 +26,7 @@ import spray.routing.authentication.UserPass
 import de.tkip.sbpm.application.subject.ActionData
 import de.tkip.sbpm.application.subject.TargetUser
 import de.tkip.sbpm.application.subject.MessageData
+import GraphJsonProtocol.graphJsonFormat
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -83,10 +84,9 @@ object JsonProtocol extends DefaultJsonProtocol {
    * header case classes
    */
   case class ProcessIdHeader(processId: Int)
-  case class GraphHeader(name: String, graph: String, isCase: Boolean){
+  case class GraphHeader(name: String, graph: Graph, isCase: Boolean){
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
   }
-
 
   // administration
   implicit val userFormat = jsonFormat4(User)

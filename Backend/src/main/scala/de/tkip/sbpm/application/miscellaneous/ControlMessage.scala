@@ -8,8 +8,6 @@ import de.tkip.sbpm.application.subject.BehaviorStateActor
 import de.tkip.sbpm.model.Transition
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject._
-import de.tkip.sbpm.model.ProcessGraph
-import de.tkip.sbpm.model.ProcessGraph
 
 /**
  * For system control tasks
