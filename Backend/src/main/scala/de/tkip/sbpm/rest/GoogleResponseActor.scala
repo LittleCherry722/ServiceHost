@@ -11,10 +11,21 @@ import spray.json.JsonFormat
 import de.tkip.sbpm.external.auth.GoogleResponse
 import de.tkip.sbpm.external.auth.GetAuthenticationState
 import de.tkip.sbpm.external.auth.InitUser
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.duration._
+
+import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
 
 class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   
-    private lazy val googleAuthActor = ActorLocator.googleAuthActor
+
+  implicit val timeout = Timeout(5 seconds)
+
+  private lazy val googleAuthActor = ActorLocator.googleAuthActor
     
   def actorRefFactory = context
   
@@ -30,17 +41,6 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   // just forward the query parameters from google to googleAuthActor
   def receive = runRoute({
     get {
-      
-      path("authstate") {
-        parameters("id") {(id) => {
-          log.debug(getClass.getName + " received question for auth state from user: " + id)
-          googleAuthActor ! GetAuthenticationState(id)
-          // TODO add http status code or marshal response to json
-          complete("")
-        }
-        
-      } 
-      }~
       path("") {
         parameters("code", "state") {(code, state) => {
           log.debug(getClass.getName + " received from google response: " + "name: " + state + ", code: " + code)
@@ -55,7 +55,13 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
         parameters("id") {(id) => {
           log.debug(getClass.getName + " received authentication init post from user: " + id)
           googleAuthActor ! InitUser(id)
-          // TODO add http response -> authentication url or in case the user is alread authenticated send back a error code
+          // TODO add http response -> authentication url or in case the user is already authenticated send back a error code
+          val future = googleAuthActor ? InitUser(id)
+          val result = Await.result(future.mapTo[String], timeout.duration)
+
+          // HTTP 204 wenn verbunden 
+          
+          // HTTP 200 mit url als body für weiterleitung  
           complete("")
         }
         }

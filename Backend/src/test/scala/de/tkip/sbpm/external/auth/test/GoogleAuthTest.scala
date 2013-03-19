@@ -33,7 +33,7 @@ class GoogleAuthTest extends FunSuite {
     val future = actor ? GetAuthUrl("User_1")
     val result = Await.result(future.mapTo[String], timeout.duration)
     println(result)
-    assert(result === "https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive&state=User_1")
+    assert(result === "https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email&state=User_1")
   }
   
   test("Test if a credential for a user can be loaded from credential store") {
@@ -49,7 +49,7 @@ class GoogleAuthTest extends FunSuite {
     val result = Await.result(future.mapTo[Credential], timeout.duration)
     assert((result.getExpiresInSeconds() / 60) > 55)
     assert(result.refreshToken() == true)
-    assert((result.getExpiresInSeconds() / 60) == 60)
+    assert((result.getExpiresInSeconds() / 60) >= 59)
   }
 }
 
