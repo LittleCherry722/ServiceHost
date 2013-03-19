@@ -181,10 +181,18 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
             saveGroup(groupUser)
           } ~
             /**
-             * update an existing user and his credentials
+             * update existing user
              *
              * e.g. PUT http://localhost:8080/user/2
-             * 	payload: {"name":"example name","isActive":true,"inputPoolSize":6,"provider":"sbpm","newEmail":"superuser@sbpm.com","oldPassword":"s1234","newPassword":"pass"}
+             * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
+             * 	result: 200 OK
+             * 			{ "id": 2, "name": "abc", "isActive": true, "inputPoolSize": 8 }
+             */
+            /**
+             * update credentials of an existing user
+             *
+             * e.g. PUT http://localhost:8080/user/2
+             * 	payload: {"name":"test","isActive":true,"inputPoolSize":6,"provider":"sbpm","newEmail":"superuser@sbpm.com","oldPassword":"s1234","newPassword":"pass"}
              * 	result: 200 OK
              *
              */
@@ -228,7 +236,6 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
         // check what has to be changed
         var eMail = userIdentity.get.eMail
         var password = entity.oldPassword
-        var us = user.get
 
         if (entity.newEmail.isDefined)
           eMail = entity.newEmail.get
@@ -239,12 +246,11 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
         val future = persistenceActor ? SetUserIdentity(id, entity.provider, eMail, Some(password.bcrypt))
         val res = Await.result(future, timeout.duration)
 
-        
-        if(entity.user.isDefined){
-          saveUser(entity.user.get, Some(id))
-        } else {
-          complete(user.get)
-        }
+        var name = entity.name.getOrElse(user.get.name)
+        var isActive = entity.isActive.getOrElse(user.get.isActive)
+        var inputPoolSize = entity.inputPoolSize.getOrElse(user.get.inputPoolSize)
+          
+        saveUser(new User(None, name, isActive, inputPoolSize), Some(id))
       } else
         complete(StatusCodes.Unauthorized)
     } else
