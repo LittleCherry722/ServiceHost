@@ -181,20 +181,12 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
             saveGroup(groupUser)
           } ~
             /**
-             * update existing user
-             *
-             * e.g. PUT http://localhost:8080/user/2
-             * 	payload: { "name": "abc", "isActive": true, "inputPoolSize": 8 }
-             * 	result: 200 OK
-             * 			{ "id": 2, "name": "abc", "isActive": true, "inputPoolSize": 8 }
-             */
-            /**
-             * update credentials of an existing user
+             * update an existing user and his credentials
              *
              * e.g. PUT http://localhost:8080/user/2
              * 	payload: {"name":"test","isActive":true,"inputPoolSize":6,"provider":"sbpm","newEmail":"superuser@sbpm.com","oldPassword":"s1234","newPassword":"pass"}
              * 	result: 200 OK
-             *
+             *		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
              */
             path("^$"r) { regex =>
               entity(as[UserUpdate]) { userUpdate =>
@@ -234,13 +226,8 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
       if (auth.isDefined) {
         // check what has to be changed
-        var eMail = userIdentity.get.eMail
-        var password = entity.oldPassword
-
-        if (entity.newEmail.isDefined)
-          eMail = entity.newEmail.get
-        if (entity.newPassword.isDefined)
-          password = entity.newPassword.get
+        var eMail = entity.newEmail.getOrElse(userIdentity.get.eMail)
+        var password = entity.newPassword.getOrElse(entity.oldPassword)
 
         // set the new password, eMail and provider
         val future = persistenceActor ? SetUserIdentity(id, entity.provider, eMail, Some(password.bcrypt))
