@@ -9,10 +9,24 @@ import scala.util.parsing.json.JSONObject
 import scala.util.parsing.json.JSONObject
 import spray.json.JsonFormat
 import de.tkip.sbpm.external.auth.GoogleResponse
+import de.tkip.sbpm.external.auth.GetAuthenticationState
+import de.tkip.sbpm.external.auth.InitUser
+import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
+import spray.http.StatusCodes
+
 
 class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   
-    private lazy val googleAuthActor = ActorLocator.googleAuthActor
+
+  implicit val timeout = Timeout(5 seconds)
+
+  private lazy val googleAuthActor = ActorLocator.googleAuthActor
     
   def actorRefFactory = context
   
@@ -25,17 +39,39 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   }
   
   
-  // just forward the post from google to googleAuthActor
+  
   def receive = runRoute({
+    // just forward the query parameters from google to googleAuthActor
     get {
       path("") {
         parameters("code", "state") {(code, state) => {
-          log.debug(getClass.getName + " received: " + "name: " + state + ", code: " + code)
+          log.debug(getClass.getName + " received from google response: " + "name: " + state + ", code: " + code)
           googleAuthActor ! GoogleResponse(state, code)
           complete("")
         } 
         }   
       }
-    } 
+    }~
+    // a user posts his id on /initAuth in case he wants to authenticate the app against his google account
+    post {
+      path("initAuth") {
+        parameters("id") {(id) => {
+          log.debug(getClass.getName + " received authentication init post from user: " + id)
+          googleAuthActor ! InitUser(id)
+
+          val future = googleAuthActor ? InitUser(id)
+          val result = Await.result(future.mapTo[String], timeout.duration)
+
+          if (result != "AUTHENTICATED") {
+            // send back http ok with google authentication url
+            complete(StatusCodes.OK, result)
+          } else {
+            // send back http ok with no content in case the user is already authenticated
+            complete(StatusCodes.NoContent)
+          }
+        }
+        }
+      }
+     }
   })
 }

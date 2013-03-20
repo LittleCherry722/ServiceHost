@@ -3,7 +3,6 @@ package de.tkip.sbpm.external.api
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.http.HttpResponseException
@@ -37,13 +36,11 @@ import de.tkip.sbpm.application.miscellaneous.GoogleMessage
 import com.google.api.services.drive.model.Permission
 import java.io.IOException
 
-// message types for google specific communication
-sealed trait GoogleDriveAction extends GoogleMessage
 
 // case classes to communicate with google drive
+sealed trait GoogleDriveAction extends GoogleMessage
 
 // returns index of a specific folder on the google drive, in case string = none it returns 
-// the index of the root directory
 case  class ListGDriveDirectory(folder: Option[String] = None) extends GoogleDriveAction
 
 case  class ListGDriveFiles(id: String) extends GoogleDriveAction
@@ -118,7 +115,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
     case _ => sender ! "not yet implemented"
   }
   
-  /** just for testing purpose */
+  // ask google auth actor for a valid user token
   def getUserToken(id: String): Credential = {
     val future = googleAuthActor ? GetCredential(id)
     val result = Await.result(future.mapTo[Credential], timeout.duration)
@@ -184,7 +181,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
   }
   
   /** lists directory on the google drive, in case the method does not get a parameter it lists the root directory */
-  def listFiles(id: String): java.util.List[File] = {
+  def listFiles(id: String): String = {
     
     // TODO for testing purpose fixed to user_1
     val drive = getGDriveObject("User_1")
@@ -196,7 +193,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
     val fields = "items(description,downloadUrl,iconLink,id,mimeType,ownerNames,title)"
     
     val files = drive.files().list().setPrettyPrint(true).setQ(query).setFields(fields).execute()
-    files.getItems()
+    files.toPrettyString()
   }
   
   //TODO implement directory filtering

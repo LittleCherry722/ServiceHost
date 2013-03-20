@@ -18,6 +18,7 @@ sealed abstract class UserAction extends PersistenceAction
 * None or empty Seq is returned if no entities where found
 */
 case class GetUser(id: Option[Int] = None, name: Option[String] = None) extends UserAction
+case class GetUserWithIdentities(id: Option[Int] = None) extends UserAction
 // save user to db, if id is None a new process is created and its id is returned
 case class SaveUser(user: User) extends UserAction
 // delete user with id from db
@@ -77,6 +78,22 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       case GetUser(id, None)   => answer { Users.where(_.id === id).firstOption }
       // get user with given name
       case GetUser(None, name) => answer { Users.where(_.name === name).firstOption }
+      case GetUserWithIdentities(None) => answer {
+        val query = for {
+          (u, i) <- Query(Users).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
+        } yield (u, i.provider.?, i.eMail.?, i.password)
+        query.list.groupBy(_._1).mapValues(_.filter(_._2.isDefined).map { e =>
+          UserIdentity(e._1, e._2.get, e._3.get, e._4)
+        })
+      }
+      case GetUserWithIdentities(Some(id)) => answer {
+        val query = for {
+          (u, i) <- Query(Users).where(_.id === id).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
+        } yield (u, i.provider.?, i.eMail.?, i.password)
+        query.list.groupBy(_._1).mapValues(_.filter(_._2.isDefined).map { e =>
+          UserIdentity(e._1, e._2.get, e._3.get, e._4)
+        }).toSeq.headOption
+      }
       // create new user
       case SaveUser(u @ User(None, _, _, _)) =>
         answer { Some(Users.autoInc.insert(u)) }

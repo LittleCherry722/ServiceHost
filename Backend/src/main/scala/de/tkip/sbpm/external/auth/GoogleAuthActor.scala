@@ -21,6 +21,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.auth.oauth2.CredentialRefreshListener
 import com.google.api.client.auth.oauth2.TokenResponse
 import com.google.api.client.auth.oauth2.TokenErrorResponse
+import java.util.Arrays
+import com.google.api.services.oauth2.Oauth2Scopes
 
 
 // message types for google specific communication
@@ -38,7 +40,8 @@ case class GetAuthUrl(id: String) extends GoogleAuthAction
 
 case class InitUser(id: String) extends GoogleAuthAction
 
-
+// get current status for user with given id
+case class GetAuthenticationState(id: String) extends GoogleAuthAction
 
 // message that keeps response of google authentication service 
 case class GoogleResponse(id: String, response: String) extends GoogleAuthAction
@@ -59,13 +62,16 @@ class GoogleAuthActor extends Actor with ActorLogging {
   }
   
   // access scope is the whole google drive
-  val SCOPE = Collections.singletonList[String](DriveScopes.DRIVE)
+  val SCOPE = Arrays.asList[String](
+      DriveScopes.DRIVE, 
+      Oauth2Scopes.USERINFO_PROFILE, 
+      Oauth2Scopes.USERINFO_EMAIL)
+      
   val HTTP_TRANSPORT = new NetHttpTransport()
   val JSON_FACTORY = new JacksonFactory()
   
   
   // load application settings from config file stored in resources folder
-  //TODO use class.get.resources ... 
   val CLIENT_SECRETS = GoogleClientSecrets.load(JSON_FACTORY, getClass().getResourceAsStream("/client_secrets.json"))
   val CALLBACK_URL = "http://localhost:8080/oauth2callback"
   // currently no persistence
@@ -81,8 +87,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
   def receive = {
         
 	// starts authentication flow
-    //TODO implement flow management
-  	case InitUser(id) => sender ! "success"
+  	case InitUser(id) => sender ! initUser(id)
   
     case DeleteCredential(id) => sender ! deleteCredential(id)
     
@@ -103,15 +108,35 @@ class GoogleAuthActor extends Actor with ActorLogging {
    * unknown it returns null
    */
   def getUserCredential(id : String): Credential = {
-    refreshToken(id)  
-    flow.loadCredential(id)
+    if (flow.loadCredential(id) != null) {
+      flow.loadCredential(id).refreshToken()
+      flow.loadCredential(id)
+    } else {
+      null
+    }
   }
   
-  /** Generate autorization URL */ 
+  /** Generate authorization URL */ 
   def formAuthUrl(id: String): String = {
-    flow.newAuthorizationUrl().setRedirectUri(CALLBACK_URL).setState(id).setAccessType("offline").build()
+    flow.newAuthorizationUrl()
+    .setRedirectUri(CALLBACK_URL)
+    .setAccessType("offline")
+    .setState(id).build()
   }
-   
+  
+  /** Initialize authentication flow by checking if user already has a valid token - if not,
+   *  send back the authentication URL
+   */
+  def initUser(id: String): String = {
+    var returnValue = ""
+    if (getUserCredential(id) != null) {
+      returnValue = "AUTHENTICATED"
+    } else {
+     returnValue = formAuthUrl(id)
+    }
+    returnValue
+  }
+  
   /** Receives google post and exchanges it to an access token */
   def handelResponse(id : String, response : String) = {
     //log.debug(getClass().getName() + " Response: " + response)
@@ -134,9 +159,11 @@ class GoogleAuthActor extends Actor with ActorLogging {
     }).addRefreshListener(new CredentialStoreRefreshListener(id, credentialStore))
     .build()
     credential.setFromTokenResponse(tokenResponse)
+    credentialStore.store(id, credential)
+    log.debug(getClass().getName() + " New credential for user: " + id + " have been saved")
     } catch {
     case e : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + e.getDetails() + "\n" + e.getMessage())
-}
+    }  
   }
   
   /** Delete access token if user wants to retrieve access for application*/
@@ -146,12 +173,5 @@ class GoogleAuthActor extends Actor with ActorLogging {
       flow.getCredentialStore().delete(id, credential)
     }
    flow.loadCredential(id).getAccessToken().isEmpty()
-  }
-  
-  /** refresh specific tokens */
-  def refreshToken(id : String) {
-    flow.loadCredential(id).refreshToken()
-  }
-  
-  
+  } 
 }

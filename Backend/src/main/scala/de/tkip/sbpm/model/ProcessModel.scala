@@ -2,7 +2,7 @@ package de.tkip.sbpm.model
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
-object StateType extends Enumeration {
+object StateType extends Enumeration {// TODO just use a string?
   type StateType = Value
   // The string identifier in the graph
   val ActStateString = "action"

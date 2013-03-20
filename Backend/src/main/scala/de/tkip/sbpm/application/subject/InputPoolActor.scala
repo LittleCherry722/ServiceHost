@@ -36,7 +36,11 @@ protected case class UnSubscribeIncomingMessages(stateID: StateID)
 // message to inform the receive state, that the inputpool has no messages for him
 protected case object InputPoolSubscriptionPerformed
 
-class InputPoolActor(userID: UserID, messageLimit: Int) extends Actor {
+class InputPoolActor(data: SubjectData) extends Actor {
+  // extract the information from the data
+  val userID = data.userID
+  val messageLimit = data.subject.inputPool
+  val blockingHandlerActor = data.blockingHandlerActor
 
   // this map holds the queue of the income messages for a channel
   private val messageQueueMap =
@@ -66,8 +70,8 @@ class InputPoolActor(userID: UserID, messageLimit: Int) extends Actor {
       sender ! Stored(message.messageID)
       // try to transport the message
       tryTransportMessage(message)
-      // inform the processinstance, that this message has been processed
-      context.parent ! SubjectInternalMessageProcessed(userID)
+      // unblock this user
+      blockingHandlerActor ! UnBlockUser(userID)
     }
   }
 

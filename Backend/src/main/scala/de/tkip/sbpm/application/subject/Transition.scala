@@ -21,7 +21,7 @@ case class Target(
   private val defaultValues: Boolean) {
 
   val toVariable = variable.isDefined && variable.get != ""
-  val toAll = defaultValues && !createNew && !toVariable
+  val toAll = defaultValues && !createNew && !toVariable // Dont need to all, always set users?
 
   private var _vars: Array[(SubjectID, UserID)] = Array()
   private var _targetUsers = Array[UserID]()
