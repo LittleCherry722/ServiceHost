@@ -6,6 +6,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.persistence._
 import akka.event.Logging
 import de.tkip.sbpm.ActorLocator
+import akka.actor.Status.Failure
 
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
@@ -24,9 +25,6 @@ class ProcessManagerActor extends Actor {
   // used to map answer messages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
 
-  // initialize persistence actors
-  private lazy val persistenceActor = ActorLocator.persistenceActor
-
   def receive = {
     case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProviderActor
@@ -34,9 +32,11 @@ class ProcessManagerActor extends Actor {
 
     // execution
     case getAll: GetAllProcessInstances => {
-
       sender !
-        AllProcessInstancesAnswer(getAll, processInstanceMap.map(s => ProcessInstanceInfo(s._1, s._2.processID)).toArray.sortBy(_.id))
+        AllProcessInstancesAnswer(
+          getAll,
+          processInstanceMap.map(
+            s => ProcessInstanceInfo(s._1, s._2.processID)).toArray.sortBy(_.id))
     }
 
     case cp: CreateProcessInstance => {
@@ -60,18 +60,16 @@ class ProcessManagerActor extends Actor {
         processInstanceMap -= id
         sender ! KillProcessInstanceAnswer(kill)
       } else {
-        logger.info("Process Manager - can't kill process instance: " +
+        logger.error("Process Manager - can't kill process instance: " +
           id + ", it does not exists")
-          // TODO error
+        kill.sender ! Failure(new IllegalArgumentException(
+          "Invalid Argument: Can't kill a processinstance, which is not running."))
       }
       // TODO always try to delete it from the database?
       //      ActorLocator.persistenceActor ! DeleteProcessInstance(id)
     }
 
     // general matching
-    // persistence router - in case the debug flag is set, forward the message to
-    // test persistence actor
-    case message: PersistenceMessage => forwardToPersistenceActor(message)
 
     // TODO muesste man auch zusammenfassenkoennen
     case message: ProcessInstanceMessage => {
@@ -83,28 +81,15 @@ class ProcessManagerActor extends Actor {
     }
 
     case message: SubjectProviderMessage => {
-      // TODO besser damit umgehen wenn subjectProvider nicht existiert
-      val userID = message.userID
-      if (subjectProviderMap.contains(userID)) {
-        subjectProviderMap(userID).forward(message)
-      } else {
-        // TODO testweise
-        // if the subjectprovider does not exist forward the message to
-        // the subjectprovidermanager, so he can create the user dynamicly
-        ActorLocator.subjectProviderManagerActor.forward(message)
-
-        logger.info("Process Manager - User unknown: " + userID + " message: " + message)
-      }
+      subjectProviderMap
+        .getOrElse(message.userID, ActorLocator.subjectProviderManagerActor)
+        .forward(message)
     }
 
     case answer: AnswerMessage => {
       answer.sender.forward(answer)
     }
 
-  }
-
-  private def forwardToPersistenceActor(pa: PersistenceMessage) {
-    persistenceActor.forward(pa)
   }
 
   // to forward a message to the process instance it needs a function to 
@@ -117,11 +102,10 @@ class ProcessManagerActor extends Actor {
   private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
     if (processInstanceMap.contains(message.processInstanceID)) {
       processInstanceMap(message.processInstanceID).processInstanceActor.forward(message)
-    } else {
-      if (message.isInstanceOf[AnswerAbleMessage]) {
-        // TODO create an answertrait for this error
-        message.asInstanceOf[AnswerAbleMessage].sender ! None
-      }
+    } else if (message.isInstanceOf[AnswerAbleMessage]) {
+      message.asInstanceOf[AnswerAbleMessage].sender !
+        Failure(new Exception("Target process instance does not exists."))
+
       logger.error("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)
     }

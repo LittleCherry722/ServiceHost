@@ -1,14 +1,13 @@
 package de.tkip.sbpm.application.subject
 
 import java.util.Date
-
 import akka.actor._
-
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
+import akka.event.Logging
 
 case class SubjectData(
   userID: UserID,
@@ -21,6 +20,7 @@ case class SubjectData(
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
 class SubjectActor(data: SubjectData) extends Actor {
+  private val logger = Logging(context.system, this)
 
   // extract the information out of the input
   private val subject = data.subject
@@ -75,7 +75,7 @@ class SubjectActor(data: SubjectData) extends Actor {
     }
 
     case s => {
-      println("SubjectActor " + userID + " does not support: " + s)
+      logger.error("SubjectActor " + userID + " does not support: " + s)
     }
   }
 }

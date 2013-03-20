@@ -12,6 +12,7 @@ import de.tkip.sbpm.application.subject.state._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
 import akka.event.Logging
+import akka.actor.Status.Failure
 
 // TODO this is for history + statechange
 case class ChangeState(
@@ -84,8 +85,11 @@ class InternalBehaviorActor(
     case br: SubjectBehaviorRequest => {
       if (currentState != null) {
         currentState.forward(br)
-      } else {
-        // TODO signalisieren das die message nicht ausfuehrbar ist
+      } else if (br.isInstanceOf[AnswerAbleMessage]) {
+        br.asInstanceOf[AnswerAbleMessage].sender !
+          Failure(new Exception(
+            "Subject : " + subjectID + "of process instance " +
+              data.processInstanceID + " has no running subject"))
       }
     }
 
