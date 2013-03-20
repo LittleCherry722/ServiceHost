@@ -21,6 +21,8 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.auth.oauth2.CredentialRefreshListener
 import com.google.api.client.auth.oauth2.TokenResponse
 import com.google.api.client.auth.oauth2.TokenErrorResponse
+import java.util.Arrays
+import com.google.api.services.oauth2.Oauth2Scopes
 
 
 // message types for google specific communication
@@ -60,13 +62,15 @@ class GoogleAuthActor extends Actor with ActorLogging {
   }
   
   // access scope is the whole google drive
-  val SCOPE = Collections.singletonList[String](DriveScopes.DRIVE)
+  val SCOPE = Arrays.asList[String](
+      DriveScopes.DRIVE, 
+      Oauth2Scopes.USERINFO_PROFILE, 
+      Oauth2Scopes.USERINFO_EMAIL)
   val HTTP_TRANSPORT = new NetHttpTransport()
   val JSON_FACTORY = new JacksonFactory()
   
   
   // load application settings from config file stored in resources folder
-  //TODO use class.get.resources ... 
   val CLIENT_SECRETS = GoogleClientSecrets.load(JSON_FACTORY, getClass().getResourceAsStream("/client_secrets.json"))
   val CALLBACK_URL = "http://localhost:8080/oauth2callback"
   // currently no persistence
@@ -110,9 +114,11 @@ class GoogleAuthActor extends Actor with ActorLogging {
   
   /** Generate autorization URL */ 
   def formAuthUrl(id: String): String = {
-    flow.newAuthorizationUrl().setRedirectUri(CALLBACK_URL).setState(id).setAccessType("offline").build()
+    
+    flow.newAuthorizationUrl().setRedirectUri(CALLBACK_URL).setAccessType("offline").setState(id).build()
   }
    
+  
   /** Receives google post and exchanges it to an access token */
   def handelResponse(id : String, response : String) = {
     //log.debug(getClass().getName() + " Response: " + response)
@@ -135,9 +141,11 @@ class GoogleAuthActor extends Actor with ActorLogging {
     }).addRefreshListener(new CredentialStoreRefreshListener(id, credentialStore))
     .build()
     credential.setFromTokenResponse(tokenResponse)
+    credentialStore.store(id, credential)
+    log.debug(getClass().getName() + " New credential for user: " + id + " have been saved")
     } catch {
     case e : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + e.getDetails() + "\n" + e.getMessage())
-}
+    }  
   }
   
   /** Delete access token if user wants to retrieve access for application*/

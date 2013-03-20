@@ -24,6 +24,7 @@ import scala.concurrent.Future
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.external.auth.GoogleAuthActor
 import de.tkip.sbpm.external.api.GoogleDriveActor
+import de.tkip.sbpm.external.api.GoogleUserInformationActor
 
 
 object Boot extends App with SprayCanHttpServerApp {
@@ -57,6 +58,7 @@ object Boot extends App with SprayCanHttpServerApp {
   val userPassAuthActor = system.actorOf(Props[UserPassAuthActor], userPassAuthActorName)
   val googleAuthActor = system.actorOf(Props[GoogleAuthActor], googleAuthActorName)
   val googleDriveActor = system.actorOf(Props[GoogleDriveActor], googleDriveActorName)
+  val googleUserInformationActor = system.actorOf(Props[GoogleUserInformationActor], googleUserInformationActorName)
 
   // create a new HttpServer using our handler tell it where to bind to
   newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = 8080)
