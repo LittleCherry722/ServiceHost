@@ -25,14 +25,16 @@ import scala.collection.mutable.Set
 import scala.collection.mutable.LinkedList
 import scala.collection.mutable.Map
 
+import ExecutionContext.Implicits.global // TODO this import or something different?
+import akka.actor.Status.Failure
+
 // represents the history of the instance
-case class History(processName: String,
+case class History(
+  var processName: String,
   instanceId: ProcessInstanceID,
   var processStarted: Option[Date] = None, // None if not started yet
   var processEnded: Option[Date] = None, // None if not started or still running
   entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
-
-import ExecutionContext.Implicits.global // TODO this import or something different?
 
 /**
  * instantiates SubjectActor's and manages their interactions
@@ -42,37 +44,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
-  implicit val timeout = Timeout(30 seconds)
+  implicit val timeout = Timeout(4 seconds)
 
+  // this fields are set in the preStart, dont change them afterwards!!!
+  private var id: ProcessInstanceID = -1
   private val processID = request.processID
-
-  // TODO "None" rueckgaben behandeln
-  // Get the ProcessGraph from the database and create the database entry
-  // for this process instance
-  private val dataBaseAccessFuture = for {
-    // get the process
-    processFuture <- (ActorLocator.persistenceActor ?
-      GetProcess(Some(processID))).mapTo[Option[Process]]
-    // save this process instance in the persistence
-    processInstanceIDFuture <- (ActorLocator.persistenceActor ?
-      SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
-      .mapTo[Option[Int]]
-
-    // get the corresponding graph
-    graphFuture <- (ActorLocator.persistenceActor ?
-      GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-  } yield (processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
-
-  // evaluate the Future
-  private val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJson: String) =
-    Await.result(dataBaseAccessFuture, timeout.duration)
-
-  // parse the start-subjects into an Array
-  private val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
-  // parse the graph into the internal structure
-  private val graph: ProcessGraph = parseGraph(graphJson)
-
-  private lazy val contextResolver = ActorLocator.contextResolverActor
+  private var processName: String = _
+  private var graphJson: String = _
+  private var graph: ProcessGraph = _
 
   // whether the process instance is terminated or not
   private var runningSubjectCounter = 0
@@ -91,15 +70,51 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor])
 
   override def preStart() {
-    // TODO modify to the right version
-    for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
-      // Create the subjectContainer
-      subjectMap(startSubject) = createSubjectContainer(graph.subject(startSubject))
-      // the container shall contain a subject -> create
-      subjectMap(startSubject).createSubject(request.userID)
+    try {
+      // TODO schoener machen
+      val dataBaseAccessFuture = for {
+        // get the process
+        processFuture <- (ActorLocator.persistenceActor ?
+          GetProcess(Some(processID))).mapTo[Option[Process]]
+        // save this process instance in the persistence
+        processInstanceIDFuture <- (ActorLocator.persistenceActor ?
+          SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
+          .mapTo[Option[Int]]
+
+        // get the corresponding graph
+        graphFuture <- (ActorLocator.persistenceActor ?
+          GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
+      } yield (processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+      // evaluate the Future
+      val (idTemp, processNameTemp, startSubjectsString: String, graphJsonTemp) =
+        Await.result(dataBaseAccessFuture, timeout.duration)
+      id = idTemp
+      processName = processNameTemp
+      graphJson = graphJsonTemp
+
+      // parse the start-subjects into an Array
+      val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
+      // parse the graph into the internal structure
+      graph = parseGraph(graphJson)
+
+      executionHistory.processName = processName
+
+      // TODO modify to the right version
+      for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
+        // Create the subjectContainer
+        subjectMap(startSubject) = createSubjectContainer(graph.subject(startSubject))
+        // the container shall contain a subject -> create
+        subjectMap(startSubject).createSubject(request.userID)
+      }
+      // send processinstance created, when the block is closed
+      blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
+    } catch {
+      case e: NoSuchElementException => {
+        request.sender !
+          Failure(new Exception("ProcessInstance creation failed, required " +
+            "resource does not exists."))
+      }
     }
-    // send processinstance created, when the block is closed
-    blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
   }
 
   def receive = {
