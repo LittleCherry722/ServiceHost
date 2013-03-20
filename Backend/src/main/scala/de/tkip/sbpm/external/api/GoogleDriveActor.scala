@@ -181,7 +181,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
   }
   
   /** lists directory on the google drive, in case the method does not get a parameter it lists the root directory */
-  def listFiles(id: String): java.util.List[File] = {
+  def listFiles(id: String): String = {
     
     // TODO for testing purpose fixed to user_1
     val drive = getGDriveObject("User_1")
@@ -193,7 +193,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
     val fields = "items(description,downloadUrl,iconLink,id,mimeType,ownerNames,title)"
     
     val files = drive.files().list().setPrettyPrint(true).setQ(query).setFields(fields).execute()
-    files.getItems()
+    files.toPrettyString()
   }
   
   //TODO implement directory filtering

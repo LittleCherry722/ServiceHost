@@ -66,6 +66,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
       DriveScopes.DRIVE, 
       Oauth2Scopes.USERINFO_PROFILE, 
       Oauth2Scopes.USERINFO_EMAIL)
+      
   val HTTP_TRANSPORT = new NetHttpTransport()
   val JSON_FACTORY = new JacksonFactory()
   
@@ -86,8 +87,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
   def receive = {
         
 	// starts authentication flow
-    //TODO implement flow management
-  	case InitUser(id) => sender ! "success"
+  	case InitUser(id) => sender ! initUser(id)
   
     case DeleteCredential(id) => sender ! deleteCredential(id)
     
@@ -108,16 +108,34 @@ class GoogleAuthActor extends Actor with ActorLogging {
    * unknown it returns null
    */
   def getUserCredential(id : String): Credential = {
-    refreshToken(id)  
-    flow.loadCredential(id)
+    if (flow.loadCredential(id) != null) {
+      flow.loadCredential(id).refreshToken()
+      flow.loadCredential(id)
+    } else {
+      null
+    }
   }
   
-  /** Generate autorization URL */ 
+  /** Generate authorization URL */ 
   def formAuthUrl(id: String): String = {
-    
-    flow.newAuthorizationUrl().setRedirectUri(CALLBACK_URL).setAccessType("offline").setState(id).build()
+    flow.newAuthorizationUrl()
+    .setRedirectUri(CALLBACK_URL)
+    .setAccessType("offline")
+    .setState(id).build()
   }
-   
+  
+  /** Initialize authentication flow by checking if user already has a valid token - if not,
+   *  send back the authentication URL
+   */
+  def initUser(id: String): String = {
+    var returnValue = ""
+    if (getUserCredential(id) != null) {
+      returnValue = "AUTHENTICATED"
+    } else {
+     returnValue = formAuthUrl(id)
+    }
+    returnValue
+  }
   
   /** Receives google post and exchanges it to an access token */
   def handelResponse(id : String, response : String) = {
@@ -155,12 +173,5 @@ class GoogleAuthActor extends Actor with ActorLogging {
       flow.getCredentialStore().delete(id, credential)
     }
    flow.loadCredential(id).getAccessToken().isEmpty()
-  }
-  
-  /** refresh specific tokens */
-  def refreshToken(id : String) {
-    flow.loadCredential(id).refreshToken()
-  }
-  
-  
+  } 
 }
