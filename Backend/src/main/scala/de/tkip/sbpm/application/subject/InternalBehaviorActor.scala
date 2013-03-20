@@ -8,9 +8,11 @@ import de.tkip.sbpm.application.history.{
   Message => HistoryMessage,
   State => HistoryState
 }
+import de.tkip.sbpm.application.subject.state._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
 import akka.event.Logging
+
 
 // TODO this is for history + statechange
 case class ChangeState(
