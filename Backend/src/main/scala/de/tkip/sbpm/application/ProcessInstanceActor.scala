@@ -307,7 +307,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
      * Forwards a message to all Subjects of this MultiSubject
      */
     def send(message: SubjectToSubjectMessage) {
-      import scala.util.Random.shuffle
       if (message.target.toVariable) {
         // TODO why not targetUsers = var subjects?
         sendTo(message.target.varSubjects.map(_._2), message)
@@ -317,6 +316,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
       return
 
+      import scala.util.Random.shuffle
       // TODO out
       if (!multi && subjects.isEmpty) {
         // if its not a multisubject and no subject exists, create 1 subject

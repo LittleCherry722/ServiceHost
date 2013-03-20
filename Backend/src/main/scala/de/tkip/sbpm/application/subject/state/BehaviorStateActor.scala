@@ -126,6 +126,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   }
 
   private def errorReceive: Receive = {
+    case message: AnswerAbleMessage => {
+      message.sender ! akka.actor.Status.Failure(new IllegalArgumentException("Invalid input."))
+    }
+
     case action: ExecuteAction => {
       logger.error("/" + userID + "/" + subjectID + "/" +
         id + " does not support " + action)
@@ -211,7 +215,7 @@ protected case class ActStateActor(data: StateData)
 
   protected def stateReceive = {
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID , stateID, ActStateString, input) => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ActStateString, input) => {
       val index = indexOfInput(input.text)
       if (index != -1) {
         changeState(exitTransitions(index).successorID, null)
@@ -260,7 +264,7 @@ protected case class ReceiveStateActor(data: StateData)
 
   protected def stateReceive = {
     // execute an action
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID , stateID, ReceiveStateString, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ReceiveStateString, input) if ({
       // check if the related subject exists
       input.relatedSubject.isDefined && {
         val from = input.relatedSubject.get
@@ -419,7 +423,7 @@ protected case class SendStateActor(data: StateData)
   //  }
 
   protected def stateReceive = {
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID , stateID, SendStateString, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) if ({
       // the message needs a content
       input.messageContent.isDefined
     }) => {
