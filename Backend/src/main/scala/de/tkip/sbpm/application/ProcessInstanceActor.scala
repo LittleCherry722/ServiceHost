@@ -194,11 +194,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     private val subjects = MutableMap[UserID, SubjectInfo]()
 
-    // this pool contains the unsent messages, which will be sent to subjects
-    // which are created first
-    // TODO unneded when every subject is created
-    //    private var messagePool: Set[MessagePoolEntry] = Set()
-
     /**
      * Adds a Subject to this multisubject
      */

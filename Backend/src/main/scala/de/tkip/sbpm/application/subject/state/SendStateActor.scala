@@ -110,7 +110,7 @@ protected case class SendStateActor(data: StateData)
               target.insertTargetUsers(userIDs)
             } else if (input.targetUsersData.isDefined) {
               val targetUserData = input.targetUsersData.get
-              // TODO validate?
+              // TODO validate?!
               target.insertTargetUsers(targetUserData.targetUsers)
             } else {
               // TODO error?
@@ -159,9 +159,8 @@ protected case class SendStateActor(data: StateData)
       remainingStored -= 1
       if (remainingStored == 0) {
         changeState(transition.successorID, message)
+        blockingHandlerActor ! UnBlockUser(userID)
       }
-
-      blockingHandlerActor ! UnBlockUser(userID)
     }
   }
 
