@@ -41,7 +41,10 @@ private[persistence] class GroupRolePersistenceActor extends Actor
     }
     // save group -> role mapping
     case Save.Entity(grs @ _*) => answer { implicit session =>
-      grs.map(save)
+      grs.map(save) match {
+        case ids if (ids.size == 1) => ids.head
+        case ids                    => ids
+      }
     }
     // delete group -> role mapping
     case Delete.ById(groupId, roleId) => answer { implicit session =>

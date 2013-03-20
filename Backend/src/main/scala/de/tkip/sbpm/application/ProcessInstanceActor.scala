@@ -44,6 +44,10 @@ import ExecutionContext.Implicits.global // TODO this import or something differ
  * instantiates SubjectActor's and manages their interactions
  */
 class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
+  def receive = {
+    case x => println(x)
+  }
+  /*
   private val logger = Logging(context.system, this)
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
@@ -260,7 +264,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
    * This class is responsible to hold a subjects, and can represent
    * a single subject or a multisubject
    */
-  private case class SubjectContainer(subject: GraphSubject) {
+  private case class SubjectContainer(subject: Subject) {
     import scala.collection.mutable.{ Map => MutableMap }
 
     val multi = subject.multi
@@ -438,4 +442,5 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
   }
+  */
 }

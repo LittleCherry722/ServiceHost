@@ -35,7 +35,10 @@ private[persistence] class ProcessInstancePersistenceActor extends Actor
     case Save.Entity(pis @ _*) => answer { implicit session =>
       pis.map {
         case pi @ ProcessInstance(None, _, _, _) => Some(ProcessInstances.autoInc.insert(toPersistenceModel(pi)))
-        case pi @ ProcessInstance(id, _, _, _) => update(id, pi)
+        case pi @ ProcessInstance(id, _, _, _)   => update(id, pi)
+      } match {
+        case ids if (ids.size == 1) => ids.head
+        case ids                    => ids
       }
     }
     // delete process instance with given id
@@ -45,7 +48,7 @@ private[persistence] class ProcessInstancePersistenceActor extends Actor
   }
 
   // update entity or throw exception if it does not exist
-  def update(id: Option[Int], pi: ProcessInstance) = answer { implicit session =>
+  def update(id: Option[Int], pi: ProcessInstance)(implicit session: Session) {
     val res = ProcessInstances.where(_.id === id).update(toPersistenceModel(pi))
     if (res == 0)
       throw new EntityNotFoundException("Process instance with id %d does not exist.", id.get)

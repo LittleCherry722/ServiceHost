@@ -185,8 +185,8 @@ object GraphMappings {
         case Some(id) => Some(roles(id))
       },
       s.comment,
-      vs.map(convert).toMap,
-      convert(ms, ns, es)))
+      vs.filter(_.subjectId == s.id).map(convert).toMap,
+      convert(ms.filter(_.subjectId == s.id), ns.filter(_.subjectId == s.id), es.filter(_.subjectId == s.id))))
   }.toMap
 
   def convert(v: GraphVariable): (String, domainModel.GraphVariable) =
@@ -199,8 +199,8 @@ object GraphMappings {
       (m.id -> domainModel.GraphMacro(
         m.id,
         m.name,
-        nodes(m.id),
-        edges(m.id)))
+        nodes.getOrElse(m.id, Map()),
+        edges.getOrElse(m.id, List())))
     }.toMap
   }
 

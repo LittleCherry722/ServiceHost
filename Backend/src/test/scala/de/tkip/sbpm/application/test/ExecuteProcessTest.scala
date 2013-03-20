@@ -43,7 +43,7 @@ class ExecuteProcessTest extends FunSuite {
       val stateType = matching.stateType.toString()
 
       action match {
-        case AvailableAction(userID, processInstanceID, subjectID, subjectSessionID, matching.stateID, stateName, stateType, data) => {
+        case AvailableAction(userID, processInstanceID, subjectID, matching.stateID, stateName, stateType, data) => {
           if (matching.actionData.sameElements(data)) {
             println(">>>>>>>>> Action does match")
           } else {

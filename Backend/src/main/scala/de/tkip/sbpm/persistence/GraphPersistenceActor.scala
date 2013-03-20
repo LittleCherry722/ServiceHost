@@ -41,7 +41,10 @@ private[persistence] class GraphPersistenceActor extends Actor
     }
     // save existing graph
     case Save.Entity(gs @ _*) => answer { implicit session =>
-      gs.map(save)
+      gs.map(save) match {
+        case ids if (ids.size == 1) => ids.head
+        case ids => ids
+      }
     }
     // delete graph with given id
     case Delete.ById(id) => answer { implicit session =>
@@ -86,6 +89,7 @@ private[persistence] class GraphPersistenceActor extends Actor
 
     GraphNodes.insertAll(nodes: _*)
 
+    log.debug(edges.toString)
     GraphEdges.insertAll(edges: _*)
 
     g.id match {

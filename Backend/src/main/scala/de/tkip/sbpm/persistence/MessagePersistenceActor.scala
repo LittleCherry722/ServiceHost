@@ -32,7 +32,10 @@ private[persistence] class MessagePersistenceActor extends Actor
     case Save.Entity(ms @ _*) => answer { implicit session =>
       ms.map {
         case m @ Message(None, _, _, _, _, _, _) => Some(Messages.autoInc.insert(toPersistenceModel(m)))
-        case m @ Message(id, _, _, _, _, _, _) => update(id, m)
+        case m @ Message(id, _, _, _, _, _, _)   => update(id, m)
+      } match {
+        case ids if (ids.size == 1) => ids.head
+        case ids                    => ids
       }
     }
     // delete message with given id

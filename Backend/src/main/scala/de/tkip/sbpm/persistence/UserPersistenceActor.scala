@@ -34,6 +34,22 @@ private[persistence] class UserPersistenceActor extends Actor
     case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
       Query(Users).where(_.id === id).firstOption
     }(toDomainModel)
+    case Read.AllWithIdentities => answerProcessed { implicit session: Session =>
+      (for {
+        (u, i) <- Query(Users).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
+      } yield (u, i.provider.?, i.eMail.?, i.password)).list
+    }(_.groupBy(e => toDomainModel(e._1)).mapValues(_.filter(_._2.isDefined).map { e =>
+      UserIdentity(toDomainModel(e._1), e._2.get, e._3.get, e._4)
+    }))
+    // get user with given id
+    case Read.ByIdWithIdentities(id) => answer { implicit session: Session =>
+      val query = for {
+        (u, i) <- Query(Users).where(_.id === id).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
+      } yield (u, i.provider.?, i.eMail.?, i.password)
+      query.list.groupBy(e => toDomainModel(e._1)).mapValues(_.filter(_._2.isDefined).map { e =>
+        UserIdentity(toDomainModel(e._1), e._2.get, e._3.get, e._4)
+      }).toSeq.headOption
+    }
     // get user with given name
     case Read.ByName(name) => answerOptionProcessed { implicit session: Session =>
       Query(Users).where(_.name === name).firstOption
@@ -42,7 +58,10 @@ private[persistence] class UserPersistenceActor extends Actor
     case Save.Entity(us @ _*) => answer { implicit session =>
       us.map {
         case u @ User(None, _, _, _) => Some(Users.autoInc.insert(toPersistenceModel(u)))
-        case u @ User(id, _, _, _) => update(id, u)
+        case u @ User(id, _, _, _)   => update(id, u)
+      } match {
+        case ids if (ids.size == 1) => ids.head
+        case ids                    => ids
       }
     }
     // delete user with given id

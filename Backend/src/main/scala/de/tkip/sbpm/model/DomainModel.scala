@@ -13,8 +13,8 @@ case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPo
 case class UserIdentity(user: User, provider: String, eMail: String, password: Option[String])
 case class Role(id: Option[Int], name: String, isActive: Boolean = true)
 case class Group(id: Option[Int], name: String, isActive: Boolean = true)
-case class Credentials(provider: String, oldEMail: String, eMail: Option[String], oldPassword: String, password: Option[String])
-
+case class Credentials(provider: String, oldEmail: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
+case class UserUpdate(var name: Option[String], var isActive: Option[Boolean], var inputPoolSize: Option[Int], provider: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
 // Model for DB Relations 
 case class GroupRole(groupId: Int, roleId: Int)
 case class GroupUser(groupId: Int, userId: Int)

@@ -7,6 +7,7 @@ import de.tkip.sbpm.model.User
 import de.tkip.sbpm.model.UserIdentity
 import akka.event.Logging
 import de.tkip.sbpm.persistence.schema._
+import scala.slick.lifted.DDL
 
 private[persistence] class SchemaActor extends Actor
   with DatabaseAccess
@@ -60,13 +61,19 @@ private[persistence] class SchemaActor extends Actor
   }
 
   def create(session: Session) = {
-//    log.debug("\n" + ddl.createStatements.mkString(";\n"))
     ddl.create(session)
   }
 
-  def drop(session: Session) = {
-//    log.debug("\n" + ddl.dropStatements.mkString(";\n"))
-    ddl.drop(session)
-  }
+  def drop(implicit session: Session) = dropIgnoreErrors(ddl)
+  
+  protected def dropIgnoreErrors(ddl: DDL)(implicit session: Session): Unit =
+    for (s <- ddl.dropStatements) {
+      try {
+        session.withPreparedStatement(s)(_.execute)
+      } catch {
+        case e: Throwable => log.warning(e.getMessage)
+      }
+    }
+
 
 }

@@ -82,15 +82,6 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
       }
     }
 
-  protected def dropIgnoreErrors(ddl: DDL)(implicit session: Session): Unit =
-    for (s <- ddl.dropStatements) {
-      try {
-        session.withPreparedStatement(s)(_.execute)
-      } catch {
-        case e: Throwable => log.warning(e.getMessage)
-      }
-    }
-
 }
 
 private[persistence] object DatabaseAccess {

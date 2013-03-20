@@ -4,16 +4,18 @@ import de.tkip.sbpm.model.User
 
 object Users {
   trait Query extends BaseQuery
-  
+
   object Read {
     def apply() = All
     case object All extends Query
+    case object AllWithIdentities extends Query
     case class ById(id: Int) extends Query
+    case class ByIdWithIdentities(id: Int) extends Query
     case class ByName(name: String) extends Query
     object Identity {
-    	def apply(provider: String, eMail: String) = ByEMail(provider, eMail)
-    	case class ByEMail(provider: String, eMail: String) extends Query
-    	case class ById(provider: String, userId: Int) extends Query
+      def apply(provider: String, eMail: String) = ByEMail(provider, eMail)
+      case class ByEMail(provider: String, eMail: String) extends Query
+      case class ById(provider: String, userId: Int) extends Query
     }
   }
 

@@ -30,7 +30,6 @@ protected case class StateData(
   stateModel: State,
   userID: UserID,
   subjectID: SubjectID,
-  subjectSessionID: SubjectSessionID,
   internalBehaviorActor: InternalBehaviorRef,
   processInstanceActor: ProcessInstanceRef,
   inputPoolActor: ActorRef,
@@ -71,7 +70,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val id = model.id
   protected val userID = data.userID
   protected val subjectID = data.subjectID
-  protected val subjectSessionID = data.subjectSessionID
   protected val stateText = model.text
   protected val startState = model.startState
   protected val stateType = model.stateType
@@ -89,7 +87,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     // if it is needed, send a SubjectStarted message
     if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
       internalStatus.subjectStartedSent = true
-      processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
+      processInstanceActor ! SubjectStarted(userID, subjectID)
     }
 
     // if the state has a(n automatic) timeout transition, start the timeout timer
@@ -119,7 +117,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       executeTimeout()
     }
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, _, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, _, input) if ({
       input.transitionType == timeoutLabel
     }) => {
       executeTimeout()
@@ -184,7 +182,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       userID,
       processInstanceID,
       subjectID,
-      subjectSessionID,
       id,
       stateText,
       stateType.toString(),
@@ -196,7 +193,7 @@ protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   // Inform the processinstance that this subject has terminated
-  internalBehaviorActor ! SubjectTerminated(userID, subjectID, subjectSessionID)
+  internalBehaviorActor ! SubjectTerminated(userID, subjectID)
 
   // nothing to receive for this state
   protected def stateReceive = FSM.NullFunction
@@ -214,7 +211,7 @@ protected case class ActStateActor(data: StateData)
 
   protected def stateReceive = {
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ActStateString, input) => {
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID , stateID, ActStateString, input) => {
       val index = indexOfInput(input.text)
       if (index != -1) {
         changeState(exitTransitions(index).successorID, null)
@@ -263,7 +260,7 @@ protected case class ReceiveStateActor(data: StateData)
 
   protected def stateReceive = {
     // execute an action
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, ReceiveStateString, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID , stateID, ReceiveStateString, input) if ({
       // check if the related subject exists
       input.relatedSubject.isDefined && {
         val from = input.relatedSubject.get
@@ -315,7 +312,7 @@ protected case class ReceiveStateActor(data: StateData)
   var sendSubjectReady = startState
   private def trySendSubjectStarted() {
     if (sendSubjectReady) {
-      processInstanceActor ! SubjectStarted(userID, subjectID, subjectSessionID)
+      processInstanceActor ! SubjectStarted(userID, subjectID)
       sendSubjectReady = false
     }
   }
@@ -385,7 +382,7 @@ protected case class ReceiveStateActor(data: StateData)
       messageID = message.messageID
       messageContent = Some(message.messageContent)
 
-      messageData += MessageData(message.userID, message.messageContent)
+      messageData += MessageData(message.userID, message.messageContent, message.fileID)
     }
   }
 }
@@ -422,7 +419,7 @@ protected case class SendStateActor(data: StateData)
   //  }
 
   protected def stateReceive = {
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, subjectSessionID, stateID, SendStateString, input) if ({
+    case ea @ ExecuteAction(userID, processInstanceID, subjectID , stateID, SendStateString, input) if ({
       // the message needs a content
       input.messageContent.isDefined
     }) => {
@@ -464,10 +461,10 @@ protected case class SendStateActor(data: StateData)
               messageID,
               userID,
               subjectID,
-              subjectSessionID,
               target,
               messageType,
-              messageContent.get)
+              messageContent.get,
+              input.fileId)
 
           processInstanceActor ! ActionExecuted(ea)
         }

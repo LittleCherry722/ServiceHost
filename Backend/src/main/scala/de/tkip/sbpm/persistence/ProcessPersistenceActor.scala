@@ -37,7 +37,12 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
     case Save.Entity(ps @ _*) => answer { implicit session =>
       ps.map {
         case p @ Process(None, _, _, _) => Some(insert(p))
-        case p @ Process(id, _, _, _) => update(id, p)
+        case p @ Process(id, _, _, _)   => answer { implicit session =>
+          update(id, p)
+        }
+      } match {
+        case ids if (ids.size == 1) => ids.head
+        case ids                    => ids
       }
     }
     // create new process with a corresponding graph
@@ -57,18 +62,22 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
   }
 
   // update entity or throw exception if it does not exist
-  private def update(id: Option[Int], p: Process) = answer { implicit session =>
+  private def update(id: Option[Int], p: Process)(implicit session: Session) = {
     val entities = convert(p)
     val res = Processes.where(_.id === id).update(entities._1)
-    val pgaQuery = ProcessActiveGraphs.where(_.processId === id)
-    if (entities._2.isDefined)
-      pgaQuery.update(mapping.ProcessActiveGraph(id.get, entities._2.get))
-    else
-      pgaQuery.delete
+
+    updateActiveGraph(id, entities._2)
 
     if (res == 0)
       throw new EntityNotFoundException("Process with id %d does not exist.", id.get)
     None
+  }
+  
+  private def updateActiveGraph(processId: Option[Int], graphId: Option[Int])(implicit session: Session) = {
+    ProcessActiveGraphs.where(_.processId === processId).delete
+
+    if (graphId.isDefined)
+      ProcessActiveGraphs.insert(mapping.ProcessActiveGraph(processId.get, graphId.get))
   }
 
   /**
@@ -90,6 +99,9 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
     // set process id in graph
     graph = graph.copy(processId = process.id)
     val gId = save(graph)
+    
+    updateActiveGraph(resultId, gId)
+    
     (resultId, gId)
   }
 }

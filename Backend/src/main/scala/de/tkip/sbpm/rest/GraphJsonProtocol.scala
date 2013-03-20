@@ -10,7 +10,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     override def write(o: Option[T]) = super.write(o)
     override def read(v: JsValue) = v match {
       case JsString("") => None
-      case x => super.read(x)
+      case x            => super.read(x)
     }
   }
 
@@ -18,7 +18,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     def write(t: java.sql.Timestamp) = JsNumber(t.getTime)
     def read(v: JsValue) = v match {
       case JsNumber(t) => new java.sql.Timestamp(t.toLong)
-      case _ => throw new DeserializationException("Timestamp expected.")
+      case _           => throw new DeserializationException("Timestamp expected.")
     }
   }
 
@@ -27,7 +27,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       JsObject(map.values.map(c => (c.id, JsString(c.name))).toSeq: _*)
     def read(v: JsValue) = v.asJsObject.fields.toMap.map {
       case (id, JsString(name)) => (id, GraphChannel(id, name))
-      case _ => throw new DeserializationException("Channels map expected.")
+      case _                    => throw new DeserializationException("Channels map expected.")
     }
   }
 
@@ -36,7 +36,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       JsObject(map.values.map(c => (c.id, JsString(c.name))).toSeq: _*)
     def read(v: JsValue) = v.asJsObject.fields.toMap.map {
       case (id, JsString(name)) => (id, GraphMessage(id, name))
-      case _ => throw new DeserializationException("Messages map expected.")
+      case _                    => throw new DeserializationException("Messages map expected.")
     }
   }
 
@@ -45,19 +45,19 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       JsObject(map.values.map(c => (c.id, JsString(c.name))).toSeq: _*)
     def read(v: JsValue) = v.asJsObject.fields.toMap.map {
       case (id, JsString(name)) => (id, GraphVariable(id, name))
-      case _ => throw new DeserializationException("Variables map expected.")
+      case _                    => throw new DeserializationException("Variables map expected.")
     }
   }
 
   implicit def optionRoleFormat(implicit roles: Map[String, Role] = Map()) = new JsonFormat[Option[Role]] {
     def write(o: Option[Role]) = o match {
-      case None => JsNull
+      case None    => JsNull
       case Some(r) => JsString(r.name)
     }
     def read(v: JsValue) = v match {
       case JsString(name) if (roles.contains(name)) => Some(roles(name))
-      case JsNull => None
-      case _ => throw new DeserializationException("Existing role name or null expected.")
+      case JsNull                                   => None
+      case _                                        => throw new DeserializationException("Existing role name or null expected.")
     }
   }
 
@@ -128,7 +128,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     def write(m: GraphMacro) = JsObject(
       "id" -> m.id.toJson,
       "name" -> m.name.toJson,
-      "nodeCounter" -> JsNumber(m.nodes.keys.max + 1),
+      "nodeCounter" -> counter(m.nodes.keys),
       "nodes" -> m.nodes.toJson,
       "edges" -> m.edges.toJson)
     def read(v: JsValue) =
@@ -191,8 +191,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
         "channelCounter" -> counter(g.channels),
         "messages" -> g.messages.toJson,
         "messageCounter" -> counter(g.messages),
-        "nodeCounter" -> counter(g.subjects),
-        "routings" -> g.routings.toJson))
+        "nodeCounter" -> counter(g.subjects)),
+      "routings" -> g.routings.toJson)
     def read(v: JsValue) = v.asJsObject.getFields("id",
       "processId",
       "date",
@@ -218,26 +218,29 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     counter(map.keys)
 
   private def counter(ids: Iterable[String]): JsNumber =
-    JsNumber(ids.map(extractCounterValue).max + 1)
+    JsNumber(ids.map(extractCounterValue).foldLeft(0)(Math.max(_, _)) + 1)
+    
+  private def counter(ids: Iterable[Short]): JsNumber =
+    JsNumber(ids.foldLeft(0)(Math.max(_, _)) + 1)
 
   private def extractCounterValue(s: String) = {
     s.reverse.takeWhile(c => c >= 48 && c <= 57).reverse match {
       case "" => 0
-      case n => n.toInt
+      case n  => n.toInt
     }
   }
 
   private object NoneAsterisk {
     def apply(o: Option[String]) = JsString(o match {
-      case None => "*"
+      case None    => "*"
       case Some(s) => s
     })
 
     def unapply(v: JsValue) = v match {
-      case JsNull => None
+      case JsNull        => None
       case JsString("*") => None
-      case JsString("") => None
-      case JsString(s) => Some(s)
+      case JsString("")  => None
+      case JsString(s)   => Some(s)
     }
   }
 }

@@ -38,7 +38,10 @@ private[persistence] class GroupUserPersistenceActor extends Actor
     }
     // save group -> user mapping
     case Save.Entity(gus @ _*) => answer { implicit session =>
-      gus.map(save)
+      gus.map(save) match {
+        case ids if (ids.size == 1) => ids.head
+        case ids                    => ids
+      }
     }
     // delete group -> user mapping
     case Delete.ById(groupId, userId) => answer { implicit session =>

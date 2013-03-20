@@ -15,9 +15,8 @@ import de.tkip.sbpm.model.StateType._
  */
 class SubjectActor(
   userID: UserID,
-  sessionID: Int,
   processInstanceActor: ProcessInstanceRef,
-  subject: GraphSubject) extends Actor {
+  subject: Subject) extends Actor {
 
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
@@ -31,13 +30,12 @@ class SubjectActor(
         new InternalBehaviorActor(
           processInstanceActor,
           subject.id,
-          sessionID,
           userID,
           inputPoolActor)))
 
   override def preStart() {
     // add all states in the internal behavior
-    for (state <- subject.macros("##main##").nodes) {
+    for (state <- subject.states) {
       internalBehaviorActor ! state
     }
   }

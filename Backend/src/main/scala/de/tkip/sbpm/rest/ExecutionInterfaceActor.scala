@@ -70,10 +70,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
       path(IntNumber) { processInstanceID =>
 
         implicit val timeout = Timeout(5 seconds)
-        //        val future = persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))
-        //        val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
-        //        if (result.isDefined) {
-        // TODO for testreasons processInstanceID 1 will be mixed with Debug
         val composedFuture = for {
           processInstanceFuture <- (persistanceActor ? Processes.Read.ById(processInstanceID.toInt)).mapTo[Option[ProcessInstance]]
           graphFuture <- {
@@ -83,16 +79,10 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               throw new Exception("Processinstance '" + processInstanceID + "' does not exist.")
           }
           historyFuture <- (subjectProviderManager ? {
-            if (processInstanceID == 1)
-              new GetHistory(userID.toInt, processInstanceID.toInt) with Debug
-            else
-              GetHistory(userID.toInt, processInstanceID.toInt)
+            GetHistory(userID.toInt, processInstanceID.toInt)
           }).mapTo[HistoryAnswer]
           availableActionsFuture <- (subjectProviderManager ? {
-            if (processInstanceID == 1)
-              new GetAvailableActions(userID.toInt, processInstanceID.toInt) with Debug
-            else
-              GetAvailableActions(userID.toInt, processInstanceID.toInt)
+            GetAvailableActions(userID.toInt, processInstanceID.toInt)
           }).mapTo[AvailableActionsAnswer]
         } yield JsObject(
           "processId" -> JsNumber(processInstanceFuture.get.processId),
@@ -107,9 +97,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           "history" -> historyFuture.history.toJson,
           "actions" -> availableActionsFuture.availableActions.toJson)
         complete(composedFuture)
-        //        } else {
-        //        	complete("The requested process is not running")
-        //        }
       } ~
         //LIST
         path("") {
@@ -129,7 +116,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           // error gets caught automatically by the exception handler
           val future = subjectProviderManager ? KillProcessInstance(processInstanceID)
           val result = Await.result(future, timeout.duration).asInstanceOf[KillProcessInstanceAnswer]
-          complete(StatusCodes.OK)
+          complete(StatusCodes.NoContent)
         }
       } ~
       put {
@@ -144,7 +131,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               complete(
                 JsObject(
                   "processId" -> result.processID.toJson,
-                  "graph" -> result.graphJson.toJson,
+                  "graph" -> result.graph.toJson,
                   "isTerminated" -> result.isTerminated.toJson,
                   "history" -> result.history.toJson,
                   "actions" -> result.availableActions.toJson))
@@ -163,7 +150,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               complete(
                 JsObject(
                   "id" -> result.processInstanceID.toJson,
-                  "graph" -> result.graphJson.toJson,
+                  "graph" -> result.graph.toJson,
                   "isTerminated" -> result.isTerminated.toJson,
                   "history" -> result.history.toJson,
                   "actions" -> result.availableActions.toJson))

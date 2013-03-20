@@ -6,7 +6,6 @@ import spray.routing._
 import spray.http._
 import akka.event.Logging
 import akka.util.Timeout
-import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import de.tkip.sbpm.rest.ProcessAttribute._
@@ -36,6 +35,12 @@ import de.tkip.sbpm.persistence.query._
 class ProcessInterfaceActor extends Actor with PersistenceInterface {
   private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
   private lazy val persistanceActor = ActorLocator.persistenceActor
+
+  private implicit lazy val roles: Map[String, Role] = {
+    val rolesFuture = persistanceActor ? Roles.Read.All
+    val roles = Await.result(rolesFuture.mapTo[Seq[Role]], timeout.duration)
+    roles.map(r => (r.name, r)).toMap
+  }
 
   /**
    *
@@ -105,7 +110,6 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             // Prüfen, ob der Name 3 oder mehr Buchstaben enthält
             validate(!processResult.isDefined, "The processes name has to be unique!") {
               validate(json.name.length() >= 3, "The name hast to contain 3 or more letters!") {
-                implicit val timeout = Timeout(5 seconds)
                 val future = (persistanceActor ? Processes.Save.WithGraph(Process(None, json.name, json.isCase),
                   json.graph.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)))
                 val result = Await.result(future, timeout.duration).asInstanceOf[(Some[Int], Some[Int])]
@@ -141,18 +145,19 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             entity(as[GraphHeader]) { json =>
               // TODO warum macht man es bei POST mit einem befehl und bei PUT
               // mit 2 Befehlen?
-              implicit val timeout = Timeout(5 seconds)
               //execute next step (chosen by actionID)
               val processFuture = (persistanceActor ? Processes.Read.ById(id))
-              val result = Await.result(processFuture, timeout.duration).asInstanceOf[Some[Process]]
+              val result = Await.result(processFuture.mapTo[Option[Process]], timeout.duration)
 
               // Pr�fen, ob der Prozess existiert
               // Pr�fen, ob der Name 3 oder mehr Buchstaben enth�lt
               validate(result.isDefined, "The requested process does not exist") {
                 validate(json.name.length() >= 3, "The name hast to contain 3 or more letters!") {
-                  val graphFuture = (persistanceActor ? Graphs.Save(json.graph.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), processId = Some(id))))
-                  Await.result(graphFuture, timeout.duration)
-                  complete(StatusCodes.OK)
+                  val graphFuture = (persistanceActor ? Graphs.Save(json.graph.copy(id = None, date = new java.sql.Timestamp(System.currentTimeMillis()), processId = Some(id))))
+                  val graphId = Await.result(graphFuture.mapTo[Option[Int]], timeout.duration)
+                  val processSaveFuture = persistanceActor ? Processes.Save(result.get.copy(activeGraphId = graphId))
+                  Await.result(processSaveFuture, timeout.duration)
+                  complete(StatusCodes.NoContent)
                 }
               }
             }

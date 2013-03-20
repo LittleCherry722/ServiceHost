@@ -15,7 +15,6 @@ protected case class SubjectCreated(userID: UserID,
   processID: ProcessID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
-  subjectSessionID: SubjectSessionID,
   ref: SubjectRef)
   extends SubjectProviderMessage
 
@@ -85,8 +84,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
         subject <- subjects.filter({
           s: Subject =>
             s.processInstanceID == message.processInstanceID &&
-              s.subjectID == message.subjectID &&
-              s.subjectSessionID == message.subjectSessionID
+              s.subjectID == message.subjectID
         })
       ) {
         subject.ref ! message

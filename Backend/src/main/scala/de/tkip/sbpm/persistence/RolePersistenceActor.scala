@@ -39,7 +39,10 @@ private[persistence] class RolePersistenceActor extends Actor
     case Save.Entity(rs @ _*) => answer { implicit session =>
       rs.map {
         case r @ Role(None, _, _) => Some(Roles.autoInc.insert(toPersistenceModel(r)))
-        case r @ Role(id, _, _) => update(id, r)
+        case r @ Role(id, _, _)   => update(id, r)
+      } match {
+        case ids if (ids.size == 1) => ids.head
+        case ids                    => ids
       }
     }
     // delete role with given id

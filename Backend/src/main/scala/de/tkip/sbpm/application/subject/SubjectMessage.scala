@@ -8,8 +8,8 @@ import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.model.Target
-import de.tkip.sbpm.model.Graph
 import scala.collection.mutable.ArrayBuffer
+import de.tkip.sbpm.model.Graph
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -19,12 +19,12 @@ sealed trait MessageObject
 // message from subject to subject
 protected case class SubjectToSubjectMessage(
   messageID: MessageID,
-  var userID: UserID,
+  var userID: UserID,// TODO why is this a var?
   from: SubjectID,
-  fromSession: SubjectSessionID,
   target: Target,
   messageType: MessageType,
-  messageContent: MessageContent) extends MessageObject {
+  messageContent: MessageContent,
+  fileID: Option[String] = None) extends MessageObject {
 
   def to = target.subjectID
 
@@ -35,8 +35,8 @@ protected case class Stored(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
 case class SubjectInternalMessageProcessed(userID: UserID)
-case class SubjectTerminated(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
-case class SubjectStarted(userID: UserID, subjectID: SubjectID, subjectSessionID: SubjectSessionID)
+case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
+case class SubjectStarted(userID: UserID, subjectID: SubjectID)
 
 // external subject interaction messages
 sealed trait SubjectBehaviorRequest
@@ -45,7 +45,7 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
-case class MessageData(userID: UserID, messageContent: String)
+case class MessageData(userID: UserID, messageContent: String, fileId: Option[String] = None)
 
 case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
 
@@ -55,7 +55,8 @@ case class ActionData(
   transitionType: String, // exitcondition or timeout
   targetUsersData: Option[TargetUser] = None, // target user of a send message
   relatedSubject: Option[String] = None, // the related subject of a send-/receive state
-  messageContent: Option[String] = None, // for the send state
+  messageContent: Option[String] = None, // for the send state: the message
+  fileId: Option[String] = None, // for the send state: google drive id
   messages: Option[Array[MessageData]] = None) // for the receive state
 
 // Answer to the GetAvailable Action request
@@ -63,7 +64,6 @@ case class AvailableAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
-  subjectSessionID: SubjectSessionID,
   stateID: StateID,
   stateText: String,
   stateType: String,
@@ -75,7 +75,6 @@ case class ExecuteAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
-  subjectSessionID: SubjectSessionID,
   stateID: StateID,
   stateType: String,
   actionData: ActionData)
@@ -98,7 +97,6 @@ object mixExecuteActionWithRouting {
       action.userID,
       action.processInstanceID,
       action.subjectID,
-      action.subjectSessionID,
       action.stateID,
       action.stateType,
       action.actionData) with AnswerAbleMessage with SubjectProviderMessage with SubjectMessage with SubjectBehaviorRequest

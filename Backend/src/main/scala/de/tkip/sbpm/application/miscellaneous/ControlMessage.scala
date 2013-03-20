@@ -8,6 +8,7 @@ import de.tkip.sbpm.application.subject.BehaviorStateActor
 import de.tkip.sbpm.model.Transition
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject._
+import de.tkip.sbpm.model.Graph
 
 /**
  * For system control tasks
@@ -58,7 +59,7 @@ case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceID: ProcessInstanceID,
                                   processInstanceActor: ProcessInstanceRef,
                                   isTerminated: Boolean,
-                                  graphJson: String,
+                                  graph: Graph,
                                   history: History,
                                   availableActions: Array[AvailableAction])
     extends AnswerControlMessage

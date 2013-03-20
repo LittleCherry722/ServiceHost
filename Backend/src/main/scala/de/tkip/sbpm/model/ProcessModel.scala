@@ -25,10 +25,6 @@ object StateType extends Enumeration {
 }
 
 import StateType.StateType
-
-
-
-/*
 // name raus ist ws in id
 case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, transitions: Array[Transition])
 case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean = false, external: Boolean = false)
@@ -50,4 +46,3 @@ case class ProcessGraph(subjects: Array[Subject]) {
   def subject(id: SubjectID): Subject =
     if (subjectToIndexMap.contains(id)) subjects(subjectToIndexMap(id)) else null
 }
-*/

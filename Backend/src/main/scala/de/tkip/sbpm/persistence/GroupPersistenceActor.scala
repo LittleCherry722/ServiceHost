@@ -36,7 +36,10 @@ private[persistence] class GroupPersistenceActor extends Actor
     case Save.Entity(gs @ _*) => answer { implicit session =>
       gs.map {
         case g @ Group(None, _, _) => Some(Groups.autoInc.insert(toPersistenceModel(g)))
-        case g @ Group(id, _, _) => update(id, g)
+        case g @ Group(id, _, _)   => update(id, g)
+      } match {
+        case ids if (ids.size == 1) => ids.head
+        case ids                    => ids
       }
     }
     // delete group with given id
