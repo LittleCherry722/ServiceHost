@@ -89,7 +89,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     // if it is needed, send a SubjectStarted message
     if (!delayUnblockAtStart ) {
       internalStatus.subjectStartedSent = true
-//      processInstanceActor ! SubjectStarted(userID, subjectID)
       // TODO so richtig?
       blockingHandlerActor ! UnBlockUser(userID)
     }

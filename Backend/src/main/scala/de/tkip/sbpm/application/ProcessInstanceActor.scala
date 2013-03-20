@@ -97,9 +97,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subjectMap(startSubject) = SubjectContainer(graph.subject(startSubject))
       // the container shall contain a subject -> create
       subjectMap(startSubject).createSubject(request.userID)
-
-      // block while the creation
-      blockingHandlerActor ! BlockUser(request.userID)
     }
     // send processinstance created, when the block is closed
     blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
@@ -228,9 +225,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         SubjectCreated(userID, processID, id, subject.id, subjectRef)
 
       reStartSubject(userID)
-
-      // start the execution of the subject
-      subjectRef ! StartSubjectExecution()
     }
 
     def handleSubjectTerminated(message: SubjectTerminated) {
@@ -248,6 +242,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
      * Forwards a message to all Subjects of this MultiSubject
      */
     def send(message: SubjectToSubjectMessage) {
+      
       if (message.target.toVariable) {
         // TODO why not targetUsers = var subjects?
         sendTo(message.target.varSubjects.map(_._2), message)
@@ -275,7 +270,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           reStartSubject(userID)
         }
 
-        blockingHandlerActor ! BlockUser(userID)
+//        blockingHandlerActor ! BlockUser(userID)
         subjects(userID).ref.forward(message)
       }
     }

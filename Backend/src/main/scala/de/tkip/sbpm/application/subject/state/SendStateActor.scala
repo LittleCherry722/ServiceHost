@@ -59,9 +59,6 @@ protected case class SendStateActor(data: StateData)
         SubjectInformation(sendTransition.subjectID),
         _.toArray)))
   val userIDs = Await.result(future, timeout.duration).asInstanceOf[Array[UserID]]
-  System.err.println(userIDs.mkString(", "));
-
-  //  }
 
   protected def stateReceive = {
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) if ({
@@ -74,6 +71,13 @@ protected case class SendStateActor(data: StateData)
         // be returned when asking
         messageContent = input.messageContent
         for (transition <- exitTransitions if transition.target.isDefined) yield {
+
+          blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
+          
+          // TODO so ist das falsch
+          blockingHandlerActor ! BlockUser(1) 
+          
+
           val messageType = transition.messageType
           val toSubject = transition.subjectID
           val messageID = nextMessageID
@@ -132,6 +136,8 @@ protected case class SendStateActor(data: StateData)
       if (remainingStored == 0) {
         changeState(transition.successorID, message)
       }
+
+      blockingHandlerActor ! UnBlockUser(userID)
     }
   }
 

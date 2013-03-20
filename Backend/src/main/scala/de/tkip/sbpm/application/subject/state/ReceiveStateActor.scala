@@ -100,10 +100,7 @@ protected case class ReceiveStateActor(data: StateData)
     }
 
     case InputPoolSubscriptionPerformed => {
-      // if this state is the startstate inform the processinstance,
-      // that this subject has started
-//      trySendSubjectStarted()
-      // TODO richtig so?
+      // This state has all inputpool information -> unblock the user
       blockingHandlerActor ! UnBlockUser(userID)
     }
   }

@@ -9,6 +9,7 @@ import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorContext
 import akka.event.Logging
+import akka.actor.IllegalActorStateException
 
 case class BlockUser(userID: UserID)
 case class UnBlockUser(userID: UserID)
@@ -83,6 +84,8 @@ class UserBlockingActor(userID: UserID)(implicit val context: ActorContext) {
         context.parent ! message
       }
       blockedMessages.clear()
+    } else if (remainingBlocks < 0) {
+      throw new Exception("More unblocks than blocks for user " + userID)
     }
   }
 }
