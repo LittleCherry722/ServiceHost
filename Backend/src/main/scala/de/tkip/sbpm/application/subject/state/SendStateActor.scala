@@ -53,14 +53,26 @@ protected case class SendStateActor(data: StateData)
   // ask the ContextResolver for the targetIDs
   // store them in a val
   implicit val timeout = Timeout(2000)
-  val future =
-    (ActorLocator.contextResolverActor
-      ? (RequestUserID(
-        SubjectInformation(sendTransition.subjectID),
-        _.toArray)))
-  val userIDs = Await.result(future, timeout.duration).asInstanceOf[Array[UserID]]
+
+  var targetUserIDs: Option[Array[UserID]] = None
+
+  override def preStart() {
+    blockingHandlerActor ! BlockUser(userID)
+
+    ActorLocator.contextResolverActor ! (RequestUserID(
+      SubjectInformation(sendTransition.subjectID),
+      TargetUsers(_)))
+
+    super.preStart()
+  }
+  private case class TargetUsers(users: Array[UserID])
 
   protected def stateReceive = {
+    case TargetUsers(userIDs) if (!targetUserIDs.isDefined) => {
+      targetUserIDs = Some(userIDs)
+      blockingHandlerActor ! UnBlockUser(userID)
+    }
+
     case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) if ({
       // the message needs a content
       input.messageContent.isDefined
@@ -73,10 +85,6 @@ protected case class SendStateActor(data: StateData)
         for (transition <- exitTransitions if transition.target.isDefined) yield {
 
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
-          
-          // TODO so ist das falsch
-          blockingHandlerActor ! BlockUser(1) 
-          
 
           val messageType = transition.messageType
           val toSubject = transition.subjectID
@@ -87,24 +95,38 @@ protected case class SendStateActor(data: StateData)
             messageID + "} \"" + messageType + "to " + transition.target +
             "\" with content \"" + messageContent.get + "\"")
 
+          // This ArrayBuffer stores the user, which should be blocked
+          // one user can blocked several times
+          val blockUsers = ArrayBuffer[UserID]()
+
           val target = transition.target.get
           if (target.toVariable) {
             target.insertVariable(variables(target.variable.get))
+            for ((_, userID) <- target.varSubjects) { blockUsers += userID }
+          } else if (targetUserIDs.isDefined) {
+            val userIDs = targetUserIDs.get
+
+            if (userIDs.length == target.min == target.max) {
+              target.insertTargetUsers(userIDs)
+            } else if (input.targetUsersData.isDefined) {
+              val targetUserData = input.targetUsersData.get
+              // TODO validate?
+              target.insertTargetUsers(targetUserData.targetUsers)
+            } else {
+              // TODO error?
+            }
+
+            blockUsers ++= target.targetUsers
           }
 
-          if (userIDs.length == target.min == target.max) {
-            target.insertTargetUsers(userIDs)
-          } else if (input.targetUsersData.isDefined) {
-            val targetUserData = input.targetUsersData.get
-            // TODO validate?
-            target.insertTargetUsers(targetUserData.targetUsers)
-          } else {
-            // TODO error?
+          // block the target users for this message
+          for (userID <- blockUsers) {
+            blockingHandlerActor ! BlockUser(userID)
           }
 
           remainingStored += target.min
 
-          // TODO send to ausgewaehlten users
+          // send the message over the process instance
           processInstanceActor !
             SubjectToSubjectMessage(
               messageID,
@@ -115,6 +137,8 @@ protected case class SendStateActor(data: StateData)
               messageContent.get,
               input.fileId)
 
+          // send the ActionExecuted to the blocking actor, it will send it 
+          // to the process instance, when this user is ready
           blockingHandlerActor ! ActionExecuted(ea)
         }
       } else {
@@ -146,11 +170,11 @@ protected case class SendStateActor(data: StateData)
     Array(
       ActionData(
         sendTransition.messageType,
-        !messageContent.isDefined && userIDs.length >= sendTarget.min,
+        !messageContent.isDefined && targetUserIDs.isDefined && targetUserIDs.get.length >= sendTarget.min,
         exitCondLabel,
         relatedSubject = Some(sendTransition.subjectID),
         targetUsersData =
-          Some(TargetUser(sendTarget.min, sendTarget.max, userIDs))))
+          Some(TargetUser(sendTarget.min, sendTarget.max, targetUserIDs.getOrElse(Array())))))
 
   /**
    * Generates a new message ID
