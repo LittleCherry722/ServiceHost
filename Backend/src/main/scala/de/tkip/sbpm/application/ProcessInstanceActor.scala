@@ -44,12 +44,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   implicit val timeout = Timeout(30 seconds)
 
-  val processID = request.processID
+  private val processID = request.processID
 
   // TODO "None" rueckgaben behandeln
   // Get the ProcessGraph from the database and create the database entry
   // for this process instance
-  val dataBaseAccessFuture = for {
+  private val dataBaseAccessFuture = for {
     // get the process
     processFuture <- (ActorLocator.persistenceActor ?
       GetProcess(Some(processID))).mapTo[Option[Process]]
@@ -64,13 +64,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   } yield (processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
 
   // evaluate the Future
-  val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJson: String) =
+  private val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJson: String) =
     Await.result(dataBaseAccessFuture, timeout.duration)
 
   // parse the start-subjects into an Array
-  val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
+  private val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
   // parse the graph into the internal structure
-  val graph: ProcessGraph = parseGraph(graphJson)
+  private val graph: ProcessGraph = parseGraph(graphJson)
 
   private lazy val contextResolver = ActorLocator.contextResolverActor
 
@@ -94,7 +94,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     // TODO modify to the right version
     for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
       // Create the subjectContainer
-      subjectMap(startSubject) = SubjectContainer(graph.subject(startSubject))
+      subjectMap(startSubject) = createSubjectContainer(graph.subject(startSubject))
       // the container shall contain a subject -> create
       subjectMap(startSubject).createSubject(request.userID)
     }
@@ -120,7 +120,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case sm: SubjectToSubjectMessage if (graph.hasSubject(sm.to)) => {
       val to = sm.to
       // Send the message to the container, it will deal with it
-      subjectMap.getOrElseUpdate(to, SubjectContainer(graph.subject(to))).send(sm)
+      subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subject(to))).send(sm)
     }
 
     // add an entry to the history
@@ -159,15 +159,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
   }
 
-  private def createExecuteActionAnswer(req: ExecuteAction) {
-    context.parent !
-      AskSubjectsForAvailableActions(req.userID,
-        id,
-        AllSubjects,
-        (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, processID, isTerminated, graphJson, executionHistory, actions))
-  }
-
   private var sendProcessInstanceCreated = true
   private def trySendProcessInstanceCreated() {
     if (sendProcessInstanceCreated) {
@@ -182,110 +173,23 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
   }
 
-  /**
-   * This class is responsible to hold a subjects, and can represent
-   * a single subject or a multisubject
-   */
-  private case class SubjectContainer(subject: Subject) {
-    import scala.collection.mutable.{ Map => MutableMap }
+  private def createExecuteActionAnswer(req: ExecuteAction) {
+    context.parent !
+      AskSubjectsForAvailableActions(req.userID,
+        id,
+        AllSubjects,
+        (actions: Array[AvailableAction]) =>
+          ExecuteActionAnswer(req, processID, isTerminated, graphJson, executionHistory, actions))
+  }
 
-    private val multi = subject.multi
-    private val external = subject.external
-
-    private val subjects = MutableMap[UserID, SubjectInfo]()
-
-    /**
-     * Adds a Subject to this multisubject
-     */
-    // TODO ueberarbeiten
-    def createSubject(userID: UserID) {
-      val subjectData =
-        SubjectData(
-          userID,
-          id,
-          self,
-          blockingHandlerActor,
-          subject)
-      // create subject
-      val subjectRef =
-        context.actorOf(Props(new SubjectActor(subjectData)))
-      // and store it in the map
-      subjects += userID -> SubjectInfo(subjectRef, userID)
-
-      logger.debug("Processinstance [" + id + "] created Subject " +
-        subject.id + " for user " + userID)
-
-      // inform the subject provider about his new subject
-      context.parent !
-        SubjectCreated(userID, processID, id, subject.id, subjectRef)
-
-      reStartSubject(userID)
-    }
-
-    def handleSubjectTerminated(message: SubjectTerminated) {
-
-      logger.debug("Processinstance [" + id + "] Subject " + subject.id + "[" +
-        message.userID + "] terminated")
-
-      // decrease the subject counter
-      runningSubjectCounter -= 1
-
-      subjects(message.userID).running = false
-    }
-
-    /**
-     * Forwards a message to all Subjects of this MultiSubject
-     */
-    def send(message: SubjectToSubjectMessage) {
-      
-      if (message.target.toVariable) {
-        // TODO why not targetUsers = var subjects?
-        sendTo(message.target.varSubjects.map(_._2), message)
-      } else {
-        sendTo(message.target.targetUsers, message)
-      }
-    }
-
-    def send(message: SubjectMessage) {
-      if (subjects.contains(message.userID)) {
-        subjects(message.userID).ref.forward(message)
-      }
-    }
-
-    /**
-     * Forwards the message to the array of subjects
-     */
-    private def sendTo(targetSubjects: Array[UserID],
-      message: SubjectToSubjectMessage) {
-
-      for (userID <- targetSubjects) {
-        if (!subjects.contains(userID)) {
-          createSubject(userID)
-        } else if (!subjects(userID).running) {
-          reStartSubject(userID)
-        }
-
-//        blockingHandlerActor ! BlockUser(userID)
-        subjects(userID).ref.forward(message)
-      }
-    }
-
-    private def reStartSubject(userID: UserID) {
-      if (subjects.contains(userID)) {
-        blockingHandlerActor ! BlockUser(userID)
-        runningSubjectCounter += 1
-        subjects(userID).running = true
-        // start the execution
-        subjects(userID).ref ! StartSubjectExecution()
-      } else {
-        logger.error("User %i unknown for subject %s, (re)start failed!"
-          .format(userID, subject.id))
-      }
-    }
-
-    private case class SubjectInfo(
-      ref: SubjectRef,
-      userID: UserID,
-      var running: Boolean = true)
+  private def createSubjectContainer(subject: Subject): SubjectContainer = {
+    new SubjectContainer(
+      subject,
+      processID,
+      id,
+      logger,
+      blockingHandlerActor,
+      () => runningSubjectCounter += 1,
+      () => runningSubjectCounter -= 1)
   }
 }
