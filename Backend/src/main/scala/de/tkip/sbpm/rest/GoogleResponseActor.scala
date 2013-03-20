@@ -15,10 +15,11 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
+import spray.http.StatusCodes
+
 
 class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   
@@ -38,8 +39,9 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   }
   
   
-  // just forward the query parameters from google to googleAuthActor
+  
   def receive = runRoute({
+    // just forward the query parameters from google to googleAuthActor
     get {
       path("") {
         parameters("code", "state") {(code, state) => {
@@ -50,19 +52,23 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
         }   
       }
     }~
+    // a user posts his id on /initAuth in case he wants to authenticate the app against his google account
     post {
       path("initAuth") {
         parameters("id") {(id) => {
           log.debug(getClass.getName + " received authentication init post from user: " + id)
           googleAuthActor ! InitUser(id)
-          // TODO add http response -> authentication url or in case the user is already authenticated send back a error code
+
           val future = googleAuthActor ? InitUser(id)
           val result = Await.result(future.mapTo[String], timeout.duration)
 
-          // HTTP 204 wenn verbunden 
-          
-          // HTTP 200 mit url als body für weiterleitung  
-          complete("")
+          if (result != "AUTHENTICATED") {
+            // send back http ok with google authentication url
+            complete(StatusCodes.OK, result)
+          } else {
+            // send back http ok with no content in case the user is already authenticated
+            complete(StatusCodes.NoContent)
+          }
         }
         }
       }

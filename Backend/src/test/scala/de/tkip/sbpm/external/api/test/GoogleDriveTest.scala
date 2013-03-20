@@ -53,7 +53,7 @@ class GoogleDriveTest extends FunSuite {
   
   test("Test if GoogleDriveActor is able to establish connection to google drive") {
     val future = driveActor ? ListGDriveFiles("dp.dornseifer@googlemail.com")
-    val result = Await.result(future.mapTo[java.util.List[File]], timeout.duration)
+    val result = Await.result(future.mapTo[String], timeout.duration)
     println(result.toString())
   }  
   
