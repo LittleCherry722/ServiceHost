@@ -33,9 +33,7 @@ protected case class SubjectToSubjectMessage(
 protected case class Stored(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
-case class SubjectInternalMessageProcessed(userID: UserID)
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
-case class SubjectStarted(userID: UserID, subjectID: SubjectID)
 
 // external subject interaction messages
 sealed trait SubjectBehaviorRequest

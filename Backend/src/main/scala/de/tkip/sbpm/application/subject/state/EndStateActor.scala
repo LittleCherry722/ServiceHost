@@ -26,7 +26,6 @@ import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.StateData
 import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.subject.BehaviorStateActor
-import de.tkip.sbpm.application.subject.ActionExecuted
 import de.tkip.sbpm.application.subject.ActionData
 import de.tkip.sbpm.application.subject.SubjectTerminated
 

@@ -27,6 +27,7 @@ import scala.collection.mutable.ArrayBuffer
  * The data, which is necessary to create any state
  */
 protected case class StateData(
+  subjectData: SubjectData,
   stateModel: State,
   userID: UserID,
   subjectID: SubjectID,
@@ -66,6 +67,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 
   protected val logger = Logging(context.system, this)
 
+  protected val blockingHandlerActor = data.subjectData.blockingHandlerActor
   protected val model = data.stateModel
   protected val id = model.id
   protected val userID = data.userID
@@ -85,9 +87,11 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   override def preStart() {
 
     // if it is needed, send a SubjectStarted message
-    if (startState && !delaySubjectReady && !internalStatus.subjectStartedSent) {
+    if (!delayUnblockAtStart ) {
       internalStatus.subjectStartedSent = true
-      processInstanceActor ! SubjectStarted(userID, subjectID)
+//      processInstanceActor ! SubjectStarted(userID, subjectID)
+      // TODO so richtig?
+      blockingHandlerActor ! UnBlockUser(userID)
     }
 
     // if the state has a(n automatic) timeout transition, start the timeout timer
@@ -159,12 +163,13 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
    *
    * @return whether the subject ready message should be delayed
    */
-  protected def delaySubjectReady = false
+  protected def delayUnblockAtStart = false
 
   /**
    * Changes the state and creates a history entry with the history message
    */
   protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
+    blockingHandlerActor ! BlockUser(userID)
     internalBehaviorActor ! ChangeState(id, successorID, internalStatus, historyMessage)
   }
 

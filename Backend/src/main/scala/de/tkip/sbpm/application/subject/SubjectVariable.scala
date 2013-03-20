@@ -14,7 +14,7 @@ class SubjectVariable {
 protected case class InternalStatus() {
   // set this variable to store if a subject started message has been sent
   // (needed for loop, which passes the start state several times)
-  var subjectStartedSent = false
+  var subjectStartedSent = false// TODO outdated
 
   // This map stores all active variables 
   val variables = MutableMap[String, Variable]()

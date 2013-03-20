@@ -37,7 +37,7 @@ protected case class ActStateActor(data: StateData)
       val index = indexOfInput(input.text)
       if (index != -1) {
         changeState(exitTransitions(index).successorID, null)
-        processInstanceActor ! ActionExecuted(ea)
+        blockingHandlerActor ! ActionExecuted(ea)
       } else {
         // TODO invalid input
       }

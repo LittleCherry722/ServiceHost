@@ -111,7 +111,7 @@ protected case class SendStateActor(data: StateData)
               messageContent.get,
               input.fileId)
 
-          processInstanceActor ! ActionExecuted(ea)
+          blockingHandlerActor ! ActionExecuted(ea)
         }
       } else {
         logger.error("Second send-message action request received")

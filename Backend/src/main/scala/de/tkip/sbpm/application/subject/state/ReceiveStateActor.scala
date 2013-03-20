@@ -34,7 +34,6 @@ import de.tkip.sbpm.application.subject.MessageIDProvider
 import de.tkip.sbpm.application.subject.SubscribeIncomingMessages
 import de.tkip.sbpm.application.subject.Variable
 import de.tkip.sbpm.application.subject.InputPoolSubscriptionPerformed
-import de.tkip.sbpm.application.subject.SubjectStarted
 import de.tkip.sbpm.application.subject.UnSubscribeIncomingMessages
 import de.tkip.sbpm.application.subject.MessageData
 
@@ -82,7 +81,7 @@ protected case class ReceiveStateActor(data: StateData)
       changeState(transition.successorID, message)
 
       // inform the processinstance, that this action is executed
-      processInstanceActor ! ActionExecuted(ea)
+      blockingHandlerActor ! ActionExecuted(ea)
     }
 
     case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
@@ -103,17 +102,20 @@ protected case class ReceiveStateActor(data: StateData)
     case InputPoolSubscriptionPerformed => {
       // if this state is the startstate inform the processinstance,
       // that this subject has started
-      trySendSubjectStarted()
+//      trySendSubjectStarted()
+      // TODO richtig so?
+      blockingHandlerActor ! UnBlockUser(userID)
     }
   }
 
-  override protected def delaySubjectReady = true
+  override protected def delayUnblockAtStart = true
 
   // only for startstate creation, check if subjectready should be sent
   var sendSubjectReady = startState
   private def trySendSubjectStarted() {
     if (sendSubjectReady) {
-      processInstanceActor ! SubjectStarted(userID, subjectID)
+      // TODO so richtig?F
+      blockingHandlerActor ! UnBlockUser(userID)
       sendSubjectReady = false
     }
   }

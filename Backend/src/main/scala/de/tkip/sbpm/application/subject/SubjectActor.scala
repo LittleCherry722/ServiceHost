@@ -10,28 +10,30 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 
+case class SubjectData(
+  userID: UserID,
+  processInstanceID: ProcessInstanceID,
+  processInstanceActor: ProcessInstanceRef,
+  blockingHandlerActor: ActorRef,
+  subject: Subject)
+
 /**
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
-class SubjectActor(
-  userID: UserID,
-  processInstanceActor: ProcessInstanceRef,
-  subject: Subject) extends Actor {
+class SubjectActor(data: SubjectData) extends Actor {
+
+  // extract the information out of the input
+  private val subject = data.subject
+  private val userID = data.userID
 
   private val subjectID: SubjectID = subject.id
   private val subjectName: String = subject.id
   // create the inputpool
   private val inputPoolActor: ActorRef =
-    context.actorOf(Props(new InputPoolActor(userID, subject.inputPool)))
+    context.actorOf(Props(new InputPoolActor(data)))
   // and the internal behavior
   private val internalBehaviorActor =
-    context.actorOf(
-      Props(
-        new InternalBehaviorActor(
-          processInstanceActor,
-          subject.id,
-          userID,
-          inputPoolActor)))
+    context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)))
 
   override def preStart() {
     // add all states in the internal behavior
@@ -44,11 +46,6 @@ class SubjectActor(
     case sm: SubjectToSubjectMessage => {
       // a message from an other subject can be forwarded into the inputpool
       inputPoolActor.forward(sm)
-    }
-
-    // TODO raus?
-    case message: SubjectInternalMessageProcessed => {
-      context.parent.forward(message)
     }
 
     case history.Transition(from, to, msg) => {

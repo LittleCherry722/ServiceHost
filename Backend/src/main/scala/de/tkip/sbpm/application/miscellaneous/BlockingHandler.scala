@@ -20,11 +20,17 @@ class BlockingActor extends Actor {
   private val logger = Logging(context.system, this)
 
   def receive = {
-    case message: HasTargetUser => {
-      handleMessage(message.userID, message)
-    }
     case action: ActionExecuted => {
       handleMessage(action.ea.userID, action)
+    }
+    case message @ BlockUser(userID) => {
+      handleMessage(userID, message)
+    }
+    case message @ UnBlockUser(userID) => {
+      handleMessage(userID, message)
+    }
+    case message @ SendProcessInstanceCreated(userID) => {
+      handleMessage(userID, message)
     }
     case s => {
       logger.error("BlockingActor got message " + s)
@@ -39,16 +45,18 @@ class BlockingActor extends Actor {
 
 class UserBlockingActor(userID: UserID)(implicit val context: ActorContext) {
   private var remainingBlocks = 0
-  private val blockedActions: ArrayBuffer[Any] =
+  private val blockedMessages: ArrayBuffer[Any] =
     ArrayBuffer[Any]()
 
   def handleMessage: PartialFunction[Any, Unit] = {
     case action: ActionExecuted => {
-      blockedActions += action
+      blockedMessages += action
+      trySendBlockedMessages()
     }
 
     case created: SendProcessInstanceCreated => {
-      blockedActions += created
+      blockedMessages += created
+      trySendBlockedMessages()
     }
 
     case b: BlockUser => {
@@ -57,47 +65,25 @@ class UserBlockingActor(userID: UserID)(implicit val context: ActorContext) {
 
     case b: UnBlockUser => {
       remainingBlocks -= 1
-      if (remainingBlocks == 0) {
-        for (action <- blockedActions) {
-          context.parent ! action
-        }
-        blockedActions.clear()
-      }
-    }
-  }
-}
-
-class UserBlockingHandler {
-  //  def addListener: Unit
-  //  def addCallbackFkt:Unit
-  //  private var blocked = 0
-  @volatile private var blocked: Int = 0
-
-  def addCallback(callbackFunction: () => Unit) {
-    // callback, sendback, feste methode?
-  }
-
-  def addSendback(actor: akka.actor.ActorRef, message: Any) {
-
-  }
-
-  // TODO vllt mit ids? message id, subjectid?
-  def block {
-    blocked += 1
-  }
-
-  def unblock {
-    synchronized { // TODO synchronized?
-      blocked -= 1
-      // TODO check if < 0
-      if (blocked == 0) {
-        // TODO call the callback fkt
-      }
+      trySendBlockedMessages()
     }
   }
 
-  private def callback() { // sendback
+  /**
+   * If there are no remaining blocks on this user,
+   * this method will send all messages, which are remaining, and clear
+   * the message pool
+   */
+  private def trySendBlockedMessages() {
+    System.err.println(userID + "/ BLOCKS: " + remainingBlocks);
+    System.err.println("MESSAGES: " + blockedMessages.mkString(", "));
 
+    if (remainingBlocks == 0) {
+      for (message <- blockedMessages) {
+        context.parent ! message
+      }
+      blockedMessages.clear()
+    }
   }
 }
 
