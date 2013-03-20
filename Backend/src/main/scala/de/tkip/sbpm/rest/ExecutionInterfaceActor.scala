@@ -48,9 +48,13 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
   implicit def exceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler.fromPF {
-      case e: Exception => ctx =>
+      case e: IllegalArgumentException => ctx => {
+        ctx.complete(StatusCodes.BadRequest, e.getMessage)
+      }
+      case e: Exception => ctx => {
         log.error(e, e.getMessage)
         ctx.complete(StatusCodes.InternalServerError, e.getMessage)
+      }
     }
 
   def actorRefFactory = context

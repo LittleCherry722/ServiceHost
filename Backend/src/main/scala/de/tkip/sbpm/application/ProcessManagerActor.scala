@@ -58,11 +58,11 @@ class ProcessManagerActor extends Actor {
       if (processInstanceMap.contains(id)) {
         context.stop(processInstanceMap(id).processInstanceActor)
         processInstanceMap -= id
-        sender ! KillProcessInstanceAnswer(kill, true)
+        sender ! KillProcessInstanceAnswer(kill)
       } else {
         logger.info("Process Manager - can't kill process instance: " +
           id + ", it does not exists")
-        sender ! KillProcessInstanceAnswer(kill, false)
+          // TODO error
       }
       // TODO always try to delete it from the database?
       //      ActorLocator.persistenceActor ! DeleteProcessInstance(id)

@@ -60,8 +60,9 @@ protected case class ReceiveStateActor(data: StateData)
 
   protected def stateReceive = {
     // execute an action
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ReceiveStateString, input) if ({
+    case action: ExecuteAction if ({
       // check if the related subject exists
+      val input = action.actionData
       input.relatedSubject.isDefined && {
         val from = input.relatedSubject.get
         val messageType = input.text
@@ -71,7 +72,7 @@ protected case class ReceiveStateActor(data: StateData)
           exitTransitionsMap((from, messageType)).ready
       }
     }) => {
-
+      val input = action.actionData
       // get the transition from the map
       val transition = exitTransitionsMap((input.relatedSubject.get, input.text))
       // create the Historymessage
@@ -81,7 +82,7 @@ protected case class ReceiveStateActor(data: StateData)
       changeState(transition.successorID, message)
 
       // inform the processinstance, that this action is executed
-      blockingHandlerActor ! ActionExecuted(ea)
+      blockingHandlerActor ! ActionExecuted(action)
     }
 
     case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {

@@ -73,11 +73,12 @@ protected case class SendStateActor(data: StateData)
       blockingHandlerActor ! UnBlockUser(userID)
     }
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, SendStateString, input) if ({
+    case action: ExecuteAction if ({
       // the message needs a content
-      input.messageContent.isDefined
+      action.actionData.messageContent.isDefined
     }) => {
       if (!messageContent.isDefined) {
+        val input = action.actionData
         // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
         // can be blocked until a potentially new subject is created to ensure all available actions will 
         // be returned when asking
@@ -139,7 +140,7 @@ protected case class SendStateActor(data: StateData)
 
           // send the ActionExecuted to the blocking actor, it will send it 
           // to the process instance, when this user is ready
-          blockingHandlerActor ! ActionExecuted(ea)
+          blockingHandlerActor ! ActionExecuted(action)
         }
       } else {
         logger.error("Second send-message action request received")

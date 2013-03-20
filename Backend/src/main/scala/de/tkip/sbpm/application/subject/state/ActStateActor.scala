@@ -27,19 +27,23 @@ import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.subject.BehaviorStateActor
 import de.tkip.sbpm.application.subject.ActionExecuted
 import de.tkip.sbpm.application.subject.ActionData
+import akka.actor.Status.Failure
 
 protected case class ActStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   protected def stateReceive = {
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, ActStateString, input) => {
+    case action: ExecuteAction => {
+      val input = action.actionData
       val index = indexOfInput(input.text)
       if (index != -1) {
         changeState(exitTransitions(index).successorID, null)
-        blockingHandlerActor ! ActionExecuted(ea)
+        blockingHandlerActor ! ActionExecuted(action)
       } else {
-        // TODO invalid input
+        action.asInstanceOf[AnswerAbleMessage].sender !
+          Failure(new IllegalArgumentException(
+            "Invalid Argument: " + input.text + " is not a valid action."))
       }
     }
   }

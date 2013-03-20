@@ -22,6 +22,7 @@ import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
+import akka.actor.Status.Failure
 
 /**
  * The data, which is necessary to create any state
@@ -71,6 +72,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val model = data.stateModel
   protected val id = model.id
   protected val userID = data.userID
+  protected val processInstanceID = data.subjectData.processInstanceID
   protected val subjectID = data.subjectID
   protected val stateText = model.text
   protected val startState = model.startState
@@ -87,7 +89,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   override def preStart() {
 
     // if it is needed, send a SubjectStarted message
-    if (!delayUnblockAtStart ) {
+    if (!delayUnblockAtStart) {
       internalStatus.subjectStartedSent = true
       // TODO so richtig?
       blockingHandlerActor ! UnBlockUser(userID)
@@ -112,6 +114,19 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   // the receive of this behavior state, it will be executed
   // if the state-receive does not match
   private def generalReceive: Receive = {
+
+    // filter all invalid action
+    case action: ExecuteAction if {
+      action.userID != userID ||
+        action.processInstanceID != processInstanceID ||
+        action.subjectID != subjectID ||
+        action.stateType != stateType.toString()
+    } => {
+      action.asInstanceOf[AnswerAbleMessage].sender !
+        Failure(new IllegalArgumentException(
+          "Invalid Argument: The action does not match to the current state."))
+    }
+
     case ga: GetAvailableAction => {
       sender ! createAvailableAction(ga.processInstanceID)
     }
@@ -128,14 +143,26 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     }
   }
 
+  import de.tkip.sbpm.model.StateType._
   private def errorReceive: Receive = {
     case message: AnswerAbleMessage => {
-      message.sender ! akka.actor.Status.Failure(new IllegalArgumentException("Invalid input."))
-    }
+      message match {
+        case action: ExecuteAction => {
+          stateType match {
+            case SendStateType if (!action.actionData.messageContent.isDefined) => {
+              message.sender !
+                Failure(new IllegalArgumentException(
+                  "Invalid Argument: messageContent not defined, a sendstate needs a MessageContent"))
+            }
+          }
 
-    case action: ExecuteAction => {
-      logger.error("/" + userID + "/" + subjectID + "/" +
-        id + " does not support " + action)
+        }
+        case _ => {
+          message.sender !
+            Failure(new Exception("Internal Server Error in " + stateType.toString()))
+        }
+      }
+      logger.error("BehaviorStateActor does not support: " + message)
     }
 
     case s => {
@@ -196,26 +223,3 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       actionData)
   }
 }
-
-protected case class EndStateActor(data: StateData)
-  extends BehaviorStateActor(data) {
-
-  // Inform the processinstance that this subject has terminated
-  internalBehaviorActor ! SubjectTerminated(userID, subjectID)
-
-  // nothing to receive for this state
-  protected def stateReceive = FSM.NullFunction
-
-  override def postStop() {
-    logger.debug("End@" + userID + ", " + subjectID + "stops...")
-  }
-
-  override protected def getAvailableAction: Array[ActionData] =
-    Array()
-}
-
-
-
-
-
-
