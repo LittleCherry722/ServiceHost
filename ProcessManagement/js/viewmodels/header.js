@@ -2,8 +2,9 @@ define([
 	"knockout",
 	"app",
 	"models/user",
-	"text!../../templates/header.html"
-], function( ko, App, User, headerTemplate ) {
+	"text!../../templates/header.html",
+	"notify"
+], function( ko, App, User, headerTemplate, Notify ) {
 
 	// Our header viewmodel. Make this private and only export some methods as
 	// public API so we stay in tighter controll of everything.
@@ -11,7 +12,28 @@ define([
 	var ViewModel = function() {
 		currentUser = App.currentUser;
 		this.logout = logout;
-		
+
+		this.oauth2callback = function() {
+			var data = {
+				userId: App.currentUser.id()
+			}
+
+			$.ajax({
+				url: "/oauth2callback",
+				cache: false,
+				data: data,
+				success: function( data ) {
+					if ( !data ) {
+						Notify.info( "Success", "User account is already linked with Google." );
+					} else {
+						window.open( data, "Google OAuth 2", "width=600,height=400" );
+					}
+				},
+				error: function() {
+					Notify.error( "Error", "Error while linking user account with Google." );
+				}
+			});
+		}
 	}
 	
 	var logout = function() {
