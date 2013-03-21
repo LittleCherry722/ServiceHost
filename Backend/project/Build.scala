@@ -15,7 +15,7 @@ object ProjectBuild extends Build {
       resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
       resolvers += "spray repo" at "http://repo.spray.io",
       resolvers += "Nexus Releases" at "http://nexus.thenewmotion.com/content/repositories/releases-public/",
-      resolvers += "google-api-services" at "http://mavenrepo.google-api-java-client.googlecode.com/hg",
+      resolvers += "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo",
       libraryDependencies ++= Seq(
         "org.scala-lang"     % "scala-actors"   % "2.10.0",
         "org.scala-lang"     % "scala-reflect"  % "2.10.0",
@@ -38,7 +38,7 @@ object ProjectBuild extends Build {
         "com.google.apis"            % "google-api-services-drive"    % "v2-rev13-1.8.0-beta",
         "com.google.http-client"     % "google-http-client-jackson2"  % "1.13.1-beta",
         "com.google.code.findbugs"   % "jsr305"                       % "1.3.9",
-	"com.google.api.services"    % "google-api-services-oauth2"   % "1.13.2-beta"
+        "com.google.apis"            % "google-api-services-oauth2"   % "v2-rev30-1.13.2-beta"
         )
     )
   )
