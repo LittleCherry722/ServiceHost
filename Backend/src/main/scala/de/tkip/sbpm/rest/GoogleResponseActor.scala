@@ -43,7 +43,7 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   def receive = runRoute({
     // just forward the query parameters from google to googleAuthActor
     get {
-      path("somethingelse") {
+      path("") {
         parameters("code", "state") {(code, state) => {
           log.debug(getClass.getName + " received from google response: " + "name: " + state + ", code: " + code)
           googleAuthActor ! GoogleResponse(state, code)
