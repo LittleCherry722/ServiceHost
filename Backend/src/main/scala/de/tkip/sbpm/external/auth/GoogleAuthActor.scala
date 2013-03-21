@@ -23,7 +23,19 @@ import com.google.api.client.auth.oauth2.TokenResponse
 import com.google.api.client.auth.oauth2.TokenErrorResponse
 import java.util.Arrays
 import com.google.api.services.oauth2.Oauth2Scopes
-
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.persistence.SetUserIdentity
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import akka.actor.ActorSystem._
+import akka.actor.Props
+import akka.actor.ActorSystem
+import akka.util.Timeout
+import akka.pattern._
+import de.tkip.sbpm.external.api.GetGoogleEMail
+import de.tkip.sbpm.model.UserIdentity
 
 // message types for google specific communication
 sealed trait GoogleAuthAction extends GoogleMessage
@@ -52,6 +64,12 @@ case class GoogleResponse(id: String, response: String) extends GoogleAuthAction
 class GoogleAuthActor extends Actor with ActorLogging {
 
   def actorRefFactory = context
+  
+  // to be able to add a new user provider 
+  private lazy val persistenceActor = ActorLocator.persistenceActor
+  private lazy val googleInformationActor = ActorLocator.googleUserInformationActor
+  implicit val timeout = Timeout(5 seconds)
+  
   
   override def preStart() {
     log.debug(getClass.getName + " starts...")
@@ -161,6 +179,9 @@ class GoogleAuthActor extends Actor with ActorLogging {
     credential.setFromTokenResponse(tokenResponse)
     credentialStore.store(id, credential)
     log.debug(getClass().getName() + " New credential for user: " + id + " have been saved")
+    
+    // add new google provider 
+    addGoogleProvider(id)
     } catch {
     case e : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + e.getDetails() + "\n" + e.getMessage())
     }  
@@ -173,5 +194,17 @@ class GoogleAuthActor extends Actor with ActorLogging {
       flow.getCredentialStore().delete(id, credential)
     }
    flow.loadCredential(id).getAccessToken().isEmpty()
-  } 
+  }
+  
+  /** Add additional "GOOGLE" provider to the user */
+  def addGoogleProvider(id: String) = {
+    // ask google information actor for the email address of the user 
+    val email_future = googleInformationActor ? GetGoogleEMail(id)
+    val email = Await.result(email_future.mapTo[String], timeout.duration)
+    
+    // add google as a new user provider
+    // TODO check - 
+    val user_future = persistenceActor ? SetUserIdentity(id.toInt, "GOOGLE", email, None)
+    val user = Await.result(user_future.mapTo[Credential], timeout.duration)
+  }
 }

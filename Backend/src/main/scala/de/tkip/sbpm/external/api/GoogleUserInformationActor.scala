@@ -36,7 +36,7 @@ case class GetGoogleUserInfo(id: String) extends GoogleUserInformationAction
 class GoogleUserInformationActor extends Actor with ActorLogging {
 
   private lazy val googleAuthActor = ActorLocator.googleAuthActor
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(5 seconds)
   
   def actorRefFactory = context
   
