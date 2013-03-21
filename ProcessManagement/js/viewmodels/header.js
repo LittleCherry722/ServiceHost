@@ -19,7 +19,7 @@ define([
 			}
 
 			$.ajax({
-				url: "/oauth2callback/initAuth",
+				url: "/oauth2callback/init_auth",
 				cache: false,
 				data: data,
 				type: "POST",

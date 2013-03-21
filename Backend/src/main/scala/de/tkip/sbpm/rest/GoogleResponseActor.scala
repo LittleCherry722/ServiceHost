@@ -71,12 +71,9 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
           log.debug(getClass.getName + " received from google response: " + "name: " + state + ", code: " + code)
           googleAuthActor ! GoogleResponse(state, code)
           complete("")
-        } 
-        }   
+        }
+        }
       }
     }
-
-
-    
   })
 }
