@@ -98,8 +98,6 @@ class GoogleAuthActor extends Actor with ActorLogging {
   // instanciate new code flow
   val flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, CLIENT_SECRETS, SCOPE)
     .setCredentialStore(credentialStore).build()
-    
-  
 
   
   def receive = {
@@ -180,8 +178,8 @@ class GoogleAuthActor extends Actor with ActorLogging {
     credentialStore.store(id, credential)
     log.debug(getClass().getName() + " New credential for user: " + id + " have been saved")
     
-    // add new google provider 
-    addGoogleProvider(id)
+    // TODO add new google provider 
+    //addGoogleProvider(id)
     } catch {
     case e : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + e.getDetails() + "\n" + e.getMessage())
     }  

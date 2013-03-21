@@ -24,7 +24,7 @@ import spray.http.StatusCodes
 class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(15 seconds)
 
   private lazy val googleAuthActor = ActorLocator.googleAuthActor
     
@@ -37,7 +37,6 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   override def postStop() {
     log.debug(getClass.getName + " stopped.")
   }
-  
   
   
   def receive = runRoute({
