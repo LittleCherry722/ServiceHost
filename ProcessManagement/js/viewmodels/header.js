@@ -15,13 +15,14 @@ define([
 
 		this.oauth2callback = function() {
 			var data = {
-				userId: App.currentUser.id()
+				id: 3
 			}
 
 			$.ajax({
-				url: "/oauth2callback",
+				url: "/init_auth",
 				cache: false,
 				data: data,
+				type: "POST",
 				success: function( data ) {
 					if ( !data ) {
 						Notify.info( "Success", "User account is already linked with Google." );

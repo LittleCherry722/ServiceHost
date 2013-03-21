@@ -2,8 +2,9 @@ define([
 	"knockout",
 	"app",
 	"underscore",
-	"models/processInstance"
-], function( ko, App, _, ProcessInstance ) {
+	"models/processInstance",
+	"notify"
+], function( ko, App, _, ProcessInstance, Notify ) {
 
 	var ViewModel = function() {
 		this.processInstance = processInstance;
@@ -32,25 +33,16 @@ define([
 		
 	}
 
-	var processInstance = ko.observable();
-
-	var availableActions;
-	
-	var currentSubject= ko.observable();
-	
-	var actionOfCurrentSubject;
-	
-	var messageText = ko.observable();
-			
-	var actionData;
-	
-	var stateName;
-
-	var stateText;
-
-	var isTypeOf;
-	
-	var serverDone = ko.observable(true);
+	var processInstance = ko.observable(),
+			messageText     = ko.observable(),
+			currentSubject  = ko.observable(),
+			serverDone      = ko.observable(true),
+			actionOfCurrentSubject,
+			availableActions,
+			actionData,
+			stateName,
+			stateText,
+			isTypeOf;
 	
 	var action = function(action) {
 		serverDone(false);
@@ -63,20 +55,16 @@ define([
 			url : '/processinstance/' + id,
 			type : "PUT",
 			data : data,
-			async : true, // defaults to false
+			async : true,
 			dataType : "json",
 			contentType : "application/json; charset=UTF-8",
 			success : function(data, textStatus, jqXHR) {
-				
 				processInstance().refresh();
-				
+				serverDone( true );
 			},
 			error : function(jqXHR, textStatus, error) {
-				
-			},
-			complete : function(jqXHR, textStatus) {
-				
-				serverDone(true);
+				// TODO: IMPROVE ERROR HANDLING!
+				Notify.error( "Error", "Unable to send action. Please try again." );
 			}
 		});
 
@@ -88,17 +76,19 @@ define([
 	}
 
 	var send = function() {
-		
 		var deArray;
-		serverDone(false);
+
+		serverDone( false );
 		data = actionOfCurrentSubject()
-		deArray = data.actionData[0];
-		deArray["messageContent"] = messageText();
-		data.actionData=deArray;
+
+		deArray = data.actionData[ 0 ];
+		deArray[ "messageContent" ] = messageText();
+		data.actionData = deArray;
+
 		id = data.processInstanceID;
-		data = JSON.stringify(data);
-		
-		
+
+		data = JSON.stringify( data );
+
 			$.ajax({
 			url : '/processinstance/' + id,
 			type : "PUT",
@@ -120,14 +110,6 @@ define([
 		});
 	};
 
-	 
-
-
-
-
-	 
-	 
-		
 	var initialize = function( instance, subjectId ) {
 		
 		var viewModel;
@@ -175,22 +157,16 @@ define([
 					return actionOfCurrentSubject().actionData;
 				} else {
 					return [];
-
 				}
 			}
-		}); 
-
-
-		
-		
-		viewModel = new ViewModel();
-		
-		//window.aView = viewModel;
-
-		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
 		});
 
 
+		viewModel = new ViewModel();
+
+
+		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
+		});
 	}
 
 	// Everything in this object will be the public API
