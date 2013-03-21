@@ -13,28 +13,32 @@ define([
 		currentUser = App.currentUser;
 		this.logout = logout;
 
-		this.oauth2callback = function() {
-			var data = {
-				id: 3
-			}
+		this.currentUser = App.currentUser;
 
-			$.ajax({
-				url: "/oauth2callback/init_auth",
-				cache: false,
-				data: data,
-				type: "POST",
-				success: function( data ) {
-					if ( !data ) {
-						Notify.info( "Success", "User account is already linked with Google." );
-					} else {
-						window.open( data, "Google OAuth 2", "width=600,height=400" );
-					}
-				},
-				error: function() {
-					Notify.error( "Error", "Error while linking user account with Google." );
-				}
-			});
+		this.oauth2callback = oauthLogin;
+	}
+
+	var oauthLogin = function() {
+		var data = {
+			id: 3
 		}
+
+		$.ajax({
+			url: "/oauth2callback/init_auth",
+			cache: false,
+			data: data,
+			type: "POST",
+			success: function( data ) {
+				if ( !data ) {
+					Notify.info( "Success", "User account is already linked with Google." );
+				} else {
+					window.open( data, "Google OAuth 2", "width=600,height=400" );
+				}
+			},
+			error: function() {
+				Notify.error( "Error", "Error while linking user account with Google." );
+			}
+		});
 	}
 	
 	var logout = function() {
@@ -59,7 +63,6 @@ define([
 
 			}
 		});
-
 	};
 
 

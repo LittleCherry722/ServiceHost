@@ -70,7 +70,7 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
       path("") {
         parameters("code", "state") {(code, state) => {
           log.debug(getClass.getName + " received from google response: " + "name: " + state + ", code: " + code)
-          // googleAuthActor ! GoogleResponse(state, code)
+          googleAuthActor ! GoogleResponse(state, code)
           respondWithMediaType(`text/html`) {
             complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body></body></html>")
           }
