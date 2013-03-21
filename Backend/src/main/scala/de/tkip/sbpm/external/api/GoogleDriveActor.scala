@@ -104,13 +104,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
     case DeleteUserGDrive(id) => sender ! deleteUserDrive(id)
     
     //case ListGDriveDirectory(folder) => sender ! "listDirectory(folder)" 
-    case ListGDriveFiles(id) => sender ! listFiles(id) 
-        
-    // TODO case GetFilePermission(id, fileId) => sender ! getFilePermission(id, fileId)
-    
-    // TODO case SetFilePermission
-    
-    // TODO case 
+    case ListGDriveFiles(id) => sender ! listFiles(id)  
     
     case _ => sender ! "not yet implemented"
   }
@@ -177,6 +171,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
       
   /** returns user specific drive object from DRIVE_SET */
   def getGDriveObject(id: String): Drive = {
+    initUser(id)
     DRIVE_SET.get(id).get
   }
   
