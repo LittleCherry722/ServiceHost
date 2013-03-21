@@ -68,9 +68,10 @@ case  class InitUserGDrive(id: String) extends GoogleDriveAction
 
 class GoogleDriveActor extends Actor with ActorLogging {
   
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(15 seconds)
 
   private lazy val googleAuthActor = ActorLocator.googleAuthActor
+  private lazy val googleInformationActor = ActorLocator.googleUserInformationActor
   
   def actorRefFactory = context
 
@@ -104,13 +105,7 @@ class GoogleDriveActor extends Actor with ActorLogging {
     case DeleteUserGDrive(id) => sender ! deleteUserDrive(id)
     
     //case ListGDriveDirectory(folder) => sender ! "listDirectory(folder)" 
-    case ListGDriveFiles(id) => sender ! listFiles(id) 
-        
-    // TODO case GetFilePermission(id, fileId) => sender ! getFilePermission(id, fileId)
-    
-    // TODO case SetFilePermission
-    
-    // TODO case 
+    case ListGDriveFiles(id) => sender ! listFiles(id)  
     
     case _ => sender ! "not yet implemented"
   }
@@ -177,17 +172,22 @@ class GoogleDriveActor extends Actor with ActorLogging {
       
   /** returns user specific drive object from DRIVE_SET */
   def getGDriveObject(id: String): Drive = {
+    initUser(id)
     DRIVE_SET.get(id).get
   }
   
   /** lists directory on the google drive, in case the method does not get a parameter it lists the root directory */
   def listFiles(id: String): String = {
     
-    // TODO for testing purpose fixed to user_1
-    val drive = getGDriveObject("User_1")
+    // add drive object for user or check if the current one is still valid
+    val drive = getGDriveObject(id)
+    
+    // ask google for the email address
+    val email_future = googleInformationActor ? GetGoogleEMail(id)
+    val email = Await.result(email_future.mapTo[String], timeout.duration)
     
     // define query with trashed = false and user-permission = owner and type = user 
-    val query = "trashed = false and mimeType != 'application/vnd.google-apps.folder' and '" + id +"' in owners" 
+    val query = "trashed = false and mimeType != 'application/vnd.google-apps.folder' and '" + email +"' in owners" 
     
     // select specific fields 
     val fields = "items(description,downloadUrl,iconLink,id,mimeType,ownerNames,title)"

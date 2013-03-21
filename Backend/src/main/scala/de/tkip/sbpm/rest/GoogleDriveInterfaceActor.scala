@@ -25,7 +25,7 @@ import com.google.api.services.drive.model.File
 class GoogleDriveInterfaceActor extends Actor with HttpService with ActorLogging {
   
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(15 seconds)
 
   private lazy val googleDriveActor = ActorLocator.googleDriveActor
     
@@ -42,7 +42,7 @@ class GoogleDriveInterfaceActor extends Actor with HttpService with ActorLogging
   def receive = runRoute({
     // user can ask /googledrive/getFiles?id=... to get a list of his files stored in his google drive
     get {
-      path("/getFiles") {
+      path("get_files") {
         parameters("id") {(id) => {
           log.debug(getClass.getName + " received get request for google drive files from user: " + id)
           

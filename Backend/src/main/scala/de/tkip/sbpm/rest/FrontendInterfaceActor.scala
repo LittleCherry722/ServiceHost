@@ -27,7 +27,7 @@ object Entity {
   val CONFIGURATION = "configuration"
   val OAUTH2CALLBACK = "oauth2callback"
   val ISALIVE = "isalive"
-  val GOOGLEDRIVE = "GOOGLEDRIVE"
+  val GOOGLEDRIVE = "googledrive"
 
   // TODO define more entities if you need them  
 }
