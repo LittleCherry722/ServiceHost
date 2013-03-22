@@ -13,6 +13,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       case x            => super.read(x)
     }
   }
+  
+  implicit def stringOptionFormat = new OptionFormat[String]
 
   implicit object TimestampFormat extends JsonFormat[java.sql.Timestamp] {
     def write(t: java.sql.Timestamp) = JsNumber(t.getTime)
