@@ -17,8 +17,8 @@ define([
 		isCase: "boolean",
 		processInstanceId: "integer",
 		graph: {
-			type: "string",
-			defaults: "{}",
+			type: "json",
+			defaults: {},
 			lazy: true
 		}
 	});
@@ -68,10 +68,11 @@ define([
 						self.loadAttributes( { async: false } );
 					} else {
 					}
-					return $.parseJSON( self.graph() );
+					return self.graph().definition;
 				},
 				write: function( graphObject ) {
-					var graph = JSON.stringify( graphObject );
+					var graph = self.graph();
+					graph.definition = graphObject;
 					self.graph( graph );
 				}
 			});
@@ -118,8 +119,8 @@ define([
 			this.routings = ko.computed({
 				deferEvaluation: true,
 				read: function() {
-					if ( self.graphObject() && self.graphObject().routings ) {
-						return self.graphObject().routings;
+					if ( self.graph() && self.graph().routings ) {
+						return self.graph().routings;
 					} else {
 						return [];
 					}
@@ -128,9 +129,25 @@ define([
 					if ( !routings ) {
 						routings = [];
 					}
-					var graphObject = self.graphObject();
-					graphObject.routings = routings;
-					self.graphObject( graphObject );
+					var graph = self.graph();
+					graph.routings = routings;
+					self.graph( graph );
+				}
+			});
+
+			this.graphString = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					if ( self.graphObject() ) {
+						return JSON.stringify( self.graphObject() );
+					} else {
+						return {};
+					}
+				},
+				write: function( graphString ) {
+					var graph = self.graph();
+					graph.definitions = JSON.parse( graphString );
+					self.graph( graph );
 				}
 			});
 		},

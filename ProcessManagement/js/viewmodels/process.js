@@ -90,7 +90,7 @@ define([
 			//Import and export the graph.
 	
 		this.exportGraph = function() {
-			var graph = currentProcess().graph();
+			var graph = currentProcess().graphString();
 			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
 			console.log(graph);
@@ -345,7 +345,9 @@ define([
 
 		// Clear the graph canvas
 		gv_graph.clearGraph( true );
-		gf_loadGraph( graph, undefined );
+		console.log("loading graph: ")
+		console.log( JSON.stringify( graph.definition ) )
+		gf_loadGraph( JSON.stringify( graph.definition ), undefined );
 
 		// TODO
 		// var graph = JSON.parse(graphAsJson);
