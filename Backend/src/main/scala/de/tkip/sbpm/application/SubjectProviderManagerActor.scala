@@ -47,10 +47,6 @@ class SubjectProviderManagerActor extends Actor {
     }
 
     // TODO muss man zusammenfassen koennen
-    case message: PersistenceMessage => {
-      processManagerActor.forward(message)
-    }
-
     case message: AnswerAbleMessage => {
       processManagerActor ! message.withSender(sender)
     }

@@ -8,9 +8,11 @@ import de.tkip.sbpm.application.history.{
   Message => HistoryMessage,
   State => HistoryState
 }
+import de.tkip.sbpm.application.subject.state._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
 import akka.event.Logging
+import akka.actor.Status.Failure
 
 // TODO this is for history + statechange
 case class ChangeState(
@@ -23,10 +25,14 @@ case class ChangeState(
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(
-  processInstanceActor: ProcessInstanceRef,
-  subjectID: SubjectID,
-  userID: UserID,
+  data: SubjectData,
   inputPoolActor: ActorRef) extends Actor {
+  // extract the data
+
+  val processInstanceActor = data.processInstanceActor
+  val subjectID = data.subject.id
+  val userID = data.userID
+
   private val statesMap = collection.mutable.Map[StateID, State]()
   private var startState: StateID = 0
   private var currentState: BehaviorStateRef = null
@@ -79,8 +85,11 @@ class InternalBehaviorActor(
     case br: SubjectBehaviorRequest => {
       if (currentState != null) {
         currentState.forward(br)
-      } else {
-        // TODO signalisieren das die message nicht ausfuehrbar ist
+      } else if (br.isInstanceOf[AnswerAbleMessage]) {
+        br.asInstanceOf[AnswerAbleMessage].sender !
+          Failure(new Exception(
+            "Subject : " + subjectID + "of process instance " +
+              data.processInstanceID + " has no running subject"))
       }
     }
 
@@ -131,7 +140,8 @@ class InternalBehaviorActor(
    */
   private def parseState(state: State) = {
     // create the data every state needs
-    val data = StateData(
+    val stateData = StateData(
+      data,
       state,
       userID,
       subjectID,
@@ -143,19 +153,19 @@ class InternalBehaviorActor(
     // create the actor which matches to the statetype
     state.stateType match {
       case ActStateType => {
-        context.actorOf(Props(ActStateActor(data)))
+        context.actorOf(Props(ActStateActor(stateData)))
       }
 
       case SendStateType => {
-        context.actorOf(Props(SendStateActor(data)))
+        context.actorOf(Props(SendStateActor(stateData)))
       }
 
       case ReceiveStateType => {
-        context.actorOf(Props(ReceiveStateActor(data)))
+        context.actorOf(Props(ReceiveStateActor(stateData)))
       }
 
       case EndStateType => {
-        context.actorOf(Props(EndStateActor(data)))
+        context.actorOf(Props(EndStateActor(stateData)))
       }
     }
   }

@@ -4,7 +4,6 @@ import akka.actor.Props
 import akka.pattern.AskSupport
 import akka.actor.ActorLogging
 import akka.pattern._
-import de.tkip.sbpm.application.miscellaneous.PersistenceMessage
 import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.util.{ Success, Failure }

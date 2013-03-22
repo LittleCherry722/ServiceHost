@@ -89,7 +89,6 @@ private[persistence] class GraphPersistenceActor extends Actor
 
     GraphNodes.insertAll(nodes: _*)
 
-    log.debug(edges.toString)
     GraphEdges.insertAll(edges: _*)
 
     g.id match {

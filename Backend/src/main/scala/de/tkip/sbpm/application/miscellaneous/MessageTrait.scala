@@ -12,11 +12,6 @@ trait SubjectProviderMessage {
 }
 
 /**
- * Extend this trait if you want to send a message to the persistence actor
- */
-trait PersistenceMessage
-
-/**
  * Extend this trait if you want to send a message to / over a process instance
  */
 trait ProcessInstanceMessage {

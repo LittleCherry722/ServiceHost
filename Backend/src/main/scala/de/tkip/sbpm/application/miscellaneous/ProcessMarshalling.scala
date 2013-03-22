@@ -35,42 +35,17 @@ object parseSubjects {
  * out of the JSON representation
  */
 object parseGraph {
-  // The marshalling case classes
-  private case class JGraph(process: Array[JSubject], messages: JsValue)
-  private case class JSubject(id: SubjectID, name: SubjectName, myType: String, inputPool: Int, macros: Array[JBehavior])
-  private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
-  private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
-  private case class JNodeOption(message: MessageType)
-  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, target: JsValue, priority: Int, manualTimeout: Boolean, variable: JsValue)
-  private case class JEdgeTarget(id: SubjectID, min: JsValue, max: JsValue, createNew: Boolean, variable: JsValue)
-  // The marshalling formats for the case classes
-  private object JsonFormats extends DefaultJsonProtocol {
-    implicit val edgeTargetFormat = jsonFormat5(JEdgeTarget)
-    implicit val edgeFormat = jsonFormat8(JEdge)
-    implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
-    implicit val nodeFormat = jsonFormat6(JNode)
-    implicit val behaviorFormat = jsonFormat2(JBehavior)
-    implicit val subjectFormat = jsonFormat5(JSubject)
-    implicit val graphFormat = jsonFormat2(JGraph)
-  }
-  import JsonFormats._
 
   // This map matches the short versions and real versions of the message types
   private var messageMap: Map[String, String] = null
 
-  def apply(graph: String): ProcessGraph = synchronized {
-    // TODO fehlerbehandlung bei falschem String
-
-    // TODO type replacement is not efficient
-    // parse the graph message count and the message object from the graph
-    val jgraph = graph.replace("\"type\":", "\"myType\":").asJson.convertTo[JGraph]
-    val jmessages = jgraph.messages.asJsObject()
+  def apply(graph: Graph): ProcessGraph = synchronized {
 
     // parse the message map from the json graph
-    messageMap = for ((k, v) <- jmessages.fields) yield (k, v.convertTo[String])
+    messageMap = graph.messages.mapValues(_.name)
 
     // parse the subjects and return the resulting processgraph
-    ProcessGraph(parseSubjects(jgraph.process))
+    ProcessGraph(parseSubjects(graph.subjects))
   }
 
   private object parseSubjects {
@@ -79,31 +54,31 @@ object parseGraph {
     // this map will be filled during the preparse
     private val subjectMap = MutableMap[SubjectID, PreSubjectInfo]()
 
-    def apply(subjects: Array[JSubject]): Array[Subject] = {
+    def apply(subjects: Map[String, GraphSubject]): Map[String, Subject] = {
       // first preparse the subjects, to extract information
       // e.g. which subject is a multisubject
-      subjects.map(preParseSubject(_))
+      subjects.values.foreach(preParseSubject(_))
       // parse the subjects to the internal model
-      subjects.map(parseSubject(_))
+      subjects.mapValues(parseSubject(_))
     }
 
-    def preParseSubject(subject: JSubject) = {
+    def preParseSubject(subject: GraphSubject) = {
       val id = subject.id
       // extract the subject types
-      val multi = subject.myType.matches("\\Amulti")
-      val external = subject.myType.matches("(multi)?external")
+      val multi = subject.subjectType.matches("\\Amulti")
+      val external = subject.subjectType.matches("(multi)?external")
       subjectMap(id) = PreSubjectInfo(multi, external)
     }
 
     // the Statesmap
     private var states: MutableMap[StateID, StateCreator] = null
 
-    def parseSubject(subject: JSubject): Subject = {
+    def parseSubject(subject: GraphSubject): Subject = {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
 
       // at the moment we only support one behavior
-      val behavior: JBehavior = subject.macros(0)
+      val behavior: GraphMacro = subject.macros("##main##")
 
       // extract the subject types
       val id = subject.id
@@ -111,7 +86,7 @@ object parseGraph {
       val external = subjectMap(id).external
 
       // first parse the nodes then the edges
-      parseNodes(behavior.nodes)
+      parseNodes(behavior.nodes.values)
       parseEdges(behavior.edges)
 
       // all parsed states are in the states map, convert the creators,
@@ -119,41 +94,26 @@ object parseGraph {
       Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi, external)
     }
 
-    private def parseNodes(nodes: Array[JNode]) {
+    private def parseNodes(nodes: Iterable[GraphNode]) {
       for (node <- nodes) {
         // create and add a state creator for this state
         states(node.id) =
-          new StateCreator(node.id, node.text, fromStringtoStateType(node.myType), node.start)
+          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart)
       }
     }
 
-    private def parseEdges(edges: Array[JEdge]) {
+    private def parseEdges(edges: Iterable[GraphEdge]) {
       import Integer.parseInt
       for (edge <- edges) {
         // match the edgetype and create the corresponding transition
-        edge.myType match {
+        edge.edgeType match {
 
           case "exitcondition" => {
             // parse the target
-            val target =
-              if (!edge.target.isInstanceOf[JsString]) {
-                val jtarget = edge.target.convertTo[JEdgeTarget]
-                  // TODO Currently the graph contains e.g. -1 and "-1" for
-                  // min and max values, this function parses both to an Int
-                  // delete if its not needed anymore
-                  def parseNumber(value: JsValue): Int = value match {
-                    case s: JsString => parseInt(s.convertTo[String])
-                    case i: JsNumber => i.convertTo[Int]
-                    case _           => -1
-                  }
-
-                val targetVariable: Option[String] = jtarget.variable match {
-                  case s: JsString => if (s != "") Some(s.convertTo[String]) else None
-                  case _           => None
-                }
-
-                var minValue = parseNumber(jtarget.min)
-                var maxValue = parseNumber(jtarget.max)
+            val target = edge.target match {
+              case Some(t) => {
+                var minValue = t.min
+                var maxValue = t.max
                 var default = minValue < 1 && maxValue < 1
 
                 if (minValue < 1) minValue = 1
@@ -161,44 +121,38 @@ object parseGraph {
                   // maxValue should be infinity, if the other one is a multisubject
                   // if the other one is a single subject await only one message
                   maxValue =
-                    if (subjectMap(jtarget.id).multi)
-                      Int.MaxValue
+                    if (subjectMap(t.subjectId).multi)
+                      Short.MaxValue
                     else
                       1
                 }
 
-                Some(Target(jtarget.id, minValue, maxValue, jtarget.createNew, targetVariable, default))
-              } else {
-                None
+                Some(Target(t.subjectId, minValue, maxValue, t.createNew, t.variableId, default))
               }
-
-            val storeVariable: String = edge.variable match {
-              case s: JsString => s.convertTo[String]
-              case _           => ""
+              case None => None
             }
 
-            val state = states(edge.start)
-            val text = edge.text
+            val state = states(edge.startNodeId)
             // the messageType is the edge text
             // for receive and send states the edgetext is the short form
             // so replace it with the real form, if possible
             val messageType = state.stateType match {
-              case ReceiveStateType => messageMap.getOrElse(text, text)
-              case SendStateType    => messageMap.getOrElse(text, text)
-              case _                => text
+              case ReceiveStateType => messageMap.getOrElse(edge.text, edge.text)
+              case SendStateType    => messageMap.getOrElse(edge.text, edge.text)
+              case _                => edge.text
             }
 
             // at the transition to the state
             state.addTransition(
-              Transition(ExitCond(messageType, target), edge.end, edge.priority, storeVariable))
+              Transition(ExitCond(messageType, target), edge.endNodeId, edge.priority, edge.variableId))
           }
 
           case "timeout" => {
             // get the duration only if its not manual
             val duration = if (edge.manualTimeout) -1 else parseInt(edge.text)
             // at the transition to the state
-            states(edge.start).addTransition(
-              TimeoutTransition(edge.manualTimeout, duration, edge.end))
+            states(edge.startNodeId).addTransition(
+              TimeoutTransition(edge.manualTimeout, duration, edge.endNodeId))
           }
 
           case s => {

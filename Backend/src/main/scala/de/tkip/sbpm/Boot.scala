@@ -25,6 +25,8 @@ import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.external.auth.GoogleAuthActor
 import de.tkip.sbpm.persistence.query.Schema
 import de.tkip.sbpm.external.api.GoogleDriveActor
+import de.tkip.sbpm.external.api.GoogleUserInformationActor
+import de.tkip.sbpm.persistence.testdata.Entities
 
 
 object Boot extends App with SprayCanHttpServerApp {
@@ -58,6 +60,7 @@ object Boot extends App with SprayCanHttpServerApp {
   val userPassAuthActor = system.actorOf(Props[UserPassAuthActor], userPassAuthActorName)
   val googleAuthActor = system.actorOf(Props[GoogleAuthActor], googleAuthActorName)
   val googleDriveActor = system.actorOf(Props[GoogleDriveActor], googleDriveActorName)
+  val googleUserInformationActor = system.actorOf(Props[GoogleUserInformationActor], googleUserInformationActorName)
 
   // create a new HttpServer using our handler tell it where to bind to
   newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = 8080)
@@ -79,7 +82,7 @@ object Boot extends App with SprayCanHttpServerApp {
   if (createAction)
     dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Create }
   if (debugAction)
-    dbFuture = dbFuture flatMap { case _ => TestData.insert(persistenceActor) }
+    dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
 
   
   // TODO create a processinstance for testreason: history, actions, graph etc...

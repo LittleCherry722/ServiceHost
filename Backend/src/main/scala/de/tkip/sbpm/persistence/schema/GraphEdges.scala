@@ -11,7 +11,7 @@ trait GraphEdgesSchema extends GraphNodesSchema {
     def macroId = column[String]("macro_id", DbType.stringIdentifier)
     def subjectId = column[String]("subject_id", DbType.stringIdentifier)
     def graphId = column[Int]("graph_id")
-    def text = column[Option[String]]("text", DbType.name)
+    def text = column[String]("text", DbType.name)
     def edgeType = column[String]("type", DbType.stringIdentifier)
     def targetSubjectId = column[Option[String]]("target_subject_id", DbType.stringIdentifier)
     def targetMin = column[Option[Short]]("target_min", DbType.smallint)

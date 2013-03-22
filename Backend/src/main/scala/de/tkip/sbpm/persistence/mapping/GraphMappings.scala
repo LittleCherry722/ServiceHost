@@ -181,7 +181,7 @@ object GraphMappings {
       s.relatedGraphId,
       s.externalType,
       s.roleId match {
-        case None => None
+        case None     => None
         case Some(id) => Some(roles(id))
       },
       s.comment,

@@ -50,9 +50,13 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
   implicit def exceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler.fromPF {
-      case e: Exception => ctx =>
+      case e: IllegalArgumentException => ctx => {
+        ctx.complete(StatusCodes.BadRequest, e.getMessage)
+      }
+      case e: Exception => ctx => {
         log.error(e, e.getMessage)
         ctx.complete(StatusCodes.InternalServerError, e.getMessage)
+      }
     }
 
   def actorRefFactory = context
@@ -71,7 +75,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
         implicit val timeout = Timeout(5 seconds)
         val composedFuture = for {
-          processInstanceFuture <- (persistanceActor ? Processes.Read.ById(processInstanceID.toInt)).mapTo[Option[ProcessInstance]]
+          processInstanceFuture <- (persistanceActor ? ProcessInstances.Read.ById(processInstanceID.toInt)).mapTo[Option[ProcessInstance]]
           graphFuture <- {
             if (processInstanceFuture.isDefined)
               (persistanceActor ? Graphs.Read.ById(processInstanceFuture.get.graphId)).mapTo[Option[Graph]]

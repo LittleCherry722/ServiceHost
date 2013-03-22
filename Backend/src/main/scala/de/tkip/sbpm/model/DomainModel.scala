@@ -73,7 +73,7 @@ case class GraphMacro(id: String,
   edges: Seq[GraphEdge])
 
 case class GraphNode(id: Short,
-  text: Option[String],
+  text: String,
   isStart: Boolean,
   isEnd: Boolean,
   nodeType: String,
@@ -98,7 +98,7 @@ case class GraphVarMan(var1Id: String,
 
 case class GraphEdge(startNodeId: Short,
   endNodeId: Short,
-  text: Option[String],
+  text: String,
   edgeType: String,
   target: Option[GraphEdgeTarget],
   isDisabled: Boolean,

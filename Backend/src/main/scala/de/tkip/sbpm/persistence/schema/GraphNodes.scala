@@ -11,7 +11,7 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def macroId = column[String]("macro_id", DbType.stringIdentifier)
     def subjectId = column[String]("subject_id", DbType.stringIdentifier)
     def graphId = column[Int]("graph_id")
-    def text = column[Option[String]]("text", DbType.name)
+    def text = column[String]("text", DbType.name)
     def isStart = column[Boolean]("start")
     def isEnd = column[Boolean]("end")
     def nodeType = column[String]("type", DbType.stringIdentifier)
