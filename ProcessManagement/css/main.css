@@ -7008,3 +7008,7 @@ table.data2 tr td {
 .table-middle td, .table-middle th {
   vertical-align: middle;
 }
+
+a.close {
+  cursor: pointer;
+}

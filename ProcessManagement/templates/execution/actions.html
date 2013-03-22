@@ -4,31 +4,54 @@
 <span data-bind="text: stateText(), visible: isTypeOf() !== 'end'"></span>
 
 <div data-bind="visible: isTypeOf()==='end'">
-<span>This subject has no further tasks in this process!</span>	
+	<span>This subject has no further tasks in this process!</span>	
 </div>	
 
 <div data-bind="visible: isTypeOf()==='action',foreach: actionData">
 	<div>
-	<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble"/>
+		<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble"/>
 	</div>
 </div>
 
 <div data-bind="visible: isTypeOf()==='send',foreach: actionData">
 	<div>
-	<span >Send:</span>
-	<span data-bind="html: $data.text"></span>
-	<span>to </span><br />
-	<span data-bind="text: $data.relatedSubject"></span>
-	<input type="text" data-bind="value: $parent.messageText" />
-	<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone(),enable: $data.executeAble" />
-	
+		<strong>Send:</strong>
+		<span data-bind="html: $data.text"></span>
+		<span>to </span><br />
+		<span data-bind="text: $data.relatedSubject"></span>
+		<br /><br />
+
+		<strong>Nachricht:</strong> <br>
+		<input type="text" data-bind="value: $parent.messageText" />
+		<br /><br />
+
+		<a href="#googleDriveModal" style="width:130px;" class="btn" id="googleDriveButton" data-toggle="modal">
+			<i class="icon-cloud icon-large"></i> Choose File
+		</a>
+		<br>
+		<input type="text" placeholder="No file selected" data-bind="value: $parent.messageText" />
+		<br /><br />
+
+		<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone(),enable: $data.executeAble" />
 	</div>
 </div>
 
 <div data-bind="visible: isTypeOf()==='receive',foreach: actionData">
 	<div>
-	<span>Receive:</span>
-	<span data-bind="html: $data.text"></span>
-	<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble" />
+		<strong>Receive:</strong>
+		<span data-bind="html: $data.text"></span>
+		<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble" />
+	</div>
+</div>
+
+
+<div id="googleDriveModal" class="modal hide" tabindex="-1">
+	<div class="modal-header">
+		<a type="button" class="close pull-right" data-dismiss="modal">x</a>
+		<h3>Choose File</h3>
+	</div>
+	<div class="modal-body">
+		<ul data-bind="foreach: googleDriveData">
+			<li data-bind="text: title"></li>
 	</div>
 </div>

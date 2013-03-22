@@ -6,7 +6,6 @@ import scala.slick.lifted.ForeignKeyAction._
 import de.tkip.sbpm.model.User
 import de.tkip.sbpm.model.UserIdentity
 import akka.event.Logging
-import de.tkip.sbpm.model._
 
 /*
 * Messages for querying database

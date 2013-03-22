@@ -55,7 +55,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("^$"r) { regex =>
-        GetUsersWithMail()
+        completeWithQuery[Seq[User]](GetUser())
       } ~
         /**
          * Return currently logged in user.
@@ -82,7 +82,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * result: 404 Not Found or entity as JSON
            */
           path("^$"r) { regex =>
-            GetUserWithMail(id)
+            completeWithQuery[User](GetUser(Some(id)), "User with id %d not found.", id)
           } ~
             /**
              * get all groups of the user
@@ -186,11 +186,11 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * e.g. PUT http://localhost:8080/user/2
              * 	payload: {"name":"test","isActive":true,"inputPoolSize":6,"provider":"sbpm","newEmail":"superuser@sbpm.com","oldPassword":"s1234","newPassword":"pass"}
              * 	result: 200 OK
-             * 		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
+             *		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
              */
             path("^$"r) { regex =>
               entity(as[UserUpdate]) { userUpdate =>
-                updateUser(id, userUpdate)
+                setUserIdentity(id, userUpdate)
               }
             }
         }
@@ -212,11 +212,10 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
       (e: User, i: Int) => { e.id = Some(i); e })
   }
 
-  // Updates an user with the given information in UserUpdate
-  def updateUser(id: Int, entity: UserUpdate) = {
+  def setUserIdentity(id: Int, entity: UserUpdate) = {
     //check if the user exists
     val userFuture = persistenceActor ? GetUser(Some(id), None)
-    val userIdentityFuture = persistenceActor ? GetUserIdentity("sbpm", Some(id), None)
+    val userIdentityFuture = persistenceActor ? GetUserIdentity(entity.provider, Some(id), None)
     val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
     val userIdentity = Await.result(userIdentityFuture.mapTo[Option[UserIdentity]], timeout.duration)
 
@@ -231,45 +230,18 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
         var password = entity.newPassword.getOrElse(entity.oldPassword)
 
         // set the new password, eMail and provider
-        val future = persistenceActor ? SetUserIdentity(id, "sbpm", eMail, Some(password.bcrypt))
+        val future = persistenceActor ? SetUserIdentity(id, entity.provider, eMail, Some(password.bcrypt))
         val res = Await.result(future, timeout.duration)
 
         var name = entity.name.getOrElse(user.get.name)
         var isActive = entity.isActive.getOrElse(user.get.isActive)
         var inputPoolSize = entity.inputPoolSize.getOrElse(user.get.inputPoolSize)
-
+          
         saveUser(new User(None, name, isActive, inputPoolSize), Some(id))
       } else
         complete(StatusCodes.Unauthorized)
     } else
       throw new Exception("User '" + id + "' does not exist.")
-  }
-
-  // completes with all providers and emails of an user and the user information
-  def GetUserWithMail(id: Int) = {
-    val userFuture = persistenceActor ? GetUser(Some(id), None)
-    val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
-    val identityFuture = persistenceActor ? GetUserWithIdentities(Some(id))
-    val identity = Await.result(identityFuture.mapTo[Option[(User, List[UserIdentity])]], timeout.duration)
-    if (user.isDefined && identity.isDefined) {
-      val x = for (i <- identity.get._2) yield (i.provider, i.eMail)
-      complete(user.get, x)
-    } else {
-      complete(StatusCodes.NotFound)
-    }
-  }
-
-  // completes with all providers and emails of all users and the user information
-  def GetUsersWithMail() = {
-    val usersFuture = persistenceActor ? GetUser(None, None)
-    val users = Await.result(usersFuture.mapTo[List[User]], timeout.duration)
-    val listOfUsers = for (u <- users) yield {
-      val identityFuture = persistenceActor ? GetUserWithIdentities(u.id)
-      val identity = Await.result(identityFuture.mapTo[Option[(User, List[UserIdentity])]], timeout.duration)
-      val listOfMails = for (i <- identity.get._2) yield (i.provider, i.eMail)
-      (u, listOfMails)
-    }
-    complete(listOfUsers)
   }
 
   /**
