@@ -9,7 +9,7 @@
 
 <div data-bind="visible: isTypeOf()==='action',foreach: actionData">
 	<div>
-		<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble"/>
+		<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone,enable: $data.executeAble"/>
 	</div>
 </div>
 
@@ -29,10 +29,10 @@
 			<i class="icon-cloud icon-large"></i> Choose File
 		</a>
 		<br>
-		<input type="text" placeholder="No file selected" data-bind="value: $parent.messageText" />
+		<input type="text" placeholder="No file selected" disabled="disabled" class="disabled" data-bind="value: $parent.currentSelectedFile" />
 		<br /><br />
 
-		<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone(),enable: $data.executeAble" />
+		<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone,enable: $data.executeAble" />
 	</div>
 </div>
 
@@ -40,7 +40,7 @@
 	<div>
 		<strong>Receive:</strong>
 		<span data-bind="html: $data.text"></span>
-		<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone(),enable: $data.executeAble" />
+		<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone,enable: $data.executeAble" />
 	</div>
 </div>
 
@@ -51,7 +51,12 @@
 		<h3>Choose File</h3>
 	</div>
 	<div class="modal-body">
-		<ul data-bind="foreach: googleDriveData">
-			<li data-bind="text: title"></li>
+		<ul class="nav nav-pills nav-stacked drive" data-bind="foreach: googleDriveData">
+			<li>
+				<a href="#" data-bind="click: $parent.selectFile">
+					<img data-bind="attr: { src: iconLink }">
+					<span data-bind="text: title"></span>
+				</a>
+			</li>
 	</div>
 </div>
