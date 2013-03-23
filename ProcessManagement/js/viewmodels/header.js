@@ -11,6 +11,9 @@ define([
 	var ViewModel = function() {
 		currentUser = App.currentUser;
 		this.logout = logout;
+
+		this.oauth2callback = function() {
+		};
 		
 	}
 	
