@@ -1,3 +1,15 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 
 package de.tkip.sbpm.persistence
 
@@ -33,48 +45,71 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
     log.debug(getClass.getName + " stopped.")
   }
 
+  // akka config to read db settings from
   protected implicit val config = context.system.settings.config
+  // base path for db settings in akka config
   protected val configPath = DatabaseAccess.configPath
 
+  // obtain a connection from the connection pool
   protected val database = DatabaseAccess.connection
 
   // default timeout for akka message sending
   protected implicit val timeout = Timeout(30 seconds)
 
   /**
-   * Send the result of the given function back to the sender
-   * or the Exception if one occurs.
+   * Send the result of the given function (executed in one transaction)
+   * back to the sender or the exception if one occurs.
    */
   protected def answer[A](exec: Session => A) = sender ! {
     withTransaction(exec) match {
       case Success(result) => result
-      case Failure(e) => akka.actor.Status.Failure(e)
+      case Failure(e)      => akka.actor.Status.Failure(e)
     }
   }
 
+  /**
+   * Send the result of the given functions (executed in one transaction)
+   * back to the sender or the exception if one occurs.
+   * exec: is executed in a database transaction
+   * postProcess: can be used to modify db results after releasing database connection
+   */
   protected def answerProcessed[A, B](exec: Session => A)(postProcess: A => B) = sender ! {
     withTransaction(exec) match {
       case Success(preResult) =>
+        // db result ok -> execute post process function
         Try(postProcess(preResult)) match {
           case Success(result) => result
-          case Failure(e) => akka.actor.Status.Failure(e)
+          case Failure(e)      => akka.actor.Status.Failure(e)
         }
       case Failure(e) => akka.actor.Status.Failure(e)
     }
   }
 
+  /**
+   * Send the result of the given functions (executed in one transaction)
+   * back to the sender or the exception if one occurs.
+   * exec: is executed in a database transaction returning single result as option
+   * None is passed through to the sender without executing postProcess function
+   * postProcess: can be used to modify db result after releasing database connection
+   */
   protected def answerOptionProcessed[A, B](exec: Session => Option[A])(postProcess: A => B) = sender ! {
     withTransaction(exec) match {
+      // db returned none -> pass it through
       case Success(None) => None
+      // db result ok -> execute post process function
       case Success(Some(preResult)) =>
         Try(postProcess(preResult)) match {
           case Success(result) => Some(result)
-          case Failure(e) => akka.actor.Status.Failure(e)
+          case Failure(e)      => akka.actor.Status.Failure(e)
         }
       case Failure(e) => akka.actor.Status.Failure(e)
     }
   }
 
+  /**
+   * Execute given function in a database transaction.
+   * Returns Success or Failure whether exception occurred or not.
+   */
   private def withTransaction[A](exec: Session => A) =
     database.withSession { session: Session =>
       session.withTransaction {
@@ -84,7 +119,12 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
 
 }
 
+/**
+ * Companion object for DatabaseTrait providing static methods.
+ */
 private[persistence] object DatabaseAccess {
+  // store for created connection pools
+  // key is jdbc uri
   private var dataSources = Map[String, ComboPooledDataSource]()
 
   // akka config prefix
@@ -94,23 +134,34 @@ private[persistence] object DatabaseAccess {
   private def configString(key: String)(implicit config: Config) =
     config.getString(configPath + key)
 
+  // read number from akka config
   private def configInt(key: String)(implicit config: Config) =
     config.getInt(configPath + key)
 
-  def connection(implicit config: Config) = {
+  /**
+   * Create or reuse a database connection obtained from
+   * the database connection pool.
+   */
+  def connection(implicit config: Config) = synchronized {
+    // read jdbc uri from config
     val uri = configString("uri")
+    // check if connection pool for the uri already exists
     if (!dataSources.contains(uri)) {
+      // create new connection pool data source
       val ds = new ComboPooledDataSource
+      // read pool properties from akka config
       ds.setDriverClass(configString("jdbcDriver"))
       ds.setJdbcUrl(uri)
       ds.setMinPoolSize(configInt("minPoolSize"));
       ds.setAcquireIncrement(configInt("poolAcquireIncrement"));
       ds.setMaxPoolSize(configInt("maxPoolSize"));
+      // add to data source pool
       dataSources += (uri -> ds)
     }
     Database.forDataSource(dataSources(uri))
   }
 
+  // close all connection pools
   def cleanup() = {
     dataSources.values.foreach(DataSources.destroy)
     dataSources = Map()

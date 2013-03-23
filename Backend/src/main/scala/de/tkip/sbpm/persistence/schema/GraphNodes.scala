@@ -1,11 +1,33 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.persistence.schema
+
 import de.tkip.sbpm.persistence.mapping._
 import scala.slick.lifted.ForeignKeyAction._
 
+/**
+ * Defines the database schema of GraphNodes.
+ * If you want to query GraphNodes database table mix this trait
+ * into the actor performing the queries.
+ */
 trait GraphNodesSchema extends GraphMacrosSchema
   with GraphVariablesSchema with GraphChannelsSchema with GraphMessagesSchema {
+  // import current slick driver dynamically
   import driver.simple._
 
+  // represents schema if the "graph_nodes" table in the database
+  // using slick's lifted embedding API
   object GraphNodes extends SchemaTable[GraphNode]("graph_nodes") {
     def id = column[Short]("id", DbType.smallint)
     def macroId = column[String]("macro_id", DbType.stringIdentifier)

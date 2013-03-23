@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.persistence.schema
 
 import scala.slick.driver.ExtendedProfile
@@ -7,49 +20,91 @@ import scala.slick.lifted.Shape
 import scala.slick.lifted.Column
 import scala.slick.lifted.TypeMapper
 
+/**
+ * Base trait for all schema definition traits.
+ * Provides common properties and methods for
+ * schema definitions and injects slick driver
+ * according to configuration.
+ */
 private[persistence] trait Schema {
   import Schema._
 
+  // sub classes should provide akka config
   protected implicit def config: com.typesafe.config.Config
 
-  // akka config prefix
+  // sub classes should provide akka config prefix
   protected def configPath: String
 
+  // read config string from akka config
   private def configString(key: String) =
     config.getString(configPath + key)
 
   /**
-   * provides the driver profile specified in akka config
-   * sub classes can import driver.simple._ to get access
-   * to driver specific classes and methods
+   * Provides the driver profile specified in akka config
+   * sub classes can import current slick driver dynamically.
+   * Import driver.simple._ to get access
+   * to driver specific classes and methods.
    */
   protected val driver: ExtendedProfile =
     loadDriver(configString("slickDriver"))
 
+  /**
+   * Abstract base class for the table definition.
+   * Extends slick's table for lifted embedding.
+   * Provides methods to define commonly used
+   * constraints and provides default column types.
+   */
   protected abstract class SchemaTable[T](tableName: String) extends driver.simple.Table[T](tableName) {
 
+    /**
+     * Defines an unique index on the given columns.
+     */
     protected def unique[C](cols: Column[C])(implicit shape: Shape[C, _, _]) =
       index("unq_idx_%s_%s".format(tableName, cols.toString), cols, unique = true)
 
+    /**
+     * Defines an index on the given columns.
+     */
     protected def idx[C](cols: Column[C])(implicit shape: Shape[C, _, _]) =
       index("idx_%s_%s".format(tableName, cols.toString), cols)
 
+    /**
+     * Defines am "id" column as auto increment primary key.
+     */
     protected def autoIncIdCol[C](implicit typeMapper: TypeMapper[C]) =
       column("id", O.PrimaryKey, O.AutoInc)
 
+    /**
+     * Defines an "id" column as string primary key.
+     */
     protected def stringIdCol(implicit typeMapper: TypeMapper[String]) =
       column("id", DbType.stringIdentifier)
 
+    /**
+     * Defines a "name" string column.
+     */
     protected def nameCol(implicit typeMapper: TypeMapper[String]) =
       column("name", DbType.name)
 
+    /**
+     * Defines a "active" boolean column.
+     */
     protected def activeCol(implicit typeMapper: TypeMapper[Boolean]) =
       column("active", O.Default(true))
 
+    /**
+     * Provides the default primary key name: "pk_tableName"
+     */
     protected val pkName = "pk_" + tableName
 
+    /**
+     * Provides the default foreign key name: "fk_tableName_colName"
+     */
     protected def fkName(col: String) = "fk_%s_%s".format(tableName, col)
 
+    /**
+     * Provides commonly used column types.
+     */
     protected object DbType {
       def varchar(length: Int) =
         O.DBType("varchar(%d)".format(length))
@@ -86,8 +141,10 @@ private[persistence] trait Schema {
 }
 
 /**
- * Companion object for DatabaseAccess trait,
+ * Companion object for Schema trait,
  * providing static methods used across JVM.
+ * Contains the logic to dynamically load the slick driver
+ * currently defined in the application config file.
  */
 private[schema] object Schema {
   /* store for currently loaded drivers by class name

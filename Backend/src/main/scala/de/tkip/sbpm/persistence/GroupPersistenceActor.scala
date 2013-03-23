@@ -1,26 +1,46 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.persistence
+
+import mapping.PrimitiveMappings._
+import query.Groups._
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
 
+/**
+ * Handle all db operation for table "groups".
+ */
 private[persistence] class GroupPersistenceActor extends Actor
   with DatabaseAccess with schema.GroupsSchema {
+  // import current slick driver dynamically
   import driver.simple._
-  import mapping.PrimitiveMappings._
-  import query.Groups._
 
-  def toDomainModel(u: mapping.Group) =
+  // methods to convert internal persistence models to
+  // application wide domain models and vice versa
+  private def toDomainModel(u: mapping.Group) =
     convert(u, Persistence.group, Domain.group)
 
-  def toDomainModel(u: Option[mapping.Group]) =
+  private def toDomainModel(u: Option[mapping.Group]) =
     convert(u, Persistence.group, Domain.group)
 
-  def toPersistenceModel(u: Group) =
+  private def toPersistenceModel(u: Group) =
     convert(u, Domain.group, Persistence.group)
 
   def receive = {
-    // get all groups ordered by id
+    // get all groups
     case Read.All => answer { implicit session =>
       Query(Groups).list.map(toDomainModel)
     }
@@ -32,13 +52,18 @@ private[persistence] class GroupPersistenceActor extends Actor
     case Read.ByName(name) => answer { implicit session =>
       toDomainModel(Query(Groups).where(_.name === name).firstOption)
     }
-    // create new group
+    // create or update given groups
     case Save.Entity(gs @ _*) => answer { implicit session =>
+      // process all groups
       gs.map {
+        // insert if id is None
         case g @ Group(None, _, _) => Some(Groups.autoInc.insert(toPersistenceModel(g)))
+        // otherwise update existing
         case g @ Group(id, _, _)   => update(id, g)
       } match {
+        // only one group was given, return it's id
         case ids if (ids.size == 1) => ids.head
+        // more groups were given return all ids
         case ids                    => ids
       }
     }
@@ -49,7 +74,7 @@ private[persistence] class GroupPersistenceActor extends Actor
   }
 
   // update entity or throw exception if it does not exist
-  def update(id: Option[Int], g: Group)(implicit session: Session) = {
+  private def update(id: Option[Int], g: Group)(implicit session: Session) = {
     val res = Groups.where(_.id === id).update(toPersistenceModel(g))
     if (res == 0)
       throw new EntityNotFoundException("Group with id %d does not exist.", id.get)

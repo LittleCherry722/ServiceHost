@@ -1,18 +1,35 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.persistence
+
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
+import mapping.PrimitiveMappings._
+import query.Roles._
 
 /**
  * Handles all database operations for table "roles".
  */
 private[persistence] class RolePersistenceActor extends Actor
   with DatabaseAccess with schema.RolesSchema {
+  // import current slick driver dynamically
   import driver.simple._
-  import mapping.PrimitiveMappings._
-  import query.Roles._
 
+  // methods to convert internal persistence models to
+  // application wide domain models and vice versa
   def toDomainModel(u: mapping.Role) =
     convert(u, Persistence.role, Domain.role)
 
@@ -35,13 +52,18 @@ private[persistence] class RolePersistenceActor extends Actor
     case Read.ByName(name) => answer { implicit session =>
       toDomainModel(Query(Roles).where(_.name === name).firstOption)
     }
-    // save role
+    // save roles
     case Save.Entity(rs @ _*) => answer { implicit session =>
+      // process all roles
       rs.map {
+        // insert if id is None
         case r @ Role(None, _, _) => Some(Roles.autoInc.insert(toPersistenceModel(r)))
+        // otherwise update existing
         case r @ Role(id, _, _)   => update(id, r)
       } match {
+        // only one role was given, return it's id
         case ids if (ids.size == 1) => ids.head
+        // more roles were given return all ids
         case ids                    => ids
       }
     }
@@ -52,7 +74,7 @@ private[persistence] class RolePersistenceActor extends Actor
   }
 
   // update entity or throw exception if it does not exist
-  def update(id: Option[Int], r: Role) = answer { implicit session =>
+  private def update(id: Option[Int], r: Role) = answer { implicit session =>
     val res = Roles.where(_.id === id).update(toPersistenceModel(r))
     if (res == 0)
       throw new EntityNotFoundException("Role with id %d does not exist.", id.get)

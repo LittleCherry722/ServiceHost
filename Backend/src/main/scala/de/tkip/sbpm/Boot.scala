@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm
 
 import java.security.KeyStore
@@ -7,8 +20,6 @@ import akka.actor.Props
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.rest._
-import de.tkip.sbpm.persistence._
-import de.tkip.sbpm.rest.auth._
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
@@ -24,9 +35,15 @@ import scala.concurrent.Future
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.external.auth.GoogleAuthActor
 import de.tkip.sbpm.persistence.query.Schema
-import de.tkip.sbpm.external.api.GoogleDriveActor
-import de.tkip.sbpm.external.api.GoogleUserInformationActor
 import de.tkip.sbpm.persistence.testdata.Entities
+import de.tkip.sbpm.rest.FrontendInterfaceActor
+import de.tkip.sbpm.persistence.testdata.Entities
+import de.tkip.sbpm.persistence.PersistenceActor
+import de.tkip.sbpm.external.api.GoogleUserInformationActor
+import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import de.tkip.sbpm.external.auth.GoogleAuthActor
+import de.tkip.sbpm.external.api._
+import de.tkip.sbpm.rest.auth._
 
 
 object Boot extends App with SprayCanHttpServerApp {
@@ -76,6 +93,7 @@ object Boot extends App with SprayCanHttpServerApp {
   val createAction = startupAction matches "^(re)?create(-debug)?$"
   val debugAction = startupAction matches "^(re)?create-debug$"
 
+  // execute all required db operations async and sequentially 
   var dbFuture = Future[Any]()
   if (dropAction)
     dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Drop }

@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.external.api
 
 import akka.actor.ActorLogging
@@ -20,9 +33,6 @@ import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.auth.oauth2.Credential
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.external.auth.GetCredential
-
-
-
 
 // case classes to interact with google user information actor
 sealed trait GoogleUserInformationAction extends GoogleMessage

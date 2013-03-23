@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application.miscellaneous
 
 import scala.collection.mutable.ArrayBuffer
@@ -14,23 +27,6 @@ object MarshallingAttributes {
 }
 
 /**
- * This objectfunction is responsible to divide a string listing of subjects
- * into the independent subjectIDs
- */
-object parseSubjects {
-  def apply(subjects: String): Array[SubjectID] = synchronized {
-    try {
-      subjects.asJson.convertTo[Array[String]]
-    } catch {
-      case _: Throwable => {
-        System.err.println("cant parse start subjects")
-        Array()
-      }
-    }
-  }
-}
-
-/**
  * This objectfunction is responsible to create a ProcessGraph
  * out of the JSON representation
  */
@@ -41,7 +37,7 @@ object parseGraph {
 
   def apply(graph: Graph): ProcessGraph = synchronized {
 
-    // parse the message map from the json graph
+    // create the message map from the graph
     messageMap = graph.messages.mapValues(_.name)
 
     // parse the subjects and return the resulting processgraph
@@ -77,7 +73,7 @@ object parseGraph {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
 
-      // at the moment we only support one behavior
+      // at the moment we only support internal behavior
       val behavior: GraphMacro = subject.macros("##main##")
 
       // extract the subject types
@@ -107,7 +103,6 @@ object parseGraph {
       for (edge <- edges) {
         // match the edgetype and create the corresponding transition
         edge.edgeType match {
-
           case "exitcondition" => {
             // parse the target
             val target = edge.target match {

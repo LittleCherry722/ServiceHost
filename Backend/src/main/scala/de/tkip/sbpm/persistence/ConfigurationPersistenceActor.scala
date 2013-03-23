@@ -1,9 +1,25 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.persistence
+
 import akka.actor.Actor
 import de.tkip.sbpm.model._
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.persistence.schema.ConfigurationsSchema
+import query.Configurations._
+import mapping.PrimitiveMappings._
 
 /**
  * Handles all database operations for database table "configuration".
@@ -11,21 +27,22 @@ import de.tkip.sbpm.persistence.schema.ConfigurationsSchema
 private[persistence] class ConfigurationPersistenceActor extends Actor
   with DatabaseAccess
   with ConfigurationsSchema {
-  import query.Configurations._
-  import mapping.PrimitiveMappings._
+  // import current slick driver dynamically
   import driver.simple._
 
-  def toDomainModel(c: mapping.Configuration) =
+  // methods to convert internal persistence models to
+  // application wide domain models and vice versa
+  private def toDomainModel(c: mapping.Configuration) =
     convert(c, Persistence.configuration, Domain.configuration)
 
-  def toDomainModel(c: Option[mapping.Configuration]) =
+  private def toDomainModel(c: Option[mapping.Configuration]) =
     convert(c, Persistence.configuration, Domain.configuration)
 
-  def toPersistenceModel(c: Configuration) =
+  private def toPersistenceModel(c: Configuration) =
     convert(c, Domain.configuration, Persistence.configuration)
 
   def receive = {
-    // get all configs ordered by key
+    // get all configs
     case Read.All => answer { implicit session: Session =>
       Query(Configurations).list.map(toDomainModel)
     }
@@ -43,10 +60,12 @@ private[persistence] class ConfigurationPersistenceActor extends Actor
     }
   }
 
-  // replaces the config entry with given key with new values
-  def save(config: Configuration)(implicit session: Session) = {
+  // creates or replaces the given config entry
+  private def save(config: Configuration)(implicit session: Session) = {
+    // delete old entry
     val exists = delete(config.key)
     Configurations.insert(toPersistenceModel(config))
+    // return None of entry already existed otherwise its key
     if (exists == 0)
       Some(config.key)
     else
@@ -54,7 +73,7 @@ private[persistence] class ConfigurationPersistenceActor extends Actor
   }
 
   // delete config entry with given key
-  def delete(key: String)(implicit session: Session) = {
-    Configurations.where(_.key === key).delete(session)
+  private def delete(key: String)(implicit session: Session) = {
+    Configurations.where(_.key === key).delete
   }
 }
