@@ -24,17 +24,34 @@ object Messages {
   
   object Read {
     def apply() = All
+    /**
+     * returns all messages (Seq[Messages])
+     */
     case object All extends Query
+    /**
+     * returns message by id or None if not found (Option[Message])
+     */
     case class ById(id: Int) extends Query
   }
 
   object Save {
     def apply(message: Message*) = Entity(message: _*)
+    /**
+     * saves all given messages
+     * if one entity given, returns generated id if 
+     * entry was created (because id in given message was None)
+     * or None if entry was updated (Option[Int])
+     * if multiple entities given, Seq[Option[Int]]
+     * is returned respectively
+     */
     case class Entity(message: Message*) extends Query
   }
 
   object Delete {
     def apply(message: Message) = ById(message.id.get)
+    /**
+     * deletes entity by id with empty result
+     */
     case class ById(id: Int) extends Query
   }
 }

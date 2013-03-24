@@ -21,20 +21,37 @@ import de.tkip.sbpm.model.ProcessInstance
 object ProcessInstances {
   // used to identify all ProcessInstances queries
   trait Query extends BaseQuery
-  
+
   object Read {
     def apply() = All
+    /**
+     * returns all process instances (Seq[ProcessInstance])
+     */
     case object All extends Query
+    /**
+     * returns process instance by id or None if not found (Option[ProcessInstance])
+     */
     case class ById(id: Int) extends Query
   }
 
   object Save {
     def apply(instance: ProcessInstance*) = Entity(instance: _*)
+    /**
+     * saves all given process instances
+     * if one entity given, returns generated id if
+     * entry was created (because id in given instance was None)
+     * or None if entry was updated (Option[Int])
+     * if multiple entities given, Seq[Option[Int]]
+     * is returned respectively
+     */
     case class Entity(instance: ProcessInstance*) extends Query
   }
 
   object Delete {
     def apply(instance: ProcessInstance) = ById(instance.id.get)
+    /**
+     * deletes entity by id with empty result
+     */
     case class ById(id: Int) extends Query
   }
 }

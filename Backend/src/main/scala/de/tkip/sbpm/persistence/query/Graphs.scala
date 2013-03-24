@@ -24,17 +24,34 @@ object Graphs {
 
   object Read {
     def apply() = All
+    /**
+     * returns all graphs (Seq[Graph])
+     */
     case object All extends Query
+    /**
+     * returns graph by id or None if not found (Option[Graph])
+     */
     case class ById(id: Int) extends Query
   }
 
   object Save {
     def apply(graph: Graph*) = Entity(graph: _*)
+    /**
+     * saves all given graphs
+     * if one entity given, returns generated id if 
+     * entry was created (because id in given graph was None)
+     * or None if entry was updated (Option[Int])
+     * if multiple entities given, Seq[Option[Int]]
+     * is returned respectively
+     */
     case class Entity(graph: Graph*) extends Query
   }
 
   object Delete {
     def apply(graph: Graph) = ById(graph.id.get)
+    /**
+     * deletes entity by id with empty result
+     */
     case class ById(id: Int) extends Query
   }
 }

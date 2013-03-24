@@ -20,7 +20,20 @@ object Schema {
   // used to identify all Schema queries
   trait Query extends BaseQuery
   
+  /**
+   * create database schema
+   * executes DDL to create tables
+   */
   case object Create extends Query
+  /**
+   * drop database schema
+   * executes DDL to drop tables
+   */
   case object Drop extends Query
+  /**
+   * recreate database schema
+   * executes DDL to drop tables and
+   * then to create tables
+   */
   case object Recreate extends Query
 }

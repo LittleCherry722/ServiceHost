@@ -114,9 +114,23 @@ private[persistence] class UserPersistenceActor extends Actor
     }(t => mapping.UserMappings.convert(t._1, t._2))
     // save identity to db
     case Save.Identity(userId, provider, eMail, password) => answer { implicit session =>
-      UserIdentities.where(i => i.userId === userId && i.provider === provider).delete
+      val res = deleteIdentity(userId, provider)
       UserIdentities.insert(mapping.UserIdentity(userId, provider, eMail, password))
+      // return id if created
+      if (res == 0)
+        Some((userId, provider))
+      else
+        None
     }
+    // delete user identity
+    case Delete.Identity.ById(userId, provider) => answer { implicit session =>
+      deleteIdentity(userId, provider)
+    }
+  }
+
+  // delete user identity
+  private def deleteIdentity(userId: Int, provider: String)(implicit session: Session) = {
+    UserIdentities.where(i => i.userId === userId && i.provider === provider).delete
   }
 
   // update entity or throw exception if it does not exist
