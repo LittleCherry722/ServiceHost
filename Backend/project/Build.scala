@@ -35,7 +35,7 @@ object ProjectBuild extends Build {
         "com.google.guava"           % "guava"                        % "13.0",
         "com.google.oauth-client"    % "google-oauth-client-java6"    % "1.13.1-beta",
         "com.google.api-client"      % "google-api-client-java6"      % "1.13.2-beta",
-        //"com.google.apis"            % "google-api-services-drive"    % "v2-rev13-1.8.0-beta",
+        "com.google.apis"            % "google-api-services-drive"    % "v2-rev47-1.13.2-beta",
         "com.google.http-client"     % "google-http-client-jackson2"  % "1.13.1-beta",
         "com.google.code.findbugs"   % "jsr305"                       % "1.3.9",
         "com.google.apis"            % "google-api-services-oauth2"   % "v2-rev30-1.13.2-beta"

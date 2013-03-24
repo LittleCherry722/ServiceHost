@@ -1,4 +1,4 @@
-rm target
-rm project/target
+rd /s/q "target"
+rd /s/q "project/target"
 
-bin\sbt.bat ;clean;update;eclipse
+bin\sbt.bat ";clean;update;eclipse"
