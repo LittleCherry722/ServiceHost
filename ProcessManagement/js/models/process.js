@@ -66,6 +66,7 @@ define([
 				read: function() {
 					if ( !self.attributesLoaded() ) {
 						self.loadAttributes( { async: false } );
+					} else {
 					}
 					return $.parseJSON( self.graph() );
 				},

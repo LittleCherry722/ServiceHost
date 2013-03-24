@@ -4,7 +4,6 @@ import akka.actor.Props
 import akka.pattern.AskSupport
 import akka.actor.ActorLogging
 import akka.pattern._
-import de.tkip.sbpm.application.miscellaneous.PersistenceMessage
 import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.util.{ Success, Failure }
@@ -12,7 +11,7 @@ import akka.actor.ActorRef
 import scala.concurrent.Await
 
 // common message super class for all persistence related actions
-trait PersistenceAction extends PersistenceMessage
+trait PersistenceAction
 
 // message to create database tables
 // this message is redirected to all sub actors
@@ -65,7 +64,7 @@ class PersistenceActor extends Actor with ActorLogging {
   implicit val execCtx = context.system.dispatcher
 
   private def forwardTo(m: PersistenceAction, actor: ActorRef) = {
-    sender ! Await.result(actor ? m, timeout.duration)
+    actor.forward(m)
   }
 
   private def init() {

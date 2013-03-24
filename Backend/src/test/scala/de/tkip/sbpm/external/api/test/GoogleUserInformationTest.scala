@@ -24,47 +24,30 @@ import de.tkip.sbpm.external.api.GoogleDriveActor
 import de.tkip.sbpm.external.api._
 import com.google.api.services.drive.model.FileList
 import com.google.api.services.drive.model.File
+import com.google.api.services.oauth2.model.Userinfo
+import de.tkip.sbpm.external.api.GetGoogleEMail
 
 
-class GoogleDriveTest extends FunSuite {
+class GoogleUserInformationTest extends FunSuite{
+
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
  
   val sys = ActorSystem()
-  val driveActor = sys.actorOf(Props[GoogleDriveActor])
+  val infoActor = sys.actorOf(Props[GoogleUserInformationActor])
   val authActor = sys.actorOf(Props[GoogleAuthActor],"google-auth")
   
   
-  
-  test("Test if GoogelDriveActor is able to get a valid credential from GoogleAuthActor") {
-    val future = driveActor ? HasAccessToValidGDriveToken("User_1")
-    val result = Await.result(future.mapTo[Credential], timeout.duration)
-    assert( (result.getExpiresInSeconds() / 60) > 55 ) 
-    assert(!result.getRefreshToken().isEmpty())
+  test("Check if user information can be retrieved") {
+    val future = infoActor ? GetGoogleUserInfo("User_1")
+    val result = Await.result(future.mapTo[Userinfo], timeout.duration)
+    println(result.toPrettyString())
   }
   
-  
-  test("Test if a new drive object can be added to the drive set") {
-    val future = driveActor ? InitUserGDrive("User_1")
-    val result = Await.result(future.mapTo[Boolean], timeout.duration)
-    assert(result == true)
-  }
-  
-  
-  test("Test if GoogleDriveActor is able to establish connection to google drive") {
-    val future = driveActor ? ListGDriveFiles("dp.dornseifer@googlemail.com")
+  test("Check if user email can be retrieved") {
+    val future = infoActor ? GetGoogleEMail("User_1")
     val result = Await.result(future.mapTo[String], timeout.duration)
-    println(result.toString())
-  }  
-  
-  
-  test("Test if the google drive object can be deleted") {
-    val future = driveActor ? DeleteUserGDrive("User_1")
-    val result = Await.result(future.mapTo[Boolean], timeout.duration)
-    assert(result == true)
+    println(result)
   }
-  
-  
   
 }
-  

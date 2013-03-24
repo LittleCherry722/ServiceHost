@@ -18,7 +18,7 @@ var LoginViewModel = function() {
 			dataType : "json",
 			contentType : "application/json; charset=UTF-8",
 			success : function(data, textStatus, jqXHR) {
-				window.location = "http://localhost:8080/sbpm/#/";
+				window.location = "./#/";
 
 			},
 			error : function(jqXHR, textStatus, error) {

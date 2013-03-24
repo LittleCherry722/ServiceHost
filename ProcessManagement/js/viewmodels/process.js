@@ -106,7 +106,22 @@ define([
 		}
 		
 		this.goToRoot = function() {
+			setGraph( currentProcess() )
 			Router.goTo( currentProcess() );
+		}
+
+		this.resetProcess = function() {
+			if ( confirm("Are you sure you want to reset this process to the last saved version? Doing so will reload the page and you will loose all unsaved changes.") ) {
+				var subject = gv_graph.selectedSubject;
+				currentProcess().graphReset();
+				loadGraph( currentProcess().graph() );
+				currentSubject( subject );
+				if ( subject ) {
+					gv_graph.selectedSubject = null;
+					gf_clickedCVnode( subject );
+					loadBehaviorView( subject );
+				}
+			}
 		}
 
 		this.goToRoutings = function() {
@@ -197,6 +212,8 @@ define([
 		// Happens every time chosen updates itself with a new list of available
 		// subjects.
 		if ( subject ) {
+			setGraph( currentProcess() )
+
 			subject = subject.replace(/___/, " ");
 			if ( gv_graph.subjects[subject] && !gv_graph.subjects[subject].isExternal() ) {
 				if ( !Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {
@@ -269,15 +286,11 @@ define([
 
 	// Save the graph to the database.
 	var saveGraph = function( process ) {
-		var routings;
 
-		// save the routings attribute of the graph in a local variable because
-		// it would be overwritten by setting the graph to the current
-		// graph that is displayed via the gv_graph.saveToJSON() method.
-		routings = process.routings();
-		process.graph( gv_graph.saveToJSON() );
-		process.routings( routings );
+		// Load all changes into the process model.
+		setGraph( process );
 
+		// Something is not right with lazy attributes... Need to set it twice -.-
 		process.save(null, {
 			success: function( textStatus ) {
 				Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved.");
@@ -286,6 +299,20 @@ define([
 				Notify.error("Error", "Process '" + currentProcess().name() + "' could not be saved.");
 			}
 		});
+	}
+
+	var setGraph = function( process ) {
+		var routings;
+
+		// save the routings attribute of the graph in a local variable because
+		// it would be overwritten by setting the graph to the current
+		// graph that is displayed via the gv_graph.saveToJSON() method.
+		routings = process.routings();
+
+		process.graph( gv_graph.saveToJSON() );
+		if ( routings ) {
+			process.routings( routings );
+		}
 	}
 
 	// Saves the currently displayed graph to the database.

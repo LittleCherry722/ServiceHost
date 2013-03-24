@@ -6126,7 +6126,7 @@ h4 {
 }
 
 #misc {
-  width: 350px;
+  width: 500px;
   height: 40px;
   margin: 5px 0px 0 0;
   padding: 0px 0px 0 0px;
@@ -6134,14 +6134,13 @@ h4 {
 }
 
 #misc #menu {
-  width: 150px;
   margin: 16px 35px 0 0;
   float: left;
 }
 
 #misc #img {
   width: 160px;
-  float: left;
+  float: right;
 }
 
 a:active {
@@ -6718,12 +6717,7 @@ table.data2 tr td {
 
 #processHistory {
   margin-left: 10px;
-  height: 100%;
-}
-
-#processHistory .fluid {
-  overflow: auto;
-  clear:both;
+  height: calc(100% - 36px);
 }
 
 #adminContainer {

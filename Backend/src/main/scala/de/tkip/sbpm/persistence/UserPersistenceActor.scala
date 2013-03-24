@@ -18,12 +18,13 @@ sealed abstract class UserAction extends PersistenceAction
 * None or empty Seq is returned if no entities where found
 */
 case class GetUser(id: Option[Int] = None, name: Option[String] = None) extends UserAction
+case class GetUserWithIdentities(id: Option[Int] = None) extends UserAction
 // save user to db, if id is None a new process is created and its id is returned
 case class SaveUser(user: User) extends UserAction
 // delete user with id from db
 case class DeleteUser(id: Int) extends UserAction
 // retrieve user by identity provider and eMail
-case class GetUserIdentity(provider: String, eMail: String) extends UserAction
+case class GetUserIdentity(provider: String, userId: Option[Int] = None, eMail: Option[String] = None) extends UserAction
 // sets identity params for user and provider
 case class SetUserIdentity(userId: Int, provider: String, eMail: String, password: Option[String] = None) extends UserAction
 
@@ -63,6 +64,10 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       i <- UserIdentities.where(e => e.provider === provider && e.eMail === eMail)
       u <- i.user
     } yield (i, u)
+    def includeUser(provider: String, userId: Int) = for {
+      i <- UserIdentities.where(e => e.provider === provider && e.userId === userId)
+      u <- i.user
+    } yield (i, u)
   }
 
   def receive = database.withSession { implicit session => // execute all db operations in a session
@@ -73,6 +78,22 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       case GetUser(id, None)   => answer { Users.where(_.id === id).firstOption }
       // get user with given name
       case GetUser(None, name) => answer { Users.where(_.name === name).firstOption }
+      case GetUserWithIdentities(None) => answer {
+        val query = for {
+          (u, i) <- Query(Users).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
+        } yield (u, i.provider.?, i.eMail.?, i.password)
+        query.list.groupBy(_._1).mapValues(_.filter(_._2.isDefined).map { e =>
+          UserIdentity(e._1, e._2.get, e._3.get, e._4)
+        })
+      }
+      case GetUserWithIdentities(Some(id)) => answer {
+        val query = for {
+          (u, i) <- Query(Users).where(_.id === id).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
+        } yield (u, i.provider.?, i.eMail.?, i.password)
+        query.list.groupBy(_._1).mapValues(_.filter(_._2.isDefined).map { e =>
+          UserIdentity(e._1, e._2.get, e._3.get, e._4)
+        }).toSeq.headOption
+      }
       // create new user
       case SaveUser(u @ User(None, _, _, _)) =>
         answer { Some(Users.autoInc.insert(u)) }
@@ -81,8 +102,13 @@ private[persistence] class UserPersistenceActor extends Actor with DatabaseAcces
       // delete user with given id
       case DeleteUser(id)                  => answer { Users.where(_.id === id).delete(session) }
       // retrieve identity for provider and email
-      case GetUserIdentity(provider, eMail) => answer {
+      case GetUserIdentity(provider, None, Some(eMail)) => answer {
         UserIdentities.includeUser(provider, eMail).firstOption.map {
+          case (i, u) => UserIdentity(u, i._2, i._3, i._4)
+        }
+      }
+      case GetUserIdentity(provider, Some(userId), None) => answer {
+        UserIdentities.includeUser(provider, userId).firstOption.map {
           case (i, u) => UserIdentity(u, i._2, i._3, i._4)
         }
       }

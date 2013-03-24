@@ -66,7 +66,7 @@ case class ProcessInstanceCreated(request: CreateProcessInstance,
     extends AnswerControlMessage
 
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
-case class KillProcessInstanceAnswer(request: KillProcessInstance, success: Boolean) extends AnswerControlMessage
+case class KillProcessInstanceAnswer(request: KillProcessInstance) extends AnswerControlMessage
 
 case class GetAvailableActions(userID: UserID,
                                processInstanceID: ProcessInstanceID = AllProcessInstances,

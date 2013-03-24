@@ -15,7 +15,6 @@ protected case class SubjectCreated(userID: UserID,
   processID: ProcessID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
-  subjectSessionID: SubjectSessionID,
   ref: SubjectRef)
   extends SubjectProviderMessage
 
@@ -69,10 +68,6 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     }
 
     // general matching
-    case message: PersistenceMessage => {
-      processManagerActor.forward(message)
-    }
-
     // Route processInstance messages to the process manager
     case message: ProcessInstanceMessage => {
       processManagerActor ! message
@@ -85,8 +80,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
         subject <- subjects.filter({
           s: Subject =>
             s.processInstanceID == message.processInstanceID &&
-              s.subjectID == message.subjectID &&
-              s.subjectSessionID == message.subjectSessionID
+              s.subjectID == message.subjectID
         })
       ) {
         subject.ref ! message

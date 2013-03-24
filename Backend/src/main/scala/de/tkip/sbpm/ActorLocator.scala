@@ -14,6 +14,7 @@ object ActorLocator {
   val userPassAuthActorName = "user-pass-auth"
   val googleAuthActorName = "google-auth"
   val googleDriveActorName = "google-drive"
+  val googleUserInformationActorName = "google-user-info"
 
   def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
 
@@ -25,4 +26,5 @@ object ActorLocator {
   def userPassAuthActor(implicit ctx: ActorRefFactory) = actor(userPassAuthActorName)
   def googleAuthActor(implicit ctx: ActorRefFactory) = actor(googleAuthActorName)
   def googleDriveActor(implicit ctx: ActorRefFactory) = actor(googleDriveActorName)
+  def googleUserInformationActor(implicit ctx: ActorRefFactory) = actor(googleUserInformationActorName)
 }

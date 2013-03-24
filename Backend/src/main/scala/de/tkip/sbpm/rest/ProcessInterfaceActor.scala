@@ -151,7 +151,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
                 validate(json.name.length() >= 3, "The name hast to contain 3 or more letters!") {
                   val graphFuture = (persistanceActor ? SaveGraph(Graph(Option(result.get.graphId), json.graph, new java.sql.Timestamp(System.currentTimeMillis()), id)))
                   Await.result(graphFuture, timeout.duration)
-                  complete(StatusCodes.OK)
+                  complete(StatusCodes.NoContent)
                 }
               }
             }

@@ -11,6 +11,9 @@ define([
 	var ViewModel = function() {
 		currentUser = App.currentUser;
 		this.logout = logout;
+
+		this.oauth2callback = function() {
+		};
 		
 	}
 	
@@ -24,7 +27,7 @@ define([
 			async : true, // defaults to false
 
 			success : function(data, textStatus, jqXHR) {
-				window.location = "http://localhost:8080/sbpm/login.html";
+				window.location = "./login.html";
 
 			},
 			error : function(jqXHR, textStatus, error) {
@@ -37,7 +40,7 @@ define([
 			}
 		});
 
-	}; 
+	};
 
 
 	var initialize = function() {

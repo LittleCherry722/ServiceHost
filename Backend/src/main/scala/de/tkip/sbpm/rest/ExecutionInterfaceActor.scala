@@ -48,9 +48,13 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
   implicit def exceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler.fromPF {
-      case e: Exception => ctx =>
+      case e: IllegalArgumentException => ctx => {
+        ctx.complete(StatusCodes.BadRequest, e.getMessage)
+      }
+      case e: Exception => ctx => {
         log.error(e, e.getMessage)
         ctx.complete(StatusCodes.InternalServerError, e.getMessage)
+      }
     }
 
   def actorRefFactory = context
@@ -68,10 +72,6 @@ class ExecutionInterfaceActor extends Actor with HttpService {
       path(IntNumber) { processInstanceID =>
 
         implicit val timeout = Timeout(5 seconds)
-        //        val future = persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))
-        //        val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
-        //        if (result.isDefined) {
-        // TODO for testreasons processInstanceID 1 will be mixed with Debug
         val composedFuture = for {
           processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[Option[ProcessInstance]]
           graphFuture <- {
@@ -81,33 +81,19 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               throw new Exception("Processinstance '" + processInstanceID + "' does not exist.")
           }
           historyFuture <- (subjectProviderManager ? {
-            if (processInstanceID == 1)
-              new GetHistory(userID.toInt, processInstanceID.toInt) with Debug
-            else
-              GetHistory(userID.toInt, processInstanceID.toInt)
+            GetHistory(userID.toInt, processInstanceID.toInt)
           }).mapTo[HistoryAnswer]
           availableActionsFuture <- (subjectProviderManager ? {
-            if (processInstanceID == 1)
-              new GetAvailableActions(userID.toInt, processInstanceID.toInt) with Debug
-            else
-              GetAvailableActions(userID.toInt, processInstanceID.toInt)
+            GetAvailableActions(userID.toInt, processInstanceID.toInt)
           }).mapTo[AvailableActionsAnswer]
         } yield JsObject(
           "processId" -> processInstanceFuture.get.processId.toJson,
-          "graph" -> {
-            if (graphFuture.isDefined)
-              graphFuture.get.graph.toJson
-            else
-              "".toJson
-          },
+          "graph" -> graphFuture.get.graph.toJson,
           // TODO make isTerminated nicer
           "isTerminated" -> (historyFuture.history.processEnded.isDefined).toJson,
           "history" -> historyFuture.history.toJson,
           "actions" -> availableActionsFuture.availableActions.toJson)
         complete(composedFuture)
-        //        } else {
-        //        	complete("The requested process is not running")
-        //        }
       } ~
         //LIST
         path("") {
@@ -127,7 +113,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           // error gets caught automatically by the exception handler
           val future = subjectProviderManager ? KillProcessInstance(processInstanceID)
           val result = Await.result(future, timeout.duration).asInstanceOf[KillProcessInstanceAnswer]
-          complete(StatusCodes.OK)
+          complete(StatusCodes.NoContent)
         }
       } ~
       put {

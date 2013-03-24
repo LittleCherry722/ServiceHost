@@ -20,6 +20,7 @@ import de.tkip.sbpm.external.auth.GoogleAuthActor
 import de.tkip.sbpm.external.auth.GetAuthUrl
 import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.auth.oauth2.Credential
+import de.tkip.sbpm.external.auth.InitUser
 
 
 class GoogleAuthTest extends FunSuite {
@@ -33,34 +34,36 @@ class GoogleAuthTest extends FunSuite {
     val future = actor ? GetAuthUrl("User_1")
     val result = Await.result(future.mapTo[String], timeout.duration)
     println(result)
-    assert(result === "https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive&state=User_1")
+    assert(result === "https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=925942219892.apps.googleusercontent.com&redirect_uri=http://localhost:8080/oauth2callback&response_type=code&scope=https://www.googleapis.com/auth/drive%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email&state=User_1")
   }
   
-  test("Load a credential for a new user") {
+  test("Test if authentication actor can identifiy already authenticated users") {
+    val future = actor ? InitUser("User_1")
+    val result = Await.result(future.mapTo[String], timeout.duration)
+    println(result)
+    assert(result === "AUTHENTICATED")
+  }
+  
+  test("Test if authentication actor can initialize the authentication flow for a new user") {
+    val future = actor ? InitUser("User_2")
+    val result = Await.result(future.mapTo[String], timeout.duration)
+    println(result)
+    assert(result.contains("User_2"))
+  }
+  
+  test("Test if a credential for a user can be loaded from credential store") {
     val future = actor ? GetCredential("User_1")
     val result = Await.result(future.mapTo[Credential], timeout.duration)
-    println("Token: " + result.getAccessToken())
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
-    println("Refresh Token: " + result.getRefreshToken())
+    assert(!result.getAccessToken().isEmpty())
+    assert((result.getExpiresInSeconds() / 60) > 55)
+    assert(!result.getRefreshToken().isEmpty())
   }
   
   test("Test if credentials can be refreshed") {
     val future = actor ? GetCredential("User_1")
     val result = Await.result(future.mapTo[Credential], timeout.duration)
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
-    println("Refresh token: " + result.refreshToken())
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
+    assert((result.getExpiresInSeconds() / 60) > 55)
+    assert(result.refreshToken() == true)
+    assert((result.getExpiresInSeconds() / 60) >= 59)
   }
 }
-
-
-  //TODO integration des tests in das laufende aktoren systen, nicht in ein temporäres system
-  /**
-  test("Check if the token can be refreshed")
-  	val future = actor ? new GetCredential("User_1")
-    val result = Await.result(future.mapTo[Credential], timeout.duration)
-    println("Token: " + result.getAccessToken())
-    println("Expires in: " + (result.getExpiresInSeconds() / 60) + " minutes")
-    println("Refresh Token: " + result.getRefreshToken())
-}
-  */

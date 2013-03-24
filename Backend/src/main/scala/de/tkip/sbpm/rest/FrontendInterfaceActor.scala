@@ -27,6 +27,7 @@ object Entity {
   val CONFIGURATION = "configuration"
   val OAUTH2CALLBACK = "oauth2callback"
   val ISALIVE = "isalive"
+  val GOOGLEDRIVE = "googledrive"
 
   // TODO define more entities if you need them  
 }
@@ -110,6 +111,13 @@ class FrontendInterfaceActor extends Actor with HttpService {
        */
       pathPrefix(Entity.OAUTH2CALLBACK) {
           handleWith[GoogleResponseActor]
+      } ~
+      /**
+       * forward all gets and posts to /googledrive unauthenticated to GoogleAuthActor 
+       */
+      //TODO add authentication for google drive
+      pathPrefix(Entity.GOOGLEDRIVE) {
+          handleWith[GoogleDriveInterfaceActor]
       } ~
       pathPrefix(Entity.USER) {
         /**
