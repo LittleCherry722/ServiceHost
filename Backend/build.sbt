@@ -9,7 +9,11 @@ test in assembly := {}
 
 mainClass in assembly := Some("de.tkip.sbpm.Boot")
 
-mergeStrategy in assembly := {
+mergeStrategy in assembly := { 
+  case "reference.conf" =>
+    MergeStrategy.concat
+  //case PathList(ps @ _*) if isReadme(ps.last) || isLicenseFile(ps.last) =>
+  //  MergeStrategy.rename
   case PathList("META-INF", xs @ _*) =>
     (xs map {_.toLowerCase}) match {
       case ("manifest.mf" :: Nil) | ("index.list" :: Nil) | ("dependencies" :: Nil) =>
@@ -22,8 +26,6 @@ mergeStrategy in assembly := {
         MergeStrategy.filterDistinctLines
       case ("spring.schemas" :: Nil) | ("spring.handlers" :: Nil) =>
         MergeStrategy.filterDistinctLines
-      case ("NOTICE.txt" :: Nil) => 
-	MergeStrategy.first
       case _ => MergeStrategy.first
     }
   case _ => MergeStrategy.first
