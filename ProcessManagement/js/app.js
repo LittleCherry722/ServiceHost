@@ -79,8 +79,7 @@ define([
 	var loadCurrentUser = function() {
 
 		if (readCookie("sbpm-userId")) {
-
-			currentUser(User.find(readCookie("sbpm-userId").replace(/"/g, '')));
+			currentUser(User.find(parseInt(readCookie("sbpm-userId").replace(/"/g, ''))));
 		} else { //TODO Kein Cookie gesetzt, kein Zugang.
 			currentUser(new User({
 				name : "no user"

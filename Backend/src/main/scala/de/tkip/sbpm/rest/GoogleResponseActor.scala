@@ -32,6 +32,7 @@ import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
 import spray.http.StatusCodes
+import spray.http.MediaTypes._
 
 
 class GoogleResponseActor extends Actor with HttpService with ActorLogging {
@@ -57,7 +58,7 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
      // a user posts his id on /initAuth in case he wants to authenticate the app against his google account
      post {
       pathPrefix("init_auth") {
-        parameters("id") {(id) => {
+        formFields("id") {(id) => {
           log.debug(getClass.getName + " received authentication init post from user: " + id)
           
           val future = googleAuthActor ? InitUser(id)
@@ -83,13 +84,12 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
         parameters("code", "state") {(code, state) => {
           log.debug(getClass.getName + " received from google response: " + "name: " + state + ", code: " + code)
           googleAuthActor ! GoogleResponse(state, code)
-          complete("")
-        } 
-        }   
+          respondWithMediaType(`text/html`) {
+            complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body></body></html>")
+          }
+        }
+        }
       }
     }
-
-
-    
   })
 }

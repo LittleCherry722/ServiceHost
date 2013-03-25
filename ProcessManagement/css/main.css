@@ -7024,3 +7024,24 @@ table.data2 tr td {
 .table-middle td, .table-middle th {
   vertical-align: middle;
 }
+
+a.close {
+  cursor: pointer;
+}
+
+#atlwdg-trigger {
+  text-shadow: none;
+}
+
+.gdrive-modal .loading {
+  text-align: center;
+  margin: 1em 0 3em 0;
+}
+.gdrive-modal .loading .icon-large {
+  margin-top: 2em;
+  display: block;
+  font-size: 160%;
+}
+.gdrive-modal ul {
+  text-shadow: none;
+}
