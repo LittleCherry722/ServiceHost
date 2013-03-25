@@ -26,12 +26,12 @@
 function GCnode (parentMacro, parentBehavior, id, text, type)
 {	
 	/**
-	 * The node's channel.
-	 * Channels are used to group nodes and edges within an internal behavior.
+	 * The node's conversation.
+	 * Conversations are used to group nodes and edges within an internal behavior.
 	 * 
 	 * @type String
 	 */
-	this.channel	= null;
+	this.conversation	= null;
 	
 	/**
 	 * Comment for this node.
@@ -87,7 +87,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	 * 
 	 * @type Object
 	 */
-	this.options	= {message: "*", subject: "*", correlationId: "*", channel: "*", state: ""};
+	this.options	= {message: "*", subject: "*", correlationId: "*", conversation: "*", state: ""};
 	
 	/**
 	 * A reference to the parent instance of GCbehavior.
@@ -169,24 +169,24 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	};
 	
 	/**
-	 * Returns the node's channel.
+	 * Returns the node's conversation.
 	 * 
 	 * @param {String} type Either "id" or "name".
-	 * @returns {String} The node's channel. Depending on the parameter type this will be either the channel's id or its name.
+	 * @returns {String} The node's conversation. Depending on the parameter type this will be either the conversation's id or its name.
 	 */
-	this.getChannel = function (type)
+	this.getConversation = function (type)
 	{
 		if (!gf_isset(type))
 			type	= "id";
 	
 		if (type == "name")
 		{
-			var gt_channels	= gv_graph.channels;
-			if (this.channel != null && gf_isset(gt_channels[this.channel]))
-				return gt_channels[this.channel];
+			var gt_conversations	= gv_graph.conversations;
+			if (this.conversation != null && gf_isset(gt_conversations[this.conversation]))
+				return gt_conversations[this.conversation];
 		}
 		
-		return this.channel;
+		return this.conversation;
 	};
 	
 	/**
@@ -445,16 +445,16 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	};
 	
 	/**
-	 * Updates the channel of the node.
+	 * Updates the conversation of the node.
 	 * 
-	 * @param {String} channel The new channel.
+	 * @param {String} conversation The new conversation.
 	 * @returns {void}
 	 */
-	this.setChannel = function (channel)
+	this.setConversation = function (conversation)
 	{
-		if (gf_isset(channel))
+		if (gf_isset(conversation))
 		{
-			this.channel = channel;
+			this.conversation = conversation;
 		}
 	};
 	
@@ -711,7 +711,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			
 			var gt_messageType		= gf_isset(this.options.message)		? this.options.message			: null;
 			var gt_subject			= gf_isset(this.options.subject)		? this.options.subject			: null;
-			var gt_channel			= gf_isset(this.options.channel)		? this.options.channel			: null;
+			var gt_conversation			= gf_isset(this.options.conversation)		? this.options.conversation			: null;
 			var gt_correlationId	= gf_isset(this.options.correlationId)	? this.options.correlationId	: null;
 			var gt_state			= gf_isset(this.options.state)			? this.options.state			: null;
 			
@@ -727,11 +727,11 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			else
 				gt_subject	= gt_useWildcard ? "*" : "";
 				
-			// channel
-			if (gt_channel != null && gf_isset(gv_graph.channels[gt_channel]))
-				gt_channel	= gf_newlineToCamelCase(gv_graph.channels[gt_channel]);
+			// conversation
+			if (gt_conversation != null && gf_isset(gv_graph.conversations[gt_conversation]))
+				gt_conversation	= gf_newlineToCamelCase(gv_graph.conversations[gt_conversation]);
 			else
-				gt_channel	= gt_useWildcard ? "*" : "";
+				gt_conversation	= gt_useWildcard ? "*" : "";
 				
 			// correlationId
 			if (gt_correlationId != null && gf_isset(this.parentBehavior.variables[gt_correlationId]))
@@ -757,11 +757,11 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			if (gt_predefAction.subject)
 				gt_options[gt_options.length]	= gt_subject;
 				
-			if (gt_predefAction.correlationid && (gt_correlationId != "" && gt_correlationId != "*" || gt_predefAction.channel && gt_channel != "" && gt_channel != "*"))
+			if (gt_predefAction.correlationid && (gt_correlationId != "" && gt_correlationId != "*" || gt_predefAction.conversation && gt_conversation != "" && gt_conversation != "*"))
 				gt_options[gt_options.length]	= gt_correlationId;
 				
-			if (gt_predefAction.channel && gt_channel != "" && gt_channel != "*")
-				gt_options[gt_options.length]	= gt_channel;
+			if (gt_predefAction.conversation && gt_conversation != "" && gt_conversation != "*")
+				gt_options[gt_options.length]	= gt_conversation;
 				
 			if (gt_predefAction.state)
 				gt_options[gt_options.length]	= gt_state;

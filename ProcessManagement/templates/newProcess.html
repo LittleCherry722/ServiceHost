@@ -12,16 +12,21 @@
           document.getElementById("new_process").focus();
         </script>
       </div>
+      <div>
       <label class="radio">
-        <input type="radio" name="processType" value="process" data-bind="checked: processType"/>Create Process
+        <input type="radio" name="processType" value="process" data-bind="checked: processType"/>
+        <span>Create Process</span> 
       </label>
-      <label class="radio">
-        <input type="radio" name="processType" value="case" data-bind="checked: processType"/>Create Case
+      <label class="radio" >
+        <input  type="radio" name="processType" value="case" data-bind="checked: processType"/>
+        <span>Create Case</span>
       </label>
       <label class="checkbox">
-        <input type="checkbox" name="Table" value="Table" data-bind="checked: displayTable, disable: isCase"/>Use Table
+        <input type="checkbox" name="Table" value="Table" data-bind="checked: displayTable, disable: isCase"/>
+        <span>Use Table</span>
       </label>
     </form>
+    </div>
     <div class="fluid">
       <div id="quick_table" data-bind="visible: displayTable"></div>
     </div>

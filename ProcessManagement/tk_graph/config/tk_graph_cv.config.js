@@ -107,12 +107,12 @@ var gv_cv_style_arrow = {
 };
 
 /**
- * Default style set for channel edges between two subjects.
+ * Default style set for conversation edges between two subjects.
  * The given attributes overwrite the values of the default style set defined in tk_graph.config.js.
  * 
  * @type Object
  */
-var gv_cv_style_arrowChannel = {
+var gv_cv_style_arrowConversation = {
 	/*
 	 * Arrow
 	 */
@@ -442,7 +442,7 @@ var gv_cv_style_roundedRectangleSingle = {
  */
 var gv_cv_arrow = {
 		style: 			gv_cv_style_arrow,				// style set to use
-		styleChannel: 	gv_cv_style_arrowChannel		// style set to use for channels
+		styleConversation: 	gv_cv_style_arrowConversation		// style set to use for conversations
 };
 
 /**
