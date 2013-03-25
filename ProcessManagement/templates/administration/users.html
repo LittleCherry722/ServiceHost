@@ -6,6 +6,7 @@
 				<th>Name</th>
 				<th>Group</th>
 				<th>Active</th>
+				<th>Provider/Email</th>
 				<th>Actions</th>
 			</tr>
 		</thead>
@@ -24,6 +25,17 @@
 				</td>
 				<td>
 					<input type="checkbox" data-bind="checked: isActive" />
+				</td>
+				<td>
+					
+				<div data-bind="foreach: $data.providerMail">
+				<div>
+				<input type="text" class="inline" data-bind='value: provider' />
+				<input type="text" class="inline" data-bind='value: mail' />
+				<input type="button" class="button" value="Delete" data-bind='click: $root.deleteEmail.bind($data,$parent)' />
+				</div>
+				</div>
+				<input type="button" class="button" value="Add" data-bind='click: $parent.addEmail' />
 				</td>
 				<td>
 					<input type="button" class="button" value="Delete" data-bind='click: $parent.remove' />

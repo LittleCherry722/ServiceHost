@@ -23,11 +23,14 @@ import spray.json.JsNumber
 
 // Model for Administration
 case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8)
+case class ProviderMail(provider: String, mail: String)
+case class UserWithMail(var id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, providerMail: Seq[ProviderMail])
 case class UserIdentity(user: User, provider: String, eMail: String, password: Option[String])
 case class Role(id: Option[Int], name: String, isActive: Boolean = true)
 case class Group(id: Option[Int], name: String, isActive: Boolean = true)
 case class Credentials(provider: String, oldEmail: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
-case class UserUpdate(var name: Option[String], var isActive: Option[Boolean], var inputPoolSize: Option[Int], provider: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
+case class UserUpdate(var name: Option[String], var isActive: Option[Boolean], var inputPoolSize: Option[Int], newEmail: Option[String], oldPassword: String, newPassword: Option[String])
+
 // Model for DB Relations 
 case class GroupRole(groupId: Int, roleId: Int)
 case class GroupUser(groupId: Int, userId: Int)

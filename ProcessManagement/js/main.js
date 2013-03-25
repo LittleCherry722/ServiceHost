@@ -74,7 +74,6 @@ require([ "app", "router", "knockout.custom" ], function( App, Router ){
 		complete : function(jqXHR, textStatus) {
 		}
 	}); 
-
 	
 
 });

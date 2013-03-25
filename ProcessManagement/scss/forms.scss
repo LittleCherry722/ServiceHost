@@ -77,3 +77,7 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	background: url(../images/bg_tab_over.png) repeat-x;
 	text-shadow: 0 0 0 #999;
 }
+
+input[type="radio"], input[type="checkbox"] {
+	margin: 1px 0 0;
+}

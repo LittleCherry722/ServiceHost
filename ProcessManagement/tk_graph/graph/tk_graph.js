@@ -154,7 +154,7 @@ function gf_callFunc (func, fallback)
 		gt_values	= this[gv_functions[gt_funcInfo[0]][gt_funcInfo[1]]].apply(this, gt_arguments);
 	}
 	else if (gf_isset(fallback))
-	{
+	{;
 		gt_values	= this[fallback].apply(this, gt_arguments);
 	}
 	
@@ -1421,4 +1421,3 @@ function gf_toggleBV ()
 {
 	gf_callFunc("general.changeViewBV", "gf_clickedCVbehavior");
 }
-

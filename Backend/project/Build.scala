@@ -20,8 +20,8 @@ object ProjectBuild extends Build {
       libraryDependencies ++= Seq(
         "org.scala-lang"     % "scala-actors"   % "2.10.0",
         "org.scala-lang"     % "scala-reflect"  % "2.10.0",
-        "com.typesafe.akka"  %% "akka-actor"    % "2.1.0",
-        "com.typesafe.akka"  %% "akka-testkit"  % "2.1.0"   % "test",
+        "com.typesafe.akka"  %% "akka-actor"    % "2.1.2",
+        "com.typesafe.akka"  %% "akka-testkit"  % "2.1.2"   % "test",
         "com.typesafe.slick" %% "slick"         % "1.0.0",
         "com.typesafe.slick" %% "slick-testkit" % "1.0.0"   % "test",
         "org.xerial"         %  "sqlite-jdbc"   % "3.7.2",
@@ -37,7 +37,7 @@ object ProjectBuild extends Build {
         "com.google.guava"           % "guava"                        % "13.0",
         "com.google.oauth-client"    % "google-oauth-client-java6"    % "1.13.1-beta",
         "com.google.api-client"      % "google-api-client-java6"      % "1.13.2-beta",
-        "com.google.apis"            % "google-api-services-drive"    % "v2-rev13-1.8.0-beta",
+        "com.google.apis"            % "google-api-services-drive"    % "v2-rev47-1.13.2-beta",
         "com.google.http-client"     % "google-http-client-jackson2"  % "1.13.1-beta",
         "com.google.code.findbugs"   % "jsr305"                       % "1.3.9",
         "com.google.apis"            % "google-api-services-oauth2"   % "v2-rev30-1.13.2-beta"

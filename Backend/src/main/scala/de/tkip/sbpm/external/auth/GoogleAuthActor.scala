@@ -59,8 +59,6 @@ case class DeleteCredential(id: String) extends GoogleAuthAction
 
 case class GetCredential(id: String) extends GoogleAuthAction
 
-case class GetNewCredential(id: String) extends GoogleAuthAction
-
 case class GetAuthUrl(id: String) extends GoogleAuthAction
 
 case class InitUser(id: String) extends GoogleAuthAction
@@ -78,7 +76,6 @@ class GoogleAuthActor extends Actor with ActorLogging {
 
   def actorRefFactory = context
   
-  // to be able to add a new user provider 
   private lazy val persistenceActor = ActorLocator.persistenceActor
   private lazy val googleInformationActor = ActorLocator.googleUserInformationActor
   implicit val timeout = Timeout(5 seconds)
@@ -125,9 +122,6 @@ class GoogleAuthActor extends Actor with ActorLogging {
     case GoogleResponse(id, response) => handelResponse(id, response)
     
     case GetAuthUrl(id) => sender ! formAuthUrl(id)
-   
-    // implement a callback to have non-blocking struktures
-    case GetNewCredential(id) => sender ! "callback"
 
     case _ => sender ! "not implemented yet"
   }
@@ -138,10 +132,20 @@ class GoogleAuthActor extends Actor with ActorLogging {
    */
   def getUserCredential(id : String): Credential = {
     if (flow.loadCredential(id) != null) {
+      try {
       flow.loadCredential(id).refreshToken()
+      } catch {
+        case e : TokenResponseException => {
+          log.debug(getClass().getName() + 
+            " Exception occurred while refreshing a token, the permission maybe has been revoked: " + 
+            e.getDetails() + "\n" + e.getMessage())
+          
+            return null
+      }}
       flow.loadCredential(id)
     } else {
-      null
+      log.debug(getClass().getName() + " User with id: " + id + " tried to load a credential from store, but credential_store returned null")
+      return null
     }
   }
   
@@ -192,7 +196,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
     log.debug(getClass().getName() + " New credential for user: " + id + " have been saved")
     
     // TODO add new google provider 
-    //addGoogleProvider(id)
+    addGoogleProvider(id)
     } catch {
     case e : TokenResponseException => log.debug(getClass().getName() + " Exception occurred: " + e.getDetails() + "\n" + e.getMessage())
     }  
@@ -214,7 +218,8 @@ class GoogleAuthActor extends Actor with ActorLogging {
     val email = Await.result(email_future.mapTo[String], timeout.duration)
     
     // add google as a new user provider
-    // TODO check - 
+    // TODO check - if there is already a google provider so that there is only one
+    // google identity 
     val user_future = persistenceActor ? Users.Save.Identity(id.toInt, "GOOGLE", email, None)
     val user = Await.result(user_future.mapTo[Credential], timeout.duration)
   }

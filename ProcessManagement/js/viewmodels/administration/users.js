@@ -76,13 +76,19 @@ define([
 		this.remove = function( user ) {
 			user.destroy();
 		}
+		this.addEmail =function ( user ){
+			user.providerMail.push(jQuery.parseJSON( '{"provider":"","mail":""}'));
+		};
+		this.deleteEmail = function (user, mail){
+			user.providerMail.pop(mail);
+		}
 	}
 
 	var initialize = function( callback ) {
 		var viewModel;
 
 		viewModel = new ViewModel();
-
+		window.uView = viewModel; //TODO: remove debug
 		// Get the required template;
 		App.loadTemplate( "administration/users", viewModel, "right_content", function() {
 			$(".chzn-select").chosen();

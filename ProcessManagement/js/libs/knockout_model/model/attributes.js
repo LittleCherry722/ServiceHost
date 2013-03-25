@@ -164,6 +164,13 @@ define([
 			fromJSON: jsonFromX
 		},
 
+		jsonArray: {
+			type: "jsonArray",
+			defaults: "[]",
+			lazy: true,
+			fromJSON: jsonFromX
+		},
+
 		boolean: {
 			type: "boolean",
 			defaults: false,
@@ -242,22 +249,21 @@ define([
 				// last saved state or determine if an attribute has changed but can
 				// just as well be accessed from the outside.
 				if ( attrOptions.lazy && !data[ attrName ] ) {
-					setupLazyAttribute( instance, attrName );
+					setupLazyAttribute( instance, attrName, attrOptions );
 				} else {
-					instance[ attrName ] = regularAttribute( attrValue );
+					instance[ attrName ] = regularAttribute( attrValue, attrOptions );
 				}
 				instance[ attrName + "Old" ] = ko.observable();
 			});
 		}
 	}
 
-	var setupLazyAttribute = function( instance, attrName ) {
+	var setupLazyAttribute = function( instance, attrName, attrOptions ) {
 		var observable,
 			subscribers = [];
 
 		instance[ attrName ] = function( value ) {
-			observable = ko.observable();
-			observable( value );
+			observable = regularAttribute( value, attrOptions )
 
 			if ( typeof value === "undefined" ) {
 				if ( !instance.isBeingInitialized ) {
@@ -267,7 +273,7 @@ define([
 					})
 
 					instance.loadAttributes({ async: false });
-					instance[ attrName + "Old" ]( observable() );
+					instance[ attrName + "Old" ]( _.clone( observable() ) );
 				}
 
 				return observable();
@@ -276,7 +282,7 @@ define([
 				_( subscribers ).each(function( subscriber ) {
 					observable.subscribe( subscriber );
 				})
-				instance[ attrName + "Old" ]( value );
+				instance[ attrName + "Old" ]( _.clone( value ) );
 
 				return undefined;
 			}
@@ -285,10 +291,13 @@ define([
 		instance[ attrName ].subscribe = subscribers.push;
 	}
 
-	var regularAttribute = function( attrValue ) {
-		return ko.observable( attrValue );
+	var regularAttribute = function( attrValue, attrOptions ) {
+			if ( attrOptions.type === "jsonArray" ) {
+				return ko.observableArray( attrValue );
+			} else {
+				return ko.observable( attrValue );
+			}
 	}
-
 
 	/***************************************************************************
 	 * Dynamic Attribute finder methods
@@ -424,11 +433,11 @@ define([
 			// Method to check whether a specific attribute has changed
 			return ko.computed({
 				read: function() {
-					return instance[ attrName ]() !== instance[ attrName + "Old" ]();
+					return !_.isEqual( instance[ attrName ](), instance[ attrName + "Old" ]() );
 				},
 				write: function( bool ) {
 					if ( bool === false ) {
-						instance[ attrName + "Old" ]( instance[ attrName ]() );
+						instance[ attrName + "Old" ]( _.clone( instance[ attrName ]() ) );
 					}
 					return false;
 				}
@@ -446,7 +455,7 @@ define([
 
 		// Method to reset the changes to a specific attribute
 		return function() {
-			instance[ attrName ]( instance[ attrName + "Old" ]() );
+			instance[ attrName ]( _.clone( instance[ attrName + "Old" ]() ) );
 		}
 	}
 
