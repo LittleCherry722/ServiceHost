@@ -20,7 +20,7 @@ case class UserIdentity(user: User, provider: String, eMail: String, password: O
 case class Role(var id: Option[Int], name: String, isActive: Boolean = true)
 case class Group(var id: Option[Int], name: String, isActive: Boolean = true)
 case class Credentials(provider: String, oldEmail: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
-case class UserUpdate(var name: Option[String], var isActive: Option[Boolean], var inputPoolSize: Option[Int], provider: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
+case class UserUpdate(var name: Option[String], var isActive: Option[Boolean], var inputPoolSize: Option[Int], newEmail: Option[String], oldPassword: String, newPassword: Option[String])
 
 // Model for Modeling/Execution
 case class Graph(var id: Option[Int], graph: String, date: java.sql.Timestamp, var processId: Int = -1)
