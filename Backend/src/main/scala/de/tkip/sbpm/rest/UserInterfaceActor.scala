@@ -55,7 +55,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("^$"r) { regex =>
-        completeWithQuery[Seq[User]](GetUser())
+        GetUsersWithMail()
       } ~
         /**
          * Return currently logged in user.
@@ -82,7 +82,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * result: 404 Not Found or entity as JSON
            */
           path("^$"r) { regex =>
-            completeWithQuery[User](GetUser(Some(id)), "User with id %d not found.", id)
+            GetUserWithMail(id)
           } ~
             /**
              * get all groups of the user
@@ -186,7 +186,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * e.g. PUT http://localhost:8080/user/2
              * 	payload: {"name":"test","isActive":true,"inputPoolSize":6,"provider":"sbpm","newEmail":"superuser@sbpm.com","oldPassword":"s1234","newPassword":"pass"}
              * 	result: 200 OK
-             *		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
+             * 		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
              */
             path("^$"r) { regex =>
               entity(as[UserUpdate]) { userUpdate =>
@@ -210,6 +210,33 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
       entity,
       pathForEntity(Entity.USER, "%d"),
       (e: User, i: Int) => { e.id = Some(i); e })
+  }
+
+  // completes with all providers and emails of an user and the user information
+  def GetUserWithMail(id: Int) = {
+    val userFuture = persistenceActor ? GetUser(Some(id), None)
+    val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
+    val identityFuture = persistenceActor ? GetUserWithIdentities(Some(id))
+    val identity = Await.result(identityFuture.mapTo[Option[(User, List[UserIdentity])]], timeout.duration)
+    if (user.isDefined && identity.isDefined) {
+      val pm = for (i <- identity.get._2) yield ProviderMail(i.provider, i.eMail)
+      complete(UserWithMail(user.get, pm))
+    } else {
+      complete(StatusCodes.NotFound)
+    }
+  }
+
+  // completes with all providers and emails of all users and the user information
+  def GetUsersWithMail() = {
+    val usersFuture = persistenceActor ? GetUser(None, None)
+    val users = Await.result(usersFuture.mapTo[List[User]], timeout.duration)
+    val listOfUsers = for (u <- users) yield {
+      val identityFuture = persistenceActor ? GetUserWithIdentities(u.id)
+      val identity = Await.result(identityFuture.mapTo[Option[(User, List[UserIdentity])]], timeout.duration)
+      val listOfMails = for (i <- identity.get._2) yield ProviderMail(i.provider, i.eMail)
+      UserWithMail(u, listOfMails)
+    }
+    complete(listOfUsers)
   }
 
   def setUserIdentity(id: Int, entity: UserUpdate) = {
@@ -236,7 +263,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
         var name = entity.name.getOrElse(user.get.name)
         var isActive = entity.isActive.getOrElse(user.get.isActive)
         var inputPoolSize = entity.inputPoolSize.getOrElse(user.get.inputPoolSize)
-          
+
         saveUser(new User(None, name, isActive, inputPoolSize), Some(id))
       } else
         complete(StatusCodes.Unauthorized)
