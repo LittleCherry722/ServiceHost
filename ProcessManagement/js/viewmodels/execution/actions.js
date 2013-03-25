@@ -7,31 +7,31 @@ define([
 ], function( ko, App, _, ProcessInstance, Notify ) {
 
 	var ViewModel = function() {
+		var self = this;
+
 		this.processInstance = processInstance;
-		
+
 		this.availableActions = availableActions;
 
 		this.currentSubject = currentSubject;
-		
-		this.actionOfCurrentSubject = actionOfCurrentSubject;
-		
-		this.actionData = actionData;
-		
-		this.messageText = messageText;
-		
-		this.action = action;
-		
-		this.send = send;
-		
-		this.stateName = stateName;
-		
-		this.stateText = stateText;
-	
-		this.isTypeOf = isTypeOf;
-		
-		this.serverDone = serverDone;
 
-		this.googleDriveData = googleDriveData;
+		this.actionOfCurrentSubject = actionOfCurrentSubject;
+
+		this.actionData = actionData;
+
+		this.messageText = messageText;
+
+		this.action = action;
+
+		this.send = send;
+
+		this.stateName = stateName;
+
+		this.stateText = stateText;
+
+		this.isTypeOf = isTypeOf;
+
+		this.serverDone = serverDone;
 
 		this.currentSelectedFile = currentSelectedFile;
 
@@ -40,11 +40,32 @@ define([
 		this.executable = ko.computed(function() {
 			console.log(this)
 		});
+
+		this.googleDriveData = ko.observable();
+
+		this.refreshGoogleDriveData = function() {
+			$.ajax({
+				cache: false,
+				dataType: "json",
+				type: "GET",
+				url: "../googledrive/get_files?id=" + App.currentUser().id(),
+				success: function( data, textStatus, jqXHR ) {
+					self.googleDriveData( data.items );
+				},
+				error: function( jqXHR, textStatus, error ) {
+					Notify.error("Error", "There has been an Error retrieving the file list." +
+											"Please make sure you have the appropiate permissions.");
+				}
+			});
+		}
+
 	}
 
 	var selectFile = function() {
 		$('#googleDriveModal').modal('hide');
 		currentSelectedFile( this.title );
+
+		// TODO set file ID for actually sending the file.
 	}
 
 	var currentSelectedFile = ko.observable("");
@@ -59,10 +80,10 @@ define([
 			stateName,
 			stateText,
 			isTypeOf;
-	
+
 	var action = function(action) {
 		serverDone(false);
-		
+
 		data = actionOfCurrentSubject()
 		id = data.processInstanceID;
 		data.actionData = action;
@@ -89,7 +110,7 @@ define([
 
 
 	var refresh = function(data){
-		
+
 	}
 
 	var send = function() {
@@ -127,40 +148,10 @@ define([
 		});
 	};
 
-
-	var googleDriveData = [{
-		"alternateLink": "https://docs.google.com/document/d/1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc/edit",
-		"createdDate": "2013-03-20T13:12:21.854Z",
-		"embedLink": "https://docs.google.com/document/d/1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc/preview",
-		"iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_11_document_list.png",
-		"id": "1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc",
-		"mimeType": "application/vnd.google-apps.document",
-		"thumbnailLink": "https://docs.google.com/feeds/vt?gd=true&id=1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc&v=793&s=AMedNnoAAAAAUURbZSQ7c-9rXNiaTxNH3LsNQ0VjpAex&sz=s220",
-		"title": "Presentation Test File"
-	}, {
-		"alternateLink": "https://docs.google.com/document/d/1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc/edit",
-		"createdDate": "2013-03-21T10:42:31.391Z",
-		"embedLink": "https://docs.google.com/document/d/1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc/preview",
-		"iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_11_presentation_list.png",
-		"id": "1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc",
-		"mimeType": "application/vnd.google-apps.document",
-		"thumbnailLink": "https://docs.google.com/feeds/vt?gd=true&id=1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc&v=793&s=AMedNnoAAAAAUURbZSQ7c-9rXNiaTxNH3LsNQ0VjpAex&sz=s220",
-		"title": "A simple presentation"
-	}, {
-		"alternateLink": "https://docs.google.com/document/d/1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc/edit",
-		"createdDate": "2013-03-21T10:44:17.784Z",
-		"embedLink": "https://docs.google.com/document/d/1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc/preview",
-		"iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_11_spreadsheet_list.png",
-		"id": "1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc",
-		"mimeType": "application/vnd.google-apps.document",
-		"thumbnailLink": "https://docs.google.com/feeds/vt?gd=true&id=1ZOlIA6UcgWfXE2GFbMWsyVObTjSeGFsr2NAJdSKi4jc&v=793&s=AMedNnoAAAAAUURbZSQ7c-9rXNiaTxNH3LsNQ0VjpAex&sz=s220",
-		"title": "Another File"
-	}]
-
 	var initialize = function( instance, subjectId ) {
-		
+
 		var viewModel;
-		
+
 		processInstance( instance );
 		processInstance().refresh();
 		availableActions = instance.actions;

@@ -1058,6 +1058,22 @@ a.close {
   cursor: pointer;
 }
 
-.drive .nav-list li {
-  
+#atlwdg-trigger {
+	text-shadow: none;
+}
+
+.gdrive-modal {
+	.loading {
+		text-align: center;
+		margin: 1em 0 3em 0;
+		.icon-large {
+			margin-top :2em;
+			display: block;
+			font-size: 160%;
+		}
+	}
+
+	ul {
+		text-shadow: none;
+	}
 }
