@@ -14,11 +14,14 @@ case class Envelope(data: Option[JsValue], code: String)
 // Model for Administration
 case class Configuration(key: String, label: String, value: String, dataType: String = "String")
 case class User(var id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8)
+case class ProviderMail(provider: String, mail: String)
+case class UserWithMail(user: User, providerMail: List[ProviderMail])
 case class UserIdentity(user: User, provider: String, eMail: String, password: Option[String])
 case class Role(var id: Option[Int], name: String, isActive: Boolean = true)
 case class Group(var id: Option[Int], name: String, isActive: Boolean = true)
 case class Credentials(provider: String, oldEmail: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
 case class UserUpdate(var name: Option[String], var isActive: Option[Boolean], var inputPoolSize: Option[Int], provider: String, newEmail: Option[String], oldPassword: String, newPassword: Option[String])
+
 // Model for Modeling/Execution
 case class Graph(var id: Option[Int], graph: String, date: java.sql.Timestamp, var processId: Int = -1)
 case class ProcessInstance(var id: Option[Int], processId: Int, graphId: Int, involvedUsers: String, data: String)
