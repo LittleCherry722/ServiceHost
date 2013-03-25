@@ -47,11 +47,11 @@ function GCbehavior (name)
 	this.name	= name;
 	
 	/**
-	 * The currently selected channel
+	 * The currently selected conversation
 	 * 
 	 * @type String
 	 */
-	this.selectedChannel	= "##all##";
+	this.selectedConversation	= "##all##";
 	
 	/**
 	 * The id (key of macros array) of the currently selected macro.
@@ -404,15 +404,15 @@ function GCbehavior (name)
  	};
 	
 	/**
-	 * Select a channel in the currently selected macro.
+	 * Select a conversation in the currently selected macro.
 	 * 
-	 * @see GCmacro.selectChannel()
-	 * @param {String} channel The name of the channel to select. When set to "##all##" all nodes and edges will be displayed.
+	 * @see GCmacro.selectConversation()
+	 * @param {String} conversation The name of the conversation to select. When set to "##all##" all nodes and edges will be displayed.
 	 * @returns {void}
 	 */
- 	this.selectChannel = function (channel)
+ 	this.selectConversation = function (conversation)
  	{
- 		this.getMacro().selectChannel(channel);
+ 		this.getMacro().selectConversation(conversation);
  	};
 	
 	/**

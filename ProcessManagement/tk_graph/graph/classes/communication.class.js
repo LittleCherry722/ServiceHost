@@ -22,19 +22,19 @@ function GCcommunication ()
 	/**
 	 * 
 	 * Initialized with 0.
-	 * This counter is used to give every channel an unique id.
-	 * The counter is increased with every channel added.
+	 * This counter is used to give every conversation an unique id.
+	 * The counter is increased with every conversation added.
 	 * 
 	 * @type int
 	 */
-	this.channelCounter	= 0;
+	this.conversationCounter	= 0;
 	
 	/**
-	 * List of channels used in the process.
+	 * List of conversations used in the process.
 	 * 
 	 * @type Object
 	 */
-	this.channels	= {};
+	this.conversations	= {};
 	
 	/**
 	 * Array of messages between subjects.
@@ -74,11 +74,11 @@ function GCcommunication ()
 	this.processFlag	= true;
 	
 	/**
-	 * The currently selected channel
+	 * The currently selected conversation
 	 * 
 	 * @type String
 	 */
-	this.selectedChannel	= "##all##";
+	this.selectedConversation	= "##all##";
 	
 	/**
 	 * The currenctly selected subject-node in the communication view.
@@ -104,82 +104,82 @@ function GCcommunication ()
 	this.subjects	= {};
 	
  	/**
- 	 * Adds a new channel to the channels array of this process.
- 	 * This method can also be used to update channels.
+ 	 * Adds a new conversation to the conversations array of this process.
+ 	 * This method can also be used to update conversations.
  	 * 
- 	 * @param {String} text The name of the channel.
- 	 * @param {String} id The id of the channel (optional, when set an update will be done)
- 	 * @returns {String} The id of the inserted or updated channel.
+ 	 * @param {String} text The name of the conversation.
+ 	 * @param {String} id The id of the conversation (optional, when set an update will be done)
+ 	 * @returns {String} The id of the inserted or updated conversation.
  	 */
-	this.addChannel = function (text, id)
+	this.addConversation = function (text, id)
 	{
  		if (!gf_isset(id))
 			id = "##createNew##";
 		
-		var gt_channelId	= "";
+		var gt_conversationId	= "";
 		var gt_changesDone	= false;
 		if (gf_isset(id, text))
 		{
 			if (id.substr(0, 1) == "c")
 			{
-				// when changing the text of a channel avoid duplicate channels
-				var gt_channelExists	= false;
-				for (var gt_cid in this.channels)
+				// when changing the text of a conversation avoid duplicate conversations
+				var gt_conversationExists	= false;
+				for (var gt_cid in this.conversations)
 				{
-					if (gf_replaceNewline(this.channels[gt_cid].toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " ") && gt_cid != id)
+					if (gf_replaceNewline(this.conversations[gt_cid].toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " ") && gt_cid != id)
 					{
-						gt_channelExists	= true;
+						gt_conversationExists	= true;
 						break;
 					}
 				}
 				
-				// update channel
-				if (!gt_channelExists && gf_isset(this.channels[id]) && this.channels[id] != text && text != "")
+				// update conversation
+				if (!gt_conversationExists && gf_isset(this.conversations[id]) && this.conversations[id] != text && text != "")
 				{
-					this.channels[id]	= text;
+					this.conversations[id]	= text;
 					gt_changesDone	= true;
 				}
-				gt_channelId	= id;
+				gt_conversationId	= id;
 			}
 			
-			// create new channel
+			// create new conversation
 			else if (id == "##createNew##")
 			{
-				var gt_channelExists	= false;
+				var gt_conversationExists	= false;
 				
-				// avoid duplicate channels
-				for (var gt_cid in this.channels)
+				// avoid duplicate conversations
+				for (var gt_cid in this.conversations)
 				{
-					var gt_ch	= this.channels[gt_cid];
+					var gt_ch	= this.conversations[gt_cid];
 					
 					if (gf_replaceNewline(gt_ch.toLowerCase(), " ") == gf_replaceNewline(text.toLowerCase(), " "))
 					{
-						gt_channelId	= gt_cid;
-						gt_channelExists	= true;
+						gt_conversationId	= gt_cid;
+						gt_conversationExists	= true;
 						break;
 					}
 				}
 				
-				// create the new channel
-				if (!gt_channelExists && text != "")
+				// create the new conversation
+				if (!gt_conversationExists && text != "")
 				{
-					this.channels["c" + this.channelCounter] = text;
-					gt_channelId	= "c" + this.channelCounter;
-					this.channelCounter++;
+					this.conversations["c" + this.conversationCounter] = text;
+					gt_conversationId	= "c" + this.conversationCounter;
+					this.conversationCounter++;
 					gt_changesDone = true;
 				}
 			}
 			else
 			{
-				// (no channel selected)
+				// (no conversation selected)
 			}
 			
 			// publish update
 			if (gt_changesDone)
-				$.publish(gv_topics.general.channels, [{action: "add", id: gt_channelId, text: text}]);
+				$.publish(gv_topics.general.conversations, [{action: "add", id: gt_conversationId, text: text}]);
 		}
 		
-		return gt_channelId;
+		return gt_conversationId;
 	};
 	
 	/**
@@ -457,9 +457,10 @@ function GCcommunication ()
 		// add the internal behavior
 		var gt_behav		= this.getBehavior("me");
 		gt_behav.addNode("start", "What to do?", "action", true, false, false);
-		gt_behav.selectNode("start");
+		
 		// toggle bv
 		gf_toggleBV();
+		
 		this.drawBehavior("me");
 	};
 	
@@ -794,22 +795,22 @@ function GCcommunication ()
 						var gt_relatedSubject		= gt_edge.getRelatedSubject();
 						var gt_text					= gt_edge.getMessageType();
 						var gt_type					= gt_edge.getType();
-						var gt_channelId			= gt_startNode	== null ? "" : gt_startNode.getChannel();
-						var gt_channelName			= gt_startNode	== null ? "" : gt_startNode.getChannel("name");
+						var gt_conversationId			= gt_startNode	== null ? "" : gt_startNode.getConversation();
+						var gt_conversationName			= gt_startNode	== null ? "" : gt_startNode.getConversation("name");
 												
 						if (gt_startNode != null && gt_endNode != null && gt_relatedSubject != null && gt_text != "" && gt_type == "exitcondition")
 						{
-							if (this.selectedChannel == "##channels##")
+							if (this.selectedConversation == "##conversations##")
 							{
-								if (gf_isset(this.subjects[gt_relatedSubject]) && (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive") && gt_channelName != null)
+								if (gf_isset(this.subjects[gt_relatedSubject]) && (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive") && gt_conversationName != null)
 								{
 									if (gt_relatedSubject.toLowerCase() > gt_bi.toLowerCase())
-										this.addMessage(gt_bi, gt_relatedSubject, gt_channelName);
+										this.addMessage(gt_bi, gt_relatedSubject, gt_conversationName);
 									else
-										this.addMessage(gt_relatedSubject, gt_bi, gt_channelName);
+										this.addMessage(gt_relatedSubject, gt_bi, gt_conversationName);
 								}
 							}
-							else if (this.selectedChannel == "##all##" || this.selectedChannel == gt_channelId || this.selectedChannel == null)
+							else if (this.selectedConversation == "##all##" || this.selectedConversation == gt_conversationId || this.selectedConversation == null)
 							{
 								if (gf_isset(this.subjects[gt_relatedSubject]) && gt_startNode.getType() == "send")
 								{
@@ -827,7 +828,7 @@ function GCcommunication ()
 			}
 			
 			// clear graph
-			gv_graph_cv.init(this.selectedChannel == "##channels##");
+			gv_graph_cv.init(this.selectedConversation == "##conversations##");
 			
 			// add subjects
 			for (var gt_sid in this.subjects)
@@ -851,7 +852,7 @@ function GCcommunication ()
 				}
 			}
 			
-			$.publish(gv_topics.general.channels, [{action: "load", view: "cv"}]);
+			$.publish(gv_topics.general.conversations, [{action: "load", view: "cv"}]);
 			gv_graph_cv.drawGraph();
 		}
 	};
@@ -884,8 +885,8 @@ function GCcommunication ()
 			gf_timeCalc("load internal behavior");
 			gf_timePrint();
 			
-			// request an update of the channel and macro list
-			$.publish(gv_topics.general.channels, [{action: "load", view: "bv"}]);
+			// request an update of the conversation and macro list
+			$.publish(gv_topics.general.conversations, [{action: "load", view: "bv"}]);
 			$.publish(gv_topics.general.macros, [{action: "load", view: "bv"}]);
 		}
 	};
@@ -1097,29 +1098,29 @@ function GCcommunication ()
 	};
 	
 	/**
-	 * Returns the id of the selected channel.
+	 * Returns the id of the selected conversation.
 	 * 
 	 * @param {String} view Indicates when a view is changed.
-	 * @returns {String} Id of the selected channel.
+	 * @returns {String} Id of the selected conversation.
 	 */
-	this.getSelectedChannel = function (view)
+	this.getSelectedConversation = function (view)
 	{
 		if (!gf_isset(view))
 			view = null;
 		
 		if (this.selectedSubject == null && view != "bv" || view == "cv")
 		{
-			return this.selectedChannel;
+			return this.selectedConversation;
 		}
 		else
 		{
 			if (this.selectedSubject != null && gf_isset(this.subjects[this.selectedSubject]))
 			{
-				return this.getBehavior(this.selectedSubject).selectedChannel;
+				return this.getBehavior(this.selectedSubject).selectedConversation;
 			}
 			else if (this.selectedNode != null && gf_isset(this.subjects[this.selectedNode]))
 			{
-				return this.getBehavior(this.selectedNode).selectedChannel;
+				return this.getBehavior(this.selectedNode).selectedConversation;
 			}
 		}
 		return null;
@@ -1321,7 +1322,7 @@ function GCcommunication ()
 			var gt_mapMessages	= false;
 			var gt_countNodes	= true;
 			
-			var gt_useChannels	= false;
+			var gt_useConversations	= false;
 			var gt_useVariables	= false;
 			
 			if (gf_isset(gt_jsonObject.process, gt_jsonObject.messages, gt_jsonObject.messageCounter))
@@ -1349,15 +1350,15 @@ function GCcommunication ()
 				gt_countNodes		= false;
 			}
 			
-			if (gf_isset(gt_jsonObject.channels, gt_jsonObject.channelCounter))
+			if (gf_isset(gt_jsonObject.conversations, gt_jsonObject.conversationCounter))
 			{
-				this.channels		= gt_jsonObject.channels;
-				this.channelCounter	= gt_jsonObject.channelCounter;
-				gt_useChannels		= true;
+				this.conversations		= gt_jsonObject.conversations;
+				this.conversationCounter	= gt_jsonObject.conversationCounter;
+				gt_useConversations		= true;
 			}
 			
-			// reset channel selection
-			this.selectedChannel	= "##all##";
+			// reset conversation selection
+			this.selectedConversation	= "##all##";
 			
 			// 1. create subjects (replace <br /> by \n)
 			for (var gt_subjectId in gt_jsonProcess)
@@ -1449,8 +1450,8 @@ function GCcommunication ()
 								if (gf_isset(gt_node.options))
 									gt_createdNode.setOptions(gt_node.options);
 								
-								if (gf_isset(gt_node.channel) && gt_useChannels)
-									gt_createdNode.setChannel(gt_node.channel);
+								if (gf_isset(gt_node.conversation) && gt_useConversations)
+									gt_createdNode.setConversation(gt_node.conversation);
 								
 								if (gf_isset(gt_node.variable) && gt_useVariables)
 									gt_createdNode.setVariable(gt_node.variable);
@@ -1673,7 +1674,7 @@ function GCcommunication ()
 							options:	gt_node.getOptions(),
 							deactivated:	gt_node.isDeactivated(),
 							majorStartNode:	gt_node.isMajorStartNode(),
-							channel:		gt_node.getChannel(),
+							conversation:		gt_node.getConversation(),
 							variable:		gt_node.getVariable(),
 							varMan:			gt_node.getVarMan("all"),
 							macro:			gt_node.getMacro(),
@@ -1734,8 +1735,8 @@ function GCcommunication ()
 		gt_processData.messages			= this.messageTypes;
 		gt_processData.messageCounter	= this.messageTypeCounter;
 		gt_processData.nodeCounter		= this.nodeCounter;
-		gt_processData.channels			= this.channels;
-		gt_processData.channelCounter	= this.channelCounter;
+		gt_processData.conversations			= this.conversations;
+		gt_processData.conversationCounter	= this.conversationCounter;
 		
 		return gt_processData;
 	};
@@ -1777,20 +1778,20 @@ function GCcommunication ()
 	};
 	
 	/**
-	 * Select a channel.
-	 * When an internal behavior is selected the channel name will be passed to the behavior's selectChannel method.
+	 * Select a conversation.
+	 * When an internal behavior is selected the conversation name will be passed to the behavior's selectConversation method.
 	 * 
-	 * @param {String} channel The name of the channel to select. When set to "##channels##" the available channels will be displayed in the CV. When set to "##all##" all channels will be displayed.
+	 * @param {String} conversation The name of the conversation to select. When set to "##conversations##" the available conversations will be displayed in the CV. When set to "##all##" all conversations will be displayed.
 	 * @returns {void}
 	 */
-	this.selectChannel = function (channel)
+	this.selectConversation = function (conversation)
 	{
 		if (this.selectedSubject == null)
 		{			
-			if (!gf_isset(channel))
-				channel = "##all##";
+			if (!gf_isset(conversation))
+				conversation = "##all##";
 				
-			this.selectedChannel	= channel;
+			this.selectedConversation	= conversation;
 			
 			this.draw();
 		}
@@ -1798,7 +1799,7 @@ function GCcommunication ()
 		{
 			if (gf_isset(this.subjects[this.selectedSubject]))
 			{
-				this.getBehavior(this.selectedSubject).selectChannel(channel);
+				this.getBehavior(this.selectedSubject).selectConversation(conversation);
 			}
 		}
 	};

@@ -452,9 +452,9 @@ function GCmacro (parent, id, name)
 			gv_graph_bv.drawGraph(this.parent.name);
 			gf_timeCalc("macro - draw (drawGraph)");
 			
-			gf_timeCalc("macro - draw (select channel)");
-			this.selectChannel(this.parent.selectedChannel);
-			gf_timeCalc("macro - draw (select channel)");
+			gf_timeCalc("macro - draw (select conversation)");
+			this.selectConversation(this.parent.selectedConversation);
+			gf_timeCalc("macro - draw (select conversation)");
 		}
  	};
 	
@@ -515,18 +515,18 @@ function GCmacro (parent, id, name)
  	};
 	
 	/**
-	 * Select a channel.
-	 * This will deactivate all nodes and edges that do not belong to the specified channel.
+	 * Select a conversation.
+	 * This will deactivate all nodes and edges that do not belong to the specified conversation.
 	 * 
-	 * @param {String} channel The name of the channel to select. When set to "##all##" all nodes and edges will be displayed.
+	 * @param {String} conversation The name of the conversation to select. When set to "##all##" all nodes and edges will be displayed.
 	 * @returns {void}
 	 */
- 	this.selectChannel = function (channel)
+ 	this.selectConversation = function (conversation)
  	{
- 		if (!gf_isset(channel))
- 			channel	= "##all##";
+ 		if (!gf_isset(conversation))
+ 			conversation	= "##all##";
  			
- 		this.parent.selectedChannel	= channel;
+ 		this.parent.selectedConversation	= conversation;
  		
  		var gt_node			= null;
  		var gt_edge			= null;
@@ -537,10 +537,10 @@ function GCmacro (parent, id, name)
  		{
  			gt_node	= this.nodes[gt_nid];
  			
- 			if (channel == "##all##")
+ 			if (conversation == "##all##")
  				gt_deactivate	= gt_node.isDeactivated(true);
  			else
- 				gt_deactivate	= gt_node.getChannel() != channel;
+ 				gt_deactivate	= gt_node.getConversation() != conversation;
  				
  			if (gf_isset(gv_objects_nodes[gt_node.id]))
  			{
@@ -557,10 +557,10 @@ function GCmacro (parent, id, name)
  			gt_edge	= this.edges[gt_eid];
  			gt_node	= gf_isset(this.nodes["n" + gt_edge.getStart()]) ? this.nodes["n" + gt_edge.getStart()] : null;
  			
- 			if (channel == "##all##")
+ 			if (conversation == "##all##")
  				gt_deactivate	= gt_edge.isDeactivated();
  			else
- 				gt_deactivate	= gt_node == null ? true : gt_node.getChannel() != channel;
+ 				gt_deactivate	= gt_node == null ? true : gt_node.getConversation() != conversation;
  				
  			gt_eid	= gt_eid.substr(1);
  			if (gf_isset(gv_objects_edges[gt_eid]))
@@ -753,8 +753,8 @@ function GCmacro (parent, id, name)
 			var gt_isStart			= gf_isset(values.isStart)			? values.isStart			: false;
 			var gt_type				= gf_isset(values.type)				? values.type				: "";
 			var gt_isMajorStartNode	= gf_isset(values.isMajorStartNode)	? values.isMajorStartNode	: false;
-			var gt_channel			= gf_isset(values.channel)			? values.channel			: "";
-			var gt_channelText		= gf_isset(values.channelText)		? values.channelText		: "";
+			var gt_conversation			= gf_isset(values.conversation)			? values.conversation			: "";
+			var gt_conversationText		= gf_isset(values.conversationText)		? values.conversationText		: "";
 			var gt_variable			= gf_isset(values.variable)			? values.variable			: "";
 			var gt_options			= gf_isset(values.options)			? values.options			: {};
 			var gt_varMan			= gf_isset(values.varMan)			? values.varMan				: {};
@@ -771,8 +771,8 @@ function GCmacro (parent, id, name)
 			if (!gf_isset(gt_options.correlationId))
 				gt_options.correlationId	= "*";
 				
-			if (!gf_isset(gt_options.channel))
-				gt_options.channel	= "*";
+			if (!gf_isset(gt_options.conversation))
+				gt_options.conversation	= "*";
 				
 			if (!gf_isset(gt_options.state))
 				gt_options.state	= "";
@@ -795,7 +795,7 @@ function GCmacro (parent, id, name)
 			gt_node.setEnd(gt_type == "end");
 			gt_node.setOptions(gt_options);
 			gt_node.setVariable(gt_variable);
-			gt_node.setChannel(gv_graph.addChannel(gt_channelText, gt_channel));
+			gt_node.setConversation(gv_graph.addConversation(gt_conversationText, gt_conversation));
 			gt_node.setVarMan(gt_varMan);
 			gt_node.setComment(gt_comment);
 			

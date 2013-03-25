@@ -11,22 +11,22 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-// subscribe to changes of channel list
-$.subscribe("/tk_graph/channels", function (args)
+// subscribe to changes of conversation list
+$.subscribe("/tk_graph/conversations", function (args)
 {
 	if (gf_isset(gv_elements))
 	{
 		if (gf_isset(args.action) && args.action == "load" && gf_isset(args.view))
 		{
-			gf_guiLoadDropDownForChannelSelect(args.view);
+			gf_guiLoadDropDownForConversationSelect(args.view);
 		}
 		else
 		{
-			gf_guiLoadDropDownForChannelSelect();
+			gf_guiLoadDropDownForConversationSelect();
 		}
 	}
 	
-	gf_callFunc("communication.updateListOfChannels", null);
+	gf_callFunc("communication.updateListOfConversations", null);
 }
 );
 
@@ -218,7 +218,7 @@ function gf_guiChangeView (view)
 			$('#' + gv_elements.graphBVouter).scrollTo( {left: '50%', top: '0px'});
 		}
 		
-		gf_guiLoadDropDownForChannelSelect(view);
+		gf_guiLoadDropDownForConversationSelect(view);
 	}
 }
 
@@ -244,11 +244,11 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputEdgeTypeCondO);
 	gf_guiElementHide(gv_elements.inputEdgeTypeExceptO);
 	gf_guiElementHide(gv_elements.inputEdgeTypeTimeoutO);
-	gf_guiElementHide(gv_elements.inputNodeChannelNewOuter);
-	gf_guiElementHide(gv_elements.inputNodeChannelOuter);
+	gf_guiElementHide(gv_elements.inputNodeConversationNewOuter);
+	gf_guiElementHide(gv_elements.inputNodeConversationOuter);
 	gf_guiElementHide(gv_elements.inputNodeMajorStartOuter);
 	gf_guiElementHide(gv_elements.inputNodeOptionsOuter);
-	gf_guiElementHide(gv_elements.inputNodeOptChannelOuter);
+	gf_guiElementHide(gv_elements.inputNodeOptConversationOuter);
 	gf_guiElementHide(gv_elements.inputNodeOptCorrelationIdO);
 	gf_guiElementHide(gv_elements.inputNodeOptMessageO);
 	gf_guiElementHide(gv_elements.inputNodeOptStateOuter);
@@ -268,7 +268,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputNodeMacroNewOuter);
 	
 	// clear element values
-	gf_guiElementWrite(gv_elements.guiChannelSelect, "string", "");
+	gf_guiElementWrite(gv_elements.guiConversationSelect, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeComment, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeCorrelationId, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeExceptionText, "string", "");
@@ -284,10 +284,10 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputEdgeText, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTimeout, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTransportMethod, "string", "");
-	gf_guiElementWrite(gv_elements.inputNodeChannel, "string", "");
-	gf_guiElementWrite(gv_elements.inputNodeChannelNew, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeConversation, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeConversationNew, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeComment, "string", "");
-	gf_guiElementWrite(gv_elements.inputNodeOptChannel, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeOptConversation, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeOptCorrelationId, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeOptMessage, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeOptState, "string", "");
@@ -322,7 +322,6 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtInterface, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", false);
-	gf_guiElementWrite(gv_elements.inputSubjectStartSubject, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeA, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeL, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeV, "bool", false);
@@ -598,12 +597,12 @@ function gf_guiDisplayNode (node)
 	gf_guiElementShow(gv_elements.inputNodeOuter);
 	
 	// load dropdowns
-	gf_guiLoadDropDownChannels(gv_elements.inputNodeChannel, true, false);
+	gf_guiLoadDropDownConversations(gv_elements.inputNodeConversation, true, false);
 	gf_guiLoadDropDownForNode(node.parentBehavior, gt_type);
 	gf_guiLoadDropDownNodeTypes(gv_elements.inputNodeType);
 		
 	// show divs
-	gf_guiElementShow(gv_elements.inputNodeChannelOuter);
+	gf_guiElementShow(gv_elements.inputNodeConversationOuter);
 	
 	if (node.parentMacro.id == "##main##")
 		gf_guiElementShow(gv_elements.inputNodeStartOuter);
@@ -614,7 +613,7 @@ function gf_guiDisplayNode (node)
 	// set values
 	gf_guiElementWrite(gv_elements.inputNodeType, "string", gt_type);
 	gf_guiElementWrite(gv_elements.inputNodeText, "string", gf_replaceNewline(node.getText()));
-	gf_guiElementWrite(gv_elements.inputNodeChannel, "string", node.getChannel(), "");
+	gf_guiElementWrite(gv_elements.inputNodeConversation, "string", node.getConversation(), "");
 	gf_guiElementWrite(gv_elements.inputNodeStart, "bool", node.isStart());
 	gf_guiElementWrite(gv_elements.inputNodeMajorStart, "bool", node.isStart() && node.isMajorStartNode());
 	
@@ -642,15 +641,15 @@ function gf_guiDisplayNode (node)
 		};
 	}
 	
-	// add onChange listener to channel selection
-	if (gf_elementExists(gv_elements.inputNodeChannel))
+	// add onChange listener to conversation selection
+	if (gf_elementExists(gv_elements.inputNodeConversation))
 	{
-		document.getElementById(gv_elements.inputNodeChannel).onchange	= function ()
+		document.getElementById(gv_elements.inputNodeConversation).onchange	= function ()
 		{
-			if (gf_guiElementRead(gv_elements.inputNodeChannel, "string") == "##createNew##")
-				gf_guiElementShow(gv_elements.inputNodeChannelNewOuter);
+			if (gf_guiElementRead(gv_elements.inputNodeConversation, "string") == "##createNew##")
+				gf_guiElementShow(gv_elements.inputNodeConversationNewOuter);
 			else
-				gf_guiElementHide(gv_elements.inputNodeChannelNewOuter);
+				gf_guiElementHide(gv_elements.inputNodeConversationNewOuter);
 		};
 	}
 	
@@ -694,8 +693,8 @@ function gf_guiDisplayNode (node)
 		if (gf_isset(gt_options.state))
 			gf_guiElementWrite(gv_elements.inputNodeOptState, "string", gt_options.state, "");
 		
-		if (gf_isset(gt_options.channel))
-			gf_guiElementWrite(gv_elements.inputNodeOptChannel, "string", gt_options.channel, "");
+		if (gf_isset(gt_options.conversation))
+			gf_guiElementWrite(gv_elements.inputNodeOptConversation, "string", gt_options.conversation, "");
 		
 		if (gf_isset(gt_options.correlationId))
 			gf_guiElementWrite(gv_elements.inputNodeOptCorrelationId, "string", gt_options.correlationId, "");
@@ -741,7 +740,6 @@ function gf_guiDisplaySubject (subject)
 	// check checbkoxes / radio buttons
 	gf_guiElementWrite(gv_elements.inputSubjectTypeMulti, "bool", subject.isMulti());
 	gf_guiElementWrite(gv_elements.inputSubjectTypeExternal, "bool", subject.isExternal());
-	gf_guiElementWrite(gv_elements.inputSubjectStartSubject, "bool", subject.isStartSubject());
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", subject.getExternalType() == "external");
 	gf_guiElementWrite(gv_elements.inputSubjectExtInterface, "bool", subject.getExternalType() == "interface");
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", subject.getExternalType() == "instantinterface");
@@ -780,108 +778,108 @@ function gf_guiEdgeTypeAddOnClick (element, elementToShow)
 }
 
 /**
- * This method is used to fill a select field with all available channels.
+ * This method is used to fill a select field with all available conversations.
  * 
- * @param {String} elementChannel The ID of the select element that holds the available channels.
- * @param {boolean} newChannel When set to true an option will be added to create a new channel.
- * @param {boolean} wildcard When set to true an option will be added to the select field to select all channels (wildcard).
- * @param {boolean} selectChannels When set to true an option will be added to the select field to only display channels (used in CV).
+ * @param {String} elementConversation The ID of the select element that holds the available conversations.
+ * @param {boolean} newConversation When set to true an option will be added to create a new conversation.
+ * @param {boolean} wildcard When set to true an option will be added to the select field to select all conversations (wildcard).
+ * @param {boolean} selectConversations When set to true an option will be added to the select field to only display conversations (used in CV).
  * @returns {void}
  */
-function gf_guiLoadDropDownChannels (elementChannel, newChannel, wildcard, selectChannels)
+function gf_guiLoadDropDownConversations (elementConversation, newConversation, wildcard, selectConversations)
 {
-	if (!gf_isset(newChannel) || newChannel !== true)
-		newChannel = false;
+	if (!gf_isset(newConversation) || newConversation !== true)
+		newConversation = false;
 		
 	if (!gf_isset(wildcard) || wildcard !== true)
 		wildcard = false;
 		
-	if (!gf_isset(selectChannels) || selectChannels !== true)
-		selectChannels = false;
+	if (!gf_isset(selectConversations) || selectConversations !== true)
+		selectConversations = false;
 	
-	// load channels	
-	if (elementChannel != null && gf_elementExists(elementChannel))
+	// load conversations	
+	if (elementConversation != null && gf_elementExists(elementConversation))
 	{
-		var gt_select			= document.getElementById(elementChannel).options;
+		var gt_select			= document.getElementById(elementConversation).options;
 			gt_select.length	= 0;
-		var gt_channelArray	= [];
+		var gt_conversationArray	= [];
 		
 		// create some entries to guide the user
 		var gt_option			= document.createElement("option");
 			gt_option.text		= "please select";
 			gt_option.value		= "";
-			gt_option.id		= elementChannel + "_00000.0";
+			gt_option.id		= elementConversation + "_00000.0";
 			gt_select.add(gt_option);
 		
 			gt_option			= document.createElement("option");
 			gt_option.text		= "----------------------------";
 			gt_option.value		= "";
-			gt_option.id		= elementChannel + "_00000.1";
+			gt_option.id		= elementConversation + "_00000.1";
 			gt_select.add(gt_option);
 		
-		// options for select channels instead of messageTypes (CV only)
-		if (selectChannels === true)
+		// options for select conversations instead of messageTypes (CV only)
+		if (selectConversations === true)
 		{
 			gt_option			= document.createElement("option");
-			gt_option.text		= "display channels";
-			gt_option.value		= "##channels##";
-			gt_option.id		= elementChannel + "_00000.channels";
+			gt_option.text		= "display conversations";
+			gt_option.value		= "##conversations##";
+			gt_option.id		= elementConversation + "_00000.conversations";
 			gt_select.add(gt_option);
 		
 			gt_option			= document.createElement("option");
 			gt_option.text		= "----------------------------";
 			gt_option.value		= "";
-			gt_option.id		= elementChannel + "_00000.321";
+			gt_option.id		= elementConversation + "_00000.321";
 			gt_select.add(gt_option);
 		}
 		
-		// options for select all channels
+		// options for select all conversations
 		if (wildcard === true)
 		{
 			gt_option			= document.createElement("option");
-			gt_option.text		= "All channels";
+			gt_option.text		= "All conversations";
 			gt_option.value		= "##all##";
-			gt_option.id		= elementChannel + "_00000.all";
+			gt_option.id		= elementConversation + "_00000.all";
 			gt_select.add(gt_option);
 		
 			gt_option			= document.createElement("option");
 			gt_option.text		= "----------------------------";
 			gt_option.value		= "";
-			gt_option.id		= elementChannel + "_00000.3";
+			gt_option.id		= elementConversation + "_00000.3";
 			gt_select.add(gt_option);
 		}
 		
-		// collect channels
-		for (var gt_channelId in gv_graph.channels)
+		// collect conversations
+		for (var gt_conversationId in gv_graph.conversations)
 		{
-			gt_channelArray[gt_channelArray.length]	= {id: gt_channelId, text: gv_graph.channels[gt_channelId]};
+			gt_conversationArray[gt_conversationArray.length]	= {id: gt_conversationId, text: gv_graph.conversations[gt_conversationId]};
 		}
 		
-		// sort the channels alphabetically
-		gt_channelArray.sort(gf_guiSortArrayByText);
+		// sort the conversations alphabetically
+		gt_conversationArray.sort(gf_guiSortArrayByText);
 		
-		// add the channels to the select field
-		for (var gt_cid in gt_channelArray)
+		// add the conversations to the select field
+		for (var gt_cid in gt_conversationArray)
 		{
 			gt_option		= document.createElement("option");
-			gt_option.text	= gf_replaceNewline(gt_channelArray[gt_cid].text, " ");
-			gt_option.value	= gt_channelArray[gt_cid].id;
-			gt_option.id	= elementChannel + "_" + gt_cid;
+			gt_option.text	= gf_replaceNewline(gt_conversationArray[gt_cid].text, " ");
+			gt_option.value	= gt_conversationArray[gt_cid].id;
+			gt_option.id	= elementConversation + "_" + gt_cid;
 			gt_select.add(gt_option);
 		}
 		
-		if (newChannel === true)
+		if (newConversation === true)
 		{
 			gt_option			= document.createElement("option");
 			gt_option.text		= "----------------------------";
 			gt_option.value		= "";
-			gt_option.id		= elementChannel + "_00000.42";
+			gt_option.id		= elementConversation + "_00000.42";
 			gt_select.add(gt_option);
 		
 			gt_option			= document.createElement("option");
-			gt_option.text		= "create a new channel";
+			gt_option.text		= "create a new conversation";
 			gt_option.value		= "##createNew##";
-			gt_option.id		= elementChannel + "_00000.new";
+			gt_option.id		= elementConversation + "_00000.new";
 			gt_select.add(gt_option);
 		}
 	}
@@ -974,10 +972,10 @@ function gf_guiLoadDropDownCorrelationIds (behavior, elementCorrelationId, newCo
 			gt_varArray[gt_varArray.length]	= {id: gt_varId, text: behavior.variables[gt_varId]};
 		}
 		
-		// sort the channels alphabetically
+		// sort the conversations alphabetically
 		gt_varArray.sort(gf_guiSortArrayByText);
 		
-		// add the channels to the select field
+		// add the conversations to the select field
 		for (var gt_vid in gt_varArray)
 		{
 			gt_option		= document.createElement("option");
@@ -1629,29 +1627,29 @@ function gf_guiLoadDropDownVarManOperations (elementVarMan)
 }
 
 /**
- * Refresh the list of channels to select.
+ * Refresh the list of conversations to select.
  * 
  * @param {String} view Just needed when the view is changed.
  * @returns {void}
  */
-function gf_guiLoadDropDownForChannelSelect (view)
+function gf_guiLoadDropDownForConversationSelect (view)
 {
 	if (!gf_isset(view))
 		view = "";
 	
-	if (gf_elementExists(gv_elements.guiChannelSelect))
+	if (gf_elementExists(gv_elements.guiConversationSelect))
 	{
-		var gt_value	= view == "" ? gv_graph.getSelectedChannel() : gv_graph.getSelectedChannel(view);
+		var gt_value	= view == "" ? gv_graph.getSelectedConversation() : gv_graph.getSelectedConversation(view);
 			gt_value	= gt_value == null ? "##all##" : gt_value;
 		
-		gf_guiLoadDropDownChannels(gv_elements.guiChannelSelect, false, true, view == "cv");
-		document.getElementById(gv_elements.guiChannelSelect).value = gt_value;
+		gf_guiLoadDropDownConversations(gv_elements.guiConversationSelect, false, true, view == "cv");
+		document.getElementById(gv_elements.guiConversationSelect).value = gt_value;
 		
-		document.getElementById(gv_elements.guiChannelSelect).onchange = function ()
+		document.getElementById(gv_elements.guiConversationSelect).onchange = function ()
 		{
-			var gt_selected	= document.getElementById(gv_elements.guiChannelSelect).value;
+			var gt_selected	= document.getElementById(gv_elements.guiConversationSelect).value;
 			
-			gf_selectChannel(gt_selected);
+			gf_selectConversation(gt_selected);
 		};
 	}
 }
@@ -1670,7 +1668,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 		
 	gf_guiElementHide(gv_elements.inputNodeOptMessageO);
 	gf_guiElementHide(gv_elements.inputNodeOptSubjectO);
-	gf_guiElementHide(gv_elements.inputNodeOptChannelOuter);
+	gf_guiElementHide(gv_elements.inputNodeOptConversationOuter);
 	gf_guiElementHide(gv_elements.inputNodeOptCorrelationIdO);
 	gf_guiElementHide(gv_elements.inputNodeOptStateOuter);
 	gf_guiElementHide(gv_elements.inputNodeOptionsOuter);
@@ -1690,7 +1688,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 	}
 	else if (nodeType.substr(0, 1) == "$")
 	{
-		var gt_predefAction	= {subject: false, message: false, wildcard: false, channel: false, correlationid: false, options: false, state: false};
+		var gt_predefAction	= {subject: false, message: false, wildcard: false, conversation: false, correlationid: false, options: false, state: false};
 		
 		
 		if (gf_isset(gv_predefinedActions[nodeType.substr(1)]))
@@ -1710,10 +1708,10 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 			gf_guiElementShow(gv_elements.inputNodeOptSubjectO);
 		}
 			
-		if (gt_predefAction.channel)
+		if (gt_predefAction.conversation)
 		{
 			gt_showOptions	= true;
-			gf_guiElementShow(gv_elements.inputNodeOptChannelOuter);
+			gf_guiElementShow(gv_elements.inputNodeOptConversationOuter);
 		}
 			
 		if (gt_predefAction.correlationid)
@@ -1736,7 +1734,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 			gf_guiLoadDropDownMessageTypes(gv_elements.inputNodeOptMessage, false, gt_predefAction.wildcard);
 			gf_guiLoadDropDownSubjects(gv_elements.inputNodeOptSubject, null, gt_predefAction.wildcard);
 			gf_guiLoadDropDownCorrelationIds(behavior, gv_elements.inputNodeOptCorrelationId, false, gt_predefAction.wildcard);
-			gf_guiLoadDropDownChannels(gv_elements.inputNodeOptChannel, false, gt_predefAction.wildcard);
+			gf_guiLoadDropDownConversations(gv_elements.inputNodeOptConversation, false, gt_predefAction.wildcard);
 			gf_guiLoadDropDownStates(behavior, gv_elements.inputNodeOptState);
 		}
 	}
@@ -1851,26 +1849,26 @@ function gf_guiReadEdge ()
  * Read the values for the selected node from the input fields.
  * 
  * @see GCcommunication::updateNode()
- * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan, macro, macroText, comment
+ * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, macro, macroText, comment
  */
 function gf_guiReadNode ()
 {
-	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", channel: "", state: ""}, isMajorStartNode: false, channel: "", channelText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, macro: "", macroText: "", comment: ""};
+	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", conversation: "", state: ""}, isMajorStartNode: false, conversation: "", conversationText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, macro: "", macroText: "", comment: ""};
 	
 	var gt_text					= gf_guiElementRead(gv_elements.inputNodeText, "string", "");
 	var gt_isStart				= gf_guiElementRead(gv_elements.inputNodeStart, "bool", false);
 	var gt_type 				= gf_guiElementRead(gv_elements.inputNodeType, "string", "").toLowerCase();
 	var gt_opt_subject 			= gf_guiElementRead(gv_elements.inputNodeOptSubject, "string", "");
 	var gt_opt_message 			= gf_guiElementRead(gv_elements.inputNodeOptMessage, "string", "");
-	var gt_opt_channel 			= gf_guiElementRead(gv_elements.inputNodeOptChannel, "string", "");
+	var gt_opt_conversation 			= gf_guiElementRead(gv_elements.inputNodeOptConversation, "string", "");
 	var gt_opt_correlationId 	= gf_guiElementRead(gv_elements.inputNodeOptCorrelationId, "string", "");
 	var gt_opt_state 			= gf_guiElementRead(gv_elements.inputNodeOptState, "string", "");
 	var gt_isMajorStartNode		= gf_guiElementRead(gv_elements.inputNodeMajorStart, "bool", false);
 	var gt_comment				= gf_guiElementRead(gv_elements.inputNodeComment, "string", "");
 	
 	
-	var gt_channel			= gf_guiElementRead(gv_elements.inputNodeChannel, "string", "");
-	var gt_channelNew		= gf_guiElementRead(gv_elements.inputNodeChannelNew, "string", "");
+	var gt_conversation			= gf_guiElementRead(gv_elements.inputNodeConversation, "string", "");
+	var gt_conversationNew		= gf_guiElementRead(gv_elements.inputNodeConversationNew, "string", "");
 	var gt_variable			= gf_guiElementRead(gv_elements.inputNodeVariable, "string", "");
 	
 	
@@ -1888,7 +1886,7 @@ function gf_guiReadNode ()
 	
 	gt_options.subject			= gt_opt_subject;
 	gt_options.message			= gt_opt_message;
-	gt_options.channel			= gt_opt_channel;
+	gt_options.conversation			= gt_opt_conversation;
 	gt_options.correlationId	= gt_opt_correlationId;
 	gt_options.state			= gt_opt_state;
 	
@@ -1897,8 +1895,8 @@ function gf_guiReadNode ()
 	gt_result.type				= gt_type;
 	gt_result.options			= gt_options;
 	gt_result.isMajorStartNode	= gt_isMajorStartNode;
-	gt_result.channel			= gt_channel;
-	gt_result.channelText		= gt_channelNew;
+	gt_result.conversation			= gt_conversation;
+	gt_result.conversationText		= gt_conversationNew;
 	gt_result.variable			= gt_variable;
 	gt_result.varMan			= gt_varMan;
 	gt_result.macro				= gt_macro;
@@ -1912,11 +1910,11 @@ function gf_guiReadNode ()
  * Read the values for the selected subject from the input fields.
  * 
  * @see GCcommunication::updateSubject()
- * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment, startSubject
+ * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment
  */
 function gf_guiReadSubject ()
 {
-	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: "", startSubject: false};
+	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: ""};
 	
 	var gt_text			= gf_guiElementRead(gv_elements.inputSubjectText, "string", "");
 	var gt_role			= gf_guiElementRead(gv_elements.inputSubjectRole, "string", "");
@@ -1924,7 +1922,6 @@ function gf_guiReadSubject ()
 	var gt_relProcess	= gf_guiElementRead(gv_elements.inputSubjectRelProcess, "string", "");
 	var gt_relSubject	= gf_guiElementRead(gv_elements.inputSubjectRelSubject, "string", "");
 	var gt_comment		= gf_guiElementRead(gv_elements.inputSubjectComment, "string", "");
-	var gt_startSubject	= gf_guiElementRead(gv_elements.inputSubjectStartSubject, "bool", false);
 	
 	var gt_type	= "";
 	var gt_externalType	= "external";
@@ -1952,7 +1949,6 @@ function gf_guiReadSubject ()
 	gt_result.relatedSubject	= gt_relSubject;
 	gt_result.externalType		= gt_externalType;
 	gt_result.comment			= gt_comment;
-	gt_result.startSubject		= gt_startSubject;
 	
 	return gt_result;
 }

@@ -20,7 +20,7 @@
  */
 var gv_elements = {
 	
-	guiChannelSelect:			"graph_channel_select",
+	guiConversationSelect:			"graph_conversation_select",
 	
 	graphBVouter:				"graph_bv_outer",
 	graphCVouter:				"graph_cv_outer",
@@ -54,15 +54,15 @@ var gv_elements = {
 	inputEdgeTypeCondO:			"ge_edge_typeCOuter",
 	inputEdgeTypeExceptO:		"ge_edge_typeEOuter",
 	inputEdgeTypeTimeoutO:		"ge_edge_typeTOuter",
-	inputNodeChannel:			"ge_node_channel",
-	inputNodeChannelNew:		"ge_node_channel_new",
-	inputNodeChannelNewOuter:	"ge_node_channel_new_outer",
-	inputNodeChannelOuter:		"ge_node_channel_outer",
+	inputNodeConversation:			"ge_node_conversation",
+	inputNodeConversationNew:		"ge_node_conversation_new",
+	inputNodeConversationNewOuter:	"ge_node_conversation_new_outer",
+	inputNodeConversationOuter:		"ge_node_conversation_outer",
 	inputNodeMajorStart:		"ge_node_major_start_node",
 	inputNodeMajorStartOuter:	"ge_node_major_start_node_outer",
 	inputNodeOptionsOuter:		"ge_node_options_outer",
-	inputNodeOptChannel:		"ge_node_opt_channel",
-	inputNodeOptChannelOuter:	"ge_node_opt_channel_outer",
+	inputNodeOptConversation:		"ge_node_opt_conversation",
+	inputNodeOptConversationOuter:	"ge_node_opt_conversation_outer",
 	inputNodeOptCorrelationId:	"ge_node_opt_correlation_id",
 	inputNodeOptCorrelationIdO:	"ge_node_opt_correlation_id_outer",
 	inputNodeOptMessage:		"ge_node_opt_message",
@@ -82,7 +82,6 @@ var gv_elements = {
 	inputSubjectRelProcess:		"ge_cv_relatedProcess",
 	inputSubjectRelSubject:		"ge_cv_relatedSubject",
 	inputSubjectRole:			"ge_cv_id",
-	inputSubjectStartSubject:	"ge_cv_startSubject",
 	inputSubjectText:			"ge_cv_text",
 	
 	// select elements
@@ -230,7 +229,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, channel, channelText, variable, varMan, macro, macroText, comment
+		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, macro, macroText, comment
 		 */
 		readNode:			"",
 		
@@ -238,7 +237,7 @@ var gv_functions	= {
 		 * read input fields (subject) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadSubject()
-		 * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment, startSubject
+		 * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment
 		 */
 		readSubject:		"",
 		
@@ -252,11 +251,11 @@ var gv_functions	= {
 		toggleNEForms:		"",
 		
 		/**
-		 * updates the list of available channels in the GUI
+		 * updates the list of available conversations in the GUI
 		 * 
 		 * @returns {void}
 		 */
-		updateListOfChannels:	"",
+		updateListOfConversations:	"",
 		
 		/**
 		 * updates the list of available subjects in the GUI
@@ -487,9 +486,9 @@ var gv_topics	= {
 		toggleNEForms:		"",
 		
 		/**
-		 * notifier topic for updates the list of available channels in the GUI
+		 * notifier topic for updates the list of available conversations in the GUI
 		 */
-		updateListOfChannels:	"",
+		updateListOfConversations:	"",
 		
 		/**
 		 * notifier topic for updates the list of available subjects in the GUI
@@ -606,9 +605,9 @@ var gv_topics	= {
 		changeViewBV:		"tk_graph/changeViewBV",
 		
 		/**
-		 * topic for general updates on channels
+		 * topic for general updates on conversations
 		 */
-		channels:			"/tk_graph/channels",
+		conversations:			"/tk_graph/conversations",
 		
 		/**
 		 * topic for general updates on macros
