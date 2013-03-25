@@ -125,7 +125,15 @@ class GoogleAuthActor extends Actor with ActorLogging {
    */
   def getUserCredential(id : String): Credential = {
     if (flow.loadCredential(id) != null) {
+      try {
       flow.loadCredential(id).refreshToken()
+      } catch {
+        case e : TokenResponseException => {
+          log.debug(getClass().getName() + 
+            " Exception occurred while refreshing a token, the permission maybe has been revoked: " + 
+            e.getDetails() + "\n" + e.getMessage())
+          return null
+      }}
       flow.loadCredential(id)
     } else {
       null
