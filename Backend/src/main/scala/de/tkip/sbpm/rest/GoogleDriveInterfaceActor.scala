@@ -20,6 +20,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.external.api.ListGDriveFiles
 import com.google.api.services.drive.model.File
+import spray.http.StatusCodes
 
 
 class GoogleDriveInterfaceActor extends Actor with HttpService with ActorLogging {
@@ -28,6 +29,7 @@ class GoogleDriveInterfaceActor extends Actor with HttpService with ActorLogging
   implicit val timeout = Timeout(15 seconds)
 
   private lazy val googleDriveActor = ActorLocator.googleDriveActor
+  private lazy val googleAuthActor = ActorLocator.googleAuthActor
     
   def actorRefFactory = context
   
@@ -46,14 +48,22 @@ class GoogleDriveInterfaceActor extends Actor with HttpService with ActorLogging
         parameters("id") {(id) => {
           log.debug(getClass.getName + " received get request for google drive files from user: " + id)
           
-          val future = googleDriveActor ? ListGDriveFiles(id)
-          val result = Await.result(future.mapTo[String], timeout.duration)
+          // ask authentication manager if user has a valid google credential
+          val auth_future = googleAuthActor ? InitUser(id)
+          val auth_result = Await.result(auth_future.mapTo[String], timeout.duration)
 
-          complete(result)
-        } 
-        }   
+          // if auth_result is positive ask google drive aktor for files in user google drive, if not send him back the
+          // authentication url
+          if (auth_result == "AUTHENTICATED") {
+            val drive_future = googleDriveActor ? ListGDriveFiles(id)
+            val drive_result = Await.result(drive_future.mapTo[String], timeout.duration)
+            complete(drive_result)
+          } else {
+            complete(StatusCodes.Forbidden, auth_result)
+          }
+        }
       }
     }
-  
+    }
   })
 }

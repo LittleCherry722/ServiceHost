@@ -46,8 +46,7 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
       pathPrefix("init_auth") {
         parameters("id") {(id) => {
           log.debug(getClass.getName + " received authentication init post from user: " + id)
-          googleAuthActor ! InitUser(id)
-
+          
           val future = googleAuthActor ? InitUser(id)
           val result = Await.result(future.mapTo[String], timeout.duration)
 
