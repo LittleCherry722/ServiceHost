@@ -125,7 +125,7 @@ var gv_emptyImgPath	= gv_imgPath + gv_nodeTypeImg.emptyNodeImg;
  * - wildcard: when set to true both dropDowns will contain a wildcard option that selects all subjects / messageTypes
  * - label: the label is shown in the dropDown for the nodeType and on the node itself
  * - correlationId: when set to true a dropDown for the correlationId will be shown and filled
- * - channel: when set to true a dropDown for the channel will be shown and filled
+ * - conversation: when set to true a dropDown for the conversation will be shown and filled
  * - options: when set to true the options for predefined actions will be shown
  * - state: when set to true a dropDown for the state will be shown and filled
  * - variableman: when set to true fields for variable manipulation will be displayed
@@ -134,29 +134,29 @@ var gv_emptyImgPath	= gv_imgPath + gv_nodeTypeImg.emptyNodeImg;
  * @type Object
  */
 var gv_predefinedActions	= {
-	// the closeIP action has two to four parameters (messageType, Subject, correlationId, channel) and is used to close the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
-	closeip: {subject: true, message: true, wildcard: true, label: "closeIP", channel: true, correlationid: true, options: true, state: false, variableman: false, booledge: false},
+	// the closeIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to close the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
+	closeip: {subject: true, message: true, wildcard: true, label: "closeIP", conversation: true, correlationid: true, options: true, state: false, variableman: false, booledge: false},
 	
-	// the openIP action has two to four parameters (messageType, Subject, correlationId, channel) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
-	openip: {subject: true, message: true, wildcard: true, label: "openIP", channel: true, correlationid: true, options: true, state: false, variableman: false, booledge: false},
+	// the openIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
+	openip: {subject: true, message: true, wildcard: true, label: "openIP", conversation: true, correlationid: true, options: true, state: false, variableman: false, booledge: false},
 	
-	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, channel) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all channels (default) are allowed)
-	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", channel: true, correlationid: true, options: true, state: false, variableman: false, booledge: true},
+	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
+	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", conversation: true, correlationid: true, options: true, state: false, variableman: false, booledge: true},
 	
 	// the ignore action has one parameter (subject without wildcard)
-	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", channel: false, correlationid: false, options: true, state: false, variableman: false, booledge: false},
+	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false},
 	
 	// the acknowledge action has one parameter (subject without wildcard)
-	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", channel: false, correlationid: false, options: true, state: false, variableman: false, booledge: false},
+	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false},
 	
 	// the Activate State action has one parameter (state) and is used to activate a certain start state within an internal behavior
-	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", channel: false, correlationid: false, options: true, state: true, variableman: false, booledge: false},
+	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false},
 	
 	// the Deactivate State action has one parameter (state) and is used to deactivate a certain start state within an internal behavior
-	deactivatestate: {subject: false, message: false, wildcard: false, label: "Deactivate State", channel: false, correlationid: false, options: true, state: true, variableman: false, booledge: false},
+	deactivatestate: {subject: false, message: false, wildcard: false, label: "Deactivate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false},
 	
 	// options for manipulating a variable
-	variableman: {subject: false, message: false, wildcard: false, label: "Variable Manipulation", channel: false, correlationid: false, options: true, state: false, variableman: true, booledge: false}
+	variableman: {subject: false, message: false, wildcard: false, label: "Variable Manipulation", conversation: false, correlationid: false, options: true, state: false, variableman: true, booledge: false}
 };
 
 /**

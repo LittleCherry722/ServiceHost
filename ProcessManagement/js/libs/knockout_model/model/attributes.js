@@ -151,6 +151,13 @@ define([
 			fromJSON: jsonFromX
 		},
 
+		jsonArray: {
+			type: "jsonArray",
+			defaults: "[]",
+			lazy: true,
+			fromJSON: jsonFromX
+		},
+
 		boolean: {
 			type: "boolean",
 			defaults: false,
@@ -229,22 +236,21 @@ define([
 				// last saved state or determine if an attribute has changed but can
 				// just as well be accessed from the outside.
 				if ( attrOptions.lazy && !data[ attrName ] ) {
-					setupLazyAttribute( instance, attrName );
+					setupLazyAttribute( instance, attrName, attrOptions );
 				} else {
-					instance[ attrName ] = regularAttribute( attrValue );
+					instance[ attrName ] = regularAttribute( attrValue, attrOptions );
 				}
 				instance[ attrName + "Old" ] = ko.observable();
 			});
 		}
 	}
 
-	var setupLazyAttribute = function( instance, attrName ) {
+	var setupLazyAttribute = function( instance, attrName, attrOptions ) {
 		var observable,
 			subscribers = [];
 
 		instance[ attrName ] = function( value ) {
-			observable = ko.observable();
-			observable( value );
+			observable = regularAttribute( value, attrOptions )
 
 			if ( typeof value === "undefined" ) {
 				if ( !instance.isBeingInitialized ) {
@@ -272,10 +278,13 @@ define([
 		instance[ attrName ].subscribe = subscribers.push;
 	}
 
-	var regularAttribute = function( attrValue ) {
-		return ko.observable( attrValue );
+	var regularAttribute = function( attrValue, attrOptions ) {
+			if ( attrOptions.type === "jsonArray" ) {
+				return ko.observableArray( attrValue );
+			} else {
+				return ko.observable( attrValue );
+			}
 	}
-
 
 	/***************************************************************************
 	 * Dynamic Attribute finder methods

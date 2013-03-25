@@ -220,7 +220,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
     val identity = Await.result(identityFuture.mapTo[Option[(User, List[UserIdentity])]], timeout.duration)
     if (user.isDefined && identity.isDefined) {
       val pm = for (i <- identity.get._2) yield ProviderMail(i.provider, i.eMail)
-      complete(UserWithMail(user.get, pm))
+      complete(UserWithMail(user.get.id, user.get.name, user.get.isActive, user.get.inputPoolSize, pm))
     } else {
       complete(StatusCodes.NotFound)
     }
@@ -230,11 +230,11 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
   def GetUsersWithMail() = {
     val usersFuture = persistenceActor ? GetUser(None, None)
     val users = Await.result(usersFuture.mapTo[List[User]], timeout.duration)
-    val listOfUsers = for (u <- users) yield {
-      val identityFuture = persistenceActor ? GetUserWithIdentities(u.id)
+    val listOfUsers = for (user <- users) yield {
+      val identityFuture = persistenceActor ? GetUserWithIdentities(user.id)
       val identity = Await.result(identityFuture.mapTo[Option[(User, List[UserIdentity])]], timeout.duration)
       val listOfMails = for (i <- identity.get._2) yield ProviderMail(i.provider, i.eMail)
-      UserWithMail(u, listOfMails)
+      UserWithMail(user.id, user.name, user.isActive, user.inputPoolSize, listOfMails)
     }
     complete(listOfUsers)
   }

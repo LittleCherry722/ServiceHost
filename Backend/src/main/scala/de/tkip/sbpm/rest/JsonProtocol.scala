@@ -96,7 +96,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val configurationFormat = jsonFormat4(Configuration)
   implicit val userFormat = jsonFormat4(User)
   implicit val providerMail = jsonFormat2(ProviderMail)
-  implicit val userWithMail = jsonFormat2(UserWithMail)
+  implicit val userWithMail = jsonFormat5(UserWithMail)
   implicit val userIdentityFormat = jsonFormat4(UserIdentity)
   implicit val userUpdateFormat = jsonFormat7(UserUpdate)
   implicit val roleFormat = jsonFormat3(Role)

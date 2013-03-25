@@ -102,13 +102,6 @@ function GCsubject (id, text, type, inputPool)
 	this.role		= "";
 	
 	/**
-	 * Flag if the subject can be the start subject of a process instance.
-	 * 
-	 * @type boolean
-	 */
-	this.startSubject	= false;
-	
-	/**
 	 * The label of the subject.
 	 * 
 	 * @type String
@@ -289,16 +282,6 @@ function GCsubject (id, text, type, inputPool)
 	};
 	
 	/**
-	 * Returns true when the subject can be the start subject of the process instance.
-	 * 
-	 * @returns {boolean} Returns true when subject can be start subject.
-	 */
-	this.isStartSubject = function ()
-	{
-		return this.startSubject === true;
-	};
-	
-	/**
 	 * Updates the subject's comment.
 	 * 
 	 * @param {String} comment The new comment.
@@ -394,20 +377,6 @@ function GCsubject (id, text, type, inputPool)
 	this.setRole = function (role)
 	{
 		this.role = role;
-	};
-	
-	/**
-	 * Updates the startSubject status of the subject.
-	 * 
-	 * @param {boolean} startSubject New status of the subject.
-	 * @returns {void}
-	 */
-	this.setStartSubject = function (startSubject)
-	{
-		if (gf_isset(startSubject))
-		{
-			this.startSubject = startSubject === true;
-		}
 	};
 	
 	/**
