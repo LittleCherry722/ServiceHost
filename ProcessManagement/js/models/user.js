@@ -22,7 +22,11 @@ define([
 		inputPoolSize: {
 			type: "integer",
 			defaults: 8
-		}
+		},
+		providerMail:{
+			type: "jsonArray",
+			defaults:[]
+			}
 	});
 
 	User.hasMany( "groups", { through: "groupsUsers" } );
@@ -41,7 +45,7 @@ define([
 			});
 
 			this.messageCount = ko.observable( data.messageCount );
-
+			//this.providerMail = ko.observableArray(data.providerMail);
 			this.groupIds = ko.observable();
 			this.groupIdsReset = function() {
 				var groupIds = _( this.groups() ).map(function( group ) {
@@ -50,7 +54,7 @@ define([
 				this.groupIds( groupIds );
 			}
 		},
-
+		
 		validators: {
 			hasUniqueName: function() {
 				var self = this;
@@ -108,7 +112,7 @@ define([
 
 		beforeCreate: function() {
 			this.id(-1);
-		}
+			}
 	});
 
 	var asyncHandleAssociations = function( oldModels, modifiedModels ) {
