@@ -127,7 +127,7 @@ define([
 			this.toJSON = function() {
 				json = {};
 				_( Result.attrs() ).each(function( attrOptions, attrName ) {
-					if ( typeof this[ attrName ]() === "undefined" ) {
+					if ( typeof this[ attrName ]() === "undefined" && !attrOptions.noDefaultsOnSave ) {
 						if ( attrOptions.lazy && attrOptions.defaults ) {
 							json[ attrName ] = attrOptions.defaults;
 						} else {

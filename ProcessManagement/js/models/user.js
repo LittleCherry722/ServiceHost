@@ -23,10 +23,10 @@ define([
 			type: "integer",
 			defaults: 8
 		},
-		providerMail:{
+		providerMail: {
 			type: "jsonArray",
-			defaults:[]
-			}
+			defaults: []
+		}
 	});
 
 	User.hasMany( "groups", { through: "groupsUsers" } );
@@ -54,7 +54,7 @@ define([
 				this.groupIds( groupIds );
 			}
 		},
-		
+
 		validators: {
 			hasUniqueName: function() {
 				var self = this;
