@@ -260,7 +260,7 @@ define([
 					})
 
 					instance.loadAttributes({ async: false });
-					instance[ attrName + "Old" ]( observable() );
+					instance[ attrName + "Old" ]( _.clone( observable() ) );
 				}
 
 				return observable();
@@ -269,7 +269,7 @@ define([
 				_( subscribers ).each(function( subscriber ) {
 					observable.subscribe( subscriber );
 				})
-				instance[ attrName + "Old" ]( value );
+				instance[ attrName + "Old" ]( _.clone( value ) );
 
 				return undefined;
 			}
@@ -420,11 +420,11 @@ define([
 			// Method to check whether a specific attribute has changed
 			return ko.computed({
 				read: function() {
-					return instance[ attrName ]() !== instance[ attrName + "Old" ]();
+					return !_.isEqual( instance[ attrName ](), instance[ attrName + "Old" ]() );
 				},
 				write: function( bool ) {
 					if ( bool === false ) {
-						instance[ attrName + "Old" ]( instance[ attrName ]() );
+						instance[ attrName + "Old" ]( _.clone( instance[ attrName ]() ) );
 					}
 					return false;
 				}
@@ -442,7 +442,7 @@ define([
 
 		// Method to reset the changes to a specific attribute
 		return function() {
-			instance[ attrName ]( instance[ attrName + "Old" ]() );
+			instance[ attrName ]( _.clone( instance[ attrName + "Old" ]() ) );
 		}
 	}
 
