@@ -148,7 +148,7 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
     val gId = save(graph)
 
     // update process' active graph to new id
-    updateActiveGraph(resultId, gId)
+    updateActiveGraph(process.id, gId)
 
     (resultId, gId)
   }
