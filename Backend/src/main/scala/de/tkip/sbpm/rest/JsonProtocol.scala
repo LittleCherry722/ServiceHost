@@ -97,7 +97,7 @@ object JsonProtocol extends DefaultJsonProtocol {
    * header case classes
    */
   case class ProcessIdHeader(processId: Int)
-  case class GraphHeader(name: String, graph: Graph, isCase: Boolean){
+  case class GraphHeader(name: String, graph: Option[Graph], isCase: Boolean){
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
   }
 

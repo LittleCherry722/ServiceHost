@@ -86,23 +86,24 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       } ~
         // READ
         pathPrefix(IntNumber) { id =>
-          try {
-            val persistenceActor = ActorLocator.persistenceActor
-            val processFuture = (persistenceActor ? Processes.Read.ById(id))
-            val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
-            if (processResult.isDefined) {
+          val persistenceActor = ActorLocator.persistenceActor
+          val processFuture = (persistenceActor ? Processes.Read.ById(id))
+          val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
+          if (processResult.isDefined) {
+            val graphResult = if (processResult.get.activeGraphId.isDefined) {
               val graphFuture = (persistenceActor ? Graphs.Read.ById(processResult.get.activeGraphId.get))
-              val graphResult = Await.result(graphFuture, timeout.duration).asInstanceOf[Option[Graph]]
-              complete(JsObject(
-                "id" -> processResult.get.id.toJson,
-                "name" -> processResult.get.name.toJson,
-                "graph" -> graphResult.get.toJson,
-                "isCase" -> processResult.get.isCase.toJson))
+              Await.result(graphFuture, timeout.duration).asInstanceOf[Option[Graph]]
             } else {
-              complete("Process with id " + id + " not found")
+              None
             }
+            complete(JsObject(
+              "id" -> processResult.get.id.toJson,
+              "name" -> processResult.get.name.toJson,
+              "graph" -> graphResult.toJson,
+              "isCase" -> processResult.get.isCase.toJson))
+          } else {
+            complete(StatusCodes.NotFound, "Process with id " + id + " not found")
           }
-
         }
     } ~
       post {
@@ -114,21 +115,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         // CREATE
         path("^$"r) { regex =>
           entity(as[GraphHeader]) { json =>
-
-            val persistenceActor = ActorLocator.persistenceActor
-            val processFuture = (persistenceActor ? Processes.Read.ByName(json.name))
-            val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
-
-            // PrÜfen, ob der Prozess bereits existiert
-            // Prüfen, ob der Name 3 oder mehr Buchstaben enthält
-            validate(!processResult.isDefined, "The processes name has to be unique!") {
-              validate(json.name.length() >= 3, "The name hast to contain 3 or more letters!") {
-                val future = (persistanceActor ? Processes.Save.WithGraph(Process(None, json.name, json.isCase),
-                  json.graph.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)))
-                val result = Await.result(future, timeout.duration).asInstanceOf[(Some[Int], Some[Int])]
-                complete(JsObject("id" -> result._1.get.toJson))
-              }
-            }
+            save(None, json)
           }
         }
       } ~
@@ -156,26 +143,30 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         pathPrefix(IntNumber) { id =>
           path("^$"r) { regex =>
             entity(as[GraphHeader]) { json =>
-              // TODO warum macht man es bei POST mit einem befehl und bei PUT
-              // mit 2 Befehlen?
-              //execute next step (chosen by actionID)
-              val processFuture = (persistanceActor ? Processes.Read.ById(id))
-              val result = Await.result(processFuture.mapTo[Option[Process]], timeout.duration)
-
-              // Pr�fen, ob der Prozess existiert
-              // Pr�fen, ob der Name 3 oder mehr Buchstaben enth�lt
-              validate(result.isDefined, "The requested process does not exist") {
-                validate(json.name.length() >= 3, "The name hast to contain 3 or more letters!") {
-                  val graphFuture = (persistanceActor ? Graphs.Save(json.graph.copy(id = None, date = new java.sql.Timestamp(System.currentTimeMillis()), processId = Some(id))))
-                  val graphId = Await.result(graphFuture.mapTo[Option[Int]], timeout.duration)
-                  val processSaveFuture = persistanceActor ? Processes.Save(result.get.copy(activeGraphId = graphId))
-                  Await.result(processSaveFuture, timeout.duration)
-                  complete(StatusCodes.NoContent)
-                }
-              }
+              save(Some(id), json)
             }
           }
         }
       }
   })
+
+  private def save(id: Option[Int], json: GraphHeader) = {
+    val processFuture = (persistanceActor ? Processes.Read.ByName(json.name))
+    val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
+
+    validate(!processResult.isDefined || processResult.get.id == id, "The process names have to be unique.") {
+      validate(json.name.length() >= 3, "The name has to contain three or more letters.") {
+        if (!json.graph.isDefined) {
+          val future = (persistanceActor ? Processes.Save(Process(id, json.name, json.isCase)))
+          val result = Await.result(future.mapTo[Option[Int]], timeout.duration)
+          complete(JsObject("id" -> result.toJson))
+        } else {
+          val future = (persistanceActor ? Processes.Save.WithGraph(Process(id, json.name, json.isCase),
+            json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)))
+          val result = Await.result(future, timeout.duration).asInstanceOf[(Option[Int], Option[Int])]
+          complete(JsObject("id" -> result._1.toJson, "graphId" -> result._2.toJson))
+        }
+      }
+    }
+  }
 }
