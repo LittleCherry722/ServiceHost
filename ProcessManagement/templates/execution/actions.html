@@ -29,7 +29,7 @@
 			<i class="icon-cloud icon-large"></i> Choose File
 		</a>
 		<br>
-		<input type="text" placeholder="No file selected" disabled="disabled" class="disabled" data-bind="value: $parent.currentSelectedFile" />
+		<input type="text" placeholder="No file selected" disabled="disabled" class="disabled" data-bind="value: $parent.currentSelectedFile().title" />
 		<br /><br />
 
 		<input type="button" value="Send" class="btn" data-bind="click: $parent.send, enable: $parent.serverDone,enable: $data.executeAble" />

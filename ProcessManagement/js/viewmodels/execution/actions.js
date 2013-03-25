@@ -38,7 +38,7 @@ define([
 		this.selectFile = selectFile;
 
 		this.executable = ko.computed(function() {
-			console.log(this)
+
 		});
 
 		this.googleDriveData = ko.observable();
@@ -63,12 +63,12 @@ define([
 
 	var selectFile = function() {
 		$('#googleDriveModal').modal('hide');
-		currentSelectedFile( this.title );
+		currentSelectedFile( this );
 
 		// TODO set file ID for actually sending the file.
 	}
 
-	var currentSelectedFile = ko.observable("");
+	var currentSelectedFile = ko.observable({});
 
 	var processInstance = ko.observable(),
 			messageText     = ko.observable(),
@@ -87,6 +87,7 @@ define([
 		data = actionOfCurrentSubject()
 		id = data.processInstanceID;
 		data.actionData = action;
+
 		data = JSON.stringify(data);
 		$.ajax({
 			url: '/processinstance/' + id,
@@ -97,7 +98,7 @@ define([
 			contentType: "application/json; charset=UTF-8",
 			success: function(data, textStatus, jqXHR) {
 				serverDone( true );
-				currentSelectedFile("");
+				currentSelectedFile({});
 				processInstance().refresh();
 			},
 			error : function(jqXHR, textStatus, error) {
@@ -122,6 +123,7 @@ define([
 		deArray = data.actionData[ 0 ];
 		deArray[ "messageContent" ] = messageText();
 		data.actionData = deArray;
+		data.actionData.fileId = currentSelectedFile().id;
 
 		id = data.processInstanceID;
 
@@ -143,7 +145,7 @@ define([
 			},
 			complete: function(jqXHR, textStatus) {
 				serverDone( true );
-				currentSelectedFile("");
+				currentSelectedFile({});
 			}
 		});
 	};
