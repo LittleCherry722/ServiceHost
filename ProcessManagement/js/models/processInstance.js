@@ -29,7 +29,7 @@ define([
 	ProcessInstance.attrs({
 		processId: "integer",
 		graph: {
-			type: "string",
+			type: "json",
 			defaults: "{}",
 			lazy: true
 		},
@@ -48,7 +48,7 @@ define([
 			defaults: false,
 			lazy: true
 		}
-		
+
 	});
 
 	ProcessInstance.include({
@@ -57,6 +57,22 @@ define([
 
 			this.instanceName = ko.computed(function() {
 				return "Instance #" + self.id();
+			});
+
+			this.graphString = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					if ( self.graph() ) {
+						return JSON.stringify( self.graph() );
+					} else {
+						return {};
+					}
+				},
+				write: function( graphString ) {
+					var graph = self.graph();
+					graph.definitions = JSON.parse( graphString );
+					self.graph( graph );
+				}
 			});
 		}
 	});
