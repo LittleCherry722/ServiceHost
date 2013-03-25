@@ -31,7 +31,8 @@ define([
 		graph: {
 			type: "json",
 			defaults: {},
-			lazy: true
+			lazy: true,
+			noDefaultsOnSave: true
 		}
 	});
 
@@ -83,8 +84,14 @@ define([
 					return self.graph().definition;
 				},
 				write: function( graphObject ) {
-					var graph = self.graph();
-					graph.definition = graphObject;
+					var graph = _.clone( self.graph() );
+
+					if ( typeof graphObject === "string" ) {
+						graph.definition = JSON.parse( graphObject );
+					} else {
+						graph.definition = graphObject;
+					}
+
 					self.graph( graph );
 				}
 			});
@@ -141,7 +148,7 @@ define([
 					if ( !routings ) {
 						routings = [];
 					}
-					var graph = self.graph();
+					var graph = _.clone( self.graph() );
 					graph.routings = routings;
 					self.graph( graph );
 				}

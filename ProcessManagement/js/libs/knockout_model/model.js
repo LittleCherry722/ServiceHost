@@ -127,7 +127,6 @@ define([
 				return Router.modelPath(this);
 			}
 
-
 			/**
 			 * converts this instance of a model to a JSON string.
 			 * The String is formed by looking at the attributes supplied at
