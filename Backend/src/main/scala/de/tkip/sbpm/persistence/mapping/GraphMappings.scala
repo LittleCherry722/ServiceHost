@@ -30,16 +30,16 @@ object GraphMappings {
    * If id of graph is None only graph itself is converted
    * id must be known for converting sub entities.
    */
-  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphChannel], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphEdge])] = {
+  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphEdge])] = {
     val graph = Graph(g.id, g.processId.get, g.date)
     if (!g.id.isDefined) {
       Left(graph)
     } else {
       val (subjects, variables, macros, nodes, edges) = extractSubjects(g.subjects.values, g.id.get)
-      val channels = extractChannels(g.channels.values, g.id.get)
+      val conversations = extractConversations(g.conversations.values, g.id.get)
       val messages = extractMessages(g.messages.values, g.id.get)
       val routings = extractRoutings(g.routings, g.id.get)
-      Right((graph, channels, messages, routings, subjects, variables, macros, nodes, edges))
+      Right((graph, conversations, messages, routings, subjects, variables, macros, nodes, edges))
     }
   }
 
@@ -105,12 +105,12 @@ object GraphMappings {
       n.nodeType,
       n.isDisabled,
       n.isMajorStartNode,
-      n.channelId,
+      n.conversationId,
       n.variableId,
       n.options.messageId,
       n.options.subjectId,
       n.options.correlationId,
-      n.options.channelId,
+      n.options.conversationId,
       n.options.nodeId,
       n.macroId,
       varManVar1Id,
@@ -168,10 +168,10 @@ object GraphMappings {
       (None, None, None, None, None)
 
   /**
-   * Convert channel objects to relational entities.
+   * Convert conversation objects to relational entities.
    */
-  private def extractChannels(cs: Iterable[domainModel.GraphChannel], graphId: Int): Seq[GraphChannel] = cs.map { c =>
-    GraphChannel(c.id, graphId, c.name)
+  private def extractConversations(cs: Iterable[domainModel.GraphConversation], graphId: Int): Seq[GraphConversation] = cs.map { c =>
+    GraphConversation(c.id, graphId, c.name)
   }.toSeq
 
   /**
@@ -202,13 +202,13 @@ object GraphMappings {
    * Convert all database entities of a graph to a single
    * object tree of domain model objects. 
    */
-  def convert(graph: Graph, subModels: (Seq[GraphChannel], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphEdge]), roles: Seq[Role]): domainModel.Graph = {
-    val (channels, messages, routings, subjects, variables, macros, nodes, edges) = subModels
+  def convert(graph: Graph, subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphEdge]), roles: Seq[Role]): domainModel.Graph = {
+    val (conversations, messages, routings, subjects, variables, macros, nodes, edges) = subModels
     domainModel.Graph(
       graph.id,
       Some(graph.processId),
       graph.date,
-      channels.map(convert).toMap,
+      conversations.map(convert).toMap,
       messages.map(convert).toMap,
       // inject subject object trees
       convert(subjects, variables, macros, nodes, edges, roles.map(convert).toMap),
@@ -224,10 +224,10 @@ object GraphMappings {
   }
 
   /**
-   * Convert channel to id -> entity mapping.
+   * Convert  to id -> entity mapping.
    */
-  def convert(c: GraphChannel): (String, domainModel.GraphChannel) =
-    (c.id -> domainModel.GraphChannel(c.id, c.name))
+  def convert(c: GraphConversation): (String, domainModel.GraphConversation) =
+    (c.id -> domainModel.GraphConversation(c.id, c.name))
 
     /**
    * Convert message to id -> entity mapping.
@@ -328,13 +328,13 @@ object GraphMappings {
       n.nodeType,
       n.isDisabled,
       n.isMajorStartNode,
-      n.channelId,
+      n.conversationId,
       n.variableId,
       domainModel.GraphNodeOptions(
         n.optionMessageId,
         n.optionSubjectId,
         n.optionCorrelationId,
-        n.optionChannelId,
+        n.optionConversationId,
         n.optionNodeId),
       n.executeMacroId,
       graphVarMan))

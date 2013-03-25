@@ -44,7 +44,7 @@ private[persistence] class SchemaActor extends Actor
   import driver.simple._
 
   private val tables = List(
-    GraphChannels,
+    GraphConversations,
     GraphEdges,
     GraphMacros,
     GraphMessages,

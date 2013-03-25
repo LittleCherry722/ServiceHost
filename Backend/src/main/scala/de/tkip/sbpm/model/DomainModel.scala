@@ -49,12 +49,12 @@ case class Configuration(key: String,
 case class Graph(id: Option[Int],
   processId: Option[Int],
   date: java.sql.Timestamp,
-  channels: Map[String, GraphChannel],
+  conversations: Map[String, GraphConversation],
   messages: Map[String, GraphMessage],
   subjects: Map[String, GraphSubject],
   routings: Seq[GraphRouting])
 
-case class GraphChannel(id: String, name: String)
+case class GraphConversation(id: String, name: String)
 
 case class GraphMessage(id: String, name: String)
 
@@ -95,7 +95,7 @@ case class GraphNode(id: Short,
   nodeType: String,
   isDisabled: Boolean,
   isMajorStartNode: Boolean,
-  channelId: Option[String],
+  conversationId: Option[String],
   variableId: Option[String],
   options: GraphNodeOptions,
   macroId: Option[String],
@@ -104,7 +104,7 @@ case class GraphNode(id: Short,
 case class GraphNodeOptions(messageId: Option[String] = None,
   subjectId: Option[String] = None,
   correlationId: Option[String] = None,
-  channelId: Option[String] = None,
+  conversationId: Option[String] = None,
   nodeId: Option[Short] = None)
 
 case class GraphVarMan(var1Id: String,

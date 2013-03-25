@@ -24,7 +24,7 @@ import akka.actor.Actor
  */
 private[persistence] class GraphPersistenceActor extends Actor
   with DatabaseAccess
-  with schema.GraphChannelsSchema
+  with schema.GraphConversationsSchema
   with schema.GraphMessagesSchema
   with schema.GraphEdgesSchema
   with schema.GraphNodesSchema
@@ -89,7 +89,7 @@ private[persistence] class GraphPersistenceActor extends Actor
   // update entity or throw exception if it does not exist
   protected def save(g: Graph)(implicit session: Session) = {
     // convert domain model graph to db entities
-    val (graph, channels, messages, routings, subjects, variables, macros, nodes, edges) =
+    val (graph, conversations, messages, routings, subjects, variables, macros, nodes, edges) =
       convert(g) match {
       // only graph was converted, because it's a new graph (no id exits)
         case Left(model: mapping.Graph) =>
@@ -112,7 +112,7 @@ private[persistence] class GraphPersistenceActor extends Actor
     // insert them with new values again
     deleteSubEntities(graph.id.get)
 
-    GraphChannels.insertAll(channels: _*)
+    GraphConversations.insertAll(conversations: _*)
 
     GraphMessages.insertAll(messages: _*)
 
@@ -147,14 +147,14 @@ private[persistence] class GraphPersistenceActor extends Actor
     GraphSubjects.where(_.graphId === id).delete
     GraphRoutings.where(_.graphId === id).delete
     GraphMessages.where(_.graphId === id).delete
-    GraphChannels.where(_.graphId === id).delete
+    GraphConversations.where(_.graphId === id).delete
   }
 
   /**
    * Load all dependent entities of a graph with given id.
    */
   def retrieveSubEntities(id: Int)(implicit session: Session) = (
-    Query(GraphChannels).where(_.graphId === id).list,
+    Query(GraphConversations).where(_.graphId === id).list,
     Query(GraphMessages).where(_.graphId === id).list,
     Query(GraphRoutings).where(_.graphId === id).list,
     Query(GraphSubjects).where(_.graphId === id).list,

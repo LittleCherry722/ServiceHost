@@ -228,12 +228,10 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
   // completes with all providers and emails of an user and the user information
   def getUserWithMail(id: Int) = {
-    val userFuture = persistenceActor ? Users.Read.ById(id)
-    val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
-    val identityFuture = persistenceActor ? Users.Read.ByIdWithIdentities(id)
-    val identity = Await.result(identityFuture.mapTo[Option[(User, Seq[UserIdentity])]], timeout.duration)
-    if (user.isDefined && identity.isDefined) {
-      complete(UserWithMail(user.get.id, user.get.name, user.get.isActive, user.get.inputPoolSize, identity.get._2.map(i => ProviderMail(i.provider, i.eMail))))
+    val userFuture = persistenceActor ? Users.Read.ByIdWithIdentities(id)
+    val user = Await.result(userFuture.mapTo[Option[(User, Seq[UserIdentity])]], timeout.duration)
+    if (user.isDefined) {
+      complete(UserWithMail(user.get._1.id, user.get._1.name, user.get._1.isActive, user.get._1.inputPoolSize, user.get._2.map(i => ProviderMail(i.provider, i.eMail))))
     } else {
       complete(StatusCodes.NotFound)
     }

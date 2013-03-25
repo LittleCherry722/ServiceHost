@@ -51,14 +51,14 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
   }
 
   /**
-   * JSON format: { "channelId": "channelName", ... }
+   * JSON format: { "conversationId": "conversationName", ... }
    */
-  implicit object ChannelsFormat extends RootJsonFormat[Map[String, GraphChannel]] {
-    def write(map: Map[String, GraphChannel]) =
+  implicit object ConversationsFormat extends RootJsonFormat[Map[String, GraphConversation]] {
+    def write(map: Map[String, GraphConversation]) =
       JsObject(map.values.map(c => (c.id, JsString(c.name))).toSeq: _*)
     def read(v: JsValue) = v.asJsObject.fields.toMap.map {
-      case (id, JsString(name)) => (id, GraphChannel(id, name))
-      case _                    => throw new DeserializationException("Channels map expected.")
+      case (id, JsString(name)) => (id, GraphConversation(id, name))
+      case _                    => throw new DeserializationException("Conversations map expected.")
     }
   }
 
@@ -115,10 +115,10 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "message" -> NoneAsterisk(o.messageId),
       "subject" -> NoneAsterisk(o.subjectId),
       "correlationId" -> o.correlationId.toJson,
-      "channel" -> o.channelId.toJson,
+      "conversation" -> o.conversationId.toJson,
       "state" -> o.nodeId.toJson)
     def read(v: JsValue) =
-      v.asJsObject.getFields("message", "subject", "correlationId", "channel", "state") match {
+      v.asJsObject.getFields("message", "subject", "correlationId", "conversation", "state") match {
         case Seq(msg: JsValue, subj: JsValue, corr: JsValue, ch: JsValue, st: JsValue) =>
           GraphNodeOptions(
             // convert message and subject id to None if they are * in the JSON
@@ -147,7 +147,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     "type",
     "deactivated",
     "majorStartNode",
-    "channel",
+    "conversation",
     "variable",
     "options",
     "macro",
@@ -281,8 +281,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "date" -> g.date.toJson,
       "definition" -> JsObject(
         "process" -> g.subjects.values.toJson,
-        "channels" -> g.channels.toJson,
-        "channelCounter" -> counter(g.channels),
+        "conversations" -> g.conversations.toJson,
+        "conversationCounter" -> counter(g.conversations),
         "messages" -> g.messages.toJson,
         "messageCounter" -> counter(g.messages),
         "nodeCounter" -> counter(g.subjects)),
@@ -300,7 +300,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
           Graph(id.convertTo[Option[Int]],
             processId.convertTo[Option[Int]],
             date.convertTo[java.sql.Timestamp],
-            definition.fields("channels").convertTo[Map[String, GraphChannel]],
+            definition.fields("conversations").convertTo[Map[String, GraphConversation]],
             definition.fields("messages").convertTo[Map[String, GraphMessage]],
             definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
             routings.convertTo[Seq[GraphRouting]])

@@ -35,7 +35,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":true,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -59,7 +59,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -83,7 +83,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -107,7 +107,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -131,7 +131,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -152,13 +152,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -182,7 +182,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -380,7 +380,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":true,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -404,7 +404,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -428,7 +428,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -452,7 +452,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -476,7 +476,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -500,7 +500,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -686,7 +686,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":true,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -710,7 +710,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -734,7 +734,7 @@
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":null,
+                        "conversation":null,
                         "variable":null,
                         "varMan":{
                            "var1":"",
@@ -809,10 +809,10 @@
       },
       "messageCounter":5,
       "nodeCounter":3,
-      "channels":{
+      "conversations":{
 
       },
-      "channelCounter":0
+      "conversationCounter":0
    },
    "routings":[
 

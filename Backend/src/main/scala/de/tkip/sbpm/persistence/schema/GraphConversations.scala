@@ -17,21 +17,21 @@ import de.tkip.sbpm.persistence.mapping._
 import scala.slick.lifted.ForeignKeyAction._
 
 /**
- * Defines the database schema of GraphChannels.
- * If you want to query GraphChannels database table mix this trait
+ * Defines the database schema of GraphConversations.
+ * If you want to query GraphConversations database table mix this trait
  * into the actor performing the queries.
  */
-trait GraphChannelsSchema extends GraphsSchema {
+trait GraphConversationsSchema extends GraphsSchema {
   // import current slick driver dynamically
   import driver.simple._
 
-  // represents schema if the "graph_channels" table in the database
+  // represents schema if the "graph_conversations" table in the database
   // using slick's lifted embedding API
-  object GraphChannels extends SchemaTable[GraphChannel]("graph_channels") {
+  object GraphConversations extends SchemaTable[GraphConversation]("graph_conversations") {
     def id = stringIdCol
     def graphId = column[Int]("graph_id")
     def name = nameCol
-    def * = id ~ graphId ~ name <> (GraphChannel, GraphChannel.unapply _)
+    def * = id ~ graphId ~ name <> (GraphConversation, GraphConversation.unapply _)
 
     def pk = primaryKey(pkName, (id, graphId))
 

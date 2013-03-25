@@ -36,7 +36,7 @@ case class GroupRole(groupId: Int, roleId: Int)
 
 case class GroupUser(groupId: Int, userId: Int)
 
-case class GraphChannel(id: String,
+case class GraphConversation(id: String,
   graphId: Int,
   name: String)
 
@@ -121,12 +121,12 @@ case class GraphNode(id: Short,
   nodeType: String,
   isDisabled: Boolean,
   isMajorStartNode: Boolean,
-  channelId: Option[String],
+  conversationId: Option[String],
   variableId: Option[String],
   optionMessageId: Option[String],
   optionSubjectId: Option[String],
   optionCorrelationId: Option[String],
-  optionChannelId: Option[String],
+  optionConversationId: Option[String],
   optionNodeId: Option[Short],
   executeMacroId: Option[String],
   varManVar1Id: Option[String],

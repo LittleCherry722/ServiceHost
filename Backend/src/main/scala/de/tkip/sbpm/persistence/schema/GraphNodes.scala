@@ -22,7 +22,7 @@ import scala.slick.lifted.ForeignKeyAction._
  * into the actor performing the queries.
  */
 trait GraphNodesSchema extends GraphMacrosSchema
-  with GraphVariablesSchema with GraphChannelsSchema with GraphMessagesSchema {
+  with GraphVariablesSchema with GraphConversationsSchema with GraphMessagesSchema {
   // import current slick driver dynamically
   import driver.simple._
 
@@ -39,12 +39,12 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def nodeType = column[String]("type", DbType.stringIdentifier)
     def isDisabled = column[Boolean]("disabled")
     def isMajorStartNode = column[Boolean]("major_start_node")
-    def channelId = column[Option[String]]("channel_id", DbType.stringIdentifier)
+    def conversationId = column[Option[String]]("conversation_id", DbType.stringIdentifier)
     def variableId = column[Option[String]]("variable_id", DbType.stringIdentifier)
     def optionMessageId = column[Option[String]]("option_message_id", DbType.stringIdentifier)
     def optionSubjectId = column[Option[String]]("option_subject_id", DbType.stringIdentifier)
     def optionCorrelationId = column[Option[String]]("option_correlation_id", DbType.stringIdentifier)
-    def optionChannelId = column[Option[String]]("option_channel_id", DbType.stringIdentifier)
+    def optionConversationId = column[Option[String]]("option_conversation_id", DbType.stringIdentifier)
     def optionNodeId = column[Option[Short]]("option_node_id", DbType.smallint)
     def executeMacroId = column[Option[String]]("execute_macro_id", DbType.stringIdentifier)
     def varManVar1Id = column[Option[String]]("var_man_var1_id", DbType.stringIdentifier)
@@ -53,24 +53,24 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def varManStoreVarId = column[Option[String]]("var_man_store_var_id", DbType.stringIdentifier)
 
     def * = id ~ macroId ~ subjectId ~ graphId ~ text ~ isStart ~ isEnd ~ nodeType ~ isDisabled ~
-      isMajorStartNode ~ channelId ~ variableId ~ optionMessageId ~ optionSubjectId ~
-      optionCorrelationId ~ optionChannelId ~ optionNodeId ~ executeMacroId ~ varManVar1Id ~
+      isMajorStartNode ~ conversationId ~ variableId ~ optionMessageId ~ optionSubjectId ~
+      optionCorrelationId ~ optionConversationId ~ optionNodeId ~ executeMacroId ~ varManVar1Id ~
       varManVar2Id ~ varManOperation ~ varManStoreVarId <> (GraphNode, GraphNode.unapply _)
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
 
     def nodeMacro =
       foreignKey(fkName("graph_macros"), (macroId, subjectId, graphId), GraphMacros)(m => (m.id, m.subjectId, m.graphId), NoAction, Cascade)
-    def channel =
-      foreignKey(fkName("graph_channels"), (channelId, graphId), GraphChannels)(c => (c.id, c.graphId))
+    def conversation =
+      foreignKey(fkName("graph_conversations"), (conversationId, graphId), GraphConversations)(c => (c.id, c.graphId))
     def variable =
       foreignKey(fkName("graph_variables"), (variableId, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
     def optionMessage =
       foreignKey(fkName("graph_messages_opt"), (optionMessageId, graphId), GraphMessages)(m => (m.id, m.graphId))
     def optionSubject =
       foreignKey(fkName("graph_subjects_opt"), (optionSubjectId, graphId), GraphSubjects)(s => (s.id, s.graphId))
-    def optionChannel =
-      foreignKey(fkName("graph_channels_opt"), (optionChannelId, graphId), GraphChannels)(c => (c.id, c.graphId))
+    def optionConversation =
+      foreignKey(fkName("graph_conversations_opt"), (optionConversationId, graphId), GraphConversations)(c => (c.id, c.graphId))
     def optionNode =
       foreignKey(fkName("opt_node"), (optionNodeId, macroId, subjectId, graphId), GraphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId))
     def executeMacro =

@@ -32,13 +32,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":true,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -60,12 +60,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -86,13 +86,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -114,12 +114,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -141,12 +141,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -168,12 +168,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -194,13 +194,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -221,13 +221,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -248,13 +248,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -275,13 +275,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -302,13 +302,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -626,13 +626,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":true,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -653,13 +653,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -680,13 +680,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -707,13 +707,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -734,13 +734,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -762,12 +762,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -788,13 +788,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -816,12 +816,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -842,13 +842,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -870,12 +870,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -897,12 +897,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -1175,13 +1175,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":true,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -1202,13 +1202,13 @@
                         "options":{
                            "subject":"",
                            "message":"",
-                           "channel":"",
+                           "conversation":"",
                            "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -1230,12 +1230,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -1257,12 +1257,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -1284,12 +1284,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -1311,12 +1311,12 @@
                            "message":"*",
                            "subject":"*",
                            "correlationId":"*",
-                           "channel":"*",
+                           "conversation":"*",
                            "state":""
                         },
                         "deactivated":false,
                         "majorStartNode":false,
-                        "channel":"",
+                        "conversation":"",
                         "variable":"",
                         "varMan":{
                            "var1":"",
@@ -1461,10 +1461,10 @@
       },
       "messageCounter":9,
       "nodeCounter":4,
-      "channels":{
+      "conversations":{
 
       },
-      "channelCounter":0
+      "conversationCounter":0
    },
    "routings":[
 
