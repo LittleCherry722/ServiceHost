@@ -2,81 +2,108 @@ define([
 	"knockout",
 	"app",
 	"underscore",
-	"models/processInstance"
-], function( ko, App, _, ProcessInstance ) {
+	"models/processInstance",
+	"notify"
+], function( ko, App, _, ProcessInstance, Notify ) {
 
 	var ViewModel = function() {
+		var self = this;
+
 		this.processInstance = processInstance;
-		
+
 		this.availableActions = availableActions;
 
 		this.currentSubject = currentSubject;
-		
+
 		this.actionOfCurrentSubject = actionOfCurrentSubject;
-		
+
 		this.actionData = actionData;
-		
+
 		this.messageText = messageText;
-		
+
 		this.action = action;
-		
+
 		this.send = send;
-		
+
 		this.stateName = stateName;
-		
+
 		this.stateText = stateText;
-	
+
 		this.isTypeOf = isTypeOf;
-		
+
 		this.serverDone = serverDone;
-		
+
+		this.currentSelectedFile = currentSelectedFile;
+
+		this.selectFile = selectFile;
+
+		this.executable = ko.computed(function() {
+
+		});
+
+		this.googleDriveData = ko.observable();
+
+		this.refreshGoogleDriveData = function() {
+			$.ajax({
+				cache: false,
+				dataType: "json",
+				type: "GET",
+				url: "../googledrive/get_files?id=" + App.currentUser().id(),
+				success: function( data, textStatus, jqXHR ) {
+					self.googleDriveData( data.items );
+				},
+				error: function( jqXHR, textStatus, error ) {
+					Notify.error("Error", "There has been an Error retrieving the file list." +
+											"Please make sure you have the appropiate permissions.");
+				}
+			});
+		}
+
 	}
 
-	var processInstance = ko.observable();
+	var selectFile = function() {
+		$('#googleDriveModal').modal('hide');
+		currentSelectedFile( this );
 
-	var availableActions;
-	
-	var currentSubject= ko.observable();
-	
-	var actionOfCurrentSubject;
-	
-	var messageText = ko.observable();
-			
-	var actionData;
-	
-	var stateName;
+		// TODO set file ID for actually sending the file.
+	}
 
-	var stateText;
+	var currentSelectedFile = ko.observable({});
 
-	var isTypeOf;
-	
-	var serverDone = ko.observable(true);
-	
+	var processInstance = ko.observable(),
+			messageText     = ko.observable(),
+			currentSubject  = ko.observable(),
+			serverDone      = ko.observable(true),
+			actionOfCurrentSubject,
+			availableActions,
+			actionData,
+			stateName,
+			stateText,
+			isTypeOf;
+
 	var action = function(action) {
 		serverDone(false);
-		
+
 		data = actionOfCurrentSubject()
 		id = data.processInstanceID;
 		data.actionData = action;
+
 		data = JSON.stringify(data);
 		$.ajax({
-			url : '/processinstance/' + id,
-			type : "PUT",
-			data : data,
-			async : true, // defaults to false
-			dataType : "json",
-			contentType : "application/json; charset=UTF-8",
-			success : function(data, textStatus, jqXHR) {
-				
+			url: '/processinstance/' + id,
+			type: "PUT",
+			data: data,
+			async: true,
+			dataType: "json",
+			contentType: "application/json; charset=UTF-8",
+			success: function(data, textStatus, jqXHR) {
+				serverDone( true );
+				currentSelectedFile({});
 				processInstance().refresh();
-				
 			},
 			error : function(jqXHR, textStatus, error) {
-				
-			},
-			complete : function(jqXHR, textStatus) {
-				
-				serverDone(true);
+				// TODO: IMPROVE ERROR HANDLING!
+				Notify.error( "Error", "Unable to send action. Please try again." );
 			}
 		});
 
@@ -84,21 +111,24 @@ define([
 
 
 	var refresh = function(data){
-		
+
 	}
 
 	var send = function() {
-		
 		var deArray;
-		serverDone(false);
+
+		serverDone( false );
 		data = actionOfCurrentSubject()
-		deArray = data.actionData[0];
-		deArray["messageContent"] = messageText();
-		data.actionData=deArray;
+
+		deArray = data.actionData[ 0 ];
+		deArray[ "messageContent" ] = messageText();
+		data.actionData = deArray;
+		data.actionData.fileId = currentSelectedFile().id;
+
 		id = data.processInstanceID;
-		data = JSON.stringify(data);
-		
-		
+
+		data = JSON.stringify( data );
+
 			$.ajax({
 			url : '/processinstance/' + id,
 			type : "PUT",
@@ -107,31 +137,23 @@ define([
 			dataType : "json",
 			contentType : "application/json; charset=UTF-8",
 			success : function(data, textStatus, jqXHR) {
-			
 				processInstance().refresh();
 			},
 			error : function(jqXHR, textStatus, error) {
-			
+				// TODO: IMPROVE ERROR HANDLING!
+				Notify.error( "Error", "Unable to send action. Please try again." );
 			},
-			complete : function(jqXHR, textStatus) {
-			
-				serverDone(true);
+			complete: function(jqXHR, textStatus) {
+				serverDone( true );
+				currentSelectedFile({});
 			}
 		});
 	};
 
-	 
-
-
-
-
-	 
-	 
-		
 	var initialize = function( instance, subjectId ) {
-		
+
 		var viewModel;
-		
+
 		processInstance( instance );
 		processInstance().refresh();
 		availableActions = instance.actions;
@@ -175,22 +197,16 @@ define([
 					return actionOfCurrentSubject().actionData;
 				} else {
 					return [];
-
 				}
 			}
-		}); 
-
-
-		
-		
-		viewModel = new ViewModel();
-		
-		//window.aView = viewModel;
-
-		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
 		});
 
 
+		viewModel = new ViewModel();
+
+
+		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
+		});
 	}
 
 	// Everything in this object will be the public API

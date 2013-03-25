@@ -1,35 +1,45 @@
 
 <div id="logo">
-  <h1 style="float:left">S-BPM Groupware v1.2</h1>
+	<h1 style="float:left">S-BPM Groupware v1.2</h1>
 </div>
 <div id="account_info" data-bind="with: currentUser">
-  <img src="images/icons/user_48.png" width="16px" height="16px" alt="Online" class="mid_align"/>
-  Hello
-  <a href="#/account" data-bind="text: name"></a>
-  (<a id="newMSG" href="newMSG.html" data-bind="fancybox : {}">
-    <!--<span data-bind="text: messageCount()"></span>-->
-  </a>)
+	<img src="images/icons/user_48.png" width="16px" height="16px" alt="Online" class="mid_align"/>
+	Hello
+	<a href="#/account" data-bind="text: name"></a>
+	(<a id="newMSG" href="newMSG.html" data-bind="fancybox : {}">
+		<!--<span data-bind="text: messageCount()"></span>-->
+	</a>)
 </div>
 <div id="misc">
-  <div id="menu">
-    <a href="#" data-bind="click: oauth2callback">
-      Mit Google Konto verbinden
-    </a>
-    &middot;
-    <a href="#/administration">
-      Administration
-    </a>
-    &middot;
-    <a href="" data-bind="click:logout">
-      Logout
-    </a>
-  </div>
-  <div id="img">
-    <a href="http://www.tu-darmstadt.de">
-      <img src="images/tu_darmstadt_web.png" alt="TU-Darmstadt"/>
-    </a>
-    <a href="http://www.tk.informatik.tu-darmstadt.de/">
-      <img src="images/tk_HintergrundWeiss_Web.png" alt="Telecooperation Group"/>
-    </a>
-  </div>
+	<div id="menu">
+		<!-- ko if: currentUser() -->
+			<a href="#" data-bind="click: oauth2callback">
+				Mit Google Konto verbinden
+			</a>
+			&middot;
+		<!-- /ko -->
+		<a href="#/administration">
+			Administration
+		</a>
+		<!-- ko if: currentUser() -->
+			&middot;
+			<a href="" data-bind="click:logout">
+				Logout
+			</a>
+		<!-- /ko -->
+		<!-- ko ifnot: currentUser() -->
+			&middot;
+			<a href="./login.html">
+				Login
+			</a>
+		<!-- /ko -->
+	</div>
+	<div id="img">
+		<a href="http://www.tu-darmstadt.de">
+			<img src="images/tu_darmstadt_web.png" alt="TU-Darmstadt"/>
+		</a>
+		<a href="http://www.tk.informatik.tu-darmstadt.de/">
+			<img src="images/tk_HintergrundWeiss_Web.png" alt="Telecooperation Group"/>
+		</a>
+	</div>
 </div>

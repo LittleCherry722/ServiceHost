@@ -1,22 +1,58 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 define([
 	"knockout",
 	"app",
 	"models/user",
-	"text!../../templates/header.html"
-], function( ko, App, User, headerTemplate ) {
+	"text!../../templates/header.html",
+	"notify"
+], function( ko, App, User, headerTemplate, Notify ) {
 
 	// Our header viewmodel. Make this private and only export some methods as
 	// public API so we stay in tighter controll of everything.
-	
+
 	var ViewModel = function() {
 		currentUser = App.currentUser;
 		this.logout = logout;
 
-		this.oauth2callback = function() {
-		};
-		
+		this.currentUser = App.currentUser;
+
+		this.oauth2callback = oauthLogin;
 	}
-	
+
+	var oauthLogin = function() {
+		var data = {
+			id: 3
+		}
+
+		$.ajax({
+			url: "/oauth2callback/init_auth",
+			cache: false,
+			data: data,
+			type: "POST",
+			success: function( data ) {
+				if ( !data ) {
+					Notify.info( "Success", "User account is already linked with Google." );
+				} else {
+					window.open( data, "Google OAuth 2", "width=600,height=400" );
+				}
+			},
+			error: function() {
+				Notify.error( "Error", "Error while linking user account with Google." );
+			}
+		});
+	}
+
 	var logout = function() {
 		console.log("logout");
 
@@ -39,16 +75,15 @@ define([
 
 			}
 		});
-
 	};
 
 
 	var initialize = function() {
 		headerNode = document.getElementById( 'header' )
 		headerNode.innerHTML = headerTemplate;
-		
+
 		viewModel = new ViewModel();
-		
+
 		ko.applyBindings( viewModel, headerNode )
 	}
 
