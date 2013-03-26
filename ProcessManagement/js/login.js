@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 var LoginViewModel = function() {
 	//window.Lview = this;
 
@@ -21,20 +34,24 @@ var LoginViewModel = function() {
 			complete : function(jqXHR, textStatus) {
 			}
 		});
-	}; 
+	};
 
 
 
 
 
 	self.login = function() {
+<<<<<<< HEAD
 		
+=======
+
+>>>>>>> 886d7e189c9725e3a7c86bf2d4881eb7d9e1b488
 		if (!self.isBackendAlive ){
 			alert("Can not reach backend!");
 		}
-		
+
 		var data = { user: self.user(), pass: self.pass()};
-		data = JSON.stringify(data); 
+		data = JSON.stringify(data);
 		self.pass("");
 
 		$.ajax({

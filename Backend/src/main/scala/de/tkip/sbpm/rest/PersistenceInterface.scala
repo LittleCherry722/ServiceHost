@@ -1,8 +1,21 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest
+
 import spray.routing.directives.CompletionMagnet
 import scala.language.postfixOps
 import akka.actor.Actor
-import de.tkip.sbpm.persistence.PersistenceAction
 import akka.util.Timeout
 import scala.concurrent.Await
 import akka.pattern._
@@ -22,6 +35,7 @@ import de.tkip.sbpm.ActorLocator
 import akka.actor.PoisonPill
 import akka.actor.ActorLogging
 import de.tkip.sbpm.persistence.EntityNotFoundException
+import de.tkip.sbpm.persistence.query.BaseQuery
 
 /**
  * Inheriting actors have simplified access to persistence actor.
@@ -58,7 +72,7 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
    * Sends a message to the persistence actor and waits
    * for the result of type A.
    */
-  protected def request[A](action: PersistenceAction): A = {
+  protected def request[A](action: BaseQuery): A = {
     val future = persistenceActor ? action
     Await.result(future, timeout.duration).asInstanceOf[A]
   }
@@ -68,7 +82,7 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
    * persistence actor. Responses with code 404 and given
    * message if result from persistence actor is None.
    */
-  protected def completeWithQuery[A](action: PersistenceAction, notFoundMsgFormat: String, notFoundMsgArgs: Any*)(implicit marshaller: Marshaller[A]) = {
+  protected def completeWithQuery[A](action: BaseQuery, notFoundMsgFormat: String, notFoundMsgArgs: Any*)(implicit marshaller: Marshaller[A]) = {
     val res = request[Option[A]](action)
     if (res.isDefined)
       complete(res.get)
@@ -80,7 +94,7 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
    * Completes the request with the result of a query to the
    * persistence actor.
    */
-  protected def completeWithQuery[A](action: PersistenceAction)(implicit marshaller: Marshaller[A]) = {
+  protected def completeWithQuery[A](action: BaseQuery)(implicit marshaller: Marshaller[A]) = {
     complete(request[A](action))
   }
 
@@ -91,7 +105,7 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
    * Location path is used as base for created resource in Location header.
    * idSetter function is used to inject generated id into entity.
    */
-  protected def completeWithSave[A, B](action: PersistenceAction,
+  protected def completeWithSave[A, B](action: BaseQuery,
 		  							   entity: A,
 		  							   locationPath: String,
 		  							   idSetter: (A, B) => A = (a: A, b: B) => a,
@@ -111,7 +125,7 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
    * sent to the persistence actor. Responses with code 404 and given
    * message if not entity was deleted otherwise 204 (No Content).
    */
-  protected def completeWithDelete(action: PersistenceAction, notFoundMsgFormat: String, notFoundMsgArgs: Any*) = {
+  protected def completeWithDelete(action: BaseQuery, notFoundMsgFormat: String, notFoundMsgArgs: Any*) = {
     val res = request[Int](action)
     if (res == 0)
       notFound(notFoundMsgFormat, notFoundMsgArgs: _*)
@@ -122,7 +136,7 @@ trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =
   /**
    * Executes the action without waiting for a result.
    */
-  protected def execute(action: PersistenceAction) = {
+  protected def execute(action: BaseQuery) = {
     persistenceActor ! action
   }
 

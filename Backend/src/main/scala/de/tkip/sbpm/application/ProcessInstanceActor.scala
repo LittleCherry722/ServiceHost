@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application
 
 import java.util.Date
@@ -24,9 +37,9 @@ import scala.collection.mutable.SortedSet
 import scala.collection.mutable.Set
 import scala.collection.mutable.LinkedList
 import scala.collection.mutable.Map
-
-import ExecutionContext.Implicits.global // TODO this import or something different?
+import ExecutionContext.Implicits.global
 import akka.actor.Status.Failure
+import de.tkip.sbpm.persistence.query._
 
 // represents the history of the instance
 case class History(
@@ -50,7 +63,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private var id: ProcessInstanceID = -1
   private val processID = request.processID
   private var processName: String = _
-  private var graphJson: String = _
+  private var persistenceGraph: Graph = _
   private var graph: ProcessGraph = _
 
   // whether the process instance is terminated or not
@@ -75,34 +88,34 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       val dataBaseAccessFuture = for {
         // get the process
         processFuture <- (ActorLocator.persistenceActor ?
-          GetProcess(Some(processID))).mapTo[Option[Process]]
+          Processes.Read.ById(processID)).mapTo[Option[Process]]
         // save this process instance in the persistence
         processInstanceIDFuture <- (ActorLocator.persistenceActor ?
-          SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
+          ProcessInstances.Save(ProcessInstance(None, processID, processFuture.get.activeGraphId.get, None)))
           .mapTo[Option[Int]]
 
         // get the corresponding graph
         graphFuture <- (ActorLocator.persistenceActor ?
-          GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-      } yield (processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
+          Graphs.Read.ById(processFuture.get.activeGraphId.get)).mapTo[Option[Graph]]
+      } yield (processInstanceIDFuture.get, processFuture.get.name, graphFuture.get)
       // evaluate the Future
-      val (idTemp, processNameTemp, startSubjectsString: String, graphJsonTemp) =
+      val (idTemp, processNameTemp, graphTemp) =
         Await.result(dataBaseAccessFuture, timeout.duration)
       id = idTemp
       processName = processNameTemp
-      graphJson = graphJsonTemp
+      persistenceGraph = graphTemp
 
       // parse the start-subjects into an Array
-      val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
+      val startSubjects: Iterable[SubjectID] = graphTemp.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
       // parse the graph into the internal structure
-      graph = parseGraph(graphJson)
+      graph = parseGraph(graphTemp)
 
       executionHistory.processName = processName
 
       // TODO modify to the right version
-      for (startSubject <- startSubjects if (graph.hasSubject(startSubject))) {
+      for (startSubject <- startSubjects) {
         // Create the subjectContainer
-        subjectMap(startSubject) = createSubjectContainer(graph.subject(startSubject))
+        subjectMap(startSubject) = createSubjectContainer(graph.subjects(startSubject))
         // the container shall contain a subject -> create
         subjectMap(startSubject).createSubject(request.userID)
       }
@@ -132,10 +145,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-    case sm: SubjectToSubjectMessage if (graph.hasSubject(sm.to)) => {
+    case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to)) => {
       val to = sm.to
       // Send the message to the container, it will deal with it
-      subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subject(to))).send(sm)
+      subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to))).send(sm)
     }
 
     // add an entry to the history
@@ -183,7 +196,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           id,
           AllSubjects,
           (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, id, self, false, graphJson, executionHistory, actions))
+            ProcessInstanceCreated(request, id, self, false, persistenceGraph, executionHistory, actions))
       sendProcessInstanceCreated = false
     }
   }
@@ -194,7 +207,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, processID, isTerminated, graphJson, executionHistory, actions))
+          ExecuteActionAnswer(req, processID, isTerminated, persistenceGraph, executionHistory, actions))
   }
 
   private def createSubjectContainer(subject: Subject): SubjectContainer = {

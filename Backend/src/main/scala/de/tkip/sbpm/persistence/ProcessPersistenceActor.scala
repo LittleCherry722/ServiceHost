@@ -1,115 +1,155 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.persistence
 
 import akka.actor.Actor
+import query.Processes._
+import mapping.ProcessMappings._
 import de.tkip.sbpm.model._
 import akka.actor.Props
 import scala.slick.lifted
 import akka.pattern._
 import scala.concurrent._
 
-/*
-* Messages for querying database
-* all message classes that inherit ProcessAction
-* are redirected to ProcessPersistenceActor
-*/
-sealed abstract class ProcessAction extends PersistenceAction
-// get process (Option[model.Process]) by id or all process (Seq[model.Process]) by sending None as id
-// None or empty Seq is returned if no entities where found
-case class GetProcess(id: Option[Int] = None, name: Option[String] = None) extends ProcessAction
-// save process to db, if id is None a new process is created 
-// and its id (Option[Int]) is returned otherwise None
-// if a graph is given additionally, the graph is saved too and its id is injected into process entity
-// the result of this message is a tuple (processId: Option[Int], graphId: Option[Int])
-// values (if defined) are generated ids if entities were created
-case class SaveProcess(process: Process, graph: Option[Graph] = None) extends ProcessAction
-// delete process with id from db (no. of deleted entities is returned)
-case class DeleteProcess(id: Int) extends ProcessAction
-
 /**
- * Handles database connection for "Process" entities using slick.
+ * Handles database connection for "process" entities using slick.
  */
-private[persistence] class ProcessPersistenceActor extends Actor with DatabaseAccess {
-
+private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
+  with DatabaseAccess with schema.ProcessesSchema with schema.ProcessActiveGraphsSchema {
+  // import current slick driver dynamically
   import driver.simple._
-  import DBType._
-  import de.tkip.sbpm.model._
 
-  // represents the "process" table in the database
-  object Processes extends Table[Process]("process") {
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-    def name = column[String]("name", O.DBType(varchar(64)))
-    def startSubjects = column[String]("startSubjects", O.DBType(varchar(128)))
-    def graphId = column[Int]("graphID")
-    def isCase = column[Boolean]("isCase", O.Default(false))
-    def * = id.? ~ name ~ graphId ~ isCase ~ startSubjects <> (Process, Process.unapply _)
-    // auto increment method returning generated id
-    def autoInc = * returning id
-  }
-
-  def receive = database.withSession { implicit session => // execute all db operations in a session
-    {
-      // get all processes ordered by id
-      case GetProcess(None, None) => answer { Processes.sortBy(_.id).list }
-      // get process with given id
-      case GetProcess(id, None) =>
-        answer { Processes.where(_.id === id).firstOption }
-      // get process with given name
-      case GetProcess(None, name) =>
-        answer { Processes.where(_.name === name).firstOption }
-      // create new process
-      case SaveProcess(p @ Process(None, _, _, _, _), None) =>
-        answer { Some(Processes.autoInc.insert(p)) }
-      // save existing process
-      case SaveProcess(p @ Process(id, _, _, _, _), None) => update(id, p)
-      // create new process with a corresponding graph
-      case SaveProcess(p: Process, g: Option[Graph]) => saveProcessWithGraph(p, g)
-      // delete process with given id
-      case DeleteProcess(id) =>
-        answer { Processes.where(_.id === id).delete(session) }
-      // execute DDL for "process" table
-      case InitDatabase => answer { Processes.ddl.create(session) }
-      case DropDatabase => answer { dropIgnoreErrors(Processes.ddl) }
+  override def receive = {
+    // get all processes
+    case Read.All => answerProcessed { implicit session: Session =>
+      joinQuery().list
+    }(_.map(convert))
+    // get process with given id
+    case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
+      joinQuery(Query(Processes).where(_.id === id)).firstOption
+    }(convert)
+    // get process with given name
+    case Read.ByName(name) => answerOptionProcessed { implicit session: Session =>
+      joinQuery(Query(Processes).where(_.name === name)).firstOption
+    }(convert)
+    // create or update processes
+    case Save.Entity(ps @ _*) => answer { implicit session =>
+      // process all entities
+      ps.map {
+        // insert if id is None
+        case p @ Process(None, _, _, _) => Some(insert(p))
+        // update otherwise
+        case p @ Process(id, _, _, _)   => update(id, p)
+      } match {
+         // only one process was given, return it's id
+        case ids if (ids.size == 1) => ids.head
+        // more processes were given return all ids
+        case ids                    => ids
+      }
+    }
+    // create new process with a corresponding graph
+    case Save.WithGraph(p: Process, g) =>  answer { implicit session =>
+      saveProcessWithGraph(p, g)
+    }
+    // delete process with given id
+    case Delete.ById(id) => answer { session =>
+      Processes.where(_.id === id).delete(session)
     }
   }
-  
-  private val graphActor = context.actorFor(context.parent.path / "graph")
-  
-  // update entity or throw exception if it does not exist
-  private def update(id: Option[Int], p: Process)(implicit session: Session) = answer {
-    val res = Processes.where(_.id === id).update(p)
+
+  /**
+   * Return a query for joining process table with process active graph table.
+   * A base query for the process table can be given (default all entities).
+   */
+  private def joinQuery(baseQuery: driver.simple.Query[Processes.type, mapping.Process] = Query(Processes)) = for {
+    // left join because active graph may not exist
+    (p, pag) <- baseQuery.leftJoin(Query(ProcessActiveGraphs)).on(_.id === _.processId)
+  } yield (p, pag.graphId.?)
+
+  /**
+   * Insert entity and return it's id.
+   */
+  private def insert(p: Process)(implicit session: Session) = {
+    // extract process and active graph id from domain model
+    val entities = convert(p)
+    val id = Processes.autoInc.insert(entities._1)
+    // create active graph entry if it's id is defined
+    if (entities._2.isDefined)
+      ProcessActiveGraphs.insert(mapping.ProcessActiveGraph(id, entities._2.get))
+    id
+  }
+
+  /** 
+   * Update entity or throw exception if it does not exist.
+   */
+  private def update(id: Option[Int], p: Process)(implicit session: Session) = {
+    // extract process and active graph id from domain model
+    val entities = convert(p)
+    val res = Processes.where(_.id === id).update(entities._1)
+
     if (res == 0)
       throw new EntityNotFoundException("Process with id %d does not exist.", id.get)
+    
+    // update active graph entitiy for current process
+    updateActiveGraph(id, entities._2)
+    
+    // update always returns None
     None
   }
-  
+
+  /**
+   * Update currently active graph for a process.
+   * Deletes all existing mappings for the process and
+   * inserts a new one if graphId is not None.
+   */
+  private def updateActiveGraph(processId: Option[Int], graphId: Option[Int])(implicit session: Session) = {
+    ProcessActiveGraphs.where(_.processId === processId).delete
+
+    if (graphId.isDefined)
+      ProcessActiveGraphs.insert(mapping.ProcessActiveGraph(processId.get, graphId.get))
+  }
+
   /**
    * Saves a process with the corresponding graph to the database.
+   * Each save operation produces a new graph instance (for maintaining old versions).
    */
-  private def saveProcessWithGraph(p: Process, g: Option[Graph])(implicit session: Session) = answer {
-    var resultId = p.id
+  private def saveProcessWithGraph(p: Process, g: Graph)(implicit session: Session) ={
+    // set graph id to none -> insert new on every save to maintain old versions
+    var graph = g.copy(id = None)
+    // set current active graph to None (we don't know graph id yet)
+    var process = p.copy(activeGraphId = None)
+    var resultId = process.id
     // if id not defined -> save new process
-    if (!p.id.isDefined) {
-      var pId = Processes.autoInc.insert(p)
-      p.id = Some(pId)
-      g.get.id = None
-      resultId = p.id
+    if (!resultId.isDefined) {
+      resultId = Some(insert(process))
+      // inject id into process
+      process = process.copy(id = resultId)
     } else {
-      if (!Processes.where(_.id === p.id).firstOption.isDefined)
-        throw new EntityNotFoundException("Process with id %d does not exist.", p.id.get)
+      // check if process exists if we should update it
+      if (!Processes.where(_.id === process.id).firstOption.isDefined)
+        throw new EntityNotFoundException("Process with id %d does not exist.", process.id.get)
+      // result on update is always None
       resultId = None
     }
     // set process id in graph
-    g.get.processId = p.id.get
-    // save graph via persistence actor
-    val graphFuture = graphActor ? SaveGraph(g.get)
-    val gId = Await.result(graphFuture.mapTo[Option[Int]], timeout.duration)
-    // if graph was created retrieve id
-    if (gId.isDefined)
-      p.graphId = gId.get
-    else
-      p.graphId = g.get.id.get
-    // update process with graph id
-    Processes.where(_.id === p.id).update(p)
+    graph = graph.copy(processId = process.id)
+    // save graph to db
+    val gId = save(graph)
+
+    // update process' active graph to new id
+    updateActiveGraph(process.id, gId)
+
     (resultId, gId)
   }
 }

@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.external.auth
 
 import akka.actor.Actor
@@ -24,7 +37,6 @@ import com.google.api.client.auth.oauth2.TokenErrorResponse
 import java.util.Arrays
 import com.google.api.services.oauth2.Oauth2Scopes
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.persistence.SetUserIdentity
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.Await
@@ -36,6 +48,7 @@ import akka.util.Timeout
 import akka.pattern._
 import de.tkip.sbpm.external.api.GetGoogleEMail
 import de.tkip.sbpm.model.UserIdentity
+import de.tkip.sbpm.persistence.query.Users
 
 // message types for google specific communication
 sealed trait GoogleAuthAction extends GoogleMessage
@@ -207,7 +220,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
     // add google as a new user provider
     // TODO check - if there is already a google provider so that there is only one
     // google identity 
-    val user_future = persistenceActor ? SetUserIdentity(id.toInt, "GOOGLE", email, None)
+    val user_future = persistenceActor ? Users.Save.Identity(id.toInt, "GOOGLE", email, None)
     val user = Await.result(user_future.mapTo[Credential], timeout.duration)
   }
 }

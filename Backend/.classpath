@@ -19,6 +19,8 @@
   <classpathentry path=".\lib_managed\jars\io.spray\spray-http\spray-http-1.1-M7.jar" kind="lib"></classpathentry>
   <classpathentry path=".\lib_managed\jars\org.parboiled\parboiled-scala_2.10.0-RC5\parboiled-scala_2.10.0-RC5-1.1.4.jar" kind="lib"></classpathentry>
   <classpathentry path=".\lib_managed\jars\org.parboiled\parboiled-core\parboiled-core-1.1.4.jar" kind="lib"></classpathentry>
+  <classpathentry path=".\lib_managed\jars\com.mchange\c3p0\c3p0-0.9.2.jar" kind="lib"></classpathentry>
+  <classpathentry path=".\lib_managed\jars\com.mchange\mchange-commons-java\mchange-commons-java-0.2.3.3.jar" kind="lib"></classpathentry>
   <classpathentry path=".\lib_managed\jars\io.spray\spray-routing\spray-routing-1.1-M7.jar" kind="lib"></classpathentry>
   <classpathentry path=".\lib_managed\jars\io.spray\spray-httpx\spray-httpx-1.1-M7.jar" kind="lib"></classpathentry>
   <classpathentry path=".\lib_managed\jars\org.jvnet.mimepull\mimepull\mimepull-1.8.jar" kind="lib"></classpathentry>

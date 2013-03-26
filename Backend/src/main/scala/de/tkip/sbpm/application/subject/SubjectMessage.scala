@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application.subject
 
 import de.tkip.sbpm.model.StateType._
@@ -9,6 +22,7 @@ import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.model.Target
 import scala.collection.mutable.ArrayBuffer
+import de.tkip.sbpm.model.Graph
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -82,7 +96,7 @@ case class ExecuteActionAnswer(
   execute: ExecuteAction,
   processID: ProcessID,
   isTerminated: Boolean,
-  graphJson: String,
+  graph: Graph,
   history: History,
   availableActions: Array[AvailableAction]) extends AnswerMessage {
   def request = execute.asInstanceOf[AnswerAbleMessage]

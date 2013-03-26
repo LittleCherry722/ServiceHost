@@ -86,24 +86,24 @@ define([
 		this.saveCurrentProcessAs = function() {
 			saveCurrentGraphAs( newProcessName() );
 		}
-		
+
 			//Import and export the graph.
-	
+
 		this.exportGraph = function() {
-			var graph = currentProcess().graph();
+			var graph = currentProcess().graphString();
 			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
 			this.graphText(graph);
-			
+
 		}
-	
+
 		this.graphText = ko.observable("");
-	
+
 		this.importGraph = function() {
 			currentProcess().graph(this.graphText());
 			loadGraph(currentProcess().graph());
 		}
-		
+
 		this.goToRoot = function() {
 			setGraph( currentProcess() )
 			Router.goTo( currentProcess() );
@@ -308,7 +308,7 @@ define([
 		// graph that is displayed via the gv_graph.saveToJSON() method.
 		routings = process.routings();
 
-		process.graph( gv_graph.saveToJSON() );
+		process.graphObject( gv_graph.saveToJSON() );
 		if ( routings ) {
 			process.routings( routings );
 		}
@@ -344,7 +344,11 @@ define([
 
 		// Clear the graph canvas
 		gv_graph.clearGraph( true );
-		gf_loadGraph( graph, undefined );
+		if ( graph && graph.definition ) {
+			gf_loadGraph( JSON.stringify( graph.definition ), undefined );
+		} else {
+			gf_loadGraph( "{}", undefined );
+		}
 
 		// TODO
 		// var graph = JSON.parse(graphAsJson);

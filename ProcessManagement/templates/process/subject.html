@@ -1,7 +1,17 @@
 <div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
 
 <div class="graphsettings">
-
+	<fieldset class="clearfix">
+		<legend>Import &amp; Export<span class="processSettingsTrigger">Hide</span></legend>
+		<div class="toggle-able">
+			<!-- <label for="timestamps">Change revision</label>-->
+			<!-- <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>-->
+			<!-- <br />-->
+			<input type="button" value="Export" data-bind="click: exportGraph"/>
+			<input type="text" id="importExportText"  data-bind="value: graphText"/>
+			<input type="button" value="Import" data-bind="click: importGraph"/>
+		</div>
+	</fieldset>
 	<fieldset class="tooltip-enabled">
 		<legend>Subject settings</legend>
 
@@ -29,10 +39,6 @@
 			<label class="checkbox" title="Does the subject come from without this Process or Case">
 				<input type="checkbox" id="ge_cv_type_external" name="ge_cv_type_external" />
 				External
-			</label>
-			<label class="checkbox" title="Can the subject start a process?">
-				<input type="checkbox" id="ge_cv_startSubject" name="ge_cv_startSubject" />
-				Start Subject
 			</label>
 		</div>
 
@@ -79,21 +85,6 @@
 		<br/>
 		-->
 
-
-
 	</fieldset>
-	
-		<fieldset class="clearfix">
-		<legend>Import &amp; Export<span class="processSettingsTrigger">Hide</span></legend>
-		<div class="toggle-able">
-			<!-- <label for="timestamps">Change revision</label>-->
-			<!-- <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>-->
-			<!-- <br />-->
-			<input type="button" value="Export" data-bind="click: exportGraph"/>
-			<input type="text" id="importExportText"  data-bind="value: graphText"/>
-			<input type="button" value="Import" data-bind="click: importGraph"/>
-		</div>
-	</fieldset>
-	
 </div>
 

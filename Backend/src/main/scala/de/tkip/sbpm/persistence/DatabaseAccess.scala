@@ -1,3 +1,15 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 
 package de.tkip.sbpm.persistence
 
@@ -10,11 +22,12 @@ import scala.slick.session.Session
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.actorRef2Scala
 import akka.util.Timeout
+import com.mchange.v2.c3p0._
+import com.typesafe.config.Config
 
 /**
  * Provides helper methods for connecting to database using slick.
@@ -32,99 +45,125 @@ private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
     log.debug(getClass.getName + " stopped.")
   }
 
-  // akka config prefix
-  protected val configPath = "sbpm.db."
+  // akka config to read db settings from
+  protected implicit val config = context.system.settings.config
+  // base path for db settings in akka config
+  protected val configPath = DatabaseAccess.configPath
 
-  // read string from akka config
-  protected def config(key: String) =
-    context.system.settings.config.getString(configPath + key)
-
-  /**
-   * provides the driver profile specified in akka config
-   * sub classes can import driver.simple._ to get access
-   * to driver specific classes and methods
-   */
-  protected val driver: ExtendedProfile =
-    DatabaseAccess.loadDriver(config("slickDriver"))
-
-  /**
-   * Create slick database connection using settings from akka config.
-   */
-  protected val database =
-    Database.forURL(config("uri"), driver = config("jdbcDriver"))
+  // obtain a connection from the connection pool
+  protected val database = DatabaseAccess.connection
 
   // default timeout for akka message sending
   protected implicit val timeout = Timeout(30 seconds)
 
   /**
-   * Send the result of the given function back to the sender
-   * or the Exception if one occurs.
+   * Send the result of the given function (executed in one transaction)
+   * back to the sender or the exception if one occurs.
    */
-  protected def answer[A](f: => A)(implicit session: Session) {
-    sender ! {
-      Try(f) match {
-        case Success(result) => result
-        case Failure(e) => akka.actor.Status.Failure(e)
-      }
+  protected def answer[A](exec: Session => A) = sender ! {
+    withTransaction(exec) match {
+      case Success(result) => result
+      case Failure(e)      => akka.actor.Status.Failure(e)
     }
   }
-
-  protected def dropIgnoreErrors(ddl: DDL)(implicit session: Session): Unit =
-    for (s <- ddl.dropStatements) {
-      try {
-        session.withPreparedStatement(s)(_.execute)
-      } catch {
-        case e: Throwable => log.warning(e.getMessage)
-      }
-    }
 
   /**
-   * Provides shortcuts for specifying column data type strings
-   * used in slick's lifted table configuration.
+   * Send the result of the given functions (executed in one transaction)
+   * back to the sender or the exception if one occurs.
+   * exec: is executed in a database transaction
+   * postProcess: can be used to modify db results after releasing database connection
    */
-  object DBType {
-    def varchar(length: Int) = "varchar(%d)".format(length)
-    val blob = "blob"
-    val smallint = "smallint"
-    def char(length: Int) = "char(%d)".format(length)
+  protected def answerProcessed[A, B](exec: Session => A)(postProcess: A => B) = sender ! {
+    withTransaction(exec) match {
+      case Success(preResult) =>
+        // db result ok -> execute post process function
+        Try(postProcess(preResult)) match {
+          case Success(result) => result
+          case Failure(e)      => akka.actor.Status.Failure(e)
+        }
+      case Failure(e) => akka.actor.Status.Failure(e)
+    }
   }
+
+  /**
+   * Send the result of the given functions (executed in one transaction)
+   * back to the sender or the exception if one occurs.
+   * exec: is executed in a database transaction returning single result as option
+   * None is passed through to the sender without executing postProcess function
+   * postProcess: can be used to modify db result after releasing database connection
+   */
+  protected def answerOptionProcessed[A, B](exec: Session => Option[A])(postProcess: A => B) = sender ! {
+    withTransaction(exec) match {
+      // db returned none -> pass it through
+      case Success(None) => None
+      // db result ok -> execute post process function
+      case Success(Some(preResult)) =>
+        Try(postProcess(preResult)) match {
+          case Success(result) => Some(result)
+          case Failure(e)      => akka.actor.Status.Failure(e)
+        }
+      case Failure(e) => akka.actor.Status.Failure(e)
+    }
+  }
+
+  /**
+   * Execute given function in a database transaction.
+   * Returns Success or Failure whether exception occurred or not.
+   */
+  private def withTransaction[A](exec: Session => A) =
+    database.withSession { session: Session =>
+      session.withTransaction {
+        Try(exec(session))
+      }
+    }
+
 }
 
 /**
- * Companion object for DatabaseAccess trait,
- * providing static methods used across JVM.
+ * Companion object for DatabaseTrait providing static methods.
  */
 private[persistence] object DatabaseAccess {
-  /* store for currently loaded drivers by class name
-  * objects cannot be loaded multiple times using reflection
-  * and should therefore be stored if first loaded
-  */
-  private var loadedDrivers: Map[String, ExtendedProfile] = Map()
-  // the scala reflection mirror for the current class loader
-  private val reflection = universe.runtimeMirror(getClass.getClassLoader)
+  // store for created connection pools
+  // key is jdbc uri
+  private var dataSources = Map[String, ComboPooledDataSource]()
+
+  // akka config prefix
+  val configPath = "sbpm.db."
+
+  // read string from akka config
+  private def configString(key: String)(implicit config: Config) =
+    config.getString(configPath + key)
+
+  // read number from akka config
+  private def configInt(key: String)(implicit config: Config) =
+    config.getInt(configPath + key)
 
   /**
-   * Load the slick driver object with the given class name using reflection.
-   * If driver was loaded before the cached object instance is returned.
-   * Executed synchronized to avoid race conditions.
+   * Create or reuse a database connection obtained from
+   * the database connection pool.
    */
-  def loadDriver(name: String): ExtendedProfile = this.synchronized {
-    // try to use cached object, if not existent the object is
-    // loaded using reflection
-    loadedDrivers.getOrElse(name, reflectDriver(name))
+  def connection(implicit config: Config) = synchronized {
+    // read jdbc uri from config
+    val uri = configString("uri")
+    // check if connection pool for the uri already exists
+    if (!dataSources.contains(uri)) {
+      // create new connection pool data source
+      val ds = new ComboPooledDataSource
+      // read pool properties from akka config
+      ds.setDriverClass(configString("jdbcDriver"))
+      ds.setJdbcUrl(uri)
+      ds.setMinPoolSize(configInt("minPoolSize"));
+      ds.setAcquireIncrement(configInt("poolAcquireIncrement"));
+      ds.setMaxPoolSize(configInt("maxPoolSize"));
+      // add to data source pool
+      dataSources += (uri -> ds)
+    }
+    Database.forDataSource(dataSources(uri))
   }
 
-  // load driver by class name using reflection
-  private def reflectDriver(name: String) = {
-    // get object symbol
-    val driverModule = reflection.staticModule(name)
-    // get instance from object symbol
-    val driver = reflection.reflectModule(driverModule).instance.asInstanceOf[ExtendedProfile]
-    // save to cache
-    loadedDrivers = loadedDrivers + (name -> driver)
-    driver
+  // close all connection pools
+  def cleanup() = {
+    dataSources.values.foreach(DataSources.destroy)
+    dataSources = Map()
   }
-
-  // returns current timestamp in database format
-  def currentTimestamp = new java.sql.Timestamp(java.lang.System.currentTimeMillis())
 }

@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest
 
 import scala.concurrent.Future
@@ -8,7 +21,6 @@ import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.Envelope
 import de.tkip.sbpm.model.User
 import scala.language.postfixOps
 import de.tkip.sbpm.rest.JsonProtocol._
@@ -24,6 +36,8 @@ import de.tkip.sbpm.model.GroupUser
 import spray.http.StatusCodes
 import spray.routing.authentication.UserPass
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.model.UserIdentity
+import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.model._
 import ua.t3hnar.bcrypt._
 
@@ -55,7 +69,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
        * result: JSON array of entities
        */
       path("^$"r) { regex =>
-        GetUsersWithMail()
+        getUsersWithMail()
       } ~
         /**
          * Return currently logged in user.
@@ -72,7 +86,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          * result: JSON array of entities
          */
         path(Entity.GROUP) {
-          completeWithQuery[Seq[GroupUser]](GetGroupUser())
+          completeWithQuery[Seq[GroupUser]](GroupsUsers.Read())
         } ~
         pathPrefix(IntNumber) { id: Int =>
           /**
@@ -82,7 +96,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * result: 404 Not Found or entity as JSON
            */
           path("^$"r) { regex =>
-            GetUserWithMail(id)
+            getUserWithMail(id)
           } ~
             /**
              * get all groups of the user
@@ -92,7 +106,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              */
             pathPrefix(Entity.GROUP) {
               path("^$"r) { regex =>
-                completeWithQuery[Seq[GroupUser]](GetGroupUser(None, Some(id)))
+                completeWithQuery[Seq[GroupUser]](GroupsUsers.Read.ByUserId(id))
               } ~
                 /**
                  * get a specific group mapping of the user
@@ -101,7 +115,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
                  * result: JSON of entity
                  */
                 path(IntNumber) { groupId =>
-                  completeWithQuery[GroupUser](GetGroupUser(Some(groupId), Some(id)), "User with id %d has no group with id %d.", id, groupId)
+                  completeWithQuery[GroupUser](GroupsUsers.Read.ById(groupId, id), "User with id %d has no group with id %d.", id, groupId)
                 }
             }
         }
@@ -115,7 +129,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * result: 204 No Content
            */
           path("^$"r) { regex =>
-            completeWithDelete(DeleteUser(id), "User could not be deleted. Entity with id %d not found.", id)
+            completeWithDelete(Users.Delete.ById(id), "User could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
              * delete a group of the user
@@ -124,7 +138,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * result: 204 No Content
              */
             path(Entity.GROUP / IntNumber) { groupId =>
-              completeWithDelete(DeleteGroupUser(groupId, id), "Group could not be removed from user. User with id %d has no group with id %d.", id, groupId)
+              completeWithDelete(GroupsUsers.Delete.ById(groupId, id), "Group could not be removed from user. User with id %d has no group with id %d.", id, groupId)
             }
         }
       } ~
@@ -205,44 +219,37 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
   def saveUser(entity: User, id: Option[Int] = None) = {
     // set param from url to entity id 
     // or delete id to create new entity
-    entity.id = id
-    completeWithSave(SaveUser(entity),
+    val e = entity.copy(id)
+    completeWithSave(Users.Save(entity),
       entity,
       pathForEntity(Entity.USER, "%d"),
-      (e: User, i: Int) => { e.id = Some(i); e })
+      (e: User, i: Int) => { e.copy(Some(i)) })
   }
 
   // completes with all providers and emails of an user and the user information
-  def GetUserWithMail(id: Int) = {
-    val userFuture = persistenceActor ? GetUser(Some(id), None)
-    val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
-    val identityFuture = persistenceActor ? GetUserWithIdentities(Some(id))
-    val identity = Await.result(identityFuture.mapTo[Option[(User, List[UserIdentity])]], timeout.duration)
-    if (user.isDefined && identity.isDefined) {
-      val pm = for (i <- identity.get._2) yield ProviderMail(i.provider, i.eMail)
-      complete(UserWithMail(user.get.id, user.get.name, user.get.isActive, user.get.inputPoolSize, pm))
+  def getUserWithMail(id: Int) = {
+    val userFuture = persistenceActor ? Users.Read.ByIdWithIdentities(id)
+    val user = Await.result(userFuture.mapTo[Option[(User, Seq[UserIdentity])]], timeout.duration)
+    if (user.isDefined) {
+      complete(UserWithMail(user.get._1.id, user.get._1.name, user.get._1.isActive, user.get._1.inputPoolSize, user.get._2.map(i => ProviderMail(i.provider, i.eMail))))
     } else {
       complete(StatusCodes.NotFound)
     }
   }
 
   // completes with all providers and emails of all users and the user information
-  def GetUsersWithMail() = {
-    val usersFuture = persistenceActor ? GetUser(None, None)
-    val users = Await.result(usersFuture.mapTo[List[User]], timeout.duration)
-    val listOfUsers = for (user <- users) yield {
-      val identityFuture = persistenceActor ? GetUserWithIdentities(user.id)
-      val identity = Await.result(identityFuture.mapTo[Option[(User, List[UserIdentity])]], timeout.duration)
-      val listOfMails = for (i <- identity.get._2) yield ProviderMail(i.provider, i.eMail)
-      UserWithMail(user.id, user.name, user.isActive, user.inputPoolSize, listOfMails)
-    }
-    complete(listOfUsers)
+  def getUsersWithMail() = {
+    val usersFuture = persistenceActor ? Users.Read.AllWithIdentities
+    val users = Await.result(usersFuture.mapTo[Map[User, Seq[UserIdentity]]], timeout.duration)
+    complete(users.map { user =>
+      UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
+    })
   }
 
   def setUserIdentity(id: Int, entity: UserUpdate) = {
     //check if the user exists
-    val userFuture = persistenceActor ? GetUser(Some(id), None)
-    val userIdentityFuture = persistenceActor ? GetUserIdentity("sbpm", Some(id), None)
+    val userFuture = persistenceActor ? Users.Read.ById(id)
+    val userIdentityFuture = persistenceActor ? Users.Read.Identity.ById("sbpm", id)
     val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
     val userIdentity = Await.result(userIdentityFuture.mapTo[Option[UserIdentity]], timeout.duration)
 
@@ -257,7 +264,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
         var password = entity.newPassword.getOrElse(entity.oldPassword)
 
         // set the new password, eMail and provider
-        val future = persistenceActor ? SetUserIdentity(id, "sbpm", eMail, Some(password.bcrypt))
+        val future = persistenceActor ? Users.Save.Identity(id, "sbpm", eMail, Some(password.bcrypt))
         val res = Await.result(future, timeout.duration)
 
         var name = entity.name.getOrElse(user.get.name)
@@ -277,9 +284,9 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
    */
   def saveGroup(groupUser: GroupUser) =
     completeWithSave[GroupUser, (Int, Int)](
-      SaveGroupUser(groupUser),
+      GroupsUsers.Save(groupUser),
       groupUser,
       pathForEntity(Entity.USER, "%d") + pathForEntity(Entity.GROUP, "%d"),
-      (entity, id) => GroupUser(id._1, id._2, entity.isActive),
+      (entity, id) => GroupUser(id._1, id._2),
       (id) => Array(id._2, id._1))
 }

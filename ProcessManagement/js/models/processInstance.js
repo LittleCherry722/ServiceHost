@@ -29,8 +29,18 @@ define([
 	ProcessInstance.attrs({
 		processId: "integer",
 		graph: {
-			type: "string",
-			defaults: "{}",
+			type: "json",
+			defaults: {
+				routings: [],
+				definition: {
+					conversationCounter: 1,
+					conversations: {},
+					messageCounter: 0,
+					messages: {},
+					nodeCounter: 0,
+					process: []
+				}
+			},
 			lazy: true
 		},
 		history: {
@@ -57,6 +67,22 @@ define([
 
 			this.instanceName = ko.computed(function() {
 				return "Instance #" + self.id();
+			});
+
+			this.graphString = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					if ( self.graph() ) {
+						return JSON.stringify( self.graph() );
+					} else {
+						return {};
+					}
+				},
+				write: function( graphString ) {
+					var graph = self.graph();
+					graph.definitions = JSON.parse( graphString );
+					self.graph( graph );
+				}
 			});
 		}
 	});

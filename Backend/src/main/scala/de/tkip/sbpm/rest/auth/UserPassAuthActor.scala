@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest.auth
 
 import akka.actor.Actor
@@ -17,6 +30,7 @@ import de.tkip.sbpm.model.UserIdentity
 import scala.util.{ Try, Success, Failure }
 import ua.t3hnar.bcrypt._
 import scala.concurrent.Await
+import de.tkip.sbpm.persistence.query.Users
 
 /**
  * Provides support for form/json based or basic authentication.
@@ -48,7 +62,7 @@ class UserPassAuthActor extends Actor {
    * to the database and sends user back to sender.
    */
   private def checkCredentials(user: String, pass: String, receiver: ActorRef) = {
-    val future = (persistenceActor ? GetUserIdentity("sbpm", eMail = Some(user))).map {
+    val future = (persistenceActor ? Users.Read.Identity("sbpm", user)).map {
     // return none if user not found, no password in identity or failure 
     case None => None
       case Some(UserIdentity(_, _, _, None)) => None

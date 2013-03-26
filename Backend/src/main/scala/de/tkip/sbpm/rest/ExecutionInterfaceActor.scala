@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest
 
 import scala.concurrent.Future
@@ -14,6 +27,7 @@ import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.SprayJsonSupport._
+import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
 import spray.http.MediaTypes._
 import spray.http.StatusCodes
 import spray.httpx.marshalling.Marshaller
@@ -23,11 +37,12 @@ import spray.util.LoggingContext
 import akka.actor.Props
 import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.subject.ExecuteActionAnswer
-import de.tkip.sbpm.persistence.GetProcessInstance
-import de.tkip.sbpm.persistence.GetGraph
 import scala.concurrent.Await
 import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
 import scala.concurrent.ExecutionContext
+import de.tkip.sbpm.persistence.query.Processes
+import de.tkip.sbpm.persistence.query.ProcessInstances
+import de.tkip.sbpm.persistence.query.Graphs
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -73,10 +88,10 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
         implicit val timeout = Timeout(5 seconds)
         val composedFuture = for {
-          processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[Option[ProcessInstance]]
+          processInstanceFuture <- (persistanceActor ? ProcessInstances.Read.ById(processInstanceID.toInt)).mapTo[Option[ProcessInstance]]
           graphFuture <- {
             if (processInstanceFuture.isDefined)
-              (persistanceActor ? GetGraph(Some(processInstanceFuture.get.graphId))).mapTo[Option[Graph]]
+              (persistanceActor ? Graphs.Read.ById(processInstanceFuture.get.graphId)).mapTo[Option[Graph]]
             else
               throw new Exception("Processinstance '" + processInstanceID + "' does not exist.")
           }
@@ -87,10 +102,15 @@ class ExecutionInterfaceActor extends Actor with HttpService {
             GetAvailableActions(userID.toInt, processInstanceID.toInt)
           }).mapTo[AvailableActionsAnswer]
         } yield JsObject(
-          "processId" -> processInstanceFuture.get.processId.toJson,
-          "graph" -> graphFuture.get.graph.toJson,
+          "processId" -> JsNumber(processInstanceFuture.get.processId),
+          "graph" -> {
+            if (graphFuture.isDefined)
+              graphFuture.get.toJson
+            else
+              JsNull
+          },
           // TODO make isTerminated nicer
-          "isTerminated" -> (historyFuture.history.processEnded.isDefined).toJson,
+          "isTerminated" -> JsBoolean(historyFuture.history.processEnded.isDefined),
           "history" -> historyFuture.history.toJson,
           "actions" -> availableActionsFuture.availableActions.toJson)
         complete(composedFuture)
@@ -128,7 +148,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               complete(
                 JsObject(
                   "processId" -> result.processID.toJson,
-                  "graph" -> result.graphJson.toJson,
+                  "graph" -> result.graph.toJson,
                   "isTerminated" -> result.isTerminated.toJson,
                   "history" -> result.history.toJson,
                   "actions" -> result.availableActions.toJson))
@@ -147,7 +167,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               complete(
                 JsObject(
                   "id" -> result.processInstanceID.toJson,
-                  "graph" -> result.graphJson.toJson,
+                  "graph" -> result.graph.toJson,
                   "isTerminated" -> result.isTerminated.toJson,
                   "history" -> result.history.toJson,
                   "actions" -> result.availableActions.toJson))
