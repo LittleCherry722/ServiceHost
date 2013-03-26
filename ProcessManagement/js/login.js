@@ -29,7 +29,7 @@ var LoginViewModel = function() {
 
 	self.login = function() {
 		
-		if (!isBackendAlive ){
+		if (!self.isBackendAlive ){
 			alert("Can not reach backend!");
 		}
 		
