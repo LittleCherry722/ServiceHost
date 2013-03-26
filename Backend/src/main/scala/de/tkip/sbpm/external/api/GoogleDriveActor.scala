@@ -1,9 +1,21 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.external.api
 
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.http.HttpResponseException
@@ -24,7 +36,6 @@ import akka.actor.ActorSystem
 import akka.util.Timeout
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous.Debug
-import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.miscellaneous.GetHistory
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
@@ -35,27 +46,35 @@ import de.tkip.sbpm.external.auth.GetCredential
 import com.google.api.client.auth.oauth2.Credential
 import java.util.HashMap
 import de.tkip.sbpm.application.miscellaneous.GoogleMessage
+import com.google.api.services.drive.model.Permission
+import java.io.IOException
+import de.tkip.sbpm.external.auth.GetCredential
 
-// message types for google specific communication
-sealed trait GoogleDriveAction extends GoogleMessage
 
 // case classes to communicate with google drive
+sealed trait GoogleDriveAction extends GoogleMessage
 
 // returns index of a specific folder on the google drive, in case string = none it returns 
-// the index of the root directory
 case  class ListGDriveDirectory(folder: Option[String] = None) extends GoogleDriveAction
 
 case  class ListGDriveFiles(id: String) extends GoogleDriveAction
 
+// opens the file in a google docs compatible editor like a browser
+case  class GetAlternateLinkForFileInGDrive(id: String, fileId: String) extends GoogleDriveAction
+
 case  class DownloadFromGDrive(item: String) extends GoogleDriveAction
 
-case  class CreateNewFile(file: String) extends GoogleDriveAction
+case  class CreateNewFile(id: String, fileId: String) extends GoogleDriveAction
 
-case  class CreateNewDirectory(directory: String) extends GoogleDriveAction
+case  class CreateNewDirectory(id: String, directory: String) extends GoogleDriveAction
 
 case  class HasAccessToValidGDriveToken(id: String) extends GoogleDriveAction
 
 case  class DeleteUserGDrive(id: String) extends GoogleDriveAction
+
+case  class GetFilePermission(id: String, fileId: String) extends GoogleDriveAction
+
+case  class SetFilePermission(id: String, foreignUserID: String, perimssion: String, fileId: String) extends GoogleDriveAction
 
 // case class to establish initial drive connection when user logs in 
 case  class InitUserGDrive(id: String) extends GoogleDriveAction
@@ -64,9 +83,10 @@ case  class InitUserGDrive(id: String) extends GoogleDriveAction
 
 class GoogleDriveActor extends Actor with ActorLogging {
   
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(15 seconds)
 
   private lazy val googleAuthActor = ActorLocator.googleAuthActor
+  private lazy val googleInformationActor = ActorLocator.googleUserInformationActor
   
   def actorRefFactory = context
 
@@ -79,7 +99,6 @@ class GoogleDriveActor extends Actor with ActorLogging {
     log.debug(getClass.getName + " stopped.")
   }
 
-  
   //google drive classes
   val HTTP_TRANSPORT = new NetHttpTransport()
   val JSON_FACTORY = new JacksonFactory()
@@ -87,35 +106,29 @@ class GoogleDriveActor extends Actor with ActorLogging {
   //map that keeps track of the different drive connections of all user
   val DRIVE_SET = new scala.collection.mutable.HashMap[String, Drive]()
   
-  //just for testing purpose
-  //val CREDENTIAL = getUserToken("User_1")
-  //log.debug(getClass.getName + "Got Auth Token: " + CREDENTIAL.getAccessToken())
-  
-  //val drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, CREDENTIAL).setApplicationName("SBPM-oAuth").build()
-  //var files = drive.files().list().execute()
-  //log.debug(getClass.getName + " About: " + files.toString())   //testing purpose
-  //files = drive.getBaseUrl
-  //log.debug(getClass.getName + " Files: " + files.toString())   //testing purpose
-  
-  
   
   
   def receive = {
-    //case ListGDriveDirectory(folder) => sender ! "listDirectory(folder)" 
-    
-    case ListGDriveFiles(id) => sender ! listFiles(id) 
     
     // just for testing purpose
     case HasAccessToValidGDriveToken(id) => sender ! getUserToken(id)
     
-    case InitUserGDrive(id) => initUser(id) 
+    // init google drive instance for user 
+    case InitUserGDrive(id) => sender ! initUser(id)
     
-    case DeleteUserGDrive(id) => deleteUserDrive(id)
+    // delete a google drive instance 
+    case DeleteUserGDrive(id) => sender ! deleteUserDrive(id)
+    
+    //case ListGDriveDirectory(folder) => sender ! "listDirectory(folder)" 
+    case ListGDriveFiles(id) => sender ! listFiles(id)  
+    
+    // get export url for a new user as a viewer for a specific file
+    case GetAlternateLinkForFileInGDrive(id, fileId) => sender ! getFileAlternateLink(id, fileId)  
     
     case _ => sender ! "not yet implemented"
   }
   
-  /** just for testing purpose */
+  // ask google auth actor for a valid user token
   def getUserToken(id: String): Credential = {
     val future = googleAuthActor ? GetCredential(id)
     val result = Await.result(future.mapTo[Credential], timeout.duration)
@@ -123,28 +136,29 @@ class GoogleDriveActor extends Actor with ActorLogging {
   }
   
   /** add new google drive connection to DRIVE_SET or check if there is still a valid connection */
-  def initUser(id: String) = {
+  def initUser(id: String): Boolean = {
     if (DRIVE_SET.contains(id)) {
       //still valid? / renew or add new one
       log.debug(getClass.getName + "Drive already existed for user: " + id)
       if (isGDriveValid(id, DRIVE_SET.get(id).get)) {
-      log.debug(getClass.getName + "Drive for user: " + id + " is still valid")  
+      log.debug(getClass.getName + "Drive for user: " + id + " is still valid")
       } else {
-        log.info(getClass.getName + "Drive for user: " + id + " is not valid, will create a new one")
+        log.debug(getClass.getName + "Drive for user: " + id + " is not valid, will create a new one")
         deleteUserDrive(id)
         addUserDrive(id)
       }
     } else {
       //add new one
       addUserDrive(id)
-    }    
+    }
+   DRIVE_SET.contains(id) 
   }
   
   /** add a new drive object to the DRIVE_SET with the user_id as hash value */
   def addUserDrive(id: String): Boolean = {
     val drive = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getUserToken(id)).setApplicationName("SBPM-oAuth").build()
     DRIVE_SET += ((id, drive))
-    log.info(getClass.getName + "Added new drive instance for user: " + id)
+    log.debug(getClass.getName + "Added new drive instance for user: " + id)
     DRIVE_SET.contains(id) && isGDriveValid(id, DRIVE_SET.get(id).get)
   }
   
@@ -174,16 +188,32 @@ class GoogleDriveActor extends Actor with ActorLogging {
       
   /** returns user specific drive object from DRIVE_SET */
   def getGDriveObject(id: String): Drive = {
+    initUser(id)
     DRIVE_SET.get(id).get
   }
   
   /** lists directory on the google drive, in case the method does not get a parameter it lists the root directory */
-  def listFiles(id: String): java.util.List[File] = {
+  def listFiles(id: String): String = {
+    
+    // add drive object for user or check if the current one is still valid
     val drive = getGDriveObject(id)
-    val files = drive.files().list().execute()
-    files.getItems()
+    
+    // TODO ask internal user provider for email address because always asking google adds
+    // to much latency
+    
+    // ask google for the email address
+    val email_future = googleInformationActor ? GetGoogleEMail(id)
+    val email = Await.result(email_future.mapTo[String], timeout.duration)
+    
+    // define query with trashed = false and user-permission = owner and type = user 
+    val query = "trashed = false and mimeType != 'application/vnd.google-apps.folder' and '" + email +"' in owners" 
+    
+    // select specific fields 
+    val fields = "items(description,downloadUrl,iconLink,id,mimeType,ownerNames,title)"
+    
+    val files = drive.files().list().setPrettyPrint(true).setQ(query).setFields(fields).execute()
+    files.toPrettyString() 
   }
-  
   
   //TODO implement directory filtering
   /** browse google drive or a specific directory */
@@ -193,11 +223,35 @@ class GoogleDriveActor extends Actor with ActorLogging {
     files
   }
   
-  //TODO implement sharing via url 
-  /** get a public accessable url for a specific file */
+  /** add read permissions for a specific user to a file in a foreign google drive and return the access url */
+  def manageGDrivePermissions(id: String, foreignUserID: String, role: String, fileId: String): Boolean = {
+    val drive = getGDriveObject(id)
+    val newPermission = new Permission()
+    
+    // user or group id
+    newPermission.setValue(foreignUserID)
+    
+    // type of permission - user, group, domain, default
+    newPermission.setType("user")
+    
+    // role of new user (owner, writer or reader)
+    newPermission.setRole(role)
+    try {
+      drive.permissions().insert(fileId, newPermission).execute()
+    } catch {
+      case e: IOException => {
+        log.debug(getClass().getName() + " Exception occurred while adding permissions: " + e)
+        return false
+      }    
+    } 
+    true
+  }
   
-  
-  
-
-  
+  /** get a file alternate link for a specific user file stored in a google drive - 
+   *  a link for opening the file in using a relevant google editor or viewer */
+  def getFileAlternateLink(id: String, fileId: String): String = {
+    val drive = getGDriveObject(id)
+    val fileUrl = drive.files().get(fileId).execute.getAlternateLink()
+    fileUrl
+  }
 }

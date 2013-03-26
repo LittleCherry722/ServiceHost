@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 @import 'variables';
 @import "bootstrap/mixins";
 
@@ -63,4 +76,8 @@ input[type=submit]:active, input[type=button]:active, input[type=button].right_s
 	border: 1px solid #999;
 	background: url(../images/bg_tab_over.png) repeat-x;
 	text-shadow: 0 0 0 #999;
+}
+
+input[type="radio"], input[type="checkbox"] {
+	margin: 1px 0 0;
 }

@@ -1,3 +1,15 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 define([
 	"knockout",
 	"model",
@@ -17,8 +29,18 @@ define([
 		isCase: "boolean",
 		processInstanceId: "integer",
 		graph: {
-			type: "string",
-			defaults: "{}",
+			type: "json",
+			defaults: {
+				routings: [],
+				definition: {
+					conversationCounter: 1,
+					conversations: {},
+					messageCounter: 0,
+					messages: {},
+					nodeCounter: 0,
+					process: []
+				}
+			},
 			lazy: true
 		}
 	});
@@ -64,10 +86,24 @@ define([
 			this.graphObject = ko.computed({
 				deferEvaluation: true,
 				read: function() {
-					return $.parseJSON( self.graph() );
+					if ( !self.attributesLoaded() ) {
+						self.loadAttributes( { async: false } );
+					} else {
+					}
+					return self.graph().definition;
 				},
 				write: function( graphObject ) {
-					var graph = JSON.stringify( graphObject );
+					var graph = _.clone( self.graph() );
+					if ( !graph ) {
+						graph = {}
+					}
+
+					if ( typeof graphObject === "string" ) {
+						graph.definition = JSON.parse( graphObject );
+					} else {
+						graph.definition = graphObject;
+					}
+
 					self.graph( graph );
 				}
 			});
@@ -114,8 +150,8 @@ define([
 			this.routings = ko.computed({
 				deferEvaluation: true,
 				read: function() {
-					if ( self.graphObject() && self.graphObject().routings ) {
-						return self.graphObject().routings;
+					if ( self.graph() && self.graph().routings ) {
+						return self.graph().routings;
 					} else {
 						return [];
 					}
@@ -124,9 +160,25 @@ define([
 					if ( !routings ) {
 						routings = [];
 					}
-					var graphObject = self.graphObject();
-					graphObject.routings = routings;
-					self.graphObject( graphObject );
+					var graph = _.clone( self.graph() );
+					graph.routings = routings;
+					self.graph( graph );
+				}
+			});
+
+			this.graphString = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					if ( self.graphObject() ) {
+						return JSON.stringify( self.graphObject() );
+					} else {
+						return {};
+					}
+				},
+				write: function( graphString ) {
+					var graph = self.graph();
+					graph.definition = JSON.parse( graphString );
+					self.graph( graph );
 				}
 			});
 		},

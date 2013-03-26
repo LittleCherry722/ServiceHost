@@ -51,7 +51,7 @@ html {
 }
 
 a:focus {
-  outline: thin dotted #333;
+  outline: thin dotted #333333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -169,7 +169,7 @@ a:hover {
 .img-polaroid {
   padding: 4px;
   background-color: #fff;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -961,7 +961,7 @@ select:focus,
 input[type="file"]:focus,
 input[type="radio"]:focus,
 input[type="checkbox"]:focus {
-  outline: thin dotted #333;
+  outline: thin dotted #333333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -1442,7 +1442,7 @@ select:focus:required:invalid:focus {
   text-align: center;
   text-shadow: 0 1px 0 white;
   background-color: #eeeeee;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
 }
 .input-append .add-on,
 .input-append .btn,
@@ -2049,7 +2049,7 @@ li [class*=" icon-"].icon-large, .nav li [class^="icon-"].icon-large,
 
 ul.icons {
   list-style-type: none;
-  text-indent: -0.75em;
+  text-indent: -.75em;
 }
 ul.icons li [class^="icon-"],
 ul.icons li [class*=" icon-"] {
@@ -2062,7 +2062,7 @@ ul.icons li [class*=" icon-"] {
 
 .icon-border {
   border: solid 1px #eeeeee;
-  padding: .2em .25em .15em;
+  padding: 0.2em 0.25em 0.15em;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
@@ -3266,7 +3266,7 @@ ul.icons li [class*=" icon-"] {
   margin: 2px 0 0;
   list-style: none;
   background-color: white;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
   *border-right-width: 2px;
   *border-bottom-width: 2px;
@@ -3526,7 +3526,7 @@ ul.icons li [class*=" icon-"] {
   transition: background-position 0.1s linear;
 }
 .btn:focus {
-  outline: thin dotted #333;
+  outline: thin dotted #333333;
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
@@ -4232,7 +4232,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .nav-tabs {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #dddddd;
 }
 
 .nav-tabs > li {
@@ -4256,7 +4256,7 @@ input[type="submit"].btn.btn-mini {
 .nav-tabs > .active > a:hover {
   color: #555555;
   background-color: white;
-  border: 1px solid #ddd;
+  border: 1px solid #dddddd;
   border-bottom-color: transparent;
   cursor: default;
 }
@@ -4290,7 +4290,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .nav-tabs.nav-stacked > li > a {
-  border: 1px solid #ddd;
+  border: 1px solid #dddddd;
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
@@ -4423,7 +4423,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .tabs-below > .nav-tabs {
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #dddddd;
 }
 
 .tabs-below > .nav-tabs > li {
@@ -4443,7 +4443,7 @@ input[type="submit"].btn.btn-mini {
 
 .tabs-below > .nav-tabs > .active > a,
 .tabs-below > .nav-tabs > .active > a:hover {
-  border-color: transparent #ddd #ddd #ddd;
+  border-color: transparent #dddddd #dddddd #dddddd;
 }
 
 .tabs-left > .nav-tabs > li,
@@ -4461,7 +4461,7 @@ input[type="submit"].btn.btn-mini {
 .tabs-left > .nav-tabs {
   float: left;
   margin-right: 19px;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid #dddddd;
 }
 
 .tabs-left > .nav-tabs > li > a {
@@ -4477,14 +4477,14 @@ input[type="submit"].btn.btn-mini {
 
 .tabs-left > .nav-tabs .active > a,
 .tabs-left > .nav-tabs .active > a:hover {
-  border-color: #ddd transparent #ddd #ddd;
+  border-color: #dddddd transparent #dddddd #dddddd;
   *border-right-color: white;
 }
 
 .tabs-right > .nav-tabs {
   float: right;
   margin-left: 19px;
-  border-left: 1px solid #ddd;
+  border-left: 1px solid #dddddd;
 }
 
 .tabs-right > .nav-tabs > li > a {
@@ -4500,7 +4500,7 @@ input[type="submit"].btn.btn-mini {
 
 .tabs-right > .nav-tabs .active > a,
 .tabs-right > .nav-tabs .active > a:hover {
-  border-color: #ddd #ddd #ddd transparent;
+  border-color: #dddddd #dddddd #dddddd transparent;
   *border-left-color: white;
 }
 
@@ -4828,7 +4828,7 @@ input[type="submit"].btn.btn-mini {
   display: inline-block;
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
-  border-bottom: 7px solid #ccc;
+  border-bottom: 7px solid #cccccc;
   border-bottom-color: rgba(0, 0, 0, 0.2);
   position: absolute;
   top: -7px;
@@ -4846,7 +4846,7 @@ input[type="submit"].btn.btn-mini {
 }
 
 .navbar-fixed-bottom .nav > li > .dropdown-menu:before {
-  border-top: 7px solid #ccc;
+  border-top: 7px solid #cccccc;
   border-top-color: rgba(0, 0, 0, 0.2);
   border-bottom: 0;
   bottom: -7px;
@@ -5074,9 +5074,9 @@ input[type="submit"].btn.btn-mini {
   width: 560px;
   margin: -250px 0 0 -280px;
   background-color: white;
-  border: 1px solid #999;
+  border: 1px solid #999999;
   border: 1px solid rgba(0, 0, 0, 0.3);
-  *border: 1px solid #999;
+  *border: 1px solid #999999;
   /* IE6-7 */
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -5102,7 +5102,7 @@ input[type="submit"].btn.btn-mini {
 
 .modal-header {
   padding: 9px 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #eeeeee;
 }
 .modal-header .close {
   margin-top: 2px;
@@ -5127,7 +5127,7 @@ input[type="submit"].btn.btn-mini {
   margin-bottom: 0;
   text-align: right;
   background-color: #f5f5f5;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid #dddddd;
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
   border-radius: 0 0 6px 6px;
@@ -5243,7 +5243,7 @@ input[type="submit"].btn.btn-mini {
   -webkit-background-clip: padding-box;
   -moz-background-clip: padding;
   background-clip: padding-box;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
@@ -5816,6 +5816,30 @@ input[type="tel"]:focus, input[type="color"]:focus, .uneditable-input:focus {
   border-color: rgba(143, 178, 222, 0.8);
 }
 
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 form ul.errors {
   display: none;
 }
@@ -5828,7 +5852,7 @@ form .error ul.errors {
 input[type=submit], input[type=button] {
   background: url(../images/bg_button_tab.png);
   background-repeat: repeat-x;
-  border: 1px solid #999;
+  border: 1px solid #999999;
   font-weight: bold;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -5847,11 +5871,11 @@ input[type=button].right_switch {
   font-weight: bold;
   margin: 0;
   height: 30px;
-  border: 1px solid #AAA9A9;
+  border: 1px solid #aaa9a9;
   -webkit-box-shadow: 0 1px 1px white;
   -moz-box-shadow: 0 1px 1px white;
   box-shadow: 0 1px 1px white;
-  text-shadow: 1px 0 0 #fff;
+  text-shadow: 1px 0 0 white;
   color: #494949;
   font-size: 12px;
 }
@@ -5864,11 +5888,11 @@ input[type=button].left_switch {
   font-weight: bold;
   margin-top: 0;
   height: 30px;
-  border: 1px solid #AAA9A9;
+  border: 1px solid #aaa9a9;
   -webkit-box-shadow: 0 1px 1px white;
   -moz-box-shadow: 0 1px 1px white;
   box-shadow: 0 1px 1px white;
-  text-shadow: 1px 0 0 #fff;
+  text-shadow: 1px 0 0 white;
   color: #494949;
   font-size: 12px;
 }
@@ -5881,24 +5905,28 @@ input[type=select].middle_switch {
   font-weight: bold;
   margin: 0;
   height: 30px;
-  border: 1px solid #AAA9A9;
+  border: 1px solid #aaa9a9;
   -webkit-box-shadow: 0 1px 1px white;
   -moz-box-shadow: 0 1px 1px white;
   box-shadow: 0 1px 1px white;
-  text-shadow: 1px 0 0 #fff;
+  text-shadow: 1px 0 0 white;
   color: #494949;
   font-size: 12px;
 }
 
 input[type=submit]:hover, input[type=button]:hover, input[type=button].right_switch:hover, input[type=button].left_switch:hover, input[type=button].middle_switch:hover {
-  border: 1px solid #666;
+  border: 1px solid #666666;
 }
 
 input[type=submit]:active, input[type=button]:active, input[type=button].right_switch:active, input[type=button].left_switch:active, input[type=button].right_switch.active, input[type=button].left_switch.active, input[type=button].middle_switch:active, input[type=button].middle_switch.active {
   color: #606060;
-  border: 1px solid #999;
+  border: 1px solid #999999;
   background: url(../images/bg_tab_over.png) repeat-x;
-  text-shadow: 0 0 0 #999;
+  text-shadow: 0 0 0 #999999;
+}
+
+input[type="radio"], input[type="checkbox"] {
+  margin: 1px 0 0;
 }
 
 .flexbox {
@@ -5943,7 +5971,7 @@ body, html, .content_wrapper {
 body {
   color: #363636;
   font-size: 12px;
-  text-shadow: 0 1px 0 #fff;
+  text-shadow: 0 1px 0 white;
   background-color: #f7f7f7;
 }
 
@@ -5958,7 +5986,7 @@ body.login {
   font-family: Arial;
   font-size: 12px;
   color: #363636;
-  text-shadow: 0 1px 0 #ccc;
+  text-shadow: 0 1px 0 #cccccc;
 }
 
 h1, h2, h3, h4 {
@@ -6057,10 +6085,10 @@ h4 {
   border-radius: 5px;
   border: 1px solid #cdcdcd;
   color: #4c535b;
-  text-shadow: 0 1px 0 #fff;
-  -moz-box-shadow: 0 2px 2px #fff;
-  -webkit-box-shadow: 0 2px 2px #fff;
-  box-shadow: 0 2px 2px #fff;
+  text-shadow: 0 1px 0 white;
+  -moz-box-shadow: 0 2px 2px white;
+  -webkit-box-shadow: 0 2px 2px white;
+  box-shadow: 0 2px 2px white;
 }
 
 #shortcut li a:hover {
@@ -6090,7 +6118,7 @@ h4 {
   height: 50px;
   background: url(../images/bg_header.png);
   background-repeat: repeat-x;
-  text-shadow: 1px 0 0 #666;
+  text-shadow: 1px 0 0 #666666;
   color: #ccc;
 }
 
@@ -6126,7 +6154,7 @@ h4 {
 }
 
 #misc {
-  width: 350px;
+  width: 500px;
   height: 40px;
   margin: 5px 0px 0 0;
   padding: 0px 0px 0 0px;
@@ -6134,14 +6162,13 @@ h4 {
 }
 
 #misc #menu {
-  width: 150px;
   margin: 16px 35px 0 0;
   float: left;
 }
 
 #misc #img {
   width: 160px;
-  float: left;
+  float: right;
 }
 
 a:active {
@@ -6177,15 +6204,15 @@ a:active {
   list-style: none;
 }
 #main_menu li {
-  border-top: 1px solid #fff;
-  border-bottom: 1px solid #ccc;
+  border-top: 1px solid white;
+  border-bottom: 1px solid #cccccc;
   display: block;
 }
 #main_menu li.active {
   height: auto;
 }
 #main_menu li.end {
-  border-top: 1px solid #fff;
+  border-top: 1px solid white;
   border-bottom: 0;
   height: 1px;
 }
@@ -6194,7 +6221,7 @@ a:active {
   padding: 10px 20px 12px 30px;
   color: #4b4f5d;
   font-weight: bold;
-  text-shadow: 0 1px 0 #fff;
+  text-shadow: 0 1px 0 white;
 }
 #main_menu li a:hover {
   background: #DADADA;
@@ -6213,8 +6240,8 @@ a:active {
   display: block;
   width: 100%;
   background: #bfc6cf;
-  border-top: 2px solid #999;
-  border-bottom: 1px solid #fff;
+  border-top: 2px solid #999999;
+  border-bottom: 1px solid white;
   display: none;
   overflow: hidden;
 }
@@ -6222,27 +6249,27 @@ a:active {
   border: 0;
 }
 #main_menu li ul li a {
-  text-shadow: 0 1px 0 #DBDBDB;
+  text-shadow: 0 1px 0 #dbdbdb;
 }
 #main_menu li ul li a:hover {
   background: #b1b8c1;
-  text-shadow: 0 1px 0 #DBDBDB;
+  text-shadow: 0 1px 0 #dbdbdb;
 }
 #main_menu li ul li ul {
   background: #b0b9c4;
-  border-bottom: 1px solid #EAECED;
+  border-bottom: 1px solid #eaeced;
   display: block;
 }
 #main_menu li ul li ul li {
   display: block;
 }
 #main_menu li ul li ul li a {
-  text-shadow: 0 1px 0 #DBDBDB;
+  text-shadow: 0 1px 0 #dbdbdb;
   cursor: pointer;
 }
 #main_menu li ul li ul li a:hover {
   background: #a2acb9;
-  text-shadow: 0 1px 0 #DBDBDB;
+  text-shadow: 0 1px 0 #dbdbdb;
 }
 
 a#hide_menu {
@@ -6252,7 +6279,7 @@ a#hide_menu {
   font-size: 14px;
   color: #4b4f5d;
   font-weight: bold;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #cccccc;
   cursor: w-resize;
 }
 a#hide_menu:hover {
@@ -6263,7 +6290,7 @@ a#show_menu {
   display: none;
   margin: 10px 5px 5px 10px;
   padding: 5px 10px 5px 10px;
-  border: 1px solid #CCC;
+  border: 1px solid #cccccc;
   position: relative;
   background: #EBEBEB;
   -webkit-border-radius: 3px;
@@ -6341,7 +6368,7 @@ a#show_menu:hover {
   -webkit-box-shadow: 0 1px 4px #cccccc;
   -moz-box-shadow: 0 1px 4px #cccccc;
   box-shadow: 0 1px 4px #cccccc;
-  box-shadow: 0 1px 2px #ccc;
+  box-shadow: 0 1px 2px #cccccc;
   float: left;
 }
 
@@ -6356,7 +6383,7 @@ a#show_menu:hover {
   background: url(../images/bg_window_header.png) repeat-x;
   width: 100%;
   height: 40px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #cccccc;
   -webkit-border-radius: 5px 5px 0 0;
   -moz-border-radius: 5px 5px 0 0;
   border-radius: 5px 5px 0 0;
@@ -6406,7 +6433,7 @@ table.data tr {
 }
 
 table.data tr td, table.data tr th {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #cccccc;
 }
 
 table.data tr th {
@@ -6431,7 +6458,7 @@ table.data2 tr {
 }
 
 table.data2 tr td, table.data2 tr th {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #cccccc;
 }
 
 table.data2 tr th {
@@ -6463,7 +6490,7 @@ table.data2 tr td {
 }
 #dialog-logo h1, #dialog-logo h2, #dialog-logo h3, #dialog-logo h4, #dialog-logo h5 {
   color: #eee;
-  text-shadow: 1px 0 0 #444;
+  text-shadow: 1px 0 0 #444444;
   font-weight: normal;
 }
 
@@ -6486,10 +6513,10 @@ table.data2 tr td {
   padding: 5px 10px;
   width: 170px;
   max-height: 100%;
-  text-shadow: 0 1px 0 #eee;
+  text-shadow: 0 1px 0 #eeeeee;
   background: #e6e6e6;
-  border-left: 1px solid #bbb;
-  border-bottom: 1px solid #ccc;
+  border-left: 1px solid #bbbbbb;
+  border-bottom: 1px solid #cccccc;
   -webkit-border-radius: 0 0 5px 0;
   -moz-border-radius: 0 0 5px 0;
   border-radius: 0 0 5px 0;
@@ -6544,7 +6571,7 @@ table.data2 tr td {
 .graphsettings .action {
   background-color: #EEE;
   padding: 5px;
-  border: 1px solid #CFCFCF;
+  border: 1px solid #cfcfcf;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
@@ -6676,7 +6703,7 @@ table.data2 tr td {
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
   display: inline-block;
   background-color: #EEE;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   color: #333;
   width: 16px;
   line-height: 16px;
@@ -6718,12 +6745,7 @@ table.data2 tr td {
 
 #processHistory {
   margin-left: 10px;
-  height: 100%;
-}
-
-#processHistory .fluid {
-  overflow: auto;
-  clear:both;
+  height: calc(100% - 36px);
 }
 
 #adminContainer {
@@ -6751,7 +6773,7 @@ table.data2 tr td {
   width: 120px;
   background-color: #ebebeb;
   padding-top: 1em;
-  border-right: 1px solid #bbb;
+  border-right: 1px solid #bbbbbb;
 }
 #adminContainer .left ul {
   padding: 0;
@@ -6841,13 +6863,13 @@ table.data2 tr td {
   border-radius: 5px 5px 0 0;
 }
 #processExecution ul.nav.nav-tabs li a:hover {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #cccccc;
 }
 #processExecution ul.nav.nav-tabs li.active {
   position: relative;
   top: 2px;
   height: 29px;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   border-bottom: none;
   -webkit-box-shadow: 0 0 3px #cccccc;
   -moz-box-shadow: 0 0 3px #cccccc;
@@ -6928,7 +6950,7 @@ table.data2 tr td {
   -webkit-box-shadow: inset 0 1px 1px white;
   -moz-box-shadow: inset 0 1px 1px white;
   box-shadow: inset 0 1px 1px white;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #cccccc;
 }
 .header .btn {
   padding: 7px 15px;
@@ -6962,7 +6984,7 @@ table.data2 tr td {
   -webkit-border-bottom-right-radius: 4px;
   -moz-border-radius-bottomright: 4px;
   border-bottom-right-radius: 4px;
-  border-right: 1px solid #bbb;
+  border-right: 1px solid #bbbbbb;
 }
 
 .first-tab-selected .header {
@@ -6990,10 +7012,10 @@ table.data2 tr td {
   cursor: pointer;
 }
 .dropdown-menu li a:hover {
-  text-shadow: 0px 1px #000;
+  text-shadow: 0px 1px black;
 }
 .dropdown-menu li.active a, .dropdown-menu li.active a:hover {
-  text-shadow: 0 1px #000;
+  text-shadow: 0 1px black;
   color: #fff;
 }
 .dropdown-menu li.disabled a:hover {
@@ -7013,4 +7035,25 @@ table.data2 tr td {
 
 .table-middle td, .table-middle th {
   vertical-align: middle;
+}
+
+a.close {
+  cursor: pointer;
+}
+
+#atlwdg-trigger {
+  text-shadow: none;
+}
+
+.gdrive-modal .loading {
+  text-align: center;
+  margin: 1em 0 3em 0;
+}
+.gdrive-modal .loading .icon-large {
+  margin-top: 2em;
+  display: block;
+  font-size: 160%;
+}
+.gdrive-modal ul {
+  text-shadow: none;
 }

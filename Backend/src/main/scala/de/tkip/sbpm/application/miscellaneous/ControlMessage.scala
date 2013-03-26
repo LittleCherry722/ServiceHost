@@ -1,16 +1,25 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application.miscellaneous
 
 import de.tkip.sbpm.rest._
 import ProcessAttributes._
 import akka.actor._
 import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.application.subject.BehaviorStateActor
-import de.tkip.sbpm.model.Transition
-import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject._
-import de.tkip.sbpm.model.ProcessGraph
-import de.tkip.sbpm.model.ProcessGraph
+import de.tkip.sbpm.model.Graph
 
 /**
  * For system control tasks
@@ -60,13 +69,14 @@ case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends A
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceID: ProcessInstanceID,
                                   processInstanceActor: ProcessInstanceRef,
-                                  graphJson: String,
+                                  isTerminated: Boolean,
+                                  graph: Graph,
                                   history: History,
                                   availableActions: Array[AvailableAction])
     extends AnswerControlMessage
 
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
-case class KillProcessInstanceAnswer(request: KillProcessInstance, success: Boolean) extends AnswerControlMessage
+case class KillProcessInstanceAnswer(request: KillProcessInstance) extends AnswerControlMessage
 
 case class GetAvailableActions(userID: UserID,
                                processInstanceID: ProcessInstanceID = AllProcessInstances,

@@ -1,180 +1,220 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application.subject
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ ArrayBuffer, Map => MutableMap }
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.Transition
 import akka.event.Logging
+import scala.collection.mutable.Queue
 
-case class SubjectInternalMessageProcessed(subjectID: SubjectID)
-case class SubjectMessageRouting(from: SubjectName, messageType: MessageType)
+protected case class SubscribeIncomingMessages(
+  stateID: StateID, // the ID of the receive state
+  fromSubject: SubjectID,
+  messageType: MessageType,
+  private var remainingCount: Int = 1) { // the number of messages the state want to receive
 
-object SubjectMessageRouting {
-  // TODO passt nur fuer receivestate
-  def apply(to: SubjectID, transition: Transition): SubjectMessageRouting =
-    SubjectMessageRouting(
-      transition.subjectID,
-      transition.messageType)
-  def apply(sm: SubjectInternalMessage): SubjectMessageRouting =
-    SubjectMessageRouting(sm.from, sm.messageType)
+  private var stateActor: ActorRef = null
+
+  def count = remainingCount
+
+  def setStateActor(sender: ActorRef) {
+    if (stateActor == null) stateActor = sender
+  }
+
+  def !(message: Any) {
+    if (stateActor != null) {
+      stateActor ! message
+      remainingCount -= 1
+    }
+  }
 }
 
-/**
- * Mailbox of SubjectActor (FIFO)
- * capacity can be limited
- */
-class InputPoolActor(messageLimit: Int) extends Actor {
+// message to inform the inputpool that the state, does not subscribe anything anymore
+protected case class UnSubscribeIncomingMessages(stateID: StateID)
 
-  val logger = Logging(context.system, this)
+// message to inform the receive state, that the inputpool has no messages for him
+protected case object InputPoolSubscriptionPerformed
+
+class InputPoolActor(data: SubjectData) extends Actor {
+  // extract the information from the data
+  val userID = data.userID
+  val messageLimit = data.subject.inputPool
+  val blockingHandlerActor = data.blockingHandlerActor
+
+  // this map holds the queue of the income messages for a channel
+  private val messageQueueMap =
+    MutableMap[(SubjectID, MessageType), Queue[SubjectToSubjectMessage]]()
+  // this map holds the states which are subscribing a channel
+  private val waitingStatesMap =
+    MutableMap[(SubjectID, MessageType), WaitingStateList]()
 
   def receive = {
 
-    // a receive asked before a send
-    case sm: SubjectInternalMessage if subjectIsWaitingForMessageIn(SubjectMessageRouting(sm)) =>
-      sender ! Stored(sm.messageID) // unlock Sender
-      logger.debug(self + "Inputpool: Message transported: " + sm.from + ", " +
-        sm.messageType + ", \"" +
-        sm.messageContent + "\"")
-      // transport it to waiting receive message of the internal behavior
-      getWaitingSubject(SubjectMessageRouting(sm)) !
-        TransportMessage(sm.messageID, sm.from, sm.messageType, sm.messageContent)
-      context.parent ! SubjectInternalMessageProcessed(sm.to)
-
-    // input pool limit is high enough to store message
-    case sm: SubjectInternalMessage if messagesStoredFor(SubjectMessageRouting(sm)) < messageLimit =>
-      storeMessageContent(sm)
-      logger.debug(self + "Inputpool: Message stored: " + sm.from + ", " +
-        sm.messageType + ", \"" +
-        sm.messageContent + "\"")
-      sender ! Stored(sm.messageID) // unlock Sender
-      context.parent ! SubjectInternalMessageProcessed(sm.to)
-
-    case sm: SubjectInternalMessage =>
-      putInWaitForSend(sm, sender)
-      logger.debug(self + "Message putInWaitForSend: " + sm.from + ", " +
-        sm.messageType + ", \"" + sm.messageContent + "\"")
-      context.parent ! SubjectInternalMessageProcessed(sm.to)
-
-    case RequestForMessages(exitConds) => {
-      var break = false
-
-      // TODO nochmal ueberarbeiten
-      for (e <- exitConds if break == false) {
-        if (tryTransport(e, sender)) {
-          break = true
-        }
-      }
-
-      if (break == false) {
-        for (e <- exitConds) {
-          putInWaitForMessage(e, sender)
-        }
-        sender ! InputPoolEmpty
-      }
+    case registerAll: Array[SubscribeIncomingMessages] => {
+      handleSubscribers(registerAll)
     }
 
-    case sw => logger.error("Inputpool got message but can't use: " + sw)
+    case register: SubscribeIncomingMessages => {
+      handleSubscribers(Array(register))
+    }
+
+    case UnSubscribeIncomingMessages(stateID) => {
+      // unregister the waiting states
+      // TODO increase performance
+      waitingStatesMap.map(_._2.remove(stateID))
+    }
+
+    case message: SubjectToSubjectMessage => {
+      // Unlock the sender
+      sender ! Stored(message.messageID)
+      // try to transport the message
+      tryTransportMessage(message)
+      // unblock this user
+      blockingHandlerActor ! UnBlockUser(userID)
+    }
   }
 
-  private def tryTransport(smr: SubjectMessageRouting, s: ActorRef): Boolean = {
-    if (messageIsWaitingForSendIn(smr)) {
-      val (id, actor) = moveMessageToStor(smr)
-      actor ! Stored(id) // re lock sender TODO
+  /**
+   * Handles the subscription for one or more messages, which means:
+   * - Set all actors to the sender in the class instances
+   * - try to transport all messages to the requesting state
+   * - inform the sender, that the subscription has been performed
+   */
+  private def handleSubscribers(registerAll: Array[SubscribeIncomingMessages]) {
+    // set all state actors to the sender
+    registerAll.map(_.setStateActor(sender))
+
+    for (register <- registerAll) {
+      // try to transport all messages
+      tryTransportMessagesTo(register)
     }
-    if (messagesStoredFor(smr) > 0) {
-      val (id, content) = popMessageContentOf(smr)
-      logger.debug("Inputpool: e, getMessageContentOf(e) : " + smr + " " + content)
-      s ! TransportMessage(id, smr.from, smr.messageType, content)
-      return true
-    }
-    false
+
+    // inform the sender, that this subscription has been performed
+    sender ! InputPoolSubscriptionPerformed
   }
 
-  // TODO exitcond namen ueberarbeiten
-  private class FIFO(exitCond: SubjectMessageRouting) {
-    private val storage = new ArrayBuffer[(MessageID, MessageContent)]()
-    private val waitForSend = new ArrayBuffer[(MessageID, MessageContent, ActorRef)]()
-    private val waitForMessageStorage = new ArrayBuffer[ActorRef]()
-
-    def put(id: MessageID, content: MessageContent) { storage += ((id, content)) }
-
-    def pop(): (MessageID, MessageContent) = storage.remove(0)
-
-    def putInWaitForSend(id: MessageID, m: MessageContent, _sender: ActorRef) {
-      waitForSend += ((id, m, _sender))
+  /**
+   * Tries to transport the messages, which are already in the pool
+   * to the state described by the input
+   * Will also register the state as waiting in the map, if needed
+   */
+  private def tryTransportMessagesTo(state: SubscribeIncomingMessages) {
+    val key = (state.fromSubject, state.messageType)
+    // while it is needed and it is possible, send the message to the request state
+    while (state.count > 0 && !messageQueueIsEmpty(key)) {
+      // get the message
+      val message = dequeueMessage(key)
+      // transport the message
+      state ! message
     }
 
-    def messagesStored = storage.length
-
-    def messageIsWaitingForSend = (waitForSend.length > 0)
-
-    def moveMessageToStor: (MessageID, ActorRef) = {
-      val (id, content, actor) = waitForSend.remove(0)
-      storage += ((id, content))
-      (id, actor)
+    // if its still needed, register the state into the waiting list
+    if (state.count > 0) {
+      getWaitingStatesList(key).add(state)
     }
-
-    def putInWaitForMessage(_sender: ActorRef) {
-      waitForMessageStorage += _sender
-    }
-
-    def waitForMessage = (waitForMessageStorage.length > 0)
-
-    def getWaitingSubject = waitForMessageStorage.remove(0)
-  } // Class FIFO
-
-  private val exitcond_to_FIFOs = collection.mutable.Map[SubjectMessageRouting, FIFO]()
-
-  private def messagesStoredFor(exitCond: SubjectMessageRouting): Int = {
-    if (exitcond_to_FIFOs.contains(exitCond) == false) {
-      return 0
-    }
-    exitcond_to_FIFOs(exitCond).messagesStored
   }
 
-  private def storeMessageContent(sm: SubjectInternalMessage) {
-    val smr = SubjectMessageRouting(sm)
-    if (exitcond_to_FIFOs.contains(smr) == false) {
-      exitcond_to_FIFOs += smr -> new FIFO(smr)
+  /**
+   * Tries to transport the message to the waiting state.
+   * Stores the message in the pool, if no state is waiting for the message,
+   */
+  private def tryTransportMessage(message: SubjectToSubjectMessage) {
+    val state =
+      getWaitingStatesList((message.from, message.messageType)).get
+    if (state != null) {
+      state ! message
+    } else {
+      enqueueMessage(message)
     }
-    exitcond_to_FIFOs(smr).put(sm.messageID, sm.messageContent)
   }
 
-  private def putInWaitForSend(sm: SubjectInternalMessage,
-                               sender: ActorRef) {
-    val smr = SubjectMessageRouting(sm)
-    if (exitcond_to_FIFOs.contains(smr) == false) {
-      exitcond_to_FIFOs += smr -> new FIFO(smr)
+  /**
+   * Returns the WaitingStateList for the key
+   * Creates and returns the list, if it does not exists
+   */
+  private def getWaitingStatesList(key: (SubjectID, MessageType)) =
+    waitingStatesMap.getOrElseUpdate(key, new WaitingStateList())
+
+  /**
+   * Enqueue a message, add it to the correct queue
+   */
+  private def enqueueMessage(message: SubjectToSubjectMessage) = {
+    // get or create the message queue
+    val messageQueue =
+      messageQueueMap.getOrElseUpdate(
+        (message.from, message.messageType),
+        Queue[SubjectToSubjectMessage]())
+
+    // if the queue is not to big, enqueue the message
+    if (messageQueue.size < messageLimit) {
+      messageQueue.enqueue(message)
+    } else {
+      // TODO log error?
     }
-    exitcond_to_FIFOs(smr).putInWaitForSend(sm.messageID, sm.messageContent, sender)
   }
 
-  private def popMessageContentOf(e: SubjectMessageRouting): (MessageID, MessageContent) =
-    exitcond_to_FIFOs(e).pop()
+  /**
+   * Dequeue a message, remove and return the first message
+   * TODO sonst null?, oder muss man vorher abfragen
+   */
+  private def dequeueMessage(key: (SubjectID, MessageType)) =
+    messageQueueMap(key).dequeue()
 
-  private def subjectIsWaitingForMessageIn(e: SubjectMessageRouting): Boolean = {
-    if (exitcond_to_FIFOs.contains(e) == false) {
-      return false
-    }
-    exitcond_to_FIFOs(e).waitForMessage
+  /**
+   * Returns if the message queue for the key is empty.
+   * (A not existing queue is seen as empty)
+   */
+  private def messageQueueIsEmpty(key: (SubjectID, MessageType)) =
+    !messageQueueMap.contains(key) || messageQueueMap(key).isEmpty
+}
+
+/**
+ * This list is responsible to hold and manage the ordering for the waiting
+ * states of a MessageChannel
+ * The same state cannot register twice (adding will remove old registration)
+ * /Currently only one state will be hold in this list, but will be usefull for modal split
+ */
+private class WaitingStateList {
+  private val queue = Queue[SubscribeIncomingMessages]()
+
+  def add(state: SubscribeIncomingMessages) {
+    // a state can not register twice
+    remove(state.stateID)
+    // enqueue the state at the back of the queue
+    queue.enqueue(state)
   }
 
-  private def messageIsWaitingForSendIn(e: SubjectMessageRouting): Boolean = {
-    if (exitcond_to_FIFOs.contains(e) == false) return false
-    exitcond_to_FIFOs(e).messageIsWaitingForSend
+  def get = {
+    // remove disused
+    removeDisused()
+    // return the first element
+    if (queue.isEmpty) null else queue.head
   }
 
-  private def moveMessageToStor(e: SubjectMessageRouting): (MessageID, ActorRef) =
-    exitcond_to_FIFOs(e).moveMessageToStor
-
-  private def putInWaitForMessage(e: SubjectMessageRouting, _sender: ActorRef) {
-    if (exitcond_to_FIFOs.contains(e) == false) {
-      exitcond_to_FIFOs += e -> new FIFO(e)
-    }
-    exitcond_to_FIFOs(e).putInWaitForMessage(_sender)
+  def isEmpty = {
+    removeDisused()
+    queue.isEmpty
   }
 
-  private def getWaitingSubject(e: SubjectMessageRouting): ActorRef =
-    exitcond_to_FIFOs(e).getWaitingSubject
+  def remove(id: StateID) {
+    queue.dequeueAll(_.stateID == id)
+  }
+
+  private def removeDisused() {
+    queue.dequeueAll(_.count <= 0)
+  }
 }

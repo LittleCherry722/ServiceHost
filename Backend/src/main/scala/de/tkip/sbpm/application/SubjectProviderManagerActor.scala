@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application
 
 import akka.actor._
@@ -47,10 +60,6 @@ class SubjectProviderManagerActor extends Actor {
     }
 
     // TODO muss man zusammenfassen koennen
-    case message: PersistenceMessage => {
-      processManagerActor.forward(message)
-    }
-
     case message: AnswerAbleMessage => {
       processManagerActor ! message.withSender(sender)
     }
@@ -61,14 +70,6 @@ class SubjectProviderManagerActor extends Actor {
 
     case message: SubjectMessage => {
       processManagerActor ! message
-    }
-
-    case message: GetAvailableActions => {
-      if (subjectProviderMap.contains(message.userID)) {
-        subjectProviderMap(message.userID).forward(message)
-      } else {
-        logger.info("Actions for subject " + message.userID + " but does not exist");
-      }
     }
 
     case s => {

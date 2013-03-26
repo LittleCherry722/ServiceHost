@@ -1,0 +1,81 @@
+<div id="account">
+	<h3 style="color:#525252" >Account</h3>
+	<div id="account_info" data-bind="with: currentUser">
+		<div >
+			<h2><span></span>This is your Account </span><span style="color:#525252" data-bind="text: name"></span><span>!</span></h2>
+		</div>
+		<table class="table table-striped table-bordered">
+			<tbody id="listOfUsers" data-bind="">
+
+				<tr>
+					<th>Name</th>
+					<td>
+					<input type="text" class="inline" data-bind="value: name" />
+					</td>
+
+				</tr>
+				<tr>
+					<th>Identities</th>
+
+					<td >
+					<div style="width:442px">
+						<span>Provider</span><span style="float:right;">Email</span>
+					</div>
+					<div data-bind="foreach: providerMail">
+
+						<div>
+							<input type="text" class="inline" data-bind='value: provider' />
+							<input type="text" class="inline" data-bind='value: mail' />
+							<input style="margin-bottom: 8px;" type="button" class="button" value="Delete" data-bind='click: $root.deleteEmail' />
+							<!--<input style="margin-bottom: 8px;" type="button" class="button" value="Reset" data-bind='click: $root.reset' />-->
+						</div>
+					</div>
+					<input type="button" class="button" value="Add" data-bind='click: $parent.addEmail' />
+					</td>
+			
+				</tr>
+				<tr>
+					<th>Save</th>
+					<td>
+					<input style="float:right;" type="button" class="button" value="Save changes" data-bind='click: $parent.save' />
+					</td>
+				</tr>
+				<tr>
+
+					<th>Password</th>
+					<td style="padding:0px">
+					<table >
+						<tr>
+							<td>Current password</td>
+							<td>
+							<input type="text" class="inline" data-bind="value: name" />
+							</td>
+						</tr>
+						<tr>
+							<td>New password</td>
+							<td>
+							<input type="text" class="inline" data-bind="value: name" />
+							</td>
+						</tr>
+						<tr>
+							<td>Reapeat new password</td>
+							<td>
+							<input type="text" class="inline" data-bind="value: name" />
+							</td>
+						</tr>
+					</table></td>
+
+				</tr>
+				<tr>
+					<th>Save</th>
+					<td>
+					<input style="float:right;" type="button" class="button" value="Save changes" data-bind='click: $parent.savePassword' />
+					</td>
+				</tr>
+
+			</tbody>
+
+		</table>
+
+	</div>
+</div>

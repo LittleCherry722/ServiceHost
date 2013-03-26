@@ -1,3 +1,15 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 define([
   "knockout",
   "require",
@@ -22,39 +34,38 @@ define([
 		});
 	}
 
-var initialize = function( callback ) {
-	require([
-		"model",
-		"models/user",
-		"models/process",
-		"models/group",
-		"models/role",
-		"models/groupsUsers",
-		"models/groupsRoles",
-		"models/processInstance",
-		"models/message"
-		// "models/roles",
-	], function( Model, User, Process, Group, Role ) {
+	var initialize = function( callback ) {
+		require([
+			"model",
+			"models/user",
+			"models/process",
+			"models/group",
+			"models/role",
+			"models/groupsUsers",
+			"models/groupsRoles",
+			"models/processInstance",
+			"models/message"
+			// "models/roles",
+		], function( Model, User, Process, Group, Role ) {
 
-		// The current user logged in to our system
-		currentUser( new User( { name: "no user" } ) );
+			// The current user logged in to our system
+			currentUser( new User( { name: "no user" } ) );
 
-		// Initially fetch all Models, then initialize the views and after that,
-		// tell everyone that we are done (call the callback).
-		async.auto({
-			fetchAll : Model.fetchAll,
-			setCurrentUser : ["fetchAll", function(callback) {
-				loadCurrentUser();
-				callback();
-			}],
-			initViews : ["fetchAll", "setCurrentUser", initializeViews],
-			callback : ["initViews", callback]
+			// Initially fetch all Models, then initialize the views and after that,
+			// tell everyone that we are done (call the callback).
+
+			async.auto({
+
+				fetchAll : Model.fetchAll,
+				setCurrentUser : ["fetchAll", function(callback) {
+					loadCurrentUser();
+					callback();
+				}],
+				initViews : ["fetchAll", "setCurrentUser", initializeViews],
+				callback : ["initViews", callback]
+			});
 		});
-	});
-};
-
-
-
+	}
 
 
 	var readCookie = function(key) {
@@ -64,8 +75,7 @@ var initialize = function( callback ) {
 	var loadCurrentUser = function() {
 
 		if (readCookie("sbpm-userId")) {
-
-			currentUser(User.find(readCookie("sbpm-userId").replace(/"/g, '')));
+			currentUser(User.find(parseInt(readCookie("sbpm-userId").replace(/"/g, ''), 10)));
 		} else { //TODO Kein Cookie gesetzt, kein Zugang.
 			currentUser(new User({
 				name : "no user"
@@ -144,10 +154,8 @@ var initialize = function( callback ) {
 	var viewCanUnload = function() {
 		if ( currentMainViewModel() ) {
 
-			console.log("viewmodel exists")
 			// check if the unload method is actually set
 			if ( typeof currentMainViewModel().canUnload === 'function' ) {
-				console.log("calling specific canUnload")
 				return currentMainViewModel().canUnload();
 			}
 		}

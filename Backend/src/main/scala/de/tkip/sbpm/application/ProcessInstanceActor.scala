@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application
 
 import java.util.Date
@@ -12,7 +25,6 @@ import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.model.ProcessGraph
 import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.model.Process
@@ -25,178 +37,118 @@ import scala.collection.mutable.SortedSet
 import scala.collection.mutable.Set
 import scala.collection.mutable.LinkedList
 import scala.collection.mutable.Map
+import ExecutionContext.Implicits.global
+import akka.actor.Status.Failure
+import de.tkip.sbpm.persistence.query._
 
 // represents the history of the instance
-case class History(processName: String,
-                   instanceId: ProcessInstanceID,
-                   var processStarted: Option[Date] = None, // None if not started yet
-                   var processEnded: Option[Date] = None, // None if not started or still running
-                   entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
+case class History(
+  var processName: String,
+  instanceId: ProcessInstanceID,
+  var processStarted: Option[Date] = None, // None if not started yet
+  var processEnded: Option[Date] = None, // None if not started or still running
+  entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
-// TODO This object just exists for debug reasons
-protected object firstrun {
-  private var start = true
-  def apply() = {
-    val temp = start
-    start = false
-    temp
-  }
-}
 /**
  * instantiates SubjectActor's and manages their interactions
  */
 class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
-  val logger = Logging(context.system, this)
+  private val logger = Logging(context.system, this)
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
-  import ExecutionContext.Implicits.global // TODO this import or something different?
-  implicit val timeout = Timeout(30 seconds)
+  implicit val timeout = Timeout(4 seconds)
 
-  val processID = request.processID
+  // this fields are set in the preStart, dont change them afterwards!!!
+  private var id: ProcessInstanceID = -1
+  private val processID = request.processID
+  private var processName: String = _
+  private var persistenceGraph: Graph = _
+  private var graph: ProcessGraph = _
 
-  // TODO just for debug reasons, delete later
-  val isStart: Boolean = firstrun()
-
-  // TODO "None" rueckgaben behandeln
-  // Get the ProcessGraph from the database and create the database entry
-  // for this process instance
-  // TODO momentan wird der process auf instanceid 1 gezwungen 
-  val dataBaseAccessFuture = for {
-    // get the process
-    processFuture <- (ActorLocator.persistenceActor ?
-      GetProcess(Some(processID))).mapTo[Option[Process]]
-    // save this process instance in the persistence
-    processInstanceIDFuture <- (ActorLocator.persistenceActor ?
-      SaveProcessInstance(ProcessInstance(None, processID, processFuture.get.graphId, "", "")))
-      .mapTo[Option[Int]]
-    // save this process instance in the persistence
-    // Just of debug reasons
-    processInstanceIDFuture1 <- if (isStart)
-      (ActorLocator.persistenceActor ?
-        SaveProcessInstance(ProcessInstance(Some(1), processID, processFuture.get.graphId, "", "")))
-        .mapTo[Option[Int]]
-    else
-      (ActorLocator.persistenceActor ?
-        SaveProcessInstance(ProcessInstance(processInstanceIDFuture, processID, processFuture.get.graphId, "", "")))
-        .mapTo[Option[Int]]
-    //      } else {
-    //        processInstanceIDFuture
-    //      }
-
-    // get the corresponding graph
-    graphFuture <- (ActorLocator.persistenceActor ?
-      GetGraph(Some(processFuture.get.graphId))).mapTo[Option[Graph]]
-  } yield (if (isStart) 1 else processInstanceIDFuture.get, processFuture.get.name, processFuture.get.startSubjects, graphFuture.get.graph)
-
-  // evaluate the Future
-  val (id: ProcessInstanceID, processName: String, startSubjectsString: SubjectID, graphJSON: String) =
-    Await.result(dataBaseAccessFuture, timeout.duration)
-
-  // parse the start-subjects into an Array
-  val startSubjects: Array[SubjectID] = parseSubjects(startSubjectsString)
-  // parse the graph into the internal structure
-  val graph: ProcessGraph = parseGraph(graphJSON)
-
-  // TODO wie uebergeben?
-  private lazy val contextResolver = ActorLocator.contextResolverActor
-
-  // this pool stores the message to the subject, which does not exist,
-  // but will be created soon (the UserID is requested)
-  private var messagePool = Set[(ActorRef, SubjectInternalMessage)]()
-
-  // this map stores all Subjects with their IDs 
-  private var subjectCounter = 0 // TODO We dont really need counter
-  private val subjectMap = collection.mutable.Map[SubjectID, SubjectRef]()
+  // whether the process instance is terminated or not
+  private var runningSubjectCounter = 0
+  private def isTerminated = runningSubjectCounter == 0
+  // this map stores all Subject(Container) with their IDs 
+  private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
   // history.Entry messages to this actor
-  private val executionHistory = History(processName, id, Some(new Date())) // TODO start time = creation time?
+  private val executionHistory = History(processName, id, Some(new Date()))
   // provider actor for debug payload used in history's debug data
   private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
-  // variables to help blocking of ActionExecuted messages
-  private var subjectsUserIDMap = Map[SubjectID, UserID]()
-  private var waitingForContextResolver = ArrayBuffer[UserID]()
-  private var waitingUserMap = Map[UserID, Int]()
-  private var blockedAnswers = collection.mutable.Map[UserID, ActionExecuted]()
+  // this actor handles the blocking for answer to the user
+  private val blockingHandlerActor = context.actorOf(Props[BlockingActor])
 
-  // add all start subjects
-  for (startSubject <- startSubjects) {
-    waitForContextResolver(request.userID)
-    contextResolver !
-      RequestUserID(SubjectInformation(startSubject), AddSubject(_, startSubject))
+  override def preStart() {
+    try {
+      // TODO schoener machen
+      val dataBaseAccessFuture = for {
+        // get the process
+        processFuture <- (ActorLocator.persistenceActor ?
+          Processes.Read.ById(processID)).mapTo[Option[Process]]
+        // save this process instance in the persistence
+        processInstanceIDFuture <- (ActorLocator.persistenceActor ?
+          ProcessInstances.Save(ProcessInstance(None, processID, processFuture.get.activeGraphId.get, None)))
+          .mapTo[Option[Int]]
+
+        // get the corresponding graph
+        graphFuture <- (ActorLocator.persistenceActor ?
+          Graphs.Read.ById(processFuture.get.activeGraphId.get)).mapTo[Option[Graph]]
+      } yield (processInstanceIDFuture.get, processFuture.get.name, graphFuture.get)
+      // evaluate the Future
+      val (idTemp, processNameTemp, graphTemp) =
+        Await.result(dataBaseAccessFuture, timeout.duration)
+      id = idTemp
+      processName = processNameTemp
+      persistenceGraph = graphTemp
+
+      // parse the start-subjects into an Array
+      val startSubjects: Iterable[SubjectID] = graphTemp.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
+      // parse the graph into the internal structure
+      graph = parseGraph(graphTemp)
+
+      executionHistory.processName = processName
+
+      // TODO modify to the right version
+      for (startSubject <- startSubjects) {
+        // Create the subjectContainer
+        subjectMap(startSubject) = createSubjectContainer(graph.subjects(startSubject))
+        // the container shall contain a subject -> create
+        subjectMap(startSubject).createSubject(request.userID)
+      }
+      // send processinstance created, when the block is closed
+      blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
+    } catch {
+      case e: NoSuchElementException => {
+        request.sender !
+          Failure(new Exception("ProcessInstance creation failed, required " +
+            "resource does not exists."))
+      }
+    }
   }
-  // inform the process manager that this process instance has been created
-  //  context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
-
-  //  context.parent !
-  //    AskSubjectsForAvailableActions(request.userID,
-  //      id,
-  //      AllSubjects,
-  //      (actions: Array[AvailableAction]) =>
-  //        ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
 
   def receive = {
-
-    case as: AddSubject => {
-      // if subjectProvider of the new subject is not the same as the one that asked for execution
-      // try to forward blocked ExecuteActionAnswer
-
-      val subject: Subject = getSubject(as.subjectID)
-
-      // TODO was tun
-      if (subject == null) {
-        logger.error("ProcessInstance " + id + " -- Subject unknown for " + as)
-
-        waitingForContextResolver = waitingForContextResolver.tail
-      } else {
-        // safe userID that owns the subject
-        subjectsUserIDMap += subject.id -> as.userID
-
-        // handle blocking
-        handleBlockingForSubjectCreation(as.userID)
-
-        // create the subject
-        val subjectRef =
-          context.actorOf(Props(new SubjectActor(as.userID, self, subject)))
-        // add the subject to the management map
-        subjectMap += subject.id -> subjectRef
-        subjectCounter += 1
-
-        logger.info("processinstance " + id + " created subject " + subject.id + " for user " + as.userID)
-
-        // if there are messages to deliver to the new subject,
-        // forward them to the subject 
-        if (!messagePool.isEmpty) {
-          for ((orig, sm) <- messagePool if sm.to == subject.id) {
-            handleBlockingForMessageDelivery(as.subjectID)
-            subjectRef.!(sm)(orig)
-          }
-          messagePool = messagePool.filterNot(_._2.to == subject.id)
-        }
-
-        // inform the subject provider about his new subject
-        context.parent !
-          SubjectCreated(as.userID, processID, id, subject.id, subjectRef)
-
-        // start the execution of the subject
-        subjectRef ! StartSubjectExecution()
-      }
+    case _: SendProcessInstanceCreated => {
+      trySendProcessInstanceCreated()
     }
 
     case st: SubjectTerminated => {
-      subjectMap -= st.subjectID
-      subjectsUserIDMap -= st.subjectID
+      subjectMap(st.subjectID).handleSubjectTerminated(st)
 
-      // log end time in history
-      subjectCounter -= 1
-      logger.info("process instance [" + id + "]: subject terminated " + st.subjectID)
-      if (subjectCounter == 0) {
+      logger.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
+      if (isTerminated) {
+        // log end time in history
         executionHistory.processEnded = Some(new Date())
-        //        context.stop(self) // TODO stop process instance?
       }
+    }
+
+    case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to)) => {
+      val to = sm.to
+      // Send the message to the container, it will deal with it
+      subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to))).send(sm)
     }
 
     // add an entry to the history
@@ -216,66 +168,36 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-    case sm: SubjectInternalMessage => {
-      // block user that owns the subject
-      if (subjectMap.contains(sm.to)) {
-        handleBlockingForMessageDelivery(sm.to)
-        // if the subject already exist just forward the message
-        subjectMap(sm.to).forward(sm)
-      } else {
-        waitForContextResolver(sm.userID)
-
-        // if the subject does not exist create the subject and forward the
-        // message afterwards
-        // store the message in the message-pool
-        messagePool += ((sender, sm))
-        // ask the Contextresolver for the userid to answer with an AddSubject
-        contextResolver !
-          RequestUserID(
-            SubjectInformation(sm.to),
-            AddSubject(_, sm.to))
-      }
-    }
-
-    case message: SubjectMessage => {
-      if (subjectMap.contains(message.subjectID)) {
-        subjectMap(message.subjectID).!(message) // TODO mit forward
-      } else {
-        logger.error("ProcessInstance has message for subject " +
-          message.subjectID + "but it does not exists")
-      }
+    case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
+      subjectMap(message.subjectID).send(message)
     }
 
     case message: SubjectProviderMessage => {
       context.parent ! message
     }
 
-    case message: SubjectStarted => {
-      // println("subjectstarted")
-      unblockUserID(message.userID)
-      tryToReleaseBlocking(message.userID)
-      trySendProcessInstanceCreated()
-    }
-
-    case message: SubjectInternalMessageProcessed => {
-      // println("subjectInternalMessageProcessed")
-      unblockUserID(subjectsUserIDMap(message.subjectID))
-      tryToReleaseBlocking(subjectsUserIDMap(message.subjectID))
-    }
-
     // send forward if no subject has to be created else wait
     case message: ActionExecuted => {
       System.err.println("Executed " + message)
-      if (allSubjectsReady(message.ea.userID)) {
-        createExecuteActionAnswer(message.ea)
-      } else {
-        // println("store message")
-        blockedAnswers += message.ea.userID -> message
-      }
+      createExecuteActionAnswer(message.ea)
     }
 
     case answer: AnswerMessage => {
       context.parent.forward(answer)
+    }
+  }
+
+  private var sendProcessInstanceCreated = true
+  private def trySendProcessInstanceCreated() {
+    if (sendProcessInstanceCreated) {
+      context.parent !
+        AskSubjectsForAvailableActions(
+          request.userID,
+          id,
+          AllSubjects,
+          (actions: Array[AvailableAction]) =>
+            ProcessInstanceCreated(request, id, self, false, persistenceGraph, executionHistory, actions))
+      sendProcessInstanceCreated = false
     }
   }
 
@@ -285,104 +207,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, processID, graphJSON, executionHistory, actions))
+          ExecuteActionAnswer(req, processID, isTerminated, persistenceGraph, executionHistory, actions))
   }
 
-  /**
-   * This method checks if all subjects are parsed and ready to ask for actions
-   * etc.
-   */
-  private def allSubjectsReady(userID: UserID): Boolean = {
-    !waitingForContextResolver.contains(userID) && waitingUserMap.getOrElse(userID, 1) == 0
+  private def createSubjectContainer(subject: Subject): SubjectContainer = {
+    new SubjectContainer(
+      subject,
+      processID,
+      id,
+      logger,
+      blockingHandlerActor,
+      () => runningSubjectCounter += 1,
+      () => runningSubjectCounter -= 1)
   }
-
-  private def getSubject(name: String): Subject = {
-    // TODO increase performance
-    val subject = graph.subjects.find(_.id == name)
-    subject match {
-      case None => null
-      case _ => subject.get
-    }
-  }
-
-  /**
-   * adds the userID to the waiting list for answers of the contextResolver
-   */
-  private def waitForContextResolver(userID: UserID) {
-    // set userID on waiting list for answer of contextresolver
-    waitingForContextResolver += userID
-  }
-
-  /**
-   * increases the number of tasks that are blocking the given userID from sending ExecuteActionAnswers by one
-   */
-  private def blockUserID(userID: UserID) {
-    waitingUserMap += userID -> (waitingUserMap.getOrElse(userID, 0) + 1)
-    // println("blockuser: " + waitingUserMap.mkString(","))
-  }
-
-  /**
-   * decrease the number of tasks that are blocking the given userID from sending ExecuteActionAnswers by one
-   */
-  private def unblockUserID(userID: UserID) {
-    val numberOfTasks = (waitingUserMap.getOrElse(userID, 1) - 1)
-    waitingUserMap += userID -> (if (numberOfTasks < 0) 0 else numberOfTasks)
-    // println("after unblocked: " + waitingUserMap.mkString(","))
-  }
-
-  /**
-   * handle contextResolverAnswer to ensure blocking of ExecuteActionAnswers until all subjects (owned by the
-   * subjectProvider that created the ExecuteAction request) have been created and started
-   */
-  private def handleBlockingForSubjectCreation(userID: UserID) {
-    if (waitingForContextResolver.size == 0) {
-      return
-    }
-    // block user twice. once for subject creation and once for message delivery  
-    blockUserID(userID)
-    //    blockUserID(userID)
-
-    // println("contextResolver: " + waitingForContextResolver.mkString(","))
-
-    tryToReleaseBlocking(waitingForContextResolver.head)
-
-    // delete userID from waiting list for answers of the contextresolver
-    waitingForContextResolver = waitingForContextResolver.tail
-
-    // println("contextResolver: " + waitingForContextResolver.mkString(","))
-  }
-
-  private def handleBlockingForMessageDelivery(to: SubjectID) {
-    blockUserID(subjectsUserIDMap(to))
-    // println("blockingForDelivery: " + waitingUserMap.mkString(","))
-  }
-
-  /**
-   * handles SubjectStartedMessages and checks if no other task is blocking
-   * if thats the case -> forward message else wait
-   */
-  private def tryToReleaseBlocking(userID: UserID) {
-    // if the given userID has no tasks that are blocking it -> forward message if one exists
-    if (allSubjectsReady(userID) && blockedAnswers.contains(userID)) {
-      createExecuteActionAnswer(blockedAnswers(userID).ea)
-      // println("forward: " + blockedAnswers.mkString(","))
-      blockedAnswers -= userID
-    }
-  }
-  
-  private var sendProcessInstanceCreated = true
-  private def trySendProcessInstanceCreated() {
-    if (sendProcessInstanceCreated && allSubjectsReady(request.userID)) {
-      //      context.parent ! ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, Array())
-      context.parent !
-        AskSubjectsForAvailableActions(
-          request.userID,
-          id,
-          AllSubjects,
-          (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, id, self, graphJSON, executionHistory, actions))
-      sendProcessInstanceCreated = false
-    }
-  }
-
 }

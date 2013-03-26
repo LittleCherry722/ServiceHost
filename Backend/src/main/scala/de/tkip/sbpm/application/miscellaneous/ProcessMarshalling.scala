@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application.miscellaneous
 
 import scala.collection.mutable.ArrayBuffer
@@ -8,22 +21,9 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.rest.JsonProtocol._
 
-/**
- * This object is responsible to divide a string listing of subjects
- * into the independet subjectIDs
- */
-object parseSubjects {
-  def apply(subjects: String): Array[SubjectID] = {
-    try {
-      subjects.asJson.convertTo[Array[String]]
-    } catch {
-      case _: Throwable => {
-        System.err.println("cant parse start subjects")
-        Array()
-      }
-      //    Array("Employee")
-    }
-  }
+object MarshallingAttributes {
+  val exitCondLabel = "exitcondition"
+  val timeoutLabel = "timeout"
 }
 
 /**
@@ -31,107 +31,130 @@ object parseSubjects {
  * out of the JSON representation
  */
 object parseGraph {
-  // The marshalling case classes
-  private case class JGraph(process: Array[JSubject], messages: JsValue)
-  private case class JSubject(id: SubjectID, name: SubjectName, inputPool: Int, macros: Array[JBehavior])
-  private case class JBehavior(nodes: Array[JNode], edges: Array[JEdge])
-  private case class JNode(id: StateID, text: String, start: Boolean, end: Boolean, myType: String, options: JNodeOption)
-  private case class JNodeOption(message: MessageType)
-  private case class JEdge(start: StateID, end: StateID, text: MessageType, myType: String, target: JsValue)
-  private case class JEdgeTarget(id: SubjectID)
 
-  // The marshalling formats for the case classes
-  private object JsonFormats extends DefaultJsonProtocol {
-    implicit val edgeTargetFormat = jsonFormat1(JEdgeTarget)
-    implicit val edgeFormat = jsonFormat5(JEdge)
-    implicit val nodeOptionFormat = jsonFormat1(JNodeOption)
-    implicit val nodeFormat = jsonFormat6(JNode)
-    implicit val behaviorFormat = jsonFormat2(JBehavior)
-    implicit val subjectFormat = jsonFormat4(JSubject)
-    implicit val graphFormat = jsonFormat2(JGraph)
-  }
-  import JsonFormats._
-
-  // This map matches the shortversions and real versions of the message types
+  // This map matches the short versions and real versions of the message types
   private var messageMap: Map[String, String] = null
 
-  def apply(graph: String): ProcessGraph = {
-    // TODO fehlerbehandlung bei falschem String
-    // TODO type ersetzung ist so nicht effizient
+  def apply(graph: Graph): ProcessGraph = synchronized {
 
-    // parse the graph message count and the message object from the graph
-    val jgraph = graph.replace("\"type\":", "\"myType\":").asJson.convertTo[JGraph]
-    val jmessages = jgraph.messages.asJsObject()
+    // create the message map from the graph
+    messageMap = graph.messages.mapValues(_.name)
 
-    // parse the message map from the json graph
-    messageMap = for ((k, v) <- jmessages.fields) yield (k, v.convertTo[String])
-
-    // create the processGraph by parsing all subjects
-    ProcessGraph(jgraph.process.map(parseSubject(_)).toArray)
+    // parse the subjects and return the resulting processgraph
+    ProcessGraph(parseSubjects(graph.subjects))
   }
 
-  private object parseSubject {
-    // TODO irgentwie elegant loesen
-    private var states: MutableMap[StateID, StateCreator] = null
-    // TODO unique id's
-    private var startID: StateID = -1
+  private object parseSubjects {
+    // stores the information, which is extracted in the preparse
+    private case class PreSubjectInfo(multi: Boolean, external: Boolean)
+    // this map will be filled during the preparse
+    private val subjectMap = MutableMap[SubjectID, PreSubjectInfo]()
 
-    def apply(subject: JSubject): Subject = {
+    def apply(subjects: Map[String, GraphSubject]): Map[String, Subject] = {
+      // first preparse the subjects, to extract information
+      // e.g. which subject is a multisubject
+      subjects.values.foreach(preParseSubject(_))
+      // parse the subjects to the internal model
+      subjects.mapValues(parseSubject(_))
+    }
+
+    def preParseSubject(subject: GraphSubject) = {
+      val id = subject.id
+      // extract the subject types
+      val multi = subject.subjectType.matches("\\Amulti")
+      val external = subject.subjectType.matches("(multi)?external")
+      subjectMap(id) = PreSubjectInfo(multi, external)
+    }
+
+    // the Statesmap
+    private var states: MutableMap[StateID, StateCreator] = null
+
+    def parseSubject(subject: GraphSubject): Subject = {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
-      // First create an unique start and end state
-      //      states(startID) = new StateCreator(startID, "StartState", StartStateType)
 
-      // at the moment we only support one behavior
-      val behavior: JBehavior = subject.macros(0)
+      // at the moment we only support internal behavior
+      val behavior: GraphMacro = subject.macros("##main##")
+
+      // extract the subject types
+      val id = subject.id
+      val multi = subjectMap(id).multi
+      val external = subjectMap(id).external
 
       // first parse the nodes then the edges
-      parseNodes(behavior.nodes)
+      parseNodes(behavior.nodes.values)
       parseEdges(behavior.edges)
 
-      // all parsed states are in the states map, convert the creators and return
-      // the subject
-      Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray)
+      // all parsed states are in the states map, convert the creators,
+      // create and return the subject
+      Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi, external)
     }
 
-    private def parseNodes(nodes: Array[JNode]) {
+    private def parseNodes(nodes: Iterable[GraphNode]) {
       for (node <- nodes) {
-        // if its the startstate add a transition from the startstate to this state
-        if (states.contains(node.id)) {
-          throw new Exception("Parse failed state id: " + node.id + " is given 2 times")
-        }
-        // add the state creator for this state
+        // create and add a state creator for this state
         states(node.id) =
-          new StateCreator(node.id, node.text, fromStringtoStateType(node.myType), node.start)
-        // TODO check if end state always is automatic parsed
+          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart)
       }
-
     }
 
-    private def parseEdges(edges: Array[JEdge]) {
+    private def parseEdges(edges: Iterable[GraphEdge]) {
+      import Integer.parseInt
       for (edge <- edges) {
-
-        edge.myType match {
+        // match the edgetype and create the corresponding transition
+        edge.edgeType match {
           case "exitcondition" => {
-            val s =
-              if (!edge.target.isInstanceOf[JsString])
-                edge.target.convertTo[JEdgeTarget].id
-              else
-                "None"
-            states(edge.start).addTransition(Transition(ExitCond(edge.text, s), edge.end))
+            // parse the target
+            val target = edge.target match {
+              case Some(t) => {
+                var minValue = t.min
+                var maxValue = t.max
+                var default = minValue < 1 && maxValue < 1
+
+                if (minValue < 1) minValue = 1
+                if (maxValue < 1) {
+                  // maxValue should be infinity, if the other one is a multisubject
+                  // if the other one is a single subject await only one message
+                  maxValue =
+                    if (subjectMap(t.subjectId).multi)
+                      Short.MaxValue
+                    else
+                      1
+                }
+
+                Some(Target(t.subjectId, minValue, maxValue, t.createNew, t.variableId, default))
+              }
+              case None => None
+            }
+
+            val state = states(edge.startNodeId)
+            // the messageType is the edge text
+            // for receive and send states the edgetext is the short form
+            // so replace it with the real form, if possible
+            val messageType = state.stateType match {
+              case ReceiveStateType => messageMap.getOrElse(edge.text, edge.text)
+              case SendStateType    => messageMap.getOrElse(edge.text, edge.text)
+              case _                => edge.text
+            }
+
+            // at the transition to the state
+            state.addTransition(
+              Transition(ExitCond(messageType, target), edge.endNodeId, edge.priority, edge.variableId))
           }
 
           case "timeout" => {
-            states(edge.start).addTransition(TimeoutTransition(Integer.parseInt(edge.text), edge.end))
+            // get the duration only if its not manual
+            val duration = if (edge.manualTimeout) -1 else parseInt(edge.text)
+            // at the transition to the state
+            states(edge.startNodeId).addTransition(
+              TimeoutTransition(edge.manualTimeout, duration, edge.endNodeId))
           }
 
           case s => {
             // TODO error loggen
             System.err.println("Cant parse edgetype: " + s)
           }
-
         }
-
       }
     }
   }
@@ -140,44 +163,26 @@ object parseGraph {
    * This class holds a state while it is in creation, so it is possible
    * to add transitions
    */
-  private class StateCreator(id: StateID,
-                             name: SubjectName,
-                             stateType: StateType,
-                             startState: Boolean) {
+  private class StateCreator(
+    val id: StateID,
+    val text: String,
+    val stateType: StateType,
+    val startState: Boolean) {
+
+    // store all transitions in this Buffer
     private val transitions = new ArrayBuffer[Transition]
 
+    /**
+     * Add a transition to this state creator
+     */
     def addTransition(transition: Transition) {
-      transitions += updateMessageType(transition)
+      transitions += transition
     }
-
-    def createState: State = State(id, name, stateType, startState, transitions.toArray)
 
     /**
-     * Updates the MessageType of a transition, but only if this
-     * StateCreator is for a Send- or ReceiveState
+     * Creates and returns the state for this state creator
      */
-    private def updateMessageType(transition: Transition): Transition = {
-      def transitionWithNewMessageType: Transition = {
-        // TODO check if its an exitcond (not critical but timeout will print error
-        val oldMessageType = transition.messageType
-        if (!messageMap.contains(oldMessageType)) {
-          System.err.println("Cant update MessageType") // TODO log error
-          return transition
-        }
-
-        Transition(ExitCond(messageMap(oldMessageType), transition.subjectID), transition.successorID)
-      }
-      stateType match {
-        case ReceiveStateType => {
-          transitionWithNewMessageType
-        }
-        case SendStateType => {
-          transitionWithNewMessageType
-        }
-        case _ => {
-          transition
-        }
-      }
-    }
+    def createState: State =
+      State(id, text, stateType, startState, transitions.toArray)
   }
 }

@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application.subject
 
 import de.tkip.sbpm.model.StateType._
@@ -7,6 +20,9 @@ import de.tkip.sbpm.application.miscellaneous.AnswerMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.History
+import de.tkip.sbpm.model.Target
+import scala.collection.mutable.ArrayBuffer
+import de.tkip.sbpm.model.Graph
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -14,15 +30,21 @@ case class StartSubjectExecution() extends SubjectBehaviorRequest
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
 sealed trait MessageObject
 // message from subject to subject
-protected case class SubjectInternalMessage(messageID: MessageID, var userID: UserID, from: SubjectName, to: SubjectName, messageType: MessageType, messageContent: MessageContent) extends MessageObject
-// stored message in the inputpool
-protected case class TransportMessage(messageID: MessageID, from: SubjectID, messageType: MessageType, messageContent: MessageContent) extends MessageObject
-// message to inform the receive state, that the inputpool has no messages for him
-protected case object InputPoolEmpty
+protected case class SubjectToSubjectMessage(
+  messageID: MessageID,
+  var userID: UserID,// TODO why is this a var?
+  from: SubjectID,
+  target: Target,
+  messageType: MessageType,
+  messageContent: MessageContent,
+  fileID: Option[String] = None) extends MessageObject {
+
+  def to = target.subjectID
+
+}
+
 // acknowledge, that a message is stored in the input pool
 protected case class Stored(messageID: MessageID) extends MessageObject
-// request for the input pool that a state want to know his messages
-protected case class RequestForMessages(exitConds: Array[SubjectMessageRouting])
 
 // TODO richtig einordnern
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
@@ -34,36 +56,49 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
-case class ActionData(text: String, // = messagetype
-                      executeAble: Boolean = false,
-                      relatedSubject: Option[String] = None,
-                      messageContent: Option[String] = None)
+case class MessageData(userID: UserID, messageContent: String, fileId: Option[String] = None)
+
+case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
+
+case class ActionData(
+  text: String, // = messagetype
+  executeAble: Boolean,
+  transitionType: String, // exitcondition or timeout
+  targetUsersData: Option[TargetUser] = None, // target user of a send message
+  relatedSubject: Option[String] = None, // the related subject of a send-/receive state
+  messageContent: Option[String] = None, // for the send state: the message
+  fileId: Option[String] = None, // for the send state: google drive id
+  messages: Option[Array[MessageData]] = None) // for the receive state
 
 // Answer to the GetAvailable Action request
-case class AvailableAction(userID: UserID,
-                           processInstanceID: ProcessInstanceID,
-                           subjectID: SubjectID,
-                           stateID: StateID,
-                           stateText: String,
-                           stateType: String,
-                           actionData: Array[ActionData])
-    extends SubjectProviderMessage
+case class AvailableAction(
+  userID: UserID,
+  processInstanceID: ProcessInstanceID,
+  subjectID: SubjectID,
+  stateID: StateID,
+  stateText: String,
+  stateType: String,
+  actionData: Array[ActionData])
+  extends SubjectProviderMessage
 
 // The Execution command from the user
-case class ExecuteAction(userID: UserID,
-                         processInstanceID: ProcessInstanceID,
-                         subjectID: SubjectID,
-                         stateID: StateID,
-                         stateType: String,
-                         actionData: ActionData)
+case class ExecuteAction(
+  userID: UserID,
+  processInstanceID: ProcessInstanceID,
+  subjectID: SubjectID,
+  stateID: StateID,
+  stateType: String,
+  actionData: ActionData)
+// The response to an ExecuteAction Message
+case class ActionExecuted(ea: ExecuteAction)
 
-// TODO ExecuteActionAnswer genauer spezifizieren, zB naechste verfuegbare action
-// TODO keine defaultparameter
-case class ExecuteActionAnswer(execute: ExecuteAction,
-                               processID: ProcessID,
-                               graphJson: String,
-                               history: History,
-                               availableActions: Array[AvailableAction]) extends AnswerMessage {
+case class ExecuteActionAnswer(
+  execute: ExecuteAction,
+  processID: ProcessID,
+  isTerminated: Boolean,
+  graph: Graph,
+  history: History,
+  availableActions: Array[AvailableAction]) extends AnswerMessage {
   def request = execute.asInstanceOf[AnswerAbleMessage]
 }
 

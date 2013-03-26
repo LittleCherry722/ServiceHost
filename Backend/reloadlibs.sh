@@ -1,1 +1,1 @@
-sbt ;clean;update;eclipse
+bin/sbt.sh ;clean;update;eclipse

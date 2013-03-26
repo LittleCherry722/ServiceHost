@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 define([
 	"underscore",
 	"knockout"
@@ -45,15 +58,18 @@ define([
 			 * It may be possible (but uncommon) that the the server alters the
 			 * models attributes.
 			 */
-		Model.prototype.save = abstractMethod( function( options, callback ) {
-			var saveFn;
+		Model.prototype.save = abstractMethod( function( options, callbacks ) {
+			var saveFn, complete;
 
 			if ( this.beforeSave.call( this ) === false ) {
+				callbacks.success.call( this, "" );
+				callbacks.complete.call( this, "" );
 				return
 			}
 
 			if( !this.validate() ) {
-				callback.call( this, "Did not pass validation." );
+				callbacks.error.call( this, "", "Did not pass validation." );
+				callbacks.complete.call( this, "" );
 				return;
 			}
 
@@ -67,19 +83,22 @@ define([
 
 			// execute the correct save function and execute the callback aftewards.
 			// Also execute the afterSave Callback and mark the model as not changed.
-			saveFn.call( this, options, function() {
+			complete = callbacks.complete;
+			callbacks.complete = function( textStatus ) {
 				this.afterSave.call( this );
-				callback.call( this );
+				complete.call( this, textStatus );
 				this.hasChanged( false );
-			});
+			}
+
+			saveFn.call( this, options, callbacks );
 		});
 
-		Model.prototype.refresh = function( callback ) {
+		Model.prototype.refresh = function( options, callbacks ) {
 			this.attributesLoaded( false );
-			this.loadAttributes( callback );
+			this.loadAttributes( options, callbacks );
 		};
 
-		Model.prototype.applyData = abstractMethod(function( input, callback ) {
+		Model.prototype.applyData = abstractMethod(function( input, callbacks ) {
 			var data = input,
 				instance = this;
 
@@ -94,16 +113,19 @@ define([
 				}
 			});
 
-			callback.call( this );
+			callbacks.complete.call( this );
+			callbacks.success.call( this );
 		});
 
 		// DStringestroy method
-		Model.prototype.destroy = abstractMethod( function( options, callback ) {
+		Model.prototype.destroy = abstractMethod( function( options, callbacks ) {
 			if ( this.beforeDestroy.call( this ) === false ) {
+				callbacks.error.call( this, "Deletion canceled" );
+				callbacks.complete.call( this, "" );
 				return
 			}
 
-			var destroyFn;
+			var destroyFn, complete;
 			if ( this.isNewRecord ) {
 				destroyFn = destroyInMemory;
 			} else {
@@ -112,18 +134,22 @@ define([
 
 			// execute the correct destroy function and execute the callback aftewards.
 			// Also execute the afterDestroy Callback.
-			destroyFn.call( this, options, function() {
+			complete = callbacks.complete;
+			callbacks.complete = function( textStatus ) {
 				this.afterDestroy.call( this );
-				callback.call( this );
-			});
+				complete.call( this, textStatus );
+			}
+
+			destroyFn.call( this, options, callbacks);
 		});
 
-		Model.prototype.loadAttributes = abstractMethod(function( options, callback ) {
+		Model.prototype.loadAttributes = abstractMethod(function( options, callbacks ) {
 			var data, ajax,
 					model = this;
 
 			if ( model.attributesLoaded() ) {
-				callback.call( model, null );
+				callbacks.success.call( model, "" );
+				callbacks.complete.call( model, "" );
 				return;
 			}
 
@@ -138,31 +164,33 @@ define([
 
 					// Override all local attributes with attributes supplied by the Server
 					model.applyData( data );
+					model.attributesLoaded( true );
+					callbacks.success.call( model, textStatus );
 				},
 				error: function( jqXHR, textStatus, error ) {
-					// Some error handling maybe?
+					callbacks.error.call( model, textStatus, error );
 				},
 				complete: function( jqXHR, textStatus ) {
-					callback.call( model );
+					callbacks.complete.call( model, textStatus );
 				}
 			};
 			$.ajax( ajax );
-
 		});
 
-		var destroyInMemory = function( options, callback ) {
+		var destroyInMemory = function( options, callbacks ) {
 
 			// Mark the model as destroyed and remove it from the list of
 			// instances.
 			Model.all.remove( this )
 			this.isDestroyed = true;
-			callback.call( this );
+			callbacks.success.call( this );
+			callbacks.complete.call( this );
 		}
 
 		// issues a destroy request for the current model to the server.
 		// options are options to be passed to the jquery ajax method.
 		// Current model is passed as the "this" object
-		var destroyPersisted = function( options, callback ) {
+		var destroyPersisted = function( options, callbacks ) {
 			var ajax,
 					model = this;
 
@@ -179,12 +207,14 @@ define([
 					// instances
 					model.isDestroyed = true;
 					Model.all.remove( model )
+
+					callbacks.success.call( model, textStatus );
 				},
 				error: function( jqXHR, textStatus, error ) {
-					// Some error handling maybe?
+					callbacks.error.call( model, textStatus, error );
 				},
 				complete: function( jqXHR, textStatus ) {
-					callback.call( model );
+					callbacks.complete.call( model, textStatus );
 				}
 			}
 			$.ajax( ajax );
@@ -192,7 +222,7 @@ define([
 
 		// These Methods are never called by the user, so we do not need any of the
 		// options, callback sanitization stuff.
-		var createNew = function( options, callback ) {
+		var createNew = function( options, callbacks ) {
 			var ajax,
 					model = this;
 
@@ -219,24 +249,27 @@ define([
 					if ( ! _( Model.all() ).contains( model ) ) {
 						Model.all.push( model );
 					}
+
+					callbacks.success.call( model, textStatus );
 				},
 				error: function( jqXHR, textStatus, error ) {
-					// Some error handling maybe?
+					callbacks.error.call( model, textStatus, error );
 				},
 				complete: function( jqXHR, textStatus ) {
 					model.afterCreate.call( this );
-					callback.call( model );
+					callbacks.complete.call( model, textStatus );
 				}
 			}
 			$.ajax( ajax );
 		}
 
-		var saveExisting = function( options, callback ) {
+		var saveExisting = function( options, callbacks ) {
 			var ajax, url,
 					model = this;
 
 			if ( ! model.hasChanged() ) {
-				callback.call( model );
+				callbacks.success.call( model, "" );
+				callbacks.complete.call( model, "" );
 				return;
 			}
 
@@ -252,12 +285,13 @@ define([
 
 					// Override all local attributes with attributes supplied by the Server
 					model.applyData( data );
+					callbacks.success.call( model, textStatus );
 				},
 				error: function( jqXHR, textStatus, error ) {
-					// Some error handling maybe?
+					callbacks.error.call( model, textStatus, error );
 				},
 				complete: function( jqXHR, textStatus ) {
-					callback.call( model );
+					callbacks.complete.call( model, textStatus );
 				}
 			}
 			$.ajax( ajax );
@@ -279,7 +313,7 @@ define([
 		//	{
 		//		async: true
 		//	}
-		Model.fetch = abstractMethod( function( options, callback ) {
+		Model.fetch = abstractMethod( function( options, callbacks ) {
 			var newInstance, ajax;
 
 			Model.all.removeAll();
@@ -309,13 +343,15 @@ define([
 						if ( ! _( Model.all() ).contains( newInstance ) ) {
 							Model.all.push( newInstance );
 						}
+
 					});
+					callbacks.success.call( Model, textStatus  );
 				},
 				error: function( jqXHR, textStatus, error ) {
-					// Some error handling maybe?
+					callbacks.error.call( Model, textStatus, error );
 				},
 				complete: function( jqXHR, textStatus ) {
-					callback.call( Model );
+					callbacks.complete.call( Model, textStatus );
 				}
 				
 			};
@@ -325,15 +361,25 @@ define([
 	}
 
 	var abstractMethod = function( fn ) {
-		return function( options, callback ) {
+		return function( options, callbacks ) {
 			if ( typeof options === "function" ) {
-				callback = options;
+				callbacks = options;
 				options = {}
 			}
 
-			if ( typeof callback !== "function" ) {
-				callback = function() {};
+			if ( typeof callbacks === "function" ) {
+				callbacks = {
+					complete: callbacks
+				}
+			} else if ( typeof callbacks !== "object" ) {
+				callbacks = {}
 			}
+
+			_( callbacks ).defaults({
+				success: function() {},
+				error: function() {},
+				complete: function() {}
+			})
 
 			if ( !options ) { options = {}; }
 
@@ -341,7 +387,7 @@ define([
 				async: true
 			})
 
-			fn.call( this, options, callback );
+			fn.call( this, options, callbacks );
 		}
 	}
 

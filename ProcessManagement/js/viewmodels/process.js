@@ -53,13 +53,13 @@ define([
 		// Needed for the list of related Processes
 		this.availableProcesses = Process.all;
 
-		// Available Subjects, channels and macros for display in chosen selects
+		// Available Subjects, conversations and macros for display in chosen selects
 		// at the top of the internal / interaction view
 		this.availableSubjects = availableSubjects;
-		this.availableChannels = availableChannels;
+		this.availableConversations = availableConversations;
 		this.availableMacros   = availableMacros;
 
-		// The currently selected subject and channel (in chosen)
+		// The currently selected subject and conversation (in chosen)
 		this.currentSubject = currentSubject;
 		this.currentSubjectName = ko.computed({
 			deferEvaluation: true,
@@ -72,7 +72,7 @@ define([
 				}
 			}
 		});
-		this.currentChannel = currentChannel;
+		this.currentConversation = currentConversation;
 		this.currentMacro   = currentMacro;
 
 		// should certain elements of the right form be visible?
@@ -86,27 +86,41 @@ define([
 		this.saveCurrentProcessAs = function() {
 			saveCurrentGraphAs( newProcessName() );
 		}
-		
+
 			//Import and export the graph.
-	
+
 		this.exportGraph = function() {
-			var graph = currentProcess().graph();
+			var graph = currentProcess().graphString();
 			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
-			console.log(graph);
 			this.graphText(graph);
-			
+
 		}
-	
+
 		this.graphText = ko.observable("");
-	
+
 		this.importGraph = function() {
 			currentProcess().graph(this.graphText());
 			loadGraph(currentProcess().graph());
 		}
-		
+
 		this.goToRoot = function() {
+			setGraph( currentProcess() )
 			Router.goTo( currentProcess() );
+		}
+
+		this.resetProcess = function() {
+			if ( confirm("Are you sure you want to reset this process to the last saved version? Doing so will reload the page and you will loose all unsaved changes.") ) {
+				var subject = gv_graph.selectedSubject;
+				currentProcess().graphReset();
+				loadGraph( currentProcess().graph() );
+				currentSubject( subject );
+				if ( subject ) {
+					gv_graph.selectedSubject = null;
+					gf_clickedCVnode( subject );
+					loadBehaviorView( subject );
+				}
+			}
 		}
 
 		this.goToRoutings = function() {
@@ -120,7 +134,7 @@ define([
 
 	/***************************************************************************
 	 * Variable definitions for the viewmodel.
-	 * Current Subject, list of channels, etc.
+	 * Current Subject, list of conversations, etc.
 	 **************************************************************************/
 
 	/*
@@ -137,9 +151,9 @@ define([
 
 	var newProcessName = ko.observable("");
 
-	// Currently selected subeject and channel (in chosen)
+	// Currently selected subeject and conversation (in chosen)
 	var currentSubject = ko.observable();
-	var currentChannel = ko.observable();
+	var currentConversation = ko.observable();
 	var currentMacro   = ko.observable();
 
 
@@ -154,7 +168,7 @@ define([
 	// Reference it outside the viewmodel so we don't have to declare every
 	// function inside the viewmodel to get a reference to these objects.
 	var availableSubjects = ko.observableArray([]);
-	var availableChannels = ko.observableArray([]);
+	var availableConversations = ko.observableArray([]);
 	var availableMacros   = ko.observableArray([]);
 
 	/***************************************************************************
@@ -174,15 +188,15 @@ define([
 		}, 1);
 	});
 
-	// Do basicly the same for the list of channels (see above)
-	availableChannels.subscribe(function( channels ) {
+	// Do basicly the same for the list of conversations (see above)
+	availableConversations.subscribe(function( conversations ) {
 		setTimeout(function() {
 			$("#slctChan").trigger("liszt:updated");
 		}, 1);
 	});
 
 	// Do basically the same for the list of macros (see above)
-	availableMacros.subscribe(function( channels ) {
+	availableMacros.subscribe(function( conversations ) {
 		setTimeout(function() {
 			$("#slctMacro").trigger("liszt:updated");
 		}, 1);
@@ -197,6 +211,8 @@ define([
 		// Happens every time chosen updates itself with a new list of available
 		// subjects.
 		if ( subject ) {
+			setGraph( currentProcess() )
+
 			subject = subject.replace(/___/, " ");
 			if ( gv_graph.subjects[subject] && !gv_graph.subjects[subject].isExternal() ) {
 				if ( !Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {
@@ -248,11 +264,11 @@ define([
 		}
 	});
 
-	currentChannel.subscribe(function( channel ) {
-		if ( !channel || !gf_getChannels()[ channel ] ) {
+	currentConversation.subscribe(function( conversation ) {
+		if ( !conversation || !gf_getConversations()[ conversation ] ) {
 			return;
 		}
-		gf_selectChannel( channel );
+		gf_selectConversation( conversation );
 	})
 
 	currentMacro.subscribe(function( macro ) {
@@ -269,18 +285,33 @@ define([
 
 	// Save the graph to the database.
 	var saveGraph = function( process ) {
+
+		// Load all changes into the process model.
+		setGraph( process );
+
+		// Something is not right with lazy attributes... Need to set it twice -.-
+		process.save(null, {
+			success: function( textStatus ) {
+				Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved.");
+			},
+			error: function( textStatus, error ) {
+				Notify.error("Error", "Process '" + currentProcess().name() + "' could not be saved.");
+			}
+		});
+	}
+
+	var setGraph = function( process ) {
 		var routings;
 
 		// save the routings attribute of the graph in a local variable because
 		// it would be overwritten by setting the graph to the current
 		// graph that is displayed via the gv_graph.saveToJSON() method.
 		routings = process.routings();
-		process.graph( gv_graph.saveToJSON() );
-		process.routings( routings );
 
-		process.save(function() {
-			Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved");
-		});
+		process.graphObject( gv_graph.saveToJSON() );
+		if ( routings ) {
+			process.routings( routings );
+		}
 	}
 
 	// Saves the currently displayed graph to the database.
@@ -313,7 +344,11 @@ define([
 
 		// Clear the graph canvas
 		gv_graph.clearGraph( true );
-		gf_loadGraph( graph, undefined );
+		if ( graph && graph.definition ) {
+			gf_loadGraph( JSON.stringify( graph.definition ), undefined );
+		} else {
+			gf_loadGraph( "{}", undefined );
+		}
 
 		// TODO
 		// var graph = JSON.parse(graphAsJson);
@@ -342,9 +377,9 @@ define([
 	 ***************************************************************************/
 
 	var initializeDOM = function() {
-		// Initialize our chosen selects for subjects and channels.
+		// Initialize our chosen selects for subjects and conversations.
 		$( "#slctSbj" ).chosen();
-		$( "#slctChan" ).chosen();
+		$( "#slctCon" ).chosen();
 		$( "#slctMacro" ).chosen();
 	}
 
@@ -381,7 +416,7 @@ define([
 		})
 
 		// When a selectable tab is clicked, mark the tab as selected, update the
-		// list of subjects and channels.
+		// list of subjects and conversations.
 		// See "selectTab" for more Information,
 		$( ".switch .btn[id^='tab']" ).live( "click", selectTab )
 
@@ -479,23 +514,23 @@ define([
 		availableMacros( macros );
 	}
 
-	// Updates the list of channels.
-	var updateListOfChannels = function() {
-		var channel,
-			channels = [{}];
+	// Updates the list of conversations.
+	var updateListOfConversations = function() {
+		var conversation,
+			conversations = [{}];
 
-		// Iterate over every channel available in the graph and build a nice
-		// JS object from it. Than push this channel to the list of channels.
-		_( gf_getChannels() ).each(function( value, key ) {
-			channel = {
-				channelId: key,
+		// Iterate over every conversation available in the graph and build a nice
+		// JS object from it. Than push this conversation to the list of conversations.
+		_( gf_getConversations() ).each(function( value, key ) {
+			conversation = {
+				conversationId: key,
 				text: value
 			}
 
-			channels.push( channel );
+			conversations.push( conversation );
 		})
 
-		availableChannels( channels );
+		availableConversations( conversations );
 	}
 
 	var showEdgeFields = function() {
@@ -505,13 +540,15 @@ define([
 		setVisibleExclusive( isNodeSelected );
 	}
 
+
+
 	var updateMenuDropdowns = function() {
 		updateListOfSubjects();
-		updateListOfChannels();
+		updateListOfConversations();
 		updateListOfMacros();
 
 		currentMacro("##main##");
-		currentChannel("##all##");
+		currentConversation("##all##");
 	}
 
 	// Is called whenever the view changes from internal to external or vice
@@ -621,6 +658,7 @@ define([
 	// to be applied to the template.
 	var initialize = function( processId, subjectId, callback ) {
 		var viewModel = new ViewModel();
+		window.pView = viewModel;
 		App.loadTemplate( "process", viewModel, null, function() {
 
 			// Load all sub templates. They are:

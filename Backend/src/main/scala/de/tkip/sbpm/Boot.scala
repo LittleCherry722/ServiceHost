@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm
 
 import java.security.KeyStore
@@ -7,8 +20,6 @@ import akka.actor.Props
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.rest._
-import de.tkip.sbpm.persistence._
-import de.tkip.sbpm.rest.auth._
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
@@ -23,11 +34,27 @@ import scala.actors.Logger
 import scala.concurrent.Future
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.external.auth.GoogleAuthActor
-import de.tkip.sbpm.external.api.GoogleDriveActor
-
+import de.tkip.sbpm.persistence.query.Schema
+import de.tkip.sbpm.persistence.testdata.Entities
+import de.tkip.sbpm.rest.FrontendInterfaceActor
+import de.tkip.sbpm.persistence.testdata.Entities
+import de.tkip.sbpm.persistence.PersistenceActor
+import de.tkip.sbpm.external.api.GoogleUserInformationActor
+import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import de.tkip.sbpm.external.auth.GoogleAuthActor
+import de.tkip.sbpm.external.api._
+import de.tkip.sbpm.rest.auth._
+import scala.concurrent.Await
 
 object Boot extends App with SprayCanHttpServerApp {
   val logging = system.log
+
+  sys.addShutdownHook {
+    logging.debug("Shutting down the system...")
+    val stopFutures = Future.sequence(rootActors.map(gracefulStop(_, 5 seconds)(system)))
+    Await.result(stopFutures, 6 seconds)
+    system.shutdown();
+  }
 
   // for SSL support (if enabled in application.conf)
   implicit def sslContext: SSLContext = {
@@ -45,18 +72,23 @@ object Boot extends App with SprayCanHttpServerApp {
     context
   }
 
-  // create and start our service actor
-  val persistenceActor = system.actorOf(Props[PersistenceActor], persistenceActorName)
-  val contextResolver = system.actorOf(Props[ContextResolverActor], contextResolverActorName)
-  val processManagerActor = system.actorOf(Props[ProcessManagerActor], processManagerActorName)
+  val frontendInterfaceActor = system.actorOf(Props[FrontendInterfaceActor], frontendInterfaceActorName);
   val subjectProviderManagerActor = system.actorOf(Props[SubjectProviderManagerActor], subjectProviderManagerActorName)
-  val frontendInterfaceActor = system.actorOf(Props[FrontendInterfaceActor], frontendInterfaceActorName)
-  val sessionActor = system.actorOf(Props[SessionActor], sessionActorName)
-  val basicAuthActor = system.actorOf(Props[BasicAuthActor], basicAuthActorName)
-  val oAuth2Actor = system.actorOf(Props[OAuth2Actor], oAuth2ActorName)
-  val userPassAuthActor = system.actorOf(Props[UserPassAuthActor], userPassAuthActorName)
-  val googleAuthActor = system.actorOf(Props[GoogleAuthActor], googleAuthActorName)
-  val googleDriveActor = system.actorOf(Props[GoogleDriveActor], googleDriveActorName)
+  val persistenceActor = system.actorOf(Props[PersistenceActor], persistenceActorName);
+
+  // create and start our service actor
+  val rootActors = List(persistenceActor,
+    system.actorOf(Props[ContextResolverActor], contextResolverActorName),
+    system.actorOf(Props[ProcessManagerActor], processManagerActorName),
+    subjectProviderManagerActor,
+    frontendInterfaceActor,
+    system.actorOf(Props[SessionActor], sessionActorName),
+    system.actorOf(Props[BasicAuthActor], basicAuthActorName),
+    system.actorOf(Props[OAuth2Actor], oAuth2ActorName),
+    system.actorOf(Props[UserPassAuthActor], userPassAuthActorName),
+    system.actorOf(Props[GoogleAuthActor], googleAuthActorName),
+    system.actorOf(Props[GoogleDriveActor], googleDriveActorName),
+    system.actorOf(Props[GoogleUserInformationActor], googleUserInformationActorName))
 
   // create a new HttpServer using our handler tell it where to bind to
   newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = 8080)
@@ -72,18 +104,27 @@ object Boot extends App with SprayCanHttpServerApp {
   val createAction = startupAction matches "^(re)?create(-debug)?$"
   val debugAction = startupAction matches "^(re)?create-debug$"
 
-  var dbFuture = Future()
-  if (dropAction)
-    dbFuture = dbFuture map { case _ => persistenceActor ? DropDatabase }
-  if (createAction)
-    dbFuture = dbFuture map { case _ => persistenceActor ? InitDatabase }
-  if (debugAction)
-    dbFuture = dbFuture map { case _ => TestData.insert(persistenceActor) }
+  // execute all required db operations async and sequentially 
+  var dbFuture = Future[Any]()
+
+  val onFailure: PartialFunction[Throwable, Any] = {
+    case e => logging.error(e, e.getMessage)
+  }
+
+  if (dropAction) {
+    dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Drop }
+    dbFuture.onFailure(onFailure)
+  }
+  if (createAction) {
+    dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Create }
+    dbFuture.onFailure(onFailure)
+  }
+  if (debugAction) {
+    dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
+    dbFuture.onFailure(onFailure)
+  }
 
   // TODO create a processinstance for testreason: history, actions, graph etc...
   dbFuture.map(_ => CreateProcessInstance(1, 1)).pipeTo(subjectProviderManagerActor)
-  
-  dbFuture.onFailure {
-    case e => logging.error(e, e.getMessage)
-  }
+  dbFuture.onFailure(onFailure)
 }

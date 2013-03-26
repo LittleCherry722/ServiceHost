@@ -16,7 +16,6 @@ import akka.actor.ActorSystem
 import akka.util.Timeout
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous.Debug
-import de.tkip.sbpm.model.ProcessModel
 import de.tkip.sbpm.application.miscellaneous.GetHistory
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance

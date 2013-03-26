@@ -1,4 +1,18 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.persistence
+
 import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
@@ -6,99 +20,122 @@ import scala.slick.lifted.ForeignKeyAction._
 import de.tkip.sbpm.model.User
 import de.tkip.sbpm.model.UserIdentity
 import akka.event.Logging
-
-/*
-* Messages for querying database
-* all message classes that inherit UserAction
-* are redirected to UserPersistenceActor
-*/
-sealed abstract class UserAction extends PersistenceAction
-/* get user entry (Option[model.User]) by id, name
-* or all entries (Seq[model.User]) by sending None as id and name
-* None or empty Seq is returned if no entities where found
-*/
-case class GetUser(id: Option[Int] = None, name: Option[String] = None) extends UserAction
-// save user to db, if id is None a new process is created and its id is returned
-case class SaveUser(user: User) extends UserAction
-// delete user with id from db
-case class DeleteUser(id: Int) extends UserAction
-// retrieve user by identity provider and eMail
-case class GetUserIdentity(provider: String, eMail: String) extends UserAction
-// sets identity params for user and provider
-case class SetUserIdentity(userId: Int, provider: String, eMail: String, password: Option[String] = None)  extends UserAction
+import mapping.PrimitiveMappings._
+import query.Users._
 
 /**
  * Handles all database operations for table "users".
  */
-private[persistence] class UserPersistenceActor extends Actor with DatabaseAccess {
-
+private[persistence] class UserPersistenceActor extends Actor
+  with DatabaseAccess with schema.UserIdentitiesSchema {
+  // import current slick driver dynamically
   import driver.simple._
-  import DBType._
-  import de.tkip.sbpm.model._
 
-  // represents the "users" table in the database
-  object Users extends Table[User]("users") {
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-    def name = column[String]("name", O.DBType(varchar(32)))
-    def isActive = column[Boolean]("active", O.Default(true))
-    def inputPoolSize = column[Int]("inputpoolsize", O.DBType(smallint), O.Default(8))
-    def * = id.? ~ name ~ isActive ~ inputPoolSize <> (User, User.unapply _)
-    // auto increment method returning generated id
-    def autoInc = * returning id
-    def uniqueName = index("unique_name", name, unique = true)
-  }
+  // methods to convert internal persistence models to
+  // application wide domain models and vice versa
+  def toDomainModel(u: mapping.User) =
+    convert(u, Persistence.user, Domain.user)
 
-  // represents the "user_identities" table in the database
-  object UserIdentities extends Table[(Int, String, String, Option[String])]("user_identities") {
-    def userId = column[Int]("user_id")
-    def provider = column[String]("provider", O.DBType(varchar(32)))
-    def eMail = column[String]("e_mail", O.DBType(varchar(255)))
-    def password = column[Option[String]]("password", O.DBType(char(60)))
-    def * = userId ~ provider ~ eMail ~ password
-    // composite primary key
-    def pk = primaryKey("pk", (userId, provider))
-    def user = foreignKey("user_fk", userId, Users)(_.id, NoAction, Cascade)
-    def uniqueEmail = index("unique_email", (provider, eMail), unique = true)
-    def includeUser(provider: String, eMail: String) = for {
-      i <- UserIdentities.where(e => e.provider === provider && e.eMail === eMail)
-      u <- i.user
-    } yield (i, u)
-  }
+  def toDomainModel(u: Option[mapping.User]) =
+    convert(u, Persistence.user, Domain.user)
 
-  def receive = database.withSession { implicit session => // execute all db operations in a session
-    {
-      // get all users ordered by id
-      case GetUser(None, None) => answer { Users.sortBy(_.id).list }
-      // get user with given id
-      case GetUser(id, None) => answer { Users.where(_.id === id).firstOption }
-      // get user with given name
-      case GetUser(None, name) => answer { Users.where(_.name === name).firstOption }
-      // create new user
-      case SaveUser(u @ User(None, _, _, _)) =>
-        answer { Some(Users.autoInc.insert(u)) }
-      // save existing user
-      case SaveUser(u @ User(id, _, _, _)) => update(id, u)
-      // delete user with given id
-      case DeleteUser(id) => answer { Users.where(_.id === id).delete(session) }
-      // retrieve identity for provider and email
-      case GetUserIdentity(provider, eMail) => answer {
-    	  UserIdentities.includeUser(provider, eMail).firstOption.map {
-    	    case (i, u) => UserIdentity(u, i._2, i._3, i._4)
-    	  }
+  def toPersistenceModel(u: User) =
+    convert(u, Domain.user, Persistence.user)
+
+  def receive = {
+    // get all users
+    case Read.All => answerProcessed { implicit session: Session =>
+      Query(Users).list
+    }(_.map(toDomainModel))
+    // get user with given id
+    case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
+      Query(Users).where(_.id === id).firstOption
+    }(toDomainModel)
+    // get users and all linked identities as Map[User, Seq[UserUdentity]]
+    case Read.AllWithIdentities => answerProcessed { implicit session: Session =>
+      (for {
+        // left join user with identities table
+        (u, i) <- Query(Users).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
+      } yield (u, i.provider.?, i.eMail.?, i.password)).list
+    }(_.groupBy(e => toDomainModel(e._1)).mapValues(_.filter(_._2.isDefined).map { e =>
+      // convert to domain model
+      UserIdentity(toDomainModel(e._1), e._2.get, e._3.get, e._4)
+    }))
+    // get user with given id and all linked entities
+    case Read.ByIdWithIdentities(id) => answer { implicit session: Session =>
+      val query = for {
+        (u, i) <- Query(Users).where(_.id === id).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
+      } yield (u, i.provider.?, i.eMail.?, i.password)
+      // create option tuple Option[(User, List[UserIdentity])] 
+      query.list.groupBy(e => toDomainModel(e._1)).mapValues(_.filter(_._2.isDefined).map { e =>
+        // convert to domain model
+        UserIdentity(toDomainModel(e._1), e._2.get, e._3.get, e._4)
+      }).toSeq.headOption
+    }
+    // get user with given name
+    case Read.ByName(name) => answerOptionProcessed { implicit session: Session =>
+      Query(Users).where(_.name === name).firstOption
+    }(toDomainModel)
+    // create or update user
+    case Save.Entity(us @ _*) => answer { implicit session =>
+      us.map {
+        // id is None -> insert
+        case u @ User(None, _, _, _) => Some(Users.autoInc.insert(toPersistenceModel(u)))
+        // id given -> update
+        case u @ User(id, _, _, _)   => update(id, u)
+      } match {
+        // only one user was given, return it's id
+        case ids if (ids.size == 1) => ids.head
+        // more users were given return all ids
+        case ids                    => ids
       }
-      case SetUserIdentity(userId, provider, eMail, password) => answer {
-        UserIdentities.where(i => i.userId === userId && i.provider === provider).delete(session)
-        UserIdentities.insert(userId, provider, eMail, password)
-      }
-      // execute DDL for table "users"
-      case InitDatabase => answer { (Users.ddl ++ UserIdentities.ddl).create(session) }
-      case DropDatabase => answer { dropIgnoreErrors(UserIdentities.ddl ++ Users.ddl) }
+    }
+    // delete user with given id
+    case Delete.ById(id) => answer { implicit session =>
+      Users.where(_.id === id).delete
+    }
+    // retrieve identity for provider and email
+    case Read.Identity.ByEMail(provider, eMail) => answerOptionProcessed { implicit session: Session =>
+      // read identity and corresponding user
+      val q = for {
+        i <- UserIdentities if (i.eMail === eMail && i.provider === provider)
+        u <- i.user
+      } yield (i, u)
+      q.firstOption
+    }(t => mapping.UserMappings.convert(t._1, t._2))
+    // retrieve identity for provider and userId
+    case Read.Identity.ById(provider, userId) => answerOptionProcessed { implicit session: Session =>
+      // read identity and corresponding user
+      val q = for {
+        i <- UserIdentities if (i.userId === userId && i.provider === provider)
+        u <- i.user
+      } yield (i, u)
+      q.firstOption
+    }(t => mapping.UserMappings.convert(t._1, t._2))
+    // save identity to db
+    case Save.Identity(userId, provider, eMail, password) => answer { implicit session =>
+      val res = deleteIdentity(userId, provider)
+      UserIdentities.insert(mapping.UserIdentity(userId, provider, eMail, password))
+      // return id if created
+      if (res == 0)
+        Some((userId, provider))
+      else
+        None
+    }
+    // delete user identity
+    case Delete.Identity.ById(userId, provider) => answer { implicit session =>
+      deleteIdentity(userId, provider)
     }
   }
 
+  // delete user identity
+  private def deleteIdentity(userId: Int, provider: String)(implicit session: Session) = {
+    UserIdentities.where(i => i.userId === userId && i.provider === provider).delete
+  }
+
   // update entity or throw exception if it does not exist
-  def update(id: Option[Int], u: User)(implicit session: Session) = answer {
-    val res = Users.where(_.id === id).update(u)
+  private def update(id: Option[Int], u: User) = answer { implicit session =>
+    val res = Users.where(_.id === id).update(toPersistenceModel(u))
     if (res == 0)
       throw new EntityNotFoundException("User with id %d does not exist.", id.get)
     None

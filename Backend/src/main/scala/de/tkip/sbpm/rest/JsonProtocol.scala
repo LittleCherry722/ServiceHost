@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest
 
 import akka.actor._
@@ -15,8 +28,6 @@ import de.tkip.sbpm.application.history.Entry
 import de.tkip.sbpm.application.history.State
 import de.tkip.sbpm.application.history.Message
 import de.tkip.sbpm.application.history.MessagePayloadLink
-import de.tkip.sbpm.model.ProcessModel
-import de.tkip.sbpm.model.StateType
 import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
@@ -26,6 +37,9 @@ import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceInfo
 import spray.routing.authentication.UserPass
 import de.tkip.sbpm.application.subject.ActionData
+import de.tkip.sbpm.application.subject.TargetUser
+import de.tkip.sbpm.application.subject.MessageData
+import GraphJsonProtocol.graphJsonFormat
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -83,29 +97,29 @@ object JsonProtocol extends DefaultJsonProtocol {
    * header case classes
    */
   case class ProcessIdHeader(processId: Int)
-  case class GraphHeader(name: String, graph: String, isCase: Boolean, startSubjects:String){
+  case class GraphHeader(name: String, graph: Option[Graph], isCase: Boolean, id: Option[Int] = None){
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
   }
 
-  /**
-   * case class formater
-   */
-  implicit val envelopeFormat = jsonFormat2(Envelope)
-
   // administration
-  implicit val configurationFormat = jsonFormat4(Configuration)
   implicit val userFormat = jsonFormat4(User)
+  implicit val providerMail = jsonFormat2(ProviderMail)
+  implicit val userWithMail = jsonFormat5(UserWithMail)
+  implicit val userIdentityFormat = jsonFormat4(UserIdentity)
+  implicit val userUpdateFormat = jsonFormat6(UserUpdate)
   implicit val roleFormat = jsonFormat3(Role)
   implicit val groupFormat = jsonFormat3(Group)
-  implicit val groupUserFormat = jsonFormat3(GroupUser)
-  implicit val groupRoleFormat = jsonFormat3(GroupRole)
+  implicit val groupUserFormat = jsonFormat2(GroupUser)
+  implicit val groupRoleFormat = jsonFormat2(GroupRole)
+  
   // used for login
   implicit val userPassFormat = jsonFormat2(UserPass)
 
   // DomainModel
-  implicit val domainGraphFormat = jsonFormat4(Graph)
-  implicit val domainProcessFormat = jsonFormat5(Process)
+  implicit val domainProcessFormat = jsonFormat4(Process)
   implicit val actionFormat = jsonFormat2(Action)
+  
+  implicit val configFormat = jsonFormat4(Configuration)
 
   // history
   implicit val stateFormat = jsonFormat2(State)
@@ -114,12 +128,13 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val entryFormat = jsonFormat5(Entry)
   implicit val historyFormat = jsonFormat5(History)
 
-  // action execution
   implicit val processInstanceInfoFormat = jsonFormat2(ProcessInstanceInfo)
-  implicit val actionDataFormat = jsonFormat4(ActionData)
+  implicit val targetUserFormat = jsonFormat3(TargetUser)
+  implicit val messageDataFormat = jsonFormat3(MessageData)
+  implicit val actionDataFormat = jsonFormat8(ActionData)
   implicit val availableActionFormat = jsonFormat7(AvailableAction)
 
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
-  implicit val createGraphHeaderFormat = jsonFormat4(GraphHeader)
+  implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat4(GraphHeader)
   implicit val createActionIdHeaderFormat = jsonFormat6(ExecuteAction)
 }

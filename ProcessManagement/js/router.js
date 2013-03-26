@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 define([ "director", "app"], function( Director, App ) {
 	var router;
 
@@ -37,6 +50,10 @@ define([ "director", "app"], function( Director, App ) {
 	// Show the home (index) page.
 	var showHome = function() {
 		App.loadView( "home", null, globalCallback() );
+	}
+
+	var showAccount = function() {
+		App.loadView( "account", null, globalCallback() );
 	}
 
 	var showNewProcess = function() {
@@ -81,6 +98,7 @@ define([ "director", "app"], function( Director, App ) {
 	var routes = {
 		"/":  showHome,
 		"/home":  showHome,
+		"/account": showAccount,
 		"/administration": {
 			on: showAdministration,
 			"/:tab" : showAdministration

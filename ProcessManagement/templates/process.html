@@ -61,10 +61,10 @@
 					</div>
 
 					<div class="btn tab-dropdown">
-						<select id="slctChan" data-placeholder="Select Channel"
+						<select id="slctCon" data-placeholder="Select conversation"
 							class="middle_switch chzn-select" tabindex="1"
-							data-bind="options: availableChannels, optionsText: 'text',
-							optionsValue: 'channelID', value: currentChannel, caption: ''">
+							data-bind="options: availableConversations, optionsText: 'text',
+							optionsValue: 'conversationID', value: currentConversation, caption: ''">
 						</select>
 					</div>
 
@@ -96,6 +96,12 @@
 							<li>
 								<a href="#saveAsModal" id="saveProcessAsButton" data-toggle="modal">
 									<i class="icon-copy icon-large"></i> Save As
+								</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+								<a href="#" id="resetProcessButton" data-bind="click: resetProcess">
+									<i class="icon-undo icon-large"></i> Discard Changes
 								</a>
 							</li>
 						</ul>

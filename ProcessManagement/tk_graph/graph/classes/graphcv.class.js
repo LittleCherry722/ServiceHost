@@ -21,9 +21,9 @@
 function GCgraphcv ()
 {
 	/**
-	 * When set to true the style for channels will be used.
+	 * When set to true the style for conversations will be used.
 	 */
-	this.channels	= false;
+	this.conversations	= false;
 	
 	/**
 	 * This contains all subjects and all messages that are used during the creation of the graph.
@@ -304,7 +304,7 @@ function GCgraphcv ()
 				gt_cv_endx		= gt_cv_objectEnd.left;
 				
 				// move the arrow ends out of the middle
-				if (this.channels === true)
+				if (this.conversations === true)
 				{
 					gt_cv_starty	= gt_cv_objectStart.y;
 					gt_cv_endy		= gt_cv_objectEnd.y;
@@ -340,7 +340,7 @@ function GCgraphcv ()
 				gt_cv_endx		= gt_cv_objectEnd.right;
 				
 				// move the arrow ends out of the middle
-				if (this.channels === true)
+				if (this.conversations === true)
 				{
 					gt_cv_starty	= gt_cv_objectStart.y;
 					gt_cv_endy		= gt_cv_objectEnd.y;
@@ -355,7 +355,7 @@ function GCgraphcv ()
 		
 		// create a new GCpath
 		var gt_cv_path = new GCpath(gt_cv_startx, gt_cv_starty, gt_cv_endx, gt_cv_endy, gt_cv_arrowType, text, "doesNotMatter" + Math.random());
-			gt_cv_path.setStyle(this.channels === true ? gv_cv_arrow.styleChannel : gv_cv_arrow.style);			
+			gt_cv_path.setStyle(this.conversations === true ? gv_cv_arrow.styleConversation : gv_cv_arrow.style);			
 			gt_cv_path.setSpace1(gt_cv_arrowUspace);
 			gt_cv_path.setFirstLine("v");
 			gt_cv_path.updatePath();
@@ -423,12 +423,12 @@ function GCgraphcv ()
 	 * Initialize the canvas.
 	 * 
 	 * @private
-	 * @param {boolean} channels When set to true the style for channels will be used.
+	 * @param {boolean} conversations When set to true the style for conversations will be used.
 	 * @returns {void}
 	 */
-	this.init = function (channels)
+	this.init = function (conversations)
 	{
-		this.channels	= gf_isset(channels) && channels == true;
+		this.conversations	= gf_isset(conversations) && conversations == true;
 		
 		
 		this.subjects = {};

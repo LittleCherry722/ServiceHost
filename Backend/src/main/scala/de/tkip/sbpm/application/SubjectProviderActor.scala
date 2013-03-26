@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application
 
 import akka.actor._
@@ -12,17 +25,17 @@ import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
 
 protected case class SubjectCreated(userID: UserID,
-                                    processID: ProcessID,
-                                    processInstanceID: ProcessInstanceID,
-                                    subjectID: SubjectID,
-                                    ref: SubjectRef)
-    extends SubjectProviderMessage
+  processID: ProcessID,
+  processInstanceID: ProcessInstanceID,
+  subjectID: SubjectID,
+  ref: SubjectRef)
+  extends SubjectProviderMessage
 
 case class AskSubjectsForAvailableActions(userID: UserID,
-                                          processInstanceID: ProcessInstanceID = AllProcessInstances,
-                                          subjectID: SubjectID = AllSubjects,
-                                          generateAnswer: Array[AvailableAction] => Any)
-    extends SubjectProviderMessage
+  processInstanceID: ProcessInstanceID = AllProcessInstances,
+  subjectID: SubjectID = AllSubjects,
+  generateAnswer: Array[AvailableAction] => Any)
+  extends SubjectProviderMessage
 
 class SubjectProviderActor(userID: UserID) extends Actor {
 
@@ -68,10 +81,6 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     }
 
     // general matching
-    case message: PersistenceMessage => {
-      processManagerActor.forward(message)
-    }
-
     // Route processInstance messages to the process manager
     case message: ProcessInstanceMessage => {
       processManagerActor ! message
@@ -108,8 +117,8 @@ class SubjectProviderActor(userID: UserID) extends Actor {
   }
 
   private def askSubjectsForAvailableActions(processInstanceID: ProcessInstanceID,
-                                             subjectID: SubjectID,
-                                             generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
+    subjectID: SubjectID,
+    generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
 
     val collectSubjects: Set[Subject] =
       subjects.filter(

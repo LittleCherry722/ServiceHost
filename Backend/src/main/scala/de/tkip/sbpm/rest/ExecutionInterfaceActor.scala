@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest
 
 import scala.concurrent.Future
@@ -14,6 +27,7 @@ import de.tkip.sbpm.application.subject.AvailableAction
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.SprayJsonSupport._
+import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
 import spray.http.MediaTypes._
 import spray.http.StatusCodes
 import spray.httpx.marshalling.Marshaller
@@ -23,11 +37,12 @@ import spray.util.LoggingContext
 import akka.actor.Props
 import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.subject.ExecuteActionAnswer
-import de.tkip.sbpm.persistence.GetProcessInstance
-import de.tkip.sbpm.persistence.GetGraph
 import scala.concurrent.Await
 import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
 import scala.concurrent.ExecutionContext
+import de.tkip.sbpm.persistence.query.Processes
+import de.tkip.sbpm.persistence.query.ProcessInstances
+import de.tkip.sbpm.persistence.query.Graphs
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -48,9 +63,13 @@ class ExecutionInterfaceActor extends Actor with HttpService {
 
   implicit def exceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler.fromPF {
-      case e: Exception => ctx =>
+      case e: IllegalArgumentException => ctx => {
+        ctx.complete(StatusCodes.BadRequest, e.getMessage)
+      }
+      case e: Exception => ctx => {
         log.error(e, e.getMessage)
         ctx.complete(StatusCodes.InternalServerError, e.getMessage)
+      }
     }
 
   def actorRefFactory = context
@@ -68,44 +87,33 @@ class ExecutionInterfaceActor extends Actor with HttpService {
       path(IntNumber) { processInstanceID =>
 
         implicit val timeout = Timeout(5 seconds)
-        //        val future = persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))
-        //        val result = Await.result(future, timeout.duration).asInstanceOf[Some[ProcessInstance]]
-        //        if (result.isDefined) {
-        // TODO for testreasons processInstanceID 1 will be mixed with Debug
         val composedFuture = for {
-          processInstanceFuture <- (persistanceActor ? GetProcessInstance(Some(processInstanceID.toInt))).mapTo[Option[ProcessInstance]]
+          processInstanceFuture <- (persistanceActor ? ProcessInstances.Read.ById(processInstanceID.toInt)).mapTo[Option[ProcessInstance]]
           graphFuture <- {
             if (processInstanceFuture.isDefined)
-              (persistanceActor ? GetGraph(Some(processInstanceFuture.get.graphId))).mapTo[Option[Graph]]
+              (persistanceActor ? Graphs.Read.ById(processInstanceFuture.get.graphId)).mapTo[Option[Graph]]
             else
               throw new Exception("Processinstance '" + processInstanceID + "' does not exist.")
           }
           historyFuture <- (subjectProviderManager ? {
-            if (processInstanceID == 1)
-              new GetHistory(userID.toInt, processInstanceID.toInt) with Debug
-            else
-              GetHistory(userID.toInt, processInstanceID.toInt)
+            GetHistory(userID.toInt, processInstanceID.toInt)
           }).mapTo[HistoryAnswer]
           availableActionsFuture <- (subjectProviderManager ? {
-            if (processInstanceID == 1)
-              new GetAvailableActions(userID.toInt, processInstanceID.toInt) with Debug
-            else
-              GetAvailableActions(userID.toInt, processInstanceID.toInt)
+            GetAvailableActions(userID.toInt, processInstanceID.toInt)
           }).mapTo[AvailableActionsAnswer]
         } yield JsObject(
-          "processId" -> processInstanceFuture.get.processId.toJson,
+          "processId" -> JsNumber(processInstanceFuture.get.processId),
           "graph" -> {
             if (graphFuture.isDefined)
-              graphFuture.get.graph.toJson
+              graphFuture.get.toJson
             else
-              "".toJson
+              JsNull
           },
+          // TODO make isTerminated nicer
+          "isTerminated" -> JsBoolean(historyFuture.history.processEnded.isDefined),
           "history" -> historyFuture.history.toJson,
           "actions" -> availableActionsFuture.availableActions.toJson)
         complete(composedFuture)
-        //        } else {
-        //        	complete("The requested process is not running")
-        //        }
       } ~
         //LIST
         path("") {
@@ -125,7 +133,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           // error gets caught automatically by the exception handler
           val future = subjectProviderManager ? KillProcessInstance(processInstanceID)
           val result = Await.result(future, timeout.duration).asInstanceOf[KillProcessInstanceAnswer]
-          complete(StatusCodes.OK)
+          complete(StatusCodes.NoContent)
         }
       } ~
       put {
@@ -140,14 +148,16 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               complete(
                 JsObject(
                   "processId" -> result.processID.toJson,
-                  "graph" -> result.graphJson.toJson,
+                  "graph" -> result.graph.toJson,
+                  "isTerminated" -> result.isTerminated.toJson,
                   "history" -> result.history.toJson,
                   "actions" -> result.availableActions.toJson))
             }
           }
         }
       } ~
-      post { //CREATE
+      post {
+        //CREATE
         pathPrefix("") {
           path("^$"r) { regex =>
             entity(as[ProcessIdHeader]) { json =>
@@ -157,7 +167,8 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               complete(
                 JsObject(
                   "id" -> result.processInstanceID.toJson,
-                  "graph" -> result.graphJson.toJson,
+                  "graph" -> result.graph.toJson,
+                  "isTerminated" -> result.isTerminated.toJson,
                   "history" -> result.history.toJson,
                   "actions" -> result.availableActions.toJson))
             }

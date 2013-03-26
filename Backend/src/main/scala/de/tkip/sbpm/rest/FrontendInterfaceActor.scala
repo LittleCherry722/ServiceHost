@@ -1,8 +1,22 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
 import de.tkip.sbpm.rest.ProcessAttribute._
 import akka.actor.Props
+
 import spray.routing._
 import spray.http._
 import MediaTypes._
@@ -26,9 +40,12 @@ object Entity {
   val GROUP = "group"
   val CONFIGURATION = "configuration"
   val OAUTH2CALLBACK = "oauth2callback"
+  val ISALIVE = "isalive"
+  val GOOGLEDRIVE = "googledrive"
 
   // TODO define more entities if you need them  
 }
+
 class FrontendInterfaceActor extends Actor with HttpService {
   val logger = Logging(context.system, this)
 
@@ -97,18 +114,17 @@ class FrontendInterfaceActor extends Actor with HttpService {
         authenticateAndHandleWith[ProcessInterfaceActor]
       } ~
       /**
-       * redirect all calls beginning with "testexecution" to TestExecutionInterfaceActor
-       *
-       * e.g. GET http://localhost:8080/testexecution/8
-       */
-      pathPrefix(Entity.TESTEXECUTION) {
-        authenticateAndHandleWith[TestExecutionInterfaceActor]
-      } ~
-      /**
        * forward all posts to /oauth2callback unauthenticated to GoogleAuthActor 
        */
       pathPrefix(Entity.OAUTH2CALLBACK) {
           handleWith[GoogleResponseActor]
+      } ~
+      /**
+       * forward all gets and posts to /googledrive unauthenticated to GoogleAuthActor 
+       */
+      //TODO add authentication for google drive
+      pathPrefix(Entity.GOOGLEDRIVE) {
+          handleWith[GoogleDriveInterfaceActor]
       } ~
       pathPrefix(Entity.USER) {
         /**
@@ -165,6 +181,12 @@ class FrontendInterfaceActor extends Actor with HttpService {
 	      pathPrefix(frontendBaseUrl) {
 	        getFromDirectory(frontendBaseDir)
 	      }
+      } ~
+      pathPrefix(Entity.ISALIVE){
+    	  get {
+		      complete(StatusCodes.OK)
+		      // TODO do some health check stuff and return StatusCodes.OK    
+    	  }
       }
   })
 

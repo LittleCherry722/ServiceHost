@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest.auth
 
 import spray.routing.directives._
@@ -18,8 +31,8 @@ import spray.http._
 import akka.actor.ActorRefFactory
 import akka.actor.ActorSystem
 import de.tkip.sbpm.model.User
-import de.tkip.sbpm.persistence.GetUser
 import spray.routing.authentication.UserPass
+import de.tkip.sbpm.persistence.query.Users
 
 case class MissingSessionRejection(sessionId: String) extends Rejection
 case object MissingUserRejection extends Rejection
@@ -151,7 +164,7 @@ trait SessionDirectives {
    */
   def user(implicit refFactory: ActorRefFactory): Directive[User :: HNil] = {
     userId flatMap { id =>
-      val userFuture = ActorLocator.persistenceActor ? GetUser(Some(id))
+      val userFuture = ActorLocator.persistenceActor ? Users.Read.ById(id)
       val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
       if (user.isDefined)
         provide(user.get)

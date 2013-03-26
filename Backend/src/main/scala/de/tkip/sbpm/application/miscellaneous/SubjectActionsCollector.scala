@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application.miscellaneous
 
 import scala.collection.mutable.ArrayBuffer
@@ -39,7 +52,7 @@ class SubjectActionsCollector extends Actor {
 
       // results ready -> generate answer -> return
       // TODO for the moment filter endstatetype, later think about a better idea
-      sender ! generateAnswer(actions.toArray.filterNot(_.stateType == de.tkip.sbpm.model.StateType.EndStateType.toString()))
+      sender ! generateAnswer(actions.toArray)
 
       // actions collected -> stop this actor
       context.stop(self)

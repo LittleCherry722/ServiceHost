@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 define([
 	"underscore",
 	"knockout",
@@ -114,7 +127,6 @@ define([
 				return Router.modelPath(this);
 			}
 
-
 			/**
 			 * converts this instance of a model to a JSON string.
 			 * The String is formed by looking at the attributes supplied at
@@ -127,7 +139,7 @@ define([
 			this.toJSON = function() {
 				json = {};
 				_( Result.attrs() ).each(function( attrOptions, attrName ) {
-					if ( typeof this[ attrName ]() === "undefined" ) {
+					if ( typeof this[ attrName ]() === "undefined" && !attrOptions.noDefaultsOnSave ) {
 						if ( attrOptions.lazy && attrOptions.defaults ) {
 							json[ attrName ] = attrOptions.defaults;
 						} else {
@@ -259,37 +271,6 @@ define([
 			_(Result.prototype).extend(obj);
 		}
 
-		Result.lazyComputed = function( instance, name, computedBody ) {
-			var computed,
-				subscribers = [];
-
-			instance[ name ] = function( value ) {
-				computed = ko.computed( computedBody );
-
-				if ( typeof value === "undefined" ) {
-					if ( !instance.isBeingInitialized ) {
-						instance[ name ] = computed;
-						_( subscribers ).each(function( subscriber ) {
-							computed.subscribe( subscriber );
-						})
-
-						instance.loadAttributes({ async: false });
-						instance.attributesLoaded( true );
-					}
-
-					return computed();
-				} else {
-					computed( value )
-					instance[ name ] = computed;
-					_( subscribers ).each(function( subscriber ) {
-						computed.subscribe( subscriber );
-					})
-
-					return undefined;
-				}
-			}
-		}
-
 		models.push( Result );
 
 		Attributes( Result );
@@ -303,7 +284,10 @@ define([
 	// Fetch all resources of all models
 	Model.fetchAll = function( callback ) {
 		async.map( models, function( model, cb ) {
-			model.fetch( cb );
+			model.fetch( null, {
+				error: function( textStatus, error ) { cb( error ); },
+				success: function() { cb() }
+			});
 		}, function( error, results ) {
 			if ( error ) {
 				if (console && typeof console.error === "function") {

@@ -1,3 +1,15 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 
 // Require.js allows us to configure shortcut alias
 require.config({
@@ -38,11 +50,30 @@ require.config({
 
 require([ "app", "router", "knockout.custom" ], function( App, Router ){
 	
-	$(function() {
-		// Initialize our application.
-		App.init(function() {
-			// And load our router so we can actually navigate the page.
-			Router.init();
-		});
-	});
+			//Is backend reachable? -> Start application.
+	$.ajax({ 
+		url : '/isalive',
+		type : "GET",
+		async : false, // defaults to false
+		success : function(data, textStatus, jqXHR) {
+
+			$(function() {
+				// Initialize our application.
+				App.init(function() {
+					// And load our router so we can actually navigate the page.
+					Router.init();
+				});
+			});
+
+		},
+		error : function(jqXHR, textStatus, error) {
+
+		alert("Can not reach backend!");
+
+		},
+		complete : function(jqXHR, textStatus) {
+		}
+	}); 
+	
+
 });
