@@ -38,8 +38,10 @@
 
 <div data-bind="visible: isTypeOf()==='receive',foreach: actionData">
 	<div>
-		<strong>Receive:</strong>
-		<span data-bind="html: $data.text"></span>
+		<strong>Receive from</strong>
+		
+		<strong data-bind="html: $data.relatedSubject"></strong>: <br/>
+		<span  style="border: 1px solid #bbb;line-height:30px; padding:5px;" data-bind="html: $data.messageContent, visible: $data.messageContent"></span>
 		<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone,enable: $data.executeAble" />
 	</div>
 </div>
