@@ -101,6 +101,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     def read(v: JsValue) = v match {
       // convert role name back to role object if role is known 
       case JsString(name) if (roles.contains(name)) => Some(roles(name))
+      case JsString("noRole")                       => None
+      case JsString("")                             => None
       case JsNull                                   => None
       case _                                        => throw new DeserializationException("Existing role name or null expected.")
     }
