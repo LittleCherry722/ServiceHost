@@ -93,7 +93,6 @@ define([
 			var graph = currentProcess().graph();
 			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
-			console.log(graph);
 			this.graphText(graph);
 			
 		}
