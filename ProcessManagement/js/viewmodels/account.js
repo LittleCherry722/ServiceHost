@@ -16,10 +16,15 @@ define([
 	}
 	
 	var save = function(){
-		
+		currentUser.save();
 	};
-	var reset = function(){
+	
+	var savePassword = function(){
 		
+	}
+	
+	var reset = function(){
+		currentUser.reset();
 	};
 	
 	

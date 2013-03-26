@@ -19,13 +19,25 @@
 				</tr>
 				<tr>
 					<th>Email</th>
-					<td>
-					<input type="text" class="inline" data-bind="value: name" />
+
+					<td style="padding:0px">
+					<table data-bind"foreach: currentUser().providerMail" >
+						<th>Provider/Email</th>
+						<tr>
+
+							<td>
+							<input type="text" class="inline" data-bind='value: provider' />
+							<input type="text" class="inline" data-bind='value: mail' />
+							</td>
+							<td>
+							<input type="button" class="button" value="Save changes" data-bind='click: $parent.save' />
+							<input type="button" class="button" value="Reset" data-bind='click: $parent.reset' />
+							</td>
+
+						</tr>
+					</table>
 					</td>
-					<td>
-					<input type="button" class="button" value="Save changes" data-bind='click: $parent.save' />
-					<input type="button" class="button" value="Reset" data-bind='click: $parent.reset' />
-					</td>
+
 				</tr>
 				<tr>
 
@@ -52,7 +64,7 @@
 						</tr>
 					</table></td>
 					<td>
-					<input type="button" class="button" value="Save changes" data-bind='click: $parent.save' />
+					<input type="button" class="button" value="Save changes" data-bind='click: $parent.savePassword' />
 				
 					</td>
 				</tr>
