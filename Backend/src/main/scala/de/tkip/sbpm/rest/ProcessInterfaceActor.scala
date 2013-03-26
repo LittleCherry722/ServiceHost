@@ -96,11 +96,10 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             } else {
               None
             }
-            complete(JsObject(
-              "id" -> processResult.get.id.toJson,
-              "name" -> processResult.get.name.toJson,
-              "graph" -> graphResult.toJson,
-              "isCase" -> processResult.get.isCase.toJson))
+            complete(GraphHeader(
+              processResult.get.name,
+              graphResult,
+              processResult.get.isCase, processResult.get.id))
           } else {
             complete(StatusCodes.NotFound, "Process with id " + id + " not found")
           }
@@ -159,12 +158,12 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         if (!json.graph.isDefined) {
           val future = (persistanceActor ? Processes.Save(Process(id, json.name, json.isCase)))
           val result = Await.result(future.mapTo[Option[Int]], timeout.duration)
-          complete(JsObject("id" -> result.toJson))
+          complete(JsObject("id" -> result.getOrElse(id.getOrElse(-1)).toJson))
         } else {
           val future = (persistanceActor ? Processes.Save.WithGraph(Process(id, json.name, json.isCase),
             json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)))
           val result = Await.result(future, timeout.duration).asInstanceOf[(Option[Int], Option[Int])]
-          complete(JsObject("id" -> result._1.toJson, "graphId" -> result._2.toJson))
+          complete(JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
         }
       }
     }
