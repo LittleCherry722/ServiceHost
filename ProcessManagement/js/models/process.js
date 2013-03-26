@@ -31,7 +31,6 @@ define([
 		graph: {
 			type: "json",
 			defaults: {
-				date: 0,
 				routings: [],
 				definition: {
 					conversationCounter: 1,

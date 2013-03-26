@@ -72,7 +72,7 @@ define([
 			gv_graph.changeView('cv');
 			gf_clearGraph();
 		}
-		gf_loadGraph( JSON.stringify( processInstance().graph() ) );
+		gf_loadGraph( JSON.stringify( processInstance().graph().definition ) );
 	}
 
 

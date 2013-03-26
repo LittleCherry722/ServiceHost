@@ -30,7 +30,17 @@ define([
 		processId: "integer",
 		graph: {
 			type: "json",
-			defaults: "{}",
+			defaults: {
+				routings: [],
+				definition: {
+					conversationCounter: 1,
+					conversations: {},
+					messageCounter: 0,
+					messages: {},
+					nodeCounter: 0,
+					process: []
+				}
+			},
 			lazy: true
 		},
 		history: {
