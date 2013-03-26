@@ -79,6 +79,12 @@ private[persistence] trait Schema {
      */
     protected def stringIdCol(implicit typeMapper: TypeMapper[String]) =
       column("id", DbType.stringIdentifier)
+      
+      /**
+     * Defines an "id" column as uuid string primary key.
+     */
+    protected def stringUuidCol(implicit typeMapper: TypeMapper[String]) =
+      column("id", DbType.uuid)
 
     /**
      * Defines a "name" string column.
@@ -135,6 +141,9 @@ private[persistence] trait Schema {
 
       def eMail =
         varchar(64)
+
+      def uuid =
+        varchar(36)
 
     }
   }
