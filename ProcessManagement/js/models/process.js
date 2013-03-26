@@ -33,7 +33,7 @@ define([
 			defaults: {
 				date: 0,
 				routings: [],
-				definitions: {
+				definition: {
 					conversationCounter: 1,
 					conversations: {},
 					messageCounter: 0,
@@ -42,8 +42,7 @@ define([
 					process: []
 				}
 			},
-			lazy: true,
-			noDefaultsOnSave: true
+			lazy: true
 		}
 	});
 
@@ -179,7 +178,7 @@ define([
 				},
 				write: function( graphString ) {
 					var graph = self.graph();
-					graph.definitions = JSON.parse( graphString );
+					graph.definition = JSON.parse( graphString );
 					self.graph( graph );
 				}
 			});
