@@ -80,7 +80,7 @@ define([
 			user.providerMail.push(jQuery.parseJSON( '{"provider":"","mail":""}'));
 		};
 		this.deleteEmail = function (user, mail){
-			user.providerMail.pop(mail);
+			user.providerMail.remove(mail);
 		}
 	}
 
