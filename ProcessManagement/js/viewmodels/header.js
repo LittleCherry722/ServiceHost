@@ -31,8 +31,13 @@ define([
 	}
 
 	var oauthLogin = function() {
+		if( App.currentUser().id() === 0 ) {
+			Notify.error( "Error", "You have to be logged in to link you account with google." );
+			return;
+		}
+
 		var data = {
-			id: 3
+			id: App.currentUser().id()
 		}
 
 		$.ajax({

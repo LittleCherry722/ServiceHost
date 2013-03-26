@@ -34,20 +34,20 @@ var LoginViewModel = function() {
 			complete : function(jqXHR, textStatus) {
 			}
 		});
-	}; 
+	};
 
 
 
 
 
 	self.login = function() {
-		
-		if (!isBackendAlive ){
+
+		if (!self.isBackendAlive ){
 			alert("Can not reach backend!");
 		}
-		
+
 		var data = { user: self.user(), pass: self.pass()};
-		data = JSON.stringify(data); 
+		data = JSON.stringify(data);
 		self.pass("");
 
 		$.ajax({
