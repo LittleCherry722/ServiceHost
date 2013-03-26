@@ -30,7 +30,18 @@ define([
 		processInstanceId: "integer",
 		graph: {
 			type: "json",
-			defaults: {},
+			defaults: {
+				date: 0,
+				routings: [],
+				definitions: {
+					conversationCounter: 1,
+					conversations: {},
+					messageCounter: 0,
+					messages: {},
+					nodeCounter: 0,
+					process: []
+				}
+			},
 			lazy: true,
 			noDefaultsOnSave: true
 		}
@@ -85,6 +96,9 @@ define([
 				},
 				write: function( graphObject ) {
 					var graph = _.clone( self.graph() );
+					if ( !graph ) {
+						graph = {}
+					}
 
 					if ( typeof graphObject === "string" ) {
 						graph.definition = JSON.parse( graphObject );
