@@ -306,6 +306,14 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
             definition.fields("messages").convertTo[Map[String, GraphMessage]],
             definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
             routings.convertTo[Seq[GraphRouting]])
+        case Seq(definition: JsObject,
+          routings: JsArray) =>Graph(None,
+            None,
+            new java.sql.Timestamp(System.currentTimeMillis()),
+            definition.fields("conversations").convertTo[Map[String, GraphConversation]],
+            definition.fields("messages").convertTo[Map[String, GraphMessage]],
+            definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
+            routings.convertTo[Seq[GraphRouting]])
         case x => throw new DeserializationException("Graph expected, but found: " + x)
       }
   }
