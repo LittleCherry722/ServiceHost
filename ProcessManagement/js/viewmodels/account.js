@@ -13,10 +13,17 @@ define([
 		this.currentUser = App.currentUser;
 		this.save = save;
 		this.reset = reset;
+		this.savePassword = savePassword;
+		this.deleteEmail = deleteEmail;
+		this.addEmail = addEmail;
 	}
 	
+	var deleteEmail = function(mail){
+		currentUser().providerMail.remove(mail);
+	};
+	
 	var save = function(){
-		currentUser.save();
+		currentUser().save();
 	};
 	
 	var savePassword = function(){
@@ -24,10 +31,12 @@ define([
 	}
 	
 	var reset = function(){
-		currentUser.reset();
+	//	currentUser().reset();
 	};
 	
-	
+	var addEmail = function(){
+					currentUser().providerMail.push(jQuery.parseJSON( '{"provider":"","mail":""}'));
+	};
 	
 	var initialize = function( subSite ) {
 		var viewModel;
