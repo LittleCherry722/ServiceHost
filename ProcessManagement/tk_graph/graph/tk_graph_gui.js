@@ -322,6 +322,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtInterface, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", false);
+	gf_guiElementWrite(gv_elements.inputSubjectStartSubject, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeA, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeL, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeV, "bool", false);
@@ -740,6 +741,7 @@ function gf_guiDisplaySubject (subject)
 	// check checbkoxes / radio buttons
 	gf_guiElementWrite(gv_elements.inputSubjectTypeMulti, "bool", subject.isMulti());
 	gf_guiElementWrite(gv_elements.inputSubjectTypeExternal, "bool", subject.isExternal());
+	gf_guiElementWrite(gv_elements.inputSubjectStartSubject, "bool", subject.isStartSubject());
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", subject.getExternalType() == "external");
 	gf_guiElementWrite(gv_elements.inputSubjectExtInterface, "bool", subject.getExternalType() == "interface");
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", subject.getExternalType() == "instantinterface");
@@ -1910,11 +1912,11 @@ function gf_guiReadNode ()
  * Read the values for the selected subject from the input fields.
  * 
  * @see GCcommunication::updateSubject()
- * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment
+ * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment, startSubject
  */
 function gf_guiReadSubject ()
 {
-	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: ""};
+	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: "", startSubject: false};
 	
 	var gt_text			= gf_guiElementRead(gv_elements.inputSubjectText, "string", "");
 	var gt_role			= gf_guiElementRead(gv_elements.inputSubjectRole, "string", "");
@@ -1922,6 +1924,7 @@ function gf_guiReadSubject ()
 	var gt_relProcess	= gf_guiElementRead(gv_elements.inputSubjectRelProcess, "string", "");
 	var gt_relSubject	= gf_guiElementRead(gv_elements.inputSubjectRelSubject, "string", "");
 	var gt_comment		= gf_guiElementRead(gv_elements.inputSubjectComment, "string", "");
+	var gt_startSubject	= gf_guiElementRead(gv_elements.inputSubjectStartSubject, "bool", false);
 	
 	var gt_type	= "";
 	var gt_externalType	= "external";
@@ -1949,6 +1952,7 @@ function gf_guiReadSubject ()
 	gt_result.relatedSubject	= gt_relSubject;
 	gt_result.externalType		= gt_externalType;
 	gt_result.comment			= gt_comment;
+	gt_result.startSubject		= gt_startSubject;
 	
 	return gt_result;
 }
