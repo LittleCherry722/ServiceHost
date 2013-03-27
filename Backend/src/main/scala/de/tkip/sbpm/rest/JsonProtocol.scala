@@ -103,14 +103,15 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   // administration
   implicit val userFormat = jsonFormat4(User)
+  implicit val userUpdate = jsonFormat3(UserUpdate)
   implicit val providerMail = jsonFormat2(ProviderMail)
   implicit val userWithMail = jsonFormat5(UserWithMail)
   implicit val userIdentityFormat = jsonFormat4(UserIdentity)
-  implicit val userUpdateFormat = jsonFormat6(UserUpdate)
   implicit val roleFormat = jsonFormat3(Role)
   implicit val groupFormat = jsonFormat3(Group)
   implicit val groupUserFormat = jsonFormat2(GroupUser)
   implicit val groupRoleFormat = jsonFormat2(GroupRole)
+  implicit val password = jsonFormat2(SetPassword)
   
   // used for login
   implicit val userPassFormat = jsonFormat2(UserPass)
