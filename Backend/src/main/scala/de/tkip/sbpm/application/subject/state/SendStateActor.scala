@@ -44,6 +44,27 @@ import de.tkip.sbpm.application.subject.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.Stored
 import de.tkip.sbpm.application.subject.TargetUser
 import de.tkip.sbpm.application.subject.MessageIDProvider
+import de.tkip.sbpm.external.api.GetAlternateLinkForFileInGDrive
+
+private class GoogleSendProxyActor(
+  processInstanceActor: ActorRef,
+  googleId: Option[String] = None) extends Actor {
+
+  def receive = {
+    case message: SubjectToSubjectMessage => {
+
+      if (googleId.isDefined && message.fileID.isDefined) {
+        implicit val timeout = Timeout(3000)
+        val url: String = Await.result(
+          ActorLocator.googleDriveActor ?
+            GetAlternateLinkForFileInGDrive(googleId.get, message.fileID.get),
+          timeout.duration).asInstanceOf[String]
+        message.fileUrl = Some(url)
+      }
+      processInstanceActor.forward(message)
+    }
+  }
+}
 
 protected case class SendStateActor(data: StateData)
   extends BehaviorStateActor(data) {
@@ -141,7 +162,10 @@ protected case class SendStateActor(data: StateData)
           remainingStored += target.min
 
           // send the message over the process instance
-          processInstanceActor !
+          val sendProxy: ActorRef =
+            context.actorOf(Props(new GoogleSendProxyActor(processInstanceActor, action.googleId)))
+
+          sendProxy !
             SubjectToSubjectMessage(
               messageID,
               userID,
