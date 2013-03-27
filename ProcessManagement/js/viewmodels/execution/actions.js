@@ -203,8 +203,6 @@ define([
 
 
 		viewModel = new ViewModel();
-
-
 		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
 		});
 	}
