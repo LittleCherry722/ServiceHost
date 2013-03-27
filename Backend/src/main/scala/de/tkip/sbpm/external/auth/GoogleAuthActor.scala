@@ -101,7 +101,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
   
   // load application settings from config file stored in resources folder
   val CLIENT_SECRETS = GoogleClientSecrets.load(JSON_FACTORY, getClass().getResourceAsStream("/client_secrets.json"))
-  val CALLBACK_URL = "http://localhost:8080/oauth2callback"
+  val CALLBACK_URL = "http://sbpm-gw.tk.informatik.tu-darmstadt.de/oauth2callback"
   // currently no persistence
   val credentialStore = new FileCredentialStore(new java.io.File(System.getProperty("user.home"), ".credentials/drive.json"), JSON_FACTORY)
   

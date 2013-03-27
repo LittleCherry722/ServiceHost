@@ -82,6 +82,7 @@ var gv_elements = {
 	inputSubjectRelProcess:		"ge_cv_relatedProcess",
 	inputSubjectRelSubject:		"ge_cv_relatedSubject",
 	inputSubjectRole:			"ge_cv_id",
+	inputSubjectStartSubject:	"ge_cv_startSubject",
 	inputSubjectText:			"ge_cv_text",
 	
 	// select elements
@@ -237,7 +238,7 @@ var gv_functions	= {
 		 * read input fields (subject) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadSubject()
-		 * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment
+		 * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment, startSubject
 		 */
 		readSubject:		"",
 		
