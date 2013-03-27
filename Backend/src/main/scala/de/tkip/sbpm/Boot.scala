@@ -44,9 +44,17 @@ import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.external.auth.GoogleAuthActor
 import de.tkip.sbpm.external.api._
 import de.tkip.sbpm.rest.auth._
+import scala.concurrent.Await
 
 object Boot extends App with SprayCanHttpServerApp {
   val logging = system.log
+
+  sys.addShutdownHook {
+    logging.debug("Shutting down the system...")
+    val stopFutures = Future.sequence(rootActors.map(gracefulStop(_, 5 seconds)(system)))
+    Await.result(stopFutures, 6 seconds)
+    system.shutdown();
+  }
 
   // for SSL support (if enabled in application.conf)
   implicit def sslContext: SSLContext = {
@@ -64,19 +72,23 @@ object Boot extends App with SprayCanHttpServerApp {
     context
   }
 
-  // create and start our service actor
-  val persistenceActor = system.actorOf(Props[PersistenceActor], persistenceActorName)
-  val contextResolver = system.actorOf(Props[ContextResolverActor], contextResolverActorName)
-  val processManagerActor = system.actorOf(Props[ProcessManagerActor], processManagerActorName)
+  val frontendInterfaceActor = system.actorOf(Props[FrontendInterfaceActor], frontendInterfaceActorName);
   val subjectProviderManagerActor = system.actorOf(Props[SubjectProviderManagerActor], subjectProviderManagerActorName)
-  val frontendInterfaceActor = system.actorOf(Props[FrontendInterfaceActor], frontendInterfaceActorName)
-  val sessionActor = system.actorOf(Props[SessionActor], sessionActorName)
-  val basicAuthActor = system.actorOf(Props[BasicAuthActor], basicAuthActorName)
-  val oAuth2Actor = system.actorOf(Props[OAuth2Actor], oAuth2ActorName)
-  val userPassAuthActor = system.actorOf(Props[UserPassAuthActor], userPassAuthActorName)
-  val googleAuthActor = system.actorOf(Props[GoogleAuthActor], googleAuthActorName)
-  val googleDriveActor = system.actorOf(Props[GoogleDriveActor], googleDriveActorName)
-  val googleUserInformationActor = system.actorOf(Props[GoogleUserInformationActor], googleUserInformationActorName)
+  val persistenceActor = system.actorOf(Props[PersistenceActor], persistenceActorName);
+
+  // create and start our service actor
+  val rootActors = List(persistenceActor,
+    system.actorOf(Props[ContextResolverActor], contextResolverActorName),
+    system.actorOf(Props[ProcessManagerActor], processManagerActorName),
+    subjectProviderManagerActor,
+    frontendInterfaceActor,
+    system.actorOf(Props[SessionActor], sessionActorName),
+    system.actorOf(Props[BasicAuthActor], basicAuthActorName),
+    system.actorOf(Props[OAuth2Actor], oAuth2ActorName),
+    system.actorOf(Props[UserPassAuthActor], userPassAuthActorName),
+    system.actorOf(Props[GoogleAuthActor], googleAuthActorName),
+    system.actorOf(Props[GoogleDriveActor], googleDriveActorName),
+    system.actorOf(Props[GoogleUserInformationActor], googleUserInformationActorName))
 
   // create a new HttpServer using our handler tell it where to bind to
   newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = 8080)

@@ -28,7 +28,7 @@ trait GraphRoutingsSchema extends GroupsSchema with UsersSchema with GraphSubjec
   // represents schema if the "graph_routings" table in the database
   // using slick's lifted embedding API
   object GraphRoutings extends SchemaTable[GraphRouting]("graph_routings") {
-    def id = stringIdCol
+    def id = stringUuidCol
     def graphId = column[Int]("graph_id")
     def conditionSubjectId = column[String]("condition_subject")
     def conditionOperator = column[Boolean]("condition_operator")
