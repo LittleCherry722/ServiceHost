@@ -48,19 +48,20 @@
 						<tr>
 							<td>Current password</td>
 							<td>
-							<input type="text" class="inline" data-bind="value: name" />
+							<input type="text" class="inline" data-bind="value: $parent.oldPassword,valueUpdate:'afterkeydown'" />
 							</td>
 						</tr>
 						<tr>
 							<td>New password</td>
 							<td>
-							<input type="text" class="inline" data-bind="value: name" />
+							<input type="text" class="inline" data-bind="value: $parent.newPassword1,valueUpdate:'afterkeydown'" />
 							</td>
 						</tr>
 						<tr>
 							<td>Reapeat new password</td>
 							<td>
-							<input type="text" class="inline" data-bind="value: name" />
+							<input type="text" class="inline" data-bind="value: $parent.newPassword2,valueUpdate:'afterkeydown'" /><br/>
+							<span data-bind="visible:  !$parent.passwordsEqual()">Passwords are not equal!</span>
 							</td>
 						</tr>
 					</table></td>
@@ -69,7 +70,7 @@
 				<tr>
 					<th>Save</th>
 					<td>
-					<input style="float:right;" type="button" class="button" value="Save changes" data-bind='click: $parent.savePassword' />
+					<input style="float:right;" type="button" class="button" value="Save changes" data-bind='click: $parent.savePassword, enable: $parent.passwordSaveable' />
 					</td>
 				</tr>
 

@@ -1,8 +1,10 @@
 define([
 	"knockout",
 	"app",
+	"notify",
 	"underscore"
-], function( ko, App, _ ) {
+	
+], function( ko, App, Notify, _ ) {
 
 	// Just a stub at the moment.
 	// This viewmodel does not do anything but loading a template.
@@ -16,7 +18,26 @@ define([
 		this.savePassword = savePassword;
 		this.deleteEmail = deleteEmail;
 		this.addEmail = addEmail;
+		this.newPassword1 = newPassword1;
+	this.newPassword2 = newPassword2;
+	this.oldPassword = oldPassword;
+	this.passwordsEqual = passwordsEqual;
+	this.passwordSaveable = passwordSaveable;
 	}
+	
+	//{"oldPassword":"s1234", "newPasswword":"password"} 
+	
+	var newPassword1 = ko.observable("");
+	var newPassword2 = ko.observable("");
+	var oldPassword = ko.observable("");
+	
+	var passwordsEqual = ko.computed(function(){
+		return newPassword1() == newPassword2();
+	});
+	
+	var passwordSaveable = ko.computed(function(){
+	return	newPassword1() !== "" && oldPassword() !== "" && passwordsEqual();
+	});
 	
 	var deleteEmail = function(mail){
 		currentUser().providerMail.remove(mail);
@@ -27,7 +48,34 @@ define([
 	};
 	
 	var savePassword = function(){
-		
+		var data = {};
+		data.oldPassword = oldPassword()
+		data.newPassword = newPassword1()
+		data = JSON.stringify(data);
+console.log (data)
+		$.ajax({
+			url : '/user/'+currentUser().id(),
+			type : "PUT",
+			data : data,
+			async : true, // defaults to false
+			dataType : "json",
+			contentType : "application/json; charset=UTF-8",
+			success : function(data, textStatus, jqXHR) {
+			Notify.info("Success", "New password has been saved.");
+
+			},
+			error : function(jqXHR, textStatus, error) {
+			Notify.error("Error", "New password was not saved. Please make sure the old password is correct.");
+
+			},
+			complete : function(jqXHR, textStatus) {
+
+	newPassword1("");
+	newPassword2("");
+	oldPassword("");
+
+			}
+		});
 	}
 	
 	var reset = function(){
