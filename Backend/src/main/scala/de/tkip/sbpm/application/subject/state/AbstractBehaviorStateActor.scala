@@ -148,11 +148,11 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       executeTimeout()
     }
 
-    case ea @ ExecuteAction(userID, processInstanceID, subjectID, stateID, _, input) if ({
-      input.transitionType == timeoutLabel
+    case action: ExecuteAction if ({
+      action.actionData.transitionType == timeoutLabel
     }) => {
       executeTimeout()
-      processInstanceActor ! ActionExecuted(ea)
+      processInstanceActor ! ActionExecuted(action)
     }
   }
 

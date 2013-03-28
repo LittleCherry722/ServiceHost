@@ -124,7 +124,5 @@ object Boot extends App with SprayCanHttpServerApp {
     dbFuture.onFailure(onFailure)
   }
 
-  // TODO create a processinstance for testreason: history, actions, graph etc...
-  dbFuture.map(_ => CreateProcessInstance(1, 1)).pipeTo(subjectProviderManagerActor)
   dbFuture.onFailure(onFailure)
 }

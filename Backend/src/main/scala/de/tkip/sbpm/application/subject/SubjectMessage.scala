@@ -32,12 +32,13 @@ sealed trait MessageObject
 // message from subject to subject
 protected case class SubjectToSubjectMessage(
   messageID: MessageID,
-  var userID: UserID,// TODO why is this a var?
+  var userID: UserID, // TODO why is this a var?
   from: SubjectID,
   target: Target,
   messageType: MessageType,
   messageContent: MessageContent,
-  fileID: Option[String] = None) extends MessageObject {
+  fileID: Option[String] = None,
+  var fileUrl: Option[String] = None) extends MessageObject {
 
   def to = target.subjectID
 
@@ -56,7 +57,7 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
-case class MessageData(userID: UserID, messageContent: String, fileId: Option[String] = None)
+case class MessageData(userID: UserID, messageContent: String, fileUrl: Option[String] = None)
 
 case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
 
@@ -88,7 +89,8 @@ case class ExecuteAction(
   subjectID: SubjectID,
   stateID: StateID,
   stateType: String,
-  actionData: ActionData)
+  actionData: ActionData,
+  googleId: Option[String] = None) // the google id of the person, who executes the action
 // The response to an ExecuteAction Message
 case class ActionExecuted(ea: ExecuteAction)
 
@@ -110,5 +112,6 @@ object mixExecuteActionWithRouting {
       action.subjectID,
       action.stateID,
       action.stateType,
-      action.actionData) with AnswerAbleMessage with SubjectProviderMessage with SubjectMessage with SubjectBehaviorRequest
+      action.actionData,
+      action.googleId) with AnswerAbleMessage with SubjectProviderMessage with SubjectMessage with SubjectBehaviorRequest
 }

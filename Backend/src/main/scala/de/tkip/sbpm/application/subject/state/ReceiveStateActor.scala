@@ -196,7 +196,7 @@ protected case class ReceiveStateActor(data: StateData)
       messageID = message.messageID
       messageContent = Some(message.messageContent)
 
-      messageData += MessageData(message.userID, message.messageContent, message.fileID)
+      messageData += MessageData(message.userID, message.messageContent, message.fileUrl)
     }
   }
 }
