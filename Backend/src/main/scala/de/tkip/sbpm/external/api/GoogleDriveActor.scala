@@ -74,7 +74,8 @@ case  class DeleteUserGDrive(id: String) extends GoogleDriveAction
 
 case  class GetFilePermission(id: String, fileId: String) extends GoogleDriveAction
 
-case  class SetFilePermission(id: String, foreignUserID: String, perimssion: String, fileId: String) extends GoogleDriveAction
+// adds an foreignUser with the given role (viewer ...) to the file specified by fileId in the google drive of user id
+case  class SetFilePermission(id: String, foreignUserID: String, role: String, fileId: String) extends GoogleDriveAction
 
 // case class to establish initial drive connection when user logs in 
 case  class InitUserGDrive(id: String) extends GoogleDriveAction
@@ -125,8 +126,14 @@ class GoogleDriveActor extends Actor with ActorLogging {
     // get export url for a new user as a viewer for a specific file
     case GetAlternateLinkForFileInGDrive(id, fileId) => sender ! getFileAlternateLink(id, fileId)  
     
+    // add an new user with a google or a foreign email address as a new viewer for a file specified by fileId
+    case SetFilePermission(id, foreignUserId, role, fileId) => sender ! manageGDrivePermissions(id, foreignUserId, role, fileId)
+    
     case _ => sender ! "not yet implemented"
   }
+  
+  
+  
   
   // ask google auth actor for a valid user token
   def getUserToken(id: String): Credential = {
@@ -215,27 +222,22 @@ class GoogleDriveActor extends Actor with ActorLogging {
     files.toPrettyString() 
   }
   
-  //TODO implement directory filtering
-  /** browse google drive or a specific directory */
-  def browseGDrive(id: String, directory: Option[String]): FileList = {
-    val drive = getGDriveObject(id)
-    val files = drive.files().list().execute()
-    files
-  }
-  
   /** add read permissions for a specific user to a file in a foreign google drive and return the access url */
-  def manageGDrivePermissions(id: String, foreignUserID: String, role: String, fileId: String): Boolean = {
+  def manageGDrivePermissions(id: String, foreignUserId: String, role: String, fileId: String): Boolean = {
     val drive = getGDriveObject(id)
     val newPermission = new Permission()
     
     // user or group id
-    newPermission.setValue(foreignUserID)
+    newPermission.setValue(foreignUserId)
     
     // type of permission - user, group, domain, default
     newPermission.setType("user")
     
     // role of new user (owner, writer or reader)
     newPermission.setRole(role)
+    
+    log.debug(getClass().getName() + " User " + id + " wants to add a new role to one of his files: \n" + foreignUserId + " " + role + " " + fileId)
+    
     try {
       drive.permissions().insert(fileId, newPermission).execute()
     } catch {

@@ -82,7 +82,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
   
   
   override def preStart() {
-    log.debug(getClass.getName + " starts...")
+    log.debug(getClass.getName + " starts with " + CALLBACK_URL)
   }
 
   override def postStop() {
@@ -101,9 +101,15 @@ class GoogleAuthActor extends Actor with ActorLogging {
   
   // load application settings from config file stored in resources folder
   val CLIENT_SECRETS = GoogleClientSecrets.load(JSON_FACTORY, getClass().getResourceAsStream("/client_secrets.json"))
-  val CALLBACK_URL = "http://sbpm-gw.tk.informatik.tu-darmstadt.de/oauth2callback"
-  // currently no persistence
+  
+  // get the first defined redirect uri from client_secrets.json
+  val CALLBACK_URL = CLIENT_SECRETS.getWeb().getRedirectUris().get(0)
+  
+  
+  // currently the token are saved in a filesystem-file
+  // TODO change to sql implementation
   val credentialStore = new FileCredentialStore(new java.io.File(System.getProperty("user.home"), ".credentials/drive.json"), JSON_FACTORY)
+  
   
   // instanciate new code flow
   val flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, CLIENT_SECRETS, SCOPE)
