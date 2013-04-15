@@ -58,6 +58,7 @@ define([
 
 				fetchAll : Model.fetchAll,
 				setCurrentUser : ["fetchAll", function(callback) {
+					console.log('loaded current user');
 					loadCurrentUser();
 					callback();
 				}],
