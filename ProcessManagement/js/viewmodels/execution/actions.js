@@ -121,7 +121,11 @@ define([
 		data = actionOfCurrentSubject()
 
 		deArray = data.actionData[ 0 ];
-		deArray[ "messageContent" ] = messageText();
+		if( messageText ) {
+			deArray.messageContent = messageText();
+		} else {
+			deArray.messageContent = "[empty message]";
+		}
 		data.actionData = deArray;
 		data.actionData.fileId = currentSelectedFile().id;
 

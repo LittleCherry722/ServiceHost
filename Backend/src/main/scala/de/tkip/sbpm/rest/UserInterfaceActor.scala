@@ -179,7 +179,11 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
             entity(as[User]) { user =>
               saveUser(user)
             }
-          }
+          } ~
+          path("^$"r) { regex =>
+            entity(as[SetPassword]) {password => 
+              complete(StatusCodes.OK)
+            }}
       } ~
       put {
         pathPrefix(IntNumber) { id =>
@@ -203,8 +207,13 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * 		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
              */
             path("^$"r) { regex =>
+              entity(as[SetPassword]) { setPassword =>
+                setPw(id, setPassword)
+              }
+            } ~
+            path("^$"r) { regex =>
               entity(as[UserUpdate]) { userUpdate =>
-                setUserIdentity(id, userUpdate)
+                saveUser(new User(Some(id), userUpdate.name, userUpdate.isActive, userUpdate.inputPoolSize), Some(id))
               }
             }
         }
@@ -246,7 +255,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
     })
   }
 
-  def setUserIdentity(id: Int, entity: UserUpdate) = {
+  def setPw(id: Int, entity: SetPassword) = {
     //check if the user exists
     val userFuture = persistenceActor ? Users.Read.ById(id)
     val userIdentityFuture = persistenceActor ? Users.Read.Identity.ById("sbpm", id)
@@ -259,19 +268,10 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
       val auth = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
 
       if (auth.isDefined) {
-        // check what has to be changed
-        var eMail = entity.newEmail.getOrElse(userIdentity.get.eMail)
-        var password = entity.newPassword.getOrElse(entity.oldPassword)
-
-        // set the new password, eMail and provider
-        val future = persistenceActor ? Users.Save.Identity(id, "sbpm", eMail, Some(password.bcrypt))
+        // set the new password
+        val future = persistenceActor ? Users.Save.Identity(id, "sbpm", userIdentity.get.eMail, Some(entity.newPassword.bcrypt))
         val res = Await.result(future, timeout.duration)
-
-        var name = entity.name.getOrElse(user.get.name)
-        var isActive = entity.isActive.getOrElse(user.get.isActive)
-        var inputPoolSize = entity.inputPoolSize.getOrElse(user.get.inputPoolSize)
-
-        saveUser(new User(None, name, isActive, inputPoolSize), Some(id))
+        complete(StatusCodes.OK)
       } else
         complete(StatusCodes.Unauthorized)
     } else
