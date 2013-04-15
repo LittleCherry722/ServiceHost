@@ -27,7 +27,11 @@ define([
 	Message.belongsTo( "toUser",   { modelName: "user" } );
 
 
-	Message.fetch = function( callback ) { if ( callback ) { callback() } };
+	Message.fetch = function( options, callbacks ) {
+		if ( callbacks ) {
+			callbacks.success.call();
+		}
+	};
 
 	return Message;
 });
