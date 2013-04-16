@@ -5,44 +5,69 @@ define([
 	"models/user",
 	"models/message"
 
-], function( ko, App, _, User, Message ) {
-
-
+], 
+function( ko, App, _, User, Message ) {
 
 	var ViewModel = function() {
-		this.users = User.all;
-		this.fromUserId = ko.observable(undefined);
-		this.toUserId = ko.observable(undefined);
-		this.title = ko.observable();
-		this.content = ko.observable();
-		this.messages = ko.observableArray();		
-		this.send = function(){
-		console.log("send");	
-		console.log(this.fromUserId());
-		console.log(this.toUserId());
-		this.messages.push(new Message({"formUserId":this.fromUserId(),"toUserId":this.toUserId(),"title":this.title(),"content":this.content()}));
-		console.log(this.messages());
+		var self = this;
+		
+		self.users = User.all;
+		self.fromUserId = ko.observable();
+		self.toUserId = ko.observable();
+		self.title = ko.observable();
+		self.content = ko.observable();
+		self.userFilter = ko.observable();
+		self.messages = ko.observableArray();
+		
+		self.send = function() {
+			if (self.fromUserId() && self.toUserId()) {
+				self.messages.push(new Message({
+					"fromUserId" : self.fromUserId(),
+					"toUserId" : self.toUserId(),
+					"title" : self.title(),
+					"content" : self.content()
+				}));
+				self.fromUserId(undefined);
+				self.toUserId(undefined);
+				self.title(undefined);
+				self.content(undefined);
+			}
 		}
-		this.reset = function(){
-		this.fromUserId(undefined);
-		this.toUserId(undefined);
-		this.title(undefined);
-		this.content(undefined);
-		this.messages.removeAll();
+		self.reset = function() {
+			self.fromUserId(undefined);
+			self.toUserId(undefined);
+			self.title(undefined);
+			self.content(undefined);
+			self.messages.removeAll();
 		}
-	}
+		self.userNameById = function(id) {
+			return User.find(id).name()
+		}
 
+		self.filteredMessages = ko.computed(function() {
+			var filter = self.userFilter();
+			var messages = viewModel.messages;
+			if (!filter) {
+				return self.messages();
+			} else {
+				return ko.utils.arrayFilter(self.messages(), function(item) {
+					return item.fromUserId() === filter || item.toUserId() === filter;
+				});
+			}
+		}); 
+
+
+	}
 	var initialize = function() {
 		var viewModel = new ViewModel();
 		window.mView = viewModel;
-		App.loadTemplate( "messages", viewModel );
-		$(".chzn-select").chosen();
-	}
+		App.loadTemplate("messages", viewModel);
 
+
+	}
 	// Everything in this object will be the public API
 	return {
-		init: initialize
+		init : initialize
 	}
 });
-
 

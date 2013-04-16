@@ -11,16 +11,23 @@
 			<span>To: </span>
 			<select data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'Choose User', value: toUserId "class="chzn-select" ></select>
 		</div>
-		<input type="text" style="width:406px" class="inline" data-bind='value:title' placeholder="Title" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Title'"/> <br/>
-		<textarea style="width:406px; height:100px;resize: none;" class="inline" data-bind='value:content' placeholder="Message" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Message'"></textarea> <br/>
-		<div style="width:420px">
-		<input type="button" class="button" value="Send Message" data-bind="click:send" />
-		<input type="button" style= "float:right"class="button" value="Reset" data-bind="click:reset" />
-		</div>
-		<div data-bind="foreach:messages"style="width:420px">
+		<input type="text" style="width:406px" class="inline" data-bind='value:title' placeholder="Title" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Title'"/>
+		<br/>
+		<textarea style="width:406px; height:100px;resize: none;" class="inline" data-bind='value:content' placeholder="Message" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Message'"></textarea>
+		<br/>
+		<div style="width:418px">
+			<input type="button" class="button" value="Send Message" data-bind="click:send" />
+			<input type="button" style= "float:right"class="button" value="Reset" data-bind="click:reset" />
+		</div >
+		<div style="width:408px;height:26px;margin:12px;">
+			<span style="margin=3px">Message Overview</span><select style="float:right" data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'All', value: userFilter  "class="chzn-select" ></select>
+			</div>
+		<div data-bind="foreach:filteredMessages"style="width:420px">
 			<div style="border: 1px #BCBCBC solid; margin: 1px">
-			<p>From: <span data-bind="text:fromUserId"></span> To: <span data-bind="text:toUserId"></span></p>
-			<h4 data-bind="text:title"></h4><span data-bind="text:content"></span>	
+				<p>
+					From: <span data-bind="text:$parent.userNameById(fromUserId())"></span> To: <span data-bind="text:$parent.userNameById(toUserId())"></span>
+				</p>
+				<h4 data-bind="text:title"></h4><span data-bind="text:content"></span>
 			</div>
 		</div>
 	</div>
