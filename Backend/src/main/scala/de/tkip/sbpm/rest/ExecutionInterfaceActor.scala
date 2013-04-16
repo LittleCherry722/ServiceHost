@@ -164,13 +164,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               implicit val timeout = Timeout(5 seconds)
               val future = subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processId)
               val result = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated]
-              complete(
-                JsObject(
-                  "id" -> result.processInstanceID.toJson,
-                  "graph" -> result.graph.toJson,
-                  "isTerminated" -> result.isTerminated.toJson,
-                  "history" -> result.history.toJson,
-                  "actions" -> result.availableActions.toJson))
+              complete(result.answer)
             }
           }
         }

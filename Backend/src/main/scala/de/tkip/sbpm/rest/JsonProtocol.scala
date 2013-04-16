@@ -40,6 +40,7 @@ import de.tkip.sbpm.application.subject.ActionData
 import de.tkip.sbpm.application.subject.TargetUser
 import de.tkip.sbpm.application.subject.MessageData
 import GraphJsonProtocol.graphJsonFormat
+import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -134,6 +135,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val messageDataFormat = jsonFormat3(MessageData)
   implicit val actionDataFormat = jsonFormat8(ActionData)
   implicit val availableActionFormat = jsonFormat7(AvailableAction)
+  implicit val processInstanceDataFormat = jsonFormat6(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
   implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat4(GraphHeader)

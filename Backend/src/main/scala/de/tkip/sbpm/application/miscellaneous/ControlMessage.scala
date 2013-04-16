@@ -65,15 +65,22 @@ case class ProcessInstanceInfo(id: ProcessInstanceID, processId: ProcessID)
 case class GetAllProcessInstances(userID: UserID = AllUser) extends AnswerAbleControlMessage
 case class AllProcessInstancesAnswer(request: GetAllProcessInstances, processInstanceInfo: Array[ProcessInstanceInfo]) extends AnswerControlMessage
 
+case class ProcessInstanceData(id: ProcessInstanceID,
+                               processId: ProcessID,
+                               graph: Graph,
+                               isTerminated: Boolean,
+                               history: History,
+                               actions: Array[AvailableAction])
+// TODO ins programm einbinden
+case class ReadProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
+case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
+
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance,
-                                  processInstanceID: ProcessInstanceID,
                                   processInstanceActor: ProcessInstanceRef,
-                                  isTerminated: Boolean,
-                                  graph: Graph,
-                                  history: History,
-                                  availableActions: Array[AvailableAction])
-    extends AnswerControlMessage
+                                  answer: ProcessInstanceData) extends AnswerControlMessage {
+  def processInstanceID: ProcessInstanceID = answer.id
+}
 
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
 case class KillProcessInstanceAnswer(request: KillProcessInstance) extends AnswerControlMessage

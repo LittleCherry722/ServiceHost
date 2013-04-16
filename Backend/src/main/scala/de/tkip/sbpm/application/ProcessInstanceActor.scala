@@ -60,7 +60,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   implicit val timeout = Timeout(4 seconds)
 
   // this fields are set in the preStart, dont change them afterwards!!!
-  private var id: ProcessInstanceID = -1
+  private var id: ProcessInstanceID = _
   private val processID = request.processID
   private var processName: String = _
   private var persistenceGraph: Graph = _
@@ -189,6 +189,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private var sendProcessInstanceCreated = true
   private def trySendProcessInstanceCreated() {
+    
+    def data(actions: Array[AvailableAction]) =
+      ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
+    
     if (sendProcessInstanceCreated) {
       context.parent !
         AskSubjectsForAvailableActions(
@@ -196,7 +200,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           id,
           AllSubjects,
           (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, id, self, false, persistenceGraph, executionHistory, actions))
+            ProcessInstanceCreated(request, self, data(actions)))
       sendProcessInstanceCreated = false
     }
   }
