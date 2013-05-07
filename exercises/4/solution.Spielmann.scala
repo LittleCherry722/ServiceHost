@@ -24,7 +24,7 @@ class Tasks {
 	private var tasks = Seq[Task]();
 	def add (t: Task) = { tasks :+= t }
 	def execute () = { tasks.foreach( (t:Task) => { t.execute(); } )  }
-	def execute (name: String) = { tasks.filter(_.name == name).first.execute() }
+	def execute (name: String) = { tasks.filter(_.name == name)(0).execute() }
 }
 
 /* insert your solutions below */
