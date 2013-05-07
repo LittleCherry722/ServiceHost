@@ -35,8 +35,8 @@ object Tasks extends Tasks {
   new Task("Task 1") {
     def solution() = {
       val gizmos = Map("product A" -> 9.90, "product B" -> 49.90, "product C" -> 100.00)
-      val gizmos2 = gizmos.mapValues(price => price * 1.10)
-      println(gizmos.mkString(","))
+      val gizmos2 = gizmos.mapValues(price => price * 0.90)
+      println(gizmos2.mkString(","))
     }
   }
 
