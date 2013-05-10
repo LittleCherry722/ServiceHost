@@ -42,9 +42,9 @@ var LoginViewModel = function() {
 
 	self.login = function() {
 
-		if (!self.isBackendAlive ){
-			alert("Can not reach backend!");
-		}
+		// if (!self.isBackendAlive ){
+		//   alert("Can not reach backend!");
+		// }
 
 		var data = { user: self.user(), pass: self.pass()};
 		data = JSON.stringify(data);

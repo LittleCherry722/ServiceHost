@@ -295,7 +295,6 @@ define([
 				}
 			}
 			$.ajax( ajax );
-			
 		}
 
 		// Fetch a list of all model instances from the Server.
@@ -353,7 +352,6 @@ define([
 				complete: function( jqXHR, textStatus ) {
 					callbacks.complete.call( Model, textStatus );
 				}
-				
 			};
 			$.ajax( ajax );
 		});
@@ -394,7 +392,7 @@ define([
 	var PathBuilder = function( Model ) {
 		var regularModelPath, relationModelPath, init,
 				isIntermediateModel,
-				pathPrefix = "/";
+				pathPrefix = "/scala/";
 
 		isIntermediateModel = function() {
 			if ( Model.belongsTo().length === Model.ids().length && Model.ids().length > 1 ) {

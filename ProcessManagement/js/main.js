@@ -49,12 +49,12 @@ require.config({
 });
 
 require([ "app", "router", "knockout.custom" ], function( App, Router ){
-	
-			//Is backend reachable? -> Start application.
-	$.ajax({ 
-		url : '/isalive',
+
+	//Is backend reachable? -> Start application.
+	$.ajax({
+		url : '/scala/isalive',
 		type : "GET",
-		async : false, // defaults to false
+		async : false, // defaults to true
 		success : function(data, textStatus, jqXHR) {
 
 			$(function() {
@@ -67,13 +67,10 @@ require([ "app", "router", "knockout.custom" ], function( App, Router ){
 
 		},
 		error : function(jqXHR, textStatus, error) {
-
-		alert("Can not reach backend!");
-
+			alert("Can not reach backend!");
 		},
 		complete : function(jqXHR, textStatus) {
 		}
-	}); 
-	
+	});
 
 });
