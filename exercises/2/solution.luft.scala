@@ -42,7 +42,7 @@ object Tasks extends Tasks {
 	new Task("Task 2") {
 		def solution() = {
 			println("Value of {}: " + {})
-			println("Type of {}: " + {}.getClass)
+			println("Type of {}: Unit")
 		}
 	}
 
