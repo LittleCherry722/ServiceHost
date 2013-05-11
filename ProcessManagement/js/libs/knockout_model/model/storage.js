@@ -392,7 +392,7 @@ define([
 	var PathBuilder = function( Model ) {
 		var regularModelPath, relationModelPath, init,
 				isIntermediateModel,
-				pathPrefix = "/scala/";
+				pathPrefix = "/";
 
 		isIntermediateModel = function() {
 			if ( Model.belongsTo().length === Model.ids().length && Model.ids().length > 1 ) {

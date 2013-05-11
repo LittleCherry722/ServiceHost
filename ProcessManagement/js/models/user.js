@@ -124,7 +124,7 @@ define([
 
 		beforeCreate: function() {
 			this.id(-1);
-			}
+		}
 	});
 
 	var asyncHandleAssociations = function( oldModels, modifiedModels ) {

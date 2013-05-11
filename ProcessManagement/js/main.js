@@ -52,7 +52,7 @@ require([ "app", "router", "knockout.custom" ], function( App, Router ){
 
 	//Is backend reachable? -> Start application.
 	$.ajax({
-		url : '/scala/isalive',
+		url : '/isalive',
 		type : "GET",
 		async : false, // defaults to true
 		success : function(data, textStatus, jqXHR) {
