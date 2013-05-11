@@ -100,33 +100,88 @@ object Tasks extends Tasks {
 
   new Task("Task 3") {
     def solution() = {
-
-      // your solution for task 3 here
-
+      /* Example from http://docs.oracle.com/javase/tutorial/java/IandI/subclasses.html */
+      class Bicycle(var cadence: Int, var gear: Int, var speed: Int) {}
+      class MountainBike(var height: Int, cadence: Int, gear: Int, speed: Int) extends Bicycle(cadence, gear, speed) {}
     }
   }
 
   new Task("Task 4") {
     def solution() = {
+      abstract class Item {
+        def price: Double
+        def description: String
+      }
 
-      // your solution for task 4 here
+      class SimpleItem(override val price: Double, override val description: String) extends Item {}
 
+      class Bundle extends Item {
+        var items = Array[Item]()
+        override def price = {
+          var sum = 0.0
+          for (item <- items) {
+            sum += item.price
+          }
+          sum
+        }
+        override def description = {
+          var desc = "This is a bundle with following items:\n"
+          for (item <- items) {
+            desc += item.description + ": " + item.price + "\n"
+          }
+          desc
+        }
+
+        def addItem(item: Item) {
+          items = items :+ item
+        }
+      }
+
+      val iphone = new SimpleItem(600.00, "Iphone 5S")
+      val laptop = new SimpleItem(1000.00, "Vaio")
+      val tv = new SimpleItem(5000.00, "Samsung TV")
+
+      val bundle = new Bundle
+      bundle.addItem(iphone)
+      bundle.addItem(laptop)
+      bundle.addItem(tv)
+      println(bundle.description)
     }
   }
 
   new Task("Task 5") {
     def solution() = {
+      class Point(val x: Double, val y: Double) {}
+      class LabeledPoint(val label: String, x: Double, y: Double) extends Point(x, y) {}
 
-      // your solution for task 5 here
-
+      val lp = new LabeledPoint("Black Thursday", 1929, 230.07)
+      println(lp.label + " -> (" + lp.x + "|" + lp.y + ")")
     }
   }
 
   new Task("Task 6") {
     def solution() = {
+      class Point(val x: Double, val y: Double) {
+        override def toString() = { "(" + x + "|" + y + ")" }
+      }
 
-      // your solution for task 6 here
+      abstract class Shape {
+        def centerPoint: Point
+      }
 
+      /* screen coordinate. (x|y) is the top left corner */
+      class Rectangle(val x: Double, val y: Double, val width: Double, val height: Double) extends Shape {
+        override def centerPoint = new Point(x + width / 2, y + height / 2)
+      }
+
+      class Circle(val x: Double, val y: Double, val radius: Double) extends Shape {
+        override def centerPoint = new Point(x, y)
+      }
+
+      val r = new Rectangle(10, 10, 20, 30)
+      println(r centerPoint)
+      val c = new Circle(5, 6, 7)
+      println(c centerPoint)
     }
   }
 
