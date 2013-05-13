@@ -1,5 +1,5 @@
-
 import scala.collection.JavaConversions.propertiesAsScalaMap
+
 object Solution extends App {
 
   // execute all tasks

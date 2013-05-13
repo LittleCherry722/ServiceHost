@@ -1,5 +1,3 @@
-
-
 object Solution extends App {
 
   // execute all tasks
