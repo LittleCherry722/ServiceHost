@@ -229,8 +229,8 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
     // set param from url to entity id 
     // or delete id to create new entity
     val e = entity.copy(id)
-    completeWithSave(Users.Save(entity),
-      entity,
+    completeWithSave(Users.Save(e),
+      e,
       pathForEntity(Entity.USER, "%d"),
       (e: User, i: Int) => { e.copy(Some(i)) })
   }
