@@ -4,3 +4,4 @@
 *.git
 *.war
 *.ear
+.codekit-config.json

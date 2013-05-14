@@ -1,0 +1,103 @@
+@import './bootstrap/bootstrap';
+@import './redacted/redacted';
+@import './introjs';
+@import './chardinjs';
+@import 'bourbon';
+
+h3 {
+  font-size: 20px;
+}
+
+.lead {
+  margin-top: 1em;
+}
+
+.images {
+  margin-top: 4em;
+
+  > .col {
+    padding-bottom: 1em;
+  }
+}
+
+.redacted {
+  font-family: redacted_scriptlight;
+}
+
+#step-by-step-wrapper {
+  @include transition(height 0.3s ease-out, margin-bottom 0.3s ease-out);
+  overflow: hidden;
+  height: 50px;
+  margin-bottom: 7em;
+  margin-top: 1em;
+
+  &.collapsed {
+    height: 0;
+    margin: 0;
+  }
+}
+
+.margin-top {
+  margin-top: 1em;
+}
+
+#tutorial {
+  .tutorial-again {
+    display: none;
+  }
+  &.btn-link {
+    .tutorial-again {
+      display: inline;
+    }
+  }
+}
+
+.chardinjs-show-element {
+  @include transition(color 0.3s ease-out);
+  color: white;
+
+  &.btn-link {
+    color: #3a9bef;
+    &:hover {
+      color: #428bca;
+    }
+  }
+}
+
+.demo-image {
+  width: 60%;
+  margin-left: 20%;
+  display: block;
+  border-radius: 0.25em;
+  border: 2px solid #AAA;
+
+  &:hover {
+    background-color: #DEF;
+  }
+
+  &:active {
+    @include box-shadow(inset 0px 0px 7px rgba(0, 0, 0, 0.3));
+  }
+}
+
+.image-placeholder {
+  width: 100%;
+  display: inline-block;
+  position: relative;
+
+  .dummy {
+    margin-top: 100%;
+  }
+
+  img {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+}
+
+.introjs-helperNumberLayer {
+  @include box-sizing(content-box);
+}

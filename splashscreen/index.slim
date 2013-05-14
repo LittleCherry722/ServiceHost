@@ -1,0 +1,53 @@
+doctype html
+html
+  head
+    title SBPM Groupware
+    link type="text/css" rel="stylesheet" href="css/main.css"
+    script type="text/javascript" src="js/lib/jquery/jquery-2.0.0.min.js"
+    script type="text/javascript" src="js/lib/bootstrap/bootstrap.js"
+    script type="text/javascript" src="js/lib/intro.js/intro.js"
+    script type="text/javascript" src="js/lib/chardin.js/chardinjs.js"
+    script type="text/javascript" src="js/main.js"
+
+  body
+    .container
+      h1.text-center
+        | SBPM Distrubuted Process Execution Demo
+
+      p.lead.redacted
+        | Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
+          nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
+          sed diam voluptua. At vero eos et accusam et justo duo dolores et ea
+          rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum
+          dolor sit amet.
+
+      .row.text-center.images
+        .col.col-lg-4 data-chardin-intro="Staples provides a shopping service that internally uses the TSP delivery service to deliver the purchased goods."
+          h3 Staples
+          a.demo-image href="#" data-intro="Modelling the Staples interface is a little tricky since it consumes the TSP interface and exports its own. But fear not, we will guide you through it step by step." data-step="2"
+            .image-placeholder
+              .dummy
+              img src="images/staples.svg"
+        .col.col-lg-4 data-chardin-intro="The TSP deploys an interface that enables other services to use its delivery service." data-chardin-position="top"
+          h3 Transport Service Provider
+          a.demo-image href="#" data-intro="To start from the ground up, you can follow this link to modell the TSP interface." data-step="1"
+            .image-placeholder
+              .dummy
+              img src="images/tsp.svg"
+        .col.col-lg-4 data-chardin-intro="Audi comsumes the Staples service to buy goods on demand that are transparently delivered to the facility by the transport service provider."
+          h3 Audi
+          a.demo-image href="#" data-intro="Last but not least, AUDI needs some help implementing the Staples interface into its business process. We will, again, guide you through every step on your way." data-step="3"
+            .image-placeholder
+              .dummy
+              img src="images/audi.svg"
+
+      #step-by-step-wrapper.row.collapsed
+        .col.col-lg-12.text-center
+          a#step-by-step.btn.btn-primary.btn-large href="#" data-chardin-intro="Where should I start?" data-chardin-position="bottom"
+            | Where to start?
+      .row.margin-top
+        .col.col-lg-12.text-center
+          a#tutorial.btn.btn-primary.btn-large href="#" data-chardin-intro="Show this overview again." data-chardin-position="right"
+            ' Show introduction
+            span.tutorial-again again
+
