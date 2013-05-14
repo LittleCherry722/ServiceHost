@@ -4,4 +4,5 @@ import akka.actor.Actor
 
 abstract class AbstractBeviorStateActor extends Actor {
 
+  
 }

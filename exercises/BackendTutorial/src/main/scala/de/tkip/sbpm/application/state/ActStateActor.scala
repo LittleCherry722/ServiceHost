@@ -1,8 +1,10 @@
 package de.tkip.sbpm.application.state
 
-class ActStateActor extends AbstractBeviorStateActor {
+import de.tkip.sbpm.model.State
+
+class ActStateActor(state: State) extends AbstractBeviorStateActor {
   def receive = {
-    // TODO
+    
     case _ =>
   }
 }
