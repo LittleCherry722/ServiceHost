@@ -2,7 +2,7 @@ package de.tkip.sbpm.model
 
 import de.tkip.sbpm._
 
-trait ProcessModel {
+object TestData {
 
   val test1 = TestPair(
     Subject(
@@ -34,6 +34,9 @@ trait ProcessModel {
         State(0, Receive, Array(1)),
         State(1, Send, Array(2)),
         State(2, Act, Array(0)))))
+}
+
+trait ProcessModel {
 
 }
 
