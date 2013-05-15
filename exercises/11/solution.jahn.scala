@@ -43,18 +43,22 @@ object Tasks extends Tasks {
   new Task("Task 4") {
     def solution() = {
       println(Money(1, 75) + Money(0, 50) == Money(2, 25))
+      println(Money(1, 20) < Money(0, 95))
+
+      // Providing simple * and / operators could be non intuitive for users.
+      // For example Money(1, 20) * 2 would work as expected, but 2 * Money(1, 20) would invoke 2.*(Money(1, 20)),
+      // which is not defined.
     }
 
     class Money(val dollars: Int, val cents: Int) {
 
       def +(other: Money) = {
-        val cents = other.cents + this.cents
-        Money(this.dollars + other.dollars + cents / 100, cents % 100)
+        val centsNew = other.cents + this.cents
+        Money(this.dollars + other.dollars + centsNew / 100, centsNew % 100)
       }
 
       def -(other: Money) = {
         val centsNew = totalCents - other.totalCents
-
         Money(centsNew / 100, centsNew % 100)
       }
 
@@ -88,14 +92,18 @@ object Tasks extends Tasks {
       private var bits = 0L
 
       def apply(pos: Int) = {
+        require(pos >= 0 && pos < 64)
+
         val bit = 1 << pos
         (bit & bits) != 0
       }
 
       def update(pos: Int, set: Boolean) {
+        require(pos >= 0 && pos < 64)
+
         val bit = 1 << pos
 
-        if(set)
+        if (set)
           bits = bits | bit
         else
           bits = bits & ~bit

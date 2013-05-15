@@ -87,9 +87,8 @@ object Tasks extends Tasks {
 
   new Task("Task 10") {
     def solution() = {
-      unless(0 > 1) {
-        println("in unless")
-      }
+      unless(0 > 1) {println("in unless")}
+      unless(1 > 0) {println("this should not be executed")}
     }
 
     def unless(condition: Boolean)(block: => Any): Any = if (!condition) block else ()

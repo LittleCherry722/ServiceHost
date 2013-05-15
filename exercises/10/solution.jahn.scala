@@ -129,9 +129,8 @@ object Tasks extends Tasks {
 
   new Task("Task 6") {
     def solution() = {
-
-      // your solution for task 6 here
-
+      // This is not possible in Java, because JContainer would extend from two classes: JComponent and Container.
+      // In Scala you can extend JContainer from JComponent and mix in a Container trait.
     }
   }
 
