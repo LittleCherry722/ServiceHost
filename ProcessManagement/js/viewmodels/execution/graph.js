@@ -20,15 +20,16 @@ define([
 
 	var ViewModel = function() {
 		this.availableSubjects = ko.observableArray([]);
-
 		this.currentSubject = currentSubject;
-
 		this.processInstance = processInstance;
-
 		subscribeAll()
 	}
 
 	var processInstance = ko.observable( new ProcessInstance() );
+
+	var actions = ko.computed(function() {
+		return processInstance().actions()
+	});
 
 	var subjects = ko.computed(function() {
 		try{
@@ -66,6 +67,9 @@ define([
 	processInstance.subscribe(function( process ) {
 		reloadGraph();
 	});
+	actions.subscribe(function(){
+		selectCurrentBehaviourState();
+	});
 
 	var reloadGraph = function() {
 		if( gv_paper ) {
@@ -74,7 +78,6 @@ define([
 		}
 		gf_loadGraph( JSON.stringify( processInstance().graph().definition ) );
 	}
-
 
 	var viewChanged = function( view ) {
 		if ( view === "cv" ) {
@@ -89,6 +92,43 @@ define([
 	var loadBehaviorView = function( subject ) {
 		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
+	}
+
+	/**
+	 * Selects the node of the current state in the behaviour graph
+	 */
+	var selectCurrentBehaviourState = function() {
+		var subject = currentSubject(),
+			currentState = 0,
+			process = null,
+			node = 0;
+
+		// retrieve the current state by subject id
+		$.each(processInstance().actions(), function( i, value ) {
+			if(value['subjectID'] === subject){
+				currentState = value['stateID'];
+			}
+		});
+
+		// retrive the current process by subject id
+		$.each(processInstance().graph().definition.process, function ( i, value ){
+			if(value['id'] === subject){
+				process = value;
+			}
+		});
+		if(process === null) {
+			return;
+		}
+
+		// retrieve the current node by the current process and current state
+		$.each(process.macros[0].nodes, function( i, value ) {
+			if(value.id === currentState){
+				node = i;
+			}
+		});
+
+		gf_deselectNodes();
+		gv_objects_nodes[node].select();
 	}
 
 	var subscriptions = [];
@@ -106,14 +146,11 @@ define([
 		_( subscriptions ).each(function( element, list ) {
 			$.unsubscribe( element );
 		});
-    return true;
+    	return true;
 	}
 
 	var initialize = function( instance, subjectId ) {
-
-		var viewModel;
-
-		viewModel = new ViewModel();
+		var viewModel = new ViewModel();
 
 		App.loadTemplate( "execution/graph", viewModel, "executionContent", function() {
 			App.loadSubView( "execution/actions", [instance, currentSubject] );

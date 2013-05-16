@@ -157,7 +157,6 @@ define([
 	var initialize = function( instance, subjectId ) {
 
 		var viewModel;
-
 		processInstance( instance );
 		processInstance().refresh();
 		availableActions = instance.actions;
