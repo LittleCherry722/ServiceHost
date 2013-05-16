@@ -18,7 +18,7 @@ define([
 
 	// Our main model that will be returned at the end of the function.
 	//
-	// Process is responsivle for everything associated with processes directly.
+	// Process is responsible for everything associated with processes directly.
 	//
 	// For example: Getting a list of all processes, saving a process,
 	// validating the current process etc.
@@ -58,7 +58,6 @@ define([
 			defaults: false,
 			lazy: true
 		}
-
 	});
 
 	ProcessInstance.include({
