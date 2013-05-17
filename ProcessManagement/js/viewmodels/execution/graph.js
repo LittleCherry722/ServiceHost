@@ -67,7 +67,7 @@ define([
 	processInstance.subscribe(function( process ) {
 		reloadGraph();
 	});
-	actions.subscribe(function(){
+	actions.subscribe(function() {
 		selectCurrentBehaviourState();
 	});
 
@@ -92,6 +92,7 @@ define([
 	var loadBehaviorView = function( subject ) {
 		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
+		selectCurrentBehaviourState();
 	}
 
 	/**
@@ -110,25 +111,47 @@ define([
 			}
 		});
 
-		// retrive the current process by subject id
-		$.each(processInstance().graph().definition.process, function ( i, value ){
-			if(value['id'] === subject){
+		// retrieve the current process by subject id
+		$.each( processInstance().graph().definition.process, function ( i, value ) {
+			if ( value['id'] === subject ) {
 				process = value;
 			}
-		});
-		if(process === null) {
+		} );
+		if( process === null ) {
+			gf_deselectNodes();
+			if ( gv_objects_nodes.length > 0 ) {
+				gv_objects_nodes[0].select();
+			}
 			return;
 		}
 
 		// retrieve the current node by the current process and current state
-		$.each(process.macros[0].nodes, function( i, value ) {
-			if(value.id === currentState){
+		$.each( process.macros[0].nodes, function( i, value ) {
+			if ( value.id === currentState ) {
 				node = i;
 			}
-		});
+		} );
 
 		gf_deselectNodes();
 		gv_objects_nodes[node].select();
+	}
+
+	/**
+	 * @returns {String} The ID of a subject which can execute an action in the current process. If no subject can
+	 * execute an action, the first subject ID will be returned.
+	 */
+	var getActiveSubject = function() {
+		var actions = processInstance().actions();
+		for ( var i = 0; i < actions.length; i++ ) {
+			var action = actions[i];
+			for ( var j = 0; j < action.actionData.length; j++ ) {
+				var actionData = action.actionData[j];
+				if ( actionData.executeAble === true ) {
+					return action.subjectID;
+				}
+			}
+		}
+		return subjects()[0][0];
 	}
 
 	var subscriptions = [];
@@ -159,7 +182,7 @@ define([
 			gf_paperZoomOut();
 			gf_paperZoomOut();
 
-			var subject = subjectId || subjectsArray()[0][0];
+			var subject = subjectId || getActiveSubject();
 			currentSubject( subject )
 		});
 	}

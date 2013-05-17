@@ -95,7 +95,7 @@ define([
 
 
 	var initialize = function( processInstanceId, subSite, subjectId ) {
-		var viewmodel;
+		var viewModel;
 
 		processInstance( ProcessInstance.find( processInstanceId ) );
 		viewModel = new ViewModel();
