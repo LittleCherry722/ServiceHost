@@ -6047,6 +6047,8 @@ input[type="radio"], input[type="checkbox"] {
   position: relative;
 }
 
+/****************************************
+ * General additional chardinjs styling */
 .chardinjs-show-element {
   color: white;
 }
@@ -6057,6 +6059,8 @@ input[type="radio"], input[type="checkbox"] {
   text-shadow: none;
 }
 
+/*************************************************************************
+ * Main Navbar behavior. Space the navbar out and make the links visible */
 #main_menu li {
   margin: 0;
   -webkit-transition: margin 0.3s ease-out;

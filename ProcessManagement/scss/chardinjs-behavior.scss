@@ -1,6 +1,8 @@
 @import "bootstrap/variables";
 @import "bootstrap/mixins";
 
+/****************************************
+ * General additional chardinjs styling */
 .chardinjs-show-element {
   color: white;
 
@@ -13,6 +15,8 @@
   }
 }
 
+/*************************************************************************
+ * Main Navbar behavior. Space the navbar out and make the links visible */
 #main_menu {
   li {
     margin: 0;
