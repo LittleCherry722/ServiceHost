@@ -15,7 +15,9 @@ class FrontendInterfaceActor extends Actor with HttpService {
   def receive = runRoute({
     // we just have one route, but thats the way we handle this in sbpm
     // (every request creates a new actor)
-    handleWith[ProcessInstanceInterfaceActor]
+    pathPrefix("subject") {
+      handleWith[ProcessInstanceInterfaceActor]
+    }
   })
 
   /**

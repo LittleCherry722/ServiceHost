@@ -1,25 +1,53 @@
 package de.tkip.sbpm.rest
 
+import scala.concurrent.Await
 import akka.actor.Actor
+import akka.pattern.ask
 import spray.routing.HttpService
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application._
+import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.rest.SprayJsonSupport._
+import akka.util.Timeout
+import spray.http.StatusCode
 
 class ProcessInstanceInterfaceActor extends Actor with HttpService {
 
+  private lazy val processInstanceActor =
+    ActorLocator.actor(ActorLocator.processInstanceActorName)
+
   def actorRefFactory = context
 
+  implicit val timeout = Timeout(3000)
   def receive = runRoute({
     get {
-      // TODO
-      complete("complete get")
+      path("") {
+        complete("Use /n, to get the n-th subject")
+      } ~
+        pathPrefix(IntNumber) { id =>
+          println("request: " + ReadSubject(id))
+          val future = (processInstanceActor ? ReadSubject(id))
+            .mapTo[SubjectAnswer]
+          val result = Await.result(future, timeout.duration)
+          complete(result)
+        }
     } ~
       put {
-        //TODO
-        complete("complete put")
-
-      } ~
-      post {
-        //TODO
-        complete("complete post")
+        path("") {
+          complete("Use /n, to control the n-th subject")
+        } ~
+          path("restart") {
+            processInstanceActor ! RestartExecution
+            complete("restarted") // TODO vorher irgentwie checken?
+          } ~
+          pathPrefix(IntNumber) { id =>
+            entity(as[ActionHeader]) { json =>
+              println("request: " + json)
+              processInstanceActor ! ExecuteAction(id, json.action)
+              // TODO
+              complete("executed")
+            }
+          }
       }
   })
 }

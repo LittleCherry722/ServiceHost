@@ -16,6 +16,8 @@
   <classpathentry path="C:\Users\Richard\.ivy2\cache\io.spray\spray-httpx\jars\spray-httpx-1.1-M7.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\Richard\.ivy2\cache\org.jvnet.mimepull\mimepull\jars\mimepull-1.8.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\Richard\.ivy2\cache\com.chuusai\shapeless_2.10.0-RC5\jars\shapeless_2.10.0-RC5-1.2.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\Richard\.ivy2\cache\io.spray\spray-json_2.10\jars\spray-json_2.10-1.2.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\Richard\.ivy2\cache\org.parboiled\parboiled-scala_2.10\jars\parboiled-scala_2.10-1.1.4.jar" kind="lib"></classpathentry>
   <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"></classpathentry>
   <classpathentry path="bin" kind="output"></classpathentry>
 </classpath>

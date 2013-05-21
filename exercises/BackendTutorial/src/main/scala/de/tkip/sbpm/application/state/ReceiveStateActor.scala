@@ -1,8 +1,14 @@
 package de.tkip.sbpm.application.state
 
-class ReceiveStateActor extends AbstractBeviorStateActor {
+import de.tkip.sbpm.model.State
+import de.tkip.sbpm.application._
+
+class ReceiveStateActor(s: State) extends AbstractBeviorStateActor(s) {
   def receive = {
-    // TODO
-    case _ =>
+    case SubjectToSubjectMessage(_, s.stateId, content) => {
+      println("ReceiveState[%s] received: " + content)
+      sender ! Ack
+    }
+    // TODO implement ExecuteAction
   }
 }

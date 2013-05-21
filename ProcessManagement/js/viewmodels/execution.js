@@ -5,22 +5,13 @@ define([
 ], function( ko, App, ProcessInstance ) {
 
 	var ViewModel = function() {
-	
 		this.processInstance = processInstance;
 		this.currentSubject = currentSubject;
 		this.availableActions = availableActions;
-		
-		
-
 		this.subjects = subjects;
-
-		
 		this.currentSubjectName = currentSubjectName;
-
-		
 		this.tabs = tabs;
 		this.currentTab = currentTab;
-
 	}
 
 	var processInstance = ko.observable();
@@ -36,11 +27,11 @@ define([
 	var currentSubject = ko.observable();
 
 	var availableActions = ko.computed({
-				deferEvaluation: true,
-				read: function() {
-					return processInstance().actions();
-				}
-			});
+		deferEvaluation: true,
+		read: function() {
+			return processInstance().actions();
+		}
+	});
 
 	var currentSubjectName = ko.computed({
 		deferEvaluation: true,
@@ -56,7 +47,7 @@ define([
 
 	currentSubView = ko.observable();
 
-	
+
 	var tabs = [ 'Graph', 'History' ];
 	var currentTab = ko.observable();
 
@@ -80,13 +71,12 @@ define([
 			return;
 		}
 
-    // just load our new viewmodel and call the init method.
+    	// just load our new viewmodel and call the init method.
 		require([ "viewmodels/execution/" + newTab.toLowerCase() ], function( viewModel ) {
 			unloadSubView();
 			currentSubView( viewModel );
-      viewModel.init.apply( viewModel, [ processInstance(), currentSubject() ] );
+      		viewModel.init.apply( viewModel, [ processInstance(), currentSubject() ] );
 		});
-
 
 		if ( newTab === tabs[0] ) {
 			$("#executionContent").addClass("first-tab-selected");
@@ -105,16 +95,11 @@ define([
 
 
 	var initialize = function( processInstanceId, subSite, subjectId ) {
-
-		var viewmodel;
+		var viewModel;
 
 		processInstance( ProcessInstance.find( processInstanceId ) );
-
 		viewModel = new ViewModel();
-
-
 		processInstance( ProcessInstance.find( processInstanceId ) );
-		
 
 		if ( !subSite ) {
 			subSite = tabs[0]
