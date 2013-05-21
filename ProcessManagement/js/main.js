@@ -34,7 +34,8 @@ require.config({
 		"notify":              "libs/sbpm/notify",
 		"dialog":              "libs/sbpm/dialog",
 		"async":               "libs/async/async",
-		"moment":              "libs/moment/moment"
+		"moment":              "libs/moment/moment",
+		"intro":               "libs/intro/intro.js"
 	},
 	shim: {
 		// Legacy libararies that do not follow the common.js module pattern.
