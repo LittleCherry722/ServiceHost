@@ -18,6 +18,9 @@
 @import "calc";
 
 @import "forms";
+@import "chardinjs";
+@import "chardinjs-behavior";
+@import "introjs";
 
 .flexbox {
   @include display-box;
@@ -45,7 +48,7 @@ body, html, .content_wrapper{
 body {
   color: #363636;
   font-size: 12px;
-  text-shadow: 0 1px 0 #fff;
+  // text-shadow: 0 1px 0 #fff;
   background-color: #f7f7f7;
 }
 body.no-menu {
@@ -210,7 +213,7 @@ h4 {
 	margin: 16px 35px 0 0;
 }
 #misc {
-	width: 500px;
+	width: 550px;
 	height: 40px;
 	margin: 5px 0px 0 0;
 	padding: 0px 0px 0 0px;

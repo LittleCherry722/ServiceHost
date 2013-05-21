@@ -1,0 +1,39 @@
+@import "bootstrap/variables";
+@import "bootstrap/mixins";
+
+.chardinjs-show-element {
+  color: white;
+
+  h1, h2, h3, h4, h5, h6 {
+    color: white;
+  }
+
+  .ui-datepicker {
+    text-shadow: none;
+  }
+}
+
+#main_menu {
+  li {
+    margin: 0;
+    @include transition(margin 0.3s ease-out);
+
+    &.chardinjs-show-element {
+      a {
+        background-color: #DADADA;
+      }
+    }
+  }
+
+  &.spaced {
+    li {
+      @include transition(margin 0.15s ease-out);
+      margin-top: 2em;
+      margin-bottom: 3em;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}

@@ -5828,6 +5828,18 @@ input[type="tel"]:focus, input[type="color"]:focus, .uneditable-input:focus {
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 form ul.errors {
   display: none;
 }
@@ -5917,6 +5929,370 @@ input[type="radio"], input[type="checkbox"] {
   margin: 1px 0 0;
 }
 
+.chardinjs-overlay {
+  position: absolute;
+  z-index: 999999;
+  background-color: #000;
+  opacity: 0;
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.chardinjs-helper-layer {
+  position: absolute;
+  z-index: 9999998;
+  color: white;
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.chardinjs-helper-layer.chardinjs-left {
+  border-left: solid white 1px;
+  margin-left: -10px;
+}
+
+.chardinjs-helper-layer.chardinjs-right {
+  border-right: solid white 1px;
+  padding-right: 10px;
+}
+
+.chardinjs-helper-layer.chardinjs-bottom {
+  border-bottom: solid white 1px;
+  padding-bottom: 10px;
+}
+
+.chardinjs-helper-layer.chardinjs-top {
+  border-top: solid white 1px;
+  padding-top: 10px;
+}
+
+.chardinjs-tooltip {
+  position: absolute;
+  -webkit-transition: opacity 0.1s ease-out;
+  -moz-transition: opacity 0.1s ease-out;
+  -ms-transition: opacity 0.1s ease-out;
+  -o-transition: opacity 0.1s ease-out;
+  transition: opacity 0.1s ease-out;
+  max-width: 200px;
+}
+
+.chardinjs-tooltip.chardinjs-left {
+  margin-left: -135px;
+  padding-right: 10px;
+}
+
+.chardinjs-tooltip.chardinjs-right {
+  margin-right: -135px;
+  padding-left: 10px;
+}
+
+.chardinjs-tooltip.chardinjs-bottom {
+  margin-bottom: -50px;
+  padding-top: 10px;
+}
+
+.chardinjs-tooltip.chardinjs-top {
+  margin-top: -50px;
+  padding-bottom: 10px;
+}
+
+.chardinjs-tooltip.chardinjs-right:before, .chardinjs-tooltip.chardinjs-left:after, .chardinjs-tooltip.chardinjs-bottom:before, .chardinjs-tooltip.chardinjs-top:after {
+  content: ".";
+  display: inline-block;
+  background-color: white;
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+}
+
+.chardinjs-tooltip.chardinjs-right:before, .chardinjs-tooltip.chardinjs-left:after {
+  width: 100px;
+  top: 50%;
+}
+
+.chardinjs-tooltip.chardinjs-bottom:before, .chardinjs-tooltip.chardinjs-top:after {
+  width: 1px;
+  height: 50px;
+  left: 50%;
+}
+
+.chardinjs-tooltip.chardinjs-bottom:before {
+  top: -50px;
+}
+
+.chardinjs-tooltip.chardinjs-top:after {
+  bottom: -50px;
+}
+
+.chardinjs-tooltip.chardinjs-right:before {
+  left: -100px;
+}
+
+.chardinjs-tooltip.chardinjs-left:after {
+  right: -100px;
+}
+
+.chardinjs-show-element {
+  z-index: 9999999;
+  opacity: 0.8;
+}
+
+.chardinjs-relative-position {
+  position: relative;
+}
+
+.chardinjs-show-element {
+  color: white;
+}
+.chardinjs-show-element h1, .chardinjs-show-element h2, .chardinjs-show-element h3, .chardinjs-show-element h4, .chardinjs-show-element h5, .chardinjs-show-element h6 {
+  color: white;
+}
+.chardinjs-show-element .ui-datepicker {
+  text-shadow: none;
+}
+
+#main_menu li {
+  margin: 0;
+  -webkit-transition: margin 0.3s ease-out;
+  -moz-transition: margin 0.3s ease-out;
+  -o-transition: margin 0.3s ease-out;
+  transition: margin 0.3s ease-out;
+}
+#main_menu li.chardinjs-show-element a {
+  background-color: #DADADA;
+}
+#main_menu.spaced li {
+  -webkit-transition: margin 0.15s ease-out;
+  -moz-transition: margin 0.15s ease-out;
+  -o-transition: margin 0.15s ease-out;
+  transition: margin 0.15s ease-out;
+  margin-top: 2em;
+  margin-bottom: 3em;
+}
+#main_menu.spaced li:last-child {
+  margin-bottom: 0;
+}
+
+.introjs-overlay {
+  position: absolute;
+  z-index: 999999;
+  background-color: #000;
+  opacity: 0;
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.introjs-showElement {
+  z-index: 9999999;
+}
+
+.introjs-relativePosition {
+  position: relative;
+}
+
+.introjs-helperLayer {
+  position: absolute;
+  z-index: 9999998;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.introjs-helperNumberLayer {
+  position: absolute;
+  top: -16px;
+  left: -16px;
+  z-index: 9999999999 !important;
+  padding: 2px;
+  font-family: Arial, verdana, tahoma;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+  background: #ff3019;
+  /* Old browsers */
+  background: -webkit-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ff3019), color-stop(100%, #cf0404));
+  /* Chrome,Safari4+ */
+  background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+  /* FF3.6+ */
+  background: -ms-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+  /* IE10+ */
+  background: -o-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+  /* Opera 11.10+ */
+  background: linear-gradient(to bottom, #ff3019 0%, #cf0404 100%);
+  /* W3C */
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  border: 3px solid white;
+  border-radius: 50%;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3019', endColorstr='#cf0404', GradientType=0);
+  /* IE6-9 */
+  filter: progid:DXImageTransform.Microsoft.Shadow(direction=135, strength=2, color=ff0000);
+  /* IE10 text shadows */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.introjs-arrow {
+  border: 5px solid white;
+  content: '';
+  position: absolute;
+}
+
+.introjs-arrow.top {
+  top: -10px;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: white;
+  border-left-color: transparent;
+}
+
+.introjs-arrow.right {
+  right: -10px;
+  top: 10px;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: white;
+}
+
+.introjs-arrow.bottom {
+  bottom: -10px;
+  border-top-color: white;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.introjs-arrow.left {
+  left: -10px;
+  top: 10px;
+  border-top-color: transparent;
+  border-right-color: white;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.introjs-tooltip {
+  position: absolute;
+  padding: 10px;
+  background-color: white;
+  min-width: 200px;
+  border-radius: 3px;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+  -webkit-transition: opacity 0.1s ease-out;
+  -moz-transition: opacity 0.1s ease-out;
+  -ms-transition: opacity 0.1s ease-out;
+  -o-transition: opacity 0.1s ease-out;
+  transition: opacity 0.1s ease-out;
+}
+
+.introjs-tooltipbuttons {
+  text-align: right;
+}
+
+/* 
+ Buttons style by http://nicolasgallagher.com/lab/css3-github-buttons/ 
+ Changed by Afshin Mehrabani
+*/
+.introjs-button {
+  position: relative;
+  overflow: visible;
+  display: inline-block;
+  padding: 0.3em 0.8em;
+  border: 1px solid #d4d4d4;
+  margin: 0;
+  text-decoration: none;
+  text-shadow: 1px 1px 0 white;
+  font: 11px/normal sans-serif;
+  color: #333;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  background-color: #ececec;
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f4f4f4), to(#ececec));
+  background-image: -moz-linear-gradient(#f4f4f4, #ececec);
+  background-image: -o-linear-gradient(#f4f4f4, #ececec);
+  background-image: linear-gradient(#f4f4f4, #ececec);
+  -webkit-background-clip: padding;
+  -moz-background-clip: padding;
+  -o-background-clip: padding-box;
+  /*background-clip: padding-box;*/
+  /* commented out due to Opera 11.10 bug */
+  -webkit-border-radius: 0.2em;
+  -moz-border-radius: 0.2em;
+  border-radius: 0.2em;
+  /* IE hacks */
+  zoom: 1;
+  *display: inline;
+  margin-top: 10px;
+}
+
+.introjs-button:hover {
+  border-color: #bcbcbc;
+  text-decoration: none;
+  box-shadow: 0px 1px 1px #e3e3e3;
+}
+
+.introjs-button:focus,
+.introjs-button:active {
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ececec), to(#f4f4f4));
+  background-image: -moz-linear-gradient(#ececec, #f4f4f4);
+  background-image: -o-linear-gradient(#ececec, #f4f4f4);
+  background-image: linear-gradient(#ececec, #f4f4f4);
+}
+
+/* overrides extra padding on button elements in Firefox */
+.introjs-button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+.introjs-skipbutton {
+  margin-right: 5px;
+  color: #7a7a7a;
+}
+
+.introjs-prevbutton {
+  -webkit-border-radius: 0.2em 0 0 0.2em;
+  -moz-border-radius: 0.2em 0 0 0.2em;
+  border-radius: 0.2em 0 0 0.2em;
+  border-right: none;
+}
+
+.introjs-nextbutton {
+  -webkit-border-radius: 0 0.2em 0.2em 0;
+  -moz-border-radius: 0 0.2em 0.2em 0;
+  border-radius: 0 0.2em 0.2em 0;
+}
+
+.introjs-disabled, .introjs-disabled:hover {
+  color: #9a9a9a;
+  border-color: #d4d4d4;
+  box-shadow: none;
+  cursor: default;
+  background-color: #f4f4f4;
+  background-image: none;
+}
+
 .flexbox {
   display: -webkit-box;
   display: -moz-box;
@@ -5959,7 +6335,6 @@ body, html, .content_wrapper {
 body {
   color: #363636;
   font-size: 12px;
-  text-shadow: 0 1px 0 white;
   background-color: #f7f7f7;
 }
 
@@ -6142,7 +6517,7 @@ h4 {
 }
 
 #misc {
-  width: 500px;
+  width: 550px;
   height: 40px;
   margin: 5px 0px 0 0;
   padding: 0px 0px 0 0px;

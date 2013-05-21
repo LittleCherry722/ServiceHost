@@ -1,8 +1,7 @@
-
 <div id="logo">
 	<h1 style="float:left">S-BPM Groupware v1.2</h1>
 </div>
-<div id="account_info" data-bind="with: currentUser">
+<div id="account_info" data-bind="with: currentUser" data-chardin-intro="This is your account. Here you can edit your profile and set your authentication provider." data-chardin-position="right">
 	<img src="images/icons/user_48.png" width="16px" height="16px" alt="Online" class="mid_align"/>
 	Hello
 	<a href="#/account" data-bind="text: name"></a>
@@ -13,12 +12,16 @@
 <div id="misc">
 	<div id="menu">
 		<!-- ko if: currentUser() -->
-			<a href="#" data-bind="click: oauth2callback">
-				Mit Google Konto verbinden
+		<a href="#" data-bind="click: oauth2callback"
+			data-chardin-position="bottom" data-chardin-intro="Linking your account
+			with Google allows you to sign-in through Google and use Google Drive
+			to uplaod attachments for actions.">
+			Link account to Google
 			</a>
 			&middot;
 		<!-- /ko -->
-		<a href="#/administration">
+		<a href="#/administration" data-chardin-position="bottom"
+			data-chardin-intro="Create new user accounts, groups, roles and reset the system">
 			Administration
 		</a>
 		<!-- ko if: currentUser() -->
@@ -33,6 +36,10 @@
 				Login
 			</a>
 		<!-- /ko -->
+    &middot;
+		<a href="" data-bind="click: showHelp">
+			?
+		</a>
 	</div>
 	<div id="img">
 		<a href="http://www.tu-darmstadt.de">
