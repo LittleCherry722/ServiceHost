@@ -1,15 +1,17 @@
 package de.tkip.sbpm.rest
 
 import scala.concurrent.Await
+
 import akka.actor.Actor
 import akka.pattern.ask
+import akka.util.Timeout
+
 import spray.routing.HttpService
+
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.SprayJsonSupport._
-import akka.util.Timeout
-import spray.http.StatusCode
 
 class ProcessInstanceInterfaceActor extends Actor with HttpService {
 
