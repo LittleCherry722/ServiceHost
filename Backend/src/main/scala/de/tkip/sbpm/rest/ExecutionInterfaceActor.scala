@@ -112,6 +112,14 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
           "actions" -> availableActionsFuture.availableActions.toJson)
         complete(composedFuture)
       } ~
+        // Show Actions
+        path("action") {
+          val availableActionsFuture =
+            (subjectProviderManager ? GetAvailableActions(userId))
+              .mapTo[AvailableActionsAnswer]
+          val result = Await.result(availableActionsFuture, timeout.duration)
+          complete(result.availableActions)
+        } ~
         //LIST
         path("") {
           implicit val timeout = Timeout(5 seconds)
