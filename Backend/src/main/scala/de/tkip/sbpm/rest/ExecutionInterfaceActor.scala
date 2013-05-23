@@ -47,8 +47,7 @@ import de.tkip.sbpm.persistence.query.Graphs
 /**
  * This Actor is only used to process REST calls regarding "execution"
  */
-// TODO when to choose HttpService and when HttpServiceActor
-class ExecutionInterfaceActor extends Actor with HttpService {
+class ExecutionInterfaceActor extends AbstractInterfaceActor {
   implicit val timeout = Timeout(5 seconds)
   override implicit def executionContext = ExecutionContext.Implicits.global
   val logger = Logging(context.system, this)
@@ -77,9 +76,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
   private lazy val persistanceActor = ActorLocator.persistenceActor
 
-  private val userID = 1 // TODO erstmal fest setzen spaeter aus cookies 
-
-  def receive = runRoute({
+  def routing = runRoute({
     // TODO: aus cookie auslesen
     //    formField("userid") { userID =>
     get {
@@ -96,10 +93,10 @@ class ExecutionInterfaceActor extends Actor with HttpService {
               throw new Exception("Processinstance '" + processInstanceID + "' does not exist.")
           }
           historyFuture <- (subjectProviderManager ? {
-            GetHistory(userID.toInt, processInstanceID.toInt)
+            GetHistory(userId, processInstanceID)
           }).mapTo[HistoryAnswer]
           availableActionsFuture <- (subjectProviderManager ? {
-            GetAvailableActions(userID.toInt, processInstanceID.toInt)
+            GetAvailableActions(userId, processInstanceID)
           }).mapTo[AvailableActionsAnswer]
         } yield JsObject(
           "processId" -> JsNumber(processInstanceFuture.get.processId),
@@ -118,7 +115,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
         //LIST
         path("") {
           implicit val timeout = Timeout(5 seconds)
-          val future = (subjectProviderManager ? GetAllProcessInstances(userID.toInt)).mapTo[AllProcessInstancesAnswer]
+          val future = (subjectProviderManager ? GetAllProcessInstances(userId.toInt)).mapTo[AllProcessInstancesAnswer]
           val result = Await.result(future, timeout.duration)
 
           complete(result.processInstanceInfo)
@@ -162,7 +159,7 @@ class ExecutionInterfaceActor extends Actor with HttpService {
           path("^$"r) { regex =>
             entity(as[ProcessIdHeader]) { json =>
               implicit val timeout = Timeout(5 seconds)
-              val future = subjectProviderManager ? CreateProcessInstance(userID.toInt, json.processId)
+              val future = subjectProviderManager ? CreateProcessInstance(userId.toInt, json.processId)
               val result = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated]
               complete(result.answer)
             }
