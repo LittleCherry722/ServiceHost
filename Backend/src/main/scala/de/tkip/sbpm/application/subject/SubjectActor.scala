@@ -24,6 +24,7 @@ import akka.event.Logging
 
 case class SubjectData(
   userID: UserID,
+  processID: ProcessID,
   processInstanceID: ProcessInstanceID,
   processInstanceActor: ProcessInstanceRef,
   blockingHandlerActor: ActorRef,
