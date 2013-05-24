@@ -11,6 +11,7 @@ define([
 		this.subjects = subjects;
 		this.currentSubjectName = currentSubjectName;
 		this.tabs = tabs;
+		this.tabDescriptions = tabDescriptions;
 		this.currentTab = currentTab;
 	}
 
@@ -49,6 +50,10 @@ define([
 
 
 	var tabs = [ 'Graph', 'History' ];
+	var tabDescriptions = {
+		'Graph': 'Here you can view the execution graph of the current subject internal behavior',
+		'History': 'Here you can view the execution history of this process'
+	};
 	var currentTab = ko.observable();
 
 

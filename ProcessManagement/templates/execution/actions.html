@@ -7,13 +7,13 @@
 	<span>This subject has no further tasks in this process!</span>	
 </div>	
 
-<div data-bind="visible: isTypeOf()==='action',foreach: actionData">
+<div data-bind="visible: isTypeOf()==='action',foreach: actionData" data-chardin-intro="You can execute the current action clicking this button">
 	<div>
 		<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone,enable: $data.executeAble"/>
 	</div>
 </div>
 
-<div data-bind="visible: isTypeOf()==='send',foreach: actionData">
+<div data-bind="visible: isTypeOf()==='send',foreach: actionData" data-chardin-intro="Here you can send a message to the another subject.">
 	<div>
 		<strong>Send:</strong>
 		<span data-bind="html: $data.text"></span>
@@ -36,7 +36,7 @@
 	</div>
 </div>
 
-<div data-bind="visible: isTypeOf()==='receive',foreach: actionData">
+<div data-bind="visible: isTypeOf()==='receive',foreach: actionData" data-chardin-intro="You have to wait for a message from the specified subject.">
 	<div>
 		<strong>Receive from</strong>
 		
