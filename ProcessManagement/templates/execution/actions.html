@@ -20,8 +20,10 @@
 		<span>to </span><br />
 		<span data-bind="text: $data.relatedSubject"></span>
 		<br /><br />
-
-		<strong>Nachricht:</strong> <br>
+                <strong>User:</strong>
+                <select data-bind="options: $parent.selectUser, optionsText: 'name', value: $parent.selectedUser, optionsCaption: 'Choose...'"></select>
+                <br /><br />
+                <strong>Nachricht:</strong> <br>
 		<input type="text" data-bind="value: $parent.messageText" />
 		<br /><br />
 
