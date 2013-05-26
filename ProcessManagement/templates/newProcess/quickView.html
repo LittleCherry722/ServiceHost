@@ -1,21 +1,23 @@
-<div class="controls">
-  <label>Subjects</label>
-  <form>
-    <ul data-bind="foreach: subjectList" class="unstyled">
-      <li>
-        <input type="text" data-bind="value: name, valueUpdate: 'afterkeydown'"/>
-        <a href="#" data-bind="click: $parent.removeSubject">Remove</a>
-      </li>
-    </ul>
-    <div class="actions">
-      <input type="button" value="Add Subject" data-bind="click: addSubject"/>
+<div class="chardinContainer">
+    <div class="controls">
+      <label>Subjects</label>
+      <form>
+        <ul data-bind="foreach: subjectList" class="unstyled" data-chardin-intro="These subjects are currently set up and can interact within the new process."  data-chardin-position="right">
+          <li>
+            <input type="text" data-bind="value: name, valueUpdate: 'afterkeydown'"/>
+            <a href="#" data-bind="click: $parent.removeSubject">Remove</a>
+          </li>
+        </ul>
+        <div class="actions" data-chardin-intro="Click here to add further subjects to the process." data-chardin-position="right">
+          <input type="button" value="Add Subject" data-bind="click: addSubject"/>
+        </div>
+      </form>
     </div>
-  </form>
 </div>
 <div class="controls">
   <label>Messages</label>
   <form>
-    <ul data-bind="foreach: messageList" class="unstyled">
+    <ul data-bind="foreach: messageList" class="unstyled"  data-chardin-intro="This section defines the messages, that are sent between the involved subjects. Just give them a suitable name, the specific behaviour is modeled in the next step." data-chardin-position="bottom">
       <li>
         <select data-bind="options: $parent.subjectList, optionsText: 'name', optionsCaption: 'Select a subject...', value: sender" class="input-medium"></select>
         <input type="text" data-bind="value: message" class="input-medium"/>
@@ -24,7 +26,7 @@
       </li>
     </ul>
     <div class="actions">
-      <input type="button" value="Add Message" data-bind="click: addMessage"/>
+      <input type="button" value="Add Message" data-bind="click: addMessage" data-chardin-intro="Click here to add further messages." data-chardin-position="bottom"/>
     </div>
   </form>
 </div>
