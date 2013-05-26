@@ -42,7 +42,12 @@ define([
 		});
 
 		this.googleDriveData = ko.observable();
-
+      
+                this.selectUser = ko.observableArray(User.all());
+                
+                this.selectedUser = selectedUser;
+               
+      
 		this.refreshGoogleDriveData = function() {
 			$.ajax({
 				cache: false,
@@ -74,12 +79,14 @@ define([
 			messageText     = ko.observable(),
 			currentSubject  = ko.observable(),
 			serverDone      = ko.observable(true),
+                        selectedUser    = ko.observable(),
 			actionOfCurrentSubject,
 			availableActions,
 			actionData,
 			stateName,
 			stateText,
-			isTypeOf;
+			isTypeOf,
+                        selectUser;
 
 	var action = function(action) {
 		serverDone(false);
@@ -115,7 +122,7 @@ define([
 	}
 
 	var send = function() {
-		var deArray;
+                var deArray;
 
 		serverDone( false );
 		data = actionOfCurrentSubject()
@@ -126,10 +133,17 @@ define([
 		} else {
 			deArray.messageContent = "[empty message]";
 		}
-		data.actionData = deArray;
+		
+                if (selectedUser()) {
+                    deArray.selectedUser = selectedUser().id();
+                } else {
+                    deArray.selectedUser = undefined;
+                }
+                
+                data.actionData = deArray;
 		data.actionData.fileId = currentSelectedFile().id;
-
-		id = data.processInstanceID;
+                
+                id = data.processInstanceID;
 
 		data = JSON.stringify( data );
 
@@ -162,7 +176,7 @@ define([
 		availableActions = instance.actions;
 		currentSubject = subjectId;
 
-			//Only one currentSubject possible.
+                	//Only one currentSubject possible.
 		actionOfCurrentSubject = ko.computed(function() {
 			return availableActions().filter(function(action) {
 				return action.subjectID === currentSubject();
@@ -184,8 +198,8 @@ define([
 				return "";
 			}
 		});
-
-		stateText = ko.computed(function() {
+                
+                stateText = ko.computed(function() {
 			if (actionOfCurrentSubject() !== undefined) {
 				return actionOfCurrentSubject().stateText;
 			} else {
