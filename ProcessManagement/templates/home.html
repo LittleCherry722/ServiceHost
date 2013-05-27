@@ -1,8 +1,196 @@
 <div id="dashboard">
-  <div data-chardin-intro="This his your Dashboard. Its relatively empty for
-    now, but in the future will serve as a central point to execute processes
-    and respond to actions." data-chardin-position="bottom" class="pull-left">
+    
+    <style>
+        #dashboard #notification {
+            position: relative;
+            background-color: #FFF6DB;
+            border: 1px solid #C9A32E;
+            padding: 5px 15px 5px 5px;
+            margin: 15px 0;
+            border-top-right-radius: 10px;
+        }
+        
+        #dashboard #notification h1 {
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        #dashboard #notification #notification_close {
+            font-weight: bold;
+            display: inline;
+            cursor: pointer;
+            font-size: 14px;
+            position: absolute;
+            top: 3px;
+            right: 6px;
+        }
+        
+        #dashboard .result {
+            width: 600px;
+            margin: 10px 0;
+        }
+        
+        #dashboard .result .col1 { width: 10%;}
+        #dashboard .result .col2 { width: 35%;}
+        #dashboard .result .col3 { width: 35%;}
+        #dashboard .result .col4 { width: 20%;}
+        
+        #dashboard .result tr {
+            border: 1px solid #7D7D7D;
+            background-color: #fff;
+        }
+        
+        #dashboard .result tr .item_info {
+            position: relative;
+            padding: 20px;
+        }
+        
+        #dashboard .result tr .item_info input{
+            margin: 10px;
+        }
+        
+        #dashboard .result tr:hover {
+            background-color: #FFF6DB;
+        }
+        
+        #dashboard .result td {
+            padding: 5px;
+        }
+        #dashboard .result td span{
+            display: block; 
+            margin: 2px 0;
+        }
+        #dashboard .result td span a{
+            cursor: pointer;
+        }
+        
+        #dashboard .result td .action {
+            font-weight: bold;
+        }
+        
+        #dashboard .result td .process {
+            font-weight: bold;
+        }
+        
+        #dashboard button {
+            padding: 5px 10px;
+        }
+        
+        #dashboard .button_cancel {
+            position: absolute;
+            right: 5px;
+        }
+        
+       
+        
+    </style>
+    
+  <div data-chardin-intro="This his your Dashboard." data-chardin-position="bottom" class="pull-left">
     <h3>S-BPM Groupware v1.2</h3>
-    <span>Please load a process or create a new one.</span>
+    <div id="notification">
+        <h1>Notification box</h1>        
+        <span>Notification message</span>
+        <div id="notification_close" onclick="this.parentNode.style.display = 'none';">x</div>
+    </div>
+    
+    <div id="filter">
+        <input type="text" placeholder="Search"/>
+        <select size="1">
+            <option>Choose process</option>
+            <option>Process 1</option>
+            <option>Process 2</option>
+            <option>Process 3</option>
+            <option>Process 4</option>
+            <option>Process 5</option>
+        </select>
+        
+        <select size="1">
+            <option>Filter by User</option>
+            <option>User 1</option>
+            <option>User 2</option>
+            <option>User 3</option>
+            <option>User 4</option>
+            <option>User 5</option>
+        </select>
+    </div>
+    <hr>
+    
+    <div id="view_tabs">
+        <button>Actions</button>
+        <button>History</button>
+    </div>
+    
+    <table class="result">
+        <tr>
+            <td class="col1">
+                <img src="images/icon_media.png"/>
+            </td>
+            <td class="col2">
+                <span class="action">Action Title 1</span>
+                <span class="type">Type: <a>Action Type</a></span>
+            </td>
+            <td class="col3">
+                <span class="process">Process: <a>Process 1</a></span>
+                <span class="description">Short action / message description...</span>
+            </td>
+            <td class="col4">
+                <span class="user">From: <a>User 1</a></span>
+            </td>
+        </tr>
+    </table>  
+    
+    <table class="result">
+        <tr>
+            <td class="col1">
+                <img src="images/icon_media.png"/>
+            </td>
+            <td class="col2">
+                <span class="action">Action Title 2</span>
+                <span class="type">Type: <a>Action Type</a></span>
+            </td>
+            <td class="col3">
+                <span class="process">Process: <a>Process 2</a></span>
+                <span class="description">Short action / message description...</span>
+            </td>
+            <td class="col4">
+                <span class="user">From: <a>User 2</a></span>
+            </td>
+        </tr>
+       
+        <tr>
+            <td colspan="4" class="item_info">
+                <span>
+                    Long action description with file information (if one was attached) etc.
+                </span>
+                <input type="file"/>
+                <hr>
+                <button onclick="this.parentNode.parentNode.style.display = 'none';">Accept</button>
+                <button onclick="this.parentNode.parentNode.style.display = 'none';">Decline</button>
+                <button onclick="this.parentNode.parentNode.style.display = 'none';" class="button_cancel">Cancel</button>
+                
+            </td>
+        </tr>
+    </table>
+    
+    <table class="result">
+        <tr>
+            <td class="col1">
+                <img src="images/icon_media.png"/>
+            </td>
+            <td class="col2">
+                <span class="action">Action Title 3</span>
+                <span class="type">Type: <a>Action Type</a></span>
+            </td>
+            <td class="col3">
+                <span class="process">Process: <a>Process 3</a></span>
+                <span class="description">Short action / message description...</span>
+            </td>
+            <td class="col4">
+                <span class="user">From: <a>User 3</a></span>
+            </td>
+        </tr>
+    </table>
+    
   </div>
 </div>

@@ -8,10 +8,14 @@ import de.tkip.sbpm.model._
 
 class ProcessInstanceActor(pair: Int) extends Actor {
   private var subjectMap: Map[Int, ActorRef] = Map.empty[Int, ActorRef]
+  changePair(1)
 
   def receive = {
     case message: SubjectMessage if (subjectMap contains message.subjectId) => {
       subjectMap(message.subjectId) forward message
+    }
+    case message: SubjectMessage => {
+      System.err.println("Unknown Subject for: " + message)
     }
   }
 

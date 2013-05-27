@@ -22,6 +22,8 @@ import de.tkip.sbpm.application.SubjectCreated
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
 import de.tkip.sbpm.application.miscellaneous.BlockUser
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.RegisterSingleSubjectInstance
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -38,6 +40,7 @@ class SubjectContainer(
   import scala.collection.mutable.{ Map => MutableMap }
 
   private val multi = subject.multi
+  private val single = !multi
   private val external = subject.external
 
   private val subjects = MutableMap[UserID, SubjectInfo]()
@@ -47,9 +50,22 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
+    System.err.println("CREATED: "+RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
+    if (single) {
+      if (subjects.size > 0) {
+        logger.error("Single subjects cannot be created twice")
+        return
+      }
+      // register this subject at the context resolver so other subject dont
+      // try to send to wrong instances
+      ActorLocator.contextResolverActor !
+        RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID)
+    }
+
     val subjectData =
       SubjectData(
         userID,
+        processID,
         processInstanceID,
         context.self,
         blockingHandlerActor,

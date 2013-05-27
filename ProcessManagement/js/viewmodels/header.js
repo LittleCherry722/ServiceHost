@@ -43,6 +43,7 @@ define([
 		// content, otherwise display for the whole page (to include navigation and
 		// header).
 		if( $('#dashboard').is(':visible') ) {
+                    
 			var mainHTML = $('#main').html()
 			$('#main').html("");
 			$('#main_menu').addClass('spaced');
@@ -53,8 +54,15 @@ define([
 					$('#main').html( mainHTML ).chardinJs('start');
 				})
 			}.bind(this), 200);
-		} else if( $('#main [data-chardin-intro]').length ) {
+                        
+		} if ( $('#processContent') && App.currentMainViewModel().showHelp) {
+                    
+                        App.currentMainViewModel().showHelp();
+        
+                } else if( $('#main [data-chardin-intro]').length ) {
+                    
 			$('#main').chardinJs('start')
+                        
 		}
 	}
 

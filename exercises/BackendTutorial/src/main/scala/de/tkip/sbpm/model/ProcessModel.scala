@@ -3,9 +3,8 @@ package de.tkip.sbpm.model
 import de.tkip.sbpm._
 
 object TestData {
-  private val testMap = Map(1 -> test1, 2 -> test2)
 
-  def apply(id: Int): TestPair = testMap(id)
+  def apply(id: Int): TestPair = testMap(id) 
 
   val test1 = TestPair(
     Subject(
@@ -37,6 +36,8 @@ object TestData {
         State(0, Receive, Array(1)),
         State(1, Send, Array(2)),
         State(2, Act, Array(0)))))
+
+  private val testMap = Map(1 -> test1, 2 -> test2)
 }
 
 trait ProcessModel {

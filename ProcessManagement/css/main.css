@@ -7424,3 +7424,7 @@ a.close {
 .gdrive-modal ul {
   text-shadow: none;
 }
+
+.chardinContainer {
+    width: 350px;
+}

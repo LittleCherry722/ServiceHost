@@ -4,7 +4,7 @@
     <form data-bind="submit: createProcess" class="span3" action="#">
       <div data-bind=" css: { error: showErrors } " class="control-group">
         <label for="new_process">Name</label>
-        <input id="new_process" type="text" style="width:180px;" data-bind="value : processName, valueUpdate:'afterkeydown'"/>
+        <input id="new_process" type="text" style="width:180px;" data-bind="value : processName, valueUpdate:'afterkeydown'" data-chardin-intro="Please specify a process name." data-chardin-position="bottom"/>
         <ul data-bind="foreach: processErrors" class="errors">
           <li data-bind="text: $data" ></li>
         </ul>
@@ -32,7 +32,7 @@
     </div>
   </div>
   <div class="form-actions">
-    <input type="submit" value="Accept" data-bind="enable: processValid, click: createProcess"/>
+    <input type="submit" value="Accept" data-bind="enable: processValid, click: createProcess" data-chardin-intro="When you're happy with your process, click accept." data-chardin-position="bottom"/>
     <input type="button" value="Cancel" onclick="history.back()"/>
   </div>
 </div>
