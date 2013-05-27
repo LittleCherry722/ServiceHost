@@ -58,8 +58,7 @@ define([
 		} if ( $('#processContent') && App.currentMainViewModel().showHelp) {
                     
                         App.currentMainViewModel().showHelp();
-                        
-                        
+        
                 } else if( $('#main [data-chardin-intro]').length ) {
                     
 			$('#main').chardinJs('start')

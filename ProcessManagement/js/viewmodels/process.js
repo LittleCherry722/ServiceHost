@@ -723,20 +723,7 @@ define([
   var canUnload = confirmExit;
   
   var showHelp = function() {
-      var step = 1;
-      
-      $('rect').each(function(index) {
-          if (this.attributes.height.value == 200 && this.attributes.width.value == 120) {
-              $(this).attr("data-chardin-intro", "Hier steht eine Hinweistext. TEST TEST 123");
-              $(this).attr("data-step", step++);
-              $(this).attr("data-intro", "Hier steht eine Anweisung. TEST TEST 123.");
-          }
-      });
-      
-      $($('svg')[1]).attr("data-chardin-intro", "Hinweistext zur kompletten Zeichenfläche.");
-      
       $('#main').chardinJs('start');
-      introJs().start();
   }
 	// Everything in this object will be the public API
 	return {

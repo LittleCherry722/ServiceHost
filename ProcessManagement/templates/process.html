@@ -37,20 +37,23 @@
 					</a>
 				</div>
 				<div class="btn-group" id="switch">
-					<button	id="tab2" class="btn" data-bind="click: goToRoot">
-						Subject-Interaction-View
-					</button>
-
+                                        <span style="padding: 20px 0;" data-chardin-intro="Go back to Process Overview" data-chardin-position="top">
+                                            <button	id="tab2" class="btn" data-bind="click: goToRoot">
+                                                    Subject-Interaction-View
+                                            </button>
+                                        </span>
 					<div class="btn-group">
-						<a class="btn dropdown-toggle" data-toggle="dropdown">
-							<!-- ko ifnot: currentSubject() -->
-								Select Internal behavior
-							<!-- /ko -->
-							<!-- ko if: currentSubject() -->
-								<span data-bind="text: currentSubjectName()"></span>
-							<!-- /ko -->
-							<b class="caret"></b>
-						</a>
+                                                <span style="padding: 5px 0 10px 0;" data-chardin-intro="Choose subject to modify its internal behaviour." data-chardin-position="bottom">
+                                                    <a class="btn dropdown-toggle" data-toggle="dropdown">
+                                                            <!-- ko ifnot: currentSubject() -->
+                                                                    Select Internal behavior
+                                                            <!-- /ko -->
+                                                            <!-- ko if: currentSubject() -->
+                                                                    <span data-bind="text: currentSubjectName()"></span>
+                                                            <!-- /ko -->
+                                                            <b class="caret"></b>
+                                                    </a>
+                                                </span>
 						<ul class="dropdown-menu save-dropdown" data-bind="foreach: availableSubjects">
 							<li data-bind="css: { active: $parent.currentSubject() == $data['subjectId'] }">
 								<a data-bind="attr: { href: $parent.currentProcess().url() +
@@ -60,14 +63,15 @@
 						</ul>
 					</div>
 
-					<div class="btn tab-dropdown">
-						<select id="slctCon" data-placeholder="Select conversation"
-							class="middle_switch chzn-select" tabindex="1"
-							data-bind="options: availableConversations, optionsText: 'text',
-							optionsValue: 'conversationID', value: currentConversation, caption: ''">
-						</select>
-					</div>
-
+                                        <span style="padding: 20px 0;" data-chardin-intro="Filter by conversation" data-chardin-position="top">
+                                            <div class="btn tab-dropdown">
+                                                    <select id="slctCon" data-placeholder="Select conversation"
+                                                            class="middle_switch chzn-select" tabindex="1"
+                                                            data-bind="options: availableConversations, optionsText: 'text',
+                                                            optionsValue: 'conversationID', value: currentConversation, caption: ''">
+                                                    </select>
+                                            </div>
+                                        </span>
 					<div id="slctMacroDropDown" class="btn tab-dropdown" style="display: none;">
 						<select id="slctMacro" data-placeholder="Select Macro"
 							class="middle_switch chzn-select" tabindex="1"
@@ -76,37 +80,40 @@
 						</select>
 					</div>
 
-					<button id="tab3" class="btn" data-bind="click: goToRoutings">
-						Routing
-					</button>
-
-					<div class="btn-group">
-						<a class="btn" data-bind="click: saveCurrentProcess" title="Save Process">
-							<i class="icon-save icon-large"></i> Save
-						</a>
-						<a class="btn dropdown-toggle" data-toggle="dropdown">
-							<b class="caret"></b>
-						</a>
-						<ul class="dropdown-menu save-dropdown">
-							<li>
-								<a data-bind="click: saveCurrentProcess" title="Save Process">
-									<i class="icon-save icon-large"></i> Save
-								</a>
-							</li>
-							<li>
-								<a href="#saveAsModal" id="saveProcessAsButton" data-toggle="modal">
-									<i class="icon-copy icon-large"></i> Save As
-								</a>
-							</li>
-							<li class="divider"></li>
-							<li>
-								<a href="#" id="resetProcessButton" data-bind="click: resetProcess">
-									<i class="icon-undo icon-large"></i> Discard Changes
-								</a>
-							</li>
-						</ul>
-					</div>
-
+                                        <span style="padding: 5px 0 10px 0;" data-chardin-intro="Show routing table." data-chardin-position="bottom">
+                                            <button id="tab3" class="btn" data-bind="click: goToRoutings">
+                                                    Routing
+                                            </button>
+                                        </span>
+					<span style="padding: 20px 0;" data-chardin-intro="Save, save as... or discard changes." data-chardin-position="top">
+                                                <div class="btn-group">
+                                                    <a class="btn" data-bind="click: saveCurrentProcess" title="Save Process">
+                                                            <i class="icon-save icon-large"></i> Save
+                                                    </a>
+                                               
+                                                    <a class="btn dropdown-toggle" data-toggle="dropdown">
+                                                            <b class="caret"></b>
+                                                    </a>
+                                                    <ul class="dropdown-menu save-dropdown">
+                                                            <li>
+                                                                    <a data-bind="click: saveCurrentProcess" title="Save Process">
+                                                                            <i class="icon-save icon-large"></i> Save
+                                                                    </a>
+                                                            </li>
+                                                            <li>
+                                                                    <a href="#saveAsModal" id="saveProcessAsButton" data-toggle="modal">
+                                                                            <i class="icon-copy icon-large"></i> Save As
+                                                                    </a>
+                                                            </li>
+                                                            <li class="divider"></li>
+                                                            <li>
+                                                                    <a href="#" id="resetProcessButton" data-bind="click: resetProcess">
+                                                                            <i class="icon-undo icon-large"></i> Discard Changes
+                                                                    </a>
+                                                            </li>
+                                                    </ul>
+                                                </div>
+                                        </span>
 				</div>
 			</div>
 
