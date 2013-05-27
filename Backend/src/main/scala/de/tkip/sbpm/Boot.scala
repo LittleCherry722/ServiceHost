@@ -90,8 +90,9 @@ object Boot extends App with SprayCanHttpServerApp {
     system.actorOf(Props[GoogleDriveActor], googleDriveActorName),
     system.actorOf(Props[GoogleUserInformationActor], googleUserInformationActorName))
 
+
   // create a new HttpServer using our handler tell it where to bind to
-  newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = 8080)
+  newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
 
   // db init code below
   implicit val timout = Timeout(30 seconds)
