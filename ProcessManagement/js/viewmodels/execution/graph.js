@@ -151,7 +151,7 @@ define([
 				}
 			}
 		}
-		return subjects()[0][0];
+		return subjectsArray()[0][0];
 	}
 
 	var subscriptions = [];
