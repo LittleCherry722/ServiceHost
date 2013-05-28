@@ -33,7 +33,7 @@ class Tasks {
 /* insert your solutions below */
 
 object Tasks extends Tasks {
-import scala.collection.mutable.Map
+  import scala.collection.mutable.Map
   new Task("Task 1") {
     def solution() = {
       println(indexes("Mississippi"))
@@ -49,7 +49,7 @@ import scala.collection.mutable.Map
   }
 
   new Task("Task 2") {
-  import scala.collection.immutable.Map  
+    import scala.collection.immutable.Map
     def solution() = {
       println(indexes("Mississippi"))
     }

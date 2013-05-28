@@ -41,7 +41,6 @@ object Tasks extends Tasks {
   }
 
   new Task("Task 3") {
-
     def solution() = {
       val arr = Array(1, 2, 3, 4, 5, 6)
       println(swap(arr).mkString(", "))
@@ -54,7 +53,6 @@ object Tasks extends Tasks {
   }
 
   new Task("Task 4") {
-
     def solution() = {
       //this solution isn't very intuitive, but it works and shows how the concept of case classes works
       val simpleItem = new SimpleItem("Brick", 4.2)
