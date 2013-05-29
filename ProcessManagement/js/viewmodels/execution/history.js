@@ -2,8 +2,9 @@ define([
 	"knockout",
 	"app",
 	"underscore",
-	"models/processInstance"
-], function( ko, App, _, ProcessInstance) {
+	"models/processInstance",
+	"moment"
+], function( ko, App, _, ProcessInstance, moment) {
 
 	var ViewModel = function() {
 		this.availableSubjects = ko.observableArray([]);
@@ -71,7 +72,9 @@ define([
 
 	var JSONtimestampToString = function( JSONtimestamp ){
 		newDate = new Date( JSONtimestamp );
-		return newDate.toGMTString();
+		//return newDate.toGMTString();
+		return newDate.getDate()+'.'+(newDate.getMonth()+1)+'.'+newDate.getFullYear();
+		//this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
 	}
 
 	var initialize = function( instance ) {
@@ -81,6 +84,13 @@ define([
 
 		viewModel = new ViewModel();
 
+		$(".state").live( 'click', function() {
+			if($('.message'+$(this).attr('id')).css('display')=="table-row") {
+				$('.message'+$(this).attr('id')).css('display','none');
+			} else {
+				$('.message'+$(this).attr('id')).css('display','table-row');
+			}
+		});
 		App.loadTemplate( "execution/history", viewModel, "executionContent", function() {
 			$( "#slctSbj" ).chosen();
 			App.loadSubView( "execution/actions", [instance, subjectId] );
