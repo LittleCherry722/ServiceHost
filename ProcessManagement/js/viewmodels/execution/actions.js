@@ -43,7 +43,7 @@ define([
 
 		this.googleDriveData = ko.observable();
       
-                this.selectUser = ko.observableArray(User.all());
+                this.selectUser = selectUser;
                 
                 this.selectedUser = selectedUser;
                
@@ -95,7 +95,7 @@ define([
 		id = data.processInstanceID;
 		data.actionData = action;
 
-		data = JSON.stringify(data);
+                data = JSON.stringify(data);
 		$.ajax({
 			url: '/processinstance/' + id,
 			type: "PUT",
@@ -118,8 +118,7 @@ define([
 
 
 	var refresh = function(data){
-
-	}
+	};
 
 	var send = function() {
                 var deArray;
@@ -192,7 +191,7 @@ define([
 		});
 
 		stateName = ko.computed(function() {
-			if (actionOfCurrentSubject() !== undefined) {
+                    	if (actionOfCurrentSubject() !== undefined) {
 				return actionOfCurrentSubject().stateName;
 			} else {
 				return "";
@@ -218,6 +217,17 @@ define([
 			}
 		});
 
+                selectUser = ko.observableArray(function () {
+                    console.log("selectUser() =>  ", actionOfCurrentSubject());
+                        if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().actionData !== undefined && actionOfCurrentSubject().actionData[0].targetUsersData !== undefined) {
+                            var targetUsers = actionOfCurrentSubject().actionData[0].targetUsersData.targetUsers;
+                            return targetUsers.map(function (u) {
+                                for (var i in User.all()) {
+                                    if (u === User.all()[i].id()) return User.all()[i];
+                                }
+                            });
+                        }
+                }());
 
 		viewModel = new ViewModel();
 		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
