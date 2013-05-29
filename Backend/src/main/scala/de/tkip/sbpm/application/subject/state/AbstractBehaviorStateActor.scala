@@ -142,7 +142,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
     }
 
     case ga: GetAvailableAction => {
-      sender ! createAvailableAction(ga.processInstanceID)
+      sender ! createAvailableAction
     }
 
     case TimeoutExpired => {
@@ -221,7 +221,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   /**
    * Creates the Available Action, which belongs to this state
    */
-  protected def createAvailableAction(processInstanceID: ProcessInstanceID) = {
+  protected def createAvailableAction = {
     var actionData = getAvailableAction
     if (timeoutTransition.isDefined) {
       actionData ++= Array(ActionData("timeout", true, timeoutLabel))
