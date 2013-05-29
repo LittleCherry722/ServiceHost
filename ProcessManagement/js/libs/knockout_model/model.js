@@ -190,6 +190,12 @@ define([
 			this.isBeingInitialized = false;
 		}
 
+
+		if ( typeof ajaxOptions === "undefined" ) {
+			ajaxOptions = {}
+		}
+		Result.remotePath = ajaxOptions.remotePath ? ajaxOptions.remotePath : modelName.toLowerCase();
+
 		// Set the className as an static attribute to our newly created model.
 		Result.className = modelName;
 		Result.prototype.classModel = Result;

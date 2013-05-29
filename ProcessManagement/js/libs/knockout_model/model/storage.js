@@ -409,9 +409,9 @@ define([
 
 		regularModelPath = function( instance ) {
 			if ( typeof instance === "undefined" ) {
-				return pathPrefix + Model.className.toLowerCase();
+				return pathPrefix + Model.remotePath;
 			} else {
-				return pathPrefix + Model.className.toLowerCase() + "/" + instance.id();
+				return pathPrefix + Model.remotePath + "/" + instance.id();
 			}
 		}
 		relationModelPath = function( instance ) {
