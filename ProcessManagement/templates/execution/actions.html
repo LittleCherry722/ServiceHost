@@ -22,7 +22,7 @@
         <br /><br />
         <strong data-bind="text: $parent.selectUsersText">User:</strong>
 
-        <select data-bind="options: $parent.selectUser, optionsText: 'name', selectedOptions: $parent.selectedUsers, optionsCaption: $parent.selectUsersMin() == 1 ? 'Choose...': null, attr: {multiple: $parent.selectUsersMin() > 1 ? 'multiple' : null}"></select>
+        <select data-bind="options: $parent.selectUser, optionsText: 'name', selectedOptions: $parent.selectedUsers, optionsCaption: $parent.selectUsersMax() == 1 ? 'Choose...': null, attr: {multiple: $parent.selectUsersMax() > 1 ? 'multiple' : null}"></select>
         <br /><br />
         <strong>Nachricht:</strong> <br>
         <input type="text" data-bind="value: $parent.messageText" />
