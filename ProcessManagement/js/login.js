@@ -12,66 +12,58 @@
  */
 
 var LoginViewModel = function() {
-	//window.Lview = this;
+	var self = this,
+		tryUrlLogin,
+		loginUserFn;
 
-	self = this;
-	self.user = ko.observable("");
-	self.pass = ko.observable("");
+	/**
+	 * Checks if the query parameters contain 'user' and 'pass' values. If true, the user will be logged in using
+	 * those values.
+	 */
+	tryUrlLogin = function(){
+		var queryParams = {},
+			queryParamsRegex = /\??(?:([^&=]*)=([^&=]*)&?)/g,
+			matches;
 
+		while (matches = queryParamsRegex.exec(window.location.search)){
+			queryParams[decodeURIComponent(matches[1])] = decodeURIComponent(matches[2]);
+		}
 
+		if(queryParams.hasOwnProperty('user') && queryParams.hasOwnProperty('pass')){
+			loginUserFn(queryParams['user'], queryParams['pass']);
+		}
+	};
 
-	self.isBackendAlive = function() {
-		$.ajax({
-			url : '/isalive',
-			type : "GET",
-			async : false, // defaults to false
-			success : function(data, textStatus, jqXHR) {
-				return true
-			},
-			error : function(jqXHR, textStatus, error) {
-				return false
-			},
-			complete : function(jqXHR, textStatus) {
-			}
+	/**
+	 * Tries to login a user
+	 * @param {string} user email of the user
+	 * @param {string} pass password of the user
+	 */
+	loginUserFn = function(user, pass){
+		$.get( '/isalive' ).done( function() {
+			$.post('/user/login', {
+				user: user,
+				pass: pass
+			}).done( function() {
+				window.location = "./#/";
+			}).fail( function() {
+				alert( "E-Mail or Password wrong, please try again." );
+			});
+
+		}).fail(function() {
+			alert( "Can not reach backend!" );
 		});
 	};
 
-
-
-
+	self.user = ko.observable("");
+	self.pass = ko.observable("");
 
 	self.login = function() {
+		loginUserFn( self.user(), self.pass() );
+		self.pass( "" );
+	};
 
-		if (!self.isBackendAlive ){
-			alert("Can not reach backend!");
-		}
-
-		var data = { user: self.user(), pass: self.pass()};
-		data = JSON.stringify(data);
-		self.pass("");
-
-		$.ajax({
-			url : '/user/login',
-			type : "POST",
-			data : data,
-			async : true, // defaults to false
-			dataType : "json",
-			contentType : "application/json; charset=UTF-8",
-			success : function(data, textStatus, jqXHR) {
-				window.location = "./#/";
-
-			},
-			error : function(jqXHR, textStatus, error) {
-				alert("E-Mail or Password wrong, please try again.");
-
-			},
-			complete : function(jqXHR, textStatus) {
-
-			}
-		});
-
-	}
-}
+	tryUrlLogin();
+};
 
 ko.applyBindings(new LoginViewModel());
-
