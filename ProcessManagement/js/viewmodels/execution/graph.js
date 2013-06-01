@@ -132,8 +132,10 @@ define([
 			}
 		} );
 
-		gf_deselectNodes();
-		gv_objects_nodes[node].select();
+		if( gv_objects_nodes[node] ){
+			gf_deselectNodes();
+			gv_objects_nodes[node].select();
+		}
 	}
 
 	/**
@@ -194,5 +196,3 @@ define([
 		unload: unload
 	}
 });
-
-

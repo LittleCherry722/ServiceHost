@@ -70,12 +70,14 @@ object Entities {
   // users and one default identity with password for login
   val users = List(
     (User(None, """Superuser""", true, 8), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
+    (User(None, """Google App Engine""", true, 8), ("sbpm", "google@sbpm.com", "g1234".bcrypt)),
     (User(None, """Beyer""", true, 8), ("sbpm", "beyer@sbpm.com", "b1234".bcrypt)),
     (User(None, """Link""", true, 8), ("sbpm", "link@sbpm.com", "l1234".bcrypt)),
     (User(None, """Woehnl""", true, 8), ("sbpm", "woehnl@sbpm.com", "w1234".bcrypt)),
     (User(None, """Borgert""", true, 8), ("sbpm", "borgert@sbpm.com", "b1234".bcrypt)),
     (User(None, """Roeder""", true, 8), ("sbpm", "roeder@sbpm.com", "r1234".bcrypt)),
-    (User(None, """Hartwig""", true, 8), ("sbpm", "hartwig@sbpm.com", "h1234".bcrypt)))
+    (User(None, """Hartwig""", true, 8), ("sbpm", "hartwig@sbpm.com", "h1234".bcrypt)),
+    (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
 
   // process with one active graph loaded from corresponding json file
   val processes = List(
@@ -87,7 +89,7 @@ object Entities {
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list
-    // ids are not known a priori
+  // ids are not known a priori
   val groupRoles = List(
     (0, 0),
     (1, 1),
@@ -118,30 +120,30 @@ object Entities {
 
   // group -> user mappings
   // _1 = index in groups list, _2 = index in users list
-    // ids are not known a priori
+  // ids are not known a priori
   val groupUsers = List(
     (0, 0),
-    (0, 1),
     (0, 2),
     (0, 3),
     (0, 4),
     (0, 5),
     (0, 6),
-    (1, 1),
+    (0, 8),
+    (1, 2),
     (1, 3),
     (1, 5),
-    (2, 1),
+    (1, 7),
+    (2, 2),
     (4, 3),
     (6, 5),
-    (7, 2),
     (7, 6),
-    (9, 2),
+    (7, 8),
+    (9, 8),
     (12, 6),
-    (13, 2),
     (13, 4),
     (13, 5),
     (13, 6),
-    (14, 1),
+    (14, 2),
     (15, 4),
     (2, 3))
 

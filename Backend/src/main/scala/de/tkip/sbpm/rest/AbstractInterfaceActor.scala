@@ -9,25 +9,27 @@ import spray.routing._
  */
 abstract class AbstractInterfaceActor extends Actor with HttpService {
 
-  // TODO userId nicht ueberrschreibbar!
-  protected var userId: Int = 1
+  // TODO userId von subklassen nicht ueberrschreibbar machen!
+  private var _userId: Int = 1
+  final protected def userId = _userId
 
-  final def receive = extractCookie andThen routing
-
-  private def extractCookie: PartialFunction[Any, RequestContext] = {
+  final def receive = {
     case ctx: RequestContext => {
-      // TODO ...
-      // TODO namen vom generellen punkt
-      val userIdCookie = ctx.request.cookies.find(_.name == "sbpm-userId")
-      userId =
-        if (userIdCookie.isDefined) userIdCookie.get.content.toInt
-        // TODO else error
-        else 1
-      System.err.println("USERID: " + userId); // XXX weg
-
-      // return ctx
-      ctx
+      // first extract the cookie information
+      extractCookie(ctx)
+      // then run the routing
+      routing(ctx)
     }
+  }
+
+  private def extractCookie(ctx: RequestContext) {
+    // TODO namen vom generellen punkt
+    val userIdCookie = ctx.request.cookies.find(_.name == "sbpm-userId")
+    _userId =
+      if (userIdCookie.isDefined) userIdCookie.get.content.toInt
+      // TODO else error
+      else 1
+    System.err.println("USERID: " + userId); // XXX weg
   }
 
   /**
