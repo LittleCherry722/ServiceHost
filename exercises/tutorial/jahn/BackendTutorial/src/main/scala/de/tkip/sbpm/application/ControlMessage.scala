@@ -3,12 +3,14 @@ package de.tkip.sbpm.application
 import de.tkip.sbpm._
 
 trait ControlMessage
+
 trait SubjectMessage {
   def subjectId: SubjectID
 }
 
 // request to get the information of the subject
 case class ReadSubject(subjectId: SubjectID) extends SubjectMessage
+
 // the subject information
 case class SubjectAnswer(id: SubjectID, state: StateType, actions: Array[StateID])
 
@@ -21,7 +23,10 @@ case object RestartExecution
 // internal change the current subjectstate
 case class ChangeState(id: StateID)
 
-case class SubjectToSubjectMessage(from: SubjectID, to: SubjectID, message: String)
+case class SubjectToSubjectMessage(from: SubjectID, to: SubjectID, message: String) extends SubjectMessage {
+  def subjectId = to
+}
+
 // Acknowledge receive
 case object Ack
 

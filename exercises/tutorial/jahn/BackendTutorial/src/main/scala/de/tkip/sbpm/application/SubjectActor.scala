@@ -21,8 +21,7 @@ class SubjectActor(subject: Subject) extends Actor {
     case ReadSubject(subject.subjectID) => sender ! readSubject
     case ea@ExecuteAction(subject.subjectID, action) => currentState forward ea
     case ChangeState(id) => changeState(id)
-    case msg@SubjectToSubjectMessage(from, to, _) if subject.subjectID == from || subject.subjectID == to =>
-      currentState forward msg
+    case msg@SubjectToSubjectMessage(_, subject.subjectID, _) => currentState forward msg
     case _ => println("unsupported operation")
   }
 

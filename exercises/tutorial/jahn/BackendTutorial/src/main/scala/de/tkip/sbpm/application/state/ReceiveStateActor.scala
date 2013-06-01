@@ -8,8 +8,8 @@ class ReceiveStateActor(s: State) extends AbstractBeviorStateActor(s) {
   private var msgReceived = false
 
   def receive = {
-    case SubjectToSubjectMessage(_, s.stateId, content) => {
-      println("ReceiveState[%s] received: " + content)
+    case SubjectToSubjectMessage(_, _, content) => {
+      println("ReceiveState[%s] received: %s".format(s.stateId, content))
       sender ! Ack
       msgReceived = true
     }
