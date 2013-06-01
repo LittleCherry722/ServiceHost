@@ -17,9 +17,14 @@ class ProcessInstanceActor(pair: Int) extends Actor {
     case message: SubjectMessage => {
       System.err.println("Unknown Subject for: " + message)
     }
+    case message: ChangeTestPairMessage => {
+      changePair(message.instance)
+    }
   }
 
   private def changePair(newPair: Int) {
+    println("change to test pair %s".format(newPair))
+
     // Kill the current running subjects
     subjectMap map (_._2 ! PoisonPill)
 
