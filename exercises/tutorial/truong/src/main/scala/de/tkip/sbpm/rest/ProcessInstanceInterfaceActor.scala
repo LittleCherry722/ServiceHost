@@ -36,7 +36,10 @@ class ProcessInstanceInterfaceActor extends Actor with HttpService {
     } ~
       put {
         path("") {
-          complete("Use /n, to control the n-th subject")
+          entity(as[TestPairMessage]) { msg =>
+            processInstanceActor ! msg
+            complete("TestPair changed")
+          }
         } ~
           path("restart") {
             processInstanceActor ! RestartExecution

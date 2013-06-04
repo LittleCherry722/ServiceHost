@@ -8,7 +8,7 @@ class ActStateActor(s: State) extends AbstractBeviorStateActor(s) {
     case ExecuteAction(_, succ) if (s.transitions contains succ) => {
       // FIXME We dont always want to go the first transition
       // change the program: go to the state given in succ
-      context.parent ! ChangeState(s.transitions(0))
+      context.parent ! ChangeState(succ)
     }
   }
 }

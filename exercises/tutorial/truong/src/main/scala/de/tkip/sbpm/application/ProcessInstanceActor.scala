@@ -17,6 +17,12 @@ class ProcessInstanceActor(pair: Int) extends Actor {
     case message: SubjectMessage => {
       System.err.println("Unknown Subject for: " + message)
     }
+    case message: TestPairMessage if (List(1, 2) contains message.instance) => {
+      changePair(message.instance)
+    }
+    case message: TestPairMessage => {
+      System.err.println("Unknown TestPair for: " + message.instance)
+    }
   }
 
   private def changePair(newPair: Int) {
