@@ -20,6 +20,9 @@ class ProcessInstanceActor(pair: Int) extends Actor {
     case message: SwapTestPairMessage => {
       changePair(message.instance)
     }
+    case message: SubjectToSubjectMessage => {
+      subjectMap(message.to) forward message
+    }
   }
 
   private def changePair(newPair: Int) {
