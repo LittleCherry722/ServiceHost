@@ -23,6 +23,6 @@ case class ChangeState(id: StateID)
 
 case class SubjectToSubjectMessage(from: SubjectID, to: SubjectID, message: String)
 // Acknowledge receive
-case object Ack
+case class Ack(to: SubjectID)
 
 case class TestPairMessage(instance: Int)

@@ -6,7 +6,13 @@ import akka.actor.ActorRef
 import akka.actor.PoisonPill
 import de.tkip.sbpm.model._
 
+import scala.concurrent._
+
+import akka.util.Timeout
+import akka.pattern.ask
+
 class ProcessInstanceActor(pair: Int) extends Actor {
+  implicit val timeout = Timeout(3000)
   private var subjectMap: Map[Int, ActorRef] = Map.empty[Int, ActorRef]
   changePair(1)
 
@@ -22,6 +28,11 @@ class ProcessInstanceActor(pair: Int) extends Actor {
     }
     case message: TestPairMessage => {
       System.err.println("Unknown TestPair for: " + message.instance)
+    }
+    case message: SubjectToSubjectMessage => {
+      val future = (subjectMap(message.to) ? message).mapTo[Ack]
+      val result = Await.result(future, timeout.duration)
+      sender forward result
     }
   }
 

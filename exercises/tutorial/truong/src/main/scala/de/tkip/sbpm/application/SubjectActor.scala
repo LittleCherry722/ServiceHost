@@ -10,7 +10,13 @@ import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.model.State
 import de.tkip.sbpm.application.state._
 
+import scala.concurrent._
+
+import akka.util.Timeout
+import akka.pattern.ask
+
 class SubjectActor(subject: Subject) extends Actor {
+  implicit val timeout = Timeout(3000)
 
   // we start with the state 0
   private var currentStateId: StateID = 0
@@ -21,6 +27,16 @@ class SubjectActor(subject: Subject) extends Actor {
     case ReadSubject(subject.subjectID) => sender ! readSubject
     case ea @ ExecuteAction(subject.subjectID, action) => currentState forward ea
     case ChangeState(id) => changeState(id)
+    case SubjectToSubjectMessage(_, subjectId, message) => if (subjectId != subject.subjectID) {
+      val future = (ActorLocator.actor(ActorLocator.processInstanceActorName) ? SubjectToSubjectMessage(subject.subjectID, subjectId, message))
+        .mapTo[Ack]
+      val result = Await.result(future, timeout.duration)
+      sender forward result
+    }
+    case SubjectToSubjectMessage(from, subjectId, message) => {
+      println("Receive message " + message)
+      sender ! Ack(from)
+    }
     case _ => println("unsupported operation")
   }
 
