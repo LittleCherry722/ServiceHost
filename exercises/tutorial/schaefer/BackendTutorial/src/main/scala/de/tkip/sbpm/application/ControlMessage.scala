@@ -24,3 +24,6 @@ case class ChangeState(id: StateID)
 case class SubjectToSubjectMessage(from: SubjectID, to: SubjectID, message: String)
 // Acknowledge receive
 case object Ack
+
+// used to swap the two TestPairs
+case class SwapTestPairMessage(instance: Int)
