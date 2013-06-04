@@ -70,23 +70,27 @@ define([
 	};
 
 
-
-
+	// TODO:
+	// This is really just a stackoverflow answer pasted and slightly modified..
+	// http://stackoverflow.com/questions/5639346/shortest-function-for-reading-a-cookie-in-javascript
+	// Also, why minify it inline like this..? Make it an require js module,
+	// include it, and maybe add cookie setting behavior.
 	var readCookie = function(key) {
 		var result;
 		return ( result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? (result[1]) : null;
 	}
-	var loadCurrentUser = function() {
 
+	var loadCurrentUser = function() {
 		if (readCookie("sbpm-userId")) {
-			currentUser(User.find(parseInt(readCookie("sbpm-userId").replace(/"/g, ''))));
-		} else { //TODO Kein Cookie gesetzt, kein Zugang.
+			currentUser(User.find(parseInt(readCookie("sbpm-userId").replace(/"/g, ''), 10)));
+		} else {
+
+			//TODO Kein Cookie gesetzt, kein Zugang.
 			currentUser(new User({
 				name : "no user"
 			}));
 		}
 	};
-
 
 
 	// The current ViewModel loaded for the "main" view
