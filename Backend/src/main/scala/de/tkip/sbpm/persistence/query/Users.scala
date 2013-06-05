@@ -45,6 +45,12 @@ object Users {
      * returns user by name or None if not found (Option[User])
      */
     case class ByName(name: String) extends Query
+
+    /**
+     * returns all users connect to a subject by their role (Seq[User])
+     */
+    case class BySubjectId(subjectId: String) extends Query
+
     object Identity {
       def apply(provider: String, eMail: String) = ByEMail(provider, eMail)
       /**

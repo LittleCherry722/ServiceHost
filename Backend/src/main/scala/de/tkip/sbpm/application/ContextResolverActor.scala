@@ -18,16 +18,23 @@ import scala.collection.mutable
 import akka.actor.Actor
 import akka.actor.actorRef2Scala
 import akka.event.Logging
+import akka.util.Timeout
+import akka.pattern._
 
-import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model._
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.persistence.query.Users
+import de.tkip.sbpm.model.User
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 // this are the information which are required to evaluate the user id
 case class SubjectInformation(
   processId: ProcessID,
   processInstanceId: ProcessInstanceID,
-  subjectId: SubjectID)
+  subjectId: SubjectID,
+  targetSubjectId: SubjectID)
+
 case class RegisterSingleSubjectInstance(
   processId: ProcessID,
   processInstanceId: ProcessInstanceID,
@@ -48,6 +55,8 @@ class ContextResolverActor extends Actor {
   val subjectInstanceMap =
     mutable.Map.empty[(ProcessID, ProcessInstanceID, SubjectID), UserID]
 
+  implicit val timeout = Timeout(1 seconds)
+
   def receive = {
     // register SingleSubjectInstance
     // nur enie SSInstance pro PI erlaubt
@@ -62,13 +71,8 @@ class ContextResolverActor extends Actor {
   }
 
   private def evaluateUserID(subjectInformation: SubjectInformation): Array[UserID] = {
-    subjectInformation match {
-      // Registered singleSubject
-      case SubjectInformation(processId, processInstanceId, subjectId) if {
-        subjectInstanceMap contains ((processId, processInstanceId, subjectId))
-      } => Array(subjectInstanceMap((processId, processInstanceId, subjectId)))
-      case _ => Array(1)
-    }
-    //    Array(1)
+    val future = (ActorLocator.persistenceActor ? Users.Read.BySubjectId(subjectInformation.targetSubjectId)).mapTo[Seq[User]]
+    val users = Await.result(future, timeout.duration)
+    users.map(_.id.get).toArray
   }
 }

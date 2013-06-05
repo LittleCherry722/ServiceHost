@@ -27,7 +27,9 @@ import query.Users._
  * Handles all database operations for table "users".
  */
 private[persistence] class UserPersistenceActor extends Actor
-  with DatabaseAccess with schema.UserIdentitiesSchema {
+  with DatabaseAccess with schema.UserIdentitiesSchema with schema.GroupsUsersSchema
+  with schema.GroupsSchema with schema.GroupsRolesSchema with schema.RolesSchema
+  with schema.GraphSubjectsSchema {
   // import current slick driver dynamically
   import driver.simple._
 
@@ -66,7 +68,7 @@ private[persistence] class UserPersistenceActor extends Actor
       val query = for {
         (u, i) <- Query(Users).where(_.id === id).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
       } yield (u, i.provider.?, i.eMail.?, i.password)
-      // create option tuple Option[(User, List[UserIdentity])] 
+      // create option tuple Option[(User, List[UserIdentity])]
       query.list.groupBy(e => toDomainModel(e._1)).mapValues(_.filter(_._2.isDefined).map { e =>
         // convert to domain model
         UserIdentity(toDomainModel(e._1), e._2.get, e._3.get, e._4)
@@ -126,6 +128,18 @@ private[persistence] class UserPersistenceActor extends Actor
     case Delete.Identity.ById(userId, provider) => answer { implicit session =>
       deleteIdentity(userId, provider)
     }
+    // retrieve users connected to a subject by their role
+    case Read.BySubjectId(subjectId) => answerProcessed { implicit session: Session =>
+      val q = for {
+        u <- Users
+        gu <- GroupsUsers if gu.userId === u.id
+        g <- gu.group
+        gr <- GroupsRoles if gr.groupId === g.id
+        r <- gr.role
+        s <- GraphSubjects if (s.roleId === r.id && s.id === subjectId)
+      } yield u
+      q.sortBy(_.name).run.distinct
+    }(_.map(toDomainModel))
   }
 
   // delete user identity
