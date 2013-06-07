@@ -129,16 +129,8 @@ private[persistence] class UserPersistenceActor extends Actor
       deleteIdentity(userId, provider)
     }
     // retrieve users connected to a subject by their role
-    case Read.BySubjectId(subjectId) => answerProcessed { implicit session: Session =>
-      val q = for {
-        u <- Users
-        gu <- GroupsUsers if gu.userId === u.id
-        g <- gu.group
-        gr <- GroupsRoles if gr.groupId === g.id
-        r <- gr.role
-        s <- GraphSubjects if (s.roleId === r.id && s.id === subjectId)
-      } yield u
-      q.sortBy(_.name).run.distinct
+    case Read.BySubject(subjectId, processId) => answerProcessed { implicit session: Session =>
+      readBySubject(subjectId, processId);
     }(_.map(toDomainModel))
   }
 
@@ -153,5 +145,18 @@ private[persistence] class UserPersistenceActor extends Actor
     if (res == 0)
       throw new EntityNotFoundException("User with id %d does not exist.", id.get)
     None
+  }
+
+  private def readBySubject(subjectId: String, processId: Int)(implicit session: Session) = {
+    val q = for {
+      user <- Users
+      gu <- GroupsUsers if gu.userId === user.id
+      group <- gu.group
+      gr <- GroupsRoles if gr.groupId === group.id
+      role <- gr.role
+      graphSubject <- GraphSubjects if (graphSubject.roleId === role.id && graphSubject.id === subjectId)
+      graph <- graphSubject.graph if graph.processId === processId
+    } yield user
+    q.sortBy(_.name).run.distinct
   }
 }

@@ -32,8 +32,7 @@ import scala.concurrent.duration._
 case class SubjectInformation(
   processId: ProcessID,
   processInstanceId: ProcessInstanceID,
-  subjectId: SubjectID,
-  targetSubjectId: SubjectID)
+  subjectId: SubjectID)
 
 case class RegisterSingleSubjectInstance(
   processId: ProcessID,
@@ -71,8 +70,15 @@ class ContextResolverActor extends Actor {
   }
 
   private def evaluateUserID(subjectInformation: SubjectInformation): Array[UserID] = {
-    val future = (ActorLocator.persistenceActor ? Users.Read.BySubjectId(subjectInformation.targetSubjectId)).mapTo[Seq[User]]
-    val users = Await.result(future, timeout.duration)
-    users.map(_.id.get).toArray
+    subjectInformation match {
+      case SubjectInformation(processId, processInstanceId, subjectId) if {
+        subjectInstanceMap contains ((processId, processInstanceId, subjectId))
+      } => Array(subjectInstanceMap((processId, processInstanceId, subjectId)))
+      case SubjectInformation(processId, processInstanceId, subjectId) => {
+        val future = ActorLocator.persistenceActor ? Users.Read.BySubject(subjectId, processId)
+        val users = Await.result(future, timeout.duration).asInstanceOf[Seq[User]]
+        users.map(_.id.get).toArray
+      }
+    }
   }
 }

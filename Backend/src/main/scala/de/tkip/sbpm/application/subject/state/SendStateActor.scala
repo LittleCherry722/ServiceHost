@@ -94,7 +94,7 @@ protected case class SendStateActor(data: StateData)
     blockingHandlerActor ! BlockUser(userID)
 
     ActorLocator.contextResolverActor ! (RequestUserID(
-      SubjectInformation(processID, processInstanceID, sendTransition.subjectID, sendTarget.subjectID),
+      SubjectInformation(processID, processInstanceID, sendTarget.subjectID),
       TargetUsers(_)))
 
     super.preStart()
