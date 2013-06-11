@@ -39,7 +39,7 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.model.UserIdentity
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.model._
-import ua.t3hnar.bcrypt._
+import com.github.t3hnar.bcrypt._
 
 /**
  * This Actor is only used to process REST calls regarding "user"
