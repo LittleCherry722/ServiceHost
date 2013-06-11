@@ -30,7 +30,6 @@ import scala.concurrent.duration._
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
-import scala.actors.Logger
 import scala.concurrent.Future
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.external.auth.GoogleAuthActor
