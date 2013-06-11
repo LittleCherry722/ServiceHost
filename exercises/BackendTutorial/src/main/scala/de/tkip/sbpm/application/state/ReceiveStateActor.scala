@@ -5,7 +5,7 @@ import de.tkip.sbpm.application._
 
 class ReceiveStateActor(s: State) extends AbstractBeviorStateActor(s) {
   def receive = {
-    case SubjectToSubjectMessage(_, s.stateId, content) => {
+    case SubjectToSubjectMessage(_, _, content) => {
       println("ReceiveState[%s] received: " + content)
       sender ! Ack
     }
