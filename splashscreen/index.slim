@@ -6,6 +6,9 @@ html
 
   body
     a.next-slide href="javascript: impress().next();" weiter (leertaste)
+    #tooltips
+      h3 Information
+      p#tooltip
 
     #impress
       #overview.step data-scale="1.5"
@@ -60,7 +63,6 @@ html
               .bordered.container style="margin-top: 75px;"
                 h3 style="font-size:20px;" Staples
                 img src="images/staples.svg" style="margin-top: 15px;"
-
           div.column
             div
               .bordered.container.container-wide
@@ -92,13 +94,39 @@ html
                     img src="images/audi.svg" style="width: 100%;"
       #overlays.inactive-hide.step data-y="1300" data-x="1100" data-rotate="90"
         .arrow-1.arrow[data-width="250" data-y-offset="-40" data-right-y-offset="0"
-          data-direction="right" data-label="(1) BI bereitstellen"]
+          data-direction="right" data-label="(1) BI bereitstellen"
+          data-label-tooltip="Der Transportdienstleister stellt seinen Prozess \
+          durch ein Business Interface für andere zur Verfügung."]
         .arrow-2.arrow[data-width="220" data-y-offset="-65" data-right-y-offset="-77"
-          data-direction="right" data-label="(2) BI lookup"]
+          data-direction="right" data-label="(2) BI lookup"
+          data-label-tooltip="Staples sucht nach im Business interface Repository \
+          nach einm Prozess zur Auslieferung von Waren."]
         .arrow-3.arrow[data-width="225" data-y-offset="-42" data-right-y-offset="-75"
-          data-direction="left" data-label="(3) BI TD"]
+          data-direction="left" data-label="(3) BI TD"
+          data-label-tooltip="Staples hat einen Transportdienstleister gefunden und \
+          implementiert dieses Business interface nun im eigenen Geschäftsprozess."]
         .arrow-4.arrow[data-width="230" data-y-offset="-20" data-right-y-offset="-75"
-          data-direction="right" data-label="(4) BI TD"]
+          data-direction="right" data-label="(4) BI TD"
+          data-label-tooltip="Nachdem die Modellierung des Prozesses fertig ist,\
+          exportiert Staples den eigenen Prozess widerum, so dass andere den Prozess \
+          implementieren und eine Bestellung aufgeben können."]
+        .arrow-5.arrow[data-width="95" data-y-offset="50" data-right-y-offset="120"
+          data-direction="left" data-label="(5) BI lookup"
+          data-label-tooltip="Ein Großunternehmen sucht nach einem Prozess zur \
+          Bestellung von Bürowaren."]
+        .arrow-6.arrow[data-width="246" data-y-offset="0" data-right-y-offset="0"
+          data-direction="left" data-label="(6) lookup"
+          data-label-tooltip="Das lokale Repository sucht in der eigenen Datenbank \
+          und fragt gleichzeitig bei anderen bekannten Repositories an, \
+          ob neue Interfaces bekannt sind."]
+        .arrow-7.arrow[data-width="246" data-y-offset="0" data-right-y-offset="0"
+          data-direction="right" data-label="(7) Sync"
+          data-label-tooltip="Da kürzlich ein neues Interface hinzugefügt wurde, wird \
+          dieses mit dem lokalen Repository des Großunternehmens synchronisiert."]
+        .arrow-8.arrow[data-width="95" data-y-offset="62" data-right-y-offset="120"
+          data-direction="right" data-label="(8) BI lookup"
+          data-label-tooltip="Das Großunternehmen findet das Staples Business Interface \
+          und implementiert es im eigenen Prozess."]
 
     script type="text/javascript" src="js/lib/jquery/jquery-2.0.0.min.js"
     script type="text/javascript" src="js/lib/impress.js/impress.js"

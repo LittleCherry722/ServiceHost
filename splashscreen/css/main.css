@@ -111,6 +111,7 @@ i, em {
 }
 .impress-enabled .step.inactive-hide, .impress-enabled .step .inactive-hide {
   opacity: 0;
+  visibility: hidden;
   -webkit-transition: opacity 1s;
   -moz-transition: opacity 1s;
   -ms-transition: opacity 1s;
@@ -128,6 +129,7 @@ i, em {
 
 .impress-enabled .step.active.inactive-hide, .impress-enabled .step.active.inactive-dim, .impress-enabled .step.active .inactive-hide, .impress-enabled .step.active .inactive-dim {
   opacity: 1;
+  visibility: visible;
 }
 
 h1 {
@@ -162,6 +164,33 @@ h3 {
   clear: both;
 }
 
+#tooltips {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+  width: 16%;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(102, 102, 102, 0.1);
+}
+#tooltips h3 {
+  color: #a51a11;
+  display: block;
+  line-height: 40px;
+  text-align: center;
+  font-size: 25px;
+  background-color: rgba(51, 51, 51, 0.1);
+  border-bottom: 2px solid rgba(102, 102, 102, 0.1);
+}
+#tooltips #tooltip {
+  margin-top: 10px;
+  padding: 10px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+}
+
 .next-slide {
   font-size: 18px;
   font-weight: 400;
@@ -185,11 +214,16 @@ h3 {
   float: left;
 }
 
+*[data-tooltip] {
+  cursor: help;
+}
+
 .arrow {
   position: relative;
 }
 .arrow .label {
   position: absolute;
+  white-space: nowrap;
   font-size: 14px;
   font-weight: 400;
   color: #4d4d4d;
@@ -213,26 +247,66 @@ h3 {
 
 .arrow-1 {
   position: absolute;
-  left: 105px;
+  left: -305px;
   top: 25px;
 }
 
 .arrow-2 {
   position: absolute;
-  left: 45px;
+  left: -355px;
   top: 307px;
 }
 
 .arrow-3 {
   position: absolute;
-  left: 70px;
+  left: -330px;
   top: 307px;
 }
 
 .arrow-4 {
   position: absolute;
-  left: 100px;
+  left: -300px;
   top: 307px;
+}
+
+.arrow-5 {
+  position: absolute;
+  left: 300px;
+  top: 210px;
+}
+.arrow-5 .arrow-tip {
+  left: -2px !important;
+}
+.arrow-5 .arrow-right {
+  width: 80px !important;
+  top: 110px !important;
+  right: -38px !important;
+}
+
+.arrow-6 {
+  position: absolute;
+  left: 31px;
+  top: 96px;
+}
+
+.arrow-7 {
+  position: absolute;
+  left: 31px;
+  top: 137px;
+}
+
+.arrow-8 {
+  position: absolute;
+  left: 270px;
+  top: 230px;
+}
+.arrow-8 .arrow-tip {
+  right: -2px !important;
+}
+.arrow-8 .arrow-left {
+  width: 80px !important;
+  top: 27px !important;
+  left: -38px !important;
 }
 
 a {
@@ -321,4 +395,9 @@ a:hover, a:focus {
 }
 #technical .container img {
   width: 80%;
+}
+
+#overlays {
+  width: 0;
+  height: 0;
 }

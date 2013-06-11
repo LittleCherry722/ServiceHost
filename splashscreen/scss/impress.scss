@@ -52,6 +52,7 @@ i, em { font-style: italic }
 
     &.inactive-hide, .inactive-hide{
       opacity: 0;
+      visibility: hidden;
       @include transition( opacity 1s )
     }
 
@@ -66,6 +67,7 @@ i, em { font-style: italic }
 .impress-enabled .step.active {
   &.inactive-hide, &.inactive-dim, .inactive-hide, .inactive-dim {
     opacity: 1;
+    visibility: visible;
   }
 }
 

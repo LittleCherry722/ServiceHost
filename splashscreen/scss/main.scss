@@ -29,6 +29,35 @@ h3 {
   @include clearfix;
 }
 
+#tooltips {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+  width: 16%;
+  border: 1px solid rgba(#000, 0.1);
+  background-color: rgba(#666, 0.1);
+
+  h3 {
+    color: darken($red, 20%);
+    display: block;
+    line-height: 40px;
+    text-align: center;
+    font-size: 25px;
+    background-color: rgba(#333, 0.1);
+    border-bottom: 2px solid rgba(#666, 0.1);
+  }
+
+  #tooltip {
+    margin-top: 10px;
+    padding: 10px;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
 .next-slide {
   font-size: 18px;
   font-weight: 400;
@@ -52,12 +81,17 @@ h3 {
   float: left;
 }
 
+*[data-tooltip] {
+  cursor: help;
+}
+
 .arrow {
   $arrow-color: #999;
   position: relative;
 
   .label {
     position: absolute;
+    white-space: nowrap;
     font-size: 14px;
     font-weight: 400;
     color: darken($arrow-color, 30%);
@@ -83,23 +117,61 @@ h3 {
 
 .arrow-1 {
   position: absolute;
-  left: 105px;
+  left: -305px;
   top: 25px;
 }
 .arrow-2 {
   position: absolute;
-  left: 45px;
+  left: -355px;
   top: 307px;
 }
 .arrow-3 {
   position: absolute;
-  left: 70px;
+  left: -330px;
   top: 307px;
 }
 .arrow-4 {
   position: absolute;
-  left: 100px;
+  left: -300px;
   top: 307px;
+}
+.arrow-5 {
+  position: absolute;
+  left: 300px;
+  top: 210px;
+
+  .arrow-tip {
+    left: -2px !important;
+  }
+  .arrow-right{
+    width: 80px !important;
+    top: 110px !important;
+    right: -38px !important;
+  }
+}
+.arrow-6 {
+  position: absolute;
+  left: 31px;
+  top: 96px;
+}
+.arrow-7 {
+  position: absolute;
+  left: 31px;
+  top: 137px;
+}
+.arrow-8 {
+  position: absolute;
+  left: 270px;
+  top: 230px;
+
+  .arrow-tip {
+    right: -2px !important;
+  }
+  .arrow-left {
+    width: 80px !important;
+    top: 27px !important;
+    left: -38px !important;
+  }
 }
 
 a {
@@ -204,4 +276,9 @@ a {
       width: 80%;
     }
   }
+}
+
+#overlays {
+  width: 0;
+  height: 0;
 }

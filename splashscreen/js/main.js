@@ -4,7 +4,7 @@ impress().init();
 $(".arrow").each(function(e, t) {
 var n, r, i, s, o, u, a, f, l, c, h;
 n = $(t);
-n.html('<div class="arrow-stem arrow-left"></div>\n<div class="label">' + n.data("label") + '</div>\n<div class="arrow-stem arrow-right"></div>\n<div class="arrow-tip"></div>');
+n.html('<div class="arrow-stem arrow-left"></div>\n<div class="label" data-tooltip="' + n.data("label-tooltip") + '">\n  ' + n.data("label") + '\n</div>\n<div class="arrow-stem arrow-right"></div>\n<div class="arrow-tip"></div>');
 r = n.css({
 width: n.data("width")
 }).find(".label");
@@ -42,7 +42,7 @@ width: u.stemLength,
 right: -u.rotationalSideShift / 2,
 transform: "rotate(" + -u.rotationDeg + "deg)"
 });
-return s === "left" ? n.find(".arrow-tip").css({
+s === "left" ? n.find(".arrow-tip").css({
 left: -4,
 top: l / 2 - 4,
 transform: "rotate(" + o.rotationDeg + "deg)"
@@ -50,6 +50,16 @@ transform: "rotate(" + o.rotationDeg + "deg)"
 right: -4,
 top: l / 2 + a - 5,
 transform: "rotate(" + (180 - u.rotationDeg) + "deg)"
+});
+$("*[data-tooltip]").on("mouseenter", function(e) {
+if (!$(this).data("tooltip")) return;
+if (!$(this).closest(".step").is(".active")) return;
+$("#tooltips").fadeIn(33);
+return $(this).data("target") ? $("#tooltip").html($("#" + $(this).data("target")).html()) : $("#tooltip").html($(this).data("tooltip"));
+});
+return $("*[data-tooltip]").on("mouseleave", function(e) {
+$("#tooltips").fadeOut(33);
+return $("#tooltip").html("");
 });
 });
 }).call(this);

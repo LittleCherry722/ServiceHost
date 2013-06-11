@@ -4,7 +4,9 @@ $('.arrow').each (idx, element) ->
   $element = $(element)
   $element.html("""
     <div class="arrow-stem arrow-left"></div>
-    <div class="label">#{$element.data('label')}</div>
+    <div class="label" data-tooltip="#{$element.data('label-tooltip')}">
+      #{$element.data('label')}
+    </div>
     <div class="arrow-stem arrow-right"></div>
     <div class="arrow-tip"></div>
   """)
@@ -70,3 +72,15 @@ $('.arrow').each (idx, element) ->
       right: -4
       top: textHeight / 2 + rightYOffset - 5
       transform: "rotate(#{180-rightArrow.rotationDeg}deg)"
+
+  $("*[data-tooltip]").on 'mouseenter', (e) ->
+    return if not $(this).data('tooltip')
+    return unless $(this).closest('.step').is('.active')
+    $('#tooltips').fadeIn( 33 )
+    if $(this).data('target')
+      $('#tooltip').html($("##{$(this).data('target')}").html())
+    else
+      $('#tooltip').html($(this).data('tooltip'))
+  $("*[data-tooltip]").on 'mouseleave', (e) ->
+    $('#tooltips').fadeOut( 33 )
+    $('#tooltip').html("")
