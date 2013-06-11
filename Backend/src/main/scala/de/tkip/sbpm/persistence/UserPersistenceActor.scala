@@ -29,7 +29,7 @@ import query.Users._
 private[persistence] class UserPersistenceActor extends Actor
   with DatabaseAccess with schema.UserIdentitiesSchema with schema.GroupsUsersSchema
   with schema.GroupsSchema with schema.GroupsRolesSchema with schema.RolesSchema
-  with schema.GraphSubjectsSchema {
+  with schema.GraphSubjectsSchema with schema.ProcessInstancesSchema {
   // import current slick driver dynamically
   import driver.simple._
 
@@ -129,8 +129,8 @@ private[persistence] class UserPersistenceActor extends Actor
       deleteIdentity(userId, provider)
     }
     // retrieve users connected to a subject by their role
-    case Read.BySubject(subjectId, processId) => answerProcessed { implicit session: Session =>
-      readBySubject(subjectId, processId);
+    case Read.BySubject(subjectId, processInstanceId, processId) => answerProcessed { implicit session: Session =>
+      readBySubject(subjectId, processInstanceId, processId)
     }(_.map(toDomainModel))
   }
 
@@ -147,7 +147,7 @@ private[persistence] class UserPersistenceActor extends Actor
     None
   }
 
-  private def readBySubject(subjectId: String, processId: Int)(implicit session: Session) = {
+  private def readBySubject(subjectId: String, processInstanceId: Int, processId: Int)(implicit session: Session) = {
     val q = for {
       user <- Users
       gu <- GroupsUsers if gu.userId === user.id
@@ -156,6 +156,9 @@ private[persistence] class UserPersistenceActor extends Actor
       role <- gr.role
       graphSubject <- GraphSubjects if (graphSubject.roleId === role.id && graphSubject.id === subjectId)
       graph <- graphSubject.graph if graph.processId === processId
+      processInstance <- ProcessInstances if processInstance.id === processInstanceId &&
+        processInstance.processId === processId &&
+        processInstance.graphId === graph.id
     } yield user
     q.sortBy(_.name).run.distinct
   }

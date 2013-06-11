@@ -49,7 +49,7 @@ object Users {
     /**
      * returns all users connect to a subject by their role (Seq[User])
      */
-    case class BySubject(subjectId: String, processId: Int) extends Query
+    case class BySubject(subjectId: String, processInstanceId: Int, processId: Int) extends Query
 
     object Identity {
       def apply(provider: String, eMail: String) = ByEMail(provider, eMail)

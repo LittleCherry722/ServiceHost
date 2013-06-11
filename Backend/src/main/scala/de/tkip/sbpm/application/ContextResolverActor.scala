@@ -75,7 +75,7 @@ class ContextResolverActor extends Actor {
         subjectInstanceMap contains ((processId, processInstanceId, subjectId))
       } => Array(subjectInstanceMap((processId, processInstanceId, subjectId)))
       case SubjectInformation(processId, processInstanceId, subjectId) => {
-        val future = ActorLocator.persistenceActor ? Users.Read.BySubject(subjectId, processId)
+        val future = ActorLocator.persistenceActor ? Users.Read.BySubject(subjectId, processInstanceId, processId)
         val users = Await.result(future, timeout.duration).asInstanceOf[Seq[User]]
         users.map(_.id.get).toArray
       }
