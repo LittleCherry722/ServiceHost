@@ -191,7 +191,7 @@ h3 {
   line-height: 20px;
 }
 
-.next-slide {
+#next-slide {
   font-size: 18px;
   font-weight: 400;
   display: block;
@@ -199,6 +199,7 @@ h3 {
   position: fixed;
   bottom: 1.5em;
   right: 2em;
+  z-index: 99999;
 }
 
 .bordered {
