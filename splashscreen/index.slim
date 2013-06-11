@@ -3,51 +3,131 @@ html
   head
     title SBPM Groupware
     link type="text/css" rel="stylesheet" href="css/main.css"
-    script type="text/javascript" src="js/lib/jquery/jquery-2.0.0.min.js"
-    script type="text/javascript" src="js/lib/bootstrap/bootstrap.js"
-    script type="text/javascript" src="js/lib/intro.js/intro.js"
-    script type="text/javascript" src="js/lib/chardin.js/chardinjs.js"
-    script type="text/javascript" src="js/main.js"
 
   body
-    .container
-      h1.text-center
-        | SBPM Distrubuted Process Execution Demo
+    a#next-slide href="javascript: impress().next();" weiter (leertaste)
+    #tooltips
+      h3 Information
+      p#tooltip
 
-      p.lead.redacted
-        | Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-          nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-          sed diam voluptua. At vero eos et accusam et justo duo dolores et ea
-          rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum
-          dolor sit amet.
-
-      .row.text-center.images
-        .col.col-lg-4 data-chardin-intro="Staples provides a shopping service that internally uses the TSP delivery service to deliver the purchased goods."
-          h3 Staples
-          a.demo-image href="http://sbpm-stap.tk.informatik.tu-darmstadt.de" data-intro="Modelling the Staples interface is a little tricky since it consumes the TSP interface and exports its own. But fear not, we will guide you through it step by step." data-step="2"
+    #impress
+      #overview.step data-scale="1.5"
+        h1.inactive-hide SBPM Distrubuted Process Execution
+      #staples.images.step data-x="-600" data-y="50"
+        h3 Staples
+        .graphic
+          a.demo-image href="http://sbpm-stap.tk.informatik.tu-darmstadt.de"
             .image-placeholder
               .dummy
-              img src="images/staples.svg"
-        .col.col-lg-4 data-chardin-intro="The TSP deploys an interface that enables other services to use its delivery service." data-chardin-position="top"
-          h3 Transport Service Provider
-          a.demo-image href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de" data-intro="To start from the ground up, you can follow this link to modell the TSP interface." data-step="1"
+              img src="images/staples.svg" height="244" width="244"
+        p.inactive-hide style="padding: 0 100px;"
+          | Staples ist eine Einzelhandel und will einen Prozess zum Einkauf
+            von Waren bereitstellen. Die Auslieferung soll jedoch ein anderes
+            Unternehmen übernehmen.
+
+      #tsp.images.step data-x="0" data-y="50"
+        h3 Transport Service Provider
+        .graphic
+          a.demo-image href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de"
             .image-placeholder
               .dummy
-              img src="images/tsp.svg"
-        .col.col-lg-4 data-chardin-intro="Audi comsumes the Staples service to buy goods on demand that are transparently delivered to the facility by the transport service provider."
-          h3 Audi
-          a.demo-image href="http://sbpm-auda.tk.informatik.tu-darmstadt.de" data-intro="Last but not least, AUDI needs some help implementing the Staples interface into its business process. We will, again, guide you through every step on your way." data-step="3"
+              img src="images/tsp.svg" height="244" width="244"
+        p.inactive-hide style="padding: 0 100px;"
+          | Ein beliebter Transportdienstleister hat seinen Lieferprozess ebenfalls
+            in unserer Process Engine modelliert, so dass Staples den Lieferdienst
+            verwenden kann.
+      #audi.images.step data-x="600" data-y="50"
+        h3 Audi
+        .graphic
+          a.demo-image href="http://sbpm-auda.tk.informatik.tu-darmstadt.de"
             .image-placeholder
               .dummy
               img src="images/audi.svg"
+        p.inactive-hide style="padding: 0 0 0 100px;"
+          | Ein großes Unternehmen will nun das Bestellen von Bürogütern
+            automatisieren und implementiert die Dienstleistung von Staples.
+        p.inactive-hide style="padding: 0 0 0 100px;"
+          | Werden Büroartikel benötigt, wird die Bestellung automatisch an
+            Staples geschickt und die Waren von dem Transportdienstleister an
+            das Unternehmen übergeben.
+      #technical.step data-y="1300" data-x="1100" data-rotate="90"
+        h1 style="margin-top: -100px; margin-bottom: 100px;"
+          | Technische Details
+        .row
+          div.column
+            div
+              .bordered.container
+                h3 style="font-size:20px;" Transport-dienstleister
+                img src="images/tsp.svg"
+            div
+              .bordered.container style="margin-top: 75px;"
+                h3 style="font-size:20px;" Staples
+                img src="images/staples.svg" style="margin-top: 15px;"
+          div.column
+            div
+              .bordered.container.container-wide
+                h3 style="font-size:20px;" Google
+                div
+                  img src="images/repository.svg" style="width: 35%;"
+                div.small Business Interface Repository
+            div
+              .bordered.container.container-wide style="margin-top: 75px;"
+                h3 style="font-size:20px; margin-bottom: 10px;" Amazon
+                div.pull-left style="width: 110px; padding: 0 10px;"
+                  img src="images/engine.svg" style="width: 60%;"
+                  p.small Process Engine ST
+                div.pull-left style="width: 110px; padding: 0 10px; margin-left: 10px;"
+                  img src="images/engine.svg" style="width: 60%;"
+                  p.small Process Engine TD
+          div.column
+            div
+              .bordered.container.container-wide.container-tall
+                h3 style="font-size:20px; margin-bottom: 10px;" Audi
+                div
+                  img src="images/repository.svg" style="width: 35%;"
+                  p.small Business Interface Repository
+                div style="margin-top: 150px;"
+                  div.pull-left style="width: 110px; padding: 0 10px;"
+                    img src="images/engine.svg" style="width: 60%;"
+                    p.small Process Engine
+                  div.pull-left style="width: 110px; padding: 0 10px; margin-left: 10px;"
+                    img src="images/audi.svg" style="width: 100%;"
+      #overlays.inactive-hide.step data-y="1300" data-x="1100" data-rotate="90"
+        .arrow-1.arrow[data-width="250" data-y-offset="-40" data-right-y-offset="0"
+          data-direction="right" data-label="(1) BI bereitstellen"
+          data-label-tooltip="Der Transportdienstleister stellt seinen Prozess \
+          durch ein Business Interface für andere zur Verfügung."]
+        .arrow-2.arrow[data-width="220" data-y-offset="-65" data-right-y-offset="-77"
+          data-direction="right" data-label="(2) BI lookup"
+          data-label-tooltip="Staples sucht nach im Business interface Repository \
+          nach einm Prozess zur Auslieferung von Waren."]
+        .arrow-3.arrow[data-width="225" data-y-offset="-42" data-right-y-offset="-75"
+          data-direction="left" data-label="(3) BI TD"
+          data-label-tooltip="Staples hat einen Transportdienstleister gefunden und \
+          implementiert dieses Business interface nun im eigenen Geschäftsprozess."]
+        .arrow-4.arrow[data-width="230" data-y-offset="-20" data-right-y-offset="-75"
+          data-direction="right" data-label="(4) BI TD"
+          data-label-tooltip="Nachdem die Modellierung des Prozesses fertig ist,\
+          exportiert Staples den eigenen Prozess widerum, so dass andere den Prozess \
+          implementieren und eine Bestellung aufgeben können."]
+        .arrow-5.arrow[data-width="95" data-y-offset="50" data-right-y-offset="120"
+          data-direction="left" data-label="(5) BI lookup"
+          data-label-tooltip="Ein Großunternehmen sucht nach einem Prozess zur \
+          Bestellung von Bürowaren."]
+        .arrow-6.arrow[data-width="246" data-y-offset="0" data-right-y-offset="0"
+          data-direction="left" data-label="(6) lookup"
+          data-label-tooltip="Das lokale Repository sucht in der eigenen Datenbank \
+          und fragt gleichzeitig bei anderen bekannten Repositories an, \
+          ob neue Interfaces bekannt sind."]
+        .arrow-7.arrow[data-width="246" data-y-offset="0" data-right-y-offset="0"
+          data-direction="right" data-label="(7) Sync"
+          data-label-tooltip="Da kürzlich ein neues Interface hinzugefügt wurde, wird \
+          dieses mit dem lokalen Repository des Großunternehmens synchronisiert."]
+        .arrow-8.arrow[data-width="95" data-y-offset="62" data-right-y-offset="120"
+          data-direction="right" data-label="(8) BI lookup"
+          data-label-tooltip="Das Großunternehmen findet das Staples Business Interface \
+          und implementiert es im eigenen Prozess."]
 
-      #step-by-step-wrapper.row.collapsed
-        .col.col-lg-12.text-center
-          a#step-by-step.btn.btn-primary.btn-large href="#" data-chardin-intro="Where should I start?" data-chardin-position="bottom"
-            | Where to start?
-      .row.margin-top
-        .col.col-lg-12.text-center
-          a#tutorial.btn.btn-primary.btn-large href="#" data-chardin-intro="Show this overview again." data-chardin-position="right"
-            ' Show introduction
-            span.tutorial-again again
-
+    script type="text/javascript" src="js/lib/jquery/jquery-2.0.0.min.js"
+    script type="text/javascript" src="js/lib/impress.js/impress.js"
+    script type="text/javascript" src="js/main.js"
