@@ -39,6 +39,7 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.model.UserIdentity
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.model._
+
 import com.github.t3hnar.bcrypt._
 
 /**

@@ -18,6 +18,7 @@ import akka.actor.ActorRef
 import akka.pattern._
 import scala.concurrent.duration._
 import scala.concurrent.Future
+
 import com.github.t3hnar.bcrypt._
 import scala.concurrent.ExecutionContext
 import de.tkip.sbpm.persistence.query._
