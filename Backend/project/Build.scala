@@ -30,7 +30,7 @@ object ProjectBuild extends Build {
         "io.spray" % "spray-can" % "1.1-M7",
         "io.spray" % "spray-routing" % "1.1-M7",
         "io.spray" % "spray-testkit" % "1.1-M7" % "test",
-        "io.spray" %% "spray-json" % "1.2.5",
+        "io.spray" %% "spray-json" % "1.2.3",
         "com.github.t3hnar" % "scala-bcrypt_2.10" % "2.1",
         "com.fasterxml.jackson.core" % "jackson-core" % "2.2.0",
 
