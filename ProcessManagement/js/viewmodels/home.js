@@ -51,7 +51,6 @@ define([
 		var viewModel;
 
 		processInstance( ProcessInstance.fetchAll );
-		alert(ProcessInstance.fetchAll );
 		viewModel = new ViewModel();
 		//processInstance( ProcessInstance.find( processInstanceId ) );
 
