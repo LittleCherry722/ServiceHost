@@ -1,0 +1,113 @@
+<div class="header">
+	<div style="float:left; padding-top:10px;">Process started at: <span data-bind="text: processStarted.date"></span></div>
+	<div style="float:right; padding-top:10px;">Process ended at: <span data-bind="text: processEnded.date"></span></div>
+    <div style="clear:both;"></div>
+</div>
+
+<div id="processHistory">
+  <div class="flexbox" style="height: 100%;">
+      <div class="fluid" style="overflow: auto; height: 100%;">
+        
+        <table class="table">
+          <thead>
+            <th>Time</th>
+            <th>Subject</th>
+            <th>From</th>
+            <th>@State</th>
+            <th>To</th>
+            <th>@State</th>
+            <th></th>
+          </thead>
+          <tbody data-bind="foreach: processes.processInstances().historicEntries">
+            <tr class="state" data-bind="attr: { id: $index }" style="border: 2px solid #7D7D7D;">
+              <td data-bind="text: timestamp.date"></td>
+              <td data-bind="text: subject"></td>
+              <td data-bind="text: fromState.name"></td>
+              <td data-bind="text: fromState.stateType"></td>
+              <td data-bind="text: toState.name"></td>
+              <td data-bind="text: toState.stateType"></td>
+              <td><!-- ko if: $data.hasOwnProperty("message") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
+            </tr>
+              <!-- Line below will be recognized by ko parser-->
+              <!-- ko if: $data.hasOwnProperty("message") -->
+              <tr style="display:none;" class="true" data-bind="attr: { 'class': 'message' + $index() }">
+ 				<td colspan="7" style="padding:0;">
+                	<div style="padding:8px; border-bottom:1px solid #7D7D7D; border-right: 2px solid #7D7D7D;border-left: 2px solid #7D7D7D;">
+                        <div style="float:left; width:282px;">
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">ID:</div><div style="float:left;padding:5px;" data-bind="text: message.id"></div><div style="clear:both;"></div>
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">Type:</div><div style="float:left;padding:5px;" data-bind="text: message.messageType">></div><div style="clear:both;"></div>
+                        </div>
+                        <div style="float:left;">
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">From:</div><div style="float:left;padding:5px;" data-bind="text: message.from">></div><div style="clear:both;"></div>
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">To:</div><div style="float:left;padding:5px;" data-bind="text: message.to">></div><div style="clear:both;"></div>
+                        </div>
+                        <div style="clear:both"></div>
+                        <div style="float:left; width:90px;padding:5px;font-weight:bold;">Message:</div><div style="float:left;padding:5px;" data-bind="text: message.data">></div><div style="clear:both;"></div>
+                	</div>
+                </td>
+              </tr>
+              <!-- /ko -->    
+          </tbody>
+        </table>
+        
+        
+        		<table class="table table-middle" style="width: 600px;">
+			<thead>
+				<tr>
+					<th style="width: 60%" > Name </th>
+					<th  colspan="2" style="width: 40%"> Actions </th>
+				</tr>
+			</thead>
+			<tbody data-bind='foreach: processes'>
+				<tr>
+					<td>
+						<a data-bind="attr: { href: url() }, text: menuName()"></a>
+					</td>
+					<td>
+						<div class="btn-group">
+							<div class="btn-group">
+								<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"
+										style="border-top-right-radius: 0;
+										border-bottom-right-radius: 0; border-right: 0 none;">
+									(<span data-bind="text: instanceCount"></span>)
+									Instances
+									<b class="caret"></b>
+								</a>
+								<ul class="dropdown-menu">
+									<li>
+										<a href="#" data-bind="click: $parent.newInstance">New Instance</a>
+									</li>
+									<!-- ko if: $data.hasInstances -->
+									<li class="divider"></li>
+									<!-- ko foreach: $data.processInstances -->
+									<li>
+										<a data-bind="attr: { href: url() }">
+											Instance
+											<span data-bind="text: $index() + 1"></span>
+										</a>
+									</li>
+									<!-- /ko -->
+									<!-- /ko -->
+									<!-- ko ifnot: $data.hasInstances -->
+									<li class="divider"></li>
+									<li class="disabled">
+										<a href="#">No Instances running</a>
+									</li>
+									<!-- /ko -->
+								</ul>
+							</div>
+							<a class="btn" data-bind="attr: { href: url() }">
+								Edit
+							</a>
+							<button class="btn" data-bind="click: $parent.remove">
+								Delete
+							</button>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+      </div>
+    </div>
+  </div>
+</div>

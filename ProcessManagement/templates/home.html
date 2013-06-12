@@ -114,83 +114,17 @@
             <option>User 5</option>
         </select>
     </div>
-    <hr>
+    <hr>    
     
-    <div id="view_tabs">
-        <button>Actions</button>
-        <button>History</button>
-    </div>
-    
-    <table class="result">
-        <tr>
-            <td class="col1">
-                <img src="images/icon_media.png"/>
-            </td>
-            <td class="col2">
-                <span class="action">Action Title 1</span>
-                <span class="type">Type: <a>Action Type</a></span>
-            </td>
-            <td class="col3">
-                <span class="process">Process: <a>Process 1</a></span>
-                <span class="description">Short action / message description...</span>
-            </td>
-            <td class="col4">
-                <span class="user">From: <a>User 1</a></span>
-            </td>
-        </tr>
-    </table>  
-    
-    <table class="result">
-        <tr>
-            <td class="col1">
-                <img src="images/icon_media.png"/>
-            </td>
-            <td class="col2">
-                <span class="action">Action Title 2</span>
-                <span class="type">Type: <a>Action Type</a></span>
-            </td>
-            <td class="col3">
-                <span class="process">Process: <a>Process 2</a></span>
-                <span class="description">Short action / message description...</span>
-            </td>
-            <td class="col4">
-                <span class="user">From: <a>User 2</a></span>
-            </td>
-        </tr>
-       
-        <tr>
-            <td colspan="4" class="item_info">
-                <span>
-                    Long action description with file information (if one was attached) etc.
-                </span>
-                <input type="file"/>
-                <hr>
-                <button onclick="this.parentNode.parentNode.style.display = 'none';">Accept</button>
-                <button onclick="this.parentNode.parentNode.style.display = 'none';">Decline</button>
-                <button onclick="this.parentNode.parentNode.style.display = 'none';" class="button_cancel">Cancel</button>
-                
-            </td>
-        </tr>
-    </table>
-    
-    <table class="result">
-        <tr>
-            <td class="col1">
-                <img src="images/icon_media.png"/>
-            </td>
-            <td class="col2">
-                <span class="action">Action Title 3</span>
-                <span class="type">Type: <a>Action Type</a></span>
-            </td>
-            <td class="col3">
-                <span class="process">Process: <a>Process 3</a></span>
-                <span class="description">Short action / message description...</span>
-            </td>
-            <td class="col4">
-                <span class="user">From: <a>User 3</a></span>
-            </td>
-        </tr>
-    </table>
+    <div id="processExecution">
+		<ul class="nav nav-tabs" data-bind="foreach: tabs">
+			<li data-bind="css: { active: $data === $root.currentTab() }, attr: { 'data-chardin-intro': $parent.tabDescriptions[$data] }">
+				<a data-bind="text: $data, attr: { href: '#/home/' + $data }"></a>
+			</li>
+		</ul>
+	</div>
+	<div id="executionContent">
+	</div>
     
   </div>
 </div>
