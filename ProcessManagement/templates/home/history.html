@@ -1,0 +1,55 @@
+<div class="header">
+	<div style="float:left; padding-top:10px;">Process started at: <span></span></div>
+	<div style="float:right; padding-top:10px;">Process ended at: <span></span></div>
+    <div style="clear:both;"></div>
+</div>
+
+<div id="processHistory">
+  <div class="flexbox" style="height: 100%;">
+      <div class="fluid" style="overflow: auto; height: 100%;">
+        
+        <table class="table">
+          <thead>
+            <th>Time</th>
+            <th>Subject</th>
+            <th>From</th>
+            <th>@State</th>
+            <th>To</th>
+            <th>@State</th>
+            <th></th>
+          </thead>
+          <tbody data-bind="foreach: historicEntries">
+            <tr class="state" style="border: 2px solid #7D7D7D;">
+              <td></td>
+              <td data-bind="text: processName"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td><!-- ko if: $data.hasOwnProperty("message") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
+            </tr>
+              <!-- Line below will be recognized by ko parser-->
+              <!-- ko if: $data.hasOwnProperty("message") -->
+              <tr style="display:none;" class="true">
+ 				<td colspan="7" style="padding:0;">
+                	<div style="padding:8px; border-bottom:1px solid #7D7D7D; border-right: 2px solid #7D7D7D;border-left: 2px solid #7D7D7D;">
+                        <div style="float:left; width:282px;">
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">ID:</div><div style="float:left;padding:5px;"></div><div style="clear:both;"></div>
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">Type:</div><div style="float:left;padding:5px;">></div><div style="clear:both;"></div>
+                        </div>
+                        <div style="float:left;">
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">From:</div><div style="float:left;padding:5px;">></div><div style="clear:both;"></div>
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">To:</div><div style="float:left;padding:5px;">></div><div style="clear:both;"></div>
+                        </div>
+                        <div style="clear:both"></div>
+                        <div style="float:left; width:90px;padding:5px;font-weight:bold;">Message:</div><div style="float:left;padding:5px;">></div><div style="clear:both;"></div>
+                	</div>
+                </td>
+              </tr>
+              <!-- /ko -->    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
