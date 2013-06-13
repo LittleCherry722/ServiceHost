@@ -97,7 +97,7 @@ case class ActionExecuted(ea: ExecuteAction)
 
 case class ExecuteActionAnswer(
   execute: ExecuteAction,
-  processInstanceData: ProcessInstanceData) extends AnswerMessage {
+  answer: ProcessInstanceData) extends AnswerMessage {
   def request = execute.asInstanceOf[AnswerAbleMessage]
 }
 

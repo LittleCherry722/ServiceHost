@@ -125,7 +125,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
               implicit val timeout = Timeout(5 seconds)
               val future = (subjectProviderManager ? mixExecuteActionWithRouting(json))
               val result = Await.result(future, timeout.duration).asInstanceOf[ExecuteActionAnswer]
-              complete(result.processInstanceData)
+              complete(result.answer)
             }
           }
         }
