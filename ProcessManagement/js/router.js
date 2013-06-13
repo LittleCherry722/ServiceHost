@@ -48,8 +48,12 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	// Show the home (index) page.
-	var showHome = function() {
-		App.loadView( "home", null, globalCallback() );
+	var showHome = function(tab) {
+		if ( App.isViewLoaded( "home" ) ) {
+			App.currentMainViewModel().setView(tab)
+		} else {
+			loadView( "home", [ tab ], globalCallback() );
+		}		
 	}
 
 	var showAccount = function() {
@@ -93,7 +97,12 @@ define([ "director", "app"], function( Director, App ) {
 	 */
 	var routes = {
 		"/":  showHome,
-		"/home":  showHome,
+		"/home":  {
+			on: showHome,
+			"/:tab": {
+			 	on: showHome
+			}
+		},
 		"/account": showAccount,
 		"/administration": {
 			on: showAdministration,

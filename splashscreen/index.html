@@ -3,59 +3,137 @@
   <head>
     <title>SBPM Groupware</title>
     <link href="css/main.css" rel="stylesheet" type="text/css" />
-    <script src="js/lib/jquery/jquery-2.0.0.min.js" type="text/javascript"></script>
-    <script src="js/lib/bootstrap/bootstrap.js" type="text/javascript"></script>
-    <script src="js/lib/intro.js/intro.js" type="text/javascript"></script>
-    <script src="js/lib/chardin.js/chardinjs.js" type="text/javascript"></script>
-    <script src="js/main.js" type="text/javascript"></script>
   </head>
   <body>
-    <div class="container">
-      <h1 class="text-center">SBPM Distrubuted Process Execution Demo</h1>
-      <p class="lead redacted">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-        nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-        sed diam voluptua. At vero eos et accusam et justo duo dolores et ea
-        rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum
-        dolor sit amet.</p>
-      <div class="row text-center images">
-        <div class="col col-lg-4" data-chardin-intro="Staples provides a shopping service that internally uses the TSP delivery service to deliver the purchased goods.">
-          <h3>Staples</h3>
-          <a class="demo-image" data-intro="Modelling the Staples interface is a little tricky since it consumes the TSP interface and exports its own. But fear not, we will guide you through it step by step." data-step="2" href="http://sbpm-stap.tk.informatik.tu-darmstadt.de">
+    <a href="javascript: impress().next();" id="next-slide">weiter (leertaste)</a>
+    <div id="tooltips">
+      <h3>Information</h3>
+      <p id="tooltip"></p>
+    </div>
+    <div id="impress">
+      <div class="step" data-scale="1.5" id="overview">
+        <h1 class="inactive-hide">SBPM Distrubuted Process Execution</h1>
+      </div>
+      <div class="images step" data-x="-600" data-y="50" id="staples">
+        <h3>Staples</h3>
+        <div class="graphic">
+          <a class="demo-image" href="http://sbpm-stap.tk.informatik.tu-darmstadt.de">
             <div class="image-placeholder">
               <div class="dummy"></div>
-              <img src="images/staples.svg" />
+              <img height="244" src="images/staples.svg" width="244" />
             </div>
           </a>
         </div>
-        <div class="col col-lg-4" data-chardin-intro="The TSP deploys an interface that enables other services to use its delivery service." data-chardin-position="top">
-          <h3>Transport Service Provider</h3>
-          <a class="demo-image" data-intro="To start from the ground up, you can follow this link to modell the TSP interface." data-step="1" href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de">
+        <p class="inactive-hide" style="padding: 0 100px;">Staples ist eine Einzelhandel und will einen Prozess zum Einkauf
+          von Waren bereitstellen. Die Auslieferung soll jedoch ein anderes
+          Unternehmen übernehmen.</p>
+      </div>
+      <div class="images step" data-x="0" data-y="50" id="tsp">
+        <h3>Transport Service Provider</h3>
+        <div class="graphic">
+          <a class="demo-image" href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de">
             <div class="image-placeholder">
               <div class="dummy"></div>
-              <img src="images/tsp.svg" />
+              <img height="244" src="images/tsp.svg" width="244" />
             </div>
           </a>
         </div>
-        <div class="col col-lg-4" data-chardin-intro="Audi comsumes the Staples service to buy goods on demand that are transparently delivered to the facility by the transport service provider.">
-          <h3>Audi</h3>
-          <a class="demo-image" data-intro="Last but not least, AUDI needs some help implementing the Staples interface into its business process. We will, again, guide you through every step on your way." data-step="3" href="http://sbpm-auda.tk.informatik.tu-darmstadt.de">
+        <p class="inactive-hide" style="padding: 0 100px;">Ein beliebter Transportdienstleister hat seinen Lieferprozess ebenfalls
+          in unserer Process Engine modelliert, so dass Staples den Lieferdienst
+          verwenden kann.</p>
+      </div>
+      <div class="images step" data-x="600" data-y="50" id="audi">
+        <h3>Audi</h3>
+        <div class="graphic">
+          <a class="demo-image" href="http://sbpm-auda.tk.informatik.tu-darmstadt.de">
             <div class="image-placeholder">
               <div class="dummy"></div>
               <img src="images/audi.svg" />
             </div>
           </a>
         </div>
+        <p class="inactive-hide" style="padding: 0 0 0 100px;">Ein großes Unternehmen will nun das Bestellen von Bürogütern
+          automatisieren und implementiert die Dienstleistung von Staples.</p>
+        <p class="inactive-hide" style="padding: 0 0 0 100px;">Werden Büroartikel benötigt, wird die Bestellung automatisch an
+          Staples geschickt und die Waren von dem Transportdienstleister an
+          das Unternehmen übergeben.</p>
       </div>
-      <div class="row collapsed" id="step-by-step-wrapper">
-        <div class="col col-lg-12 text-center">
-          <a class="btn btn-primary btn-large" data-chardin-intro="Where should I start?" data-chardin-position="bottom" href="#" id="step-by-step">Where to start?</a>
+      <div class="step" data-rotate="90" data-x="1100" data-y="1300" id="technical">
+        <h1 style="margin-top: -100px; margin-bottom: 100px;">Technische Details</h1>
+        <div class="row">
+          <div class="column">
+            <div>
+              <div class="bordered container">
+                <h3 style="font-size:20px;">Transport-dienstleister</h3>
+                <img src="images/tsp.svg" />
+              </div>
+            </div>
+            <div>
+              <div class="bordered container" style="margin-top: 75px;">
+                <h3 style="font-size:20px;">Staples</h3>
+                <img src="images/staples.svg" style="margin-top: 15px;" />
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div>
+              <div class="bordered container container-wide">
+                <h3 style="font-size:20px;">Google</h3>
+                <div>
+                  <img src="images/repository.svg" style="width: 35%;" />
+                </div>
+                <div class="small">Business Interface Repository</div>
+              </div>
+            </div>
+            <div>
+              <div class="bordered container container-wide" style="margin-top: 75px;">
+                <h3 style="font-size:20px; margin-bottom: 10px;">Amazon</h3>
+                <div class="pull-left" style="width: 110px; padding: 0 10px;">
+                  <img src="images/engine.svg" style="width: 60%;" />
+                  <p class="small">Process Engine ST</p>
+                </div>
+                <div class="pull-left" style="width: 110px; padding: 0 10px; margin-left: 10px;">
+                  <img src="images/engine.svg" style="width: 60%;" />
+                  <p class="small">Process Engine TD</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="column">
+            <div>
+              <div class="bordered container container-wide container-tall">
+                <h3 style="font-size:20px; margin-bottom: 10px;">Audi</h3>
+                <div>
+                  <img src="images/repository.svg" style="width: 35%;" />
+                  <p class="small">Business Interface Repository</p>
+                </div>
+                <div style="margin-top: 150px;">
+                  <div class="pull-left" style="width: 110px; padding: 0 10px;">
+                    <img src="images/engine.svg" style="width: 60%;" />
+                    <p class="small">Process Engine</p>
+                  </div>
+                  <div class="pull-left" style="width: 110px; padding: 0 10px; margin-left: 10px;">
+                    <img src="images/audi.svg" style="width: 100%;" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="row margin-top">
-        <div class="col col-lg-12 text-center">
-          <a class="btn btn-primary btn-large" data-chardin-intro="Show this overview again." data-chardin-position="right" href="#" id="tutorial">Show introduction <span class="tutorial-again">again</span></a>
-        </div>
+      <div class="inactive-hide step" data-rotate="90" data-x="1100" data-y="1300" id="overlays">
+        <div class="arrow-1 arrow" data-direction="right" data-label="(1) BI bereitstellen" data-label-tooltip="Der Transportdienstleister stellt seinen Prozess  durch ein Business Interface für andere zur Verfügung." data-right-y-offset="0" data-width="250" data-y-offset="-40"></div>
+        <div class="arrow-2 arrow" data-direction="right" data-label="(2) BI lookup" data-label-tooltip="Staples sucht nach im Business interface Repository  nach einm Prozess zur Auslieferung von Waren." data-right-y-offset="-77" data-width="220" data-y-offset="-65"></div>
+        <div class="arrow-3 arrow" data-direction="left" data-label="(3) BI TD" data-label-tooltip="Staples hat einen Transportdienstleister gefunden und  implementiert dieses Business interface nun im eigenen Geschäftsprozess." data-right-y-offset="-75" data-width="225" data-y-offset="-42"></div>
+        <div class="arrow-4 arrow" data-direction="right" data-label="(4) BI TD" data-label-tooltip="Nachdem die Modellierung des Prozesses fertig ist, exportiert Staples den eigenen Prozess widerum, so dass andere den Prozess  implementieren und eine Bestellung aufgeben können." data-right-y-offset="-75" data-width="230" data-y-offset="-20"></div>
+        <div class="arrow-5 arrow" data-direction="left" data-label="(5) BI lookup" data-label-tooltip="Ein Großunternehmen sucht nach einem Prozess zur  Bestellung von Bürowaren." data-right-y-offset="120" data-width="95" data-y-offset="50"></div>
+        <div class="arrow-6 arrow" data-direction="left" data-label="(6) lookup" data-label-tooltip="Das lokale Repository sucht in der eigenen Datenbank  und fragt gleichzeitig bei anderen bekannten Repositories an,  ob neue Interfaces bekannt sind." data-right-y-offset="0" data-width="246" data-y-offset="0"></div>
+        <div class="arrow-7 arrow" data-direction="right" data-label="(7) Sync" data-label-tooltip="Da kürzlich ein neues Interface hinzugefügt wurde, wird  dieses mit dem lokalen Repository des Großunternehmens synchronisiert." data-right-y-offset="0" data-width="246" data-y-offset="0"></div>
+        <div class="arrow-8 arrow" data-direction="right" data-label="(8) BI lookup" data-label-tooltip="Das Großunternehmen findet das Staples Business Interface  und implementiert es im eigenen Prozess." data-right-y-offset="120" data-width="95" data-y-offset="62"></div>
       </div>
     </div>
+    <script src="js/lib/jquery/jquery-2.0.0.min.js" type="text/javascript"></script>
+    <script src="js/lib/impress.js/impress.js" type="text/javascript"></script>
+    <script src="js/main.js" type="text/javascript"></script>
   </body>
 </html>

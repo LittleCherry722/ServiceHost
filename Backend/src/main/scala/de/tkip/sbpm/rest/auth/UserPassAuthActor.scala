@@ -28,7 +28,8 @@ import akka.actor.ActorRef
 import spray.routing.authentication.UserPass
 import de.tkip.sbpm.model.UserIdentity
 import scala.util.{ Try, Success, Failure }
-import ua.t3hnar.bcrypt._
+
+import com.github.t3hnar.bcrypt._
 import scala.concurrent.Await
 import de.tkip.sbpm.persistence.query.Users
 
