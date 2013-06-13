@@ -133,8 +133,13 @@ define([
 			currentProcess().isCreatedFromTable = true;
 		}
 
-		currentProcess().save(function() {
-			Router.goTo( currentProcess() );
+		currentProcess().save(null, {
+			success: function() {
+				Router.goTo( currentProcess() );
+			},
+			error: function() {
+				Notify.error("Error", "Saving the process failed.")
+			}
 		});
 	}
 
@@ -151,7 +156,7 @@ define([
 
 		});
 	}
-	
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize

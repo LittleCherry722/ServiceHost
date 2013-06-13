@@ -1,0 +1,73 @@
+@import 'bourbon';
+
+/*
+    Now here is when interesting things start to appear.
+
+    We set up <body> styles with default font and nice gradient in the background.
+    And yes, there is a lot of repetition there because of -prefixes but we don't
+    want to leave anybody behind.
+*/
+body {
+    font-family: 'Open Sans', "Helvetica Neue", sans-serif;
+    min-height: 740px;
+
+    // background: url('../images/background.png')
+}
+
+/*
+    Now let's bring some text styles back ...
+*/
+b, strong { font-weight: bold }
+i, em { font-style: italic }
+
+/*
+    ... and give links a nice look.
+*/
+
+/*
+    Now let's style the presentation steps.
+
+    We start with basics to make sure it displays correctly in everywhere ...
+*/
+
+.step {
+  position: relative;
+  width: 900px;
+  padding: 40px;
+  min-height: 500px;
+  margin: 20px auto;
+
+  font-weight: 200;
+  font-size: 26px;
+  line-height: 1.5;
+}
+
+/*
+    ... and we enhance the styles for impress.js.
+
+    Basically we remove the margin and make inactive steps a little bit transparent.
+*/
+.impress-enabled .step {
+    margin: 0;
+
+    &.inactive-hide, .inactive-hide{
+      opacity: 0;
+      visibility: hidden;
+      @include transition( opacity 1s )
+    }
+
+    &.inactive-dim, .inactive-dim {
+      opacity: 0.3;
+      @include transition( opacity 1s )
+    }
+
+    @include transition( opacity 1s )
+}
+
+.impress-enabled .step.active {
+  &.inactive-hide, &.inactive-dim, .inactive-hide, .inactive-dim {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
