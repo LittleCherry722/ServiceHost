@@ -22,7 +22,13 @@
         <br /><br />
         <strong data-bind="text: $parent.selectUsersText">User:</strong>
 
-        <select data-bind="options: $parent.selectUser, optionsText: 'name', selectedOptions: $parent.selectedUsers, optionsCaption: $parent.selectUsersMax() == 1 ? 'Choose...': null, attr: {multiple: $parent.selectUsersMax() > 1 ? 'multiple' : null}"></select>
+        <select class="chzn-select" data-bind="options: $parent.selectUser, optionsText: 'name', optionsValue: 'id',
+            selectedOptions: $parent.selectedUsers,
+            optionsCaption: $parent.selectUsersMax() == 1 ? 'Choose...': null,
+            attr: {
+                multiple: $parent.selectUsersMax() > 1 ? 'multiple' : null
+            }" data-placeholder="Choose...">
+        </select>
         <br /><br />
         <strong>Nachricht:</strong> <br>
         <input type="text" data-bind="value: $parent.messageText" />

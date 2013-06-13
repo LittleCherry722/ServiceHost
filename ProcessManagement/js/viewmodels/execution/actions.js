@@ -132,7 +132,7 @@ define([
 		var deArray;
 
 		serverDone( false );
-		data = actionOfCurrentSubject()
+		data = actionOfCurrentSubject();
 
 		deArray = data.actionData[ 0 ];
 		if( messageText ) {
@@ -142,18 +142,14 @@ define([
 		}
 
 		deArray.selectedUser = undefined;
-		if ( selectedUsers() ) {
-			if(selectedUsers().length > selectUsersMax() || selectedUsers().length < selectUsersMin()){
-				alert( 'Please select at least ' + selectUsersMin() + ' and at most ' + selectUsersMax() + ' Users!');
-				return;
-			}
-			if( selectedUsers().length === 1 ){
-				deArray.selectedUser = selectedUsers()[0].id()
-			} else {
-				deArray.selectedUser = $.map(selectedUsers(), function(val) {
-					return val.id();
-				});
-			}
+		if(selectedUsers().length > selectUsersMax() || selectedUsers().length < selectUsersMin()){
+			alert( 'Please select at least ' + selectUsersMin() + ' and at most ' + selectUsersMax() + ' Users!');
+			return;
+		}
+		if( selectedUsers().length === 1 ){
+			deArray.selectedUser = selectedUsers()[0]
+		} else {
+			deArray.selectedUser = selectedUsers();
 		}
 
 		data.actionData = deArray;
@@ -163,7 +159,7 @@ define([
 
 		data = JSON.stringify( data );
 
-			$.ajax({
+		$.ajax({
 			url : '/processinstance/' + id,
 			type : "PUT",
 			data: data,
@@ -266,11 +262,30 @@ define([
 		});
 
 		selectUsersText = ko.computed( function() {
-			return selectUsersMin() == 1 ? 'User:' : 'Users (min=' + selectUsersMin() + ', max=' + selectUsersMax() + ')';
+			return selectUsersMax() == 1 ? 'User:' : 'Users (min=' + selectUsersMin() + ', max=' + selectUsersMax() + ')';
 		});
 
 		viewModel = new ViewModel();
 		App.loadTemplate( "execution/actions", viewModel, "actions", function() {
+			/**
+			 * Used to enable 'chosen' selects (if needed)
+			 */
+			var subscriptionFn = function () {
+				if( selectUsersMax() > 1 ) {
+					if( selectedUsers.length == 0 ) {
+						$( '#actions .chzn-select' ).val( null )
+					}
+					//let the dom refresh first
+					setTimeout( function () {
+						$ ('#actions .chzn-select').chosen ()
+					}, 0 );
+				}
+			};
+
+			// chosen selects have to be enabled after knockout processed the html (otherwise the changes are
+			// conflicting and overwritten)
+			actionData.subscribe(subscriptionFn);
+			isTypeOf.subscribe(subscriptionFn);
 		});
 	}
 
