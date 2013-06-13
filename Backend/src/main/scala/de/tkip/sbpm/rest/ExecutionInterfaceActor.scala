@@ -82,35 +82,10 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
     get {
       //READ
       path(IntNumber) { processInstanceID =>
-
         implicit val timeout = Timeout(5 seconds)
-        val composedFuture = for {
-          processInstanceFuture <- (persistanceActor ? ProcessInstances.Read.ById(processInstanceID.toInt)).mapTo[Option[ProcessInstance]]
-          graphFuture <- {
-            if (processInstanceFuture.isDefined)
-              (persistanceActor ? Graphs.Read.ById(processInstanceFuture.get.graphId)).mapTo[Option[Graph]]
-            else
-              throw new Exception("Processinstance '" + processInstanceID + "' does not exist.")
-          }
-          historyFuture <- (subjectProviderManager ? {
-            GetHistory(userId, processInstanceID)
-          }).mapTo[HistoryAnswer]
-          availableActionsFuture <- (subjectProviderManager ? {
-            GetAvailableActions(userId, processInstanceID)
-          }).mapTo[AvailableActionsAnswer]
-        } yield JsObject(
-          "processId" -> JsNumber(processInstanceFuture.get.processId),
-          "graph" -> {
-            if (graphFuture.isDefined)
-              graphFuture.get.toJson
-            else
-              JsNull
-          },
-          // TODO make isTerminated nicer
-          "isTerminated" -> JsBoolean(historyFuture.history.processEnded.isDefined),
-          "history" -> historyFuture.history.toJson,
-          "actions" -> availableActionsFuture.availableActions.toJson)
-        complete(composedFuture)
+        val future = subjectProviderManager ? ReadProcessInstance(userId, processInstanceID)
+        val result = Await.result(future, timeout.duration).asInstanceOf[ReadProcessInstanceAnswer]
+        complete(result.answer)
       } ~
         // Show Actions
         path("action") {
@@ -123,7 +98,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
         //LIST
         path("") {
           implicit val timeout = Timeout(5 seconds)
-          val future = (subjectProviderManager ? GetAllProcessInstances(userId.toInt)).mapTo[AllProcessInstancesAnswer]
+          val future = (subjectProviderManager ? GetAllProcessInstances(userId)).mapTo[AllProcessInstancesAnswer]
           val result = Await.result(future, timeout.duration)
 
           complete(result.processInstanceInfo)
@@ -161,7 +136,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
           path("^$"r) { regex =>
             entity(as[ProcessIdHeader]) { json =>
               implicit val timeout = Timeout(5 seconds)
-              val future = subjectProviderManager ? CreateProcessInstance(userId.toInt, json.processId)
+              val future = subjectProviderManager ? CreateProcessInstance(userId, json.processId)
               val result = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated]
               complete(result.answer)
             }

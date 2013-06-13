@@ -185,6 +185,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case answer: AnswerMessage => {
       context.parent.forward(answer)
     }
+
+    case message: ReadProcessInstance => {
+      createReadProcessInstanceAnswer(message)
+    }
   }
 
   private var sendProcessInstanceCreated = true
@@ -211,7 +215,16 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, new ProcessInstanceData(id, processID, persistenceGraph, isTerminated, executionHistory, actions)))
+          ExecuteActionAnswer(req, ProcessInstanceData(id, processID, persistenceGraph, isTerminated, executionHistory, actions)))
+  }
+
+  private def createReadProcessInstanceAnswer(req: ReadProcessInstance) {
+    context.parent !
+      AskSubjectsForAvailableActions(req.userID,
+        id,
+        AllSubjects,
+        (actions: Array[AvailableAction]) =>
+          ReadProcessInstanceAnswer(req, new ProcessInstanceData(id, processID, persistenceGraph, isTerminated, executionHistory, actions)))
   }
 
   private def createSubjectContainer(subject: Subject): SubjectContainer = {

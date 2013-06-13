@@ -71,8 +71,8 @@ case class ProcessInstanceData(id: ProcessInstanceID,
                                isTerminated: Boolean,
                                history: History,
                                actions: Array[AvailableAction])
-// TODO ins programm einbinden
-case class ReadProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
+
+case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
 
 case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
