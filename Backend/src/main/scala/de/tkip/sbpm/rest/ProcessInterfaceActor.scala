@@ -33,7 +33,7 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
 import spray.json._
-import spray.httpx.marshalling.Marshaller
+import spray.httpx.marshalling._
 import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
 import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
 import de.tkip.sbpm.application.ProcessManagerActor
