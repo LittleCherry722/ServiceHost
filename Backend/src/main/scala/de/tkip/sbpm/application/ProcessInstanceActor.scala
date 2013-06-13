@@ -189,10 +189,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private var sendProcessInstanceCreated = true
   private def trySendProcessInstanceCreated() {
-    
-    def data(actions: Array[AvailableAction]) =
-      ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
-    
+
+      def data(actions: Array[AvailableAction]) =
+        ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
+
     if (sendProcessInstanceCreated) {
       context.parent !
         AskSubjectsForAvailableActions(
@@ -211,7 +211,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, processID, isTerminated, persistenceGraph, executionHistory, actions))
+          ExecuteActionAnswer(req, new ProcessInstanceData(id, processID, persistenceGraph, isTerminated, executionHistory, actions)))
   }
 
   private def createSubjectContainer(subject: Subject): SubjectContainer = {

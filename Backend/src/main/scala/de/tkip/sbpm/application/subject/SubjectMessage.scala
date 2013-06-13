@@ -23,6 +23,7 @@ import de.tkip.sbpm.application.History
 import de.tkip.sbpm.model.Target
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.model.Graph
+import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -96,11 +97,7 @@ case class ActionExecuted(ea: ExecuteAction)
 
 case class ExecuteActionAnswer(
   execute: ExecuteAction,
-  processID: ProcessID,
-  isTerminated: Boolean,
-  graph: Graph,
-  history: History,
-  availableActions: Array[AvailableAction]) extends AnswerMessage {
+  processInstanceData: ProcessInstanceData) extends AnswerMessage {
   def request = execute.asInstanceOf[AnswerAbleMessage]
 }
 
