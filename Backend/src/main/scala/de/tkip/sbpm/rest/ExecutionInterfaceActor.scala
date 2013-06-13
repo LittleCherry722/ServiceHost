@@ -13,36 +13,22 @@
 
 package de.tkip.sbpm.rest
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
-import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.subject.AvailableAction
-import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.SprayJsonSupport._
-import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
-import spray.http.MediaTypes._
 import spray.http.StatusCodes
-import spray.httpx.marshalling.Marshaller
-import spray.json._
 import spray.routing._
 import spray.util.LoggingContext
-import akka.actor.Props
 import de.tkip.sbpm.application.subject.ExecuteAction
 import de.tkip.sbpm.application.subject.ExecuteActionAnswer
 import scala.concurrent.Await
 import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
 import scala.concurrent.ExecutionContext
-import de.tkip.sbpm.persistence.query.Processes
-import de.tkip.sbpm.persistence.query.ProcessInstances
-import de.tkip.sbpm.persistence.query.Graphs
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -74,7 +60,6 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
   def actorRefFactory = context
 
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
-  private lazy val persistanceActor = ActorLocator.persistenceActor
 
   def routing = runRoute({
     // TODO: aus cookie auslesen
