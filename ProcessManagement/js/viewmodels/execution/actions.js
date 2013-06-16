@@ -146,10 +146,9 @@ define([
 			alert( 'Please select at least ' + selectUsersMin() + ' and at most ' + selectUsersMax() + ' Users!');
 			return;
 		}
-		if( selectedUsers().length === 1 ){
-			deArray.selectedUser = selectedUsers()[0]
-		} else {
-			deArray.selectedUser = selectedUsers();
+
+		if ( deArray.hasOwnProperty('targetUsersData') ) {
+			deArray.targetUsersData.targetUsers = selectedUsers();
 		}
 
 		data.actionData = deArray;

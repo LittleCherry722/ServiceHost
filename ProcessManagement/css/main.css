@@ -7428,3 +7428,8 @@ a.close {
 .chardinContainer {
     width: 350px;
 }
+
+#executionContent {
+    padding: 10px;
+
+}
