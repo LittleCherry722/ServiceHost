@@ -13,21 +13,22 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
 import scala.language.postfixOps
+
+import akka.actor.Actor
 import akka.event.Logging
+
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.JsonProtocol._
+
 import spray.httpx.SprayJsonSupport._
 import spray.json._
 import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
-import spray.http.StatusCodes._
-import spray.http.HttpHeader
-import spray.http.HttpHeaders
+import spray.http.{StatusCodes._, HttpHeader, HttpHeaders}
 
 /**
  * This Actor is only used to process REST calls regarding "group"
@@ -83,7 +84,8 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
            * result: 404 Not Found or entity as JSON
            */
           path("^$"r) { regex => 
-            completeWithQuery[Group](Groups.Read.ById(id), "Group with id %d not found.", id)
+            completeWithQuery[Group](Groups.Read.ById(id),
+              "Group with id %d not found.", id)
           } ~
             /**
              * get a specific role mapping of the group
@@ -92,7 +94,8 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: JSON of entity
              */
             path(Entity.ROLE / IntNumber) { roleId =>
-              completeWithQuery[GroupRole](GroupsRoles.Read.ById(id, roleId), "Group with id %d has no role with id %d.", id, roleId)
+              completeWithQuery[GroupRole](GroupsRoles.Read.ById(id, roleId),
+                "Group with id %d has no role with id %d.", id, roleId)
             } ~
             /**
              * get a specific user mapping of the group
@@ -101,7 +104,8 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: JSON of entity
              */
             path(Entity.USER / IntNumber) { userId =>
-              completeWithQuery[GroupUser](GroupsUsers.Read.ById(id, userId), "Group with id %d has no user with id %d.", id, userId)
+              completeWithQuery[GroupUser](GroupsUsers.Read.ById(id, userId),
+                "Group with id %d has no user with id %d.", id, userId)
             }
         }
     } ~
@@ -114,7 +118,9 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          */
         pathPrefix(IntNumber) { id =>
           path("^$"r) { regex => 
-            completeWithDelete(Groups.Delete.ById(id), "Group could not be deleted. Entity with id %d not found.", id)
+            completeWithDelete(Groups.Delete.ById(id),
+              "Group could not be deleted. Entity with id %d not found.",
+              id)
           } ~
             /**
              * delete a user from the group
@@ -123,7 +129,9 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: 204 No Content
              */
             path(Entity.GROUP / IntNumber) { userId =>
-              completeWithDelete(GroupsUsers.Delete.ById(id, userId), "User could not be removed from group. Group with id %d has no user with id %d.", id, userId)
+              completeWithDelete(GroupsUsers.Delete.ById(id, userId),
+                "User could not be removed from group. Group with id %d has no user with id %d.",
+                id, userId)
             } ~
             /**
              * delete a role from the group
@@ -132,7 +140,9 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: 204 No Content
              */
             path(Entity.ROLE / IntNumber) { roleId =>
-              completeWithDelete(GroupsRoles.Delete.ById(id, roleId), "Role could not be removed from group. Group with id %d has no role with id %d.", id, roleId)
+              completeWithDelete(GroupsRoles.Delete.ById(id, roleId),
+                "Role could not be removed from group. Group with id %d has no role with id %d.",
+                id, roleId)
             }
         }
       } ~
