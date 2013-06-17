@@ -185,14 +185,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case answer: AnswerMessage => {
       context.parent.forward(answer)
     }
+
+    case message: ReadProcessInstance => {
+      createReadProcessInstanceAnswer(message)
+    }
   }
 
   private var sendProcessInstanceCreated = true
+  private def createProcessInstanceData(actions: Array[AvailableAction]) =
+    ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
   private def trySendProcessInstanceCreated() {
-    
-    def data(actions: Array[AvailableAction]) =
-      ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
-    
+
     if (sendProcessInstanceCreated) {
       context.parent !
         AskSubjectsForAvailableActions(
@@ -200,18 +203,29 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           id,
           AllSubjects,
           (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, self, data(actions)))
+            ProcessInstanceCreated(request, self, createProcessInstanceData(actions)))
       sendProcessInstanceCreated = false
     }
   }
 
   private def createExecuteActionAnswer(req: ExecuteAction) {
     context.parent !
-      AskSubjectsForAvailableActions(req.userID,
+      AskSubjectsForAvailableActions(
+        req.userID,
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, processID, isTerminated, persistenceGraph, executionHistory, actions))
+          ExecuteActionAnswer(req, createProcessInstanceData(actions)))
+  }
+
+  private def createReadProcessInstanceAnswer(req: ReadProcessInstance) {
+    context.parent !
+      AskSubjectsForAvailableActions(
+        req.userID,
+        id,
+        AllSubjects,
+        (actions: Array[AvailableAction]) =>
+          ReadProcessInstanceAnswer(req, createProcessInstanceData(actions)))
   }
 
   private def createSubjectContainer(subject: Subject): SubjectContainer = {
