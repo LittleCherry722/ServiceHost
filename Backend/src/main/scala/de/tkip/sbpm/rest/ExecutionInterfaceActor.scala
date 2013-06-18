@@ -29,6 +29,7 @@ import de.tkip.sbpm.application.subject.ExecuteActionAnswer
 import scala.concurrent.Await
 import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
 import scala.concurrent.ExecutionContext
+import de.tkip.sbpm.application.history._
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -79,6 +80,42 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
               .mapTo[AvailableActionsAnswer]
           val result = Await.result(availableActionsFuture, timeout.duration)
           complete(result.availableActions)
+        } ~
+        path("history") {
+          complete(Array[NewEntry](
+            NewEntry("<INT_UNIQUE_ID1>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
+              NewState("some Text", "send"),
+              NewTransition("some other Text", "exitcond"),
+              NewState("some Text", "receive"),
+              Option(Array(
+                NewMessage(
+                  Array(32, 43),
+                  "from user ID",
+                  Array("to userID 1", "to userID 2"),
+                  "Travel Application",
+                  "text")))),
+            NewEntry("<INT_UNIQUE_ID2>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
+              NewState("some Text", "send"),
+              NewTransition("some other Text", "exitcond"),
+              NewState("some Text", "receive"),
+              Option(Array(
+                NewMessage(
+                  Array(32, 43),
+                  "from user ID",
+                  Array("to userID 1", "to userID 2"),
+                  "Travel Application",
+                  "text")))),
+            NewEntry("<INT_UNIQUE_ID3>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
+              NewState("some Text", "send"),
+              NewTransition("some other Text", "exitcond"),
+              NewState("some Text", "receive"),
+              Option(Array(
+                NewMessage(
+                  Array(32, 43),
+                  "from user ID",
+                  Array("to userID 1", "to userID 2"),
+                  "Travel Application",
+                  "text"))))))
         } ~
         //LIST
         path("") {

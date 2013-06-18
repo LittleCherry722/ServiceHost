@@ -41,3 +41,29 @@ case class GetMessagePayload(messageId: Int, payloadId: String)
 // message to report a transition in the internal behavior
 // to the corresponding subject actor
 case class Transition(from: State, to: State, message: Message)
+
+case class NewEntry(
+  id: String, //"<INT_UNIQUE_ID>"
+  processName: String, //"Travel Request"
+  processInstanceId: Int, //0
+  processStarted: Long, //System.currentTimeMillis
+  timestamp: Long, //s.o.
+  processEnd: Long,
+  userId: Int, //13
+  subjectId: String, //"Employee"
+  fromState: NewState, //hier kann man eventuell den alten State weiter verwenden
+  overTransition: NewTransition,
+  toState: NewState,
+  messages: Option[Seq[NewMessage]])
+
+case class NewState(text: String, stateType: String)
+
+case class NewTransition(text: String, transitionType: String)
+
+case class NewMessage(
+  messageId: Seq[Int],
+  fromUserId: String,
+  toUserIds: Seq[String],
+  messageType: String,
+  text: String
+)
