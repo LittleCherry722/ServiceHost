@@ -61,35 +61,8 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
        * e.g. GET http://localhost:8080/group
        * result: JSON array of entities
        */
-      // check startup actions defined in config
-      /*
-  val startupAction = system.settings.config.getString("sbpm.db.startupAction")
-  val dropAction = startupAction matches "^recreate(-debug)?$"
-  val createAction = startupAction matches "^(re)?create(-debug)?$"
-  val debugAction = startupAction matches "^(re)?create-debug$"
-
-  // execute all required db operations async and sequentially 
-  var dbFuture = Future[Any]()
-
-  val onFailure: PartialFunction[Throwable, Any] = {
-    case e => logging.error(e, e.getMessage)
-  }
-
-  if (dropAction) {
-    dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Drop }
-    dbFuture.onFailure(onFailure)
-  }
-  if (createAction) {
-    dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Create }
-    dbFuture.onFailure(onFailure)
-  }
-  if (debugAction) {
-    dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
-    dbFuture.onFailure(onFailure)
-  }
-
-  dbFuture.onFailure(onFailure)
-  */
+      implicit val executionContext = context.system.dispatcher
+      
       val logging = context.system.log
       val onFailure: PartialFunction[Throwable, Any] = {
         case e => logging.error(e, e.getMessage)
@@ -100,9 +73,8 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
       dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
       dbFuture.onFailure(onFailure)
 
-//      dbFuture = Future[Any]()
-//      dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
-//      dbFuture.onFailure(onFailure)
+      dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
+      dbFuture.onFailure(onFailure)
 
       complete("Hi")
     }
