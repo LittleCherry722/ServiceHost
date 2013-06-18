@@ -14,7 +14,9 @@
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
+import akka.pattern._
 import scala.language.postfixOps
+import scala.concurrent.Await
 import akka.event.Logging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
@@ -28,6 +30,11 @@ import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
 import spray.http.HttpHeader
 import spray.http.HttpHeaders
+import scala.concurrent.Future
+import akka.actor.Props
+import de.tkip.sbpm.persistence.PersistenceActor
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.persistence.testdata.Entities
 
 /**
  * This Actor is only used to process REST calls regarding "debug"
@@ -83,7 +90,20 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
 
   dbFuture.onFailure(onFailure)
   */
-      println("DebugInterfaceActor: recreateDatabase")
+      val logging = context.system.log
+      val onFailure: PartialFunction[Throwable, Any] = {
+        case e => logging.error(e, e.getMessage)
+      }
+      val persistenceActor = ActorLocator.persistenceActor
+      var dbFuture = Future[Any]()
+
+      dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
+      dbFuture.onFailure(onFailure)
+
+//      dbFuture = Future[Any]()
+//      dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
+//      dbFuture.onFailure(onFailure)
+
       complete("Hi")
     }
   })
