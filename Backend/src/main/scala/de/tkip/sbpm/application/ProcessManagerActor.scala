@@ -66,6 +66,12 @@ class ProcessManagerActor extends Actor {
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.processInstanceActor)
     }
+    
+    case KillAllProcessInstances => {
+      logger.debug("Killing all process instances")
+      for((id,_) <- processInstanceMap) context.stop(processInstanceMap(id).processInstanceActor)
+      processInstanceMap.clear()
+    }
 
     case kill @ KillProcessInstance(id) => {
       if (processInstanceMap.contains(id)) {

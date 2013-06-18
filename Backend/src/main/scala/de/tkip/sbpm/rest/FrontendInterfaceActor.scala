@@ -42,6 +42,7 @@ object Entity {
   val OAUTH2CALLBACK = "oauth2callback"
   val ISALIVE = "isalive"
   val GOOGLEDRIVE = "googledrive"
+  val DEBUG = "debug"
 
   // TODO define more entities if you need them  
 }
@@ -98,9 +99,9 @@ class FrontendInterfaceActor extends Actor with HttpService {
 
   def receive = runRoute({
     /**
-     * redirect all calls beginning with "execution" to ExecutionInterfaceActor
+     * redirect all calls beginning with "processinstance" (val EXECUTION) to ExecutionInterfaceActor
      *
-     * e.g. GET http://localhost:8080/execution/8
+     * e.g. GET http://localhost:8080/processinstance/8
      */
     pathPrefix(Entity.EXECUTION) {
       authenticateAndHandleWith[ExecutionInterfaceActor]
@@ -164,6 +165,14 @@ class FrontendInterfaceActor extends Actor with HttpService {
        */
       pathPrefix(Entity.CONFIGURATION) {
         authenticateAndHandleWith[ConfigurationInterfaceActor]
+      } ~
+      /**
+       * redirect all calls beginning with "debug" to DebugInterfaceActor
+       *
+       * e.g. GET http://localhost:8080/debug/sbpm.debug
+       */
+      pathPrefix(Entity.DEBUG) {
+        authenticateAndHandleWith[DebugInterfaceActor]
       } ~
       get {
         /**
