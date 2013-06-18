@@ -98,9 +98,9 @@ class FrontendInterfaceActor extends Actor with HttpService {
 
   def receive = runRoute({
     /**
-     * redirect all calls beginning with "execution" to ExecutionInterfaceActor
+     * redirect all calls beginning with "processinstance" (val EXECUTION) to ExecutionInterfaceActor
      *
-     * e.g. GET http://localhost:8080/execution/8
+     * e.g. GET http://localhost:8080/processinstance/8
      */
     pathPrefix(Entity.EXECUTION) {
       authenticateAndHandleWith[ExecutionInterfaceActor]
