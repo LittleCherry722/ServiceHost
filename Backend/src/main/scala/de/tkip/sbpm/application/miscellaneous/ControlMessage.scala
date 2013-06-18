@@ -82,6 +82,7 @@ case class ProcessInstanceCreated(request: CreateProcessInstance,
   def processInstanceID: ProcessInstanceID = answer.id
 }
 
+case class KillAllProcessInstances() extends AnswerAbleControlMessage
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
 case class KillProcessInstanceAnswer(request: KillProcessInstance) extends AnswerControlMessage
 

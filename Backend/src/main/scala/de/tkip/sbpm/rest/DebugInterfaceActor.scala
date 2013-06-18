@@ -35,6 +35,7 @@ import akka.actor.Props
 import de.tkip.sbpm.persistence.PersistenceActor
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.persistence.testdata.Entities
+import de.tkip.sbpm.application.miscellaneous.KillAllProcessInstances
 
 /**
  * This Actor is only used to process REST calls regarding "debug"
@@ -72,11 +73,14 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
 
       dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
       dbFuture.onFailure(onFailure)
+      
+      val processManagerActor = ActorLocator.processManagerActor
+      processManagerActor ! KillAllProcessInstances
 
       dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
       dbFuture.onFailure(onFailure)
 
-      complete("Hi")
+      complete("")
     }
   })
 
