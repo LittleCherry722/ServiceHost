@@ -14,6 +14,8 @@
 package de.tkip.sbpm.model
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import StateType.StateType
+import de.tkip.sbpm.application.subject.behavior.Transition
 
 object StateType extends Enumeration {// TODO just use a string?
   type StateType = Value
@@ -36,8 +38,6 @@ object StateType extends Enumeration {// TODO just use a string?
 
   def fromStateTypetoString(stateType: StateType): String = stateType.toString
 }
-
-import StateType.StateType
 // name raus ist ws in id
 case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, transitions: Array[Transition])
 case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean = false, external: Boolean = false)

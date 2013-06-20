@@ -20,6 +20,7 @@ import de.tkip.sbpm.application.SubjectInformation
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.model.Graph
+import de.tkip.sbpm.application.subject.misc.AvailableAction
 
 /**
  * For system control tasks

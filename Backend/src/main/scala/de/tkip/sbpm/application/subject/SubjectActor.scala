@@ -21,6 +21,8 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import akka.event.Logging
+import de.tkip.sbpm.application.subject.behavior._
+import de.tkip.sbpm.application.subject.misc._
 
 case class SubjectData(
   userID: UserID,

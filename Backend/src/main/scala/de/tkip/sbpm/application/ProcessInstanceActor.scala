@@ -40,6 +40,7 @@ import scala.collection.mutable.Map
 import ExecutionContext.Implicits.global
 import akka.actor.Status.Failure
 import de.tkip.sbpm.persistence.query._
+import de.tkip.sbpm.application.subject.misc._
 
 // represents the history of the instance
 case class History(

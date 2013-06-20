@@ -32,13 +32,9 @@ import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.subject.AvailableAction
-import de.tkip.sbpm.application.subject.ExecuteAction
+import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceInfo
 import spray.routing.authentication.UserPass
-import de.tkip.sbpm.application.subject.ActionData
-import de.tkip.sbpm.application.subject.TargetUser
-import de.tkip.sbpm.application.subject.MessageData
 import GraphJsonProtocol.graphJsonFormat
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
 import de.tkip.sbpm.application.history.NewState

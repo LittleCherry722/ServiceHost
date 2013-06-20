@@ -11,10 +11,9 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package de.tkip.sbpm.model
+package de.tkip.sbpm.application.subject.behavior
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.subject.Variable
 
 sealed trait TransitionType
 case class ExitCond(messageType: MessageType, target: Option[Target] = None) extends TransitionType {

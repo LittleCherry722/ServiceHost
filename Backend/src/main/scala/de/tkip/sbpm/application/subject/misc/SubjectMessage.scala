@@ -11,7 +11,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package de.tkip.sbpm.application.subject
+package de.tkip.sbpm.application.subject.misc
 
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -20,10 +20,10 @@ import de.tkip.sbpm.application.miscellaneous.AnswerMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.History
-import de.tkip.sbpm.model.Target
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
+import de.tkip.sbpm.application.subject.behavior.Target
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest

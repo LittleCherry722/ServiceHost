@@ -24,12 +24,10 @@ import de.tkip.sbpm.rest.SprayJsonSupport._
 import spray.http.StatusCodes
 import spray.routing._
 import spray.util.LoggingContext
-import de.tkip.sbpm.application.subject.ExecuteAction
-import de.tkip.sbpm.application.subject.ExecuteActionAnswer
 import scala.concurrent.Await
-import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
 import scala.concurrent.ExecutionContext
 import de.tkip.sbpm.application.history._
+import de.tkip.sbpm.application.subject.misc._
 
 /**
  * This Actor is only used to process REST calls regarding "execution"

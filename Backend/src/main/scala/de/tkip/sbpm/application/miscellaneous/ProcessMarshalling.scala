@@ -20,6 +20,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.application.subject.behavior._
 
 object MarshallingAttributes {
   val exitCondLabel = "exitcondition"

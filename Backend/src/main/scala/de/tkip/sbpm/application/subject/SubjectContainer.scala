@@ -24,6 +24,7 @@ import akka.actor.ActorRef
 import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.RegisterSingleSubjectInstance
+import de.tkip.sbpm.application.subject.misc._
 
 /**
  * This class is responsible to hold a subjects, and can represent

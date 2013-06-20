@@ -20,10 +20,9 @@ import akka.event.Logging
 import akka.actor._
 import akka.pattern.ask
 import scala.concurrent.Future
-import de.tkip.sbpm.application.subject.AvailableAction
+import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.SubjectActor
-import de.tkip.sbpm.application.subject.GetAvailableAction
 
 case class CollectAvailableActions(subjects: Iterable[SubjectRef],
                                    processInstanceID: ProcessInstanceID,
