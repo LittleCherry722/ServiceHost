@@ -74,6 +74,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
+  private val processInstanceManger =
+    request.manager.getOrElse(context.actorOf(
+      Props(new ProcessInstanceManagerActor(request.userID, id, self))))
+
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
   // history.Entry messages to this actor
@@ -129,6 +133,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           Failure(new Exception("ProcessInstance creation failed, required " +
             "resource does not exists."))
       }
+
+      // TODO processInstanceManger ! Register....
     }
   }
 
@@ -168,6 +174,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           HistoryAnswer(msg, executionHistory)
         }
       }
+    }
+
+    case message: GetSubjectAddr => {
+        subjectMap
+          .getOrElseUpdate(
+            message.subjectId,
+            createSubjectContainer(graph.subjects((message.subjectId))))
+          .send(sender, message)
     }
 
     case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
@@ -235,6 +249,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subject,
       processID,
       id,
+      processInstanceManger,
       logger,
       blockingHandlerActor,
       () => runningSubjectCounter += 1,

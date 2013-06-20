@@ -25,7 +25,7 @@ case class TimeoutCond(manual: Boolean, duration: Int) extends TransitionType
 case class ErrorCond() extends TransitionType
 
 case class Target(
-  subjectID: SubjectID,
+  var subjectID: SubjectID,
   min: Int,
   max: Int,
   createNew: Boolean, // TODO we dont need create new

@@ -17,6 +17,7 @@ import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import akka.actor.ActorContext
 import akka.actor.Props
+import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.SubjectCreated
 import akka.event.LoggingAdapter
@@ -26,6 +27,9 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.RegisterSingleSubjectInstance
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
+import scala.concurrent.Await
+import de.tkip.sbpm.model.ExternalSubject
+import de.tkip.sbpm.model.ExternalSubject
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -35,6 +39,7 @@ class SubjectContainer(
   subject: SubjectLike,
   processID: ProcessID,
   processInstanceID: ProcessInstanceID,
+  processInstanceManager: ActorRef,
   logger: LoggingAdapter,
   blockingHandlerActor: ActorRef,
   increaseSubjectCounter: () => Unit,
@@ -88,9 +93,20 @@ class SubjectContainer(
         SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
     } else {
       System.err.println("CREATE: " + subjectData.subject);
-      
+
       // process schon vorhanden?
-      
+      // TODO ohne ask!
+      implicit val timeout = akka.util.Timeout(500)
+      val ext = subjectData.subject.asInstanceOf[ExternalSubject]
+
+      val subjectRef =
+        Await.result(
+          (processInstanceManager ?
+            GetSubjectAddr(userID, ext.relatedProcessId, ext.relatedSubjectId))
+            .mapTo[ActorRef],
+          timeout.duration)
+
+      subjects += userID -> SubjectInfo(subjectRef, userID)
     }
 
     logger.debug("Processinstance [" + processInstanceID + "] created Subject " +
@@ -129,6 +145,15 @@ class SubjectContainer(
     }
   }
 
+  def send(sender: ActorRef, message: GetSubjectAddr) {
+    if (!subjects.contains(message.userId)) {
+      createSubject(message.userId)
+    }
+
+    println("ABASDASDASDASD" * 1000)
+    sender ! subjects(message.userId).ref
+  }
+
   /**
    * Forwards the message to the array of subjects
    */
@@ -141,6 +166,11 @@ class SubjectContainer(
       } else if (!subjects(userID).running) {
         reStartSubject(userID)
       }
+
+      System.err.println("SEND: " + message);
+      if (subject.external)
+        message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+      println("SEND: " + message);
 
       //        blockingHandlerActor ! BlockUser(userID)
       subjects(userID).ref.forward(message)
