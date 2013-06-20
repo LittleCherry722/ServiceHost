@@ -75,43 +75,16 @@
                      },
                      {
                         "id":2,
-                        "text":"Wait for answer",
-                        "start":false,
-                        "end":false,
-                        "nodeType":"action",
-                        "type":"action",
-                        "options":{
-                           "subject":"",
-                           "message":"",
-                           "conversation":"",
-                           "correlationId":"",
-                           "state":""
-                        },
-                        "deactivated":false,
-                        "majorStartNode":false,
-                        "conversation":"",
-                        "variable":"",
-                        "varMan":{
-                           "var1":"",
-                           "var2":"",
-                           "operation":"and",
-                           "storevar":""
-                        },
-                        "macro":"",
-                        "comment":""
-                     },
-                     {
-                        "id":3,
                         "text":"",
                         "start":false,
                         "end":false,
                         "nodeType":"receive",
                         "type":"receive",
                         "options":{
-                           "message":"*",
-                           "subject":"*",
-                           "correlationId":"*",
-                           "conversation":"*",
+                           "subject":"",
+                           "message":"",
+                           "conversation":"",
+                           "correlationId":"",
                            "state":""
                         },
                         "deactivated":false,
@@ -134,33 +107,6 @@
                         "end":true,
                         "nodeType":"end",
                         "type":"end",
-                        "options":{
-                           "message":"*",
-                           "subject":"*",
-                           "correlationId":"*",
-                           "conversation":"*",
-                           "state":""
-                        },
-                        "deactivated":false,
-                        "majorStartNode":false,
-                        "conversation":"",
-                        "variable":"",
-                        "varMan":{
-                           "var1":"",
-                           "var2":"",
-                           "operation":"and",
-                           "storevar":""
-                        },
-                        "macro":"",
-                        "comment":""
-                     },
-                     {
-                        "id":5,
-                        "text":"",
-                        "start":false,
-                        "end":false,
-                        "nodeType":"receive",
-                        "type":"receive",
                         "options":{
                            "message":"*",
                            "subject":"*",
@@ -360,26 +306,8 @@
                            "internal"
                         ]
                      },
-                     {
+                                          {
                         "start":2,
-                        "end":3,
-                        "text":"",
-                        "edgeType":"exitcondition",
-                        "type":"exitcondition",
-                        "tartget":null,
-                        "deactivated":false,
-                        "optional":false,
-                        "priority":1,
-                        "manualTimeout":false,
-                        "variable":null,
-                        "correlationId":"",
-                        "comment":"",
-                        "transportMethod":[
-                           "internal"
-                        ]
-                     },
-                     {
-                        "start":3,
                         "end":4,
                         "text":"m1",
                         "edgeType":"exitcondition",
@@ -404,24 +332,6 @@
                      },
                      {
                         "start":2,
-                        "end":5,
-                        "text":"",
-                        "edgeType":"exitcondition",
-                        "type":"exitcondition",
-                        "tartget":null,
-                        "deactivated":false,
-                        "optional":false,
-                        "priority":1,
-                        "manualTimeout":false,
-                        "variable":null,
-                        "correlationId":"",
-                        "comment":"",
-                        "transportMethod":[
-                           "internal"
-                        ]
-                     },
-                     {
-                        "start":5,
                         "end":6,
                         "text":"m2",
                         "edgeType":"exitcondition",
