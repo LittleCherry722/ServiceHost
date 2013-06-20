@@ -30,7 +30,7 @@ case class SubjectData(
   processInstanceID: ProcessInstanceID,
   processInstanceActor: ProcessInstanceRef,
   blockingHandlerActor: ActorRef,
-  subject: Subject)
+  subject: SubjectLike)
 
 /**
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
@@ -39,7 +39,11 @@ class SubjectActor(data: SubjectData) extends Actor {
   private val logger = Logging(context.system, this)
 
   // extract the information out of the input
-  private val subject = data.subject
+  private val subject: Subject = data.subject match {
+    case s: Subject => s
+    case _ =>
+      throw new IllegalArgumentException("A Subjectactor need a Subject as data")
+  }
   private val userID = data.userID
 
   private val subjectID: SubjectID = subject.id

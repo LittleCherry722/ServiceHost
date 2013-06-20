@@ -88,7 +88,11 @@ object parseGraph {
 
       // all parsed states are in the states map, convert the creators,
       // create and return the subject
-      Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi, external)
+      if (!external)
+        Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi)
+      else
+        // TODO richtig parsen
+        null
     }
 
     private def parseNodes(nodes: Iterable[GraphNode]) {

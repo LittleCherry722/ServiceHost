@@ -41,6 +41,7 @@ import ExecutionContext.Implicits.global
 import akka.actor.Status.Failure
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.model.SubjectLike
 
 // represents the history of the instance
 case class History(
@@ -229,7 +230,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           ReadProcessInstanceAnswer(req, createProcessInstanceData(actions)))
   }
 
-  private def createSubjectContainer(subject: Subject): SubjectContainer = {
+  private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
     new SubjectContainer(
       subject,
       processID,

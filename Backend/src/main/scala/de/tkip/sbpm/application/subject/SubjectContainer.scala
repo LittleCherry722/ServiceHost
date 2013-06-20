@@ -25,13 +25,14 @@ import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.RegisterSingleSubjectInstance
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.model.SubjectLike
 
 /**
  * This class is responsible to hold a subjects, and can represent
  * a single subject or a multisubject
  */
 class SubjectContainer(
-  subject: Subject,
+  subject: SubjectLike,
   processID: ProcessID,
   processInstanceID: ProcessInstanceID,
   logger: LoggingAdapter,
@@ -51,7 +52,7 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
-    System.err.println("CREATED: "+RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
+    System.err.println("CREATED: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
     if (single) {
       if (subjects.size > 0) {
         logger.error("Single subjects cannot be created twice")
@@ -71,18 +72,20 @@ class SubjectContainer(
         context.self,
         blockingHandlerActor,
         subject)
+
+    // TODO hier external einfuegen
     // create subject
     val subjectRef =
       context.actorOf(Props(new SubjectActor(subjectData)))
     // and store it in the map
     subjects += userID -> SubjectInfo(subjectRef, userID)
 
-    logger.debug("Processinstance [" + processInstanceID + "] created Subject " +
-      subject.id + " for user " + userID)
-
     // inform the subject provider about his new subject
     context.parent !
       SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+
+    logger.debug("Processinstance [" + processInstanceID + "] created Subject " +
+      subject.id + " for user " + userID)
 
     reStartSubject(userID)
   }
