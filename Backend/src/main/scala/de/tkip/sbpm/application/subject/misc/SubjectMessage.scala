@@ -34,7 +34,7 @@ sealed trait MessageObject
 protected case class SubjectToSubjectMessage(
   messageID: MessageID,
   var userID: UserID, // TODO why is this a var?
-  from: SubjectID,
+  var from: SubjectID,
   target: Target,
   messageType: MessageType,
   messageContent: MessageContent,

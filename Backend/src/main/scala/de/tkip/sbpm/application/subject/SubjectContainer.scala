@@ -150,7 +150,6 @@ class SubjectContainer(
       createSubject(message.userId)
     }
 
-    println("ABASDASDASDASD" * 1000)
     sender ! subjects(message.userId).ref
   }
 
@@ -168,8 +167,9 @@ class SubjectContainer(
       }
 
       System.err.println("SEND: " + message);
-      if (subject.external)
-        message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+      if (subject.external) {
+    	  message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+      }
       println("SEND: " + message);
 
       //        blockingHandlerActor ! BlockUser(userID)
