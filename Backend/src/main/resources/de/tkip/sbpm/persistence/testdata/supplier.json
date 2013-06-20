@@ -216,7 +216,7 @@
          },
          {
             "id":"Subj2",
-            "name":"Order Prozess",
+            "name":"Order Process",
             "subjectType":"external",
             "type":"external",
             "deactivated":false,
