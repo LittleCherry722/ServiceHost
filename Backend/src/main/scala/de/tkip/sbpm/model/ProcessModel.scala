@@ -47,10 +47,10 @@ trait SubjectLike {
 }
 // name raus ist ws in id
 case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, transitions: Array[Transition])
-case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean = false) extends SubjectLike {
+case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean) extends SubjectLike {
   lazy val external = false
 }
-case class ExternalSubject(id: SubjectID, inputPool: Int, multi: Boolean = false) extends SubjectLike {
+case class ExternalSubject(id: SubjectID, inputPool: Int, multi: Boolean, relatedProcessId: ProcessID, relatedGraphId: Int, relatedSubjectId: SubjectID) extends SubjectLike {
   lazy val external = true
 }
 case class ProcessGraph(subjects: Map[String, SubjectLike])

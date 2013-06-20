@@ -29,7 +29,6 @@ abstract class AbstractInterfaceActor extends Actor with HttpService {
       if (userIdCookie.isDefined) userIdCookie.get.content.toInt
       // TODO else error
       else 1
-    System.err.println("USERID: " + userId); // XXX weg
   }
 
   /**

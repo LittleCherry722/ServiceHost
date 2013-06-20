@@ -74,15 +74,24 @@ class SubjectContainer(
         subject)
 
     // TODO hier external einfuegen
-    // create subject
-    val subjectRef =
-      context.actorOf(Props(new SubjectActor(subjectData)))
-    // and store it in the map
-    subjects += userID -> SubjectInfo(subjectRef, userID)
+    if (!subjectData.subject.external) {
 
-    // inform the subject provider about his new subject
-    context.parent !
-      SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+      // create subject
+      val subjectRef =
+        context.actorOf(Props(new SubjectActor(subjectData)))
+
+      // and store it in the map
+      subjects += userID -> SubjectInfo(subjectRef, userID)
+
+      // inform the subject provider about his new subject
+      context.parent !
+        SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+    } else {
+      System.err.println("CREATE: " + subjectData.subject);
+      
+      // process schon vorhanden?
+      
+    }
 
     logger.debug("Processinstance [" + processInstanceID + "] created Subject " +
       subject.id + " for user " + userID)

@@ -51,7 +51,7 @@ object parseGraph {
     // this map will be filled during the preparse
     private val subjectMap = MutableMap[SubjectID, PreSubjectInfo]()
 
-    def apply(subjects: Map[String, GraphSubject]): Map[String, Subject] = {
+    def apply(subjects: Map[String, GraphSubject]): Map[String, SubjectLike] = {
       // first preparse the subjects, to extract information
       // e.g. which subject is a multisubject
       subjects.values.foreach(preParseSubject(_))
@@ -70,7 +70,7 @@ object parseGraph {
     // the Statesmap
     private var states: MutableMap[StateID, StateCreator] = null
 
-    def parseSubject(subject: GraphSubject): Subject = {
+    def parseSubject(subject: GraphSubject): SubjectLike = {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
 
@@ -90,9 +90,15 @@ object parseGraph {
       // create and return the subject
       if (!external)
         Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi)
-      else
-        // TODO richtig parsen
-        null
+      else {
+        // FIXME GraphId != processId
+        // TODO check ob vorhanden!
+        val relatedProcessId = subject.relatedGraphId.get
+        val relatedGraphId = subject.relatedGraphId.get
+        val relatedSubjectId = subject.relatedSubjectId.get
+
+        ExternalSubject(id, subject.inputPool, multi, relatedProcessId, relatedGraphId, relatedSubjectId)
+      }
     }
 
     private def parseNodes(nodes: Iterable[GraphNode]) {
