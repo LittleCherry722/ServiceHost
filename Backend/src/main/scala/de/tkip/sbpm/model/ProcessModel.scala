@@ -22,12 +22,14 @@ object StateType extends Enumeration {// TODO just use a string?
   val SendStateString = "send"
   val ReceiveStateString = "receive"
   val EndStateString = "end"
+  val OpenIPStateString = "$openip"
 
   // the internal enums
   val ActStateType = Value(ActStateString)
   val SendStateType = Value(SendStateString)
   val ReceiveStateType = Value(ReceiveStateString)
   val EndStateType = Value(EndStateString)
+  val OpenIPStateType = Value(OpenIPStateString)
 
   // for marshalling and unmarshalling:
   def fromStringtoStateType(stateType: String): StateType = try {
@@ -39,6 +41,7 @@ object StateType extends Enumeration {// TODO just use a string?
 
 import StateType.StateType
 // name raus ist ws in id
-case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, transitions: Array[Transition])
+case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, options: StateOptions, transitions: Array[Transition])
+case class StateOptions(messageType: Option[MessageType], subjectId: Option[SubjectID], correlationId: Option[String], conversation: Option[String], stateId: Option[StateID])
 case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean = false, external: Boolean = false)
 case class ProcessGraph(subjects: Map[String, Subject])

@@ -29,7 +29,7 @@ object ProcessAttributes {
   type SuccessorID = StateID // TODO SuccessorID als extra attribut?
   type StateAction = String
 
-  type MessageType = String
+  type MessageType = String; val AllMessages = "##all##"
   type MessageContent = String
   type MessageID = Int
 

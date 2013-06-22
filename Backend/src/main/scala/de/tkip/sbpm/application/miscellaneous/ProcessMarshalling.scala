@@ -14,12 +14,10 @@
 package de.tkip.sbpm.application.miscellaneous
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.{ Map => MutableMap }
-import spray.json._
+import scala.collection.mutable.{Map => MutableMap}
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.rest.JsonProtocol._
 
 object MarshallingAttributes {
   val exitCondLabel = "exitcondition"
@@ -45,8 +43,10 @@ object parseGraph {
   }
 
   private object parseSubjects {
+
     // stores the information, which is extracted in the preparse
     private case class PreSubjectInfo(multi: Boolean, external: Boolean)
+
     // this map will be filled during the preparse
     private val subjectMap = MutableMap[SubjectID, PreSubjectInfo]()
 
@@ -92,10 +92,18 @@ object parseGraph {
 
     private def parseNodes(nodes: Iterable[GraphNode]) {
       for (node <- nodes) {
+        val options = parseNodeOptions(node.options)
+
         // create and add a state creator for this state
         states(node.id) =
-          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart)
+          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart, options)
       }
+    }
+
+    private def parseNodeOptions(nodeOptions: GraphNodeOptions) :StateOptions = {
+      val stateId = nodeOptions.nodeId.map(_.toInt)
+
+      StateOptions(nodeOptions.messageId, nodeOptions.subjectId, nodeOptions.correlationId, nodeOptions.conversationId, stateId)
     }
 
     private def parseEdges(edges: Iterable[GraphEdge]) {
@@ -109,7 +117,7 @@ object parseGraph {
               case Some(t) => {
                 var minValue = t.min
                 var maxValue = t.max
-                var default = minValue < 1 && maxValue < 1
+                val default = minValue < 1 && maxValue < 1
 
                 if (minValue < 1) minValue = 1
                 if (maxValue < 1) {
@@ -133,8 +141,8 @@ object parseGraph {
             // so replace it with the real form, if possible
             val messageType = state.stateType match {
               case ReceiveStateType => messageMap.getOrElse(edge.text, edge.text)
-              case SendStateType    => messageMap.getOrElse(edge.text, edge.text)
-              case _                => edge.text
+              case SendStateType => messageMap.getOrElse(edge.text, edge.text)
+              case _ => edge.text
             }
 
             // at the transition to the state
@@ -167,7 +175,8 @@ object parseGraph {
     val id: StateID,
     val text: String,
     val stateType: StateType,
-    val startState: Boolean) {
+    val startState: Boolean,
+    val options: StateOptions) {
 
     // store all transitions in this Buffer
     private val transitions = new ArrayBuffer[Transition]
@@ -183,6 +192,7 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, startState, transitions.toArray)
+      State(id, text, stateType, startState, options, transitions.toArray)
   }
+
 }
