@@ -65,19 +65,18 @@ define([
 				},
 				error: function( jqXHR, textStatus, error ) {
 					Notify.error("Error", "There has been an Error retrieving the file list." +
-											"Please make sure you have the appropiate permissions.");
+											"Please make sure you have the appropriate permissions.");
 				}
 			});
 		}
-
-	}
+	};
 
 	var selectFile = function() {
 		$('#googleDriveModal').modal('hide');
 		currentSelectedFile( this );
 
 		// TODO set file ID for actually sending the file.
-	}
+	};
 
 	var currentSelectedFile = ko.observable({});
 
@@ -85,7 +84,7 @@ define([
 		messageText     = ko.observable(),
 		currentSubject  = ko.observable(),
 		serverDone      = ko.observable(true),
-		selectedUsers    = ko.observableArray(),
+		selectedUsers   = ko.observableArray(),
 		actionOfCurrentSubject,
 		availableActions,
 		actionData,
@@ -229,7 +228,7 @@ define([
 			}
 		});
 
-		selectUser = ko.observableArray(function () {
+		selectUser = ko.computed(function () {
 			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().actionData !== undefined && actionOfCurrentSubject().actionData[0].targetUsersData !== undefined) {
 				var targetUsers = actionOfCurrentSubject().actionData[0].targetUsersData.targetUsers;
 				return targetUsers.map(function (u) {
@@ -238,7 +237,7 @@ define([
 					}
 				});
 			}
-		}());
+		});
 
 		selectUsersMin = ko.computed( function() {
 			if (actionOfCurrentSubject() && actionOfCurrentSubject().hasOwnProperty('actionData')){
@@ -286,7 +285,7 @@ define([
 			actionData.subscribe(subscriptionFn);
 			isTypeOf.subscribe(subscriptionFn);
 		});
-	}
+	};
 
 	// Everything in this object will be the public API
 	return {

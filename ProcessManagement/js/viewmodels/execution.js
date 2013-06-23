@@ -61,7 +61,7 @@ define([
 		processInstance( ProcessInstance.find( id ) );
 		currentTab( tab );
 		currentSubject( subjectId );
-	}
+	};
 
 
 	currentSubject.subscribe(function( subject ) {
@@ -90,14 +90,11 @@ define([
 		}
 	});
 
-
 	var unloadSubView = function() {
 		if ( currentSubView() && typeof currentSubView().unload === "function" ) {
 			currentSubView().unload();
 		}
-	}
-
-
+	};
 
 	var initialize = function( processInstanceId, subSite, subjectId ) {
 		var viewModel;
@@ -119,12 +116,12 @@ define([
 				currentTab( subSite )
 			}
 		});
-	}
+	};
 
 	var unload = function() {
 		unloadSubView();
 		return true;
-	}
+	};
 
 	// Everything in this object will be the public API
 	return {
