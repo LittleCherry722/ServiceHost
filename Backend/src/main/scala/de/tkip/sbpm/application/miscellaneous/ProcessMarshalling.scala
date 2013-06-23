@@ -101,9 +101,11 @@ object parseGraph {
     }
 
     private def parseNodeOptions(nodeOptions: GraphNodeOptions) :StateOptions = {
+      val messageId = nodeOptions.messageId.map(id => if (id == GraphNodeOptions.AllMessages) AllMessages else id)
+      val subjectId = nodeOptions.subjectId.map(id => if (id == GraphNodeOptions.AllSubjects) AllSubjects else id)
       val stateId = nodeOptions.nodeId.map(_.toInt)
 
-      StateOptions(nodeOptions.messageId, nodeOptions.subjectId, nodeOptions.correlationId, nodeOptions.conversationId, stateId)
+      StateOptions(messageId, subjectId, nodeOptions.correlationId, nodeOptions.conversationId, stateId)
     }
 
     private def parseEdges(edges: Iterable[GraphEdge]) {

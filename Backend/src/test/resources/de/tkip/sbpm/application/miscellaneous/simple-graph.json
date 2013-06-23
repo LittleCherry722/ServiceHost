@@ -59,9 +59,33 @@
                     "variable": "",
                     "options": {
                         "message": "##all##",
-                        "subject": "Subj1",
+                        "subject": "##all##",
                         "correlationId": "##cid##",
                         "conversation": "c1",
+                        "state": null
+                    },
+                    "macro": "",
+                    "varMan": {
+                        "var1": "",
+                        "var2": "",
+                        "operation": "and",
+                        "storevar": ""
+                    }
+                }, {
+                    "id": 2,
+                    "text": "new",
+                    "start": false,
+                    "end": false,
+                    "type": "$closeip",
+                    "deactivated": false,
+                    "majorStartNode": false,
+                    "conversation": "c1",
+                    "variable": "",
+                    "options": {
+                        "message": "m0",
+                        "subject": "Subj1",
+                        "correlationId": "",
+                        "conversation": "",
                         "state": null
                     },
                     "macro": "",
@@ -93,9 +117,9 @@
         },
         "conversationCounter": 2,
             "messages": {
-
+                "m0": "Test Msg"
         },
-        "messageCounter": 1,
+        "messageCounter": 2,
             "nodeCounter": 2
     },
     "routings": []

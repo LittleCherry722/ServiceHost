@@ -16,7 +16,23 @@ class ProcessMarshallingTest extends FunSuite {
     val graph = parseGraph(domainGraph)
     val subject = graph.subjects("Subj1")
 
-    assert(subject.states.length === 2)
+    assert(subject.states.length === 3)
+
+    val closeIPState = subject.states.find(_.id == 2).get
+    val options = closeIPState.options
+
+    assert(closeIPState.stateType === StateType.CloseIPStateType)
+
+    assert(options.messageType === Some("m0"))
+    assert(options.subjectId === Some("Subj1"))
+    assert(options.correlationId === Some(""))
+    assert(options.conversation === Some(""))
+    assert(options.stateId === None)
+  }
+
+  test("parsing state options with all type") {
+    val graph = parseGraph(domainGraph)
+    val subject = graph.subjects("Subj1")
 
     val openIPState = subject.states.find(_.id == 1).get
     val options = openIPState.options
@@ -24,7 +40,7 @@ class ProcessMarshallingTest extends FunSuite {
     assert(openIPState.stateType === StateType.OpenIPStateType)
 
     assert(options.messageType === Some(AllMessages))
-    assert(options.subjectId === Some("Subj1"))
+    assert(options.subjectId === Some(AllSubjects))
     assert(options.correlationId === Some("##cid##"))
     assert(options.conversation === Some("c1"))
     assert(options.stateId === None)
