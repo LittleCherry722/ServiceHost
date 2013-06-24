@@ -3,7 +3,7 @@ package de.tkip.sbpm.application.miscellaneous
 import scala.io.Source
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.json._
-import de.tkip.sbpm.model.{StateType, Graph}
+import de.tkip.sbpm.model.{Subject, StateType, Graph}
 import org.scalatest.FunSuite
 import ProcessAttributes._
 
@@ -14,7 +14,7 @@ class ProcessMarshallingTest extends FunSuite {
 
   test("parsing state options") {
     val graph = parseGraph(domainGraph)
-    val subject = graph.subjects("Subj1")
+    val subject = graph.subjects("Subj1").asInstanceOf[Subject]
 
     assert(subject.states.length === 3)
 
@@ -32,7 +32,7 @@ class ProcessMarshallingTest extends FunSuite {
 
   test("parsing state options with all type") {
     val graph = parseGraph(domainGraph)
-    val subject = graph.subjects("Subj1")
+    val subject = graph.subjects("Subj1").asInstanceOf[Subject]
 
     val openIPState = subject.states.find(_.id == 1).get
     val options = openIPState.options
@@ -48,7 +48,7 @@ class ProcessMarshallingTest extends FunSuite {
 
   test("parsing empty state options") {
     val graph = parseGraph(domainGraph)
-    val subject = graph.subjects("Subj1")
+    val subject = graph.subjects("Subj1").asInstanceOf[Subject]
 
     val actState = subject.states.find(_.id == 0).get
     val options = actState.options
