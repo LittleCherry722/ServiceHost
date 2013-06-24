@@ -50,6 +50,12 @@ protected case class UnSubscribeIncomingMessages(stateID: StateID)
 // message to inform the receive state, that the inputpool has no messages for him
 protected case object InputPoolSubscriptionPerformed
 
+// message to inform the inputpool, that it should close the given channel(s)
+protected case class CloseInputPool(channelId: ChannelID)
+
+// message to inform the receive state, that the inputpool close request succeeded
+protected case object InputPoolClosed
+
 class InputPoolActor(data: SubjectData) extends Actor {
   // extract the information from the data
   val userID = data.userID
@@ -58,10 +64,10 @@ class InputPoolActor(data: SubjectData) extends Actor {
 
   // this map holds the queue of the income messages for a channel
   private val messageQueueMap =
-    MutableMap[(SubjectID, MessageType), Queue[SubjectToSubjectMessage]]()
+    MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
   // this map holds the states which are subscribing a channel
   private val waitingStatesMap =
-    MutableMap[(SubjectID, MessageType), WaitingStateList]()
+    MutableMap[ChannelID, WaitingStateList]()
 
   def receive = {
 
@@ -86,6 +92,11 @@ class InputPoolActor(data: SubjectData) extends Actor {
       tryTransportMessage(message)
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
+    }
+
+    case CloseInputPool(channelId) => {
+      //TODO implement input pool closing
+      sender ! InputPoolClosed
     }
   }
 

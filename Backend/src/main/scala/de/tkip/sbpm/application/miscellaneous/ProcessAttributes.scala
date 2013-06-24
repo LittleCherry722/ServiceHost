@@ -42,4 +42,6 @@ object ProcessAttributes {
 
   type InternalBehaviorRef = ActorRef
   type BehaviorStateRef = ActorRef
+
+  type ChannelID = (SubjectID, MessageType)
 }
