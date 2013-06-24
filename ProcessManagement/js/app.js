@@ -269,6 +269,5 @@ define([
 		loadSubView: loadSubView,
 		viewCanUnload: viewCanUnload,
 		unloadViewModel: unloadViewModel
-
 	}
 });

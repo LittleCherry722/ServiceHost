@@ -40,6 +40,8 @@ import scala.collection.mutable.Map
 import ExecutionContext.Implicits.global
 import akka.actor.Status.Failure
 import de.tkip.sbpm.persistence.query._
+import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.model.SubjectLike
 
 // represents the history of the instance
 case class History(
@@ -71,6 +73,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private def isTerminated = runningSubjectCounter == 0
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
+
+  private val processInstanceManger =
+    request.manager.getOrElse(context.actorOf(
+      Props(new ProcessInstanceManagerActor(request.userID, id, self))))
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
@@ -127,6 +133,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           Failure(new Exception("ProcessInstance creation failed, required " +
             "resource does not exists."))
       }
+
+      // TODO processInstanceManger ! Register....
     }
   }
 
@@ -166,6 +174,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           HistoryAnswer(msg, executionHistory)
         }
       }
+    }
+
+    case message: GetSubjectAddr => {
+        subjectMap
+          .getOrElseUpdate(
+            message.subjectId,
+            createSubjectContainer(graph.subjects((message.subjectId))))
+          .send(sender, message)
     }
 
     case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
@@ -228,11 +244,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           ReadProcessInstanceAnswer(req, createProcessInstanceData(actions)))
   }
 
-  private def createSubjectContainer(subject: Subject): SubjectContainer = {
+  private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
     new SubjectContainer(
       subject,
       processID,
       id,
+      processInstanceManger,
       logger,
       blockingHandlerActor,
       () => runningSubjectCounter += 1,

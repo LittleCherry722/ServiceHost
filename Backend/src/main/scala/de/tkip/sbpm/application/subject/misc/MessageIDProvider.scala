@@ -11,7 +11,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package de.tkip.sbpm.application.subject
+package de.tkip.sbpm.application.subject.misc
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageID
 

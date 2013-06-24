@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.application.miscellaneous
 
-import de.tkip.sbpm.application.subject.AvailableAction
+import de.tkip.sbpm.application.subject.misc.AvailableAction
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.StateType._

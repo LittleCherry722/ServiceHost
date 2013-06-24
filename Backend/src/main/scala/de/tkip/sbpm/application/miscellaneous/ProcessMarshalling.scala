@@ -18,6 +18,8 @@ import scala.collection.mutable.{Map => MutableMap}
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.application.subject.behavior._
 
 object MarshallingAttributes {
   val exitCondLabel = "exitcondition"
@@ -43,14 +45,12 @@ object parseGraph {
   }
 
   private object parseSubjects {
-
     // stores the information, which is extracted in the preparse
     private case class PreSubjectInfo(multi: Boolean, external: Boolean)
-
     // this map will be filled during the preparse
     private val subjectMap = MutableMap[SubjectID, PreSubjectInfo]()
 
-    def apply(subjects: Map[String, GraphSubject]): Map[String, Subject] = {
+    def apply(subjects: Map[String, GraphSubject]): Map[String, SubjectLike] = {
       // first preparse the subjects, to extract information
       // e.g. which subject is a multisubject
       subjects.values.foreach(preParseSubject(_))
@@ -69,7 +69,7 @@ object parseGraph {
     // the Statesmap
     private var states: MutableMap[StateID, StateCreator] = null
 
-    def parseSubject(subject: GraphSubject): Subject = {
+    def parseSubject(subject: GraphSubject): SubjectLike = {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
 
@@ -87,7 +87,17 @@ object parseGraph {
 
       // all parsed states are in the states map, convert the creators,
       // create and return the subject
-      Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi, external)
+      if (!external)
+        Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi)
+      else {
+        // FIXME GraphId != processId
+        // TODO check ob vorhanden!
+        val relatedProcessId = subject.relatedGraphId.get
+        val relatedGraphId = subject.relatedGraphId.get
+        val relatedSubjectId = subject.relatedSubjectId.get
+
+        ExternalSubject(id, subject.inputPool, multi, relatedProcessId, relatedGraphId, relatedSubjectId)
+      }
     }
 
     private def parseNodes(nodes: Iterable[GraphNode]) {
@@ -143,8 +153,8 @@ object parseGraph {
             // so replace it with the real form, if possible
             val messageType = state.stateType match {
               case ReceiveStateType => messageMap.getOrElse(edge.text, edge.text)
-              case SendStateType => messageMap.getOrElse(edge.text, edge.text)
-              case _ => edge.text
+              case SendStateType    => messageMap.getOrElse(edge.text, edge.text)
+              case _                => edge.text
             }
 
             // at the transition to the state
@@ -196,5 +206,4 @@ object parseGraph {
     def createState: State =
       State(id, text, stateType, startState, options, transitions.toArray)
   }
-
 }

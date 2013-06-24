@@ -11,10 +11,9 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package de.tkip.sbpm.model
+package de.tkip.sbpm.application.subject.behavior
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.subject.Variable
 
 sealed trait TransitionType
 case class ExitCond(messageType: MessageType, target: Option[Target] = None) extends TransitionType {
@@ -26,7 +25,7 @@ case class TimeoutCond(manual: Boolean, duration: Int) extends TransitionType
 case class ErrorCond() extends TransitionType
 
 case class Target(
-  subjectID: SubjectID,
+  var subjectID: SubjectID,
   min: Int,
   max: Int,
   createNew: Boolean, // TODO we dont need create new

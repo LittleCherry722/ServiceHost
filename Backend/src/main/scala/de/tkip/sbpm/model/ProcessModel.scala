@@ -14,8 +14,10 @@
 package de.tkip.sbpm.model
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import StateType.StateType
+import de.tkip.sbpm.application.subject.behavior.Transition
 
-object StateType extends Enumeration {// TODO just use a string?
+object StateType extends Enumeration { // TODO just use a string?
   type StateType = Value
   // The string identifier in the graph
   val ActStateString = "action"
@@ -41,9 +43,19 @@ object StateType extends Enumeration {// TODO just use a string?
   def fromStateTypetoString(stateType: StateType): String = stateType.toString
 }
 
-import StateType.StateType
+trait SubjectLike {
+  def id: SubjectID
+  def inputPool: Int
+  def multi: Boolean
+  def external: Boolean
+}
 // name raus ist ws in id
 case class State(id: StateID, text: String, stateType: StateType, startState: Boolean, options: StateOptions, transitions: Array[Transition])
 case class StateOptions(messageType: Option[MessageType], subjectId: Option[SubjectID], correlationId: Option[String], conversation: Option[String], stateId: Option[StateID])
-case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean = false, external: Boolean = false)
-case class ProcessGraph(subjects: Map[String, Subject])
+case class Subject(id: SubjectID, inputPool: Int, states: Array[State], multi: Boolean) extends SubjectLike {
+  lazy val external = false
+}
+case class ExternalSubject(id: SubjectID, inputPool: Int, multi: Boolean, relatedProcessId: ProcessID, relatedGraphId: Int, relatedSubjectId: SubjectID) extends SubjectLike {
+  lazy val external = true
+}
+case class ProcessGraph(subjects: Map[String, SubjectLike])

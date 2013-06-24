@@ -11,13 +11,15 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package de.tkip.sbpm.application.subject
+package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.Array.canBuildFrom
 import akka.actor._
+import akka.event.Logging
+import akka.actor.Status.Failure
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.application.miscellaneous._
@@ -33,9 +35,12 @@ import de.tkip.sbpm.application.RequestUserID
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
-import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
-import akka.actor.Status.Failure
+import de.tkip.sbpm.application.subject.SubjectData
+import de.tkip.sbpm.application.subject.behavior.InternalStatus
+import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.subject.behavior.ChangeState
+import de.tkip.sbpm.application.subject.behavior.TimeoutCond
 
 /**
  * The data, which is necessary to create any state

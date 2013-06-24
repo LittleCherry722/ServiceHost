@@ -11,15 +11,16 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package de.tkip.sbpm.application.subject
+package de.tkip.sbpm.application.subject.behavior
 
 import scala.collection.mutable.{ ArrayBuffer, Map => MutableMap }
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.model.Transition
 import akka.event.Logging
 import scala.collection.mutable.Queue
+import de.tkip.sbpm.application.subject.SubjectData
+import de.tkip.sbpm.application.subject.misc._
 
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state

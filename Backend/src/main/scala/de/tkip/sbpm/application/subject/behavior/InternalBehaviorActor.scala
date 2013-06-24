@@ -11,7 +11,7 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package de.tkip.sbpm.application.subject
+package de.tkip.sbpm.application.subject.behavior
 
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
@@ -21,11 +21,16 @@ import de.tkip.sbpm.application.history.{
   Message => HistoryMessage,
   State => HistoryState
 }
-import de.tkip.sbpm.application.subject.state._
+import de.tkip.sbpm.application.subject.behavior.state._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
 import akka.event.Logging
 import akka.actor.Status.Failure
+import de.tkip.sbpm.application.history.{Message => HistoryMessage}
+import de.tkip.sbpm.application.history.{State => HistoryState}
+import de.tkip.sbpm.application.history.{Transition => HistoryTransition}
+import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.subject.SubjectData
 
 // TODO this is for history + statechange
 case class ChangeState(
