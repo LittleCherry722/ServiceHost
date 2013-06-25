@@ -57,9 +57,13 @@ if (!$(this).closest(".step").is(".active")) return;
 $("#tooltips").fadeIn(33);
 return $(this).data("target") ? $("#tooltip").html($("#" + $(this).data("target")).html()) : $("#tooltip").html($(this).data("tooltip"));
 });
-return $("*[data-tooltip]").on("mouseleave", function(e) {
+$("*[data-tooltip]").on("mouseleave", function(e) {
 $("#tooltips").fadeOut(33);
 return $("#tooltip").html("");
+});
+return $("a.do-not-impress").on("click", function(e) {
+console.log("test");
+return e.stopPropagation();
 });
 });
 }).call(this);

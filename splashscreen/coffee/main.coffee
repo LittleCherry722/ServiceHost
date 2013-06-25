@@ -84,3 +84,8 @@ $('.arrow').each (idx, element) ->
   $("*[data-tooltip]").on 'mouseleave', (e) ->
     $('#tooltips').fadeOut( 33 )
     $('#tooltip').html("")
+
+  $('a.do-not-impress').on 'click', (e) ->
+    console.log "test"
+    e.stopPropagation()
+
