@@ -49,7 +49,7 @@
                                     "var2": ""
                                 }, 
                                 "id": 0, 
-                                "start": false, 
+                                "start": true, 
                                 "deactivated": false, 
                                 "variable": "", 
                                 "majorStartNode": false, 
