@@ -15,6 +15,9 @@ package de.tkip.sbpm.application.history
 
 import java.util.Date
 import akka.actor.ActorRef
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.Buffer
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 // represents an entry in the history (a state transition inside a subject)
 case class Entry(timestamp: Date, // time transition occurred
@@ -43,27 +46,31 @@ case class GetMessagePayload(messageId: Int, payloadId: String)
 case class Transition(from: State, to: State, message: Message)
 
 case class NewEntry(
-  id: String, //"<INT_UNIQUE_ID>"
-  processName: String, //"Travel Request"
-  processInstanceId: Int, //0
-  processStarted: Long, //System.currentTimeMillis
-  timestamp: Long, //s.o.
-  processEnd: Long,
-  userId: Int, //13
-  subjectId: String, //"Employee"
-  fromState: NewState, //hier kann man eventuell den alten State weiter verwenden
-  overTransition: NewTransition,
-  toState: NewState,
-  messages: Option[Seq[NewMessage]])
+  var id: String, //"<INT_UNIQUE_ID>"
+  var processName: String, //"Travel Request"
+  var processInstanceId: ProcessInstanceID, //0
+  processStarted: Option[Date], //System.currentTimeMillis
+  processEnd: Option[Date],
+  userId: UserID, //13
+  subjectId: SubjectID, //"Employee"
+//  fromState: NewState, //hier kann man eventuell den alten State weiter verwenden
+  transition: NewTransition,
+//  toState: NewState,
+  messages: Option[Seq[NewMessage]]
+)
 
 case class NewState(text: String, stateType: String)
 
-case class NewTransition(text: String, transitionType: String)
+case class NewTransition(fromState: NewState, text: String, transitionType: String, toState: NewState)
 
 case class NewMessage(
-  messageId: Seq[Int],
-  fromUserId: String,
-  toUserIds: Seq[String],
-  messageType: String,
-  text: String
+  messageIds: Seq[MessageID],
+  fromUserId: UserID,
+  toUserIds: Seq[UserID],
+  messageType: MessageType,
+  text: MessageContent
+)
+
+case class NewHistory(
+  entries: Buffer[NewEntry] = ArrayBuffer[NewEntry]() // recorded state transitions in the history
 )
