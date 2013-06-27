@@ -24,7 +24,7 @@ class RepoActor extends Actor with ActorLogging {
 
   def receive = {
     case GetEntry(id) => {
-      sender ! entries(id).prettyPrint
+      sender ! entries.get(id).map(_.prettyPrint)
     }
 
     case GetEntries => {
@@ -37,13 +37,19 @@ class RepoActor extends Actor with ActorLogging {
 
     case CreateEntry(entry) => {
       val obj = entry.asJson.asJsObject
-      val template = templates(obj.fields("name"))
+      val template = templates.get(obj.fields("name"))
 
-      log.info("add from template: {}", template)
+      template match {
+        case Some(t) => {
+          log.info("add from template: {}", t)
 
-      entries(template.fields("id").toString.toInt) = template
+          entries(t.fields("id").toString.toInt) = t
 
-      sender ! template.prettyPrint
+          sender ! Some(t.prettyPrint)
+        }
+
+        case None => sender ! None
+      }
     }
   }
 }
