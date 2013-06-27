@@ -6,6 +6,7 @@ import akka.pattern.ask
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import akka.util.Timeout
+import spray.http.{StatusCodes, HttpResponse}
 
 
 object Boot extends App with SimpleRoutingApp {
@@ -16,13 +17,17 @@ object Boot extends App with SimpleRoutingApp {
 
 
   startServer(interface = "localhost", port = 8181) {
-    path("repo") {
+    pathPrefix("repo") {
       get {
         path(IntNumber) {
           id =>
             val future = repoActor ? GetEntry(id)
-            val result = Await.result(future, timeout.duration).asInstanceOf[String]
-            complete(result)
+            val result = Await.result(future, timeout.duration).asInstanceOf[Option[String]]
+
+            result match {
+              case Some(s) => complete(s)
+              case None => complete(HttpResponse(status = StatusCodes.NotFound))
+            }
         } ~ path("") {
           ctx =>
             val future = repoActor ? GetEntries
@@ -34,8 +39,12 @@ object Boot extends App with SimpleRoutingApp {
           entity(as[String]) {
             entry =>
               val future = repoActor ? CreateEntry(entry)
-              val result = Await.result(future, timeout.duration).asInstanceOf[String]
-              complete(result)
+              val result = Await.result(future, timeout.duration).asInstanceOf[Option[String]]
+
+              result match {
+                case Some(s) => complete(s)
+                case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
+              }
           }
         }
     }
