@@ -1,6 +1,6 @@
-<strong data-bind="visible: actions().length==0">Currently, there are no actions assigned to you.</strong>
+<div style="width: 600px;" data-bind="visible: actions().length==0">Currently, there are no actions assigned to you.</div>
 
-<div data-bind='foreach: actions'>
+<div data-bind='foreach: actions()'>
     <!-- ko if: process() -->
     <table class="result" data-bind="attr: {id: instanceTableId()}">
         <tr style="cursor: pointer;" data-bind="click: function() { $('#'+instanceDetailsDivId()).toggle(); }">
@@ -52,7 +52,7 @@
                 </div>
                 
                 <div data-bind="visible: stateType()==='action', foreach: actionData">
-                    <input class="btn" type="button" data-bind="value: $parent.stateText() ? $parent.stateText() : $data.text, click: $parent.action, visible: $data.executeAble"/>
+                    <input class="btn" type="button" data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action, visible: $data.executeAble"/>
                 </div>
                 
                 <div data-bind="visible: stateType()==='receive', foreach: actionData">

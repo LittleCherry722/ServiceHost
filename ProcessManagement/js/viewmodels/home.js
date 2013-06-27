@@ -2,17 +2,37 @@ define([
 	"knockout",
 	"app",
 	"underscore",
-	"models/processInstance"
-], function( ko, App, _, ProcessInstance ) {
+	"models/user",
+	"models/process",
+	"models/actions",
+	"moment",
+	"jquery.ui",
+], function( ko, App, _, User, Process, Actions, moment ) {
 
 	var ViewModel = function() {
-		this.processInstance = processInstance;
+		// Filter
+		this.availableUsers = ko.observableArray(User.all());
+		this.availableProcesses = ko.observableArray(Process.all());
+		this.availableStatetypes= availableStatetypes;
+		this.selectedUser = selectedUser;
+		this.selectedProcess = selectedProcess;
+		this.selectedStatetype = selectedStatetype;
+		this.selectedStart = selectedStart;
+		this.selectedEnd = selectedEnd;
+		
 		this.tabs = tabs;
 		this.tabDescriptions = tabDescriptions;
 		this.currentTab = currentTab;
-	}
-	var processInstance = ko.observable();
+	}	
 	currentSubView = ko.observable();
+	var availableStatetypes = ko.computed(function() {
+		var uniqueStates= [];
+		$.each(Actions.all(), function(i, el){
+			if($.inArray(el.stateType(), uniqueStates) === -1) uniqueStates.push(el.stateType());
+		});
+		return uniqueStates;
+	});
+	
 	
 	var tabs = [ 'Actions', 'History' ];
 	var tabDescriptions = {
@@ -22,10 +42,49 @@ define([
 	var currentTab = ko.observable();
 	
 	var setView = function( tab ) {
-		//processInstance( ProcessInstance.find( id ) );
 		currentTab( tab );
-		//currentSubject( subjectId );
 	}
+	
+	/* Start Filter */
+	var selectedUser = ko.observable();
+	selectedUser.subscribe(function( User ) {
+		if ( currentSubView() ) {
+			currentSubView().setUser( User );
+		}
+	});
+	var selectedProcess = ko.observable();
+	selectedProcess.subscribe(function( Process) {
+		if ( currentSubView() ) {
+			currentSubView().setProcess( Process );
+		}
+	});
+	var selectedStatetype = ko.observable();
+	selectedStatetype.subscribe(function( Statetype) {
+		if ( currentSubView() ) {
+			currentSubView().setStatetype( Statetype );
+		}
+	});
+	var selectedStart = ko.observable();
+	selectedStart.subscribe(function( Start) {
+		if ( currentSubView() ) {
+			if(Start) {
+				currentSubView().setStart( moment(Start).format("X") );
+			} else {
+				currentSubView().setStart("");
+			}
+		}
+	});
+	var selectedEnd = ko.observable();
+	selectedEnd.subscribe(function( End ) {
+		if ( currentSubView() ) {
+			if(End) {
+				currentSubView().setEnd( moment(End).format("X") );
+			} else {
+				currentSubView().setStart("");
+			}
+		}
+	});
+	/* End Filter */
 	
 	currentTab.subscribe(function( newTab ) {
 		if ( !newTab ) {
@@ -37,7 +96,13 @@ define([
 		require([ "viewmodels/home/" + newTab.toLowerCase() ], function( viewModel ) {
 			unloadSubView();
 			currentSubView( viewModel );
-      		viewModel.init.apply( viewModel, [ processInstance() ] );
+      		viewModel.init.apply( viewModel, [  ] );
+      		
+      		selectedUser.valueHasMutated();
+			selectedProcess.valueHasMutated();
+			selectedStatetype.valueHasMutated();
+			selectedStart.valueHasMutated();
+			selectedEnd.valueHasMutated();
 		});
 
 		if ( newTab === tabs[0] ) {
@@ -47,18 +112,13 @@ define([
 		}
 	});
 	
-	var initialize = function( subSite ) {
+	var initialize = function(subSite) {
 		var viewModel;
-
-		processInstance( ProcessInstance.fetchAll );
 		viewModel = new ViewModel();
-		//processInstance( ProcessInstance.find( processInstanceId ) );
-
-		if ( !subSite ) {
+		
+		if (!subSite) {
 			subSite = tabs[0];
 		}
-
-		//currentSubject( subjectId );
 
 		App.loadTemplate( "home", viewModel, null, function() {
 			if ( currentTab() == subSite ) {
@@ -66,6 +126,25 @@ define([
 			} else {
 				currentTab( subSite )
 			}
+			
+
+			 $( "#from" ).datepicker({
+				defaultDate: "+1w",
+				changeMonth: true,
+				numberOfMonths: 3,
+				onClose: function( selectedDate ) {
+					$( "#to" ).datepicker( "option", "minDate", selectedDate );
+				}
+			});
+			$( "#to" ).datepicker({
+				defaultDate: "+1w",
+				changeMonth: true,
+				numberOfMonths: 3,
+				onClose: function( selectedDate ) {
+					$( "#from" ).datepicker( "option", "maxDate", selectedDate );
+				}
+			});	
+			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');		
 		});
 	}
 	
@@ -87,5 +166,3 @@ define([
 		unload: unload
 	}
 });
-
-
