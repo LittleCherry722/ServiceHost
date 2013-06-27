@@ -103,7 +103,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   }
 
   // administration
-  implicit val userFormat = jsonFormat4(User)
+  implicit val userFormat = jsonFormat5(User)
   implicit val userUpdate = jsonFormat3(UserUpdate)
   implicit val providerMail = jsonFormat2(ProviderMail)
   implicit val userWithMail = jsonFormat5(UserWithMail)

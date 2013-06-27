@@ -103,7 +103,7 @@ class GoogleAuthActor extends Actor with ActorLogging {
   val CLIENT_SECRETS = GoogleClientSecrets.load(JSON_FACTORY, getClass().getResourceAsStream("/client_secrets.json"))
   
   // get the first defined redirect uri from client_secrets.json
-  val CALLBACK_URL = CLIENT_SECRETS.getWeb().getRedirectUris().get(0)
+  val CALLBACK_URL = "http://localhost:8080/oauth2callback" //CLIENT_SECRETS.getWeb().getRedirectUris().get(0)
   
   
   // currently the token are saved in a filesystem-file
