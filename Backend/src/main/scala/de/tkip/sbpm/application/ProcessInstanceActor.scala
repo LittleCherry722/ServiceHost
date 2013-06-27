@@ -74,7 +74,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
-  private var processInstanceManger: ActorRef = _
+  private val processInstanceManger: ActorRef =
+    // TODO not over context
+    request.manager.getOrElse(context.actorOf(
+      Props(new ProcessInstanceManagerActor(request.userID, request.processID, self))))
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
@@ -108,10 +111,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       id = idTemp
       processName = processNameTemp
       persistenceGraph = graphTemp
-
-      processInstanceManger =
-        request.manager.getOrElse(context.actorOf(
-          Props(new ProcessInstanceManagerActor(request.userID, id, self))))
 
       // parse the start-subjects into an Array
       val startSubjects: Iterable[SubjectID] = graphTemp.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys

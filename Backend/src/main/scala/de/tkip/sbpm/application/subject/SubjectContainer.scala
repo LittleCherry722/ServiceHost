@@ -91,6 +91,8 @@ class SubjectContainer(
       // inform the subject provider about his new subject
       context.parent !
         SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+
+      reStartSubject(userID)
     } else {
       System.err.println("CREATE: " + subjectData.subject);
 
@@ -112,7 +114,9 @@ class SubjectContainer(
     logger.debug("Processinstance [" + processInstanceID + "] created Subject " +
       subject.id + " for user " + userID)
 
-    reStartSubject(userID)
+    // TODO raus
+    System.err.println("Processinstance [" + processInstanceID + "] created Subject " +
+      subject.id + " for user " + userID)
   }
 
   def handleSubjectTerminated(message: SubjectTerminated) {
@@ -168,7 +172,8 @@ class SubjectContainer(
 
       System.err.println("SEND: " + message);
       if (subject.external) {
-    	  message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+        message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+        message.from = "Subj1" //FIXME nur test raus!
       }
       println("SEND: " + message);
 
