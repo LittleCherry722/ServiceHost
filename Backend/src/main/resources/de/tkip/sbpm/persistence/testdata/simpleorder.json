@@ -336,7 +336,7 @@
                                 "priority": 1, 
                                 "start": 0, 
                                 "optional": false, 
-                                "text": "", 
+                                "text": "Goods not in Stock", 
                                 "variable": null, 
                                 "type": "exitcondition", 
                                 "correlationId": ""
