@@ -33,8 +33,8 @@ define([
                 subjectID: "string",
                 data: "json",
                 messageContent: "string"});
-
         
+        Actions.all = ko.observableArray();
         
 	Actions.include({
 		// Initialize is a special method defined as an instance method.  If any
@@ -42,9 +42,7 @@ define([
 		// creation (when calling new model()) with the context of the model.
 		// That is, "this" refers to the model itself.
 		// This makes it possible to define defaults for attributes etc.
-                
-                
-                
+          
 		initialize: function( data ) { 
                     
                     var self = this;   
@@ -59,9 +57,8 @@ define([
                         return u; 
                     });
                     
-
                     
-                     
+                                         
 //                    this.processInstanceID = ko.computed(function() { return self.processInstanceID(); });
 //                    this.stateID = ko.computed(function() { return self.stateID(); });
 //                    this.stateText = ko.computed(function() { return self.stateText(); });
@@ -132,7 +129,7 @@ define([
                         return min;
                     });
                     
-                    this.selectUsers = ko.observableArray(function () {
+                    this.selectUsers = ko.computed(function () {
 			var u = [];
                         if (self.actionData()) {
                             _.each(self.actionData(), function (element) {
@@ -148,7 +145,7 @@ define([
                             });
                         }
                         return u;
-                    }());
+                    });
                 
                     this.actionTitle = ko.computed(function() {
                         if (self.stateText()!="") return self.stateText();
@@ -216,7 +213,7 @@ define([
                     
                     delete data.actionData.data;
                     
-
+                    
                     data = JSON.stringify(data);
                     $.ajax({
                         url: '/processinstance/' + id,
@@ -226,7 +223,9 @@ define([
                         dataType: "json",
                         contentType: "application/json; charset=UTF-8",
                         success: function(data, textStatus, jqXHR) {
-                            location.reload()
+                            Actions.fetch();
+                            Notify.info("Done", "Action successfully sent.");
+                            
                         },
                         error : function(jqXHR, textStatus, error) {
                             Notify.error( "Error", "Unable to send action. Please try again." );
@@ -267,8 +266,7 @@ define([
                     data.actionData.targetUsersData.targetUsers = selUsers;
                     delete data.actionData.selectedUsers;
                     
-                    console.log("data: ", data);
-
+                    
                     data = JSON.stringify( data );
                     $.ajax({
                         url : '/processinstance/' + id,
@@ -278,7 +276,8 @@ define([
                         dataType : "json",
                         contentType : "application/json; charset=UTF-8",
                         success : function(data, textStatus, jqXHR) {
-                            location.reload()
+                            Actions.fetch();
+                            Notify.info("Done.", "Action successfully sent.");
                         },
                         error : function(jqXHR, textStatus, error) {
                                Notify.error( "Error", "Unable to send action. Please try again." );
