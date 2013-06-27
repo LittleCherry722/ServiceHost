@@ -107,6 +107,11 @@ case class GraphNodeOptions(messageId: Option[String] = None,
   conversationId: Option[String] = None,
   nodeId: Option[Short] = None)
 
+object GraphNodeOptions {
+  val AllMessages = "##all##"
+  val AllSubjects = "##all##"
+}
+
 case class GraphVarMan(var1Id: String,
   var2Id: String,
   operation: String,
