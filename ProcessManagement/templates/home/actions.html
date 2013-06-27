@@ -1,6 +1,6 @@
 <div style="width: 600px;" data-bind="visible: actions().length==0">Currently, there are no actions assigned to you.</div>
 
-<div data-bind='foreach: actions'>
+<div data-bind='foreach: actions()'>
     <!-- ko if: process() -->
     <table class="result" data-bind="attr: {id: instanceTableId()}">
         <tr style="cursor: pointer;" data-bind="click: function() { $('#'+instanceDetailsDivId()).toggle(); }">

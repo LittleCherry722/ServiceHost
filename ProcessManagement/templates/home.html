@@ -27,8 +27,10 @@
         }
         
         #dashboard .result {
-            width: 600px;
             margin: 10px 0;
+        }
+        #dashboard table {
+        	width:100%;
         }
         
         #dashboard .result .col1 { width: 10%;}
@@ -81,6 +83,21 @@
             position: absolute;
             right: 5px;
         }
+        #from, #to {
+        	width: 70px;
+        }
+        label, input, select {
+        	display: inline-block;
+        }
+        input {
+        	margin-right:15px;
+        }
+        select {
+        	margin-right:20px;
+        }
+        label {
+        	margin-right:7px;
+        }
         
        
         
@@ -88,7 +105,16 @@
     
   <div data-chardin-intro="This his your Dashboard." data-chardin-position="bottom" class="pull-left">
     <h3>S-BPM Groupware v1.2</h3>
-    
+    <div class="btn-group">
+    	<select data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>    	
+		<select data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
+		<select data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
+		<label for="from">From</label>
+		<input type="text" id="from" name="from" data-bind="value: selectedStart" />
+		<label for="to">to</label>
+		<input type="text" id="to" name="to" data-bind="value: selectedEnd"/>
+    </div>
+
     <div id="notification" style="display: none;">
         <h1>Notification box</h1>        
         <span>Notification message</span>
