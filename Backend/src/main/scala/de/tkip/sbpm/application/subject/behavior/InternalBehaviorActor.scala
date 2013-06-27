@@ -185,6 +185,10 @@ class InternalBehaviorActor(
       case EndStateType => {
         context.actorOf(Props(EndStateActor(stateData)))
       }
+
+      case CloseIPStateType => {
+        context.actorOf(Props(CloseIPStateActor(stateData)))
+      }
     }
   }
 }

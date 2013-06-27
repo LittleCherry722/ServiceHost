@@ -47,6 +47,8 @@ protected case class SubjectToSubjectMessage(
 
 // acknowledge, that a message is stored in the input pool
 protected case class Stored(messageID: MessageID) extends MessageObject
+// acknowledge, that the message was rejected by the input pool
+protected case class Rejected(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)

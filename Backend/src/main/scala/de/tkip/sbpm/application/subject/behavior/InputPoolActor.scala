@@ -13,11 +13,10 @@
 
 package de.tkip.sbpm.application.subject.behavior
 
-import scala.collection.mutable.{ ArrayBuffer, Map => MutableMap }
+import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet }
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import akka.event.Logging
 import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.subject.misc._
@@ -50,7 +49,13 @@ protected case class UnSubscribeIncomingMessages(stateID: StateID)
 // message to inform the receive state, that the inputpool has no messages for him
 protected case object InputPoolSubscriptionPerformed
 
-class InputPoolActor(data: SubjectData) extends Actor {
+// message to inform the inputpool, that it should close the given channel(s)
+protected case class CloseInputPool(channelId: ChannelID)
+
+// message to inform the receive state, that the inputpool close request succeeded
+protected case object InputPoolClosed
+
+class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   // extract the information from the data
   val userID = data.userID
   val messageLimit = data.subject.inputPool
@@ -58,10 +63,12 @@ class InputPoolActor(data: SubjectData) extends Actor {
 
   // this map holds the queue of the income messages for a channel
   private val messageQueueMap =
-    MutableMap[(SubjectID, MessageType), Queue[SubjectToSubjectMessage]]()
+    MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
   // this map holds the states which are subscribing a channel
   private val waitingStatesMap =
-    MutableMap[(SubjectID, MessageType), WaitingStateList]()
+    MutableMap[ChannelID, WaitingStateList]()
+
+  private val closedChannels = MutableSet[ChannelID]()
 
   def receive = {
 
@@ -79,6 +86,16 @@ class InputPoolActor(data: SubjectData) extends Actor {
       waitingStatesMap.map(_._2.remove(stateID))
     }
 
+    case message: SubjectToSubjectMessage if closedChannels((message.from, message.messageType)) => {
+      // Unlock the sender
+      sender ! Rejected(message.messageID)
+
+      log.warning("message rejected: {}", message)
+
+      // unblock this user
+      blockingHandlerActor ! UnBlockUser(userID)
+    }
+
     case message: SubjectToSubjectMessage => {
       // Unlock the sender
       sender ! Stored(message.messageID)
@@ -86,6 +103,11 @@ class InputPoolActor(data: SubjectData) extends Actor {
       tryTransportMessage(message)
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
+    }
+
+    case CloseInputPool(channelId) => {
+      closedChannels += channelId
+      sender ! InputPoolClosed
     }
   }
 

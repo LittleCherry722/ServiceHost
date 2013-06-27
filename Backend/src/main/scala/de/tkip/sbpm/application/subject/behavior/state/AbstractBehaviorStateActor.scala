@@ -88,6 +88,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
 
   protected val blockingHandlerActor = data.subjectData.blockingHandlerActor
   protected val model = data.stateModel
+  protected val stateOptions = model.options
   protected val id = model.id
   protected val userID = data.userID
   protected val processID = data.subjectData.processID

@@ -14,8 +14,7 @@
 package de.tkip.sbpm.application.miscellaneous
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.{ Map => MutableMap }
-import spray.json._
+import scala.collection.mutable.{Map => MutableMap}
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
@@ -103,10 +102,20 @@ object parseGraph {
 
     private def parseNodes(nodes: Iterable[GraphNode]) {
       for (node <- nodes) {
+        val options = parseNodeOptions(node.options)
+
         // create and add a state creator for this state
         states(node.id) =
-          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart)
+          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart, options)
       }
+    }
+
+    private def parseNodeOptions(nodeOptions: GraphNodeOptions) :StateOptions = {
+      val messageId = nodeOptions.messageId.map(id => if (id == GraphNodeOptions.AllMessages) AllMessages else id)
+      val subjectId = nodeOptions.subjectId.map(id => if (id == GraphNodeOptions.AllSubjects) AllSubjects else id)
+      val stateId = nodeOptions.nodeId.map(_.toInt)
+
+      StateOptions(messageId, subjectId, nodeOptions.correlationId, nodeOptions.conversationId, stateId)
     }
 
     private def parseEdges(edges: Iterable[GraphEdge]) {
@@ -120,7 +129,7 @@ object parseGraph {
               case Some(t) => {
                 var minValue = t.min
                 var maxValue = t.max
-                var default = minValue < 1 && maxValue < 1
+                val default = minValue < 1 && maxValue < 1
 
                 if (minValue < 1) minValue = 1
                 if (maxValue < 1) {
@@ -178,7 +187,8 @@ object parseGraph {
     val id: StateID,
     val text: String,
     val stateType: StateType,
-    val startState: Boolean) {
+    val startState: Boolean,
+    val options: StateOptions) {
 
     // store all transitions in this Buffer
     private val transitions = new ArrayBuffer[Transition]
@@ -194,6 +204,6 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, startState, transitions.toArray)
+      State(id, text, stateType, startState, options, transitions.toArray)
   }
 }
