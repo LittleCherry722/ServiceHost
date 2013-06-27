@@ -86,7 +86,11 @@ object Entities {
     (Process(None, """Travel Request No Loop""", false) -> loadJson("travel_request_no_loop")),
     (Process(None, """Travel Request Timeout""", false) -> loadJson("travel_request_timeout")),
     (Process(None, """Order""", false) -> loadJson("order")),
-    (Process(None, """Supplier (E)""", false) -> loadJson("supplier")))
+    (Process(None, """Supplier (E)""", false) -> loadJson("supplier")),
+    (Process(None, """Order(simple)""", false) -> loadJson("simpleorder")),        
+    (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")))
+
+
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list
