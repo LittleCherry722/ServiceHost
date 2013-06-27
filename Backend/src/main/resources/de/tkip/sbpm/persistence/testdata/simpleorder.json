@@ -7,7 +7,7 @@
                 "name": "Supplier", 
                 "deactivated": false, 
                 "variables": {}, 
-                "relatedSubject": "", 
+                "relatedSubject": "Subj2", 
                 "macros": [
                     {
                         "nodeCounter": 0, 
@@ -23,7 +23,7 @@
                 "inputPool": 100, 
                 "type": "external", 
                 "id": "Subj1", 
-                "relatedProcess": ""
+                "relatedProcess": 7
             }, 
             {
                 "comment": "", 
@@ -32,6 +32,7 @@
                 "deactivated": false, 
                 "variables": {}, 
                 "relatedSubject": "", 
+		"startSubject": true,
                 "macros": [
                     {
                         "nodeCounter": 12, 

@@ -7,7 +7,7 @@
                 "name": "Order Process", 
                 "deactivated": false, 
                 "variables": {}, 
-                "relatedSubject": "", 
+                "relatedSubject": "Subj2", 
                 "macros": [
                     {
                         "nodeCounter": 0, 
@@ -23,7 +23,7 @@
                 "inputPool": 100, 
                 "type": "external", 
                 "id": "Subj1", 
-                "relatedProcess": ""
+                "relatedProcess": 6
             }, 
             {
                 "comment": "", 

@@ -18,9 +18,12 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
   private val processInstanceMap: mutable.Map[(UserID, ProcessID), ActorRef] =
     mutable.Map[(UserID, ProcessID), ActorRef]((userId, processId) -> actor)
 
-  private var waitingList: (Any, ActorRef) = null
+  //  private var waitingList: (Any, ActorRef) = null
 
-  private var block: GetSubjectAddr = null
+  private val waitingMessages: mutable.Map[ProcessID, mutable.Queue[(ActorRef, GetSubjectAddr)]] =
+    mutable.Map[ProcessID, mutable.Queue[(ActorRef, GetSubjectAddr)]]()
+
+  //  private var block: GetSubjectAddr = null
   // map: UserID, processID -> ActorAddr
 
   // create process instance
@@ -32,34 +35,50 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
   // 
 
   def receive = {
+    // the processinstance exists
     case message @ GetSubjectAddr(userId, processId, subjectId) if (processInstanceMap.contains((userId, processId))) => {
       processInstanceMap((userId, processId)) forward message
     }
-    case message: GetSubjectAddr if (message == block) =>
-
+    // the processinstaces does not exists yet but a create request has been send
+    case message @ GetSubjectAddr(userId, processId, subjectId) if (waitingMessages.contains(processId)) => {
+      waitingMessages(processId) += ((sender, message))
+    }
+    // the processinstance does not exists
     case message @ GetSubjectAddr(userId, processId, subjectId) => {
 
-      block = message
+      //      block = message
       // TODO self einpacken
       val createMessage = CreateProcessInstance(userId, processId, Some(self))
       createMessage.sender = self
 
       processManagerActor ! createMessage
 
-      waitingList = (message, sender)
+      waitingMessages(processId) = mutable.Queue((sender, message))
+
+      //      waitingList = (message, sender)
       // TODO waiting queue
     }
 
     case pc: ProcessInstanceCreated => {
 
+      // register the process instane
       processInstanceMap +=
         (pc.request.userID, pc.request.processID) -> pc.processInstanceActor
 
-      pc.processInstanceActor.tell(waitingList._1, waitingList._2)
+      // forward all stored messages for this process instance
+      for ((actor, message) <- waitingMessages(processId)) {
+        pc.processInstanceActor.tell(message, actor)
+      }
+      // clear the queue of the sent messages
+      waitingMessages(processId) = mutable.Queue()
 
-      block = null
+      //      pc.processInstanceActor.tell(waitingList._1, waitingList._2)
+      //
+      //      block = null
     }
 
-    case _ =>
+    case _ => {
+      // TODO
+    }
   }
 }
