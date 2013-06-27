@@ -66,7 +66,7 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
         (pc.request.userID, pc.request.processID) -> pc.processInstanceActor
 
       // forward all stored messages for this process instance
-      for ((actor, message) <- waitingMessages(processId)) {
+      for ((actor, message) <- waitingMessages(pc.request.processID)) {
         pc.processInstanceActor.tell(message, actor)
       }
       // clear the queue of the sent messages

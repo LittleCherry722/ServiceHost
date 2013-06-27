@@ -74,9 +74,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
-  private val processInstanceManger =
-    request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceManagerActor(request.userID, id, self))))
+  private var processInstanceManger: ActorRef = _
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
@@ -110,6 +108,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       id = idTemp
       processName = processNameTemp
       persistenceGraph = graphTemp
+
+      processInstanceManger =
+        request.manager.getOrElse(context.actorOf(
+          Props(new ProcessInstanceManagerActor(request.userID, id, self))))
 
       // parse the start-subjects into an Array
       val startSubjects: Iterable[SubjectID] = graphTemp.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
@@ -177,11 +179,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case message: GetSubjectAddr => {
-        subjectMap
-          .getOrElseUpdate(
-            message.subjectId,
-            createSubjectContainer(graph.subjects((message.subjectId))))
-          .send(sender, message)
+      subjectMap
+        .getOrElseUpdate(
+          message.subjectId,
+          createSubjectContainer(graph.subjects((message.subjectId))))
+        .send(sender, message)
     }
 
     case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
