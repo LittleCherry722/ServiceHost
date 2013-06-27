@@ -14,21 +14,21 @@
 package de.tkip.sbpm.application.subject.behavior
 
 import akka.actor._
-import akka.actor.Status.Failure
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.subject.behavior.state._
+import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.model._
 import akka.event.Logging
+import akka.actor.Status.Failure
 import de.tkip.sbpm.application.history.{Message => HistoryMessage}
 import de.tkip.sbpm.application.history.{State => HistoryState}
 import de.tkip.sbpm.application.history.{Transition => HistoryTransition}
-import de.tkip.sbpm.application.history.{NewTransition => NewHistoryTransition}
-import de.tkip.sbpm.application.history.{NewState => NewHistoryState}
 import de.tkip.sbpm.application.history.{NewMessage => NewHistoryMessage}
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.subject.SubjectData
-import de.tkip.sbpm.application.subject.behavior.state._
+import de.tkip.sbpm.application.history.{NewState => NewHistoryState}
+import de.tkip.sbpm.application.history.{NewTransition => NewHistoryTransition}
 import de.tkip.sbpm.application.subject.misc._
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.application.subject.SubjectData
 
 // TODO this is for history + statechange
 case class ChangeState(
