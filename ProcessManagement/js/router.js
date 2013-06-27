@@ -12,9 +12,10 @@
  */
 
 define([ "director", "app"], function( Director, App ) {
-	var router;
-
-	var _globalCallback;
+	var router,
+		_globalCallback,
+		hasUnsavedChanges = false
+		hasUnsavedChangesMessage = "There are unsaved changes which will be lost. Continue?";
 
 	var globalCallback = function( callback ) {
 		var cb;
@@ -26,6 +27,20 @@ define([ "director", "app"], function( Director, App ) {
 			cb = _globalCallback;
 			_globalCallback = undefined;
 			return cb;
+		}
+	}
+
+	/**
+	 * Sets the value that indicates that some opened document has or has not unsaved changes
+	 * @param {boolean} value the value
+	 */
+	var setHasUnsavedChanges = function(value) {
+		hasUnsavedChanges = value;
+
+		if( true === value ) {
+			window.onbeforeunload = function() { return hasUnsavedChangesMessage; };
+		} else {
+			window.onbeforeunload = null;
 		}
 	}
 
@@ -48,8 +63,12 @@ define([ "director", "app"], function( Director, App ) {
 	}
 
 	// Show the home (index) page.
-	var showHome = function() {
-		App.loadView( "home", null, globalCallback() );
+	var showHome = function(tab) {
+		if ( App.isViewLoaded( "home" ) ) {
+			App.currentMainViewModel().setView(tab)
+		} else {
+			loadView( "home", [ tab ], globalCallback() );
+		}
 	}
 
 	var showAccount = function() {
@@ -93,7 +112,12 @@ define([ "director", "app"], function( Director, App ) {
 	 */
 	var routes = {
 		"/":  showHome,
-		"/home":  showHome,
+		"/home":  {
+			on: showHome,
+			"/:tab": {
+			 	on: showHome
+			}
+		},
 		"/account": showAccount,
 		"/administration": {
 			on: showAdministration,
@@ -131,6 +155,10 @@ define([ "director", "app"], function( Director, App ) {
 	// Load a custom viewmodel.
 	// Path is always prepended with "/viewmodels"
 	var loadView = function( viewName, args, callback ) {
+		if(hasUnsavedChanges && !confirm(hasUnsavedChangesMessage)) {
+			return;
+		}
+		setHasUnsavedChanges(false);
 		App.loadView( viewName, args, callback );
 	}
 
@@ -230,13 +258,13 @@ define([ "director", "app"], function( Director, App ) {
 		window.r = router;
 		// Set our default route to "/" (if no /#/ could be found)
 		router.init("/");
-
 	}
 
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
 		modelPath: modelPath,
-		goTo: goTo
+		goTo: goTo,
+		setHasUnsavedChanges: setHasUnsavedChanges
 	}
 });

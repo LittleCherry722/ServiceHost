@@ -1,0 +1,81 @@
+<style type="text/css">
+#dashboardHistory .state td {
+	border-top:1px solid #000;
+}
+#dashboardHistory .messages .leftBox {
+	float:left; width:303px;
+}
+#dashboardHistory .messages .leftBox .left, #dashboardHistory .messages .left {
+	float:left;
+	width:69px;
+	padding:5px;
+	font-weight:bold;
+}
+#dashboardHistory .messages .text {
+	width:493px;
+}
+#dashboardHistory .messages .leftBox .right, #dashboardHistory .messages .right {
+	float:left;padding:5px;
+}
+
+#dashboardHistory .messages .rightBox {
+	float:left;
+}
+#dashboardHistory .messages .rightBox .left {
+	float:left;width:64px;padding:5px;font-weight:bold;
+}
+#dashboardHistory .messages .rightBox .right {
+	float:left;padding:5px;
+}
+</style>
+<div id="dashboardHistory">
+  <div class="flexbox" style="height: 100%;">
+      <div class="fluid" style="height: 100%;">
+        
+        <table class="table result">
+          <thead>
+            <th>Time</th>
+            <th>Subject</th>
+            <th>From</th>
+            <th>@State</th>
+            <th>To</th>
+            <th>@State</th>
+            <th></th>
+          </thead>
+          <tbody data-bind="foreach: historicEntries">
+            <tr class="state" style="cursor: pointer;" data-bind="click: function() { $('.messages'+id).toggle(); }">
+              <td data-bind="text: timestamp"></td>
+              <td data-bind="text: processName"></td>
+              <td data-bind="text: fromState.text"></td>
+              <td data-bind="text: fromState.stateType"></td>
+              <td data-bind="text: toState.text"></td>
+              <td data-bind="text: toState.stateType"></td>
+              <td><!-- ko if: $data.hasOwnProperty("messages") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
+            </tr>
+              <!-- Line below will be recognized by ko parser-->
+              <!-- ko if: $data.hasOwnProperty("messages") -->
+              <!-- ko foreach: messages --> 
+              <tr class="true" style="display: none;" data-bind="attr: { 'class': 'messages messages' + $parent.id }">
+ 				<td colspan="7" style="padding:0;">
+                	<div style="padding:8px;">
+                        <div class="leftBox">
+                        	<div class="left">ID:</div><div class="right" data-bind="text: messageId"></div><div style="clear:both;"></div>
+                        	<div class="left">Type:</div><div class="right" data-bind="text: messageType"></div><div style="clear:both;"></div>
+                        </div>
+                        <div class="rightBox">
+                        	<div class="left">From:</div><div class="right" data-bind="text: fromUserId"></div><div style="clear:both;"></div>
+                        	<div class="left">To:</div><div class="right" data-bind="text: toUserIds"></div><div style="clear:both;"></div>
+                        </div>
+                        <div style="clear:both"></div>
+                        <div class="left">Message:</div><div class="right text" data-bind="text: text"></div><div style="clear:both;"></div>
+                	</div>
+                </td>
+              </tr>
+              <!-- /ko -->
+              <!-- /ko -->    
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

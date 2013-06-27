@@ -21,6 +21,6 @@ object ActorLocator {
 
   def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
 
-  def processManagerActor(implicit ctx: ActorRefFactory) = actor(processInstanceActorName)
+  def processInstanceActor(implicit ctx: ActorRefFactory) = actor(processInstanceActorName)
   def frontendInterfaceActor(implicit ctx: ActorRefFactory) = actor(frontendInterfaceActorName)
 }

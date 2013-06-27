@@ -27,7 +27,9 @@ import query.Users._
  * Handles all database operations for table "users".
  */
 private[persistence] class UserPersistenceActor extends Actor
-  with DatabaseAccess with schema.UserIdentitiesSchema {
+  with DatabaseAccess with schema.UserIdentitiesSchema with schema.GroupsUsersSchema
+  with schema.GroupsSchema with schema.GroupsRolesSchema with schema.RolesSchema
+  with schema.GraphSubjectsSchema with schema.ProcessInstancesSchema {
   // import current slick driver dynamically
   import driver.simple._
 
@@ -66,7 +68,7 @@ private[persistence] class UserPersistenceActor extends Actor
       val query = for {
         (u, i) <- Query(Users).where(_.id === id).leftJoin(Query(UserIdentities)).on(_.id === _.userId)
       } yield (u, i.provider.?, i.eMail.?, i.password)
-      // create option tuple Option[(User, List[UserIdentity])] 
+      // create option tuple Option[(User, List[UserIdentity])]
       query.list.groupBy(e => toDomainModel(e._1)).mapValues(_.filter(_._2.isDefined).map { e =>
         // convert to domain model
         UserIdentity(toDomainModel(e._1), e._2.get, e._3.get, e._4)
@@ -80,9 +82,9 @@ private[persistence] class UserPersistenceActor extends Actor
     case Save.Entity(us @ _*) => answer { implicit session =>
       us.map {
         // id is None -> insert
-        case u @ User(None, _, _, _) => Some(Users.autoInc.insert(toPersistenceModel(u)))
+        case u @ User(None, _, _, _, _) => Some(Users.autoInc.insert(toPersistenceModel(u)))
         // id given -> update
-        case u @ User(id, _, _, _)   => update(id, u)
+        case u @ User(id, _, _, _, _)   => update(id, u)
       } match {
         // only one user was given, return it's id
         case ids if (ids.size == 1) => ids.head
@@ -126,6 +128,10 @@ private[persistence] class UserPersistenceActor extends Actor
     case Delete.Identity.ById(userId, provider) => answer { implicit session =>
       deleteIdentity(userId, provider)
     }
+    // retrieve users connected to a subject by their role
+    case Read.BySubject(subjectId, processInstanceId, processId) => answerProcessed { implicit session: Session =>
+      readBySubject(subjectId, processInstanceId, processId)
+    }(_.map(toDomainModel))
   }
 
   // delete user identity
@@ -139,5 +145,21 @@ private[persistence] class UserPersistenceActor extends Actor
     if (res == 0)
       throw new EntityNotFoundException("User with id %d does not exist.", id.get)
     None
+  }
+
+  private def readBySubject(subjectId: String, processInstanceId: Int, processId: Int)(implicit session: Session) = {
+    val q = for {
+      user <- Users
+      gu <- GroupsUsers if gu.userId === user.id
+      group <- gu.group
+      gr <- GroupsRoles if gr.groupId === group.id
+      role <- gr.role
+      graphSubject <- GraphSubjects if (graphSubject.roleId === role.id && graphSubject.id === subjectId)
+      graph <- graphSubject.graph if graph.processId === processId
+      processInstance <- ProcessInstances if processInstance.id === processInstanceId &&
+        processInstance.processId === processId &&
+        processInstance.graphId === graph.id
+    } yield user
+    q.sortBy(_.name).run.distinct
   }
 }

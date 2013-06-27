@@ -14,21 +14,17 @@
 package de.tkip.sbpm.external.auth
 
 import scala.io.Source
-import scala.concurrent.Await
-import scala.concurrent.Future
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 import java.util.{Arrays, ArrayList, Collections}
 import java.io.{IOException, FileInputStream}
 
+import akka.actor.{ActorSystem, Props, Actor}
 import akka.actor.ActorSystem._
-import akka.actor.Props
-import akka.actor.ActorSystem
-import akka.util.Timeout
-import akka.pattern._
-import akka.actor.Actor
 import akka.actor.ActorLogging
+import akka.pattern._
+import akka.util.Timeout
 
 import com.google.api.client.auth.oauth2.{
   Credential, CredentialRefreshListener, TokenResponse, TokenErrorResponse,
@@ -42,14 +38,10 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.oauth2.Oauth2Scopes
 
-import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.miscellaneous.GoogleMessage
-import de.tkip.sbpm.external.api.GetGoogleEMail
-import de.tkip.sbpm.model.UserIdentity
-import de.tkip.sbpm.persistence.query.Users
+import de.tkip.sbpm
 
 // message types for Google specific communication
-sealed trait GoogleAuthAction extends GoogleMessage
+sealed trait GoogleAuthAction extends sbpm.application.miscellaneous.GoogleMessage
 case class DeleteCredential(id: String) extends GoogleAuthAction
 case class GetCredential(id: String) extends GoogleAuthAction
 case class GetAuthUrl(id: String) extends GoogleAuthAction
@@ -82,10 +74,10 @@ class GoogleAuthActor extends Actor with ActorLogging {
   )
 
   // get the first defined redirect uri from client_secrets.json
-  val CALLBACK_URL = CLIENT_SECRETS.getWeb().getRedirectUris().get(0)
+  val CALLBACK_URL = "http://localhost:8080/oauth2callback" //CLIENT_SECRETS.getWeb().getRedirectUris().get(0)
   
-  private lazy val persistenceActor = ActorLocator.persistenceActor
-  private lazy val googleInformationActor = ActorLocator.googleUserInformationActor
+  private lazy val persistenceActor = sbpm.ActorLocator.persistenceActor
+  private lazy val googleInformationActor = sbpm.ActorLocator.googleUserInformationActor
   implicit val timeout = Timeout(5 seconds)
   
   // instanciate new code flow
@@ -203,13 +195,13 @@ class GoogleAuthActor extends Actor with ActorLogging {
   /** Add additional "GOOGLE" provider to the user */
   def addGoogleProvider(id: String) = {
     // ask google information actor for the email address of the user 
-    val email_future = googleInformationActor ? GetGoogleEMail(id)
+    val email_future = googleInformationActor ? sbpm.external.api.GetGoogleEMail(id)
     val email = Await.result(email_future.mapTo[String], timeout.duration)
     
     // add google as a new user provider
     // TODO check - if there is already a google provider so that there is only one
     // google identity 
-    val user_future = persistenceActor ? Users.Save.Identity(id.toInt, "GOOGLE", email, None)
+    val user_future = persistenceActor ? sbpm.persistence.query.Users.Save.Identity(id.toInt, "GOOGLE", email, None)
     val user = Await.result(user_future.mapTo[Credential], timeout.duration)
   }
 

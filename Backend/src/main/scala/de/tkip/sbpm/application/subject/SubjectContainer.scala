@@ -17,6 +17,7 @@ import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import akka.actor.ActorContext
 import akka.actor.Props
+import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.SubjectCreated
 import akka.event.LoggingAdapter
@@ -24,15 +25,21 @@ import akka.actor.ActorRef
 import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.RegisterSingleSubjectInstance
+import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.model.SubjectLike
+import scala.concurrent.Await
+import de.tkip.sbpm.model.ExternalSubject
+import de.tkip.sbpm.model.ExternalSubject
 
 /**
  * This class is responsible to hold a subjects, and can represent
  * a single subject or a multisubject
  */
 class SubjectContainer(
-  subject: Subject,
+  subject: SubjectLike,
   processID: ProcessID,
   processInstanceID: ProcessInstanceID,
+  processInstanceManager: ActorRef,
   logger: LoggingAdapter,
   blockingHandlerActor: ActorRef,
   increaseSubjectCounter: () => Unit,
@@ -50,7 +57,7 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
-    System.err.println("CREATED: "+RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
+    System.err.println("CREATED: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
     if (single) {
       if (subjects.size > 0) {
         logger.error("Single subjects cannot be created twice")
@@ -70,18 +77,40 @@ class SubjectContainer(
         context.self,
         blockingHandlerActor,
         subject)
-    // create subject
-    val subjectRef =
-      context.actorOf(Props(new SubjectActor(subjectData)))
-    // and store it in the map
-    subjects += userID -> SubjectInfo(subjectRef, userID)
+
+    // TODO hier external einfuegen
+    if (!subjectData.subject.external) {
+
+      // create subject
+      val subjectRef =
+        context.actorOf(Props(new SubjectActor(subjectData)))
+
+      // and store it in the map
+      subjects += userID -> SubjectInfo(subjectRef, userID)
+
+      // inform the subject provider about his new subject
+      context.parent !
+        SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+    } else {
+      System.err.println("CREATE: " + subjectData.subject);
+
+      // process schon vorhanden?
+      // TODO ohne ask!
+      implicit val timeout = akka.util.Timeout(500)
+      val ext = subjectData.subject.asInstanceOf[ExternalSubject]
+
+      val subjectRef =
+        Await.result(
+          (processInstanceManager ?
+            GetSubjectAddr(userID, ext.relatedProcessId, ext.relatedSubjectId))
+            .mapTo[ActorRef],
+          timeout.duration)
+
+      subjects += userID -> SubjectInfo(subjectRef, userID)
+    }
 
     logger.debug("Processinstance [" + processInstanceID + "] created Subject " +
       subject.id + " for user " + userID)
-
-    // inform the subject provider about his new subject
-    context.parent !
-      SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
 
     reStartSubject(userID)
   }
@@ -116,6 +145,14 @@ class SubjectContainer(
     }
   }
 
+  def send(sender: ActorRef, message: GetSubjectAddr) {
+    if (!subjects.contains(message.userId)) {
+      createSubject(message.userId)
+    }
+
+    sender ! subjects(message.userId).ref
+  }
+
   /**
    * Forwards the message to the array of subjects
    */
@@ -128,6 +165,12 @@ class SubjectContainer(
       } else if (!subjects(userID).running) {
         reStartSubject(userID)
       }
+
+      System.err.println("SEND: " + message);
+      if (subject.external) {
+    	  message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+      }
+      println("SEND: " + message);
 
       //        blockingHandlerActor ! BlockUser(userID)
       subjects(userID).ref.forward(message)

@@ -23,6 +23,7 @@ import akka.actor.ActorRef
 import akka.actor.ActorContext
 import akka.event.Logging
 import akka.actor.IllegalActorStateException
+import de.tkip.sbpm.application.subject.misc.ActionExecuted
 
 case class BlockUser(userID: UserID)
 case class UnBlockUser(userID: UserID)

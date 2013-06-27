@@ -6686,7 +6686,6 @@ a#show_menu:hover {
   height: 100%;
   min-width: 1px;
   padding: 15px 7px 7px 15px;
-  overflow: auto;
 }
 #main > .inner {
   height: 100%;
@@ -7427,4 +7426,9 @@ a.close {
 
 .chardinContainer {
     width: 350px;
+}
+
+#executionContent {
+    padding: 10px;
+
 }

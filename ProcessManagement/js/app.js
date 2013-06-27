@@ -43,7 +43,8 @@ define([
 			"models/role",
 			"models/groupsUsers",
 			"models/groupsRoles",
-			"models/processInstance"
+			"models/processInstance",
+                        "models/actions"
 			// "models/roles",
 		], function( Model, User, Process, Group, Role ) {
 
@@ -268,6 +269,5 @@ define([
 		loadSubView: loadSubView,
 		viewCanUnload: viewCanUnload,
 		unloadViewModel: unloadViewModel
-
 	}
 });

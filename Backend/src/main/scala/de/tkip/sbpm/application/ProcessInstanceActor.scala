@@ -40,6 +40,8 @@ import scala.collection.mutable.Map
 import ExecutionContext.Implicits.global
 import akka.actor.Status.Failure
 import de.tkip.sbpm.persistence.query._
+import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.model.SubjectLike
 
 // represents the history of the instance
 case class History(
@@ -71,6 +73,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private def isTerminated = runningSubjectCounter == 0
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
+
+  private val processInstanceManger =
+    request.manager.getOrElse(context.actorOf(
+      Props(new ProcessInstanceManagerActor(request.userID, id, self))))
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
@@ -127,6 +133,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           Failure(new Exception("ProcessInstance creation failed, required " +
             "resource does not exists."))
       }
+
+      // TODO processInstanceManger ! Register....
     }
   }
 
@@ -168,6 +176,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
+    case message: GetSubjectAddr => {
+        subjectMap
+          .getOrElseUpdate(
+            message.subjectId,
+            createSubjectContainer(graph.subjects((message.subjectId))))
+          .send(sender, message)
+    }
+
     case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
       subjectMap(message.subjectID).send(message)
     }
@@ -185,14 +201,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case answer: AnswerMessage => {
       context.parent.forward(answer)
     }
+
+    case message: ReadProcessInstance => {
+      createReadProcessInstanceAnswer(message)
+    }
   }
 
   private var sendProcessInstanceCreated = true
+  private def createProcessInstanceData(actions: Array[AvailableAction]) =
+    ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
   private def trySendProcessInstanceCreated() {
-    
-    def data(actions: Array[AvailableAction]) =
-      ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
-    
+
     if (sendProcessInstanceCreated) {
       context.parent !
         AskSubjectsForAvailableActions(
@@ -200,25 +219,37 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
           id,
           AllSubjects,
           (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, self, data(actions)))
+            ProcessInstanceCreated(request, self, createProcessInstanceData(actions)))
       sendProcessInstanceCreated = false
     }
   }
 
   private def createExecuteActionAnswer(req: ExecuteAction) {
     context.parent !
-      AskSubjectsForAvailableActions(req.userID,
+      AskSubjectsForAvailableActions(
+        req.userID,
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
-          ExecuteActionAnswer(req, processID, isTerminated, persistenceGraph, executionHistory, actions))
+          ExecuteActionAnswer(req, createProcessInstanceData(actions)))
   }
 
-  private def createSubjectContainer(subject: Subject): SubjectContainer = {
+  private def createReadProcessInstanceAnswer(req: ReadProcessInstance) {
+    context.parent !
+      AskSubjectsForAvailableActions(
+        req.userID,
+        id,
+        AllSubjects,
+        (actions: Array[AvailableAction]) =>
+          ReadProcessInstanceAnswer(req, createProcessInstanceData(actions)))
+  }
+
+  private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
     new SubjectContainer(
       subject,
       processID,
       id,
+      processInstanceManger,
       logger,
       blockingHandlerActor,
       () => runningSubjectCounter += 1,

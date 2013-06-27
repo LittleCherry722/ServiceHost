@@ -20,6 +20,7 @@ import de.tkip.sbpm.application.SubjectInformation
 import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.model.Graph
+import de.tkip.sbpm.application.subject.misc.AvailableAction
 
 /**
  * For system control tasks
@@ -71,17 +72,18 @@ case class ProcessInstanceData(id: ProcessInstanceID,
                                isTerminated: Boolean,
                                history: History,
                                actions: Array[AvailableAction])
-// TODO ins programm einbinden
-case class ReadProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
+
+case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
 
-case class CreateProcessInstance(userID: UserID, processID: ProcessID) extends AnswerAbleControlMessage
+case class CreateProcessInstance(userID: UserID, processID: ProcessID, manager: Option[ActorRef] = None) extends AnswerAbleControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceActor: ProcessInstanceRef,
                                   answer: ProcessInstanceData) extends AnswerControlMessage {
   def processInstanceID: ProcessInstanceID = answer.id
 }
 
+case class KillAllProcessInstances() extends AnswerAbleControlMessage
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
 case class KillProcessInstanceAnswer(request: KillProcessInstance) extends AnswerControlMessage
 

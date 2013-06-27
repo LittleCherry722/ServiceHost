@@ -23,6 +23,7 @@ import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
+import de.tkip.sbpm.application.subject.misc.AvailableAction
 
 protected case class SubjectCreated(userID: UserID,
   processID: ProcessID,

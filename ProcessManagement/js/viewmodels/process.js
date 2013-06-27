@@ -10,6 +10,7 @@ define([
 	// "tk_graph"
 ], function( ko, App, Notify, Dialog, Process, _, Router ) {
 
+
 	// The main viewmodel. Every observable defined inside can be used by the
 	// view. Lets keep it clean and define functions and other helper variables
 	// outside this viewmodel so it is immediately apparent which functions /
@@ -111,6 +112,7 @@ define([
 
 		this.resetProcess = function() {
 			if ( confirm("Are you sure you want to reset this process to the last saved version? Doing so will reload the page and you will loose all unsaved changes.") ) {
+				Router.setHasUnsavedChanges(false);
 				var subject = gv_graph.selectedSubject;
 				currentProcess().graphReset();
 				loadGraph( currentProcess().graph() );
@@ -151,7 +153,7 @@ define([
 
 	var newProcessName = ko.observable("");
 
-	// Currently selected subeject and conversation (in chosen)
+	// Currently selected subject and conversation (in chosen)
 	var currentSubject = ko.observable();
 	var currentConversation = ko.observable();
 	var currentMacro   = ko.observable();
@@ -293,6 +295,7 @@ define([
 		process.save(null, {
 			success: function( textStatus ) {
 				Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved.");
+				Router.setHasUnsavedChanges(false);
 			},
 			error: function( textStatus, error ) {
 				Notify.error("Error", "Process '" + currentProcess().name() + "' could not be saved.");
@@ -411,9 +414,15 @@ define([
 		})
 
 		var updateSubjectIds = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
-		$(updateSubjectIds).live("click", function() {
+		$(updateSubjectIds).live( "click", function() {
+			Router.setHasUnsavedChanges(true);
 			updateListOfSubjects();
 		})
+
+		var changeNodeButtonIds = "#CreateNodeButton, #InsertSendNodeButton, #InsertReceiveButton, #InsertActionNodeButton, #internalClearBehavior, #UpdateEdgeButton, #DeleteEdgeButton";
+		$(changeNodeButtonIds).live( "click", function() {
+			Router.setHasUnsavedChanges(true);
+		});
 
 		// When a selectable tab is clicked, mark the tab as selected, update the
 		// list of subjects and conversations.
@@ -691,45 +700,25 @@ define([
 		});
 	}
 
-  // check if the graph has unsaved changes. We would not want to loose them.
-  var graphHasUnsavedChanges = function() {
-		return currentGraph() !=  gv_graph.saveToJSON();
-  }
-
-	var confirmExit = function( callback ) {
-		if ( graphHasUnsavedChanges() ) {
-			return confirm("The graph has changed and not yet been saved. Are you sure you want to leave this site and loose all unsaved changes?");
-		} else {
-			return true;
-		}
-	}
-
 	// This function gets called when another view is loaded.
 	// At the moment, just unsubscribe all listeners we have set up that are not
 	// bound to the DOM (and therefore do not get unsubscribed automatically).
 	//
-	// We should use it in the future to stop the view from unloading when
-	// unsaved changes are detected.
-	//
 	// Must return true, otherwise the view will not be unloaded.
 	var unload = function() {
 		unsubscribeAll();
-
-		// return true so the view actually gets unloaded.
-    return true;
+		return true;
 	}
 
-  // check whether we can unload or not
-  var canUnload = confirmExit;
-  
-  var showHelp = function() {
-      $('#main').chardinJs('start');
-  }
+	var showHelp = function() {
+		$('#main').chardinJs('start');
+	}
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
 		loadProcessByIds: loadProcessByIds,
-                showHelp: showHelp,
+		showHelp: showHelp,
 		unload: unload
 	}
 });

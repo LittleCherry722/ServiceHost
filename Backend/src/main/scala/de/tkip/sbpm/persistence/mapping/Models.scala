@@ -62,7 +62,8 @@ case class ProcessActiveGraph(processId: Int, graphId: Int)
 case class User(id: Option[Int],
   name: String,
   isActive: Boolean = true,
-  inputPoolSize: Int = 8)
+  inputPoolSize: Int = 8,
+  gdriveId: String)
 
 case class UserIdentity(userId: Int,
   provider: String,

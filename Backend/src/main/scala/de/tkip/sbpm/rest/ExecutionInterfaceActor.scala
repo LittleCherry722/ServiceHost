@@ -13,36 +13,21 @@
 
 package de.tkip.sbpm.rest
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
-import akka.actor.Actor
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.subject.AvailableAction
-import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.SprayJsonSupport._
-import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
-import spray.http.MediaTypes._
 import spray.http.StatusCodes
-import spray.httpx.marshalling.Marshaller
-import spray.json._
 import spray.routing._
 import spray.util.LoggingContext
-import akka.actor.Props
-import de.tkip.sbpm.application.subject.ExecuteAction
-import de.tkip.sbpm.application.subject.ExecuteActionAnswer
 import scala.concurrent.Await
-import de.tkip.sbpm.application.subject.mixExecuteActionWithRouting
 import scala.concurrent.ExecutionContext
-import de.tkip.sbpm.persistence.query.Processes
-import de.tkip.sbpm.persistence.query.ProcessInstances
-import de.tkip.sbpm.persistence.query.Graphs
+import de.tkip.sbpm.application.history._
+import de.tkip.sbpm.application.subject.misc._
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -74,7 +59,6 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
   def actorRefFactory = context
 
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
-  private lazy val persistanceActor = ActorLocator.persistenceActor
 
   def routing = runRoute({
     // TODO: aus cookie auslesen
@@ -82,35 +66,10 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
     get {
       //READ
       path(IntNumber) { processInstanceID =>
-
         implicit val timeout = Timeout(5 seconds)
-        val composedFuture = for {
-          processInstanceFuture <- (persistanceActor ? ProcessInstances.Read.ById(processInstanceID.toInt)).mapTo[Option[ProcessInstance]]
-          graphFuture <- {
-            if (processInstanceFuture.isDefined)
-              (persistanceActor ? Graphs.Read.ById(processInstanceFuture.get.graphId)).mapTo[Option[Graph]]
-            else
-              throw new Exception("Processinstance '" + processInstanceID + "' does not exist.")
-          }
-          historyFuture <- (subjectProviderManager ? {
-            GetHistory(userId, processInstanceID)
-          }).mapTo[HistoryAnswer]
-          availableActionsFuture <- (subjectProviderManager ? {
-            GetAvailableActions(userId, processInstanceID)
-          }).mapTo[AvailableActionsAnswer]
-        } yield JsObject(
-          "processId" -> JsNumber(processInstanceFuture.get.processId),
-          "graph" -> {
-            if (graphFuture.isDefined)
-              graphFuture.get.toJson
-            else
-              JsNull
-          },
-          // TODO make isTerminated nicer
-          "isTerminated" -> JsBoolean(historyFuture.history.processEnded.isDefined),
-          "history" -> historyFuture.history.toJson,
-          "actions" -> availableActionsFuture.availableActions.toJson)
-        complete(composedFuture)
+        val future = subjectProviderManager ? ReadProcessInstance(userId, processInstanceID)
+        val result = Await.result(future, timeout.duration).asInstanceOf[ReadProcessInstanceAnswer]
+        complete(result.answer)
       } ~
         // Show Actions
         path("action") {
@@ -120,10 +79,46 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
           val result = Await.result(availableActionsFuture, timeout.duration)
           complete(result.availableActions)
         } ~
+        path("history") {
+          complete(Array[NewEntry](
+            NewEntry("<INT_UNIQUE_ID1>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
+              NewState("some Text", "send"),
+              NewTransition("some other Text", "exitcond"),
+              NewState("some Text", "receive"),
+              Option(Array(
+                NewMessage(
+                  Array(32, 43),
+                  "from user ID",
+                  Array("to userID 1", "to userID 2"),
+                  "Travel Application",
+                  "text")))),
+            NewEntry("<INT_UNIQUE_ID2>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
+              NewState("some Text", "send"),
+              NewTransition("some other Text", "exitcond"),
+              NewState("some Text", "receive"),
+              Option(Array(
+                NewMessage(
+                  Array(32, 43),
+                  "from user ID",
+                  Array("to userID 1", "to userID 2"),
+                  "Travel Application",
+                  "text")))),
+            NewEntry("<INT_UNIQUE_ID3>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
+              NewState("some Text", "send"),
+              NewTransition("some other Text", "exitcond"),
+              NewState("some Text", "receive"),
+              Option(Array(
+                NewMessage(
+                  Array(32, 43),
+                  "from user ID",
+                  Array("to userID 1", "to userID 2"),
+                  "Travel Application",
+                  "text"))))))
+        } ~
         //LIST
         path("") {
           implicit val timeout = Timeout(5 seconds)
-          val future = (subjectProviderManager ? GetAllProcessInstances(userId.toInt)).mapTo[AllProcessInstancesAnswer]
+          val future = (subjectProviderManager ? GetAllProcessInstances(userId)).mapTo[AllProcessInstancesAnswer]
           val result = Await.result(future, timeout.duration)
 
           complete(result.processInstanceInfo)
@@ -150,13 +145,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
               implicit val timeout = Timeout(5 seconds)
               val future = (subjectProviderManager ? mixExecuteActionWithRouting(json))
               val result = Await.result(future, timeout.duration).asInstanceOf[ExecuteActionAnswer]
-              complete(
-                JsObject(
-                  "processId" -> result.processID.toJson,
-                  "graph" -> result.graph.toJson,
-                  "isTerminated" -> result.isTerminated.toJson,
-                  "history" -> result.history.toJson,
-                  "actions" -> result.availableActions.toJson))
+              complete(result.answer)
             }
           }
         }
@@ -167,7 +156,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
           path("^$"r) { regex =>
             entity(as[ProcessIdHeader]) { json =>
               implicit val timeout = Timeout(5 seconds)
-              val future = subjectProviderManager ? CreateProcessInstance(userId.toInt, json.processId)
+              val future = subjectProviderManager ? CreateProcessInstance(userId, json.processId)
               val result = Await.result(future, timeout.duration).asInstanceOf[ProcessInstanceCreated]
               complete(result.answer)
             }

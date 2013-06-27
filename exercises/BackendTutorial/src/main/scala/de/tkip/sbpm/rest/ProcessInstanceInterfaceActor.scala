@@ -15,8 +15,7 @@ import de.tkip.sbpm.rest.SprayJsonSupport._
 
 class ProcessInstanceInterfaceActor extends Actor with HttpService {
 
-  private lazy val processInstanceActor =
-    ActorLocator.actor(ActorLocator.processInstanceActorName)
+  private lazy val processInstanceActor = ActorLocator.processInstanceActor
 
   def actorRefFactory = context
 
@@ -40,13 +39,12 @@ class ProcessInstanceInterfaceActor extends Actor with HttpService {
         } ~
           path("restart") {
             processInstanceActor ! RestartExecution
-            complete("restarted") // TODO vorher irgentwie checken?
+            complete("restarted")
           } ~
           pathPrefix(IntNumber) { id =>
             entity(as[ActionHeader]) { json =>
               println("request: " + json)
               processInstanceActor ! ExecuteAction(id, json.action)
-              // TODO
               complete("executed")
             }
           }
