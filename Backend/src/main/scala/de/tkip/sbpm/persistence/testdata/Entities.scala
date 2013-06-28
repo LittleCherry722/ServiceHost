@@ -70,7 +70,7 @@ object Entities {
 
   // users and one default identity with password for login
   val users = List(
-    (User(None, """Superuser""", true, 8), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
+    (User(None, """Superuser""", true, 8, "test@gmail.com"), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
     (User(None, """Google App Engine""", true, 8), ("sbpm", "google@sbpm.com", "g1234".bcrypt)),
     (User(None, """Beyer""", true, 8), ("sbpm", "beyer@sbpm.com", "b1234".bcrypt)),
     (User(None, """Link""", true, 8), ("sbpm", "link@sbpm.com", "l1234".bcrypt)),
@@ -86,7 +86,11 @@ object Entities {
     (Process(None, """Travel Request No Loop""", false) -> loadJson("travel_request_no_loop")),
     (Process(None, """Travel Request Timeout""", false) -> loadJson("travel_request_timeout")),
     (Process(None, """Order""", false) -> loadJson("order")),
-    (Process(None, """Supplier (E)""", false) -> loadJson("supplier")))
+    (Process(None, """Supplier (E)""", false) -> loadJson("supplier")),
+    (Process(None, """Order(simple)""", false) -> loadJson("simpleorder")),        
+    (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")))
+
+
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list

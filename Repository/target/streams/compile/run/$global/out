@@ -1,0 +1,24 @@
+[0m[[0minfo[0m] [0mRunning de.tkip.sbpm.repo.Boot [0m
+[0m[[0mdebug[0m] [0mStarting sandboxed run...[0m
+[0m[[0mdebug[0m] [0mWaiting for threads to exit or System.exit to be called.[0m
+[0m[[0mdebug[0m] [0m  Classpath:[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/Dropbox/Uni/Inf S05/Internet Praktikum/sbpm/Repository/target/scala-2.10/classes[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.sbt/boot/scala-2.10.1/lib/scala-library.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.0.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/com.typesafe.akka/akka-actor_2.10/bundles/akka-actor_2.10-2.1.4.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/com.typesafe/config/bundles/config-1.0.0.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/io.spray/spray-can/jars/spray-can-1.1-M7.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/io.spray/spray-io/jars/spray-io-1.1-M7.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/io.spray/spray-util/jars/spray-util-1.1-M7.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/io.spray/spray-http/jars/spray-http-1.1-M7.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/org.parboiled/parboiled-scala_2.10.0-RC5/jars/parboiled-scala_2.10.0-RC5-1.1.4.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/io.spray/spray-routing/jars/spray-routing-1.1-M7.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/io.spray/spray-httpx/jars/spray-httpx-1.1-M7.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/org.jvnet.mimepull/mimepull/jars/mimepull-1.8.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/com.chuusai/shapeless_2.10.0-RC5/jars/shapeless_2.10.0-RC5-1.2.3.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/io.spray/spray-json_2.10/jars/spray-json_2.10-1.2.5.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/org.parboiled/parboiled-scala_2.10/bundles/parboiled-scala_2.10-1.1.5.jar[0m
+[0m[[0mdebug[0m] [0m	/Users/arne/.ivy2/cache/org.parboiled/parboiled-core/bundles/parboiled-core-1.1.5.jar[0m
+[0m[[0mdebug[0m] [0mWaiting for thread run-main to exit[0m
+[0m[[0mdebug[0m] [0m	Thread run-main exited.[0m
+[0m[[0mdebug[0m] [0mWaiting for thread de-tkip-sbpm-repo-Boot-scheduler-1 to exit[0m

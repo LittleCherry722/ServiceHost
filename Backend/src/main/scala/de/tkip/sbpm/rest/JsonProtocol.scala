@@ -37,10 +37,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessInstanceInfo
 import spray.routing.authentication.UserPass
 import GraphJsonProtocol.graphJsonFormat
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
-import de.tkip.sbpm.application.history.NewState
-import de.tkip.sbpm.application.history.NewEntry
-import de.tkip.sbpm.application.history.NewMessage
-import de.tkip.sbpm.application.history.NewTransition
+import de.tkip.sbpm.application.history._
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -103,7 +100,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   }
 
   // administration
-  implicit val userFormat = jsonFormat4(User)
+  implicit val userFormat = jsonFormat5(User)
   implicit val userUpdate = jsonFormat3(UserUpdate)
   implicit val providerMail = jsonFormat2(ProviderMail)
   implicit val userWithMail = jsonFormat5(UserWithMail)
@@ -142,8 +139,9 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val createActionIdHeaderFormat = jsonFormat7(ExecuteAction)
   
   implicit val newStateFormat = jsonFormat2(NewState)
-  implicit val newTransitionFormat = jsonFormat2(NewTransition)
+  implicit val newTransitionFormat = jsonFormat4(NewTransition)
   implicit val newMessageFormat = jsonFormat5(NewMessage)
-  implicit val newEntryFormat = jsonFormat12(NewEntry)
+  implicit val newEntryFormat = jsonFormat9(NewEntry)
+  implicit val newHistoryFormat = jsonFormat1(NewHistory)
 
 }

@@ -16,7 +16,8 @@ object ProjectBuild extends Build {
         "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         "spray repo" at "http://repo.spray.io",
         "Sonatype Releases" at "http://oss.sonatype.org/content/repositories/releases",
-        "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"),
+        "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"
+      ),
       libraryDependencies ++= Seq(
         "org.scala-lang" % "scala-reflect" % "2.10.0",
         "org.scalatest" %% "scalatest" % "1.9.1" % "test",
@@ -40,6 +41,9 @@ object ProjectBuild extends Build {
         "com.google.api-client" % "google-api-client-java6" % "1.15.0-rc",
         "com.google.apis" % "google-api-services-drive" % "v2-rev77-1.15.0-rc",
         "com.google.apis" % "google-api-services-oauth2" % "v2-rev38-1.15.0-rc",
-        "com.google.oauth-client" % "google-oauth-client-java6" % "1.15.0-rc")))
+        "com.google.oauth-client" % "google-oauth-client-java6" % "1.15.0-rc"
+      )
+    )
+  )
 
 }

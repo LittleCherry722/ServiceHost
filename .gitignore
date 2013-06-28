@@ -1,3 +1,4 @@
+.projectile
 *.class
 *.log
 .scala_dependencies
@@ -5,3 +6,6 @@
 *.war
 *.ear
 .codekit-config.json
+.DS_Store
+*.sublime*
+*.graffle

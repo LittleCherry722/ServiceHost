@@ -22,7 +22,7 @@ import spray.json.DeserializationException
 import spray.json.JsNumber
 
 // Model for Administration
-case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8)
+case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, gdriveId: String = "")
 case class ProviderMail(provider: String, mail: String)
 case class UserWithMail(var id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, providerMail: Seq[ProviderMail])
 case class UserIdentity(user: User, provider: String, eMail: String, password: Option[String])

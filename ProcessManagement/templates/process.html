@@ -1,161 +1,160 @@
 <div class="inner">
 
-	<div id="contentHead">
-		<h3 id="processName" data-bind="text: currentProcess().name "></h3>
-	</div>
+  <div id="contentHead">
+    <h3 id="processName" data-bind="text: currentProcess().name "></h3>
+  </div>
 
-	<ul class="breadcrumb">
-		<li>
-			<a href="#/processList">Processes</a>
-			<span class="divider">/</span>
-		</li>
-		<!-- ko ifnot: currentSubject() -->
-			<li class="active">
-				<span data-bind="text: currentProcess().name()"></span>
-			</li>
-		<!-- /ko -->
-		<!-- ko if: currentSubject() -->
-			<li>
-				<a data-bind="text: currentProcess().name(), attr: {
-					href: currentProcess().url() }"></a>
-				<span class="divider">/</span>
-			</li>
-			<li class="active">
-				<span data-bind="text: currentSubjectName()"></span>
-			</li>
-		<!-- /ko -->
-	</ul>
+  <ul class="breadcrumb">
+    <li>
+      <a href="#/processList">Processes</a>
+      <span class="divider">/</span>
+    </li>
+    <!-- ko ifnot: currentSubject() -->
+      <li class="active">
+      <span data-bind="text: currentProcess().name()"></span>
+    </li>
+    <!-- /ko -->
+    <!-- ko if: currentSubject() -->
+    <li>
+      <a data-bind="text: currentProcess().name(), attr: {
+        href: currentProcess().url() }"></a>
+      <span class="divider">/</span>
+    </li>
+    <li class="active">
+      <span data-bind="text: currentSubjectName()"></span>
+    </li>
+    <!-- /ko -->
+  </ul>
 
-	<div id="graph">
-		<!-- <h2 id="process_name" style="color:#525252" data-bind="text: activeView "></h2>-->
-		<!-- Begin graph window -->
-		<div class="onecolumn">
-			<div class="header">
-				<div class="pull-right" id="processHelpButtons">
-					<a id="help-button" class="btn btn-small" href="help.html" data-bind="fancybox : {width : '30', height : '41'}"/>
-						?
-					</a>
-				</div>
-				<div class="btn-group" id="switch">
-                                        <span style="padding: 20px 0;" data-chardin-intro="Go back to Process Overview" data-chardin-position="top">
-                                            <button	id="tab2" class="btn" data-bind="click: goToRoot">
-                                                    Subject-Interaction-View
-                                            </button>
-                                        </span>
-					<div class="btn-group">
-                                                <span style="padding: 5px 0 10px 0;" data-chardin-intro="Choose subject to modify its internal behaviour." data-chardin-position="bottom">
-                                                    <a class="btn dropdown-toggle" data-toggle="dropdown">
-                                                            <!-- ko ifnot: currentSubject() -->
-                                                                    Select Internal behavior
-                                                            <!-- /ko -->
-                                                            <!-- ko if: currentSubject() -->
-                                                                    <span data-bind="text: currentSubjectName()"></span>
-                                                            <!-- /ko -->
-                                                            <b class="caret"></b>
-                                                    </a>
-                                                </span>
-						<ul class="dropdown-menu save-dropdown" data-bind="foreach: availableSubjects">
-							<li data-bind="css: { active: $parent.currentSubject() == $data['subjectId'] }">
-								<a data-bind="attr: { href: $parent.currentProcess().url() +
-									'/' + $data['subjectId'] }, text: $data['subjectText']">
-								</a>
-							</li>
-						</ul>
-					</div>
+  <div id="graph">
+    <!-- <h2 id="process_name" style="color:#525252" data-bind="text: activeView "></h2>-->
+    <!-- Begin graph window -->
+    <div class="div">
+      <onecolumn class="header">
+        <div class="ull-right" id="processHelpButtons">
+          <a id="help-button" class="btn btn-small" href="help.html" data-bind="fancybox : {width : '30', height : '41'}"/>
+            ?
+          </a>
+        </div>
+        <div class="btn-group" id="switch">
+          <span style="padding: 20px 0;" data-chardin-intro="Go back to Process Overview" data-chardin-position="top">
+            <button id="tab2" class="btn" data-bind="click: goToRoot">
+              Subject-Interaction-View
+            </button>
+          </span>
+          <div class="btn-group">
+            <span style="padding: 5px 0 10px 0;" data-chardin-intro="Choose subject to modify its internal behaviour." data-chardin-position="bottom">
+              <a class="btn dropdown-toggle" data-toggle="dropdown">
+                <!-- ko ifnot: currentSubject() -->
+                Select Internal behavior
+                <!-- /ko -->
+                <!-- ko if: currentSubject() -->
+                <span data-bind="text: currentSubjectName()"></span>
+                <!-- /ko -->
+                <b class="caret"></b>
+              </a>
+            </span>
+            <ul class="dropdown-menu save-dropdown" data-bind="foreach: availableSubjects">
+              <li data-bind="css: { active: $parent.currentSubject() == $data['subjectId'] }">
+                <a data-bind="attr: { href: $parent.currentProcess().url() +
+                  '/' + $data['subjectId'] }, text: $data['subjectText']">
+                </a>
+              </li>
+            </ul>
+          </div>
 
-                                        <span style="padding: 20px 0;" data-chardin-intro="Filter by conversation" data-chardin-position="top">
-                                            <div class="btn tab-dropdown">
-                                                    <select id="slctCon" data-placeholder="Select conversation"
-                                                            class="middle_switch chzn-select" tabindex="1"
-                                                            data-bind="options: availableConversations, optionsText: 'text',
-                                                            optionsValue: 'conversationID', value: currentConversation, caption: ''">
-                                                    </select>
-                                            </div>
-                                        </span>
-					<div id="slctMacroDropDown" class="btn tab-dropdown" style="display: none;">
-						<select id="slctMacro" data-placeholder="Select Macro"
-							class="middle_switch chzn-select" tabindex="1"
-							data-bind="options: availableMacros, optionsText: 'value',
-							optionsValue: 'id', value: currentMacro, caption: ''">
-						</select>
-					</div>
+          <span style="padding: 20px 0;" data-chardin-intro="Filter by conversation" data-chardin-position="top">
+            <div class="btn tab-dropdown">
+              <select id="slctCon" data-placeholder="Select conversation"
+                class="middle_switch chzn-select" tabindex="1"
+                data-bind="options: availableConversations, optionsText: 'text',
+                optionsValue: 'conversationID', value: currentConversation, caption: ''">
+              </select>
+            </div>
+          </span>
+          <div id="slctMacroDropDown" class="btn tab-dropdown" style="display: none;">
+            <select id="slctMacro" data-placeholder="Select Macro"
+              class="middle_switch chzn-select" tabindex="1"
+              data-bind="options: availableMacros, optionsText: 'value',
+              optionsValue: 'id', value: currentMacro, caption: ''">
+            </select>
+          </div>
 
-                                        <span style="padding: 5px 0 10px 0;" data-chardin-intro="Show routing table." data-chardin-position="bottom">
-                                            <button id="tab3" class="btn" data-bind="click: goToRoutings">
-                                                    Routing
-                                            </button>
-                                        </span>
-					<span style="padding: 20px 0;" data-chardin-intro="Save, save as... or discard changes." data-chardin-position="top">
-                                                <div class="btn-group">
-                                                    <a class="btn" data-bind="click: saveCurrentProcess" title="Save Process">
-                                                            <i class="icon-save icon-large"></i> Save
-                                                    </a>
-                                               
-                                                    <a class="btn dropdown-toggle" data-toggle="dropdown">
-                                                            <b class="caret"></b>
-                                                    </a>
-                                                    <ul class="dropdown-menu save-dropdown">
-                                                            <li>
-                                                                    <a data-bind="click: saveCurrentProcess" title="Save Process">
-                                                                            <i class="icon-save icon-large"></i> Save
-                                                                    </a>
-                                                            </li>
-                                                            <li>
-                                                                    <a href="#saveAsModal" id="saveProcessAsButton" data-toggle="modal">
-                                                                            <i class="icon-copy icon-large"></i> Save As
-                                                                    </a>
-                                                            </li>
-                                                            <li class="divider"></li>
-                                                            <li>
-                                                                    <a href="#" id="resetProcessButton" data-bind="click: resetProcess">
-                                                                            <i class="icon-undo icon-large"></i> Discard Changes
-                                                                    </a>
-                                                            </li>
-                                                    </ul>
-                                                </div>
-                                        </span>
-				</div>
-			</div>
+          <span style="padding: 5px 0 10px 0;" data-chardin-intro="Show routing table." data-chardin-position="bottom">
+            <button id="tab3" class="btn" data-bind="click: goToRoutings">
+              Routing
+            </button>
+          </span>
+          <span style="padding: 20px 0;" data-chardin-intro="Save, save as... or discard changes." data-chardin-position="top">
+            <div class="btn-group">
+              <a class="btn" data-bind="click: saveCurrentProcess" title="Save Process">
+                <i class="icon-save icon-large"></i> Save
+              </a>
 
-			<div id="saveAsModal" class="modal hide" tabindex="-1">
-				<div class="modal-header">
-					<a type="button" class="close" data-dismiss="modal">x</a>
-					<h3>Save Graph As</h3>
-				</div>
-				<div id="saveProcessAs" class="modal-body">
-					<label for="newProcessName">New Process Name</label>
-					<input id="newProcessName" type="text" data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
-				</div>
-				<div class="modal-footer">
-					<button class="btn" data-dismiss="modal">Close</button>
-					<button class="btn btn-primary" data-dismiss="modal" data-bind="click: saveCurrentProcessAs">
-						Save Process
-					</button>
-				</div>
-			</div>
+              <a class="btn dropdown-toggle" data-toggle="dropdown">
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu save-dropdown">
+                <li>
+                  <a data-bind="click: saveCurrentProcess" title="Save Process">
+                    <i class="icon-save icon-large"></i> Save
+                  </a>
+                </li>
+                <li>
+                  <a href="#saveAsModal" id="saveProcessAsButton" data-toggle="modal">
+                    <i class="icon-copy icon-large"></i> Save As
+                  </a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                  <a href="#" id="resetProcessButton" data-bind="click: resetProcess">
+                    <i class="icon-undo icon-large"></i> Discard Changes
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </span>
+        </div>
+      </div>
+
+      <div id="saveAsModal" class="modal hide" tabindex="-1">
+        <div class="modal-header">
+          <a type="button" class="close" data-dismiss="modal">x</a>
+          <h3>Save Graph As</h3>
+        </div>
+        <div id="saveProcessAs" class="modal-body">
+          <label for="newProcessName">New Process Name</label>
+          <input id="newProcessName" type="text" data-bind="value: newProcessName, valueUpdate:'afterkeydown' "/>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" data-dismiss="modal">Close</button>
+          <button class="btn btn-primary" data-dismiss="modal" data-bind="click: saveCurrentProcessAs">
+            Save Process
+          </button>
+        </div>
+      </div>
 
 
-			<!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
-			<div id="processContent">
-				<ul class="unstyled" id="graphZoombuttons">
-					<li>
-						<a onclick="gf_paperZoomIn();" >+</a>
-					</li>
-					<li>
-						<a onclick="gf_paperZoomOut();" >&minus;</a>
-					</li>
-					<li>
-						<a onclick="gf_paperZoomReset();" >±</a>
-					</li>
-				</ul>
-				<div id="tab1_content" class="tab_content hide"></div>
-				<div id="tab2_content" class="tab_content"></div>
-				<div id="tab3_content" class="tab_content hide" ></div>
+      <!-- data-bind="template: { name: SBPM.VM.processVM.activeView().name, data: SBPM.VM.processVM.activeView().data , afterRender : SBPM.VM.processVM.activeView().afterRender}" -->
+      <div id="processContent">
+        <ul class="unstyled" id="graphZoombuttons">
+          <li>
+            <a onclick="gf_paperZoomIn();" >+</a>
+            </li>
+          <li>
+            <a onclick="gf_paperZoomOut();" >&minus;</a>
+            </li>
+          <li>
+            <a onclick="gf_paperZoomReset();" >±</a>
+          </li>
+        </ul>
+        <div id="tab1_content" class="tab_content hide"></div>
+        <div id="tab2_content" class="tab_content"></div>
+        <div id="tab3_content" class="tab_content hide" ></div>
 
-			</div>
+      </div>
 
-		</div>
-	</div>
+    </div>
+  </div>
 
 </div>
-
