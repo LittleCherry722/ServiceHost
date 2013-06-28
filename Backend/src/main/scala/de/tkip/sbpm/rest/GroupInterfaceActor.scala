@@ -28,7 +28,8 @@ import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
-import spray.http.{StatusCodes._, HttpHeader, HttpHeaders}
+import spray.http.{HttpHeader, HttpHeaders}
+import spray.http.StatusCodes._
 
 /**
  * This Actor is only used to process REST calls regarding "group"
