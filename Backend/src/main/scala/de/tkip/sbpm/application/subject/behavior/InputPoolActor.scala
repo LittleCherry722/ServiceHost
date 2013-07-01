@@ -135,7 +135,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
    */
   private def filterQueueMap(channelId: ChannelID) = {
     val (subjectId, messageType) = channelId
-    		
+
     // 'all subjects' and 'all message types'
     if (subjectId == ProcessAttributes.AllSubjects && messageType == ProcessAttributes.AllMessages) {
       messageQueueMap
