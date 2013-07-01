@@ -121,6 +121,11 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       sender ! InputPoolClosed
     }
 
+    case OpenInputPool(channelId) => {
+      closedChannels.open(channelId)
+      sender ! InputPoolOpened
+    }
+
     case IsIPEmpty((subjectId, messageType)) => {
       if (subjectId == ProcessAttributes.AllSubjects || messageType == ProcessAttributes.AllMessages) {
         val filtered = filterQueueMap(subjectId, messageType)
@@ -150,11 +155,6 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     } // 'all message types'
     else {
       messageQueueMap filterKeys (_._1 == subjectId) 
-    }
-
-    case OpenInputPool(channelId) => {
-      closedChannels.open(channelId)
-      sender ! InputPoolOpened
     }
   }
 
