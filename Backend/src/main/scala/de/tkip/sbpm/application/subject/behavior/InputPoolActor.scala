@@ -13,11 +13,10 @@
 
 package de.tkip.sbpm.application.subject.behavior
 
-import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet }
+import scala.collection.mutable.{Map => MutableMap, Set => MutableSet, MutableList, Queue}
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.subject.misc._
 
@@ -54,6 +53,12 @@ protected case class CloseInputPool(channelId: ChannelID)
 
 // message to inform the receive state, that the inputpool close request succeeded
 protected case object InputPoolClosed
+
+// message to inform the inputpool, that it should open the given channel(s)
+protected case class OpenInputPool(channelId: ChannelID)
+
+// message to inform the receive state, that the inputpool open request succeeded
+protected case object InputPoolOpened
 
 class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   // extract the information from the data
@@ -239,5 +244,44 @@ private class WaitingStateList {
 
   private def removeDisused() {
     queue.dequeueAll(_.count <= 0)
+  }
+}
+
+/**
+ * This class keeps track of all closed channels.
+ */
+private[behavior] class ClosedChannels {
+
+  private object RuleType extends Enumeration {
+    type RuleType = Value
+    val Close, Open = Value
+  }
+
+  import RuleType._
+
+  private case class Rule(channelId: ChannelID, ruleType: RuleType)
+
+  private var rules = List[Rule]()
+
+  private def removeOldRules(channelId: ChannelID) {
+    rules = rules.filter(_.channelId != channelId)
+  }
+
+  def close(channelId: ChannelID) {
+    removeOldRules(channelId)
+    rules = Rule(channelId, Close)  :: rules
+  }
+
+  def open(channelId: ChannelID) {
+    removeOldRules(channelId)
+    rules = Rule(channelId, Open) :: rules
+  }
+
+  def isChannelClosed(channelId: ChannelID) :Boolean = {
+    def channelFilter(rule: Rule) = (rule.channelId._1 == channelId._1 || rule.channelId._1 == AllSubjects) &&
+      (rule.channelId._2 == channelId._2 || rule.channelId._2 == AllMessages)
+
+    val rule = rules.find(channelFilter)
+    rule.map(_.ruleType == Close).getOrElse(false)
   }
 }
