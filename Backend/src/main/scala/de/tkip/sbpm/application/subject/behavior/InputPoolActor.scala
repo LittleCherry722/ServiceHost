@@ -43,17 +43,23 @@ protected case class SubscribeIncomingMessages(
   }
 }
 
-// message to inform the inputpool that the state, does not subscribe anything anymore
+// message to inform the input pool that the state does not subscribe anything anymore
 protected case class UnSubscribeIncomingMessages(stateID: StateID)
 
-// message to inform the receive state, that the inputpool has no messages for him
+// message to inform the receive state that the input pool has no messages for him
 protected case object InputPoolSubscriptionPerformed
 
-// message to inform the inputpool, that it should close the given channel(s)
+// message to inform the input pool that it should close the given channel(s)
 protected case class CloseInputPool(channelId: ChannelID)
 
-// message to inform the receive state, that the inputpool close request succeeded
+// message to inform the receive state that the input pool close request succeeded
 protected case object InputPoolClosed
+
+// message to ask the input pool whether it is empty for the given channel ID
+protected case class IsIPEmpty(channelId: ChannelID)
+
+// message to tell the receive state whether the input pool is empty
+protected case class IPEmpty(empty: Boolean)
 
 class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   // extract the information from the data
@@ -108,6 +114,37 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     case CloseInputPool(channelId) => {
       closedChannels += channelId
       sender ! InputPoolClosed
+    }
+
+    case IsIPEmpty((subjectId, messageType)) => {
+      if (subjectId == ProcessAttributes.AllSubjects || messageType == ProcessAttributes.AllMessages) {
+        val filtered = filterQueueMap(subjectId, messageType)
+        val isEmpty = (filtered.values map (_.isEmpty)).foldLeft(true)(_ && _)
+
+        sender ! IPEmpty(isEmpty)
+      } // single subject, single message type
+      else {
+        sender ! IPEmpty(messageQueueIsEmpty(subjectId, messageType))
+      }
+
+    }
+  }
+
+  /**
+   * Filters all messages out of the queue map that don't belong to the given channel ID
+   */
+  private def filterQueueMap(channelId: ChannelID) = {
+    val (subjectId, messageType) = channelId
+    		
+    // 'all subjects' and 'all message types'
+    if (subjectId == ProcessAttributes.AllSubjects && messageType == ProcessAttributes.AllMessages) {
+      messageQueueMap
+    } // 'all subjects'
+    else if (subjectId == ProcessAttributes.AllSubjects) {
+      messageQueueMap filter (_._1._2 == messageType)
+    } // 'all message types'
+    else {
+      messageQueueMap filter (_._1._1 == subjectId)
     }
   }
 
