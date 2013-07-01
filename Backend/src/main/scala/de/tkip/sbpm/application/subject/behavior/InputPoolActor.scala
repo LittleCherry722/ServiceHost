@@ -141,10 +141,10 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       messageQueueMap
     } // 'all subjects'
     else if (subjectId == ProcessAttributes.AllSubjects) {
-      messageQueueMap filter (_._1._2 == messageType)
+      messageQueueMap filterKeys (_._2 == messageType)
     } // 'all message types'
     else {
-      messageQueueMap filter (_._1._1 == subjectId)
+      messageQueueMap filterKeys (_._1 == subjectId) 
     }
   }
 
