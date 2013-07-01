@@ -194,6 +194,14 @@ class InternalBehaviorActor(
       case CloseIPStateType => {
         context.actorOf(Props(CloseIPStateActor(stateData)))
       }
+
+      case OpenIPStateType => {
+        context.actorOf(Props(OpenIPStateActor(stateData)))
+      }
+
+      case IsIPEmptyStateType => {
+        context.actorOf(Props(IsIPEmptyStateActor(stateData)))
+      }
     }
   }
 }
