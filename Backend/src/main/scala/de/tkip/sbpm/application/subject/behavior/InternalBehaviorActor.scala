@@ -21,14 +21,15 @@ import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
 import akka.event.Logging
 import akka.actor.Status.Failure
-import de.tkip.sbpm.application.history.{Message => HistoryMessage}
-import de.tkip.sbpm.application.history.{State => HistoryState}
-import de.tkip.sbpm.application.history.{Transition => HistoryTransition}
-import de.tkip.sbpm.application.history.{NewMessage => NewHistoryMessage}
-import de.tkip.sbpm.application.history.{NewState => NewHistoryState}
-import de.tkip.sbpm.application.history.{NewTransition => NewHistoryTransition}
+import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
+import de.tkip.sbpm.application.history.{ State => HistoryState }
+import de.tkip.sbpm.application.history.{ Transition => HistoryTransition }
+import de.tkip.sbpm.application.history.{ NewMessage => NewHistoryMessage }
+import de.tkip.sbpm.application.history.{ NewState => NewHistoryState }
+import de.tkip.sbpm.application.history.{ NewTransition => NewHistoryTransition }
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.SubjectData
+import de.tkip.sbpm.application.subject.misc.TryTransportMessages
 
 // TODO this is for history + statechange
 case class ChangeState(
@@ -93,8 +94,7 @@ class InternalBehaviorActor(
           NewHistoryState(current.text, current.stateType.toString()),
           current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
           current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
-          NewHistoryState(next.text, next.stateType.toString())
-        )
+          NewHistoryState(next.text, next.stateType.toString()))
     }
 
     case ea: ExecuteAction => {
@@ -139,6 +139,8 @@ class InternalBehaviorActor(
       startState = state.id
     }
     statesMap += state.id -> state
+
+    this.inputPoolActor ! TryTransportMessages
   }
 
   /**

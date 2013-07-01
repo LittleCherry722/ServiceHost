@@ -20,6 +20,9 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.subject.misc.TryTransportMessages
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state
@@ -71,6 +74,20 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   private val closedChannels = MutableSet[ChannelID]()
 
   def receive = {
+
+    case TryTransportMessages => {
+      for ((key, queue) <- this.messageQueueMap) {
+        for (message <- queue) {
+          this.tryTransportMessage(message);
+        }
+      }
+    }
+
+    case SubjectToSubjectMessageReceived(sm) => {
+      val queue = this.messageQueueMap.get((sm.from, sm.messageType))
+      val newQueue = queue.filterNot(_ == sm).asInstanceOf[Queue[SubjectToSubjectMessage]]
+      this.messageQueueMap.put((sm.from, sm.messageType), newQueue)
+    }
 
     case registerAll: Array[SubscribeIncomingMessages] => {
       handleSubscribers(registerAll)
