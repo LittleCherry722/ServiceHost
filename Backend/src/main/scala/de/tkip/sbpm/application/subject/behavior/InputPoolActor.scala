@@ -73,7 +73,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   private val waitingStatesMap =
     MutableMap[ChannelID, WaitingStateList]()
 
-  private val closedChannels = MutableSet[ChannelID]()
+  private val closedChannels = new ClosedChannels()
 
   def receive = {
 
@@ -91,7 +91,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       waitingStatesMap.map(_._2.remove(stateID))
     }
 
-    case message: SubjectToSubjectMessage if closedChannels((message.from, message.messageType)) => {
+    case message: SubjectToSubjectMessage if closedChannels.isChannelClosed((message.from, message.messageType)) => {
       // Unlock the sender
       sender ! Rejected(message.messageID)
 
@@ -111,8 +111,13 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     }
 
     case CloseInputPool(channelId) => {
-      closedChannels += channelId
+      closedChannels.close(channelId)
       sender ! InputPoolClosed
+    }
+
+    case OpenInputPool(channelId) => {
+      closedChannels.open(channelId)
+      sender ! InputPoolOpened
     }
   }
 
