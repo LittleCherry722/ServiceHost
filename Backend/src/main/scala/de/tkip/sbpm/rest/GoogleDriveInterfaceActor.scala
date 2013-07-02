@@ -29,11 +29,11 @@ import spray.http.StatusCodes
 import scala.util.parsing.json.JSONObject
 
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.external.api.ListGDriveFiles
 import de.tkip.sbpm.external.auth.{
   InitUser,
   GoogleResponse,
-  GetAuthenticationState,
-  ListGDriveFiles
+  GetAuthenticationState
 }
 
 import com.google.api.services.drive.model.File

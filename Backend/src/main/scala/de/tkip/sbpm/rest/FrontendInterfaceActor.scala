@@ -12,22 +12,21 @@
  */
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
-import de.tkip.sbpm.rest.ProcessAttribute._
-import akka.actor.Props
+import java.io.File
+
+import scala.reflect.ClassTag
+
+import akka.actor.{Actor, Props, ActorRef, ActorSystem, PoisonPill}
+import akka.event.Logging
 
 import spray.routing._
 import spray.http._
-import MediaTypes._
-import akka.actor.ActorRef
-import akka.actor.ActorSystem
-import akka.event.Logging
 import spray.json._
-import java.io.File
-import scala.reflect.ClassTag
-import akka.actor.PoisonPill
+import MediaTypes._
+
 import de.tkip.sbpm.rest.auth.CookieAuthenticator
 import de.tkip.sbpm.rest.auth.SessionDirectives._
+import de.tkip.sbpm.rest.ProcessAttribute._
 import de.tkip.sbpm.model.User
 
 object Entity {
