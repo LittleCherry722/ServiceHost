@@ -245,7 +245,7 @@
                 "variableCounter": 0, 
                 "role": "Employee", 
                 "externalType": "external", 
-                "inputPool": -1, 
+                "inputPool": 100, 
                 "type": "single", 
                 "id": "Subj1", 
                 "relatedProcess": ""
@@ -579,7 +579,7 @@
                 "variableCounter": 0, 
                 "role": "Employee", 
                 "externalType": "external", 
-                "inputPool": -1, 
+                "inputPool": 100, 
                 "type": "single", 
                 "id": "Subj2", 
                 "relatedProcess": ""
