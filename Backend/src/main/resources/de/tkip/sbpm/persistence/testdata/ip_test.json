@@ -1,6 +1,600 @@
 {
-    "definition": {"process":[{"id":"Subj1","name":"Sender","type":"single","deactivated":false,"inputPool":-1,"relatedProcess":"","relatedSubject":"","externalType":"external","role":"","comment":"","macros":[{"id":"##main##","name":"internal behavior","nodes":[{"id":0,"text":"close IP","start":true,"end":false,"type":"send","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":true,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":1,"text":"IP closed","start":false,"end":false,"type":"receive","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":2,"text":"open IP","start":false,"end":false,"type":"send","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":3,"text":"IP opened","start":false,"end":false,"type":"receive","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":4,"text":"new","start":false,"end":false,"type":"action","options":{"message":"*","subject":"*","correlationId":"*","conversation":"*","state":""},"deactivated":false,"majorStartNode":false,"conversation":null,"variable":null,"varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""}],"edges":[{"start":0,"end":1,"text":"m0","type":"exitcondition","target":{"id":"Subj2","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":1,"end":2,"text":"m1","type":"exitcondition","target":{"id":"Subj2","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":2,"end":3,"text":"m3","type":"exitcondition","target":{"id":"Subj2","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":3,"end":4,"text":"m2","type":"exitcondition","target":{"id":"Subj2","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]}],"nodeCounter":5}],"macroCounter":0,"variables":{},"variableCounter":0},{"id":"Subj2","name":"Receiver","type":"single","deactivated":false,"inputPool":-1,"relatedProcess":"","relatedSubject":"","externalType":"external","role":"","comment":"","macros":[{"id":"##main##","name":"internal behavior","nodes":[{"id":0,"text":"open IP","start":true,"end":false,"type":"receive","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":true,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":1,"text":"closeIP state","start":false,"end":false,"type":"$closeip","options":{"subject":"##all##","message":"##all##","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":2,"text":"IP closed","start":false,"end":false,"type":"send","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":3,"text":"open IP","start":false,"end":false,"type":"receive","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":4,"text":"openIP state","start":false,"end":false,"type":"$openip","options":{"subject":"##all##","message":"##all##","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":5,"text":"IP opened","start":false,"end":false,"type":"send","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""},{"id":6,"text":"end","start":false,"end":true,"type":"end","options":{"subject":"","message":"","conversation":"","correlationId":"","state":""},"deactivated":false,"majorStartNode":false,"conversation":"","variable":"","varMan":{"var1":"","var2":"","operation":"and","storevar":""},"macro":"","comment":""}],"edges":[{"start":0,"end":1,"text":"m0","type":"exitcondition","target":{"id":"Subj1","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":1,"end":2,"text":"","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":"","transportMethod":["internal"]},{"start":2,"end":3,"text":"m1","type":"exitcondition","target":{"id":"Subj1","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":3,"end":4,"text":"m3","type":"exitcondition","target":{"id":"Subj1","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]},{"start":4,"end":5,"text":"","type":"exitcondition","target":"","deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":null,"correlationId":"","comment":"","transportMethod":["internal"]},{"start":5,"end":6,"text":"m2","type":"exitcondition","target":{"id":"Subj1","min":-1,"max":-1,"createNew":false,"variable":""},"deactivated":false,"optional":false,"priority":1,"manualTimeout":false,"variable":"","correlationId":"","comment":"","transportMethod":["internal"]}],"nodeCounter":8}],"macroCounter":0,"variables":{},"variableCounter":0}],"messages":{"m0":"close IP","m1":"IP closed","m2":"IP opened","m3":"open IP"},"messageCounter":4,"nodeCounter":2,"conversations":{},"conversationCounter":0},
-   "routings":[
-
-   ]
+    "definition": {
+        "process": [
+            {
+                "comment": "", 
+                "macroCounter": 0, 
+                "name": "Sender", 
+                "startSubject": true,
+                "deactivated": false, 
+                "variables": {}, 
+                "relatedSubject": "", 
+                "macros": [
+                    {
+                        "nodeCounter": 5, 
+                        "nodes": [
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "close IP", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 0, 
+                                "start": true, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": true, 
+                                "type": "send", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "IP closed", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 1, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "receive", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "open IP", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 2, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "send", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "IP opened", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 3, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "receive", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": null, 
+                                "text": "new", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 4, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": null, 
+                                "majorStartNode": false, 
+                                "type": "action", 
+                                "options": {
+                                    "conversation": "*", 
+                                    "message": "*", 
+                                    "state": "", 
+                                    "correlationId": "*", 
+                                    "subject": "*"
+                                }
+                            }
+                        ], 
+                        "edges": [
+                            {
+                                "comment": "", 
+                                "end": 1, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj2", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 0, 
+                                "optional": false, 
+                                "text": "m0", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 2, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj2", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 1, 
+                                "optional": false, 
+                                "text": "m1", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 3, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj2", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 2, 
+                                "optional": false, 
+                                "text": "m3", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 4, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj2", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 3, 
+                                "optional": false, 
+                                "text": "m2", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }
+                        ], 
+                        "id": "##main##", 
+                        "name": "internal behavior"
+                    }
+                ], 
+                "variableCounter": 0, 
+                "role": "", 
+                "externalType": "external", 
+                "inputPool": -1, 
+                "type": "single", 
+                "id": "Subj1", 
+                "relatedProcess": ""
+            }, 
+            {
+                "comment": "", 
+                "macroCounter": 0, 
+                "name": "Receiver", 
+                "deactivated": false, 
+                "variables": {}, 
+                "relatedSubject": "", 
+                "macros": [
+                    {
+                        "nodeCounter": 8, 
+                        "nodes": [
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "open IP", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 0, 
+                                "start": true, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": true, 
+                                "type": "receive", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "closeIP state", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 1, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "$closeip", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "##all##", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": "##all##"
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "IP closed", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 2, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "send", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "open IP", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 3, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "receive", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "openIP state", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 4, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "$openip", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "##all##", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": "##all##"
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "IP opened", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 5, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "send", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }, 
+                            {
+                                "comment": "", 
+                                "macro": "", 
+                                "end": true, 
+                                "conversation": "", 
+                                "text": "end", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 6, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "end", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "", 
+                                    "state": "", 
+                                    "correlationId": "", 
+                                    "subject": ""
+                                }
+                            }
+                        ], 
+                        "edges": [
+                            {
+                                "comment": "", 
+                                "end": 1, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj1", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 0, 
+                                "optional": false, 
+                                "text": "m0", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 2, 
+                                "target": "", 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 1, 
+                                "optional": false, 
+                                "text": "", 
+                                "variable": null, 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 3, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj1", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 2, 
+                                "optional": false, 
+                                "text": "m1", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 4, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj1", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 3, 
+                                "optional": false, 
+                                "text": "m3", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 5, 
+                                "target": "", 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 4, 
+                                "optional": false, 
+                                "text": "", 
+                                "variable": null, 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 6, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj1", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 5, 
+                                "optional": false, 
+                                "text": "m2", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }
+                        ], 
+                        "id": "##main##", 
+                        "name": "internal behavior"
+                    }
+                ], 
+                "variableCounter": 0, 
+                "role": "", 
+                "externalType": "external", 
+                "inputPool": -1, 
+                "type": "single", 
+                "id": "Subj2", 
+                "relatedProcess": ""
+            }
+        ], 
+        "conversations": {}, 
+        "messages": {
+            "m1": "IP closed", 
+            "m0": "close IP", 
+            "m3": "open IP", 
+            "m2": "IP opened"
+        }, 
+        "messageCounter": 4, 
+        "conversationCounter": 0, 
+        "nodeCounter": 2
+    }, 
+    "routings": []
 }
