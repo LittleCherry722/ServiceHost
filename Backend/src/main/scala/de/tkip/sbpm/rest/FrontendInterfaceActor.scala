@@ -123,7 +123,7 @@ class FrontendInterfaceActor extends Actor with HttpService {
        */
       //TODO add authentication for google drive
       pathPrefix(Entity.GOOGLEDRIVE) {
-          handleWith[GoogleDriveInterfaceActor]
+          handleWith[GoogleResponseActor]
       } ~
       pathPrefix(Entity.USER) {
         /**

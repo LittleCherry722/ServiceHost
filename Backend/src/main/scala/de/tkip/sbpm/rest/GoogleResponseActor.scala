@@ -14,8 +14,7 @@
 package de.tkip.sbpm.rest
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Await
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
 
@@ -29,6 +28,8 @@ import spray.json.JsonFormat
 import spray.http.StatusCodes
 import spray.http.MediaTypes._
 
+import de.tkip.sbpm.rest.google.{DriveControl, GetCredentialsException}
+
 import de.tkip.sbpm
 
 class GoogleResponseActor extends Actor with HttpService with ActorLogging {
@@ -36,7 +37,7 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
 
   implicit val timeout = Timeout(15 seconds)
 
-  private lazy val googleAuthActor = sbpm.ActorLocator.googleAuthActor
+  private val driveCtrl = new DriveControl()
     
   def actorRefFactory = context
   
@@ -54,31 +55,40 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
     post {
       // frontend request for authentication of SBPM app gainst Google account
       pathPrefix("init_auth") {
-        formFields("id") { (id) => {
-          log.debug(getClass.getName + " received authentication init post from user: " + id)
-          
-          val f = googleAuthActor ? sbpm.external.auth.InitUser(id)
-          val result = Await.result(f.mapTo[String], timeout.duration)
+        formFields("id") { (userId) =>
+          log.debug(getClass.getName + " received authentication init post from user: " + userId)
+          try {
+            driveCtrl.getCredentials(userId)
+            complete(StatusCodes.NoContent)
+          } catch {
+            case GetCredentialsException(auth_url) =>
+              complete(StatusCodes.OK, auth_url)
+          }
 
-          log.debug(getClass.getName + " Received state for user: " + id + " State: " + result)
-          
-          if (result == "AUTHENTICATED")
-            complete(StatusCodes.NoContent)  // return OK with no content
-          else // not authenticated or token expired
-            complete(StatusCodes.OK, result) // return OK with google authentication URL
-        }}
+        }
       }
-     }~
-    // callback endpoint called by Google after an authentication request
+    }~
     get {
+      // callback endpoint called by Google after an authentication request
       path("") {
-        parameters("code", "state") {(code, state) => {
-          log.debug(getClass.getName + " received from google response: " + "name: " + state + ", code: " + code)
-          googleAuthActor ! sbpm.external.auth.GoogleResponse(state, code)
+        parameters("code", "state") { (code, userId) => 
+          log.debug(getClass.getName + " received from google response: " + "name: " + userId + ", code: " + code)
+          driveCtrl.storeCredentials(userId, code)
           respondWithMediaType(`text/html`) {
             complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body></body></html>")
           }
         }
+      }~
+      path("get_files") {
+        parameters("id") { (id) =>
+          log.debug(getClass.getName + " received get request for google drive files from user: " + id)
+          try {
+            val files = driveCtrl.myFiles(id).toPrettyString
+            complete(files)
+          } catch {
+            case GetCredentialsException(auth_url) =>
+              complete(StatusCodes.Forbidden, auth_url)
+          }
         }
       }
     }
