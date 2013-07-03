@@ -26,6 +26,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val EndStateString = "end"
   val OpenIPStateString = "$openip"
   val CloseIPStateString = "$closeip"
+  val IsIPEmptyStateString = "$isipempty"
 
   // the internal enums
   val ActStateType = Value(ActStateString)
@@ -34,6 +35,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val EndStateType = Value(EndStateString)
   val OpenIPStateType = Value(OpenIPStateString)
   val CloseIPStateType = Value(CloseIPStateString)
+  val IsIPEmptyStateType = Value(IsIPEmptyStateString)
 
   // for marshalling and unmarshalling:
   def fromStringtoStateType(stateType: String): StateType = try {

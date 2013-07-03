@@ -13,27 +13,30 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
-import spray.routing.HttpService
-import akka.actor.ActorLogging
-import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.external.auth.GoogleResponse
-import scala.util.parsing.json.JSONObject
-import scala.util.parsing.json.JSONObject
-import spray.json.JsonFormat
-import de.tkip.sbpm.external.auth.GoogleResponse
-import de.tkip.sbpm.external.auth.GetAuthenticationState
-import de.tkip.sbpm.external.auth.InitUser
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.Await
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
+
+import akka.actor.{Actor, ActorLogging}
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-import de.tkip.sbpm.external.api.ListGDriveFiles
-import com.google.api.services.drive.model.File
+
+import spray.json.JsonFormat
+import spray.routing.HttpService
 import spray.http.StatusCodes
+
+import scala.util.parsing.json.JSONObject
+
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.external.api.ListGDriveFiles
+import de.tkip.sbpm.external.auth.{
+  InitUser,
+  GoogleResponse,
+  GetAuthenticationState
+}
+
+import com.google.api.services.drive.model.File
 
 
 class GoogleDriveInterfaceActor extends Actor with HttpService with ActorLogging {

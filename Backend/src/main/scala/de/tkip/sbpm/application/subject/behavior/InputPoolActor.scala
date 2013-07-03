@@ -13,11 +13,10 @@
 
 package de.tkip.sbpm.application.subject.behavior
 
-import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet }
+import scala.collection.mutable.{Map => MutableMap, Set => MutableSet, MutableList, Queue}
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.subject.misc._
 
@@ -43,17 +42,29 @@ protected case class SubscribeIncomingMessages(
   }
 }
 
-// message to inform the inputpool that the state, does not subscribe anything anymore
+// message to inform the input pool that the state does not subscribe anything anymore
 protected case class UnSubscribeIncomingMessages(stateID: StateID)
 
-// message to inform the receive state, that the inputpool has no messages for him
+// message to inform the receive state that the input pool has no messages for him
 protected case object InputPoolSubscriptionPerformed
 
-// message to inform the inputpool, that it should close the given channel(s)
+// message to inform the input pool that it should close the given channel(s)
 protected case class CloseInputPool(channelId: ChannelID)
 
-// message to inform the receive state, that the inputpool close request succeeded
+// message to inform the receive state that the input pool close request succeeded
 protected case object InputPoolClosed
+
+// message to inform the input pool, that it should open the given channel(s)
+protected case class OpenInputPool(channelId: ChannelID)
+
+// message to inform the receive state, that the input pool open request succeeded
+protected case object InputPoolOpened
+
+// message to ask the input pool whether it is empty for the given channel ID
+protected case class IsIPEmpty(channelId: ChannelID)
+
+// message to tell the receive state whether the input pool is empty
+protected case class IPEmpty(empty: Boolean)
 
 class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   // extract the information from the data
@@ -68,7 +79,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   private val waitingStatesMap =
     MutableMap[ChannelID, WaitingStateList]()
 
-  private val closedChannels = MutableSet[ChannelID]()
+  private val closedChannels = new ClosedChannels()
 
   def receive = {
 
@@ -86,7 +97,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       waitingStatesMap.map(_._2.remove(stateID))
     }
 
-    case message: SubjectToSubjectMessage if closedChannels((message.from, message.messageType)) => {
+    case message: SubjectToSubjectMessage if closedChannels.isChannelClosed((message.from, message.messageType)) => {
       // Unlock the sender
       sender ! Rejected(message.messageID)
 
@@ -106,8 +117,44 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     }
 
     case CloseInputPool(channelId) => {
-      closedChannels += channelId
+      closedChannels.close(channelId)
       sender ! InputPoolClosed
+    }
+
+    case OpenInputPool(channelId) => {
+      closedChannels.open(channelId)
+      sender ! InputPoolOpened
+    }
+
+    case IsIPEmpty((subjectId, messageType)) => {
+      if (subjectId == ProcessAttributes.AllSubjects || messageType == ProcessAttributes.AllMessages) {
+        val filtered = filterQueueMap(subjectId, messageType)
+        val isEmpty = (filtered.values map (_.isEmpty)).foldLeft(true)(_ && _)
+
+        sender ! IPEmpty(isEmpty)
+      } // single subject, single message type
+      else {
+        sender ! IPEmpty(messageQueueIsEmpty(subjectId, messageType))
+      }
+
+    }
+  }
+
+  /**
+   * Filters all messages out of the queue map that don't belong to the given channel ID
+   */
+  private def filterQueueMap(channelId: ChannelID) = {
+    val (subjectId, messageType) = channelId
+
+    // 'all subjects' and 'all message types'
+    if (subjectId == ProcessAttributes.AllSubjects && messageType == ProcessAttributes.AllMessages) {
+      messageQueueMap
+    } // 'all subjects'
+    else if (subjectId == ProcessAttributes.AllSubjects) {
+      messageQueueMap filterKeys (_._2 == messageType)
+    } // 'all message types'
+    else {
+      messageQueueMap filterKeys (_._1 == subjectId) 
     }
   }
 
@@ -239,5 +286,44 @@ private class WaitingStateList {
 
   private def removeDisused() {
     queue.dequeueAll(_.count <= 0)
+  }
+}
+
+/**
+ * This class keeps track of all closed channels.
+ */
+private[behavior] class ClosedChannels {
+
+  private object RuleType extends Enumeration {
+    type RuleType = Value
+    val Close, Open = Value
+  }
+
+  import RuleType._
+
+  private case class Rule(channelId: ChannelID, ruleType: RuleType)
+
+  private var rules = List[Rule]()
+
+  private def removeOldRules(channelId: ChannelID) {
+    rules = rules.filter(_.channelId != channelId)
+  }
+
+  def close(channelId: ChannelID) {
+    removeOldRules(channelId)
+    rules = Rule(channelId, Close)  :: rules
+  }
+
+  def open(channelId: ChannelID) {
+    removeOldRules(channelId)
+    rules = Rule(channelId, Open) :: rules
+  }
+
+  def isChannelClosed(channelId: ChannelID) :Boolean = {
+    def channelFilter(rule: Rule) = (rule.channelId._1 == channelId._1 || rule.channelId._1 == AllSubjects) &&
+      (rule.channelId._2 == channelId._2 || rule.channelId._2 == AllMessages)
+
+    val rule = rules.find(channelFilter)
+    rule.map(_.ruleType == Close).getOrElse(false)
   }
 }
