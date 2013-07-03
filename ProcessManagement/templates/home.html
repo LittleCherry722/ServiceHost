@@ -1,137 +1,136 @@
 <div id="dashboard">
     
-    <style>
-        #dashboard #notification {
-            position: relative;
-            background-color: #FFF6DB;
-            border: 1px solid #C9A32E;
-            padding: 5px 15px 5px 5px;
-            margin: 15px 0;
-            border-top-right-radius: 10px;
-        }
-        
-        #dashboard #notification h1 {
-            color: #000;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        
-        #dashboard #notification #notification_close {
-            font-weight: bold;
-            display: inline;
-            cursor: pointer;
-            font-size: 14px;
-            position: absolute;
-            top: 3px;
-            right: 6px;
-        }
-        
-        #dashboard .result {
-            margin: 10px 0;
-        }
-        #dashboard table {
-        	width:100%;
-        }
-        
-        #dashboard .result .col1 { width: 10%;}
-        #dashboard .result .col2 { width: 35%;}
-        #dashboard .result .col3 { width: 35%;}
-        #dashboard .result .col4 { width: 20%;}
-        
-        #dashboard .result tr {
-            border: 1px solid #7D7D7D;
-            background-color: #fff;
-        }
-        
-        #dashboard .result tr .item_info {
-            position: relative;
-            padding: 20px;
-        }
-        
-        #dashboard .result tr .item_info input{
-            margin: 10px;
-        }
-        
-        #dashboard .result tr:hover {
-            background-color: #FFF6DB;
-        }
-        
-        #dashboard .result td {
-            padding: 5px;
-        }
-        #dashboard .result td span{
-            display: block; 
-            margin: 2px 0;
-        }
-        #dashboard .result td span a{
-            cursor: pointer;
-        }
-        
-        #dashboard .result td .action {
-            font-weight: bold;
-        }
-        
-        #dashboard .result td .process {
-            font-weight: bold;
-        }
-        
-        #dashboard button {
-            padding: 5px 10px;
-        }
-        
-        #dashboard .button_cancel {
-            position: absolute;
-            right: 5px;
-        }
-        #from, #to {
-        	width: 70px;
-        }
-        label, input, select {
-        	display: inline-block;
-        }
-        input {
-        	margin-right:15px;
-        }
-        select {
-        	margin-right:20px;
-        }
-        label {
-        	margin-right:7px;
-        }
-        
-       
-        
-    </style>
-    
-  <div data-chardin-intro="This his your Dashboard." data-chardin-position="bottom" class="pull-left">
+  <style>
+      #dashboard #notification {
+          position: relative;
+          background-color: #FFF6DB;
+          border: 1px solid #C9A32E;
+          padding: 5px 15px 5px 5px;
+          margin: 15px 0;
+          border-top-right-radius: 10px;
+      }
+
+      #dashboard #notification h1 {
+          color: #000;
+          font-size: 16px;
+          font-weight: bold;
+      }
+
+      #dashboard #notification #notification_close {
+          font-weight: bold;
+          display: inline;
+          cursor: pointer;
+          font-size: 14px;
+          position: absolute;
+          top: 3px;
+          right: 6px;
+      }
+
+      #dashboard .result {
+          margin: 10px 0;
+      }
+      #dashboard table {
+        width:100%;
+      }
+
+      #dashboard .result .col1 { width: 10%;}
+      #dashboard .result .col2 { width: 35%;}
+      #dashboard .result .col3 { width: 35%;}
+      #dashboard .result .col4 { width: 20%;}
+
+      #dashboard .result tr {
+          border: 1px solid #7D7D7D;
+          background-color: #fff;
+      }
+
+      #dashboard .result tr .item_info {
+          position: relative;
+          padding: 20px;
+      }
+
+      #dashboard .result tr .item_info input{
+          margin: 10px;
+      }
+
+      #dashboard .result tr:hover {
+          background-color: #FFF6DB;
+      }
+
+      #dashboard .result td {
+          padding: 5px;
+      }
+      #dashboard .result td span{
+          display: block; 
+          margin: 2px 0;
+      }
+      #dashboard .result td span a{
+          cursor: pointer;
+      }
+
+      #dashboard .result td .action {
+          font-weight: bold;
+      }
+
+      #dashboard .result td .process {
+          font-weight: bold;
+      }
+
+      #dashboard button {
+          padding: 5px 10px;
+      }
+
+      #dashboard .button_cancel {
+          position: absolute;
+          right: 5px;
+      }
+      #from, #to {
+        width: 70px;
+      }
+      label, input, select {
+        display: inline-block;
+      }
+      input {
+        margin-right:15px;
+      }
+      select {
+        margin-right:20px;
+      }
+      label {
+        margin-right:7px;
+      }
+
+
+
+  </style>
+
+  <div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom" class="pull-left">
     <h3>S-BPM Groupware v1.2</h3>
     <div class="btn-group">
-    	<select data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>    	
-		<select data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
-		<select data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
-		<label for="from">From</label>
-		<input type="text" id="from" name="from" data-bind="value: selectedStart" />
-		<label for="to">to</label>
-		<input type="text" id="to" name="to" data-bind="value: selectedEnd"/>
+      <select data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>    	
+      <select data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
+      <select data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
+      <label for="from">From</label>
+      <input type="text" id="from" name="from" data-bind="value: selectedStart" />
+      <label for="to">to</label>
+      <input type="text" id="to" name="to" data-bind="value: selectedEnd"/>
     </div>
 
     <div id="notification" style="display: none;">
-        <h1>Notification box</h1>        
-        <span>Notification message</span>
-        <div id="notification_close" onclick="this.parentNode.style.display = 'none';">x</div>
+      <h1>Notification box</h1>        
+      <span>Notification message</span>
+      <div id="notification_close" onclick="this.parentNode.style.display = 'none';">x</div>
     </div>
 
     <hr>    
-    
+
     <div id="processExecution">
-		<ul class="nav nav-tabs" data-bind="foreach: tabs">
-			<li data-bind="css: { active: $data === $root.currentTab() }, attr: { 'data-chardin-intro': $parent.tabDescriptions[$data] }">
-				<a data-bind="text: $data, attr: { href: '#/home/' + $data }"></a>
-			</li>
-		</ul>
-	</div>
-	<div id="executionContent">
-	</div>
-    
+      <ul class="nav nav-tabs" data-bind="foreach: tabs">
+        <li data-bind="css: { active: $data === $root.currentTab() }">
+          <a data-bind="text: $data, attr: { href: '#/home/' + $data }"></a>
+        </li>
+      </ul>
+    </div>
+    <div id="executionContent">
+    </div>
   </div>
 </div>

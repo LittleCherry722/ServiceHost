@@ -1,7 +1,126 @@
 {
-    "id": 1,
-    "name": "Test",
-    "creator": "Max Mustermann",
-    "date": 123456789,
-    "graph": ""
+  "date": 123456789,
+  "creator": "Max Mustermann",
+  "name": "Test",
+  "description": "Lorem ipsum dolor sit amet..."
+  "id": 1,
+  "graph": {
+    "macroCounter": 1,
+    "variableCounter": 1,
+    "variables": null,
+    "comment": "",
+    "role": "noRole",
+    "externalType": "interface",
+    "relatedProcess": null,
+    "relatedSubject": "",
+    "inputPool": 100,
+    "startSubject": false,
+    "deactivated": false,
+    "type": "external",
+    "name": "New Interface",
+    "id": "New Interface",
+    "macros": [{
+      "edges": [{
+        "transportMethod": ["internal"],
+        "comment": "",
+        "correlationId": "",
+        "manualTimeout": false,
+        "priority": 1,
+        "optional": false,
+        "deactivated": false,
+        "target": {
+          "createNew": false,
+          "max": -1,
+          "min": -1,
+          "id": "Manager"
+        },
+        "type": "exitcondition",
+        "text": "m4",
+        "end": 1,
+        "start": 0
+      }, {
+        "transportMethod": ["internal"],
+        "comment": "",
+        "correlationId": "",
+        "manualTimeout": false,
+        "priority": 1,
+        "optional": false,
+        "deactivated": false,
+        "type": "exitcondition",
+        "text": "Travel Application filed",
+        "end": 2,
+        "start": 1
+      }],
+      "nodes": [{
+        "varMan": {
+          "storevar": "",
+          "operation": "and",
+          "var2": "",
+          "var1": ""
+        },
+        "macro": "",
+        "options": {
+          "state": null,
+          "conversation": null,
+          "correlationId": null,
+          "subject": "*",
+          "message": "*"
+        },
+        "majorStartNode": true,
+        "deactivated": false,
+        "type": "receive",
+        "end": false,
+        "start": true,
+        "text": "",
+        "id": 0
+      }, {
+        "varMan": {
+          "storevar": "",
+          "operation": "and",
+          "var2": "",
+          "var1": ""
+        },
+        "macro": "",
+        "options": {
+          "state": null,
+          "conversation": null,
+          "correlationId": null,
+          "subject": "*",
+          "message": "*"
+        },
+        "majorStartNode": false,
+        "deactivated": false,
+        "type": "action",
+        "end": false,
+        "start": false,
+        "text": "Handle Travel Application",
+        "id": 1
+      }, {
+        "varMan": {
+          "storevar": "",
+          "operation": "and",
+          "var2": "",
+          "var1": ""
+        },
+        "macro": "",
+        "options": {
+          "state": null,
+          "conversation": null,
+          "correlationId": null,
+          "subject": "*",
+          "message": "*"
+        },
+        "majorStartNode": false,
+        "deactivated": false,
+        "type": "end",
+        "end": true,
+        "start": false,
+        "text": "End process",
+        "id": 2
+      }],
+      "nodeCounter": 3,
+      "name": "internal behavior",
+      "id": "##main##"
+    }]
+  }
 }

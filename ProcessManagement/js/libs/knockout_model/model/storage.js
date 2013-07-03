@@ -41,7 +41,8 @@ define([
 
 
 
-    // Setup prototype callback so we do not have to check for their existence every time.
+    // Setup prototype callback so we do not have to check for their
+    // existence every time.
     _( [ "Save", "Create", "Destroy" ] ).each(function( event ) {
       Model.prototype[ "before" + event ] = function() { return true; }
       Model.prototype[ "after" + event ] = function()  { return true; }

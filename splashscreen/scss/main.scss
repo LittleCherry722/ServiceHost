@@ -33,15 +33,43 @@ h3 {
   @include clearfix;
 }
 
-#tooltips {
+.tooltips {
+  display: none;
+}
+
+.tooltips-top {
   display: none;
   position: fixed;
   top: 71px;
-  left: 10px;
-  bottom: 10px;
+  bottom: 60px;
   width: 16%;
   border: 1px solid rgba(#000, 0.1);
-  background-color: rgba(#666, 0.1);
+  background-color: rgba(#666, 0.025);
+
+  &.tooltip-left {
+    left: 10px;
+  }
+  &.tooltip-right {
+    right: 10px;
+  }
+
+  ul, ol {
+    font-size: 14px;
+    line-height: 120%;
+    list-style: inherit;
+    padding-left: 2em;
+    padding-right: 10px;
+    margin-top: 1em;
+    color: #333;
+  }
+
+  ol {
+    list-style-type: decimal;
+
+    li {
+      margin-bottom: 1em;
+    }
+  }
 
   h3 {
     color: darken($red, 20%);
@@ -190,6 +218,20 @@ a:active .bordered {
 
 #overview {
   height: 700px;
+
+  p {
+    font-size: 18px;
+    padding-bottom: 0.5em;
+    line-height: 30px;
+  }
+
+  p.lead {
+    text-align: center;
+    font-weight: 200;
+    font-size: 24px;
+    color: #444;
+    padding-bottom: 1em;
+  }
 }
 
 #technical {

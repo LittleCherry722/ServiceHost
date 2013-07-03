@@ -10,6 +10,7 @@ $('.arrow').each (idx, element) ->
     <div class="arrow-stem arrow-right"></div>
     <div class="arrow-tip"></div>
   """)
+
   $text = $element.css({ width: $element.data('width') }).find('.label')
   arrowLength = parseInt($element.css('width'), 10)
   if $element.data('y-offset')
@@ -73,19 +74,62 @@ $('.arrow').each (idx, element) ->
       top: textHeight / 2 + rightYOffset - 5
       transform: "rotate(#{180-rightArrow.rotationDeg}deg)"
 
-  $("*[data-tooltip]").on 'mouseenter', (e) ->
-    return if not $(this).data('tooltip')
-    return unless $(this).closest('.step').is('.active')
-    $('#tooltips').fadeIn( 33 )
-    if $(this).data('target')
-      $('#tooltip').html($("##{$(this).data('target')}").html())
-    else
-      $('#tooltip').html($(this).data('tooltip'))
-  $("*[data-tooltip]").on 'mouseleave', (e) ->
-    $('#tooltips').fadeOut( 33 )
-    $('#tooltip').html("")
 
-  $('a.do-not-impress').on 'click', (e) ->
-    console.log "test"
-    e.stopPropagation()
+for tooltip in $("*[data-tooltip]")
+  $step = $(tooltip).closest(".step")
+  toolhelper1 = $step.find('.tooltips.tip1')[0]
+  toolhelper2 = $step.find('.tooltips.tip2')[0]
+  if not toolhelper1
+    console.log "appending tip1helper"
+    toolhelper1 = $step.append('<div class="tooltips
+      tip1"><h3>Information</h3><div
+      class="tooltip"><ol></ol></div></div>').find('.tip1').get()
 
+  console.log "size: #{$( toolhelper1 ).find('li').size()}"
+  if $( toolhelper1 ).find('li').size() < 4
+    $appendTo = $(toolhelper1).find('ol')
+  else
+    if not toolhelper2
+      toolhelper2 = $step.append('<div class="tooltips
+        tip2"><h3>Information</h3><div
+        class="tooltip"><ol start="5"></ol></div></div>').find('.tip2').get()
+    $appendTo = $(toolhelper2).find('ol')
+
+  $appendTo.append("<li>#{$(tooltip).data('tooltip')}</li>")
+  console.log "appending: #{$(tooltip).data('tooltip')}"
+  console.log $appendTo.get()
+
+
+# $("*[data-tooltip]").on 'mouseenter', (e) ->
+#   return if not $(this).data('tooltip')
+#   return unless $(this).closest('.step').is('.active')
+#   $('#tooltips').fadeIn( 33 )
+#   if $(this).data('target')
+#     $('#tooltip').html()
+#   else
+#     $('#tooltip').html($(this).data('tooltip'))
+# $("*[data-tooltip]").on 'mouseleave', (e) ->
+#   $('#tooltips').fadeOut( 33 )
+#   $('#tooltip').html("")
+
+# $('a.do-not-impress').on 'click', (e) ->
+#   console.log "test"
+#   e.stopPropagation()
+
+
+$tooltipRight = $('.tooltips-top.tooltip-right')
+$tooltipLeft  = $('.tooltips-top.tooltip-left')
+$(document).on 'impress:stepenter', ->
+  $stepTooltip1 = $('.step.active').find('.tooltips.tip1')
+  $stepTooltip2 = $('.step.active').find('.tooltips.tip2')
+  if $stepTooltip1[0]
+    $tooltipLeft.html($stepTooltip1.html()).fadeIn(150)
+    if $stepTooltip2[0]
+      $tooltipRight.html($stepTooltip2.html()).fadeIn(150)
+  else
+    $tooltipLeft.hide()
+    $tooltipRight.hide()
+
+$(document).on 'impress:stepleave', ->
+  $tooltipLeft.fadeOut(100)
+  $tooltipRight.fadeOut(100)

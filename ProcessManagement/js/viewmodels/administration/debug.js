@@ -8,85 +8,33 @@ define([
 
 	var ViewModel = function() {
 
-		this.createUsers     = createUsers;
-		this.clearDatabase   = clearDatabase;
-		this.createProcess1  = createProcess1;
 		this.rebuildDatabase = rebuildDatabase;
-
-		this.save = save;
 	}
 
-	var debugQuery = function( action, callback ) {
+	var debugQuery = function( callback ) {
 		var json, data;
 
-		if ( typeof action === "object" ) {
-			data = action;
-		} else {
-			data = { action: action }
-		}
+    if ( typeof callback === "undefined" ) {
+      callback = function() {};
+    }
 
 		$.ajax({
-			url: "db/debug.php",
-			type: "POST",
+			url: "/debug",
+			type: "GET",
 			data: data,
 			cache: false,
-			success: function( dataAsJson ){
-				try {
-					json = jQuery.parseJSON( dataAsJson );
-				} catch( error ) {
-					callback( error, null );
-				}
-				if ( json['code'] === 'ok' ) {
-					callback( null, json );
-				} else {
-					callback( "DB Error", json );
-				}
+			success: function() {
+        callback();
 			},
 			error : function( error ){
-				callback( error, null );
+				callback( error );
 			}
 		});
 	}
 
-	var createUsers = function() {
-		debugQuery( "user", function( error, json ) {
-			if ( error ) {
-				Notify.error( "Error", "User creation failed with error: " + error );
-			} else {
-				Notify.info( "Success", "Users successfully created." );
-				Model.fetchAll();
-			}
-		});
-	}
-
-	var clearDatabase = function() {
-		debugQuery( "clear", function( error, json ) {
-			if ( error ) {
-				Notify.error( "Error", "Error clearing the databse: " + error );
-			} else {
-				Notify.info( "Success", "Database successfully cleared." );
-				Model.fetchAll();
-			}
-		});
-	}
-
-	var createProcess1 = function() {
-		var data = {
-			action: "process",
-			process: "travelapplication"
-		}
-		debugQuery( data, function( error, json ) {
-			if ( error ) {
-				Notify.error( "Error", "Creating the travelapplication process failed with error: " + error );
-			} else {
-				Notify.info( "Success", "Successfully created travelapplication processes." );
-				Model.fetchAll();
-			}
-		});
-	}
 
 	var rebuildDatabase = function() {
-		debugQuery( "rebuild", function( error, json ) {
+		debugQuery(function( error, json ) {
 			if ( error ) {
 				Notify.error( "Error", "Rebuilding the database failed with error: " + error );
 			} else {
@@ -96,9 +44,6 @@ define([
 		});
 	}
 
-	var save = function() {
-		return true;
-	}
 
 	var initialize = function() {
 		var viewModel;

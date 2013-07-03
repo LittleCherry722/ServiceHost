@@ -566,7 +566,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperDblClickNodeC()
 		 * @param {String} ID The id of the double-clicked subject.
 		 */
-		subjectDblClickedInstantInterface:		"",
+		subjectDblClickedInstantInterface:		"tk_graph/subjectDblClickedInternal",
 		
 		/**
 		 * notifier topic for when an interface (external subject) is double-clicked
@@ -574,7 +574,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperDblClickNodeC()
 		 * @param {String} ID The id of the double-clicked subject.
 		 */
-		subjectDblClickedInterface:		"",
+		subjectDblClickedInterface:		"tk_graph/subjectDblClickedInternal",
 		
 		/**
 		 * notifier topic for when an internal subject is double-clicked

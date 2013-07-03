@@ -9,20 +9,35 @@ html
     a#prev-slide.navigation href="javascript: impress().prev();" zurück (←)
     a#beginning.navigation href="#overview" Zur Startseite
 
-    #tooltips
-      h3 Information
-      p#tooltip
+    .tooltips-top.tooltip-left
+    .tooltips-top.tooltip-right
 
-    h1.inactive-hide SBPM Distrubuted Process Execution
+    h1.inactive-hide Hybrides P2P Business Process Netzwerk
 
     #impress
 
-      #overview.step data-scale="1.5"
+      #overview.step data-y="-310" data-scale="1.5"
+        p.lead
+          | Willkommen bei der Demonstration des Hybriden Pear to Pear
+            Business Process Netzwerkes
+        p
+          | Im Folgenden werden wir anhand eines Beispiels demonstrieren,
+            wozu unsere Business Process Engine in der Lage ist und wie
+            es die Ausführung von Prozessen in Unternehmen
+            revolutionieren kann.
+        p
+          | Unser beispielprozess besteht aus 3 Firmen, die zusammen einen Prozess
+            der Warenbestellung und Lieferung ausführen wollen.
+        p
+          | Sie können jederzeit während dieser Präsentation zu den verteilten
+            Process Engines der unterschiedlichen Unternehmen gelangen, indem Sie
+            auf die Icons der Unternehmen klicken.
+          
 
       #staples.images.step data-x="-600" data-y="50"
         h3 Staples
         .graphic
-          a.demo-image href="http://sbpm-stap.tk.informatik.tu-darmstadt.de" target="_blank"
+          a.demo-image href="http://sbpm-stap.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
             .image-placeholder
               .dummy
               img src="images/staples.svg" height="244" width="244"
@@ -34,7 +49,7 @@ html
       #tsp.images.step data-x="0" data-y="50"
         h3 Transportdienstleister
         .graphic
-          a.demo-image href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de" target="_blank"
+          a.demo-image href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
             .image-placeholder
               .dummy
               img src="images/tsp.svg" height="244" width="244"
@@ -63,12 +78,12 @@ html
         .row
           div.column
             div
-              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de" target="_blank"
+              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
                 .bordered.container
                   h3 style="font-size:20px;" Transport-dienstleister
                   img src="images/tsp.svg"
             div
-              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de" target="_blank"
+              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
                 .bordered.container style="margin-top: 75px;"
                   h3 style="font-size:20px;" Staples
                   img src="images/staples.svg" style="margin-top: 15px;"
@@ -100,7 +115,7 @@ html
                     img src="images/engine.svg" style="width: 60%;"
                     p.small Process Engine
                   div.pull-left style="width: 110px; padding: 0 10px; margin-left: 10px;"
-                    a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de" target="_blank"
+                    a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
                       img.bordered src="images/audi.svg" style="width: 100%;"
 
         .overlays
@@ -145,12 +160,12 @@ html
         .row
           div.column
             div
-              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de" target="_blank"
+              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
                 .bordered.container
                   h3 style="font-size:20px;" Transport-dienstleister
                   img src="images/tsp.svg"
             div
-              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de" target="_blank"
+              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
                 .bordered.container style="margin-top: 75px;"
                   h3 style="font-size:20px;" Staples
                   img src="images/staples.svg" style="margin-top: 15px;"
@@ -182,7 +197,7 @@ html
                     img src="images/engine.svg" style="width: 60%;"
                     p.small Process Engine
                   div.pull-left style="width: 110px; padding: 0 10px; margin-left: 10px;"
-                    a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de" target="_blank"
+                    a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
                       img.bordered src="images/audi.svg" style="width: 100%;"
 
         .overlays
@@ -216,12 +231,12 @@ html
         .row
           div.column
             div
-              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de" target="_blank"
+              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
                 .bordered.container
                   h3 style="font-size:20px;" Staples
                   img src="images/staples.svg"
             div
-              a.plain.do-not-impress href="http://sbpm-audo.tk.informatik.tu-darmstadt.de" target="_blank"
+              a.plain.do-not-impress href="http://sbpm-audo.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=audi@sbpm.com&amp;pass=a1234" target="_blank"
                 .bordered.container style="margin-top: 75px;"
                   h3 style="font-size:20px;" Audi
                   img src="images/audi.svg" style="margin-top: 15px;"
@@ -229,7 +244,7 @@ html
             .container.container-wide
           div.column
             div style="margin-top: 140px;"
-              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de" target="_blank"
+              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
                 .bordered.container
                   h3 style="font-size:20px;" Transport-dienstleister
                   img src="images/tsp.svg"

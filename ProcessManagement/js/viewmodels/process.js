@@ -1,21 +1,24 @@
 define([
-       "knockout",
-       "app",
-       "notify",
-       "dialog",
-       "models/process",
-       "underscore",
-       "router",
-       "async"
-       // "tk_graph"
-], function( ko, App, Notify, Dialog, Process, _, Router ) {
-
+  "knockout",
+  "app",
+  "notify",
+  "dialog",
+  "models/process",
+  "underscore",
+  "router",
+  "async",
+  "models/User",
+  "models/Role",
+  "models/Interface"
+], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface ) {
 
   // The main viewmodel. Every observable defined inside can be used by the
   // view. Lets keep it clean and define functions and other helper variables
   // outside this viewmodel so it is immediately apparent which functions /
   // observables are really used by the view.
   var ViewModel = function() {
+    var self = this;
+
     this.currentProcess = currentProcess;
 
     // The history of the graph. Used to let the user switch between different
@@ -29,7 +32,112 @@ define([
     // Validation errors for saving a process under a different name
     this.processNameError = ko.computed(function() {
       if ( Process.nameAlreadyTaken( newProcessName() ) ) {
-        return "Process Name '" + newProcessName() + "' is not available.";
+        return "Process name '" + newProcessName() + "' is not available.";
+      } else {
+        return "";
+      }
+    });
+
+    window.existingInterfaces = this.existingInterfaces = Interface.all;
+
+    // Needed for saving the business Interface
+    this.newBusinessInterface = newBusinessInterface;
+    newBusinessInterface.name("");
+    newBusinessInterface.creator(App.currentUser().name());
+
+    this.selectedInterface = ko.observable();
+    this.selectedInterfaceName = ko.computed(function() {
+      if ( self.selectedInterface() ) {
+        return self.selectedInterface().name();
+      } else {
+        return "";
+      }
+    });
+
+    this.selectedInterfaceCreator = ko.computed(function() {
+      if ( self.selectedInterface() ) {
+        return self.selectedInterface().creator();
+      } else {
+        return "";
+      }
+    });
+
+    this.selectedInterfaceId = ko.computed(function() {
+      if ( self.selectedInterface() ) {
+        console.log("id: " + self.selectedInterface().id());
+        return self.selectedInterface().id();
+      } else {
+        console.log("...");
+        return -1;
+      }
+    });
+
+    this.selectedInterfaceDescription = ko.computed(function() {
+      if ( self.selectedInterface() ) {
+        return self.selectedInterface().description();
+      } else {
+        return "";
+      }
+    });
+
+    this.selectBusinessInterface = function() {
+      var id = this.id()
+      self.selectedInterface( Interface.find( id ) );
+    }
+
+    this.noInterfaceSelected = ko.computed(function() {
+      return !self.selectedInterface();
+    });
+
+    this.resetInterfaceSelection = function() {
+      self.selectedInterface( null );
+    }
+
+    this.availableInterfaces = ko.computed(function() {
+      if ( currentProcess().isNewRecord ){
+        return [];
+      }
+      return _.chain(currentProcess().graph().definition.process).filter(function(subj) {
+        return subj.type == "external" && subj.externalType == "interface"
+      }).map(function( subj ) {
+        return {
+          id: subj.id,
+          name: subj.name
+        }
+      }).value();
+    });
+
+    window.interfaceReplacementSubject = this.interfaceReplacementSubject = ko.observable("");
+
+    this.loadBusinessInterface = function() {
+      if ( !self.selectedInterface() ) return;
+
+      var newGraph = JSON.parse(JSON.stringify(currentProcess().graph()));
+
+      if ( self.interfaceReplacementSubject() ) {
+        console.log(newGraph)
+        newGraph.definition.process = _(newGraph.definition.process).map(function( subject ) {
+          if (subject.id == self.interfaceReplacementSubject()) {
+            return self.selectedInterface().graph();
+          } else {
+            return subject;
+          }
+        });
+        console.log(newGraph)
+      } else {
+        newGraph.definition.process.push( self.selectedInterface().graph() )
+      }
+      
+      loadGraph( newGraph );
+    }
+
+    this.newBusinessInterfaceName = newBusinessInterface.name;
+    this.newBusinessInterfaceAuthor = newBusinessInterface.creator;
+
+    // Validation errors for saving a process under a different name
+    this.businessInterfaceNameError = ko.computed(function() {
+      if ( Interface.nameAlreadyTaken( newBusinessInterface.name() ) ) {
+        return "Interface name '" + newBusinessInterface.name() + "' is not available.";
       } else {
         return "";
       }
@@ -40,6 +148,24 @@ define([
     this.assignedRoleText = ko.computed(function() {
       return currentProcess().isCase() ? "Assigned User" : "Assigned Role"
     });
+
+    this.saveBusinessInterface = function() {
+      newBusinessInterface.save({}, {
+        success: function() {
+          Notify.info("Success", "Business Interface '" +
+                      currentProcess().name() + "' has successfully been made public.");
+
+          newBusinessInterface = self.newbusinessInterface = new Interface({
+            name: "",
+            creator: App.currentUser().name()
+          });
+        },
+        error: function() {
+          // TODO: real error handling
+          console.log("Something bad happened..");
+        }
+      });
+    }
 
     this.rolesOrUsers = ko.computed(function() {
       if ( currentProcess().isCase() ) {
@@ -153,6 +279,8 @@ define([
 
   var newProcessName = ko.observable("");
 
+  var newBusinessInterface = new Interface();
+
   // Currently selected subject and conversation (in chosen)
   var currentSubject = ko.observable();
   var currentConversation = ko.observable();
@@ -169,9 +297,9 @@ define([
   // ko.observables for similar named attributes of the viewmodel.
   // Reference it outside the viewmodel so we don't have to declare every
   // function inside the viewmodel to get a reference to these objects.
-  var availableSubjects = ko.observableArray([]);
+  var availableSubjects      = ko.observableArray([]);
   var availableConversations = ko.observableArray([]);
-  var availableMacros   = ko.observableArray([]);
+  var availableMacros        = ko.observableArray([]);
 
   /***************************************************************************
    * Subscriptions to our observables. Used
@@ -204,6 +332,7 @@ define([
     }, 1);
   });
 
+
   // When a subject is clicked in chosen, go to the internal behavior of the
   // subject.
   currentSubject.subscribe(function( subject ) {
@@ -216,7 +345,8 @@ define([
       setGraph( currentProcess() )
 
       subject = subject.replace(/___/, " ");
-      if ( gv_graph.subjects[subject] && !gv_graph.subjects[subject].isExternal() ) {
+      var gv_subject = gv_graph.subjects[subject]
+      if ( gv_subject && ( !gv_subject.isExternal() || gv_subject.externalType == "interface" )) {
         if ( !Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {
           // let the graph know we want to go to the internal view of a subject.
           gv_graph.selectedSubject = null;
@@ -488,7 +618,7 @@ define([
     _( gv_graph.subjects ).each(function( value, key ) {
 
       // we don't want external subjects in the list of (local) subjects
-      if ( value.isExternal() ) {
+      if ( value.isExternal() && !value.externalType == "Interface" ) {
         return;
       }
 
