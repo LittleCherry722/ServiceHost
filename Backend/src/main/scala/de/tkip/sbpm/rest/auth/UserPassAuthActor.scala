@@ -32,24 +32,16 @@ import scala.util.{ Try, Success, Failure }
 import com.github.t3hnar.bcrypt._
 import scala.concurrent.Await
 import de.tkip.sbpm.persistence.query.Users
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * Provides support for form/json based or basic authentication.
  * Validates user name and password against the database
  * and returns corresponding user id.
  */
-class UserPassAuthActor extends Actor {
+class UserPassAuthActor extends Actor with DefaultLogging {
   private lazy val persistenceActor = ActorLocator.persistenceActor
   private implicit val timeout = Timeout(10 seconds)
-  val logger = Logging(context.system, UserPassAuthActor.this)
-
-  override def preStart() {
-    logger.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    logger.debug(getClass.getName + " stopped.")
-  }
 
   def receive = {
     // valid basic auth header given -> check credentials
@@ -64,7 +56,7 @@ class UserPassAuthActor extends Actor {
    */
   private def checkCredentials(user: String, pass: String, receiver: ActorRef) = {
     val future = (persistenceActor ? Users.Read.Identity("sbpm", user)).map {
-    // return none if user not found, no password in identity or failure 
+    // return none if user not found, no password in identity or failure
     case None => None
       case Some(UserIdentity(_, _, _, None)) => None
       case Some(identity: UserIdentity) =>
@@ -73,8 +65,8 @@ class UserPassAuthActor extends Actor {
         else
           None
       case akka.actor.Status.Failure(e) => {
-          logger.error(e, "Error checking user identity.")
-          None   
+          log.error(e, "Error checking user identity.")
+          None
       }
     }.pipeTo(receiver)
   }

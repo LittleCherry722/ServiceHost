@@ -28,6 +28,7 @@ import akka.actor.actorRef2Scala
 import akka.util.Timeout
 import com.mchange.v2.c3p0._
 import com.typesafe.config.Config
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * Provides helper methods for connecting to database using slick.
@@ -35,15 +36,7 @@ import com.typesafe.config.Config
  * from akka config (sbpm.db.uri, sbpm.db.jdbcDriver and sbpm.db.slickDriver).
  * Actors who need DB access should mixin this trait.
  */
-private[persistence] trait DatabaseAccess extends ActorLogging { self: Actor =>
-
-  override def preStart() {
-    log.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    log.debug(getClass.getName + " stopped.")
-  }
+private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =>
 
   // akka config to read db settings from
   protected implicit val config = context.system.settings.config
