@@ -30,27 +30,15 @@ import spray.http.StatusCodes
 import spray.http.MediaTypes._
 
 import de.tkip.sbpm
+import de.tkip.sbpm.logging.DefaultLogging
 
-class GoogleResponseActor extends Actor with HttpService with ActorLogging {
-  
+class GoogleResponseActor extends Actor with HttpService with DefaultLogging {
 
   implicit val timeout = Timeout(15 seconds)
-
   private lazy val googleAuthActor = sbpm.ActorLocator.googleAuthActor
-    
   def actorRefFactory = context
   
-  override def preStart() {
-    log.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    log.debug(getClass.getName + " stopped.")
-  }
-  
-  
   def receive = runRoute({
-    
     post {
       // frontend request for authentication of SBPM app gainst Google account
       pathPrefix("init_auth") {
