@@ -25,9 +25,9 @@ import com.google.api.services.oauth2.model.Userinfo
 import com.google.api.services.drive.{Drive, DriveScopes}
 import com.google.api.services.drive.model.File
 
-case class GetCredentialsException(authorizationUrl: String) extends Exception
 
 object DriveControl {
+  case class NoCredentialsException(authorizationUrl: String) extends Exception
 
   val clientSecretsSource = getClass().getResourceAsStream("/client_secrets.json")
   val credentialsSource = new java.io.File(System.getProperty("user.home"), ".credentials/drive.json")
@@ -124,7 +124,7 @@ class DriveControl {
 
   private val driveMap = mutable.Map[String, Drive]()
 
-  def storeCredentials(userId: String, code: String) = {
+  def initCredentials(userId: String, code: String) = {
     val tokenResponse = tokenResponseForAuthCode(userId, code)
     flow.createAndStoreCredential(tokenResponse, userId)
   }
@@ -132,7 +132,7 @@ class DriveControl {
   def getCredentials(userId: String): Credential = {
     val c = flow.loadCredential(userId)
     if (c == null)
-      throw new GetCredentialsException(authorizationUrl(userId))
+      throw new NoCredentialsException(authorizationUrl(userId))
     return c
   }
 

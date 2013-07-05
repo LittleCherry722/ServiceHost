@@ -37,7 +37,6 @@ import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior._
-import de.tkip.sbpm.external.api.GetAlternateLinkForFileInGDrive
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
@@ -45,13 +44,13 @@ private class GoogleSendProxyActor(
 
   def receive = {
     case message: SubjectToSubjectMessage => {
-
       if (googleId.isDefined && message.fileID.isDefined) {
         implicit val timeout = Timeout(3000)
-        val url: String = Await.result(
-          ActorLocator.googleDriveActor ?
-            GetAlternateLinkForFileInGDrive(googleId.get, message.fileID.get),
-          timeout.duration).asInstanceOf[String]
+        val url: String = "http://www.test.com"
+        // Await.result(
+        //   ActorLocator.googleDriveActor ?
+        //     GetAlternateLinkForFileInGDrive(googleId.get, message.fileID.get),
+        //   timeout.duration).asInstanceOf[String]
         message.fileUrl = Some(url)
       }
       processInstanceActor.forward(message)
@@ -155,8 +154,10 @@ protected case class SendStateActor(data: StateData)
           remainingStored += target.min
 
           // send the message over the process instance
-          val sendProxy: ActorRef =
-            context.actorOf(Props(new GoogleSendProxyActor(processInstanceActor, action.googleId)))
+          val sendProxy: ActorRef = context.actorOf(Props(
+              new GoogleSendProxyActor(processInstanceActor, action.googleId)
+            )
+          )
 
           sendProxy !
             SubjectToSubjectMessage(

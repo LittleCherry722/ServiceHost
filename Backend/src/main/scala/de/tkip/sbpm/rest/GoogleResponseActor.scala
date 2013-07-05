@@ -17,6 +17,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
+import scala.util.{Try, Success, Failure}
 
 import akka.actor.{Actor, ActorLogging}
 import akka.actor._
@@ -28,17 +29,16 @@ import spray.json.JsonFormat
 import spray.http.StatusCodes
 import spray.http.MediaTypes._
 
-import de.tkip.sbpm.rest.google.{DriveControl, GetCredentialsException}
+import de.tkip.sbpm.rest.google.{DriveActor, DriveControl}
+import DriveActor.{FindFiles, InitCredentials, RetrieveCredentials}
+import DriveControl.{NoCredentialsException}
 
 import de.tkip.sbpm
 
 class GoogleResponseActor extends Actor with HttpService with ActorLogging {
   
-
   implicit val timeout = Timeout(15 seconds)
-
-  private val driveCtrl = new DriveControl()
-    
+  private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
   def actorRefFactory = context
   
   override def preStart() {
@@ -49,48 +49,50 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
     log.debug(getClass.getName + " stopped.")
   }
   
-  
-  def receive = runRoute({
-    
+  def receive = runRoute(
     post {
       // frontend request for authentication of SBPM app gainst Google account
       pathPrefix("init_auth") {
-        formFields("id") { (userId) =>
-          log.debug(getClass.getName + " received authentication init post from user: " + userId)
-          try {
-            driveCtrl.getCredentials(userId)
-            complete(StatusCodes.NoContent)
-          } catch {
-            case GetCredentialsException(auth_url) =>
-              complete(StatusCodes.OK, auth_url)
-          }
-
+        formFields("id") { (userId) => ctx =>
+          log.debug(s"${getClass.getName} received authentication init post from user: $userId")
+          (driveActor ? RetrieveCredentials(userId))
+            .onComplete {
+              case Success(files) => ctx.complete(StatusCodes.NoContent)
+              case Failure(NoCredentialsException(auth_url)) =>
+                ctx.complete(StatusCodes.OK, auth_url)
+              case Failure(e) => ctx.complete(e)
+            }
         }
       }
-    }~
+    } ~
     get {
       // callback endpoint called by Google after an authentication request
       path("") {
-        parameters("code", "state") { (code, userId) => 
-          log.debug(getClass.getName + " received from google response: " + "name: " + userId + ", code: " + code)
-          driveCtrl.storeCredentials(userId, code)
-          respondWithMediaType(`text/html`) {
-            complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body></body></html>")
+        parameters("code", "state") { (code, userId) =>
+          respondWithMediaType(`text/html`) { ctx =>
+            log.debug(s"${getClass.getName} received from google response: name: $userId, code: $code")
+            (driveActor ? InitCredentials(userId, code))
+              .onComplete {
+                case Success(_) =>
+                  ctx.complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body>OK</body></html>")
+                case Failure(e) => ctx.complete(e)
+              }
           }
         }
-      }~
+      } ~
       path("get_files") {
-        parameters("id") { (id) =>
-          log.debug(getClass.getName + " received get request for google drive files from user: " + id)
-          try {
-            val files = driveCtrl.myFiles(id).toPrettyString
-            complete(files)
-          } catch {
-            case GetCredentialsException(auth_url) =>
-              complete(StatusCodes.Forbidden, auth_url)
-          }
+        parameters("id") { id => ctx =>
+          log.debug(s"${getClass.getName} received get request for google drive files from user: $id")
+          (driveActor ? FindFiles(id, "sharedWithMe", "items(title)"))
+            .mapTo[String]
+            .onComplete {
+              case Success(files) => ctx.complete(files)
+              case Failure(NoCredentialsException(auth_url)) =>
+                ctx.complete(StatusCodes.Forbidden, auth_url)
+              case Failure(e) => ctx.complete(e)
+            }
         }
       }
     }
-  })
+  )
 }
