@@ -78,6 +78,9 @@ object Entities {
     (User(None, """Borgert""", true, 8), ("sbpm", "borgert@sbpm.com", "b1234".bcrypt)),
     (User(None, """Roeder""", true, 8), ("sbpm", "roeder@sbpm.com", "r1234".bcrypt)),
     (User(None, """Hartwig""", true, 8), ("sbpm", "hartwig@sbpm.com", "h1234".bcrypt)),
+    (User(None, """Staples Mitarbeiter""", true, 8), ("sbpm", "staples@sbpm.com", "s1234".bcrypt)),
+    (User(None, """Audi Mitarbeiter""", true, 8), ("sbpm", "audi@sbpm.com", "a1234".bcrypt)),
+    (User(None, """TSP Mitarbeiter""", true, 8), ("sbpm", "tsp@sbpm.com", "t1234".bcrypt)),
     (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
 
   // process with one active graph loaded from corresponding json file

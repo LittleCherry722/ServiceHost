@@ -28,6 +28,7 @@ import de.tkip.sbpm.rest.auth.CookieAuthenticator
 import de.tkip.sbpm.rest.auth.SessionDirectives._
 import de.tkip.sbpm.rest.ProcessAttribute._
 import de.tkip.sbpm.model.User
+import de.tkip.sbpm.logging.DefaultLogging
 
 object Entity {
   val PROCESS = "process"
@@ -42,19 +43,10 @@ object Entity {
   val GOOGLEDRIVE = "googledrive"
   val DEBUG = "debug"
 
-  // TODO define more entities if you need them  
+  // TODO define more entities if you need them
 }
 
-class FrontendInterfaceActor extends Actor with HttpService {
-  val logger = Logging(context.system, this)
-
-  override def preStart() {
-    logger.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    logger.debug(getClass.getName + " stopped.")
-  }
+class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService {
 
   def actorRefFactory = context
 
@@ -113,13 +105,13 @@ class FrontendInterfaceActor extends Actor with HttpService {
         authenticateAndHandleWith[ProcessInterfaceActor]
       } ~
       /**
-       * forward all posts to /oauth2callback unauthenticated to GoogleAuthActor 
+       * forward all posts to /oauth2callback unauthenticated to GoogleAuthActor
        */
       pathPrefix(Entity.OAUTH2CALLBACK) {
           handleWith[GoogleResponseActor]
       } ~
       /**
-       * forward all gets and posts to /googledrive unauthenticated to GoogleAuthActor 
+       * forward all gets and posts to /googledrive unauthenticated to GoogleAuthActor
        */
       //TODO add authentication for google drive
       pathPrefix(Entity.GOOGLEDRIVE) {
@@ -192,7 +184,7 @@ class FrontendInterfaceActor extends Actor with HttpService {
       pathPrefix(Entity.ISALIVE){
     	  get {
 		      complete(StatusCodes.OK)
-		      // TODO do some health check stuff and return StatusCodes.OK    
+		      // TODO do some health check stuff and return StatusCodes.OK
     	  }
       }
   })
@@ -217,7 +209,7 @@ class FrontendInterfaceActor extends Actor with HttpService {
    */
   private def authenticateAndHandleWith[A <: Actor: ClassTag]: RequestContext => Unit = {
     if (authenticationEnabled) {
-      // authenticate using session cookie or Authorization header 
+      // authenticate using session cookie or Authorization header
       authenticate(new CookieAuthenticator) { session =>
         // auth successful -> set session cookie
         setSessionCookie(session)(context) {

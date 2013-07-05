@@ -29,6 +29,7 @@ import de.tkip.sbpm.application.history.{NewState => NewHistoryState}
 import de.tkip.sbpm.application.history.{NewTransition => NewHistoryTransition}
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.SubjectData
+import de.tkip.sbpm.logging.DefaultLogging
 
 // TODO this is for history + statechange
 case class ChangeState(
@@ -42,7 +43,7 @@ case class ChangeState(
  */
 class InternalBehaviorActor(
   data: SubjectData,
-  inputPoolActor: ActorRef) extends Actor {
+  inputPoolActor: ActorRef) extends Actor with DefaultLogging {
   // extract the data
 
   val processInstanceActor = data.processInstanceActor
@@ -53,16 +54,6 @@ class InternalBehaviorActor(
   private var startState: StateID = 0
   private var currentState: BehaviorStateRef = null
   private var internalStatus: InternalStatus = InternalStatus()
-
-  val logger = Logging(context.system, this)
-
-  override def preStart() {
-    logger.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    logger.debug(getClass.getName + " stopped.")
-  }
 
   def receive = {
     case state: State => {
@@ -126,7 +117,7 @@ class InternalBehaviorActor(
     }
 
     case n => {
-      logger.error("InternalBehavior - Not yet supported: " + n + " " + subjectID)
+      log.error("InternalBehavior - Not yet supported: " + n + " " + subjectID)
     }
   }
 
@@ -135,7 +126,7 @@ class InternalBehaviorActor(
    */
   private def addState(state: State) {
     if (state.startState) {
-      logger.debug("startstate " + state)
+      log.debug("startstate " + state)
       startState = state.id
     }
     statesMap += state.id -> state
@@ -151,10 +142,10 @@ class InternalBehaviorActor(
     }
 
     if (statesMap.contains(state)) {
-      logger.debug("Execute: /" + userID + "/" + subjectID + "/" + state)
+      log.debug("Execute: /" + userID + "/" + subjectID + "/" + state)
       currentState = parseState(statesMap(state))
     } else {
-      logger.error("ERROR: /" + userID + "/" + subjectID + "/" + state + "does not exist")
+      log.error("ERROR: /" + userID + "/" + subjectID + "/" + state + "does not exist")
     }
   }
 

@@ -23,6 +23,12 @@ form .error ul.errors {
   color: $errorText;
 }
 
+.error .errors {
+  padding-top: 0.25em;
+  display: block;
+  color: $errorText;
+}
+
 input[type=submit], input[type=button] {
 	background: url(../images/bg_button_tab.png);
 	background-repeat: repeat-x;

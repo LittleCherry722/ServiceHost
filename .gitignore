@@ -1,3 +1,5 @@
+.projectile
+.tern-project
 *.class
 *.log
 .scala_dependencies
@@ -8,3 +10,11 @@
 .DS_Store
 *.sublime*
 *.graffle
+Repository/target/*
+Repository/project/target/*
+
+1 2 3 4
+
+
+something else
+

@@ -138,11 +138,15 @@ h1 {
   text-align: center;
   color: #e8271b;
   border-bottom: 1px solid #ef6960;
+  background-color: rgba(255, 255, 255, 0.75);
+  padding: 10px 0 10px 0;
+  position: relative;
+  z-index: 999999;
 }
 
 h2 {
   font-size: 35px;
-  font-weight: 200;
+  font-weight: 400;
   text-align: center;
   color: #bc1d13;
 }
@@ -164,17 +168,41 @@ h3 {
   clear: both;
 }
 
-#tooltips {
+.tooltips {
+  display: none;
+}
+
+.tooltips-top {
   display: none;
   position: fixed;
-  top: 10px;
-  left: 10px;
-  bottom: 10px;
+  top: 71px;
+  bottom: 60px;
   width: 16%;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  background-color: rgba(102, 102, 102, 0.1);
+  background-color: rgba(102, 102, 102, 0.025);
 }
-#tooltips h3 {
+.tooltips-top.tooltip-left {
+  left: 10px;
+}
+.tooltips-top.tooltip-right {
+  right: 10px;
+}
+.tooltips-top ul, .tooltips-top ol {
+  font-size: 14px;
+  line-height: 120%;
+  list-style: inherit;
+  padding-left: 2em;
+  padding-right: 10px;
+  margin-top: 1em;
+  color: #333;
+}
+.tooltips-top ol {
+  list-style-type: decimal;
+}
+.tooltips-top ol li {
+  margin-bottom: 1em;
+}
+.tooltips-top h3 {
   color: #a51a11;
   display: block;
   line-height: 40px;
@@ -183,7 +211,7 @@ h3 {
   background-color: rgba(51, 51, 51, 0.1);
   border-bottom: 2px solid rgba(102, 102, 102, 0.1);
 }
-#tooltips #tooltip {
+.tooltips-top #tooltip {
   margin-top: 10px;
   padding: 10px;
   font-weight: 400;
@@ -191,20 +219,48 @@ h3 {
   line-height: 20px;
 }
 
-#next-slide {
+.navigation {
   font-size: 18px;
   font-weight: 400;
   display: block;
   margin-top: 2em;
   position: fixed;
   bottom: 1.5em;
-  right: 2em;
   z-index: 99999;
+}
+
+#next-slide {
+  right: 2em;
+}
+
+#prev-slide {
+  left: 2em;
+}
+
+#beginning {
+  left: 50%;
+  margin-left: -50px;
 }
 
 .bordered {
   border-radius: 0.25em;
   border: 2px solid #cccccc;
+}
+
+img.bordered {
+  border-width: 1px;
+}
+
+a.plain {
+  color: inherit;
+}
+
+a:hover .bordered {
+  background-color: rgba(221, 238, 255, 0.5);
+}
+
+a:active .bordered {
+  box-shadow: inset 0px 0px 7px rgba(0, 0, 0, 0.3);
 }
 
 .inline-block {
@@ -228,6 +284,7 @@ h3 {
   font-size: 14px;
   font-weight: 400;
   color: #4d4d4d;
+  text-align: center;
 }
 .arrow .arrow-stem {
   position: absolute;
@@ -246,68 +303,186 @@ h3 {
   border-right: 5px solid #999999;
 }
 
-.arrow-1 {
+.arrow {
   position: absolute;
+  opacity: 0;
+}
+
+.step.active .arrow {
+  opacity: 1;
+  transition: none;
+}
+.step.active .arrow-1 {
+  transition: opacity 0.25s linear 1.5s;
+}
+.step.active .arrow-2 {
+  transition: opacity 0.25s linear 2.16s;
+}
+.step.active .arrow-3 {
+  transition: opacity 0.25s linear 2.82s;
+}
+.step.active .arrow-4 {
+  transition: opacity 0.25s linear 3.48s;
+}
+.step.active .arrow-5 {
+  transition: opacity 0.25s linear 4.14s;
+}
+.step.active .arrow-6 {
+  transition: opacity 0.25s linear 4.8s;
+}
+.step.active .arrow-7 {
+  transition: opacity 0.25s linear 5.46s;
+}
+.step.active .arrow-8 {
+  transition: opacity 0.25s linear 6.12s;
+}
+
+#overview {
+  height: 700px;
+}
+#overview p {
+  font-size: 18px;
+  padding-bottom: 0.5em;
+  line-height: 30px;
+}
+#overview p.lead {
+  text-align: center;
+  font-weight: 200;
+  font-size: 24px;
+  color: #444;
+  padding-bottom: 1em;
+}
+
+#technical .arrow-1 {
   left: -305px;
   top: 25px;
 }
-
-.arrow-2 {
-  position: absolute;
+#technical .arrow-2 {
   left: -355px;
-  top: 307px;
+  top: 305px;
 }
-
-.arrow-3 {
-  position: absolute;
+#technical .arrow-3 {
   left: -330px;
-  top: 307px;
+  top: 303px;
 }
-
-.arrow-4 {
-  position: absolute;
+#technical .arrow-4 {
   left: -300px;
-  top: 307px;
+  top: 304px;
 }
-
-.arrow-5 {
-  position: absolute;
+#technical .arrow-5 {
   left: 300px;
   top: 210px;
 }
-.arrow-5 .arrow-tip {
+#technical .arrow-5 .arrow-tip {
   left: -2px !important;
 }
-.arrow-5 .arrow-right {
+#technical .arrow-5 .arrow-right {
   width: 80px !important;
   top: 110px !important;
   right: -38px !important;
 }
-
-.arrow-6 {
-  position: absolute;
+#technical .arrow-6 {
   left: 31px;
   top: 96px;
 }
-
-.arrow-7 {
-  position: absolute;
+#technical .arrow-7 {
   left: 31px;
   top: 137px;
 }
-
-.arrow-8 {
-  position: absolute;
+#technical .arrow-8 {
   left: 270px;
-  top: 230px;
+  top: 228px;
 }
-.arrow-8 .arrow-tip {
+#technical .arrow-8 .arrow-tip {
   right: -2px !important;
 }
-.arrow-8 .arrow-left {
+#technical .arrow-8 .arrow-left {
   width: 80px !important;
   top: 27px !important;
   left: -38px !important;
+}
+
+#execution .arrow-1 {
+  left: 260px;
+  top: 345px;
+}
+#execution .arrow-2 {
+  left: 85px;
+  top: 390px;
+}
+#execution .arrow-3 {
+  left: -300px;
+  top: 480px;
+}
+#execution .arrow-3 .label {
+  width: 120px;
+}
+#execution .arrow-4 {
+  left: -275px;
+  top: 485px;
+}
+#execution .arrow-5 {
+  left: -90px;
+  top: 345px;
+}
+#execution .arrow-6 {
+  left: -305px;
+  top: 230px;
+}
+#execution .arrow-7 {
+  left: 31px;
+  top: 137px;
+}
+#execution .arrow-8 {
+  left: 270px;
+  top: 228px;
+}
+#execution .arrow-8 .arrow-tip {
+  right: -2px !important;
+}
+#execution .arrow-8 .arrow-left {
+  width: 80px !important;
+  top: 27px !important;
+  left: -38px !important;
+}
+
+#delivery.active .arrow {
+  opacity: 1;
+  transition: none;
+}
+#delivery.active .arrow.arrow-1 {
+  transition: opacity 0.25s linear 1.5s;
+}
+#delivery.active .arrow.arrow-2 {
+  transition: opacity 0.25s linear 2.5s;
+}
+#delivery .arrow-1 {
+  left: -200px;
+  top: 200px;
+}
+#delivery .arrow-2 {
+  left: -200px;
+  top: 330px;
+}
+
+#hurra {
+  color: #ea3d32;
+  font-weight: 200;
+  text-align: center;
+  display: block;
+  position: relative;
+  padding-right: 115px;
+  top: 200px;
+  font-size: 25px;
+  opacity: 0;
+}
+
+.active #hurra {
+  opacity: 1;
+  padding-right: 110px;
+  top: 140px;
+  font-size: 125px;
+  transition: all 1.5s ease-out 0.5s;
 }
 
 a {
@@ -322,10 +497,6 @@ a {
 }
 a:hover, a:focus {
   background: white;
-}
-
-#overview {
-  height: 700px;
 }
 
 #staples, #tsp, #audi {
@@ -368,37 +539,40 @@ a:hover, a:focus {
   left: 0;
 }
 
-#technical .column {
+.details .column {
   float: left;
   margin-left: 80px;
 }
-#technical .column:first-child {
+.details .column:first-child {
   margin-left: 0;
 }
-#technical .small {
+.details .small {
   font-size: 16px;
 }
-#technical .container {
+.details .container {
   text-align: center;
   display: inline-block;
   padding: 5px 10px;
   width: 150px;
   height: 200px;
 }
-#technical .container.container-tall {
+.details .container.container-tall {
   height: 475px;
 }
-#technical .container.container-wide {
+.details .container.container-wide {
   width: 255px;
 }
-#technical .container.container-wide img {
+.details .container.container-wide img {
   width: 40%;
 }
-#technical .container img {
+.details .container img {
   width: 80%;
 }
 
-#overlays {
+.overlays {
   width: 0;
   height: 0;
+  position: absolute;
+  left: 410px;
+  top: 55px;
 }

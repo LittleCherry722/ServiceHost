@@ -338,11 +338,11 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			}
 			else if (attribute == "min")
 			{
-				relatedSubject	= relatedSubject.min;
+				relatedSubject	= parseInt(relatedSubject.min, 10);
 			}
 			else if (attribute == "max")
 			{
-				relatedSubject	= relatedSubject.max;
+				  relatedSubject	= parseInt(relatedSubject.max);
 			}
 			else if (attribute == "createnew")
 			{
@@ -636,10 +636,10 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 								this.relatedSubject.id	= relatedSubject.id;
 							
 							if (gf_isset(relatedSubject.min))
-								this.relatedSubject.min	= relatedSubject.min;
+								this.relatedSubject.min	= parseInt(relatedSubject.min, 10);
 							
 							if (gf_isset(relatedSubject.max))
-								this.relatedSubject.max	= relatedSubject.max;
+								this.relatedSubject.max	= parseInt(relatedSubject.max, 10);
 								
 							if (gf_isset(relatedSubject.createNew))
 								this.relatedSubject.createNew	= relatedSubject.createNew === true;
