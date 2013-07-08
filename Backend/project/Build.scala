@@ -22,6 +22,7 @@ object ProjectBuild extends Build {
         "org.scalatest" %% "scalatest" % "1.9.1" % "test",
         "com.typesafe.akka" %% "akka-actor" % "2.1.4",
         "com.typesafe.akka" %% "akka-testkit" % "2.1.4" % "test",
+		"com.typesafe.akka" %% "akka-remote" % "2.1.4",
         "com.typesafe.slick" %% "slick" % "1.0.1",
         "com.typesafe.slick" %% "slick-testkit" % "1.0.1" % "test",
 

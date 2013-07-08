@@ -51,7 +51,14 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
       val createMessage = CreateProcessInstance(userId, processId, Some(self))
       createMessage.sender = self
 
-      processManagerActor ! createMessage
+      val targetAddress = "@127.0.0.1:2552"
+      val targetProcessManager =
+        context.actorFor("akka://de-tkip-sbpm-Boot" + targetAddress +
+          "/user/" + ActorLocator.processManagerActorName)
+
+      targetProcessManager ! createMessage
+      //      processManagerActor ! createMessage
+      System.err.println("ABC\n" + targetProcessManager + "\n" + processManagerActor);
 
       waitingMessages(processId) = mutable.Queue((sender, message))
 

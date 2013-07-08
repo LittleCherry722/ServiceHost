@@ -30,6 +30,8 @@ import de.tkip.sbpm.model.SubjectLike
 import scala.concurrent.Await
 import de.tkip.sbpm.model.ExternalSubject
 import de.tkip.sbpm.model.ExternalSubject
+import de.tkip.sbpm.application.miscellaneous.BlockUser
+import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -107,6 +109,8 @@ class SubjectContainer(
             GetSubjectAddr(userID, ext.relatedProcessId, ext.relatedSubjectId))
             .mapTo[ActorRef],
           timeout.duration)
+      // TODO we need this unblock!
+      blockingHandlerActor ! UnBlockUser(userID)
 
       subjects += userID -> SubjectInfo(subjectRef, userID)
     }
