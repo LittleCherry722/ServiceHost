@@ -12,9 +12,13 @@
  */
 package de.tkip.sbpm.rest.google
 
+import scala.concurrent.Future
+
 import akka.actor.{Actor, ActorSystem, Props}
-import de.tkip.sbpm.rest.google.GDriveControl
 import akka.actor.Status.Failure
+import akka.pattern.pipe
+
+import de.tkip.sbpm.rest.google.GDriveControl
 
 
 object GDriveActor {
@@ -25,24 +29,17 @@ object GDriveActor {
 
 class GDriveActor extends Actor {
   import GDriveActor._
+  implicit val ec = context.dispatcher
 
   val driveCtrl = new GDriveControl()
 
   def receive = {
     case FindFiles(u,q,f) =>
-      try {
-        sender ! driveCtrl.findFiles(u,q,f)
-      } catch {
-        case e: Throwable => sender ! Failure(e)
-      }
+      Future { driveCtrl.findFiles(u,q,f) } pipeTo sender
     case InitCredentials(u,c) =>
-      sender ! driveCtrl.initCredentials(u,c)
+      Future { driveCtrl.initCredentials(u,c) } pipeTo sender
     case RetrieveCredentials(u) =>
-      try {
-        sender ! driveCtrl.getCredentials(u)
-      } catch {
-        case e: Throwable => sender ! Failure(e)
-      }
+      Future { driveCtrl.getCredentials(u) } pipeTo sender
   }
 
 }
