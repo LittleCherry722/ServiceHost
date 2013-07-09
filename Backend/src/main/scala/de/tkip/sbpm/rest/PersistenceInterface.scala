@@ -36,25 +36,17 @@ import akka.actor.PoisonPill
 import akka.actor.ActorLogging
 import de.tkip.sbpm.persistence.EntityNotFoundException
 import de.tkip.sbpm.persistence.query.BaseQuery
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * Inheriting actors have simplified access to persistence actor.
  */
-trait PersistenceInterface extends HttpService with ActorLogging { self: Actor =>
-  // is required by spray HttpService trait
+trait PersistenceInterface extends HttpService with DefaultLogging {
+  self: Actor =>
+
   def actorRefFactory = context
-  
-  // reference to persistence actor
   protected val persistenceActor = ActorLocator.persistenceActor
   protected implicit val timeout = Timeout(10 seconds)
-
-  override def preStart() {
-    log.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    log.debug(getClass.getName + " stopped.")
-  }
 
   // spray exception handler: turns exceptions that occur while
   // processing the request into internal server error response

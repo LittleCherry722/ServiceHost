@@ -10,7 +10,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package de.tkip.sbpm.rest
 
 import scala.collection.mutable.ArrayBuffer
@@ -34,22 +33,15 @@ import DriveActor.{FindFiles, InitCredentials, RetrieveCredentials}
 import DriveControl.{NoCredentialsException}
 
 import de.tkip.sbpm
+import de.tkip.sbpm.logging.DefaultLogging
 
-class GoogleResponseActor extends Actor with HttpService with ActorLogging {
-  
+class GoogleResponseActor extends Actor with HttpService with DefaultLogging {
+
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
   def actorRefFactory = context
   
-  override def preStart() {
-    log.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    log.debug(getClass.getName + " stopped.")
-  }
-  
-  def receive = runRoute(
+  def receive = runRoute {
     post {
       // frontend request for authentication of SBPM app gainst Google account
       pathPrefix("init_auth") {
@@ -94,5 +86,5 @@ class GoogleResponseActor extends Actor with HttpService with ActorLogging {
         }
       }
     }
-  )
+  }
 }
