@@ -13,20 +13,20 @@
 package de.tkip.sbpm.rest.google
 
 import akka.actor.{Actor, ActorSystem, Props}
-import de.tkip.sbpm.rest.google.DriveControl
+import de.tkip.sbpm.rest.google.GDriveControl
 import akka.actor.Status.Failure
 
 
-object DriveActor {
+object GDriveActor {
   case class FindFiles(userId: String, query: String, fields: String)
   case class RetrieveCredentials(userId: String)
   case class InitCredentials(userId: String, code: String)
 }
 
-class DriveActor extends Actor {
-  import DriveActor._
+class GDriveActor extends Actor {
+  import GDriveActor._
 
-  val driveCtrl = new DriveControl()
+  val driveCtrl = new GDriveControl()
 
   def receive = {
     case FindFiles(u,q,f) =>

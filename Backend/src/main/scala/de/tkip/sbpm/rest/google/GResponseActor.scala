@@ -13,7 +13,7 @@
 package de.tkip.sbpm.rest
 
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
 import scala.util.{Try, Success, Failure}
@@ -28,14 +28,14 @@ import spray.json.JsonFormat
 import spray.http.StatusCodes
 import spray.http.MediaTypes._
 
-import de.tkip.sbpm.rest.google.{DriveActor, DriveControl}
-import DriveActor.{FindFiles, InitCredentials, RetrieveCredentials}
-import DriveControl.{NoCredentialsException}
+import de.tkip.sbpm.rest.google.{GDriveActor, GDriveControl}
+import GDriveActor.{FindFiles, InitCredentials, RetrieveCredentials}
+import GDriveControl.{NoCredentialsException}
 
 import de.tkip.sbpm
 import de.tkip.sbpm.logging.DefaultLogging
 
-class GoogleResponseActor extends Actor with HttpService with DefaultLogging {
+class GResponseActor extends Actor with HttpService with DefaultLogging {
 
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor

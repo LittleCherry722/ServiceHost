@@ -108,14 +108,14 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
        * forward all posts to /oauth2callback unauthenticated to GoogleAuthActor
        */
       pathPrefix(Entity.OAUTH2CALLBACK) {
-          handleWith[GoogleResponseActor]
+          handleWith[GResponseActor]
       } ~
       /**
        * forward all gets and posts to /googledrive unauthenticated to GoogleAuthActor
        */
       //TODO add authentication for google drive
       pathPrefix(Entity.GOOGLEDRIVE) {
-          handleWith[GoogleResponseActor]
+          handleWith[GResponseActor]
       } ~
       pathPrefix(Entity.USER) {
         /**

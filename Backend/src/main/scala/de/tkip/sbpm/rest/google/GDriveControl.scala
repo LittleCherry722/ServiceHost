@@ -26,7 +26,7 @@ import com.google.api.services.drive.{Drive, DriveScopes}
 import com.google.api.services.drive.model.File
 
 
-object DriveControl {
+object GDriveControl {
   case class NoCredentialsException(authorizationUrl: String) extends Exception
 
   val clientSecretsSource = getClass().getResourceAsStream("/client_secrets.json")
@@ -118,8 +118,8 @@ object DriveControl {
 
 }
 
-class DriveControl {
-  import DriveControl._
+class GDriveControl {
+  import GDriveControl._
   import scala.collection.mutable
 
   private val driveMap = mutable.Map[String, Drive]()

@@ -36,7 +36,7 @@ import de.tkip.sbpm.persistence.PersistenceActor
 import de.tkip.sbpm.rest.FrontendInterfaceActor
 import de.tkip.sbpm.rest._
 import de.tkip.sbpm.rest.auth._
-import de.tkip.sbpm.rest.google.DriveActor
+import de.tkip.sbpm.rest.google.GDriveActor
 
 object Boot extends App with SprayCanHttpServerApp {
   val logging = system.log
@@ -78,7 +78,7 @@ object Boot extends App with SprayCanHttpServerApp {
     system.actorOf(Props[BasicAuthActor], basicAuthActorName),
     system.actorOf(Props[OAuth2Actor], oAuth2ActorName),
     system.actorOf(Props[UserPassAuthActor], userPassAuthActorName),
-    system.actorOf(Props[DriveActor], googleDriveActorName))
+    system.actorOf(Props[GDriveActor], googleDriveActorName))
 
 
   // create a new HttpServer using our handler tell it where to bind to
