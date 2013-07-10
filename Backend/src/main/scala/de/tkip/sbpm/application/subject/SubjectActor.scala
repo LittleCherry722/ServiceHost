@@ -23,6 +23,7 @@ import de.tkip.sbpm.model.StateType._
 import akka.event.Logging
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.subject.misc.Stored
 
 case class SubjectData(
   userID: UserID,
@@ -66,6 +67,10 @@ class SubjectActor(data: SubjectData) extends Actor {
     case sm: SubjectToSubjectMessage => {
       // a message from an other subject can be forwarded into the inputpool
       inputPoolActor.forward(sm)
+    }
+    
+    case s: Stored => {
+      // TODO:
     }
 
     case history.Transition(from, to, msg) => {
