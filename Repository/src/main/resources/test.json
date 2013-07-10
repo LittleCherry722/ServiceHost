@@ -2,7 +2,7 @@
   "date": 123456789,
   "creator": "Max Mustermann",
   "name": "Test",
-  "description": "Lorem ipsum dolor sit amet..."
+  "description": "Lorem ipsum dolor sit amet...",
   "id": 1,
   "graph": {
     "macroCounter": 1,
