@@ -100,7 +100,7 @@ class SubjectContainer(
 
       // process schon vorhanden?
       // TODO ohne ask!
-      implicit val timeout = akka.util.Timeout(1500)
+      implicit val timeout = akka.util.Timeout(3500)
       val ext = subjectData.subject.asInstanceOf[ExternalSubject]
 
       val subjectRef =
