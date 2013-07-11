@@ -13,13 +13,16 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
-import scala.concurrent.duration._
-import scala.concurrent.Await
-import scala.concurrent.Future
+import scala.collection.mutable.ArrayBuffer
 import scala.Array.canBuildFrom
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
+import akka.event.Logging
+
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.history.{
@@ -28,13 +31,10 @@ import de.tkip.sbpm.application.history.{
   State => HistoryState
 }
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.application.RequestUserID
+import de.tkip.sbpm.application.{SubjectInformation, RequestUserID}
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
-import akka.event.Logging
-import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior._
 
@@ -98,7 +98,6 @@ protected case class SendStateActor(data: StateData)
       targetUserIDs = Some(userIDs)
       blockingHandlerActor ! UnBlockUser(userID)
     }
-
     case action: ExecuteAction if ({
       // the message needs a content
       action.actionData.messageContent.isDefined

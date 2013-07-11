@@ -13,13 +13,15 @@
 
 package de.tkip.sbpm.model
 
-import spray.json.DefaultJsonProtocol
-import spray.json.JsObject
-import spray.json.RootJsonFormat
-import spray.json.JsValue
 import java.sql.Timestamp
-import spray.json.DeserializationException
-import spray.json.JsNumber
+import spray.json.{
+  DefaultJsonProtocol,
+  JsObject,
+  RootJsonFormat,
+  JsValue,
+  DeserializationException,
+  JsNumber
+}
 
 // Model for Administration
 case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, gdriveId: String = "")

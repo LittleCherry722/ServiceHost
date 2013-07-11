@@ -13,15 +13,17 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
-import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.Array.canBuildFrom
+
 import akka.actor._
 import akka.event.Logging
 import akka.actor.Status.Failure
 import akka.pattern.ask
 import akka.util.Timeout
+
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.history.{
@@ -35,7 +37,6 @@ import de.tkip.sbpm.application.RequestUserID
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
-import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.subject.behavior.InternalStatus
 import de.tkip.sbpm.application.subject.misc._
