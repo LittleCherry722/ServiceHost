@@ -100,7 +100,7 @@ class SubjectContainer(
 
       // process schon vorhanden?
       // TODO ohne ask!
-      implicit val timeout = akka.util.Timeout(500)
+      implicit val timeout = akka.util.Timeout(1500)
       val ext = subjectData.subject.asInstanceOf[ExternalSubject]
 
       val subjectRef =
@@ -177,7 +177,9 @@ class SubjectContainer(
       System.err.println("SEND: " + message);
       if (subject.external) {
         message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
-        message.from = "Subj1" //FIXME nur test raus!
+        //        message.from = "Subj1" //FIXME nur test raus!
+        // TODO we need this unblock!
+        blockingHandlerActor ! UnBlockUser(userID)
       }
       println("SEND: " + message);
 
