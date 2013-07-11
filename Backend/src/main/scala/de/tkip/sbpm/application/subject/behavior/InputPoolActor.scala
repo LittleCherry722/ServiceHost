@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.application.subject.behavior
 
-import scala.collection.mutable.{Map => MutableMap, Set => MutableSet, MutableList, Queue}
+import scala.collection.mutable.{ Map => MutableMap, Set => MutableSet, MutableList, Queue }
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -22,6 +22,7 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.misc.TryTransportMessages
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import akka.event.Logging
 
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state
@@ -70,6 +71,7 @@ protected case class IsIPEmpty(channelId: ChannelID)
 protected case class IPEmpty(empty: Boolean)
 
 class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
+  protected val logger = Logging(context.system, this)
   // extract the information from the data
   val userID = data.userID
   val messageLimit = data.subject.inputPool
@@ -125,6 +127,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     }
 
     case message: SubjectToSubjectMessage => {
+      logger.debug("InputPool received: " + message)
       // Unlock the sender
       sender ! Stored(message.messageID)
       // try to transport the message
@@ -171,7 +174,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       messageQueueMap filterKeys (_._2 == messageType)
     } // 'all message types'
     else {
-      messageQueueMap filterKeys (_._1 == subjectId) 
+      messageQueueMap filterKeys (_._1 == subjectId)
     }
   }
 
@@ -328,7 +331,7 @@ private[behavior] class ClosedChannels {
 
   def close(channelId: ChannelID) {
     removeOldRules(channelId)
-    rules = Rule(channelId, Close)  :: rules
+    rules = Rule(channelId, Close) :: rules
   }
 
   def open(channelId: ChannelID) {
@@ -336,9 +339,9 @@ private[behavior] class ClosedChannels {
     rules = Rule(channelId, Open) :: rules
   }
 
-  def isChannelClosed(channelId: ChannelID) :Boolean = {
-    def channelFilter(rule: Rule) = (rule.channelId._1 == channelId._1 || rule.channelId._1 == AllSubjects) &&
-      (rule.channelId._2 == channelId._2 || rule.channelId._2 == AllMessages)
+  def isChannelClosed(channelId: ChannelID): Boolean = {
+      def channelFilter(rule: Rule) = (rule.channelId._1 == channelId._1 || rule.channelId._1 == AllSubjects) &&
+        (rule.channelId._2 == channelId._2 || rule.channelId._2 == AllMessages)
 
     val rule = rules.find(channelFilter)
     rule.map(_.ruleType == Close).getOrElse(false)

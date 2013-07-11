@@ -7,7 +7,7 @@
                 "name": "Supplier", 
                 "deactivated": false, 
                 "variables": {}, 
-                "relatedSubject": "", 
+                "relatedSubject": "Subj2", 
                 "macros": [
                     {
                         "nodeCounter": 0, 
@@ -18,12 +18,12 @@
                     }
                 ], 
                 "variableCounter": 0, 
-                "role": "", 
+                "role": "Employee", 
                 "externalType": "external", 
                 "inputPool": 100, 
                 "type": "external", 
                 "id": "Subj1", 
-                "relatedProcess": ""
+                "relatedProcess": 10
             }, 
             {
                 "comment": "", 
@@ -32,6 +32,7 @@
                 "deactivated": false, 
                 "variables": {}, 
                 "relatedSubject": "", 
+		"startSubject": true,
                 "macros": [
                     {
                         "nodeCounter": 12, 
@@ -204,32 +205,6 @@
                                     "storevar": "", 
                                     "var2": ""
                                 }, 
-                                "id": 6, 
-                                "start": false, 
-                                "deactivated": false, 
-                                "variable": "", 
-                                "majorStartNode": false, 
-                                "type": "send", 
-                                "options": {
-                                    "conversation": "", 
-                                    "message": "", 
-                                    "state": "", 
-                                    "correlationId": "", 
-                                    "subject": ""
-                                }
-                            }, 
-                            {
-                                "comment": "", 
-                                "macro": "", 
-                                "end": false, 
-                                "conversation": "", 
-                                "text": "", 
-                                "varMan": {
-                                    "operation": "and", 
-                                    "var1": "", 
-                                    "storevar": "", 
-                                    "var2": ""
-                                }, 
                                 "id": 7, 
                                 "start": false, 
                                 "deactivated": false, 
@@ -335,7 +310,7 @@
                                 "priority": 1, 
                                 "start": 0, 
                                 "optional": false, 
-                                "text": "", 
+                                "text": "Goods not in Stock", 
                                 "variable": null, 
                                 "type": "exitcondition", 
                                 "correlationId": ""
@@ -365,7 +340,7 @@
                             }, 
                             {
                                 "comment": "", 
-                                "end": 6, 
+                                "end": 7, 
                                 "target": {
                                     "variable": "", 
                                     "max": -1, 
@@ -389,23 +364,6 @@
                             {
                                 "comment": "", 
                                 "end": 8, 
-                                "target": "", 
-                                "deactivated": false, 
-                                "manualTimeout": false, 
-                                "transportMethod": [
-                                    "internal"
-                                ], 
-                                "priority": 1, 
-                                "start": 7, 
-                                "optional": false, 
-                                "text": "m3", 
-                                "variable": "", 
-                                "type": "exitcondition", 
-                                "correlationId": ""
-                            }, 
-                            {
-                                "comment": "", 
-                                "end": 7, 
                                 "target": {
                                     "variable": "", 
                                     "max": -1, 
@@ -419,13 +377,13 @@
                                     "internal"
                                 ], 
                                 "priority": 1, 
-                                "start": 6, 
+                                "start": 7, 
                                 "optional": false, 
-                                "text": "m2", 
+                                "text": "m3", 
                                 "variable": "", 
                                 "type": "exitcondition", 
                                 "correlationId": ""
-                            }
+                            } 
                         ], 
                         "id": "##main##", 
                         "name": "internal behavior"

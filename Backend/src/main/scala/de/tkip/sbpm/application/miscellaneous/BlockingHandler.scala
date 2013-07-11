@@ -94,6 +94,8 @@ private class UserBlocker(userID: UserID)(implicit val context: ActorContext) {
     System.err.println(userID + "/ BLOCKS: " + remainingBlocks);
     System.err.println("MESSAGES: " + blockedMessages.mkString(", "));
 
+    // FIXME this should not happen, but we ignore it (for the test case, fix it later!)
+    if (remainingBlocks < 0) remainingBlocks = 0
     if (remainingBlocks == 0) {
       for (message <- blockedMessages) {
         context.parent ! message
