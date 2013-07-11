@@ -18,12 +18,12 @@
                     }
                 ], 
                 "variableCounter": 0, 
-                "role": "", 
+                "role": "Employee", 
                 "externalType": "external", 
                 "inputPool": 100, 
                 "type": "external", 
                 "id": "Subj1", 
-                "relatedProcess": 7
+                "relatedProcess": 10
             }, 
             {
                 "comment": "", 

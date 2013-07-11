@@ -7,11 +7,15 @@ import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import akka.actor.ActorRef
 import scala.collection.mutable
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
+import scala.concurrent.Await
+import akka.event.Logging
 
 case class GetSubjectAddr(userId: UserID, processId: ProcessID, subjectId: SubjectID)
 case class ReturnSubjectAddr(request: GetSubjectAddr, addr: ActorRef)
 
 class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: ProcessInstanceRef) extends Actor {
+
+  protected val logger = Logging(context.system, this)
 
   private lazy val processManagerActor = ActorLocator.processManagerActor
 
@@ -46,27 +50,24 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
     // the processinstance does not exists
     case message @ GetSubjectAddr(userId, processId, subjectId) => {
 
-      //      block = message
-      // TODO self einpacken
       val createMessage = CreateProcessInstance(userId, processId, Some(self))
       createMessage.sender = self
 
+      logger.debug("creating Process Instance: " + createMessage)
       val targetAddress = "@127.0.0.1:2552"
       val targetProcessManager =
         context.actorFor("akka://de-tkip-sbpm-Boot" + targetAddress +
           "/user/" + ActorLocator.processManagerActorName)
 
+      logger.debug("sending message to " + targetProcessManager)
+
       targetProcessManager ! createMessage
-      //      processManagerActor ! createMessage
-      System.err.println("ABC\n" + targetProcessManager + "\n" + processManagerActor);
 
       waitingMessages(processId) = mutable.Queue((sender, message))
-
-      //      waitingList = (message, sender)
-      // TODO waiting queue
     }
 
     case pc: ProcessInstanceCreated => {
+      logger.debug("received: " + pc)
 
       // register the process instane
       processInstanceMap +=
@@ -78,14 +79,10 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
       }
       // clear the queue of the sent messages
       waitingMessages(processId) = mutable.Queue()
-
-      //      pc.processInstanceActor.tell(waitingList._1, waitingList._2)
-      //
-      //      block = null
     }
 
-    case _ => {
-      // TODO
+    case s => {
+      logger.error("got, but cant use " + s)
     }
   }
 }

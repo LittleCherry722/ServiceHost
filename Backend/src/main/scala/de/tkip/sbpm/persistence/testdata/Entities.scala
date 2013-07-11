@@ -103,6 +103,7 @@ object Entities {
   val groupRoles = List(
     (0, 0),
     (1, 1),
+    (1, 7),
     (2, 3),
     (2, 6),
     (3, 4),
