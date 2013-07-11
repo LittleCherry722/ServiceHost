@@ -92,7 +92,9 @@ object Entities {
     (Process(None, """Supplier (E)""", false) -> loadJson("supplier")),
     (Process(None, """Order(simple)""", false) -> loadJson("simpleorder")),        
     (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")),
-    (Process(None, """IP Test""", false) -> loadJson("ip_test")))
+    (Process(None, """IP Test""", false) -> loadJson("ip_test")),
+(Process(None, """Audi""", false) -> loadJson("audi")),(Process(None, """Staples""", false) -> loadJson("staples")),
+(Process(None, """Transportdienstleister""", false) -> loadJson("lieferant")))
 
 
 

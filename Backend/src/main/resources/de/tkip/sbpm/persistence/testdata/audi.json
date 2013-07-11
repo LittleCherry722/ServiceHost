@@ -1,0 +1,250 @@
+{
+   "definition": {
+      "process": [{
+        "id": "Subj1",
+        "name": "Bestellung",
+        "type": "single",
+        "deactivated": false,
+        "startSubject": false,
+        "inputPool": 100,
+        "relatedSubject": "",
+        "relatedProcess": null,
+        "externalType": "external",
+        "role": "noRole",
+        "comment": "",
+        "variables": {
+
+        },
+        "variableCounter": 1,
+        "macros": [{
+          "id": "##main##",
+          "name": "internal behavior",
+          "nodeCounter": 5,
+          "nodes": [{
+            "id": 0,
+            "text": "",
+            "start": false,
+            "end": true,
+            "type": "end",
+            "deactivated": false,
+            "majorStartNode": false,
+            "conversation": "",
+            "variable": "",
+            "options": {
+              "message": "*",
+              "subject": "*",
+              "correlationId": "*",
+              "conversation": "*",
+              "state": null
+            },
+            "macro": "",
+            "varMan": {
+              "var1": "",
+              "var2": "",
+              "operation": "and",
+              "storevar": ""
+            }
+          }, {
+            "id": 1,
+            "text": "Pr\u00fcfe Bestellung",
+            "start": false,
+            "end": false,
+            "type": "action",
+            "deactivated": false,
+            "majorStartNode": false,
+            "conversation": "",
+            "variable": "",
+            "options": {
+              "message": "*",
+              "subject": "*",
+              "correlationId": "",
+              "conversation": "",
+              "state": null
+            },
+            "macro": "",
+            "varMan": {
+              "var1": "",
+              "var2": "",
+              "operation": "and",
+              "storevar": ""
+            }
+          }, {
+            "id": 2,
+            "text": "Bestellformular ausf\u00fcllen",
+            "start": true,
+            "end": false,
+            "type": "action",
+            "deactivated": false,
+            "majorStartNode": true,
+            "conversation": "",
+            "variable": "",
+            "options": {
+              "message": "*",
+              "subject": "*",
+              "correlationId": "",
+              "conversation": "",
+              "state": null
+            },
+            "macro": "",
+            "varMan": {
+              "var1": "",
+              "var2": "",
+              "operation": "and",
+              "storevar": ""
+            }
+          }, {
+            "id": 3,
+            "text": "",
+            "start": false,
+            "end": false,
+            "type": "send",
+            "deactivated": false,
+            "majorStartNode": false,
+            "conversation": "",
+            "variable": "",
+            "options": {
+              "message": "*",
+              "subject": "*",
+              "correlationId": "*",
+              "conversation": "*",
+              "state": null
+            },
+            "macro": "",
+            "varMan": {
+              "var1": "",
+              "var2": "",
+              "operation": "and",
+              "storevar": ""
+            }
+          }, {
+            "id": 4,
+            "text": "",
+            "start": false,
+            "end": false,
+            "type": "receive",
+            "deactivated": false,
+            "majorStartNode": false,
+            "conversation": "",
+            "variable": "",
+            "options": {
+              "message": "*",
+              "subject": "*",
+              "correlationId": "*",
+              "conversation": "*",
+              "state": null
+            },
+            "macro": "",
+            "varMan": {
+              "var1": "",
+              "var2": "",
+              "operation": "and",
+              "storevar": ""
+            }
+          }],
+          "edges": [{
+            "start": 1,
+            "end": 3,
+            "text": "Akzeptiert",
+            "type": "exitcondition",
+            "deactivated": false,
+            "optional": false,
+            "priority": 1,
+            "manualTimeout": false,
+            "variable": "",
+            "correlationId": "",
+            "comment": "",
+            "transportMethod": ["internal"]
+          }, {
+            "start": 4,
+            "end": 0,
+            "text": "m2",
+            "type": "exitcondition",
+            "target": {
+              "id": "Subj2",
+              "min": -1,
+              "max": -1,
+              "createNew": false,
+              "variable": ""
+            },
+            "deactivated": false,
+            "optional": false,
+            "priority": 1,
+            "manualTimeout": false,
+            "variable": "",
+            "correlationId": "",
+            "comment": "",
+            "transportMethod": ["internal"]
+          }, {
+            "start": 3,
+            "end": 4,
+            "text": "m1",
+            "type": "exitcondition",
+            "target": {
+              "id": "Subj2",
+              "min": -1,
+              "max": -1,
+              "createNew": false,
+              "variable": ""
+            },
+            "deactivated": false,
+            "optional": false,
+            "priority": 1,
+            "manualTimeout": false,
+            "variable": "",
+            "correlationId": "",
+            "comment": "",
+            "transportMethod": ["internal"]
+          }, {
+            "start": 2,
+            "end": 1,
+            "text": "Erledigt",
+            "type": "exitcondition",
+            "deactivated": false,
+            "optional": false,
+            "priority": 1,
+            "manualTimeout": false,
+            "variable": "",
+            "correlationId": "",
+            "comment": "",
+            "transportMethod": ["internal"]
+          }]
+        }],
+        "macroCounter": 1
+      }, {
+        "id": "Subj2",
+        "name": "Staples",
+        "type": "external",
+        "deactivated": false,
+        "startSubject": false,
+        "inputPool": 100,
+        "relatedSubject": "",
+        "relatedProcess": null,
+        "externalType": "external",
+        "role": "noRole",
+        "comment": "",
+        "variables": {
+
+        },
+        "variableCounter": 1,
+        "macros": [{
+          "id": "##main##",
+          "name": "internal behavior",
+          "nodeCounter": 1,
+          "nodes": [],
+          "edges": []
+        }],
+        "macroCounter": 1
+      }],
+      "conversations": {
+
+      },
+      "conversationCounter": 1,
+      "messages": {
+        "m1": "Bestellung",
+        "m2": "Lieferdatum"
+      },
+      "messageCounter": 3,
+      "nodeCounter": 3
+    },
+    "routings": []
+  }
