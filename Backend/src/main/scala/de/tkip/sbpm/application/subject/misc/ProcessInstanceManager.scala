@@ -38,6 +38,12 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
   // GetSubjectRef(UserID, ProcessID, SubjectId)
   // 
 
+  private val targetMap =
+    Map(
+      1 -> "@127.0.0.1:2552",
+      2 -> "@127.0.0.1:2552",
+      3 -> "@127.0.0.1:2552")
+
   def receive = {
     // the processinstance exists
     case message @ GetSubjectAddr(userId, processId, subjectId) if (processInstanceMap.contains((userId, processId))) => {
@@ -54,7 +60,7 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
       createMessage.sender = self
 
       logger.debug("creating Process Instance: " + createMessage)
-      val targetAddress = "@127.0.0.1:2552"
+      val targetAddress = targetMap.getOrElse(processId, "")
       val targetProcessManager =
         context.actorFor("akka://de-tkip-sbpm-Boot" + targetAddress +
           "/user/" + ActorLocator.processManagerActorName)
