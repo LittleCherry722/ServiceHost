@@ -5,12 +5,12 @@
         "name": "Bestellung",
         "type": "single",
         "deactivated": false,
-        "startSubject": false,
+        "startSubject": true,
         "inputPool": 100,
         "relatedSubject": "",
         "relatedProcess": null,
         "externalType": "external",
-        "role": "noRole",
+        "role": "Audi",
         "comment": "",
         "variables": {
 
@@ -220,7 +220,7 @@
         "relatedSubject": "Subj2",
         "relatedProcess": 2,
         "externalType": "external",
-        "role": "noRole",
+        "role": "Staples",
         "comment": "",
         "variables": {
 

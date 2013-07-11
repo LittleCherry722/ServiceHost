@@ -32,6 +32,10 @@ import java.io.ByteArrayOutputStream
  */
 object Entities {
   val groups = List(
+    Group(None, """Audi""", true),
+    Group(None, """Staples""", true),
+    Group(None, """Zulieferer""", true),
+
     Group(None, """_SAME_""", true),
     Group(None, """_ANY_""", true),
     Group(None, """SBPM_Ltd""", true),
@@ -54,6 +58,12 @@ object Entities {
     Group(None, """External""", true))
 
   val roles = List(
+    Role(None, """Audi""", true),
+    Role(None, """Kunde""", true),
+    Role(None, """Verarbeitung""", true),
+    Role(None, """Staples""", true),
+    Role(None, """Zulieferer""", true),
+
     Role(None, """Employee""", true),
     Role(None, """Employee_DE""", true),
     Role(None, """Employee_UK""", true),
@@ -71,9 +81,10 @@ object Entities {
   // users and one default identity with password for login
   val users = List(
     (User(None, """Superuser""", true, 8, "test@gmail.com"), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
-    (User(None, """Staples Mitarbeiter""", true, 8), ("sbpm", "staples@sbpm.com", "s1234".bcrypt)),
     (User(None, """Audi Mitarbeiter""", true, 8), ("sbpm", "audi@sbpm.com", "a1234".bcrypt)),
+    (User(None, """Staples Mitarbeiter""", true, 8), ("sbpm", "staples@sbpm.com", "s1234".bcrypt)),
     (User(None, """TSP Mitarbeiter""", true, 8), ("sbpm", "tsp@sbpm.com", "t1234".bcrypt)),
+
     (User(None, """Google App Engine""", true, 8), ("sbpm", "google@sbpm.com", "g1234".bcrypt)),
     (User(None, """Beyer""", true, 8), ("sbpm", "beyer@sbpm.com", "b1234".bcrypt)),
     (User(None, """Link""", true, 8), ("sbpm", "link@sbpm.com", "l1234".bcrypt)),
@@ -101,26 +112,20 @@ object Entities {
   // _1 = index in groups list, _2 = index in roles list
   // ids are not known a priori
   val groupRoles = List(
+    // showcase matchings
     (0, 0),
-    (1, 1),
-    (1, 7),
-    (2, 3),
-    (2, 6),
-    (3, 4),
-    (3, 8),
-    (3, 9),
-    (4, 5),
+    (0, 1),
+    (1, 2),
+    (1, 3),
+    (2, 4),
+
     (4, 6),
     (5, 8),
     (5, 9),
     (6, 10),
-    (7, 2),
-    (8, 3),
     (8, 7),
-    (9, 4),
     (9, 8),
     (9, 9),
-    (10, 5),
     (10, 7),
     (11, 8),
     (11, 9),
@@ -133,18 +138,11 @@ object Entities {
   // _1 = index in groups list, _2 = index in users list
   // ids are not known a priori
   val groupUsers = List(
-    (0, 0),
-    (0, 2),
-    (0, 3),
-    (0, 4),
-    (0, 5),
-    (0, 6),
-    (0, 8),
+    // showcase matchings
+    (0, 1),
     (1, 2),
-    (1, 3),
-    (1, 5),
-    (1, 7),
-    (2, 2),
+    (2, 3),
+
     (4, 3),
     (6, 5),
     (7, 6),
@@ -155,8 +153,7 @@ object Entities {
     (13, 5),
     (13, 6),
     (14, 2),
-    (15, 4),
-    (2, 3))
+    (15, 4))
 
   implicit val timeout = akka.util.Timeout(100 seconds)
 

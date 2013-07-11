@@ -6,11 +6,11 @@
         "type": "single",
         "deactivated": false,
         "startSubject": false,
-        "inputPool": -1,
+        "inputPool": 100,
         "relatedSubject": "",
         "relatedProcess": null,
         "externalType": "external",
-        "role": "noRole",
+        "role": "Verarbeitung",
         "comment": "",
         "variables": {
 
@@ -272,11 +272,11 @@
         "type": "external",
         "deactivated": false,
         "startSubject": false,
-        "inputPool": -1,
-        "relatedSubject": "",
-        "relatedProcess": null,
+        "inputPool": 100,
+        "relatedSubject": "Subj2",
+        "relatedProcess": 3,
         "externalType": "external",
-        "role": "noRole",
+        "role": "Zulieferer",
         "comment": "",
         "variables": {
 
@@ -296,11 +296,11 @@
         "type": "external",
         "deactivated": false,
         "startSubject": false,
-        "inputPool": -1,
-        "relatedSubject": "",
-        "relatedProcess": null,
+        "inputPool": 100,
+        "relatedSubject": "Subj1",
+        "relatedProcess": 1,
         "externalType": "external",
-        "role": "noRole",
+        "role": "Kunde",
         "comment": "",
         "variables": {
 

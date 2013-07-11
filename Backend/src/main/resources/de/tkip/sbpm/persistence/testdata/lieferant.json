@@ -10,7 +10,7 @@
         "relatedSubject": "",
         "relatedProcess": null,
         "externalType": "external",
-        "role": "noRole",
+        "role": "Staples",
         "comment": "",
         "variables": {
 
@@ -31,10 +31,10 @@
         "deactivated": false,
         "startSubject": false,
         "inputPool": 100,
-        "relatedSubject": "",
-        "relatedProcess": null,
+        "relatedSubject": "Subj2",
+        "relatedProcess": 2,
         "externalType": "external",
-        "role": "noRole",
+        "role": "Zulieferer",
         "comment": "",
         "variables": {
 
