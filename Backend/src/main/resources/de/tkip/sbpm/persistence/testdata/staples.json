@@ -93,6 +93,30 @@
               "storevar": ""
             }
           }, {
+            "id": 6,
+            "text": "",
+            "start": false,
+            "end": false,
+            "type": "send",
+            "deactivated": false,
+            "majorStartNode": false,
+            "conversation": "",
+            "variable": "",
+            "options": {
+              "message": "*",
+              "subject": "*",
+              "correlationId": "*",
+              "conversation": "*",
+              "state": null
+            },
+            "macro": "",
+            "varMan": {
+              "var1": "",
+              "var2": "",
+              "operation": "and",
+              "storevar": ""
+            }
+          }, {
             "id": 2,
             "text": "",
             "start": false,
@@ -212,8 +236,28 @@
             "comment": "",
             "transportMethod": ["internal"]
           }, {
-            "start": 3,
+            "start": 6,
             "end": 5,
+            "text": "m2",
+            "type": "exitcondition",
+            "target": {
+              "id": "Audi",
+              "min": -1,
+              "max": -1,
+              "createNew": false,
+              "variable": ""
+            },
+            "deactivated": false,
+            "optional": false,
+            "priority": 1,
+            "manualTimeout": false,
+            "variable": "",
+            "correlationId": "",
+            "comment": "",
+            "transportMethod": ["internal"]
+          }, {
+            "start": 3,
+            "end": 6,
             "text": "m2",
             "type": "exitcondition",
             "target": {
