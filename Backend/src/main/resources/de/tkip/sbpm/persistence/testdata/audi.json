@@ -1,7 +1,7 @@
 {
    "definition": {
       "process": [{
-        "id": "Subj1",
+        "id": "Audi",
         "name": "Bestellung",
         "type": "single",
         "deactivated": false,
@@ -160,7 +160,7 @@
             "text": "m2",
             "type": "exitcondition",
             "target": {
-              "id": "Subj2",
+              "id": "Staples",
               "min": -1,
               "max": -1,
               "createNew": false,
@@ -180,7 +180,7 @@
             "text": "m1",
             "type": "exitcondition",
             "target": {
-              "id": "Subj2",
+              "id": "Staples",
               "min": -1,
               "max": -1,
               "createNew": false,
@@ -211,13 +211,13 @@
         }],
         "macroCounter": 1
       }, {
-        "id": "Subj2",
+        "id": "Staples",
         "name": "Staples",
         "type": "external",
         "deactivated": false,
         "startSubject": false,
         "inputPool": 100,
-        "relatedSubject": "Subj2",
+        "relatedSubject": "Staples",
         "relatedProcess": 2,
         "externalType": "external",
         "role": "Staples",

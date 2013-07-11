@@ -1,14 +1,14 @@
 {
 	"definition": {
       "process": [{
-        "id": "Subj1",
+        "id": "Staples",
         "name": "Kunde",
         "type": "external",
         "deactivated": false,
         "startSubject": false,
         "inputPool": 100,
-        "relatedSubject": "",
-        "relatedProcess": null,
+        "relatedSubject": "Staples",
+        "relatedProcess": 2,
         "externalType": "external",
         "role": "Staples",
         "comment": "",
@@ -25,13 +25,13 @@
         }],
         "macroCounter": 1
       }, {
-        "id": "Subj2",
+        "id": "Zulieferer",
         "name": "Lieferung",
         "type": "single",
         "deactivated": false,
         "startSubject": false,
         "inputPool": 100,
-        "relatedSubject": "Subj2",
+        "relatedSubject": "Zulieferer",
         "relatedProcess": 2,
         "externalType": "external",
         "role": "Zulieferer",
@@ -147,7 +147,7 @@
             "text": "m0",
             "type": "exitcondition",
             "target": {
-              "id": "Subj1",
+              "id": "Staples",
               "min": -1,
               "max": -1,
               "createNew": false,
@@ -167,7 +167,7 @@
             "text": "m1",
             "type": "exitcondition",
             "target": {
-              "id": "Subj1",
+              "id": "Staples",
               "min": -1,
               "max": -1,
               "createNew": false,

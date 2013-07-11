@@ -1,7 +1,7 @@
 {
    "definition": {
       "process": [{
-        "id": "Subj2",
+        "id": "Staples",
         "name": "Bestellung bearbeiten",
         "type": "single",
         "deactivated": false,
@@ -171,7 +171,7 @@
             "text": "m3",
             "type": "exitcondition",
             "target": {
-              "id": "Subj5",
+              "id": "Audi",
               "min": -1,
               "max": -1,
               "createNew": false,
@@ -217,7 +217,7 @@
             "text": "m2",
             "type": "exitcondition",
             "target": {
-              "id": "Subj3",
+              "id": "Zulieferer",
               "min": -1,
               "max": -1,
               "createNew": false,
@@ -237,7 +237,7 @@
             "text": "m1",
             "type": "exitcondition",
             "target": {
-              "id": "Subj3",
+              "id": "Zulieferer",
               "min": -1,
               "max": -1,
               "createNew": false,
@@ -267,13 +267,13 @@
         }],
         "macroCounter": 1
       }, {
-        "id": "Subj3",
+        "id": "Zulieferer",
         "name": "Lieferant",
         "type": "external",
         "deactivated": false,
         "startSubject": false,
         "inputPool": 100,
-        "relatedSubject": "Subj2",
+        "relatedSubject": "Zulieferer",
         "relatedProcess": 3,
         "externalType": "external",
         "role": "Zulieferer",
@@ -291,13 +291,13 @@
         }],
         "macroCounter": 1
       }, {
-        "id": "Subj5",
+        "id": "Audi",
         "name": "Bestellung",
         "type": "external",
         "deactivated": false,
         "startSubject": false,
         "inputPool": 100,
-        "relatedSubject": "Subj1",
+        "relatedSubject": "Audi",
         "relatedProcess": 1,
         "externalType": "external",
         "role": "Kunde",
@@ -320,8 +320,8 @@
       },
       "conversationCounter": 1,
       "messages": {
-        "m1": "Abholung beauftragen",
-        "m2": "Abholdatum",
+        "m1": "Abholauftrag",
+        "m2": "Lieferdatum",
         "m3": "Bestellung"
       },
       "messageCounter": 4,
