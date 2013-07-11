@@ -37,6 +37,8 @@ import akka.event.Logging
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
 
 protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
@@ -99,6 +101,8 @@ protected case class ReceiveStateActor(data: StateData)
         variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
         System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
+
+      sender ! SubjectToSubjectMessageReceived(sm)
     }
 
     case InputPoolSubscriptionPerformed => {

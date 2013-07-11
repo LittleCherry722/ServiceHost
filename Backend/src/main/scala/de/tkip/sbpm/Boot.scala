@@ -13,37 +13,30 @@
 
 package de.tkip.sbpm
 
-import java.security.KeyStore
-import java.security.SecureRandom
-import ActorLocator._
-import akka.actor.Props
-import akka.actor.actorRef2Scala
-import de.tkip.sbpm.application._
-import de.tkip.sbpm.rest._
-import javax.net.ssl.KeyManagerFactory
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManagerFactory
-import spray.can.server.SprayCanHttpServerApp
+import java.security.{KeyStore, SecureRandom}
+import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
+
+import scala.util.{Try, Success, Failure}
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+
+import akka.actor.{Props, actorRef2Scala}
 import akka.util.Timeout
 import akka.pattern._
-import scala.concurrent.duration._
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
-import scala.concurrent.Future
+
+import ActorLocator._
+
+import spray.can.server.SprayCanHttpServerApp
+
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
-import de.tkip.sbpm.external.auth.GoogleAuthActor
+import de.tkip.sbpm.application._
 import de.tkip.sbpm.persistence.query.Schema
 import de.tkip.sbpm.persistence.testdata.Entities
-import de.tkip.sbpm.rest.FrontendInterfaceActor
-import de.tkip.sbpm.persistence.testdata.Entities
 import de.tkip.sbpm.persistence.PersistenceActor
-import de.tkip.sbpm.external.api.GoogleUserInformationActor
-import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
-import de.tkip.sbpm.external.auth.GoogleAuthActor
-import de.tkip.sbpm.external.api._
+import de.tkip.sbpm.rest.FrontendInterfaceActor
+import de.tkip.sbpm.rest._
 import de.tkip.sbpm.rest.auth._
-import scala.concurrent.Await
+import de.tkip.sbpm.rest.google.GDriveActor
 
 object Boot extends App with SprayCanHttpServerApp {
   val logging = system.log
@@ -85,9 +78,7 @@ object Boot extends App with SprayCanHttpServerApp {
     system.actorOf(Props[BasicAuthActor], basicAuthActorName),
     system.actorOf(Props[OAuth2Actor], oAuth2ActorName),
     system.actorOf(Props[UserPassAuthActor], userPassAuthActorName),
-    system.actorOf(Props[GoogleAuthActor], googleAuthActorName),
-    system.actorOf(Props[GoogleDriveActor], googleDriveActorName),
-    system.actorOf(Props[GoogleUserInformationActor], googleUserInformationActorName))
+    system.actorOf(Props[GDriveActor], googleDriveActorName))
 
 
   // create a new HttpServer using our handler tell it where to bind to
