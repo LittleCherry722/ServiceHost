@@ -260,6 +260,22 @@ a:active {
   }
 }
 
+.process-empty {
+  width: 100%;
+  padding: 20px 10px;
+  padding-right: 50px;
+  font-size: 14px;
+  line-height: 22px;
+  color: #333;
+  box-sizing: border-box;
+
+  .lead {
+    font-weight: 200;
+    font-size: 160x;
+    color: #666;
+  }
+}
+
 #main_menu {
   @include box-sizing(border-box);
 	margin: 0;
@@ -1059,6 +1075,19 @@ table.data2 tr td {
 
 a.close {
   cursor: pointer;
+  float: right;
+  font-size: 21px;
+  font-weight: bold;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #FFF;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+
+  &:hover {
+    opacity: 0.75;
+    text-decoration: none;
+  }
 }
 
 #atlwdg-trigger {
@@ -1079,4 +1108,52 @@ a.close {
 	ul {
 		text-shadow: none;
 	}
+}
+
+.interface-select {
+  width: 349px;
+  height: 370px;
+  overflow: auto;
+}
+
+.interface-preview {
+  width: 450px;
+  padding: 10px;
+  height: 370px;
+  overflow: auto;
+}
+
+$interface-entry-height: 35px;
+
+.interface-entry {
+  padding: 10px;
+  background-color: #f3f5f6;
+  border: 1px solid #ccc;
+  border-top-width: 0;
+
+  height: $interface-entry-height;
+
+  @include transition( margin 0.10s );
+
+  &:hover {
+    background-color: #FAFCFD;
+  }
+
+  &.active {
+    background-color: #FAFAF0;
+  }
+
+  strong {
+    display: block;
+    font-size: 120%;
+    margin-bottom: 7px;
+  }
+
+  &:first-child {
+    border-top-width: 1px;
+    @include border-top-radius( 0.25em );
+  }
+  &:last-child{
+    @include border-bottom-radius( 0.25em );
+  }
 }

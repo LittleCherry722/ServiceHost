@@ -81,11 +81,11 @@ define([
 			cache: false,
 			data: data,
 			type: "POST",
-			success: function( data ) {
-				if ( !data ) {
+			success: function( response_url ) {
+				if ( !response_url ) {
 					Notify.info( "Success", "User account is already linked with Google." );
 				} else {
-					window.open( data, "Google OAuth 2", "width=600,height=400" );
+					window.open( response_url, "Google OAuth 2", "width=600,height=400" );
 				}
 			},
 			error: function() {

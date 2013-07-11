@@ -82,9 +82,9 @@ private[persistence] class UserPersistenceActor extends Actor
     case Save.Entity(us @ _*) => answer { implicit session =>
       us.map {
         // id is None -> insert
-        case u @ User(None, _, _, _) => Some(Users.autoInc.insert(toPersistenceModel(u)))
+        case u @ User(None, _, _, _, _) => Some(Users.autoInc.insert(toPersistenceModel(u)))
         // id given -> update
-        case u @ User(id, _, _, _)   => update(id, u)
+        case u @ User(id, _, _, _, _)   => update(id, u)
       } match {
         // only one user was given, return it's id
         case ids if (ids.size == 1) => ids.head

@@ -10,11 +10,15 @@ h1 {
   text-align: center;
   color: darken($red, 5%);
   border-bottom: 1px solid lighten($red, 10%) ;
+  background-color: rgba(#fff, 0.75);
+  padding: 10px 0 10px 0;
+  position: relative;
+  z-index: 999999;
 }
 
 h2 {
   font-size: 35px;
-  font-weight: 200;
+  font-weight: 400;
   text-align: center;
   color: darken($red, 15%);
 }
@@ -29,15 +33,43 @@ h3 {
   @include clearfix;
 }
 
-#tooltips {
+.tooltips {
+  display: none;
+}
+
+.tooltips-top {
   display: none;
   position: fixed;
-  top: 10px;
-  left: 10px;
-  bottom: 10px;
+  top: 71px;
+  bottom: 60px;
   width: 16%;
   border: 1px solid rgba(#000, 0.1);
-  background-color: rgba(#666, 0.1);
+  background-color: rgba(#666, 0.025);
+
+  &.tooltip-left {
+    left: 10px;
+  }
+  &.tooltip-right {
+    right: 10px;
+  }
+
+  ul, ol {
+    font-size: 14px;
+    line-height: 120%;
+    list-style: inherit;
+    padding-left: 2em;
+    padding-right: 10px;
+    margin-top: 1em;
+    color: #333;
+  }
+
+  ol {
+    list-style-type: decimal;
+
+    li {
+      margin-bottom: 1em;
+    }
+  }
 
   h3 {
     color: darken($red, 20%);
@@ -58,20 +90,47 @@ h3 {
   }
 }
 
-#next-slide {
+.navigation {
   font-size: 18px;
   font-weight: 400;
   display: block;
   margin-top: 2em;
   position: fixed;
   bottom: 1.5em;
-  right: 2em;
   z-index: 99999;
+}
+
+#next-slide {
+  right: 2em;
+}
+
+#prev-slide {
+  left: 2em;
+}
+
+#beginning {
+  left: 50%;
+  margin-left: -50px;
 }
 
 .bordered {
   border-radius: 0.25em;
   border: 2px solid #ccc;
+}
+
+img.bordered {
+  border-width: 1px;
+}
+
+a.plain {
+  color: inherit;
+}
+
+a:hover .bordered {
+  background-color: rgba(#DEF, 0.5);
+}
+a:active .bordered {
+  @include box-shadow(inset 0px 0px 7px rgba(0, 0, 0, 0.3));
 }
 
 .inline-block {
@@ -96,6 +155,7 @@ h3 {
     font-size: 14px;
     font-weight: 400;
     color: darken($arrow-color, 30%);
+    text-align: center;
   }
   .arrow-stem {
     position: absolute;
@@ -111,67 +171,219 @@ h3 {
     width: 0;
     height: 0;
     border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent; 
-    border-right: 5px solid $arrow-color; 
+    border-bottom: 5px solid transparent;
+    border-right: 5px solid $arrow-color;
   }
 }
 
-.arrow-1 {
+.arrow {
   position: absolute;
-  left: -305px;
-  top: 25px;
+  opacity: 0;
 }
-.arrow-2 {
-  position: absolute;
-  left: -355px;
-  top: 307px;
-}
-.arrow-3 {
-  position: absolute;
-  left: -330px;
-  top: 307px;
-}
-.arrow-4 {
-  position: absolute;
-  left: -300px;
-  top: 307px;
-}
-.arrow-5 {
-  position: absolute;
-  left: 300px;
-  top: 210px;
 
-  .arrow-tip {
-    left: -2px !important;
+.step.active {
+  .arrow {
+    opacity: 1;
+    transition: none;
   }
-  .arrow-right{
-    width: 80px !important;
-    top: 110px !important;
-    right: -38px !important;
-  }
-}
-.arrow-6 {
-  position: absolute;
-  left: 31px;
-  top: 96px;
-}
-.arrow-7 {
-  position: absolute;
-  left: 31px;
-  top: 137px;
-}
-.arrow-8 {
-  position: absolute;
-  left: 270px;
-  top: 230px;
 
-  .arrow-tip {
-    right: -2px !important;
+  $step: 0.66s;
+  $delay: 1.5s;
+
+  .arrow-1 {
+    transition: opacity 0.25s linear ($delay + 0 * $step);
   }
-  .arrow-left {
-    width: 80px !important;
-    top: 27px !important;
-    left: -38px !important;
+  .arrow-2 {
+    transition: opacity 0.25s linear ($delay + 1 * $step);
+  }
+  .arrow-3 {
+    transition: opacity 0.25s linear ($delay + 2 * $step);
+  }
+  .arrow-4 {
+    transition: opacity 0.25s linear ($delay + 3 * $step);
+  }
+  .arrow-5 {
+    transition: opacity 0.25s linear ($delay + 4 * $step);
+  }
+  .arrow-6 {
+    transition: opacity 0.25s linear ($delay + 5 * $step);
+  }
+  .arrow-7 {
+    transition: opacity 0.25s linear ($delay + 6 * $step);
+  }
+  .arrow-8 {
+    transition: opacity 0.25s linear ($delay + 7 * $step);
+  }
+}
+
+#overview {
+  height: 700px;
+
+  p {
+    font-size: 18px;
+    padding-bottom: 0.5em;
+    line-height: 30px;
+  }
+
+  p.lead {
+    text-align: center;
+    font-weight: 200;
+    font-size: 24px;
+    color: #444;
+    padding-bottom: 1em;
+  }
+}
+
+#technical {
+  .arrow-1 {
+    left: -305px;
+    top: 25px;
+  }
+  .arrow-2 {
+    left: -355px;
+    top: 305px;
+  }
+  .arrow-3 {
+    left: -330px;
+    top: 303px;
+  }
+  .arrow-4 {
+    left: -300px;
+    top: 304px;
+  }
+  .arrow-5 {
+    left: 300px;
+    top: 210px;
+
+    .arrow-tip {
+      left: -2px !important;
+    }
+    .arrow-right{
+      width: 80px !important;
+      top: 110px !important;
+      right: -38px !important;
+    }
+  }
+  .arrow-6 {
+    left: 31px;
+    top: 96px;
+  }
+  .arrow-7 {
+    left: 31px;
+    top: 137px;
+  }
+  .arrow-8 {
+    left: 270px;
+    top: 228px;
+
+    .arrow-tip {
+      right: -2px !important;
+    }
+    .arrow-left {
+      width: 80px !important;
+      top: 27px !important;
+      left: -38px !important;
+    }
+  }
+}
+
+#execution {
+  .arrow-1 {
+    left: 260px;
+    top: 345px;
+  }
+  .arrow-2 {
+    left: 85px;
+    top: 390px;
+  }
+  .arrow-3 {
+    left: -300px;
+    top: 480px;
+    .label {
+      width: 120px;
+    }
+  }
+  .arrow-4 {
+    left: -275px;
+    top: 485px;
+  }
+  .arrow-5 {
+    left: -90px;
+    top: 345px;
+  }
+  .arrow-6 {
+    left: -305px;
+    top: 230px;
+  }
+  .arrow-7 {
+    left: 31px;
+    top: 137px;
+  }
+  .arrow-8 {
+    left: 270px;
+    top: 228px;
+
+    .arrow-tip {
+      right: -2px !important;
+    }
+    .arrow-left {
+      width: 80px !important;
+      top: 27px !important;
+      left: -38px !important;
+    }
+  }
+}
+
+#delivery {
+  $step: 1s;
+  $delay: 1.5s;
+
+  &.active {
+
+    .arrow {
+      opacity: 1;
+      transition: none;
+    }
+
+    .arrow.arrow-1 {
+      transition: opacity 0.25s linear ($delay + 0 * $step);
+    }
+    .arrow.arrow-2 {
+      transition: opacity 0.25s linear ($delay + 1 * $step);
+    }
+
+  }
+
+  .arrow-1 {
+    left: -200px;
+    top: 200px;
+  }
+  .arrow-2 {
+    left: -200px;
+    top: 330px;
+  }
+
+}
+
+#hurra {
+  color: $red;
+  font-weight: 200;
+  text-align: center;
+  display: block;
+  position: relative;
+  padding-right: 115px;
+  top: 200px;
+  font-size: 25px;
+  opacity: 0;
+}
+
+.active {
+  #hurra {
+    opacity: 1;
+    padding-right: 110px;
+    top: 140px;
+    font-size: 125px;
+    transition: all 1.5s ease-out 0.5s;
   }
 }
 
@@ -185,10 +397,6 @@ a {
   &:hover, &:focus {
     background: rgba(255,255,255,1);
   }
-}
-
-#overview {
-  height: 700px;
 }
 
 
@@ -240,7 +448,7 @@ a {
   }
 }
 
-#technical {
+.details {
   .column {
     float: left;
     margin-left: 80px;
@@ -279,7 +487,10 @@ a {
   }
 }
 
-#overlays {
+.overlays {
   width: 0;
   height: 0;
+  position: absolute;
+  left: 410px;
+  top: 55px;
 }

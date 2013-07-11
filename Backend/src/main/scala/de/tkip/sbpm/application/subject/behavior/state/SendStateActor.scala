@@ -60,7 +60,7 @@ private class GoogleSendProxyActor(
 }
 
 protected case class SendStateActor(data: StateData)
-  extends BehaviorStateActor(data) {
+  extends BehaviorStateActor(data) with ActorLogging {
 
   import scala.collection.mutable.{ Map => MutableMap }
 
@@ -192,6 +192,17 @@ protected case class SendStateActor(data: StateData)
         changeState(transition.successorID, message)
         blockingHandlerActor ! UnBlockUser(userID)
       }
+    }
+
+    case Rejected(messageID) if ({
+      messageContent.isDefined &&
+        unsentMessageIDs.contains(messageID)
+    }) => {
+      log.warning("message with id {} was rejected", messageID)
+
+      //TODO how to handle the rejected message?
+
+      blockingHandlerActor ! UnBlockUser(userID)
     }
   }
 

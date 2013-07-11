@@ -18,6 +18,7 @@ import ProcessAttributes._
 import akka.actor._
 import de.tkip.sbpm.application.SubjectInformation
 import de.tkip.sbpm.application.History
+import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction
@@ -99,3 +100,6 @@ case class AvailableActionsAnswer(request: GetAvailableActions, availableActions
 // history
 case class GetHistory(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ExecutionMessage with ProcessInstanceMessage
 case class HistoryAnswer(request: GetHistory, history: History) extends AnswerControlMessage
+// new history
+case class GetNewHistory extends AnswerAbleControlMessage
+case class NewHistoryAnswer(request: GetNewHistory, history: NewHistory) extends AnswerControlMessage

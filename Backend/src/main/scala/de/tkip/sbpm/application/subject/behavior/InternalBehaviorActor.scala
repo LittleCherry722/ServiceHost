@@ -16,11 +16,6 @@ package de.tkip.sbpm.application.subject.behavior
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.history.{
-  Transition => HistoryTransition,
-  Message => HistoryMessage,
-  State => HistoryState
-}
 import de.tkip.sbpm.application.subject.behavior.state._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
@@ -29,6 +24,9 @@ import akka.actor.Status.Failure
 import de.tkip.sbpm.application.history.{Message => HistoryMessage}
 import de.tkip.sbpm.application.history.{State => HistoryState}
 import de.tkip.sbpm.application.history.{Transition => HistoryTransition}
+import de.tkip.sbpm.application.history.{NewMessage => NewHistoryMessage}
+import de.tkip.sbpm.application.history.{NewState => NewHistoryState}
+import de.tkip.sbpm.application.history.{NewTransition => NewHistoryTransition}
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.SubjectData
 
@@ -90,6 +88,13 @@ class InternalBehaviorActor(
           HistoryState(current.text, current.stateType.toString()),
           HistoryState(next.text, next.stateType.toString()),
           change.history)
+      context.parent !
+        NewHistoryTransition(
+          NewHistoryState(current.text, current.stateType.toString()),
+          current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
+          current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
+          NewHistoryState(next.text, next.stateType.toString())
+        )
     }
 
     case ea: ExecuteAction => {
@@ -188,6 +193,14 @@ class InternalBehaviorActor(
 
       case CloseIPStateType => {
         context.actorOf(Props(CloseIPStateActor(stateData)))
+      }
+
+      case OpenIPStateType => {
+        context.actorOf(Props(OpenIPStateActor(stateData)))
+      }
+
+      case IsIPEmptyStateType => {
+        context.actorOf(Props(IsIPEmptyStateActor(stateData)))
       }
     }
   }

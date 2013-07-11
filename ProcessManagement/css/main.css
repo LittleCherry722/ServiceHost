@@ -5849,6 +5849,12 @@ form .error ul.errors {
   color: #b94a48;
 }
 
+.error .errors {
+  padding-top: 0.25em;
+  display: block;
+  color: #b94a48;
+}
+
 input[type=submit], input[type=button] {
   background: url(../images/bg_button_tab.png);
   background-repeat: repeat-x;
@@ -6561,6 +6567,21 @@ a:active {
   text-decoration: none;
 }
 
+.process-empty {
+  width: 100%;
+  padding: 20px 10px;
+  padding-right: 50px;
+  font-size: 14px;
+  line-height: 22px;
+  color: #333;
+  box-sizing: border-box;
+}
+.process-empty .lead {
+  font-weight: 200;
+  font-size: 160x;
+  color: #666;
+}
+
 #main_menu {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -6686,6 +6707,7 @@ a#show_menu:hover {
   height: 100%;
   min-width: 1px;
   padding: 15px 7px 7px 15px;
+  overflow: auto;
 }
 #main > .inner {
   height: 100%;
@@ -7405,6 +7427,18 @@ table.data2 tr td {
 
 a.close {
   cursor: pointer;
+  float: right;
+  font-size: 21px;
+  font-weight: bold;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 white;
+  opacity: 0.2;
+  filter: alpha(opacity=20);
+}
+a.close:hover {
+  opacity: 0.75;
+  text-decoration: none;
 }
 
 #atlwdg-trigger {
@@ -7424,11 +7458,55 @@ a.close {
   text-shadow: none;
 }
 
-.chardinContainer {
-    width: 350px;
+.interface-select {
+  width: 349px;
+  height: 370px;
+  overflow: auto;
 }
 
-#executionContent {
-    padding: 10px;
+.interface-preview {
+  width: 450px;
+  padding: 10px;
+  height: 370px;
+  overflow: auto;
+}
 
+.interface-entry {
+  padding: 10px;
+  background-color: #f3f5f6;
+  border: 1px solid #cccccc;
+  border-top-width: 0;
+  height: 35px;
+  -webkit-transition: margin 0.1s;
+  -moz-transition: margin 0.1s;
+  -o-transition: margin 0.1s;
+  transition: margin 0.1s;
+}
+.interface-entry:hover {
+  background-color: #FAFCFD;
+}
+.interface-entry.active {
+  background-color: #FAFAF0;
+}
+.interface-entry strong {
+  display: block;
+  font-size: 120%;
+  margin-bottom: 7px;
+}
+.interface-entry:first-child {
+  border-top-width: 1px;
+  -webkit-border-top-right-radius: 0.25em;
+  -moz-border-radius-topright: 0.25em;
+  border-top-right-radius: 0.25em;
+  -webkit-border-top-left-radius: 0.25em;
+  -moz-border-radius-topleft: 0.25em;
+  border-top-left-radius: 0.25em;
+}
+.interface-entry:last-child {
+  -webkit-border-bottom-right-radius: 0.25em;
+  -moz-border-radius-bottomright: 0.25em;
+  border-bottom-right-radius: 0.25em;
+  -webkit-border-bottom-left-radius: 0.25em;
+  -moz-border-radius-bottomleft: 0.25em;
+  border-bottom-left-radius: 0.25em;
 }

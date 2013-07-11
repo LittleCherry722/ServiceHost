@@ -70,7 +70,7 @@ object Entities {
 
   // users and one default identity with password for login
   val users = List(
-    (User(None, """Superuser""", true, 8), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
+    (User(None, """Superuser""", true, 8, "test@gmail.com"), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
     (User(None, """Google App Engine""", true, 8), ("sbpm", "google@sbpm.com", "g1234".bcrypt)),
     (User(None, """Beyer""", true, 8), ("sbpm", "beyer@sbpm.com", "b1234".bcrypt)),
     (User(None, """Link""", true, 8), ("sbpm", "link@sbpm.com", "l1234".bcrypt)),
@@ -78,6 +78,9 @@ object Entities {
     (User(None, """Borgert""", true, 8), ("sbpm", "borgert@sbpm.com", "b1234".bcrypt)),
     (User(None, """Roeder""", true, 8), ("sbpm", "roeder@sbpm.com", "r1234".bcrypt)),
     (User(None, """Hartwig""", true, 8), ("sbpm", "hartwig@sbpm.com", "h1234".bcrypt)),
+    (User(None, """Staples Mitarbeiter""", true, 8), ("sbpm", "staples@sbpm.com", "s1234".bcrypt)),
+    (User(None, """Audi Mitarbeiter""", true, 8), ("sbpm", "audi@sbpm.com", "a1234".bcrypt)),
+    (User(None, """TSP Mitarbeiter""", true, 8), ("sbpm", "tsp@sbpm.com", "t1234".bcrypt)),
     (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
 
   // process with one active graph loaded from corresponding json file
@@ -88,7 +91,8 @@ object Entities {
     (Process(None, """Order""", false) -> loadJson("order")),
     (Process(None, """Supplier (E)""", false) -> loadJson("supplier")),
     (Process(None, """Order(simple)""", false) -> loadJson("simpleorder")),        
-    (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")))
+    (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")),
+    (Process(None, """IP Test""", false) -> loadJson("ip_test")))
 
 
 

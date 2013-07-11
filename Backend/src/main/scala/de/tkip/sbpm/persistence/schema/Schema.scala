@@ -99,6 +99,12 @@ private[persistence] trait Schema {
       column("active", O.Default(true))
 
     /**
+     * Defines a "gdriveId" string column.
+     */
+    protected def gdriveIdCol(implicit typeMapper: TypeMapper[String]) =
+      column("gdrive_id", DbType.eMail)
+
+    /**
      * Provides the default primary key name: "pk_tableName"
      */
     protected val pkName = "pk_" + tableName

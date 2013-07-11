@@ -3,39 +3,74 @@ define([
 	"app",
 	"underscore",
 	"models/history",
-], function( ko, App, _, History) {
+	"moment"
+], function( ko, App, _, History, moment) {
 
 	var ViewModel = function() {
-		this.historicEntries = historicEntries;		
+		this.historicEntries = historicEntries;
+		/// Filter
+		this.selectedUser = selectedUser;
+		this.selectedProcess = selectedProcess;
+		this.selectedStatetype = selectedStatetype;
+		this.selectedStart = selectedStart;	
+		this.selectedEnd = selectedEnd;			
 	}
-	var historicEntries = ko.observableArray([]);
-	var newHistory = ko.observableArray([]);
+	var historicEntries = ko.observableArray();
+	var newHistory = ko.observableArray(History.all());
 
 	var updateHistory = function() {
-		newHistory = History.all();
-		console.log("update");
-		for( i=0; i<newHistory.length; i++ ){
-			newHistory[i].timestamp = JSONtimestampToString(newHistory[i].timestamp);
-			console.log(newHistory[i].timestamp);
-		}
-		
 		historicEntries.removeAll();
-		$.each( newHistory, function ( i, value ) {
+		$.each( newHistory(), function ( i, value ) {
+			value.timestamp = JSONtimestampToString(value.timestamp);
 			historicEntries.push(value);
 		} );
 	};
-
+	
 	var JSONtimestampToString = function( JSONtimestamp ){
-		newDate = new Date( JSONtimestamp );
-		return newDate.getDate()+'.'+(newDate.getMonth()+1)+'.'+newDate.getFullYear();
-		//this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
+		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
 	}
-
-	var initialize = function( instance ) {
-		var viewModel;
-		
+	
+	/* Filter Start */
+	var selectedUser = ko.observable();
+	var selectedProcess = ko.observable();
+	var selectedStatetype = ko.observable();
+	var selectedStart = ko.observable();
+	var selectedEnd = ko.observable();
+	selectedUser.subscribe(function() { filter(); });
+	selectedProcess.subscribe(function() { filter(); });
+	selectedStatetype.subscribe(function() { filter(); });
+	selectedStart.subscribe(function() { filter(); });
+	selectedEnd.subscribe(function() { filter();});
+	
+	var filter = function() {
+		historicEntries.removeAll();
+		$.each( newHistory(), function ( i, value ) {
+			var filter = false;
+			if (selectedUser() && selectedUser() !== value.userId ) {
+				filter = true;
+			}
+			if (selectedProcess() && selectedProcess() !== value.processName ) {
+				filter = true;
+			}
+			if (selectedStatetype() && selectedStatetype() !== value.transition.fromState.stateType && selectedStatetype() !== value.transition.toState.stateType  ) {
+				filter = true;
+			}
+			if (selectedStart() && parseInt(selectedStart()) > parseInt(moment(value.processStarted).format('X'))) {
+				filter = true;
+			}
+			if (selectedEnd() && parseInt(selectedEnd()) < parseInt(moment(value.processEnd).format('X'))) {
+				filter = true;
+			}
+			if(filter!=true) {
+				historicEntries.push(value);
+			}
+		});
+	}
+	
+	
+	var initialize = function( instance ) {	
 		updateHistory();
-		viewModel = new ViewModel();
+		var viewModel = new ViewModel();
 		App.loadTemplate( "home/history", viewModel, "executionContent", function() {
 			
 		});
@@ -44,6 +79,11 @@ define([
 	
 	// Everything in this object will be the public API
 	return {
-		init: initialize
+		init: initialize,
+		setUser: selectedUser,
+		setProcess: selectedProcess,
+		setStatetype: selectedStatetype,
+		setStart: selectedStart,
+		setEnd: selectedEnd
 	}
 });

@@ -80,47 +80,18 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor {
           complete(result.availableActions)
         } ~
         path("history") {
-          complete(Array[NewEntry](
-            NewEntry("<INT_UNIQUE_ID1>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
-              NewState("some Text", "send"),
-              NewTransition("some other Text", "exitcond"),
-              NewState("some Text", "receive"),
-              Option(Array(
-                NewMessage(
-                  Array(32, 43),
-                  "from user ID",
-                  Array("to userID 1", "to userID 2"),
-                  "Travel Application",
-                  "text")))),
-            NewEntry("<INT_UNIQUE_ID2>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
-              NewState("some Text", "send"),
-              NewTransition("some other Text", "exitcond"),
-              NewState("some Text", "receive"),
-              Option(Array(
-                NewMessage(
-                  Array(32, 43),
-                  "from user ID",
-                  Array("to userID 1", "to userID 2"),
-                  "Travel Application",
-                  "text")))),
-            NewEntry("<INT_UNIQUE_ID3>", "Travel Request", 0, 1370362137000L, 1370362137000L, 1370362137000L, 13, "Employee",
-              NewState("some Text", "send"),
-              NewTransition("some other Text", "exitcond"),
-              NewState("some Text", "receive"),
-              Option(Array(
-                NewMessage(
-                  Array(32, 43),
-                  "from user ID",
-                  Array("to userID 1", "to userID 2"),
-                  "Travel Application",
-                  "text"))))))
+          //you cannot run statements inside the path-block like above, instead, put them into a block inside the complete statement
+          complete({
+            val getHistoryFuture = (ActorLocator.processManagerActor ? GetNewHistory()).mapTo[NewHistoryAnswer]
+            val result = Await.result(getHistoryFuture, timeout.duration)
+            result.history.entries
+          })
         } ~
         //LIST
         path("") {
           implicit val timeout = Timeout(5 seconds)
           val future = (subjectProviderManager ? GetAllProcessInstances(userId)).mapTo[AllProcessInstancesAnswer]
           val result = Await.result(future, timeout.duration)
-
           complete(result.processInstanceInfo)
         }
 

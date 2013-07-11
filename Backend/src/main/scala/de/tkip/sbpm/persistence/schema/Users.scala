@@ -31,8 +31,9 @@ trait UsersSchema extends Schema {
     def name = nameCol
     def isActive = activeCol
     def inputPoolSize = column[Int]("input_pool_size", DbType.smallint, O.Default(8))
+    def gdriveId = gdriveIdCol
 
-    def * = id.? ~ name ~ isActive ~ inputPoolSize <> (User, User.unapply _)
+    def * = id.? ~ name ~ isActive ~ inputPoolSize ~ gdriveId <> (User, User.unapply _)
     
     def autoInc = * returning id
 

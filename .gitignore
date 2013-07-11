@@ -1,3 +1,5 @@
+.projectile
+.tern-project
 *.class
 *.log
 .scala_dependencies
@@ -5,3 +7,14 @@
 *.war
 *.ear
 .codekit-config.json
+.DS_Store
+*.sublime*
+*.graffle
+Repository/target/*
+Repository/project/target/*
+
+1 2 3 4
+
+
+something else
+

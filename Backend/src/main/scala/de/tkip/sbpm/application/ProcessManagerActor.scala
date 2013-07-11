@@ -20,6 +20,7 @@ import de.tkip.sbpm.persistence._
 import akka.event.Logging
 import de.tkip.sbpm.ActorLocator
 import akka.actor.Status.Failure
+import de.tkip.sbpm.application.history._
 
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
@@ -34,6 +35,7 @@ class ProcessManagerActor extends Actor {
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceData]()
+  private val history = new NewHistory
 
   // used to map answer messages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -66,7 +68,7 @@ class ProcessManagerActor extends Actor {
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.processInstanceActor)
     }
-    
+
     case KillAllProcessInstances => {
       logger.debug("Killing all process instances")
       for((id,_) <- processInstanceMap) context.stop(processInstanceMap(id).processInstanceActor)
@@ -109,6 +111,18 @@ class ProcessManagerActor extends Actor {
       answer.sender.forward(answer)
     }
 
+    case message: GetNewHistory => {
+      sender ! NewHistoryAnswer(message, history)
+    }
+
+    case entry: NewEntry => {
+      entry.id = history.entries.length.toString()
+      history.entries += entry
+    }
+
+    case message => {
+      logger.error("Not impemented: " + message)
+    }
   }
 
   // to forward a message to the process instance it needs a function to 
