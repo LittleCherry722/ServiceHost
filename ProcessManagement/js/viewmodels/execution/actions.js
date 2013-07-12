@@ -53,7 +53,6 @@ define([
 
 		this.selectUsersText = selectUsersText;
 
-
 		this.refreshGoogleDriveData = function() {
 			$.ajax({
 				cache: false,
