@@ -21,6 +21,7 @@ import akka.event.Logging
 import de.tkip.sbpm.ActorLocator
 import akka.actor.Status.Failure
 import de.tkip.sbpm.application.history._
+import java.util.Date
 
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
@@ -31,11 +32,13 @@ protected case class RegisterSubjectProvider(userID: UserID,
  */
 class ProcessManagerActor extends Actor {
   private case class ProcessInstanceData(processID: ProcessID, processInstanceActor: ProcessInstanceRef)
+  private case class LifecycleData(started: Option[Date], var end: Option[Date])
 
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceData]()
   private val history = new NewHistory
+  private val lifecycleHistory = collection.mutable.Map[ProcessInstanceID, LifecycleData]()
 
   // used to map answer messages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -67,11 +70,15 @@ class ProcessManagerActor extends Actor {
       }
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.processInstanceActor)
+      lifecycleHistory += pc.processInstanceID -> LifecycleData(Some(new Date()), None)
     }
 
     case KillAllProcessInstances => {
       logger.debug("Killing all process instances")
-      for((id,_) <- processInstanceMap) context.stop(processInstanceMap(id).processInstanceActor)
+      for((id,_) <- processInstanceMap) {
+        context.stop(processInstanceMap(id).processInstanceActor)
+        lifecycleHistory(id).end = Some(new Date())
+      }
       processInstanceMap.clear()
     }
 
@@ -79,6 +86,7 @@ class ProcessManagerActor extends Actor {
       if (processInstanceMap.contains(id)) {
         context.stop(processInstanceMap(id).processInstanceActor)
         processInstanceMap -= id
+        lifecycleHistory(id).end = Some(new Date())
         sender ! KillProcessInstanceAnswer(kill)
       } else {
         logger.error("Process Manager - can't kill process instance: " +
@@ -117,6 +125,8 @@ class ProcessManagerActor extends Actor {
 
     case entry: NewEntry => {
       entry.id = history.entries.length.toString()
+      entry.processStarted = lifecycleHistory(entry.processInstanceId).started
+      entry.processEnd = lifecycleHistory(entry.processInstanceId).end
       history.entries += entry
     }
 
