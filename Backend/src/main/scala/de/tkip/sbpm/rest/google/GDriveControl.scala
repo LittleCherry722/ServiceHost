@@ -14,7 +14,11 @@ import com.google.api.client.googleapis.auth.oauth2.{
 }
 import com.google.api.client.auth.oauth2.Credential
 
-import com.google.api.client.http.{HttpTransport, HttpResponse, HttpResponseException}
+import com.google.api.client.http.{
+  HttpTransport,
+  HttpResponse,
+  HttpResponseException
+}
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.extensions.java6.auth.oauth2.FileCredentialStore
@@ -23,14 +27,16 @@ import com.google.api.services.oauth2.{Oauth2, Oauth2Scopes}
 import com.google.api.services.oauth2.model.Userinfo
 
 import com.google.api.services.drive.{Drive, DriveScopes}
-import com.google.api.services.drive.model.File
-
+import com.google.api.services.drive.model.{File, Permission}
 
 object GDriveControl {
   case class NoCredentialsException(authorizationUrl: String) extends Exception
 
   val clientSecretsSource = getClass().getResourceAsStream("/client_secrets.json")
-  val credentialsSource = new java.io.File(System.getProperty("user.home"), ".credentials/drive.json")
+  val credentialsSource = new java.io.File(
+    System.getProperty("user.home"),
+    ".credentials/drive.json"
+  )
 
   val default_query = "'me' in owners and mimeType='application/pdf'"
   val default_fields = "items(id,title,description,downloadUrl,mimeType,ownerNames)"
@@ -45,7 +51,25 @@ object GDriveControl {
   private val httpTransport = new NetHttpTransport()
   private val credentialStore = new FileCredentialStore(credentialsSource, jsonFactory)
   private val clientSecrets = GoogleClientSecrets.load(jsonFactory, clientSecretsSource)
-  private val authCodeFlow: GoogleAuthorizationCodeFlow = null
+  private lazy val authCodeFlow =
+    new GoogleAuthorizationCodeFlow.Builder(
+      httpTransport,
+      jsonFactory,
+      clientSecrets,
+      SCOPES
+    )
+      .setAccessType("offline")
+      .setApprovalPrompt("force")
+      .setCredentialStore(credentialStore)
+      .build()
+
+  // Authorization
+
+  def authorizationUrl(userId: String): String =
+    flow.newAuthorizationUrl()
+      .setRedirectUri(REDIRECT_URI)
+      .setState(userId)
+      .build()
 
   // def askForAuthorizationCode(): String = {
   //   println("Please open the following URL in your browser then type the authorization code:")
@@ -55,26 +79,7 @@ object GDriveControl {
   //   return code
   // }
 
-  def authorizationUrl(userId: String): String =
-    flow.newAuthorizationUrl()
-      .setRedirectUri(REDIRECT_URI)
-      .setState(userId)
-      .build()
-
-  def flow: GoogleAuthorizationCodeFlow =
-    if (authCodeFlow == null)
-      new GoogleAuthorizationCodeFlow.Builder(
-        httpTransport,
-        jsonFactory,
-        clientSecrets,
-        SCOPES
-      )
-        .setAccessType("offline")
-        .setApprovalPrompt("force")
-        .setCredentialStore(credentialStore)
-        .build()
-    else
-      authCodeFlow
+  def flow: GoogleAuthorizationCodeFlow = authCodeFlow
 
   def tokenResponseForAuthCode(userId: String, authCode: String): GoogleTokenResponse =
     flow.newTokenRequest(authCode)
@@ -88,6 +93,8 @@ object GDriveControl {
             .execute()
     return flow.createAndStoreCredential(response, userId)
   }
+
+  // Service Functions
 
   def buildService(credentials: Credential) =
     new Drive.Builder(httpTransport, jsonFactory, credentials)
@@ -109,6 +116,48 @@ object GDriveControl {
       .setFields(f)
       .execute()
 
+  def getFile(drive: Drive, fileId: String) =
+    drive.files()
+      .get(fileId)
+      .execute()
+
+  def getUrl(file: File) = file.getAlternateLink()
+
+  // Permissions
+
+  def updatePermission(service: Drive, fileId: String,
+      permissionId: String, newRole: String): Permission = {
+    val p = service.permissions()
+      .get(fileId, permissionId)
+      .execute()
+
+    p.setRole(newRole)
+
+    service.permissions()
+      .update(fileId, permissionId, p)
+      .execute()
+  }
+
+  def insertPermission(service: Drive, fileId: String,
+      p_type: String, value: String, role: String): Permission = {
+    val p = new Permission()
+
+    p.setValue(value)
+    p.setType(p_type)
+    p.setRole(role)
+
+    service.permissions()
+      .insert(fileId, p)
+      .execute()
+  }
+
+  def removePermission(service: Drive, fileId: String,
+      permissionId: String) {
+    service.permissions()
+      .delete(fileId, permissionId)
+      .execute()
+  }
+
   def printFile(service: Drive, fileId: String) {
     val file: File = service.files().get(fileId).execute()
     println("Title: " + file.getTitle())
@@ -129,14 +178,15 @@ class GDriveControl {
     flow.createAndStoreCredential(tokenResponse, userId)
   }
 
-  def getCredentials(userId: String): Credential = {
-    val c = flow.loadCredential(userId)
-    if (c == null)
-      throw new NoCredentialsException(authorizationUrl(userId))
-    return c
-  }
+  def getCredentials(userId: String): Credential =
+    Option(flow.loadCredential(userId)) match {
+      case Some(credential) => credential
+      case None => throw new NoCredentialsException(
+        authorizationUrl(userId)
+      )
+    }
 
-  def drive(userId: String): Drive = {
+  def driveOf(userId: String): Drive = {
     if (! driveMap.contains(userId)) {
       println(s"no ID in map for $userId: $driveMap")
       val d = buildService(getCredentials(userId))
@@ -146,12 +196,30 @@ class GDriveControl {
   }
 
   def myFiles(userId: String) =
-    queryFiles(drive(userId), default_query, default_fields)
+    queryFiles(driveOf(userId), default_query, default_fields)
 
   def findFiles(userId: String, q: String, f: String = default_fields) =
-    queryFiles(drive(userId), q, f).toPrettyString
+    queryFiles(driveOf(userId), q, f)
+      .toPrettyString
 
   def userInfo(userId: String): String =
-    getUserInfo(getCredentials(userId)).toPrettyString
+    getUserInfo(getCredentials(userId))
+      .toPrettyString
+
+  def userEmail(userId: String): String =
+    getUserInfo(getCredentials(userId))
+      .getEmail()
+
+  def publishFile(userId: String, fileId: String) =
+    insertPermission(driveOf(userId), fileId,
+      "anyone", "", "reader")
+
+  def unpublishFile(userId: String, fileId: String) =
+    removePermission(driveOf(userId), fileId,
+      "anyone")
+
+  def shareFile(userId: String, fileId: String, targetId: String) =
+    insertPermission(driveOf(userId), fileId,
+      "user", userEmail(targetId), "reader")
     
 }
