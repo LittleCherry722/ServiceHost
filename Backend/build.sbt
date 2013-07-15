@@ -45,3 +45,7 @@ EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
 //EclipseKeys.projectFlavor := EclipseProjectFlavor.Scala
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
+
+testOptions in Test <+= (target in Test) map {
+  t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
+}
