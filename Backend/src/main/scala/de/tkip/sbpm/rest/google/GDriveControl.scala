@@ -39,7 +39,7 @@ object GDriveControl {
   )
 
   val default_query = "'me' in owners and mimeType='application/pdf'"
-  val default_fields = "items(id,title,description,downloadUrl,mimeType,ownerNames)"
+  val default_fields = "items(id,title,description,downloadUrl,iconLink,mimeType,ownerNames)"
 
   private val REDIRECT_URI = "http://localhost:8080/oauth2callback"//"urn:ietf:wg:oauth:2.0:oob"
   private val SCOPES = Arrays.asList(

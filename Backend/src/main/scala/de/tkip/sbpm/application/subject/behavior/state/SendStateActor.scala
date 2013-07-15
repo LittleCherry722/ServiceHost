@@ -30,6 +30,7 @@ import de.tkip.sbpm.application.history.{
   Message => HistoryMessage,
   State => HistoryState
 }
+import de.tkip.sbpm
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.{SubjectInformation, RequestUserID}
 import de.tkip.sbpm.model._
@@ -37,23 +38,26 @@ import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior._
+import de.tkip.sbpm.rest.google.GDriveActor.GetUrl
+import de.tkip.sbpm.logging.DefaultLogging
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
-  googleId: Option[String] = None) extends Actor {
+  googleId: Option[String] = None) extends Actor with DefaultLogging {
+
+  private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
+  private implicit val ec = context.dispatcher
 
   def receive = {
     case message: SubjectToSubjectMessage => {
       if (googleId.isDefined && message.fileID.isDefined) {
         implicit val timeout = Timeout(3000)
-        val url: String = "http://www.test.com"
-        // Await.result(
-        //   ActorLocator.googleDriveActor ?
-        //     GetAlternateLinkForFileInGDrive(googleId.get, message.fileID.get),
-        //   timeout.duration).asInstanceOf[String]
-        message.fileUrl = Some(url)
+        (driveActor ? GetUrl(googleId.get, message.fileID.get)).onSuccess {
+          case url: String =>
+            message.fileUrl = Some(url)
+            processInstanceActor forward message
+        }
       }
-      processInstanceActor.forward(message)
     }
   }
 }
@@ -154,7 +158,7 @@ protected case class SendStateActor(data: StateData)
 
           // send the message over the process instance
           val sendProxy: ActorRef = context.actorOf(Props(
-              new GoogleSendProxyActor(processInstanceActor, action.googleId)
+              new GoogleSendProxyActor(processInstanceActor, Some(action.userID.toString))
             )
           )
 
