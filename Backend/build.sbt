@@ -49,3 +49,5 @@ EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 testOptions in Test <+= (target in Test) map {
   t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
 }
+
+fork in Test := true
