@@ -202,6 +202,9 @@ class GDriveControl {
     queryFiles(driveOf(userId), q, f)
       .toPrettyString
 
+  def fileUrl(userId: String, fileId: String) =
+    getUrl(getFile(driveOf(userId), fileId))
+
   def userInfo(userId: String): String =
     getUserInfo(getCredentials(userId))
       .toPrettyString
