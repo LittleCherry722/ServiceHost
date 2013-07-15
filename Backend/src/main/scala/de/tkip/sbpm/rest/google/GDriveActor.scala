@@ -20,13 +20,13 @@ import akka.pattern.pipe
 
 import de.tkip.sbpm.rest.google.GDriveControl
 
-
 object GDriveActor {
   case class FindFiles(userId: String, query: String, fields: String)
   case class RetrieveCredentials(userId: String)
   case class InitCredentials(userId: String, code: String)
   case class GetUrl(userId: String, fileId: String)
   case class PublishFile(userId: String, fileId: String)
+  case class UnpublishFile(userId: String, fileId: String)
   case class ShareFile(userId: String, fileId: String, targetId: String)
 }
 
