@@ -23,7 +23,7 @@ class HistoryTest extends TestKit(ActorSystem("TestSystem")) with FunSuite with 
     system.shutdown()
   }
 
-  test("test history debug data structure") {
+  ignore("test history debug data structure") {
     val future = actor ? new GetHistory(userID = 1, processInstanceID = 1) with Debug
     val result = Await.result(future.mapTo[HistoryAnswer], timeout.duration)
     val history = result.history
