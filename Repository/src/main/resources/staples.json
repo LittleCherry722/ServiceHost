@@ -1,0 +1,61 @@
+{
+  "date": 123456789,
+  "creator": "Max Mustermann",
+  "name": "Test",
+  "description": "Lorem ipsum dolor sit amet...",
+  "id": 3,
+  "graph":  {
+        "id": "Zulieferer",
+        "name": "Lieferant",
+        "type": "external",
+        "deactivated": false,
+        "startSubject": false,
+        "inputPool": 100,
+        "relatedSubject": "Zulieferer",
+        "relatedProcess": 3,
+        "externalType": "external",
+        "role": "Zulieferer",
+        "comment": "",
+        "variables": {
+
+        },
+        "variableCounter": 1,
+        "macros": [{
+          "id": "##main##",
+          "name": "internal behavior",
+          "nodeCounter": 1,
+          "nodes": [],
+          "edges": []
+        }],
+        "macroCounter": 1
+      }, {
+        "id": "Audi",
+        "name": "Bestellung",
+        "type": "external",
+        "deactivated": false,
+        "startSubject": false,
+        "inputPool": 100,
+        "relatedSubject": "Audi",
+        "relatedProcess": 1,
+        "externalType": "external",
+        "role": "Kunde",
+        "comment": "",
+        "variables": {
+
+        },
+        "variableCounter": 1,
+        "macros": [{
+          "id": "##main##",
+          "name": "internal behavior",
+          "nodeCounter": 1,
+          "nodes": [],
+          "edges": []
+        }],
+        "macroCounter": 1
+      }],
+      "nodeCounter": 3,
+      "name": "internal behavior",
+      "id": "##main##"
+    }]
+  }
+}
