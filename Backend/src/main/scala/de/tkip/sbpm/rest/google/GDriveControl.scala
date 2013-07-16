@@ -13,19 +13,17 @@ import com.google.api.client.googleapis.auth.oauth2.{
   GoogleCredential
 }
 import com.google.api.client.auth.oauth2.Credential
-
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.extensions.java6.auth.oauth2.FileCredentialStore
+import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.http.{
   HttpTransport,
   HttpResponse,
   HttpResponseException
 }
-import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.client.extensions.java6.auth.oauth2.FileCredentialStore
 
 import com.google.api.services.oauth2.{Oauth2, Oauth2Scopes}
 import com.google.api.services.oauth2.model.Userinfo
-
 import com.google.api.services.drive.{Drive, DriveScopes}
 import com.google.api.services.drive.model.{File, Permission}
 
