@@ -7,9 +7,9 @@ define([
 	"underscore",
 	"router",
 	"async",
-	"models/User",
-	"models/Role",
-	"models/Interface"
+	"models/user",
+	"models/role",
+	"models/interface"
 ], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface ) {
 
 	// The main viewmodel. Every observable defined inside can be used by the
