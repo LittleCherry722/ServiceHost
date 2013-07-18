@@ -14,14 +14,14 @@ class SubjectActor(subject: Subject) extends Actor {
 
   // we start with the state 0
   private var currentStateId: StateID = 0
-  private var currentState = createStateActor(subject.state(currentStateId))
+  private var currentStateActor = createStateActor(subject.state(currentStateId))
 
   def receive = {
     // we only allow to read this subject!
     case ReadSubject(subject.subjectID) => sender ! readSubject
-    case ea @ ExecuteAction(subject.subjectID, action) => currentState forward ea
+    case ea @ ExecuteAction(subject.subjectID, action) => currentStateActor forward ea
     case ChangeState(id) => changeState(id)
-    case message @ SubjectToSubjectMessage(_, subject.subjectID, _) => currentState forward message
+    case message @ SubjectToSubjectMessage(_, subject.subjectID, _) => currentStateActor forward message
     case message: SubjectToSubjectMessage => context.parent forward message
     case _ => println("unsupported operation")
   }
@@ -36,14 +36,14 @@ class SubjectActor(subject: Subject) extends Actor {
 
   private def changeState(id: StateID) {
     // kill the currentstate actor
-    currentState ! PoisonPill
+    currentStateActor ! PoisonPill
     // update the id
     println(
       "S@%s changes from State %s to State %s"
         .format(subject.subjectID, currentStateId, id))
     currentStateId = id
     // create a new current state actor
-    currentState = createStateActor(subject.state(id))
+    currentStateActor = createStateActor(subject.state(id))
   }
 
   private def createStateActor(state: State): ActorRef = state match {

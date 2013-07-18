@@ -49,6 +49,12 @@ define([ "director", "app"], function( Director, App ) {
 	 */
 
 	var showProcess = function( processId, subjectId ) {
+            
+                if(hasUnsavedChanges && !confirm(hasUnsavedChangesMessage)) {
+			return;
+		}
+		setHasUnsavedChanges(false);
+                
 		expandListOfProcesses();
 
 		if ( subjectId ) {

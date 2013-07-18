@@ -25,22 +25,14 @@ import de.tkip.sbpm.model.User
 import akka.event.Logging
 import akka.actor.ActorRef
 import spray.routing.authentication.UserPass
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * Provides support for HTTP basic authentication.
  * Validates user name and password and returns corresponding user id.
  */
-class BasicAuthActor extends Actor {
+class BasicAuthActor extends Actor with DefaultLogging {
   private lazy val userPassActor = ActorLocator.userPassAuthActor
-  val logger = Logging(context.system, this)
-
-  override def preStart() {
-    logger.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    logger.debug(getClass.getName + " stopped.")
-  }
 
   def receive = {
     // valid basic auth header given -> check credentials

@@ -28,22 +28,14 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
  */
-class ExecutionInterfaceActor extends AbstractInterfaceActor {
+class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
   implicit val timeout = Timeout(5 seconds)
   override implicit def executionContext = ExecutionContext.Implicits.global
-  val logger = Logging(context.system, this)
-
-  override def preStart() {
-    logger.debug(getClass.getName + " starts...")
-  }
-
-  override def postStop() {
-    logger.debug(getClass.getName + " stopped.")
-  }
 
   implicit def exceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler.fromPF {

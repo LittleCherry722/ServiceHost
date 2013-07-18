@@ -45,6 +45,9 @@ protected case class SubjectToSubjectMessage(
 
 }
 
+protected case class TryTransportMessages extends MessageObject
+protected case class SubjectToSubjectMessageReceived(message: SubjectToSubjectMessage) extends MessageObject
+
 // acknowledge, that a message is stored in the input pool
 protected case class Stored(messageID: MessageID) extends MessageObject
 // acknowledge, that the message was rejected by the input pool

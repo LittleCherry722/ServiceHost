@@ -30,6 +30,8 @@ import de.tkip.sbpm.model.SubjectLike
 import scala.concurrent.Await
 import de.tkip.sbpm.model.ExternalSubject
 import de.tkip.sbpm.model.ExternalSubject
+import de.tkip.sbpm.application.miscellaneous.BlockUser
+import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -91,12 +93,14 @@ class SubjectContainer(
       // inform the subject provider about his new subject
       context.parent !
         SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+
+      reStartSubject(userID)
     } else {
       System.err.println("CREATE: " + subjectData.subject);
 
       // process schon vorhanden?
       // TODO ohne ask!
-      implicit val timeout = akka.util.Timeout(500)
+      implicit val timeout = akka.util.Timeout(3500)
       val ext = subjectData.subject.asInstanceOf[ExternalSubject]
 
       val subjectRef =
@@ -105,6 +109,8 @@ class SubjectContainer(
             GetSubjectAddr(userID, ext.relatedProcessId, ext.relatedSubjectId))
             .mapTo[ActorRef],
           timeout.duration)
+      // TODO we need this unblock!
+      blockingHandlerActor ! UnBlockUser(userID)
 
       subjects += userID -> SubjectInfo(subjectRef, userID)
     }
@@ -112,7 +118,9 @@ class SubjectContainer(
     logger.debug("Processinstance [" + processInstanceID + "] created Subject " +
       subject.id + " for user " + userID)
 
-    reStartSubject(userID)
+    // TODO raus
+    System.err.println("Processinstance [" + processInstanceID + "] created Subject " +
+      subject.id + " for user " + userID)
   }
 
   def handleSubjectTerminated(message: SubjectTerminated) {
@@ -168,7 +176,10 @@ class SubjectContainer(
 
       System.err.println("SEND: " + message);
       if (subject.external) {
-    	  message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+        message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+        //        message.from = "Subj1" //FIXME nur test raus!
+        // TODO we need this unblock!
+        blockingHandlerActor ! UnBlockUser(userID)
       }
       println("SEND: " + message);
 

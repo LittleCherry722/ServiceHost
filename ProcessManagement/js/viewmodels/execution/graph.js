@@ -23,11 +23,15 @@ define([
 		this.currentSubject = currentSubject;
 		this.processInstance = processInstance;
 		subscribeAll()
-	}
+	};
 
 	var processInstance = ko.observable( new ProcessInstance() );
 
 	var actions = ko.computed(function() {
+		if(0 === processInstance().id()) {
+			// uninitialized
+			return [];
+		}
 		return processInstance().actions()
 	});
 

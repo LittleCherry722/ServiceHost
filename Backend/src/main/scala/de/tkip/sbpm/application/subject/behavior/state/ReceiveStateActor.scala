@@ -13,13 +13,16 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
-import scala.concurrent.Await
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.Array.canBuildFrom
+
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
+import akka.event.Logging
+
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.history.{
@@ -33,10 +36,10 @@ import de.tkip.sbpm.application.RequestUserID
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
-import akka.event.Logging
-import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
 
 protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
@@ -99,6 +102,8 @@ protected case class ReceiveStateActor(data: StateData)
         variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
         System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
+
+      sender ! SubjectToSubjectMessageReceived(sm)
     }
 
     case InputPoolSubscriptionPerformed => {
