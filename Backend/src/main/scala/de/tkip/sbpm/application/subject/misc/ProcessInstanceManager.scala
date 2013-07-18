@@ -40,8 +40,8 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
 
   private val targetMap =
     Map(
-      1 -> "@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com:2552",
-      2 -> "@sbpm-gw.tk.informatik.tu-darmstadt.de:2552",
+      1 -> "@sbpm-gw.tk.informatik.tu-darmstadt.de:2552",
+      2 -> "@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com:2552",
       3 -> "@ec2-54-229-91-177.eu-west-1.compute.amazonaws.com:2552")
 
   def receive = {
