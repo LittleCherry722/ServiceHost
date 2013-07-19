@@ -86,7 +86,6 @@ define([
     if (readCookie("sbpm-userId")) {
       currentUser(User.find(parseInt(readCookie("sbpm-userId").replace(/"/g, ''), 10)));
     } else {
-
       //TODO Kein Cookie gesetzt, kein Zugang.
       currentUser(new User({
         name : "no user"

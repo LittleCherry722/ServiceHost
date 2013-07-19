@@ -153,9 +153,13 @@ define([
 		}]
   }
 
-  // Interface.all = ko.observableArray([
-  //   new Interface({ id: 1, name: "Travel Process", creator: "Arne", graph: graph }),
-  // ]);
+  Interface.fetch = function(obj, callback) {
+    callback.success();
+  }
+
+  Interface.all = ko.observableArray([
+    new Interface({ id: 1, name: "Travel Process", creator: "Arne", graph: graph }),
+  ]);
 
   return Interface;
 });
