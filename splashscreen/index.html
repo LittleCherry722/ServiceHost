@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
     <title>SBPM Groupware</title>
     <link href="css/main.css" rel="stylesheet" type="text/css" />
   </head>
@@ -15,13 +16,16 @@
           Business Process Netzwerkes</p>
         <p>Im Folgenden werden wir anhand eines Beispiels demonstrieren,
           wozu unsere Business Process Engine in der Lage ist und wie
-          es die Ausführung von Prozessen in Unternehmen
+          es die Ausführung von Unternehmensübergreifenden Prozessen
           revolutionieren kann.</p>
-        <p>Unser beispielprozess besteht aus 3 Firmen, die zusammen einen Prozess
-          der Warenbestellung und Lieferung ausführen wollen.</p>
-        <p>Sie können jederzeit während dieser Präsentation zu den verteilten
-          Process Engines der unterschiedlichen Unternehmen gelangen, indem Sie
-          auf die Icons der Unternehmen klicken.</p>
+        <p>In unserem Beispielprozess sind 3 Unternehmen involviert,
+          die zusammen einen Prozess der Warenbestellung und
+          Lieferung ausführen wollen.</p>
+        <p>
+          <strong class="medium">zur Bedienung des Tutorials:</strong> Sie können jederzeit
+          während dieser Präsentation zu den verteilten Process
+          Engines der unterschiedlichen Unternehmen gelangen, indem
+          Sie auf die Icons der Unternehmensmitarbeiter klicken.</p>
       </div>
       <div class="images step" data-x="-600" data-y="50" id="staples">
         <h3>Staples</h3>
@@ -33,9 +37,12 @@
             </div>
           </a>
         </div>
-        <p class="inactive-hide" style="padding: 0 100px;">Staples ist eine Einzelhandel und will einen Prozess zum Einkauf
-          von Waren bereitstellen. Die Auslieferung soll jedoch ein anderes
-          Unternehmen übernehmen.</p>
+        <p class="inactive-hide" style="padding: 0 100px;">Staples ist ein Einzelhandelsunternehmen welches bereits
+          einen Prozess zum Einkauf von Waren bereitstellt. Diese
+          Dienstleistung soll um die Möglichkeit erweitert werden,
+          die eingekaufte Ware ausliefern zu lassen. Die Lieferung
+          soll von einem externen Transportdienstleister übernommen
+          werden.</p>
       </div>
       <div class="images step" data-x="0" data-y="50" id="tsp">
         <h3>Transportdienstleister</h3>
@@ -47,9 +54,10 @@
             </div>
           </a>
         </div>
-        <p class="inactive-hide" style="padding: 0 100px;">Ein beliebter Transportdienstleister hat seinen Lieferprozess ebenfalls
-          in unserer Process Engine modelliert, so dass Staples den Lieferdienst
-          verwenden kann.</p>
+        <p class="inactive-hide" style="padding: 0 100px;">Ein überregionaler Transportdienstleister möchte seinen
+          Zustellungsprozess derart bereit stellen, dass er von
+          anderen Unternehmen gefunden und in die eigenen Prozesse
+          mit eingebunden werden kann.</p>
       </div>
       <div class="images step" data-x="600" data-y="50" id="audi">
         <h3>Audi</h3>
@@ -61,13 +69,17 @@
             </div>
           </a>
         </div>
-        <p class="inactive-hide" style="padding: 0 0 0 100px;">Ein großes Unternehmen will nun das Bestellen von Bürogütern
-          automatisieren und implementiert die Dienstleistung von Staples.</p>
-        <p class="inactive-hide" style="padding: 0 0 0 100px;">Werden Büroartikel benötigt, wird die Bestellung automatisch an
-          Staples geschickt und die Waren von dem Transportdienstleister an
-          das Unternehmen übergeben.</p>
+        <p class="inactive-hide" style="padding: 0 0 0 100px;">Ein großes Unternehmen mit vielen Büroarbeitsplätzen ist
+          auf der Suche nach einem neuen Partner für
+          Büroartikel. Der Partner soll auch für die Zustellung
+          sorgen und dieser Service soll einfach in den eigenen
+          Geschäftsprozess eingebunden werden können.</p>
       </div>
       <div class="details step" data-rotate="90" data-x="1200" data-y="1300" id="technical">
+        <p class="medium" style="font-size: 13px; position: absolute; top:-20px; left: 0; right: 0; text-align: center;">
+          <strong>Hinweis:</strong> Sie können jederzeit zu den Process Engines gelangen,
+          indem Sie auf die Icons der Unternehmensmitarbeiter
+          klicken.</p>
         <h2 style="margin-top: -50px; margin-bottom: 50px;">Prozesserstellung</h2>
         <div class="row">
           <div class="column">
@@ -135,16 +147,20 @@
         </div>
         <div class="overlays">
           <div class="arrow-1 arrow" data-direction="right" data-label="(1) BI bereitstellen" data-label-tooltip="Der Transportdienstleister stellt seinen Prozess  durch ein Business Interface für andere zur Verfügung." data-right-y-offset="0" data-width="250" data-y-offset="-40"></div>
-          <div class="arrow-2 arrow" data-direction="right" data-label="(2) BI lookup" data-label-tooltip="Staples sucht nach im Business interface Repository  nach einm Prozess zur Auslieferung von Waren." data-right-y-offset="-77" data-width="220" data-y-offset="-65"></div>
+          <div class="arrow-2 arrow" data-direction="right" data-label="(2) BI lookup" data-label-tooltip="Staples sucht im Repository nach einem  Business Interface von einem Prozess zur Auslieferung von Waren." data-right-y-offset="-77" data-width="220" data-y-offset="-65"></div>
           <div class="arrow-3 arrow" data-direction="left" data-label="(3) BI TD" data-label-tooltip="Staples hat einen Transportdienstleister gefunden und  implementiert dieses Business interface nun im eigenen Geschäftsprozess." data-right-y-offset="-75" data-width="225" data-y-offset="-42"></div>
-          <div class="arrow-4 arrow" data-direction="right" data-label="(4) BI TD" data-label-tooltip="Nachdem die Modellierung des Prozesses fertig ist, exportiert Staples den eigenen Prozess widerum, so dass andere den Prozess  implementieren und eine Bestellung aufgeben können." data-right-y-offset="-75" data-width="230" data-y-offset="-20"></div>
-          <div class="arrow-5 arrow" data-direction="left" data-label="(5) BI lookup" data-label-tooltip="Ein Großunternehmen sucht nach einem Prozess zur  Bestellung von Bürowaren." data-right-y-offset="120" data-width="95" data-y-offset="50"></div>
-          <div class="arrow-6 arrow" data-direction="left" data-label="(6) lookup" data-label-tooltip="Das lokale Repository sucht in der eigenen Datenbank  und fragt gleichzeitig bei anderen bekannten Repositories an,  ob neue Interfaces bekannt sind." data-right-y-offset="0" data-width="246" data-y-offset="0"></div>
-          <div class="arrow-7 arrow" data-direction="right" data-label="(7) Sync" data-label-tooltip="Da kürzlich ein neues Interface hinzugefügt wurde, wird  dieses mit dem lokalen Repository des Großunternehmens synchronisiert." data-right-y-offset="0" data-width="246" data-y-offset="0"></div>
-          <div class="arrow-8 arrow" data-direction="right" data-label="(8) BI lookup" data-label-tooltip="Das Großunternehmen findet das Staples Business Interface  und implementiert es im eigenen Prozess." data-right-y-offset="120" data-width="95" data-y-offset="62"></div>
+          <div class="arrow-4 arrow" data-direction="right" data-label="(4) BI TD" data-label-tooltip="Nach Abschluss der Modellierung erzeugt  Staples ein Business Interface zum eigenen Prozess und  deployed dieses auf dem Business Interface Repository.  Es kann dort wiederum von anderen Unternehmen  gefunden werden, so dass der Staples Prozess in eigen  Prozesse eingebunden werden kann." data-right-y-offset="-75" data-width="230" data-y-offset="-20"></div>
+          <div class="arrow-5 arrow" data-direction="left" data-label="(5) BI lookup" data-label-tooltip="Ein Großunternehmen sucht nach einem  Prozess zur Bestellung von Bürowaren. Der Lookup Befehl  wird zunächst zum unternehmenseigenen Business Interface  Repository geleitet." data-right-y-offset="120" data-width="95" data-y-offset="50"></div>
+          <div class="arrow-6 arrow" data-direction="left" data-label="(6) lookup" data-label-tooltip="Das Business Interface Repository des  Großunternehmens sendet den Lookup zusätzlich an andere,  registrierte Repositories weiter um dort ebenfalls nach  den gewünschten Business Interfaces zu suchen." data-right-y-offset="0" data-width="246" data-y-offset="0"></div>
+          <div class="arrow-7 arrow" data-direction="right" data-label="(7) Sync" data-label-tooltip="Das Business Interface von Staples  erfüllt die Anforderungen und die notwendigen Daten werden  über eine Sync Nachricht übermittelt." data-right-y-offset="0" data-width="246" data-y-offset="0"></div>
+          <div class="arrow-8 arrow" data-direction="right" data-label="(8) BI Staples" data-label-tooltip="Von dem lokalen Business Interface  Repository wird das Business Interface von Staples an den  Audi Mitarbeiter durchgereicht." data-right-y-offset="120" data-width="95" data-y-offset="62"></div>
         </div>
       </div>
       <div class="details step" data-rotate="90" data-x="200" data-y="1300" id="execution">
+        <p class="medium" style="font-size: 13px; position: absolute; top:-20px; left: 0; right: 0; text-align: center;">
+          <strong>Hinweis:</strong> Sie können jederzeit zu den Process Engines gelangen,
+          indem Sie auf die Icons der Unternehmensmitarbeiter
+          klicken.</p>
         <h2 style="margin-top: -50px; margin-bottom: 50px;">Prozessausführung</h2>
         <div class="row">
           <div class="column">
@@ -213,13 +229,17 @@
         <div class="overlays">
           <div class="arrow-1 arrow" data-direction="left" data-label="(1) Bestellung" data-label-tooltip="Ein Mitarbeiter startet einen Prozess zur Bestellung von Büromaterial." data-right-y-offset="0" data-width="150" data-y-offset="-30"></div>
           <div class="arrow-2 arrow" data-direction="left" data-label="(2) Bestellung" data-label-tooltip="Die Process Engine des Großunternehmens leitet den Bestellauftrag  weiter an die Process Engine von Staples." data-right-y-offset="0" data-width="145" data-y-offset="0"></div>
-          <div class="arrow-3 arrow" data-direction="left" data-label="(3) Bestellung" data-label-tooltip="Die Bestellugn wird von einem Staples Mitarbeiter bearbeitet." data-right-y-offset="0" data-width="350" data-y-offset="95"></div>
+          <div class="arrow-3 arrow" data-direction="left" data-label="(3) Bestellung" data-label-tooltip="Die Bestellung wird von einem Staples Mitarbeiter bearbeitet." data-right-y-offset="0" data-width="350" data-y-offset="95"></div>
           <div class="arrow-4 arrow" data-direction="right" data-label="(4) Transportauftrag" data-label-tooltip="Der Transportauftrag des Staples Mitarbeiters wird von der Process  Engine von Staples entgegen genommen." data-right-y-offset="0" data-width="300" data-y-offset="50"></div>
           <div class="arrow-5 arrow" data-direction="left" data-label="(5) Transportauftrag" data-label-tooltip="Der Transportauftrag der Process Engine von Staples wird  an die Process Engine des Transportdienstleisters weitergegeben." data-right-y-offset="0" data-width="155" data-y-offset="-55"></div>
           <div class="arrow-6 arrow" data-direction="left" data-label="(6) Transportauftrag" data-label-tooltip="Der Transportauftrag wird von einem Mitarbeiter des  Tansportdienstleisters bearbeitet. Der Sachbearbeiter bestätigt diesen  und der Dienstleister ist bereit, die Ware von Staples entgegen zu nehmen." data-right-y-offset="130" data-width="200" data-y-offset="60"></div>
         </div>
       </div>
       <div class="details step" data-rotate="90" data-x="-800" data-y="1300" id="delivery">
+        <p class="medium" style="font-size: 13px; position: absolute; top:-20px; left: 0; right: 0; text-align: center;">
+          <strong>Hinweis:</strong> Sie können jederzeit zu den Process Engines gelangen,
+          indem Sie auf die Icons der Unternehmensmitarbeiter
+          klicken.</p>
         <h2 style="margin-top: -50px; margin-bottom: 50px;">Lieferung</h2>
         <div class="row">
           <div class="column">
@@ -255,7 +275,7 @@
           </div>
         </div>
         <div class="overlays">
-          <div class="arrow-1 arrow" data-direction="right" data-label="(1) Lieferung" data-label-tooltip="Staples gibt die Bestellung bei dem Transportdiensleister auf." data-right-y-offset="0" data-width="380" data-y-offset="0"></div>
+          <div class="arrow-1 arrow" data-direction="left" data-label="(1) Abholung" data-label-tooltip="Staples gibt die Bestellung bei dem Transportdiensleister auf." data-right-y-offset="0" data-width="380" data-y-offset="0"></div>
           <div class="arrow-2 arrow" data-direction="left" data-label="(2) Lieferung" data-label-tooltip="Der Transportdienstleister gibt die bestellten Waren bei dem Großunternehmen ab." data-right-y-offset="0" data-width="380" data-y-offset="0"></div>
         </div>
       </div>
