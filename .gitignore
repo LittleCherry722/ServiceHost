@@ -1,5 +1,6 @@
 .projectile
 .tern-project
+.tern-port
 *.class
 *.log
 .scala_dependencies
@@ -12,9 +13,3 @@
 *.graffle
 Repository/target/*
 Repository/project/target/*
-
-1 2 3 4
-
-
-something else
-

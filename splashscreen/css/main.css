@@ -168,6 +168,10 @@ h3 {
   clear: both;
 }
 
+.medium {
+  font-weight: 400;
+}
+
 .tooltips {
   display: none;
 }
@@ -177,7 +181,8 @@ h3 {
   position: fixed;
   top: 71px;
   bottom: 60px;
-  width: 16%;
+  width: 15%;
+  min-width: 210px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background-color: rgba(102, 102, 102, 0.025);
 }

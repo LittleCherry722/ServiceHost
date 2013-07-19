@@ -33,6 +33,10 @@ h3 {
   @include clearfix;
 }
 
+.medium {
+  font-weight: 400;
+}
+
 .tooltips {
   display: none;
 }
@@ -42,7 +46,8 @@ h3 {
   position: fixed;
   top: 71px;
   bottom: 60px;
-  width: 16%;
+  width: 15%;
+  min-width: 210px;
   border: 1px solid rgba(#000, 0.1);
   background-color: rgba(#666, 0.025);
 

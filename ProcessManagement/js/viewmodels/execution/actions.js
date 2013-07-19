@@ -53,7 +53,6 @@ define([
 
 		this.selectUsersText = selectUsersText;
 
-
 		this.refreshGoogleDriveData = function() {
 			$.ajax({
 				cache: false,
@@ -134,8 +133,8 @@ define([
 		data = actionOfCurrentSubject();
 
 		deArray = data.actionData[ 0 ];
-		if( messageText ) {
-			deArray.messageContent = messageText();
+		if( this.messageText() ) {
+			deArray.messageContent = this.messageText();
 		} else {
 			deArray.messageContent = "[empty message]";
 		}

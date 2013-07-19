@@ -49,8 +49,9 @@ case class NewEntry(
   var id: String, //"<INT_UNIQUE_ID>"
   var processName: String, //"Travel Request"
   var processInstanceId: ProcessInstanceID, //0
-  processStarted: Option[Date], //System.currentTimeMillis
-  processEnd: Option[Date],
+  timestamp: Date,
+  var processStarted: Option[Date], //System.currentTimeMillis
+  var processEnd: Option[Date],
   userId: UserID, //13
   subjectId: SubjectID, //"Employee"
 //  fromState: NewState, //hier kann man eventuell den alten State weiter verwenden

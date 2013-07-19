@@ -1,0 +1,37 @@
+{
+  "date": 123456789,
+  "creator": "Max Mustermann",
+  "name": "Test",
+  "description": "Lorem ipsum dolor sit amet...",
+  "id": 4,
+  "graph":  {
+        "id": "Staples",
+        "name": "Kunde",
+        "type": "external",
+        "deactivated": false,
+        "startSubject": false,
+        "inputPool": 100,
+        "relatedSubject": "Staples",
+        "relatedProcess": 2,
+        "externalType": "external",
+        "role": "Staples",
+        "comment": "",
+        "variables": {
+
+        },
+        "variableCounter": 1,
+        "macros": [{
+          "id": "##main##",
+          "name": "internal behavior",
+          "nodeCounter": 1,
+          "nodes": [],
+          "edges": []
+        }],
+        "macroCounter": 1
+      }],
+      "nodeCounter": 3,
+      "name": "internal behavior",
+      "id": "##main##"
+    }]
+  }
+}
