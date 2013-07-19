@@ -153,9 +153,9 @@ define([
 		}]
   }
 
-  Interface.all = ko.observableArray([
-    new Interface({ id: 1, name: "Travel Process", creator: "Arne", graph: graph }),
-  ]);
+  // Interface.all = ko.observableArray([
+  //   new Interface({ id: 1, name: "Travel Process", creator: "Arne", graph: graph }),
+  // ]);
 
   return Interface;
 });
