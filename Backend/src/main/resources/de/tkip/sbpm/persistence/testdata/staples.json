@@ -1,375 +1,667 @@
 {
-   "definition": {
-      "process": [{
-        "id": "Staples",
-        "name": "Bestellung bearbeiten",
-        "type": "single",
-        "deactivated": false,
-        "startSubject": false,
-        "inputPool": 100,
-        "relatedSubject": "",
-        "relatedProcess": null,
-        "externalType": "external",
-        "role": "Verarbeitung",
-        "comment": "",
-        "variables": {
-
-        },
-        "variableCounter": 1,
-        "macros": [{
-          "id": "##main##",
-          "name": "internal behavior",
-          "nodeCounter": 6,
-          "nodes": [{
-            "id": 0,
-            "text": "",
-            "start": true,
-            "end": false,
-            "type": "receive",
-            "deactivated": false,
-            "majorStartNode": true,
-            "conversation": "",
-            "variable": "",
-            "options": {
-              "message": "*",
-              "subject": "*",
-              "correlationId": "",
-              "conversation": "",
-              "state": null
-            },
-            "macro": "",
-            "varMan": {
-              "var1": "",
-              "var2": "",
-              "operation": "and",
-              "storevar": ""
-            }
-          }, {
-            "id": 5,
-            "text": "",
-            "start": false,
-            "end": true,
-            "type": "end",
-            "deactivated": false,
-            "majorStartNode": false,
-            "conversation": "",
-            "variable": "",
-            "options": {
-              "message": "*",
-              "subject": "*",
-              "correlationId": "*",
-              "conversation": "*",
-              "state": null
-            },
-            "macro": "",
-            "varMan": {
-              "var1": "",
-              "var2": "",
-              "operation": "and",
-              "storevar": ""
-            }
-          }, {
-            "id": 1,
-            "text": "Verf\u00fcgbarkeit pr\u00fcfen",
-            "start": false,
-            "end": false,
-            "type": "action",
-            "deactivated": false,
-            "majorStartNode": false,
-            "conversation": "",
-            "variable": "",
-            "options": {
-              "message": "*",
-              "subject": "*",
-              "correlationId": "",
-              "conversation": "",
-              "state": null
-            },
-            "macro": "",
-            "varMan": {
-              "var1": "",
-              "var2": "",
-              "operation": "and",
-              "storevar": ""
-            }
-          }, {
-            "id": 6,
-            "text": "",
-            "start": false,
-            "end": false,
-            "type": "send",
-            "deactivated": false,
-            "majorStartNode": false,
-            "conversation": "",
-            "variable": "",
-            "options": {
-              "message": "*",
-              "subject": "*",
-              "correlationId": "*",
-              "conversation": "*",
-              "state": null
-            },
-            "macro": "",
-            "varMan": {
-              "var1": "",
-              "var2": "",
-              "operation": "and",
-              "storevar": ""
-            }
-          }, {
-            "id": 2,
-            "text": "",
-            "start": false,
-            "end": false,
-            "type": "send",
-            "deactivated": false,
-            "majorStartNode": false,
-            "conversation": "",
-            "variable": "",
-            "options": {
-              "message": "*",
-              "subject": "*",
-              "correlationId": "*",
-              "conversation": "*",
-              "state": null
-            },
-            "macro": "",
-            "varMan": {
-              "var1": "",
-              "var2": "",
-              "operation": "and",
-              "storevar": ""
-            }
-          }, {
-            "id": 3,
-            "text": "",
-            "start": false,
-            "end": false,
-            "type": "receive",
-            "deactivated": false,
-            "majorStartNode": false,
-            "conversation": "",
-            "variable": "",
-            "options": {
-              "message": "*",
-              "subject": "*",
-              "correlationId": "*",
-              "conversation": "*",
-              "state": null
-            },
-            "macro": "",
-            "varMan": {
-              "var1": "",
-              "var2": "",
-              "operation": "and",
-              "storevar": ""
-            }
-          }, {
-            "id": 4,
-            "text": "Bestellung aus Lager holen",
-            "start": false,
-            "end": false,
-            "type": "action",
-            "deactivated": false,
-            "majorStartNode": false,
-            "conversation": "",
-            "variable": "",
-            "options": {
-              "message": "*",
-              "subject": "*",
-              "correlationId": "",
-              "conversation": "",
-              "state": null
-            },
-            "macro": "",
-            "varMan": {
-              "var1": "",
-              "var2": "",
-              "operation": "and",
-              "storevar": ""
-            }
-          }],
-          "edges": [{
-            "start": 0,
-            "end": 1,
-            "text": "m3",
-            "type": "exitcondition",
-            "target": {
-              "id": "Audi",
-              "min": -1,
-              "max": -1,
-              "createNew": false,
-              "variable": ""
-            },
-            "deactivated": false,
-            "optional": false,
-            "priority": 1,
-            "manualTimeout": false,
-            "variable": "",
-            "correlationId": "",
-            "comment": "",
-            "transportMethod": ["internal"]
-          }, {
-            "start": 1,
-            "end": 2,
-            "text": "Verf\u00fcgbar",
-            "type": "exitcondition",
-            "deactivated": false,
-            "optional": false,
-            "priority": 1,
-            "manualTimeout": false,
-            "variable": "",
-            "correlationId": "",
-            "comment": "",
-            "transportMethod": ["internal"]
-          }, {
-            "start": 1,
-            "end": 4,
-            "text": "Nicht Verf\u00fcgbar",
-            "type": "exitcondition",
-            "deactivated": false,
-            "optional": false,
-            "priority": 1,
-            "manualTimeout": false,
-            "variable": "",
-            "correlationId": "",
-            "comment": "",
-            "transportMethod": ["internal"]
-          }, {
-            "start": 6,
-            "end": 5,
-            "text": "m2",
-            "type": "exitcondition",
-            "target": {
-              "id": "Audi",
-              "min": -1,
-              "max": -1,
-              "createNew": false,
-              "variable": ""
-            },
-            "deactivated": false,
-            "optional": false,
-            "priority": 1,
-            "manualTimeout": false,
-            "variable": "",
-            "correlationId": "",
-            "comment": "",
-            "transportMethod": ["internal"]
-          }, {
-            "start": 3,
-            "end": 6,
-            "text": "m2",
-            "type": "exitcondition",
-            "target": {
-              "id": "Zulieferer",
-              "min": -1,
-              "max": -1,
-              "createNew": false,
-              "variable": ""
-            },
-            "deactivated": false,
-            "optional": false,
-            "priority": 1,
-            "manualTimeout": false,
-            "variable": "",
-            "correlationId": "",
-            "comment": "",
-            "transportMethod": ["internal"]
-          }, {
-            "start": 2,
-            "end": 3,
-            "text": "m1",
-            "type": "exitcondition",
-            "target": {
-              "id": "Zulieferer",
-              "min": -1,
-              "max": -1,
-              "createNew": false,
-              "variable": ""
-            },
-            "deactivated": false,
-            "optional": false,
-            "priority": 1,
-            "manualTimeout": false,
-            "variable": "",
-            "correlationId": "",
-            "comment": "",
-            "transportMethod": ["internal"]
-          }, {
-            "start": 4,
-            "end": 2,
-            "text": "",
-            "type": "exitcondition",
-            "deactivated": false,
-            "optional": false,
-            "priority": 1,
-            "manualTimeout": false,
-            "correlationId": "",
-            "comment": "",
-            "transportMethod": ["internal"]
-          }]
-        }],
-        "macroCounter": 1
-      }, {
-        "id": "Zulieferer",
-        "name": "Lieferant",
-        "type": "external",
-        "deactivated": false,
-        "startSubject": false,
-        "inputPool": 100,
-        "relatedSubject": "Zulieferer",
-        "relatedProcess": 3,
-        "externalType": "external",
-        "role": "Zulieferer",
-        "comment": "",
-        "variables": {
-
-        },
-        "variableCounter": 1,
-        "macros": [{
-          "id": "##main##",
-          "name": "internal behavior",
-          "nodeCounter": 1,
-          "nodes": [],
-          "edges": []
-        }],
-        "macroCounter": 1
-      }, {
-        "id": "Audi",
-        "name": "Bestellung",
-        "type": "external",
-        "deactivated": false,
-        "startSubject": false,
-        "inputPool": 100,
-        "relatedSubject": "Audi",
-        "relatedProcess": 1,
-        "externalType": "external",
-        "role": "Kunde",
-        "comment": "",
-        "variables": {
-
-        },
-        "variableCounter": 1,
-        "macros": [{
-          "id": "##main##",
-          "name": "internal behavior",
-          "nodeCounter": 1,
-          "nodes": [],
-          "edges": []
-        }],
-        "macroCounter": 1
-      }],
-      "conversations": {
-
-      },
-      "conversationCounter": 1,
-      "messages": {
-        "m1": "Abholauftrag",
-        "m2": "Lieferdatum",
-        "m3": "Bestellung"
-      },
-      "messageCounter": 4,
-      "nodeCounter": 6
+  "definition": {
+    "conversationCounter": 1,
+    "conversations": {},
+    "messageCounter": 4,
+    "messages": {
+      "m1": "Abholauftrag",
+      "m2": "Lieferdatum",
+      "m3": "Bestellung"
     },
-    "routings": []
-  }
+    "nodeCounter": 1,
+    "process": [
+      {
+        "comment": "",
+        "deactivated": false,
+        "externalType": "external",
+        "id": "Staples",
+        "inputPool": 100,
+        "macroCounter": 1,
+        "macros": [
+          {
+            "edges": [
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 2,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 0,
+                "target": {
+                  "createNew": false,
+                  "id": "Audi",
+                  "max": -1,
+                  "min": -1,
+                  "variable": ""
+                },
+                "text": "m3",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 4,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 2,
+                "target": "",
+                "text": "Verf\u00fcgbar",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 6,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 2,
+                "target": "",
+                "text": "Nicht Verf\u00fcgbar",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 1,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 3,
+                "target": {
+                  "createNew": false,
+                  "id": "Audi",
+                  "max": -1,
+                  "min": -1,
+                  "variable": ""
+                },
+                "text": "m2",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 3,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 5,
+                "target": {
+                  "createNew": false,
+                  "id": "Zulieferer",
+                  "max": -1,
+                  "min": -1,
+                  "variable": ""
+                },
+                "text": "m2",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 5,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 4,
+                "target": {
+                  "createNew": false,
+                  "id": "Zulieferer",
+                  "max": -1,
+                  "min": -1,
+                  "variable": ""
+                },
+                "text": "m1",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 4,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 6,
+                "target": "",
+                "text": "",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": null
+              }
+            ],
+            "id": "##main##",
+            "name": "internal behavior",
+            "nodeCounter": 7,
+            "nodes": [
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 0,
+                "macro": "",
+                "majorStartNode": true,
+                "options": {
+                  "conversation": "",
+                  "correlationId": "",
+                  "message": "*",
+                  "state": null,
+                  "subject": "*"
+                },
+                "start": true,
+                "text": "",
+                "type": "receive",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": true,
+                "id": 1,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "*",
+                  "correlationId": "*",
+                  "message": "*",
+                  "state": null,
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "",
+                "type": "end",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 2,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "",
+                  "correlationId": "",
+                  "message": "*",
+                  "state": null,
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "Verf\u00fcgbarkeit pr\u00fcfen",
+                "type": "action",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 3,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "*",
+                  "correlationId": "*",
+                  "message": "*",
+                  "state": null,
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "",
+                "type": "send",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 4,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "*",
+                  "correlationId": "*",
+                  "message": "*",
+                  "state": null,
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "",
+                "type": "send",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 5,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "*",
+                  "correlationId": "*",
+                  "message": "*",
+                  "state": null,
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "",
+                "type": "receive",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 6,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "",
+                  "correlationId": "",
+                  "message": "*",
+                  "state": null,
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "Bestellung aus Lager holen",
+                "type": "action",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              }
+            ]
+          }
+        ],
+        "name": "Staples",
+        "relatedProcess": "",
+        "relatedSubject": "",
+        "role": "Staples",
+        "type": "single",
+        "variableCounter": 1,
+        "variables": {}
+      },
+      {
+        "comment": "",
+        "deactivated": false,
+        "externalType": "interface",
+        "id": "Zulieferer",
+        "inputPool": 100,
+        "macroCounter": 1,
+        "macros": [
+          {
+            "edges": [
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 1,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 0,
+                "target": {
+                  "createNew": false,
+                  "id": "Staples",
+                  "max": -1,
+                  "min": -1,
+                  "variable": ""
+                },
+                "text": "m1",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 2,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 1,
+                "target": {
+                  "createNew": false,
+                  "id": "Staples",
+                  "max": -1,
+                  "min": -1,
+                  "variable": ""
+                },
+                "text": "m2",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              }
+            ],
+            "id": "##main##",
+            "name": "internal behavior",
+            "nodeCounter": 5,
+            "nodes": [
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 0,
+                "macro": "",
+                "majorStartNode": true,
+                "options": {
+                  "conversation": "",
+                  "correlationId": "",
+                  "message": "",
+                  "state": "",
+                  "subject": ""
+                },
+                "start": true,
+                "text": "",
+                "type": "receive",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 1,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "*",
+                  "correlationId": "*",
+                  "message": "*",
+                  "state": "",
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "",
+                "type": "send",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": true,
+                "id": 2,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "*",
+                  "correlationId": "*",
+                  "message": "*",
+                  "state": "",
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "",
+                "type": "end",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              }
+            ]
+          }
+        ],
+        "name": "Lieferant",
+        "relatedProcess": 3,
+        "relatedSubject": "Zulieferer",
+        "role": "Zulieferer",
+        "type": "external",
+        "variableCounter": 1,
+        "variables": {}
+      },
+      {
+        "comment": "",
+        "deactivated": false,
+        "externalType": "interface",
+        "id": "Audi",
+        "inputPool": 100,
+        "macroCounter": 1,
+        "macros": [
+          {
+            "edges": [
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 1,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 0,
+                "target": {
+                  "createNew": false,
+                  "id": "Staples",
+                  "max": -1,
+                  "min": -1,
+                  "variable": ""
+                },
+                "text": "m3",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 2,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 1,
+                "target": {
+                  "createNew": false,
+                  "id": "Staples",
+                  "max": -1,
+                  "min": -1,
+                  "variable": ""
+                },
+                "text": "m2",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              }
+            ],
+            "id": "##main##",
+            "name": "internal behavior",
+            "nodeCounter": 5,
+            "nodes": [
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 0,
+                "macro": "",
+                "majorStartNode": true,
+                "options": {
+                  "conversation": "",
+                  "correlationId": "",
+                  "message": "",
+                  "state": "",
+                  "subject": ""
+                },
+                "start": true,
+                "text": "",
+                "type": "send",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 1,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "*",
+                  "correlationId": "*",
+                  "message": "*",
+                  "state": "",
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "",
+                "type": "receive",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": true,
+                "id": 2,
+                "macro": "",
+                "majorStartNode": false,
+                "options": {
+                  "conversation": "*",
+                  "correlationId": "*",
+                  "message": "*",
+                  "state": "",
+                  "subject": "*"
+                },
+                "start": false,
+                "text": "",
+                "type": "end",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              }
+            ]
+          }
+        ],
+        "name": "Kunde",
+        "relatedProcess": "",
+        "relatedSubject": "Audi",
+        "role": "Kunde",
+        "type": "external",
+        "variableCounter": 1,
+        "variables": {}
+      }
+    ]
+  },
+  "routings": []
+}
