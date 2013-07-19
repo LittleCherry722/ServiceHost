@@ -45,7 +45,8 @@ define([
       "models/groupsRoles",
       "models/processInstance",
       "models/processInstance",
-      "models/actions"
+      "models/actions",
+      "models/interface"
       // "models/roles",
     ], function( Model, User, Process, Group, Role ) {
 
