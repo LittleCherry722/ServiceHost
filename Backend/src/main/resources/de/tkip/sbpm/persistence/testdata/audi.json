@@ -251,6 +251,7 @@
         "deactivated": false,
         "externalType": "interface",
         "id": "Staples",
+        "subjectType":"external",
         "inputPool": 100,
         "macroCounter": 1,
         "macros": [
@@ -389,7 +390,7 @@
           }
         ],
         "name": "Staples",
-        "relatedProcess": "",
+        "relatedProcess": 2,
         "relatedSubject": "Staples",
         "role": "Staples",
         "type": "external",
