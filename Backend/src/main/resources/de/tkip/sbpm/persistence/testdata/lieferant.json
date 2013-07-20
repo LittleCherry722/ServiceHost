@@ -152,9 +152,9 @@
           }
         ],
         "name": "Kunde",
-        "relatedProcess": "",
+        "relatedProcess": 2,
         "relatedSubject": "Staples",
-        "role": "Kunde",
+        "role": "Staples",
         "type": "external",
         "variableCounter": 1,
         "variables": {}

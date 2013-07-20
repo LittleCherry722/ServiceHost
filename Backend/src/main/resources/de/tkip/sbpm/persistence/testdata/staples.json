@@ -654,7 +654,7 @@
           }
         ],
         "name": "Kunde",
-        "relatedProcess": "",
+        "relatedProcess": 1,
         "relatedSubject": "Audi",
         "role": "Kunde",
         "type": "external",
