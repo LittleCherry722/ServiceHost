@@ -1962,7 +1962,7 @@ table th[class*="span"],
   line-height: normal;
   vertical-align: baseline;
   background-image: none;
-  background-position: 0% 0%;
+  background-position: 0 0;
   background-repeat: repeat;
   margin-top: 0;
 }
@@ -5546,7 +5546,7 @@ a.label:hover, a.badge:hover {
 }
 
 .progress .bar {
-  width: 0%;
+  width: 0;
   height: 100%;
   color: white;
   float: left;
@@ -6259,7 +6259,7 @@ input[type="radio"], input[type="checkbox"] {
 .introjs-button:hover {
   border-color: #bcbcbc;
   text-decoration: none;
-  box-shadow: 0px 1px 1px #e3e3e3;
+  box-shadow: 0 1px 1px #e3e3e3;
 }
 
 .introjs-button:focus,
@@ -6372,7 +6372,7 @@ h1, h2, h3, h4 {
 h1 {
   font-size: 24px;
   font-weight: normal;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   font-family: Helvetica;
   color: #f1f1f1;
 }
@@ -6527,10 +6527,9 @@ h4 {
 }
 
 #misc {
-  width: 550px;
   height: 40px;
-  margin: 5px 0px 0 0;
-  padding: 0px 0px 0 0px;
+  margin: 5px 0 0 0;
+  padding: 0;
   float: right;
 }
 
@@ -6540,8 +6539,8 @@ h4 {
 }
 
 #misc #img {
-  width: 160px;
   float: right;
+  margin-right: 5px;
 }
 
 a:active {
@@ -6734,7 +6733,7 @@ a#show_menu:hover {
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
-  border-top: 0px solid #bdbdbd;
+  border-top: 0 solid #bdbdbd;
   padding: 15px;
 }
 .onecolumn .header span {
@@ -6792,7 +6791,7 @@ a#show_menu:hover {
   -webkit-border-radius: 0 0 5px 5px;
   -moz-border-radius: 0 0 5px 5px;
   border-radius: 0 0 5px 5px;
-  border-top: 0px solid #bdbdbd;
+  border-top: 0 solid #bdbdbd;
   padding-bottom: 10px;
   padding: 25px 15px 15px 15px;
 }
@@ -6925,7 +6924,7 @@ table.data2 tr td {
   text-align: center;
 }
 .graphsettings fieldset.hidden legend {
-  margin-bottom: 0px;
+  margin-bottom: 0;
   text-align: left;
   border-bottom: none;
 }
@@ -7400,7 +7399,7 @@ table.data2 tr td {
   cursor: pointer;
 }
 .dropdown-menu li a:hover {
-  text-shadow: 0px 1px black;
+  text-shadow: 0 1px black;
 }
 .dropdown-menu li.active a, .dropdown-menu li.active a:hover {
   text-shadow: 0 1px black;
