@@ -12,22 +12,16 @@
  */
 package de.tkip.sbpm.rest
 
-import java.io.File
 
 import scala.reflect.ClassTag
 
-import akka.actor.{Actor, Props, ActorRef, ActorSystem, PoisonPill}
-import akka.event.Logging
+import akka.actor.{ActorRef, Actor, Props, PoisonPill}
 
 import spray.routing._
 import spray.http._
-import spray.json._
-import MediaTypes._
 
 import de.tkip.sbpm.rest.auth.CookieAuthenticator
 import de.tkip.sbpm.rest.auth.SessionDirectives._
-import de.tkip.sbpm.rest.ProcessAttribute._
-import de.tkip.sbpm.model.User
 import de.tkip.sbpm.logging.DefaultLogging
 
 object Entity {
@@ -73,10 +67,11 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
     case auth.AuthenticationRejection(schemes, realm, sessionId) :: _ => {
       respondWithHeader(HttpHeaders.`WWW-Authenticate`(schemes.map(HttpChallenge(_, realm)))) {
         if (sessionId.isDefined) {
-          session(sessionId.get)(context) { session =>
-            setSessionCookie(session)(context) {
-              complete(StatusCodes.Unauthorized)
-            }
+          session(sessionId.get)(context) {
+            session =>
+              setSessionCookie(session)(context) {
+                complete(StatusCodes.Unauthorized)
+              }
           }
         } else {
           deleteSession(actorRefFactory) {
@@ -87,6 +82,15 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
     }
   }
 
+  private val executionInterfaceActor = context.actorOf(Props[ExecutionInterfaceActor])
+  private val processInterfaceActor = context.actorOf(Props[ProcessInterfaceActor])
+  private val gResponsActor = context.actorOf(Props[GResponseActor])
+  private val userInterfaceActor = context.actorOf(Props[UserInterfaceActor])
+  private val roleInterfaceActor = context.actorOf(Props[RoleInterfaceActor])
+  private val groupInterfaceActor = context.actorOf(Props[GroupInterfaceActor])
+  private val configurationInterfaceActor = context.actorOf(Props[ConfigurationInterfaceActor])
+  private val debugInterfaceActor = context.actorOf(Props[DebugInterfaceActor])
+
   def receive = runRoute({
     /**
      * redirect all calls beginning with "processinstance" (val EXECUTION) to ExecutionInterfaceActor
@@ -94,7 +98,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
      * e.g. GET http://localhost:8080/processinstance/8
      */
     pathPrefix(Entity.EXECUTION) {
-      authenticateAndHandleWith[ExecutionInterfaceActor]
+      authenticated {
+        delegateTo(executionInterfaceActor)
+      }
     } ~
       /**
        * redirect all calls beginning with "process" to ProcessInterfaceActor
@@ -102,20 +108,22 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
        * e.g. GET http://localhost:8080/process/8
        */
       pathPrefix(Entity.PROCESS) {
-        authenticateAndHandleWith[ProcessInterfaceActor]
+        authenticated {
+          delegateTo(processInterfaceActor)
+        }
       } ~
       /**
        * forward all posts to /oauth2callback unauthenticated to GoogleAuthActor
        */
       pathPrefix(Entity.OAUTH2CALLBACK) {
-          handleWith[GResponseActor]
+        delegateTo(gResponsActor)
       } ~
       /**
        * forward all gets and posts to /googledrive unauthenticated to GoogleAuthActor
        */
       //TODO add authentication for google drive
       pathPrefix(Entity.GOOGLEDRIVE) {
-          handleWith[GResponseActor]
+        delegateTo(gResponsActor)
       } ~
       pathPrefix(Entity.USER) {
         /**
@@ -123,14 +131,16 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
          * without authentication
          */
         (pathTest("login") & post) {
-          handleWith[UserInterfaceActor]
+          delegateTo(userInterfaceActor)
         } ~
           /**
            * redirect all other calls beginning with "user" to UserInterfaceActor
            * after authentication
            * e.g. GET http://localhost:8080/user/8
            */
-          authenticateAndHandleWith[UserInterfaceActor]
+          authenticated {
+            delegateTo(userInterfaceActor)
+          }
       } ~
       /**
        * redirect all calls beginning with "role" to RoleInterfaceActor
@@ -138,7 +148,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
        * e.g. GET http://localhost:8080/role/8
        */
       pathPrefix(Entity.ROLE) {
-        authenticateAndHandleWith[RoleInterfaceActor]
+        authenticated {
+          delegateTo(roleInterfaceActor)
+        }
       } ~
       /**
        * redirect all calls beginning with "group" to GroupInterfaceActor
@@ -146,7 +158,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
        * e.g. GET http://localhost:8080/group/8
        */
       pathPrefix(Entity.GROUP) {
-        authenticateAndHandleWith[GroupInterfaceActor]
+        authenticated {
+          delegateTo(groupInterfaceActor)
+        }
       } ~
       /**
        * redirect all calls beginning with "configuration" to ConfigurationInterfaceActor
@@ -154,7 +168,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
        * e.g. GET http://localhost:8080/configuration/sbpm.debug
        */
       pathPrefix(Entity.CONFIGURATION) {
-        authenticateAndHandleWith[ConfigurationInterfaceActor]
+        authenticated {
+          delegateTo(configurationInterfaceActor)
+        }
       } ~
       /**
        * redirect all calls beginning with "debug" to DebugInterfaceActor
@@ -162,7 +178,15 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
        * e.g. GET http://localhost:8080/debug/sbpm.debug
        */
       pathPrefix(Entity.DEBUG) {
-        authenticateAndHandleWith[DebugInterfaceActor]
+        authenticated {
+          delegateTo(debugInterfaceActor)
+        }
+      } ~
+      pathPrefix(Entity.ISALIVE) {
+        get {
+          complete(StatusCodes.OK)
+          // TODO do some health check stuff and return StatusCodes.OK
+        }
       } ~
       get {
         /**
@@ -172,53 +196,46 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         path(frontendBaseUrl + "/") {
           getFromFile(frontendBaseDir + frontendIndexFile)
         } ~
-	      // no trailing slash -> redirect to index OR root folder -> redirect to frontendBaseUrl
-	      (path(frontendBaseUrl) | path("")) {
-	        redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
-	      } ~
-	      // server other static content from dir
-	      pathPrefix(frontendBaseUrl) {
-	        getFromDirectory(frontendBaseDir)
-	      }
-      } ~
-      pathPrefix(Entity.ISALIVE){
-    	  get {
-		      complete(StatusCodes.OK)
-		      // TODO do some health check stuff and return StatusCodes.OK
-    	  }
+        // no trailing slash -> redirect to index OR root folder -> redirect to frontendBaseUrl
+        (path(frontendBaseUrl) | path("")) {
+          redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
+        } ~
+        // server other static content from dir
+        pathPrefix(frontendBaseUrl) {
+          getFromDirectory(frontendBaseDir)
+        }
       }
   })
 
   /**
-   * Redirect the current request to the specified *InterfaceActor
+   * Delegates the current request to the specified *InterfaceActor
    * without authentication.
    */
-  private def handleWith[A <: Actor: ClassTag]: RequestContext => Unit = {
-    requestContext =>
-      var actor = context.actorOf(Props[A])
-      actor ! requestContext
-      // kill actor after handling the request
-      actor ! PoisonPill
+  private def delegateTo(actor: ActorRef): RequestContext => Unit = {
+    requestContext => actor ! requestContext
   }
 
   /**
-   * Redirect the current request to the specified *InterfaceActor
-   * and checks if user is authenticated or tries to authenticate
-   * him respectively.
-   * Cancels the request, if user cannot be authenticated.
+   * Checks if user is authenticated or tries to authenticate
+   * him respectively. Cancels the request, if user cannot be authenticated.
    */
-  private def authenticateAndHandleWith[A <: Actor: ClassTag]: RequestContext => Unit = {
+  private def authenticated(op: => RequestContext => Unit) = {
     if (authenticationEnabled) {
       // authenticate using session cookie or Authorization header
-      authenticate(new CookieAuthenticator) { session =>
+      authenticate(new CookieAuthenticator) {
+        session =>
         // auth successful -> set session cookie
-        setSessionCookie(session)(context) {
-          handleWith[A]
-        }
+          setSessionCookie(session)(context) {
+            op
+          }
       }
     } else {
-      handleWith[A]
+      op
     }
   }
 
+  private def serveStaticFiles: RequestContext => Unit = {
+    requestContext =>
+
+  }
 }
