@@ -46,6 +46,9 @@ import de.tkip.sbpm.persistence.query._
  */
 // TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor extends Actor with PersistenceInterface {
+  // This array is used to filter the processes, which are shown in the showcase
+  val showProcesses = Array(1, 2, 3)
+
   private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
   private lazy val persistanceActor = ActorLocator.persistenceActor
 
@@ -82,7 +85,11 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       // LIST
       path("") {
         // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-        completeWithQuery[Seq[Process]](Processes.Read())
+        complete(
+          for {
+            processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
+            filtered = processes filter (showProcesses contains _.id.getOrElse(-1))
+          } yield filtered)
       } ~
         // READ
         pathPrefix(IntNumber) { id =>
