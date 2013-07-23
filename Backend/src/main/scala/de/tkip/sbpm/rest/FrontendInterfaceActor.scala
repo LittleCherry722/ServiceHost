@@ -83,14 +83,14 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
     }
   }
 
-  private val executionInterfaceActor = context.actorOf(Props[ExecutionInterfaceActor])
-  private val processInterfaceActor = context.actorOf(Props[ProcessInterfaceActor])
-  private val gResponsActor = context.actorOf(Props[GResponseActor])
-  private val userInterfaceActor = context.actorOf(Props[UserInterfaceActor])
-  private val roleInterfaceActor = context.actorOf(Props[RoleInterfaceActor])
-  private val groupInterfaceActor = context.actorOf(Props[GroupInterfaceActor])
-  private val configurationInterfaceActor = context.actorOf(Props[ConfigurationInterfaceActor])
-  private val debugInterfaceActor = context.actorOf(Props[DebugInterfaceActor])
+  private val executionInterfaceActor = context.actorOf(Props[ExecutionInterfaceActor], "execution-interface")
+  private val processInterfaceActor = context.actorOf(Props[ProcessInterfaceActor], "process-interface")
+  private val gResponsActor = context.actorOf(Props[GResponseActor], "gresponse")
+  private val userInterfaceActor = context.actorOf(Props[UserInterfaceActor], "user-interface")
+  private val roleInterfaceActor = context.actorOf(Props[RoleInterfaceActor], "role-interface")
+  private val groupInterfaceActor = context.actorOf(Props[GroupInterfaceActor], "group-interface")
+  private val configurationInterfaceActor = context.actorOf(Props[ConfigurationInterfaceActor], "configuration-interface")
+  private val debugInterfaceActor = context.actorOf(Props[DebugInterfaceActor], "debug-interface")
 
   def receive = runRoute({
     /**
