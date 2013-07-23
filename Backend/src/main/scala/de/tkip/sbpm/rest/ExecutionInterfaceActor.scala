@@ -35,10 +35,9 @@ import de.tkip.sbpm.logging.DefaultLogging
  */
 class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
   implicit val timeout = Timeout(5 seconds)
-  override implicit def executionContext = ExecutionContext.Implicits.global
 
   implicit def exceptionHandler(implicit log: LoggingContext) =
-    ExceptionHandler.fromPF {
+    ExceptionHandler {
       case e: IllegalArgumentException => ctx => {
         ctx.complete(StatusCodes.BadRequest, e.getMessage)
       }
@@ -102,7 +101,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
       put {
         //UPDATE
         pathPrefix(IntNumber) { processInstanceID =>
-          path("^$"r) { regex =>
+          path("") {
             entity(as[ExecuteAction]) { json =>
               //execute next step
               implicit val timeout = Timeout(5 seconds)
@@ -116,7 +115,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
       post {
         //CREATE
         pathPrefix("") {
-          path("^$"r) { regex =>
+          path("") {
             entity(as[ProcessIdHeader]) { json =>
               implicit val timeout = Timeout(5 seconds)
               val future = subjectProviderManager ? CreateProcessInstance(userId, json.processId)

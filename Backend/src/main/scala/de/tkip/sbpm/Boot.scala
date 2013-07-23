@@ -16,17 +16,15 @@ package de.tkip.sbpm
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 
-import scala.util.{Try, Success, Failure}
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
-import akka.actor.{Props, actorRef2Scala}
+import akka.actor.{ActorSystem, Props, actorRef2Scala}
 import akka.util.Timeout
 import akka.pattern._
+import akka.io.IO
 
 import ActorLocator._
-
-import spray.can.server.SprayCanHttpServerApp
 
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.application._
@@ -37,13 +35,17 @@ import de.tkip.sbpm.rest.FrontendInterfaceActor
 import de.tkip.sbpm.rest._
 import de.tkip.sbpm.rest.auth._
 import de.tkip.sbpm.rest.google.GDriveActor
+import spray.routing.SimpleRoutingApp
+import spray.can.Http
 
-object Boot extends App with SprayCanHttpServerApp {
+object Boot extends App {
+
+  implicit val system = ActorSystem("sbpm")
   val logging = system.log
 
   sys.addShutdownHook {
     logging.debug("Shutting down the system...")
-    val stopFutures = Future.sequence(rootActors.map(gracefulStop(_, 5 seconds)(system)))
+    val stopFutures = Future.sequence(rootActors.map(gracefulStop(_, 5 seconds)))
     Await.result(stopFutures, 6 seconds)
     system.shutdown();
   }
@@ -81,12 +83,11 @@ object Boot extends App with SprayCanHttpServerApp {
     system.actorOf(Props[GDriveActor], googleDriveActorName))
 
 
-  // create a new HttpServer using our handler tell it where to bind to
-  newHttpServer(frontendInterfaceActor) ! Bind(interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
+  // binding the frontendInterfaceActor to a HttpListener
+  IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
 
   // db init code below
   implicit val timout = Timeout(30 seconds)
-  implicit val context = system
   implicit val executionContext = system.dispatcher
 
   // check startup actions defined in config

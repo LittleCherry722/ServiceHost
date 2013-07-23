@@ -52,7 +52,7 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
   // processing the request into internal server error response
   // with exception message as payload (also logs the exception)
   implicit def exceptionHandler(implicit log: LoggingContext) =
-    ExceptionHandler.fromPF {
+    ExceptionHandler {
       case e: EntityNotFoundException => ctx =>
         ctx.complete(StatusCodes.NotFound, e.getMessage)
       case e: Exception => ctx =>
