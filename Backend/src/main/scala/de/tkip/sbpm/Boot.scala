@@ -83,7 +83,7 @@ object Boot extends App {
     system.actorOf(Props[GDriveActor], googleDriveActorName))
 
 
-  // create a new HttpServer using our handler tell it where to bind to
+  // binding the frontendInterfaceActor to a HttpListener
   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
 
   // db init code below
