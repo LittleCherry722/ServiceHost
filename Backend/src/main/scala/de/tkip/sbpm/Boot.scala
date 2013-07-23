@@ -38,9 +38,9 @@ import de.tkip.sbpm.rest.google.GDriveActor
 import spray.routing.SimpleRoutingApp
 import spray.can.Http
 
-object Boot extends App with SimpleRoutingApp{
+object Boot extends App {
 
-  implicit val system = ActorSystem()
+  implicit val system = ActorSystem("sbpm")
   val logging = system.log
 
   sys.addShutdownHook {

@@ -15,6 +15,7 @@ object ProjectBuild extends Build {
       resolvers ++= Seq(
         "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         "spray repo" at "http://repo.spray.io",
+        "spray nightly repo" at "http://nightlies.spray.io",
         "Sonatype Releases" at "http://oss.sonatype.org/content/repositories/releases",
         "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"
       ),
@@ -29,7 +30,7 @@ object ProjectBuild extends Build {
 
         "org.xerial" % "sqlite-jdbc" % "3.7.2",
         "com.mchange" % "c3p0" % "0.9.2.1",
-        "io.spray" % "spray-can" % "1.2-M8",
+        "io.spray" % "spray-can" % "1.2-20130710",
         "io.spray" % "spray-routing" % "1.2-M8",
         "io.spray" % "spray-testkit" % "1.2-M8" % "test",
         "io.spray" %% "spray-json" % "1.2.5",
