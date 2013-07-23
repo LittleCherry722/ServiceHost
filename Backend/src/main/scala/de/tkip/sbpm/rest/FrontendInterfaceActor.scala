@@ -13,9 +13,7 @@
 package de.tkip.sbpm.rest
 
 
-import scala.reflect.ClassTag
-
-import akka.actor.{ActorRef, Actor, Props, PoisonPill}
+import akka.actor.{ActorRef, Actor, Props}
 
 import spray.routing._
 import spray.http._
@@ -189,29 +187,30 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         }
       } ~
       get {
-        /**
-         * Serve static files under ../ProcessManagement/
-         */
-        // trailing / -> get index
-        path(frontendBaseUrl + "/") {
-          getFromFile(frontendBaseDir + frontendIndexFile)
-        } ~
-        // no trailing slash -> redirect to index OR root folder -> redirect to frontendBaseUrl
-        (path(frontendBaseUrl) | path("")) {
-          redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
-        } ~
-        // server other static content from dir
-        pathPrefix(frontendBaseUrl) {
-          getFromDirectory(frontendBaseDir)
-        }
+        serveStaticFiles
       }
   })
+
+  def serveStaticFiles: Route = {
+    // trailing / -> get index
+    path(frontendBaseUrl + "/") {
+      getFromFile(frontendBaseDir + frontendIndexFile)
+    } ~
+      // no trailing slash -> redirect to index OR root folder -> redirect to frontendBaseUrl
+      (path(frontendBaseUrl) | path("")) {
+        redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
+      } ~
+      // server other static content from dir
+      pathPrefix(frontendBaseUrl) {
+        getFromDirectory(frontendBaseDir)
+      }
+  }
 
   /**
    * Delegates the current request to the specified *InterfaceActor
    * without authentication.
    */
-  private def delegateTo(actor: ActorRef): RequestContext => Unit = {
+  private def delegateTo(actor: ActorRef): Route = {
     requestContext => actor ! requestContext
   }
 
@@ -219,7 +218,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
    * Checks if user is authenticated or tries to authenticate
    * him respectively. Cancels the request, if user cannot be authenticated.
    */
-  private def authenticated(op: => RequestContext => Unit) = {
+  private def authenticated(op: => Route) = {
     if (authenticationEnabled) {
       // authenticate using session cookie or Authorization header
       authenticate(new CookieAuthenticator) {
@@ -232,10 +231,5 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
     } else {
       op
     }
-  }
-
-  private def serveStaticFiles: RequestContext => Unit = {
-    requestContext =>
-
   }
 }
