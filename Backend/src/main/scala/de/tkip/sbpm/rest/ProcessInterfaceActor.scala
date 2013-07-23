@@ -111,7 +111,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          * e.g. POST http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
         // CREATE
-        path("^$"r) { regex =>
+        path("") {
           entity(as[GraphHeader]) { json =>
             save(None, json)
           }
@@ -139,7 +139,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          */
         //UPDATE
         pathPrefix(IntNumber) { id =>
-          path("^$"r) { regex =>
+          path("") {
             entity(as[GraphHeader]) { json =>
               save(Some(id), json)
             }

@@ -171,14 +171,14 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         /**
          * Serve static files under ../ProcessManagement/
          */
-        // trailing / -> get index
-        path(frontendBaseUrl + "/") {
+        // root folder -> redirect to frontendBaseUrl
+        path("") {
+          redirect("/" + frontendBaseUrl, StatusCodes.MovedPermanently)
+        } ~
+        // get index
+        path(frontendBaseUrl) {
           getFromFile(frontendBaseDir + frontendIndexFile)
         } ~
-	      // no trailing slash -> redirect to index OR root folder -> redirect to frontendBaseUrl
-	      (path(frontendBaseUrl) | path("")) {
-	        redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
-	      } ~
 	      // server other static content from dir
 	      pathPrefix(frontendBaseUrl) {
 	        getFromDirectory(frontendBaseDir)
