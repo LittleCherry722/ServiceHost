@@ -27,6 +27,7 @@ import de.tkip.sbpm.persistence._
 import de.tkip.sbpm.application.miscellaneous._
 import spray.http.MediaTypes._
 import spray.routing._
+import spray.json._
 import de.tkip.sbpm.model._
 import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
@@ -34,8 +35,6 @@ import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
 import spray.json._
 import spray.httpx.marshalling._
-import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
-import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
 import de.tkip.sbpm.application.ProcessManagerActor
 import scala.concurrent.Await
 import spray.util.LoggingContext

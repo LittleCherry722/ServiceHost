@@ -50,6 +50,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
 
   def actorRefFactory = context
 
+  // execution context e.g. for authentication
+  import context.dispatcher
+
   // akka config prefix
   protected val configPath = "sbpm."
 
@@ -66,7 +69,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val frontendBaseDir = configString("frontend.baseDirectory")
   private val authenticationEnabled = configFlag("rest.authentication")
 
-  implicit val rejectionHandler = RejectionHandler.fromPF {
+  implicit val rejectionHandler = RejectionHandler {
     // on authorization required rejection -> provide user a set of
     // supported auth schemes in the WWW-Authenticate header
     // and delete invalid session cookies
@@ -122,7 +125,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
          * redirect posts to /user/login to UserInterfaceActor
          * without authentication
          */
-        (pathTest("login") & post) {
+        (pathSuffixTest("login") & post) {
           handleWith[UserInterfaceActor]
         } ~
           /**

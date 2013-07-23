@@ -35,10 +35,9 @@ import de.tkip.sbpm.logging.DefaultLogging
  */
 class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
   implicit val timeout = Timeout(5 seconds)
-  override implicit def executionContext = ExecutionContext.Implicits.global
 
   implicit def exceptionHandler(implicit log: LoggingContext) =
-    ExceptionHandler.fromPF {
+    ExceptionHandler {
       case e: IllegalArgumentException => ctx => {
         ctx.complete(StatusCodes.BadRequest, e.getMessage)
       }
