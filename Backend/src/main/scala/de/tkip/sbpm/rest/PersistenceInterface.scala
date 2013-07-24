@@ -13,30 +13,24 @@
 
 package de.tkip.sbpm.rest
 
-import spray.routing.directives.CompletionMagnet
 import scala.language.postfixOps
 import akka.actor.Actor
 import akka.util.Timeout
-import scala.concurrent.Await
+import scala.concurrent.Future
 import akka.pattern._
 import scala.concurrent.duration._
-import spray.json._
-import de.tkip.sbpm.rest.JsonProtocol._
-import spray.routing.directives.CompletionMagnet
 import spray.routing.HttpService
 import spray.http.HttpHeaders
 import spray.http.StatusCodes
-import spray.http.StatusCode
 import spray.routing.StandardRoute
 import spray.httpx.marshalling.Marshaller
 import spray.util.LoggingContext
 import spray.routing.ExceptionHandler
 import de.tkip.sbpm.ActorLocator
-import akka.actor.PoisonPill
-import akka.actor.ActorLogging
 import de.tkip.sbpm.persistence.EntityNotFoundException
 import de.tkip.sbpm.persistence.query.BaseQuery
 import de.tkip.sbpm.logging.DefaultLogging
+import scala.reflect.ClassTag
 
 /**
  * Inheriting actors have simplified access to persistence actor.
@@ -45,8 +39,11 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
   self: Actor =>
 
   def actorRefFactory = context
+
   protected val persistenceActor = ActorLocator.persistenceActor
   protected implicit val timeout = Timeout(10 seconds)
+  import context.dispatcher
+
 
   // spray exception handler: turns exceptions that occur while
   // processing the request into internal server error response
@@ -64,10 +61,8 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * Sends a message to the persistence actor and waits
    * for the result of type A.
    */
-  protected def request[A](action: BaseQuery): A = {
-    val future = persistenceActor ? action
-    Await.result(future, timeout.duration).asInstanceOf[A]
-  }
+  protected def request[A](action: BaseQuery)(implicit tag: ClassTag[A]): Future[A] =
+    (persistenceActor ? action).mapTo[A]
 
   /**
    * Completes the request with the result of a query to the
@@ -75,18 +70,20 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * message if result from persistence actor is None.
    */
   protected def completeWithQuery[A](action: BaseQuery, notFoundMsgFormat: String, notFoundMsgArgs: Any*)(implicit marshaller: Marshaller[A]) = {
-    val res = request[Option[A]](action)
-    if (res.isDefined)
-      complete(res.get)
-    else
-      notFound(notFoundMsgFormat, notFoundMsgArgs: _*)
+    onSuccess(request[Option[A]](action)) {
+      res =>
+        if (res.isDefined)
+          complete(res.get)
+        else
+          notFound(notFoundMsgFormat, notFoundMsgArgs: _*)
+    }
   }
 
   /**
    * Completes the request with the result of a query to the
    * persistence actor.
    */
-  protected def completeWithQuery[A](action: BaseQuery)(implicit marshaller: Marshaller[A]) = {
+  protected def completeWithQuery[A](action: BaseQuery)(implicit marshaller: Marshaller[A], tag: ClassTag[A]) = {
     complete(request[A](action))
   }
 
@@ -98,17 +95,19 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * idSetter function is used to inject generated id into entity.
    */
   protected def completeWithSave[A, B](action: BaseQuery,
-		  							   entity: A,
-		  							   locationPath: String,
-		  							   idSetter: (A, B) => A = (a: A, b: B) => a,
-		  							   idFormatArgs: (B) => Array[Any] = (b: B) => Array[Any](b))
-		  							   (implicit marshaller: Marshaller[A]) = {
-    val id = request[Option[B]](action)
-    if (id.isDefined) {
-      val newEntity = idSetter(entity, id.get)
-      created(newEntity, locationPath, idFormatArgs(id.get): _*)
-    } else {
-      complete(entity)
+                                       entity: A,
+                                       locationPath: String,
+                                       idSetter: (A, B) => A = (a: A, b: B) => a,
+                                       idFormatArgs: (B) => Array[Any] = (b: B) => Array[Any](b))
+                                      (implicit marshaller: Marshaller[A]) = {
+    onSuccess(request[Option[B]](action)) {
+      id =>
+        if (id.isDefined) {
+          val newEntity = idSetter(entity, id.get)
+          created(newEntity, locationPath, idFormatArgs(id.get): _*)
+        } else {
+          complete(entity)
+        }
     }
   }
 
@@ -118,11 +117,13 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * message if not entity was deleted otherwise 204 (No Content).
    */
   protected def completeWithDelete(action: BaseQuery, notFoundMsgFormat: String, notFoundMsgArgs: Any*) = {
-    val res = request[Int](action)
-    if (res == 0)
-      notFound(notFoundMsgFormat, notFoundMsgArgs: _*)
-    else
-      noContent()
+    onSuccess(request[Int](action)) {
+      res =>
+        if (res == 0)
+          notFound(notFoundMsgFormat, notFoundMsgArgs: _*)
+        else
+          noContent()
+    }
   }
 
   /**
