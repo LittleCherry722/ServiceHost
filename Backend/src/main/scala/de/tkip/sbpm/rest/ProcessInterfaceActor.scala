@@ -14,39 +14,22 @@
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
-import akka.actor.Props
-import spray.routing._
 import spray.http._
-import akka.event.Logging
-import akka.util.Timeout
-import akka.actor.ActorSystem
 import akka.pattern.ask
-import de.tkip.sbpm.rest.ProcessAttribute._
-import java.util.concurrent.Future
-import de.tkip.sbpm.persistence._
-import de.tkip.sbpm.application.miscellaneous._
-import spray.http.MediaTypes._
-import spray.routing._
-import spray.json._
 import de.tkip.sbpm.model._
 import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
-import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
 import spray.json._
-import spray.httpx.marshalling._
-import de.tkip.sbpm.application.ProcessManagerActor
-import scala.concurrent.Await
-import spray.util.LoggingContext
+import scala.concurrent.{Future, Await}
 import de.tkip.sbpm.persistence.query._
 
 /**
  * This Actor is only used to process REST calls regarding "process"
  */
-// TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor extends Actor with PersistenceInterface {
-  private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
   private lazy val persistanceActor = ActorLocator.persistenceActor
+  import context.dispatcher
 
   private implicit lazy val roles: Map[String, Role] = {
     val rolesFuture = persistanceActor ? Roles.Read.All
@@ -85,22 +68,26 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       } ~
         // READ
         pathPrefix(IntNumber) { id =>
-          val persistenceActor = ActorLocator.persistenceActor
-          val processFuture = (persistenceActor ? Processes.Read.ById(id))
-          val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
-          if (processResult.isDefined) {
-            val graphResult = if (processResult.get.activeGraphId.isDefined) {
-              val graphFuture = (persistenceActor ? Graphs.Read.ById(processResult.get.activeGraphId.get))
-              Await.result(graphFuture, timeout.duration).asInstanceOf[Option[Graph]]
-            } else {
-              None
-            }
-            complete(GraphHeader(
-              processResult.get.name,
-              graphResult,
-              processResult.get.isCase, processResult.get.id))
-          } else {
-            complete(StatusCodes.NotFound, "Process with id " + id + " not found")
+          val processFuture = (persistenceActor ? Processes.Read.ById(id)).mapTo[Option[Process]]
+          onSuccess(processFuture) {
+            processResult =>
+              if (processResult.isDefined) {
+                val graphFuture = if (processResult.get.activeGraphId.isDefined) {
+                  (persistenceActor ? Graphs.Read.ById(processResult.get.activeGraphId.get)).mapTo[Option[Graph]]
+                } else {
+                  Future.successful(None)
+                }
+
+                onSuccess(graphFuture) {
+                  graphResult =>
+                    complete(GraphHeader(
+                      processResult.get.name,
+                      graphResult,
+                      processResult.get.isCase, processResult.get.id))
+                }
+              } else {
+                complete(StatusCodes.NotFound, "Process with id " + id + " not found")
+              }
           }
         }
     } ~
