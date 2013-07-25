@@ -30,7 +30,7 @@ var LoginViewModel = function() {
 		}
 
 		if(queryParams.hasOwnProperty('user') && queryParams.hasOwnProperty('pass')){
-			loginUserFn(queryParams['user'], queryParams['pass']);
+			loginUserFn(queryParams['user'], queryParams['pass'], queryParams['target']);
 		}
 	};
 
@@ -39,13 +39,18 @@ var LoginViewModel = function() {
 	 * @param {string} user email of the user
 	 * @param {string} pass password of the user
 	 */
-	loginUserFn = function(user, pass){
+	loginUserFn = function(user, pass, target){
 		$.get( '/isalive' ).done( function() {
 			$.post('/user/login', {
 				user: user,
 				pass: pass
 			}).done( function() {
-				window.location = "./#/";
+				if(target && target!=null) {
+					window.location = "./#/"+target;
+				} else {
+					window.location = "./#/";
+				}
+				
 			}).fail( function() {
 				alert( "E-Mail or Password wrong, please try again." );
 			});
@@ -59,7 +64,7 @@ var LoginViewModel = function() {
 	self.pass = ko.observable("");
 
 	self.login = function() {
-		loginUserFn( self.user(), self.pass() );
+		loginUserFn( self.user(), self.pass(), null );
 		self.pass( "" );
 	};
 

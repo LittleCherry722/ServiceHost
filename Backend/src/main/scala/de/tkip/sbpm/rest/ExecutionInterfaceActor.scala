@@ -76,7 +76,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           complete({
             val getHistoryFuture = (ActorLocator.processManagerActor ? GetNewHistory()).mapTo[NewHistoryAnswer]
             val result = Await.result(getHistoryFuture, timeout.duration)
-            result.history.entries
+            result.history.entries.filter(x => x.userId == Some(userId) || x.userId == None)
           })
         } ~
         //LIST

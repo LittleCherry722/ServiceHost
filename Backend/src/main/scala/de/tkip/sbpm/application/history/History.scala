@@ -45,33 +45,20 @@ case class GetMessagePayload(messageId: Int, payloadId: String)
 // to the corresponding subject actor
 case class Transition(from: State, to: State, message: Message)
 
-case class NewEntry(
-  var id: String, //"<INT_UNIQUE_ID>"
-  var processName: String, //"Travel Request"
-  var processInstanceId: ProcessInstanceID, //0
-  timestamp: Date,
-  var processStarted: Option[Date], //System.currentTimeMillis
-  var processEnd: Option[Date],
-  userId: UserID, //13
-  subjectId: SubjectID, //"Employee"
-//  fromState: NewState, //hier kann man eventuell den alten State weiter verwenden
-  transition: NewTransition,
-//  toState: NewState,
-  messages: Option[Seq[NewMessage]]
-)
-
-case class NewState(text: String, stateType: String)
-
-case class NewTransition(fromState: NewState, text: String, transitionType: String, toState: NewState)
-
-case class NewMessage(
-  messageIds: Seq[MessageID],
-  fromUserId: UserID,
-  toUserIds: Seq[UserID],
-  messageType: MessageType,
-  text: MessageContent
-)
+//New History Structure
 
 case class NewHistory(
-  entries: Buffer[NewEntry] = ArrayBuffer[NewEntry]() // recorded state transitions in the history
+  entries: Buffer[NewHistoryEntry] = ArrayBuffer[NewHistoryEntry]()
 )
+case class NewHistoryEntry(
+    timeStamp: Date,
+    userId: Option[UserID],
+    var process: NewHistoryProcessData,
+    transitionEvent: Option[NewHistoryTransitionData],
+    lifecycleEvent: Option[String]
+)
+
+case class NewHistoryProcessData(processName: String, processInstanceId: ProcessInstanceID)
+case class NewHistoryState(text: String, stateType: String)
+case class NewHistoryMessage(messageId: MessageID, fromSubject: SubjectName, toSubject: SubjectName, messageType: MessageType, text: MessageContent)
+case class NewHistoryTransitionData(fromState: NewHistoryState, text: String, transitionType: String, toState: NewHistoryState, message: Option[NewHistoryMessage])
