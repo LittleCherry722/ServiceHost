@@ -89,6 +89,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this actor handles the blocking for answer to the user
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor])
 
+  // this actory is used to exchange the subject ids for external input messages
+  // TODO
+  private lazy val proxyActor = context.actorOf(Props[ProcessInstanceProxyActor])
+
   override def preStart() {
     try {
       // TODO schoener machen
@@ -140,6 +144,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   def receive = {
+    case GetProxyActor => {
+      sender ! proxyActor
+    }
+
     case _: SendProcessInstanceCreated => {
       trySendProcessInstanceCreated()
     }

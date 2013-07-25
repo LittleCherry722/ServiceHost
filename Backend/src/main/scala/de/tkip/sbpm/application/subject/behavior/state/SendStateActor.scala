@@ -171,6 +171,7 @@ protected case class SendStateActor(data: StateData)
           sendProxy !
             SubjectToSubjectMessage(
               messageID,
+              processID,
               userID,
               subjectID,
               target,

@@ -176,8 +176,9 @@ class SubjectContainer(
 
       System.err.println("SEND: " + message);
       if (subject.external) {
+        // exchange the target subject id
         message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
-        //        message.from = "Subj1" //FIXME nur test raus!
+        
         // TODO we need this unblock!
         blockingHandlerActor ! UnBlockUser(userID)
       }
