@@ -109,6 +109,7 @@ class SubjectContainer(
             GetSubjectAddr(userID, ext.relatedProcessId, ext.relatedSubjectId))
             .mapTo[ActorRef],
           timeout.duration)
+          System.err.println("external subject: "+subjectRef);
       // TODO we need this unblock!
       blockingHandlerActor ! UnBlockUser(userID)
 
@@ -181,7 +182,7 @@ class SubjectContainer(
         
         // TODO we need this unblock!
         blockingHandlerActor ! UnBlockUser(userID)
-      }
+      } 
       println("SEND: " + message);
 
       //        blockingHandlerActor ! BlockUser(userID)

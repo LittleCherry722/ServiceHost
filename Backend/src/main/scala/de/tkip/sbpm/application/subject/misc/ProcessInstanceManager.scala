@@ -25,7 +25,7 @@ case object GetProxyActor
 
 class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: ProcessInstanceRef) extends Actor {
   implicit val timeout = Timeout(2000)
-//  import context.dispatcher
+  //  import context.dispatcher
 
   protected val logger = Logging(context.system, this)
 
@@ -62,29 +62,30 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
           .getOrElseUpdate(
             (userId, processId),
             // TODO target sinnvoll setzen
-            createProcessInstanceEntry(userId, processId, processManagerActor))
+            createProcessInstanceEntry(userId, processId, ActorLocator.subjectProviderManagerActor))
+
 
       // create the answer
       val answer = for {
         info <- processInstanceInfo
-      } yield ReturnSubjectAddr(message, info.proxy)
+      } yield info.proxy
 
       // send the answer to the sender, when its ready
       answer pipeTo sender
     }
-    case x: Int => {
-      val k = processInstanceMapTEST(x, x)
-      implicit val timeout = Timeout(4000)
-
-      case class A(pi: ActorRef, proxy: ActorRef)
-
-      val r = createProcessInstanceEntry(x, x, processManagerActor)
-
-      val n = r map {
-        a => (x, a.proxy)
-      }
-      n pipeTo sender
-    }
+    //    case x: Int => {
+    //      val k = processInstanceMapTEST(x, x)
+    //      implicit val timeout = Timeout(4000)
+    //
+    //      case class A(pi: ActorRef, proxy: ActorRef)
+    //
+    //      val r = createProcessInstanceEntry(x, x, processManagerActor)
+    //
+    //      val n = r map {
+    //        a => (x, a.proxy)
+    //      }
+    //      n pipeTo sender
+    //    }
 
     // the processinstance exists
     case message @ GetSubjectAddr(userId, processId, subjectId) if (processInstanceMap.contains((userId, processId))) => {
@@ -133,18 +134,19 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
     }
   }
 
+  //  override implicit def executionContext = ExecutionContext.Implicits.global
   private def createProcessInstanceEntry(userId: UserID,
     processId: ProcessID,
     targetManager: ProcessManagerRef): Future[ProcessInstanceProxy] = {
     // crea the message which is used to create a process instance
     val createMessage = CreateProcessInstance(userId, processId, Some(self))
-    createMessage.sender = self
+    //    createMessage.sender = self
     // the creation and question for a proxy actor
     // TODO test
-    implicit val context: ExecutionContext = ExecutionContext.global
-    import ExecutionContext.Implicits.global
-    
-    val x =
+    //    implicit val context: ExecutionContext = ExecutionContext.global
+    //    import ExecutionContext.Implicits.global
+
+    val info =
       for {
         // creat the processinstance
         created <- (targetManager ? createMessage).mapTo[ProcessInstanceCreated]
@@ -152,6 +154,6 @@ class ProcessInstanceManagerActor(userId: UserID, processId: ProcessID, actor: P
         // ask for the proxy actor
         proxy <- (instanceRef ? GetProxyActor).mapTo[ActorRef]
       } yield new ProcessInstanceProxy(instanceRef, proxy)
-    x
+    info
   }
 }
