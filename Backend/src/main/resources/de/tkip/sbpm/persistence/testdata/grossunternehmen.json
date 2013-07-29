@@ -13,7 +13,7 @@
         "comment": "",
         "deactivated": false,
         "externalType": "external",
-        "id": "Audi",
+        "id": "grossunternehmen",
         "startSubject":true,
         "inputPool": 100,
         "macroCounter": 1,
@@ -238,10 +238,10 @@
             ]
           }
         ],
-        "name": "Audi",
+        "name": "Großunternehmen",
         "relatedProcess": "",
         "relatedSubject": "",
-        "role": "Audi",
+        "role": "Grossunternehmen",
         "type": "single",
         "variableCounter": 1,
         "variables": {}
@@ -268,7 +268,7 @@
                 "start": 0,
                 "target": {
                   "createNew": false,
-                  "id": "Audi",
+                  "id": "Grossunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -291,7 +291,7 @@
                 "start": 1,
                 "target": {
                   "createNew": false,
-                  "id": "Audi",
+                  "id": "Grossunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""

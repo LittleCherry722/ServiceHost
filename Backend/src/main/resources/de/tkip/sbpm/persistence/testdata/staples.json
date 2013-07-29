@@ -31,7 +31,7 @@
                 "start": 0,
                 "target": {
                   "createNew": false,
-                  "id": "Audi",
+                  "id": "Grossunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -88,7 +88,7 @@
                 "start": 3,
                 "target": {
                   "createNew": false,
-                  "id": "Audi",
+                  "id": "Grossunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -515,7 +515,7 @@
         "comment": "",
         "deactivated": false,
         "externalType": "interface",
-        "id": "Audi",
+        "id": "Grossunternehmen",
         "inputPool": 100,
         "macroCounter": 1,
         "macros": [
@@ -655,7 +655,7 @@
         ],
         "name": "Kunde",
         "relatedProcess": 1,
-        "relatedSubject": "Audi",
+        "relatedSubject": "Grossunternehmen",
         "role": "Kunde",
         "type": "external",
         "variableCounter": 1,
