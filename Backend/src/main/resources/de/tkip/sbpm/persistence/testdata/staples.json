@@ -31,7 +31,7 @@
                 "start": 0,
                 "target": {
                   "createNew": false,
-                  "id": "Audi",
+                  "id": "Gro\u00dfunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -88,7 +88,11 @@
                 "start": 3,
                 "target": {
                   "createNew": false,
-                  "id": "Audi",
+<<<<<<< HEAD
+                  "id": "Grossunternehmen",
+=======
+                  "id": "Gro\u00dfunternehmen",
+>>>>>>> 8a1b34d97e1bb6398e4d932d5219f99037b364d8
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -515,7 +519,11 @@
         "comment": "",
         "deactivated": false,
         "externalType": "interface",
-        "id": "Audi",
+<<<<<<< HEAD
+        "id": "Grossunternehmen",
+=======
+        "id": "Gro\u00dfunternehmen",
+>>>>>>> 8a1b34d97e1bb6398e4d932d5219f99037b364d8
         "inputPool": 100,
         "macroCounter": 1,
         "macros": [
@@ -655,7 +663,11 @@
         ],
         "name": "Kunde",
         "relatedProcess": 1,
-        "relatedSubject": "Audi",
+<<<<<<< HEAD
+        "relatedSubject": "Grossunternehmen",
+=======
+        "relatedSubject": "Gro\u00dfunternehmen",
+>>>>>>> 8a1b34d97e1bb6398e4d932d5219f99037b364d8
         "role": "Kunde",
         "type": "external",
         "variableCounter": 1,

@@ -7,7 +7,7 @@ define([
 ], function( ko, App, _, History, moment) {
 
 	var ViewModel = function() {
-		this.historicEntries = historicEntries;
+		this.historicEntries = historyList;
 		/// Filter
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
@@ -15,16 +15,28 @@ define([
 		this.selectedStart = selectedStart;	
 		this.selectedEnd = selectedEnd;			
 	}
-	var historicEntries = ko.observableArray();
-	var newHistory = ko.observableArray(History.all());
+	//var historicEntries = ko.observableArray();
+	//var newHistory = ko.observableArray(History.all());
+	
+	
+	var historyList = ko.observableArray();
+	var historys = ko.computed(function() {historyList(History.all().slice(0));});
+	
+	
 
-	var updateHistory = function() {
+	/*var updateHistory = function() {
 		historicEntries.removeAll();
 		$.each( newHistory(), function ( i, value ) {
-			value.timestamp = JSONtimestampToString(value.timestamp);
+			if(value.transitionEvent()) {
+				if(value.transitionEvent().fromState)
+				console.log(value.transitionEvent().fromState.text);
+			}
+			
+			//console.log(value.transitionEvent.text);
+			value.timeStamp().date = JSONtimestampToString(value.timeStamp().date);
 			historicEntries.push(value);
 		} );
-	};
+	};*/
 	
 	var JSONtimestampToString = function( JSONtimestamp ){
 		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
@@ -68,12 +80,12 @@ define([
 	}
 	
 	
-	var initialize = function( instance ) {	
-		updateHistory();
+	var initialize = function( instance ) {
+		alert("call");
 		var viewModel = new ViewModel();
-		App.loadTemplate( "home/history", viewModel, "executionContent", function() {
-			
-		});
+		App.loadTemplate( "home/history", viewModel, "executionContent", function() {});
+		History.fetch();
+		//updateHistory();
 
 	}
 	

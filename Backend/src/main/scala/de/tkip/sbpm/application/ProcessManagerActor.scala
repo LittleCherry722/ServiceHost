@@ -32,13 +32,11 @@ protected case class RegisterSubjectProvider(userID: UserID,
  */
 class ProcessManagerActor extends Actor {
   private case class ProcessInstanceData(processID: ProcessID, processInstanceActor: ProcessInstanceRef)
-  private case class LifecycleData(started: Option[Date], var end: Option[Date])
 
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceData]()
   private val history = new NewHistory
-  private val lifecycleHistory = collection.mutable.Map[ProcessInstanceID, LifecycleData]()
 
   // used to map answer messages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
@@ -70,23 +68,24 @@ class ProcessManagerActor extends Actor {
       }
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.processInstanceActor)
-      lifecycleHistory += pc.processInstanceID -> LifecycleData(Some(new Date()), None)
+      history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData("TODO", pc.processInstanceID), None, Some("created"))
     }
 
     case KillAllProcessInstances => {
       logger.debug("Killing all process instances")
       for((id,_) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
-        lifecycleHistory(id).end = Some(new Date())
+        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData("TODO", id), None, Some("killed"))
       }
       processInstanceMap.clear()
     }
 
     case kill @ KillProcessInstance(id) => {
+      println("killed " + id)
       if (processInstanceMap.contains(id)) {
         context.stop(processInstanceMap(id).processInstanceActor)
         processInstanceMap -= id
-        lifecycleHistory(id).end = Some(new Date())
+        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData("TODO", id), None, Some("killed"))
         sender ! KillProcessInstanceAnswer(kill)
       } else {
         logger.error("Process Manager - can't kill process instance: " +
@@ -123,10 +122,7 @@ class ProcessManagerActor extends Actor {
       sender ! NewHistoryAnswer(message, history)
     }
 
-    case entry: NewEntry => {
-      entry.id = history.entries.length.toString()
-      entry.processStarted = lifecycleHistory(entry.processInstanceId).started
-      entry.processEnd = lifecycleHistory(entry.processInstanceId).end
+    case entry: NewHistoryEntry => {
       history.entries += entry
     }
 

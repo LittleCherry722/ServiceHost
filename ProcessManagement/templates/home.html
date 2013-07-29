@@ -98,12 +98,15 @@
       label {
         margin-right:7px;
       }
+      #executionContent {
+      	padding:10px;
+      }
 
 
 
   </style>
 
-  <div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom" class="pull-left">
+  <div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom" class="pull-left" style="min-width: 96%">
     <h3>S-BPM Groupware v1.2</h3>
     <div class="btn-group">
       <select data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>    	
@@ -124,10 +127,22 @@
     <hr>    
 
     <div id="processExecution">
-      <ul class="nav nav-tabs" data-bind="foreach: tabs">
+      <ul class="nav nav-tabs">
+      	<!-- ko  foreach: tabs -->
         <li data-bind="css: { active: $data === $root.currentTab() }">
           <a data-bind="text: $data, attr: { href: '#/home/' + $data }"></a>
         </li>
+        <!-- /ko -->
+        
+        <li class="btn-group">
+			<a href="#" data-toggle="dropdown" class="btn dropdown-toggle">Start Process<b class="caret"></b></a>
+			<ul class="dropdown-menu" data-bind='foreach: availableProcesses'>
+				<li>
+					<a data-bind="click: $parent.newInstance" href="#"><span data-bind="text: name()">></span>&nbsp;(<span data-bind="text: instanceCount"></span>)</a>
+				</li>
+			</ul>
+		</li>
+
       </ul>
     </div>
     <div id="executionContent">
