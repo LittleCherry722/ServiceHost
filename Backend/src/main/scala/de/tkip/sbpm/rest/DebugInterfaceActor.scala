@@ -17,6 +17,7 @@ import akka.actor.Actor
 import akka.pattern._
 import scala.language.postfixOps
 import scala.concurrent.Await
+import scala.concurrent.TimeoutException
 import akka.event.Logging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
@@ -36,6 +37,9 @@ import de.tkip.sbpm.persistence.PersistenceActor
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.persistence.testdata.Entities
 import de.tkip.sbpm.application.miscellaneous.KillAllProcessInstances
+import scala.concurrent.duration.Duration
+import akka.dispatch.OnFailure
+import spray.http.StatusCode
 
 /**
  * This Actor is only used to process REST calls regarding "debug"
@@ -79,8 +83,17 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
 
       dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
       dbFuture.onFailure(onFailure)
-
-      complete("")
+      try{
+    	  /* This function will only be called for debugging and not in production and
+    	   * the database is an important part of the application.
+    	   * Therefore I think a blocking "Await.ready" can be used here. 
+    	   */
+    	  Await.ready(dbFuture, Duration(120, "seconds"))
+    	  complete("")
+      }catch{
+          case toe : TimeoutException => complete(StatusCode.int2StatusCode(500))
+      }
+      
     }
   })
 

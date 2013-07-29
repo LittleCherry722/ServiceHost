@@ -7,12 +7,31 @@ define([
 
   var ViewModel = function() {
       this.actions = actionsList;
+      this.processes = Process.all;
         // Filter
     this.selectedUser = selectedUser;
     this.selectedProcess = selectedProcess;
     this.selectedStatetype = selectedStatetype;
     this.selectedStart = selectedStart;
     this.selectedEnd = selectedEnd;
+    
+	this.newInstance = function() {
+		var process = this;
+			
+		instance = new ProcessInstance( {
+			processId: process.id(),
+			graph: process.graph()
+		});
+
+		instance.save(null, {
+			success: function() {
+				Actions.fetch();
+			},
+			error: function() {
+				Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
+			}
+		});
+	}
   };
   var actionsList = ko.observableArray();
   var actions = ko.computed(function() {actionsList(Actions.all().slice(0));});

@@ -166,9 +166,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       executionHistory.entries += he
     }
 
-    case he: history.NewEntry => {
-      he.processInstanceId = id
-      he.processName = processName
+    case he: history.NewHistoryEntry => {
+      he.process = history.NewHistoryProcessData(processName, id)
       context.parent.forward(he)
     }
 
