@@ -32,7 +32,7 @@ import java.io.ByteArrayOutputStream
  */
 object Entities {
   val groups = List(
-    Group(None, """Audi""", true),
+    Group(None, "Gro\u00dfunternehmen", true),
     Group(None, """Staples""", true),
     Group(None, """Zulieferer""", true),
 
@@ -58,7 +58,7 @@ object Entities {
     Group(None, """External""", true))
 
   val roles = List(
-    Role(None, """Audi""", true),
+    Role(None, "Gro\u00dfunternehmen", true),
     Role(None, """Kunde""", true),
     Role(None, """Verarbeitung""", true),
     Role(None, """Staples""", true),
@@ -81,7 +81,7 @@ object Entities {
   // users and one default identity with password for login
   val users = List(
     (User(None, """Superuser""", true, 8, "test@gmail.com"), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
-    (User(None, """Audi Mitarbeiter""", true, 8), ("sbpm", "audi@sbpm.com", "a1234".bcrypt)),
+    (User(None, "Gro\u00dfunternehmen Mitarbeiter", true, 8), ("sbpm", "unternehmer@sbpm.com", "u1234".bcrypt)),
     (User(None, """Staples Mitarbeiter""", true, 8), ("sbpm", "staples@sbpm.com", "s1234".bcrypt)),
     (User(None, """TSP Mitarbeiter""", true, 8), ("sbpm", "tsp@sbpm.com", "t1234".bcrypt)),
 
@@ -96,7 +96,7 @@ object Entities {
 
   // process with one active graph loaded from corresponding json file
   val processes = List(
-    (Process(None, """Audi""", false) -> loadJson("audi")),
+    (Process(None, "Gro\u00dfunternehmen", false) -> loadJson("grossunternehmen")),
     (Process(None, """Staples""", false) -> loadJson("staples")),
     (Process(None, """Transportdienstleister""", false) -> loadJson("lieferant")),
     (Process(None, """Travel Request""", false) -> loadJson("travel_request")),
