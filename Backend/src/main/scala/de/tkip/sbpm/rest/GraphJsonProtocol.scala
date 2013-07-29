@@ -105,7 +105,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       case JsString("noRole")                       => None
       case JsString("")                             => None
       case JsNull                                   => None
-      case _                                        => throw new DeserializationException("Existing role name or null expected.")
+      case _                                        => throw new DeserializationException("Existing role name or null expected. Unknown role: " + v)
     }
   }
 

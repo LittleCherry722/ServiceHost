@@ -13,7 +13,7 @@
         "comment": "",
         "deactivated": false,
         "externalType": "external",
-        "id": "grossunternehmen",
+        "id": "Gro\u00dfunternehmen",
         "startSubject":true,
         "inputPool": 100,
         "macroCounter": 1,
@@ -238,10 +238,10 @@
             ]
           }
         ],
-        "name": "Großunternehmen",
+        "name": "Gro\u00dfunternehmen",
         "relatedProcess": "",
         "relatedSubject": "",
-        "role": "Grossunternehmen",
+        "role": "Gro\u00dfunternehmen",
         "type": "single",
         "variableCounter": 1,
         "variables": {}
@@ -268,7 +268,7 @@
                 "start": 0,
                 "target": {
                   "createNew": false,
-                  "id": "Grossunternehmen",
+                  "id": "Gro\u00dfunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -291,7 +291,7 @@
                 "start": 1,
                 "target": {
                   "createNew": false,
-                  "id": "Grossunternehmen",
+                  "id": "Gro\u00dfunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""

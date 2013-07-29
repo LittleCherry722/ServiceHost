@@ -24,9 +24,9 @@ import akka.actor.Status.Failure
 import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
 import de.tkip.sbpm.application.history.{ State => HistoryState }
 import de.tkip.sbpm.application.history.{ Transition => HistoryTransition }
-import de.tkip.sbpm.application.history.{ NewMessage => NewHistoryMessage }
-import de.tkip.sbpm.application.history.{ NewState => NewHistoryState }
-import de.tkip.sbpm.application.history.{ NewTransition => NewHistoryTransition }
+import de.tkip.sbpm.application.history.NewHistoryMessage
+import de.tkip.sbpm.application.history.NewHistoryState
+import de.tkip.sbpm.application.history.NewHistoryTransitionData
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.logging.DefaultLogging
@@ -81,11 +81,18 @@ class InternalBehaviorActor(
           HistoryState(next.text, next.stateType.toString()),
           change.history)
       context.parent !
-        NewHistoryTransition(
+        NewHistoryTransitionData(
           NewHistoryState(current.text, current.stateType.toString()),
           current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
           current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
-          NewHistoryState(next.text, next.stateType.toString())
+          NewHistoryState(next.text, next.stateType.toString()),
+          if (change.history != null) Some(NewHistoryMessage(
+            change.history.id,
+            change.history.from,
+            change.history.to,
+            change.history.messageType,
+            change.history.data
+          )) else None
         )
     }
 
