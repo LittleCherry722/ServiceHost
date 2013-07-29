@@ -14,24 +14,6 @@ define([
     this.selectedStatetype = selectedStatetype;
     this.selectedStart = selectedStart;
     this.selectedEnd = selectedEnd;
-    
-	this.newInstance = function() {
-		var process = this;
-			
-		instance = new ProcessInstance( {
-			processId: process.id(),
-			graph: process.graph()
-		});
-
-		instance.save(null, {
-			success: function() {
-				Actions.fetch();
-			},
-			error: function() {
-				Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
-			}
-		});
-	}
   };
   var actionsList = ko.observableArray();
   var actions = ko.computed(function() {actionsList(Actions.all().slice(0));});
@@ -74,14 +56,12 @@ define([
     });
   }
 
-  var initialize = function() {
-    //actions(Actions.all.slice(0));
-
-        var viewModel = new ViewModel();
+	var initialize = function() {
+ 		var viewModel = new ViewModel();
 
         App.loadTemplate( "home/actions", viewModel, "executionContent", function() { });
         Actions.fetch();
-  };
+  	};
 
   // Everything in this object will be the public API
   return {
