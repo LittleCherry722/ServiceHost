@@ -112,11 +112,11 @@ i, em {
 .impress-enabled .step.inactive-hide, .impress-enabled .step .inactive-hide {
   opacity: 0;
   visibility: hidden;
-  -webkit-transition: opacity 1s;
-  -moz-transition: opacity 1s;
-  -ms-transition: opacity 1s;
-  -o-transition: opacity 1s;
-  transition: opacity 1s;
+  -webkit-transition: opacity 1s, visibility 0 linear 1s;
+  -moz-transition: opacity 1s, visibility 0 linear 1s;
+  -ms-transition: opacity 1s, visibility 0 linear 1s;
+  -o-transition: opacity 1s, visibility 0 linear 1s;
+  transition: opacity 1s, visibility 0 linear 1s;
 }
 .impress-enabled .step.inactive-dim, .impress-enabled .step .inactive-dim {
   opacity: 0.3;
@@ -130,6 +130,11 @@ i, em {
 .impress-enabled .step.active.inactive-hide, .impress-enabled .step.active.inactive-dim, .impress-enabled .step.active .inactive-hide, .impress-enabled .step.active .inactive-dim {
   opacity: 1;
   visibility: visible;
+  -webkit-transition: opacity 1s;
+  -moz-transition: opacity 1s;
+  -ms-transition: opacity 1s;
+  -o-transition: opacity 1s;
+  transition: opacity 1s;
 }
 
 h1 {
@@ -153,6 +158,12 @@ h2 {
 
 h3 {
   font-size: 30px;
+  font-weight: 200;
+  text-align: center;
+}
+
+h4 {
+  font-size: 25px;
   font-weight: 200;
   text-align: center;
 }
@@ -542,6 +553,10 @@ a:hover, a:focus {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.small {
+  font-size: 85%;
 }
 
 .details .column {
