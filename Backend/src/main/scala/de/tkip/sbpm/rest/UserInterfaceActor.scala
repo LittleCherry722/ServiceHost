@@ -249,11 +249,13 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
   // completes with all providers and emails of all users and the user information
   def getUsersWithMail() = {
-    val usersFuture = persistenceActor ? Users.Read.AllWithIdentities
-    val users = Await.result(usersFuture.mapTo[Map[User, Seq[UserIdentity]]], timeout.duration)
-    complete(users.map { user =>
-      UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
-    })
+    complete {
+      val usersFuture = persistenceActor ? Users.Read.AllWithIdentities
+      val users = Await.result(usersFuture.mapTo[Map[User, Seq[UserIdentity]]], timeout.duration)
+      users.map { user =>
+        UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
+      }
+    }
   }
 
   def setPw(id: Int, entity: SetPassword) = {
