@@ -5,9 +5,10 @@ define([
 	"models/user",
 	"models/process",
 	"models/actions",
+	"models/history",
 	"moment",
 	"jquery.ui",
-], function( ko, App, _, User, Process, Actions, moment ) {
+], function( ko, App, _, User, Process, Actions, History, moment ) {
 
 	var ViewModel = function() {
 		// Filter
@@ -36,6 +37,7 @@ define([
 			instance.save(null, {
 				success: function() {
 					Actions.fetch();
+					History.fetch();
 				},
 				error: function() {
 					Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
