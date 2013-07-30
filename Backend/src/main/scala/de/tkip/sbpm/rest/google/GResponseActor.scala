@@ -37,6 +37,8 @@ import de.tkip.sbpm.logging.DefaultLogging
 
 class GResponseActor extends Actor with HttpService with DefaultLogging {
 
+  import context.dispatcher
+
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
   def actorRefFactory = context
