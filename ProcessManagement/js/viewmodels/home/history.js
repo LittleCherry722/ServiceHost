@@ -15,28 +15,18 @@ define([
 		this.selectedStart = selectedStart;	
 		this.selectedEnd = selectedEnd;			
 	}
-	//var historicEntries = ko.observableArray();
-	//var newHistory = ko.observableArray(History.all());
-	
-	
 	var historyList = ko.observableArray();
-	var historys = ko.computed(function() {historyList(History.all().slice(0));});
-	
-	
-
-	/*var updateHistory = function() {
-		historicEntries.removeAll();
-		$.each( newHistory(), function ( i, value ) {
-			if(value.transitionEvent()) {
-				if(value.transitionEvent().fromState)
-				console.log(value.transitionEvent().fromState.text);
-			}
-			
-			//console.log(value.transitionEvent.text);
-			value.timeStamp().date = JSONtimestampToString(value.timeStamp().date);
-			historicEntries.push(value);
-		} );
-	};*/
+	var historys = ko.computed(function() {
+		//historyList(History.all().slice(0));
+		historyList.removeAll();
+		$.each( History.all(), function ( i, value ) {
+			if(value.transitionEvent() && value.transitionEvent().message) {
+				console.log(value.transitionEvent().message.fromSubject);
+			}			
+			value.ts = JSONtimestampToString(value.timeStamp().date);
+			historyList.push(value);
+		});
+	});
 	
 	var JSONtimestampToString = function( JSONtimestamp ){
 		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
@@ -55,8 +45,8 @@ define([
 	selectedEnd.subscribe(function() { filter();});
 	
 	var filter = function() {
-		historicEntries.removeAll();
-		$.each( newHistory(), function ( i, value ) {
+		historyList.removeAll();
+		$.each( History.all(), function ( i, value ) {
 			var filter = false;
 			if (selectedUser() && selectedUser() !== value.userId ) {
 				filter = true;
@@ -74,19 +64,16 @@ define([
 				filter = true;
 			}
 			if(filter!=true) {
-				historicEntries.push(value);
+				historyList.push(value);
 			}
 		});
 	}
 	
 	
 	var initialize = function( instance ) {
-		alert("call");
 		var viewModel = new ViewModel();
 		App.loadTemplate( "home/history", viewModel, "executionContent", function() {});
 		History.fetch();
-		//updateHistory();
-
 	}
 	
 	// Everything in this object will be the public API
