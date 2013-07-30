@@ -171,11 +171,19 @@ class GDriveControl {
 
   private val driveMap = mutable.Map[String, Drive]()
 
+  /*
+   * Retrieve credentials from API for the given code,
+   * and store them using the user ID as the key.
+   */
   def initCredentials(userId: String, code: String) = {
     val tokenResponse = tokenResponseForAuthCode(userId, code)
     flow.createAndStoreCredential(tokenResponse, userId)
   }
 
+  /*
+   * Return the user's credentials from the credential store,
+   * otherwise throw a NoCredentialsException.
+   */
   def getCredentials(userId: String): Credential =
     Option(flow.loadCredential(userId)) match {
       case Some(credential) => credential
@@ -184,6 +192,10 @@ class GDriveControl {
       )
     }
 
+  /*
+   * Return a drive instance for the user. If none is found,
+   * instantiate one and hold it in the map for later use.
+   */
   def driveOf(userId: String): Drive = {
     if (! driveMap.contains(userId)) {
       println(s"no ID in map for $userId: $driveMap")
