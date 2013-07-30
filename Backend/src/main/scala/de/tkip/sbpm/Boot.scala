@@ -26,16 +26,13 @@ import akka.io.IO
 
 import ActorLocator._
 
-import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.persistence.query.Schema
 import de.tkip.sbpm.persistence.testdata.Entities
 import de.tkip.sbpm.persistence.PersistenceActor
-import de.tkip.sbpm.rest.FrontendInterfaceActor
 import de.tkip.sbpm.rest._
 import de.tkip.sbpm.rest.auth._
 import de.tkip.sbpm.rest.google.GDriveActor
-import spray.routing.SimpleRoutingApp
 import spray.can.Http
 
 object Boot extends App {

@@ -197,7 +197,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   def serveStaticFiles: Route = {
     // root folder -> redirect to frontendBaseUrl
     path("") {
-      redirect("/" + frontendBaseUrl, StatusCodes.MovedPermanently)
+      redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
     } ~
       // get index
       path(frontendBaseUrl) {
