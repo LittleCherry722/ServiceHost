@@ -7,6 +7,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Await
 import akka.util.Timeout
 import spray.http.{StatusCodes, HttpResponse}
+import de.tkip.sbpm.repo.RepoActor._
 
 
 object Boot extends App with SimpleRoutingApp {
@@ -28,6 +29,10 @@ object Boot extends App with SimpleRoutingApp {
               case Some(s) => complete(s)
               case None => complete(HttpResponse(status = StatusCodes.NotFound))
             }
+        } ~ path("reset") {
+          ctx =>
+            repoActor ! Reset
+            ctx.complete(HttpResponse(status = StatusCodes.OK))
         } ~ path("") {
           ctx =>
             val future = repoActor ? GetEntries
