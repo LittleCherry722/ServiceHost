@@ -67,6 +67,7 @@ class RepoActor extends Actor with ActorLogging {
     }
 
     case Reset => {
+      log.info("resetting...")
       entries.clear()
     }
   }
