@@ -190,14 +190,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-    case message: GetSubjectAddr => {
-      subjectMap
-        .getOrElseUpdate(
-          message.subjectId,
-          createSubjectContainer(graph.subjects((message.subjectId))))
-        .send(sender, message)
-    }
-
     case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
       subjectMap(message.subjectID).send(message)
     }
