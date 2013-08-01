@@ -1,0 +1,1 @@
+protoc src\main\resources\de\tkip\sbpm\proto\GAEexecution.proto --java_out=src\main\java
