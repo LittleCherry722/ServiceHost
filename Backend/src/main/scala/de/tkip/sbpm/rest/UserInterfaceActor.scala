@@ -252,9 +252,9 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
     complete {
       val usersFuture = persistenceActor ? Users.Read.AllWithIdentities
       val users = Await.result(usersFuture.mapTo[Map[User, Seq[UserIdentity]]], timeout.duration)
-      users.map { user =>
+      (users.map { user =>
         UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
-      }
+      }).toList.sortBy(_.id)
     }
   }
 
