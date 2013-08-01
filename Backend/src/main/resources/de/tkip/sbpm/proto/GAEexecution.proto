@@ -1,0 +1,92 @@
+package de.tkip.sbpm.proto;
+
+
+// available commands/paths:
+// execute a process = create a processinstance
+// /post
+
+// Inform the user which processinstances are running
+// /get
+
+// get all actions available for the user
+// /get/action
+// id is a natural number, for the following:
+// read a process instance
+// /get/id
+
+// execute an action
+// /put/id
+
+// delete a processinstance
+// /del/id
+
+
+// input for /post
+message CreateProcessInstance {
+	required int32 processId = 1;
+}
+
+// input for /put/id
+message ExecuteAction {
+	required Action action = 1;
+}
+
+// result of /get
+message ListProcesses {
+	message ProcessInfo {
+		required int32 id = 1;
+		required int32 processId = 2;
+	}
+	
+	repeated ProcessInfo processes = 1;
+}
+
+// result of /get/action
+message ListActions {
+	repeated Action actions = 1;
+}
+
+// All Information of a (running) process instance:
+// result of 	/get/id
+// and		/put/id
+// and		/post
+message ProcessInstanceData {
+	required int32 id = 1;
+	required int32 processId = 2;
+	required string graph = 3; //TODO
+	required bool isTerminated = 4;
+	required string history = 5; //TODO
+	repeated Action actions = 6;
+}
+
+// Used for messages above:
+message Action {
+	required int32 userID = 1;
+	required int32 processInstanceID = 2;
+	required int32 subjectID = 3;
+	required int32 stateID = 4;
+	required string stateText = 5;
+	required string stateType = 6;
+	repeated ActionData actionData = 7;
+}
+
+message ActionData {
+	required string text = 1;
+	required bool executable = 2;
+	required string transitionType = 3;
+	optional TargetUserData targetUserData = 4;
+	optional string relatedSubject = 5;
+	repeated MessageData messages = 6;
+}
+
+message TargetUserData {
+	required int32 min = 1;
+	required int32 max = 2;
+	repeated int32 targetUsers = 3;
+}
+
+message MessageData {
+	required int32 userID = 1;
+	required string messageContent = 2;
+	optional string fileUrl = 4;
+}
