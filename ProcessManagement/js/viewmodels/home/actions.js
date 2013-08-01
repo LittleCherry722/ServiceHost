@@ -7,6 +7,7 @@ define([
 
   var ViewModel = function() {
       this.actions = actionsList;
+      this.processes = Process.all;
         // Filter
     this.selectedUser = selectedUser;
     this.selectedProcess = selectedProcess;
@@ -55,14 +56,12 @@ define([
     });
   }
 
-  var initialize = function() {
-    //actions(Actions.all.slice(0));
-
-        var viewModel = new ViewModel();
+	var initialize = function() {
+ 		var viewModel = new ViewModel();
 
         App.loadTemplate( "home/actions", viewModel, "executionContent", function() { });
         Actions.fetch();
-  };
+  	};
 
   // Everything in this object will be the public API
   return {

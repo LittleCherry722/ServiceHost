@@ -3,7 +3,7 @@
 	border-top:1px solid #000;
 }
 #dashboardHistory .messages .leftBox {
-	float:left; width:303px;
+	float:left; width:50%;
 }
 #dashboardHistory .messages .leftBox .left, #dashboardHistory .messages .left {
 	float:left;
@@ -43,36 +43,36 @@
             <th></th>
           </thead>
           <tbody data-bind="foreach: historicEntries">
-            <tr class="state" style="cursor: pointer;" data-bind="click: function() { $('.messages'+id).toggle(); }">
-              <td data-bind="text: timestamp"></td>
-              <td data-bind="text: processName"></td>
-              <td data-bind="text: fromState.text"></td>
-              <td data-bind="text: fromState.stateType"></td>
-              <td data-bind="text: toState.text"></td>
-              <td data-bind="text: toState.stateType"></td>
-              <td><!-- ko if: $data.hasOwnProperty("messages") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
+            <tr class="state"  style="cursor: pointer;" data-bind="click: function() { $('.message'+$index()).toggle(); }">
+              <td data-bind="text: ts"></td>
+              <td data-bind="text: process().processName"></td>
+              <td data-bind="text: transitionEvent() ? transitionEvent().fromState.text:''"></td>
+              <td data-bind="text: transitionEvent() ? transitionEvent().fromState.stateType:''"></td>
+              <td data-bind="text: transitionEvent() ? transitionEvent().toState.text:''"></td>
+              <td data-bind="text: transitionEvent() ? transitionEvent().toState.stateType:''"></td>
+              <td><!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
             </tr>
               <!-- Line below will be recognized by ko parser-->
-              <!-- ko if: $data.hasOwnProperty("messages") -->
-              <!-- ko foreach: messages --> 
-              <tr class="true" style="display: none;" data-bind="attr: { 'class': 'messages messages' + $parent.id }">
+              <!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") -->
+              
+              <tr class="true" style="display: none;" data-bind="attr: { 'class': 'messages message' +$index() }">
  				<td colspan="7" style="padding:0;">
                 	<div style="padding:8px;">
                         <div class="leftBox">
-                        	<div class="left">ID:</div><div class="right" data-bind="text: messageId"></div><div style="clear:both;"></div>
-                        	<div class="left">Type:</div><div class="right" data-bind="text: messageType"></div><div style="clear:both;"></div>
+                        	
+                        	<div class="left">ID:</div><div class="right" data-bind="text: transitionEvent().message.messageId"></div><div style="clear:both;"></div>
+                        	<div class="left">Type:</div><div class="right" data-bind="text: transitionEvent().message.messageType"></div><div style="clear:both;"></div>
                         </div>
                         <div class="rightBox">
-                        	<div class="left">From:</div><div class="right" data-bind="text: fromUserId"></div><div style="clear:both;"></div>
-                        	<div class="left">To:</div><div class="right" data-bind="text: toUserIds"></div><div style="clear:both;"></div>
+                        	<div class="left">From:</div><div class="right" data-bind="text: transitionEvent().message.fromSubject"></div><div style="clear:both;"></div>
+                        	<div class="left">To:</div><div class="right" data-bind="text: transitionEvent().message.toSubject"></div><div style="clear:both;"></div>
                         </div>
                         <div style="clear:both"></div>
-                        <div class="left">Message:</div><div class="right text" data-bind="text: text"></div><div style="clear:both;"></div>
+                        <div class="left">Message:</div><div class="right text" data-bind="text: transitionEvent().message.text"></div><div style="clear:both;"></div>
                 	</div>
                 </td>
               </tr>
-              <!-- /ko -->
-              <!-- /ko -->    
+              <!-- /ko -->   
           </tbody>
         </table>
       </div>

@@ -32,7 +32,7 @@
             "start": 0,
             "target": {
               "createNew": false,
-              "id": "Audi",
+              "id": "Grossunternehmen",
               "max": -1,
               "min": -1,
               "variable": ""
@@ -55,7 +55,7 @@
             "start": 1,
             "target": {
               "createNew": false,
-              "id": "Audi",
+              "id": "Grossunternehmen",
               "max": -1,
               "min": -1,
               "variable": ""

@@ -8,7 +8,7 @@
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
+ * You can obtain one at http://mozilla.org/MPL/2.0/.6993
  */
 /*
  * Bootstrap v2.2.1
@@ -7004,7 +7004,6 @@ a#show_menu:hover {
   height: 100%;
   min-width: 1px;
   padding: 15px 7px 7px 15px;
-  overflow: auto;
 }
 
 #main > .inner {

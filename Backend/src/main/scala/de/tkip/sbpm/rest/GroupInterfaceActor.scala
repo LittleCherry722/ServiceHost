@@ -56,7 +56,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
        * e.g. GET http://localhost:8080/group
        * result: JSON array of entities
        */
-      path("^$"r) { regex => 
+      path("") {
         completeWithQuery[Seq[Group]](Groups.Read())
       } ~
         /**
@@ -84,7 +84,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
            * e.g. GET http://localhost:8080/group/2
            * result: 404 Not Found or entity as JSON
            */
-          path("^$"r) { regex => 
+          path("") {
             completeWithQuery[Group](Groups.Read.ById(id),
               "Group with id %d not found.", id)
           } ~
@@ -118,7 +118,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * result: 204 No Content
          */
         pathPrefix(IntNumber) { id =>
-          path("^$"r) { regex => 
+          path("") {
             completeWithDelete(Groups.Delete.ById(id),
               "Group could not be deleted. Entity with id %d not found.",
               id)
@@ -157,7 +157,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
          * 			Location: /group/8
          * 			{ "id": 8, "name": "abc", "isActive": true }
          */
-        path("^$"r) { regex => 
+        path("") {
           entity(as[Group]) { group =>
             save(group)
           }
@@ -195,7 +195,7 @@ class GroupInterfaceActor extends Actor with PersistenceInterface {
              * result: 	200 OK
              * 			{ "id": 2, "name": "abc", "isActive": true }
              */
-            path("^$"r) { regex => 
+            path("") {
               entity(as[Group]) { group =>
                 save(group, Some(id))
               }
