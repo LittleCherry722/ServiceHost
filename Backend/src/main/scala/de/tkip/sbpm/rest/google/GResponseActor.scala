@@ -37,6 +37,8 @@ import de.tkip.sbpm.logging.DefaultLogging
 
 class GResponseActor extends Actor with HttpService with DefaultLogging {
 
+  import context.dispatcher
+
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
   def actorRefFactory = context
@@ -75,7 +77,7 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
       path("get_files") {
         parameters("id") { id => ctx =>
           log.debug(s"${getClass.getName} received get request for google drive files from user: $id")
-          (driveActor ? FindFiles(id, "sharedWithMe", GDriveControl.default_fields))
+          (driveActor ? FindFiles(id, "", GDriveControl.default_fields))
             .mapTo[String]
             .onComplete {
               case Success(files) => ctx.complete(files)

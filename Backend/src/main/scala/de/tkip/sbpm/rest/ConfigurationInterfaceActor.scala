@@ -25,7 +25,6 @@ import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.ContentTypeResolver._
 import spray.http.StatusCodes._
-import spray.routing.directives.PathMatchers
 
 /**
  * This Actor is only used to process REST calls regarding "configuration"

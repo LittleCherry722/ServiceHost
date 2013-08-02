@@ -15,7 +15,7 @@ package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.collection.mutable.ArrayBuffer
 import scala.Array.canBuildFrom
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
 import akka.actor._
@@ -32,33 +32,37 @@ import de.tkip.sbpm.application.history.{
 }
 import de.tkip.sbpm
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.{SubjectInformation, RequestUserID}
+import de.tkip.sbpm.application.{ SubjectInformation, RequestUserID }
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior._
-import de.tkip.sbpm.rest.google.GDriveActor.GetUrl
+import de.tkip.sbpm.rest.google.GDriveActor.{ GetUrl, PublishFile }
 import de.tkip.sbpm.logging.DefaultLogging
+import com.google.api.services.drive.model.{ Permission }
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
-  googleId: Option[String] = None) extends Actor with DefaultLogging {
+  userId: String) extends Actor with DefaultLogging {
 
-  private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
-  private implicit val ec = context.dispatcher
+  lazy val driveActor = sbpm.ActorLocator.googleDriveActor
+  implicit val ec = context.dispatcher
+  implicit val timeout = Timeout(3000)
 
   def receive = {
-    case message: SubjectToSubjectMessage => {
-      if (googleId.isDefined && message.fileID.isDefined) {
-        implicit val timeout = Timeout(3000)
-        (driveActor ? GetUrl(googleId.get, message.fileID.get)).onSuccess {
-          case url: String =>
-            message.fileUrl = Some(url)
-            processInstanceActor forward message
-        }
+    case message: SubjectToSubjectMessage if message.fileID.isDefined =>
+      val f_url = (driveActor ? GetUrl(userId, message.fileID.get))
+      val f_pub = (driveActor ? PublishFile(userId, message.fileID.get))
+      val origin = context.sender
+      for {
+        url <- f_url.mapTo[String]
+        pub <- f_pub.mapTo[Permission]
+      } {
+        message.fileUrl = Some(url)
+        processInstanceActor.tell(message, origin)
       }
-    }
+    case message => processInstanceActor forward message
   }
 }
 
@@ -95,24 +99,23 @@ protected case class SendStateActor(data: StateData)
 
     super.preStart()
   }
+
   private case class TargetUsers(users: Array[UserID])
 
   protected def stateReceive = {
-    case TargetUsers(userIDs) if (!targetUserIDs.isDefined) => {
+
+    case TargetUsers(userIDs) if (!targetUserIDs.isDefined) =>
       targetUserIDs = Some(userIDs)
       blockingHandlerActor ! UnBlockUser(userID)
-    }
-    case action: ExecuteAction if ({
-      // the message needs a content
-      action.actionData.messageContent.isDefined
-    }) => {
+
+    case action: ExecuteAction if (action.actionData.messageContent.isDefined) => {
       if (!messageContent.isDefined) {
-        val input = action.actionData
         // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
         // can be blocked until a potentially new subject is created to ensure all available actions will 
         // be returned when asking
-        messageContent = input.messageContent
-        for (transition <- exitTransitions if transition.target.isDefined) yield {
+        messageContent = action.actionData.messageContent
+
+        for (transition <- exitTransitions if transition.target.isDefined) {
 
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
 
@@ -138,8 +141,8 @@ protected case class SendStateActor(data: StateData)
 
             if (userIDs.length == target.min == target.max) {
               target.insertTargetUsers(userIDs)
-            } else if (input.targetUsersData.isDefined) {
-              val targetUserData = input.targetUsersData.get
+            } else if (action.actionData.targetUsersData.isDefined) {
+              val targetUserData = action.actionData.targetUsersData.get
               // TODO validate?!
               target.insertTargetUsers(targetUserData.targetUsers)
             } else {
@@ -157,10 +160,10 @@ protected case class SendStateActor(data: StateData)
           remainingStored += target.min
 
           // send the message over the process instance
-          val sendProxy: ActorRef = context.actorOf(Props(
-              new GoogleSendProxyActor(processInstanceActor, Some(action.userID.toString))
-            )
-          )
+          val sendProxy = context.actorOf(Props(
+            new GoogleSendProxyActor(
+              processInstanceActor,
+              action.userID.toString)))
 
           sendProxy !
             SubjectToSubjectMessage(
@@ -170,7 +173,7 @@ protected case class SendStateActor(data: StateData)
               target,
               messageType,
               messageContent.get,
-              input.fileId)
+              action.actionData.fileId)
 
           // send the ActionExecuted to the blocking actor, it will send it 
           // to the process instance, when this user is ready
@@ -181,11 +184,9 @@ protected case class SendStateActor(data: StateData)
       }
     }
 
-    case Stored(messageID) if ({
-      messageContent.isDefined &&
-        unsentMessageIDs.contains(messageID)
-      // TODO might remove the message ID from unsentMessageIDs?
-    }) => {
+    case Stored(messageID) if (messageContent.isDefined &&
+      unsentMessageIDs.contains(messageID) // TODO might remove the message ID from unsentMessageIDs?
+      ) => {
       val transition = unsentMessageIDs(messageID)
       // Create the history message
       val message =
@@ -198,10 +199,9 @@ protected case class SendStateActor(data: StateData)
       }
     }
 
-    case Rejected(messageID) if ({
+    case Rejected(messageID) if (
       messageContent.isDefined &&
-        unsentMessageIDs.contains(messageID)
-    }) => {
+      unsentMessageIDs.contains(messageID)) => {
       log.warning("message with id {} was rejected", messageID)
 
       //TODO how to handle the rejected message?

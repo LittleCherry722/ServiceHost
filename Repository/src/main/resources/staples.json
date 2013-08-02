@@ -1,0 +1,157 @@
+{
+  "date": 123456789,
+  "creator": "Staples Mitarbeiter",
+  "name": "Staples",
+  "description": "Lorem ipsum dolor sit amet...",
+  "id": 2,
+  "graph":  {
+    "comment": "",
+    "deactivated": false,
+    "externalType": "interface",
+    "id": "Staples",
+    "inputPool": 100,
+    "macroCounter": 1,
+    "name": "Staples",
+    "relatedProcess": "",
+    "relatedSubject": "Staples",
+    "role": "Staples",
+    "type": "external",
+    "variableCounter": 1,
+    "variables": {},
+    "macros": [
+      {
+        "edges": [
+          {
+            "comment": "",
+            "correlationId": "",
+            "deactivated": false,
+            "end": 1,
+            "manualTimeout": false,
+            "optional": false,
+            "priority": 1,
+            "start": 0,
+            "target": {
+              "createNew": false,
+              "id": "Grossunternehmen",
+              "max": -1,
+              "min": -1,
+              "variable": ""
+            },
+            "text": "m1",
+            "transportMethod": [
+              "internal"
+            ],
+            "type": "exitcondition",
+            "variable": ""
+          },
+          {
+            "comment": "",
+            "correlationId": "",
+            "deactivated": false,
+            "end": 2,
+            "manualTimeout": false,
+            "optional": false,
+            "priority": 1,
+            "start": 1,
+            "target": {
+              "createNew": false,
+              "id": "Grossunternehmen",
+              "max": -1,
+              "min": -1,
+              "variable": ""
+            },
+            "text": "m2",
+            "transportMethod": [
+              "internal"
+            ],
+            "type": "exitcondition",
+            "variable": ""
+          }
+        ],
+        "id": "##main##",
+        "name": "internal behavior",
+        "nodeCounter": 5,
+        "nodes": [
+          {
+            "comment": "",
+            "conversation": "",
+            "deactivated": false,
+            "end": false,
+            "id": 0,
+            "macro": "",
+            "majorStartNode": true,
+            "options": {
+              "conversation": "",
+              "correlationId": "",
+              "message": "",
+              "state": "",
+              "subject": ""
+            },
+            "start": true,
+            "text": "",
+            "type": "receive",
+            "varMan": {
+              "operation": "and",
+              "storevar": "",
+              "var1": "",
+              "var2": ""
+            },
+            "variable": ""
+          },
+          {
+            "comment": "",
+            "conversation": "",
+            "deactivated": false,
+            "end": false,
+            "id": 1,
+            "macro": "",
+            "majorStartNode": false,
+            "options": {
+              "conversation": "*",
+              "correlationId": "*",
+              "message": "*",
+              "state": "",
+              "subject": "*"
+            },
+            "start": false,
+            "text": "",
+            "type": "send",
+            "varMan": {
+              "operation": "and",
+              "storevar": "",
+              "var1": "",
+              "var2": ""
+            },
+            "variable": ""
+          },
+          {
+            "comment": "",
+            "conversation": "",
+            "deactivated": false,
+            "end": true,
+            "id": 2,
+            "macro": "",
+            "majorStartNode": false,
+            "options": {
+              "conversation": "*",
+              "correlationId": "*",
+              "message": "*",
+              "state": "",
+              "subject": "*"
+            },
+            "start": false,
+            "text": "",
+            "type": "end",
+            "varMan": {
+              "operation": "and",
+              "storevar": "",
+              "var1": "",
+              "var2": ""
+            },
+            "variable": ""
+          }
+        ]
+      }
+    ]
+  }
+}

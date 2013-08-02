@@ -13,19 +13,17 @@ import com.google.api.client.googleapis.auth.oauth2.{
   GoogleCredential
 }
 import com.google.api.client.auth.oauth2.Credential
-
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.extensions.java6.auth.oauth2.FileCredentialStore
+import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.http.{
   HttpTransport,
   HttpResponse,
   HttpResponseException
 }
-import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.client.extensions.java6.auth.oauth2.FileCredentialStore
 
 import com.google.api.services.oauth2.{Oauth2, Oauth2Scopes}
 import com.google.api.services.oauth2.model.Userinfo
-
 import com.google.api.services.drive.{Drive, DriveScopes}
 import com.google.api.services.drive.model.{File, Permission}
 
@@ -173,11 +171,19 @@ class GDriveControl {
 
   private val driveMap = mutable.Map[String, Drive]()
 
+  /*
+   * Retrieve credentials from API for the given code,
+   * and store them using the user ID as the key.
+   */
   def initCredentials(userId: String, code: String) = {
     val tokenResponse = tokenResponseForAuthCode(userId, code)
     flow.createAndStoreCredential(tokenResponse, userId)
   }
 
+  /*
+   * Return the user's credentials from the credential store,
+   * otherwise throw a NoCredentialsException.
+   */
   def getCredentials(userId: String): Credential =
     Option(flow.loadCredential(userId)) match {
       case Some(credential) => credential
@@ -186,6 +192,10 @@ class GDriveControl {
       )
     }
 
+  /*
+   * Return a drive instance for the user. If none is found,
+   * instantiate one and hold it in the map for later use.
+   */
   def driveOf(userId: String): Drive = {
     if (! driveMap.contains(userId)) {
       println(s"no ID in map for $userId: $driveMap")

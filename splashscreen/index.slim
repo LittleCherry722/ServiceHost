@@ -1,6 +1,8 @@
 doctype html
 html
   head
+    meta charset="UTF-8"
+
     title SBPM Groupware
     link type="text/css" rel="stylesheet" href="css/main.css"
 
@@ -15,7 +17,6 @@ html
     h1.inactive-hide Hybrides P2P Business Process Netzwerk
 
     #impress
-
       #overview.step data-y="-310" data-scale="1.5"
         p.lead
           | Willkommen bei der Demonstration des Hybriden Pear to Pear
@@ -23,54 +24,53 @@ html
         p
           | Im Folgenden werden wir anhand eines Beispiels demonstrieren,
             wozu unsere Business Process Engine in der Lage ist und wie
-            es die Ausführung von Prozessen in Unternehmen
+            es die Ausführung von Unternehmensübergreifenden Prozessen
             revolutionieren kann.
         p
-          | Unser beispielprozess besteht aus 3 Firmen, die zusammen einen Prozess
-            der Warenbestellung und Lieferung ausführen wollen.
-        p
-          | Sie können jederzeit während dieser Präsentation zu den verteilten
-            Process Engines der unterschiedlichen Unternehmen gelangen, indem Sie
-            auf die Icons der Unternehmen klicken.
-          
+          | In unserem Beispielprozess sind 3 Unternehmen involviert,
+            die zusammen einen Prozess der Warenbestellung und
+            Lieferung ausführen wollen.
 
       #staples.images.step data-x="-600" data-y="50"
         h3 Staples
         .graphic
-          a.demo-image href="http://sbpm-stap.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
+          a.demo-image href="http://ec2-54-229-82-150.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
             .image-placeholder
               .dummy
               img src="images/staples.svg" height="244" width="244"
         p.inactive-hide style="padding: 0 100px;"
-          | Staples ist eine Einzelhandel und will einen Prozess zum Einkauf
-            von Waren bereitstellen. Die Auslieferung soll jedoch ein anderes
-            Unternehmen übernehmen.
+          | Staples ist ein Einzelhandelsunternehmen welches bereits
+            einen Prozess zum Einkauf von Waren bereitstellt. Diese
+            Dienstleistung soll um die Möglichkeit erweitert werden,
+            die eingekaufte Ware ausliefern zu lassen. Die Lieferung
+            soll von einem externen Transportdienstleister übernommen
+            werden.
 
       #tsp.images.step data-x="0" data-y="50"
         h3 Transportdienstleister
         .graphic
-          a.demo-image href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
+          a.demo-image href="http://ec2-54-229-91-177.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
             .image-placeholder
               .dummy
               img src="images/tsp.svg" height="244" width="244"
         p.inactive-hide style="padding: 0 100px;"
-          | Ein beliebter Transportdienstleister hat seinen Lieferprozess ebenfalls
-            in unserer Process Engine modelliert, so dass Staples den Lieferdienst
-            verwenden kann.
-      #audi.images.step data-x="600" data-y="50"
-        h3 Audi
+          | Ein überregionaler Transportdienstleister möchte seinen
+            Zustellungsprozess derart bereit stellen, dass er von
+            anderen Unternehmen gefunden und in die eigenen Prozesse
+            mit eingebunden werden kann.
+      #grossunternehmen.images.step data-x="600" data-y="50"
+        h3 Großunternehmen
         .graphic
-          a.demo-image href="http://sbpm-auda.tk.informatik.tu-darmstadt.de" target="_blank"
+          a.demo-image href="http://sbpm-gw.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=unternehmer@sbpm.com&pass=u1234" target="_blank"
             .image-placeholder
               .dummy
-              img src="images/audi.svg"
+              img src="images/grossunternehmen.svg"
         p.inactive-hide style="padding: 0 0 0 100px;"
-          | Ein großes Unternehmen will nun das Bestellen von Bürogütern
-            automatisieren und implementiert die Dienstleistung von Staples.
-        p.inactive-hide style="padding: 0 0 0 100px;"
-          | Werden Büroartikel benötigt, wird die Bestellung automatisch an
-            Staples geschickt und die Waren von dem Transportdienstleister an
-            das Unternehmen übergeben.
+          | Ein großes Unternehmen mit vielen Büroarbeitsplätzen ist
+            auf der Suche nach einem neuen Partner für
+            Büroartikel. Der Partner soll auch für die Zustellung
+            sorgen und dieser Service soll einfach in den eigenen
+            Geschäftsprozess eingebunden werden können.
 
       #technical.details.step data-y="1300" data-x="1200" data-rotate="90"
         h2 style="margin-top: -50px; margin-bottom: 50px;"
@@ -78,12 +78,12 @@ html
         .row
           div.column
             div
-              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
+              a.plain.do-not-impress href="#tsp_process_1" target="_blank"
                 .bordered.container
                   h3 style="font-size:20px;" Transport-dienstleister
                   img src="images/tsp.svg"
             div
-              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
+              a.plain.do-not-impress href="#staples_process_1" target="_blank"
                 .bordered.container style="margin-top: 75px;"
                   h3 style="font-size:20px;" Staples
                   img src="images/staples.svg" style="margin-top: 15px;"
@@ -106,7 +106,7 @@ html
           div.column
             div
               .bordered.container.container-wide.container-tall
-                h3 style="font-size:20px; margin-bottom: 10px;" Audi
+                h3 style="font-size:20px; margin-bottom: 10px;" Großunternehmen
                 div
                   img src="images/repository.svg" style="width: 35%;"
                   p.small Business Interface Repository
@@ -115,9 +115,8 @@ html
                     img src="images/engine.svg" style="width: 60%;"
                     p.small Process Engine
                   div.pull-left style="width: 110px; padding: 0 10px; margin-left: 10px;"
-                    a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
-                      img.bordered src="images/audi.svg" style="width: 100%;"
-
+                    a.plain.do-not-impress href="#unternehmen_process_1" target="_blank"
+                      img.bordered src="images/grossunternehmen.svg" style="width: 100%;"
         .overlays
           .arrow-1.arrow[data-width="250" data-y-offset="-40" data-right-y-offset="0"
             data-direction="right" data-label="(1) BI bereitstellen"
@@ -125,34 +124,99 @@ html
             durch ein Business Interface für andere zur Verfügung."]
           .arrow-2.arrow[data-width="220" data-y-offset="-65" data-right-y-offset="-77"
             data-direction="right" data-label="(2) BI lookup"
-            data-label-tooltip="Staples sucht nach im Business interface Repository \
-            nach einm Prozess zur Auslieferung von Waren."]
+            data-label-tooltip="Staples sucht im Repository nach einem \
+            Business Interface von einem Prozess zur Auslieferung von Waren."]
           .arrow-3.arrow[data-width="225" data-y-offset="-42" data-right-y-offset="-75"
             data-direction="left" data-label="(3) BI TD"
             data-label-tooltip="Staples hat einen Transportdienstleister gefunden und \
             implementiert dieses Business interface nun im eigenen Geschäftsprozess."]
           .arrow-4.arrow[data-width="230" data-y-offset="-20" data-right-y-offset="-75"
             data-direction="right" data-label="(4) BI TD"
-            data-label-tooltip="Nachdem die Modellierung des Prozesses fertig ist,\
-            exportiert Staples den eigenen Prozess widerum, so dass andere den Prozess \
-            implementieren und eine Bestellung aufgeben können."]
+            data-label-tooltip="Nach Abschluss der Modellierung erzeugt \
+            Staples ein Business Interface zum eigenen Prozess und \
+            deployed dieses auf dem Business Interface Repository. \
+            Es kann dort wiederum von anderen Unternehmen \
+            gefunden werden, so dass der Staples Prozess in eigen \
+            Prozesse eingebunden werden kann."]
           .arrow-5.arrow[data-width="95" data-y-offset="50" data-right-y-offset="120"
             data-direction="left" data-label="(5) BI lookup"
-            data-label-tooltip="Ein Großunternehmen sucht nach einem Prozess zur \
-            Bestellung von Bürowaren."]
+            data-label-tooltip="Ein Großunternehmen sucht nach einem \
+            Prozess zur Bestellung von Bürowaren. Der Lookup Befehl \
+            wird zunächst zum unternehmenseigenen Business Interface \
+            Repository geleitet."]
           .arrow-6.arrow[data-width="246" data-y-offset="0" data-right-y-offset="0"
             data-direction="left" data-label="(6) lookup"
-            data-label-tooltip="Das lokale Repository sucht in der eigenen Datenbank \
-            und fragt gleichzeitig bei anderen bekannten Repositories an, \
-            ob neue Interfaces bekannt sind."]
+            data-label-tooltip="Das Business Interface Repository des \
+            Großunternehmens sendet den Lookup zusätzlich an andere, \
+            registrierte Repositories weiter um dort ebenfalls nach \
+            den gewünschten Business Interfaces zu suchen."]
           .arrow-7.arrow[data-width="246" data-y-offset="0" data-right-y-offset="0"
             data-direction="right" data-label="(7) Sync"
-            data-label-tooltip="Da kürzlich ein neues Interface hinzugefügt wurde, wird \
-            dieses mit dem lokalen Repository des Großunternehmens synchronisiert."]
-          .arrow-8.arrow[data-width="95" data-y-offset="62" data-right-y-offset="120"
-            data-direction="right" data-label="(8) BI lookup"
-            data-label-tooltip="Das Großunternehmen findet das Staples Business Interface \
-            und implementiert es im eigenen Prozess."]
+            data-label-tooltip="Das Business Interface von Staples \
+            erfüllt die Anforderungen und die notwendigen Daten werden \
+            über eine Sync Nachricht übermittelt."]
+          .arrow-8.arrow[data-width="100" data-y-offset="62" data-right-y-offset="120"
+            data-direction="right" data-label="(8) BI Staples"
+            data-label-tooltip="Von dem lokalen Business Interface \
+            Repository wird das Business Interface von Staples an den \
+            Mitarbeiter des Großunternehmens durchgereicht."]
+      #tsp_process_1.step.inactive-hide data-y="2800" data-x="1200" data-rotate="90"
+        h2 style="margin-top: -50px; margin-bottom: 50px;"
+          | Prozesserstellung (TSP)
+        a href="http://ec2-54-229-91-177.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234&amp;target=processes/3" style="position: absolute; right: 0px; top: 7px; font-size: 15px;" target="_blank" Zur Process Engine
+        h4 Exportieren des TSP Interfaces (1)
+        img src="images/screenshots/save_tsp_process_dropdown.png" width="820"
+        p.small Klicken Sie auf "Business Interfaces → Save Interface".
+      #tsp_process_2.step.inactive-hide data-y="2800" data-x="1200" data-rotate="90"
+        h2 style="margin-top: -50px; margin-bottom: 50px;"
+          | Prozesserstellung (TSP)
+        a href="http://ec2-54-229-91-177.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234&amp;target=processes/3" style="position: absolute; right: 0px; top: 7px; font-size: 15px;" target="_blank" Zur Process Engine
+        h4 Exportieren des TSP Interfaces (2)
+        img src="images/screenshots/save_tsp_process.png" width="820"
+        p.small Stellen Sie sicher, dass als Interface Name "Lieferant" eingetragen ist.
+      #staples_process_1.step.inactive-hide data-y="4300" data-x="1200" data-rotate="90"
+        h2 style="margin-top: -50px; margin-bottom: 50px;"
+          | Prozesserstellung (Staples)
+        a href="http://ec2-54-229-82-150.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234&amp;target=processes/2" style="position: absolute; right: 0px; top: 7px; font-size: 15px;" target="_blank" Zur Process Engine
+        h4 Importieren des TSP Interfaces (1)
+        img src="images/screenshots/load_tsp_process_dropdown.png" width="820"
+        p.small Klicken Sie auf "Business Interfaces → Load Interface".
+      #staples_process_2.step.inactive-hide data-y="4300" data-x="1200" data-rotate="90"
+        h2 style="margin-top: -50px; margin-bottom: 50px;"
+          | Prozesserstellung (Staples)
+        a href="http://ec2-54-229-82-150.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234&amp;target=processes/2" style="position: absolute; right: 0px; top: 7px; font-size: 15px;" target="_blank" Zur Process Engine
+        h4 Importieren des TSP Interfaces (2)
+        img src="images/screenshots/load_tsp_process.png" width="820"
+        p.small Stellen Sie sicher, dass unter "Insertion Behavior" "Lieferant" ausgewählt ist.
+      #staples_process_3.step.inactive-hide data-y="4300" data-x="1200" data-rotate="90"
+        h2 style="margin-top: -50px; margin-bottom: 50px;"
+          | Prozesserstellung (Staples)
+        a href="http://ec2-54-229-82-150.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234&amp;target=processes/2" style="position: absolute; right: 0px; top: 7px; font-size: 15px;" target="_blank" Zur Process Engine
+        h4 Exportieren des Staples Interfaces (3)
+        img src="images/screenshots/save_staples_process_dropdown.png" width="820"
+        p.small Klicken Sie auf "Business Interfaces → Save Interface".
+      #staples_process_4.step.inactive-hide data-y="4300" data-x="1200" data-rotate="90"
+        h2 style="margin-top: -50px; margin-bottom: 50px;"
+          | Prozesserstellung (Staples)
+        a href="http://ec2-54-229-82-150.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234&amp;target=processes/2" style="position: absolute; right: 0px; top: 7px; font-size: 15px;" target="_blank" Zur Process Engine
+        h4 Exportieren des Staples Interfaces (4)
+        img src="images/screenshots/save_staples_process.png" width="820"
+        p.small Stellen Sie sicher, dass als Interface Name "Staples" eingetragen ist.
+      #unternehmen_process_1.step.inactive-hide data-y="5800" data-x="1200" data-rotate="90"
+        h2 style="margin-top: -50px; margin-bottom: 50px;"
+          | Prozesserstellung (Großunternehmen)
+        a href="http://sbpm-gw.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=unternehmer@sbpm.com&pass=u1234&amp;target=processes/1" style="position: absolute; right: 0px; top: 7px; font-size: 15px;" target="_blank" Zur Process Engine
+        h4 Importieren des Staples Interfaces (1)
+        img src="images/screenshots/load_staples_process_dropdown.png" width="820"
+        p.small Klicken Sie auf "Business Interfaces → Load Interface".
+      #unternehmen_process_2.step.inactive-hide data-y="5800" data-x="1200" data-rotate="90"
+        h2 style="margin-top: -50px; margin-bottom: 50px;"
+          | Prozesserstellung (Großunternehmen)
+        a href="http://sbpm-gw.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=unternehmer@sbpm.com&pass=u1234&amp;target=processes/1" style="position: absolute; right: 0px; top: 7px; font-size: 15px;" target="_blank" Zur Process Engine
+        h4 Importieren des Staples Interfaces (2)
+        img src="images/screenshots/load_staples_process.png" width="820"
+        p style="font-size: 75%;"
+          | Wählen Sie das Staples Interface aus und wählen Sie den entsprechenden "Insertion Type"
 
       #execution.details.step data-y="1300" data-x="200" data-rotate="90"
         h2 style="margin-top: -50px; margin-bottom: 50px;"
@@ -160,12 +224,12 @@ html
         .row
           div.column
             div
-              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
+              a.plain.do-not-impress href="http://ec2-54-229-91-177.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
                 .bordered.container
                   h3 style="font-size:20px;" Transport-dienstleister
                   img src="images/tsp.svg"
             div
-              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
+              a.plain.do-not-impress href="http://ec2-54-229-82-150.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
                 .bordered.container style="margin-top: 75px;"
                   h3 style="font-size:20px;" Staples
                   img src="images/staples.svg" style="margin-top: 15px;"
@@ -188,7 +252,7 @@ html
           div.column
             div
               .bordered.container.container-wide.container-tall
-                h3 style="font-size:20px; margin-bottom: 10px;" Audi
+                h3 style="font-size:20px; margin-bottom: 10px;" Großunternehmen
                 div
                   img src="images/repository.svg" style="width: 35%;"
                   p.small Business Interface Repository
@@ -197,8 +261,8 @@ html
                     img src="images/engine.svg" style="width: 60%;"
                     p.small Process Engine
                   div.pull-left style="width: 110px; padding: 0 10px; margin-left: 10px;"
-                    a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
-                      img.bordered src="images/audi.svg" style="width: 100%;"
+                    a.plain.do-not-impress href="http://sbpm-gw.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=unternehmer@sbpm.com&pass=u1234" target="_blank"
+                      img.bordered src="images/grossunternehmen.svg" style="width: 100%;"
 
         .overlays
           .arrow-1.arrow[data-width="150" data-y-offset="-30" data-right-y-offset="0"
@@ -210,7 +274,7 @@ html
               weiter an die Process Engine von Staples."]
           .arrow-3.arrow[data-width="350" data-y-offset="95" data-right-y-offset="0"
             data-direction="left" data-label="(3) Bestellung"
-            data-label-tooltip="Die Bestellugn wird von einem Staples Mitarbeiter bearbeitet."]
+            data-label-tooltip="Die Bestellung wird von einem Staples Mitarbeiter bearbeitet."]
           .arrow-4.arrow[data-width="300" data-y-offset="50" data-right-y-offset="0"
             data-direction="right" data-label="(4) Transportauftrag"
             data-label-tooltip="Der Transportauftrag des Staples Mitarbeiters wird von der Process \
@@ -226,31 +290,32 @@ html
               und der Dienstleister ist bereit, die Ware von Staples entgegen zu nehmen."]
 
       #delivery.details.step data-y="1300" data-x="-800" data-rotate="90"
+        p.medium style="font-size: 13px; position: absolute; top:-20px; left: 0; right: 0; text-align: center;"
         h2 style="margin-top: -50px; margin-bottom: 50px;"
           | Lieferung
         .row
           div.column
             div
-              a.plain.do-not-impress href="http://sbpm-stap.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
+              a.plain.do-not-impress href="http://ec2-54-229-82-150.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=staples@sbpm.com&amp;pass=s1234" target="_blank"
                 .bordered.container
                   h3 style="font-size:20px;" Staples
                   img src="images/staples.svg"
             div
-              a.plain.do-not-impress href="http://sbpm-audo.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=audi@sbpm.com&amp;pass=a1234" target="_blank"
+              a.plain.do-not-impress href="http://sbpm-gw.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=unternehmer@sbpm.com&amp;pass=u1234" target="_blank"
                 .bordered.container style="margin-top: 75px;"
-                  h3 style="font-size:20px;" Audi
-                  img src="images/audi.svg" style="margin-top: 15px;"
+                  h3 style="font-size:20px;" Großunternehmen
+                  img src="images/grossunternehmen.svg" style="margin-top: 15px;"
           div.column
             .container.container-wide
           div.column
             div style="margin-top: 140px;"
-              a.plain.do-not-impress href="http://sbpm-tsp.tk.informatik.tu-darmstadt.de/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
+              a.plain.do-not-impress href="http://ec2-54-229-91-177.eu-west-1.compute.amazonaws.com/sbpm/login.html?user=tsp@sbpm.com&amp;pass=t1234" target="_blank"
                 .bordered.container
                   h3 style="font-size:20px;" Transport-dienstleister
                   img src="images/tsp.svg"
         .overlays
           .arrow-1.arrow[data-width="380" data-y-offset="0" data-right-y-offset="0"
-            data-direction="right" data-label="(1) Lieferung"
+            data-direction="left" data-label="(1) Abholung"
             data-label-tooltip="Staples gibt die Bestellung bei dem Transportdiensleister auf."]
           .arrow-2.arrow[data-width="380" data-y-offset="0" data-right-y-offset="0"
             data-direction="left" data-label="(2) Lieferung"

@@ -1,26 +1,28 @@
 package de.tkip.sbpm.application.test
 
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
-import scala.concurrent.Future
 import scala.concurrent.duration._
 
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
 
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.SubjectProviderManagerActor
 import de.tkip.sbpm.application.miscellaneous.CreateSubjectProvider
 import de.tkip.sbpm.application.miscellaneous.SubjectProviderCreated
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
+import akka.testkit.TestKit
 
-class CreateSubjectProviderTest extends FunSuite {
+class CreateSubjectProviderTest extends TestKit(ActorSystem("TestSystem")) with FunSuite with BeforeAndAfterAll {
   implicit val timeout = Timeout(5 seconds)
-  val system = ActorSystem()
   val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
+
+  override def afterAll() {
+    system.shutdown()
+  }
 
   test("test subjectprovider creation") {
 

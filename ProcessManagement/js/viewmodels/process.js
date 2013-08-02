@@ -7,9 +7,9 @@ define([
 	"underscore",
 	"router",
 	"async",
-	"models/User",
-	"models/Role",
-	"models/Interface"
+	"models/user",
+	"models/role",
+	"models/interface"
 ], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface ) {
 
 	// The main viewmodel. Every observable defined inside can be used by the
@@ -227,9 +227,14 @@ define([
 		this.graphText = ko.observable("");
 
 		this.importGraph = function() {
-			currentProcess().graph(this.graphText());
+			currentProcess().graphString(this.graphText());
 			loadGraph(currentProcess().graph());
+			$.fancybox.close();
 		}
+
+		this.clearGraphText = function() {
+			this.graphText('');
+		};
 
 		this.goToRoot = function() {
 			setGraph( currentProcess() )
@@ -514,6 +519,10 @@ define([
 		$( "#slctSbj" ).chosen();
 		$( "#slctCon" ).chosen();
 		$( "#slctMacro" ).chosen();
+
+		// fancybox
+		$('#exportGraphButton').fancybox();
+		$('#importGraphButton').fancybox();
 	}
 
 

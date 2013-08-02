@@ -33,6 +33,9 @@ mergeStrategy in assembly := {
 
 scalaVersion := "2.10.0"
 
+libraryDependencies ++= Seq("com.typesafe.akka" % "akka-slf4j" % "2.0.3",
+							"ch.qos.logback" % "logback-classic" % "1.0.3" % "runtime")
+
 // Parameters for Eclipse
 
 retrieveManaged := true
@@ -45,3 +48,9 @@ EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
 //EclipseKeys.projectFlavor := EclipseProjectFlavor.Scala
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
+
+testOptions in Test <+= (target in Test) map {
+  t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
+}
+
+fork in Test := true

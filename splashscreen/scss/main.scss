@@ -29,8 +29,18 @@ h3 {
   text-align: center;
 }
 
+h4 {
+  font-size: 25px;
+  font-weight: 200;
+  text-align: center;
+}
+
 .cleafix {
   @include clearfix;
+}
+
+.medium {
+  font-weight: 400;
 }
 
 .tooltips {
@@ -42,7 +52,8 @@ h3 {
   position: fixed;
   top: 71px;
   bottom: 60px;
-  width: 16%;
+  width: 15%;
+  min-width: 210px;
   border: 1px solid rgba(#000, 0.1);
   background-color: rgba(#666, 0.025);
 
@@ -400,7 +411,7 @@ a {
 }
 
 
-#staples, #tsp, #audi {
+#staples, #tsp, #grossunternehmen {
   height: 600px;
 
   h3 {
@@ -446,6 +457,10 @@ a {
       left: 0;
     }
   }
+}
+
+.small {
+  font-size: 85%;
 }
 
 .details {

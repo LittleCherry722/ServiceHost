@@ -1,6 +1,6 @@
 package de.tkip.sbpm.application.subject.behavior
 
-import org.scalatest.FunSuite
+import org.scalatest.{BeforeAndAfterAll, FunSuite}
 import akka.testkit.{TestKit, TestActorRef}
 import akka.actor._
 import akka.actor.ActorDSL._
@@ -13,11 +13,14 @@ private class DummyBlockingActor extends Actor {
   def receive = FSM.NullFunction
 }
 
-class InputPoolActorTest extends TestKit(ActorSystem("TestSystem")) with FunSuite {
-
+class InputPoolActorTest extends TestKit(ActorSystem("TestSystem")) with FunSuite with BeforeAndAfterAll {
 
   val subject = Subject("Subj1", -1, Array(), false)
   val subjectData = SubjectData(1, 1, 1, null, TestActorRef[DummyBlockingActor], subject)
+
+  override def afterAll() {
+    system.shutdown()
+  }
 
   test("register single subscriber") {
     val actor = TestActorRef(new InputPoolActor(subjectData))

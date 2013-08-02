@@ -69,7 +69,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
        * e.g. GET http://localhost:8080/user
        * result: JSON array of entities
        */
-      path("^$"r) { regex =>
+      path("") {
         getUsersWithMail()
       } ~
         /**
@@ -96,7 +96,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * e.g. GET http://localhost:8080/user/8
            * result: 404 Not Found or entity as JSON
            */
-          path("^$"r) { regex =>
+          path("") {
             getUserWithMail(id)
           } ~
             /**
@@ -106,7 +106,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * result: JSON array of entities
              */
             pathPrefix(Entity.GROUP) {
-              path("^$"r) { regex =>
+              path("") {
                 completeWithQuery[Seq[GroupUser]](GroupsUsers.Read.ByUserId(id))
               } ~
                 /**
@@ -129,7 +129,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * e.g. DELETE http://localhost:8080/user/12
            * result: 204 No Content
            */
-          path("^$"r) { regex =>
+          path("") {
             completeWithDelete(Users.Delete.ById(id), "User could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
@@ -176,12 +176,12 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * 			Location: /user/8
            * 			{ "id": 8, "name": "abc", "isActive": true, "inputPoolSize": 8 }
            */
-          path("^$"r) { regex =>
+          path("") {
             entity(as[User]) { user =>
               saveUser(user)
             }
           } ~
-          path("^$"r) { regex =>
+          path("") {
             entity(as[SetPassword]) {password => 
               complete(StatusCodes.OK)
             }}
@@ -207,12 +207,12 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * 	result: 200 OK
              * 		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
              */
-            path("^$"r) { regex =>
+            path("") {
               entity(as[SetPassword]) { setPassword =>
                 setPw(id, setPassword)
               }
             } ~
-            path("^$"r) { regex =>
+            path("") {
               entity(as[UserUpdate]) { userUpdate =>
                 saveUser(new User(Some(id), userUpdate.name, userUpdate.isActive, userUpdate.inputPoolSize), Some(id))
               }
@@ -249,11 +249,13 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
   // completes with all providers and emails of all users and the user information
   def getUsersWithMail() = {
-    val usersFuture = persistenceActor ? Users.Read.AllWithIdentities
-    val users = Await.result(usersFuture.mapTo[Map[User, Seq[UserIdentity]]], timeout.duration)
-    complete(users.map { user =>
-      UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
-    })
+    complete {
+      val usersFuture = persistenceActor ? Users.Read.AllWithIdentities
+      val users = Await.result(usersFuture.mapTo[Map[User, Seq[UserIdentity]]], timeout.duration)
+      (users.map { user =>
+        UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
+      }).toList.sortBy(_.id)
+    }
   }
 
   def setPw(id: Int, entity: SetPassword) = {

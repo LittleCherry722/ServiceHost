@@ -12,11 +12,11 @@
  */
 define([
   "knockout",
-  "model",
+  "model"
 ], function( ko, Model ) {
 
   Interface = Model( "Interfaces", { remotePath: "repo" } );
-  
+
   Interface.attrs({
     name: "string",
     creator: "string",
@@ -151,6 +151,10 @@ define([
         "transportMethod": ["internal"]
       }]
 		}]
+  }
+
+  Interface.fetch = function(obj, callback) {
+    callback.success();
   }
 
   Interface.all = ko.observableArray([

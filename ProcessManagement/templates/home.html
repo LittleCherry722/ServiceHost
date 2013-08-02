@@ -98,12 +98,53 @@
       label {
         margin-right:7px;
       }
-
-
+      #executionContent {
+      	padding:10px;
+      }
+      #processbutton {
+      	background:none;
+      }
+      #processbutton:hover {
+      	background-color:#EEEEEE;
+      }
+      #processExecution .open {
+      	background-color: #FCFCFC;
+    	background-image: linear-gradient(to bottom, white, #F8F8F8);
+    	border-color:transparent;
+    	box-shadow:none;
+    	-moz-border-bottom-colors: none;
+	    -moz-border-left-colors: none;
+	    -moz-border-right-colors: none;
+	    -moz-border-top-colors: none;
+	    border-color: #CCCCCC #CCCCCC -moz-use-text-color;
+	    border-image: none;
+	    border-style: solid solid none;
+	    border-width: 1px 1px medium;
+	    box-shadow: 0 0 3px #CCCCCC;
+	    height:29px;
+	    position: relative;
+    	top: 2px;
+      }
+      #processExecution .open .dropdown-toggle {
+      	box-shadow:none;
+      }
+      #processExecution .open a.btn {
+      	background-color:#fff;
+      	color: #555555;
+      	background-color: #FCFCFC;
+    	background-image: linear-gradient(to bottom, white, #F8F8F8);
+    	background-repeat: repeat-x;
+    	border-color:transparent;
+    	height:15px;
+    	border:0;
+      }
+      .dropdown-menu {
+      	margin: 0;
+      }
 
   </style>
 
-  <div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom" class="pull-left">
+  <div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom" class="pull-left" style="min-width: 96%">
     <h3>S-BPM Groupware v1.2</h3>
     <div class="btn-group">
       <select data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>    	
@@ -124,10 +165,22 @@
     <hr>    
 
     <div id="processExecution">
-      <ul class="nav nav-tabs" data-bind="foreach: tabs">
+      <ul class="nav nav-tabs">
+      	<!-- ko  foreach: tabs -->
         <li data-bind="css: { active: $data === $root.currentTab() }">
           <a data-bind="text: $data, attr: { href: '#/home/' + $data }"></a>
         </li>
+        <!-- /ko -->
+        
+        <li class="btn-group">
+			<a href="#" data-toggle="dropdown" id="processbutton" class="btn dropdown-toggle">Start Process <b class="caret"></b></a>
+			<ul class="dropdown-menu" data-bind='foreach: availableProcesses'>
+				<li>
+					<a data-bind="click: $parent.newInstance" href="#"><span data-bind="text: name()"></span>&nbsp;(<span data-bind="text: instanceCount"></span>)</a>
+				</li>
+			</ul>
+		</li>
+
       </ul>
     </div>
     <div id="executionContent">

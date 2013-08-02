@@ -112,11 +112,11 @@ i, em {
 .impress-enabled .step.inactive-hide, .impress-enabled .step .inactive-hide {
   opacity: 0;
   visibility: hidden;
-  -webkit-transition: opacity 1s;
-  -moz-transition: opacity 1s;
-  -ms-transition: opacity 1s;
-  -o-transition: opacity 1s;
-  transition: opacity 1s;
+  -webkit-transition: opacity 1s, visibility 0 linear 1s;
+  -moz-transition: opacity 1s, visibility 0 linear 1s;
+  -ms-transition: opacity 1s, visibility 0 linear 1s;
+  -o-transition: opacity 1s, visibility 0 linear 1s;
+  transition: opacity 1s, visibility 0 linear 1s;
 }
 .impress-enabled .step.inactive-dim, .impress-enabled .step .inactive-dim {
   opacity: 0.3;
@@ -130,6 +130,11 @@ i, em {
 .impress-enabled .step.active.inactive-hide, .impress-enabled .step.active.inactive-dim, .impress-enabled .step.active .inactive-hide, .impress-enabled .step.active .inactive-dim {
   opacity: 1;
   visibility: visible;
+  -webkit-transition: opacity 1s;
+  -moz-transition: opacity 1s;
+  -ms-transition: opacity 1s;
+  -o-transition: opacity 1s;
+  transition: opacity 1s;
 }
 
 h1 {
@@ -157,6 +162,12 @@ h3 {
   text-align: center;
 }
 
+h4 {
+  font-size: 25px;
+  font-weight: 200;
+  text-align: center;
+}
+
 .cleafix {
   *zoom: 1;
 }
@@ -168,6 +179,10 @@ h3 {
   clear: both;
 }
 
+.medium {
+  font-weight: 400;
+}
+
 .tooltips {
   display: none;
 }
@@ -177,7 +192,8 @@ h3 {
   position: fixed;
   top: 71px;
   bottom: 60px;
-  width: 16%;
+  width: 15%;
+  min-width: 210px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background-color: rgba(102, 102, 102, 0.025);
 }
@@ -499,44 +515,48 @@ a:hover, a:focus {
   background: white;
 }
 
-#staples, #tsp, #audi {
+#staples, #tsp, #grossunternehmen {
   height: 600px;
 }
-#staples h3, #tsp h3, #audi h3 {
+#staples h3, #tsp h3, #grossunternehmen h3 {
   font-size: 30px;
   font-weight: 400;
 }
-#staples .graphic, #tsp .graphic, #audi .graphic {
+#staples .graphic, #tsp .graphic, #grossunternehmen .graphic {
   width: 50%;
   margin-left: 25%;
 }
-#staples .demo-image, #tsp .demo-image, #audi .demo-image {
+#staples .demo-image, #tsp .demo-image, #grossunternehmen .demo-image {
   width: 60%;
   margin-left: 20%;
   display: block;
   border-radius: 0.25em;
   border: 2px solid #aaaaaa;
 }
-#staples .demo-image:hover, #tsp .demo-image:hover, #audi .demo-image:hover {
+#staples .demo-image:hover, #tsp .demo-image:hover, #grossunternehmen .demo-image:hover {
   background-color: rgba(221, 238, 255, 0.5);
 }
-#staples .demo-image:active, #tsp .demo-image:active, #audi .demo-image:active {
+#staples .demo-image:active, #tsp .demo-image:active, #grossunternehmen .demo-image:active {
   box-shadow: inset 0px 0px 7px rgba(0, 0, 0, 0.3);
 }
-#staples .image-placeholder, #tsp .image-placeholder, #audi .image-placeholder {
+#staples .image-placeholder, #tsp .image-placeholder, #grossunternehmen .image-placeholder {
   width: 100%;
   display: inline-block;
   position: relative;
 }
-#staples .image-placeholder .dummy, #tsp .image-placeholder .dummy, #audi .image-placeholder .dummy {
+#staples .image-placeholder .dummy, #tsp .image-placeholder .dummy, #grossunternehmen .image-placeholder .dummy {
   margin-top: 100%;
 }
-#staples .image-placeholder img, #tsp .image-placeholder img, #audi .image-placeholder img {
+#staples .image-placeholder img, #tsp .image-placeholder img, #grossunternehmen .image-placeholder img {
   height: 100%;
   width: 100%;
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.small {
+  font-size: 85%;
 }
 
 .details .column {

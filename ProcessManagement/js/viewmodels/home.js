@@ -5,15 +5,17 @@ define([
 	"models/user",
 	"models/process",
 	"models/actions",
+	"models/history",
 	"moment",
 	"jquery.ui",
-], function( ko, App, _, User, Process, Actions, moment ) {
+], function( ko, App, _, User, Process, Actions, History, moment ) {
 
 	var ViewModel = function() {
 		// Filter
 		this.availableUsers = ko.observableArray(User.all());
 		this.availableProcesses = ko.observableArray(Process.all());
 		this.availableStatetypes= availableStatetypes;
+		
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
 		this.selectedStatetype = selectedStatetype;
@@ -23,6 +25,25 @@ define([
 		this.tabs = tabs;
 		this.tabDescriptions = tabDescriptions;
 		this.currentTab = currentTab;
+		
+		this.newInstance = function() {
+			var process = this;
+				
+			instance = new ProcessInstance( {
+				processId: process.id(),
+				graph: process.graph()
+			});
+	
+			instance.save(null, {
+				success: function() {
+					Actions.fetch();
+					History.fetch();
+				},
+				error: function() {
+					Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
+				}
+			});
+		}
 	}	
 	currentSubView = ko.observable();
 	var availableStatetypes = ko.computed(function() {

@@ -7,7 +7,7 @@ define([
 ], function( ko, App, _, History, moment) {
 
 	var ViewModel = function() {
-		this.historicEntries = historicEntries;
+		this.historicEntries = historyList;
 		/// Filter
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
@@ -15,16 +15,18 @@ define([
 		this.selectedStart = selectedStart;	
 		this.selectedEnd = selectedEnd;			
 	}
-	var historicEntries = ko.observableArray();
-	var newHistory = ko.observableArray(History.all());
-
-	var updateHistory = function() {
-		historicEntries.removeAll();
-		$.each( newHistory(), function ( i, value ) {
-			value.timestamp = JSONtimestampToString(value.timestamp);
-			historicEntries.push(value);
-		} );
-	};
+	var historyList = ko.observableArray();
+	var historys = ko.computed(function() {
+		//historyList(History.all().slice(0));
+		historyList.removeAll();
+		$.each( History.all(), function ( i, value ) {
+			if(value.transitionEvent() && value.transitionEvent().message) {
+				console.log(value.transitionEvent().message.fromSubject);
+			}			
+			value.ts = JSONtimestampToString(value.timeStamp().date);
+			historyList.push(value);
+		});
+	});
 	
 	var JSONtimestampToString = function( JSONtimestamp ){
 		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
@@ -43,8 +45,8 @@ define([
 	selectedEnd.subscribe(function() { filter();});
 	
 	var filter = function() {
-		historicEntries.removeAll();
-		$.each( newHistory(), function ( i, value ) {
+		historyList.removeAll();
+		$.each( History.all(), function ( i, value ) {
 			var filter = false;
 			if (selectedUser() && selectedUser() !== value.userId ) {
 				filter = true;
@@ -62,19 +64,16 @@ define([
 				filter = true;
 			}
 			if(filter!=true) {
-				historicEntries.push(value);
+				historyList.push(value);
 			}
 		});
 	}
 	
 	
-	var initialize = function( instance ) {	
-		updateHistory();
+	var initialize = function( instance ) {
 		var viewModel = new ViewModel();
-		App.loadTemplate( "home/history", viewModel, "executionContent", function() {
-			
-		});
-
+		App.loadTemplate( "home/history", viewModel, "executionContent", function() {});
+		History.fetch();
 	}
 	
 	// Everything in this object will be the public API

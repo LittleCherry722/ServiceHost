@@ -28,8 +28,7 @@ import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
-import spray.http.HttpHeader
-import spray.http.HttpHeaders
+import spray.http.{StatusCodes, StatusCode, HttpHeader, HttpHeaders}
 import scala.concurrent.Future
 import akka.actor.Props
 import de.tkip.sbpm.persistence.PersistenceActor
@@ -41,6 +40,11 @@ import de.tkip.sbpm.application.miscellaneous.KillAllProcessInstances
  * This Actor is only used to process REST calls regarding "debug"
  */
 class DebugInterfaceActor extends Actor with PersistenceInterface {
+
+  implicit val executionContext = context.system.dispatcher
+
+  val logging = context.system.log
+
   /**
    *
    * usually a REST Api should at least implement the following functions:
@@ -56,31 +60,24 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
    */
   def receive = runRoute({
     get {
-      /**
-       * get a list of all groups
-       *
-       * e.g. GET http://localhost:8080/group
-       * result: JSON array of entities
-       */
-      implicit val executionContext = context.system.dispatcher
-      
-      val logging = context.system.log
-      val onFailure: PartialFunction[Throwable, Any] = {
-        case e => logging.error(e, e.getMessage)
+      complete {
+        val onFailure: PartialFunction[Throwable, Any] = {
+          case e => logging.error(e, e.getMessage)
+        }
+
+        var dbFuture = Future[Any]()
+
+        dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
+        dbFuture.onFailure(onFailure)
+
+        val processManagerActor = ActorLocator.processManagerActor
+        processManagerActor ! KillAllProcessInstances
+
+        dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
+        dbFuture.onFailure(onFailure)
+
+        dbFuture.map(_ => StatusCodes.OK)
       }
-      val persistenceActor = ActorLocator.persistenceActor
-      var dbFuture = Future[Any]()
-
-      dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
-      dbFuture.onFailure(onFailure)
-      
-      val processManagerActor = ActorLocator.processManagerActor
-      processManagerActor ! KillAllProcessInstances
-
-      dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
-      dbFuture.onFailure(onFailure)
-
-      complete("")
     }
   })
 

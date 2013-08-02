@@ -2,19 +2,19 @@
   "definition": {
     "conversationCounter": 1,
     "conversations": {},
-    "messageCounter": 4,
+    "messageCounter": 3,
     "messages": {
-      "m1": "Abholauftrag",
-      "m2": "Lieferdatum",
-      "m3": "Bestellung"
+      "m1": "Bestellung",
+      "m2": "Lieferdatum"
     },
-    "nodeCounter": 1,
+    "nodeCounter": 2,
     "process": [
       {
         "comment": "",
         "deactivated": false,
         "externalType": "external",
-        "id": "Staples",
+        "id": "Gro\u00dfunternehmen",
+        "startSubject":true,
         "inputPool": 100,
         "macroCounter": 1,
         "macros": [
@@ -24,19 +24,36 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "end": 2,
+                "end": 3,
                 "manualTimeout": false,
                 "optional": false,
                 "priority": 1,
-                "start": 0,
+                "start": 1,
+                "target": "",
+                "text": "Akzeptiert",
+                "transportMethod": [
+                  "internal"
+                ],
+                "type": "exitcondition",
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "correlationId": "",
+                "deactivated": false,
+                "end": 0,
+                "manualTimeout": false,
+                "optional": false,
+                "priority": 1,
+                "start": 4,
                 "target": {
                   "createNew": false,
-                  "id": "Gro\u00dfunternehmen",
+                  "id": "Staples",
                   "max": -1,
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m3",
+                "text": "m2",
                 "transportMethod": [
                   "internal"
                 ],
@@ -51,90 +68,10 @@
                 "manualTimeout": false,
                 "optional": false,
                 "priority": 1,
-                "start": 2,
-                "target": "",
-                "text": "Verf\u00fcgbar",
-                "transportMethod": [
-                  "internal"
-                ],
-                "type": "exitcondition",
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "correlationId": "",
-                "deactivated": false,
-                "end": 6,
-                "manualTimeout": false,
-                "optional": false,
-                "priority": 1,
-                "start": 2,
-                "target": "",
-                "text": "Nicht Verf\u00fcgbar",
-                "transportMethod": [
-                  "internal"
-                ],
-                "type": "exitcondition",
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "correlationId": "",
-                "deactivated": false,
-                "end": 1,
-                "manualTimeout": false,
-                "optional": false,
-                "priority": 1,
                 "start": 3,
                 "target": {
                   "createNew": false,
-                  "id": "Gro\u00dfunternehmen",
-                  "max": -1,
-                  "min": -1,
-                  "variable": ""
-                },
-                "text": "m2",
-                "transportMethod": [
-                  "internal"
-                ],
-                "type": "exitcondition",
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "correlationId": "",
-                "deactivated": false,
-                "end": 3,
-                "manualTimeout": false,
-                "optional": false,
-                "priority": 1,
-                "start": 5,
-                "target": {
-                  "createNew": false,
-                  "id": "Zulieferer",
-                  "max": -1,
-                  "min": -1,
-                  "variable": ""
-                },
-                "text": "m2",
-                "transportMethod": [
-                  "internal"
-                ],
-                "type": "exitcondition",
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "correlationId": "",
-                "deactivated": false,
-                "end": 5,
-                "manualTimeout": false,
-                "optional": false,
-                "priority": 1,
-                "start": 4,
-                "target": {
-                  "createNew": false,
-                  "id": "Zulieferer",
+                  "id": "Staples",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -150,56 +87,30 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "end": 4,
+                "end": 1,
                 "manualTimeout": false,
                 "optional": false,
                 "priority": 1,
-                "start": 6,
+                "start": 2,
                 "target": "",
-                "text": "",
+                "text": "Erledigt",
                 "transportMethod": [
                   "internal"
                 ],
                 "type": "exitcondition",
-                "variable": null
+                "variable": ""
               }
             ],
             "id": "##main##",
             "name": "internal behavior",
-            "nodeCounter": 7,
+            "nodeCounter": 5,
             "nodes": [
               {
                 "comment": "",
                 "conversation": "",
                 "deactivated": false,
-                "end": false,
-                "id": 0,
-                "macro": "",
-                "majorStartNode": true,
-                "options": {
-                  "conversation": "",
-                  "correlationId": "",
-                  "message": "*",
-                  "state": null,
-                  "subject": "*"
-                },
-                "start": true,
-                "text": "",
-                "type": "receive",
-                "varMan": {
-                  "operation": "and",
-                  "storevar": "",
-                  "var1": "",
-                  "var2": ""
-                },
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "conversation": "",
-                "deactivated": false,
                 "end": true,
-                "id": 1,
+                "id": 0,
                 "macro": "",
                 "majorStartNode": false,
                 "options": {
@@ -225,7 +136,7 @@
                 "conversation": "",
                 "deactivated": false,
                 "end": false,
-                "id": 2,
+                "id": 1,
                 "macro": "",
                 "majorStartNode": false,
                 "options": {
@@ -236,7 +147,33 @@
                   "subject": "*"
                 },
                 "start": false,
-                "text": "Verf\u00fcgbarkeit pr\u00fcfen",
+                "text": "Pr\u00fcfe Bestellung",
+                "type": "action",
+                "varMan": {
+                  "operation": "and",
+                  "storevar": "",
+                  "var1": "",
+                  "var2": ""
+                },
+                "variable": ""
+              },
+              {
+                "comment": "",
+                "conversation": "",
+                "deactivated": false,
+                "end": false,
+                "id": 2,
+                "macro": "",
+                "majorStartNode": true,
+                "options": {
+                  "conversation": "",
+                  "correlationId": "",
+                  "message": "*",
+                  "state": null,
+                  "subject": "*"
+                },
+                "start": true,
+                "text": "Bestellformular ausf\u00fcllen",
                 "type": "action",
                 "varMan": {
                   "operation": "and",
@@ -289,59 +226,7 @@
                 },
                 "start": false,
                 "text": "",
-                "type": "send",
-                "varMan": {
-                  "operation": "and",
-                  "storevar": "",
-                  "var1": "",
-                  "var2": ""
-                },
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "conversation": "",
-                "deactivated": false,
-                "end": false,
-                "id": 5,
-                "macro": "",
-                "majorStartNode": false,
-                "options": {
-                  "conversation": "*",
-                  "correlationId": "*",
-                  "message": "*",
-                  "state": null,
-                  "subject": "*"
-                },
-                "start": false,
-                "text": "",
                 "type": "receive",
-                "varMan": {
-                  "operation": "and",
-                  "storevar": "",
-                  "var1": "",
-                  "var2": ""
-                },
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "conversation": "",
-                "deactivated": false,
-                "end": false,
-                "id": 6,
-                "macro": "",
-                "majorStartNode": false,
-                "options": {
-                  "conversation": "",
-                  "correlationId": "",
-                  "message": "*",
-                  "state": null,
-                  "subject": "*"
-                },
-                "start": false,
-                "text": "Bestellung aus Lager holen",
-                "type": "action",
                 "varMan": {
                   "operation": "and",
                   "storevar": "",
@@ -353,10 +238,10 @@
             ]
           }
         ],
-        "name": "Staples",
+        "name": "Gro\u00dfunternehmen",
         "relatedProcess": "",
         "relatedSubject": "",
-        "role": "Staples",
+        "role": "Gro\u00dfunternehmen",
         "type": "single",
         "variableCounter": 1,
         "variables": {}
@@ -365,7 +250,8 @@
         "comment": "",
         "deactivated": false,
         "externalType": "interface",
-        "id": "Zulieferer",
+        "id": "Staples",
+        "subjectType":"external",
         "inputPool": 100,
         "macroCounter": 1,
         "macros": [
@@ -382,7 +268,7 @@
                 "start": 0,
                 "target": {
                   "createNew": false,
-                  "id": "Staples",
+                  "id": "Gro\u00dfunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -405,7 +291,7 @@
                 "start": 1,
                 "target": {
                   "createNew": false,
-                  "id": "Staples",
+                  "id": "Gro\u00dfunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -503,160 +389,10 @@
             ]
           }
         ],
-        "name": "Lieferant",
-        "relatedProcess": 3,
-        "relatedSubject": "Zulieferer",
-        "role": "Zulieferer",
-        "type": "external",
-        "variableCounter": 1,
-        "variables": {}
-      },
-      {
-        "comment": "",
-        "deactivated": false,
-        "externalType": "interface",
-        "id": "Gro\u00dfunternehmen",
-        "inputPool": 100,
-        "macroCounter": 1,
-        "macros": [
-          {
-            "edges": [
-              {
-                "comment": "",
-                "correlationId": "",
-                "deactivated": false,
-                "end": 1,
-                "manualTimeout": false,
-                "optional": false,
-                "priority": 1,
-                "start": 0,
-                "target": {
-                  "createNew": false,
-                  "id": "Staples",
-                  "max": -1,
-                  "min": -1,
-                  "variable": ""
-                },
-                "text": "m3",
-                "transportMethod": [
-                  "internal"
-                ],
-                "type": "exitcondition",
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "correlationId": "",
-                "deactivated": false,
-                "end": 2,
-                "manualTimeout": false,
-                "optional": false,
-                "priority": 1,
-                "start": 1,
-                "target": {
-                  "createNew": false,
-                  "id": "Staples",
-                  "max": -1,
-                  "min": -1,
-                  "variable": ""
-                },
-                "text": "m2",
-                "transportMethod": [
-                  "internal"
-                ],
-                "type": "exitcondition",
-                "variable": ""
-              }
-            ],
-            "id": "##main##",
-            "name": "internal behavior",
-            "nodeCounter": 5,
-            "nodes": [
-              {
-                "comment": "",
-                "conversation": "",
-                "deactivated": false,
-                "end": false,
-                "id": 0,
-                "macro": "",
-                "majorStartNode": true,
-                "options": {
-                  "conversation": "",
-                  "correlationId": "",
-                  "message": "",
-                  "state": "",
-                  "subject": ""
-                },
-                "start": true,
-                "text": "",
-                "type": "send",
-                "varMan": {
-                  "operation": "and",
-                  "storevar": "",
-                  "var1": "",
-                  "var2": ""
-                },
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "conversation": "",
-                "deactivated": false,
-                "end": false,
-                "id": 1,
-                "macro": "",
-                "majorStartNode": false,
-                "options": {
-                  "conversation": "*",
-                  "correlationId": "*",
-                  "message": "*",
-                  "state": "",
-                  "subject": "*"
-                },
-                "start": false,
-                "text": "",
-                "type": "receive",
-                "varMan": {
-                  "operation": "and",
-                  "storevar": "",
-                  "var1": "",
-                  "var2": ""
-                },
-                "variable": ""
-              },
-              {
-                "comment": "",
-                "conversation": "",
-                "deactivated": false,
-                "end": true,
-                "id": 2,
-                "macro": "",
-                "majorStartNode": false,
-                "options": {
-                  "conversation": "*",
-                  "correlationId": "*",
-                  "message": "*",
-                  "state": "",
-                  "subject": "*"
-                },
-                "start": false,
-                "text": "",
-                "type": "end",
-                "varMan": {
-                  "operation": "and",
-                  "storevar": "",
-                  "var1": "",
-                  "var2": ""
-                },
-                "variable": ""
-              }
-            ]
-          }
-        ],
-        "name": "Kunde",
-        "relatedProcess": 1,
-        "relatedSubject": "Gro\u00dfunternehmen",
-        "role": "Kunde",
+        "name": "Staples",
+        "relatedProcess": 2,
+        "relatedSubject": "Staples",
+        "role": "Staples",
         "type": "external",
         "variableCounter": 1,
         "variables": {}

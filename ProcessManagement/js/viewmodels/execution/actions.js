@@ -133,7 +133,7 @@ define([
 		data = actionOfCurrentSubject();
 
 		deArray = data.actionData[ 0 ];
-		if( messageText ) {
+		if( messageText() ) {
 			deArray.messageContent = messageText();
 		} else {
 			deArray.messageContent = "[empty message]";

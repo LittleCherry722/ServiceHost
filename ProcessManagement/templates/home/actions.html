@@ -1,4 +1,4 @@
-<div class="process-empty" data-bind="visible: actions().length==0">
+<div data-bind="visible: actions().length==0">
   <p class="lead">
     There are no Processes running at the moment.
   </p>
@@ -12,7 +12,7 @@
 </div>
 
 <div data-bind='foreach: actions()'>
-  <!-- ko if: process() -->
+  <!-- ko if: process() && (executable() || hasActions())-->
   <table class="result" data-bind="attr: {id: instanceTableId()}">
     <tr style="cursor: pointer;" data-bind="click: function() { $('#'+instanceDetailsDivId()).toggle(); }">
       <td class="col1">
@@ -97,4 +97,7 @@
     </tr>
   </table>
   <!-- /ko -->
+</div>
+<div data-bind="visible: actions().length>0">
+	<b>Legend:</b> <img src="images/icons/circle-green-24-ns.png" title="Action required"/>Action required <img src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/> Waiting for other user
 </div>
