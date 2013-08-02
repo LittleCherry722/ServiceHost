@@ -41,6 +41,8 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
 
+import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
+
 protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
@@ -188,8 +190,11 @@ protected case class ReceiveStateActor(data: StateData)
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
-
-      messageData += MessageData(message.userID, message.messageContent, message.fileUrl)
+      val url: Option[String] = message.fileInfo match {
+        case Some(GDriveFileInfo(_,url,_)) => Some(url)
+        case None => None
+      }
+      messageData += MessageData(message.userID, message.messageContent, url)
     }
   }
 }

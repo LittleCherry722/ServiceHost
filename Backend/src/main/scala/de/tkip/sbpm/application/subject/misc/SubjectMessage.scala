@@ -13,17 +13,22 @@
 
 package de.tkip.sbpm.application.subject.misc
 
-import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
-import de.tkip.sbpm.application.miscellaneous.AnswerMessage
-import de.tkip.sbpm.application.miscellaneous.SubjectProviderMessage
-import de.tkip.sbpm.application.miscellaneous.SubjectMessage
-import de.tkip.sbpm.application.History
 import scala.collection.mutable.ArrayBuffer
-import de.tkip.sbpm.model.Graph
-import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
+
+import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject.behavior.Target
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.miscellaneous.{
+  AnswerAbleMessage,
+  AnswerMessage,
+  SubjectProviderMessage,
+  SubjectMessage,
+  ProcessInstanceData
+}
+import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.model.Graph
+
+import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 
 // switch state messages 
 case class StartSubjectExecution() extends SubjectBehaviorRequest
@@ -39,7 +44,8 @@ protected case class SubjectToSubjectMessage(
   messageType: MessageType,
   messageContent: MessageContent,
   fileID: Option[String] = None,
-  var fileUrl: Option[String] = None) extends MessageObject {
+  var fileInfo: Option[GDriveFileInfo] = None
+) extends MessageObject {
 
   def to = target.subjectID
 

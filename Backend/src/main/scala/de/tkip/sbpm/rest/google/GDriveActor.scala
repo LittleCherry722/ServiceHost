@@ -24,7 +24,7 @@ object GDriveActor {
   case class FindFiles(userId: String, query: String, fields: String)
   case class RetrieveCredentials(userId: String)
   case class InitCredentials(userId: String, code: String)
-  case class GetUrl(userId: String, fileId: String)
+  case class GetFileInfo(userId: String, fileId: String)
   case class PublishFile(userId: String, fileId: String)
   case class UnpublishFile(userId: String, fileId: String)
   case class ShareFile(userId: String, fileId: String, targetId: String)
@@ -43,8 +43,8 @@ class GDriveActor extends Actor {
       Future { driveCtrl.initCredentials(u,c) } pipeTo sender
     case RetrieveCredentials(u) =>
       Future { driveCtrl.getCredentials(u) } pipeTo sender
-    case GetUrl(u,f) =>
-      Future { driveCtrl.fileUrl(u,f) } pipeTo sender
+    case GetFileInfo(u,f) =>
+      Future { driveCtrl.fileInfo(u,f) } pipeTo sender
     case PublishFile(u,f) =>
       Future { driveCtrl.publishFile(u,f) } pipeTo sender
     case UnpublishFile(u,f) =>
