@@ -35,6 +35,7 @@ require.config({
 		"dialog":              "libs/sbpm/dialog",
 		"async":               "libs/async/async",
 		"moment":              "libs/moment/moment",
+		"select2":             "libs/select2/select2.min",
 		"intro":               "libs/intro/intro"
 	},
 	shim: {

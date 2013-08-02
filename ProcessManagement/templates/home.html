@@ -107,12 +107,25 @@
       #processbutton:hover {
       	background-color:#EEEEEE;
       }
-      #processExecution .open {
+      .select2-container .select2-choice  {
+      	background:none;
+      	border:0;
+      	height:14px;
+      	box-shadow: none;
+      	line-height: 16px;
+      }
+      .select2-container .select2-choice:hover  {
+      	background-color:#EEE;
+      }
+      .select2-dropdown-open .select2-choice  {
       	background-color: #FCFCFC;
     	background-image: linear-gradient(to bottom, white, #F8F8F8);
-    	border-color:transparent;
-    	box-shadow:none;
-    	-moz-border-bottom-colors: none;
+    	background-repeat: repeat-x;
+    	border: medium none;
+    	border-radius: 4px 4px 0 0;
+      }
+      .select2-dropdown-open {
+      	-moz-border-bottom-colors: none;
 	    -moz-border-left-colors: none;
 	    -moz-border-right-colors: none;
 	    -moz-border-top-colors: none;
@@ -121,25 +134,23 @@
 	    border-style: solid solid none;
 	    border-width: 1px 1px medium;
 	    box-shadow: 0 0 3px #CCCCCC;
-	    height:29px;
+	    height: 29px;
 	    position: relative;
-    	top: 2px;
+	    top: 2px;
+	    border-radius: 5px 5px 0 0;
       }
-      #processExecution .open .dropdown-toggle {
-      	box-shadow:none;
+      .select2-drop {
+      	border-color: #CCCCCC;
       }
-      #processExecution .open a.btn {
-      	background-color:#fff;
-      	color: #555555;
-      	background-color: #FCFCFC;
-    	background-image: linear-gradient(to bottom, white, #F8F8F8);
-    	background-repeat: repeat-x;
-    	border-color:transparent;
-    	height:15px;
-    	border:0;
+      .select2-search {
+      	margin:2px;
       }
-      .dropdown-menu {
-      	margin: 0;
+      .select2-default {
+      	color:#4B4F5D !important;
+      }
+      .select2-container .select2-choice .select2-arrow {
+      	border:0;
+      	background:none;
       }
 
   </style>
@@ -171,19 +182,14 @@
           <a data-bind="text: $data, attr: { href: '#/home/' + $data }"></a>
         </li>
         <!-- /ko -->
-        
-        <li class="btn-group">
-			<a href="#" data-toggle="dropdown" id="processbutton" class="btn dropdown-toggle">Start Process <b class="caret"></b></a>
-			<ul class="dropdown-menu" data-bind='foreach: availableProcesses'>
-				<li>
-					<a data-bind="click: $parent.newInstance" href="#"><span data-bind="text: name()"></span>&nbsp;(<span data-bind="text: instanceCount"></span>)</a>
-				</li>
-			</ul>
+		<li>
+			<select class="sel" data-placeholder="Start Process" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'id'"></select>
 		</li>
-
       </ul>
     </div>
     <div id="executionContent">
     </div>
   </div>
 </div>
+
+
