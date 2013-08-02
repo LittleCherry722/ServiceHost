@@ -203,15 +203,17 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * Parses a GraphHeader from request.
    */
   private def parseGraphHeader(op: GraphHeader => Route): Route = {
-    onSuccess((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]) {
-      roles =>
+    dynamic {
+      onSuccess((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]) {
+        roles =>
         // implicite value for marshalling
-        implicit val roleMap = roles.map(r => (r.name, r)).toMap
+          implicit val roleMap = roles.map(r => (r.name, r)).toMap
 
-        entity(as[GraphHeader]) {
-          json =>
-            op(json)
-        }
+          entity(as[GraphHeader]) {
+            json =>
+              op(json)
+          }
+      }
     }
   }
 }
