@@ -57,25 +57,33 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
     get {
       //READ
       path(IntNumber) { processInstanceID =>
-        val future = (subjectProviderManager ? ReadProcessInstance(userId, processInstanceID)).mapTo[ReadProcessInstanceAnswer]
-        complete(future.map(result => result.answer))
+        complete {
+          val future = (subjectProviderManager ? ReadProcessInstance(userId, processInstanceID)).mapTo[ReadProcessInstanceAnswer]
+          future.map(result => result.answer)
+        }
       } ~
         // Show Actions
         path("action") {
-          val availableActionsFuture =
-            (subjectProviderManager ? GetAvailableActions(userId))
-              .mapTo[AvailableActionsAnswer]
-          complete(availableActionsFuture.map(result => result.availableActions))
+          complete {
+            val availableActionsFuture =
+              (subjectProviderManager ? GetAvailableActions(userId))
+                .mapTo[AvailableActionsAnswer]
+            availableActionsFuture.map(result => result.availableActions)
+          }
         } ~
         path("history") {
           //you cannot run statements inside the path-block like above, instead, put them into a block inside the complete statement
-          val getHistoryFuture = (ActorLocator.processManagerActor ? GetNewHistory()).mapTo[NewHistoryAnswer]
-          complete(getHistoryFuture.map(result => result.history.entries.filter(x => x.userId == Some(userId) || x.userId == None)))
+          complete {
+            val getHistoryFuture = (ActorLocator.processManagerActor ? GetNewHistory()).mapTo[NewHistoryAnswer]
+            getHistoryFuture.map(result => result.history.entries.filter(x => x.userId == Some(userId) || x.userId == None))
+          }
         } ~
         //LIST
         path("") {
-          val future = (subjectProviderManager ? GetAllProcessInstances(userId)).mapTo[AllProcessInstancesAnswer]
-          complete(future.map(result => result.processInstanceInfo))
+          complete {
+            val future = (subjectProviderManager ? GetAllProcessInstances(userId)).mapTo[AllProcessInstancesAnswer]
+            future.map(result => result.processInstanceInfo)
+          }
         }
 
     } ~
@@ -84,8 +92,10 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
         path(IntNumber) { processInstanceID =>
           //stop and delete given process instance
           // error gets caught automatically by the exception handler
-          val future = (subjectProviderManager ? KillProcessInstance(processInstanceID))
-          complete(future.map(_ => StatusCodes.NoContent))
+          complete {
+            val future = (subjectProviderManager ? KillProcessInstance(processInstanceID))
+            future.map(_ => StatusCodes.NoContent)
+          }
         }
       } ~
       put {
@@ -94,9 +104,10 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           path("") {
             entity(as[ExecuteAction]) { json =>
               //execute next step
-              val future = (subjectProviderManager ? mixExecuteActionWithRouting(json)).mapTo[ExecuteActionAnswer]
-            		  complete(future.map(result => result.answer))
-              
+              complete {
+                val future = (subjectProviderManager ? mixExecuteActionWithRouting(json)).mapTo[ExecuteActionAnswer]
+                future.map(result => result.answer)
+              }
             }
           }
         }
@@ -106,8 +117,10 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
         pathPrefix("") {
           path("") {
             entity(as[ProcessIdHeader]) { json =>
-              val future = (subjectProviderManager ? CreateProcessInstance(userId, json.processId)).mapTo[ProcessInstanceCreated]
-              complete(future.map(result => result.answer))
+              complete {
+                val future = (subjectProviderManager ? CreateProcessInstance(userId, json.processId)).mapTo[ProcessInstanceCreated]
+                future.map(result => result.answer)
+              }
             }
           }
         }
