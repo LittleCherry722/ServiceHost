@@ -51,21 +51,18 @@ private class GoogleSendProxyActor(
   implicit val timeout = Timeout(3000)
 
   def receive = {
-    case message: SubjectToSubjectMessage =>
-      if (message.fileID.isDefined) {
-
-        val f_url = (driveActor ? GetUrl(userId, message.fileID.get))
-        val f_pub = (driveActor ? PublishFile(userId, message.fileID.get))
-        for {
-          url <- f_url.mapTo[String]
-          pub <- f_pub.mapTo[Permission]
-        } {
-          message.fileUrl = Some(url)
-          processInstanceActor forward message
-        }
-      } else {
-        processInstanceActor forward message
+    case message: SubjectToSubjectMessage if message.fileID.isDefined =>
+      val f_url = (driveActor ? GetUrl(userId, message.fileID.get))
+      val f_pub = (driveActor ? PublishFile(userId, message.fileID.get))
+      val origin = context.sender
+      for {
+        url <- f_url.mapTo[String]
+        pub <- f_pub.mapTo[Permission]
+      } {
+        message.fileUrl = Some(url)
+        processInstanceActor.tell(message, origin)
       }
+    case message => processInstanceActor forward message
   }
 }
 
@@ -118,7 +115,7 @@ protected case class SendStateActor(data: StateData)
         // be returned when asking
         messageContent = action.actionData.messageContent
 
-        for (transition <- exitTransitions if transition.target.isDefined) yield {
+        for (transition <- exitTransitions if transition.target.isDefined) {
 
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
 
