@@ -88,6 +88,8 @@ case class KillAllProcessInstances() extends AnswerAbleControlMessage
 case class KillProcessInstance(processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage
 case class KillProcessInstanceAnswer(request: KillProcessInstance) extends AnswerControlMessage
 
+case object ProcessInstancesKilled
+
 case class GetAvailableActions(userID: UserID,
                                processInstanceID: ProcessInstanceID = AllProcessInstances,
                                subjectID: SubjectID = AllSubjects)

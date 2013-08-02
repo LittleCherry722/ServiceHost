@@ -28,7 +28,7 @@ import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
-import spray.http.{StatusCodes, StatusCode, HttpHeader, HttpHeaders}
+import spray.http.{ StatusCodes, StatusCode, HttpHeader, HttpHeaders }
 import scala.concurrent.Future
 import akka.actor.Props
 import de.tkip.sbpm.persistence.PersistenceActor
@@ -70,13 +70,19 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
         dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
         dbFuture.onFailure(onFailure)
 
-        val processManagerActor = ActorLocator.processManagerActor
-        processManagerActor ! KillAllProcessInstances
-
         dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
         dbFuture.onFailure(onFailure)
 
-        dbFuture.map(_ => StatusCodes.OK)
+        val processManagerActor = ActorLocator.processManagerActor
+        val killPiFuture = processManagerActor ? KillAllProcessInstances
+        //TODO: test this
+        for (
+          x <- dbFuture;
+          y <- killPiFuture
+        ) yield StatusCodes.OK
+
+        // alternative solution 
+//        dbFuture.flatMap(_ => killPiFuture.map(_ => StatusCodes.OK))
       }
     }
   })
