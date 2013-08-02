@@ -190,11 +190,11 @@ protected case class ReceiveStateActor(data: StateData)
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
-      val url: Option[String] = message.fileInfo match {
-        case Some(GDriveFileInfo(_,url,_)) => Some(url)
-        case None => None
+      val (title,url,iconLink) = message.fileInfo match {
+        case Some(GDriveFileInfo(title,url,iconLink)) => (Some(title),Some(url),Some(iconLink))
+        case None => (None,None,None)
       }
-      messageData += MessageData(message.userID, message.messageContent, url)
+      messageData += MessageData(message.userID, message.messageContent, title, url, iconLink)
     }
   }
 }
