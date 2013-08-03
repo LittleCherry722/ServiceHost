@@ -75,14 +75,12 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
 
         val processManagerActor = ActorLocator.processManagerActor
         val killPiFuture = processManagerActor ? KillAllProcessInstances
-        //TODO: test this
+
         for (
           x <- dbFuture;
           y <- killPiFuture
         ) yield StatusCodes.OK
 
-        // alternative solution 
-//        dbFuture.flatMap(_ => killPiFuture.map(_ => StatusCodes.OK))
       }
     }
   })
