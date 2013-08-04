@@ -266,9 +266,14 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
     //check if the user exists
     val userFuture = (persistenceActor ? Users.Read.ById(id)).mapTo[Option[User]]
     val userIdentityFuture = (persistenceActor ? Users.Read.Identity.ById("sbpm", id)).mapTo[Option[UserIdentity]]
-    val userIdentity = Await.result(userIdentityFuture.mapTo[Option[UserIdentity]], timeout.duration)
-    onSuccess(userFuture) {
-      user =>
+
+    val futures = for {
+      user <- userFuture;
+      userIdentity <- userIdentityFuture
+    } yield (user, userIdentity)
+
+    onSuccess(futures) {
+      case (user, userIdentity) =>
         if (user.isDefined && userIdentity.isDefined) {
           // check if the old password is correct
           val authFuture = (ActorLocator.userPassAuthActor ? UserPass(userIdentity.get.eMail, entity.oldPassword)).mapTo[Option[User]]
