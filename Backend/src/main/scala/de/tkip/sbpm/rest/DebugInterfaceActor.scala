@@ -16,7 +16,6 @@ package de.tkip.sbpm.rest
 import akka.actor.Actor
 import akka.pattern._
 import scala.language.postfixOps
-import scala.concurrent.Await
 import akka.event.Logging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
