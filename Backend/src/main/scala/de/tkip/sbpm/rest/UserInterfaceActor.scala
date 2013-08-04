@@ -255,17 +255,12 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
   def getUsersWithMail() = {
     complete {
       val usersFuture = (persistenceActor ? Users.Read.AllWithIdentities).mapTo[Map[User, Seq[UserIdentity]]]
-      onSuccess(usersFuture) {
-        result => (result.map { user =>
-          UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
-        }).toList.sortBy(_.id)
+      usersFuture map {
+        result =>
+          (result.map { user =>
+            UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
+          }).toList.sortBy(_.id)
       }
-      //TODO: remove this---
-      val users = Await.result(usersFuture.mapTo[Map[User, Seq[UserIdentity]]], timeout.duration)
-      (users.map { user =>
-        UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
-      }).toList.sortBy(_.id)
-      //---//
     }
   }
 
