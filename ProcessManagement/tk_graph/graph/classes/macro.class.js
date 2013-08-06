@@ -695,9 +695,9 @@ function GCmacro (parent, id, name)
 					gt_relatedSubject.variable = "";
 			}
 			
-			if (gf_isset(gt_relatedSubject.createNew, gt_relatedSubject.createNewName, gt_relatedSubject.createNewRole))
+			if (gf_isset(gt_relatedSubject.createNewSubject, gt_relatedSubject.createNewName, gt_relatedSubject.createNewRole))
 			{
-				if (gt_relatedSubject.createNew === true && gt_relatedSubject.createNewName != "")
+				if (gt_relatedSubject.createNewSubject === true && gt_relatedSubject.createNewName != "")
 				{
 					var gt_newSubjectRole	= gt_relatedSubject.createNewRole == "" ? gv_graph.getProcessText("noRole") : gt_relatedSubject.createNewRole;
 					var gt_newSubjectId		= "Subj" + ++gv_graph.nodeCounter;
