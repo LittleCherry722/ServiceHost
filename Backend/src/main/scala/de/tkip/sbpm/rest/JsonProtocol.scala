@@ -94,7 +94,8 @@ object JsonProtocol extends DefaultJsonProtocol {
   /**
    * header case classes
    */
-  case class ProcessIdHeader(processId: Int)
+  // TODO name should not be optional
+  case class ProcessIdHeader(name: Option[String], processId: Int)
   case class GraphHeader(name: String, graph: Option[Graph], isCase: Boolean, id: Option[Int] = None){
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
   }
@@ -127,14 +128,14 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val entryFormat = jsonFormat5(Entry)
   implicit val historyFormat = jsonFormat5(History)
 
-  implicit val processInstanceInfoFormat = jsonFormat2(ProcessInstanceInfo)
+  implicit val processInstanceInfoFormat = jsonFormat3(ProcessInstanceInfo)
   implicit val targetUserFormat = jsonFormat3(TargetUser)
   implicit val messageDataFormat = jsonFormat5(MessageData)
   implicit val actionDataFormat = jsonFormat8(ActionData)
   implicit val availableActionFormat = jsonFormat7(AvailableAction)
-  implicit val processInstanceDataFormat = jsonFormat6(ProcessInstanceData)
+  implicit val processInstanceDataFormat = jsonFormat7(ProcessInstanceData)
 
-  implicit val createProcessIdFormat = jsonFormat1(ProcessIdHeader)
+  implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
   implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat4(GraphHeader)
   implicit val createActionIdHeaderFormat = jsonFormat7(ExecuteAction)
 

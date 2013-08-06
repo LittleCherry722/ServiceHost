@@ -63,6 +63,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this fields are set in the preStart, dont change them afterwards!!!
   private var id: ProcessInstanceID = _
+  private val name = request.name
   private val processID = request.processID
   private var processName: String = _
   private var persistenceGraph: Graph = _
@@ -215,7 +216,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private var sendProcessInstanceCreated = true
   private def createProcessInstanceData(actions: Array[AvailableAction]) =
-    ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
+    ProcessInstanceData(id, name, processID, persistenceGraph, false, executionHistory, actions)
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {

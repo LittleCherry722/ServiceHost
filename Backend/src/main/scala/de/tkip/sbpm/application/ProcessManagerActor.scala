@@ -31,7 +31,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor extends Actor {
-  private case class ProcessInstanceData(processID: ProcessID, processInstanceActor: ProcessInstanceRef)
+  private case class ProcessInstanceData(processID: ProcessID, name: String, processInstanceActor: ProcessInstanceRef)
 
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
@@ -52,7 +52,7 @@ class ProcessManagerActor extends Actor {
         AllProcessInstancesAnswer(
           getAll,
           processInstanceMap.map(
-            s => ProcessInstanceInfo(s._1, s._2.processID)).toArray.sortBy(_.id))
+            s => ProcessInstanceInfo(s._1, s._2.name, s._2.processID)).toArray.sortBy(_.id))
     }
 
     case cp: CreateProcessInstance => {
@@ -67,7 +67,7 @@ class ProcessManagerActor extends Actor {
         logger.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
       }
       processInstanceMap +=
-        pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.processInstanceActor)
+        pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.request.name, pc.processInstanceActor)
       history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData("TODO", pc.processInstanceID), None, Some("created"))
     }
 
