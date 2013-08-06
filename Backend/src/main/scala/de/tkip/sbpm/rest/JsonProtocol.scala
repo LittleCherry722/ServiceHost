@@ -133,7 +133,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val messageDataFormat = jsonFormat5(MessageData)
   implicit val actionDataFormat = jsonFormat8(ActionData)
   implicit val availableActionFormat = jsonFormat7(AvailableAction)
-  implicit val processInstanceDataFormat = jsonFormat7(ProcessInstanceData)
+  implicit val processInstanceDataFormat = jsonFormat8(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
   implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat4(GraphHeader)

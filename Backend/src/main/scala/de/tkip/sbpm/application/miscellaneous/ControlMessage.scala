@@ -22,6 +22,7 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction
+import java.util.Date
 
 /**
  * For system control tasks
@@ -72,6 +73,7 @@ case class ProcessInstanceData(id: ProcessInstanceID,
                                processId: ProcessID,
                                graph: Graph,
                                isTerminated: Boolean,
+                               startedAt: Date,
                                history: History,
                                actions: Array[AvailableAction])
 
