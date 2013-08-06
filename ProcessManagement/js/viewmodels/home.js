@@ -5,9 +5,11 @@ define([
 	"models/user",
 	"models/process",
 	"models/actions",
+	"models/history",
 	"moment",
+	"select2",
 	"jquery.ui",
-], function( ko, App, _, User, Process, Actions, moment ) {
+], function( ko, App, _, User, Process, Actions, History, moment, select2 ) {
 
 	var ViewModel = function() {
 		// Filter
@@ -24,25 +26,26 @@ define([
 		this.tabs = tabs;
 		this.tabDescriptions = tabDescriptions;
 		this.currentTab = currentTab;
-		
-		this.newInstance = function() {
-			var process = this;
-				
-			instance = new ProcessInstance( {
+		this.newInstance = function(formElement) {
+			var process = Process.find( $("input[name='processId']").val()) ;
+			$('#processNameModal').modal('hide');
+            instance = new ProcessInstance( {
 				processId: process.id(),
+				processName: $("input[name='instancename']").val(),
 				graph: process.graph()
 			});
-	
+		
 			instance.save(null, {
 				success: function() {
 					Actions.fetch();
+					History.fetch();
 				},
 				error: function() {
 					Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
 				}
 			});
-		}
-	}	
+        }
+	}		
 	currentSubView = ko.observable();
 	var availableStatetypes = ko.computed(function() {
 		var uniqueStates= [];
@@ -51,7 +54,6 @@ define([
 		});
 		return uniqueStates;
 	});
-	
 	
 	var tabs = [ 'Actions', 'History' ];
 	var tabDescriptions = {
@@ -163,7 +165,21 @@ define([
 					$( "#from" ).datepicker( "option", "maxDate", selectedDate );
 				}
 			});	
-			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');		
+			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
+				$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
+		        var select2 = $(".sel").select2( {
+		        	width: "copy",
+		        	dropdownAutoWidth: "true"
+		        	
+		        });
+				
+				$(".sel").on("change", function(e) { 
+					var process = Process.find( e.val ) ;
+					$(".sel").select2("val", "");
+					$("input[name='processId']").val(e.val);
+					$("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
+					$("#processNameModal").modal();					
+				});
 		});
 	}
 	

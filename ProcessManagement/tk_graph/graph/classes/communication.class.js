@@ -457,9 +457,10 @@ function GCcommunication ()
 		// add the internal behavior
 		var gt_behav		= this.getBehavior("me");
 		gt_behav.addNode("start", "What to do?", "action", true, false, false);
+		gt_behav.selectNode("start");
 		
 		// toggle bv
-		gf_toggleBV();
+		gf_toggleBV();		
 		
 		this.drawBehavior("me");
 	};
@@ -1367,8 +1368,9 @@ function GCcommunication ()
 				
 				// provide compatibility to previous versions:
 				var gt_inputPool	= gf_isset(gt_subject.inputPool) ? gt_subject.inputPool : -1;
+				var gt_subjectType	= gf_isset(gt_subject.subjectType) ? gt_subject.subjectType : gt_subject.type;
 				
-				this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subject.type, gt_inputPool, gt_subject.deactivated);
+				this.addSubject(gt_subject.id, gf_replaceNewline(gt_subject.name), gt_subjectType, gt_inputPool, gt_subject.deactivated);
 				
 				if (gf_isset(this.subjects[gt_subject.id]))
 				{
@@ -1385,6 +1387,9 @@ function GCcommunication ()
 						
 					if (gf_isset(gt_subject.comment))
 						this.subjects[gt_subject.id].setComment(gt_subject.comment);
+						
+					if (gf_isset(gt_subject.startSubject))
+						this.subjects[gt_subject.id].setStartSubject(gt_subject.startSubject);
 						
 					this.subjects[gt_subject.id].setRole(gt_role);
 				}
@@ -1440,7 +1445,8 @@ function GCcommunication ()
 						for (var gt_nodeId in gt_macroValues.nodes)
 						{
 							var gt_node		= gt_macroValues.nodes[gt_nodeId];
-							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, false);
+							var gt_nodeType	= gf_isset(gt_node.nodeType) ? gt_node.nodeType : gt_node.type;
+							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, false);
 							// var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 							
 							var gt_createdNode	= gt_macro.getNode(gt_nodeId);
@@ -1485,6 +1491,9 @@ function GCcommunication ()
 							var gt_startNode		= gt_macro.getNode(gt_startNodeID);
 							var gt_startNodeType	= gt_startNode != null ? gt_startNode.getType() : "action";
 							var gt_text				= gf_replaceNewline(gt_edge.text);
+							
+							if (gf_isset(gt_edge.edgeType))
+								gt_edge.type = gt_edge.edgeType;
 							
 							// map messages to new system
 							if (gt_mapMessages && (gt_startNodeType == "send" || gt_startNodeType == "receive") && gt_edge.type == "exitcondition")
@@ -1640,12 +1649,14 @@ function GCcommunication ()
 						id: gt_sid,
 						name: this.subjects[gt_sid].getText(),
 						type: this.subjects[gt_sid].getType(),
+						subjectType: this.subjects[gt_sid].getType(),
 						deactivated: this.subjects[gt_sid].isDeactivated(),
 						inputPool: this.subjects[gt_sid].getInputPool(),
 						relatedProcess: this.subjects[gt_sid].getRelatedProcess(),
 						relatedSubject: this.subjects[gt_sid].getRelatedSubject(),
 						externalType: this.subjects[gt_sid].getExternalType(),
 						role: this.subjects[gt_sid].getRole(),
+						startSubject: this.subjects[gt_sid].isStartSubject(),
 						comment: this.subjects[gt_sid].getComment()
 			};
 			
@@ -1671,6 +1682,7 @@ function GCcommunication ()
 							start:	gt_node.isStart(),
 							end:	gt_node.isEnd(),
 							type:	gt_node.getType(),
+							nodeType:	gt_node.getType(),
 							options:	gt_node.getOptions(),
 							deactivated:	gt_node.isDeactivated(),
 							majorStartNode:	gt_node.isMajorStartNode(),
@@ -1702,6 +1714,7 @@ function GCcommunication ()
 									end:	gt_edgeEndNode.getId(),
 									text:	gt_edge.getText(true),
 									type:	gt_edge.getType(),
+									edgeType:	gt_edge.getType(),
 									target: gt_relatedSubject == null ? "" : gt_relatedSubject,
 									deactivated:	gt_edge.isDeactivated(),
 									optional:		gt_edge.isOptional(),
@@ -1946,6 +1959,7 @@ function GCcommunication ()
 				var gt_relatedSubject	= gf_isset(gt_values.relatedSubject)	? gt_values.relatedSubject	: "";
 				var gt_externalType		= gf_isset(gt_values.externalType)		? gt_values.externalType	: "external";
 				var gt_comment			= gf_isset(gt_values.comment)			? gt_values.comment			: "";
+				var gt_startSubject		= gf_isset(gt_values.startSubject)		? gt_values.startSubject	: false;
 				
 					gt_type	= gt_type != "" ? gt_type : gt_subject.getType();
 				
@@ -1960,6 +1974,7 @@ function GCcommunication ()
 					gt_subject.setRelatedSubject(gt_relatedSubject);
 					gt_subject.setExternalType(gt_externalType);
 					gt_subject.setComment(gt_comment);
+					gt_subject.setStartSubject(gt_startSubject);
 					
 					// publish the update of the subject
 					$.publish(gv_topics.general.subjects, [{action: "update", id: gt_subject.id}]);

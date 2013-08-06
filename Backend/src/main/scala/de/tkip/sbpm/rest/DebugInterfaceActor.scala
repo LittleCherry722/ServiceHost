@@ -16,8 +16,6 @@ package de.tkip.sbpm.rest
 import akka.actor.Actor
 import akka.pattern._
 import scala.language.postfixOps
-import scala.concurrent.Await
-import scala.concurrent.TimeoutException
 import akka.event.Logging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
@@ -29,22 +27,23 @@ import spray.routing.HttpService
 import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
-import spray.http.HttpHeader
-import spray.http.HttpHeaders
+import spray.http.{ StatusCodes, StatusCode, HttpHeader, HttpHeaders }
 import scala.concurrent.Future
 import akka.actor.Props
 import de.tkip.sbpm.persistence.PersistenceActor
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.persistence.testdata.Entities
 import de.tkip.sbpm.application.miscellaneous.KillAllProcessInstances
-import scala.concurrent.duration.Duration
-import akka.dispatch.OnFailure
-import spray.http.StatusCode
 
 /**
  * This Actor is only used to process REST calls regarding "debug"
  */
 class DebugInterfaceActor extends Actor with PersistenceInterface {
+
+  implicit val executionContext = context.system.dispatcher
+
+  val logging = context.system.log
+
   /**
    *
    * usually a REST Api should at least implement the following functions:
@@ -60,40 +59,28 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
    */
   def receive = runRoute({
     get {
-      /**
-       * get a list of all groups
-       *
-       * e.g. GET http://localhost:8080/group
-       * result: JSON array of entities
-       */
-      implicit val executionContext = context.system.dispatcher
-      
-      val logging = context.system.log
-      val onFailure: PartialFunction[Throwable, Any] = {
-        case e => logging.error(e, e.getMessage)
-      }
-      val persistenceActor = ActorLocator.persistenceActor
-      var dbFuture = Future[Any]()
+      complete {
+        val onFailure: PartialFunction[Throwable, Any] = {
+          case e => logging.error(e, e.getMessage)
+        }
 
-      dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
-      dbFuture.onFailure(onFailure)
-      
-      val processManagerActor = ActorLocator.processManagerActor
-      processManagerActor ! KillAllProcessInstances
+        var dbFuture = Future[Any]()
 
-      dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
-      dbFuture.onFailure(onFailure)
-      try{
-    	  /* This function will only be called for debugging and not in production and
-    	   * the database is an important part of the application.
-    	   * Therefore I think a blocking "Await.ready" can be used here. 
-    	   */
-    	  Await.ready(dbFuture, Duration(120, "seconds"))
-    	  complete("")
-      }catch{
-          case toe : TimeoutException => complete(StatusCode.int2StatusCode(500))
+        dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
+        dbFuture.onFailure(onFailure)
+
+        dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
+        dbFuture.onFailure(onFailure)
+
+        val processManagerActor = ActorLocator.processManagerActor
+        val killPiFuture = processManagerActor ? KillAllProcessInstances
+
+        for (
+          x <- dbFuture;
+          y <- killPiFuture
+        ) yield StatusCodes.OK
+
       }
-      
     }
   })
 

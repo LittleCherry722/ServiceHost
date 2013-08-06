@@ -1804,16 +1804,16 @@ function gf_guiReadEdge ()
 	var gt_isVariable		= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeV, "bool", false);
 	var gt_isAll			= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeA, "bool", false);
 	
-	gt_relatedSubject.id			= gf_guiElementRead(gv_elements.inputEdgeTarget, "string", "");
-	gt_relatedSubject.min			= !gt_isAll ? gf_guiElementRead(gv_elements.inputEdgeTargetMMin, "string", "-1") : "-1";
-	gt_relatedSubject.max			= !gt_isAll ? gf_guiElementRead(gv_elements.inputEdgeTargetMMax, "string", "-1") : "-1";
-	gt_relatedSubject.createNew		= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeN, "bool", false);
-	gt_relatedSubject.variable		= gt_isVariable ? gt_targetVar : "";
-	gt_relatedSubject.variableText	= gt_isVariable ? gt_targetVarNew : "";
-	gt_relatedSubject.useVariable	= gt_isVariable;
-	gt_relatedSubject.createNew		= gf_guiElementRead(gv_elements.inputEdgeTarget, "string", "") == "##createNew##";
-	gt_relatedSubject.createNewRole	= gf_guiElementRead(gv_elements.inputEdgeTargetNewRole, "string", "");
-	gt_relatedSubject.createNewName	= gf_guiElementRead(gv_elements.inputEdgeTargetNewName, "string", "");
+	gt_relatedSubject.id				= gf_guiElementRead(gv_elements.inputEdgeTarget, "string", "");
+	gt_relatedSubject.min				= !gt_isAll ? gf_guiElementRead(gv_elements.inputEdgeTargetMMin, "string", "-1") : "-1";
+	gt_relatedSubject.max				= !gt_isAll ? gf_guiElementRead(gv_elements.inputEdgeTargetMMax, "string", "-1") : "-1";
+	gt_relatedSubject.createNew			= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeN, "bool", false);
+	gt_relatedSubject.variable			= gt_isVariable ? gt_targetVar : "";
+	gt_relatedSubject.variableText		= gt_isVariable ? gt_targetVarNew : "";
+	gt_relatedSubject.useVariable		= gt_isVariable;
+	gt_relatedSubject.createNewSubject	= gf_guiElementRead(gv_elements.inputEdgeTarget, "string", "") == "##createNew##";
+	gt_relatedSubject.createNewRole		= gf_guiElementRead(gv_elements.inputEdgeTargetNewRole, "string", "");
+	gt_relatedSubject.createNewName		= gf_guiElementRead(gv_elements.inputEdgeTargetNewName, "string", "");
 	
 	var gt_type				= "exitcondition";
 	

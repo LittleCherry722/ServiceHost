@@ -38,7 +38,8 @@ import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior._
-import de.tkip.sbpm.rest.google.GDriveActor.{ GetUrl, PublishFile }
+import de.tkip.sbpm.rest.google.GDriveActor.{ GetFileInfo, PublishFile }
+import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.drive.model.{ Permission }
 
@@ -51,21 +52,18 @@ private class GoogleSendProxyActor(
   implicit val timeout = Timeout(3000)
 
   def receive = {
-    case message: SubjectToSubjectMessage =>
-      if (message.fileID.isDefined) {
-
-        val f_url = (driveActor ? GetUrl(userId, message.fileID.get))
-        val f_pub = (driveActor ? PublishFile(userId, message.fileID.get))
-        for {
-          url <- f_url.mapTo[String]
-          pub <- f_pub.mapTo[Permission]
-        } {
-          message.fileUrl = Some(url)
-          processInstanceActor forward message
-        }
-      } else {
-        processInstanceActor forward message
+    case message: SubjectToSubjectMessage if message.fileID.isDefined =>
+      val f_info = (driveActor ? GetFileInfo(userId, message.fileID.get))
+      val f_pub = (driveActor ? PublishFile(userId, message.fileID.get))
+      val origin = context.sender
+      for {
+        info <- f_info.mapTo[GDriveFileInfo]
+        pub <- f_pub.mapTo[Permission]
+      } {
+        message.fileInfo = Some(info)
+        processInstanceActor.tell(message, origin)
       }
+    case message => processInstanceActor forward message
   }
 }
 
@@ -118,7 +116,7 @@ protected case class SendStateActor(data: StateData)
         // be returned when asking
         messageContent = action.actionData.messageContent
 
-        for (transition <- exitTransitions if transition.target.isDefined) yield {
+        for (transition <- exitTransitions if transition.target.isDefined) {
 
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
 

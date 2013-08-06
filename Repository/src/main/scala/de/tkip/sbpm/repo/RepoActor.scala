@@ -7,7 +7,21 @@ import scala.io.Source
 import spray.json._
 import DefaultJsonProtocol._
 
+object RepoActor {
+
+  case class GetEntry(id: Int)
+
+  case object GetEntries
+
+  case class CreateEntry(entry: String)
+
+  case object Reset
+
+}
+
 class RepoActor extends Actor with ActorLogging {
+
+  import RepoActor._
 
   val templates = loadTemplates()
   val entries = mutable.Map[Int, JsObject]()
@@ -51,11 +65,10 @@ class RepoActor extends Actor with ActorLogging {
         case None => sender ! None
       }
     }
+
+    case Reset => {
+      log.info("resetting...")
+      entries.clear()
+    }
   }
 }
-
-case class GetEntry(id: Int)
-
-case object GetEntries
-
-case class CreateEntry(entry: String)

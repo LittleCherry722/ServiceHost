@@ -18,8 +18,7 @@ define([
 
 	// Our main model that will be returned at the end of the function.
 	History = Model( "History", {remotePath: 'processinstance/history'}  );
-alert("callm");
-	History.all = ko.observableArray();
+
 	History.attrs({
 		process: {
 			type: "json",
@@ -55,8 +54,18 @@ alert("callm");
 						stateType: "string",
 					}
 				},
-			},
-			
+				message: {
+					type: "json",
+					defaults: {
+						messageId: "string",
+						fromSubject: "string",
+		      			toSubject: "string",
+		      			messageType: "string",
+		      			text: "string"	
+					},
+					lazy: true
+				},
+			},			
 			lazy: true
 		},
 		// ID des Users, der für diesen Zustandsübergang verantwortlich war

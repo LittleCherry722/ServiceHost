@@ -27,8 +27,10 @@ import com.google.api.services.oauth2.model.Userinfo
 import com.google.api.services.drive.{Drive, DriveScopes}
 import com.google.api.services.drive.model.{File, Permission}
 
+
 object GDriveControl {
   case class NoCredentialsException(authorizationUrl: String) extends Exception
+  case class GDriveFileInfo(title: String, url: String, iconLink: String)
 
   val clientSecretsSource = getClass().getResourceAsStream("/client_secrets.json")
   val credentialsSource = new java.io.File(
@@ -119,8 +121,6 @@ object GDriveControl {
       .get(fileId)
       .execute()
 
-  def getUrl(file: File) = file.getAlternateLink()
-
   // Permissions
 
   def updatePermission(service: Drive, fileId: String,
@@ -171,11 +171,19 @@ class GDriveControl {
 
   private val driveMap = mutable.Map[String, Drive]()
 
+  /*
+   * Retrieve credentials from API for the given code,
+   * and store them using the user ID as the key.
+   */
   def initCredentials(userId: String, code: String) = {
     val tokenResponse = tokenResponseForAuthCode(userId, code)
     flow.createAndStoreCredential(tokenResponse, userId)
   }
 
+  /*
+   * Return the user's credentials from the credential store,
+   * otherwise throw a NoCredentialsException.
+   */
   def getCredentials(userId: String): Credential =
     Option(flow.loadCredential(userId)) match {
       case Some(credential) => credential
@@ -184,6 +192,10 @@ class GDriveControl {
       )
     }
 
+  /*
+   * Return a drive instance for the user. If none is found,
+   * instantiate one and hold it in the map for later use.
+   */
   def driveOf(userId: String): Drive = {
     if (! driveMap.contains(userId)) {
       println(s"no ID in map for $userId: $driveMap")
@@ -201,7 +213,12 @@ class GDriveControl {
       .toPrettyString
 
   def fileUrl(userId: String, fileId: String) =
-    getUrl(getFile(driveOf(userId), fileId))
+    getFile(driveOf(userId), fileId).getAlternateLink
+
+  def fileInfo(userId:String, fileId: String) = {
+    val f = getFile(driveOf(userId), fileId)
+    GDriveFileInfo(f.getTitle, f.getAlternateLink, f.getIconLink)
+  }
 
   def userInfo(userId: String): String =
     getUserInfo(getCredentials(userId))

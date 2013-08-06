@@ -47,6 +47,7 @@ import com.github.t3hnar.bcrypt._
  */
 class UserInterfaceActor extends Actor with PersistenceInterface {
   private lazy val userPassAuthActor = ActorLocator.userPassAuthActor
+  import context.dispatcher
 
   /**
    *
@@ -69,7 +70,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
        * e.g. GET http://localhost:8080/user
        * result: JSON array of entities
        */
-      path("^$"r) { regex =>
+      path("") {
         getUsersWithMail()
       } ~
         /**
@@ -96,7 +97,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * e.g. GET http://localhost:8080/user/8
            * result: 404 Not Found or entity as JSON
            */
-          path("^$"r) { regex =>
+          path("") {
             getUserWithMail(id)
           } ~
             /**
@@ -106,7 +107,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * result: JSON array of entities
              */
             pathPrefix(Entity.GROUP) {
-              path("^$"r) { regex =>
+              path("") {
                 completeWithQuery[Seq[GroupUser]](GroupsUsers.Read.ByUserId(id))
               } ~
                 /**
@@ -129,7 +130,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * e.g. DELETE http://localhost:8080/user/12
            * result: 204 No Content
            */
-          path("^$"r) { regex =>
+          path("") {
             completeWithDelete(Users.Delete.ById(id), "User could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
@@ -176,15 +177,16 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
            * 			Location: /user/8
            * 			{ "id": 8, "name": "abc", "isActive": true, "inputPoolSize": 8 }
            */
-          path("^$"r) { regex =>
+          path("") {
             entity(as[User]) { user =>
               saveUser(user)
             }
           } ~
-          path("^$"r) { regex =>
-            entity(as[SetPassword]) {password => 
+          path("") {
+            entity(as[SetPassword]) { password =>
               complete(StatusCodes.OK)
-            }}
+            }
+          }
       } ~
       put {
         pathPrefix(IntNumber) { id =>
@@ -207,12 +209,12 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
              * 	result: 200 OK
              * 		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
              */
-            path("^$"r) { regex =>
+            path("") {
               entity(as[SetPassword]) { setPassword =>
                 setPw(id, setPassword)
               }
             } ~
-            path("^$"r) { regex =>
+            path("") {
               entity(as[UserUpdate]) { userUpdate =>
                 saveUser(new User(Some(id), userUpdate.name, userUpdate.isActive, userUpdate.inputPoolSize), Some(id))
               }
@@ -238,45 +240,58 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
   // completes with all providers and emails of an user and the user information
   def getUserWithMail(id: Int) = {
-    val userFuture = persistenceActor ? Users.Read.ByIdWithIdentities(id)
-    val user = Await.result(userFuture.mapTo[Option[(User, Seq[UserIdentity])]], timeout.duration)
-    if (user.isDefined) {
-      complete(UserWithMail(user.get._1.id, user.get._1.name, user.get._1.isActive, user.get._1.inputPoolSize, user.get._2.map(i => ProviderMail(i.provider, i.eMail))))
-    } else {
-      complete(StatusCodes.NotFound)
+    val userFuture = (persistenceActor ? Users.Read.ByIdWithIdentities(id)).mapTo[Option[(User, Seq[UserIdentity])]]
+    onSuccess(userFuture) {
+      user =>
+        if (user.isDefined) {
+          complete(UserWithMail(user.get._1.id, user.get._1.name, user.get._1.isActive, user.get._1.inputPoolSize, user.get._2.map(i => ProviderMail(i.provider, i.eMail))))
+        } else {
+          complete(StatusCodes.NotFound)
+        }
     }
   }
 
   // completes with all providers and emails of all users and the user information
   def getUsersWithMail() = {
-    val usersFuture = persistenceActor ? Users.Read.AllWithIdentities
-    val users = Await.result(usersFuture.mapTo[Map[User, Seq[UserIdentity]]], timeout.duration)
-    complete(users.map { user =>
-      UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
-    })
+    complete {
+      val usersFuture = (persistenceActor ? Users.Read.AllWithIdentities).mapTo[Map[User, Seq[UserIdentity]]]
+      usersFuture map {
+        result =>
+          (result.map { user =>
+            UserWithMail(user._1.id, user._1.name, user._1.isActive, user._1.inputPoolSize, user._2.map(i => ProviderMail(i.provider, i.eMail)))
+          }).toList.sortBy(_.id)
+      }
+    }
   }
 
   def setPw(id: Int, entity: SetPassword) = {
     //check if the user exists
-    val userFuture = persistenceActor ? Users.Read.ById(id)
-    val userIdentityFuture = persistenceActor ? Users.Read.Identity.ById("sbpm", id)
-    val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
-    val userIdentity = Await.result(userIdentityFuture.mapTo[Option[UserIdentity]], timeout.duration)
+    val userFuture = (persistenceActor ? Users.Read.ById(id)).mapTo[Option[User]]
+    val userIdentityFuture = (persistenceActor ? Users.Read.Identity.ById("sbpm", id)).mapTo[Option[UserIdentity]]
 
-    if (user.isDefined && userIdentity.isDefined) {
-      // check if the old password is correct
-      val authFuture = ActorLocator.userPassAuthActor ? UserPass(userIdentity.get.eMail, entity.oldPassword)
-      val auth = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
+    val futures = for {
+      user <- userFuture;
+      userIdentity <- userIdentityFuture
+    } yield (user, userIdentity)
 
-      if (auth.isDefined) {
-        // set the new password
-        val future = persistenceActor ? Users.Save.Identity(id, "sbpm", userIdentity.get.eMail, Some(entity.newPassword.bcrypt))
-        val res = Await.result(future, timeout.duration)
-        complete(StatusCodes.OK)
-      } else
-        complete(StatusCodes.Unauthorized)
-    } else
-      throw new Exception("User '" + id + "' does not exist.")
+    onSuccess(futures) {
+      case (user, userIdentity) =>
+        if (user.isDefined && userIdentity.isDefined) {
+          // check if the old password is correct
+          val authFuture = (ActorLocator.userPassAuthActor ? UserPass(userIdentity.get.eMail, entity.oldPassword)).mapTo[Option[User]]
+          onSuccess(authFuture) {
+            auth =>
+              if (auth.isDefined) {
+                // set the new password
+                val future = persistenceActor ? Users.Save.Identity(id, "sbpm", userIdentity.get.eMail, Some(entity.newPassword.bcrypt))
+                complete(future.map(_ => StatusCodes.OK))
+              } else
+                complete(StatusCodes.Unauthorized)
+          }
+        } else
+          throw new Exception("User '" + id + "' does not exist.")
+
+    }
   }
 
   /**

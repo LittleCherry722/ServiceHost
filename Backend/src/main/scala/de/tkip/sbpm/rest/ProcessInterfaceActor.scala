@@ -14,49 +14,30 @@
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
-import akka.actor.Props
-import spray.routing._
 import spray.http._
-import akka.event.Logging
-import akka.util.Timeout
-import akka.actor.ActorSystem
-import akka.pattern.ask
-import de.tkip.sbpm.rest.ProcessAttribute._
-import java.util.concurrent.Future
-import de.tkip.sbpm.persistence._
-import de.tkip.sbpm.application.miscellaneous._
-import spray.http.MediaTypes._
 import spray.routing._
+import akka.pattern.ask
 import de.tkip.sbpm.model._
 import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
-import de.tkip.sbpm.rest.GraphJsonProtocol.graphJsonFormat
 import spray.json._
-import spray.httpx.marshalling._
-import de.tkip.sbpm.rest.SprayJsonSupport.JsObjectWriter
-import de.tkip.sbpm.rest.SprayJsonSupport.JsArrayWriter
-import de.tkip.sbpm.application.ProcessManagerActor
-import scala.concurrent.Await
-import spray.util.LoggingContext
+import scala.concurrent.Future
 import de.tkip.sbpm.persistence.query._
 
 /**
  * This Actor is only used to process REST calls regarding "process"
  */
-// TODO when to choose HttpService and when HttpServiceActor
 class ProcessInterfaceActor extends Actor with PersistenceInterface {
+
   // This array is used to filter the processes, which are shown in the showcase
   val showProcesses = Array(1, 2, 3)
 
   private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
-  private lazy val persistanceActor = ActorLocator.persistenceActor
 
-  private implicit lazy val roles: Map[String, Role] = {
-    val rolesFuture = persistanceActor ? Roles.Read.All
-    val roles = Await.result(rolesFuture.mapTo[Seq[Role]], timeout.duration)
-    roles.map(r => (r.name, r)).toMap
-  }
+  private lazy val persistanceActor = ActorLocator.persistenceActor
+  import context.dispatcher
+
 
   /**
    *
@@ -92,24 +73,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
           } yield filtered)
       } ~
         // READ
-        pathPrefix(IntNumber) { id =>
-          val persistenceActor = ActorLocator.persistenceActor
-          val processFuture = (persistenceActor ? Processes.Read.ById(id))
-          val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
-          if (processResult.isDefined) {
-            val graphResult = if (processResult.get.activeGraphId.isDefined) {
-              val graphFuture = (persistenceActor ? Graphs.Read.ById(processResult.get.activeGraphId.get))
-              Await.result(graphFuture, timeout.duration).asInstanceOf[Option[Graph]]
-            } else {
-              None
-            }
-            complete(GraphHeader(
-              processResult.get.name,
-              graphResult,
-              processResult.get.isCase, processResult.get.id))
-          } else {
-            complete(StatusCodes.NotFound, "Process with id " + id + " not found")
-          }
+        pathPrefix(IntNumber) {
+          id =>
+            read(id)
         }
     } ~
       post {
@@ -119,9 +85,10 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          * e.g. POST http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
         // CREATE
-        path("^$"r) { regex =>
-          entity(as[GraphHeader]) { json =>
-            save(None, json)
+        path("") {
+          parseGraphHeader {
+            json =>
+              save(None, json)
           }
         }
       } ~
@@ -132,11 +99,12 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          * e.g. http://localhost:8080/process/12
          */
         // DELETE
-        path(IntNumber) { processID =>
-          completeWithDelete(
-            Processes.Delete.ById(processID),
-            "Process could not be deleted. Entitiy with id %d not found.",
-            processID)
+        path(IntNumber) {
+          processID =>
+            completeWithDelete(
+              Processes.Delete.ById(processID),
+              "Process could not be deleted. Entitiy with id %d not found.",
+              processID)
         }
       } ~
       put {
@@ -146,32 +114,115 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          * e.g. PUT http://localhost:8080/process/12?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
         //UPDATE
-        pathPrefix(IntNumber) { id =>
-          path("^$"r) { regex =>
-            entity(as[GraphHeader]) { json =>
-              save(Some(id), json)
+        pathPrefix(IntNumber) {
+          id =>
+            parseGraphHeader {
+              json =>
+                save(Some(id), json)
             }
-          }
         }
       }
   })
 
-  private def save(id: Option[Int], json: GraphHeader) = {
-    val processFuture = (persistanceActor ? Processes.Read.ByName(json.name))
-    val processResult = Await.result(processFuture, timeout.duration).asInstanceOf[Option[Process]]
-
-    validate(!processResult.isDefined || processResult.get.id == id, "The process names have to be unique.") {
-      validate(json.name.length() >= 3, "The name has to contain three or more letters.") {
-        if (!json.graph.isDefined) {
-          val future = (persistanceActor ? Processes.Save(Process(id, json.name, json.isCase)))
-          val result = Await.result(future.mapTo[Option[Int]], timeout.duration)
-          complete(JsObject("id" -> result.getOrElse(id.getOrElse(-1)).toJson))
+  /**
+   * Reads the process and its connected graph.
+   *
+   */
+  private def read(id: Int): Route = {
+    val processFuture = (persistenceActor ? Processes.Read.ById(id)).mapTo[Option[Process]]
+    onSuccess(processFuture) {
+      processResult =>
+        if (processResult.isDefined) {
+          readProcess(processResult.get)
         } else {
-          val future = (persistanceActor ? Processes.Save.WithGraph(Process(id, json.name, json.isCase),
-            json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)))
-          val result = Await.result(future, timeout.duration).asInstanceOf[(Option[Int], Option[Int])]
-          complete(JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
+          complete(StatusCodes.NotFound, "Process with id " + id + " not found")
         }
+    }
+  }
+
+  /**
+   * Reads the process and its connected graph.
+   */
+  private def readProcess(process: Process): Route = {
+    val roleFuture = (persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]
+    val graphFuture = if (process.activeGraphId.isDefined) {
+      (persistenceActor ? Graphs.Read.ById(process.activeGraphId.get)).mapTo[Option[Graph]]
+    } else {
+      Future.successful(None)
+    }
+
+    val result = graphFuture.map {
+      graphResult => GraphHeader(
+        process.name,
+        graphResult,
+        process.isCase,
+        process.id)
+    }
+
+    onSuccess(roleFuture) {
+      roles =>
+        // implicite value for marshalling
+        implicit val roleMap = roles.map(r => (r.name, r)).toMap
+        complete(result)
+    }
+  }
+
+  /**
+   * Saves the given process and its connected graph, if available. Validates, if the process name is unique and if the
+   * process name contains three or more letters.
+   *
+   */
+  private def save(id: Option[Int], json: GraphHeader): Route = {
+    val processFuture = (persistanceActor ? Processes.Read.ByName(json.name)).mapTo[Option[Process]]
+    onSuccess(processFuture) {
+      processResult =>
+        validate(!processResult.isDefined || processResult.get.id == id, "The process names have to be unique.") {
+          validate(json.name.length() >= 3, "The name has to contain three or more letters.") {
+            if (json.graph.isDefined) {
+              saveWithGraph(id, json)
+            } else {
+              saveWithoutGraph(id, json)
+            }
+          }
+        }
+    }
+  }
+
+  /**
+   * Saves the given process without its graph.
+   */
+  private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
+    val process = Process(id, json.name, json.isCase)
+    val future = (persistanceActor ? Processes.Save(process)).mapTo[Option[Int]]
+    val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
+    complete(result)
+  }
+
+  /**
+   * Saves the given process with its graph.
+   */
+  private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
+    val process = Process(id, json.name, json.isCase)
+    val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
+    val future = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
+    val result = future.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
+    complete(result)
+  }
+
+  /**
+   * Parses a GraphHeader from request.
+   */
+  private def parseGraphHeader(op: GraphHeader => Route): Route = {
+    dynamic {
+      onSuccess((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]) {
+        roles =>
+        // implicite value for marshalling
+          implicit val roleMap = roles.map(r => (r.name, r)).toMap
+
+          entity(as[GraphHeader]) {
+            json =>
+              op(json)
+          }
       }
     }
   }
