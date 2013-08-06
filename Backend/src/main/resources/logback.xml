@@ -2,25 +2,21 @@
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
 		<file>log/app.log</file>
 		<encoder>
-			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
+			<pattern>%-5level %date [%thread] [%X{akkaSource}] %logger{36} [%file:%line] %msg%n
 			</pattern>
 		</encoder>
 	</appender>
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%msg%n</pattern>
+			<pattern>%-5level %d{HH:mm:ss.SSS} [%X{akkaSource}] %logger{36} - %msg%n
+			</pattern>
 		</encoder>
 	</appender>
 
-	<logger name="chapters.configuration">
+	<logger name="de.tkip.sbpm" level="DEBUG">
+		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
 	</logger>
-
-	<root level="info">
-		<appender-ref ref="STDOUT" />
-	</root>
-	<root level="info">
-		<appender-ref ref="FILE" />
-	</root>
 </configuration>
+

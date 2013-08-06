@@ -78,6 +78,7 @@ class ProcessManagerActor extends Actor {
         history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData("TODO", id), None, Some("killed"))
       }
       processInstanceMap.clear()
+      sender ! ProcessInstancesKilled
     }
 
     case kill @ KillProcessInstance(id) => {

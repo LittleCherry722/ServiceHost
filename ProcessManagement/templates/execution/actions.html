@@ -51,6 +51,14 @@
 
 		<strong data-bind="html: $data.relatedSubject"></strong>: <br/>
 		<span  style="border: 1px solid #bbb;line-height:30px; padding:5px;" data-bind="html: $data.messageContent, visible: $data.messageContent"></span>
+		<br />
+		<br />
+		<br />
+		<!-- ko  foreach: $data.messages -->
+			<a target="_blank" data-bind="attr: { href: url, title: title }"><img data-bind="attr: { src:iconLink }" />&nbsp;<span data-bind="text: title"></span></a>
+		<!-- /ko -->
+		<br />
+		<br />
 		<input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $parent.serverDone,enable: $data.executeAble" />
 	</div>
 </div>

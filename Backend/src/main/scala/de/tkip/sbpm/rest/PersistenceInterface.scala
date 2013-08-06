@@ -70,12 +70,14 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * message if result from persistence actor is None.
    */
   protected def completeWithQuery[A](action: BaseQuery, notFoundMsgFormat: String, notFoundMsgArgs: Any*)(implicit marshaller: Marshaller[A]) = {
-    onSuccess(request[Option[A]](action)) {
-      res =>
-        if (res.isDefined)
-          complete(res.get)
-        else
-          notFound(notFoundMsgFormat, notFoundMsgArgs: _*)
+    dynamic {
+      onSuccess(request[Option[A]](action)) {
+        res =>
+          if (res.isDefined)
+           complete(res.get)
+         else
+            notFound(notFoundMsgFormat, notFoundMsgArgs: _*)
+      }
     }
   }
 

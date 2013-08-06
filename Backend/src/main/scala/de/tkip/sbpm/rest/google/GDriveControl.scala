@@ -27,8 +27,10 @@ import com.google.api.services.oauth2.model.Userinfo
 import com.google.api.services.drive.{Drive, DriveScopes}
 import com.google.api.services.drive.model.{File, Permission}
 
+
 object GDriveControl {
   case class NoCredentialsException(authorizationUrl: String) extends Exception
+  case class GDriveFileInfo(title: String, url: String, iconLink: String)
 
   val clientSecretsSource = getClass().getResourceAsStream("/client_secrets.json")
   val credentialsSource = new java.io.File(
@@ -118,8 +120,6 @@ object GDriveControl {
     drive.files()
       .get(fileId)
       .execute()
-
-  def getUrl(file: File) = file.getAlternateLink()
 
   // Permissions
 
@@ -213,7 +213,12 @@ class GDriveControl {
       .toPrettyString
 
   def fileUrl(userId: String, fileId: String) =
-    getUrl(getFile(driveOf(userId), fileId))
+    getFile(driveOf(userId), fileId).getAlternateLink
+
+  def fileInfo(userId:String, fileId: String) = {
+    val f = getFile(driveOf(userId), fileId)
+    GDriveFileInfo(f.getTitle, f.getAlternateLink, f.getIconLink)
+  }
 
   def userInfo(userId: String): String =
     getUserInfo(getCredentials(userId))

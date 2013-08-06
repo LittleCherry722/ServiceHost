@@ -22,7 +22,7 @@ import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.json._
-import scala.concurrent.{Future, Await}
+import scala.concurrent.Future
 import de.tkip.sbpm.persistence.query._
 
 /**
@@ -32,11 +32,6 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
   private lazy val persistanceActor = ActorLocator.persistenceActor
   import context.dispatcher
 
-  private implicit lazy val roles: Map[String, Role] = {
-    val rolesFuture = persistanceActor ? Roles.Read.All
-    val roles = Await.result(rolesFuture.mapTo[Seq[Role]], timeout.duration)
-    roles.map(r => (r.name, r)).toMap
-  }
 
   /**
    *
@@ -81,7 +76,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          */
         // CREATE
         path("") {
-          entity(as[GraphHeader]) {
+          parseGraphHeader {
             json =>
               save(None, json)
           }
@@ -111,11 +106,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         //UPDATE
         pathPrefix(IntNumber) {
           id =>
-            path("") {
-              entity(as[GraphHeader]) {
-                json =>
-                  save(Some(id), json)
-              }
+            parseGraphHeader {
+              json =>
+                save(Some(id), json)
             }
         }
       }
@@ -130,24 +123,37 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
     onSuccess(processFuture) {
       processResult =>
         if (processResult.isDefined) {
-          val graphFuture = if (processResult.get.activeGraphId.isDefined) {
-            (persistenceActor ? Graphs.Read.ById(processResult.get.activeGraphId.get)).mapTo[Option[Graph]]
-          } else {
-            Future.successful(None)
-          }
-
-          val result = graphFuture.map {
-            graphResult => GraphHeader(
-              processResult.get.name,
-              graphResult,
-              processResult.get.isCase,
-              processResult.get.id)
-          }
-
-          complete(result)
+          readProcess(processResult.get)
         } else {
           complete(StatusCodes.NotFound, "Process with id " + id + " not found")
         }
+    }
+  }
+
+  /**
+   * Reads the process and its connected graph.
+   */
+  private def readProcess(process: Process): Route = {
+    val roleFuture = (persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]
+    val graphFuture = if (process.activeGraphId.isDefined) {
+      (persistenceActor ? Graphs.Read.ById(process.activeGraphId.get)).mapTo[Option[Graph]]
+    } else {
+      Future.successful(None)
+    }
+
+    val result = graphFuture.map {
+      graphResult => GraphHeader(
+        process.name,
+        graphResult,
+        process.isCase,
+        process.id)
+    }
+
+    onSuccess(roleFuture) {
+      roles =>
+        // implicite value for marshalling
+        implicit val roleMap = roles.map(r => (r.name, r)).toMap
+        complete(result)
     }
   }
 
@@ -191,5 +197,23 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
     val future = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
     val result = future.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
     complete(result)
+  }
+
+  /**
+   * Parses a GraphHeader from request.
+   */
+  private def parseGraphHeader(op: GraphHeader => Route): Route = {
+    dynamic {
+      onSuccess((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]) {
+        roles =>
+        // implicite value for marshalling
+          implicit val roleMap = roles.map(r => (r.name, r)).toMap
+
+          entity(as[GraphHeader]) {
+            json =>
+              op(json)
+          }
+      }
+    }
   }
 }

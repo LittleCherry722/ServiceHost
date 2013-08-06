@@ -28,6 +28,9 @@ object ProjectBuild extends Build {
         "com.typesafe.slick" %% "slick" % "1.0.1",
         "com.typesafe.slick" %% "slick-testkit" % "1.0.1" % "test",
 
+        "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0",
+        "ch.qos.logback" % "logback-classic" % "1.0.7",
+
         "org.xerial" % "sqlite-jdbc" % "3.7.2",
         "com.mchange" % "c3p0" % "0.9.2.1",
         "io.spray" % "spray-can" % "1.2-20130710",
