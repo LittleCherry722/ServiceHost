@@ -170,6 +170,7 @@ define([
           if (element.id() === self.processInstanceID()) {
             processId = element.processId();
             instanceName = element.name();
+            processStarted = element.startedAt().date;
           }
         });
 

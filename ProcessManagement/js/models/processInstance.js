@@ -29,6 +29,12 @@ define([
 	ProcessInstance.attrs({
 		processId: "integer",
 		name: "string",
+		startedAt: {
+			type: "json",
+			defaults: {
+				date: "string"
+			}
+		},
 		graph: {
 			type: "json",
 			defaults: {

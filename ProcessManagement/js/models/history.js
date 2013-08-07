@@ -13,8 +13,9 @@
 define([
 	"knockout",
 	"model",
-	"underscore"
-], function( ko, Model, _ ) {
+	"underscore",
+	"models/processInstance"
+], function( ko, Model, _, ProcessInstances ) {
 
 	// Our main model that will be returned at the end of the function.
 	History = Model( "History", {remotePath: 'processinstance/history'}  );
@@ -70,6 +71,25 @@ define([
 		},
 		// ID des Users, der für diesen Zustandsübergang verantwortlich war
 		userId: "integer"		
+	});
+	
+	History.all = ko.observableArray();
+	History.include({
+		initialize: function( data ) {
+		var self = this;
+      		if(self.process()){
+				this.processinstance = ko.computed(function() {
+					var processId = null;
+					var processInstanceId = self.process().processInstanceId;
+					_.each(ProcessInstances.all(), function(element) {
+						if (element.id() === processInstanceId) {
+			            	//processName = element.processName();
+			            	var instanceName = element.name();
+			          	}
+		        	});
+	   			});
+	   		}
+   		}
 	});
 
 	return History;
