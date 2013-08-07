@@ -7404,7 +7404,7 @@ a.close:hover {
 	margin: 10px;
 }
 
-#clickablelist .result tr:hover {
+#clickablelist .result tbody tr:hover {
 	background-color: #FFF6DB;
 }
 

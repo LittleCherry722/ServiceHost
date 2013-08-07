@@ -1,8 +1,12 @@
 <div id="history">
   <div class="flexbox" id="clickablelist" style="height: 100%;">
       <div class="fluid" style="height: 100%;">
-        
-        <table class="table result">
+        <div data-bind="visible: historicEntries().length==0">
+		  <p class="lead">
+		    There are no Processes running at the moment.
+		  </p>
+		</div>
+        <table class="table result" data-bind="visible: historicEntries().length>=1">
           <thead>
             <th>Time</th>
             <th>Process</th>
@@ -13,7 +17,7 @@
             <th></th>
           </thead>
           <tbody data-bind="foreach: historicEntries">
-            <tr class="state"  style="cursor: pointer;" data-bind="click: function() { $('.message'+$index()).toggle(); }">
+            <tr class="state" data-bind="click:  function() { if(transitionEvent() && $data.transitionEvent().hasOwnProperty('message')) $('.message'+$index()).toggle(); }, style: { cursor: transitionEvent() && $data.transitionEvent().hasOwnProperty('message') ? 'pointer' : '' }">
               <td data-bind="text: ts"></td>
               <td data-bind="text: process().processName + ' - ' "></td>
               <td data-bind="text: transitionEvent() ? transitionEvent().fromState.text:''"></td>
