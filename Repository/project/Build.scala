@@ -1,13 +1,12 @@
 import sbt._
 import sbt.Keys._
-import com.typesafe.sbt.SbtStartScript
 
 object ProjectBuild extends Build {
 
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = SbtStartScript.startScriptForClassesSettings ++ Project.defaultSettings ++ Seq(
+    settings = Project.defaultSettings ++ Seq(
       mainClass := Some("de.tkip.sbpm.repo.Boot"),
       name := "S-BPM Repository",
       organization := "TU Darmstadt Telecooperation Group",
@@ -29,5 +28,4 @@ object ProjectBuild extends Build {
         "io.spray" % "spray-routing" % "1.2-20130710",
         "io.spray" % "spray-testkit" % "1.2-20130710" % "test",
         "io.spray" %% "spray-json" % "1.2.5")))
-
 }

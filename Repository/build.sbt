@@ -7,7 +7,7 @@ jarName in assembly := "sbpm.jar"
 
 test in assembly := {} 
 
-mainClass in assembly := Some("de.tkip.sbpm.Boot")
+mainClass in assembly := Some("de.tkip.sbpm.repo.Boot")
 
 mergeStrategy in assembly := { 
   case "reference.conf" =>
@@ -32,25 +32,3 @@ mergeStrategy in assembly := {
 }
 
 scalaVersion := "2.10.2"
-
-// libraryDependencies ++= Seq("com.typesafe.akka" % "akka-slf4j" % "2.0.3",
-// 							"ch.qos.logback" % "logback-classic" % "1.0.3" % "runtime")
-
-// Parameters for Eclipse
-
-retrieveManaged := true
-
-EclipseKeys.relativizeLibs := true
-
-EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
-
-// Default = Scala
-//EclipseKeys.projectFlavor := EclipseProjectFlavor.Scala
-
-EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
-
-testOptions in Test <+= (target in Test) map {
-  t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
-}
-
-fork in Test := true
