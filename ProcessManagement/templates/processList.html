@@ -7,8 +7,8 @@
 	</div>
 	<!-- End header -->
 
-	<div>
-		<table class="table table-middle" style="width: 600px;">
+	<div id="clickablelist">
+		<table class="table table-middle result">
 			<thead>
 				<tr>
 					<th style="width: 60%" > Name </th>
@@ -16,52 +16,34 @@
 				</tr>
 			</thead>
 			<tbody data-bind='foreach: processes'>
-				<tr>
+				<tr data-bind="click:  function() { if($data.hasInstances) $('#'+id()).toggle(); }, style: { cursor: $data.hasInstances() ? 'pointer' : '' } ">
 					<td>
-						<a data-bind="attr: { href: url() }, text: menuName()"></a>
+						<a data-bind="attr: { href: url() }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)
 					</td>
 					<td>
-						<div class="btn-group">
 							<div class="btn-group">
-								<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"
-										style="border-top-right-radius: 0;
-										border-bottom-right-radius: 0; border-right: 0 none;">
-									(<span data-bind="text: instanceCount"></span>)
-									Instances
-									<b class="caret"></b>
-								</a>
-								<ul class="dropdown-menu">
-									<li>
-										<a href="#" data-bind="click: $parent.newInstance">New Instance</a>
-									</li>
-									<!-- ko if: $data.hasInstances -->
-									<li class="divider"></li>
-									<!-- ko foreach: $data.processInstances -->
-									<li>
-										<a data-bind="attr: { href: url() }">
-											Instance
-											<span data-bind="text: $index() + 1"></span>
-										</a>
-									</li>
-									<!-- /ko -->
-									<!-- /ko -->
-									<!-- ko ifnot: $data.hasInstances -->
-									<li class="divider"></li>
-									<li class="disabled">
-										<a href="#">No Instances running</a>
-									</li>
-									<!-- /ko -->
-								</ul>
+								<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal">Start new Instance</a>
 							</div>
-							<a class="btn" data-bind="attr: { href: url() }">
-								Edit
-							</a>
-							<button class="btn" data-bind="click: $parent.remove">
-								Delete
-							</button>
+							<div class="btn-group">
+								<a class="btn" data-bind="attr: { href: url() }">Edit</a>
+							</div>
+							<div class="btn-group">
+								<button class="btn" data-bind="click: $parent.remove">Delete</button>
+							</div>
 						</div>
 					</td>
 				</tr>
+				<!-- ko if: $data.hasInstances -->
+				<tr style="display: none;" data-bind="attr: {id: id()}">
+					<td colspan="4" class="item_info">
+						<!-- ko foreach: $data.processInstances -->
+								<a data-bind="attr: { href: url() }">
+									Instance <span data-bind="text: name"></span><br />
+								</a>
+						<!-- /ko -->
+					</td>
+				</tr>
+				<!-- /ko -->
 			</tbody>
 		</table>
 
@@ -73,4 +55,17 @@
 		</div>
 	</div>
 
+</div>
+<div id="processNameModal" class="modal hide" tabindex="-1">
+	<div class="modal-header">
+		<a type="button" class="close pull-right" data-dismiss="modal">x</a>
+		<h3>Process Name</h3>
+	</div>
+	<div class="modal-body">
+		<form data-bind="submit: newInstance">
+			<input type="hidden" name="processId" value="" />
+			<input name="instancename" type="text"  style="width:250px;" />
+			<input type="submit" value="Start" />
+		</form>
+	</div>
 </div>

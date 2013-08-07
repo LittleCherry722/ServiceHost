@@ -63,6 +63,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this fields are set in the preStart, dont change them afterwards!!!
   private var id: ProcessInstanceID = _
+  private val name = request.name
+  private val startTime: Date = new Date()
   private val processID = request.processID
   private var processName: String = _
   private var persistenceGraph: Graph = _
@@ -77,7 +79,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceManagerActor(request.userID, request.processID, self))))
+      Props(new ProcessInstanceContainerManagerActor(request.userID, request.processID, self))))
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
@@ -88,6 +90,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this actor handles the blocking for answer to the user
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor])
+
+  // this actory is used to exchange the subject ids for external input messages
+  // TODO
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(graph)))
 
   override def preStart() {
     try {
@@ -140,6 +146,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   def receive = {
+    case GetProxyActor => {
+      sender ! proxyActor
+    }
+
     case _: SendProcessInstanceCreated => {
       trySendProcessInstanceCreated()
     }
@@ -182,14 +192,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
 
-    case message: GetSubjectAddr => {
-      subjectMap
-        .getOrElseUpdate(
-          message.subjectId,
-          createSubjectContainer(graph.subjects((message.subjectId))))
-        .send(sender, message)
-    }
-
     case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
       subjectMap(message.subjectID).send(message)
     }
@@ -215,7 +217,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private var sendProcessInstanceCreated = true
   private def createProcessInstanceData(actions: Array[AvailableAction]) =
-    ProcessInstanceData(id, processID, persistenceGraph, false, executionHistory, actions)
+    ProcessInstanceData(id, name, processID, persistenceGraph, false, startTime, executionHistory, actions)
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {
