@@ -17,7 +17,7 @@ import akka.testkit.TestKit
 class HistoryTest extends TestKit(ActorSystem("TestSystem")) with FunSuite with BeforeAndAfterAll {
   implicit val timeout = Timeout(10 seconds)
   implicit val executionContext = scala.concurrent.ExecutionContext.global
-  val actor = system.actorOf(Props(new ProcessInstanceActor(CreateProcessInstance(1, 1))))
+  val actor = system.actorOf(Props(new ProcessInstanceActor(CreateProcessInstance(1, 1, ""))))
 
   override def afterAll() {
     system.shutdown()

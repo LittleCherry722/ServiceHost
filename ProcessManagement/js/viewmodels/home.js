@@ -31,7 +31,7 @@ define([
 			$('#processNameModal').modal('hide');
             instance = new ProcessInstance( {
 				processId: process.id(),
-				processName: $("input[name='instancename']").val(),
+				name: $("input[name='instancename']").val(),
 				graph: process.graph()
 			});
 		
@@ -171,15 +171,15 @@ define([
 		        	width: "copy",
 		        	dropdownAutoWidth: "true"
 		        	
-		        });
-				
-				$(".sel").on("change", function(e) { 
-					var process = Process.find( e.val ) ;
-					$(".sel").select2("val", "");
-					$("input[name='processId']").val(e.val);
-					$("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
-					$("#processNameModal").modal();					
-				});
+	        });
+			
+			$(".sel").on("change", function(e) { 
+				var process = Process.find( e.val ) ;
+				$(".sel").select2("val", "");
+				$("input[name='processId']").val(e.val);
+				$("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
+				$("#processNameModal").modal();					
+			});
 		});
 	}
 	

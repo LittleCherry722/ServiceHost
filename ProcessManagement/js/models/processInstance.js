@@ -28,7 +28,7 @@ define([
 
 	ProcessInstance.attrs({
 		processId: "integer",
-		instancename: "string",
+		name: "string",
 		graph: {
 			type: "json",
 			defaults: {

@@ -22,6 +22,7 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction
+import java.util.Date
 
 /**
  * For system control tasks
@@ -63,21 +64,23 @@ case class CreateSubjectProvider(userID: UserID) extends AnswerAbleControlMessag
 case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID) extends AnswerControlMessage
 
 // execution
-case class ProcessInstanceInfo(id: ProcessInstanceID, processId: ProcessID)
+case class ProcessInstanceInfo(id: ProcessInstanceID, name: String, processId: ProcessID)
 case class GetAllProcessInstances(userID: UserID = AllUser) extends AnswerAbleControlMessage
 case class AllProcessInstancesAnswer(request: GetAllProcessInstances, processInstanceInfo: Array[ProcessInstanceInfo]) extends AnswerControlMessage
 
 case class ProcessInstanceData(id: ProcessInstanceID,
+                               name: String,
                                processId: ProcessID,
                                graph: Graph,
                                isTerminated: Boolean,
+                               startedAt: Date,
                                history: History,
                                actions: Array[AvailableAction])
 
 case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
 
-case class CreateProcessInstance(userID: UserID, processID: ProcessID, manager: Option[ActorRef] = None) extends AnswerAbleControlMessage
+case class CreateProcessInstance(userID: UserID, processID: ProcessID, name: String, manager: Option[ActorRef] = None) extends AnswerAbleControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceActor: ProcessInstanceRef,
                                   answer: ProcessInstanceData) extends AnswerControlMessage {

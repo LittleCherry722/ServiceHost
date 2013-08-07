@@ -19,7 +19,7 @@
 				<span data-bind="text: processInstance().instanceName()" ></span>
 			<!-- /ko -->
 			<!-- ko if: currentSubject() || true -->
-				<a data-bind="text: processInstance().instanceName(), attr: {
+				<a data-bind="text: processInstance().name(), attr: {
 					href: processInstance().url() + 'Overview' }"></a>
 			<!-- /ko -->
 				<span class="divider">/</span>
