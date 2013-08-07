@@ -1,41 +1,11 @@
-<style type="text/css">
-#dashboardHistory .state td {
-	border-top:1px solid #000;
-}
-#dashboardHistory .messages .leftBox {
-	float:left; width:50%;
-}
-#dashboardHistory .messages .leftBox .left, #dashboardHistory .messages .left {
-	float:left;
-	width:69px;
-	padding:5px;
-	font-weight:bold;
-}
-#dashboardHistory .messages .text {
-	width:493px;
-}
-#dashboardHistory .messages .leftBox .right, #dashboardHistory .messages .right {
-	float:left;padding:5px;
-}
-
-#dashboardHistory .messages .rightBox {
-	float:left;
-}
-#dashboardHistory .messages .rightBox .left {
-	float:left;width:64px;padding:5px;font-weight:bold;
-}
-#dashboardHistory .messages .rightBox .right {
-	float:left;padding:5px;
-}
-</style>
-<div id="dashboardHistory">
-  <div class="flexbox" style="height: 100%;">
+<div id="history">
+  <div class="flexbox" id="clickablelist" style="height: 100%;">
       <div class="fluid" style="height: 100%;">
         
         <table class="table result">
           <thead>
             <th>Time</th>
-            <th>Subject</th>
+            <th>Process</th>
             <th>From</th>
             <th>@State</th>
             <th>To</th>
@@ -45,7 +15,7 @@
           <tbody data-bind="foreach: historicEntries">
             <tr class="state"  style="cursor: pointer;" data-bind="click: function() { $('.message'+$index()).toggle(); }">
               <td data-bind="text: ts"></td>
-              <td data-bind="text: process().processName"></td>
+              <td data-bind="text: process().processName + ' - ' "></td>
               <td data-bind="text: transitionEvent() ? transitionEvent().fromState.text:''"></td>
               <td data-bind="text: transitionEvent() ? transitionEvent().fromState.stateType:''"></td>
               <td data-bind="text: transitionEvent() ? transitionEvent().toState.text:''"></td>

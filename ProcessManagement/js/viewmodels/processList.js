@@ -6,13 +6,11 @@ define([
 	"models/process",
 	"models/processInstance",
 	"underscore",
-	"router"
-	// "tk_graph"
-], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router ) {
+	"router",
+	"moment"
+], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment ) {
 	var ViewModel = function() {
-
 		var self = this;
-
 		self.processes = Process.all;
 
 		self.back = function() {
@@ -28,21 +26,29 @@ define([
 		}
 
 		self.newInstance = function() {
-			var process = this;
-			
-			instance = new ProcessInstance( {
+			var process = Process.find( $("input[name='processId']").val()) ;
+			$('#processNameModal').modal('hide');
+            instance = new ProcessInstance( {
 				processId: process.id(),
+				name: $("input[name='instancename']").val(),
 				graph: process.graph()
 			});
-
+		
 			instance.save(null, {
 				success: function() {
-					Router.goTo( instance );
+					Actions.fetch();
+					History.fetch();
 				},
 				error: function() {
 					Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
 				}
 			});
+		}
+		this.showProcessNameModal = function() {
+			var process = this;
+			$("input[name='processId']").val(process.id());
+			$("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
+			$("#processNameModal").modal();
 		}
 	}
 
