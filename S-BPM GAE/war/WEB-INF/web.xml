@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://java.sun.com/xml/ns/javaee"
+xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+	<servlet>
+		<servlet-name>S_BPM_GAE</servlet-name>
+		<servlet-class>de.tkip.sbpm.S_BPM_GAEServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>PMFDelete</servlet-name>
+		<servlet-class>de.tkip.sbpm.PMFDelete</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ShowActions</servlet-name>
+		<servlet-class>de.tkip.sbpm.ShowActions</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>CreateProcessInst</servlet-name>
+		<servlet-class>de.tkip.sbpm.CreateProcessInst</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ShowProcessInstance</servlet-name>
+		<servlet-class>de.tkip.sbpm.ShowProcessInstance</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>SubjectTest</servlet-name>
+		<servlet-class>de.tkip.sbpm.SubjectTest</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>BehaviorExample</servlet-name>
+		<servlet-class>de.tkip.sbpm.InternalBehaviorExample</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>S_BPM_GAE</servlet-name>
+		<url-pattern>/s_bpm_gae</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ShowActions</servlet-name>
+		<url-pattern>/showactions/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PMFDelete</servlet-name>
+		<url-pattern>/pmfdelete</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>BehaviorExample</servlet-name>
+		<url-pattern>/post</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ShowProcessInstance</servlet-name>
+		<url-pattern>/get/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SubjectTest</servlet-name>
+		<url-pattern>/subjectTest</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>BehaviorExample</servlet-name>
+		<url-pattern>/behaviorExample</url-pattern>
+	</servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+</web-app>

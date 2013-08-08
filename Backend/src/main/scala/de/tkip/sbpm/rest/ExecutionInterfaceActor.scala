@@ -66,9 +66,9 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
     val executeActionBuilder = msg.ExecuteAction.newBuilder()
 
     val actionBuilder = msg.Action.newBuilder()
-    actionBuilder.setUserID(action.userID)
+    actionBuilder.setUserID(1)
       .setProcessInstanceID(action.processInstanceID)
-      .setSubjectID(action.subjectID) //TODO String
+      .setSubjectID(action.subjectID.toInt) //TODO String
       .setStateID(action.stateID)
       .setStateType(action.stateType)
       // TODO stateTexts
@@ -96,8 +96,10 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
       actionDataBuilder.setRelatedSubject(data.relatedSubject.get)
     }
     // add the messageContent (TODO)
+    
+//    actionBuilder.setActionData(d, actionDataBuilder.build())
 
-    executeActionBuilder.setAction(actionBuilder)
+    executeActionBuilder.setAction(actionBuilder.build())
 
     executeActionBuilder.build().toByteArray()
   }
@@ -105,22 +107,19 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
   def buildScala(action: msg.Action): AvailableAction = {
     import scala.collection.JavaConversions._
     AvailableAction(
-      action.getUserID(),
+      action.getUserID().toInt,
       action.getProcessInstanceID(),
-      action.getSubjectID(),
+      action.getSubjectID().toString,
       action.getStateID(),
       action.getStateText(),
       action.getStateType(),
       (for (data <- action.getActionDataList())
         yield ActionData(
-            data.getText(),
-            data.getExecutable(),
-            data.getTransitionType()
-//            data.getTa/
-            // TODO...
-        )).toArray
-        
-    )
+        data.getText(),
+        data.getExecutable(),
+        data.getTransitionType() //            data.getTa/
+        // TODO...
+        )).toArray)
   }
 
   private def routeToGoogle: PartialFunction[RequestContext, Unit] = {
@@ -135,8 +134,11 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
             path("") {
               entity(as[ExecuteAction]) { json =>
                 // create the url connection
-                //              val url = new URL(googleUri + "put/id")
-                val url = new URL(googleUri + "camel/test")
+                val url = new URL(googleUri + "post")
+//                val url = new URL(googleUri + "camel/test")
+                
+                System.err.println("Send to GAE")
+                
                 val connection: HttpURLConnection =
                   url.openConnection().asInstanceOf[HttpURLConnection]
 
@@ -145,17 +147,25 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                 connection.setRequestMethod("POST")
 
                 val proto = buildProto(json)
+                
+                System.err.println("Proto: " + proto)
+                
                 connection.setRequestProperty("Content-Length", proto.length.toString)
+                
+                System.err.println("LENGTH: " + proto.length)
+                
+                connection.setRequestProperty("Content-Type",
+                  "plain/text");
 
                 val out = new DataOutputStream(connection.getOutputStream())
                 out.write(proto)
                 out.flush()
                 out.close()
-
+                
                 val in = connection.getInputStream()
                 val protoResult = ByteStreams.toByteArray(in)
                 // TODO convert proto -> case class
-                System.err.println(protoResult);
+                System.err.println("Result:" + protoResult);
                 val result = msg.ExecuteAction.parseFrom(protoResult)
 
                 //execute next step
