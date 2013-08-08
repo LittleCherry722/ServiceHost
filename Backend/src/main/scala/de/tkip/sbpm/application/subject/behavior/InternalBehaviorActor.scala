@@ -168,7 +168,17 @@ class InternalBehaviorActor(
   private def addState(state: StateID) {
     if (statesMap.contains(state)) {
       log.debug("Execute: /%s/%s/%s".format(userID, subjectID, state))
-      currentStatesMap += state -> parseState(statesMap(state))
+
+      if (currentStatesMap contains state) {
+        log.debug("State /%s/%s/%s is already running".format(userID, subjectID, state))
+        // TODO hier message wegen modaljoin!
+        if (statesMap(state).stateType == ModalJoinStateType) {
+          currentStatesMap(state) ! TransitionJoined
+          data.blockingHandlerActor ! UnBlockUser(userID)
+        }
+      } else {
+        currentStatesMap += state -> parseState(statesMap(state))
+      }
     } else {
       log.error("ERROR: /" + userID + "/" + subjectID + "/" + state + "does not exist")
     }
