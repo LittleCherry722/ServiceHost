@@ -3,7 +3,8 @@ define([
 	"app",
 	"underscore",
 	"models/actions",
-], function( ko, App, _, Actions) {
+	"models/processInstance"
+], function( ko, App, _, Actions, ProcessInstances) {
 
 	var ViewModel = function() {
 		this.actions = actionsList;
@@ -58,13 +59,48 @@ define([
 	};
 
 	var showGraph = function(action){
-		var graphId = 'dashboard_actions_graph',
+		var graphId = 'graph_bv_outer',
 			table = $( '#' + action.instanceTableId()),
 			graphContainerOuter = $('.graph', table),
-			graphContainer;
+			node = 0,
+			graphContainer, processInstance, currentState, process;
 
+		$('show-graph').removeClass('invisible');
+		$('show-graph', table).addClass('invisible');
+
+		// create graph containers
 		$('#' + graphId).remove();
 		graphContainer = $('<div/>').attr('id', graphId).appendTo(graphContainerOuter);
+
+		// fetch process instance
+		_.each( ProcessInstances.all(), function (element) {
+			if( element.id () === action.processInstanceID() ) {
+				processInstance = element;
+			}
+		});
+
+		// load graph
+		gf_loadGraph( JSON.stringify( processInstance.graph().definition ) );
+		gv_graph.selectedSubject = null;
+		gf_clickedCVnode( action.subjectID() );
+		gf_clickedCVbehavior();
+
+		// select active node
+		currentState = processInstance.getCurrentState( action.subjectID() );
+		process = processInstance.getCurrentProcess( action.subjectID() );
+
+		if( process !== null ) {
+			$.each( process.macros[0].nodes, function( i, value ) {
+				if ( value.id === currentState ) {
+					node = i;
+				}
+			} );
+
+			if( gv_objects_nodes[node] ){
+				gf_deselectNodes();
+				gv_objects_nodes[node].select();
+			}
+		}
 	};
 
 	var initialize = function() {

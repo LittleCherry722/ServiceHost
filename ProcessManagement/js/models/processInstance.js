@@ -90,6 +90,26 @@ define([
 					self.graph( graph );
 				}
 			});
+		},
+
+		getCurrentState: function (subject) {
+			var currentState = 0;
+			$.each (this.actions(), function (i, value) {
+				if (value['subjectID'] === subject) {
+					currentState = value['stateID'];
+				}
+			});
+			return currentState;
+		},
+
+		getCurrentProcess: function (subject) {
+			var process = null;
+			$.each (this.graph().definition.process, function (i, value) {
+				if (value['id'] === subject) {
+					process = value;
+				}
+			});
+			return process;
 		}
 	});
 
