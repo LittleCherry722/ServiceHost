@@ -502,7 +502,6 @@ define([
 	// Just load the graph from a JSON String and display it.
 	// no saving needed.
 	var loadGraph = function( graph ) {
-
 		// Clear the graph canvas
 		gv_graph.clearGraph( true );
 		if ( graph && graph.definition ) {
@@ -573,13 +572,26 @@ define([
 				gv_graph.clearGraph();
 				parent.$.fancybox.close();
 			});
-		})
+		});
+
+		$('#processContent svg').on('DOMSubtreeModified', function(){
+			console.log('dom nodes changed', gv_graph.getSubjectNames())
+			if(gv_graph.getSubjectNames().length > 0) {
+				$('#process-subject-help').addClass('invisible');
+			} else {
+				$('#process-subject-help').removeClass('invisible');
+			}
+		});
 
 		var updateSubjectIds = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
 		$(updateSubjectIds).live( "click", function() {
 			Router.setHasUnsavedChanges(true);
 			updateListOfSubjects();
-		})
+		});
+
+		$('importGraphButtonAction').click(function(){
+			Router.setHasUnsavedChanges(true);
+		});
 
 		var changeNodeButtonIds = "#CreateNodeButton, #InsertSendNodeButton, #InsertReceiveButton, #InsertActionNodeButton, #internalClearBehavior, #UpdateEdgeButton, #DeleteEdgeButton";
 		$(changeNodeButtonIds).live( "click", function() {
