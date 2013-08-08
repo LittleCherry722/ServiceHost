@@ -68,14 +68,15 @@ class ProcessManagerActor extends Actor {
       }
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.request.name, pc.processInstanceActor)
-      history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData("TODO", pc.processInstanceID), None, Some("created"))
+      history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData(processInstanceMap(pc.processInstanceID).name, pc.processInstanceID), None, Some("created"))
+      
     }
 
     case KillAllProcessInstances => {
       logger.debug("Killing all process instances")
       for((id,_) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
-        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData("TODO", id), None, Some("killed"))
+        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).name, id), None, Some("killed"))
       }
       processInstanceMap.clear()
       sender ! ProcessInstancesKilled
@@ -86,7 +87,7 @@ class ProcessManagerActor extends Actor {
       if (processInstanceMap.contains(id)) {
         context.stop(processInstanceMap(id).processInstanceActor)
         processInstanceMap -= id
-        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData("TODO", id), None, Some("killed"))
+        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).name, id), None, Some("killed"))
         sender ! KillProcessInstanceAnswer(kill)
       } else {
         logger.error("Process Manager - can't kill process instance: " +
