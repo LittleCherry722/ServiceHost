@@ -2,10 +2,13 @@
 
 <div class="hide">
     <div id="exportModal">
-        <textarea data-bind='value: graphText' rows='15' onclick="this.select()" style="width: 400px"> </textarea>
+        <textarea data-bind='value: graphText' rows='15' onclick="this.select()" style="width: 400px"> </textarea><br>
+        <a class="btn btn-primary pull-right" href="#" data-bind="click: saveGraphDataClicked">Save as...</a>
     </div>
     <div id="importModal">
         <textarea data-bind='value: graphText' rows='15' style="width: 400px"> </textarea><br>
+        <input type="file" id="graph-import-fileupload" class="invisible" data-bind="event: {change: readUploadGraphData}"/>
+        <a class="btn pull-left" href="#" data-bind="click: uploadGraphDataClicked">From local file...</a>
         <a class="btn btn-primary pull-right" href="#" data-bind="click: importGraph">Import</a>
     </div>
 </div>

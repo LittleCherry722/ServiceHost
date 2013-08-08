@@ -222,7 +222,7 @@ define([
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
 			this.graphText(graph);
 
-		}
+		};
 
 		this.graphText = ko.observable("");
 
@@ -230,7 +230,30 @@ define([
 			currentProcess().graphString(this.graphText());
 			loadGraph(currentProcess().graph());
 			$.fancybox.close();
-		}
+		};
+
+		this.uploadGraphDataClicked = function() {
+			$('#graph-import-fileupload').click();
+		};
+
+		this.readUploadGraphData = function() {
+			var file, reader,
+				that = this,
+				files = $('#graph-import-fileupload')[0].files;
+			if( undefined !== files ) {
+				file = files.item(0);
+				reader = new FileReader();
+				reader.onload = function(e){
+					that.graphText(e.target.result);
+				};
+				reader.readAsText(file);
+			}
+		};
+
+		this.saveGraphDataClicked = function() {
+			var blob = new Blob( [this.graphText()], {type: "application/json;charset=" + document.characterSet} );
+			window.saveAs( blob, currentProcess().name() + '.json' );
+		};
 
 		this.clearGraphText = function() {
 			this.graphText('');
@@ -239,7 +262,7 @@ define([
 		this.goToRoot = function() {
 			setGraph( currentProcess() )
 			Router.goTo( currentProcess() );
-		}
+		};
 
 		this.resetProcess = function() {
 			if ( confirm("Are you sure you want to reset this process to the last saved version? Doing so will reload the page and you will loose all unsaved changes.") ) {
