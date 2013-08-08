@@ -1,4 +1,4 @@
 #!/bin/bash
 
-nohup java -jar backend.jar > /dev/null 2>&1 < /dev/null &
-echo $! > pids/backend.pid
+nohup java -jar backend.jar > log/backend.log 2>&1 < /dev/null &
+echo $! > pids/backend_$($!).pid
