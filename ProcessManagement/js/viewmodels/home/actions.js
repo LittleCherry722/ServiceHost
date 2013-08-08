@@ -65,8 +65,8 @@ define([
 			node = 0,
 			graphContainer, processInstance, currentState, process;
 
-		$('show-graph').removeClass('invisible');
-		$('show-graph', table).addClass('invisible');
+		$('.show-graph').removeClass('invisible');
+		$('.show-graph', table).addClass('invisible');
 
 		// create graph containers
 		$('#' + graphId).remove();
