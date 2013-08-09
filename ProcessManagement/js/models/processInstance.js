@@ -81,10 +81,10 @@ define([
 					var len = 0;
 					if (self.actions()) {
 						_.each(self.actions(), function(actions) {
-          					len += actions.actionData.length > 0
+          					len += actions.actionData.length;
 						});
 			        }
-			        return len;
+			        return len  > 0;
 		       }
 			});
 		
@@ -97,6 +97,7 @@ define([
 			          		if (element.executeAble) executable = true;
 			         	});
 					});
+					return executable;
 				}
 			});
 
