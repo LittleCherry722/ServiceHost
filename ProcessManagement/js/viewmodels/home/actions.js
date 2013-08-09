@@ -45,13 +45,12 @@ define([
 			if (selectedStatetype() && selectedStatetype() !== value.stateType()) {
 				filter = true;
 			}
-			/*
-			 if (selectedStart() && parseInt(selectedStart()) > parseInt(moment(value.processStarted).format('X'))) {
-			 filter = true;
-			 }
-			 if (selectedEnd() && parseInt(selectedEnd()) < parseInt(moment(value.processEnd).format('X'))) {
-			 filter = true;
-			 }*/
+			if (selectedStart() && parseInt(selectedStart()) >= parseInt(moment(value.processStarted).format('X'))) {
+		    	filter = true;
+			}
+			if (selectedEnd() && parseInt(selectedEnd()) <= parseInt(moment(value.processStarted).format('X'))) {
+				filter = true;
+			}
 			if(filter==false) {
 				actionsList.push(value);
 			}

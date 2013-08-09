@@ -7637,3 +7637,35 @@ a.close:hover {
   float: left;
   padding: 5px;
 }
+/* Process List */
+#clickablelist .result tbody tr.instances:hover {
+	background-color:#fff;
+}
+#clickablelist .result .instances tr, #clickablelist  .result .instances td  {
+	border:0;
+}
+#clickablelist .result .instances hr {
+	margin:0
+}
+#clickablelist .result .instances .col1 {
+  width: 10%;
+}
+#clickablelist .result .instances .col2 {
+  width: 35%;
+}
+#clickablelist .result .instances .col3 {
+  width: 35%;
+}
+#clickablelist .result .instances .col4 {
+  width: 20%;
+  text-align:right;
+}
+
+#clickablelist .processitem .col2{
+	text-align:right;
+	padding-right:23px;
+}
+#clickablelist .processhead .col2{
+	text-align:right;
+	padding-right:221px;
+}

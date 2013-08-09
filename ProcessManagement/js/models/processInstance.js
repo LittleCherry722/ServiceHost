@@ -74,6 +74,31 @@ define([
 			this.instanceName = ko.computed(function() {
 				return "Instance #" + self.id();
 			});
+			
+			this.hasActions = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					var len = 0;
+					if (self.actions()) {
+						_.each(self.actions(), function(actions) {
+          					len += actions.actionData.length > 0
+						});
+			        }
+			        return len;
+		       }
+			});
+		
+			this.executable = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+			        var executable = false;
+			        _.each(self.actions(), function(actions) {
+			        	_.each(actions.actionData, function(element) {
+			          		if (element.executeAble) executable = true;
+			         	});
+					});
+				}
+			});
 
 			this.graphString = ko.computed({
 				deferEvaluation: true,
