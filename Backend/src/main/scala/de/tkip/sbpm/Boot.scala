@@ -83,6 +83,9 @@ object Boot extends App {
   // binding the frontendInterfaceActor to a HttpListener
   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
 
+  printf(sys.env.getOrElse("SBPM_PORT", "8080"))
+  printf(sys.env.getOrElse("AKKA_PORT", "2552"))
+
   // db init code below
   implicit val timout = Timeout(30 seconds)
   implicit val executionContext = system.dispatcher
