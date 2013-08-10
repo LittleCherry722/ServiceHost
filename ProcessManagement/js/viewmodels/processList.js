@@ -46,9 +46,14 @@ define([
 		}
 		this.showProcessNameModal = function() {
 			var process = this;
-			$("input[name='processId']").val(process.id());
-			$("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
-			$("#processNameModal").modal();
+                        if (!process.isStartable()) {
+                            Notify.warning("Not possible", "This process can only be started by external partners.");
+                        }
+                        else {
+                            $("input[name='processId']").val(process.id());
+                            $("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
+                            $("#processNameModal").modal();
+                        }
 		}
 	}
 

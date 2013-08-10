@@ -22,7 +22,7 @@
 					</td>
 					<td class="col2">
 						<div class="btn-group">
-							<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal">Start new Instance</a>
+							<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal, css: { disabled: !$data.isStartable() }">Start new Instance</a>
 						</div>
 						<div class="btn-group">
 							<a class="btn" data-bind="attr: { href: url() }">Edit</a>

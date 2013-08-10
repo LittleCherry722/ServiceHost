@@ -17,6 +17,12 @@ define([
 		this.availableProcesses = ko.observableArray(Process.all());
 		this.availableStatetypes= availableStatetypes;
 		
+                this.startableProcesses = ko.observableArray(
+                        $.grep(Process.all(), function(p) { 
+                            return p.isStartable();
+                        })
+                );
+		
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
 		this.selectedStatetype = selectedStatetype;
