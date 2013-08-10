@@ -82,6 +82,22 @@ define([
 					return self.instanceCount() > 0;
 				}
 			});
+                        
+                        this.isStartable = ko.computed({
+                                deferEvaluation: true,
+				read: function() {
+                                        
+					var subjects = self.graph().definition.process;
+                                        var startable = false;
+                                        
+                                        $.each(subjects, function(index, subject) {
+                                            if (subject.startSubject === true) {
+                                                startable = true;
+                                            }
+                                        });
+                                        return startable;
+				}
+                        });
 
 			this.graphObject = ko.computed({
 				deferEvaluation: true,
@@ -95,7 +111,7 @@ define([
 				write: function( graphObject ) {
 					var graph = _.clone( self.graph() );
 					if ( !graph ) {
-						graph = {}
+						graph = {};
 					}
 
 					if ( typeof graphObject === "string" ) {
