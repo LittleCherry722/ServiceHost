@@ -1,0 +1,51 @@
+namespace :deploy do
+  desc "Creates all required directories in the shared folder for later linking"
+  task :setup do
+    on roles(:app) do
+      within shared_path do
+        execute(:mkdir, "log") unless test("[ -d #{shared_path.join('log')} ]")
+        execute(:mkdir, "pids") unless test("[ -d #{shared_path.join('pids')} ]")
+      end
+    end
+    on fetch(:artifact_host_host) do
+      within "/home/ubuntu2/apps/sbpm" do
+        execute(:mkdir, "artifacts") unless test("[ -d artifacts ]")
+        execute(:mkdir, "artifacts/#{fetch(:stage)}") unless test("[ -d artifacts/#{fetch(:stage)} ]")
+      end
+    end
+  end
+
+  desc "starts the server"
+  task :start do
+    on roles(:repo_host) do |host| 
+      within current_path do
+        execute current_path.join('repository.sh')
+      end
+    end
+    on roles(:app), in: :parallel do |host|
+      within current_path do
+        execute current_path.join('backend.sh')
+      end
+    end
+  end
+
+  desc "Stops the server"
+  task :stop do
+    on roles :app, in: :parallel do |host|
+      pids_path = current_path.join('pids')
+      within pids_path do
+        execute :find, "*.pid -print | xargs cat | xargs kill" rescue error "Process or file not found"
+        execute :rm, "*.pid"
+      end
+    end
+  end
+  
+  desc "(Re)starts the server"
+  task :restart do
+    invoke "deploy:stop"
+    sleep 1
+    invoke "deploy:start"
+  end
+  after "deploy:updated", :artifacts
+  after "deploy:finished", "deploy:restart"
+end
