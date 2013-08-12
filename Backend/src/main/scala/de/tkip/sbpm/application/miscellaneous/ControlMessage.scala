@@ -75,6 +75,7 @@ case class ProcessInstanceData(id: ProcessInstanceID,
                                graph: Graph,
                                isTerminated: Boolean,
                                startedAt: Date,
+                               owner: UserID,
                                history: History,
                                actions: Array[AvailableAction])
 

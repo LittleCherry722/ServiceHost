@@ -69,26 +69,26 @@ class ProcessManagerActor extends Actor {
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
       history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData(processInstanceMap(pc.processInstanceID).processName, pc.processInstanceID), None, Some("created"))
-      
+
     }
 
-    case KillAllProcessInstances => {
+    case kill: KillAllProcessInstances => {
       logger.debug("Killing all process instances")
-      for((id,_) <- processInstanceMap) {
+      for ((id, _) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
         history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).processName, id), None, Some("killed"))
       }
       processInstanceMap.clear()
-      sender ! ProcessInstancesKilled
+      kill.sender ! ProcessInstancesKilled
     }
 
     case kill @ KillProcessInstance(id) => {
-      println("killed " + id)
       if (processInstanceMap.contains(id)) {
-        context.stop(processInstanceMap(id).processInstanceActor)
-        processInstanceMap -= id
+        processInstanceMap(id).processInstanceActor ! PoisonPill
         history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).processName, id), None, Some("killed"))
-        sender ! KillProcessInstanceAnswer(kill)
+        processInstanceMap -= id
+        kill.sender ! KillProcessInstanceAnswer(kill)
+        logger.debug("Killed process instance " + id)
       } else {
         logger.error("Process Manager - can't kill process instance: " +
           id + ", it does not exists")
