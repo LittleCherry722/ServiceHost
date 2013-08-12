@@ -38,7 +38,6 @@ define([
 		$.each( History.all(), function ( i, value ) {
 			value.ts = JSONtimestampToString(value.timeStamp().date);
 			var filter = false;
-			console.log(selectedUser());
 			if (selectedUser() && selectedUser() !== value.userId ) {
 				filter = true;
 			}
