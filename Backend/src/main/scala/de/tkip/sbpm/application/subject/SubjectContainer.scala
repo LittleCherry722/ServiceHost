@@ -203,7 +203,7 @@ class SubjectContainer(
           if (r.isSuccess) r.get.tell(message, from)
           // TODO exception or logg?
           else throw new Exception("Subject Creation failed for " +
-            processInstanceID + "/" + subject.id + "@" + userID)
+            processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + r)
       }
     }
 
