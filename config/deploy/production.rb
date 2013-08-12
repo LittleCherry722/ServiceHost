@@ -1,7 +1,11 @@
 set :stage, :production
 
-role :app, %w[ ubuntu@54.229.92.171 ubuntu@54.229.91.177 ubuntu@54.229.82.150 ]
-role :repo_host, %w[ ubuntu@54.229.92.171 ]
+role :app, %w[
+   ubuntu@ec2-54-229-92-171.eu-west-1.compute.amazonaws.com
+   ubuntu@ec2-54-229-91-177.eu-west-1.compute.amazonaws.com
+   ubuntu@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com
+]
+role :repo_host, %w[ ubuntu@ec2-54-229-92-171.eu-west-1.compute.amazonaws.com ]
 
 set :deploy_to, "/home/ubuntu/apps/sbpm"
 
