@@ -6,30 +6,32 @@
   <classpathentry output="target/scala-2.10/test-classes" path="src/test/java" kind="src"></classpathentry>
   <classpathentry output="target/scala-2.10/test-classes" path="src/test/resources" kind="src"></classpathentry>
   <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"></classpathentry>
-  <classpathentry path="./lib_managed/jars/org.scala-lang/scala-reflect/scala-reflect-2.10.0.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/bundles/com.typesafe.akka/akka-actor_2.10/akka-actor_2.10-2.1.4.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/bundles/com.typesafe/config/config-1.0.0.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/bundles/com.typesafe.akka/akka-remote_2.10/akka-remote_2.10-2.1.4.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/bundles/io.netty/netty/netty-3.5.8.Final.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/org.scala-lang/scala-reflect/scala-reflect-2.10.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/com.typesafe.akka/akka-actor_2.10/akka-actor_2.10-2.2.0.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/bundles/com.typesafe/config/config-1.0.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/bundles/com.typesafe.akka/akka-remote_2.10/akka-remote_2.10-2.2.0.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/bundles/io.netty/netty/netty-3.6.6.Final.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.google.protobuf/protobuf-java/protobuf-java-2.4.1.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/org.uncommons.maths/uncommons-maths/uncommons-maths-1.2.2a.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.typesafe.slick/slick_2.10/slick_2.10-1.0.1.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/org.slf4j/slf4j-api/slf4j-api-1.6.4.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/bundles/com.typesafe.akka/akka-slf4j_2.10/akka-slf4j_2.10-2.2.0.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/org.slf4j/slf4j-api/slf4j-api-1.7.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/ch.qos.logback/logback-classic/logback-classic-1.0.7.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/ch.qos.logback/logback-core/logback-core-1.0.7.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/org.xerial/sqlite-jdbc/sqlite-jdbc-3.7.2.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.mchange/c3p0/c3p0-0.9.2.1.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.mchange/mchange-commons-java/mchange-commons-java-0.2.3.4.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/io.spray/spray-can/spray-can-1.1-M7.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/io.spray/spray-io/spray-io-1.1-M7.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/io.spray/spray-util/spray-util-1.1-M7.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/io.spray/spray-http/spray-http-1.1-M7.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/org.parboiled/parboiled-scala_2.10.0-RC5/parboiled-scala_2.10.0-RC5-1.1.4.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/org.parboiled/parboiled-core/parboiled-core-1.1.4.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/io.spray/spray-routing/spray-routing-1.1-M7.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/io.spray/spray-httpx/spray-httpx-1.1-M7.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/org.jvnet.mimepull/mimepull/mimepull-1.8.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/com.chuusai/shapeless_2.10.0-RC5/shapeless_2.10.0-RC5-1.2.3.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/io.spray/spray-json_2.10/spray-json_2.10-1.2.3.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/org.parboiled/parboiled-scala_2.10/parboiled-scala_2.10-1.1.4.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/io.spray/spray-can/spray-can-1.2-20130710.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/io.spray/spray-io/spray-io-1.2-20130710.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/io.spray/spray-util/spray-util-1.2-20130710.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/io.spray/spray-http/spray-http-1.2-20130710.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/bundles/org.parboiled/parboiled-scala_2.10/parboiled-scala_2.10-1.1.5.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/bundles/org.parboiled/parboiled-core/parboiled-core-1.1.5.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/io.spray/spray-routing/spray-routing-1.2-20130710.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/io.spray/spray-httpx/spray-httpx-1.2-20130710.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/org.jvnet.mimepull/mimepull/mimepull-1.9.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/com.chuusai/shapeless_2.10/shapeless_2.10-1.2.4.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/io.spray/spray-json_2.10/spray-json_2.10-1.2.5.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.github.t3hnar/scala-bcrypt_2.10/scala-bcrypt_2.10-2.1.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/org.mindrot/jbcrypt/jbcrypt-0.3m.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.fasterxml.jackson.core/jackson-core/jackson-core-2.2.0.jar" kind="lib"></classpathentry>
@@ -50,14 +52,12 @@
   <classpathentry path="./lib_managed/jars/com.google.apis/google-api-services-oauth2/google-api-services-oauth2-v2-rev38-1.15.0-rc.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.typesafe.akka/akka-slf4j/akka-slf4j-2.0.3.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.typesafe.akka/akka-actor/akka-actor-2.0.3.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/ch.qos.logback/logback-classic/logback-classic-1.0.3.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/ch.qos.logback/logback-core/logback-core-1.0.3.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/org.scalatest/scalatest_2.10/scalatest_2.10-2.0.M5b.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/bundles/com.typesafe.akka/akka-testkit_2.10/akka-testkit_2.10-2.1.4.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/bundles/com.typesafe.akka/akka-testkit_2.10/akka-testkit_2.10-2.2.0.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/com.typesafe.slick/slick-testkit_2.10/slick-testkit_2.10-1.0.1.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/junit/junit-dep/junit-dep-4.10.jar" kind="lib"></classpathentry>
   <classpathentry path="./lib_managed/jars/org.hamcrest/hamcrest-core/hamcrest-core-1.1.jar" kind="lib"></classpathentry>
-  <classpathentry path="./lib_managed/jars/io.spray/spray-testkit/spray-testkit-1.1-M7.jar" kind="lib"></classpathentry>
+  <classpathentry path="./lib_managed/jars/io.spray/spray-testkit/spray-testkit-1.2-20130710.jar" kind="lib"></classpathentry>
   <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6" kind="con"></classpathentry>
   <classpathentry path="bin" kind="output"></classpathentry>
 </classpath>

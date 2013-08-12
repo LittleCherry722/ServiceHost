@@ -27,12 +27,10 @@ class RepoActor extends Actor with ActorLogging {
   val entries = mutable.Map[Int, JsObject]()
 
   private def loadTemplates() = {
-    val folder = new File(getClass.getResource("/").toURI)
-    val files = folder.listFiles().filter(_.getName.endsWith(".json"))
+    val filenames = Seq( "lieferant.json", "test.json", "staples.json" )
+    val files = filenames.map( x => Source.fromInputStream(getClass.getResourceAsStream("/interfaces/" + x)) )
 
-    files.foreach(f => log.info("found {}", f.getName))
-
-    val jsonObjects = files.map(Source.fromFile(_).mkString.asJson.asJsObject)
+    val jsonObjects = files.map(_.mkString.asJson.asJsObject)
     jsonObjects.map(obj => (obj.fields("name"), obj)).toMap
   }
 

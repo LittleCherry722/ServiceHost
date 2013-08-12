@@ -104,23 +104,10 @@ define([
 	 */
 	var selectCurrentBehaviourState = function() {
 		var subject = currentSubject(),
-			currentState = 0,
-			process = null,
+			currentState = processInstance().getCurrentState(subject),
+			process = processInstance().getCurrentProcess(subject),
 			node = 0;
 
-		// retrieve the current state by subject id
-		$.each(processInstance().actions(), function( i, value ) {
-			if(value['subjectID'] === subject){
-				currentState = value['stateID'];
-			}
-		});
-
-		// retrieve the current process by subject id
-		$.each( processInstance().graph().definition.process, function ( i, value ) {
-			if ( value['id'] === subject ) {
-				process = value;
-			}
-		} );
 		if( process === null ) {
 			gf_deselectNodes();
 			if ( gv_objects_nodes.length > 0 ) {
@@ -140,7 +127,7 @@ define([
 			gf_deselectNodes();
 			gv_objects_nodes[node].select();
 		}
-	}
+	};
 
 	/**
 	 * @returns {String} The ID of a subject which can execute an action in the current process. If no subject can

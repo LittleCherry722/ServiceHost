@@ -17,6 +17,12 @@ define([
 		this.availableProcesses = ko.observableArray(Process.all());
 		this.availableStatetypes= availableStatetypes;
 		
+	    this.startableProcesses = ko.observableArray(
+	            $.grep(Process.all(), function(p) { 
+	                return p.isStartable();
+	            })
+	    );
+		
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
 		this.selectedStatetype = selectedStatetype;
@@ -31,7 +37,7 @@ define([
 			$('#processNameModal').modal('hide');
             instance = new ProcessInstance( {
 				processId: process.id(),
-				processName: $("input[name='instancename']").val(),
+				name: $("input[name='instancename']").val(),
 				graph: process.graph()
 			});
 		
@@ -166,20 +172,20 @@ define([
 				}
 			});	
 			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
-				$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
+			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
 		        var select2 = $(".sel").select2( {
 		        	width: "copy",
 		        	dropdownAutoWidth: "true"
 		        	
-		        });
-				
-				$(".sel").on("change", function(e) { 
-					var process = Process.find( e.val ) ;
-					$(".sel").select2("val", "");
-					$("input[name='processId']").val(e.val);
-					$("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
-					$("#processNameModal").modal();					
-				});
+	        });
+			
+			$(".sel").on("change", function(e) { 
+				var process = Process.find( e.val ) ;
+				$(".sel").select2("val", "");
+				$("input[name='processId']").val(e.val);
+				$("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
+				$("#processNameModal").modal();					
+			});
 		});
 	}
 	

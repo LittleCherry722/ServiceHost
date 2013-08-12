@@ -118,7 +118,8 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           path("") {
             entity(as[ProcessIdHeader]) { json =>
               complete {
-                val future = (subjectProviderManager ? CreateProcessInstance(userId, json.processId)).mapTo[ProcessInstanceCreated]
+                val name = json.name.getOrElse("Unnamed")// TODO not as an Option
+                val future = (subjectProviderManager ? CreateProcessInstance(userId, json.processId, name)).mapTo[ProcessInstanceCreated]
                 future.map(result => result.answer)
               }
             }

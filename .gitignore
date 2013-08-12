@@ -13,3 +13,4 @@
 *.graffle
 Repository/target/*
 Repository/project/target/*
+ProcessManagement/nbproject/*

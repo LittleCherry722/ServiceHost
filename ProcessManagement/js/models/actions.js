@@ -169,6 +169,8 @@ define([
         _.each(ProcessInstances.all(), function(element) {
           if (element.id() === self.processInstanceID()) {
             processId = element.processId();
+            instanceName = element.name();
+            processStarted = element.startedAt().date;
           }
         });
 

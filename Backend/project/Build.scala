@@ -1,13 +1,12 @@
 import sbt._
 import sbt.Keys._
-import com.typesafe.sbt.SbtStartScript
 
 object ProjectBuild extends Build {
 
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = SbtStartScript.startScriptForClassesSettings ++ Project.defaultSettings ++ Seq(
+    settings = Project.defaultSettings ++ Seq(
       mainClass := Some("de.tkip.sbpm.Boot"),
       name := "S-BPM Groupware",
       organization := "TU Darmstadt Telecooperation Group",
@@ -51,5 +50,4 @@ object ProjectBuild extends Build {
       )
     )
   )
-
 }
