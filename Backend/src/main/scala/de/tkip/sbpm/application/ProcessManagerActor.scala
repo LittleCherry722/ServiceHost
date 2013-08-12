@@ -31,7 +31,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor extends Actor {
-  private case class ProcessInstanceData(processID: ProcessID, name: String, processInstanceActor: ProcessInstanceRef)
+  private case class ProcessInstanceData(processID: ProcessID, processName: String, name: String, processInstanceActor: ProcessInstanceRef)
 
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
@@ -67,8 +67,8 @@ class ProcessManagerActor extends Actor {
         logger.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
       }
       processInstanceMap +=
-        pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.request.name, pc.processInstanceActor)
-      history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData(processInstanceMap(pc.processInstanceID).name, pc.processInstanceID), None, Some("created"))
+        pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
+      history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData(processInstanceMap(pc.processInstanceID).processName, pc.processInstanceID), None, Some("created"))
       
     }
 
@@ -76,7 +76,7 @@ class ProcessManagerActor extends Actor {
       logger.debug("Killing all process instances")
       for((id,_) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
-        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).name, id), None, Some("killed"))
+        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).processName, id), None, Some("killed"))
       }
       processInstanceMap.clear()
       sender ! ProcessInstancesKilled
@@ -87,7 +87,7 @@ class ProcessManagerActor extends Actor {
       if (processInstanceMap.contains(id)) {
         context.stop(processInstanceMap(id).processInstanceActor)
         processInstanceMap -= id
-        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).name, id), None, Some("killed"))
+        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).processName, id), None, Some("killed"))
         sender ! KillProcessInstanceAnswer(kill)
       } else {
         logger.error("Process Manager - can't kill process instance: " +
