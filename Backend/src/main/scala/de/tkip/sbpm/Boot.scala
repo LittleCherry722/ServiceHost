@@ -35,6 +35,8 @@ import de.tkip.sbpm.rest.auth._
 import de.tkip.sbpm.rest.google.GDriveActor
 import spray.can.Http
 
+import de.tkip.sbpm.logging.LogPersistenceActor
+
 object Boot extends App {
 
   implicit val system = ActorSystem("sbpm")
@@ -77,7 +79,9 @@ object Boot extends App {
     system.actorOf(Props[BasicAuthActor], basicAuthActorName),
     system.actorOf(Props[OAuth2Actor], oAuth2ActorName),
     system.actorOf(Props[UserPassAuthActor], userPassAuthActorName),
-    system.actorOf(Props[GDriveActor], googleDriveActorName))
+    system.actorOf(Props[GDriveActor], googleDriveActorName),
+    system.actorOf(Props[LogPersistenceActor], logPersistenceActorName)
+  )
 
 
   // binding the frontendInterfaceActor to a HttpListener
