@@ -81,7 +81,7 @@ class SubjectActor(data: SubjectData) extends Actor {
     case transition: history.NewHistoryTransitionData => {
       // forward history entries from internal behavior up to instance actor
       context.parent !
-        history.NewHistoryEntry(new Date(), Some(userID), null, Some(transition), None)
+        history.NewHistoryEntry(new Date(), Some(userID), null, Some(subjectID), Some(transition), None)
     }
 
     case terminated: SubjectTerminated => {
