@@ -5,6 +5,10 @@ role :repo_host, %w[ ubuntu2@sbpm-gw.tk.informatik.tu-darmstadt.de ]
 
 set :deploy_to, "/home/ubuntu2/apps/sbpm"
 
+set :artifact_branch, "staging"
+
+set :hostname, "127.0.0.1"
+
 namespace :deploy do
   desc "starts the server"
   task :start do

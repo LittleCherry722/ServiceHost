@@ -10,7 +10,7 @@ namespace :artifacts do
   task :assemble do
     run_locally do
       begin
-        execute "git checkout amazon_instanzen"
+        execute "git checkout #{fetch(:artifact_branch)}"
         %w[ Backend Repository ].each do |dir| 
           within dir do
             execute :sbt, "assembly"
