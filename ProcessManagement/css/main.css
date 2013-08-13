@@ -6978,6 +6978,7 @@ table.data2 tr td {
 
 #processHistory {
   margin-left: 10px;
+  margin-right:10px;
   height: calc(100% -36px);
 }
 
@@ -7588,7 +7589,7 @@ a.close:hover {
   margin-right: 15px;
 }
 
-#filter select {
+#filter select, #filter .select2-container {
   margin-right: 20px;
 }
 
@@ -7597,6 +7598,18 @@ a.close:hover {
 }
 
 /* History */
+#history #clickablelist .result td span {
+	display: inline;
+}
+#history #clickablelist .result thead tr {
+	border: 0;
+}
+#history .event .left {
+	float:left;
+}
+#history .event .right {
+	float:left;
+}
 #dashboard #history .state td {
   border-top: 1px solid #000;
 }

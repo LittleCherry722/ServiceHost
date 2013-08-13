@@ -10,20 +10,29 @@
           <thead>
             <th>Time</th>
             <th>Process</th>
-            <th>From</th>
-            <th>@State</th>
-            <th>To</th>
-            <th>@State</th>
+            <th></th>
+            <th></th>
             <th></th>
           </thead>
           <tbody data-bind="foreach: historys()">
             <tr class="state" data-bind="click:  function() { if(transitionEvent() && $data.transitionEvent().hasOwnProperty('message')) $('.message'+$index()).toggle(); }, style: { cursor: transitionEvent() && $data.transitionEvent().hasOwnProperty('message') ? 'pointer' : '' }">
               <td data-bind="text: ts"></td>
               <td data-bind="text: process().processName  + ' - ' + instanceName "></td>
-              <td data-bind="text: transitionEvent() ? transitionEvent().fromState.text:''"></td>
-              <td data-bind="text: transitionEvent() ? transitionEvent().fromState.stateType:''"></td>
-              <td data-bind="text: transitionEvent() ? transitionEvent().toState.text:''"></td>
-              <td data-bind="text: transitionEvent() ? transitionEvent().toState.stateType:''"></td>
+              <td class="event">
+              	<!-- ko if: transitionEvent() -->
+              		<div class="left"><strong>@State: </strong></div><div class="right"><span data-bind="text: transitionEvent().fromState.stateType"></span></div><div style="clear:both;"></div>
+              		<div class="left"><strong>From: </strong></div><div class="right"><span data-bind="text: transitionEvent().fromState.text"></span></div><div style="clear:both;"></div>
+              	<!-- /ko -->
+              	<!-- ko if: !transitionEvent() -->
+              		New Instance started
+              	<!-- /ko -->
+              </td>
+              <td class="event">
+              	<!-- ko if: transitionEvent() -->
+              		<div class="left"><strong>@State: </strong></div><div class="right"><span data-bind="text: transitionEvent().toState.stateType"></span></div><div style="clear:both;"></div>
+              		<div class="left"><strong>To: </strong></div><div class="right"><span data-bind="text: transitionEvent().toState.text"></span></div><div style="clear:both;"></div>
+              	<!-- /ko -->
+              </td>
               <td><!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
             </tr>
               <!-- Line below will be recognized by ko parser-->

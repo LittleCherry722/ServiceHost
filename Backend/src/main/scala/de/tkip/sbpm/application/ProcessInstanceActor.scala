@@ -217,7 +217,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private var sendProcessInstanceCreated = true
   private def createProcessInstanceData(actions: Array[AvailableAction]) =
-    ProcessInstanceData(id, name, processID, persistenceGraph, false, startTime, executionHistory, actions)
+    ProcessInstanceData(id, name, processID, processName, persistenceGraph, false, startTime, request.userID, executionHistory, actions)
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {
