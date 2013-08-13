@@ -29,22 +29,19 @@ define([
 	
 	var updateHistory = ko.computed(function() {
 		if( processInstance().startedAt()){
-			processStarted(JSONtimestampToString( processInstance().startedAt().date ));
+			processStarted(moment( processInstance().startedAt().date ).format( "YYYY-MM-DD HH:mm" ));
 		}
 		
 		historicEntries.removeAll();
 		$.each( History.all() , function ( i, value ) {
-			value.ts= JSONtimestampToString( value.timeStamp().date);
-			if(value.process().processInstanceId==processInstance().id() && ((currentSubject() && currentSubject() === value.subject) || !currentSubject()) ) {
+			value.ts= moment(value.timeStamp().date).format( "YYYY-MM-DD HH:mm" );
+			console.log(value.subject());
+			if(value.process().processInstanceId==processInstance().id() && ((currentSubject() && currentSubject() == value.subject()) || !currentSubject()) ) {
 				historicEntries.push(value);
 			}
 		} );
 		
 	});
-
-	var JSONtimestampToString = function( JSONtimestamp ){
-		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
-	}
 
 	var initialize = function( instance ) {
 		var viewModel;
