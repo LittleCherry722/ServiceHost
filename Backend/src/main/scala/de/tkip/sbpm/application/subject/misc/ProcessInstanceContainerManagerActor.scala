@@ -35,9 +35,9 @@ class ProcessInstanceContainerManagerActor(userId: UserID, processId: ProcessID,
 
   private val targetMap =
     Map(
-      1 -> "@ec2-54-229-92-171.eu-west-1.compute.amazonaws.com:2552",
-      2 -> "@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com:2552",
-      3 -> "@ec2-54-229-91-177.eu-west-1.compute.amazonaws.com:2552")
+      1 -> "@127.0.0.1:2552",
+      2 -> "@127.0.0.1:2553",
+      3 -> "@127.0.0.1:2554")
 
   def receive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
