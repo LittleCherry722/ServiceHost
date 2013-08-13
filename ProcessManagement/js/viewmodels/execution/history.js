@@ -11,15 +11,10 @@ define([
 		this.currentSubject = currentSubject;
 		this.history = history;
 		this.processStarted = processStarted;
-		this.processEnded = processEnded;
-		this.historicEntries = historicEntries;
 		this.processInstance = processInstance;
-		this.processStarted = processStarted;
-		this.processEnded = processEnded;
 		this.historicEntries = historicEntries;
 	}
 	var processStarted = ko.observable();
-	var processEnded = ko.observable();
 	var historicEntries = ko.observableArray();
 
 	var processInstance = ko.observable( new ProcessInstance() );
@@ -33,7 +28,10 @@ define([
 	});
 	
 	var updateHistory = ko.computed(function() {
-		//setTimeFormat();
+		if( processInstance().startedAt()){
+			processStarted(JSONtimestampToString( processInstance().startedAt().date ));
+		}
+		
 		historicEntries.removeAll();
 		$.each( History.all() , function ( i, value ) {
 			value.ts= JSONtimestampToString( value.timeStamp().date);
@@ -44,21 +42,6 @@ define([
 		
 	});
 
-	var setTimeFormat = function(){
-/*
-		if( newHistory.hasOwnProperty( "timestamp" ) ){
-			newHistory.processStarted.date = JSONtimestampToString( newHistory.processStarted.date );
-		} else {
-			newHistory.processStarted = { date: "Has not ended yet." }
-		}
-
-		if( newHistory.hasOwnProperty( "processEnded" ) ){
-			newHistory.processEnded.date = JSONtimestampToString( newHistory.processEnded.date );
-		} else {
-			newHistory.processEnded = { date: "Has not ended yet." };
-		}
-*/
-	}
 	var JSONtimestampToString = function( JSONtimestamp ){
 		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
 	}
