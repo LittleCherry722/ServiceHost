@@ -68,15 +68,14 @@ class ProcessManagerActor extends Actor {
       }
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
-      history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData(processInstanceMap(pc.processInstanceID).processName, pc.processInstanceID), None, Some("created"))
-
+      history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
     }
 
     case kill: KillAllProcessInstances => {
       logger.debug("Killing all process instances")
       for ((id, _) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
-        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).processName, id), None, Some("killed"))
+        history.entries += createHistoryEntry(None, id, "killed")
       }
       processInstanceMap.clear()
       kill.sender ! ProcessInstancesKilled
@@ -85,7 +84,7 @@ class ProcessManagerActor extends Actor {
     case kill @ KillProcessInstance(id) => {
       if (processInstanceMap.contains(id)) {
         processInstanceMap(id).processInstanceActor ! PoisonPill
-        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).processName, id), None, Some("killed"))
+        history.entries += createHistoryEntry(None, id, "killed") 
         processInstanceMap -= id
         kill.sender ! KillProcessInstanceAnswer(kill)
         logger.debug("Killed process instance " + id)
@@ -136,6 +135,17 @@ class ProcessManagerActor extends Actor {
   // to forward a message to the process instance it needs a function to 
   // get the processinstance id
   private type ForwardProcessInstanceMessage = { def processInstanceID: ProcessInstanceID }
+
+  private def createHistoryEntry(userId: Option[UserID],
+    processInstanceId: ProcessInstanceID,
+    event: String): NewHistoryEntry =
+    NewHistoryEntry(
+      new Date(),
+      userId,
+      NewHistoryProcessData(processInstanceMap(processInstanceId).processName, processInstanceId, processInstanceMap(processInstanceId).name),
+      None,
+      None,
+      Some(event))
 
   /**
    * Forwards a message to a processinstance

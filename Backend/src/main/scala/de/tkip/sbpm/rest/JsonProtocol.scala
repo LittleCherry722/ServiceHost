@@ -140,10 +140,10 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val createActionIdHeaderFormat = jsonFormat7(ExecuteAction)
 
   implicit val newStateFormat = jsonFormat2(NewHistoryState)
-  implicit val newHistoryProcessDataFormat = jsonFormat2(NewHistoryProcessData)
+  implicit val newHistoryProcessDataFormat = jsonFormat3(NewHistoryProcessData)
   implicit val newMessageFormat = jsonFormat5(NewHistoryMessage)
   implicit val newHistoryTransitionDataFormat = jsonFormat5(NewHistoryTransitionData)
-  implicit val newHistoryEntryFormat = jsonFormat5(NewHistoryEntry)
+  implicit val newHistoryEntryFormat = jsonFormat6(NewHistoryEntry)
   implicit val newHistoryFormat = jsonFormat1(NewHistory)
 
 }
