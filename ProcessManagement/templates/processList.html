@@ -6,6 +6,13 @@
 		</h3>
 	</div>
 	<!-- End header -->
+	<div id="filter">
+		<select class="sel" data-placeholder="Select Process" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'id'"></select>
+		<label for="from">From:</label>
+	    <input type="text" id="from" name="from" data-bind="value: selectedStart" />
+	    <label for="to">To:</label>
+	    <input type="text" id="to" name="to" data-bind="value: selectedEnd"/>
+    </div>
 <hr> 
 	<div id="clickablelist">
 		<table class="table table-middle result processlist">
@@ -25,7 +32,7 @@
 							<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal, css: { disabled: !$data.isStartable() }">Start new Instance</a>
 						</div>
 						<div class="btn-group">
-							<a class="btn" data-bind="attr: { href: url() }">Edit</a>
+							<a class="btn" data-bind="click:  function() { window.location.href=url();  }">Edit</a>
 						</div>
 						<div class="btn-group">
 							<button class="btn" data-bind="click: $parent.remove">Delete</button>
@@ -36,7 +43,7 @@
 				<tr style="display: none;" data-bind="attr: {id: id()}" class="instances">
 					<td colspan="4" class="item_info">
 						<!-- ko foreach: $data.processInstances -->
-							<table style="border:0;" data-bind="click:  function() { window.location.href=url();  }">
+							<table style="border:0;" >
 								    <tr>
 								      <td class="col1">
 								        <!-- ko if: executable() -->
@@ -53,14 +60,14 @@
 								
 								      </td>
 								      <td class="col2">						
-										<strong>Name:</strong><a data-bind="attr: { href: url() }"><span data-bind="text: name"></span></a><br />
-										<strong>Start:</strong> <span data-bind="text: moment(startedAt().date).format('LL')"></span>
+										<strong>Name: </strong><a data-bind="attr: { href: url() }"><span data-bind="text: name"></span></a><br />
+										<strong>Start: </strong> <span data-bind="text: moment(startedAt().date).format('LL')"></span>
 								      </td>
 								      <td class="col3">
-						                <strong>Owner:</strong><span data-bind="text: ''"></a><br />
+						                <strong>Owner: </strong><span data-bind="text: ''"></a><br />
 						            </td>
 						            <td class="col4">
-						                <img src="images/icons/cross.png" title="Delete" width="28" />
+						                <a href="" data-bind="click: $parents[1].removeInstance"><img src="images/icons/cross.png" title="Delete" width="28" /></a>
 						            </td>
 								</tr>
 							</table>

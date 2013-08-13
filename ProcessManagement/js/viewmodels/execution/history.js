@@ -2,23 +2,25 @@ define([
 	"knockout",
 	"app",
 	"underscore",
-	"models/processInstance",
+	"models/history",
 	"moment"
-], function( ko, App, _, ProcessInstance, moment) {
+], function( ko, App, _, History, moment) {
 
 	var ViewModel = function() {
 		this.availableSubjects = ko.observableArray([]);
 		this.currentSubject = currentSubject;
+		this.history = history;
+		this.processStarted = processStarted;
+		this.processEnded = processEnded;
+		this.historicEntries = historicEntries;
 		this.processInstance = processInstance;
 		this.processStarted = processStarted;
 		this.processEnded = processEnded;
 		this.historicEntries = historicEntries;
 	}
-
 	var processStarted = ko.observable();
 	var processEnded = ko.observable();
-	var newHistory = ko.observableArray([]);
-	var historicEntries = ko.observableArray([]);
+	var historicEntries = ko.observableArray();
 
 	var processInstance = ko.observable( new ProcessInstance() );
 	processInstance.subscribe(function( process ) {
@@ -27,33 +29,24 @@ define([
 	
 	var currentSubject = ko.observable();
 	currentSubject.subscribe(function( subjectId ) {
-		historicEntries.removeAll();
-		$.each( newHistory.entries, function ( i, value ) {
-			if (currentSubject() && currentSubject() === value.subject ) {
-				historicEntries.push(value);
-				console.log( i + "--" + value.toSource());
-			}
-		} );
+		updateHistory();
 	});
 	
-	var updateHistory = function() {
-		newHistory = setTimeFormat( processInstance().history() );
+	var updateHistory = ko.computed(function() {
+		//setTimeFormat();
+		historicEntries.removeAll();
+		$.each( History.all() , function ( i, value ) {
+			value.ts= JSONtimestampToString( value.timeStamp().date);
+			if(value.process().processInstanceId==processInstance().id() && ((currentSubject() && currentSubject() === value.subject) || !currentSubject()) ) {
+				historicEntries.push(value);
+			}
+		} );
+		
+	});
 
-		processStarted = newHistory.processStarted;
-		processEnded = newHistory.processEnded;
-		// retrieve the current process by subject id
-		if (!currentSubject() ) {
-			historicEntries.removeAll();
-			$.each( newHistory.entries, function ( i, value ) {
-					historicEntries.push(value);
-			} );
-		}
-	}
-
-	var setTimeFormat = function( processHistory ){
-		newHistory = processHistory;
-
-		if( newHistory.hasOwnProperty( "processStarted" ) ){
+	var setTimeFormat = function(){
+/*
+		if( newHistory.hasOwnProperty( "timestamp" ) ){
 			newHistory.processStarted.date = JSONtimestampToString( newHistory.processStarted.date );
 		} else {
 			newHistory.processStarted = { date: "Has not ended yet." }
@@ -64,27 +57,19 @@ define([
 		} else {
 			newHistory.processEnded = { date: "Has not ended yet." };
 		}
-
-
-		for( i=0; i<newHistory.entries.length; i++ ){
-			newHistory.entries[i].timestamp.date = JSONtimestampToString( newHistory.entries[i].timestamp.date );
-		}
-
-		return newHistory;
+*/
 	}
-
 	var JSONtimestampToString = function( JSONtimestamp ){
-		newDate = new Date( JSONtimestamp );
-		//return newDate.toGMTString();
-		return newDate.getDate()+'.'+(newDate.getMonth()+1)+'.'+newDate.getFullYear();
-		//this.date( moment().format( "YYYY-MM-DD HH:mm:ss" ) );
+		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
 	}
 
 	var initialize = function( instance ) {
 		var viewModel;
-
-		processInstance( instance );
 		viewModel = new ViewModel();
+		updateHistory();
+		History.fetch();
+		processInstance( instance );
+		
 		$(".state").click(showMessages);
 		$(".state").live( 'click', showMessages);
 		function showMessages() {
@@ -95,12 +80,13 @@ define([
 			}
 		}
 		App.loadTemplate( "execution/history", viewModel, "executionContent", function() {
-			App.loadSubView( "execution/actions", [instance, currentSubject] );
+			//App.loadSubView( "execution/actions", [instance, currentSubject] );
 			$( "#slctSbj" ).chosen();
 			
 			var subject = subjectId;
 			currentSubject( subject );
 		});
+		
 
 	}
 	
@@ -110,5 +96,3 @@ define([
 		setSubject: currentSubject
 	}
 });
-
-

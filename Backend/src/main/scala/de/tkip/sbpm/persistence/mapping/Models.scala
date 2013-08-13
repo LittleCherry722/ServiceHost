@@ -100,6 +100,7 @@ case class GraphSubject(id: String,
   relatedGraphId: Option[Int],
   externalType: Option[String],
   roleId: Option[Int],
+  url: Option[String],
   comment: Option[String])
 
 case class GraphVariable(id: String,

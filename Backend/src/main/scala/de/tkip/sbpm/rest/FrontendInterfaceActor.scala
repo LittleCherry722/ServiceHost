@@ -21,6 +21,7 @@ import spray.http._
 import de.tkip.sbpm.rest.auth.CookieAuthenticator
 import de.tkip.sbpm.rest.auth.SessionDirectives._
 import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.logging.LoggingResponseActor
 
 object Entity {
   val PROCESS = "process"
@@ -33,6 +34,7 @@ object Entity {
   val OAUTH2CALLBACK = "oauth2callback"
   val ISALIVE = "isalive"
   val GOOGLEDRIVE = "googledrive"
+  val LOGGING = "logging"
   val DEBUG = "debug"
 
   // TODO define more entities if you need them
@@ -86,6 +88,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val executionInterfaceActor = context.actorOf(Props[ExecutionInterfaceActor], "execution-interface")
   private val processInterfaceActor = context.actorOf(Props[ProcessInterfaceActor], "process-interface")
   private val gResponsActor = context.actorOf(Props[GResponseActor], "gresponse")
+  private val logResponseActor = context.actorOf(Props[LoggingResponseActor], "logresponse")
   private val userInterfaceActor = context.actorOf(Props[UserInterfaceActor], "user-interface")
   private val roleInterfaceActor = context.actorOf(Props[RoleInterfaceActor], "role-interface")
   private val groupInterfaceActor = context.actorOf(Props[GroupInterfaceActor], "group-interface")
@@ -125,6 +128,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
       //TODO add authentication for google drive
       pathPrefix(Entity.GOOGLEDRIVE) {
         delegateTo(gResponsActor)
+      } ~
+      pathPrefix(Entity.LOGGING) {
+        delegateTo(logResponseActor)
       } ~
       pathPrefix(Entity.USER) {
         /**

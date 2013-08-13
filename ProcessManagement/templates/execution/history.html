@@ -5,10 +5,10 @@
 </div>
 
 <div id="processHistory">
-  <div class="flexbox" style="height: 100%;">
-      <div class="fluid" style="overflow: auto; height: 100%;">
+  <div class="flexbox" id="clickablelist" style="height: 100%;">
+      <div class="fluid" style="height: 100%;">
         
-        <table class="table">
+        <table class="table result">
           <thead>
             <th>Time</th>
             <th>Subject</th>
@@ -19,30 +19,30 @@
             <th></th>
           </thead>
           <tbody data-bind="foreach: historicEntries">
-            <tr class="state" data-bind="attr: { id: $index }" style="border: 2px solid #7D7D7D;">
-              <td data-bind="text: timestamp.date"></td>
-              <td data-bind="text: subject"></td>
-              <td data-bind="text: fromState.name"></td>
-              <td data-bind="text: fromState.stateType"></td>
-              <td data-bind="text: toState.name"></td>
-              <td data-bind="text: toState.stateType"></td>
-              <td><!-- ko if: $data.hasOwnProperty("message") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
+            <tr class="state" data-bind="click:  function() { if(transitionEvent() && $data.transitionEvent().hasOwnProperty('message')) $('.message'+$index()).toggle(); }, style: { cursor: transitionEvent() && $data.transitionEvent().hasOwnProperty('message') ? 'pointer' : '' }">
+              <td data-bind="text: ts"></td>
+              <td data-bind="text: ''"></td>
+              <td data-bind="text: transitionEvent() ? transitionEvent().fromState.text:''"></td>
+              <td data-bind="text: transitionEvent() ? transitionEvent().fromState.stateType:''"></td>
+              <td data-bind="text: transitionEvent() ? transitionEvent().toState.text:''"></td>
+              <td data-bind="text: transitionEvent() ? transitionEvent().toState.stateType:''"></td>
+              <td><!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko -->  </td>
             </tr>
               <!-- Line below will be recognized by ko parser-->
-              <!-- ko if: $data.hasOwnProperty("message") -->
-              <tr style="display:none;" class="true" data-bind="attr: { 'class': 'message' + $index() }">
+              <!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") -->
+              <tr class="true" style="display: none;" data-bind="attr: { 'class': 'messages message' +$index() }">
  				<td colspan="7" style="padding:0;">
-                	<div style="padding:8px; border-bottom:1px solid #7D7D7D; border-right: 2px solid #7D7D7D;border-left: 2px solid #7D7D7D;">
+                	<div style="padding:8px; border-bottom:1px solid #7D7D7D; border-right: 1px solid #7D7D7D;border-left: 1px solid #7D7D7D;">
                         <div style="float:left; width:282px;">
-                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">ID:</div><div style="float:left;padding:5px;" data-bind="text: message.id"></div><div style="clear:both;"></div>
-                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">Type:</div><div style="float:left;padding:5px;" data-bind="text: message.messageType">></div><div style="clear:both;"></div>
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">ID:</div><div style="float:left;padding:5px;" data-bind="text: transitionEvent().message.messageId"></div><div style="clear:both;"></div>
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">Type:</div><div style="float:left;padding:5px;" data-bind="text: transitionEvent().message.messageType">></div><div style="clear:both;"></div>
                         </div>
                         <div style="float:left;">
-                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">From:</div><div style="float:left;padding:5px;" data-bind="text: message.from">></div><div style="clear:both;"></div>
-                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">To:</div><div style="float:left;padding:5px;" data-bind="text: message.to">></div><div style="clear:both;"></div>
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">From:</div><div style="float:left;padding:5px;" data-bind="text: transitionEvent().message.fromSubject">></div><div style="clear:both;"></div>
+                        	<div style="float:left;width:90px;padding:5px;font-weight:bold;">To:</div><div style="float:left;padding:5px;" data-bind="text: transitionEvent().message.toSubject">></div><div style="clear:both;"></div>
                         </div>
                         <div style="clear:both"></div>
-                        <div style="float:left; width:90px;padding:5px;font-weight:bold;">Message:</div><div style="float:left;padding:5px;" data-bind="text: message.data">></div><div style="clear:both;"></div>
+                        <div style="float:left; width:90px;padding:5px;font-weight:bold;">Message:</div><div style="float:left;padding:5px;" data-bind="text: transitionEvent().message.text">></div><div style="clear:both;"></div>
                 	</div>
                 </td>
               </tr>
