@@ -49,6 +49,7 @@ private[persistence] class GraphPersistenceActor extends Actor
     }
     // get graph with given id as Option (None if not found)
     case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
+      log.debug("Read Graph: " + id)
       // load graph by id , all it sub entities and the roles from db
       Query(Graphs).where(_.id === id).firstOption match {
         // return None if graph not found
