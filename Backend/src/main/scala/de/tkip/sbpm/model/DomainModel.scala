@@ -79,6 +79,7 @@ case class GraphSubject(id: String,
   relatedGraphId: Option[Int],
   externalType: Option[String],
   role: Option[Role],
+  url: Option[String],
   comment: Option[String],
   variables: Map[String, GraphVariable],
   macros: Map[String, GraphMacro])

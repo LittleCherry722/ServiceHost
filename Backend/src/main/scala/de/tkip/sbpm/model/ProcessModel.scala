@@ -80,7 +80,8 @@ case class ExternalSubject(
   multi: Boolean,
   relatedProcessId: ProcessID,
   relatedGraphId: Int,
-  relatedSubjectId: SubjectID) extends SubjectLike {
+  relatedSubjectId: SubjectID,
+  url: Option[String]) extends SubjectLike {
   lazy val external = true
 }
 case class ProcessGraph(subjects: Map[String, SubjectLike])

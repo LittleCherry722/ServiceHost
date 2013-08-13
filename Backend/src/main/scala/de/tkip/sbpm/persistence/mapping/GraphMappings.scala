@@ -59,6 +59,7 @@ object GraphMappings {
       s.relatedGraphId,
       s.externalType,
       if (s.role.isDefined) s.role.get.id else None,
+      s.url,
       s.comment)
     val variables = extractVariables(s.variables.values, s.id, graphId)
     val (macros, nodes, edges) = extractMacros(s.macros.values, s.id, graphId)
@@ -271,6 +272,7 @@ object GraphMappings {
         case None     => None
         case Some(id) => Some(roles(id))
       },
+      s.url,
       s.comment,
       variables.getOrElse(s.id, Map()),
       // convert macros, nodes and edges of current subject
