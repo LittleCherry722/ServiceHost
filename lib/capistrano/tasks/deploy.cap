@@ -19,14 +19,14 @@ namespace :deploy do
   task :start do
     on roles(:repo_host) do |host| 
       within current_path do
-        with akka_hostname: host.hostname do
-          execute current_path.join('repository.sh')
-        end
+        execute current_path.join('repository.sh')
       end
     end
     on roles(:app), in: :parallel do |host|
       within current_path do
-        execute current_path.join('backend.sh')
+        with akka_hostname: ( fetch(:hostname) || host.hostname )do
+          execute current_path.join('backend.sh')
+        end
       end
     end
   end
