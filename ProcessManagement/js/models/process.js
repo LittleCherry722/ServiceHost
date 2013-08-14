@@ -28,6 +28,7 @@ define([
 		name: "string",
 		isCase: "boolean",
 		processInstanceId: "integer",
+		startAble: "boolean",
 		graph: {
 			type: "json",
 			defaults: {
@@ -81,24 +82,8 @@ define([
 				read: function() {
 					return self.instanceCount() > 0;
 				}
-			});
-                        
-                        this.isStartable = ko.computed({
-                                deferEvaluation: true,
-				read: function() {
-                                        
-					var subjects = self.graph().definition.process;
-                                        var startable = false;
-                                        
-                                        $.each(subjects, function(index, subject) {
-                                            if (subject.startSubject === true) {
-                                                startable = true;
-                                            }
-                                        });
-                                        return startable;
-				}
-                        });
-
+			});                       
+                       
 			this.graphObject = ko.computed({
 				deferEvaluation: true,
 				read: function() {
