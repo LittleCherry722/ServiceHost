@@ -1,16 +1,16 @@
 <div data-bind="visible: actions().length==0">
-    <p class="lead">
-        There are no Processes running at the moment.
+    <p class="lead" style="margin-top: 20px;">
+        There are no Processes running at the moment :(
     </p>
+    
+    <img style="position: absolute; top: 96px; left: 366px;" src="images/arrow_dashboard.png"/>
 
-    <p>
-        To create a new process, choose "create new Process" from the sidebar. <br/>
-        To start an existing Process, first select "Processes" from the sidebar,
-        then click on the "Instances" dropdown list and choose "New Instance".
-    </p>
-
-    <p>
-        You can get help for a specific site by clicking on the "?" symbol in the top right corner.
+    <p style="font-size: 140%; line-height: 150%; margin-top: 20px;">
+        You can start a new process instance by clicking "<b>Start Process</b>" in the top bar (blue arrow). <br/>
+        <br/>
+        You don't find what you're looking for? <a style="font-weight: bold; text-decoration: underline;" href="#/processes/new">create a new Process</a>! <br/>
+        <br/>
+        Please note: Some processes can only be started by external partners. These are not shown in the process selection.
     </p>
 </div>
 
