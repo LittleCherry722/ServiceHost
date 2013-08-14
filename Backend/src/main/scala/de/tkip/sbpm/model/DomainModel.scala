@@ -48,7 +48,8 @@ case class Configuration(key: String,
   value: Option[String],
   dataType: String)
 
-case class Graph(id: Option[Int],
+case class Graph(
+  id: Option[Int],
   processId: Option[Int],
   date: java.sql.Timestamp,
   conversations: Map[String, GraphConversation],
@@ -69,7 +70,8 @@ case class GraphRoutingExpression(subjectId: String,
   groupId: Option[Int],
   userId: Option[Int])
 
-case class GraphSubject(id: String,
+case class GraphSubject(
+  id: String,
   name: String,
   subjectType: String,
   isDisabled: Boolean,
