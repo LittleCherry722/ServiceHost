@@ -37,9 +37,10 @@ protected case class ModalSplitStateActor(data: StateData)
   }
 
   private def fireModalSplit() {
+    data.visitedModalSplit.push((data.stateModel.id, exitTransitions.size))
     // change to all States
     for (transition <- exitTransitions) {
-      changeState(transition.successorID, null)
+      changeState(transition.successorID, data, null)
     }
   }
 }

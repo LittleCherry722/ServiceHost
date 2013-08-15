@@ -107,7 +107,8 @@ object Entities {
     (Process(None, """Order(simple)""", false) -> loadJson("simpleorder")),
     (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")),
     (Process(None, """IP Test""", false) -> loadJson("ip_test")),
-    (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")))
+    (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
+    (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")))
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list

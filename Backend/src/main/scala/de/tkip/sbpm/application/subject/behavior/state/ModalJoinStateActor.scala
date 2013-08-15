@@ -14,7 +14,7 @@ protected case class ModalJoinStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   // TODO how to calculate that?
-  private val numberOfJoins = 2
+  private val numberOfJoins = data.visitedModalSplit.pop._2
   private var remaining = numberOfJoins - 1
 
   protected def stateReceive = {
@@ -42,7 +42,7 @@ protected case class ModalJoinStateActor(data: StateData)
 
   private def tryChangeState() {
     if (remaining == 0) {
-      changeState(exitTransitions.head.successorID, null)
+      changeState(exitTransitions.head.successorID, data, null)
     }
   }
 }
