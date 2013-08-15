@@ -220,22 +220,22 @@ object Entities {
 
     // wait until group mappings and processes are inserted
     // then parse and insert graphs
-    val x =
-    for {
-      ga <- groupAssocFuture
-      p <- processesFuture
-      // convert roles to name -> role mapping (necessary for parsing json)
-      rls <- Future(ga._1.zip(roles).map(t => (t._2.name -> t._2.copy(t._1))).toMap)
-      // parse graph jsons and insert graphs
-      g <- (persistenceActor ? Graphs.Save(processes.indices.map { i =>
-        // use slicks' json parser to convert graph from string to domain model
-        JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(rls)).copy(processId = p(i))
-      }: _*)).mapTo[Seq[Option[Int]]]
-      // update processes' active graph property with graph ids of
-      // recently inserted graphs
-      pg <- persistenceActor ? Processes.Save(p.zip(processes).map(t => t._2._1.copy(id = t._1)).zip(g).map(t => t._1.copy(activeGraphId = t._2)).toSeq: _*)
-    } yield (ga, p, g, pg)
-    x.onComplete(a => println("Entering Testdata result was:\n" + a))
-    x
+    val result =
+      for {
+        ga <- groupAssocFuture
+        p <- processesFuture
+        // convert roles to name -> role mapping (necessary for parsing json)
+        rls <- Future(ga._1.zip(roles).map(t => (t._2.name -> t._2.copy(t._1))).toMap)
+        // parse graph jsons and insert graphs
+        g <- (persistenceActor ? Graphs.Save(processes.indices.map { i =>
+          // use slicks' json parser to convert graph from string to domain model
+          JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(rls)).copy(processId = p(i))
+        }: _*)).mapTo[Seq[Option[Int]]]
+        // update processes' active graph property with graph ids of
+        // recently inserted graphs
+        pg <- persistenceActor ? Processes.Save(p.zip(processes).map(t => t._2._1.copy(id = t._1)).zip(g).map(t => t._1.copy(activeGraphId = t._2)).toSeq: _*)
+      } yield (ga, p, g, pg)
+    result.onComplete(a => println("Entering Testdata result was:\n" + a))
+    result
   }
 }

@@ -39,6 +39,7 @@ import akka.pattern.pipe
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
+import de.tkip.sbpm.application.subject.CallMacro
 
 case object StartMacroExecution
 
@@ -53,7 +54,8 @@ case class ChangeState(
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(
-  //  macroStartState: Option[ActorRef],
+  macroId: String,
+  macroStartState: Option[ActorRef],
   data: SubjectData,
   inputPoolActor: ActorRef) extends Actor with DefaultLogging {
   // extract the data
@@ -64,7 +66,7 @@ class InternalBehaviorActor(
   val userID = data.userID
 
   private val statesMap = collection.mutable.Map[StateID, State]()
-  private var startState: StateID = 0
+  private var startState: StateID = _
   //  private var currentState: BehaviorStateRef = null
   private var internalStatus: InternalStatus = InternalStatus()
 
@@ -76,11 +78,6 @@ class InternalBehaviorActor(
     case StartMacroExecution => {
       addState(startState)
     }
-
-    // TODO not compatible with macros
-    //    case message: StartSubjectExecution => {
-    //      addState(startState)
-    //    }
 
     case change: ChangeState => {
       // update the internal status
@@ -116,8 +113,18 @@ class InternalBehaviorActor(
       currentStatesMap(ea.stateID).forward(ea)
     }
 
-    case terminated: SubjectTerminated => {
+    case terminated: MacroTerminated => {
+      if(macroStartState.isDefined) {
+        data.blockingHandlerActor ! BlockUser(userID)
+        println("send"+macroStartState)
+        println(macroStartState.get.isTerminated)
+        macroStartState.get ! terminated
+      }
       context.parent ! terminated
+    }
+    
+    case m: CallMacro => {
+      context.parent ! m
     }
 
     case getActions: GetAvailableAction => {
@@ -149,7 +156,7 @@ class InternalBehaviorActor(
    */
   private def addStateToModel(state: State) {
     if (state.startState) {
-      log.debug("startstate " + state)
+      log.debug("Set startstate: " + state)
       startState = state.id
     }
     statesMap += state.id -> state
@@ -175,7 +182,7 @@ class InternalBehaviorActor(
   }
   private def addState(state: StateID) {
     if (statesMap.contains(state)) {
-      log.debug("Execute: /%s/%s/%s".format(userID, subjectID, state))
+      log.debug("Starting state: /%s/%s/%s/%s".format(userID, subjectID, macroId, state))
 
       if (currentStatesMap contains state) {
         log.debug("State /%s/%s/%s is already running".format(userID, subjectID, state))
@@ -202,6 +209,7 @@ class InternalBehaviorActor(
       state,
       userID,
       subjectID,
+      macroId,
       self,
       processInstanceActor,
       inputPoolActor,
@@ -210,39 +218,43 @@ class InternalBehaviorActor(
     // create the actor which matches to the statetype
     state.stateType match {
       case ActStateType => {
-        context.actorOf(Props(ActStateActor(stateData)))
+        context.actorOf(Props(new ActStateActor(stateData)))
       }
 
       case SendStateType => {
-        context.actorOf(Props(SendStateActor(stateData)))
+        context.actorOf(Props(new SendStateActor(stateData)))
       }
 
       case ReceiveStateType => {
-        context.actorOf(Props(ReceiveStateActor(stateData)))
+        context.actorOf(Props(new ReceiveStateActor(stateData)))
       }
 
       case EndStateType => {
-        context.actorOf(Props(EndStateActor(stateData)))
+        context.actorOf(Props(new EndStateActor(stateData)))
       }
 
       case CloseIPStateType => {
-        context.actorOf(Props(CloseIPStateActor(stateData)))
+        context.actorOf(Props(new CloseIPStateActor(stateData)))
       }
 
       case OpenIPStateType => {
-        context.actorOf(Props(OpenIPStateActor(stateData)))
+        context.actorOf(Props(new OpenIPStateActor(stateData)))
       }
 
       case IsIPEmptyStateType => {
-        context.actorOf(Props(IsIPEmptyStateActor(stateData)))
+        context.actorOf(Props(new IsIPEmptyStateActor(stateData)))
       }
 
       case ModalSplitStateType => {
-        context.actorOf(Props(ModalSplitStateActor(stateData)))
+        context.actorOf(Props(new ModalSplitStateActor(stateData)))
       }
 
       case ModalJoinStateType => {
-        context.actorOf(Props(ModalJoinStateActor(stateData)))
+        context.actorOf(Props(new ModalJoinStateActor(stateData)))
+      }
+      
+      case MacroStateType => {
+        context.actorOf(Props(new MacroStateActor(stateData)))
       }
     }
   }

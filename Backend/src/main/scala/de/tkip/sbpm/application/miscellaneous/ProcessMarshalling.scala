@@ -80,8 +80,8 @@ object parseGraph {
       val id = subject.id
       val multi = subjectMap(id).multi
       val external = subjectMap(id).external
-
-      val macros = subject.macros.map(m => parseMacro(m._2))
+      
+      val macros = subject.macros.map(m => parseMacro(m._1, m._2))
       
       // first parse the nodes then the edges
 //      parseNodes(behavior.nodes.values)
@@ -103,14 +103,14 @@ object parseGraph {
       }
     }
     
-    private def parseMacro(macro: GraphMacro): (String, Array[State]) = synchronized {
+    private def parseMacro(macroId: String, macro: GraphMacro): (String, ProcessMacro) = synchronized {
       states = MutableMap[StateID, StateCreator]()
 
       // first parse the nodes then the edges
       parseNodes(macro.nodes.values)
       parseEdges(macro.edges)
       
-      macro.name -> states.map(_._2.createState).toArray
+      macroId -> ProcessMacro(macro.name, states.map(_._2.createState).toArray)
     }
 
     private def parseNodes(nodes: Iterable[GraphNode]) {
@@ -119,7 +119,7 @@ object parseGraph {
 
         // create and add a state creator for this state
         states(node.id) =
-          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart, options)
+          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart, node.macroId, options)
       }
     }
 
@@ -201,6 +201,7 @@ object parseGraph {
     val text: String,
     val stateType: StateType,
     val startState: Boolean,
+    val macro: Option[String],
     val options: StateOptions) {
 
     // store all transitions in this Buffer
@@ -217,6 +218,6 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, startState, options, transitions.toArray)
+      State(id, text, stateType, startState, macro, options, transitions.toArray)
   }
 }

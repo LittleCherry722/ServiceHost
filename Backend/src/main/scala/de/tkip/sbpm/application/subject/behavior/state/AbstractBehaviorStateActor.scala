@@ -17,13 +17,11 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.Array.canBuildFrom
-
 import akka.actor._
 import akka.event.Logging
 import akka.actor.Status.Failure
 import akka.pattern.ask
 import akka.util.Timeout
-
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.history.{
@@ -42,6 +40,7 @@ import de.tkip.sbpm.application.subject.behavior.InternalStatus
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior.ChangeState
 import de.tkip.sbpm.application.subject.behavior.TimeoutCond
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * The data, which is necessary to create any state
@@ -51,6 +50,7 @@ protected case class StateData(
   stateModel: State,
   userID: UserID,
   subjectID: SubjectID,
+  macroID: String,
   internalBehaviorActor: InternalBehaviorRef,
   processInstanceActor: ProcessInstanceRef,
   inputPoolActor: ActorRef,
@@ -83,9 +83,10 @@ private class TimeoutActor(time: Long) extends Actor {
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
-protected abstract class BehaviorStateActor(data: StateData) extends Actor {
+protected abstract class BehaviorStateActor(data: StateData) extends Actor with DefaultLogging {
 
-  protected val logger = Logging(context.system, this)
+  // RODO for compatibility
+  protected val logger = log //Logging(context.system, this)
 
   protected val blockingHandlerActor = data.subjectData.blockingHandlerActor
   protected val model = data.stateModel
@@ -95,6 +96,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
   protected val processID = data.subjectData.processID
   protected val processInstanceID = data.subjectData.processInstanceID
   protected val subjectID = data.subjectID
+  protected val macroID = data.macroID
   protected val stateText = model.text
   protected val startState = model.startState
   protected val stateType = model.stateType
@@ -238,6 +240,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor {
       userID,
       processInstanceID,
       subjectID,
+      macroID,
       id,
       stateText,
       stateType.toString(),

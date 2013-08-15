@@ -32,6 +32,8 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import akka.util.Timeout
 
+case class CallMacro(callActor: ActorRef, name: String)
+
 case class SubjectData(
   userID: UserID,
   processID: ProcessID,
@@ -69,28 +71,43 @@ class SubjectActor(data: SubjectData) extends Actor {
   private var macroIdCounter = 0
 
   private def insertMacro(callActor: Option[ActorRef], name: String) {
+    logger.debug(s"Starting macro $name")
     val macroId = name + s"@$macroIdCounter"
     macroIdCounter += 1
     val entry @ (_, macroActor) =
-      macroId -> context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)))
+      macroId -> context.actorOf(Props(
+        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)))
 
-    val macroStates = subject.macros(name)
-    for (state <- macroStates) {
-      macroActor ! state
+    if (!subject.macros.contains(name)) {
+      // TODO was tun?
+      logger.error(s"Trying to call macro $name, but it is not available.")
+    } else {
+      val macroStates = subject.macros(name).states
+      for (state <- macroStates) {
+        macroActor ! state
+      }
     }
 
     macroBehaviorActors += entry
+
+    logger.debug(s"Started macro $name with id $macroId")
 
     macroActor ! StartMacroExecution
   }
 
   private def killMacro(macroId: String) {
     val behaviorActor = macroBehaviorActors(macroId)
+    behaviorActor ! PoisonPill
+    macroBehaviorActors -= macroId
+  }
+
+  private def killAll() {
+    macroBehaviorActors map (_._2 ! PoisonPill)
+    macroBehaviorActors.clear()
   }
 
   private def restart() {
-    macroBehaviorActors map (_._2 ! PoisonPill)
-    macroBehaviorActors.clear()
+    killAll()
     insertMacro(None, subject.mainMacroName)
   }
 
@@ -124,19 +141,27 @@ class SubjectActor(data: SubjectData) extends Actor {
         history.NewHistoryEntry(new Date(), Some(userID), null, Some(subjectID), Some(transition), None)
     }
 
-    case terminated: SubjectTerminated => {
-      context.parent ! terminated
+    case MacroTerminated(macroId) => {
+      // TODO if its the mainmacro, kill everything
+      if (macroId.contains(subject.mainMacroName)) {
+        logger.debug("Subject Terminated")
+        killAll()
+        context.parent ! SubjectTerminated(userID, subjectID)
+      } else {
+        logger.debug(s"Macro terminated $macroId")
+        killMacro(macroId)
+      }
     }
 
     case _: StartSubjectExecution => {
       restart()
     }
 
+    case CallMacro(callActor, name) => {
+      insertMacro(Some(callActor), name)
+    }
+
     case gaa: GetAvailableAction => {
-      // TODO to all macros
-      // forward the request to the inputpool actor
-      //      internalBehaviorActor ! gaa
-      // TODO collect all actions of all macros
       // Create a Future with the available actions
       val actionFutures =
         Future.sequence(
@@ -147,16 +172,9 @@ class SubjectActor(data: SubjectData) extends Actor {
     }
 
     case action: ExecuteAction => {
-      // TODO to the correct macro
-      //      internalBehaviorActor.forward(action)
-      // FIXME thats the wrong way!
-      macroBehaviorActors map (_._2 forward action)
+      // route the action to the correct macro
+      macroBehaviorActors(action.macroID) forward action
     }
-
-    //    case br: SubjectBehaviorRequest => {
-    //      // TODO to which macro?
-    //      internalBehaviorActor.forward(br)
-    //    }
 
     case message: SubjectProviderMessage => {
       // a message to the subject provider will be send over the process instance
