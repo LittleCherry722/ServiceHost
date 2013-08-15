@@ -23,10 +23,12 @@ import scala.concurrent.Future
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.SubjectActor
+import scala.concurrent.ExecutionContext
+import ExecutionContext.Implicits.global
 
 case class CollectAvailableActions(subjects: Iterable[SubjectRef],
-                                   processInstanceID: ProcessInstanceID,
-                                   generateAnswer: Array[AvailableAction] => Any)
+  processInstanceID: ProcessInstanceID,
+  generateAnswer: Array[AvailableAction] => Any)
 
 /**
  * This class is responsible to collect the available actions of a set of subjects
@@ -38,19 +40,22 @@ class SubjectActionsCollector extends Actor {
   def receive = {
     case CollectAvailableActions(subjects, processInstanceID, generateAnswer) => {
       implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
-      // TODO might check if some subjects has terminated
 
-      // ask every subjects for the available action
-      val futures: Array[Future[AvailableAction]] =
+      val actionFutureSeq: Seq[Future[Seq[AvailableAction]]] =
         for (subject <- subjects.filterNot(_.isTerminated).toArray)
-          yield (subject ? GetAvailableAction(processInstanceID)).asInstanceOf[Future[AvailableAction]]
+          yield (subject ? GetAvailableAction(processInstanceID)).mapTo[Seq[AvailableAction]]
+      val nestedActionFutures = Future.sequence(actionFutureSeq)
+      // flatten the actions
+      val actionFutures =
+        for (outer <- nestedActionFutures)
+          yield for (inner <- outer; action <- inner) yield action
 
-      // await all question results parallel
-      val actions = for (future <- futures.par)
-        yield Await.result(future, timeout.duration)
+      // Await the result
+      // TODO can be done smarter, but at the moment this actor has a single run
+      val actions =
+        Await.result(actionFutures, timeout.duration)
 
       // results ready -> generate answer -> return
-      // TODO for the moment filter endstatetype, later think about a better idea
       sender ! generateAnswer(actions.toArray)
 
       // actions collected -> stop this actor
