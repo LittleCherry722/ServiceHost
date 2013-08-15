@@ -40,6 +40,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import de.tkip.sbpm.application.subject.CallMacro
+import scala.collection.mutable.Stack
 
 case object StartMacroExecution
 
@@ -48,6 +49,7 @@ case class ChangeState(
   currenState: StateID,
   nextState: StateID,
   internalStatus: InternalStatus,
+  prevStateData: StateData,
   history: HistoryMessage)
 
 /**
@@ -69,6 +71,7 @@ class InternalBehaviorActor(
   private var startState: StateID = _
   //  private var currentState: BehaviorStateRef = null
   private var internalStatus: InternalStatus = InternalStatus()
+  private var modalSplitList: Stack[(Int, Int)] = new Stack // tmp
 
   def receive = {
     case state: State => {
@@ -82,6 +85,7 @@ class InternalBehaviorActor(
     case change: ChangeState => {
       // update the internal status
       internalStatus = change.internalStatus
+      modalSplitList = change.prevStateData.visitedModalSplit
       // TODO check if current state is correct?
       // change the state
       changeState(change.currenState, change.nextState)
@@ -213,7 +217,8 @@ class InternalBehaviorActor(
       self,
       processInstanceActor,
       inputPoolActor,
-      internalStatus)
+      internalStatus,
+      modalSplitList)
 
     // create the actor which matches to the statetype
     state.stateType match {

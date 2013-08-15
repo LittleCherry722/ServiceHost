@@ -41,6 +41,7 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior.ChangeState
 import de.tkip.sbpm.application.subject.behavior.TimeoutCond
 import de.tkip.sbpm.logging.DefaultLogging
+import scala.collection.mutable.Stack
 
 /**
  * The data, which is necessary to create any state
@@ -54,7 +55,8 @@ protected case class StateData(
   internalBehaviorActor: InternalBehaviorRef,
   processInstanceActor: ProcessInstanceRef,
   inputPoolActor: ActorRef,
-  internalStatus: InternalStatus)
+  internalStatus: InternalStatus,
+  visitedModalSplit: Stack[(Int, Int)] = new Stack) // (id, number of branches)
 
 // the message to signal, that a timeout has expired
 private case object TimeoutExpired
@@ -200,7 +202,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
    */
   protected def executeTimeout() {
     if (timeoutTransition.isDefined) {
-      changeState(timeoutTransition.get.successorID, null)
+      changeState(timeoutTransition.get.successorID, data ,null)
     }
   }
 
@@ -217,9 +219,9 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
   /**
    * Changes the state and creates a history entry with the history message
    */
-  protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
+  protected def changeState(successorID: StateID, prevStateData: StateData, historyMessage: HistoryMessage) {
     blockingHandlerActor ! BlockUser(userID)
-    internalBehaviorActor ! ChangeState(id, successorID, internalStatus, historyMessage)
+    internalBehaviorActor ! ChangeState(id, successorID, internalStatus, prevStateData, historyMessage)
   }
 
   /**

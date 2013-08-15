@@ -23,7 +23,7 @@ protected class MacroStateActor(data: StateData) extends BehaviorStateActor(data
       logger.debug("MacroState done")
       blockingHandlerActor ! UnBlockUser(userID)
       // if the macro is terminated, this state is done
-      changeState(exitTransitions.head.successorID, null)
+      changeState(exitTransitions.head.successorID, data, null)
     }
   }
 
