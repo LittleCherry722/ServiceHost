@@ -7,23 +7,39 @@ import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import akka.actor.Status.Failure
+import de.tkip.sbpm.application.miscellaneous.BlockUser
+import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 
 protected case class ModalSplitStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
+  override def preStart() {
+    // Block the user while prestart!
+    blockingHandlerActor ! BlockUser(userID)
+    super.preStart()
+    // Fire Modal Split in the preStart (Dont wait for some interaction)
+    fireModalSplit()
+    blockingHandlerActor ! UnBlockUser(userID)
+  }
+
   protected def stateReceive = {
 
     case action: ExecuteAction => {
-      // change to all States
-      for (transition <- exitTransitions) {
-        changeState(transition.successorID, null)
-      }
-      blockingHandlerActor ! ActionExecuted(action)
+      logger.debug(s"Got $action, but cannot execute")
     }
   }
 
   override protected def getAvailableAction: Array[ActionData] = {
     // TODO welcher text?
-    Array(ActionData("SPLIT", true, exitCondLabel))
+    //    Array(ActionData("SPLIT", true, exitCondLabel))
+    // the modal split has no actions for the user
+    Array()
+  }
+
+  private def fireModalSplit() {
+    // change to all States
+    for (transition <- exitTransitions) {
+      changeState(transition.successorID, null)
+    }
   }
 }

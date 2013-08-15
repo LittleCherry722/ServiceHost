@@ -25,19 +25,24 @@ protected case class ModalJoinStateActor(data: StateData)
       } else {
         remaining -= 1
       }
+      tryChangeState()
     }
 
     case action: ExecuteAction => {
-      // TODO only 1 exitTransition is allowed!
-      if (remaining == 0) {
-        changeState(exitTransitions.head.successorID, null)
-        blockingHandlerActor ! ActionExecuted(action)
-      }
+      logger.debug(s"Got $action, but cannot execute")
     }
   }
 
   override protected def getAvailableAction: Array[ActionData] = {
-    val possible = remaining == 0
-    exitTransitions.map((t: Transition) => ActionData(t.messageType, possible, exitCondLabel))
+    //    val possible = remaining == 0
+    //    exitTransitions.map((t: Transition) => ActionData(t.messageType, possible, exitCondLabel))
+    // the modal join has no actions for the user
+    Array()
+  }
+
+  private def tryChangeState() {
+    if (remaining == 0) {
+      changeState(exitTransitions.head.successorID, null)
+    }
   }
 }
