@@ -1,5 +1,7 @@
 /.cache
 .cache
+.project
+.classpath
 /target
 !/target/**/*.jar
 /log
