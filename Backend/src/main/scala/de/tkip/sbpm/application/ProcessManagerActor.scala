@@ -55,6 +55,10 @@ class ProcessManagerActor extends Actor {
             s => ProcessInstanceInfo(s._1, s._2.name, s._2.processID)).toArray.sortBy(_.id))
     }
 
+    case message: GetNewHistory => {
+      sender ! NewHistoryAnswer(message, history)
+    }
+
     case cp: CreateProcessInstance => {
       // create the process instance
       context.actorOf(Props(new ProcessInstanceActor(cp)))
@@ -117,10 +121,6 @@ class ProcessManagerActor extends Actor {
 
     case answer: AnswerMessage => {
       answer.sender.forward(answer)
-    }
-
-    case message: GetNewHistory => {
-      sender ! NewHistoryAnswer(message, history)
     }
 
     case entry: NewHistoryEntry => {
