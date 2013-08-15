@@ -40,6 +40,8 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 
+case object StartMacroExecution
+
 // TODO this is for history + statechange
 case class ChangeState(
   currenState: StateID,
@@ -51,7 +53,7 @@ case class ChangeState(
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(
-//  macroStartState: Option[ActorRef],
+  //  macroStartState: Option[ActorRef],
   data: SubjectData,
   inputPoolActor: ActorRef) extends Actor with DefaultLogging {
   // extract the data
@@ -71,9 +73,14 @@ class InternalBehaviorActor(
       addStateToModel(state)
     }
 
-    case message: StartSubjectExecution => {
+    case StartMacroExecution => {
       addState(startState)
     }
+
+    // TODO not compatible with macros
+    //    case message: StartSubjectExecution => {
+    //      addState(startState)
+    //    }
 
     case change: ChangeState => {
       // update the internal status
@@ -113,11 +120,11 @@ class InternalBehaviorActor(
       context.parent ! terminated
     }
 
-    case br: GetAvailableAction => {
+    case getActions: GetAvailableAction => {
       // Create a Future with the available actions
       val actionFutures =
         Future.sequence(
-          for ((_, c) <- currentStatesMap) yield (c ? br).mapTo[AvailableAction])
+          for ((_, c) <- currentStatesMap) yield (c ? getActions).mapTo[AvailableAction])
 
       // and pipe the actions back to the sender
       actionFutures pipeTo sender

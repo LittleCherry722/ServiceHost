@@ -41,19 +41,20 @@ class SubjectActionsCollector extends Actor {
     case CollectAvailableActions(subjects, processInstanceID, generateAnswer) => {
       implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
 
-      val actionFutureSeq: Seq[Future[Seq[AvailableAction]]] =
+      val actionFutureSeq: Seq[Future[Seq[Seq[AvailableAction]]]] =
         for (subject <- subjects.filterNot(_.isTerminated).toArray)
-          yield (subject ? GetAvailableAction(processInstanceID)).mapTo[Seq[AvailableAction]]
+          yield (subject ? GetAvailableAction(processInstanceID)).mapTo[Seq[Seq[AvailableAction]]]
       val nestedActionFutures = Future.sequence(actionFutureSeq)
       // flatten the actions
       val actionFutures =
         for (outer <- nestedActionFutures)
-          yield for (inner <- outer; action <- inner) yield action
+          yield for (middle <- outer; inner <- middle; action <- inner) yield action
 
       // Await the result
       // TODO can be done smarter, but at the moment this actor has a single run
       val actions =
         Await.result(actionFutures, timeout.duration)
+      logger.debug("Collected: " + actions)
 
       // results ready -> generate answer -> return
       sender ! generateAnswer(actions.toArray)

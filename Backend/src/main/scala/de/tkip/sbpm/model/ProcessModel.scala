@@ -81,7 +81,9 @@ case class Subject(
   lazy val external = false
   // TODO remove this function?
   def states: Array[State] = mainMacro//.getOrElse("##main##", Array())
-  def mainMacro = macros("internal behavior")
+  def mainMacro = macros(mainMacroName)
+  
+  def mainMacroName = "internal behavior"
 }
 case class ExternalSubject(
   id: SubjectID,
