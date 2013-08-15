@@ -107,7 +107,8 @@ object Entities {
     (Process(None, """Order(simple)""", false) -> loadJson("simpleorder")),
     (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")),
     (Process(None, """IP Test""", false) -> loadJson("ip_test")),
-    (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")))
+    (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
+    (Process(None, """Macro Example""", false) -> loadJson("macro_example")))
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list
@@ -219,6 +220,7 @@ object Entities {
 
     // wait until group mappings and processes are inserted
     // then parse and insert graphs
+    val x =
     for {
       ga <- groupAssocFuture
       p <- processesFuture
@@ -233,5 +235,7 @@ object Entities {
       // recently inserted graphs
       pg <- persistenceActor ? Processes.Save(p.zip(processes).map(t => t._2._1.copy(id = t._1)).zip(g).map(t => t._1.copy(activeGraphId = t._2)).toSeq: _*)
     } yield (ga, p, g, pg)
+    x.onComplete(a => println("Entering Testdata result was:\n" + a))
+    x
   }
 }
