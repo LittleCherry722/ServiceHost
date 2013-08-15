@@ -203,6 +203,9 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
    * Each save operation produces a new graph instance (for maintaining old versions).
    */
   private def saveProcessWithGraph(p: Process, g: Graph)(implicit session: Session) ={
+
+    log.debug("Update Process with Graph: " + p)
+
     // set graph id to none -> insert new on every save to maintain old versions
     var graph = g.copy(id = None)
     // set current active graph to None (we don't know graph id yet)
