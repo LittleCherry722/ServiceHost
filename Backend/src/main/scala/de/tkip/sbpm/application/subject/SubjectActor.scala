@@ -14,6 +14,7 @@
 package de.tkip.sbpm.application.subject
 
 import java.util.Date
+import scala.collection.mutable
 import akka.actor._
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
@@ -56,9 +57,29 @@ class SubjectActor(data: SubjectData) extends Actor {
   private val internalBehaviorActor =
     context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)))
 
+  // this map maps the Macro Names to the corresponding actors
+  private val macroBehaviorActors = mutable.Map[String, InternalBehaviorRef]()
+  private var macroIdCounter = 0
+
+  private def insertMacro(callActor: Option[ActorRef], name: String) {
+    val macroId = name + s"@$macroIdCounter"
+    macroIdCounter += 1
+    val entry @ (_, macroActor) =
+      macroId -> context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)))
+
+    val macroStates = subject.macros(name)
+    for (state <- macroStates) {
+      macroActor ! state
+    }
+
+    macroBehaviorActors += entry
+  }
+
   override def preStart() {
+    println(subject)
     // add all states in the internal behavior
-    for (state <- subject.states) {
+    for (state <- subject.mainMacro) {
+      println(state)
       internalBehaviorActor ! state
     }
   }
@@ -68,7 +89,7 @@ class SubjectActor(data: SubjectData) extends Actor {
       // a message from an other subject can be forwarded into the inputpool
       inputPoolActor.forward(sm)
     }
-    
+
     case s: Stored => {
       // TODO:
     }
@@ -88,14 +109,14 @@ class SubjectActor(data: SubjectData) extends Actor {
       context.parent ! terminated
     }
 
-    case gaa: GetAvailableActions => {
-      if (gaa.userID == userID) {
-        // forward the request to the inputpool actor
-        internalBehaviorActor ! gaa
-      }
+    case gaa: GetAvailableActions if (gaa.userID == userID) => {
+      // TODO to all macros
+      // forward the request to the inputpool actor
+      internalBehaviorActor ! gaa
     }
 
     case br: SubjectBehaviorRequest => {
+      // TODO to which macro?
       internalBehaviorActor.forward(br)
     }
 

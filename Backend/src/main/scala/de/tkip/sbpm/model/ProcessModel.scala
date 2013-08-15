@@ -74,9 +74,14 @@ case class StateOptions(
 case class Subject(
   id: SubjectID,
   inputPool: Int,
-  states: Array[State],
+  // TODO macroName -> states?
+  macros: Map[String, Array[State]],
+//  states: Array[State],
   multi: Boolean) extends SubjectLike {
   lazy val external = false
+  // TODO remove this function?
+  def states: Array[State] = mainMacro//.getOrElse("##main##", Array())
+  def mainMacro = macros("internal behavior")
 }
 case class ExternalSubject(
   id: SubjectID,

@@ -81,14 +81,16 @@ object parseGraph {
       val multi = subjectMap(id).multi
       val external = subjectMap(id).external
 
+      val macros = subject.macros.map(m => parseMacro(m._2))
+      
       // first parse the nodes then the edges
-      parseNodes(behavior.nodes.values)
-      parseEdges(behavior.edges)
+//      parseNodes(behavior.nodes.values)
+//      parseEdges(behavior.edges)
 
       // all parsed states are in the states map, convert the creators,
       // create and return the subject
       if (!external)
-        Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi)
+        Subject(subject.id, subject.inputPool, macros, multi)
       else {
         // FIXME GraphId != processId
         // TODO check ob vorhanden!
@@ -99,6 +101,16 @@ object parseGraph {
 
         ExternalSubject(id, subject.inputPool, multi, relatedProcessId, relatedGraphId, relatedSubjectId, url)
       }
+    }
+    
+    private def parseMacro(macro: GraphMacro): (String, Array[State]) = synchronized {
+      states = MutableMap[StateID, StateCreator]()
+
+      // first parse the nodes then the edges
+      parseNodes(macro.nodes.values)
+      parseEdges(macro.edges)
+      
+      macro.name -> states.map(_._2.createState).toArray
     }
 
     private def parseNodes(nodes: Iterable[GraphNode]) {

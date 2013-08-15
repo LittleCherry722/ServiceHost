@@ -51,6 +51,7 @@ case class ChangeState(
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(
+//  macroStartState: Option[ActorRef],
   data: SubjectData,
   inputPoolActor: ActorRef) extends Actor with DefaultLogging {
   // extract the data
