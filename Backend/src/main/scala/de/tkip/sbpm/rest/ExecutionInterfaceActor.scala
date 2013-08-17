@@ -28,6 +28,13 @@ import scala.concurrent.ExecutionContext
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.logging.DefaultLogging
+import java.net.URL
+import java.net.HttpURLConnection
+import java.io.DataOutputStream
+import scala.collection.mutable.ArrayBuffer
+import java.io.ByteArrayInputStream
+import java.io.BufferedReader
+import com.google.common.io.ByteStreams
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -51,9 +58,116 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
 
   private lazy val subjectProviderManager = ActorLocator.subjectProviderManagerActor
 
-  def routing = runRoute({
-    // TODO: aus cookie auslesen
-    //    formField("userid") { userID =>
+  private val googleUserId = 5
+  private val googleUri = "http://127.0.0.1:8888/"
+  import de.tkip.sbpm.proto.{ GAEexecution => msg }
+
+  private def buildProto(action: ExecuteAction): Array[Byte] = {
+    val executeActionBuilder = msg.ExecuteAction.newBuilder()
+
+    val actionBuilder = msg.Action.newBuilder()
+    actionBuilder.setUserID(action.userID)
+      .setProcessInstanceID(action.processInstanceID)
+      .setSubjectID(action.subjectID) //TODO String
+      .setStateID(action.stateID)
+      .setStateType(action.stateType)
+      // TODO stateTexts
+      .setStateText("")
+
+    val data = action.actionData
+    val actionDataBuilder = msg.ActionData.newBuilder()
+    actionDataBuilder.setText(data.text)
+      .setExecutable(data.executeAble)
+      .setTransitionType(data.transitionType)
+
+    // Add the target users
+    if (data.targetUsersData.isDefined) {
+      val target = data.targetUsersData.get
+      val targetUserBuilder = msg.TargetUserData.newBuilder()
+      targetUserBuilder.setMin(target.min)
+        .setMax(target.max)
+      for (user <- target.targetUsers) {
+        targetUserBuilder.addTargetUsers(user)
+      }
+      actionDataBuilder.setTargetUserData(targetUserBuilder)
+    }
+    // add the related subject
+    if (data.relatedSubject.isDefined) {
+      actionDataBuilder.setRelatedSubject(data.relatedSubject.get)
+    }
+    // add the messageContent (TODO)
+
+    executeActionBuilder.setAction(actionBuilder)
+
+    executeActionBuilder.build().toByteArray()
+  }
+
+  def buildScala(action: msg.Action): AvailableAction = {
+    import scala.collection.JavaConversions._
+    AvailableAction(
+      action.getUserID(),
+      action.getProcessInstanceID(),
+      action.getSubjectID(),
+      action.getStateID(),
+      action.getStateText(),
+      action.getStateType(),
+      (for (data <- action.getActionDataList())
+        yield ActionData(
+            data.getText(),
+            data.getExecutable(),
+            data.getTransitionType()
+//            data.getTa/
+            // TODO...
+        )).toArray
+        
+    )
+  }
+
+  private def routeToGoogle: PartialFunction[RequestContext, Unit] = {
+    runRoute({
+      get {
+        //TODO...
+        complete("test")
+      } ~
+        put {
+          //UPDATE
+          pathPrefix(IntNumber) { processInstanceID =>
+            path("") {
+              entity(as[ExecuteAction]) { json =>
+                // create the url connection
+                //              val url = new URL(googleUri + "put/id")
+                val url = new URL(googleUri + "camel/test")
+                val connection: HttpURLConnection =
+                  url.openConnection().asInstanceOf[HttpURLConnection]
+
+                connection.setDoInput(true)
+                connection.setDoOutput(true)
+                connection.setRequestMethod("POST")
+
+                val proto = buildProto(json)
+                connection.setRequestProperty("Content-Length", proto.length.toString)
+
+                val out = new DataOutputStream(connection.getOutputStream())
+                out.write(proto)
+                out.flush()
+                out.close()
+
+                val in = connection.getInputStream()
+                val protoResult = ByteStreams.toByteArray(in)
+                // TODO convert proto -> case class
+                System.err.println(protoResult);
+                val result = msg.ExecuteAction.parseFrom(protoResult)
+
+                //execute next step
+                complete(buildScala(result.getAction()))
+              }
+            }
+          }
+        }
+    })
+  }
+
+  def routing = if (googleUserId == userId) routeToGoogle else runRoute({
     get {
       //READ
       path(IntNumber) { processInstanceID =>
