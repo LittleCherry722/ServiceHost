@@ -1,0 +1,245 @@
+package de.tkip.sbpm.proto;
+
+
+// available commands/paths:
+// execute a process = create a processinstance
+// /post
+
+// Inform the user which processinstances are running
+// /get
+
+// get all actions available for the user
+// /get/action
+// id is a natural number, for the following:
+// read a process instance
+// /get/id
+
+// execute an action
+// /put/id
+
+// delete a processinstance
+// /del/id
+
+
+// input for /post
+message CreateProcessInstance {
+	required int32 processId = 1;
+}
+
+// input for /put/id
+message ExecuteAction {
+	required Action action = 1;
+}
+
+// result of /get
+message ListProcesses {
+	message ProcessInfo {
+		required int32 id = 1;
+		required int32 processId = 2;
+	}
+	
+	repeated ProcessInfo processes = 1;
+}
+
+// result of /get/action
+message ListActions {
+	repeated Action actions = 1;
+}
+
+// All Information of a (running) process instance:
+// result of 	/get/id
+// and		/put/id
+// and		/post
+message ProcessInstanceData {
+	required int32 id = 1;
+	required int32 processId = 2;
+	required Graph graph = 3; //TODO
+	required bool isTerminated = 4;
+	required string history = 5; //TODO
+	repeated Action actions = 6;
+}
+
+// Used for messages above:
+message Action {
+	required int32 userID = 1;
+	required int32 processInstanceID = 2;
+	required string subjectID = 3;
+	required int32 stateID = 4;
+	required string stateText = 5;
+	required string stateType = 6;
+	repeated ActionData actionData = 7;
+}
+
+message ActionData {
+	required string text = 1;
+	required bool executable = 2;
+	required string transitionType = 3;
+	optional TargetUserData targetUserData = 4;
+	optional string relatedSubject = 5;
+	repeated MessageData messages = 6;
+	// TODO messageContent for send
+}
+
+message TargetUserData {
+	required int32 min = 1;
+	required int32 max = 2;
+	repeated int32 targetUsers = 3;
+}
+
+message MessageData {
+	required int32 userID = 1;
+	required string messageContent = 2;
+	optional string fileUrl = 4;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////
+///////																		///////
+///////                              GRAPH									///////
+///////																		///////
+///////////////////////////////////////////////////////////////////////////////////
+
+// main container
+message Graph {
+	optional int32 id = 1;
+	optional int32 processId = 2;
+	required string date = 3;
+	repeated GraphConversation conversations = 4; // not supported yet
+	repeated GraphMessage messages = 5; // Map[String, GraphMessage]
+	repeated GraphSubject subjects = 6; // Map[String, GraphSubject]
+	repeated GraphRouting routings = 7; // not supported yet
+}
+
+// not supported yet
+message GraphConversation {
+	required string id = 1;
+	required string name = 2;
+}
+
+// represents a message-channel
+message GraphMessage {
+	required string id = 1;
+	required string name = 2;
+}
+
+// represents a subject
+message GraphSubject {
+	required string id = 1; // subjectId
+	required string name = 2; 
+	required string subjectType = 3;
+	required bool isDisabled = 4;
+	optional bool isStartSubject = 5;
+	required int32 inputPool = 6; // inputpool size
+	
+	// to be ignored for the moment ->
+	optional string relatedSubjectId = 7;
+	optional int32 relatedGraphId = 8;
+	optional string externalType = 9;
+	optional string role = 10; // TODO
+	optional string comment = 11;
+	repeated GraphVariable variables = 12; // <-
+	
+	repeated GraphMacro macros = 13; // Map[String, GraphMacro]
+}
+
+// not supported
+message GraphVariable {
+	required string id = 1;
+	required string name = 2;
+}
+
+// all state and transition information stand in one huge GraphMacro
+message GraphMacro {
+	required string id = 1;
+	required string name = 2;
+	repeated GraphNode nodes = 3; // Map[Int, GraphNode]
+	repeated GraphEdge edges = 4; // List[GraphEdge]
+}
+
+// represents a state
+message GraphNode {
+	required int32 id = 1;
+	required string text = 2;
+	required bool isStart = 3;
+	required bool isEnd = 4;
+	required string nodeType = 5;
+	required bool isDisabled = 6;
+	required bool isMajorStartNode = 7;
+	
+	// to be ignored for the moment ->
+	optional string conversationId = 8;
+	optional string variableId = 9;
+	required GraphNodeOptions options = 10;
+	optional string macroId = 11;
+	optional GraphVarMan varMan = 12; // <-
+}
+
+// not supported yet
+message GraphNodeOptions {
+	optional string messageId = 1;
+	optional string subjectId = 2;
+	optional string correlationId = 3;
+	optional string conversationId = 4;
+	optional int32 nodeId = 5;
+}
+
+// not supported yet
+message GraphVarMan {
+	required string var1Id = 1;
+	required string var2Id = 2;
+	required string operation = 3;
+	required string storeVarId = 4;
+}
+
+// represents a transition between two states
+message GraphEdge {
+	required int32 startNodeId = 1;
+	required int32 endNodeId = 2;
+	required string text = 3;
+	required string edgeType = 4;
+	optional GraphEdgeTarget target = 5;
+	required bool isDisabled = 6;
+	required bool isOptional = 7;
+	required int32 priority = 8;
+	required bool manualTimeout = 9;
+	optional string variableId = 10;
+	optional string correlationId = 11;
+	optional string comment = 12;
+	repeated string transportMethod = 13;
+}
+
+// defines the target to which a message should be sent to
+// only subjectId is important at the moment
+message GraphEdgeTarget {
+	required string subjectId = 1;
+	
+	// not important ->
+	required int32 min = 2;
+	required int32 max = 3;
+	required bool createNew = 4;
+	optional string variableId = 5; // <-
+}
+
+// not supported yet
+message GraphRouting {
+	required string id = 1;
+	required GraphRoutingExpression condition = 2;
+	required GraphRoutingExpression implication = 3;
+}
+
+// not supported yet
+message GraphRoutingExpression {
+	required string subjectId = 1;
+	required bool operator = 2;
+	optional int32 groupId = 3;
+	optional int32 userId = 4;
+}
+
+
+
+
+
+
+
+
+
