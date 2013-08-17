@@ -42,11 +42,20 @@ class ProcessInstanceContainerManagerActor(userId: UserID, processId: ProcessID,
   def receive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
     case GetProcessInstanceAddr(userId, processId) => {
+      // TODO get the correct subject provider manager actor!
+      val targetAddress = targetMap.getOrElse(processId, "")
+      // TODO we only use tcp protocol?
+      val protocol = if (targetAddress == "") "" else ".tcp"
+
+      val targetManager =
+        context.actorFor("akka" + protocol + "://sbpm" + targetAddress +
+          "/user/" + ActorLocator.subjectProviderManagerActorName)
+
       val processInstanceInfo =
         processInstanceMap
           .getOrElseUpdate(
             (userId, processId),
-            createProcessInstanceEntry(userId, processId, ActorLocator.subjectProviderManagerActor))
+            createProcessInstanceEntry(userId, processId, targetManager))
 
       // create the answer
       val answer = for {

@@ -28,6 +28,7 @@ define([
 		name: "string",
 		isCase: "boolean",
 		processInstanceId: "integer",
+		startAble: "boolean",
 		graph: {
 			type: "json",
 			defaults: {
@@ -81,8 +82,8 @@ define([
 				read: function() {
 					return self.instanceCount() > 0;
 				}
-			});
-
+			});                       
+                       
 			this.graphObject = ko.computed({
 				deferEvaluation: true,
 				read: function() {
@@ -95,7 +96,7 @@ define([
 				write: function( graphObject ) {
 					var graph = _.clone( self.graph() );
 					if ( !graph ) {
-						graph = {}
+						graph = {};
 					}
 
 					if ( typeof graphObject === "string" ) {

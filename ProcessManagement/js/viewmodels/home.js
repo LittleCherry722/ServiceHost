@@ -17,6 +17,12 @@ define([
 		this.availableProcesses = ko.observableArray(Process.all());
 		this.availableStatetypes= availableStatetypes;
 		
+	    this.startableProcesses = ko.observableArray(
+	            $.grep(Process.all(), function(p) { 
+	                return p.startAble();
+	            })
+	    );
+		
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
 		this.selectedStatetype = selectedStatetype;
@@ -166,7 +172,7 @@ define([
 				}
 			});	
 			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
-				$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
+			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
 		        var select2 = $(".sel").select2( {
 		        	width: "copy",
 		        	dropdownAutoWidth: "true"

@@ -6,40 +6,74 @@
 		</h3>
 	</div>
 	<!-- End header -->
-
+	<div id="filter">
+		<select class="sel" data-placeholder="Select Process" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'id'"></select>
+		<label for="from">From:</label>
+	    <input type="text" id="from" name="from" data-bind="value: selectedStart" />
+	    <label for="to">To:</label>
+	    <input type="text" id="to" name="to" data-bind="value: selectedEnd"/>
+    </div>
+<hr> 
 	<div id="clickablelist">
-		<table class="table table-middle result">
+		<table class="table table-middle result processlist">
 			<thead>
-				<tr>
-					<th style="width: 60%" > Name </th>
-					<th  colspan="2" style="width: 40%"> Actions </th>
+				<tr class="processhead">
+					<th class="col1"> Name </th>
+					<th  colspan="2" class="col2"> Actions </th>
 				</tr>
 			</thead>
 			<tbody data-bind='foreach: processes'>
-				<tr data-bind="click:  function() { if($data.hasInstances) $('#'+id()).toggle(); }, style: { cursor: $data.hasInstances() ? 'pointer' : '' } ">
-					<td>
-						<a data-bind="attr: { href: url() }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)
+				<tr class="processitem" data-bind="click:  function() { if($data.hasInstances) $('#'+id()).toggle(); }, style: { cursor: $data.hasInstances() ? 'pointer' : '' } ">
+					<td class="col1">
+						<a data-bind="click:  function() { window.location.href=url();  }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)
 					</td>
-					<td>
-							<div class="btn-group">
-								<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal">Start new Instance</a>
-							</div>
-							<div class="btn-group">
-								<a class="btn" data-bind="attr: { href: url() }">Edit</a>
-							</div>
-							<div class="btn-group">
-								<button class="btn" data-bind="click: $parent.remove">Delete</button>
-							</div>
+					<td class="col2">
+						<div class="btn-group">
+							<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal, css: { disabled: !$data.startAble() }">Start new Instance</a>
+						</div>
+						<div class="btn-group">
+							<a class="btn" data-bind="click:  function() { window.location.href=url();  }">Edit</a>
+						</div>
+						<div class="btn-group">
+							<button class="btn" data-bind="click: $parent.remove">Delete</button>
 						</div>
 					</td>
 				</tr>
 				<!-- ko if: $data.hasInstances -->
-				<tr style="display: none;" data-bind="attr: {id: id()}">
+				<tr style="display: none;" data-bind="attr: {id: id()}" class="instances">
 					<td colspan="4" class="item_info">
 						<!-- ko foreach: $data.processInstances -->
-								<a data-bind="attr: { href: url() }">
-									Instance <span data-bind="text: name"></span><br />
-								</a>
+							<table style="border:0;" >
+								    <tr>
+								      <td class="col1">
+								        <!-- ko if: executable() -->
+								        <img src="images/icons/circle-green-24-ns.png" title="Action required"/>
+								        <!-- /ko -->
+								
+								        <!-- ko if: (!executable() && hasActions()) -->
+								        <img src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/>
+								        <!-- /ko -->
+								
+								        <!-- ko if: !executable() && !hasActions() -->
+								        <img src="images/icons/circle-red-24-ns.png" title="completed"/>
+								        <!-- /ko -->
+								
+								      </td>
+								      <td class="col2">						
+										<strong>Name: </strong><a data-bind="attr: { href: url() }"><span data-bind="text: name"></span></a><br />
+										<strong>Start: </strong> <span data-bind="text: moment(startedAt().date).format('LL')"></span>
+								      </td>
+								      <td class="col3">
+						                <strong>Owner: </strong><span data-bind="text: ownerUser().name()"></a><br />
+						            </td>
+						            <td class="col4">
+						                <a href="" data-bind="click: $parents[1].removeInstance"><img src="images/icons/cross.png" title="Delete" width="28" /></a>
+						            </td>
+								</tr>
+							</table>
+							<!-- ko if: ($index() !== parseInt($parent.instanceCount()-1)) -->
+							<hr>
+							<!-- /ko -->
 						<!-- /ko -->
 					</td>
 				</tr>

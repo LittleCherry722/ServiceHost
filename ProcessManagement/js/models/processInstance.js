@@ -29,6 +29,7 @@ define([
 	ProcessInstance.attrs({
 		processId: "integer",
 		name: "string",
+		owner: "string",
 		startedAt: {
 			type: "json",
 			defaults: {
@@ -74,6 +75,32 @@ define([
 			this.instanceName = ko.computed(function() {
 				return "Instance #" + self.id();
 			});
+			
+			this.hasActions = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+					var len = 0;
+					if (self.actions()) {
+						_.each(self.actions(), function(actions) {
+          					len += actions.actionData.length;
+						});
+			        }
+			        return len  > 0;
+		       }
+			});
+		
+			this.executable = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+			        var executable = false;
+			        _.each(self.actions(), function(actions) {
+			        	_.each(actions.actionData, function(element) {
+			          		if (element.executeAble) executable = true;
+			         	});
+					});
+					return executable;
+				}
+			});
 
 			this.graphString = ko.computed({
 				deferEvaluation: true,
@@ -90,6 +117,39 @@ define([
 					self.graph( graph );
 				}
 			});
+			
+			this.ownerUser = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+			        var u = null;
+			        _.each(User.all(), function(element) {		        	
+			       		if (element.id() == self.owner()) {
+							u = element;
+						}
+			        });
+			        return u;
+		       }
+		   	});
+		},
+
+		getCurrentState: function (subject) {
+			var currentState = 0;
+			$.each (this.actions(), function (i, value) {
+				if (value['subjectID'] === subject) {
+					currentState = value['stateID'];
+				}
+			});
+			return currentState;
+		},
+
+		getCurrentProcess: function (subject) {
+			var process = null;
+			$.each (this.graph().definition.process, function (i, value) {
+				if (value['id'] === subject) {
+					process = value;
+				}
+			});
+			return process;
 		}
 	});
 

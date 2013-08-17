@@ -33,9 +33,6 @@ mergeStrategy in assembly := {
 
 scalaVersion := "2.10.2"
 
-// libraryDependencies ++= Seq("com.typesafe.akka" % "akka-slf4j" % "2.0.3",
-// 							"ch.qos.logback" % "logback-classic" % "1.0.3" % "runtime")
-
 // Parameters for Eclipse
 
 retrieveManaged := true

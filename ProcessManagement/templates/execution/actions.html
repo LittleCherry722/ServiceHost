@@ -55,7 +55,9 @@
 		<br />
 		<br />
 		<!-- ko  foreach: $data.messages -->
+			<!-- ko if: $data.url -->
 			<a target="_blank" data-bind="attr: { href: url, title: title }"><img data-bind="attr: { src:iconLink }" />&nbsp;<span data-bind="text: title"></span></a>
+			<!-- /ko -->
 		<!-- /ko -->
 		<br />
 		<br />

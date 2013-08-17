@@ -1,0 +1,737 @@
+{
+    "id":null,
+    "date": 1375952037413, 
+    "processId": null, 
+    "routings": [], 
+    "definition": {
+        "process": [
+            {
+                "startSubject": true, 
+                "comment": "", 
+                "macroCounter": 1, 
+                "name": "Autoschrauber", 
+                "deactivated": false, 
+                "variables": {}, 
+                "relatedSubject": "", 
+                "macros": [
+                    {
+                        "nodes": [
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "Hole Werkzeug", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": true, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": true, 
+                                "type": "action", 
+                                "id": 0
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "Baue Auto", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "action", 
+                                "id": 5
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "receive", 
+                                "id": 1
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "receive", 
+                                "id": 6
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "modalsplit", 
+                                "id": 2
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": true, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "end", 
+                                "id": 7
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "modaljoin", 
+                                "id": 3
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "*", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "*", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "send", 
+                                "id": 8
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "send", 
+                                "id": 4
+                            }
+                        ], 
+                        "nodeCounter": 9, 
+                        "id": "##main##", 
+                        "edges": [
+                            {
+                                "comment": "", 
+                                "end": 2, 
+                                "optional": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 0, 
+                                "text": "", 
+                                "deactivated": false, 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 4, 
+                                "optional": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 2, 
+                                "text": "Hole Rad", 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 6, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj2", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 4, 
+                                "optional": false, 
+                                "text": "m1", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 8, 
+                                "optional": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 2, 
+                                "text": "Hole Karrosserie", 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 1, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj3", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 8, 
+                                "optional": false, 
+                                "text": "m3", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 3, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj3", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 1, 
+                                "optional": false, 
+                                "text": "m4", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 3, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj2", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 6, 
+                                "optional": false, 
+                                "text": "m2", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 5, 
+                                "optional": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 3, 
+                                "text": "", 
+                                "deactivated": false, 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 7, 
+                                "optional": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 5, 
+                                "text": "", 
+                                "deactivated": false, 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }
+                        ], 
+                        "name": "internal behavior"
+                    }
+                ], 
+                "variableCounter": 1, 
+                "role": "Employee", 
+                "externalType": "external", 
+                "inputPool": 10, 
+                "type": "single", 
+                "id": "Subj1", 
+                "relatedProcess": null
+            }, 
+            {
+                "startSubject": false, 
+                "comment": "", 
+                "macroCounter": 1, 
+                "name": "Radhersteller", 
+                "deactivated": false, 
+                "variables": {}, 
+                "relatedSubject": "", 
+                "macros": [
+                    {
+                        "nodes": [
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": true, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": true, 
+                                "type": "receive", 
+                                "id": 0
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "*", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "*", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "send", 
+                                "id": 1
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": true, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "*", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "*", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "end", 
+                                "id": 2
+                            }
+                        ], 
+                        "nodeCounter": 3, 
+                        "id": "##main##", 
+                        "edges": [
+                            {
+                                "comment": "", 
+                                "end": 1, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj1", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 0, 
+                                "optional": false, 
+                                "text": "m1", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 2, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj1", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 1, 
+                                "optional": false, 
+                                "text": "m2", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }
+                        ], 
+                        "name": "internal behavior"
+                    }
+                ], 
+                "variableCounter": 1, 
+                "role": "Employee", 
+                "externalType": "external", 
+                "inputPool": 10, 
+                "type": "single", 
+                "id": "Subj2", 
+                "relatedProcess": null
+            }, 
+            {
+                "startSubject": false, 
+                "comment": "", 
+                "macroCounter": 1, 
+                "name": "Karosseriehersteller", 
+                "deactivated": false, 
+                "variables": {}, 
+                "relatedSubject": "", 
+                "macros": [
+                    {
+                        "nodes": [
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "start": true, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": true, 
+                                "type": "receive", 
+                                "id": 0
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": false, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "*", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "*", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "send", 
+                                "id": 1
+                            }, 
+                            {
+                                "macro": "", 
+                                "end": true, 
+                                "conversation": "", 
+                                "text": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "options": {
+                                    "conversation": "*", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "*", 
+                                    "subject": "*"
+                                }, 
+                                "start": false, 
+                                "deactivated": false, 
+                                "variable": "", 
+                                "majorStartNode": false, 
+                                "type": "end", 
+                                "id": 2
+                            }
+                        ], 
+                        "nodeCounter": 3, 
+                        "id": "##main##", 
+                        "edges": [
+                            {
+                                "comment": "", 
+                                "end": 1, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj1", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 0, 
+                                "optional": false, 
+                                "text": "m3", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 2, 
+                                "target": {
+                                    "variable": "", 
+                                    "max": -1, 
+                                    "createNew": false, 
+                                    "id": "Subj1", 
+                                    "min": -1
+                                }, 
+                                "deactivated": false, 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 1, 
+                                "optional": false, 
+                                "text": "m4", 
+                                "variable": "", 
+                                "type": "exitcondition", 
+                                "correlationId": ""
+                            }
+                        ], 
+                        "name": "internal behavior"
+                    }
+                ], 
+                "variableCounter": 1, 
+                "role": "Employee", 
+                "externalType": "external", 
+                "inputPool": 10, 
+                "type": "single", 
+                "id": "Subj3", 
+                "relatedProcess": null
+            }
+        ], 
+        "conversations": {}, 
+        "messages": {
+            "m4": "Karosserie", 
+            "m1": "Radbestellung", 
+            "m3": "Karosseriebestellung", 
+            "m2": "Rad"
+        }, 
+        "messageCounter": 5, 
+        "conversationCounter": 1, 
+        "nodeCounter": 4
+    }
+}

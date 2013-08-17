@@ -17,6 +17,7 @@ import akka.actor.ActorRefFactory
 
 object ActorLocator {
   val persistenceActorName = "persistence"
+  val logPersistenceActorName = "logPersistence"
   val contextResolverActorName = "context-resolver"
   val processManagerActorName = "process-manager"
   val subjectProviderManagerActorName = "subject-provider-manager"
@@ -30,6 +31,7 @@ object ActorLocator {
   def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
 
   def persistenceActor(implicit ctx: ActorRefFactory) = actor(persistenceActorName)
+  def logPersistenceActor(implicit ctx: ActorRefFactory) = actor(logPersistenceActorName)
   def contextResolverActor(implicit ctx: ActorRefFactory) = actor(contextResolverActorName)
   def processManagerActor(implicit ctx: ActorRefFactory) = actor(processManagerActorName)
   def subjectProviderManagerActor(implicit ctx: ActorRefFactory) = actor(subjectProviderManagerActorName)

@@ -7,26 +7,15 @@ define([
 ], function( ko, App, _, History, moment) {
 
 	var ViewModel = function() {
-		this.historicEntries = historyList;
+		this.historys = historyList;
 		/// Filter
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
 		this.selectedStatetype = selectedStatetype;
 		this.selectedStart = selectedStart;	
-		this.selectedEnd = selectedEnd;			
+		this.selectedEnd = selectedEnd;
 	}
 	var historyList = ko.observableArray();
-	var historys = ko.computed(function() {
-		//historyList(History.all().slice(0));
-		historyList.removeAll();
-		$.each( History.all(), function ( i, value ) {
-			if(value.transitionEvent() && value.transitionEvent().message) {
-				console.log(value.transitionEvent().message.fromSubject);
-			}			
-			value.ts = JSONtimestampToString(value.timeStamp().date);
-			historyList.push(value);
-		});
-	});
 	
 	var JSONtimestampToString = function( JSONtimestamp ){
 		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
@@ -43,31 +32,32 @@ define([
 	selectedStatetype.subscribe(function() { filter(); });
 	selectedStart.subscribe(function() { filter(); });
 	selectedEnd.subscribe(function() { filter();});
-	
-	var filter = function() {
+
+	var filter = ko.computed(function() {
 		historyList.removeAll();
 		$.each( History.all(), function ( i, value ) {
+			value.ts = JSONtimestampToString(value.timeStamp().date);
 			var filter = false;
 			if (selectedUser() && selectedUser() !== value.userId ) {
 				filter = true;
 			}
-			if (selectedProcess() && selectedProcess() !== value.processName ) {
+			if (selectedProcess() && selectedProcess() !== value.process().processName ) {
 				filter = true;
 			}
-			if (selectedStatetype() && selectedStatetype() !== value.transition.fromState.stateType && selectedStatetype() !== value.transition.toState.stateType  ) {
+			if (selectedStatetype() && selectedStatetype() !== value.transitionEvent().fromState.stateType && selectedStatetype() !== transitionEvent().toState.stateType  ) {
 				filter = true;
 			}
-			if (selectedStart() && parseInt(selectedStart()) > parseInt(moment(value.processStarted).format('X'))) {
+			if (selectedStart() && parseInt(selectedStart()) >= parseInt(moment(value.timeStamp().date).format('X'))) {
 				filter = true;
 			}
-			if (selectedEnd() && parseInt(selectedEnd()) < parseInt(moment(value.processEnd).format('X'))) {
+			if (selectedEnd() && parseInt(selectedEnd()) <= parseInt(moment(value.timeStamp().date).format('X'))) {
 				filter = true;
 			}
 			if(filter!=true) {
 				historyList.push(value);
 			}
 		});
-	}
+	});
 	
 	
 	var initialize = function( instance ) {
