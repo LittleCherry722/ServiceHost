@@ -20,7 +20,7 @@ object ProjectBuild extends Build {
         "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"),
       libraryDependencies ++= Seq(
         "org.scala-lang" % "scala-reflect" % "2.10.2",
-        "org.scalatest" %% "scalatest" % "1.9.1" % "test",
+        "org.scalatest" %% "scalatest" % "2.0.M5b" % "test",
         "com.typesafe.akka" %% "akka-actor" % "2.2.0",
         "com.typesafe.akka" %% "akka-testkit" % "2.2.0" % "test",
 
@@ -28,5 +28,4 @@ object ProjectBuild extends Build {
         "io.spray" % "spray-routing" % "1.2-20130710",
         "io.spray" % "spray-testkit" % "1.2-20130710" % "test",
         "io.spray" %% "spray-json" % "1.2.5")))
-
 }

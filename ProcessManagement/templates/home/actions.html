@@ -1,103 +1,118 @@
 <div data-bind="visible: actions().length==0">
-  <p class="lead">
-    There are no Processes running at the moment.
-  </p>
-  <p>
-    To create a new process, chosse "create new Process" from the sidebar. <br />
-    To start an existing Process, first select "Processes" from the sidebar,
-    then click on the "Instances" dropdown list and choose "New Instance".
-  </p>
-    You can get help for a specific site by clicking on the "?" symbol in the top right corner.
-  </p>
+    <p class="lead" style="margin-top: 20px;">
+        There are no Processes running at the moment :(
+    </p>
+    
+    <img style="position: absolute; top: 96px; left: 366px;" src="images/arrow_dashboard.png"/>
+
+    <p style="font-size: 140%; line-height: 150%; margin-top: 20px;">
+        You can start a new process instance by clicking "<b>Start Process</b>" in the top bar (blue arrow). <br/>
+        <br/>
+        You don't find what you're looking for? <a style="font-weight: bold; text-decoration: underline;" href="#/processes/new">create a new Process</a>! <br/>
+        <br/>
+        Please note: Some processes can only be started by external partners. These are not shown in the process selection.
+    </p>
 </div>
 
-<div data-bind='foreach: actions()'>
-  <!-- ko if: process() && (executable() || hasActions())-->
-  <table class="result" data-bind="attr: {id: instanceTableId()}">
-    <tr style="cursor: pointer;" data-bind="click: function() { $('#'+instanceDetailsDivId()).toggle(); }">
-      <td class="col1">
-        <!-- ko if: executable() -->
-        <img src="images/icons/circle-green-24-ns.png" title="Action required"/>
-        <!-- /ko -->
+<div id="clickablelist" data-bind='foreach: actions()'>
+    <!-- ko if: process() && (executable() || hasActions())-->
+    <table class="result" data-bind="attr: {id: instanceTableId()}">
+        <tr style="cursor: pointer;" data-bind="click: function(data, event) { $(event.currentTarget).next().toggle(); }">
+            <td class="col1">
+                <!-- ko if: executable() -->
+                <img src="images/icons/circle-green-24-ns.png" title="Action required"/>
+                <!-- /ko -->
 
-        <!-- ko if: (!executable() && hasActions()) -->
-        <img src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/>
-        <!-- /ko -->
+                <!-- ko if: (!executable() && hasActions()) -->
+                <img src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/>
+                <!-- /ko -->
 
-        <!-- ko if: !executable() && !hasActions() -->
-        <img src="images/icons/circle-red-24-ns.png" title="completed"/>
-        <!-- /ko -->
+                <!-- ko if: !executable() && !hasActions() -->
+                <img src="images/icons/circle-red-24-ns.png" title="completed"/>
+                <!-- /ko -->
 
-      </td>
-      <td class="col2">
-        <span class="action" data-bind="html: actionTitle"></span>
-        <span class="type" data-bind="text: 'Type: '+ stateType()"></span>
-      </td>
-      <td class="col3">
-        <span class="process" data-bind="text: process().className + ': '+ process().name(), attr: { title: 'Process #' + process().id() + ', Instance #' + processInstanceID() }"></span>
-        <span class="description" data-bind="text: stateText()"></span>
-      </td>
-      <td class="col4">
-        <span class="user" data-bind="text: 'From: ' + user().name()"></span>
-      </td>
-    </tr>
+            </td>
+            <td class="col2">
+                <span class="action" data-bind="html: actionTitle"></span>
+                <span class="type" data-bind="text: 'Type: '+ stateType()"></span>
+            </td>
+            <td class="col3">
+                <span class="process"
+                      data-bind="text: process().className + ': '+ process().name() + ' - '+ instanceName , attr: { title: 'Process #' + process().id() + ', Instance #' + processInstanceID() }"></span>
+                <span class="description" data-bind="text: stateText()"></span>
+            </td>
+            <td class="col4">
+                <span class="user" data-bind="text: 'From: ' + user().name()"></span>
+            </td>
+        </tr>
 
-    <tr style="display: none;" data-bind="attr: {id: instanceDetailsDivId()}">
-      <td colspan="4" class="item_info">
+        <tr style="display: none;" data-bind="attr: {id: instanceDetailsDivId()}">
+            <td colspan="4" class="item_info">
 
-        <div data-bind="visible: stateType()==='send', foreach: actionData">
-          <div>
-            <strong>Send:</strong>
-            <span style="display: inline;" data-bind="html: $data.text + ' to ' + $data.relatedSubject"></span>
-            <br /><br />
+                <div data-bind="visible: stateType()==='send', foreach: actionData">
+                    <div>
+                        <strong>Send:</strong>
+                        <span style="display: inline;"
+                              data-bind="html: $data.text + ' to ' + $data.relatedSubject"></span>
+                        <br/><br/>
 
-            <strong>User:</strong>
-            <select data-bind="options: $parent.selectUsers, optionsText: 'name', selectedOptions: selectedUsers, optionsCaption: $parent.selectedUsersMax() == 1 ? 'Choose...': null, attr: {size : $parent.selectedUsersMax() > 1 ? 5 : 1, multiple: $parent.selectedUsersMax() > 1 ? 'multiple' : null}"></select>
-            <br />
+                        <strong>User:</strong>
+                        <select data-bind="options: $parent.selectUsers, optionsText: 'name', selectedOptions: selectedUsers, optionsCaption: $parent.selectedUsersMax() == 1 ? 'Choose...': null, attr: {size : $parent.selectedUsersMax() > 1 ? 5 : 1, multiple: $parent.selectedUsersMax() > 1 ? 'multiple' : null}"></select>
+                        <br/>
 
-            <strong>Message:</strong>
-            <input type="text" data-bind="value: messageText" />
-            <br />
-            <input type="button" value="Send" class="btn" data-bind="click: $parent.send, visible: $data.executeAble" />
-          </div>
-        </div>
+                        <strong>Message:</strong>
+                        <input type="text" data-bind="value: messageText"/>
+                        <br/>
+                        <input type="button" value="Send" class="btn"
+                               data-bind="click: $parent.send, visible: $data.executeAble"/>
+                    </div>
+                </div>
 
-        <div data-bind="visible: stateType()==='action', foreach: actionData">
-          <input class="btn" type="button" data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action, visible: $data.executeAble"/>
-        </div>
+                <div data-bind="visible: stateType()==='action', foreach: actionData">
+                    <input class="btn" type="button"
+                           data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action, visible: $data.executeAble"/>
+                </div>
 
-        <div data-bind="visible: stateType()==='receive', foreach: actionData">
-          <div data-bind="visible: $data.executeAble">
-            <strong data-bind="text: $data.text"></strong>
-            by
-            <strong data-bind="text: $data.relatedSubject"></strong>
+                <div data-bind="visible: stateType()==='receive', foreach: actionData">
+                    <div data-bind="visible: $data.executeAble">
+                        <strong data-bind="text: $data.text"></strong>
+                        by
+                        <strong data-bind="text: $data.relatedSubject"></strong>
 
-            <br/>
+                        <br/>
 
-            <!-- ko if: $data.messages -->
-            <div data-bind="foreach: messages">
-              <br/>
-              Message from <strong data-bind="text: user.name()"></strong>: <span style="padding: 5px; background: #ddd; border: 1px solid #999;" data-bind="html: messageContent"></span>
-            </div>
-            <!-- /ko -->
+                        <!-- ko if: $data.messages -->
+                        <div data-bind="foreach: messages">
+                            <br/>
+                            Message from <strong data-bind="text: user.name()"></strong>: <span
+                                style="padding: 5px; background: #ddd; border: 1px solid #999;"
+                                data-bind="html: messageContent"></span>
+                        </div>
+                        <!-- /ko -->
 
-            <input class="btn" type="button" value="Received" data-bind="click: $parent.action, enable: $data.executeAble" />
-          </div>
-          <div data-bind="visible: !$data.executeAble, visible: !$parent.executable()">
-            Waiting for <strong data-bind="text: $data.relatedSubject + 's'"></strong>: <strong data-bind="text: $data.text"></strong>
-          </div>
-        </div>
+                        <input class="btn" type="button" value="Received"
+                               data-bind="click: $parent.action, enable: $data.executeAble"/>
+                    </div>
+                    <div data-bind="visible: !$data.executeAble, visible: !$parent.executable()">
+                        Waiting for <strong data-bind="text: $data.relatedSubject + 's'"></strong>: <strong
+                            data-bind="text: $data.text"></strong>
+                    </div>
+                </div>
 
 
-        <div data-bind="visible: stateType()==='end'">
-          <strong>Process ended. No actions available.</strong>
-        </div>
+                <div data-bind="visible: stateType()==='end'">
+                    <strong>Process ended. No actions available.</strong>
+                </div>
 
-      </td>
-    </tr>
-  </table>
-  <!-- /ko -->
+                <input type="button" value="Show Graph" class="btn pull-right show-graph" data-bind="click: $parent.showGraph"/>
+                <div class="graph"></div>
+
+            </td>
+        </tr>
+    </table>
+    <!-- /ko -->
 </div>
 <div data-bind="visible: actions().length>0">
-	<b>Legend:</b> <img src="images/icons/circle-green-24-ns.png" title="Action required"/>Action required <img src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/> Waiting for other user
+    <b>Legend:</b> <img src="images/icons/circle-green-24-ns.png" title="Action required"/>Action required <img
+        src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/> Waiting for other user
 </div>

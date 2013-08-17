@@ -3,6 +3,7 @@
 .tern-port
 *.class
 *.log
+*.swp
 .scala_dependencies
 *.git
 *.war
@@ -13,3 +14,4 @@
 *.graffle
 Repository/target/*
 Repository/project/target/*
+ProcessManagement/nbproject/*

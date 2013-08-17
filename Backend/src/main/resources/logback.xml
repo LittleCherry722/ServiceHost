@@ -14,9 +14,17 @@
 		</encoder>
 	</appender>
 
+	<appender name="SLICK" class="de.tkip.sbpm.logging.SlickAppender">
+		<encoder>
+			<pattern>%-5level %d{HH:mm:ss.SSS} [%X{akkaSource}] %logger{36} - %msg
+			</pattern>
+		</encoder>
+	</appender>
+
 	<logger name="de.tkip.sbpm" level="DEBUG">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
+		<appender-ref ref="SLICK" />
 	</logger>
 </configuration>
 

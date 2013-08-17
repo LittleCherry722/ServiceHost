@@ -1,65 +1,56 @@
-<style type="text/css">
-#dashboardHistory .state td {
-	border-top:1px solid #000;
-}
-#dashboardHistory .messages .leftBox {
-	float:left; width:50%;
-}
-#dashboardHistory .messages .leftBox .left, #dashboardHistory .messages .left {
-	float:left;
-	width:69px;
-	padding:5px;
-	font-weight:bold;
-}
-#dashboardHistory .messages .text {
-	width:493px;
-}
-#dashboardHistory .messages .leftBox .right, #dashboardHistory .messages .right {
-	float:left;padding:5px;
-}
+<div data-bind="visible: historys().length==0">
+		  <p class="lead" style="margin-top: 20px;">
+		    Your history is empty :(
+		  </p>
+                  
+                <img style="position: absolute; top: 96px; left: 366px;" src="images/arrow_dashboard.png"/>
+  
+                <p style="font-size: 140%; line-height: 150%; margin-top: 20px;">
+                    If you start a new process instance (blue arrow), all corresponding actions will be tracked here.<br/>
+                    <br/>
+                    You don't find what you're looking for? <a style="font-weight: bold; text-decoration: underline;" href="#/processes/new">create a new Process</a>! <br/>
+                </p>  
+        </div>
 
-#dashboardHistory .messages .rightBox {
-	float:left;
-}
-#dashboardHistory .messages .rightBox .left {
-	float:left;width:64px;padding:5px;font-weight:bold;
-}
-#dashboardHistory .messages .rightBox .right {
-	float:left;padding:5px;
-}
-</style>
-<div id="dashboardHistory">
-  <div class="flexbox" style="height: 100%;">
+<div id="history">
+  <div class="flexbox" id="clickablelist" style="height: 100%;">
       <div class="fluid" style="height: 100%;">
         
-        <table class="table result">
+        <table class="table result" data-bind="visible: historys().length>=1">
           <thead>
             <th>Time</th>
-            <th>Subject</th>
-            <th>From</th>
-            <th>@State</th>
-            <th>To</th>
-            <th>@State</th>
+            <th>Process</th>
+            <th></th>
+            <th></th>
             <th></th>
           </thead>
-          <tbody data-bind="foreach: historicEntries">
-            <tr class="state"  style="cursor: pointer;" data-bind="click: function() { $('.message'+$index()).toggle(); }">
+          <tbody data-bind="foreach: historys()">
+            <tr class="state" data-bind="click:  function() { if(transitionEvent() && $data.transitionEvent().hasOwnProperty('message')) $('.message'+$index()).toggle(); }, style: { cursor: transitionEvent() && $data.transitionEvent().hasOwnProperty('message') ? 'pointer' : '' }">
               <td data-bind="text: ts"></td>
-              <td data-bind="text: process().processName"></td>
-              <td data-bind="text: transitionEvent() ? transitionEvent().fromState.text:''"></td>
-              <td data-bind="text: transitionEvent() ? transitionEvent().fromState.stateType:''"></td>
-              <td data-bind="text: transitionEvent() ? transitionEvent().toState.text:''"></td>
-              <td data-bind="text: transitionEvent() ? transitionEvent().toState.stateType:''"></td>
+              <td data-bind="text: process().processName  + ' - ' + instanceName "></td>
+              <td class="event">
+              	<!-- ko if: transitionEvent() -->
+              		<div class="left"><strong>From:</strong></div><div class="right">&nbsp;<span data-bind="text: transitionEvent().fromState.text"></span></div><div style="clear:both;"></div>
+              		<div class="left"><strong>@State:</strong></div><div class="right">&nbsp;<span data-bind="text: transitionEvent().fromState.stateType"></span></div><div style="clear:both;"></div>
+              	<!-- /ko -->
+              	<!-- ko if: !transitionEvent() -->
+              		New Instance started
+              	<!-- /ko -->
+              </td>
+              <td class="event">
+              	<!-- ko if: transitionEvent() -->
+              		<div class="left"><strong>To:</strong></div><div class="right">&nbsp;<span data-bind="text: transitionEvent().toState.text"></span></div><div style="clear:both;"></div>
+              		<div class="left"><strong>@State:</strong></div><div class="right">&nbsp;<span data-bind="text: transitionEvent().toState.stateType"></span></div><div style="clear:both;"></div>
+              	<!-- /ko -->
+              </td>
               <td><!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") --><img src="images/icons/e-mail.png" alt="Messages" /><!-- /ko --> </td>
             </tr>
               <!-- Line below will be recognized by ko parser-->
               <!-- ko if: transitionEvent() && $data.transitionEvent().hasOwnProperty("message") -->
-              
               <tr class="true" style="display: none;" data-bind="attr: { 'class': 'messages message' +$index() }">
  				<td colspan="7" style="padding:0;">
                 	<div style="padding:8px;">
                         <div class="leftBox">
-                        	
                         	<div class="left">ID:</div><div class="right" data-bind="text: transitionEvent().message.messageId"></div><div style="clear:both;"></div>
                         	<div class="left">Type:</div><div class="right" data-bind="text: transitionEvent().message.messageType"></div><div style="clear:both;"></div>
                         </div>

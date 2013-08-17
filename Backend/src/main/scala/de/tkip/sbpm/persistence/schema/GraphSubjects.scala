@@ -39,10 +39,11 @@ trait GraphSubjectsSchema extends GraphsSchema with RolesSchema {
     def relatedGraphId = column[Option[Int]]("related_graph_id")
     def externalType = column[Option[String]]("external_type", DbType.stringIdentifier)
     def roleId = column[Option[Int]]("role_id")
+    def url = column[Option[String]]("url")
     def comment = column[Option[String]]("comment", DbType.comment)
 
     def * = id ~ graphId ~ name ~ subjectType ~ isDisabled ~ isStartSubject ~ inputPool ~
-      relatedSubjectId ~ relatedGraphId ~ externalType ~ roleId ~
+      relatedSubjectId ~ relatedGraphId ~ externalType ~ roleId ~ url ~
       comment <> (GraphSubject, GraphSubject unapply _)
 
     def pk = primaryKey(pkName, (id, graphId))

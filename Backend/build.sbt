@@ -3,7 +3,7 @@ import AssemblyKeys._
 
 assemblySettings
 
-jarName in assembly := "sbpm_groupware.jar" 
+jarName in assembly := "sbpm.jar" 
 
 test in assembly := {} 
 
@@ -12,8 +12,8 @@ mainClass in assembly := Some("de.tkip.sbpm.Boot")
 mergeStrategy in assembly := { 
   case "reference.conf" =>
     MergeStrategy.concat
-  //case PathList(ps @ _*) if isReadme(ps.last) || isLicenseFile(ps.last) =>
-  //  MergeStrategy.rename
+  // case PathList(ps @ _*) if isReadme(ps.last) || isLicenseFile(ps.last) =>
+  //   MergeStrategy.rename
   case PathList("META-INF", xs @ _*) =>
     (xs map {_.toLowerCase}) match {
       case ("manifest.mf" :: Nil) | ("index.list" :: Nil) | ("dependencies" :: Nil) =>
@@ -31,10 +31,7 @@ mergeStrategy in assembly := {
   case _ => MergeStrategy.first
 }
 
-scalaVersion := "2.10.0"
-
-libraryDependencies ++= Seq("com.typesafe.akka" % "akka-slf4j" % "2.0.3",
-							"ch.qos.logback" % "logback-classic" % "1.0.3" % "runtime")
+scalaVersion := "2.10.2"
 
 // Parameters for Eclipse
 

@@ -169,6 +169,7 @@ protected case class SendStateActor(data: StateData)
           sendProxy !
             SubjectToSubjectMessage(
               messageID,
+              processID,
               userID,
               subjectID,
               target,
@@ -195,7 +196,7 @@ protected case class SendStateActor(data: StateData)
       // Change the state and enter the History entry
       remainingStored -= 1
       if (remainingStored == 0) {
-        changeState(transition.successorID, message)
+        changeState(transition.successorID, data,message)
         blockingHandlerActor ! UnBlockUser(userID)
       }
     }

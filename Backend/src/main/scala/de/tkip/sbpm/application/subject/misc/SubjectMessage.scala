@@ -38,6 +38,7 @@ sealed trait MessageObject
 // message from subject to subject
 protected case class SubjectToSubjectMessage(
   messageID: MessageID,
+  processID: ProcessID,
   var userID: UserID, // TODO why is this a var?
   var from: SubjectID,
   target: Target,
@@ -61,6 +62,8 @@ protected case class Rejected(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
+
+protected[subject] case class MacroTerminated(macroID: String)
 
 // external subject interaction messages
 sealed trait SubjectBehaviorRequest
@@ -94,6 +97,7 @@ case class AvailableAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
+  macroID: String,
   stateID: StateID,
   stateText: String,
   stateType: String,
@@ -105,6 +109,7 @@ case class ExecuteAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
+  macroID: String,
   stateID: StateID,
   stateType: String,
   actionData: ActionData,
@@ -124,6 +129,7 @@ object mixExecuteActionWithRouting {
       action.userID,
       action.processInstanceID,
       action.subjectID,
+      action.macroID,
       action.stateID,
       action.stateType,
       action.actionData,

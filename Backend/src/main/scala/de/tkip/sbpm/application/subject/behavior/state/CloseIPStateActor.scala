@@ -23,7 +23,7 @@ protected case class CloseIPStateActor(data: StateData)
 
   override protected def stateReceive = {
     case InputPoolClosed => {
-      changeState(exitTransition.successorID, null)
+      changeState(exitTransition.successorID, data, null)
     }
   }
 

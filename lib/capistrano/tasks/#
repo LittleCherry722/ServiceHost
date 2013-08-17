@@ -1,0 +1,34 @@
+desc "creates and distributes all artifacts needed to run the server and repository"
+task :artifacts do
+  invoke "artifacts:assemble"
+  invoke "artifacts:upload"
+  invoke "artifacts:download"
+end
+
+namespace :artifacts do
+  desc "bundles the backend and repository server to separate jar files"
+  task :assemble do
+    run_locally do
+      current_branch = capture("git rev-parse --abbrev-ref HEAD")
+      execute "git checkout amazon_instanzen"
+      %w[ Backend Repository ].each do |dir| 
+        within dir do
+          execute :sbt, "assembly"
+        end
+      end
+      execute "git checkout #{current_branch}"
+    end
+  end
+
+  desc "compiles the server / repository and creates the start script"
+  task :upload do
+    on fetch(:artifact_host_url) do
+      upload! "Repository/target/scala-2.10/sbpm.jar", fetch(:repository_artifact_path)
+      upload! "Backend/target/scala-2.10/sbpm.jar", fetch(:backend_artifact_path)
+    end
+  end
+
+  desc "downloads the current jar from the artifact host on every server"
+  task :download do
+  end
+end

@@ -6,14 +6,17 @@ define([
 	"models/process",
 	"models/processInstance",
 	"underscore",
-	"router"
-	// "tk_graph"
-], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router ) {
+	"router",
+	"moment",
+	"select2",
+], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment, select2 ) {
 	var ViewModel = function() {
-
 		var self = this;
-
-		self.processes = Process.all;
+		self.processes = processlist;
+		this.availableProcesses = ko.observableArray(Process.all());
+		this.selectedStart = selectedStart;
+		this.selectedEnd = selectedEnd;
+		this.selectedProcess = selectedProcess;
 
 		self.back = function() {
 			history.back()
@@ -26,25 +29,74 @@ define([
 				parent.$.fancybox.close();
 			});
 		}
+		
+		self.removeInstance = function( processInstance ) {
+			Dialog.yesNo( 'Warning', "Do you really want to delete this Processinstance?", function(){
+				destroyProcessInstance( processInstance )
+				parent.$.fancybox.close();
+			});
+		}
 
 		self.newInstance = function() {
-			var process = this;
-			
-			instance = new ProcessInstance( {
+			var process = Process.find( $("input[name='processId']").val()) ;
+			$('#processNameModal').modal('hide');
+            instance = new ProcessInstance( {
 				processId: process.id(),
+				name: $("input[name='instancename']").val(),
+				owner: App.currentUser().id(),
 				graph: process.graph()
 			});
-
+		
 			instance.save(null, {
 				success: function() {
-					Router.goTo( instance );
+					Actions.fetch();
 				},
 				error: function() {
 					Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
 				}
 			});
 		}
+		this.showProcessNameModal = function() {
+			var process = this;
+            if (!process.isStartable()) {
+                Notify.warning("Not possible", "This process can only be started by external partners.");
+            }
+            else {
+                $("input[name='processId']").val(process.id());
+                $("input[name='instancename']").val(process.name() +' ' + moment().format('YYYY-MM-DD HH:mm'));
+                $("#processNameModal").modal();
+            }
+		}
 	}
+	var selectedStart = ko.observable();
+	var selectedEnd = ko.observable();
+	var selectedProcess = ko.observable("");
+	
+	var processlist = ko.observableArray();		
+	var updateProcesslist = ko.computed(function() {
+		processlist.removeAll();
+		$.each( Process.all(), function ( i, value ) {
+			var filter = false;
+			if((selectedEnd() ||selectedStart()) && value.processInstances().length<1) {
+				filter = true;
+			}
+			$.each( value.processInstances(), function ( i, valueis ) {
+				if(selectedStart() && parseInt(moment(selectedStart()).format("X")) >= parseInt(moment(valueis.startedAt().date).format('X'))){
+					filter = true;
+				}
+				if(selectedEnd() && parseInt(moment(selectedEnd()).format("X"))<= parseInt(moment(valueis.startedAt().date).format('X'))){
+					filter = true;
+				}
+			});
+			if (selectedProcess() && selectedProcess() != value.id() ) {
+				filter = true;
+			}
+			if(filter==false) {
+				processlist.push(value);
+			}
+		});
+	});
+	
 
 	var destroyProcess = function( process ) {
 		process.destroy(null, {
@@ -56,12 +108,50 @@ define([
 			}
 		});
 	}
+	
+	var destroyProcessInstance = function( processInstance ) {
+		processInstance.destroy(null, {
+			success: function( textStatus ) {
+				Notify.info( "Success", "Processinstance " + this.name() + " has successfully been deleted" );
+			},
+			error :function( textStatus, error ) {
+				Notify.error( "Error", "Deleting the processinstance failed." );
+			}
+		});
+	}
+
+
 
 	var initialize = function() {
 		var viewModel = new ViewModel();
 
 		App.loadTemplate( "processList", viewModel, null, function() {
-			// TODO do we need to do anything?
+			$( "#from" ).datepicker({
+				defaultDate: "+1w",
+				changeMonth: true,
+				numberOfMonths: 3,
+				onClose: function( selectedDate ) {
+					$( "#to" ).datepicker( "option", "minDate", selectedDate );
+				}
+			});
+			$( "#to" ).datepicker({
+				defaultDate: "+1w",
+				changeMonth: true,
+				numberOfMonths: 3,
+				onClose: function( selectedDate ) {
+					$( "#from" ).datepicker( "option", "maxDate", selectedDate );
+				}
+			});	
+			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
+			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
+			var select2 = $(".sel").select2( {
+		        width: "copy",
+		        allowClear: true,
+		        dropdownAutoWidth: "true"
+	        });
+	        $(".sel").on("change", function(e) { 
+				viewModel.selectedProcess(e.val);
+			});
 		});
 	}
 	

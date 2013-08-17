@@ -50,5 +50,4 @@ object ProjectBuild extends Build {
       )
     )
   )
-
 }

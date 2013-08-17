@@ -1,6 +1,9 @@
 /.cache
 .cache
+.project
+.classpath
 /target
+!/target/**/*.jar
 /log
 /lib_managed
 project/target
