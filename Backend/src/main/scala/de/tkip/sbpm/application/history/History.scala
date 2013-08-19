@@ -63,3 +63,4 @@ case class NewHistoryProcessData(processName: String, processInstanceId: Process
 case class NewHistoryState(text: String, stateType: String)
 case class NewHistoryMessage(messageId: MessageID, fromSubject: SubjectName, toSubject: SubjectName, messageType: MessageType, text: MessageContent)
 case class NewHistoryTransitionData(fromState: NewHistoryState, text: String, transitionType: String, toState: NewHistoryState, message: Option[NewHistoryMessage])
+case class GetHistorySince(timeStamp: Long)

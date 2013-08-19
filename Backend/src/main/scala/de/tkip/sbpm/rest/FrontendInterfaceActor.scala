@@ -12,8 +12,7 @@
  */
 package de.tkip.sbpm.rest
 
-
-import akka.actor.{ActorRef, Actor, Props}
+import akka.actor.{ ActorRef, Actor, Props }
 
 import spray.routing._
 import spray.http._
@@ -22,6 +21,12 @@ import de.tkip.sbpm.rest.auth.CookieAuthenticator
 import de.tkip.sbpm.rest.auth.SessionDirectives._
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.logging.LoggingResponseActor
+import spray.json._
+import spray.httpx.SprayJsonSupport._
+import de.tkip.sbpm.bir._
+import de.tkip.sbpm.application.history._
+
+
 
 object Entity {
   val PROCESS = "process"
@@ -94,18 +99,31 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val groupInterfaceActor = context.actorOf(Props[GroupInterfaceActor], "group-interface")
   private val configurationInterfaceActor = context.actorOf(Props[ConfigurationInterfaceActor], "configuration-interface")
   private val debugInterfaceActor = context.actorOf(Props[DebugInterfaceActor], "debug-interface")
-
+  private val gbirInterfaceActor = context.actorOf(Props[GoogleBIRInterfaceActor], "gbir-interface")
+  private val historyChangeActor = context.actorOf(Props[HistoryChangeActor], "history-change")
+  
   def receive = runRoute({
-    /**
-     * redirect all calls beginning with "processinstance" (val EXECUTION) to ExecutionInterfaceActor
-     *
-     * e.g. GET http://localhost:8080/processinstance/8
-     */
-    pathPrefix(Entity.EXECUTION) {
-      authenticated {
-        delegateTo(executionInterfaceActor)
-      }
+    pathPrefix("BIR") {
+      delegateTo(gbirInterfaceActor)
+//      post {
+//      formFields("content") { content => ctx =>
+//          println("content is: "+content)
+//      }
+//      }
     } ~
+    pathPrefix("changes") {
+      delegateTo(historyChangeActor)
+    } ~
+      /**
+       * redirect all calls beginning with "processinstance" (val EXECUTION) to ExecutionInterfaceActor
+       *
+       * e.g. GET http://localhost:8080/processinstance/8
+       */
+      pathPrefix(Entity.EXECUTION) {
+        authenticated {
+          delegateTo(executionInterfaceActor)
+        }
+      } ~
       /**
        * redirect all calls beginning with "process" to ProcessInterfaceActor
        *
@@ -232,7 +250,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
       // authenticate using session cookie or Authorization header
       authenticate(new CookieAuthenticator) {
         session =>
-        // auth successful -> set session cookie
+          // auth successful -> set session cookie
           setSessionCookie(session)(context) {
             op
           }
