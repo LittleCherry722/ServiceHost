@@ -145,5 +145,6 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val newHistoryTransitionDataFormat = jsonFormat5(NewHistoryTransitionData)
   implicit val newHistoryEntryFormat = jsonFormat6(NewHistoryEntry)
   implicit val newHistoryFormat = jsonFormat1(NewHistory)
+  
 
 }
