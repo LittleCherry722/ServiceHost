@@ -12,6 +12,8 @@ import scala.concurrent.duration._
 
 class ProcessInstanceProxyActor(id: ProcessInstanceID, graph: ProcessGraph) extends Actor {
 
+  import context.dispatcher
+
   // this map maps the external subjects of this process to the related subject id
   private val subjectIdMap: Map[(ProcessID, SubjectID), SubjectID] =
     graph.subjects collect {
