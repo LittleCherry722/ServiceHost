@@ -94,5 +94,13 @@ public class Subject implements Serializable {
 		this.inputPool = inputPool;
 	}
 
+	public InternalBehavior getInternalBehavior() {
+		return internalBehavior;
+	}
+
+	public void setInternalBehavior(InternalBehavior internalBehavior) {
+		this.internalBehavior = internalBehavior;
+	}
+
 }
 

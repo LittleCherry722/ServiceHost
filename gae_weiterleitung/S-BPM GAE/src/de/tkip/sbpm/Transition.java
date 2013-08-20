@@ -18,4 +18,36 @@ public class Transition implements Serializable {
 
 	public Transition() {
 	}
+
+	public String getTransitionType() {
+		return transitionType;
+	}
+
+	public void setTransitionType(String transitionType) {
+		this.transitionType = transitionType;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public int getSuccessorID() {
+		return successorID;
+	}
+
+	public void setSuccessorID(int successorID) {
+		this.successorID = successorID;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
 }

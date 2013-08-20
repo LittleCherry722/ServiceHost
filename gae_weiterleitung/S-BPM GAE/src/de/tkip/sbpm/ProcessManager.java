@@ -14,20 +14,20 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
 
-//@PersistenceCapable
+@PersistenceCapable
 public class ProcessManager {
-//	@PrimaryKey
-//    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-//    private Key key;
+	@PrimaryKey
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+    private Key key;
 	
-//	@Persistent
-	public static int processInstanceID = 10000;
-//	@Persistent(serialized = "true")
-	public static List<Process> processList = new ArrayList<Process>();;
-//	@Persistent(serialized = "true")
-	public static List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
-//	@NotPersistent
-	public static Map<State,Boolean> availbleActions = new HashMap<State,Boolean>();
+	@Persistent
+	public int processInstanceID = 10000;
+	@Persistent(serialized = "true")
+	public List<Process> processList = new ArrayList<Process>();;
+	@Persistent(serialized = "true")
+	public List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
+	@NotPersistent
+	public Map<State,Boolean> availbleActions = new HashMap<State,Boolean>();
 	
 	public ProcessManager(){
 //		processInstanceID = 10000;
@@ -101,11 +101,43 @@ public class ProcessManager {
 		this.processInstanceList.add(pi);
 	}
 
-//	public Key getKey() {
-//		return key;
-//	}
-//
-//	public void setKey(Key key) {
-//		this.key = key;
-//	}
+	public Key getKey() {
+		return key;
+	}
+
+	public void setKey(Key key) {
+		this.key = key;
+	}
+
+	public int getProcessInstanceID() {
+		return processInstanceID;
+	}
+
+	public void setProcessInstanceID(int processInstanceID) {
+		this.processInstanceID = processInstanceID;
+	}
+
+	public List<Process> getProcessList() {
+		return processList;
+	}
+
+	public void setProcessList(List<Process> processList) {
+		this.processList = processList;
+	}
+
+	public List<ProcessInstance> getProcessInstanceList() {
+		return processInstanceList;
+	}
+
+	public void setProcessInstanceList(List<ProcessInstance> processInstanceList) {
+		this.processInstanceList = processInstanceList;
+	}
+
+	public Map<State, Boolean> getAvailbleActions() {
+		return availbleActions;
+	}
+
+	public void setAvailbleActions(Map<State, Boolean> availbleActions) {
+		this.availbleActions = availbleActions;
+	}
 }

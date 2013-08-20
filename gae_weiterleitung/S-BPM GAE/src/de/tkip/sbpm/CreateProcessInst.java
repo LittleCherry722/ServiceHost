@@ -41,42 +41,41 @@ public class CreateProcessInst extends HttpServlet {
 			CreateProcessInstance cp = CreateProcessInstance.parseFrom(byteProto);
 			int processID = cp.getProcessId();
 			ProcessInstance pi = new ProcessInstance();
-//			PersistenceManager pm = PMF.get().getPersistenceManager();
+			PersistenceManager pm = PMF.get().getPersistenceManager();
 			try {
-//				Query query = pm.newQuery(ProcessManager.class);
-//				List<ProcessManager> processManagerList = (List<ProcessManager>) query.execute();
-//				if (processManagerList.isEmpty()) {
+				Query query = pm.newQuery(ProcessManager.class);
+				List<ProcessManager> processManagerList = (List<ProcessManager>) query.execute();
+				if (processManagerList.isEmpty()) {
 //					ProcessManager processManager = new ProcessManager();
 //					pm.makePersistent(processManager);
-//					System.out.println("waiting for process manager initialization");
-//					resp.getWriter().println("try again");
-//				}else{
-//					pm.currentTransaction().begin();
-//					ProcessManager processManager = processManagerList.get(0);
-					ProcessManager processManager = new ProcessManager();
+					System.out.println("waiting for process manager initialization");
+					resp.getWriter().println("try again");
+				}else{
+					pm.currentTransaction().begin();
+					ProcessManager processManager = processManagerList.get(0);
 					System.out.println(processManager.processList.size());
 					if(processManager.containsProcess(processID)){
 						Process process = processManager.getProcess(processID);
-						int processInstanceID = processManager.processInstanceID;
-						pi.processInstanceID = processInstanceID;
+						int processInstanceID = processManager.getProcessInstanceID();
+						pi.setProcessInstanceID(processInstanceID) ;
 						pi.setProcessData(process);
-						if(!pi.processData.subjects.isEmpty()){
-							Iterator it = pi.processData.subjects.keySet().iterator();
+						if(!pi.getProcessData().getSubjects().isEmpty()){
+							Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
 							while(it.hasNext()){
 								int id = (int) it.next();
-								Subject sub = pi.processData.subjects.get(id);
-								sub.internalBehavior.setProcessInstanceIDofStates(processInstanceID);
-								State state = sub.internalBehavior.statesMap.get(sub.internalBehavior.getStartState());
+								Subject sub = pi.getProcessData().getSubjects().get(id);
+								sub.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
+								State state = sub.getInternalBehavior().getStatesMap().get(sub.getInternalBehavior().getStartState());
 								boolean executable = true;
-								if(state.stateType.equals(StateType.receive)){
-									String[] s = state.transitions.get(0).text.split("(1)");
+								if(state.getStateType().equals(StateType.receive)){
+									String[] s = state.getTransitions().get(0).getText().split("(1)");
 									String text = s[0].trim();
 									int num = sub.checkMessageNumberFromSubjectIDAndType(sub.subjectID, text);
 									if(num == 0){
 										executable = false;
 									}		
 								}
-								sub.internalBehavior.setExecutable(executable);
+								sub.getInternalBehavior().setExecutable(executable);
 								processManager.addAvailbleActions(state, executable);
 								System.out.println(executable);
 							}
@@ -85,20 +84,21 @@ public class CreateProcessInst extends HttpServlet {
 						System.out.println(pi.processInstanceID);
 						System.out.println(pi.processData.processName);
 //						JDOHelper.makeDirty(processManager, "processInstanceList");
-						processManager.processInstanceID += 1;
+						int t = processManager.getProcessInstanceID() +1;
+						processManager.setProcessInstanceID(t);
 //						pm.makePersistent(processManager);
-//						pm.currentTransaction().commit();
+						pm.currentTransaction().commit();
 					}else{
 						System.out.println("no process");
 						resp.getWriter().println("no process");
-//						pm.currentTransaction().commit();
+						pm.currentTransaction().commit();
 					}	
-//				}
+				}
 			} catch(Exception e){
 				e.printStackTrace();
-//				pm.currentTransaction().rollback();
+				pm.currentTransaction().rollback();
 			}finally {
-//				pm.close();
+				pm.close();
 				System.out.println("finally");
 			}
 		} catch (Exception e) {

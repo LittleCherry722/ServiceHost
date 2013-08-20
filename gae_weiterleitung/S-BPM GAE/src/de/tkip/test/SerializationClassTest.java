@@ -16,7 +16,18 @@ public class SerializationClassTest implements Serializable {
 		nn.add("2");
 	}
 
+	public SerializationClassTest(int num){
+		name = "test";
+		this.num = num;
+		nn.add("1");
+		nn.add("2");
+	}
+	
 	public void setNum(int num) {
 		this.num = num;
+	}
+
+	public int getNum() {
+		return num;
 	}
 }

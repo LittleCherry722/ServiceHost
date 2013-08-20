@@ -30,29 +30,29 @@ public class TravalRequestProcess extends HttpServlet{
 		pi.subjects.put(applicant.getSubjectID(), applicant);
 		pi.subjects.put(supervisor.getSubjectID(), supervisor);
 		pi.subjects.put(administration.getSubjectID(),administration);
-//		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try{
-//			pm.currentTransaction().begin();
-//			Query query = pm.newQuery(ProcessManager.class);
-//			List<ProcessManager> processManagerList = (List<ProcessManager>) query.execute();
-//			if (processManagerList.isEmpty()) {
+			pm.currentTransaction().begin();
+			Query query = pm.newQuery(ProcessManager.class);
+			List<ProcessManager> processManagerList = (List<ProcessManager>) query.execute();
+			if (processManagerList.isEmpty()) {
 				ProcessManager processManager = new ProcessManager();
 				processManager.addProcess(pi);
-//				JDOHelper.makeDirty(processManager, processManager.getClass().getDeclaredFields()[2].getName());
-//				pm.makePersistent(processManager);
-//			}else{
-//				ProcessManager processManager = processManagerList.get(0);
-//				processManager.addProcess(pi);
-//				JDOHelper.makeDirty(processManager, processManager.getClass().getDeclaredFields()[2].getName());
-//				pm.makePersistent(processManager);
-//			}
-//			pm.currentTransaction().commit();
+				JDOHelper.makeDirty(processManager, processManager.getClass().getDeclaredFields()[2].getName());
+				pm.makePersistent(processManager);
+			}else{
+				ProcessManager processManager = processManagerList.get(0);
+				processManager.addProcess(pi);
+				JDOHelper.makeDirty(processManager, processManager.getClass().getDeclaredFields()[2].getName());
+				pm.makePersistent(processManager);
+			}
+			pm.currentTransaction().commit();
 			resp.getWriter().println("process created");
 		}catch(Exception e){
 			e.printStackTrace();
-//			pm.currentTransaction().rollback();
+			pm.currentTransaction().rollback();
 		}finally{
-//			pm.close();
+			pm.close();
 		}
 	}
 

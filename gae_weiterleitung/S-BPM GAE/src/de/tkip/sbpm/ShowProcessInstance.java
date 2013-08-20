@@ -23,31 +23,30 @@ public class ShowProcessInstance extends HttpServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-//		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
-//			Query query = pm.newQuery(ProcessManager.class);
-//			List<ProcessManager> processManagerList = (List<ProcessManager>) query
-//					.execute();
+			Query query = pm.newQuery(ProcessManager.class);
+			List<ProcessManager> processManagerList = (List<ProcessManager>) query
+					.execute();
 			String url = req.getRequestURI();
 			if (url.equals("/get") || url.equals("/get/")) {
-//				if (processManagerList.isEmpty()) {
-//					System.out.println("Try again later.");
-//				} else {
-//					ProcessManager processManager = processManagerList.get(0);
-					ProcessManager processManager = new ProcessManager();
-					if (processManager.processInstanceList.isEmpty()) {
+				if (processManagerList.isEmpty()) {
+					System.out.println("Try again later.");
+				} else {
+					ProcessManager processManager = processManagerList.get(0);
+					if (processManager.getProcessInstanceList().isEmpty()) {
 						System.out.println("There is no process instance.");
 					} else {
 						ListProcesses.Builder listProcessesBuilder = ListProcesses.newBuilder();
-						Iterator it = processManager.processInstanceList.iterator();
+						Iterator it = processManager.getProcessInstanceList().iterator();
 						while (it.hasNext()) {
 							ProcessInstance pi = (ProcessInstance)it.next();
-							int id = pi.processInstanceID;
-							String name = pi.processData.processName;
+							int id = pi.getProcessInstanceID();
+							String name = pi.getProcessData().getProcessName();
 							System.out.println("process id: " + id + "   process name: " + name);
 							ProcessInfo.Builder processInfoBuilder = ProcessInfo.newBuilder();
-							processInfoBuilder.setId(pi.processInstanceID)
-											  .setProcessId(pi.processData.processID);
+							processInfoBuilder.setId(pi.getProcessInstanceID())
+											  .setProcessId(pi.getProcessData().getProcessID());
 							ProcessInfo processInfo = processInfoBuilder.build();
 							listProcessesBuilder.addProcesses(processInfo);
 						}
@@ -56,11 +55,10 @@ public class ShowProcessInstance extends HttpServlet {
 				        resp.getOutputStream().flush();
 				        resp.getOutputStream().close();
 					}
-//				}
+				}
 			} else if (url.equals("/get/action") || url.equals("/get/action/")) {
-//				ProcessManager processManager = processManagerList.get(0);
-				ProcessManager processManager = new ProcessManager();
-				Map<State, Boolean> availbleActions = processManager.availbleActions;
+				ProcessManager processManager = processManagerList.get(0);
+				Map<State, Boolean> availbleActions = processManager.getAvailbleActions();
 				Iterator it = availbleActions.keySet().iterator();
 				while (it.hasNext()) {
 					State state = (State) it.next();
@@ -69,7 +67,7 @@ public class ShowProcessInstance extends HttpServlet {
 							"Process Instance ID: " + state.processInstanceID
 									+ "   State: " + state.text + "   "
 									+ executable);
-					Iterator it1 = state.transitions.iterator();
+					Iterator it1 = state.getTransitions().iterator();
 					while (it1.hasNext()) {
 						Transition transition = (Transition) it1.next();
 						System.out.println(transition.text);
@@ -80,24 +78,23 @@ public class ShowProcessInstance extends HttpServlet {
 			} else {
 				String[] urls = url.split("/");
 				int id = Integer.valueOf(urls[urls.length - 1]);
-//				ProcessManager processManager = processManagerList.get(0);
-				ProcessManager processManager = new ProcessManager();
-				if (processManager.processInstanceList.isEmpty()) {
+				ProcessManager processManager = processManagerList.get(0);
+				if (processManager.getProcessInstanceList().isEmpty()) {
 					System.out.println("There is no process instance.");
 				} else {
 					if (processManager.containsProcessInstance(id)) {
 						ProcessInstance pi = processManager
 								.getProcessInstance(id);
-						String name = pi.processData.processName;
+						String name = pi.getProcessData().getProcessName();
 						System.out.println(
 								"process id: " + id + "   process name: "
 										+ name);
 						System.out.println();
-						for (int i = 0; i < pi.processData.subjects.size(); i++) {
-							System.out.println("Subject " + i + ": " + pi.processData.subjects.get(i).subjectName);
-							System.out.println("current state: " + pi.processData.subjects.get(i).internalBehavior.currentState);
-							Iterator it1 = pi.processData.subjects.get(i).internalBehavior.statesMap
-									.get(pi.processData.subjects.get(i).internalBehavior.currentState).transitions
+						for (int i = 0; i < pi.getProcessData().getSubjects().size(); i++) {
+							System.out.println("Subject " + i + ": " + pi.getProcessData().getSubjects().get(i).getSubjectName());
+							System.out.println("current state: " + pi.getProcessData().getSubjects().get(i).getInternalBehavior().getCurrentState());
+							Iterator it1 = pi.getProcessData().getSubjects().get(i).getInternalBehavior().getStatesMap()
+									.get(pi.getProcessData().getSubjects().get(i).getInternalBehavior().getCurrentState()).getTransitions()
 									.iterator();
 							System.out.println("available actions: ");
 							while (it1.hasNext()) {
@@ -115,7 +112,7 @@ public class ShowProcessInstance extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-//			pm.close();
+			pm.close();
 		}
 	}
 }

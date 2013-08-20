@@ -27,5 +27,49 @@ public class State implements Serializable{
 
 	public List<Transition> getTransitions() {
 		return transitions;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public int getProcessInstanceID() {
+		return processInstanceID;
+	}
+
+	public void setProcessInstanceID(int processInstanceID) {
+		this.processInstanceID = processInstanceID;
+	}
+
+	public StateType getStateType() {
+		return stateType;
+	}
+
+	public void setStateType(StateType stateType) {
+		this.stateType = stateType;
+	}
+
+	public boolean isStartState() {
+		return startState;
+	}
+
+	public void setStartState(boolean startState) {
+		this.startState = startState;
+	}
+
+	public void setTransitions(List<Transition> transitions) {
+		this.transitions = transitions;
 	}	
 }

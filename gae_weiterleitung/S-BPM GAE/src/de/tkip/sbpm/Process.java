@@ -16,4 +16,22 @@ public class Process implements Serializable {
 	public void addSubject(int subjectID,Subject subject){
 		subjects.put(subjectID,subject);
 	}
+	public int getProcessID() {
+		return processID;
+	}
+	public void setProcessID(int processID) {
+		this.processID = processID;
+	}
+	public String getProcessName() {
+		return processName;
+	}
+	public void setProcessName(String processName) {
+		this.processName = processName;
+	}
+	public Map<Integer, Subject> getSubjects() {
+		return subjects;
+	}
+	public void setSubjects(Map<Integer, Subject> subjects) {
+		this.subjects = subjects;
+	}
 }

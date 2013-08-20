@@ -59,4 +59,16 @@ public class PMFTest {
 	public void setKey(Key key) {
 		this.key = key;
 	}
+	public String getTest() {
+		return test;
+	}
+	public void setTest(String test) {
+		this.test = test;
+	}
+	public SerializationClassTest getSct() {
+		return sct;
+	}
+	public void setSct(SerializationClassTest sct) {
+		this.sct = sct;
+	}
 }

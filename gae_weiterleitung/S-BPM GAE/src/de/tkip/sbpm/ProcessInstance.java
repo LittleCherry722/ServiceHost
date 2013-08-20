@@ -19,4 +19,12 @@ public class ProcessInstance implements Serializable {
 	public void setProcessData(Process processData) {
 		this.processData = processData;
 	}
+
+	public int getProcessInstanceID() {
+		return processInstanceID;
+	}
+
+	public void setProcessInstanceID(int processInstanceID) {
+		this.processInstanceID = processInstanceID;
+	}
 }
