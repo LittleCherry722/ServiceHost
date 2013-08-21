@@ -210,7 +210,10 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         }
       } ~
       pathPrefix(Entity.REPOSITORY) {
-        val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
+        val pipeline: HttpRequest => Future[String] = (
+          sendReceive
+          ~> unmarshal[String]
+        )
 
         
         get {
@@ -221,12 +224,14 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
             request => (id => Get(repoLocation + id))
           } ~
             path("reset") {
-              request => val response: Future[HttpResponse] = pipeline(Get(repoLocation + "reset"))
+              request => val response: Future[String] = pipeline(Get(repoLocation + "reset"))
               complete(response)
             } ~
             path("") {
-              request => val response: Future[HttpResponse] = pipeline(Get(repoLocation))
-              complete(response)
+              complete{
+                val response = pipeline(Get(repoLocation))
+                response
+              }
               
 //              response match {
 //              case Some(s) => complete(s)
