@@ -23,16 +23,16 @@ public class SubjectTest extends HttpServlet {
 			throws IOException {
 		resp.setContentType("text/plain");
 		int subjectNumber = 10;
-		Map<Integer,Subject> subjects = new HashMap<Integer,Subject>();
-		for (int i = 0; i < subjectNumber; i++) {
+		Map<String,Subject> subjects = new HashMap<String,Subject>();
+		for (Integer i = 0; i < subjectNumber; i++) {
 			Subject s = new Subject();
-			s.setSubjectID(i);
-			subjects.put(i,s);
+			s.setSubjectID(i.toString());
+			subjects.put(i.toString(),s);
 		}
 		Random r = new Random();
 		for (int i = 0; i < 100; i++) {
 			int from = r.nextInt(subjectNumber);
-			int to = r.nextInt(subjectNumber);
+			Integer to = r.nextInt(subjectNumber);
 			while (from == to) {
 				to = r.nextInt(subjectNumber);
 			}
@@ -44,7 +44,7 @@ public class SubjectTest extends HttpServlet {
 			Subject s = subjects.get(to);
 			
 			s.addMessage(msg);
-			subjects.put(to, s);
+			subjects.put(to.toString(), s);
 		}
 		Iterator it = subjects.values().iterator();
 		while (it.hasNext()) {

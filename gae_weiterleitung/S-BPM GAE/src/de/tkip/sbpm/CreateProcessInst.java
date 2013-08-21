@@ -1,11 +1,7 @@
 package de.tkip.sbpm;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,12 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-
 import de.tkip.sbpm.State.StateType;
 import de.tkip.sbpm.proto.GAEexecution.CreateProcessInstance;
-import de.tkip.sbpm.proto.GAEexecution.ProcessInstanceData;
 
 public class CreateProcessInst extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -70,13 +62,13 @@ public class CreateProcessInst extends HttpServlet {
 								if(state.getStateType().equals(StateType.receive)){
 									String[] s = state.getTransitions().get(0).getText().split("(1)");
 									String text = s[0].trim();
-									int num = sub.checkMessageNumberFromSubjectIDAndType(sub.subjectID, text);
+									int num = sub.checkMessageNumberFromSubjectIDAndType(Integer.parseInt(sub.getSubjectID()), text);
 									if(num == 0){
 										executable = false;
 									}		
 								}
 								sub.getInternalBehavior().setExecutable(executable);
-								processManager.addAvailbleActions(state, executable);
+								processManager.addAvailableActions(state, executable);
 								System.out.println(executable);
 							}
 						}

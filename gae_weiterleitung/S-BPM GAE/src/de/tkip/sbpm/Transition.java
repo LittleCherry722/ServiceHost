@@ -6,6 +6,11 @@ public class Transition implements Serializable {
 	public String transitionType;
 	public String text;
 	public int successorID;
+	public int priority;
+	public boolean disabled;
+	public boolean optional;
+	public boolean manualTimeout;
+	
 	
 	public Transition(String transitionType, String text, int successorID) {
 		super();
@@ -14,7 +19,7 @@ public class Transition implements Serializable {
 		this.successorID = successorID;
 	}
 
-	public int priority;
+	
 
 	public Transition() {
 	}
@@ -49,5 +54,41 @@ public class Transition implements Serializable {
 
 	public void setPriority(int priority) {
 		this.priority = priority;
+	}
+
+
+
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+
+
+	public boolean isOptional() {
+		return optional;
+	}
+
+
+
+	public void setOptional(boolean optional) {
+		this.optional = optional;
+	}
+
+
+
+	public boolean isManualTimeout() {
+		return manualTimeout;
+	}
+
+
+
+	public void setManualTimeout(boolean manualTimeout) {
+		this.manualTimeout = manualTimeout;
 	}
 }

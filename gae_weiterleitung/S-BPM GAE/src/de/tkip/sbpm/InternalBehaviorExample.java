@@ -71,10 +71,10 @@ public class InternalBehaviorExample extends HttpServlet {
 			throws IOException {
 		resp.setContentType("text/plain");
 		if(audiBestellung.getSubjectName() == null){
-			staples.setSubjectID(1);
+			staples.setSubjectID("1");
 			staples.setSubjectName("staples");
 			
-			audiBestellung.setSubjectID(0);
+			audiBestellung.setSubjectID("0");
 			audiBestellung.setSubjectName("Bestellung");
 			audiBestellung.internalBehavior.setSubjectID(0);
 

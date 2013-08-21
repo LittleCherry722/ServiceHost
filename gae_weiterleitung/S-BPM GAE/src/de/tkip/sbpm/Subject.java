@@ -14,8 +14,11 @@ public class Subject implements Serializable {
 	public int userID;
 	public int processID;
 	public int processInstanceID;
-	public int subjectID;
+	public String subjectID;
 	public String subjectName;
+	public String subjectType;
+	public boolean isDisabled;
+	public boolean isStartSubject;
 	public InputPool inputPool = new InputPool();
 	public InternalBehavior internalBehavior = new InternalBehavior();
 	
@@ -70,11 +73,11 @@ public class Subject implements Serializable {
 		this.processInstanceID = processInstanceID;
 	}
 
-	public int getSubjectID() {
+	public String getSubjectID() {
 		return subjectID;
 	}
 
-	public void setSubjectID(int subjectID) {
+	public void setSubjectID(String subjectID) {
 		this.subjectID = subjectID;
 	}
 
@@ -100,6 +103,30 @@ public class Subject implements Serializable {
 
 	public void setInternalBehavior(InternalBehavior internalBehavior) {
 		this.internalBehavior = internalBehavior;
+	}
+
+	public String getSubjectType() {
+		return subjectType;
+	}
+
+	public void setSubjectType(String subjectType) {
+		this.subjectType = subjectType;
+	}
+
+	public boolean isDisabled() {
+		return isDisabled;
+	}
+
+	public void setDisabled(boolean isDisabled) {
+		this.isDisabled = isDisabled;
+	}
+
+	public boolean isStartSubject() {
+		return isStartSubject;
+	}
+
+	public void setStartSubject(boolean isStartSubject) {
+		this.isStartSubject = isStartSubject;
 	}
 
 }

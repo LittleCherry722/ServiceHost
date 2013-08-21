@@ -14,6 +14,8 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
 
+import de.tkip.sbpm.State.StateType;
+
 @PersistenceCapable
 public class ProcessManager {
 	@PrimaryKey
@@ -26,8 +28,8 @@ public class ProcessManager {
 	public List<Process> processList = new ArrayList<Process>();;
 	@Persistent(serialized = "true")
 	public List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
-	@NotPersistent
-	public Map<State,Boolean> availbleActions = new HashMap<State,Boolean>();
+	@Persistent(serialized = "true")
+	public Map<State,Boolean> availableActions = new HashMap<State,Boolean>();
 	
 	public ProcessManager(){
 //		processInstanceID = 10000;
@@ -89,8 +91,36 @@ public class ProcessManager {
 		return null;
 	}
 	
-	public void addAvailbleActions(State state, boolean b){
-		this.availbleActions.put(state, b);
+	public State getState(int processInstanceID, int stateID){
+		Iterator it = availableActions.keySet().iterator();
+		while(it.hasNext()){
+			State state = (State) it.next();
+			if(state.getProcessInstanceID() == processInstanceID && state.getId() == stateID){
+				return state;
+			}
+		}
+		return null;
+	}
+	
+	public void checkReceiveActions(){
+		Iterator it = this.availableActions.keySet().iterator();
+		while(it.hasNext()){
+			State state = (State) it.next();
+			if(state.stateType.equals(StateType.receive)){
+				String[] str = state.getTransitions().get(0).getText().split("(1)");
+				String text = str[0].trim();
+				ProcessInstance pi = getProcessInstance(state.getProcessInstanceID());
+				if(pi.getProcessData().getSubjects().get(state.getSubjectID()).checkMessageNumberFromSubjectIDAndType(state.getSubjectID(), text) > 0){
+					this.availableActions.put(state, true);
+				}else{
+					this.availableActions.put(state, false);
+				}	
+			}
+		}
+	}
+	
+	public void addAvailableActions(State state, boolean b){
+		this.availableActions.put(state, b);
 	}
 	
 	public void addProcess(Process process){
@@ -99,6 +129,10 @@ public class ProcessManager {
 	
 	public void addProcessInstance(ProcessInstance pi){
 		this.processInstanceList.add(pi);
+	}
+	
+	public void removeAvailableActions(State state){
+		this.availableActions.remove(state);
 	}
 
 	public Key getKey() {
@@ -134,10 +168,10 @@ public class ProcessManager {
 	}
 
 	public Map<State, Boolean> getAvailbleActions() {
-		return availbleActions;
+		return availableActions;
 	}
 
 	public void setAvailbleActions(Map<State, Boolean> availbleActions) {
-		this.availbleActions = availbleActions;
+		this.availableActions = availbleActions;
 	}
 }

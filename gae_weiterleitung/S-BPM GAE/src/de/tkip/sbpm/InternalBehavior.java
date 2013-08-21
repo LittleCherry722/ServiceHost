@@ -12,7 +12,7 @@ public class InternalBehavior implements Serializable{
 	public int userID;
 	public Map<Integer, State> statesMap = new HashMap<Integer, State>();
 	public int startState = 0;
-	public int currentState; 
+	public int currentState = 0; 
 	public boolean executable;
 	
 	public InternalBehavior(){

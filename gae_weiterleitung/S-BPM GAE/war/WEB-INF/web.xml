@@ -48,6 +48,10 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>ActionReceiver</servlet-name>
 		<servlet-class>de.tkip.sbpm.ActionReceiver</servlet-class>
 	</servlet>
+	<servlet>
+	<servlet-name>GraphToProcess</servlet-name>
+		<servlet-class>de.tkip.sbpm.GraphToProcess</servlet-class>
+	</servlet>
 	
 	<servlet-mapping>
 		<servlet-name>S_BPM_GAE</servlet-name>
@@ -72,6 +76,10 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet-mapping>
 		<servlet-name>ActionReceiver</servlet-name>
 		<url-pattern>/put/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>GraphToProcess</servlet-name>
+		<url-pattern>/putgraph</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>SubjectTest</servlet-name>

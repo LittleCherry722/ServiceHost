@@ -39,6 +39,8 @@ public class PMFTestServlet extends HttpServlet {
 					resp.getWriter().println(pmftest.getSct().getNum());
 					int t = pmftest.getSct().getNum()+1;
 					pmftest.sct.setNum(t);
+					SerializationClassTest sct = new SerializationClassTest();
+					pmftest.put(pmftest.num, sct);
 //					SerializationClassTest sct = new SerializationClassTest();
 //					sct = pmftest.getSct();
 //					sct.setNum(sct.num+1);
@@ -48,6 +50,8 @@ public class PMFTestServlet extends HttpServlet {
 //					JDOHelper.makeDirty(pmftest, "sct");
 					resp.getWriter().println(pmftest.sct.name);
 					resp.getWriter().println(pmftest.sct.nn.get(0));
+					resp.getWriter().println(pmftest.getSctMap().size());
+					resp.getWriter().println((int)(pmftest.getSctMap().keySet().iterator().next()));
 					resp.getWriter().println();
 //					for(Field f : pmftest.getClass().getDeclaredFields()){
 //						resp.getWriter().println(f.getName());

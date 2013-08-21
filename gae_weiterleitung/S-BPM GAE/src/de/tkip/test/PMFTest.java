@@ -1,7 +1,9 @@
 package de.tkip.test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -26,6 +28,8 @@ public class PMFTest {
 	public int num;
 	@Persistent(serialized = "true")
 	public SerializationClassTest sct;
+	@Persistent(serialized = "true")
+	public Map<Integer,SerializationClassTest> sctMap = new HashMap<Integer,SerializationClassTest>();
 //	@Persistent(serialized = "true")
 //	public List<Process> processList = new ArrayList<Process>();
 //	@Persistent(serialized = "true")
@@ -38,8 +42,8 @@ public class PMFTest {
 		Subject s = new Subject();
 		s.processID = 20;
 		s.processInstanceID = 20;
-		s.subjectID = 20;
-		p.addSubject(0, s);
+		s.subjectID = "20";
+		p.addSubject(s);
 		sct = new SerializationClassTest();
 //		processList.add(p);
 		ProcessInstance pi = new ProcessInstance();
@@ -70,5 +74,17 @@ public class PMFTest {
 	}
 	public void setSct(SerializationClassTest sct) {
 		this.sct = sct;
+	}
+	public Map<Integer, SerializationClassTest> getSctMap() {
+		return sctMap;
+	}
+	public void setSctMap(Map<Integer, SerializationClassTest> sctMap) {
+		this.sctMap = sctMap;
+	}
+	public SerializationClassTest get(Object key) {
+		return sctMap.get(key);
+	}
+	public SerializationClassTest put(Integer key, SerializationClassTest value) {
+		return sctMap.put(key, value);
 	}
 }

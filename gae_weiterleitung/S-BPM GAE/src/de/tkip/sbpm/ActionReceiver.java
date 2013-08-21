@@ -14,11 +14,57 @@ import javax.servlet.http.HttpServletResponse;
 import de.tkip.sbpm.State.StateType;
 import de.tkip.sbpm.proto.GAEexecution.Action;
 import de.tkip.sbpm.proto.GAEexecution.ActionData;
+import de.tkip.sbpm.proto.GAEexecution.ListActions;
 
 public class ActionReceiver extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
+			ListActions.Builder listActionsBuilder = ListActions.newBuilder();
+			pm.currentTransaction().begin();
+			Query query = pm.newQuery(ProcessManager.class);
+			List<ProcessManager> processManagerList = (List<ProcessManager>) query.execute();
+			if (processManagerList.isEmpty()) {
+				System.out.println("Try again later.");
+			}else{
+				ProcessManager processManager = processManagerList.get(0);
+				Iterator it = processManager.getAvailbleActions().keySet().iterator();
+				while(it.hasNext()){
+					State state1 = (State) it.next();
+					Action.Builder actionBuilder = Action.newBuilder();
+					actionBuilder.setUserID(0)
+								 .setProcessInstanceID(state1.getProcessInstanceID())
+								 .setSubjectID(Integer.toString(state1.getSubjectID()))
+								 .setStateID(state1.getId())
+								 .setStateText(state1.getText())
+								 .setStateType(state1.getStateType().name());
+					for(int i = 0; i < state1.getTransitions().size(); i++){
+						String text  = state1.getTransitions().get(i).getText();
+						String transitionType = state1.getTransitions().get(i).getTransitionType();
+						ActionData.Builder actionDataBuilder = ActionData.newBuilder();
+						actionDataBuilder.setText(text)
+										 .setExecutable(processManager.getAvailbleActions().get(state1))
+										 .setTransitionType(transitionType);
+						ActionData actionData = actionDataBuilder.build();
+						actionBuilder.addActionData(actionData);
+					}
+					Action newAction = actionBuilder.build();
+					listActionsBuilder.addActions(newAction);
+				}
+				ListActions listActions = listActionsBuilder.build();
+				resp.getOutputStream().write(listActions.toByteArray());
+		        resp.getOutputStream().flush();
+		        resp.getOutputStream().close();
+			}
+			pm.currentTransaction().commit();
+		} catch (Exception e) {
+			pm.currentTransaction().rollback();
+			e.printStackTrace();
+		}finally{
+			pm.close();
+		}
+		
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -51,12 +97,12 @@ public class ActionReceiver extends HttpServlet {
 						case "receive":
 							String[] str = currentState.getTransitions().get(0).getText().split("(1)");
 							String text = str[0].trim();
-							msg = s.getMessageFromSubjcetIDAndType(s.getSubjectID(), text);
+							msg = s.getMessageFromSubjcetIDAndType(Integer.parseInt(s.getSubjectID()), text);
 							break;
 						case "send":
 							int messageID = 0;
 							int userID = 0;
-							int from_subjectID = s.getSubjectID();
+							int from_subjectID = Integer.parseInt(s.getSubjectID());
 							int target_subjectID = 0;
 							String[] str1 = currentState.getTransitions().get(0).getText().split("to:");
 							String sName = str1[str1.length-1].trim();
@@ -72,11 +118,14 @@ public class ActionReceiver extends HttpServlet {
 							}	
 							SubjectToSubjectMessage stsmsg = new SubjectToSubjectMessage(messageID, userID, from_subjectID, target_subjectID, processInstanceID, messageType, msgContent);
 							s.addMessage(stsmsg);
+							processManager.checkReceiveActions();
 							break;
 						case "end":
 							isEnd = true;
 							break;
 						}
+						State cState = processManager.getState(processInstanceID, action.getStateID());
+						processManager.removeAvailableActions(cState);
 						if(!isEnd){
 							String transitonText = action.getActionData(0).getText();
 							int nextStateID = s.getInternalBehavior().getNextStateID(transitonText);
@@ -87,32 +136,39 @@ public class ActionReceiver extends HttpServlet {
 								if(state.getStateType().equals(StateType.receive)){
 									String[] str = state.getTransitions().get(0).getText().split("(1)");
 									String text = str[0].trim();
-									int num = s.checkMessageNumberFromSubjectIDAndType(s.getSubjectID(), text);
+									int num = s.checkMessageNumberFromSubjectIDAndType(Integer.parseInt(s.getSubjectID()), text);
 									if(num == 0){
 										executable = false;
 									}		
 								}
 								s.getInternalBehavior().setExecutable(executable);
-								processManager.addAvailbleActions(state, executable);
-								Action.Builder actionBuilder = Action.newBuilder();
-								actionBuilder.setUserID(0)
-											 .setProcessInstanceID(processInstanceID)
-											 .setSubjectID(Integer.toString(s.getSubjectID()))
-											 .setStateID(nextStateID)
-											 .setStateText(state.getText())
-											 .setStateType(state.getStateType().name());
-								for(int i = 0; i < state.getTransitions().size(); i++){
-									String text  = state.getTransitions().get(i).getText();
-									String transitionType = state.getTransitions().get(i).getTransitionType();
-									ActionData.Builder actionDataBuilder = ActionData.newBuilder();
-									actionDataBuilder.setText(text)
-													 .setExecutable(executable)
-													 .setTransitionType(transitionType);
-									ActionData actionData = actionDataBuilder.build();
-									actionBuilder.addActionData(actionData);
+								processManager.addAvailableActions(state, executable);
+								ListActions.Builder listActionsBuilder = ListActions.newBuilder();
+								Iterator it = processManager.getAvailbleActions().keySet().iterator();
+								while(it.hasNext()){
+									State state1 = (State) it.next();
+									Action.Builder actionBuilder = Action.newBuilder();
+									actionBuilder.setUserID(0)
+												 .setProcessInstanceID(state1.getProcessInstanceID())
+												 .setSubjectID(Integer.toString(state1.getSubjectID()))
+												 .setStateID(state1.getId())
+												 .setStateText(state1.getText())
+												 .setStateType(state1.getStateType().name());
+									for(int i = 0; i < state1.getTransitions().size(); i++){
+										String text  = state1.getTransitions().get(i).getText();
+										String transitionType = state1.getTransitions().get(i).getTransitionType();
+										ActionData.Builder actionDataBuilder = ActionData.newBuilder();
+										actionDataBuilder.setText(text)
+														 .setExecutable(processManager.getAvailbleActions().get(state1))
+														 .setTransitionType(transitionType);
+										ActionData actionData = actionDataBuilder.build();
+										actionBuilder.addActionData(actionData);
+									}
+									Action newAction = actionBuilder.build();
+									listActionsBuilder.addActions(newAction);
 								}
-								Action newAction = actionBuilder.build();
-								resp.getOutputStream().write(newAction.toByteArray());
+								ListActions listActions = listActionsBuilder.build();
+								resp.getOutputStream().write(listActions.toByteArray());
 					            resp.getOutputStream().flush();
 					            resp.getOutputStream().close();
 							}else{

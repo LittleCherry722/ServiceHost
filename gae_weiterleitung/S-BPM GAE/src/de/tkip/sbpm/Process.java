@@ -8,12 +8,14 @@ import java.util.Map;
 public class Process implements Serializable {	
 	public int processID;
 	public String processName;
-	public Map<Integer,Subject> subjects;
+	public String date;
+	public Map<String,Subject> subjects = new HashMap<String,Subject>();
 	
 	public Process(){
-		subjects = new HashMap<Integer,Subject>();
 	}
-	public void addSubject(int subjectID,Subject subject){
+	
+	public void addSubject(Subject subject){
+		String subjectID = subject.getSubjectID();
 		subjects.put(subjectID,subject);
 	}
 	public int getProcessID() {
@@ -28,10 +30,18 @@ public class Process implements Serializable {
 	public void setProcessName(String processName) {
 		this.processName = processName;
 	}
-	public Map<Integer, Subject> getSubjects() {
+	public Map<String, Subject> getSubjects() {
 		return subjects;
 	}
-	public void setSubjects(Map<Integer, Subject> subjects) {
+	public void setSubjects(Map<String, Subject> subjects) {
 		this.subjects = subjects;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
 	}
 }

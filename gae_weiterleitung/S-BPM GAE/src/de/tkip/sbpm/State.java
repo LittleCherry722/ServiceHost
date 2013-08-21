@@ -12,8 +12,12 @@ public class State implements Serializable{
 	public int id;
 	public String text;
 	public int processInstanceID;
+	public int subjectID;
 	public StateType stateType;
 	public boolean startState;
+	public boolean endState;
+	public boolean disabled;
+	public boolean MajorStart;
 	public List<Transition> transitions = new ArrayList<Transition>();
 	
 	public State(int id, String text,
@@ -23,6 +27,10 @@ public class State implements Serializable{
 		this.text = text;
 		this.stateType = stateType;
 		this.startState = startState;
+	}
+
+	public State() {
+		
 	}
 
 	public List<Transition> getTransitions() {
@@ -71,5 +79,37 @@ public class State implements Serializable{
 
 	public void setTransitions(List<Transition> transitions) {
 		this.transitions = transitions;
+	}
+
+	public int getSubjectID() {
+		return subjectID;
+	}
+
+	public void setSubjectID(int subjectID) {
+		this.subjectID = subjectID;
+	}
+
+	public boolean isEndState() {
+		return endState;
+	}
+
+	public void setEndState(boolean endState) {
+		this.endState = endState;
+	}
+
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+	public boolean isMajorStart() {
+		return MajorStart;
+	}
+
+	public void setMajorStart(boolean majorStart) {
+		MajorStart = majorStart;
 	}	
 }

@@ -67,7 +67,9 @@ public class InputPool implements Serializable {
 		MessageKey key = new MessageKey(sID, messageType);
 		if(!messageQueueMap.containsKey(key) || messageQueueMap.get(key).isEmpty()){
 			return 0;
-		}else return messageQueueMap.get(key).size();
+		}else{
+			return messageQueueMap.get(key).size();
+		}
 	}
 	
 	public String getMessageFromSubjectIDAndType(int sID,String messageType){
@@ -112,6 +114,27 @@ public class InputPool implements Serializable {
 
 	public int getMessageLimit() {
 		return messageLimit;
+	}
+
+	public int getUserID() {
+		return userID;
+	}
+
+	public void setUserID(int userID) {
+		this.userID = userID;
+	}
+
+	public Map<MessageKey, Queue<SubjectToSubjectMessage>> getMessageQueueMap() {
+		return messageQueueMap;
+	}
+
+	public void setMessageQueueMap(
+			Map<MessageKey, Queue<SubjectToSubjectMessage>> messageQueueMap) {
+		this.messageQueueMap = messageQueueMap;
+	}
+
+	public void setMessageLimit(int messageLimit) {
+		this.messageLimit = messageLimit;
 	}
 	
 }	
