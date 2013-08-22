@@ -57,6 +57,10 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
         case s =>
           forwardToPersistence(Save.Entity(s: _*), from)
       }
+      newQuery onFailure {
+        case s =>
+          log.error("Graph checking failed, reason: " + s)
+      }
     }
     case q @ Save.WithGraph(p, g) => {
       // check the graph and update the process
@@ -68,6 +72,10 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
         case q =>
           forwardToPersistence(q, from)
       }
+      newQuery onFailure {
+        case s =>
+          log.error("Graph checking failed, reason: " + s)
+      }
     }
     case q: Query => forwardToPersistence(q, sender)
   }
@@ -77,7 +85,7 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
     exchangeStartAble(p, isStartAbleProcessGraph(g))
   }
   private def exchangeStartAble(p: Process, startAble: Boolean): Process =
-//    Process(p.id, p.name, p.isCase, Some(startAble), p.activeGraphId)
+    //    Process(p.id, p.name, p.isCase, Some(startAble), p.activeGraphId)
     p.copy(startAble = Some(startAble))
 
   private def isStartAbleProcessGraph(graph: Graph): Boolean = {
@@ -127,14 +135,14 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
         // update otherwise
         case p @ Process(id, _, _, _, _)   => update(id, p)
       } match {
-         // only one process was given, return it's id
+        // only one process was given, return it's id
         case ids if (ids.size == 1) => ids.head
         // more processes were given return all ids
         case ids                    => ids
       }
     }
     // create new process with a corresponding graph
-    case Save.WithGraph(p: Process, g) =>  answer { implicit session =>
+    case Save.WithGraph(p: Process, g) => answer { implicit session =>
       saveProcessWithGraph(p, g)
     }
     // delete process with given id
@@ -166,7 +174,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     id
   }
 
-  /** 
+  /**
    * Update entity or throw exception if it does not exist.
    */
   private def update(id: Option[Int], p: Process)(implicit session: Session) = {
@@ -176,12 +184,12 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
 
     if (res == 0)
       throw new EntityNotFoundException("Process with id %d does not exist.", id.get)
-    
+
     log.debug("Update Process: " + p)
-    
+
     // update active graph entitiy for current process
     updateActiveGraph(id, entities._2)
-    
+
     // update always returns None
     None
   }
@@ -202,7 +210,10 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
    * Saves a process with the corresponding graph to the database.
    * Each save operation produces a new graph instance (for maintaining old versions).
    */
-  private def saveProcessWithGraph(p: Process, g: Graph)(implicit session: Session) ={
+  private def saveProcessWithGraph(p: Process, g: Graph)(implicit session: Session) = {
+
+    log.debug("Update Process with Graph: " + p)
+
     // set graph id to none -> insert new on every save to maintain old versions
     var graph = g.copy(id = None)
     // set current active graph to None (we don't know graph id yet)

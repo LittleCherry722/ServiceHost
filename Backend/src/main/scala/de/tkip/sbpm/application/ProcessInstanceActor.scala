@@ -93,7 +93,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this actory is used to exchange the subject ids for external input messages
   // TODO
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(graph)))
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, graph)))
 
   override def preStart() {
     try {

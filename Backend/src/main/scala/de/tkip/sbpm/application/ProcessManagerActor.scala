@@ -22,6 +22,9 @@ import de.tkip.sbpm.ActorLocator
 import akka.actor.Status.Failure
 import de.tkip.sbpm.application.history._
 import java.util.Date
+import scala.concurrent.Future
+import akka.pattern.pipe
+import scala.collection.mutable.ArrayBuffer
 
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
@@ -32,7 +35,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
  */
 class ProcessManagerActor extends Actor {
   private case class ProcessInstanceData(processID: ProcessID, processName: String, name: String, processInstanceActor: ProcessInstanceRef)
-
+  implicit val ec = context.dispatcher
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceData]()
@@ -53,6 +56,10 @@ class ProcessManagerActor extends Actor {
           getAll,
           processInstanceMap.map(
             s => ProcessInstanceInfo(s._1, s._2.name, s._2.processID)).toArray.sortBy(_.id))
+    }
+
+    case message: GetNewHistory => {
+      sender ! NewHistoryAnswer(message, history)
     }
 
     case cp: CreateProcessInstance => {
@@ -119,12 +126,13 @@ class ProcessManagerActor extends Actor {
       answer.sender.forward(answer)
     }
 
-    case message: GetNewHistory => {
-      sender ! NewHistoryAnswer(message, history)
-    }
-
     case entry: NewHistoryEntry => {
       history.entries += entry
+    }
+    
+    case GetHistorySince(t) => {
+      println("time of the first entry is: "+history.entries(0).timeStamp.getTime())
+      Future { getHistoryChange(t) } pipeTo sender
     }
 
     case message => {
@@ -160,5 +168,18 @@ class ProcessManagerActor extends Actor {
       logger.error("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)
     }
+  }
+  
+  private def getHistoryChange(t: Long) = {
+    val changes = history.entries.filter(_.timeStamp.getTime() > t * 1000)
+    var temp = ArrayBuffer[String]()
+    for (i <- 0 until changes.length){
+      var id = changes(i).userId.get
+      var name = changes(i).process.processName
+      temp += """"inserted" : [ { "id" : """ + id + """, "name": """"+name+"""" } ]""" 
+    }
+    val result = """{ "history": {""" + temp.mkString(",") + """ } }"""
+    result
+    
   }
 }

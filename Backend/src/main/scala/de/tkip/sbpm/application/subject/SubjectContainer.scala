@@ -62,7 +62,7 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
-    System.err.println("CREATED: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
+    logger.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
     if (single) {
       if (subjects.size > 0) {
         logger.error("Single subjects cannot be created twice")
