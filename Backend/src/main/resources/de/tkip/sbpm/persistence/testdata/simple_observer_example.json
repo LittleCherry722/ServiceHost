@@ -137,7 +137,34 @@
                                 }, 
                                 "id": 4, 
                                 "conversation": "", 
-                                "text": "Bestellung bearbeiten", 
+                                "text": "Bestellung bearbeiten 1", 
+                                "variable": "", 
+                                "end": false, 
+                                "majorStartNode": false, 
+                                "type": "action", 
+                                "options": {
+                                    "conversation": "", 
+                                    "message": "*", 
+                                    "state": null, 
+                                    "correlationId": "", 
+                                    "subject": "*"
+                                }, 
+                                "deactivated": false
+                            }, 
+                            {
+                                "comment": "", 
+                                "nodeType": "action", 
+                                "start": false, 
+                                "macro": "", 
+                                "varMan": {
+                                    "operation": "and", 
+                                    "var1": "", 
+                                    "storevar": "", 
+                                    "var2": ""
+                                }, 
+                                "id": 8, 
+                                "conversation": "", 
+                                "text": "Bestellung bearbeiten 2", 
                                 "variable": "", 
                                 "end": false, 
                                 "majorStartNode": false, 
@@ -233,7 +260,7 @@
                                 "deactivated": false
                             }
                         ], 
-                        "nodeCounter": 9, 
+                        "nodeCounter": 10, 
                         "id": "##main##", 
                         "edges": [
                             {
@@ -280,7 +307,7 @@
                             }, 
                             {
                                 "comment": "", 
-                                "end": 7, 
+                                "end": 8, 
                                 "target": "", 
                                 "edgeType": "exitcondition", 
                                 "text": "", 
@@ -290,6 +317,24 @@
                                 ], 
                                 "priority": 1, 
                                 "start": 4, 
+                                "type": "exitcondition", 
+                                "deactivated": false, 
+                                "variable": null, 
+                                "optional": false, 
+                                "correlationId": ""
+                            }, 
+                            {
+                                "comment": "", 
+                                "end": 7, 
+                                "target": "", 
+                                "edgeType": "exitcondition", 
+                                "text": "", 
+                                "manualTimeout": false, 
+                                "transportMethod": [
+                                    "internal"
+                                ], 
+                                "priority": 1, 
+                                "start": 8, 
                                 "type": "exitcondition", 
                                 "deactivated": false, 
                                 "variable": null, 
@@ -393,7 +438,7 @@
                 "relatedProcess": null
             }, 
             {
-                "startSubject": false, 
+                "startSubject": true, 
                 "comment": "", 
                 "macroCounter": 1, 
                 "name": "Kunde", 
@@ -498,7 +543,7 @@
                                 }, 
                                 "id": 3, 
                                 "conversation": "", 
-                                "text": "Bestellung \u00c3\u00bcberpr\u00c3\u00bcfen", 
+                                "text": "Bestellung \u00dcberpr\u00fcfen", 
                                 "variable": "", 
                                 "end": false, 
                                 "majorStartNode": false, 
@@ -617,7 +662,7 @@
                                 "end": 1, 
                                 "target": "", 
                                 "edgeType": "exitcondition", 
-                                "text": "l\u00c3\u00b6schen", 
+                                "text": "l\u00f6schen", 
                                 "manualTimeout": false, 
                                 "transportMethod": [
                                     "internal"
@@ -659,7 +704,7 @@
                                 "end": 4, 
                                 "target": "", 
                                 "edgeType": "exitcondition", 
-                                "text": "\u00c3\u00a4ndern", 
+                                "text": "\u00e4ndern", 
                                 "manualTimeout": false, 
                                 "transportMethod": [
                                     "internal"

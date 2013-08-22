@@ -43,6 +43,8 @@ import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
 
 case object StartMacroExecution
+case class ActivateState(id: StateID)
+case class DeactivateState(id: StateID)
 
 // TODO this is for history + statechange
 case class ChangeState(
@@ -82,6 +84,14 @@ class InternalBehaviorActor(
       addState(startState)
     }
 
+    case ActivateState(id) => {
+      addState(id)
+    }
+
+    case DeactivateState(id) => {
+      killState(id)
+    }
+
     case change: ChangeState => {
       // update the internal status
       internalStatus = change.internalStatus
@@ -118,15 +128,13 @@ class InternalBehaviorActor(
     }
 
     case terminated: MacroTerminated => {
-      if(macroStartState.isDefined) {
+      if (macroStartState.isDefined) {
         data.blockingHandlerActor ! BlockUser(userID)
-        println("send"+macroStartState)
-        println(macroStartState.get.isTerminated)
         macroStartState.get ! terminated
       }
       context.parent ! terminated
     }
-    
+
     case m: CallMacro => {
       context.parent ! m
     }
@@ -171,19 +179,24 @@ class InternalBehaviorActor(
   private val currentStatesMap: mutable.Map[StateID, BehaviorStateRef] = mutable.Map()
   private def changeState(from: StateID, to: StateID) = {
     // kill the currentState
-    if (currentStatesMap contains from) {
-      val currentState = currentStatesMap(from)
-      // kill the from State
-      currentState ! PoisonPill
-      currentStatesMap -= from
-    } else {
-      log.debug("Change State from a State, which does not exits")
-    }
+    killState(from)
 
     // TODO damit umgehen, wenn target ein ModalJoin State ist
     log.debug("Execute: /%s/%s/[%s]->[%s]".format(userID, subjectID, from, to))
     addState(to)
   }
+
+  private def killState(state: StateID) {
+    if (currentStatesMap contains state) {
+      val currentState = currentStatesMap(state)
+      // kill the from State
+      currentState ! PoisonPill
+      currentStatesMap -= state
+    } else {
+      log.debug("Kill State for a State, which does not exits")
+    }
+  }
+
   private def addState(state: StateID) {
     if (statesMap.contains(state)) {
       log.debug("Starting state: /%s/%s/%s/%s".format(userID, subjectID, macroId, state))
@@ -257,9 +270,17 @@ class InternalBehaviorActor(
       case ModalJoinStateType => {
         context.actorOf(Props(new ModalJoinStateActor(stateData)))
       }
-      
+
       case MacroStateType => {
         context.actorOf(Props(new MacroStateActor(stateData)))
+      }
+
+      case ActivateStateType => {
+        context.actorOf(Props(new ActivateStateActor(stateData)))
+      }
+
+      case DeactivateStateType => {
+        context.actorOf(Props(new DeactivateStateActor(stateData)))
       }
     }
   }
