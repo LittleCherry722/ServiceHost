@@ -16,7 +16,6 @@ import de.tkip.sbpm.model.GraphNodeOptions
 import de.tkip.sbpm.model.GraphVarMan
 import de.tkip.sbpm.model.GraphEdge
 import de.tkip.sbpm.model.GraphEdgeTarget
-import org.parboiled.support.Var
 import de.tkip.sbpm.model.GraphRouting
 import de.tkip.sbpm.model.GraphRoutingExpression
 import de.tkip.sbpm.model.GraphConversation
@@ -28,6 +27,9 @@ import de.tkip.sbpm.model.GraphEdge
 import de.tkip.sbpm.model.GraphRoutingExpression
 import de.tkip.sbpm.model.GraphRoutingExpression
 import de.tkip.sbpm.model.GraphMessage
+import de.tkip.sbpm.model.Action
+import de.tkip.sbpm.model.Action
+import de.tkip.sbpm.application.subject.misc.AvailableAction
 
 object ProtobufWrapper {
 
@@ -72,7 +74,7 @@ object ProtobufWrapper {
 
     executeActionBuilder.build().toByteArray()
   }
-
+  
   def buildAvailableAction(bytes: Array[Byte]): AvailableAction = {
     import scala.collection.JavaConversions._
 
@@ -82,6 +84,7 @@ object ProtobufWrapper {
       action.getUserID().toInt,
       action.getProcessInstanceID(),
       action.getSubjectID().toString,
+      "##main##",
       action.getStateID(),
       action.getStateText(),
       action.getStateType(),
@@ -162,6 +165,9 @@ object ProtobufWrapper {
     if (subject.role.isDefined)
       subjectBuilder.setRole(subject.role.get.name) // TODO
 
+    if (subject.url.isDefined)
+      subjectBuilder.setUrl(subject.url.get)
+      
     if (subject.comment.isDefined)
       subjectBuilder.setComment(subject.comment.get)
 
@@ -367,6 +373,7 @@ object ProtobufWrapper {
           if (subject.hasRelatedGraphId()) Some(subject.getRelatedGraphId()) else None,
           if (subject.hasExternalType()) Some(subject.getExternalType()) else None,
           if (subject.hasRole()) None else None, // TODO
+          if (subject.hasUrl()) Some(subject.getUrl()) else None,
           if (subject.hasComment()) Some(subject.getComment()) else None,
           buildGraphVariables(subject.getVariablesList().toArray().toList.asInstanceOf[List[proto.GraphVariable]]),
           buildGraphMacros(subject.getMacrosList().toArray().toList.asInstanceOf[List[proto.GraphMacro]])))

@@ -62,66 +62,6 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
   private val googleUri = "http://127.0.0.1:8888/"
   import de.tkip.sbpm.proto.{ GAEexecution => msg }
 
-  private def buildProto(action: ExecuteAction): Array[Byte] = {
-    val executeActionBuilder = msg.ExecuteAction.newBuilder()
-
-    val actionBuilder = msg.Action.newBuilder()
-    actionBuilder.setUserID(action.userID)
-      .setProcessInstanceID(action.processInstanceID)
-      .setSubjectID(action.subjectID) //TODO String
-      .setStateID(action.stateID)
-      .setStateType(action.stateType)
-      // TODO stateTexts
-      .setStateText("")
-
-    val data = action.actionData
-    val actionDataBuilder = msg.ActionData.newBuilder()
-    actionDataBuilder.setText(data.text)
-      .setExecutable(data.executeAble)
-      .setTransitionType(data.transitionType)
-
-    // Add the target users
-    if (data.targetUsersData.isDefined) {
-      val target = data.targetUsersData.get
-      val targetUserBuilder = msg.TargetUserData.newBuilder()
-      targetUserBuilder.setMin(target.min)
-        .setMax(target.max)
-      for (user <- target.targetUsers) {
-        targetUserBuilder.addTargetUsers(user)
-      }
-      actionDataBuilder.setTargetUserData(targetUserBuilder)
-    }
-    // add the related subject
-    if (data.relatedSubject.isDefined) {
-      actionDataBuilder.setRelatedSubject(data.relatedSubject.get)
-    }
-    // add the messageContent (TODO)
-
-    executeActionBuilder.setAction(actionBuilder)
-
-    executeActionBuilder.build().toByteArray()
-  }
-
-  def buildScala(action: msg.Action): AvailableAction = {
-    import scala.collection.JavaConversions._
-    AvailableAction(
-      action.getUserID(),
-      action.getProcessInstanceID(),
-      action.getSubjectID(),
-      action.getStateID(),
-      action.getStateText(),
-      action.getStateType(),
-      (for (data <- action.getActionDataList())
-        yield ActionData(
-            data.getText(),
-            data.getExecutable(),
-            data.getTransitionType()
-//            data.getTa/
-            // TODO...
-        )).toArray
-        
-    )
-  }
 
   private def routeToGoogle: PartialFunction[RequestContext, Unit] = {
     runRoute({

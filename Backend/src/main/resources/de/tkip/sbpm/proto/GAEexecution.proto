@@ -136,6 +136,7 @@ message GraphSubject {
 	optional int32 relatedGraphId = 8;
 	optional string externalType = 9;
 	optional string role = 10; // TODO
+	optional string url = 14;
 	optional string comment = 11;
 	repeated GraphVariable variables = 12; // <-
 	
