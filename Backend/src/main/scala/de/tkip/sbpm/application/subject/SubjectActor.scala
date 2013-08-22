@@ -31,6 +31,8 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import akka.util.Timeout
+import de.tkip.sbpm.application.subject.misc.DisableNonObserverStates
+import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
 
 case class CallMacro(callActor: ActorRef, name: String)
 
@@ -128,6 +130,13 @@ class SubjectActor(data: SubjectData) extends Actor {
 
     case s: Stored => {
       // TODO:
+    }
+
+    case s @ KillNonObserverStates => {
+      macroBehaviorActors.map(_._2 ! s)
+    }
+    case s @ DisableNonObserverStates => {
+      macroBehaviorActors.map(_._2 ! s)
     }
 
     case history.Transition(from, to, msg) => {

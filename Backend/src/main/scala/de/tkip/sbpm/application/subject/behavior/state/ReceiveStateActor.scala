@@ -106,6 +106,9 @@ protected case class ReceiveStateActor(data: StateData)
       }
 
       sender ! SubjectToSubjectMessageReceived(sm)
+
+      // try to disable other states, when this state is an observer
+      tryDisableNonObserverStates()
     }
 
     case InputPoolSubscriptionPerformed => {
@@ -115,6 +118,13 @@ protected case class ReceiveStateActor(data: StateData)
   }
 
   override protected def delayUnblockAtStart = true
+
+  private def tryDisableNonObserverStates() {
+    // TODO check if timeout is ready
+    if (model.observerState && exitTransitionsMap.exists(_._2.ready)) {
+      subjectActor ! DisableNonObserverStates
+    }
+  }
 
   // only for startstate creation, check if subjectready should be sent
   var sendSubjectReady = startState
@@ -155,7 +165,7 @@ protected case class ReceiveStateActor(data: StateData)
     inputPoolActor ! UnSubscribeIncomingMessages(id)
 
     if (data.stateModel.observerState) {
-      internalBehaviorActor ! KillNonObserverStates
+      subjectActor ! KillNonObserverStates
     }
 
     // change the state

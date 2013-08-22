@@ -34,7 +34,7 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
   import akka.util.Timeout
   import scala.concurrent.Future
   import scala.concurrent.ExecutionContext.Implicits.global
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(10000)
   def receive = {
     case q @ Save.Entity(ps @ _*) => {
       log.debug("Start checking: " + q)
@@ -90,7 +90,10 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
 
   private def isStartAbleProcessGraph(graph: Graph): Boolean = {
     // TODO correct check
-    graph.subjects.exists(s => s._2.isStartSubject.getOrElse(false))
+    val correct =
+      graph.subjects.exists(s => s._2.isStartSubject.getOrElse(false))
+    log.debug(s"Result for graph ${graph.id} is $correct")
+    correct
   }
 
   /**

@@ -64,6 +64,8 @@ protected case class Rejected(messageID: MessageID) extends MessageObject
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
 
 protected[subject] case class MacroTerminated(macroID: String)
+protected[subject] case object KillNonObserverStates
+protected[subject] case object DisableNonObserverStates
 
 // external subject interaction messages
 sealed trait SubjectBehaviorRequest
@@ -84,7 +86,7 @@ case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
 
 case class ActionData(
   text: String, // = messagetype
-  executeAble: Boolean,
+  var executeAble: Boolean,
   transitionType: String, // exitcondition or timeout
   targetUsersData: Option[TargetUser] = None, // target user of a send message
   relatedSubject: Option[String] = None, // the related subject of a send-/receive state

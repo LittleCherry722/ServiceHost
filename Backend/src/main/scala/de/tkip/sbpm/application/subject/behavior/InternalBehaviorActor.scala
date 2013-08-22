@@ -45,7 +45,6 @@ import scala.collection.mutable.Stack
 case object StartMacroExecution
 case class ActivateState(id: StateID)
 case class DeactivateState(id: StateID)
-case object KillNonObserverStates
 
 // TODO this is for history + statechange
 case class ChangeState(
@@ -70,6 +69,8 @@ class InternalBehaviorActor(
   val subjectID = data.subject.id
   val userID = data.userID
 
+  private val subjectActor = context.parent
+
   private val statesMap = collection.mutable.Map[StateID, State]()
   private var startState: StateID = _
   //  private var currentState: BehaviorStateRef = null
@@ -85,8 +86,16 @@ class InternalBehaviorActor(
       addState(startState)
     }
 
-    // Only the main macro can contain observers
-    case KillNonObserverStates if (!macroStartState.isDefined) => {
+    case DisableNonObserverStates => {
+      for (
+        (id, state) <- currentStatesMap;
+        if (!statesMap(id).observerState)
+      ) {
+        state ! DisableState
+      }
+
+    }
+    case KillNonObserverStates => {
       // TODO kill other macros!
       for (
         state <- currentStatesMap.map(_._1);
@@ -242,6 +251,7 @@ class InternalBehaviorActor(
       subjectID,
       macroId,
       self,
+      context.parent,
       processInstanceActor,
       inputPoolActor,
       internalStatus,
