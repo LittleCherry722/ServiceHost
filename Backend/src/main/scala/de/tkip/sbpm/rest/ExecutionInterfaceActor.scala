@@ -84,7 +84,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                 connection.setDoOutput(true)
                 connection.setRequestMethod("POST")
 
-                val proto = buildProto(json)
+                val proto = ProtobufWrapper.buildProto(json)
                 connection.setRequestProperty("Content-Length", proto.length.toString)
 
                 val out = new DataOutputStream(connection.getOutputStream())
@@ -96,10 +96,9 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                 val protoResult = ByteStreams.toByteArray(in)
                 // TODO convert proto -> case class
                 System.err.println(protoResult);
-                val result = msg.ExecuteAction.parseFrom(protoResult)
 
                 //execute next step
-                complete(buildScala(result.getAction()))
+                complete(ProtobufWrapper.buildAvailableAction(protoResult))
               }
             }
           }
