@@ -18,7 +18,7 @@ import akka.actor.{Actor, ActorSystem, Props}
 import akka.actor.Status.Failure
 import akka.pattern.pipe
 
-import de.tkip.sbpm.rest.google.GDriveControl
+import de.tkip.sbpm.rest.google.{GDriveControl, GAuthCtrl}
 
 object GDriveActor {
   case class FindFiles(userId: String, query: String, fields: String)
@@ -40,9 +40,9 @@ class GDriveActor extends Actor {
     case FindFiles(u,q,f) =>
       Future { driveCtrl.findFiles(u,q,f) } pipeTo sender
     case InitCredentials(u,c) =>
-      Future { driveCtrl.initCredentials(u,c) } pipeTo sender
+      Future { GAuthCtrl.initCredentials(u,c) } pipeTo sender
     case RetrieveCredentials(u) =>
-      Future { driveCtrl.getCredentials(u) } pipeTo sender
+      Future { GAuthCtrl.getCredentials(u) } pipeTo sender
     case GetFileInfo(u,f) =>
       Future { driveCtrl.fileInfo(u,f) } pipeTo sender
     case PublishFile(u,f) =>
