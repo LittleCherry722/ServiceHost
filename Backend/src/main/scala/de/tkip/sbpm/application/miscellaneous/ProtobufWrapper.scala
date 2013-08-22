@@ -30,6 +30,10 @@ import de.tkip.sbpm.model.GraphMessage
 import de.tkip.sbpm.model.Action
 import de.tkip.sbpm.model.Action
 import de.tkip.sbpm.application.subject.misc.AvailableAction
+import de.tkip.sbpm.application.subject.misc.AvailableAction
+import java.util.Date
+import java.text.SimpleDateFormat
+import de.tkip.sbpm.application.History
 
 object ProtobufWrapper {
 
@@ -88,16 +92,60 @@ object ProtobufWrapper {
       action.getStateID(),
       action.getStateText(),
       action.getStateType(),
-      (for (data <- action.getActionDataList())
+      buildActionData(action.getActionDataList().toArray().toList.asInstanceOf[List[proto.ActionData]]))
+  }
+  
+  def buildActions(protoActions: List[proto.Action]): Array[AvailableAction] = {
+    (for (action <- protoActions)
+      yield AvailableAction(
+    		  action.getUserID(),
+    		  action.getProcessInstanceID(),
+    		  action.getSubjectID(),
+    		  "##main##",
+    		  action.getStateID(),
+    		  action.getStateText(),
+    		  action.getStateType(),
+    		  buildActionData(action.getActionDataList().toArray().toList.asInstanceOf[List[proto.ActionData]])
+      )).toArray
+  }
+  
+  def buildActionData(actionData: List[proto.ActionData]): Array[ActionData] = {
+    (for (data <- actionData)
         yield ActionData(
         data.getText(),
         data.getExecutable(),
         data.getTransitionType() //            data.getTa/
         // TODO...
-        )).toArray)
+        )).toArray
+  }
+  
+  def buildProcessInstanceData(bytes: Array[Byte]): ProcessInstanceData = {
+    val protoInstanceData = GAEexecution.ProcessInstanceData.parseFrom(bytes)
+    
+    ProcessInstanceData( //TODO
+    		protoInstanceData.getId(),
+    		protoInstanceData.getName,
+    		protoInstanceData.getProcessId(),
+    		protoInstanceData.getProcessName(),
+    		buildGraph(protoInstanceData.getGraph()),
+    		protoInstanceData.getIsTerminated(),
+    		(new SimpleDateFormat("dd-MMM-yy")).parse(protoInstanceData.getDate()),
+    		protoInstanceData.getOwner(),
+    		History( protoInstanceData.getName(), protoInstanceData.getProcessId()), // TODO HISTORY
+    		buildActions(protoInstanceData.getActionsList().toArray().toList.asInstanceOf[List[proto.Action]])
+    )
+  }
+  
+  def buildProto(createProcess: CreateProcessInstance, graph: Graph): Array[Byte] = {
+		  val requestBuilder = GAEexecution.CreateProcessInstance.newBuilder()
+		  
+		  requestBuilder.setProcessId(createProcess.processID)
+		  requestBuilder.setGraph(buildProto(graph))
+		  
+		  requestBuilder.build().toByteArray()
   }
 
-  def buildProto(graph: Graph): Array[Byte] = {
+  def buildProto(graph: Graph): proto.Graph = {
     val graphBuilder = GAEexecution.Graph.newBuilder()
 
     if (graph.id.isDefined)
@@ -119,8 +167,9 @@ object ProtobufWrapper {
     for (routing <- graph.routings)
       graphBuilder.addRoutings(buildProto(routing))
 
-    graphBuilder.build().toByteArray()
+    graphBuilder.build()
   }
+  
 
   private def buildProto(conversation: GraphConversation): proto.GraphConversation = {
     val conversationBuilder = GAEexecution.GraphConversation.newBuilder()
@@ -331,9 +380,7 @@ object ProtobufWrapper {
     routingExpBuilder.build()
   }
 
-  def buildGraph(bytes: Array[Byte]): Graph = {
-    val protoGraph = proto.Graph.parseFrom(bytes)
-
+  def buildGraph(protoGraph: proto.Graph): Graph = {
     Graph(
       if (protoGraph.hasId()) Some(protoGraph.getId()) else None,
       if (protoGraph.hasProcessId()) Some(protoGraph.getProcessId()) else None,

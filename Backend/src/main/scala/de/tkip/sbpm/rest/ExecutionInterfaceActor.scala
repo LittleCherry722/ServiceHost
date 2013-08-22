@@ -35,6 +35,7 @@ import scala.collection.mutable.ArrayBuffer
 import java.io.ByteArrayInputStream
 import java.io.BufferedReader
 import com.google.common.io.ByteStreams
+import spray.http.StatusCode
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -62,7 +63,6 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
   private val googleUri = "http://127.0.0.1:8888/"
   import de.tkip.sbpm.proto.{ GAEexecution => msg }
 
-
   private def routeToGoogle: PartialFunction[RequestContext, Unit] = {
     runRoute({
       get {
@@ -76,7 +76,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
               entity(as[ExecuteAction]) { json =>
                 // create the url connection
                 //              val url = new URL(googleUri + "put/id")
-                val url = new URL(googleUri + "camel/test")
+                val url = new URL(googleUri + "post")
                 val connection: HttpURLConnection =
                   url.openConnection().asInstanceOf[HttpURLConnection]
 
@@ -99,6 +99,59 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
 
                 //execute next step
                 complete(ProtobufWrapper.buildAvailableAction(protoResult))
+              }
+            }
+          }
+        } ~
+        post {
+          //CREATE
+          pathPrefix("") {
+            path("") {
+              entity(as[ProcessIdHeader]) { json =>
+                complete {
+                  import de.tkip.sbpm.persistence.query.{ Processes, Graphs }
+                  import de.tkip.sbpm.model
+                  val persistenceActor = ActorLocator.persistenceActor
+                  val name = json.name.getOrElse("Unnamed")
+                  val future =
+                    for {
+                      process <- (persistenceActor ? Processes.Read.ById(json.processId)).mapTo[Option[model.Process]]
+                      graph <- (persistenceActor ? Graphs.Read.ById(process.get.activeGraphId.get)).mapTo[Option[model.Graph]]
+                      proto = ProtobufWrapper.buildProto(CreateProcessInstance(userId, json.processId, name), graph.get)
+                      
+                      result ={
+                        println(graph.get)
+                        val url = new URL(googleUri + "post")
+                        val connection: HttpURLConnection =
+                          url.openConnection().asInstanceOf[HttpURLConnection]
+
+                        connection.setDoInput(true)
+                        connection.setDoOutput(true)
+                        connection.setRequestMethod("POST")
+
+                        connection.setRequestProperty("Content-Length", proto.length.toString)
+
+                        System.err.println(proto.length)
+                        
+                        val out = new DataOutputStream(connection.getOutputStream())
+                        out.write(proto)
+                        out.flush()
+                        out.close()
+
+                        val in = connection.getInputStream()
+                        val protoResult = ByteStreams.toByteArray(in)
+                        // TODO convert proto -> case class
+                        System.err.println(protoResult);
+
+                        //execute next step
+                        ProtobufWrapper.buildProcessInstanceData(protoResult)
+                      }
+                    } yield result
+                    future onComplete {s =>
+                      println(s)
+                    }
+                  future.map(r => StatusCodes.NoContent)
+                }
               }
             }
           }
@@ -171,7 +224,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           path("") {
             entity(as[ProcessIdHeader]) { json =>
               complete {
-                val name = json.name.getOrElse("Unnamed")// TODO not as an Option
+                val name = json.name.getOrElse("Unnamed") // TODO not as an Option
                 val future = (subjectProviderManager ? CreateProcessInstance(userId, json.processId, name)).mapTo[ProcessInstanceCreated]
                 future.map(result => result.answer)
               }
