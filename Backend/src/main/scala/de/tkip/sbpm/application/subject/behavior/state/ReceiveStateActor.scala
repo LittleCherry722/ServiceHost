@@ -15,7 +15,7 @@ package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{ Await, Future }
 import scala.Array.canBuildFrom
 
 import akka.actor._
@@ -154,6 +154,10 @@ protected case class ReceiveStateActor(data: StateData)
     // inform the inputpool, that this state is not waiting for messages anymore
     inputPoolActor ! UnSubscribeIncomingMessages(id)
 
+    if (data.stateModel.observerState) {
+      internalBehaviorActor ! KillNonObserverStates
+    }
+
     // change the state
     super.changeState(successorID, data, historyMessage)
   }
@@ -190,9 +194,9 @@ protected case class ReceiveStateActor(data: StateData)
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
-      val (title,url,iconLink) = message.fileInfo match {
-        case Some(GDriveFileInfo(title,url,iconLink)) => (Some(title),Some(url),Some(iconLink))
-        case None => (None,None,None)
+      val (title, url, iconLink) = message.fileInfo match {
+        case Some(GDriveFileInfo(title, url, iconLink)) => (Some(title), Some(url), Some(iconLink))
+        case None                                       => (None, None, None)
       }
       messageData += MessageData(message.userID, message.messageContent, title, url, iconLink)
     }
