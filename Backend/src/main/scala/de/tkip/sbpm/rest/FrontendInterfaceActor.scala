@@ -214,7 +214,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
           sendReceive
           ~> unmarshal[String]
         )
-
+        //TODO: forward error codes (such as 404) instead of delivering a 500 response
         get {
               requestContext => requestContext.complete{
                 val response = pipeline(Get(repoLocation + requestContext.unmatchedPath.toString))
@@ -222,7 +222,10 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
             }
         } ~
           post {
-            request => Post(repoLocation, "")
+            requestContext => requestContext.complete{
+              val response = pipeline(Post(repoLocation, requestContext.request.entity.asString))
+              response
+            }
           }
       } ~
       pathPrefix(Entity.ISALIVE) {
