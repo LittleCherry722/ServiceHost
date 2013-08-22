@@ -68,7 +68,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val frontendBaseDir = configString("frontend.baseDirectory")
   private val authenticationEnabled = configFlag("rest.authentication")
 
-  private val repoLocation = "http://localhost:8181/repo/"
+  private val repoLocation = "http://localhost:8181/repo"
 
   implicit val rejectionHandler = RejectionHandler {
     // on authorization required rejection -> provide user a set of
@@ -215,28 +215,10 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
           ~> unmarshal[String]
         )
 
-        
         get {
-         path(IntNumber) {
-            // TODO: pipeline? doesn't work that way
-            // request => val response: Future[HttpResponse] = pipeline (id => Get(repoLocation + id))
-            // complete(response)
-            request => (id => Get(repoLocation + id))
-          } ~
-            path("reset") {
-              request => val response: Future[String] = pipeline(Get(repoLocation + "reset"))
-              complete(response)
-            } ~
-            path("") {
-              complete{
-                val response = pipeline(Get(repoLocation))
+              requestContext => requestContext.complete{
+                val response = pipeline(Get(repoLocation + requestContext.unmatchedPath.toString))
                 response
-              }
-              
-//              response match {
-//              case Some(s) => complete(s)
-//              case None => complete(HttpResponse(status = StatusCodes.NotFound))
-//              }
             }
         } ~
           post {
