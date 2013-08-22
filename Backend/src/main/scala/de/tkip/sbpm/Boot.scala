@@ -32,7 +32,7 @@ import de.tkip.sbpm.persistence.testdata.Entities
 import de.tkip.sbpm.persistence.PersistenceActor
 import de.tkip.sbpm.rest._
 import de.tkip.sbpm.rest.auth._
-import de.tkip.sbpm.rest.google.GDriveActor
+import de.tkip.sbpm.rest.google.{GDriveActor, GCalendarActor}
 import spray.can.Http
 
 import de.tkip.sbpm.logging.LogPersistenceActor
@@ -80,6 +80,7 @@ object Boot extends App {
     system.actorOf(Props[OAuth2Actor], oAuth2ActorName),
     system.actorOf(Props[UserPassAuthActor], userPassAuthActorName),
     system.actorOf(Props[GDriveActor], googleDriveActorName),
+    system.actorOf(Props[GCalendarActor], googleCalendarActorName),
     system.actorOf(Props[LogPersistenceActor], logPersistenceActorName)
   )
 
