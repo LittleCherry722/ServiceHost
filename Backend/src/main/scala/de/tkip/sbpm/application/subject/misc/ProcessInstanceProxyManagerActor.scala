@@ -19,7 +19,7 @@ import ExecutionContext.Implicits.global
 import akka.pattern.pipe
 
 case object GetProxyActor
-/**TODO: add url as third key to processInstanceMap */
+
 case class GetProcessInstanceProxy(userId: UserID, processId: ProcessID, url: String)
 
 class ProcessInstanceProxyManagerActor() extends Actor {
