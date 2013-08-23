@@ -227,8 +227,8 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
               requestContext.complete {
                 val jsWithAddress = attachExternalAddress(requestContext)
                 //TODO: calling attachExternalAddress removes JSON formatting, compare:
-                //          	log.info(requestContext.request.entity.asString)
-                //            	log.info(jsWithAddress)
+                //log.info(requestContext.request.entity.asString)
+                //log.info(jsWithAddress)
                 val response = pipeline(Post(repoLocation, jsWithAddress))
                 response
               }
@@ -247,7 +247,10 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
 
   private def attachExternalAddress(requestContext: RequestContext): String = {
     var jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
-    jsObject.copy(Map("address" -> "localhost:8080".toJson) ++ jsObject.fields).toString
+
+    val hostname = context.system.settings.config.getString("sbpm.externalAddress.hostname")
+    val port = context.system.settings.config.getString("sbpm.externalAddress.port")
+    jsObject.copy(Map("address" -> (hostname + ":" + port).toJson) ++ jsObject.fields).toString
   }
 
   def serveStaticFiles: Route = {
