@@ -26,6 +26,7 @@ import de.tkip.sbpm.bir._
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.rest._
 import scala.concurrent.Future
+import DefaultJsonProtocol._
 
 object Entity {
   val PROCESS = "process"
@@ -212,20 +213,25 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
       pathPrefix(Entity.REPOSITORY) {
         val pipeline: HttpRequest => Future[String] = (
           sendReceive
-          ~> unmarshal[String]
-        )
+          ~> unmarshal[String])
         //TODO: forward error codes (such as 404) instead of delivering a 500 response
         get {
-              requestContext => requestContext.complete{
-                val response = pipeline(Get(repoLocation + requestContext.unmatchedPath.toString))
-                response
+          requestContext =>
+            requestContext.complete {
+              val response = pipeline(Get(repoLocation + requestContext.unmatchedPath.toString))
+              response
             }
         } ~
           post {
-            requestContext => requestContext.complete{
-              val response = pipeline(Post(repoLocation, requestContext.request.entity.asString))
-              response
-            }
+            requestContext =>
+              requestContext.complete {
+                val jsWithAddress = attachExternalAddress(requestContext)
+                //TODO: calling attachExternalAddress removes JSON formatting, compare:
+                //          	log.info(requestContext.request.entity.asString)
+                //            	log.info(jsWithAddress)
+                val response = pipeline(Post(repoLocation, jsWithAddress))
+                response
+              }
           }
       } ~
       pathPrefix(Entity.ISALIVE) {
@@ -238,6 +244,11 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         serveStaticFiles
       }
   })
+
+  private def attachExternalAddress(requestContext: RequestContext): String = {
+    var jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
+    jsObject.copy(Map("address" -> "localhost:8080".toJson) ++ jsObject.fields).toString
+  }
 
   def serveStaticFiles: Route = {
     // root folder -> redirect to frontendBaseUrl
