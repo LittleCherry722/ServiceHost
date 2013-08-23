@@ -7439,6 +7439,10 @@ a.close:hover {
   background-color: #FFF6DB;
 }
 
+#clickablelist .result tbody .noinstances:hover {
+  background-color: #EDEDED;
+}
+
 #clickablelist .result td {
   padding: 5px;
 }
@@ -7673,12 +7677,17 @@ a.close:hover {
   width: 20%;
   text-align:right;
 }
-
-#clickablelist .processitem .col2{
+#clickablelist .processitem .col1{
+	width: 2%;
+}
+#clickablelist .processhead .col1{
+	width: 2%;
+}
+#clickablelist .processitem .col3{
 	text-align:right;
 	padding-right:23px;
 }
-#clickablelist .processhead .col2{
+#clickablelist .processhead .col3{
 	text-align:right;
 	padding-right:221px;
 }
