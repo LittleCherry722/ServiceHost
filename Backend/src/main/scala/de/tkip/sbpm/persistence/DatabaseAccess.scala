@@ -137,7 +137,9 @@ private[persistence] object DatabaseAccess {
    */
   def connection(implicit config: Config) = synchronized {
     // read jdbc uri from config
-    val uri = configString("uri")
+    val port = sys.env.getOrElse("SBPM_PORT", "8080")
+    val uri = "jdbc:sqlite:sbpm_" + port + ".db"
+
     // check if connection pool for the uri already exists
     if (!dataSources.contains(uri)) {
       // create new connection pool data source
