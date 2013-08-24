@@ -9,9 +9,13 @@
 	<div id="filter">
 		<select class="sel" data-placeholder="Select Process" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'id'"></select>
 		<label for="from">From:</label>
-	    <input type="text" id="from" name="from" data-bind="value: selectedStart" />
+		<span class="clearable">
+	    	<input class="data_field" type="text" id="from" name="from" data-bind="value: selectedStart" /><span class="icon_clear">x</span>
+	    </span>
 	    <label for="to">To:</label>
-	    <input type="text" id="to" name="to" data-bind="value: selectedEnd"/>
+	    <span class="clearable">
+		    <input class="data_field" id="to" name="to" type="text" data-bind="value: selectedEnd" /><span class="icon_clear">x</span>
+		</span>
     </div>
 <hr> 
 	<div id="clickablelist">
@@ -24,9 +28,12 @@
 				</tr>
 			</thead>
 			<tbody data-bind='foreach: processes'>
-				<tr data-bind="click:  function() { if($data.hasInstances&&$data.startAble()) $('#'+id()).toggle(); }, style: { cursor: $data.hasInstances()&&$data.startAble() ? 'pointer' : '' }, attr: { class: !$data.hasInstances()||!$data.startAble() ? 'processitem noinstances' : 'processitem' }  ">
+				<tr data-bind="click:  function() { if($data.hasInstances&&$data.startAble()) $('#'+id()).toggle(); $('#icon-triangle-s'+id()).toggle(); $('#icon-triangle-n'+id()).toggle(); }, style: { cursor: $data.hasInstances()&&$data.startAble() ? 'pointer' : '' }, attr: { class: !$data.hasInstances()||!$data.startAble() ? 'processitem noinstances' : 'processitem' }  ">
 					<td class="col1">
-						<span class="ui-icon ui-icon-triangle-1-s"></span>
+						<!-- ko if: $data.hasInstances()&&$data.startAble() -->
+							<span data-bind="attr: {id: 'icon-triangle-s'+id()}" class="ui-icon ui-icon-triangle-1-s"></span>
+							<span data-bind="attr: {id: 'icon-triangle-n'+id()}" class="ui-icon ui-icon-triangle-1-n" style="display: none;"></span>
+						<!-- /ko -->
 					</td>
 					<td class="col2">
 						<a data-bind="click:  function() { window.location.href=url();  }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)

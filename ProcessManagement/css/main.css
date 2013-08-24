@@ -7582,7 +7582,7 @@ a.close:hover {
 
 /* Dashboard Filter */
 #filter #from, #filter #to {
-  width: 70px;
+  width: 75px;
 }
 
 #filter label, input, select {
@@ -7690,4 +7690,25 @@ a.close:hover {
 #clickablelist .processhead .col3{
 	text-align:right;
 	padding-right:221px;
+}
+
+.clearable{
+    position:relative;
+}
+.data_field{
+    padding-right:17px; /* add space for the 'x' icon*/
+}
+span.icon_clear{
+    position:absolute;
+    right:21px; 
+    padding: 3px;   
+    display:none;
+    
+    /* now go with the styling */
+    cursor:pointer;
+    font: bold 1em sans-serif;
+    color:#38468F;  
+}
+span.icon_clear:hover{
+	color:#f52;
 }

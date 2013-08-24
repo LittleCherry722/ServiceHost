@@ -81,7 +81,6 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 								});
 							});
 						}
-						console.log(data);
 						a.data = data;
 						a.messageText = ko.observable();
 						a.selectedUsers = ko.observableArray();
@@ -213,7 +212,6 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
 		action : function() {
 			data = this.data;
-			console.log("Action ");
 			id = data.processInstanceID;
 			data.actionData = this;
 			delete data.actionData.data;
@@ -238,10 +236,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
 		},
 
-		send : function(obj) {
-			console.log(obj);
-			console.log(this);
-			
+		send : function(obj) {			
 			if (this.data.actionData[0].targetUsersData.min > this.data.actionData[0].selectedUsers().length || this.data.actionData[0].targetUsersData.max < this.data.actionData[0].selectedUsers().length) {
 				var errorMsg = "Please select the correct amount of users. <br/>";
 
@@ -271,7 +266,6 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
 			data.actionData.targetUsersData.targetUsers = selUsers;
 			delete data.actionData.selectedUsers;
-			console.log("FILES");
 
 			data = JSON.stringify(data);
 			$.ajax({
