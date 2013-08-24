@@ -63,6 +63,8 @@ protected case class Rejected(messageID: MessageID) extends MessageObject
 // TODO richtig einordnern
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)
 
+protected[subject] case class MacroTerminated(macroID: String)
+
 // external subject interaction messages
 sealed trait SubjectBehaviorRequest
 // The Request to get the available action from a single subject
@@ -95,6 +97,7 @@ case class AvailableAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
+  macroID: String,
   stateID: StateID,
   stateText: String,
   stateType: String,
@@ -106,6 +109,7 @@ case class ExecuteAction(
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
+  macroID: String,
   stateID: StateID,
   stateType: String,
   actionData: ActionData,
@@ -125,6 +129,7 @@ object mixExecuteActionWithRouting {
       action.userID,
       action.processInstanceID,
       action.subjectID,
+      action.macroID,
       action.stateID,
       action.stateType,
       action.actionData,

@@ -54,11 +54,13 @@ case class NewHistoryEntry(
     timeStamp: Date,
     userId: Option[UserID],
     var process: NewHistoryProcessData,
+    subject: Option[SubjectID],
     transitionEvent: Option[NewHistoryTransitionData],
     lifecycleEvent: Option[String]
 )
 
-case class NewHistoryProcessData(processName: String, processInstanceId: ProcessInstanceID)
+case class NewHistoryProcessData(processName: String, processInstanceId: ProcessInstanceID, processInstanceName: String)
 case class NewHistoryState(text: String, stateType: String)
 case class NewHistoryMessage(messageId: MessageID, fromSubject: SubjectName, toSubject: SubjectName, messageType: MessageType, text: MessageContent)
 case class NewHistoryTransitionData(fromState: NewHistoryState, text: String, transitionType: String, toState: NewHistoryState, message: Option[NewHistoryMessage])
+case class GetHistorySince(timeStamp: Long)

@@ -79,7 +79,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceContainerManagerActor(request.userID, request.processID, self))))
+      Props(new ProcessInstanceProxyManagerActor())))
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
@@ -93,7 +93,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this actory is used to exchange the subject ids for external input messages
   // TODO
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(graph)))
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, graph)))
 
   override def preStart() {
     try {
@@ -177,7 +177,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case he: history.NewHistoryEntry => {
-      he.process = history.NewHistoryProcessData(processName, id)
+      he.process = history.NewHistoryProcessData(processName, id, name)
       context.parent.forward(he)
     }
 

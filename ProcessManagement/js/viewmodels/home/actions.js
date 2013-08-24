@@ -7,6 +7,7 @@ define([
 ], function( ko, App, _, Actions, ProcessInstances) {
 
 	var ViewModel = function() {
+		var self = this;
 		this.actions = actionsList;
 		this.processes = Process.all;
 		// Filter
@@ -16,6 +17,29 @@ define([
 		this.selectedStart = selectedStart;
 		this.selectedEnd = selectedEnd;
 		this.showGraph = showGraph;
+		
+      	this.googleDriveData = ko.observable();
+	    this.refreshGoogleDriveData = function() {
+			$.ajax({
+				cache: false,
+				dataType: "json",
+				type: "GET",
+				url: "../googledrive/get_files?id=" + App.currentUser().id(),
+				success: function( data, textStatus, jqXHR ) {
+					self.googleDriveData( data.items );
+				},
+				error: function( jqXHR, textStatus, error ) {
+					Notify.error("Error", "There has been an Error retrieving the file list." +
+											"Please make sure you have the appropriate permissions.");
+				}
+			});
+		};  
+		this.selectFile = function() {
+			//console.log("call");
+			$('#googleDriveModal').modal('hide');
+			parent.currentSelectedFile( this );
+		}; 
+				
 	};
 	var actionsList = ko.observableArray();
 	var actions = ko.computed(function() {actionsList(Actions.all().slice(0));});

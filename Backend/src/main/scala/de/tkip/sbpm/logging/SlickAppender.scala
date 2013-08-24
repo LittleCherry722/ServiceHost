@@ -16,7 +16,7 @@ class SlickAppender extends AppenderBase[ILoggingEvent] {
 
   val outStream = new ByteArrayOutputStream()
   var encoder = new PatternLayoutEncoder()
-  val db = Database.forURL("jdbc:sqlite:sbpm.db", driver = "org.sqlite.JDBC")
+  val db = Database.forURL("jdbc:sqlite:sbpm_log.db", driver = "org.sqlite.JDBC")
   db withSession {
     if (!MTable.getTables.list.exists(_.name.name == Logs.tableName))
       Logs.ddl.create

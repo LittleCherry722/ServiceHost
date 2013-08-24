@@ -42,7 +42,7 @@ protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   // Inform the processinstance that this subject has terminated
-  internalBehaviorActor ! SubjectTerminated(userID, subjectID)
+  internalBehaviorActor ! MacroTerminated(macroID)
 
   // nothing to receive for this state
   protected def stateReceive = FSM.NullFunction

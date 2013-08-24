@@ -28,6 +28,7 @@ define([
 				processInstanceId: "integer"
 			}
 		},
+		subject: "string",
 		processStarted: "string",
 		timeStamp: {
 			type: "json",

@@ -62,7 +62,7 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
-    System.err.println("CREATED: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
+    logger.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
     if (single) {
       if (subjects.size > 0) {
         logger.error("Single subjects cannot be created twice")
@@ -102,11 +102,12 @@ class SubjectContainer(
       // process schon vorhanden?
       implicit val timeout = akka.util.Timeout(3500)
       val ext = subjectData.subject.asInstanceOf[ExternalSubject]
+      val url = ext.url.getOrElse("")
 
       // TODO mit futures
       val processInstanceRef =
         (processInstanceManager ?
-          GetProcessInstanceAddr(userID, ext.relatedProcessId))
+          GetProcessInstanceProxy(userID, ext.relatedProcessId, url))
           .mapTo[ActorRef]
 
       // TODO we need this unblock!
