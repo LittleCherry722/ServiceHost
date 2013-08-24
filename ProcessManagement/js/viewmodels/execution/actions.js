@@ -8,51 +8,29 @@ define([
 
 	var ViewModel = function() {
 		var self = this;
-
 		this.processInstance = processInstance;
-
 		this.availableActions = availableActions;
-
 		this.currentSubject = currentSubject;
-
 		this.actionOfCurrentSubject = actionOfCurrentSubject;
-
 		this.actionData = actionData;
-
 		this.messageText = messageText;
-
 		this.action = action;
-
 		this.send = send;
-
 		this.stateName = stateName;
-
 		this.stateText = stateText;
-
 		this.isTypeOf = isTypeOf;
-
 		this.serverDone = serverDone;
-
 		this.currentSelectedFile = currentSelectedFile;
-
 		this.selectFile = selectFile;
-
 		this.executable = ko.computed(function() {
 
 		});
-
 		this.googleDriveData = ko.observable();
-
 		this.selectUser = selectUser;
-
 		this.selectedUsers = selectedUsers;
-
 		this.selectUsersMin = selectUsersMin;
-
 		this.selectUsersMax = selectUsersMax;
-
 		this.selectUsersText = selectUsersText;
-
 		this.refreshGoogleDriveData = function() {
 			$.ajax({
 				cache: false,
@@ -67,7 +45,7 @@ define([
 											"Please make sure you have the appropriate permissions.");
 				}
 			});
-		}
+		};
 	};
 
 	var selectFile = function() {
@@ -98,7 +76,7 @@ define([
 	var action = function(action) {
 		serverDone(false);
 
-		data = actionOfCurrentSubject()
+		data = actionOfCurrentSubject();
 		id = data.processInstanceID;
 		data.actionData = action;
 

@@ -11,15 +11,10 @@ define([
 		this.currentSubject = currentSubject;
 		this.history = history;
 		this.processStarted = processStarted;
-		this.processEnded = processEnded;
-		this.historicEntries = historicEntries;
 		this.processInstance = processInstance;
-		this.processStarted = processStarted;
-		this.processEnded = processEnded;
 		this.historicEntries = historicEntries;
 	}
 	var processStarted = ko.observable();
-	var processEnded = ko.observable();
 	var historicEntries = ko.observableArray();
 
 	var processInstance = ko.observable( new ProcessInstance() );
@@ -33,35 +28,20 @@ define([
 	});
 	
 	var updateHistory = ko.computed(function() {
-		//setTimeFormat();
+		if( processInstance().startedAt()){
+			processStarted(moment( processInstance().startedAt().date ).format( "YYYY-MM-DD HH:mm" ));
+		}
+		
 		historicEntries.removeAll();
 		$.each( History.all() , function ( i, value ) {
-			value.ts= JSONtimestampToString( value.timeStamp().date);
-			if(value.process().processInstanceId==processInstance().id() && ((currentSubject() && currentSubject() === value.subject) || !currentSubject()) ) {
+			value.ts= moment(value.timeStamp().date).format( "YYYY-MM-DD HH:mm" );
+			console.log(value.subject());
+			if(value.process().processInstanceId==processInstance().id() && ((currentSubject() && currentSubject() == value.subject()) || !currentSubject()) ) {
 				historicEntries.push(value);
 			}
 		} );
 		
 	});
-
-	var setTimeFormat = function(){
-/*
-		if( newHistory.hasOwnProperty( "timestamp" ) ){
-			newHistory.processStarted.date = JSONtimestampToString( newHistory.processStarted.date );
-		} else {
-			newHistory.processStarted = { date: "Has not ended yet." }
-		}
-
-		if( newHistory.hasOwnProperty( "processEnded" ) ){
-			newHistory.processEnded.date = JSONtimestampToString( newHistory.processEnded.date );
-		} else {
-			newHistory.processEnded = { date: "Has not ended yet." };
-		}
-*/
-	}
-	var JSONtimestampToString = function( JSONtimestamp ){
-		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
-	}
 
 	var initialize = function( instance ) {
 		var viewModel;

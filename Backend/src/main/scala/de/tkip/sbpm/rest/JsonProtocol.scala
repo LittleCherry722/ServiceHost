@@ -116,7 +116,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val userPassFormat = jsonFormat2(UserPass)
 
   // DomainModel
-  implicit val domainProcessFormat = jsonFormat4(Process)
+  implicit val domainProcessFormat = jsonFormat5(Process)
   implicit val actionFormat = jsonFormat2(Action)
   
   implicit val configFormat = jsonFormat4(Configuration)
@@ -132,18 +132,19 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val targetUserFormat = jsonFormat3(TargetUser)
   implicit val messageDataFormat = jsonFormat5(MessageData)
   implicit val actionDataFormat = jsonFormat8(ActionData)
-  implicit val availableActionFormat = jsonFormat7(AvailableAction)
+  implicit val availableActionFormat = jsonFormat8(AvailableAction)
   implicit val processInstanceDataFormat = jsonFormat10(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
   implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat4(GraphHeader)
-  implicit val createActionIdHeaderFormat = jsonFormat7(ExecuteAction)
+  implicit val createActionIdHeaderFormat = jsonFormat8(ExecuteAction)
 
   implicit val newStateFormat = jsonFormat2(NewHistoryState)
-  implicit val newHistoryProcessDataFormat = jsonFormat2(NewHistoryProcessData)
+  implicit val newHistoryProcessDataFormat = jsonFormat3(NewHistoryProcessData)
   implicit val newMessageFormat = jsonFormat5(NewHistoryMessage)
   implicit val newHistoryTransitionDataFormat = jsonFormat5(NewHistoryTransitionData)
-  implicit val newHistoryEntryFormat = jsonFormat5(NewHistoryEntry)
+  implicit val newHistoryEntryFormat = jsonFormat6(NewHistoryEntry)
   implicit val newHistoryFormat = jsonFormat1(NewHistory)
+  
 
 }

@@ -47,7 +47,8 @@ case class ProcessInstance(id: Option[Int],
 
 case class Process(id: Option[Int],
   name: String,
-  isCase: Boolean = false)
+  isCase: Boolean = false,
+  startAble: Boolean)
 
 case class Message(id: Option[Int],
   fromUserId: Int,

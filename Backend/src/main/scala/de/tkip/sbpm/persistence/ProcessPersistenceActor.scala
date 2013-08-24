@@ -21,11 +21,94 @@ import akka.actor.Props
 import scala.slick.lifted
 import akka.pattern._
 import scala.concurrent._
+import akka.actor.ActorLogging
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.persistence.query.Graphs
+import akka.actor.PoisonPill
+import de.tkip.sbpm.persistence.query.BaseQuery
+import akka.actor.ActorRef
+
+private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
+  import de.tkip.sbpm.model._
+  import akka.pattern.ask
+  import akka.util.Timeout
+  import scala.concurrent.Future
+  import scala.concurrent.ExecutionContext.Implicits.global
+  implicit val timeout = Timeout(2000)
+  def receive = {
+    case q @ Save.Entity(ps @ _*) => {
+      log.debug("Start checking: " + q)
+      // Check for alle process graphs, if they are startAble
+      val newProcesses =
+        ps map { p =>
+          if (p.activeGraphId.isDefined) {
+            for {
+              g <- (ActorLocator.persistenceActor ? Graphs.Read.ById(p.activeGraphId.get)).mapTo[Option[Graph]]
+              newProcess = checkAndExchangeStartAble(p, g.get)
+            } yield newProcess
+          } else Future(p)
+        }
+      // Seq[Future] -> Future[Seq]
+      val newQuery = Future.sequence(newProcesses)
+
+      // forward the updated Processes to the ProcessPersistenceActor
+      val from = sender
+      newQuery onSuccess {
+        case s =>
+          forwardToPersistence(Save.Entity(s: _*), from)
+      }
+      newQuery onFailure {
+        case s =>
+          log.error("Graph checking failed, reason: " + s)
+      }
+    }
+    case q @ Save.WithGraph(p, g) => {
+      // check the graph and update the process
+      // forward the updated Processes to the ProcessPersistenceActor
+      val from = sender
+      val newQuery =
+        Future(Save.WithGraph(checkAndExchangeStartAble(p, g), g))
+      newQuery onSuccess {
+        case q =>
+          forwardToPersistence(q, from)
+      }
+      newQuery onFailure {
+        case s =>
+          log.error("Graph checking failed, reason: " + s)
+      }
+    }
+    case q: Query => forwardToPersistence(q, sender)
+  }
+
+  private def checkAndExchangeStartAble(p: Process, g: Graph): Process = {
+    log.debug("Checking: " + p)
+    exchangeStartAble(p, isStartAbleProcessGraph(g))
+  }
+  private def exchangeStartAble(p: Process, startAble: Boolean): Process =
+    //    Process(p.id, p.name, p.isCase, Some(startAble), p.activeGraphId)
+    p.copy(startAble = Some(startAble))
+
+  private def isStartAbleProcessGraph(graph: Graph): Boolean = {
+    // TODO correct check
+    graph.subjects.exists(s => s._2.isStartSubject.getOrElse(false))
+  }
+
+  /**
+   * Forwards a query to the specified Actor.
+   * The actor is automatically stopped after processing the
+   * query using PoisonPill message.
+   */
+  private def forwardToPersistence(query: BaseQuery, from: ActorRef) = {
+    val actor = context.actorOf(Props[ProcessPersistenceActor])
+    actor.tell(query, from)
+    actor ! PoisonPill
+  }
+}
 
 /**
  * Handles database connection for "process" entities using slick.
  */
-private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
+private class ProcessPersistenceActor extends GraphPersistenceActor
   with DatabaseAccess with schema.ProcessesSchema with schema.ProcessActiveGraphsSchema {
   // import current slick driver dynamically
   import driver.simple._
@@ -48,18 +131,18 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
       // process all entities
       ps.map {
         // insert if id is None
-        case p @ Process(None, _, _, _) => Some(insert(p))
+        case p @ Process(None, _, _, _, _) => Some(insert(p))
         // update otherwise
-        case p @ Process(id, _, _, _)   => update(id, p)
+        case p @ Process(id, _, _, _, _)   => update(id, p)
       } match {
-         // only one process was given, return it's id
+        // only one process was given, return it's id
         case ids if (ids.size == 1) => ids.head
         // more processes were given return all ids
         case ids                    => ids
       }
     }
     // create new process with a corresponding graph
-    case Save.WithGraph(p: Process, g) =>  answer { implicit session =>
+    case Save.WithGraph(p: Process, g) => answer { implicit session =>
       saveProcessWithGraph(p, g)
     }
     // delete process with given id
@@ -84,13 +167,14 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
     // extract process and active graph id from domain model
     val entities = convert(p)
     val id = Processes.autoInc.insert(entities._1)
+    log.debug("Save Process: " + p)
     // create active graph entry if it's id is defined
     if (entities._2.isDefined)
       ProcessActiveGraphs.insert(mapping.ProcessActiveGraph(id, entities._2.get))
     id
   }
 
-  /** 
+  /**
    * Update entity or throw exception if it does not exist.
    */
   private def update(id: Option[Int], p: Process)(implicit session: Session) = {
@@ -100,10 +184,12 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
 
     if (res == 0)
       throw new EntityNotFoundException("Process with id %d does not exist.", id.get)
-    
+
+    log.debug("Update Process: " + p)
+
     // update active graph entitiy for current process
     updateActiveGraph(id, entities._2)
-    
+
     // update always returns None
     None
   }
@@ -124,7 +210,10 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
    * Saves a process with the corresponding graph to the database.
    * Each save operation produces a new graph instance (for maintaining old versions).
    */
-  private def saveProcessWithGraph(p: Process, g: Graph)(implicit session: Session) ={
+  private def saveProcessWithGraph(p: Process, g: Graph)(implicit session: Session) = {
+
+    log.debug("Update Process with Graph: " + p)
+
     // set graph id to none -> insert new on every save to maintain old versions
     var graph = g.copy(id = None)
     // set current active graph to None (we don't know graph id yet)
@@ -136,9 +225,13 @@ private[persistence] class ProcessPersistenceActor extends GraphPersistenceActor
       // inject id into process
       process = process.copy(id = resultId)
     } else {
-      // check if process exists if we should update it
-      if (!Processes.where(_.id === process.id).firstOption.isDefined)
+      // update the process
+      val res = Processes.where(_.id === process.id).update(convert(process)._1)
+      if (res == 0)
         throw new EntityNotFoundException("Process with id %d does not exist.", process.id.get)
+      // check if process exists if we should update it
+      //      if (!Processes.where(_.id === process.id).firstOption.isDefined)
+      //        throw new EntityNotFoundException("Process with id %d does not exist.", process.id.get)
       // result on update is always None
       resultId = None
     }

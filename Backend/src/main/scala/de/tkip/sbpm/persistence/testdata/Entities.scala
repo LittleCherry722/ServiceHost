@@ -106,7 +106,10 @@ object Entities {
     (Process(None, """Supplier (E)""", false) -> loadJson("supplier")),
     (Process(None, """Order(simple)""", false) -> loadJson("simpleorder")),
     (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")),
-    (Process(None, """IP Test""", false) -> loadJson("ip_test")))
+    (Process(None, """IP Test""", false) -> loadJson("ip_test")),
+    (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
+    (Process(None, """Macro Example""", false) -> loadJson("macro_example")),
+    (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")))
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list
@@ -119,6 +122,7 @@ object Entities {
     (1, 3),
     (2, 4),
 
+    (4, 5),
     (4, 6),
     (5, 8),
     (5, 9),
@@ -143,6 +147,7 @@ object Entities {
     (1, 2),
     (2, 3),
 
+    (4, 0),
     (4, 3),
     (6, 5),
     (7, 6),
@@ -216,19 +221,22 @@ object Entities {
 
     // wait until group mappings and processes are inserted
     // then parse and insert graphs
-    for {
-      ga <- groupAssocFuture
-      p <- processesFuture
-      // convert roles to name -> role mapping (necessary for parsing json)
-      rls <- Future(ga._1.zip(roles).map(t => (t._2.name -> t._2.copy(t._1))).toMap)
-      // parse graph jsons and insert graphs
-      g <- (persistenceActor ? Graphs.Save(processes.indices.map { i =>
-        // use slicks' json parser to convert graph from string to domain model
-        JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(rls)).copy(processId = p(i))
-      }: _*)).mapTo[Seq[Option[Int]]]
-      // update processes' active graph property with graph ids of
-      // recently inserted graphs
-      pg <- persistenceActor ? Processes.Save(p.zip(processes).map(t => t._2._1.copy(id = t._1)).zip(g).map(t => t._1.copy(activeGraphId = t._2)).toSeq: _*)
-    } yield (ga, p, g, pg)
+    val result =
+      for {
+        ga <- groupAssocFuture
+        p <- processesFuture
+        // convert roles to name -> role mapping (necessary for parsing json)
+        rls <- Future(ga._1.zip(roles).map(t => (t._2.name -> t._2.copy(t._1))).toMap)
+        // parse graph jsons and insert graphs
+        g <- (persistenceActor ? Graphs.Save(processes.indices.map { i =>
+          // use slicks' json parser to convert graph from string to domain model
+          JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(rls)).copy(processId = p(i))
+        }: _*)).mapTo[Seq[Option[Int]]]
+        // update processes' active graph property with graph ids of
+        // recently inserted graphs
+        pg <- persistenceActor ? Processes.Save(p.zip(processes).map(t => t._2._1.copy(id = t._1)).zip(g).map(t => t._1.copy(activeGraphId = t._2)).toSeq: _*)
+      } yield (ga, p, g, pg)
+    result.onComplete(a => println("Entering Testdata result was:\n" + a))
+    result
   }
 }

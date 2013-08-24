@@ -27,7 +27,8 @@ import de.tkip.sbpm.persistence.query._
  * Redirects table specific actions to sub actors.
  */
 class PersistenceActor extends Actor with ActorLogging {
-
+  private val processInspectActor = context.actorOf(Props[ProcessInspectActor])
+  
   def receive = {
     // redirect all request to responsible sub actors
     case q: Users.Query            => forwardTo[UserPersistenceActor](q)
@@ -37,7 +38,7 @@ class PersistenceActor extends Actor with ActorLogging {
     case q: GroupsUsers.Query      => forwardTo[GroupUserPersistenceActor](q)
     case q: Messages.Query         => forwardTo[MessagePersistenceActor](q)
     case q: ProcessInstances.Query => forwardTo[ProcessInstancePersistenceActor](q)
-    case q: Processes.Query        => forwardTo[ProcessPersistenceActor](q)
+    case q: Processes.Query        => processInspectActor forward q
     case q: Graphs.Query           => forwardTo[GraphPersistenceActor](q)
     case q: Schema.Query           => forwardTo[SchemaActor](q)
   }
