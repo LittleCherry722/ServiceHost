@@ -27,6 +27,7 @@ import de.tkip.sbpm.persistence.query.Graphs
 import akka.actor.PoisonPill
 import de.tkip.sbpm.persistence.query.BaseQuery
 import akka.actor.ActorRef
+import scala.concurrent.duration._
 
 private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
   import de.tkip.sbpm.model._
@@ -34,7 +35,7 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
   import akka.util.Timeout
   import scala.concurrent.Future
   import scala.concurrent.ExecutionContext.Implicits.global
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(30 seconds)
   def receive = {
     case q @ Save.Entity(ps @ _*) => {
       log.debug("Start checking: " + q)
