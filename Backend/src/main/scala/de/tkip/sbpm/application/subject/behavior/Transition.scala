@@ -40,6 +40,7 @@ case class Target(
 
   def varSubjects = _vars
   def targetUsers: Array[UserID] = _targetUsers
+  def toUnknownUsers = !toVariable && _targetUsers.isEmpty
 
   def insertVariable(v: Variable) {
     _vars = for (m <- v.messages) yield ((m.from, m.userID))

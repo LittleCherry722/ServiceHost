@@ -9,6 +9,7 @@ define([
 	"router",
 	"moment",
 	"select2",
+	"jquery.ui",
 ], function( ko, App, Notify, Dialog, Process, ProcessInstance, _, Router, moment, select2 ) {
 	var ViewModel = function() {
 		var self = this;

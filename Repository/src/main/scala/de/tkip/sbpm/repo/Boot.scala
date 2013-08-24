@@ -4,15 +4,15 @@ import spray.routing.SimpleRoutingApp
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import spray.http.{StatusCodes, HttpResponse}
-import spray.http.{StatusCodes, HttpResponse}
 import de.tkip.sbpm.repo.RepoActor._
+import scala.concurrent.duration._
 import akka.util.Timeout
 
 
 object Boot extends App with SimpleRoutingApp {
 
   implicit val system = ActorSystem("repo")
-  implicit val timeout = Timeout(5)
+  implicit val timeout = Timeout(5 seconds)
   implicit val executionContext = system.dispatcher
   val repoActor = system.actorOf(Props[RepoActor])
 
