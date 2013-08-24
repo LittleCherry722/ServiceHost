@@ -79,7 +79,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceContainerManagerActor(request.userID, request.processID, self))))
+      Props(new ProcessInstanceProxyManagerActor())))
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending
