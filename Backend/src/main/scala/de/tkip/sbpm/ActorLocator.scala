@@ -27,6 +27,7 @@ object ActorLocator {
   val oAuth2ActorName = "o-auth"
   val userPassAuthActorName = "user-pass-auth"
   val googleDriveActorName = "google-drive"
+  val googleCalendarActorName = "google-calendar"
   val googleBIRActorName = "google-BIR"
 
   def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
@@ -39,6 +40,7 @@ object ActorLocator {
   def sessionActor(implicit ctx: ActorRefFactory) = actor(sessionActorName)
   def userPassAuthActor(implicit ctx: ActorRefFactory) = actor(userPassAuthActorName)
   def googleDriveActor(implicit ctx: ActorRefFactory) = actor(googleDriveActorName)
+  def googleCalendarActor(implicit ctx: ActorRefFactory) = actor(googleCalendarActorName)
   def googleBIRActor(implicit ctx: ActorRefFactory) = actor(googleBIRActorName)
 }
 

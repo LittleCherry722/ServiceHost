@@ -62,7 +62,7 @@ private[persistence] class GraphPersistenceActor extends Actor
     }
     // save given graphs to db
     case Save.Entity(gs @ _*) => answer { implicit session =>
-      log.debug("Save Graph: " + (gs map (_.processId) mkString (", ")))
+      log.debug("Save Graph for: " + (gs map (_.processId) mkString (", ")))
       // save all graphs
       gs.map(save) match {
         // only one graph was given, return it's id

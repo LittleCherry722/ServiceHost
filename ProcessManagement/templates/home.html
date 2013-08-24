@@ -23,7 +23,12 @@
       <ul class="nav nav-tabs">
       	<!-- ko  foreach: tabs -->
         <li data-bind="css: { active: $data === $root.currentTab() }">
-          <a data-bind="text: $data, attr: { href: '#/home/' + $data }"></a>
+        	<!-- ko if: $data=="Actions"-->
+        		<a data-bind="text: $data+' ('+$root.actionCount()+')', attr: { href: '#/home/' + $data }"></a>
+        	<!-- /ko -->
+        	<!-- ko ifnot: $data=="Actions" -->
+        		<a data-bind="text: $data, attr: { href: '#/home/' + $data }"></a>
+        	<!-- /ko -->
         </li>
         <!-- /ko -->
 		<li>
