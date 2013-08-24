@@ -30,9 +30,9 @@ define([
 			});
 		}
 		
-		self.removeInstance = function( process ) {
+		self.removeInstance = function( processInstance ) {
 			Dialog.yesNo( 'Warning', "Do you really want to delete this Processinstance?", function(){
-				//destroyProcess( process )
+				destroyProcessInstance( processInstance )
 				parent.$.fancybox.close();
 			});
 		}
@@ -43,6 +43,7 @@ define([
             instance = new ProcessInstance( {
 				processId: process.id(),
 				name: $("input[name='instancename']").val(),
+				owner: App.currentUser().id(),
 				graph: process.graph()
 			});
 		
@@ -107,6 +108,19 @@ define([
 			}
 		});
 	}
+	
+	var destroyProcessInstance = function( processInstance ) {
+		processInstance.destroy(null, {
+			success: function( textStatus ) {
+				Notify.info( "Success", "Processinstance " + this.name() + " has successfully been deleted" );
+			},
+			error :function( textStatus, error ) {
+				Notify.error( "Error", "Deleting the processinstance failed." );
+			}
+		});
+	}
+
+
 
 	var initialize = function() {
 		var viewModel = new ViewModel();
@@ -132,6 +146,7 @@ define([
 			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
 			var select2 = $(".sel").select2( {
 		        width: "copy",
+		        allowClear: true,
 		        dropdownAutoWidth: "true"
 	        });
 	        $(".sel").on("change", function(e) { 

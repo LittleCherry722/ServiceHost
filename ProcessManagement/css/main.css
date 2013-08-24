@@ -7601,7 +7601,7 @@ a.close:hover {
 #history #clickablelist .result td span {
 	display: inline;
 }
-#history #clickablelist .result thead tr {
+#history #clickablelist .result thead tr, #processHistory #clickablelist .result thead tr {
 	border: 0;
 }
 #history .event .left {
@@ -7610,43 +7610,43 @@ a.close:hover {
 #history .event .right {
 	float:left;
 }
-#dashboard #history .state td {
+#dashboard #history .state td, #processHistory #history .state td {
   border-top: 1px solid #000;
 }
 
-#dashboard #history .messages .leftBox {
+#dashboard #history .messages .leftBox, #processHistory #history .messages .leftBox  {
   float: left;
   width: 50%;
 }
 
-#dashboard #history .messages .leftBox .left, #dashboard #history .messages .left {
+#dashboard #history .messages .leftBox .left, #dashboard #history .messages .left, #processHistory #history .messages .leftBox .left, #processHistory #history .messages .left  {
   float: left;
   width: 69px;
   padding: 5px;
   font-weight: bold;
 }
 
-#dashboard #history .messages .text {
+#dashboard #history .messages .text, #processHistory #history .messages .text {
   width: 493px;
 }
 
-#dashboard #history .messages .leftBox .right, #dashboard #history .messages .right {
+#dashboard #history .messages .leftBox .right, #dashboard #history .messages .right, #processHistory #history .messages .leftBox .right, #processHistory #history .messages .right {
   float: left;
   padding: 5px;
 }
 
-#dashboard #history .messages .rightBox {
+#dashboard #history .messages .rightBox, #processHistory #history .messages .rightBox {
   float: left;
 }
 
-#dashboard #history .messages .rightBox .left {
+#dashboard #history .messages .rightBox .left, #processHistory #history .messages .rightBox .left {
   float: left;
   width: 64px;
   padding: 5px;
   font-weight: bold;
 }
 
-#dashboard #history .messages .rightBox .right {
+#dashboard #history .messages .rightBox .right, #processHistory #history .messages .rightBox .right {
   float: left;
   padding: 5px;
 }

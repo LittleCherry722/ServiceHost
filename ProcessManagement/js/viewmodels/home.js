@@ -19,7 +19,7 @@ define([
 		
 	    this.startableProcesses = ko.observableArray(
 	            $.grep(Process.all(), function(p) { 
-	                return p.isStartable();
+	                return p.startAble();
 	            })
 	    );
 		

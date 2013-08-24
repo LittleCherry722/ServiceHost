@@ -27,6 +27,9 @@ object StateType extends Enumeration { // TODO just use a string?
   val OpenIPStateString = "$openip"
   val CloseIPStateString = "$closeip"
   val IsIPEmptyStateString = "$isipempty"
+  val ModalSplitStateString = "modalsplit"
+  val ModalJoinStateString = "modaljoin"
+  val MacroStateString = "macro"
 
   // the internal enums
   val ActStateType = Value(ActStateString)
@@ -36,6 +39,9 @@ object StateType extends Enumeration { // TODO just use a string?
   val OpenIPStateType = Value(OpenIPStateString)
   val CloseIPStateType = Value(CloseIPStateString)
   val IsIPEmptyStateType = Value(IsIPEmptyStateString)
+  val ModalSplitStateType = Value(ModalSplitStateString)
+  val ModalJoinStateType = Value(ModalJoinStateString)
+  val MacroStateType = Value(MacroStateString)
 
   // for marshalling and unmarshalling:
   def fromStringtoStateType(stateType: String): StateType = try {
@@ -57,6 +63,7 @@ case class State(
   text: String,
   stateType: StateType,
   startState: Boolean,
+  callMacro: Option[String],
   options: StateOptions,
   transitions: Array[Transition]
 )
@@ -67,12 +74,22 @@ case class StateOptions(
   conversation: Option[String], 
   stateId: Option[StateID]
 )
+
+case class ProcessMacro(name: String, states: Array[State])
 case class Subject(
   id: SubjectID,
   inputPool: Int,
-  states: Array[State],
+  // TODO macroName -> states?
+//  macros: Map[String, Array[State]],
+  macros: Map[String, ProcessMacro],
+//  states: Array[State],
   multi: Boolean) extends SubjectLike {
   lazy val external = false
+  // TODO remove this function?
+  def states: Array[State] = mainMacro.states
+  def mainMacro = macros(mainMacroName)
+  //TODO aendern
+  def mainMacroName = "##main##"
 }
 case class ExternalSubject(
   id: SubjectID,

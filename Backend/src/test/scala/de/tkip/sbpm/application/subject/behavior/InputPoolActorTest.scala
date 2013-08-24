@@ -15,7 +15,7 @@ private class DummyBlockingActor extends Actor {
 
 class InputPoolActorTest extends TestKit(ActorSystem("TestSystem")) with FunSuite with BeforeAndAfterAll {
 
-  val subject = Subject("Subj1", -1, Array(), false)
+  val subject = Subject("Subj1", -1, Map(), false)
   val subjectData = SubjectData(1, 1, 1, null, TestActorRef[DummyBlockingActor], subject)
 
   override def afterAll() {

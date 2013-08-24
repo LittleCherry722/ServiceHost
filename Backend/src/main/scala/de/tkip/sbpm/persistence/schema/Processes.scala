@@ -30,8 +30,9 @@ trait ProcessesSchema extends Schema {
     def id = autoIncIdCol[Int]
     def name = nameCol
     def isCase = column[Boolean]("case")
+    def startAble = column[Boolean]("startAble")
     
-    def * = id.? ~ name ~ isCase <> (Process, Process.unapply _)
+    def * = id.? ~ name ~ isCase ~ startAble <> (Process, Process.unapply _)
     def autoInc = * returning id
         
     def uniqueName = unique(name)

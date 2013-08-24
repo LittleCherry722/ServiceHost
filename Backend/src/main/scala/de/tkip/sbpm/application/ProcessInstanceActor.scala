@@ -177,7 +177,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case he: history.NewHistoryEntry => {
-      he.process = history.NewHistoryProcessData(processName, id)
+      he.process = history.NewHistoryProcessData(processName, id, name)
       context.parent.forward(he)
     }
 
