@@ -29,6 +29,7 @@ define([
 	ProcessInstance.attrs({
 		processId: "integer",
 		name: "string",
+		owner: "string",
 		startedAt: {
 			type: "json",
 			defaults: {
@@ -116,6 +117,19 @@ define([
 					self.graph( graph );
 				}
 			});
+			
+			this.ownerUser = ko.computed({
+				deferEvaluation: true,
+				read: function() {
+			        var u = null;
+			        _.each(User.all(), function(element) {		        	
+			       		if (element.id() == self.owner()) {
+							u = element;
+						}
+			        });
+			        return u;
+		       }
+		   	});
 		},
 
 		getCurrentState: function (subject) {

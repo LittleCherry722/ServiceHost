@@ -105,6 +105,15 @@ private[persistence] class UserPersistenceActor extends Actor
       } yield (i, u)
       q.firstOption
     }(t => mapping.UserMappings.convert(t._1, t._2))
+    
+    case Read.ByIdProvider(id, provider) => answerOptionProcessed { implicit session: Session =>
+      //
+      val q = for {
+        i <- UserIdentities if (i.userId === id && i.provider === provider)
+      } yield (i.eMail, i.userId)
+      q.firstOption
+    }(t => t._1)
+    
     // retrieve identity for provider and userId
     case Read.Identity.ById(provider, userId) => answerOptionProcessed { implicit session: Session =>
       // read identity and corresponding user

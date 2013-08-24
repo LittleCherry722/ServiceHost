@@ -1,23 +1,23 @@
 <div data-bind="visible: actions().length==0">
-    <p class="lead">
-        There are no Processes running at the moment.
+    <p class="lead" style="margin-top: 20px;">
+        There are no Processes running at the moment :(
     </p>
+    
+    <img style="position: absolute; top: 96px; left: 366px;" src="images/arrow_dashboard.png"/>
 
-    <p>
-        To create a new process, choose "create new Process" from the sidebar. <br/>
-        To start an existing Process, first select "Processes" from the sidebar,
-        then click on the "Instances" dropdown list and choose "New Instance".
-    </p>
-
-    <p>
-        You can get help for a specific site by clicking on the "?" symbol in the top right corner.
+    <p style="font-size: 140%; line-height: 150%; margin-top: 20px;">
+        You can start a new process instance by clicking "<b>Start Process</b>" in the top bar (blue arrow). <br/>
+        <br/>
+        You don't find what you're looking for? <a style="font-weight: bold; text-decoration: underline;" href="#/processes/new">create a new Process</a>! <br/>
+        <br/>
+        Please note: Some processes can only be started by external partners. These are not shown in the process selection.
     </p>
 </div>
 
 <div id="clickablelist" data-bind='foreach: actions()'>
     <!-- ko if: process() && (executable() || hasActions())-->
     <table class="result" data-bind="attr: {id: instanceTableId()}">
-        <tr style="cursor: pointer;" data-bind="click: function() { $('#'+instanceDetailsDivId()).toggle(); }">
+        <tr style="cursor: pointer;" data-bind="click: function(data, event) { $(event.currentTarget).next().toggle(); }">
             <td class="col1">
                 <!-- ko if: executable() -->
                 <img src="images/icons/circle-green-24-ns.png" title="Action required"/>
@@ -62,9 +62,41 @@
 
                         <strong>Message:</strong>
                         <input type="text" data-bind="value: messageText"/>
-                        <br/>
+                        <br />
+                        <input type="text" placeholder="No file selected" disabled="disabled" class="disabled" data-bind="value: $parent.currentSelectedFile().title" style="margin-left:0;" />
+                        <a href="#googleDriveModal" style="width:130px;" data-bind="click: $root.refreshGoogleDriveData, attr: { href:'#googleDriveModal'+$parent.processInstanceID()+$parent.subjectID()  }" class="btn" id="googleDriveButton" data-toggle="modal">
+				            <i class="icon-cloud icon-large"></i> Choose File
+				        </a>				        
+				        <div data-bind="attr: { id:'googleDriveModal'+$parent.processInstanceID()+$parent.subjectID() }" class="modal hide gdrive-modal" tabindex="-1">
+							<div class="modal-header">
+								<a type="button" class="close pull-right" data-dismiss="modal">x</a>
+								<h3>Choose File</h3>
+							</div>
+							<div class="modal-body">
+								<!-- ko if:  $root.googleDriveData -->
+									<ul class="nav nav-pills nav-stacked drive" data-bind="foreach: $root.googleDriveData">
+										<li>
+											<a href="#" data-bind="click: $parents[1].selectFile">
+												<img data-bind="attr: { src: iconLink }">
+												<span data-bind="text: title" style="display: inline"></span>
+											</a>
+										</li>
+									</ul>
+								<!-- /ko -->
+								<!-- ko ifnot:  $root.googleDriveData -->
+									<div class="loading">
+										<p>
+											Loading... Please wait...
+											<i class="icon-large icon-refresh icon-spin"></i>
+										</p>
+									</div>
+								<!-- /ko -->
+							</div>
+						</div>			        
+				        
+                        <br />
                         <input type="button" value="Send" class="btn"
-                               data-bind="click: $parent.send, visible: $data.executeAble"/>
+                               data-bind="click: $parent.send.bind($data, $parent.currentSelectedFile().id), visible: $data.executeAble"/>
                     </div>
                 </div>
 
@@ -87,6 +119,11 @@
                             Message from <strong data-bind="text: user.name()"></strong>: <span
                                 style="padding: 5px; background: #ddd; border: 1px solid #999;"
                                 data-bind="html: messageContent"></span>
+                                
+								<!-- ko if: $data.url -->
+								<br />
+								<a target="_blank" data-bind="attr: { href: url, title: title }"><img data-bind="attr: { src:iconLink }" />&nbsp;<span data-bind="text: title" style="display: inline;"></span></a>
+								<!-- /ko -->
                         </div>
                         <!-- /ko -->
 

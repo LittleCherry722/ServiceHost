@@ -18,18 +18,22 @@
 		<table class="table table-middle result processlist">
 			<thead>
 				<tr class="processhead">
-					<th class="col1"> Name </th>
-					<th  colspan="2" class="col2"> Actions </th>
+					<th class="col1"></th>
+					<th class="col2">Name </th>
+					<th class="col3"> Actions </th>
 				</tr>
 			</thead>
 			<tbody data-bind='foreach: processes'>
-				<tr class="processitem" data-bind="click:  function() { if($data.hasInstances) $('#'+id()).toggle(); }, style: { cursor: $data.hasInstances() ? 'pointer' : '' } ">
+				<tr data-bind="click:  function() { if($data.hasInstances&&$data.startAble()) $('#'+id()).toggle(); }, style: { cursor: $data.hasInstances()&&$data.startAble() ? 'pointer' : '' }, attr: { class: !$data.hasInstances()||!$data.startAble() ? 'processitem noinstances' : 'processitem' }  ">
 					<td class="col1">
-						<a data-bind="click:  function() { window.location.href=url();  }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)
+						<span class="ui-icon ui-icon-triangle-1-s"></span>
 					</td>
 					<td class="col2">
+						<a data-bind="click:  function() { window.location.href=url();  }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)
+					</td>
+					<td class="col3">
 						<div class="btn-group">
-							<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal, css: { disabled: !$data.isStartable() }">Start new Instance</a>
+							<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal, css: { disabled: !$data.startAble() }">Start new Instance</a>
 						</div>
 						<div class="btn-group">
 							<a class="btn" data-bind="click:  function() { window.location.href=url();  }">Edit</a>
@@ -64,7 +68,7 @@
 										<strong>Start: </strong> <span data-bind="text: moment(startedAt().date).format('LL')"></span>
 								      </td>
 								      <td class="col3">
-						                <strong>Owner: </strong><span data-bind="text: ''"></a><br />
+						                <strong>Owner: </strong><span data-bind="text: ownerUser().name()"></a><br />
 						            </td>
 						            <td class="col4">
 						                <a href="" data-bind="click: $parents[1].removeInstance"><img src="images/icons/cross.png" title="Delete" width="28" /></a>
