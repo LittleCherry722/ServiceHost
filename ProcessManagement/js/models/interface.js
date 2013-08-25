@@ -21,6 +21,7 @@ define([
     name: "string",
     creator: "string",
     description: "string",
+    processId: "integer",
     graph: {
 			type: "json",
 			lazy: false
