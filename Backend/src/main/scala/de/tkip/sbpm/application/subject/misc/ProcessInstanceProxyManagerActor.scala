@@ -22,16 +22,19 @@ case object GetProxyActor
 
 case class GetProcessInstanceProxy(userId: UserID, processId: ProcessID, url: String)
 
-class ProcessInstanceProxyManagerActor() extends Actor {
+class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor {
   implicit val timeout = Timeout(2000)
   //  import context.dispatcher
 
   protected val logger = Logging(context.system, ProcessInstanceProxyManagerActor.this)
 
-  private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
-  /** TODO: remove placeholder */
+  logger.info("register initial process instance proxy for: "+url)
 
-  private val processInstanceMap: mutable.Map[(UserID, ProcessID, String), Future[ProcessInstanceProxy]] = mutable.Map()
+  private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
+  private val processInstanceMap: mutable.Map[(UserID, ProcessID, String), Future[ProcessInstanceProxy]] =
+    mutable.Map((userId, processId, url) -> (for {
+      proxy <- (actor ? GetProxyActor).mapTo[ActorRef]
+    } yield new ProcessInstanceProxy(actor, proxy)))
 
   def receive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr

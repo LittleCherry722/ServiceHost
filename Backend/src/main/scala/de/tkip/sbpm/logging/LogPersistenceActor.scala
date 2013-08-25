@@ -14,7 +14,7 @@ object LogPersistenceActor {
 
 class LogPersistenceActor extends Actor with DefaultLogging {
   import LogPersistenceActor._
-  val db = Database.forURL("jdbc:sqlite:sbpm.db", driver = "org.sqlite.JDBC")
+  val db = Database.forURL("jdbc:sqlite::memory:", driver = "org.sqlite.JDBC")
   db withSession {
     if (!MTable.getTables.list.exists(_.name.name == Logs.tableName))
       Logs.ddl.create
