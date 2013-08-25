@@ -1,3 +1,9 @@
+<div class="hide">
+    <div id="graphModal">
+        <div id="graph_bv_outer"></div>
+    </div>
+</div>
+
 <div data-bind="visible: actions().length==0">
     <p class="lead">
         There are no Processes running at the moment.
@@ -104,9 +110,7 @@
                     <strong>Process ended. No actions available.</strong>
                 </div>
 
-                <input type="button" value="Show Graph" class="btn pull-right show-graph" data-bind="click: $parent.showGraph"/>
-                <div class="graph"></div>
-
+                <a href="#graphModal" class="btn pull-right show-graph" data-bind="click: $parent.showGraph">Show Graph</a>
             </td>
         </tr>
     </table>
