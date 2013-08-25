@@ -1,28 +1,35 @@
 <a id="hide_menu" href="javascript:;">&laquo;</a>
 <ul id="main_menu">
-	<li data-bind="visible: visible().home" data-chardin-intro="The dashboard
+    <li data-bind="visible: visible().home" data-chardin-intro="The dashboard
 	gives you an overview of running processes, pending actions, a history and
 	general information and notifications." data-chardin-position="right">
-		<a href="#/home" class="link">
-			<img alt="Home" height="16px" src="images/icons/home_48.png" width="16px"/> Dashboard
-		</a>
-	</li>
-	<li data-chardin-intro="Opens the processes list where processes can be
+        <a href="#/home" class="link">
+            <img alt="Home" height="16px" src="images/icons/home_48.png" width="16px"/> Dashboard
+        </a>
+    </li>
+    <li data-chardin-intro="Opens the processes list where processes can be
 	instanciated (executed), new processes be made and existing processes be
 	edited." data-chardin-position="right">
-		<a id="processList" href="#/processList" class="link">
-			<img src="images/icons/folder_48.png" width="16px" height="16px" alt="Processes"/>
-			Processes
-		</a>
-	</li>
-	<li data-chardin-intro="Creating a new process can either be done manually or
+        <a id="processList" href="#/processList" class="link">
+            <img src="images/icons/folder_48.png" width="16px" height="16px" alt="Processes"/>
+            Processes
+        </a>
+    </li>
+    <li data-chardin-intro="Creating a new process can either be done manually or
 	with help of a wizzard that allows you to get started quickly with simple
 	processes." data-chardin-position="right">
-		<a id="newProcess" href="#/processes/new" class="link">
-			<img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>
-			Create new process
-		</a>
-	</li>
+        <a id="newProcess" href="#/processes/new" class="link">
+            <img src="images/icons/paper_pencil_48.png" width="16px" height="16px" alt="Processes"/>
+            Create new process
+        </a>
+    </li>
+    <li data-chardin-intro="This is the internal messaging system where you can send and receive messages from other users"
+        data-chardin-position="right">
+        <a id="messages" href="#/messages" class="link">
+            <img src="images/icons/mail_48.png" width="16px" height="16px" alt="Messages"/>
+            Messages
+        </a>
+    </li>
 </ul>
 
 <br class="clear"/>
@@ -31,6 +38,7 @@
 
 
 <!-- Begin left panel calendar-->
-<div id="calendar" data-chardin-position="right" data-chardin-intro="This is a nice calendar, isn't it? Later on this will somehow be linked with Google Calendar.">
+<div id="calendar" data-chardin-position="right"
+     data-chardin-intro="This is a nice calendar, isn't it? Later on this will somehow be linked with Google Calendar.">
 </div>
 <!-- End left panel calendar-->
