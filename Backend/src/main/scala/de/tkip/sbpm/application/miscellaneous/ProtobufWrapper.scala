@@ -129,7 +129,7 @@ object ProtobufWrapper {
     		protoInstanceData.getProcessName(),
     		buildGraph(protoInstanceData.getGraph()),
     		protoInstanceData.getIsTerminated(),
-    		(new SimpleDateFormat("dd-MMM-yy")).parse(protoInstanceData.getDate()),
+    		(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).parse(protoInstanceData.getDate()),
     		protoInstanceData.getOwner(),
     		History( protoInstanceData.getName(), protoInstanceData.getProcessId()), // TODO HISTORY
     		buildActions(protoInstanceData.getActionsList().toArray().toList.asInstanceOf[List[proto.Action]])
