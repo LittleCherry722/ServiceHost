@@ -29,11 +29,15 @@
                                 <a href="#" style="background-color: #f5f5f5; display: block; padding: 14px;" data-bind="click: $parent.openMessage">
                                     <h4 data-bind="text:title" style="display: inline"></h4>
                                     <p style="float: right">
+                                        <span data-bind="text:formattedDate()" style="inline-block; margin-right:30px"></span>
                                         <span data-bind="text:$parent.userNameById(fromUserId())"></span>
                                         --> <span data-bind="text:$parent.userNameById(toUserId())"></span>
                                     </p>
                                 </a>
-                                <p data-bind="text:content" class="hide message" style="padding: 14px;"></p>
+                                <div class="hide message" style="padding: 14px;">
+                                    <p data-bind="text:content"></p><br>
+                                    <a href="#/messages/messageComposer" class="btn reply" data-bind="click: $parent.replyMessage">Reply</a>
+                                </div>
                             </div>
                         </div>
                     </div>

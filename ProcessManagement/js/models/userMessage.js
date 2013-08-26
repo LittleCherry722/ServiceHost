@@ -24,8 +24,18 @@ define([
 		fromUserId: "integer",
 		toUserId: "integer",
 		title: "string",
-		content: "string"
+		content: "string",
+		timestamp: "integer"
 	});
+
+	UserMessage.include({
+		initialize: function( data ) {
+			var self = this;
+			this.formattedDate = ko.computed(function(){
+				return new Date(self.timestamp()).toLocaleString();
+			});
+		}
+	})
 
 	return UserMessage;
 });
