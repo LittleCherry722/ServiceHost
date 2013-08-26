@@ -7096,12 +7096,12 @@ table.data2 tr td {
   width: 100% !important;
 }
 
-#processExecution ul.nav.nav-tabs {
+#messagesContent ul.nav.nav-tabs, #processExecution ul.nav.nav-tabs {
   border-bottom: 0;
   margin-bottom: 0;
 }
 
-#processExecution ul.nav.nav-tabs li {
+#messagesContent ul.nav.nav-tabs li, #processExecution ul.nav.nav-tabs li {
   display: block;
   padding: 0;
   margin-right: 5px;
@@ -7110,7 +7110,7 @@ table.data2 tr td {
   border-radius: 5px 5px 0 0;
 }
 
-#processExecution ul.nav.nav-tabs li a {
+#messagesContent ul.nav.nav-tabs li a, #processExecution ul.nav.nav-tabs li a {
   padding: 8px 25px;
   margin: 0;
   -webkit-border-radius: 5px 5px 0 0;
@@ -7118,11 +7118,11 @@ table.data2 tr td {
   border-radius: 5px 5px 0 0;
 }
 
-#processExecution ul.nav.nav-tabs li a:hover {
+#messagesContent ul.nav.nav-tabs li a:hover, #processExecution ul.nav.nav-tabs li a:hover {
   border-bottom: 1px solid #cccccc;
 }
 
-#processExecution ul.nav.nav-tabs li.active {
+#messagesContent ul.nav.nav-tabs li.active, #processExecution ul.nav.nav-tabs li.active {
   position: relative;
   top: 2px;
   height: 29px;
@@ -7133,7 +7133,7 @@ table.data2 tr td {
   box-shadow: 0 0 3px #cccccc;
 }
 
-#processExecution ul.nav.nav-tabs li.active a {
+#messagesContent ul.nav.nav-tabs li.active a, #processExecution ul.nav.nav-tabs li.active a {
   height: 15px;
   background-color: #fcfcfc;
   background-image: -moz-linear-gradient(top, white, #f8f8f8);
@@ -7161,10 +7161,15 @@ table.data2 tr td {
   box-shadow: 0 0 3px #cccccc;
 }
 
-#executionContent .graph > div {
+#graphModal {
   width: 800px;
   height: 500px;
-  overflow: auto;
+}
+
+#graphModal > div{
+  width: 800px;
+  height: 500px;
+  overflow: scroll;
 }
 
 #executionContent.first-tab-selected {
@@ -7711,4 +7716,18 @@ span.icon_clear{
 }
 span.icon_clear:hover{
 	color:#f52;
+
+#messages {
+  height: -moz-calc(100% -120px);
+  height: -o-calc(100% -120px);
+  height: -webkit-calc(100% -120px);
+  height: calc(100% -120px);
+  background-color: #fff;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #cdcdcd;
+  -webkit-box-shadow: 0 0 3px #cccccc;
+  -moz-box-shadow: 0 0 3px #cccccc;
+  box-shadow: 0 0 3px #cccccc;
 }
