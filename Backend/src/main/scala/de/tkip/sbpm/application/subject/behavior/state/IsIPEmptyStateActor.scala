@@ -1,8 +1,9 @@
 package de.tkip.sbpm.application.subject.behavior.state
 
-import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.subject.behavior.IsIPEmpty
+import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application.subject.behavior.IPEmpty
+import de.tkip.sbpm.application.subject.behavior.IsIPEmpty
+import de.tkip.sbpm.application.subject.misc.ActionData
 
 protected case class IsIPEmptyStateActor(data: StateData)
   extends BehaviorStateActor(data) {

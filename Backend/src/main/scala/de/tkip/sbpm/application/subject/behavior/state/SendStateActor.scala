@@ -26,9 +26,7 @@ import akka.event.Logging
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.history.{
-  Transition => HistoryTransition,
-  Message => HistoryMessage,
-  State => HistoryState
+  Message => HistoryMessage
 }
 import de.tkip.sbpm
 import de.tkip.sbpm.ActorLocator
