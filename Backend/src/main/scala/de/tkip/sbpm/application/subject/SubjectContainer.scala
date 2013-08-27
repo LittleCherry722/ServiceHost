@@ -13,7 +13,6 @@
 
 package de.tkip.sbpm.application.subject
 
-import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import akka.actor.ActorContext
 import akka.actor.Props
@@ -22,13 +21,10 @@ import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.SubjectCreated
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
-import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.RegisterSingleSubjectInstance
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
-import scala.concurrent.Await
-import de.tkip.sbpm.model.ExternalSubject
 import de.tkip.sbpm.model.ExternalSubject
 import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
@@ -135,12 +131,15 @@ class SubjectContainer(
    * Forwards a message to all Subjects of this MultiSubject
    */
   def send(message: SubjectToSubjectMessage) {
+    val target = message.target
 
-    if (message.target.toVariable) {
+    if (target.toVariable) {
       // TODO why not targetUsers = var subjects?
-      sendTo(message.target.varSubjects.map(_._2), message)
+      sendTo(target.varSubjects.map(_._2), message)
+    } else if(target.toExternal && target.toUnknownUsers) {
+      sendToExternal(message)
     } else {
-      sendTo(message.target.targetUsers, message)
+      sendTo(target.targetUsers, message)
     }
   }
 
@@ -176,6 +175,11 @@ class SubjectContainer(
       //        blockingHandlerActor ! BlockUser(userID)
       subjects(userID).tell(message, context.sender)
     }
+  }
+
+  def sendToExternal(message: SubjectToSubjectMessage) {
+    val dummyUser = -1
+    sendTo(Array(dummyUser), message)
   }
 
   private def reStartSubject(userID: UserID) {
