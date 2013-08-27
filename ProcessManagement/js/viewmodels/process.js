@@ -42,8 +42,8 @@ define([
 
 		// Needed for saving the business Interface
 		this.newBusinessInterface = newBusinessInterface;
-		newBusinessInterface.name("");
-		newBusinessInterface.creator(App.currentUser().name());
+		this.newBusinessInterface().name("");
+		this.newBusinessInterface().creator(App.currentUser().name());
 
 		this.selectedInterface = ko.observable();
 		this.selectedInterfaceName = ko.computed(function() {
@@ -131,13 +131,13 @@ define([
 			loadGraph( newGraph );
 		}
 
-		this.newBusinessInterfaceName = newBusinessInterface.name;
-		this.newBusinessInterfaceAuthor = newBusinessInterface.creator;
+		this.newBusinessInterfaceName = newBusinessInterface().name;
+		this.newBusinessInterfaceAuthor = newBusinessInterface().creator;
 
 		// Validation errors for saving a process under a different name
 		this.businessInterfaceNameError = ko.computed(function() {
-			if ( Interface.nameAlreadyTaken( newBusinessInterface.name() ) ) {
-				return "Interface name '" + newBusinessInterface.name() + "' is not available.";
+			if ( Interface.nameAlreadyTaken( newBusinessInterface().name() ) ) {
+				return "Interface name '" + newBusinessInterface().name() + "' is not available.";
 			} else {
 				return "";
 			}
@@ -150,15 +150,24 @@ define([
 		});
 
 		this.saveBusinessInterface = function() {
-			newBusinessInterface.save({}, {
+      this.newBusinessInterface().graph(this.currentProcess().graph().definition.process.filter(function(s) {
+        if ( s.id === this.interfaceReplacementSubject() ) {
+          return true;
+        } else {
+          return false;
+        }
+      })[0]);
+      this.newBusinessInterface().processId(currentProcess().id())
+
+			this.newBusinessInterface().save({}, {
 				success: function() {
 					Notify.info("Success", "Business Interface '" +
-						currentProcess().name() + "' has successfully been made public.");
+						this.currentProcess().name() + "' has successfully been made public.");
 
-					newBusinessInterface = self.newbusinessInterface = new Interface({
+					this.newBusinessInterface(new Interface({
 						name: "",
 						creator: App.currentUser().name()
-					});
+					}));
 				},
 				error: function() {
 					// TODO: real error handling
@@ -222,7 +231,7 @@ define([
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
 			this.graphText(graph);
 
-		}
+		};
 
 		this.graphText = ko.observable("");
 
@@ -230,7 +239,30 @@ define([
 			currentProcess().graphString(this.graphText());
 			loadGraph(currentProcess().graph());
 			$.fancybox.close();
-		}
+		};
+
+		this.uploadGraphDataClicked = function() {
+			$('#graph-import-fileupload').click();
+		};
+
+		this.readUploadGraphData = function() {
+			var file, reader,
+				that = this,
+				files = $('#graph-import-fileupload')[0].files;
+			if( undefined !== files ) {
+				file = files.item(0);
+				reader = new FileReader();
+				reader.onload = function(e){
+					that.graphText(e.target.result);
+				};
+				reader.readAsText(file);
+			}
+		};
+
+		this.saveGraphDataClicked = function() {
+			var blob = new Blob( [this.graphText()], {type: "application/json;charset=" + document.characterSet} );
+			window.saveAs( blob, currentProcess().name() + '.json' );
+		};
 
 		this.clearGraphText = function() {
 			this.graphText('');
@@ -239,7 +271,7 @@ define([
 		this.goToRoot = function() {
 			setGraph( currentProcess() )
 			Router.goTo( currentProcess() );
-		}
+		};
 
 		this.resetProcess = function() {
 			if ( confirm("Are you sure you want to reset this process to the last saved version? Doing so will reload the page and you will loose all unsaved changes.") ) {
@@ -284,7 +316,7 @@ define([
 
 	var newProcessName = ko.observable("");
 
-	var newBusinessInterface = new Interface();
+	var newBusinessInterface = ko.observable(new Interface());
 
 	// Currently selected subject and conversation (in chosen)
 	var currentSubject = ko.observable();
@@ -479,7 +511,6 @@ define([
 	// Just load the graph from a JSON String and display it.
 	// no saving needed.
 	var loadGraph = function( graph ) {
-
 		// Clear the graph canvas
 		gv_graph.clearGraph( true );
 		if ( graph && graph.definition ) {
@@ -550,13 +581,26 @@ define([
 				gv_graph.clearGraph();
 				parent.$.fancybox.close();
 			});
-		})
+		});
+
+		$('#processContent svg').on('DOMSubtreeModified', function(){
+			console.log('dom nodes changed', gv_graph.getSubjectNames())
+			if(gv_graph.getSubjectNames().length > 0) {
+				$('#process-subject-help').addClass('invisible');
+			} else {
+				$('#process-subject-help').removeClass('invisible');
+			}
+		});
 
 		var updateSubjectIds = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
 		$(updateSubjectIds).live( "click", function() {
 			Router.setHasUnsavedChanges(true);
 			updateListOfSubjects();
-		})
+		});
+
+		$('importGraphButtonAction').click(function(){
+			Router.setHasUnsavedChanges(true);
+		});
 
 		var changeNodeButtonIds = "#CreateNodeButton, #InsertSendNodeButton, #InsertReceiveButton, #InsertActionNodeButton, #internalClearBehavior, #UpdateEdgeButton, #DeleteEdgeButton";
 		$(changeNodeButtonIds).live( "click", function() {

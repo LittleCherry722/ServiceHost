@@ -17,6 +17,12 @@ define([
 		this.availableProcesses = ko.observableArray(Process.all());
 		this.availableStatetypes= availableStatetypes;
 		
+	    this.startableProcesses = ko.observableArray(
+	            $.grep(Process.all(), function(p) { 
+	                return p.startAble();
+	            })
+	    );
+		
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
 		this.selectedStatetype = selectedStatetype;
@@ -26,6 +32,7 @@ define([
 		this.tabs = tabs;
 		this.tabDescriptions = tabDescriptions;
 		this.currentTab = currentTab;
+		this.actionCount = actionCount;
 		this.newInstance = function(formElement) {
 			var process = Process.find( $("input[name='processId']").val()) ;
 			$('#processNameModal').modal('hide');
@@ -44,8 +51,8 @@ define([
 					Notify.error( "Error", 'Unable to create a new instance of "' + process.name() + '" process.'  );
 				}
 			});
-        }
-	}		
+       };
+	};	
 	currentSubView = ko.observable();
 	var availableStatetypes = ko.computed(function() {
 		var uniqueStates= [];
@@ -53,6 +60,16 @@ define([
 			if($.inArray(el.stateType(), uniqueStates) === -1) uniqueStates.push(el.stateType());
 		});
 		return uniqueStates;
+	});
+
+	var actionCount = ko.computed(function() {
+		var count = 0;
+		$.each(Actions.all(), function(i, el){
+			if(el.executable()) {
+				count++;
+			}
+		});
+		return count;
 	});
 	
 	var tabs = [ 'Actions', 'History' ];
@@ -64,7 +81,7 @@ define([
 	
 	var setView = function( tab ) {
 		currentTab( tab );
-	}
+	};
 	
 	/* Start Filter */
 	var selectedUser = ko.observable();
@@ -143,9 +160,9 @@ define([
 
 		App.loadTemplate( "home", viewModel, null, function() {
 			if ( currentTab() == subSite ) {
-				currentTab.valueHasMutated()
+				currentTab.valueHasMutated();
 			} else {
-				currentTab( subSite )
+				currentTab( subSite );
 			}
 			
 
@@ -166,7 +183,7 @@ define([
 				}
 			});	
 			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
-				$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
+			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
 		        var select2 = $(".sel").select2( {
 		        	width: "copy",
 		        	dropdownAutoWidth: "true"
@@ -181,23 +198,23 @@ define([
 				$("#processNameModal").modal();					
 			});
 		});
-	}
+	};
 	
 	var unload = function() {
 		unloadSubView();
 		return true;
-	}
+	};
 	
 	var unloadSubView = function() {
 		if ( currentSubView() && typeof currentSubView().unload === "function" ) {
 			currentSubView().unload();
 		}
-	}
+	};
 	
 	// Everything in this object will be the public API
 	return {
 		init: initialize,
 		setView: setView,
 		unload: unload
-	}
+	};
 });

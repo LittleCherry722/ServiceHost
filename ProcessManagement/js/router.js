@@ -113,6 +113,14 @@ define([ "director", "app"], function( Director, App ) {
 		loadView( "process/routing", processId );
 	}
 
+	var showMessages = function ( tab ) {
+		if ( App.isViewLoaded( "messages" ) ) {
+			App.currentMainViewModel().setView( tab )
+		} else {
+			App.loadView( "messages", [tab], globalCallback() );
+		}
+	}
+
 	/*
 	 *	Every possible route gets defined here
 	 */
@@ -145,6 +153,12 @@ define([ "director", "app"], function( Director, App ) {
 					on: showProcessExecution,
 					":subject": showProcessExecution
 				}
+			}
+		},
+		"/messages": {
+			on: showMessages,
+			"/:tab": {
+				on: showMessages
 			}
 		}
 	}

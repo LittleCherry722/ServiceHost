@@ -47,7 +47,8 @@ case class ProcessInstance(id: Option[Int],
 
 case class Process(id: Option[Int],
   name: String,
-  isCase: Boolean = false)
+  isCase: Boolean = false,
+  startAble: Boolean)
 
 case class Message(id: Option[Int],
   fromUserId: Int,
@@ -100,6 +101,7 @@ case class GraphSubject(id: String,
   relatedGraphId: Option[Int],
   externalType: Option[String],
   roleId: Option[Int],
+  url: Option[String],
   comment: Option[String])
 
 case class GraphVariable(id: String,

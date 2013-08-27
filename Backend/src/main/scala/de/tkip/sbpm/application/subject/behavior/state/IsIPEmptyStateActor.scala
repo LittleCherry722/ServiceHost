@@ -13,11 +13,11 @@ protected case class IsIPEmptyStateActor(data: StateData)
   override protected def stateReceive = {
     case IPEmpty(true) => {
       //TODO: exit transition for true
-      changeState(exitTransition.successorID, null)
+      changeState(exitTransition.successorID, data, null)
     }
     case IPEmpty(false) => {
       //TODO: exit transition for false
-      changeState(exitTransition.successorID, null)
+      changeState(exitTransition.successorID, data, null)
     }
   }
 

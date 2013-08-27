@@ -70,10 +70,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
+  private val host = context.system.settings.config.getString("akka.remote.netty.tcp.hostname")
+  private val port = context.system.settings.config.getInt("akka.remote.netty.tcp.port")
+  private val url = "@"+host+":"+port
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceContainerManagerActor(request.userID, request.processID, self))))
+      Props(new ProcessInstanceProxyManagerActor(request.userID, request.processID, url, self))))
 
 
   // this actor handles the blocking for answer to the user
@@ -81,7 +84,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this actory is used to exchange the subject ids for external input messages
   // TODO
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(graph)))
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, graph)))
 
   override def preStart() {
     try {
@@ -153,7 +156,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case he: history.NewHistoryEntry => {
-      he.process = history.NewHistoryProcessData(processName, id)
+      he.process = history.NewHistoryProcessData(processName, id, name)
       context.parent.forward(he)
     }
 
@@ -182,7 +185,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private var sendProcessInstanceCreated = true
   private def createProcessInstanceData(actions: Array[AvailableAction]) =
-    ProcessInstanceData(id, name, processID, persistenceGraph, false, startTime, actions)
+    ProcessInstanceData(id, name, processID, processName, persistenceGraph, false, startTime, request.userID, actions)
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {

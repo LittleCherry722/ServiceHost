@@ -80,7 +80,7 @@ protected case class ReceiveStateActor(data: StateData)
       val message =
         HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
       // change the state and enter the history entry
-      changeState(transition.successorID, message)
+      changeState(transition.successorID, data, message)
 
       // inform the processinstance, that this action is executed
       blockingHandlerActor ! ActionExecuted(action)
@@ -128,7 +128,7 @@ protected case class ReceiveStateActor(data: StateData)
 
     if (exitTransition.isDefined) {
       // TODO richtige historymessage
-      changeState(exitTransition.get.successorID, null)
+      changeState(exitTransition.get.successorID, data, null)
     } else {
       super.executeTimeout()
     }
@@ -145,12 +145,12 @@ protected case class ReceiveStateActor(data: StateData)
         messages = Some(t.messages))
     }).toArray
 
-  override protected def changeState(successorID: StateID, historyMessage: HistoryMessage) {
+  override protected def changeState(successorID: StateID, prevStateData: StateData, historyMessage: HistoryMessage) {
     // inform the inputpool, that this state is not waiting for messages anymore
     inputPoolActor ! UnSubscribeIncomingMessages(id)
 
     // change the state
-    super.changeState(successorID, historyMessage)
+    super.changeState(successorID, data, historyMessage)
   }
 
   /**

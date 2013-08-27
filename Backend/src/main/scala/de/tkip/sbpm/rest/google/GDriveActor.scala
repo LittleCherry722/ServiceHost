@@ -18,7 +18,7 @@ import akka.actor.{Actor, ActorSystem, Props}
 import akka.actor.Status.Failure
 import akka.pattern.pipe
 
-import de.tkip.sbpm.rest.google.GDriveControl
+import de.tkip.sbpm.rest.google.{GDriveControl, GAuthCtrl}
 
 object GDriveActor {
   case class FindFiles(userId: String, query: String, fields: String)
@@ -28,6 +28,8 @@ object GDriveActor {
   case class PublishFile(userId: String, fileId: String)
   case class UnpublishFile(userId: String, fileId: String)
   case class ShareFile(userId: String, fileId: String, targetId: String)
+  case class RetrieveEmail(userId: String)
+  
 }
 
 class GDriveActor extends Actor {
@@ -40,9 +42,9 @@ class GDriveActor extends Actor {
     case FindFiles(u,q,f) =>
       Future { driveCtrl.findFiles(u,q,f) } pipeTo sender
     case InitCredentials(u,c) =>
-      Future { driveCtrl.initCredentials(u,c) } pipeTo sender
+      Future { GAuthCtrl.initCredentials(u,c) } pipeTo sender
     case RetrieveCredentials(u) =>
-      Future { driveCtrl.getCredentials(u) } pipeTo sender
+      Future { GAuthCtrl.getCredentials(u) } pipeTo sender
     case GetFileInfo(u,f) =>
       Future { driveCtrl.fileInfo(u,f) } pipeTo sender
     case PublishFile(u,f) =>
@@ -51,6 +53,9 @@ class GDriveActor extends Actor {
       Future { driveCtrl.unpublishFile(u,f) } pipeTo sender
     case ShareFile(u,f,t) =>
       Future { driveCtrl.shareFile(u,f,t) } pipeTo sender
+    case RetrieveEmail(u) =>
+      Future { driveCtrl.userEmail(u) } pipeTo sender
+    
   }
 
 }

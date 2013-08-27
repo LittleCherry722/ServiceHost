@@ -70,9 +70,11 @@ case class AllProcessInstancesAnswer(request: GetAllProcessInstances, processIns
 case class ProcessInstanceData(id: ProcessInstanceID,
                                name: String,
                                processId: ProcessID,
+                               processName: String,
                                graph: Graph,
                                isTerminated: Boolean,
                                startedAt: Date,
+                               owner: UserID,
                                actions: Array[AvailableAction])
 
 case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage

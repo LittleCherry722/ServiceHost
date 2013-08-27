@@ -1,0 +1,77 @@
+<div class="inner">
+
+    <div id="messagesContent">
+
+        <div id="contentHead">
+            <h3>Messages</h3>
+        </div>
+
+        <ul class="nav nav-tabs">
+            <li data-bind="css: { active: 'messagesOverview' === currentTab() }"><a href="#/messages/messagesOverview">Message Overview</a></li>
+            <li data-bind="css: { active: 'messageComposer' === currentTab() }"><a href="#/messages/messageComposer">New Message</a></li>
+        </ul>
+
+        <div id="messages">
+            <div class="header"></div>
+
+            <div style="padding: 12px">
+
+                <div id="messagesOverview" data-bind="css: { hide: 'messagesOverview' !== currentTab() }">
+                    <div style="float: right">
+                        <b>Select Inbox of User:</b>
+                        <select style="margin-left: 20px" data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'All', value: userFilter  " class="chzn-select"></select>
+                    </div>
+                    <div class="clear"></div>
+
+                    <div data-bind="css: { hide: selectInbox().length === 0}" style="margin: 20px 0">
+                        <div data-bind="foreach:selectInbox">
+                            <div style="margin-bottom: 1px" data-bind="attr: { id: $parent.messageContainerId(id()) }">
+                                <a href="#" style="background-color: #f5f5f5; display: block; padding: 14px;" data-bind="click: $parent.openMessage">
+                                    <h4 data-bind="text:title" style="display: inline"></h4>
+                                    <p style="float: right">
+                                        <span data-bind="text:formattedDate()" style="inline-block; margin-right:30px"></span>
+                                        <span data-bind="text:$parent.userNameById(fromUserId())"></span>
+                                        --> <span data-bind="text:$parent.userNameById(toUserId())"></span>
+                                    </p>
+                                </a>
+                                <div class="hide message" style="padding: 14px;">
+                                    <p data-bind="text:content"></p><br>
+                                    <a href="#/messages/messageComposer" class="btn reply" data-bind="click: $parent.replyMessage">Reply</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom: 30px" data-bind="css: { hide: selectInbox().length > 0}">
+                        No Messages in Inbox</h4>
+
+                    <div class="clear"></div>
+
+                </div>
+
+                <div id="messageComposer" data-bind="css: { hide: 'messageComposer' !== currentTab() }" style="width: 500px">
+                    <div style="margin:20px 0">
+                        <span style="display: inline-block; width: 40px">From: </span>
+                        <select data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'Choose User', value: fromUserId  "
+                                class="chzn-select" style="width: 260px"></select>
+                        <br>
+                        <span style="display: inline-block; width: 40px">To: </span>
+                        <select data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'Choose User', value: toUserId "
+                                class="chzn-select" style="width: 260px"></select>
+                    </div>
+                    <input type="text" style="width: 288px" data-bind='value:title' placeholder="Title" onfocus="this.placeholder = ''"
+                           onblur="this.placeholder = 'Title'"/>
+                    <br/>
+                    <textarea style="height:150px; width: 488px; display: block;" data-bind='value:content'placeholder="Message"
+                              onfocus="this.placeholder = ''" onblur="this.placeholder = 'Message'"></textarea>
+
+                    <button class="btn pull-left" data-bind="click:reset">Reset</button>
+                    <button class="btn btn-success pull-right" data-bind="click:send">Send Message</button>
+                    <div class="clear"></div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

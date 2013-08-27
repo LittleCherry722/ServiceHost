@@ -21,6 +21,7 @@ define([
     name: "string",
     creator: "string",
     description: "string",
+    processId: "integer",
     graph: {
 			type: "json",
 			lazy: false
@@ -153,13 +154,13 @@ define([
 		}]
   }
 
-  Interface.fetch = function(obj, callback) {
-    callback.success();
-  }
+  // Interface.fetch = function(obj, callback) {
+  //   callback.success();
+  // }
 
-  Interface.all = ko.observableArray([
-    new Interface({ id: 1, name: "Travel Process", creator: "Arne", graph: graph }),
-  ]);
+  // Interface.all = ko.observableArray([
+  //   new Interface({ id: 1, name: "Travel Process", creator: "Arne", graph: graph }),
+  // ]);
 
   return Interface;
 });

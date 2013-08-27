@@ -80,24 +80,37 @@ object parseGraph {
       val id = subject.id
       val multi = subjectMap(id).multi
       val external = subjectMap(id).external
-
+      
+      val macros = subject.macros.map(m => parseMacro(m._1, m._2))
+      
       // first parse the nodes then the edges
-      parseNodes(behavior.nodes.values)
-      parseEdges(behavior.edges)
+//      parseNodes(behavior.nodes.values)
+//      parseEdges(behavior.edges)
 
       // all parsed states are in the states map, convert the creators,
       // create and return the subject
       if (!external)
-        Subject(subject.id, subject.inputPool, states.map(_._2.createState).toArray, multi)
+        Subject(subject.id, subject.inputPool, macros, multi)
       else {
         // FIXME GraphId != processId
         // TODO check ob vorhanden!
         val relatedProcessId = subject.relatedGraphId.get
         val relatedGraphId = subject.relatedGraphId.get
         val relatedSubjectId = subject.relatedSubjectId.get
+        val url = subject.url
 
-        ExternalSubject(id, subject.inputPool, multi, relatedProcessId, relatedGraphId, relatedSubjectId)
+        ExternalSubject(id, subject.inputPool, multi, relatedProcessId, relatedGraphId, relatedSubjectId, url)
       }
+    }
+    
+    private def parseMacro(macroId: String, macro: GraphMacro): (String, ProcessMacro) = synchronized {
+      states = MutableMap[StateID, StateCreator]()
+
+      // first parse the nodes then the edges
+      parseNodes(macro.nodes.values)
+      parseEdges(macro.edges)
+      
+      macroId -> ProcessMacro(macro.name, states.map(_._2.createState).toArray)
     }
 
     private def parseNodes(nodes: Iterable[GraphNode]) {
@@ -106,7 +119,7 @@ object parseGraph {
 
         // create and add a state creator for this state
         states(node.id) =
-          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart, options)
+          new StateCreator(node.id, node.text, fromStringtoStateType(node.nodeType), node.isStart, node.macroId, options)
       }
     }
 
@@ -130,8 +143,14 @@ object parseGraph {
                 var minValue = t.min
                 var maxValue = t.max
                 val default = minValue < 1 && maxValue < 1
+                val toExternal = subjectMap(t.subjectId).external
 
-                if (minValue < 1) minValue = 1
+                if(toExternal) {
+                  minValue = 0
+                } else if (minValue < 1) {
+                  minValue = 1
+                }
+
                 if (maxValue < 1) {
                   // maxValue should be infinity, if the other one is a multisubject
                   // if the other one is a single subject await only one message
@@ -142,7 +161,7 @@ object parseGraph {
                       1
                 }
 
-                Some(Target(t.subjectId, minValue, maxValue, t.createNew, t.variableId, default))
+                Some(Target(t.subjectId, minValue, maxValue, t.createNew, t.variableId, toExternal, default))
               }
               case None => None
             }
@@ -188,6 +207,7 @@ object parseGraph {
     val text: String,
     val stateType: StateType,
     val startState: Boolean,
+    val macro: Option[String],
     val options: StateOptions) {
 
     // store all transitions in this Buffer
@@ -204,6 +224,6 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, startState, options, transitions.toArray)
+      State(id, text, stateType, startState, macro, options, transitions.toArray)
   }
 }

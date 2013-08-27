@@ -25,7 +25,7 @@ protected case class OpenIPStateActor(data: StateData)
 
   override protected def stateReceive = {
     case InputPoolOpened => {
-      changeState(exitTransition.successorID, null)
+      changeState(exitTransition.successorID, data, null)
     }
   }
 

@@ -22,6 +22,9 @@ import de.tkip.sbpm.ActorLocator
 import akka.actor.Status.Failure
 import de.tkip.sbpm.application.history._
 import java.util.Date
+import scala.concurrent.Future
+import akka.pattern.pipe
+import scala.collection.mutable.ArrayBuffer
 
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
@@ -31,8 +34,8 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
 class ProcessManagerActor extends Actor {
-  private case class ProcessInstanceData(processID: ProcessID, name: String, processInstanceActor: ProcessInstanceRef)
-
+  private case class ProcessInstanceData(processID: ProcessID, processName: String, name: String, processInstanceActor: ProcessInstanceRef)
+  implicit val ec = context.dispatcher
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceData]()
@@ -55,6 +58,10 @@ class ProcessManagerActor extends Actor {
             s => ProcessInstanceInfo(s._1, s._2.name, s._2.processID)).toArray.sortBy(_.id))
     }
 
+    case message: GetNewHistory => {
+      sender ! NewHistoryAnswer(message, history)
+    }
+
     case cp: CreateProcessInstance => {
       // create the process instance
       context.actorOf(Props(new ProcessInstanceActor(cp)))
@@ -67,28 +74,27 @@ class ProcessManagerActor extends Actor {
         logger.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
       }
       processInstanceMap +=
-        pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.request.name, pc.processInstanceActor)
-      history.entries += NewHistoryEntry(new Date(), Some(pc.request.userID), NewHistoryProcessData(processInstanceMap(pc.processInstanceID).name, pc.processInstanceID), None, Some("created"))
-      
+        pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
+      history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
     }
 
-    case KillAllProcessInstances => {
+    case kill: KillAllProcessInstances => {
       logger.debug("Killing all process instances")
-      for((id,_) <- processInstanceMap) {
+      for ((id, _) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
-        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).name, id), None, Some("killed"))
+        history.entries += createHistoryEntry(None, id, "killed")
       }
       processInstanceMap.clear()
-      sender ! ProcessInstancesKilled
+      kill.sender ! ProcessInstancesKilled
     }
 
     case kill @ KillProcessInstance(id) => {
-      println("killed " + id)
       if (processInstanceMap.contains(id)) {
-        context.stop(processInstanceMap(id).processInstanceActor)
+        processInstanceMap(id).processInstanceActor ! PoisonPill
+        history.entries += createHistoryEntry(None, id, "killed") 
         processInstanceMap -= id
-        history.entries += NewHistoryEntry(new Date(), None, NewHistoryProcessData(processInstanceMap(id).name, id), None, Some("killed"))
-        sender ! KillProcessInstanceAnswer(kill)
+        kill.sender ! KillProcessInstanceAnswer(kill)
+        logger.debug("Killed process instance " + id)
       } else {
         logger.error("Process Manager - can't kill process instance: " +
           id + ", it does not exists")
@@ -120,12 +126,13 @@ class ProcessManagerActor extends Actor {
       answer.sender.forward(answer)
     }
 
-    case message: GetNewHistory => {
-      sender ! NewHistoryAnswer(message, history)
-    }
-
     case entry: NewHistoryEntry => {
       history.entries += entry
+    }
+    
+    case GetHistorySince(t) => {
+      println("time of the first entry is: "+history.entries(0).timeStamp.getTime())
+      Future { getHistoryChange(t) } pipeTo sender
     }
 
     case message => {
@@ -136,6 +143,17 @@ class ProcessManagerActor extends Actor {
   // to forward a message to the process instance it needs a function to 
   // get the processinstance id
   private type ForwardProcessInstanceMessage = { def processInstanceID: ProcessInstanceID }
+
+  private def createHistoryEntry(userId: Option[UserID],
+    processInstanceId: ProcessInstanceID,
+    event: String): NewHistoryEntry =
+    NewHistoryEntry(
+      new Date(),
+      userId,
+      NewHistoryProcessData(processInstanceMap(processInstanceId).processName, processInstanceId, processInstanceMap(processInstanceId).name),
+      None,
+      None,
+      Some(event))
 
   /**
    * Forwards a message to a processinstance
@@ -150,5 +168,18 @@ class ProcessManagerActor extends Actor {
       logger.error("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)
     }
+  }
+  
+  private def getHistoryChange(t: Long) = {
+    val changes = history.entries.filter(_.timeStamp.getTime() > t * 1000)
+    var temp = ArrayBuffer[String]()
+    for (i <- 0 until changes.length){
+      var id = changes(i).userId.get
+      var name = changes(i).process.processName
+      temp += """"inserted" : [ { "id" : """ + id + """, "name": """"+name+"""" } ]""" 
+    }
+    val result = """{ "history": {""" + temp.mkString(",") + """ } }"""
+    result
+    
   }
 }

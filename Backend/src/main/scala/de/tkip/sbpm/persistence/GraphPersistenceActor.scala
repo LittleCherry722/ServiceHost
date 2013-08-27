@@ -49,6 +49,7 @@ private[persistence] class GraphPersistenceActor extends Actor
     }
     // get graph with given id as Option (None if not found)
     case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
+      log.debug("Read Graph: " + id)
       // load graph by id , all it sub entities and the roles from db
       Query(Graphs).where(_.id === id).firstOption match {
         // return None if graph not found
@@ -61,6 +62,7 @@ private[persistence] class GraphPersistenceActor extends Actor
     }
     // save given graphs to db
     case Save.Entity(gs @ _*) => answer { implicit session =>
+      log.debug("Save Graph for: " + (gs map (_.processId) mkString (", ")))
       // save all graphs
       gs.map(save) match {
         // only one graph was given, return it's id

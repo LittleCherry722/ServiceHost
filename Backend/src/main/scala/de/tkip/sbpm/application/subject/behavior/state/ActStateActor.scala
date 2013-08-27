@@ -33,7 +33,7 @@ protected case class ActStateActor(data: StateData)
       val input = action.actionData
       val index = indexOfInput(input.text)
       if (index != -1) {
-        changeState(exitTransitions(index).successorID, null)
+        changeState(exitTransitions(index).successorID, data, null)
         blockingHandlerActor ! ActionExecuted(action)
       } else {
         action.asInstanceOf[AnswerAbleMessage].sender !

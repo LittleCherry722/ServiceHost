@@ -647,3 +647,21 @@
 	filter: Alpha(Opacity=30);
 	border-radius: 8px;
 }
+
+/* Icons
+----------------------------------*/
+
+/* states and images */
+#main .ui-icon {
+	display: block;
+	text-indent: -99999px;
+	overflow: hidden;
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+}
+#main .ui-icon {
+	background-image: url(../images/ui-icons_888888_256x240.png);
+}
+#main .ui-icon-triangle-1-s { background-position: -64px -16px; }
+#main .ui-icon-triangle-1-n { background-position: 0 -16px; }

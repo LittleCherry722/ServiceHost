@@ -248,6 +248,11 @@ self.processName = ko.observable("");
 
   self.availableProcesses = ko.observableArray(SBPM.Service.Process.getAllProcesses());
 
+  self.startableProcesses = ko.observableArray(
+        $.grep(SBPM.Service.Process.getAllProcesses(), function(p) { 
+            return p.isStartable();
+        })
+  );
 
 
 	self.updateProcessList = ko.computed(function() {
@@ -255,7 +260,13 @@ self.processName = ko.observable("");
 
 		self.availableProcesses(filterArray.filter(function(element) {
 			return (element.name != self.processName());
-		}))
+		}));
+                
+                self.startableProcesses(
+                        $.grep(SBPM.Service.Process.getAllProcesses(), function(p) { 
+                            return p.isStartable();
+                        })
+                );
 	});
 
 

@@ -13,6 +13,7 @@
 
 package de.tkip.sbpm.application.subject.behavior
 
+import scala.collection.mutable
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -31,46 +32,63 @@ import de.tkip.sbpm.application.subject.misc.TryTransportMessages
 import de.tkip.sbpm.application.history.{
   Message => HistoryMessage
 }
+import scala.concurrent.Promise
+import akka.util.Timeout
+import akka.pattern.ask
+import akka.pattern.pipe
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
+import ExecutionContext.Implicits.global
+import de.tkip.sbpm.application.subject.CallMacro
+import scala.collection.mutable.Stack
+
+case object StartMacroExecution
 
 // TODO this is for history + statechange
 case class ChangeState(
   currenState: StateID,
   nextState: StateID,
   internalStatus: InternalStatus,
+  prevStateData: StateData,
   history: HistoryMessage)
 
 /**
  * contains the business logic that will be modeled by the graph
  */
 class InternalBehaviorActor(
+  macroId: String,
+  macroStartState: Option[ActorRef],
   data: SubjectData,
   inputPoolActor: ActorRef) extends Actor with DefaultLogging {
   // extract the data
+  implicit val timeout = Timeout(2000)
 
   val processInstanceActor = data.processInstanceActor
   val subjectID = data.subject.id
   val userID = data.userID
 
   private val statesMap = collection.mutable.Map[StateID, State]()
-  private var startState: StateID = 0
-  private var currentState: BehaviorStateRef = null
+  private var startState: StateID = _
+  //  private var currentState: BehaviorStateRef = null
   private var internalStatus: InternalStatus = InternalStatus()
+  private var modalSplitList: Stack[(Int, Int)] = new Stack // tmp
 
   def receive = {
     case state: State => {
-      addState(state)
+      addStateToModel(state)
     }
 
-    case message: StartSubjectExecution => {
-      nextState(startState)
+    case StartMacroExecution => {
+      addState(startState)
     }
 
     case change: ChangeState => {
       // update the internal status
       internalStatus = change.internalStatus
+      modalSplitList = change.prevStateData.visitedModalSplit
       // TODO check if current state is correct?
       // change the state
-      nextState(change.nextState)
+      changeState(change.currenState, change.nextState)
 
       val current: State = statesMap(change.currenState)
       val next: State = statesMap(change.nextState)
@@ -86,28 +104,36 @@ class InternalBehaviorActor(
             change.history.from,
             change.history.to,
             change.history.messageType,
-            change.history.data
-          )) else None
-        )
+            change.history.data))
+          else None)
     }
 
     case ea: ExecuteAction => {
-      currentState.forward(ea)
+      currentStatesMap(ea.stateID).forward(ea)
     }
 
-    case terminated: SubjectTerminated => {
+    case terminated: MacroTerminated => {
+      if(macroStartState.isDefined) {
+        data.blockingHandlerActor ! BlockUser(userID)
+        println("send"+macroStartState)
+        println(macroStartState.get.isTerminated)
+        macroStartState.get ! terminated
+      }
       context.parent ! terminated
     }
+    
+    case m: CallMacro => {
+      context.parent ! m
+    }
 
-    case br: SubjectBehaviorRequest => {
-      if (currentState != null) {
-        currentState.forward(br)
-      } else if (br.isInstanceOf[AnswerAbleMessage]) {
-        br.asInstanceOf[AnswerAbleMessage].sender !
-          Failure(new Exception(
-            "Subject : " + subjectID + "of process instance " +
-              data.processInstanceID + " has no running subject"))
-      }
+    case getActions: GetAvailableAction => {
+      // Create a Future with the available actions
+      val actionFutures =
+        Future.sequence(
+          for ((_, c) <- currentStatesMap) yield (c ? getActions).mapTo[AvailableAction])
+
+      // and pipe the actions back to the sender
+      actionFutures pipeTo sender
     }
 
     // general matching
@@ -123,28 +149,46 @@ class InternalBehaviorActor(
   /**
    * Adds a state to the internal model
    */
-  private def addState(state: State) {
+  private def addStateToModel(state: State) {
     if (state.startState) {
-      log.debug("startstate " + state)
+      log.debug("Set startstate: " + state)
       startState = state.id
     }
     statesMap += state.id -> state
 
-    this.inputPoolActor ! TryTransportMessages
+    inputPoolActor ! TryTransportMessages
   }
 
-  /**
-   * Executes the nextstate and terminates the currentstate
-   */
-  private def nextState(state: StateID) {
-    if (currentState != null) {
-      context.stop(currentState)
-      currentState = null
+  private val currentStatesMap: mutable.Map[StateID, BehaviorStateRef] = mutable.Map()
+  private def changeState(from: StateID, to: StateID) = {
+    // kill the currentState
+    if (currentStatesMap contains from) {
+      val currentState = currentStatesMap(from)
+      // kill the from State
+      currentState ! PoisonPill
+      currentStatesMap -= from
+    } else {
+      log.debug("Change State from a State, which does not exits")
     }
 
+    // TODO damit umgehen, wenn target ein ModalJoin State ist
+    log.debug("Execute: /%s/%s/[%s]->[%s]".format(userID, subjectID, from, to))
+    addState(to)
+  }
+  private def addState(state: StateID) {
     if (statesMap.contains(state)) {
-      log.debug("Execute: /" + userID + "/" + subjectID + "/" + state)
-      currentState = parseState(statesMap(state))
+      log.debug("Starting state: /%s/%s/%s/%s".format(userID, subjectID, macroId, state))
+
+      if (currentStatesMap contains state) {
+        log.debug("State /%s/%s/%s is already running".format(userID, subjectID, state))
+        // TODO hier message wegen modaljoin!
+        if (statesMap(state).stateType == ModalJoinStateType) {
+          currentStatesMap(state) ! TransitionJoined
+          data.blockingHandlerActor ! UnBlockUser(userID)
+        }
+      } else {
+        currentStatesMap += state -> parseState(statesMap(state))
+      }
     } else {
       log.error("ERROR: /" + userID + "/" + subjectID + "/" + state + "does not exist")
     }
@@ -160,39 +204,53 @@ class InternalBehaviorActor(
       state,
       userID,
       subjectID,
+      macroId,
       self,
       processInstanceActor,
       inputPoolActor,
-      internalStatus)
+      internalStatus,
+      modalSplitList)
 
     // create the actor which matches to the statetype
     state.stateType match {
       case ActStateType => {
-        context.actorOf(Props(ActStateActor(stateData)))
+        context.actorOf(Props(new ActStateActor(stateData)))
       }
 
       case SendStateType => {
-        context.actorOf(Props(SendStateActor(stateData)))
+        context.actorOf(Props(new SendStateActor(stateData)))
       }
 
       case ReceiveStateType => {
-        context.actorOf(Props(ReceiveStateActor(stateData)))
+        context.actorOf(Props(new ReceiveStateActor(stateData)))
       }
 
       case EndStateType => {
-        context.actorOf(Props(EndStateActor(stateData)))
+        context.actorOf(Props(new EndStateActor(stateData)))
       }
 
       case CloseIPStateType => {
-        context.actorOf(Props(CloseIPStateActor(stateData)))
+        context.actorOf(Props(new CloseIPStateActor(stateData)))
       }
 
       case OpenIPStateType => {
-        context.actorOf(Props(OpenIPStateActor(stateData)))
+        context.actorOf(Props(new OpenIPStateActor(stateData)))
       }
 
       case IsIPEmptyStateType => {
-        context.actorOf(Props(IsIPEmptyStateActor(stateData)))
+        context.actorOf(Props(new IsIPEmptyStateActor(stateData)))
+      }
+
+      case ModalSplitStateType => {
+        context.actorOf(Props(new ModalSplitStateActor(stateData)))
+      }
+
+      case ModalJoinStateType => {
+        context.actorOf(Props(new ModalJoinStateActor(stateData)))
+      }
+      
+      case MacroStateType => {
+        context.actorOf(Props(new MacroStateActor(stateData)))
       }
     }
   }
