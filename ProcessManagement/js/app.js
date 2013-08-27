@@ -46,7 +46,8 @@ define([
       "models/processInstance",
       "models/processInstance",
       "models/actions",
-      "models/interface"
+      "models/interface",
+      "models/userMessage"
       // "models/roles",
     ], function( Model, User, Process, Group, Role ) {
 
@@ -83,6 +84,8 @@ define([
   }
 
   var loadCurrentUser = function() {
+    UserMessage = require("models/userMessage");
+    User = require("models/user");
     if (readCookie("sbpm-userId")) {
       currentUser(User.find(parseInt(readCookie("sbpm-userId").replace(/"/g, ''), 10)));
     } else {
