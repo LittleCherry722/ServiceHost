@@ -21,45 +21,45 @@ public class SubjectTest extends HttpServlet {
 	// throws IOException {}
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		resp.setContentType("text/plain");
-		int subjectNumber = 10;
-		Map<String,Subject> subjects = new HashMap<String,Subject>();
-		for (Integer i = 0; i < subjectNumber; i++) {
-			Subject s = new Subject();
-			s.setSubjectID(i.toString());
-			subjects.put(i.toString(),s);
-		}
-		Random r = new Random();
-		for (int i = 0; i < 100; i++) {
-			int from = r.nextInt(subjectNumber);
-			Integer to = r.nextInt(subjectNumber);
-			while (from == to) {
-				to = r.nextInt(subjectNumber);
-			}
-			SubjectToSubjectMessage msg = new SubjectToSubjectMessage();
-			msg.setFrom_subjectID(from);
-			msg.setTarget_subjectID(to);
-			msg.setMessageContent("This message is from ID" + from + " to ID"
-					+ to);
-			Subject s = subjects.get(to);
-			
-			s.addMessage(msg);
-			subjects.put(to.toString(), s);
-		}
-		Iterator it = subjects.values().iterator();
-		while (it.hasNext()) {
-			Subject s = (Subject) it.next();
-			resp.getWriter().println(
-					"Subject " + s.getSubjectID() + " : "
-							+ s.getMessageNumber() + " messages");
-		}
-		resp.getWriter().println();
-		resp.getWriter().println();
-		it = subjects.values().iterator();
-		while(it.hasNext()){
-			Subject s = (Subject) it.next();
-			resp.getWriter().println("Subject " + s.getSubjectID() + "'s messages:");
-			resp.getWriter().println();
-		}
+//		resp.setContentType("text/plain");
+//		int subjectNumber = 10;
+//		Map<String,Subject> subjects = new HashMap<String,Subject>();
+//		for (Integer i = 0; i < subjectNumber; i++) {
+//			Subject s = new Subject();
+//			s.setSubjectID(i.toString());
+//			subjects.put(i.toString(),s);
+//		}
+//		Random r = new Random();
+//		for (int i = 0; i < 100; i++) {
+//			int from = r.nextInt(subjectNumber);
+//			Integer to = r.nextInt(subjectNumber);
+//			while (from == to) {
+//				to = r.nextInt(subjectNumber);
+//			}
+//			SubjectToSubjectMessage msg = new SubjectToSubjectMessage();
+//			msg.setFrom_subjectID(from);
+//			msg.setTarget_subjectID(to);
+//			msg.setMessageContent("This message is from ID" + from + " to ID"
+//					+ to);
+//			Subject s = subjects.get(to);
+//			
+//			s.addMessage(msg);
+//			subjects.put(to.toString(), s);
+//		}
+//		Iterator it = subjects.values().iterator();
+//		while (it.hasNext()) {
+//			Subject s = (Subject) it.next();
+//			resp.getWriter().println(
+//					"Subject " + s.getSubjectID() + " : "
+//							+ s.getMessageNumber() + " messages");
+//		}
+//		resp.getWriter().println();
+//		resp.getWriter().println();
+//		it = subjects.values().iterator();
+//		while(it.hasNext()){
+//			Subject s = (Subject) it.next();
+//			resp.getWriter().println("Subject " + s.getSubjectID() + "'s messages:");
+//			resp.getWriter().println();
+//		}
 	}
 }

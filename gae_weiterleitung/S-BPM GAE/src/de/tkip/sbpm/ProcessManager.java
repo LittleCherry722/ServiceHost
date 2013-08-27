@@ -43,6 +43,7 @@ public class ProcessManager {
 			Iterator it = processList.iterator();
 			while(it.hasNext()){
 				Process process = (Process) it.next();
+				System.out.println("promana:" + process.processID);
 				if(id == process.processID){
 					return true;
 				}
@@ -89,6 +90,10 @@ public class ProcessManager {
 			}
 		}	
 		return null;
+	}
+	
+	public void removeProcessInstance(ProcessInstance pi){
+		this.processInstanceList.remove(pi);
 	}
 	
 	public State getState(int processInstanceID, int stateID){

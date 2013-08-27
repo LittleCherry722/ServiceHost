@@ -5,14 +5,14 @@ import java.io.Serializable;
 public class SubjectToSubjectMessage implements Serializable{
 	int messageID;
 	int userID;
-	int from_subjectID;
-	int target_subjectID;
+	String from_subjectID;
+	String target_subjectID;
 	int processInstanceID;
 	String messageType;
 	String messageContent;
 
 	public SubjectToSubjectMessage(int messageID, int userID,
-			int from_subjectID, int target_subjectID,int processInstanceID, String messageType,
+			String from_subjectID, String target_subjectID,int processInstanceID, String messageType,
 			String messageContent) {
 		this.messageID = messageID;
 		this.userID = userID;
@@ -43,19 +43,19 @@ public class SubjectToSubjectMessage implements Serializable{
 		this.userID = userID;
 	}
 
-	public int getFrom_subjectID() {
+	public String getFrom_subjectID() {
 		return from_subjectID;
 	}
 
-	public void setFrom_subjectID(int from_subjectID) {
+	public void setFrom_subjectID(String from_subjectID) {
 		this.from_subjectID = from_subjectID;
 	}
 
-	public int getTarget_subjectID() {
+	public String getTarget_subjectID() {
 		return target_subjectID;
 	}
 
-	public void setTarget_subjectID(int target_subjectID) {
+	public void setTarget_subjectID(String target_subjectID) {
 		this.target_subjectID = target_subjectID;
 	}
 

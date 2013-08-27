@@ -41,11 +41,11 @@ public class Subject implements Serializable {
 		return inputPool.getMessageNumber();
 	}
 	
-	public int checkMessageNumberFromSubjectIDAndType(int sID,String messageType){
+	public int checkMessageNumberFromSubjectIDAndType(String sID,String messageType){
 		return inputPool.checkMessageNumberFromSubjectIDAndType(sID, messageType);
 	}
 	
-	public String getMessageFromSubjcetIDAndType(int sID, String messageType){
+	public String getMessageFromSubjcetIDAndType(String sID, String messageType){
 		return inputPool.getMessageFromSubjectIDAndType(sID,messageType);
 	}
 	

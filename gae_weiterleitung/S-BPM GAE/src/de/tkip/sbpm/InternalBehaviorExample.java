@@ -46,9 +46,9 @@ public class InternalBehaviorExample extends HttpServlet {
 				ActionData actionData = action.getActionData(0);
 				String messageContent = actionData.getMessages(0).getMessageContent();
 				SubjectToSubjectMessage msg = new SubjectToSubjectMessage();
-				msg.setFrom_subjectID(0);
+				msg.setFrom_subjectID("0");
 				msg.setMessageContent(messageContent);
-				msg.setTarget_subjectID(1);
+				msg.setTarget_subjectID("1");
 				msg.setMessageType("Bestellung");
 				System.out.println(actionData.getText());
 				System.out.println(messageContent);
@@ -76,7 +76,7 @@ public class InternalBehaviorExample extends HttpServlet {
 			
 			audiBestellung.setSubjectID("0");
 			audiBestellung.setSubjectName("Bestellung");
-			audiBestellung.internalBehavior.setSubjectID(0);
+			audiBestellung.internalBehavior.setSubjectID("0");
 
 			State s0 = new State(0, "Bestellformular ausfuellen", StateType.action,true);
 			s0.transitions.add(new Transition("Exit Condition", "Erledigt", 1));
@@ -105,15 +105,15 @@ public class InternalBehaviorExample extends HttpServlet {
 			availableAction = state.transitions.get(0).text;
 			
 			SubjectToSubjectMessage msg = new SubjectToSubjectMessage();
-			msg.setFrom_subjectID(1);
+			msg.setFrom_subjectID("1");
 			msg.setMessageContent("bestellung test1");
-			msg.setTarget_subjectID(0);
+			msg.setTarget_subjectID("0");
 			msg.setMessageType("Lieferdatum");
 			audiBestellung.addMessage(msg);
 			msg = new SubjectToSubjectMessage();
-			msg.setFrom_subjectID(1);
+			msg.setFrom_subjectID("1");
 			msg.setMessageContent("bestellung test2");
-			msg.setTarget_subjectID(0);
+			msg.setTarget_subjectID("0");
 			msg.setMessageType("Lieferdatum");
 			audiBestellung.addMessage(msg);
 		}
@@ -140,6 +140,6 @@ public class InternalBehaviorExample extends HttpServlet {
 		resp.getWriter().println("Subject: " + staples.getSubjectName());
 		resp.getWriter().println("InputPool of Staples: " + staples.getMessageLimit());
 		resp.getWriter().println("Message Type:  " + staples.getMessageTypeFromSubjcetID(0));
-		resp.getWriter().println("Message: " + staples.getMessageFromSubjcetIDAndType(0, "Bestellung"));
+		resp.getWriter().println("Message: " + staples.getMessageFromSubjcetIDAndType("0", "Bestellung"));
 	}
 }

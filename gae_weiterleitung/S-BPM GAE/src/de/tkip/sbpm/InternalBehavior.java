@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class InternalBehavior implements Serializable{
-	public int subjectID;
+	public String subjectID;
 	public int userID;
 	public Map<Integer, State> statesMap = new HashMap<Integer, State>();
 	public int startState = 0;
@@ -49,11 +49,11 @@ public class InternalBehavior implements Serializable{
 		return -1;
 	}
 	
-	public int getSubjectID() {
+	public String getSubjectID() {
 		return subjectID;
 	}
 
-	public void setSubjectID(int subjectID) {
+	public void setSubjectID(String subjectID) {
 		this.subjectID = subjectID;
 	}
 

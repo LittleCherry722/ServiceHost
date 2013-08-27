@@ -8,23 +8,23 @@ import java.util.Map;
 import java.util.Queue;
 
 class MessageKey implements Serializable{
-	int subjectID;
+	String subjectID;
 	String messageType;
-	public MessageKey(int subjectID, String messageType) {
+	public MessageKey(String sID, String messageType) {
 		super();
-		this.subjectID = subjectID;
+		this.subjectID = sID;
 		this.messageType = messageType;
 	}
 	
 	@Override
 	public int hashCode(){
-		return subjectID + messageType.hashCode();
+		return subjectID.hashCode() + messageType.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object o){
 		MessageKey key = (MessageKey) o;
-		return this.subjectID==key.subjectID && this.messageType.equals(key.messageType);
+		return this.subjectID.equals(key.subjectID) && this.messageType.equals(key.messageType);
 	}
 }
 
@@ -63,7 +63,7 @@ public class InputPool implements Serializable {
 		return sum;
 	}
 	
-	public int checkMessageNumberFromSubjectIDAndType(int sID,String messageType){
+	public int checkMessageNumberFromSubjectIDAndType(String sID,String messageType){
 		MessageKey key = new MessageKey(sID, messageType);
 		if(!messageQueueMap.containsKey(key) || messageQueueMap.get(key).isEmpty()){
 			return 0;
@@ -72,7 +72,7 @@ public class InputPool implements Serializable {
 		}
 	}
 	
-	public String getMessageFromSubjectIDAndType(int sID,String messageType){
+	public String getMessageFromSubjectIDAndType(String sID,String messageType){
 		MessageKey key = new MessageKey(sID, messageType);
 		if(messageQueueMap.containsKey(key) && !messageQueueMap.get(key).isEmpty()){
 			Queue<SubjectToSubjectMessage> msgPool = messageQueueMap.get(key);
@@ -94,7 +94,7 @@ public class InputPool implements Serializable {
 		return type;
 	}
 	
-	public boolean isMessagePoolEmpty(int sID, String messageType){
+	public boolean isMessagePoolEmpty(String sID, String messageType){
 		MessageKey key = new MessageKey(sID, messageType);
 		return messageQueueMap.get(key).isEmpty();
 	}

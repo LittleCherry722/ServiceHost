@@ -20,6 +20,20 @@ public final class GAEexecution {
      * <code>required int32 processId = 1;</code>
      */
     int getProcessId();
+
+    // required .de.tkip.sbpm.proto.Graph graph = 2;
+    /**
+     * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+     */
+    boolean hasGraph();
+    /**
+     * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+     */
+    de.tkip.sbpm.proto.GAEexecution.Graph getGraph();
+    /**
+     * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+     */
+    de.tkip.sbpm.proto.GAEexecution.GraphOrBuilder getGraphOrBuilder();
   }
   /**
    * Protobuf type {@code de.tkip.sbpm.proto.CreateProcessInstance}
@@ -81,6 +95,19 @@ public final class GAEexecution {
               processId_ = input.readInt32();
               break;
             }
+            case 18: {
+              de.tkip.sbpm.proto.GAEexecution.Graph.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000002) == 0x00000002)) {
+                subBuilder = graph_.toBuilder();
+              }
+              graph_ = input.readMessage(de.tkip.sbpm.proto.GAEexecution.Graph.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(graph_);
+                graph_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000002;
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -137,8 +164,31 @@ public final class GAEexecution {
       return processId_;
     }
 
+    // required .de.tkip.sbpm.proto.Graph graph = 2;
+    public static final int GRAPH_FIELD_NUMBER = 2;
+    private de.tkip.sbpm.proto.GAEexecution.Graph graph_;
+    /**
+     * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+     */
+    public boolean hasGraph() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+     */
+    public de.tkip.sbpm.proto.GAEexecution.Graph getGraph() {
+      return graph_;
+    }
+    /**
+     * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+     */
+    public de.tkip.sbpm.proto.GAEexecution.GraphOrBuilder getGraphOrBuilder() {
+      return graph_;
+    }
+
     private void initFields() {
       processId_ = 0;
+      graph_ = de.tkip.sbpm.proto.GAEexecution.Graph.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -146,6 +196,14 @@ public final class GAEexecution {
       if (isInitialized != -1) return isInitialized == 1;
 
       if (!hasProcessId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasGraph()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!getGraph().isInitialized()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -159,6 +217,9 @@ public final class GAEexecution {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, processId_);
       }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeMessage(2, graph_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -171,6 +232,10 @@ public final class GAEexecution {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, processId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, graph_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -284,6 +349,7 @@ public final class GAEexecution {
       }
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+          getGraphFieldBuilder();
         }
       }
       private static Builder create() {
@@ -294,6 +360,12 @@ public final class GAEexecution {
         super.clear();
         processId_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
+        if (graphBuilder_ == null) {
+          graph_ = de.tkip.sbpm.proto.GAEexecution.Graph.getDefaultInstance();
+        } else {
+          graphBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -326,6 +398,14 @@ public final class GAEexecution {
           to_bitField0_ |= 0x00000001;
         }
         result.processId_ = processId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        if (graphBuilder_ == null) {
+          result.graph_ = graph_;
+        } else {
+          result.graph_ = graphBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -345,12 +425,23 @@ public final class GAEexecution {
         if (other.hasProcessId()) {
           setProcessId(other.getProcessId());
         }
+        if (other.hasGraph()) {
+          mergeGraph(other.getGraph());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
 
       public final boolean isInitialized() {
         if (!hasProcessId()) {
+          
+          return false;
+        }
+        if (!hasGraph()) {
+          
+          return false;
+        }
+        if (!getGraph().isInitialized()) {
           
           return false;
         }
@@ -407,6 +498,123 @@ public final class GAEexecution {
         processId_ = 0;
         onChanged();
         return this;
+      }
+
+      // required .de.tkip.sbpm.proto.Graph graph = 2;
+      private de.tkip.sbpm.proto.GAEexecution.Graph graph_ = de.tkip.sbpm.proto.GAEexecution.Graph.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          de.tkip.sbpm.proto.GAEexecution.Graph, de.tkip.sbpm.proto.GAEexecution.Graph.Builder, de.tkip.sbpm.proto.GAEexecution.GraphOrBuilder> graphBuilder_;
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      public boolean hasGraph() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      public de.tkip.sbpm.proto.GAEexecution.Graph getGraph() {
+        if (graphBuilder_ == null) {
+          return graph_;
+        } else {
+          return graphBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      public Builder setGraph(de.tkip.sbpm.proto.GAEexecution.Graph value) {
+        if (graphBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          graph_ = value;
+          onChanged();
+        } else {
+          graphBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      public Builder setGraph(
+          de.tkip.sbpm.proto.GAEexecution.Graph.Builder builderForValue) {
+        if (graphBuilder_ == null) {
+          graph_ = builderForValue.build();
+          onChanged();
+        } else {
+          graphBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      public Builder mergeGraph(de.tkip.sbpm.proto.GAEexecution.Graph value) {
+        if (graphBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) == 0x00000002) &&
+              graph_ != de.tkip.sbpm.proto.GAEexecution.Graph.getDefaultInstance()) {
+            graph_ =
+              de.tkip.sbpm.proto.GAEexecution.Graph.newBuilder(graph_).mergeFrom(value).buildPartial();
+          } else {
+            graph_ = value;
+          }
+          onChanged();
+        } else {
+          graphBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      public Builder clearGraph() {
+        if (graphBuilder_ == null) {
+          graph_ = de.tkip.sbpm.proto.GAEexecution.Graph.getDefaultInstance();
+          onChanged();
+        } else {
+          graphBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      public de.tkip.sbpm.proto.GAEexecution.Graph.Builder getGraphBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getGraphFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      public de.tkip.sbpm.proto.GAEexecution.GraphOrBuilder getGraphOrBuilder() {
+        if (graphBuilder_ != null) {
+          return graphBuilder_.getMessageOrBuilder();
+        } else {
+          return graph_;
+        }
+      }
+      /**
+       * <code>required .de.tkip.sbpm.proto.Graph graph = 2;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          de.tkip.sbpm.proto.GAEexecution.Graph, de.tkip.sbpm.proto.GAEexecution.Graph.Builder, de.tkip.sbpm.proto.GAEexecution.GraphOrBuilder> 
+          getGraphFieldBuilder() {
+        if (graphBuilder_ == null) {
+          graphBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              de.tkip.sbpm.proto.GAEexecution.Graph, de.tkip.sbpm.proto.GAEexecution.Graph.Builder, de.tkip.sbpm.proto.GAEexecution.GraphOrBuilder>(
+                  graph_,
+                  getParentForChildren(),
+                  isClean());
+          graph_ = null;
+        }
+        return graphBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:de.tkip.sbpm.proto.CreateProcessInstance)
@@ -2845,6 +3053,21 @@ public final class GAEexecution {
      */
     int getId();
 
+    // required string name = 7;
+    /**
+     * <code>required string name = 7;</code>
+     */
+    boolean hasName();
+    /**
+     * <code>required string name = 7;</code>
+     */
+    java.lang.String getName();
+    /**
+     * <code>required string name = 7;</code>
+     */
+    com.google.protobuf.ByteString
+        getNameBytes();
+
     // required int32 processId = 2;
     /**
      * <code>required int32 processId = 2;</code>
@@ -2854,6 +3077,21 @@ public final class GAEexecution {
      * <code>required int32 processId = 2;</code>
      */
     int getProcessId();
+
+    // required string processName = 8;
+    /**
+     * <code>required string processName = 8;</code>
+     */
+    boolean hasProcessName();
+    /**
+     * <code>required string processName = 8;</code>
+     */
+    java.lang.String getProcessName();
+    /**
+     * <code>required string processName = 8;</code>
+     */
+    com.google.protobuf.ByteString
+        getProcessNameBytes();
 
     // required .de.tkip.sbpm.proto.Graph graph = 3;
     /**
@@ -2890,6 +3128,31 @@ public final class GAEexecution {
      * <code>required bool isTerminated = 4;</code>
      */
     boolean getIsTerminated();
+
+    // required string date = 9;
+    /**
+     * <code>required string date = 9;</code>
+     */
+    boolean hasDate();
+    /**
+     * <code>required string date = 9;</code>
+     */
+    java.lang.String getDate();
+    /**
+     * <code>required string date = 9;</code>
+     */
+    com.google.protobuf.ByteString
+        getDateBytes();
+
+    // required int32 owner = 10;
+    /**
+     * <code>required int32 owner = 10;</code>
+     */
+    boolean hasOwner();
+    /**
+     * <code>required int32 owner = 10;</code>
+     */
+    int getOwner();
 
     // required string history = 5;
     /**
@@ -3007,13 +3270,13 @@ public final class GAEexecution {
               break;
             }
             case 16: {
-              bitField0_ |= 0x00000002;
+              bitField0_ |= 0x00000004;
               processId_ = input.readInt32();
               break;
             }
             case 26: {
               de.tkip.sbpm.proto.GAEexecution.Graph.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000004) == 0x00000004)) {
+              if (((bitField0_ & 0x00000010) == 0x00000010)) {
                 subBuilder = graph_.toBuilder();
               }
               graph_ = input.readMessage(de.tkip.sbpm.proto.GAEexecution.Graph.PARSER, extensionRegistry);
@@ -3021,25 +3284,45 @@ public final class GAEexecution {
                 subBuilder.mergeFrom(graph_);
                 graph_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000004;
+              bitField0_ |= 0x00000010;
               break;
             }
             case 32: {
-              bitField0_ |= 0x00000008;
+              bitField0_ |= 0x00000020;
               isTerminated_ = input.readBool();
               break;
             }
             case 42: {
-              bitField0_ |= 0x00000010;
+              bitField0_ |= 0x00000100;
               history_ = input.readBytes();
               break;
             }
             case 50: {
-              if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+              if (!((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
                 actions_ = new java.util.ArrayList<de.tkip.sbpm.proto.GAEexecution.Action>();
-                mutable_bitField0_ |= 0x00000020;
+                mutable_bitField0_ |= 0x00000200;
               }
               actions_.add(input.readMessage(de.tkip.sbpm.proto.GAEexecution.Action.PARSER, extensionRegistry));
+              break;
+            }
+            case 58: {
+              bitField0_ |= 0x00000002;
+              name_ = input.readBytes();
+              break;
+            }
+            case 66: {
+              bitField0_ |= 0x00000008;
+              processName_ = input.readBytes();
+              break;
+            }
+            case 74: {
+              bitField0_ |= 0x00000040;
+              date_ = input.readBytes();
+              break;
+            }
+            case 80: {
+              bitField0_ |= 0x00000080;
+              owner_ = input.readInt32();
               break;
             }
           }
@@ -3050,7 +3333,7 @@ public final class GAEexecution {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+        if (((mutable_bitField0_ & 0x00000200) == 0x00000200)) {
           actions_ = java.util.Collections.unmodifiableList(actions_);
         }
         this.unknownFields = unknownFields.build();
@@ -3101,6 +3384,49 @@ public final class GAEexecution {
       return id_;
     }
 
+    // required string name = 7;
+    public static final int NAME_FIELD_NUMBER = 7;
+    private java.lang.Object name_;
+    /**
+     * <code>required string name = 7;</code>
+     */
+    public boolean hasName() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required string name = 7;</code>
+     */
+    public java.lang.String getName() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          name_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string name = 7;</code>
+     */
+    public com.google.protobuf.ByteString
+        getNameBytes() {
+      java.lang.Object ref = name_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        name_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     // required int32 processId = 2;
     public static final int PROCESSID_FIELD_NUMBER = 2;
     private int processId_;
@@ -3108,13 +3434,56 @@ public final class GAEexecution {
      * <code>required int32 processId = 2;</code>
      */
     public boolean hasProcessId() {
-      return ((bitField0_ & 0x00000002) == 0x00000002);
+      return ((bitField0_ & 0x00000004) == 0x00000004);
     }
     /**
      * <code>required int32 processId = 2;</code>
      */
     public int getProcessId() {
       return processId_;
+    }
+
+    // required string processName = 8;
+    public static final int PROCESSNAME_FIELD_NUMBER = 8;
+    private java.lang.Object processName_;
+    /**
+     * <code>required string processName = 8;</code>
+     */
+    public boolean hasProcessName() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>required string processName = 8;</code>
+     */
+    public java.lang.String getProcessName() {
+      java.lang.Object ref = processName_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          processName_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string processName = 8;</code>
+     */
+    public com.google.protobuf.ByteString
+        getProcessNameBytes() {
+      java.lang.Object ref = processName_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        processName_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     // required .de.tkip.sbpm.proto.Graph graph = 3;
@@ -3128,7 +3497,7 @@ public final class GAEexecution {
      * </pre>
      */
     public boolean hasGraph() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000010) == 0x00000010);
     }
     /**
      * <code>required .de.tkip.sbpm.proto.Graph graph = 3;</code>
@@ -3158,13 +3527,72 @@ public final class GAEexecution {
      * <code>required bool isTerminated = 4;</code>
      */
     public boolean hasIsTerminated() {
-      return ((bitField0_ & 0x00000008) == 0x00000008);
+      return ((bitField0_ & 0x00000020) == 0x00000020);
     }
     /**
      * <code>required bool isTerminated = 4;</code>
      */
     public boolean getIsTerminated() {
       return isTerminated_;
+    }
+
+    // required string date = 9;
+    public static final int DATE_FIELD_NUMBER = 9;
+    private java.lang.Object date_;
+    /**
+     * <code>required string date = 9;</code>
+     */
+    public boolean hasDate() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>required string date = 9;</code>
+     */
+    public java.lang.String getDate() {
+      java.lang.Object ref = date_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          date_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>required string date = 9;</code>
+     */
+    public com.google.protobuf.ByteString
+        getDateBytes() {
+      java.lang.Object ref = date_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        date_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    // required int32 owner = 10;
+    public static final int OWNER_FIELD_NUMBER = 10;
+    private int owner_;
+    /**
+     * <code>required int32 owner = 10;</code>
+     */
+    public boolean hasOwner() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>required int32 owner = 10;</code>
+     */
+    public int getOwner() {
+      return owner_;
     }
 
     // required string history = 5;
@@ -3178,7 +3606,7 @@ public final class GAEexecution {
      * </pre>
      */
     public boolean hasHistory() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
+      return ((bitField0_ & 0x00000100) == 0x00000100);
     }
     /**
      * <code>required string history = 5;</code>
@@ -3260,9 +3688,13 @@ public final class GAEexecution {
 
     private void initFields() {
       id_ = 0;
+      name_ = "";
       processId_ = 0;
+      processName_ = "";
       graph_ = de.tkip.sbpm.proto.GAEexecution.Graph.getDefaultInstance();
       isTerminated_ = false;
+      date_ = "";
+      owner_ = 0;
       history_ = "";
       actions_ = java.util.Collections.emptyList();
     }
@@ -3275,7 +3707,15 @@ public final class GAEexecution {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasName()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       if (!hasProcessId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasProcessName()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -3284,6 +3724,14 @@ public final class GAEexecution {
         return false;
       }
       if (!hasIsTerminated()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasDate()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasOwner()) {
         memoizedIsInitialized = 0;
         return false;
       }
@@ -3311,20 +3759,32 @@ public final class GAEexecution {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeInt32(1, id_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeInt32(2, processId_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeMessage(3, graph_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         output.writeBool(4, isTerminated_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeBytes(5, getHistoryBytes());
       }
       for (int i = 0; i < actions_.size(); i++) {
         output.writeMessage(6, actions_.get(i));
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBytes(7, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeBytes(8, getProcessNameBytes());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeBytes(9, getDateBytes());
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeInt32(10, owner_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -3339,25 +3799,41 @@ public final class GAEexecution {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(1, id_);
       }
-      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, processId_);
       }
-      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, graph_);
       }
-      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(4, isTerminated_);
       }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+      if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(5, getHistoryBytes());
       }
       for (int i = 0; i < actions_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(6, actions_.get(i));
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(7, getNameBytes());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(8, getProcessNameBytes());
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(9, getDateBytes());
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(10, owner_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -3486,21 +3962,29 @@ public final class GAEexecution {
         super.clear();
         id_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
-        processId_ = 0;
+        name_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
+        processId_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        processName_ = "";
+        bitField0_ = (bitField0_ & ~0x00000008);
         if (graphBuilder_ == null) {
           graph_ = de.tkip.sbpm.proto.GAEexecution.Graph.getDefaultInstance();
         } else {
           graphBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000004);
-        isTerminated_ = false;
-        bitField0_ = (bitField0_ & ~0x00000008);
-        history_ = "";
         bitField0_ = (bitField0_ & ~0x00000010);
+        isTerminated_ = false;
+        bitField0_ = (bitField0_ & ~0x00000020);
+        date_ = "";
+        bitField0_ = (bitField0_ & ~0x00000040);
+        owner_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000080);
+        history_ = "";
+        bitField0_ = (bitField0_ & ~0x00000100);
         if (actionsBuilder_ == null) {
           actions_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000200);
         } else {
           actionsBuilder_.clear();
         }
@@ -3539,27 +4023,43 @@ public final class GAEexecution {
         if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
           to_bitField0_ |= 0x00000002;
         }
-        result.processId_ = processId_;
+        result.name_ = name_;
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
+        }
+        result.processId_ = processId_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.processName_ = processName_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
         }
         if (graphBuilder_ == null) {
           result.graph_ = graph_;
         } else {
           result.graph_ = graphBuilder_.build();
         }
-        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
-          to_bitField0_ |= 0x00000008;
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
         }
         result.isTerminated_ = isTerminated_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.date_ = date_;
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000080;
+        }
+        result.owner_ = owner_;
+        if (((from_bitField0_ & 0x00000100) == 0x00000100)) {
+          to_bitField0_ |= 0x00000100;
         }
         result.history_ = history_;
         if (actionsBuilder_ == null) {
-          if (((bitField0_ & 0x00000020) == 0x00000020)) {
+          if (((bitField0_ & 0x00000200) == 0x00000200)) {
             actions_ = java.util.Collections.unmodifiableList(actions_);
-            bitField0_ = (bitField0_ & ~0x00000020);
+            bitField0_ = (bitField0_ & ~0x00000200);
           }
           result.actions_ = actions_;
         } else {
@@ -3584,8 +4084,18 @@ public final class GAEexecution {
         if (other.hasId()) {
           setId(other.getId());
         }
+        if (other.hasName()) {
+          bitField0_ |= 0x00000002;
+          name_ = other.name_;
+          onChanged();
+        }
         if (other.hasProcessId()) {
           setProcessId(other.getProcessId());
+        }
+        if (other.hasProcessName()) {
+          bitField0_ |= 0x00000008;
+          processName_ = other.processName_;
+          onChanged();
         }
         if (other.hasGraph()) {
           mergeGraph(other.getGraph());
@@ -3593,8 +4103,16 @@ public final class GAEexecution {
         if (other.hasIsTerminated()) {
           setIsTerminated(other.getIsTerminated());
         }
+        if (other.hasDate()) {
+          bitField0_ |= 0x00000040;
+          date_ = other.date_;
+          onChanged();
+        }
+        if (other.hasOwner()) {
+          setOwner(other.getOwner());
+        }
         if (other.hasHistory()) {
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000100;
           history_ = other.history_;
           onChanged();
         }
@@ -3602,7 +4120,7 @@ public final class GAEexecution {
           if (!other.actions_.isEmpty()) {
             if (actions_.isEmpty()) {
               actions_ = other.actions_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+              bitField0_ = (bitField0_ & ~0x00000200);
             } else {
               ensureActionsIsMutable();
               actions_.addAll(other.actions_);
@@ -3615,7 +4133,7 @@ public final class GAEexecution {
               actionsBuilder_.dispose();
               actionsBuilder_ = null;
               actions_ = other.actions_;
-              bitField0_ = (bitField0_ & ~0x00000020);
+              bitField0_ = (bitField0_ & ~0x00000200);
               actionsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getActionsFieldBuilder() : null;
@@ -3633,7 +4151,15 @@ public final class GAEexecution {
           
           return false;
         }
+        if (!hasName()) {
+          
+          return false;
+        }
         if (!hasProcessId()) {
+          
+          return false;
+        }
+        if (!hasProcessName()) {
           
           return false;
         }
@@ -3642,6 +4168,14 @@ public final class GAEexecution {
           return false;
         }
         if (!hasIsTerminated()) {
+          
+          return false;
+        }
+        if (!hasDate()) {
+          
+          return false;
+        }
+        if (!hasOwner()) {
           
           return false;
         }
@@ -3714,13 +4248,87 @@ public final class GAEexecution {
         return this;
       }
 
+      // required string name = 7;
+      private java.lang.Object name_ = "";
+      /**
+       * <code>required string name = 7;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required string name = 7;</code>
+       */
+      public java.lang.String getName() {
+        java.lang.Object ref = name_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          name_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string name = 7;</code>
+       */
+      public com.google.protobuf.ByteString
+          getNameBytes() {
+        java.lang.Object ref = name_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          name_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string name = 7;</code>
+       */
+      public Builder setName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string name = 7;</code>
+       */
+      public Builder clearName() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        name_ = getDefaultInstance().getName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string name = 7;</code>
+       */
+      public Builder setNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
+        name_ = value;
+        onChanged();
+        return this;
+      }
+
       // required int32 processId = 2;
       private int processId_ ;
       /**
        * <code>required int32 processId = 2;</code>
        */
       public boolean hasProcessId() {
-        return ((bitField0_ & 0x00000002) == 0x00000002);
+        return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>required int32 processId = 2;</code>
@@ -3732,7 +4340,7 @@ public final class GAEexecution {
        * <code>required int32 processId = 2;</code>
        */
       public Builder setProcessId(int value) {
-        bitField0_ |= 0x00000002;
+        bitField0_ |= 0x00000004;
         processId_ = value;
         onChanged();
         return this;
@@ -3741,8 +4349,82 @@ public final class GAEexecution {
        * <code>required int32 processId = 2;</code>
        */
       public Builder clearProcessId() {
-        bitField0_ = (bitField0_ & ~0x00000002);
+        bitField0_ = (bitField0_ & ~0x00000004);
         processId_ = 0;
+        onChanged();
+        return this;
+      }
+
+      // required string processName = 8;
+      private java.lang.Object processName_ = "";
+      /**
+       * <code>required string processName = 8;</code>
+       */
+      public boolean hasProcessName() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>required string processName = 8;</code>
+       */
+      public java.lang.String getProcessName() {
+        java.lang.Object ref = processName_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          processName_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string processName = 8;</code>
+       */
+      public com.google.protobuf.ByteString
+          getProcessNameBytes() {
+        java.lang.Object ref = processName_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          processName_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string processName = 8;</code>
+       */
+      public Builder setProcessName(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        processName_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string processName = 8;</code>
+       */
+      public Builder clearProcessName() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        processName_ = getDefaultInstance().getProcessName();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string processName = 8;</code>
+       */
+      public Builder setProcessNameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        processName_ = value;
         onChanged();
         return this;
       }
@@ -3759,7 +4441,7 @@ public final class GAEexecution {
        * </pre>
        */
       public boolean hasGraph() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000010) == 0x00000010);
       }
       /**
        * <code>required .de.tkip.sbpm.proto.Graph graph = 3;</code>
@@ -3792,7 +4474,7 @@ public final class GAEexecution {
         } else {
           graphBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
@@ -3810,7 +4492,7 @@ public final class GAEexecution {
         } else {
           graphBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
@@ -3822,7 +4504,7 @@ public final class GAEexecution {
        */
       public Builder mergeGraph(de.tkip.sbpm.proto.GAEexecution.Graph value) {
         if (graphBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+          if (((bitField0_ & 0x00000010) == 0x00000010) &&
               graph_ != de.tkip.sbpm.proto.GAEexecution.Graph.getDefaultInstance()) {
             graph_ =
               de.tkip.sbpm.proto.GAEexecution.Graph.newBuilder(graph_).mergeFrom(value).buildPartial();
@@ -3833,7 +4515,7 @@ public final class GAEexecution {
         } else {
           graphBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000010;
         return this;
       }
       /**
@@ -3850,7 +4532,7 @@ public final class GAEexecution {
         } else {
           graphBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
       /**
@@ -3861,7 +4543,7 @@ public final class GAEexecution {
        * </pre>
        */
       public de.tkip.sbpm.proto.GAEexecution.Graph.Builder getGraphBuilder() {
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000010;
         onChanged();
         return getGraphFieldBuilder().getBuilder();
       }
@@ -3906,7 +4588,7 @@ public final class GAEexecution {
        * <code>required bool isTerminated = 4;</code>
        */
       public boolean hasIsTerminated() {
-        return ((bitField0_ & 0x00000008) == 0x00000008);
+        return ((bitField0_ & 0x00000020) == 0x00000020);
       }
       /**
        * <code>required bool isTerminated = 4;</code>
@@ -3918,7 +4600,7 @@ public final class GAEexecution {
        * <code>required bool isTerminated = 4;</code>
        */
       public Builder setIsTerminated(boolean value) {
-        bitField0_ |= 0x00000008;
+        bitField0_ |= 0x00000020;
         isTerminated_ = value;
         onChanged();
         return this;
@@ -3927,8 +4609,115 @@ public final class GAEexecution {
        * <code>required bool isTerminated = 4;</code>
        */
       public Builder clearIsTerminated() {
-        bitField0_ = (bitField0_ & ~0x00000008);
+        bitField0_ = (bitField0_ & ~0x00000020);
         isTerminated_ = false;
+        onChanged();
+        return this;
+      }
+
+      // required string date = 9;
+      private java.lang.Object date_ = "";
+      /**
+       * <code>required string date = 9;</code>
+       */
+      public boolean hasDate() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>required string date = 9;</code>
+       */
+      public java.lang.String getDate() {
+        java.lang.Object ref = date_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          date_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>required string date = 9;</code>
+       */
+      public com.google.protobuf.ByteString
+          getDateBytes() {
+        java.lang.Object ref = date_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          date_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>required string date = 9;</code>
+       */
+      public Builder setDate(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        date_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string date = 9;</code>
+       */
+      public Builder clearDate() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        date_ = getDefaultInstance().getDate();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required string date = 9;</code>
+       */
+      public Builder setDateBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        date_ = value;
+        onChanged();
+        return this;
+      }
+
+      // required int32 owner = 10;
+      private int owner_ ;
+      /**
+       * <code>required int32 owner = 10;</code>
+       */
+      public boolean hasOwner() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>required int32 owner = 10;</code>
+       */
+      public int getOwner() {
+        return owner_;
+      }
+      /**
+       * <code>required int32 owner = 10;</code>
+       */
+      public Builder setOwner(int value) {
+        bitField0_ |= 0x00000080;
+        owner_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 owner = 10;</code>
+       */
+      public Builder clearOwner() {
+        bitField0_ = (bitField0_ & ~0x00000080);
+        owner_ = 0;
         onChanged();
         return this;
       }
@@ -3943,7 +4732,7 @@ public final class GAEexecution {
        * </pre>
        */
       public boolean hasHistory() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
+        return ((bitField0_ & 0x00000100) == 0x00000100);
       }
       /**
        * <code>required string history = 5;</code>
@@ -3995,7 +4784,7 @@ public final class GAEexecution {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000100;
         history_ = value;
         onChanged();
         return this;
@@ -4008,7 +4797,7 @@ public final class GAEexecution {
        * </pre>
        */
       public Builder clearHistory() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000100);
         history_ = getDefaultInstance().getHistory();
         onChanged();
         return this;
@@ -4025,7 +4814,7 @@ public final class GAEexecution {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000010;
+  bitField0_ |= 0x00000100;
         history_ = value;
         onChanged();
         return this;
@@ -4035,9 +4824,9 @@ public final class GAEexecution {
       private java.util.List<de.tkip.sbpm.proto.GAEexecution.Action> actions_ =
         java.util.Collections.emptyList();
       private void ensureActionsIsMutable() {
-        if (!((bitField0_ & 0x00000020) == 0x00000020)) {
+        if (!((bitField0_ & 0x00000200) == 0x00000200)) {
           actions_ = new java.util.ArrayList<de.tkip.sbpm.proto.GAEexecution.Action>(actions_);
-          bitField0_ |= 0x00000020;
+          bitField0_ |= 0x00000200;
          }
       }
 
@@ -4186,7 +4975,7 @@ public final class GAEexecution {
       public Builder clearActions() {
         if (actionsBuilder_ == null) {
           actions_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000020);
+          bitField0_ = (bitField0_ & ~0x00000200);
           onChanged();
         } else {
           actionsBuilder_.clear();
@@ -4263,7 +5052,7 @@ public final class GAEexecution {
           actionsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               de.tkip.sbpm.proto.GAEexecution.Action, de.tkip.sbpm.proto.GAEexecution.Action.Builder, de.tkip.sbpm.proto.GAEexecution.ActionOrBuilder>(
                   actions_,
-                  ((bitField0_ & 0x00000020) == 0x00000020),
+                  ((bitField0_ & 0x00000200) == 0x00000200),
                   getParentForChildren(),
                   isClean());
           actions_ = null;
@@ -12762,6 +13551,21 @@ public final class GAEexecution {
     com.google.protobuf.ByteString
         getRoleBytes();
 
+    // optional string url = 14;
+    /**
+     * <code>optional string url = 14;</code>
+     */
+    boolean hasUrl();
+    /**
+     * <code>optional string url = 14;</code>
+     */
+    java.lang.String getUrl();
+    /**
+     * <code>optional string url = 14;</code>
+     */
+    com.google.protobuf.ByteString
+        getUrlBytes();
+
     // optional string comment = 11;
     /**
      * <code>optional string comment = 11;</code>
@@ -12973,24 +13777,29 @@ public final class GAEexecution {
               break;
             }
             case 90: {
-              bitField0_ |= 0x00000400;
+              bitField0_ |= 0x00000800;
               comment_ = input.readBytes();
               break;
             }
             case 98: {
-              if (!((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
+              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
                 variables_ = new java.util.ArrayList<de.tkip.sbpm.proto.GAEexecution.GraphVariable>();
-                mutable_bitField0_ |= 0x00000800;
+                mutable_bitField0_ |= 0x00001000;
               }
               variables_.add(input.readMessage(de.tkip.sbpm.proto.GAEexecution.GraphVariable.PARSER, extensionRegistry));
               break;
             }
             case 106: {
-              if (!((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+              if (!((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
                 macros_ = new java.util.ArrayList<de.tkip.sbpm.proto.GAEexecution.GraphMacro>();
-                mutable_bitField0_ |= 0x00001000;
+                mutable_bitField0_ |= 0x00002000;
               }
               macros_.add(input.readMessage(de.tkip.sbpm.proto.GAEexecution.GraphMacro.PARSER, extensionRegistry));
+              break;
+            }
+            case 114: {
+              bitField0_ |= 0x00000400;
+              url_ = input.readBytes();
               break;
             }
           }
@@ -13001,10 +13810,10 @@ public final class GAEexecution {
         throw new com.google.protobuf.InvalidProtocolBufferException(
             e.getMessage()).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000800) == 0x00000800)) {
+        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
           variables_ = java.util.Collections.unmodifiableList(variables_);
         }
-        if (((mutable_bitField0_ & 0x00001000) == 0x00001000)) {
+        if (((mutable_bitField0_ & 0x00002000) == 0x00002000)) {
           macros_ = java.util.Collections.unmodifiableList(macros_);
         }
         this.unknownFields = unknownFields.build();
@@ -13405,6 +14214,49 @@ public final class GAEexecution {
       }
     }
 
+    // optional string url = 14;
+    public static final int URL_FIELD_NUMBER = 14;
+    private java.lang.Object url_;
+    /**
+     * <code>optional string url = 14;</code>
+     */
+    public boolean hasUrl() {
+      return ((bitField0_ & 0x00000400) == 0x00000400);
+    }
+    /**
+     * <code>optional string url = 14;</code>
+     */
+    public java.lang.String getUrl() {
+      java.lang.Object ref = url_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          url_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string url = 14;</code>
+     */
+    public com.google.protobuf.ByteString
+        getUrlBytes() {
+      java.lang.Object ref = url_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        url_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     // optional string comment = 11;
     public static final int COMMENT_FIELD_NUMBER = 11;
     private java.lang.Object comment_;
@@ -13412,7 +14264,7 @@ public final class GAEexecution {
      * <code>optional string comment = 11;</code>
      */
     public boolean hasComment() {
-      return ((bitField0_ & 0x00000400) == 0x00000400);
+      return ((bitField0_ & 0x00000800) == 0x00000800);
     }
     /**
      * <code>optional string comment = 11;</code>
@@ -13571,6 +14423,7 @@ public final class GAEexecution {
       relatedGraphId_ = 0;
       externalType_ = "";
       role_ = "";
+      url_ = "";
       comment_ = "";
       variables_ = java.util.Collections.emptyList();
       macros_ = java.util.Collections.emptyList();
@@ -13649,7 +14502,7 @@ public final class GAEexecution {
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeBytes(10, getRoleBytes());
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
         output.writeBytes(11, getCommentBytes());
       }
       for (int i = 0; i < variables_.size(); i++) {
@@ -13657,6 +14510,9 @@ public final class GAEexecution {
       }
       for (int i = 0; i < macros_.size(); i++) {
         output.writeMessage(13, macros_.get(i));
+      }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        output.writeBytes(14, getUrlBytes());
       }
       getUnknownFields().writeTo(output);
     }
@@ -13707,7 +14563,7 @@ public final class GAEexecution {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(10, getRoleBytes());
       }
-      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+      if (((bitField0_ & 0x00000800) == 0x00000800)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(11, getCommentBytes());
       }
@@ -13718,6 +14574,10 @@ public final class GAEexecution {
       for (int i = 0; i < macros_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(13, macros_.get(i));
+      }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(14, getUrlBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -13861,17 +14721,19 @@ public final class GAEexecution {
         bitField0_ = (bitField0_ & ~0x00000100);
         role_ = "";
         bitField0_ = (bitField0_ & ~0x00000200);
-        comment_ = "";
+        url_ = "";
         bitField0_ = (bitField0_ & ~0x00000400);
+        comment_ = "";
+        bitField0_ = (bitField0_ & ~0x00000800);
         if (variablesBuilder_ == null) {
           variables_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000800);
+          bitField0_ = (bitField0_ & ~0x00001000);
         } else {
           variablesBuilder_.clear();
         }
         if (macrosBuilder_ == null) {
           macros_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00001000);
+          bitField0_ = (bitField0_ & ~0x00002000);
         } else {
           macrosBuilder_.clear();
         }
@@ -13946,20 +14808,24 @@ public final class GAEexecution {
         if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
           to_bitField0_ |= 0x00000400;
         }
+        result.url_ = url_;
+        if (((from_bitField0_ & 0x00000800) == 0x00000800)) {
+          to_bitField0_ |= 0x00000800;
+        }
         result.comment_ = comment_;
         if (variablesBuilder_ == null) {
-          if (((bitField0_ & 0x00000800) == 0x00000800)) {
+          if (((bitField0_ & 0x00001000) == 0x00001000)) {
             variables_ = java.util.Collections.unmodifiableList(variables_);
-            bitField0_ = (bitField0_ & ~0x00000800);
+            bitField0_ = (bitField0_ & ~0x00001000);
           }
           result.variables_ = variables_;
         } else {
           result.variables_ = variablesBuilder_.build();
         }
         if (macrosBuilder_ == null) {
-          if (((bitField0_ & 0x00001000) == 0x00001000)) {
+          if (((bitField0_ & 0x00002000) == 0x00002000)) {
             macros_ = java.util.Collections.unmodifiableList(macros_);
-            bitField0_ = (bitField0_ & ~0x00001000);
+            bitField0_ = (bitField0_ & ~0x00002000);
           }
           result.macros_ = macros_;
         } else {
@@ -14023,8 +14889,13 @@ public final class GAEexecution {
           role_ = other.role_;
           onChanged();
         }
-        if (other.hasComment()) {
+        if (other.hasUrl()) {
           bitField0_ |= 0x00000400;
+          url_ = other.url_;
+          onChanged();
+        }
+        if (other.hasComment()) {
+          bitField0_ |= 0x00000800;
           comment_ = other.comment_;
           onChanged();
         }
@@ -14032,7 +14903,7 @@ public final class GAEexecution {
           if (!other.variables_.isEmpty()) {
             if (variables_.isEmpty()) {
               variables_ = other.variables_;
-              bitField0_ = (bitField0_ & ~0x00000800);
+              bitField0_ = (bitField0_ & ~0x00001000);
             } else {
               ensureVariablesIsMutable();
               variables_.addAll(other.variables_);
@@ -14045,7 +14916,7 @@ public final class GAEexecution {
               variablesBuilder_.dispose();
               variablesBuilder_ = null;
               variables_ = other.variables_;
-              bitField0_ = (bitField0_ & ~0x00000800);
+              bitField0_ = (bitField0_ & ~0x00001000);
               variablesBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getVariablesFieldBuilder() : null;
@@ -14058,7 +14929,7 @@ public final class GAEexecution {
           if (!other.macros_.isEmpty()) {
             if (macros_.isEmpty()) {
               macros_ = other.macros_;
-              bitField0_ = (bitField0_ & ~0x00001000);
+              bitField0_ = (bitField0_ & ~0x00002000);
             } else {
               ensureMacrosIsMutable();
               macros_.addAll(other.macros_);
@@ -14071,7 +14942,7 @@ public final class GAEexecution {
               macrosBuilder_.dispose();
               macrosBuilder_ = null;
               macros_ = other.macros_;
-              bitField0_ = (bitField0_ & ~0x00001000);
+              bitField0_ = (bitField0_ & ~0x00002000);
               macrosBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getMacrosFieldBuilder() : null;
@@ -14803,13 +15674,87 @@ public final class GAEexecution {
         return this;
       }
 
+      // optional string url = 14;
+      private java.lang.Object url_ = "";
+      /**
+       * <code>optional string url = 14;</code>
+       */
+      public boolean hasUrl() {
+        return ((bitField0_ & 0x00000400) == 0x00000400);
+      }
+      /**
+       * <code>optional string url = 14;</code>
+       */
+      public java.lang.String getUrl() {
+        java.lang.Object ref = url_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          url_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string url = 14;</code>
+       */
+      public com.google.protobuf.ByteString
+          getUrlBytes() {
+        java.lang.Object ref = url_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          url_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string url = 14;</code>
+       */
+      public Builder setUrl(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000400;
+        url_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string url = 14;</code>
+       */
+      public Builder clearUrl() {
+        bitField0_ = (bitField0_ & ~0x00000400);
+        url_ = getDefaultInstance().getUrl();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string url = 14;</code>
+       */
+      public Builder setUrlBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000400;
+        url_ = value;
+        onChanged();
+        return this;
+      }
+
       // optional string comment = 11;
       private java.lang.Object comment_ = "";
       /**
        * <code>optional string comment = 11;</code>
        */
       public boolean hasComment() {
-        return ((bitField0_ & 0x00000400) == 0x00000400);
+        return ((bitField0_ & 0x00000800) == 0x00000800);
       }
       /**
        * <code>optional string comment = 11;</code>
@@ -14849,7 +15794,7 @@ public final class GAEexecution {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000400;
+  bitField0_ |= 0x00000800;
         comment_ = value;
         onChanged();
         return this;
@@ -14858,7 +15803,7 @@ public final class GAEexecution {
        * <code>optional string comment = 11;</code>
        */
       public Builder clearComment() {
-        bitField0_ = (bitField0_ & ~0x00000400);
+        bitField0_ = (bitField0_ & ~0x00000800);
         comment_ = getDefaultInstance().getComment();
         onChanged();
         return this;
@@ -14871,7 +15816,7 @@ public final class GAEexecution {
         if (value == null) {
     throw new NullPointerException();
   }
-  bitField0_ |= 0x00000400;
+  bitField0_ |= 0x00000800;
         comment_ = value;
         onChanged();
         return this;
@@ -14881,9 +15826,9 @@ public final class GAEexecution {
       private java.util.List<de.tkip.sbpm.proto.GAEexecution.GraphVariable> variables_ =
         java.util.Collections.emptyList();
       private void ensureVariablesIsMutable() {
-        if (!((bitField0_ & 0x00000800) == 0x00000800)) {
+        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
           variables_ = new java.util.ArrayList<de.tkip.sbpm.proto.GAEexecution.GraphVariable>(variables_);
-          bitField0_ |= 0x00000800;
+          bitField0_ |= 0x00001000;
          }
       }
 
@@ -15076,7 +16021,7 @@ public final class GAEexecution {
       public Builder clearVariables() {
         if (variablesBuilder_ == null) {
           variables_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000800);
+          bitField0_ = (bitField0_ & ~0x00001000);
           onChanged();
         } else {
           variablesBuilder_.clear();
@@ -15181,7 +16126,7 @@ public final class GAEexecution {
           variablesBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               de.tkip.sbpm.proto.GAEexecution.GraphVariable, de.tkip.sbpm.proto.GAEexecution.GraphVariable.Builder, de.tkip.sbpm.proto.GAEexecution.GraphVariableOrBuilder>(
                   variables_,
-                  ((bitField0_ & 0x00000800) == 0x00000800),
+                  ((bitField0_ & 0x00001000) == 0x00001000),
                   getParentForChildren(),
                   isClean());
           variables_ = null;
@@ -15193,9 +16138,9 @@ public final class GAEexecution {
       private java.util.List<de.tkip.sbpm.proto.GAEexecution.GraphMacro> macros_ =
         java.util.Collections.emptyList();
       private void ensureMacrosIsMutable() {
-        if (!((bitField0_ & 0x00001000) == 0x00001000)) {
+        if (!((bitField0_ & 0x00002000) == 0x00002000)) {
           macros_ = new java.util.ArrayList<de.tkip.sbpm.proto.GAEexecution.GraphMacro>(macros_);
-          bitField0_ |= 0x00001000;
+          bitField0_ |= 0x00002000;
          }
       }
 
@@ -15388,7 +16333,7 @@ public final class GAEexecution {
       public Builder clearMacros() {
         if (macrosBuilder_ == null) {
           macros_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00001000);
+          bitField0_ = (bitField0_ & ~0x00002000);
           onChanged();
         } else {
           macrosBuilder_.clear();
@@ -15493,7 +16438,7 @@ public final class GAEexecution {
           macrosBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               de.tkip.sbpm.proto.GAEexecution.GraphMacro, de.tkip.sbpm.proto.GAEexecution.GraphMacro.Builder, de.tkip.sbpm.proto.GAEexecution.GraphMacroOrBuilder>(
                   macros_,
-                  ((bitField0_ & 0x00001000) == 0x00001000),
+                  ((bitField0_ & 0x00002000) == 0x00002000),
                   getParentForChildren(),
                   isClean());
           macros_ = null;
@@ -26669,82 +27614,85 @@ public final class GAEexecution {
   static {
     java.lang.String[] descriptorData = {
       "\n\022GAEexecution.proto\022\022de.tkip.sbpm.proto" +
-      "\"*\n\025CreateProcessInstance\022\021\n\tprocessId\030\001" +
-      " \002(\005\";\n\rExecuteAction\022*\n\006action\030\001 \002(\0132\032." +
-      "de.tkip.sbpm.proto.Action\"\177\n\rListProcess" +
-      "es\022@\n\tprocesses\030\001 \003(\0132-.de.tkip.sbpm.pro" +
-      "to.ListProcesses.ProcessInfo\032,\n\013ProcessI" +
-      "nfo\022\n\n\002id\030\001 \002(\005\022\021\n\tprocessId\030\002 \002(\005\":\n\013Li" +
-      "stActions\022+\n\007actions\030\001 \003(\0132\032.de.tkip.sbp" +
-      "m.proto.Action\"\262\001\n\023ProcessInstanceData\022\n" +
-      "\n\002id\030\001 \002(\005\022\021\n\tprocessId\030\002 \002(\005\022(\n\005graph\030\003",
-      " \002(\0132\031.de.tkip.sbpm.proto.Graph\022\024\n\014isTer" +
-      "minated\030\004 \002(\010\022\017\n\007history\030\005 \002(\t\022+\n\007action" +
-      "s\030\006 \003(\0132\032.de.tkip.sbpm.proto.Action\"\261\001\n\006" +
-      "Action\022\016\n\006userID\030\001 \002(\005\022\031\n\021processInstanc" +
-      "eID\030\002 \002(\005\022\021\n\tsubjectID\030\003 \002(\t\022\017\n\007stateID\030" +
-      "\004 \002(\005\022\021\n\tstateText\030\005 \002(\t\022\021\n\tstateType\030\006 " +
-      "\002(\t\0222\n\nactionData\030\007 \003(\0132\036.de.tkip.sbpm.p" +
-      "roto.ActionData\"\315\001\n\nActionData\022\014\n\004text\030\001" +
-      " \002(\t\022\022\n\nexecutable\030\002 \002(\010\022\026\n\016transitionTy" +
-      "pe\030\003 \002(\t\022:\n\016targetUserData\030\004 \001(\0132\".de.tk",
-      "ip.sbpm.proto.TargetUserData\022\026\n\016relatedS" +
-      "ubject\030\005 \001(\t\0221\n\010messages\030\006 \003(\0132\037.de.tkip" +
-      ".sbpm.proto.MessageData\"?\n\016TargetUserDat" +
-      "a\022\013\n\003min\030\001 \002(\005\022\013\n\003max\030\002 \002(\005\022\023\n\013targetUse" +
-      "rs\030\003 \003(\005\"F\n\013MessageData\022\016\n\006userID\030\001 \002(\005\022" +
-      "\026\n\016messageContent\030\002 \002(\t\022\017\n\007fileUrl\030\004 \001(\t" +
-      "\"\216\002\n\005Graph\022\n\n\002id\030\001 \001(\005\022\021\n\tprocessId\030\002 \001(" +
-      "\005\022\014\n\004date\030\003 \002(\t\022<\n\rconversations\030\004 \003(\0132%" +
-      ".de.tkip.sbpm.proto.GraphConversation\0222\n" +
-      "\010messages\030\005 \003(\0132 .de.tkip.sbpm.proto.Gra",
-      "phMessage\0222\n\010subjects\030\006 \003(\0132 .de.tkip.sb" +
-      "pm.proto.GraphSubject\0222\n\010routings\030\007 \003(\0132" +
-      " .de.tkip.sbpm.proto.GraphRouting\"-\n\021Gra" +
-      "phConversation\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002(\t" +
-      "\"(\n\014GraphMessage\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002" +
-      "(\t\"\311\002\n\014GraphSubject\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030" +
-      "\002 \002(\t\022\023\n\013subjectType\030\003 \002(\t\022\022\n\nisDisabled" +
-      "\030\004 \002(\010\022\026\n\016isStartSubject\030\005 \001(\010\022\021\n\tinputP" +
-      "ool\030\006 \002(\005\022\030\n\020relatedSubjectId\030\007 \001(\t\022\026\n\016r" +
-      "elatedGraphId\030\010 \001(\005\022\024\n\014externalType\030\t \001(",
-      "\t\022\014\n\004role\030\n \001(\t\022\017\n\007comment\030\013 \001(\t\0224\n\tvari" +
-      "ables\030\014 \003(\0132!.de.tkip.sbpm.proto.GraphVa" +
-      "riable\022.\n\006macros\030\r \003(\0132\036.de.tkip.sbpm.pr" +
-      "oto.GraphMacro\")\n\rGraphVariable\022\n\n\002id\030\001 " +
-      "\002(\t\022\014\n\004name\030\002 \002(\t\"\202\001\n\nGraphMacro\022\n\n\002id\030\001" +
-      " \002(\t\022\014\n\004name\030\002 \002(\t\022,\n\005nodes\030\003 \003(\0132\035.de.t" +
-      "kip.sbpm.proto.GraphNode\022,\n\005edges\030\004 \003(\0132" +
-      "\035.de.tkip.sbpm.proto.GraphEdge\"\252\002\n\tGraph" +
-      "Node\022\n\n\002id\030\001 \002(\005\022\014\n\004text\030\002 \002(\t\022\017\n\007isStar" +
-      "t\030\003 \002(\010\022\r\n\005isEnd\030\004 \002(\010\022\020\n\010nodeType\030\005 \002(\t",
-      "\022\022\n\nisDisabled\030\006 \002(\010\022\030\n\020isMajorStartNode" +
-      "\030\007 \002(\010\022\026\n\016conversationId\030\010 \001(\t\022\022\n\nvariab" +
-      "leId\030\t \001(\t\0225\n\007options\030\n \002(\0132$.de.tkip.sb" +
-      "pm.proto.GraphNodeOptions\022\017\n\007macroId\030\013 \001" +
-      "(\t\022/\n\006varMan\030\014 \001(\0132\037.de.tkip.sbpm.proto." +
-      "GraphVarMan\"w\n\020GraphNodeOptions\022\021\n\tmessa" +
-      "geId\030\001 \001(\t\022\021\n\tsubjectId\030\002 \001(\t\022\025\n\rcorrela" +
-      "tionId\030\003 \001(\t\022\026\n\016conversationId\030\004 \001(\t\022\016\n\006" +
-      "nodeId\030\005 \001(\005\"T\n\013GraphVarMan\022\016\n\006var1Id\030\001 " +
-      "\002(\t\022\016\n\006var2Id\030\002 \002(\t\022\021\n\toperation\030\003 \002(\t\022\022",
-      "\n\nstoreVarId\030\004 \002(\t\"\256\002\n\tGraphEdge\022\023\n\013star" +
-      "tNodeId\030\001 \002(\005\022\021\n\tendNodeId\030\002 \002(\005\022\014\n\004text" +
-      "\030\003 \002(\t\022\020\n\010edgeType\030\004 \002(\t\0223\n\006target\030\005 \001(\013" +
-      "2#.de.tkip.sbpm.proto.GraphEdgeTarget\022\022\n" +
-      "\nisDisabled\030\006 \002(\010\022\022\n\nisOptional\030\007 \002(\010\022\020\n" +
-      "\010priority\030\010 \002(\005\022\025\n\rmanualTimeout\030\t \002(\010\022\022" +
-      "\n\nvariableId\030\n \001(\t\022\025\n\rcorrelationId\030\013 \001(" +
-      "\t\022\017\n\007comment\030\014 \001(\t\022\027\n\017transportMethod\030\r " +
-      "\003(\t\"e\n\017GraphEdgeTarget\022\021\n\tsubjectId\030\001 \002(" +
-      "\t\022\013\n\003min\030\002 \002(\005\022\013\n\003max\030\003 \002(\005\022\021\n\tcreateNew",
-      "\030\004 \002(\010\022\022\n\nvariableId\030\005 \001(\t\"\232\001\n\014GraphRout" +
-      "ing\022\n\n\002id\030\001 \002(\t\022=\n\tcondition\030\002 \002(\0132*.de." +
-      "tkip.sbpm.proto.GraphRoutingExpression\022?" +
-      "\n\013implication\030\003 \002(\0132*.de.tkip.sbpm.proto" +
-      ".GraphRoutingExpression\"^\n\026GraphRoutingE" +
-      "xpression\022\021\n\tsubjectId\030\001 \002(\t\022\020\n\010operator" +
-      "\030\002 \002(\010\022\017\n\007groupId\030\003 \001(\005\022\016\n\006userId\030\004 \001(\005"
+      "\"T\n\025CreateProcessInstance\022\021\n\tprocessId\030\001" +
+      " \002(\005\022(\n\005graph\030\002 \002(\0132\031.de.tkip.sbpm.proto" +
+      ".Graph\";\n\rExecuteAction\022*\n\006action\030\001 \002(\0132" +
+      "\032.de.tkip.sbpm.proto.Action\"\177\n\rListProce" +
+      "sses\022@\n\tprocesses\030\001 \003(\0132-.de.tkip.sbpm.p" +
+      "roto.ListProcesses.ProcessInfo\032,\n\013Proces" +
+      "sInfo\022\n\n\002id\030\001 \002(\005\022\021\n\tprocessId\030\002 \002(\005\":\n\013" +
+      "ListActions\022+\n\007actions\030\001 \003(\0132\032.de.tkip.s" +
+      "bpm.proto.Action\"\362\001\n\023ProcessInstanceData",
+      "\022\n\n\002id\030\001 \002(\005\022\014\n\004name\030\007 \002(\t\022\021\n\tprocessId\030" +
+      "\002 \002(\005\022\023\n\013processName\030\010 \002(\t\022(\n\005graph\030\003 \002(" +
+      "\0132\031.de.tkip.sbpm.proto.Graph\022\024\n\014isTermin" +
+      "ated\030\004 \002(\010\022\014\n\004date\030\t \002(\t\022\r\n\005owner\030\n \002(\005\022" +
+      "\017\n\007history\030\005 \002(\t\022+\n\007actions\030\006 \003(\0132\032.de.t" +
+      "kip.sbpm.proto.Action\"\261\001\n\006Action\022\016\n\006user" +
+      "ID\030\001 \002(\005\022\031\n\021processInstanceID\030\002 \002(\005\022\021\n\ts" +
+      "ubjectID\030\003 \002(\t\022\017\n\007stateID\030\004 \002(\005\022\021\n\tstate" +
+      "Text\030\005 \002(\t\022\021\n\tstateType\030\006 \002(\t\0222\n\nactionD" +
+      "ata\030\007 \003(\0132\036.de.tkip.sbpm.proto.ActionDat",
+      "a\"\315\001\n\nActionData\022\014\n\004text\030\001 \002(\t\022\022\n\nexecut" +
+      "able\030\002 \002(\010\022\026\n\016transitionType\030\003 \002(\t\022:\n\016ta" +
+      "rgetUserData\030\004 \001(\0132\".de.tkip.sbpm.proto." +
+      "TargetUserData\022\026\n\016relatedSubject\030\005 \001(\t\0221" +
+      "\n\010messages\030\006 \003(\0132\037.de.tkip.sbpm.proto.Me" +
+      "ssageData\"?\n\016TargetUserData\022\013\n\003min\030\001 \002(\005" +
+      "\022\013\n\003max\030\002 \002(\005\022\023\n\013targetUsers\030\003 \003(\005\"F\n\013Me" +
+      "ssageData\022\016\n\006userID\030\001 \002(\005\022\026\n\016messageCont" +
+      "ent\030\002 \002(\t\022\017\n\007fileUrl\030\004 \001(\t\"\216\002\n\005Graph\022\n\n\002" +
+      "id\030\001 \001(\005\022\021\n\tprocessId\030\002 \001(\005\022\014\n\004date\030\003 \002(",
+      "\t\022<\n\rconversations\030\004 \003(\0132%.de.tkip.sbpm." +
+      "proto.GraphConversation\0222\n\010messages\030\005 \003(" +
+      "\0132 .de.tkip.sbpm.proto.GraphMessage\0222\n\010s" +
+      "ubjects\030\006 \003(\0132 .de.tkip.sbpm.proto.Graph" +
+      "Subject\0222\n\010routings\030\007 \003(\0132 .de.tkip.sbpm" +
+      ".proto.GraphRouting\"-\n\021GraphConversation" +
+      "\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\"(\n\014GraphMessa" +
+      "ge\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\"\326\002\n\014GraphSu" +
+      "bject\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\022\023\n\013subje" +
+      "ctType\030\003 \002(\t\022\022\n\nisDisabled\030\004 \002(\010\022\026\n\016isSt",
+      "artSubject\030\005 \001(\010\022\021\n\tinputPool\030\006 \002(\005\022\030\n\020r" +
+      "elatedSubjectId\030\007 \001(\t\022\026\n\016relatedGraphId\030" +
+      "\010 \001(\005\022\024\n\014externalType\030\t \001(\t\022\014\n\004role\030\n \001(" +
+      "\t\022\013\n\003url\030\016 \001(\t\022\017\n\007comment\030\013 \001(\t\0224\n\tvaria" +
+      "bles\030\014 \003(\0132!.de.tkip.sbpm.proto.GraphVar" +
+      "iable\022.\n\006macros\030\r \003(\0132\036.de.tkip.sbpm.pro" +
+      "to.GraphMacro\")\n\rGraphVariable\022\n\n\002id\030\001 \002" +
+      "(\t\022\014\n\004name\030\002 \002(\t\"\202\001\n\nGraphMacro\022\n\n\002id\030\001 " +
+      "\002(\t\022\014\n\004name\030\002 \002(\t\022,\n\005nodes\030\003 \003(\0132\035.de.tk" +
+      "ip.sbpm.proto.GraphNode\022,\n\005edges\030\004 \003(\0132\035",
+      ".de.tkip.sbpm.proto.GraphEdge\"\252\002\n\tGraphN" +
+      "ode\022\n\n\002id\030\001 \002(\005\022\014\n\004text\030\002 \002(\t\022\017\n\007isStart" +
+      "\030\003 \002(\010\022\r\n\005isEnd\030\004 \002(\010\022\020\n\010nodeType\030\005 \002(\t\022" +
+      "\022\n\nisDisabled\030\006 \002(\010\022\030\n\020isMajorStartNode\030" +
+      "\007 \002(\010\022\026\n\016conversationId\030\010 \001(\t\022\022\n\nvariabl" +
+      "eId\030\t \001(\t\0225\n\007options\030\n \002(\0132$.de.tkip.sbp" +
+      "m.proto.GraphNodeOptions\022\017\n\007macroId\030\013 \001(" +
+      "\t\022/\n\006varMan\030\014 \001(\0132\037.de.tkip.sbpm.proto.G" +
+      "raphVarMan\"w\n\020GraphNodeOptions\022\021\n\tmessag" +
+      "eId\030\001 \001(\t\022\021\n\tsubjectId\030\002 \001(\t\022\025\n\rcorrelat",
+      "ionId\030\003 \001(\t\022\026\n\016conversationId\030\004 \001(\t\022\016\n\006n" +
+      "odeId\030\005 \001(\005\"T\n\013GraphVarMan\022\016\n\006var1Id\030\001 \002" +
+      "(\t\022\016\n\006var2Id\030\002 \002(\t\022\021\n\toperation\030\003 \002(\t\022\022\n" +
+      "\nstoreVarId\030\004 \002(\t\"\256\002\n\tGraphEdge\022\023\n\013start" +
+      "NodeId\030\001 \002(\005\022\021\n\tendNodeId\030\002 \002(\005\022\014\n\004text\030" +
+      "\003 \002(\t\022\020\n\010edgeType\030\004 \002(\t\0223\n\006target\030\005 \001(\0132" +
+      "#.de.tkip.sbpm.proto.GraphEdgeTarget\022\022\n\n" +
+      "isDisabled\030\006 \002(\010\022\022\n\nisOptional\030\007 \002(\010\022\020\n\010" +
+      "priority\030\010 \002(\005\022\025\n\rmanualTimeout\030\t \002(\010\022\022\n" +
+      "\nvariableId\030\n \001(\t\022\025\n\rcorrelationId\030\013 \001(\t",
+      "\022\017\n\007comment\030\014 \001(\t\022\027\n\017transportMethod\030\r \003" +
+      "(\t\"e\n\017GraphEdgeTarget\022\021\n\tsubjectId\030\001 \002(\t" +
+      "\022\013\n\003min\030\002 \002(\005\022\013\n\003max\030\003 \002(\005\022\021\n\tcreateNew\030" +
+      "\004 \002(\010\022\022\n\nvariableId\030\005 \001(\t\"\232\001\n\014GraphRouti" +
+      "ng\022\n\n\002id\030\001 \002(\t\022=\n\tcondition\030\002 \002(\0132*.de.t" +
+      "kip.sbpm.proto.GraphRoutingExpression\022?\n" +
+      "\013implication\030\003 \002(\0132*.de.tkip.sbpm.proto." +
+      "GraphRoutingExpression\"^\n\026GraphRoutingEx" +
+      "pression\022\021\n\tsubjectId\030\001 \002(\t\022\020\n\010operator\030" +
+      "\002 \002(\010\022\017\n\007groupId\030\003 \001(\005\022\016\n\006userId\030\004 \001(\005"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -26756,7 +27704,7 @@ public final class GAEexecution {
           internal_static_de_tkip_sbpm_proto_CreateProcessInstance_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_tkip_sbpm_proto_CreateProcessInstance_descriptor,
-              new java.lang.String[] { "ProcessId", });
+              new java.lang.String[] { "ProcessId", "Graph", });
           internal_static_de_tkip_sbpm_proto_ExecuteAction_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_de_tkip_sbpm_proto_ExecuteAction_fieldAccessorTable = new
@@ -26786,7 +27734,7 @@ public final class GAEexecution {
           internal_static_de_tkip_sbpm_proto_ProcessInstanceData_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_tkip_sbpm_proto_ProcessInstanceData_descriptor,
-              new java.lang.String[] { "Id", "ProcessId", "Graph", "IsTerminated", "History", "Actions", });
+              new java.lang.String[] { "Id", "Name", "ProcessId", "ProcessName", "Graph", "IsTerminated", "Date", "Owner", "History", "Actions", });
           internal_static_de_tkip_sbpm_proto_Action_descriptor =
             getDescriptor().getMessageTypes().get(5);
           internal_static_de_tkip_sbpm_proto_Action_fieldAccessorTable = new
@@ -26834,7 +27782,7 @@ public final class GAEexecution {
           internal_static_de_tkip_sbpm_proto_GraphSubject_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_tkip_sbpm_proto_GraphSubject_descriptor,
-              new java.lang.String[] { "Id", "Name", "SubjectType", "IsDisabled", "IsStartSubject", "InputPool", "RelatedSubjectId", "RelatedGraphId", "ExternalType", "Role", "Comment", "Variables", "Macros", });
+              new java.lang.String[] { "Id", "Name", "SubjectType", "IsDisabled", "IsStartSubject", "InputPool", "RelatedSubjectId", "RelatedGraphId", "ExternalType", "Role", "Url", "Comment", "Variables", "Macros", });
           internal_static_de_tkip_sbpm_proto_GraphVariable_descriptor =
             getDescriptor().getMessageTypes().get(13);
           internal_static_de_tkip_sbpm_proto_GraphVariable_fieldAccessorTable = new

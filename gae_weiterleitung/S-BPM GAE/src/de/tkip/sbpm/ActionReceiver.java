@@ -35,7 +35,7 @@ public class ActionReceiver extends HttpServlet {
 					Action.Builder actionBuilder = Action.newBuilder();
 					actionBuilder.setUserID(0)
 								 .setProcessInstanceID(state1.getProcessInstanceID())
-								 .setSubjectID(Integer.toString(state1.getSubjectID()))
+								 .setSubjectID(state1.getSubjectID())
 								 .setStateID(state1.getId())
 								 .setStateText(state1.getText())
 								 .setStateType(state1.getStateType().name());
@@ -86,7 +86,7 @@ public class ActionReceiver extends HttpServlet {
 				ProcessManager processManager = processManagerList.get(0);
 				if(processManager.containsProcessInstance(processInstanceID)){
 					ProcessInstance pi = processManager.getProcessInstance(processInstanceID);
-					Subject s = pi.getProcessData().getSubjects().get(Integer.parseInt(action.getSubjectID()));
+					Subject s = pi.getProcessData().getSubjects().get(action.getSubjectID());
 					if(action.getStateID() == s.getInternalBehavior().getCurrentState() && s.getInternalBehavior().isExecutable()){
 						State currentState = s.getInternalBehavior().getStatesMap().get(action.getStateID());
 						String msg;
@@ -97,20 +97,20 @@ public class ActionReceiver extends HttpServlet {
 						case "receive":
 							String[] str = currentState.getTransitions().get(0).getText().split("(1)");
 							String text = str[0].trim();
-							msg = s.getMessageFromSubjcetIDAndType(Integer.parseInt(s.getSubjectID()), text);
+							msg = s.getMessageFromSubjcetIDAndType(s.getSubjectID(), text);
 							break;
 						case "send":
 							int messageID = 0;
 							int userID = 0;
-							int from_subjectID = Integer.parseInt(s.getSubjectID());
-							int target_subjectID = 0;
+							String from_subjectID = s.getSubjectID();
+							String target_subjectID = "0";
 							String[] str1 = currentState.getTransitions().get(0).getText().split("to:");
 							String sName = str1[str1.length-1].trim();
 							String messageType = str1[0].trim();
 							String msgContent = action.getActionData(0).getMessages(0).getMessageContent();
 							Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
 							while(it.hasNext()){
-								int subjectID = (int)it.next();
+								String subjectID = (String)it.next();
 								String subjectName = pi.getProcessData().getSubjects().get(subjectID).getSubjectName();
 								if(sName.equals(subjectName)){
 									target_subjectID = subjectID;
@@ -122,6 +122,19 @@ public class ActionReceiver extends HttpServlet {
 							break;
 						case "end":
 							isEnd = true;
+							boolean isPIEnd = true;
+							Iterator it1 = pi.getProcessData().getSubjects().values().iterator();
+							while(it1.hasNext()){
+								Subject s1 = (Subject) it1.next();
+								int cs = s1.getInternalBehavior().getCurrentState();
+								if(!s1.getInternalBehavior().getStatesMap().get(cs).getStateType().equals(StateType.end)){
+									isPIEnd = false;
+									break;
+								}
+							}
+							if(isPIEnd){
+								processManager.removeProcessInstance(pi);
+							}
 							break;
 						}
 						State cState = processManager.getState(processInstanceID, action.getStateID());
@@ -136,7 +149,7 @@ public class ActionReceiver extends HttpServlet {
 								if(state.getStateType().equals(StateType.receive)){
 									String[] str = state.getTransitions().get(0).getText().split("(1)");
 									String text = str[0].trim();
-									int num = s.checkMessageNumberFromSubjectIDAndType(Integer.parseInt(s.getSubjectID()), text);
+									int num = s.checkMessageNumberFromSubjectIDAndType(s.getSubjectID(), text);
 									if(num == 0){
 										executable = false;
 									}		
@@ -150,7 +163,7 @@ public class ActionReceiver extends HttpServlet {
 									Action.Builder actionBuilder = Action.newBuilder();
 									actionBuilder.setUserID(0)
 												 .setProcessInstanceID(state1.getProcessInstanceID())
-												 .setSubjectID(Integer.toString(state1.getSubjectID()))
+												 .setSubjectID(state1.getSubjectID())
 												 .setStateID(state1.getId())
 												 .setStateText(state1.getText())
 												 .setStateType(state1.getStateType().name());

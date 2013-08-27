@@ -45,7 +45,7 @@ public class GraphToProcess extends HttpServlet {
 				subject.setDisabled(graph.getSubjects(i).getIsDisabled());
 				subject.setStartSubject(graph.getSubjects(i).getIsStartSubject());
 				subject.getInputPool().setMessageLimit(graph.getSubjects(i).getInputPool());
-				subject.getInternalBehavior().setSubjectID(Integer.parseInt(graph.getSubjects(i).getId()));
+				subject.getInternalBehavior().setSubjectID(graph.getSubjects(i).getId());
 				int graphNodeNum = graph.getSubjects(i).getMacros(0).getNodesCount();
 				for(int j = 0; j < graphNodeNum; j++){
 					State state = new State();

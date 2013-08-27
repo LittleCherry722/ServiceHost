@@ -24,6 +24,7 @@ package de.tkip.sbpm.proto;
 // input for /post
 message CreateProcessInstance {
 	required int32 processId = 1;
+	required Graph graph = 2;
 }
 
 // input for /put/id
@@ -52,9 +53,13 @@ message ListActions {
 // and		/post
 message ProcessInstanceData {
 	required int32 id = 1;
+	required string name = 7;
 	required int32 processId = 2;
+	required string processName = 8;
 	required Graph graph = 3; //TODO
 	required bool isTerminated = 4;
+	required string date = 9;
+	required int32 owner = 10;
 	required string history = 5; //TODO
 	repeated Action actions = 6;
 }
@@ -136,6 +141,7 @@ message GraphSubject {
 	optional int32 relatedGraphId = 8;
 	optional string externalType = 9;
 	optional string role = 10; // TODO
+	optional string url = 14;
 	optional string comment = 11;
 	repeated GraphVariable variables = 12; // <-
 	

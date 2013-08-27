@@ -2,6 +2,8 @@ package de.tkip.sbpm;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import de.tkip.sbpm.State.StateType;
 import de.tkip.sbpm.proto.GAEexecution.CreateProcessInstance;
+import de.tkip.sbpm.proto.GAEexecution.Graph;
+import de.tkip.sbpm.proto.GAEexecution.ProcessInstanceData;
 
 public class CreateProcessInst extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -24,7 +28,6 @@ public class CreateProcessInst extends HttpServlet {
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		resp.setContentType("text/plain");
 		InputStream is = req.getInputStream();
 		try {
 			int size = req.getContentLength();
@@ -32,6 +35,7 @@ public class CreateProcessInst extends HttpServlet {
 			is.read(byteProto);
 			CreateProcessInstance cp = CreateProcessInstance.parseFrom(byteProto);
 			int processID = cp.getProcessId();
+			System.out.println("ProID:" + processID);
 			ProcessInstance pi = new ProcessInstance();
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 			try {
@@ -41,7 +45,6 @@ public class CreateProcessInst extends HttpServlet {
 //					ProcessManager processManager = new ProcessManager();
 //					pm.makePersistent(processManager);
 					System.out.println("waiting for process manager initialization");
-					resp.getWriter().println("try again");
 				}else{
 					pm.currentTransaction().begin();
 					ProcessManager processManager = processManagerList.get(0);
@@ -54,7 +57,7 @@ public class CreateProcessInst extends HttpServlet {
 						if(!pi.getProcessData().getSubjects().isEmpty()){
 							Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
 							while(it.hasNext()){
-								int id = (int) it.next();
+								String id = (String) it.next();
 								Subject sub = pi.getProcessData().getSubjects().get(id);
 								sub.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
 								State state = sub.getInternalBehavior().getStatesMap().get(sub.getInternalBehavior().getStartState());
@@ -62,7 +65,7 @@ public class CreateProcessInst extends HttpServlet {
 								if(state.getStateType().equals(StateType.receive)){
 									String[] s = state.getTransitions().get(0).getText().split("(1)");
 									String text = s[0].trim();
-									int num = sub.checkMessageNumberFromSubjectIDAndType(Integer.parseInt(sub.getSubjectID()), text);
+									int num = sub.checkMessageNumberFromSubjectIDAndType(sub.getSubjectID(), text);
 									if(num == 0){
 										executable = false;
 									}		
@@ -79,10 +82,28 @@ public class CreateProcessInst extends HttpServlet {
 						int t = processManager.getProcessInstanceID() +1;
 						processManager.setProcessInstanceID(t);
 //						pm.makePersistent(processManager);
+						Date dt=new Date();
+						SimpleDateFormat matter=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+						ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
+						pidbuilder.setId(processInstanceID)
+								  .setName("travel")
+								  .setProcessId(processID)
+								  .setProcessName(processManager.getProcess(processID).getProcessName())
+								  .setIsTerminated(false)
+								  .setDate(matter.format(dt))
+								  .setOwner(0)
+								  .setHistory("");
+						Graph.Builder graphbuilder = Graph.newBuilder();
+						graphbuilder.setDate(matter.format(dt));
+						Graph graph = graphbuilder.build();
+						pidbuilder.setGraph(graph);
+						ProcessInstanceData pid = pidbuilder.build();
+						resp.getOutputStream().write(pid.toByteArray());
+			            resp.getOutputStream().flush();
+			            resp.getOutputStream().close();
 						pm.currentTransaction().commit();
 					}else{
 						System.out.println("no process");
-						resp.getWriter().println("no process");
 						pm.currentTransaction().commit();
 					}	
 				}
@@ -94,7 +115,6 @@ public class CreateProcessInst extends HttpServlet {
 				System.out.println("finally");
 			}
 		} catch (Exception e) {
-			resp.getWriter().println("Post Error");
 			e.printStackTrace();
 		}	
 	}

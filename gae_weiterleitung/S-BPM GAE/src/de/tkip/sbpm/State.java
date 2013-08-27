@@ -12,7 +12,7 @@ public class State implements Serializable{
 	public int id;
 	public String text;
 	public int processInstanceID;
-	public int subjectID;
+	public String subjectID;
 	public StateType stateType;
 	public boolean startState;
 	public boolean endState;
@@ -81,11 +81,11 @@ public class State implements Serializable{
 		this.transitions = transitions;
 	}
 
-	public int getSubjectID() {
+	public String getSubjectID() {
 		return subjectID;
 	}
 
-	public void setSubjectID(int subjectID) {
+	public void setSubjectID(String subjectID) {
 		this.subjectID = subjectID;
 	}
 
