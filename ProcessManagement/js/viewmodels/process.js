@@ -562,7 +562,7 @@ define([
 	var initializeListeners = function() {
 
 		// Make internal settings screens toggle-able
-		$( ".processSettingsTrigger" ).live( "click", function() {
+		$( ".processSettingsTrigger" ).on( "click" , function() {
 			if ($(this).parent().next().is( ":visible" )) {
 				$(this).closest( "fieldset" ).addClass( "hidden" );
 				$(this).html( "Show" ).addClass( "show" );
@@ -574,9 +574,9 @@ define([
 
 		// Show or hide the role warning. Show it when no Role has been selected
 		// (empty val), otherwise hide it.
-		$( "#ge_cv_id" ).live( "change", showOrHideRoleWarning);
+		$( "#ge_cv_id" ).on( "change", showOrHideRoleWarning);
 
-		$( '#internalClearBehavior' ).live( "click", function() {
+		$( '#internalClearBehavior' ).on( "click", function() {
 			Dialog.yesNo( 'Warning', 'Do you really want to clear the behavior?', function(){
 				gv_graph.clearGraph();
 				parent.$.fancybox.close();
@@ -593,7 +593,7 @@ define([
 		});
 
 		var updateSubjectIds = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
-		$(updateSubjectIds).live( "click", function() {
+		$(updateSubjectIds).on( "click", function() {
 			Router.setHasUnsavedChanges(true);
 			updateListOfSubjects();
 		});
@@ -603,17 +603,17 @@ define([
 		});
 
 		var changeNodeButtonIds = "#CreateNodeButton, #InsertSendNodeButton, #InsertReceiveButton, #InsertActionNodeButton, #internalClearBehavior, #UpdateEdgeButton, #DeleteEdgeButton";
-		$(changeNodeButtonIds).live( "click", function() {
+		$(changeNodeButtonIds).on( "click", function() {
 			Router.setHasUnsavedChanges(true);
 		});
 
 		// When a selectable tab is clicked, mark the tab as selected, update the
 		// list of subjects and conversations.
 		// See "selectTab" for more Information,
-		$( ".switch .btn[id^='tab']" ).live( "click", selectTab )
+		$( ".switch .btn[id^='tab']" ).on( "click", selectTab )
 
 		// Save Process buttons behavior
-		$( "#saveProcessAsButton" ).live( "click", function() {
+		$( "#saveProcessAsButton" ).on( "click", function() {
 			$('#newProcessName').val( currentProcess().name() ).trigger('change');
 			setTimeout(function() {
 				$('#newProcessName').focus().select();
@@ -623,7 +623,7 @@ define([
 		// tool tips
 		$('.tooltip-enabled *[title]').tooltip();
 
-		$("#tab3").live( "click", function() {
+		$("#tab3").on( "click", function() {
 
 			gv_graph.selectedNode = null;
 		});

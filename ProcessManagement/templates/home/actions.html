@@ -14,9 +14,10 @@
     </p>
 </div>
 
-<div id="clickablelist" data-bind='foreach: actions()'>
+<div id="clickablelist" >
+	 <table class="result table">
+	 	<tbody data-bind='foreach: actions()'>
     <!-- ko if: process() && (executable() || hasActions())-->
-    <table class="result" data-bind="attr: {id: instanceTableId()}">
         <tr style="cursor: pointer;" data-bind="click: function(data, event) { $(event.currentTarget).next().toggle(); }">
             <td class="col1">
                 <!-- ko if: executable() -->
@@ -65,9 +66,9 @@
                         <br />
                         <input type="text" placeholder="No file selected" disabled="disabled" class="disabled" data-bind="value: $parent.currentSelectedFile().title" style="margin-left:0;" />
                         <a href="#googleDriveModal" style="width:130px;" data-bind="click: $root.refreshGoogleDriveData, attr: { href:'#googleDriveModal'+$parent.processInstanceID()+$parent.subjectID()  }" class="btn" id="googleDriveButton" data-toggle="modal">
-				            <i class="icon-cloud icon-large"></i> Choose File
+				            <i class="glyphicon glyphicon-cloud-upload"></i> Choose File
 				        </a>				        
-				        <div data-bind="attr: { id:'googleDriveModal'+$parent.processInstanceID()+$parent.subjectID() }" class="modal hide gdrive-modal" tabindex="-1">
+				        <div data-bind="attr: { id:'googleDriveModal'+$parent.processInstanceID()+$parent.subjectID() }" class="modal gdrive-modal" tabindex="-1">
 							<div class="modal-header">
 								<a type="button" class="close pull-right" data-dismiss="modal">x</a>
 								<h3>Choose File</h3>
@@ -146,8 +147,9 @@
 
             </td>
         </tr>
+    	<!-- /ko -->
+    	</tbody>
     </table>
-    <!-- /ko -->
 </div>
 <div data-bind="visible: actions().length>0">
     <b>Legend:</b> <img src="images/icons/circle-green-24-ns.png" title="Action required"/>Action required <img

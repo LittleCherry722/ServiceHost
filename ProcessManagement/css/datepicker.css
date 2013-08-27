@@ -9,7 +9,7 @@
  */
 /* Datepicker
 ----------------------------------*/
-.ui-datepicker { width: 210px; padding: 5px 0 5px 0; font-weight: bold; border-top: 1px solid #ffffff; background: #bfc6cf; border-top: 2px solid #999999; display:none; text-shadow:0 1px 0 #ebebeb; }
+.ui-datepicker { width: 210px; padding: 5px 0 5px 0; font-weight: bold; display:none; text-shadow:0 1px 0 #ebebeb; }
 #calendar .ui-datepicker { display: block; }
 .ui-datepicker .ui-datepicker-header { position:relative; padding:.2em 0; }
 .ui-datepicker .ui-datepicker-prev, .ui-datepicker .ui-datepicker-next { position:absolute; top: 5px; width: 1.4em; height: .4em; text-align: center; font-size: 1.5em; color: #4b4f5d; cursor: pointer; }

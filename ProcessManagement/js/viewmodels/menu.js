@@ -3,7 +3,6 @@ define([
 	"models/process",
 	"text!../../templates/menu.html",
 	"jquery.ui"
-	// "jquery"
 ], function( ko, Process, menuTemplate ) {
 
 	var viewModel = function() {
@@ -44,7 +43,7 @@ define([
 		});
 
 		// Make vanilla links in accordions possible
-		jQuery("#main_menu a.link").live( 'click', function() {
+		jQuery("#main_menu").on('click', 'a.link', function() {
 			window.location = this.getAttribute('href');
 		});
 
