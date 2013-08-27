@@ -66,8 +66,30 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
   private def routeToGoogle: PartialFunction[RequestContext, Unit] = {
     runRoute({
       get {
-        //TODO...
-        complete("test")
+        //READ
+        path(IntNumber) { processInstanceID =>
+          println("get")
+          val url = new URL(googleUri + "get/" + processInstanceID)
+          val connection: HttpURLConnection =
+            url.openConnection().asInstanceOf[HttpURLConnection]
+
+          connection.setDoInput(true)
+          connection.setDoOutput(true)
+          connection.setRequestMethod("POST")
+
+          val out = new DataOutputStream(connection.getOutputStream())
+          connection.setRequestProperty("Content-Length", "0")
+          out.flush()
+          out.close()
+
+          val in = connection.getInputStream()
+          val protoResult = ByteStreams.toByteArray(in)
+          System.err.println(protoResult)
+
+          complete {
+            ProtobufWrapper.buildProcessInstanceData(protoResult)
+          }
+        }
       } ~
         put {
           //UPDATE
@@ -118,8 +140,8 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                       process <- (persistenceActor ? Processes.Read.ById(json.processId)).mapTo[Option[model.Process]]
                       graph <- (persistenceActor ? Graphs.Read.ById(process.get.activeGraphId.get)).mapTo[Option[model.Graph]]
                       proto = ProtobufWrapper.buildProto(CreateProcessInstance(userId, json.processId, name), graph.get)
-                      
-                      result ={
+
+                      result = {
                         println(graph.get)
                         val url = new URL(googleUri + "post")
                         val connection: HttpURLConnection =
@@ -132,7 +154,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                         connection.setRequestProperty("Content-Length", proto.length.toString)
 
                         System.err.println(proto.length)
-                        
+
                         val out = new DataOutputStream(connection.getOutputStream())
                         out.write(proto)
                         out.flush()
@@ -147,9 +169,9 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                         ProtobufWrapper.buildProcessInstanceData(protoResult)
                       }
                     } yield result
-                    future onComplete {s =>
-                      println(s)
-                    }
+                  future onComplete { s =>
+                    println(s)
+                  }
                   future.map(r => StatusCodes.NoContent)
                 }
               }
