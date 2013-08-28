@@ -10,6 +10,7 @@ package de.tkip.sbpm.proto;
 
 // get all actions available for the user
 // /get/action
+
 // id is a natural number, for the following:
 // read a process instance
 // /get/id
@@ -25,6 +26,7 @@ package de.tkip.sbpm.proto;
 message CreateProcessInstance {
 	required int32 processId = 1;
 	required Graph graph = 2;
+	required string name = 3;
 }
 
 // input for /put/id
@@ -34,9 +36,12 @@ message ExecuteAction {
 
 // result of /get
 message ListProcesses {
+	// result of /get/id
 	message ProcessInfo {
 		required int32 id = 1;
 		required int32 processId = 2;
+		required string name = 3;
+
 	}
 	
 	repeated ProcessInfo processes = 1;

@@ -69,25 +69,27 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
         //READ
         path(IntNumber) { processInstanceID =>
           println("get")
-          val url = new URL(googleUri + "get/" + processInstanceID)
-          val connection: HttpURLConnection =
-            url.openConnection().asInstanceOf[HttpURLConnection]
-
-          connection.setDoInput(true)
-          connection.setDoOutput(true)
-          connection.setRequestMethod("POST")
-
-          val out = new DataOutputStream(connection.getOutputStream())
-          connection.setRequestProperty("Content-Length", "0")
-          out.flush()
-          out.close()
-
-          val in = connection.getInputStream()
-          val protoResult = ByteStreams.toByteArray(in)
-          System.err.println(protoResult)
 
           complete {
-            ProtobufWrapper.buildProcessInstanceData(protoResult)
+            ProtobufWrapper.buildProcessInstanceData(talkWithGAE("get/" + processInstanceID))
+          }
+        } ~
+        // Show Actions
+        path("action") {
+          complete {
+            ProtobufWrapper.buildAvailableAction(talkWithGAE("get/action"))
+          }
+        } ~
+        path("history") {
+          //you cannot run statements inside the path-block like above, instead, put them into a block inside the complete statement
+          complete {
+            Array[NewHistoryEntry]()
+          }
+        } ~
+        //LIST
+        path("") {
+         complete {
+            ProtobufWrapper.buildProcessInstanceInfos(talkWithGAE("get"))
           }
         }
       } ~
@@ -98,29 +100,10 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
               entity(as[ExecuteAction]) { json =>
                 // create the url connection
                 //              val url = new URL(googleUri + "put/id")
-                val url = new URL(googleUri + "post")
-                val connection: HttpURLConnection =
-                  url.openConnection().asInstanceOf[HttpURLConnection]
-
-                connection.setDoInput(true)
-                connection.setDoOutput(true)
-                connection.setRequestMethod("POST")
-
                 val proto = ProtobufWrapper.buildProto(json)
-                connection.setRequestProperty("Content-Length", proto.length.toString)
-
-                val out = new DataOutputStream(connection.getOutputStream())
-                out.write(proto)
-                out.flush()
-                out.close()
-
-                val in = connection.getInputStream()
-                val protoResult = ByteStreams.toByteArray(in)
-                // TODO convert proto -> case class
-                System.err.println(protoResult);
 
                 //execute next step
-                complete(ProtobufWrapper.buildAvailableAction(protoResult))
+                complete(ProtobufWrapper.buildAvailableAction(talkWithGAE("post/" + processInstanceID, Some(proto))))
               }
             }
           }
@@ -143,30 +126,9 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
 
                       result = {
                         println(graph.get)
-                        val url = new URL(googleUri + "post")
-                        val connection: HttpURLConnection =
-                          url.openConnection().asInstanceOf[HttpURLConnection]
-
-                        connection.setDoInput(true)
-                        connection.setDoOutput(true)
-                        connection.setRequestMethod("POST")
-
-                        connection.setRequestProperty("Content-Length", proto.length.toString)
-
-                        System.err.println(proto.length)
-
-                        val out = new DataOutputStream(connection.getOutputStream())
-                        out.write(proto)
-                        out.flush()
-                        out.close()
-
-                        val in = connection.getInputStream()
-                        val protoResult = ByteStreams.toByteArray(in)
-                        // TODO convert proto -> case class
-                        System.err.println(protoResult);
-
+                        
                         //execute next step
-                        ProtobufWrapper.buildProcessInstanceData(protoResult)
+                        ProtobufWrapper.buildProcessInstanceData(talkWithGAE("post", Some(proto)))
                       }
                     } yield result
                   future onComplete { s =>
@@ -255,4 +217,27 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
         }
       }
   })
+
+  private def talkWithGAE(subUrl: String, protobytes: Option[Array[Byte]]): Array[Byte] = {
+    val url = new URL(googleUri + subUrl)
+    val connection: HttpURLConnection =
+      url.openConnection().asInstanceOf[HttpURLConnection]
+
+    connection.setDoInput(true)
+    connection.setDoOutput(true)
+    connection.setRequestMethod("POST")
+    connection.setRequestProperty("Content-Length", if (protobytes.isDefined) protobytes.get.length.toString else "0")
+
+    val out = new DataOutputStream(connection.getOutputStream())
+    if(protobytes.isDefined) out.write(protobytes.get)
+    out.flush()
+    out.close()
+
+    val in = connection.getInputStream()
+    ByteStreams.toByteArray(in)
+  }
+
+  private def talkWithGAE(subUrl: String): Array[Byte] = {
+    talkWithGAE(subUrl, None)
+  }
 }
