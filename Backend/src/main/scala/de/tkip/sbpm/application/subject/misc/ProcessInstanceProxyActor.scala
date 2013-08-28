@@ -41,9 +41,9 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, graph: ProcessGraph) exte
     }
 
     case RandomUsersLoaded(message, userIds) => {
-      log.info("random users: "+userIds)
+      log.info("random users: "+userIds.mkString)
       val selectedUsers = selectRandomUsers(message, userIds)
-      log.info("selected users: "+userIds)
+      log.info("selected users: "+userIds.mkString)
       message.target.insertTargetUsers(selectedUsers)
       context.parent forward message
     }
