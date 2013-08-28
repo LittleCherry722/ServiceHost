@@ -44,12 +44,6 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
 
 // represents the history of the instance
-case class History(
-  var processName: String,
-  instanceId: ProcessInstanceID,
-  var processStarted: Option[Date] = None, // None if not started yet
-  var processEnded: Option[Date] = None, // None if not started or still running
-  entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
 
 /**
  * instantiates SubjectActor's and manages their interactions
@@ -76,17 +70,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
+  private val host = context.system.settings.config.getString("akka.remote.netty.tcp.hostname")
+  private val port = context.system.settings.config.getInt("akka.remote.netty.tcp.port")
+  private val url = "@"+host+":"+port
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceContainerManagerActor(request.userID, request.processID, self))))
+      Props(new ProcessInstanceProxyManagerActor(request.userID, request.processID, url, self))))
 
-  // recorded transitions in the subjects of this instance
-  // every subject actor has to report its transitions by sending
-  // history.Entry messages to this actor
-  private val executionHistory = History(processName, id, Some(new Date()))
-  // provider actor for debug payload used in history's debug data
-  private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
   // this actor handles the blocking for answer to the user
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor])
@@ -123,8 +114,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       // parse the graph into the internal structure
       graph = parseGraph(graphTemp)
 
-      executionHistory.processName = processName
-
       // TODO modify to the right version
       for (startSubject <- startSubjects) {
         // Create the subjectContainer
@@ -158,10 +147,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subjectMap(st.subjectID).handleSubjectTerminated(st)
 
       logger.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
-      if (isTerminated) {
-        // log end time in history
-        executionHistory.processEnded = Some(new Date())
-      }
     }
 
     case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to)) => {
@@ -170,26 +155,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to))).send(sm)
     }
 
-    // add an entry to the history
-    // (should be called by subject actors when a transition occurs)
-    case he: history.Entry => {
-      executionHistory.entries += he
-    }
-
     case he: history.NewHistoryEntry => {
       he.process = history.NewHistoryProcessData(processName, id, name)
       context.parent.forward(he)
-    }
-
-    // return current process instance history
-    case msg: GetHistory => {
-      sender ! {
-        if (msg.isInstanceOf[Debug]) {
-          HistoryAnswer(msg, HistoryTestData.generate(processName, id)(debugMessagePayloadProvider))
-        } else {
-          HistoryAnswer(msg, executionHistory)
-        }
-      }
     }
 
     case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
@@ -217,7 +185,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   private var sendProcessInstanceCreated = true
   private def createProcessInstanceData(actions: Array[AvailableAction]) =
-    ProcessInstanceData(id, name, processID, processName, persistenceGraph, false, startTime, request.userID, executionHistory, actions)
+    ProcessInstanceData(id, name, processID, processName, persistenceGraph, false, startTime, request.userID, actions)
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {

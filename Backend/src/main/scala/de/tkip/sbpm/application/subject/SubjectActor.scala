@@ -137,14 +137,7 @@ class SubjectActor(data: SubjectData) extends Actor {
     }
     case s @ DisableNonObserverStates => {
       macroBehaviorActors.map(_._2 ! s)
-    }
-
-    case history.Transition(from, to, msg) => {
-      // forward history entries from internal behavior up to instance actor
-      context.parent !
-        history.Entry(new Date(), subjectName, from, to, if (msg != null) Some(msg) else None)
-    }
-    case transition: history.NewHistoryTransitionData => {
+    }    case transition: history.NewHistoryTransitionData => {
       // forward history entries from internal behavior up to instance actor
       context.parent !
         history.NewHistoryEntry(new Date(), Some(userID), null, Some(subjectID), Some(transition), None)

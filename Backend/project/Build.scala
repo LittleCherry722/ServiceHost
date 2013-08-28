@@ -37,6 +37,7 @@ object ProjectBuild extends Build {
         "io.spray" % "spray-routing" % "1.2-20130710",
         "io.spray" % "spray-testkit" % "1.2-20130710" % "test",
         "io.spray" %% "spray-json" % "1.2.5",
+        "io.spray" % "spray-client" % "1.2-20130710",
         "net.virtual-void" %%  "json-lenses" % "0.5.3",
         "com.github.t3hnar" % "scala-bcrypt_2.10" % "2.1",
         "com.fasterxml.jackson.core" % "jackson-core" % "2.2.0",
@@ -44,11 +45,11 @@ object ProjectBuild extends Build {
         "com.google.guava" % "guava" % "14.0.1",
         "com.google.code.findbugs" % "jsr305" % "2.0.1",
         "com.google.http-client" % "google-http-client-jackson2" % "1.15.0-rc",
-        "com.google.api-client" % "google-api-client-java6" % "1.15.0-rc",
-        "com.google.apis" % "google-api-services-drive" % "v2-rev77-1.15.0-rc",
-        "com.google.apis" % "google-api-services-oauth2" % "v2-rev38-1.15.0-rc",
-        "com.google.oauth-client" % "google-oauth-client-java6" % "1.15.0-rc"
-        
+        "com.google.api-client" % "google-api-client-java6" % "1.16.0-rc",
+        "com.google.apis"       % "google-api-services-oauth2" % "v2-rev38-1.15.0-rc",
+        "com.google.apis"       % "google-api-services-drive" % "v2-rev77-1.15.0-rc",
+        "com.google.apis"       % "google-api-services-calendar" % "v3-rev55-1.16.0-rc"
+        // "com.google.oauth-client" % "google-oauth-client-java6" % "1.15.0-rc"
       )
     )
   )

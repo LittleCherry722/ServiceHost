@@ -19,31 +19,27 @@ import ExecutionContext.Implicits.global
 import akka.pattern.pipe
 
 case object GetProxyActor
-case class GetProcessInstanceAddr(userId: UserID, processId: ProcessID)
 
-class ProcessInstanceContainerManagerActor(userId: UserID, processId: ProcessID, actor: ProcessInstanceRef) extends Actor {
+case class GetProcessInstanceProxy(userId: UserID, processId: ProcessID, url: String)
+
+class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor {
   implicit val timeout = Timeout(2000)
   //  import context.dispatcher
 
-  protected val logger = Logging(context.system, ProcessInstanceContainerManagerActor.this)
+  protected val logger = Logging(context.system, ProcessInstanceProxyManagerActor.this)
+
+  logger.info("register initial process instance proxy for: "+url)
 
   private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
-  private val processInstanceMap: mutable.Map[(UserID, ProcessID), Future[ProcessInstanceProxy]] =
-    mutable.Map((userId, processId) -> (for {
+  private val processInstanceMap: mutable.Map[(UserID, ProcessID, String), Future[ProcessInstanceProxy]] =
+    mutable.Map((userId, processId, url) -> (for {
       proxy <- (actor ? GetProxyActor).mapTo[ActorRef]
     } yield new ProcessInstanceProxy(actor, proxy)))
 
-  private val targetMap =
-    Map(
-      1 -> "@127.0.0.1:2552",
-      2 -> "@127.0.0.1:2552",
-      3 -> "@127.0.0.1:2552")
-
   def receive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
-    case GetProcessInstanceAddr(userId, processId) => {
-      // TODO get the correct subject provider manager actor!
-      val targetAddress = targetMap.getOrElse(processId, "")
+    case GetProcessInstanceProxy(userId, processId, targetAddress) => {
+
       // TODO we only use tcp protocol?
       val protocol = if (targetAddress == "") "" else ".tcp"
 
@@ -54,7 +50,7 @@ class ProcessInstanceContainerManagerActor(userId: UserID, processId: ProcessID,
       val processInstanceInfo =
         processInstanceMap
           .getOrElseUpdate(
-            (userId, processId),
+            (userId, processId, targetAddress),
             createProcessInstanceEntry(userId, processId, targetManager))
 
       // create the answer

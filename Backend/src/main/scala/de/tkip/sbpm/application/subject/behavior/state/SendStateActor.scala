@@ -26,9 +26,7 @@ import akka.event.Logging
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.history.{
-  Transition => HistoryTransition,
-  Message => HistoryMessage,
-  State => HistoryState
+  Message => HistoryMessage
 }
 import de.tkip.sbpm
 import de.tkip.sbpm.ActorLocator
@@ -92,11 +90,15 @@ protected case class SendStateActor(data: StateData)
   var targetUserIDs: Option[Array[UserID]] = None
 
   override def preStart() {
-    blockingHandlerActor ! BlockUser(userID)
+    if(!sendTarget.toExternal) {
+      blockingHandlerActor ! BlockUser(userID)
 
-    ActorLocator.contextResolverActor ! (RequestUserID(
-      SubjectInformation(processID, processInstanceID, sendTarget.subjectID),
-      TargetUsers(_)))
+      ActorLocator.contextResolverActor ! (RequestUserID(
+        SubjectInformation(processID, processInstanceID, sendTarget.subjectID),
+        TargetUsers(_)))
+    } else {
+      targetUserIDs = Some(Array())
+    }
 
     super.preStart()
   }

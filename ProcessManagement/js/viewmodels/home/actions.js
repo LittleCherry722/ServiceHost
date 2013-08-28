@@ -7,6 +7,7 @@ define([
 ], function( ko, App, _, Actions, ProcessInstances) {
 
 	var ViewModel = function() {
+		var self = this;
 		this.actions = actionsList;
 		this.processes = Process.all;
 		// Filter
@@ -16,6 +17,29 @@ define([
 		this.selectedStart = selectedStart;
 		this.selectedEnd = selectedEnd;
 		this.showGraph = showGraph;
+		
+      	this.googleDriveData = ko.observable();
+	    this.refreshGoogleDriveData = function() {
+			$.ajax({
+				cache: false,
+				dataType: "json",
+				type: "GET",
+				url: "../googledrive/get_files?id=" + App.currentUser().id(),
+				success: function( data, textStatus, jqXHR ) {
+					self.googleDriveData( data.items );
+				},
+				error: function( jqXHR, textStatus, error ) {
+					Notify.error("Error", "There has been an Error retrieving the file list." +
+											"Please make sure you have the appropriate permissions.");
+				}
+			});
+		};  
+		this.selectFile = function() {
+			//console.log("call");
+			$('#googleDriveModal').modal('hide');
+			parent.currentSelectedFile( this );
+		}; 
+				
 	};
 	var actionsList = ko.observableArray();
 	var actions = ko.computed(function() {actionsList(Actions.all().slice(0));});
@@ -58,54 +82,56 @@ define([
 	};
 
 	var showGraph = function(action){
-		var graphId = 'graph_bv_outer',
-			table = $( '#' + action.instanceTableId()),
-			graphContainerOuter = $('.graph', table),
-			node = 0,
-			graphContainer, processInstance, currentState, process;
 
-		$('.show-graph').removeClass('invisible');
-		$('.show-graph', table).addClass('invisible');
+		setTimeout(function(){
+			var table = $( '#' + action.instanceTableId()),
+				node = 0,
+				graphContainer = $('#graph_bv_outer'),
+				graphModal = $('#graphModal'),
+				processInstance, currentState, process;
 
-		// create graph containers
-		$('#' + graphId).remove();
-		graphContainer = $('<div/>').attr('id', graphId).appendTo(graphContainerOuter);
-
-		// fetch process instance
-		_.each( ProcessInstances.all(), function (element) {
-			if( element.id () === action.processInstanceID() ) {
-				processInstance = element;
-			}
-		});
-
-		// load graph
-		gf_loadGraph( JSON.stringify( processInstance.graph().definition ) );
-		gv_graph.selectedSubject = null;
-		gf_clickedCVnode( action.subjectID() );
-		gf_clickedCVbehavior();
-
-		// select active node
-		currentState = processInstance.getCurrentState( action.subjectID() );
-		process = processInstance.getCurrentProcess( action.subjectID() );
-
-		if( process !== null ) {
-			$.each( process.macros[0].nodes, function( i, value ) {
-				if ( value.id === currentState ) {
-					node = i;
+			// fetch process instance
+			_.each( ProcessInstances.all(), function (element) {
+				if( element.id () === action.processInstanceID() ) {
+					processInstance = element;
 				}
-			} );
+			});
 
-			if( gv_objects_nodes[node] ){
-				gf_deselectNodes();
-				gv_objects_nodes[node].select();
+			// load graph
+			gf_loadGraph( JSON.stringify( processInstance.graph().definition ) );
+			gv_graph.selectedSubject = null;
+			gf_clickedCVnode( action.subjectID() );
+			gf_clickedCVbehavior();
+
+			// select active node
+			currentState = processInstance.getCurrentState( action.subjectID() );
+			process = processInstance.getCurrentProcess( action.subjectID() );
+
+			if( process !== null ) {
+				$.each( process.macros[0].nodes, function( i, value ) {
+					if ( value.id === currentState ) {
+						node = i;
+					}
+				} );
+
+				if( gv_objects_nodes[node] ){
+					gf_deselectNodes();
+					gv_objects_nodes[node].select();
+				}
 			}
-		}
+		}, 100);
 	};
 
 	var initialize = function() {
 		var viewModel = new ViewModel();
 
-		App.loadTemplate( "home/actions", viewModel, "executionContent", function() { });
+		App.loadTemplate( "home/actions", viewModel, "executionContent", function() {
+			$('.show-graph').fancybox({
+				scrolling: 'yes',
+				transitionIn: 'none',
+				transitionOut: 'none'
+			});
+		});
 		Actions.fetch();
 	};
 

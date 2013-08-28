@@ -13,30 +13,11 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
-
-import scala.concurrent.duration._
-import scala.concurrent.Await
-import scala.concurrent.Future
-import scala.Array.canBuildFrom
-import akka.actor._
-import akka.pattern.ask
-import akka.util.Timeout
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.history.{
-  Transition => HistoryTransition,
-  Message => HistoryMessage,
-  State => HistoryState
-}
-import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.application.RequestUserID
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
-import akka.event.Logging
-import scala.collection.mutable.ArrayBuffer
-import de.tkip.sbpm.application.subject.misc._
+import akka.actor.FSM
+import akka.actor.actorRef2Scala
+import de.tkip.sbpm.application.subject.misc.ActionData
+import de.tkip.sbpm.application.subject.misc.SubjectTerminated
+import de.tkip.sbpm.application.subject.misc.MacroTerminated
 
 protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {

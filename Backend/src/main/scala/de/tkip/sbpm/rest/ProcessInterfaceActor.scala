@@ -29,9 +29,15 @@ import de.tkip.sbpm.persistence.query._
  * This Actor is only used to process REST calls regarding "process"
  */
 class ProcessInterfaceActor extends Actor with PersistenceInterface {
+
+  // This array is used to filter for the processes, which are shown in the showcase
+  // if this array is empty all processes will be shown
+  val showProcesses = Array[Int]()
+
+  private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
+
   private lazy val persistanceActor = ActorLocator.persistenceActor
   import context.dispatcher
-
 
   /**
    *
@@ -60,7 +66,12 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       // LIST
       path("") {
         // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-        completeWithQuery[Seq[Process]](Processes.Read())
+        complete(
+          for {
+            processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
+            filtered = if (showProcesses.isEmpty) processes
+            else processes filter (showProcesses contains _.id.getOrElse(-1))
+          } yield filtered)
       } ~
         // READ
         pathPrefix(IntNumber) {
@@ -142,11 +153,12 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
     }
 
     val result = graphFuture.map {
-      graphResult => GraphHeader(
-        process.name,
-        graphResult,
-        process.isCase,
-        process.id)
+      graphResult =>
+        GraphHeader(
+          process.name,
+          graphResult,
+          process.isCase,
+          process.id)
     }
 
     onSuccess(roleFuture) {
@@ -206,7 +218,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
     dynamic {
       onSuccess((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]) {
         roles =>
-        // implicite value for marshalling
+          // implicite value for marshalling
           implicit val roleMap = roles.map(r => (r.name, r)).toMap
 
           entity(as[GraphHeader]) {

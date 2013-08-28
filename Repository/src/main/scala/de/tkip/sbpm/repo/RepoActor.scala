@@ -2,8 +2,6 @@ package de.tkip.sbpm.repo
 
 import akka.actor.{ActorLogging, Actor}
 import scala.collection.mutable
-import java.io.File
-import scala.io.Source
 import spray.json._
 import DefaultJsonProtocol._
 
@@ -23,16 +21,8 @@ class RepoActor extends Actor with ActorLogging {
 
   import RepoActor._
 
-  val templates = loadTemplates()
   val entries = mutable.Map[Int, JsObject]()
-
-  private def loadTemplates() = {
-    val filenames = Seq( "lieferant.json", "test.json", "staples.json" )
-    val files = filenames.map( x => Source.fromInputStream(getClass.getResourceAsStream("/interfaces/" + x)) )
-
-    val jsonObjects = files.map(_.mkString.asJson.asJsObject)
-    jsonObjects.map(obj => (obj.fields("name"), obj)).toMap
-  }
+  var currentId = 1
 
   def receive = {
     case GetEntry(id) => {
@@ -48,25 +38,49 @@ class RepoActor extends Actor with ActorLogging {
     }
 
     case CreateEntry(entry) => {
-      val obj = entry.asJson.asJsObject
-      val template = templates.get(obj.fields("name"))
+      val id =  nextId
+      val convertedEntry = convertEntry(entry.asJson.asJsObject, id)
 
-      template match {
-        case Some(t) => {
-          log.info("add from template: {}", t)
-
-          entries(t.fields("id").toString.toInt) = t
-
-          sender ! Some(t.prettyPrint)
-        }
-
-        case None => sender ! None
-      }
+      entries(id) = convertedEntry
+      sender ! Some(convertedEntry.prettyPrint)
     }
 
     case Reset => {
       log.info("resetting...")
       entries.clear()
     }
+  }
+
+  private def convertEntry(entry: JsObject, id: Int) = {
+    val processId = entry.fields("processId")
+    val url = entry.fields("url")
+    val graph = entry.fields("graph").asJsObject
+    val convertedGraph = convertGraph(graph, processId, url)
+
+    var fields = entry.fields
+    fields -= "processId"
+    fields -= "url"
+    fields += ("id" -> id.toJson)
+    fields += ("graph" -> convertedGraph)
+
+    entry.copy(fields)
+  }
+
+  private def convertGraph(graph: JsObject, processId: JsValue, url: JsValue) = {
+    val id = graph.fields("id")
+
+    var fields = graph.fields
+    fields -= "id"
+    fields += ("relatedSubject" -> id)
+    fields += ("relatedProcess" -> processId)
+    fields += ("url" -> url)
+
+    graph.copy(fields)
+  }
+
+  private def nextId = {
+    val id = currentId
+    currentId += 1
+    id
   }
 }

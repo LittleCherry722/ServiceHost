@@ -70,5 +70,15 @@ var LoginViewModel = function() {
 
 	tryUrlLogin();
 };
+ko.bindingHandlers.valueWithInit = {
+    init: function(element, valueAccessor, allBindingsAccessor, context) {
+        var observable = valueAccessor();
+        var value = element.value;
 
-ko.applyBindings(new LoginViewModel());
+        observable(value);   
+        
+        ko.bindingHandlers.value.init(element, valueAccessor, allBindingsAccessor, context);
+    },
+    update: ko.bindingHandlers.value.update
+};
+setTimeout(function() { ko.applyBindings(new LoginViewModel()); }, 15);
