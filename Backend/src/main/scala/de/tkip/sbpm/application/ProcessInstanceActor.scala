@@ -76,10 +76,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
+  private val host = context.system.settings.config.getString("akka.remote.netty.tcp.hostname")
+  private val port = context.system.settings.config.getInt("akka.remote.netty.tcp.port")
+  private val url = "@"+host+":"+port
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceProxyManagerActor())))
+      Props(new ProcessInstanceProxyManagerActor(request.userID, request.processID, url, self))))
 
   // recorded transitions in the subjects of this instance
   // every subject actor has to report its transitions by sending

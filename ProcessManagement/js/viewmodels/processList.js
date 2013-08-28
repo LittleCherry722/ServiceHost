@@ -59,7 +59,7 @@ define([
 		}
 		this.showProcessNameModal = function() {
 			var process = this;
-            if (!process.isStartable()) {
+            if (!process.startAble()) {
                 Notify.warning("Not possible", "This process can only be started by external partners.");
             }
             else {
@@ -144,7 +144,7 @@ define([
 				}
 			});	
 			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
-			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;})
+			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;});
 			var select2 = $(".sel").select2( {
 		        width: "copy",
 		        allowClear: true,
@@ -153,12 +153,18 @@ define([
 	        $(".sel").on("change", function(e) { 
 				viewModel.selectedProcess(e.val);
 			});
+			$(document).on('propertychange change keyup input paste', 'input.data_field', function(){
+    			var io = $(this).val().length ? 1 : 0 ;
+    			$(this).next('.icon_clear').stop().fadeTo(300,io);
+			}).on('click', '.icon_clear', function() {
+    			$(this).delay(300).fadeTo(300,0).prev('input').val('').change();
+			});
 		});
-	}
+	};
 	
 	// Everything in this object will be the public API
 	return {
 		init: initialize
-	}
+	};
 });
 

@@ -68,8 +68,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val frontendIndexFile = configString("frontend.indexFile")
   private val frontendBaseDir = configString("frontend.baseDirectory")
   private val authenticationEnabled = configFlag("rest.authentication")
-
-  private val repoLocation = "http://localhost:8181/repo"
+  private val repoLocation = configString("repo.address")
 
   implicit val rejectionHandler = RejectionHandler {
     // on authorization required rejection -> provide user a set of
@@ -246,11 +245,12 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   })
 
   private def attachExternalAddress(requestContext: RequestContext): String = {
-    var jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
+    val jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
 
-    val hostname = context.system.settings.config.getString("sbpm.externalAddress.hostname")
-    val port = context.system.settings.config.getString("sbpm.externalAddress.port")
-    jsObject.copy(Map("address" -> (hostname + ":" + port).toJson) ++ jsObject.fields).toString
+    val hostname = context.system.settings.config.getString("akka.remote.netty.tcp.hostname")
+    val port = context.system.settings.config.getString("akka.remote.netty.tcp.port")
+    val url = "@" + hostname + ":" + port
+    jsObject.copy(Map("url" -> (url).toJson) ++ jsObject.fields).toString
   }
 
   def serveStaticFiles: Route = {

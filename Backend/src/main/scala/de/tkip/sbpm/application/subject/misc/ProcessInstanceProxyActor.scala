@@ -9,8 +9,9 @@ import de.tkip.sbpm.model.ExternalSubject
 import de.tkip.sbpm.application.{SubjectInformation, RequestUserID}
 import de.tkip.sbpm.ActorLocator
 import scala.concurrent.duration._
+import de.tkip.sbpm.logging.DefaultLogging
 
-class ProcessInstanceProxyActor(id: ProcessInstanceID, graph: ProcessGraph) extends Actor {
+class ProcessInstanceProxyActor(id: ProcessInstanceID, graph: ProcessGraph) extends Actor with DefaultLogging {
 
   import context.dispatcher
 
@@ -40,7 +41,9 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, graph: ProcessGraph) exte
     }
 
     case RandomUsersLoaded(message, userIds) => {
+      log.info("random users: "+userIds.mkString)
       val selectedUsers = selectRandomUsers(message, userIds)
+      log.info("selected users: "+userIds.mkString)
       message.target.insertTargetUsers(selectedUsers)
       context.parent forward message
     }
@@ -51,6 +54,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, graph: ProcessGraph) exte
   }
 
   private def loadRandomUsers(message: SubjectToSubjectMessage) {
+    log.info("load random users...")
     val request =  RequestUserID(SubjectInformation(message.processID, id, message.to), userIds => userIds)
     val result = (contextResolver ? request).mapTo[Array[UserID]]
     result.map(userIds => RandomUsersLoaded(message, userIds)) pipeTo self

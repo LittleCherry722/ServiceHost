@@ -30,6 +30,7 @@ case class Target(
   max: Int,
   createNew: Boolean, // TODO we dont need create new
   variable: Option[String],
+  toExternal: Boolean,
   private val defaultValues: Boolean) {
 
   val toVariable = variable.isDefined && variable.get != ""

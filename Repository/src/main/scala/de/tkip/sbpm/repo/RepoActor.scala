@@ -52,18 +52,28 @@ class RepoActor extends Actor with ActorLogging {
   }
 
   private def convertEntry(entry: JsObject, id: Int) = {
+    val processId = entry.fields("processId")
+    val url = entry.fields("url")
     val graph = entry.fields("graph").asJsObject
-    val convertedGraph = convertGraph(graph)
+    val convertedGraph = convertGraph(graph, processId, url)
 
-    entry.copy(entry.fields + ("id" -> id.toJson) + ("graph" -> convertedGraph))
+    var fields = entry.fields
+    fields -= "processId"
+    fields -= "url"
+    fields += ("id" -> id.toJson)
+    fields += ("graph" -> convertedGraph)
+
+    entry.copy(fields)
   }
 
-  private def convertGraph(graph: JsObject) = {
+  private def convertGraph(graph: JsObject, processId: JsValue, url: JsValue) = {
     val id = graph.fields("id")
 
     var fields = graph.fields
     fields -= "id"
     fields += ("relatedSubject" -> id)
+    fields += ("relatedProcess" -> processId)
+    fields += ("url" -> url)
 
     graph.copy(fields)
   }

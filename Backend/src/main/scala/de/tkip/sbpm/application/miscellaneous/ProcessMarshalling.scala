@@ -143,8 +143,14 @@ object parseGraph {
                 var minValue = t.min
                 var maxValue = t.max
                 val default = minValue < 1 && maxValue < 1
+                val toExternal = subjectMap(t.subjectId).external
 
-                if (minValue < 1) minValue = 1
+                if(toExternal) {
+                  minValue = 0
+                } else if (minValue < 1) {
+                  minValue = 1
+                }
+
                 if (maxValue < 1) {
                   // maxValue should be infinity, if the other one is a multisubject
                   // if the other one is a single subject await only one message
@@ -155,7 +161,7 @@ object parseGraph {
                       1
                 }
 
-                Some(Target(t.subjectId, minValue, maxValue, t.createNew, t.variableId, default))
+                Some(Target(t.subjectId, minValue, maxValue, t.createNew, t.variableId, toExternal, default))
               }
               case None => None
             }

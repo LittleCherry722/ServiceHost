@@ -92,11 +92,15 @@ protected case class SendStateActor(data: StateData)
   var targetUserIDs: Option[Array[UserID]] = None
 
   override def preStart() {
-    blockingHandlerActor ! BlockUser(userID)
+    if(!sendTarget.toExternal) {
+      blockingHandlerActor ! BlockUser(userID)
 
-    ActorLocator.contextResolverActor ! (RequestUserID(
-      SubjectInformation(processID, processInstanceID, sendTarget.subjectID),
-      TargetUsers(_)))
+      ActorLocator.contextResolverActor ! (RequestUserID(
+        SubjectInformation(processID, processInstanceID, sendTarget.subjectID),
+        TargetUsers(_)))
+    } else {
+      targetUserIDs = Some(Array())
+    }
 
     super.preStart()
   }
