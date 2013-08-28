@@ -59,6 +59,9 @@ protected case class StateData(
   internalStatus: InternalStatus,
   visitedModalSplit: Stack[(Int, Int)] = new Stack) // (id, number of branches)
 
+// the correct way to kill a state instead of PoisonPill 
+private[subject] case object KillState
+
 // the message to signal, that a timeout has expired
 private case object TimeoutExpired
 
@@ -188,6 +191,11 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
 
   import de.tkip.sbpm.model.StateType._
   private def errorReceive: Receive = {
+
+    case KillState => {
+      suicide()
+    }
+
     case message: AnswerAbleMessage => {
       message match {
         case action: ExecuteAction => {
@@ -213,10 +221,14 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
     }
   }
 
+  protected def suicide() {
+    self ! PoisonPill
+  }
+
   protected def actionStatusChanged() {
     //TODO
   }
-  
+
   /**
    * Executes a timeout by executing the timeout edge
    *

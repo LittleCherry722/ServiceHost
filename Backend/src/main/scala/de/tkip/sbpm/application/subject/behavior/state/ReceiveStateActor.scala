@@ -115,6 +115,12 @@ protected case class ReceiveStateActor(data: StateData)
       // This state has all inputpool information -> unblock the user
       blockingHandlerActor ! UnBlockUser(userID)
     }
+
+    case KillState => {
+      // inform the inputpool, that this state is not waiting for messages anymore
+      inputPoolActor ! UnSubscribeIncomingMessages(id)
+      suicide()
+    }
   }
 
   override protected def delayUnblockAtStart = true
@@ -140,6 +146,10 @@ protected case class ReceiveStateActor(data: StateData)
     val exitTransition =
       exitTransitionsMap.map(_._2).filter(_.ready).map(_.transition)
         .reduceOption((t1, t2) => if (t1.priority < t2.priority) t1 else t2)
+
+    // if this is an observer state disable the other states,
+    // because this state fires a transition
+    tryDisableNonObserverStates()
 
     if (exitTransition.isDefined) {
       // TODO richtige historymessage

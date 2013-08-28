@@ -212,8 +212,8 @@ class InternalBehaviorActor(
   private def killState(state: StateID) {
     if (currentStatesMap contains state) {
       val currentState = currentStatesMap(state)
-      // kill the from State
-      currentState ! PoisonPill
+      // kill the state
+      currentState ! KillState
       currentStatesMap -= state
     } else {
       log.debug("Kill State for a State, which does not exits")
