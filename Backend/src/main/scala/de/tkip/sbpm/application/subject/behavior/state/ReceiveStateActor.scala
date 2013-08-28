@@ -13,34 +13,29 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
-import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
 import scala.Array.canBuildFrom
+import scala.collection.mutable.ArrayBuffer
 
-import akka.actor._
-import akka.pattern.ask
-import akka.util.Timeout
-import akka.event.Logging
-
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.history.{
-  Transition => HistoryTransition,
-  Message => HistoryMessage,
-  State => HistoryState
-}
-import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.application.RequestUserID
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
-import de.tkip.sbpm.application.subject.behavior._
-import de.tkip.sbpm.application.subject.misc._
+import akka.actor.actorRef2Scala
+import de.tkip.sbpm.application.history.{Message => HistoryMessage}
+import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageContent
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageID
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageType
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
+import de.tkip.sbpm.application.miscellaneous.UnBlockUser
+import de.tkip.sbpm.application.subject.behavior.InputPoolSubscriptionPerformed
+import de.tkip.sbpm.application.subject.behavior.SubscribeIncomingMessages
+import de.tkip.sbpm.application.subject.behavior.Transition
+import de.tkip.sbpm.application.subject.behavior.UnSubscribeIncomingMessages
+import de.tkip.sbpm.application.subject.behavior.Variable
+import de.tkip.sbpm.application.subject.misc.ActionData
+import de.tkip.sbpm.application.subject.misc.ActionExecuted
+import de.tkip.sbpm.application.subject.misc.ExecuteAction
+import de.tkip.sbpm.application.subject.misc.MessageData
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
-
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 
 protected case class ReceiveStateActor(data: StateData)

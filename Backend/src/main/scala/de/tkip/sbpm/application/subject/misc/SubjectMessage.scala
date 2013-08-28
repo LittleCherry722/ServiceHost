@@ -15,7 +15,6 @@ package de.tkip.sbpm.application.subject.misc
 
 import scala.collection.mutable.ArrayBuffer
 
-import de.tkip.sbpm.application.History
 import de.tkip.sbpm.application.subject.behavior.Target
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous.{

@@ -13,35 +13,37 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
-import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration._
-import scala.concurrent.Future
 import scala.Array.canBuildFrom
-import akka.actor._
-import akka.event.Logging
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.FSM
+import akka.actor.Props
 import akka.actor.Status.Failure
-import akka.pattern.ask
-import akka.util.Timeout
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.history.{
-  Transition => HistoryTransition,
-  Message => HistoryMessage,
-  State => HistoryState
-}
-import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.application.RequestUserID
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
+import akka.actor.actorRef2Scala
+import akka.event.Logging
+import de.tkip.sbpm.application.history.{Message => HistoryMessage}
+import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
+import de.tkip.sbpm.application.miscellaneous.BlockUser
+import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.timeoutLabel
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.InternalBehaviorRef
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceRef
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
+import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import de.tkip.sbpm.application.subject.SubjectData
-import de.tkip.sbpm.application.subject.behavior.InternalStatus
-import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior.ChangeState
+import de.tkip.sbpm.application.subject.behavior.InternalStatus
 import de.tkip.sbpm.application.subject.behavior.TimeoutCond
-import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.application.subject.misc.ActionData
+import de.tkip.sbpm.application.subject.misc.ActionExecuted
+import de.tkip.sbpm.application.subject.misc.AvailableAction
+import de.tkip.sbpm.application.subject.misc.ExecuteAction
+import de.tkip.sbpm.application.subject.misc.GetAvailableAction
+import de.tkip.sbpm.model.State
+import de.tkip.sbpm.model.StateType.SendStateType
 import scala.collection.mutable.Stack
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * The data, which is necessary to create any state

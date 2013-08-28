@@ -130,11 +130,6 @@ class SubjectActor(data: SubjectData) extends Actor {
       // TODO:
     }
 
-    case history.Transition(from, to, msg) => {
-      // forward history entries from internal behavior up to instance actor
-      context.parent !
-        history.Entry(new Date(), subjectName, from, to, if (msg != null) Some(msg) else None)
-    }
     case transition: history.NewHistoryTransitionData => {
       // forward history entries from internal behavior up to instance actor
       context.parent !

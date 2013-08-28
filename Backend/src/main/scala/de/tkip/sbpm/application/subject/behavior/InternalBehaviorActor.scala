@@ -22,9 +22,6 @@ import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model._
 import akka.event.Logging
 import akka.actor.Status.Failure
-import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
-import de.tkip.sbpm.application.history.{ State => HistoryState }
-import de.tkip.sbpm.application.history.{ Transition => HistoryTransition }
 import de.tkip.sbpm.application.history.NewHistoryMessage
 import de.tkip.sbpm.application.history.NewHistoryState
 import de.tkip.sbpm.application.history.NewHistoryTransitionData
@@ -32,6 +29,9 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.subject.misc.TryTransportMessages
+import de.tkip.sbpm.application.history.{
+  Message => HistoryMessage
+}
 import scala.concurrent.Promise
 import akka.util.Timeout
 import akka.pattern.ask
@@ -94,11 +94,6 @@ class InternalBehaviorActor(
       val next: State = statesMap(change.nextState)
       // create the History Entry and send it to the subject
       context.parent !
-        HistoryTransition(
-          HistoryState(current.text, current.stateType.toString()),
-          HistoryState(next.text, next.stateType.toString()),
-          change.history)
-      context.parent !
         NewHistoryTransitionData(
           NewHistoryState(current.text, current.stateType.toString()),
           current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
@@ -139,10 +134,6 @@ class InternalBehaviorActor(
 
       // and pipe the actions back to the sender
       actionFutures pipeTo sender
-    }
-
-    case historyTransition: de.tkip.sbpm.application.history.Transition => {
-      context.parent ! historyTransition
     }
 
     // general matching

@@ -23,11 +23,6 @@ import spray.json.JsObject
 import spray.json.JsValue
 import spray.json.RootJsonFormat
 import spray.json._
-import de.tkip.sbpm.application.History
-import de.tkip.sbpm.application.history.Entry
-import de.tkip.sbpm.application.history.State
-import de.tkip.sbpm.application.history.Message
-import de.tkip.sbpm.application.history.MessagePayloadLink
 import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
 import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
@@ -121,19 +116,13 @@ object JsonProtocol extends DefaultJsonProtocol {
   
   implicit val configFormat = jsonFormat4(Configuration)
 
-  // history
-  implicit val stateFormat = jsonFormat2(State)
-  implicit val messagePayloadFormat = jsonFormat2(MessagePayloadLink)
-  implicit val messageFormat = jsonFormat6(Message)
-  implicit val entryFormat = jsonFormat5(Entry)
-  implicit val historyFormat = jsonFormat5(History)
 
   implicit val processInstanceInfoFormat = jsonFormat3(ProcessInstanceInfo)
   implicit val targetUserFormat = jsonFormat3(TargetUser)
   implicit val messageDataFormat = jsonFormat5(MessageData)
   implicit val actionDataFormat = jsonFormat8(ActionData)
   implicit val availableActionFormat = jsonFormat8(AvailableAction)
-  implicit val processInstanceDataFormat = jsonFormat10(ProcessInstanceData)
+  implicit val processInstanceDataFormat = jsonFormat9(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
   implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat4(GraphHeader)

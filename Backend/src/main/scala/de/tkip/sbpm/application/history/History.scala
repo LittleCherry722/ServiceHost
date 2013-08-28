@@ -20,13 +20,13 @@ import scala.collection.mutable.Buffer
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 // represents an entry in the history (a state transition inside a subject)
-case class Entry(timestamp: Date, // time transition occurred
-                 subject: String, // respective subject
-                 fromState: State, // transition initiating state
-                 toState: State, // end state of transition
-                 message: Option[Message] = None) // message that was sent in transition (None if none)
+//case class Entry(timestamp: Date, // time transition occurred
+//                 subject: String, // respective subject
+//                 fromState: State, // transition initiating state
+//                 toState: State, // end state of transition
+//                 message: Option[Message] = None) // message that was sent in transition (None if none)
 // describes properties of a state
-case class State(name: String, stateType: String)
+//case class State(name: String, stateType: String)
 // message exchanged in a state transition
 case class Message(id: Int,
                    messageType: String,
@@ -39,11 +39,11 @@ case class Message(id: Int,
 case class MessagePayloadLink(actor: ActorRef, payloadId: String)
 // this message can be sent to message payload providing actors referenced in
 // message payload link to retrieve actual payload
-case class GetMessagePayload(messageId: Int, payloadId: String)
+//case class GetMessagePayload(messageId: Int, payloadId: String)
 
 // message to report a transition in the internal behavior
 // to the corresponding subject actor
-case class Transition(from: State, to: State, message: Message)
+//case class Transition(from: State, to: State, message: Message)
 
 //New History Structure
 
