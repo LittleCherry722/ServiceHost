@@ -44,15 +44,14 @@ protected case class SubjectToSubjectMessage(
   messageType: MessageType,
   messageContent: MessageContent,
   fileID: Option[String] = None,
-  var fileInfo: Option[GDriveFileInfo] = None
-) extends MessageObject {
+  var fileInfo: Option[GDriveFileInfo] = None) extends MessageObject {
 
   def to = target.subjectID
 
 }
 
-protected case class TryTransportMessages extends MessageObject
-protected case class SubjectToSubjectMessageReceived(message: SubjectToSubjectMessage) extends MessageObject
+//protected case class TryTransportMessages extends MessageObject
+//protected case class SubjectToSubjectMessageReceived(message: SubjectToSubjectMessage) extends MessageObject
 
 // acknowledge, that a message is stored in the input pool
 protected case class Stored(messageID: MessageID) extends MessageObject
@@ -74,12 +73,12 @@ case class GetAvailableAction(processInstanceID: ProcessInstanceID)
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
 case class MessageData(
+  messageID: MessageID,
   userID: UserID,
   messageContent: String,
   title: Option[String] = None,
   url: Option[String] = None,
-  iconLink: Option[String] = None
-)
+  iconLink: Option[String] = None)
 
 case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
 

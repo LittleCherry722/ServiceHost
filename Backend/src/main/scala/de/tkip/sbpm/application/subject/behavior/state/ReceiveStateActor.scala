@@ -16,7 +16,7 @@ package de.tkip.sbpm.application.subject.behavior.state
 import scala.Array.canBuildFrom
 import scala.collection.mutable.ArrayBuffer
 import akka.actor.actorRef2Scala
-import de.tkip.sbpm.application.history.{Message => HistoryMessage}
+import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageContent
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageID
@@ -34,10 +34,11 @@ import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import de.tkip.sbpm.application.subject.misc.MessageData
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 import de.tkip.sbpm.application.subject.misc.DisableNonObserverStates
 import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
+import de.tkip.sbpm.application.subject.behavior.InputPoolMessagesChanged
+import de.tkip.sbpm.application.subject.behavior.DeleteInputPoolMessages
 
 protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
@@ -53,10 +54,8 @@ protected case class ReceiveStateActor(data: StateData)
   inputPoolActor ! {
     // convert the transition array into the request array
     for (transition <- exitTransitions if (transition.target.isDefined)) yield {
-      // maximum number of messages the state is able to process
-      val count = transition.target.get.max
       // the register-message for the inputpool
-      SubscribeIncomingMessages(id, transition.subjectID, transition.messageType, count)
+      SubscribeIncomingMessages(id, transition.subjectID, transition.messageType)
     }
   }
 
@@ -80,6 +79,11 @@ protected case class ReceiveStateActor(data: StateData)
       // create the Historymessage
       val message =
         HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
+
+      // TODO check if possible
+      inputPoolActor !
+        DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+
       // change the state and enter the history entry
       changeState(transition.successorID, data, message)
 
@@ -87,25 +91,48 @@ protected case class ReceiveStateActor(data: StateData)
       blockingHandlerActor ! ActionExecuted(action)
     }
 
-    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
-      logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
-        sm.messageType + "\" from \"" + sm.from +
-        "\" with content \"" + sm.messageContent + "\"")
+    case InputPoolMessagesChanged(fromSubject, messageType, messages) if (exitTransitionsMap.contains((fromSubject, messageType))) => {
 
-      exitTransitionsMap(sm.from, sm.messageType).addMessage(sm)
+      logger.debug("Receive@" + userID + "/" + subjectID + ": " +
+        messages.size + ". Messages \"" +
+        messageType + "\" from \"" + fromSubject +
+        "\" with content \"" + messages.map(_.messageContent).mkString("[", ", ", "]") + "\"")
 
-      val t = exitTransitionsMap(sm.from, sm.messageType).transition
+      exitTransitionsMap(fromSubject, messageType).setMessages(messages)
+
+      val t = exitTransitionsMap(fromSubject, messageType).transition
       val varID = t.storeVar
       if (t.storeToVar && varID.isDefined) {
-        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
-        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
+        // FIXME variablen in dem context
+        //        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
+        //        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
 
-      sender ! SubjectToSubjectMessageReceived(sm)
+      //      sender ! SubjectToSubjectMessageReceived(sm)
 
       // try to disable other states, when this state is an observer
       tryDisableNonObserverStates()
     }
+
+    //    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
+    //      logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
+    //        sm.messageType + "\" from \"" + sm.from +
+    //        "\" with content \"" + sm.messageContent + "\"")
+    //
+    //      exitTransitionsMap(sm.from, sm.messageType).addMessage(sm)
+    //
+    //      val t = exitTransitionsMap(sm.from, sm.messageType).transition
+    //      val varID = t.storeVar
+    //      if (t.storeToVar && varID.isDefined) {
+    //        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
+    //        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
+    //      }
+    //
+    //      //      sender ! SubjectToSubjectMessageReceived(sm)
+    //
+    //      // try to disable other states, when this state is an observer
+    //      tryDisableNonObserverStates()
+    //    }
 
     case InputPoolSubscriptionPerformed => {
       // This state has all inputpool information -> unblock the user
@@ -196,7 +223,18 @@ protected case class ReceiveStateActor(data: StateData)
 
     private var remaining = transition.target.get.min
 
-    def addMessage(message: SubjectToSubjectMessage) {
+    def receiveMessages: Array[MessageID] = {
+      // TODO Transition max valie
+      if (ready) messages.take(Math.min(1, messages.size)).map(_.messageID)
+
+      else Array()
+    }
+
+    def setMessages(messages: Array[SubjectToSubjectMessage]) {
+      for (message <- messages) addMessage(message)
+    }
+
+    private def addMessage(message: SubjectToSubjectMessage) {
       // validate
       if (!(message.messageType == messageType && message.from == from)) {
         logger.error("Transportmessage is invalid to transition: " + message +
@@ -214,7 +252,7 @@ protected case class ReceiveStateActor(data: StateData)
         case Some(GDriveFileInfo(title, url, iconLink)) => (Some(title), Some(url), Some(iconLink))
         case None                                       => (None, None, None)
       }
-      messageData += MessageData(message.userID, message.messageContent, title, url, iconLink)
+      messageData += MessageData(message.messageID, message.userID, message.messageContent, title, url, iconLink)
     }
   }
 }

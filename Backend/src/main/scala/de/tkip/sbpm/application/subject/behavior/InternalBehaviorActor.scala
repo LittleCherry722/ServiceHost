@@ -28,7 +28,6 @@ import de.tkip.sbpm.application.history.NewHistoryTransitionData
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.logging.DefaultLogging
-import de.tkip.sbpm.application.subject.misc.TryTransportMessages
 import de.tkip.sbpm.application.history.{
   Message => HistoryMessage
 }
@@ -186,8 +185,6 @@ class InternalBehaviorActor(
       startState = state.id
     }
     statesMap += state.id -> state
-
-    inputPoolActor ! TryTransportMessages
   }
 
   private val currentStatesMap: mutable.Map[StateID, BehaviorStateRef] = mutable.Map()

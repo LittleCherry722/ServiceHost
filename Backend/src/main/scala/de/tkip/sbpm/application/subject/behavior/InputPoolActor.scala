@@ -19,20 +19,17 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.application.subject.misc._
-import de.tkip.sbpm.application.subject.misc.TryTransportMessages
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import akka.event.Logging
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state
   fromSubject: SubjectID,
-  messageType: MessageType,
-  private var remainingCount: Int = 1) { // the number of messages the state want to receive
+  messageType: MessageType) { // the number of messages the state want to receive
 
   private var stateActor: ActorRef = null
-
-  def count = remainingCount
 
   def setStateActor(sender: ActorRef) {
     if (stateActor == null) stateActor = sender
@@ -41,10 +38,17 @@ protected case class SubscribeIncomingMessages(
   def !(message: Any) {
     if (stateActor != null) {
       stateActor ! message
-      remainingCount -= 1
     }
   }
 }
+
+// returns the messages the input pool holds from the subject with the messagetype
+// returns: Array[SubjectToSubjectMessage]
+private[subject] case class GetInputPoolMessage(fromSubject: SubjectID, messageType: MessageType)
+// deletes the messages from the InputPool
+private[subject] case class DeleteInputPoolMessages(fromSubject: SubjectID, messageType: MessageType, messages: Array[MessageID])
+
+private[subject] case class InputPoolMessagesChanged(subject: SubjectID, messageType: MessageType, messages: Array[SubjectToSubjectMessage])
 
 // message to inform the input pool that the state does not subscribe anything anymore
 protected case class UnSubscribeIncomingMessages(stateID: StateID)
@@ -82,25 +86,27 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     MutableMap[ChannelID, Queue[SubjectToSubjectMessage]]()
   // this map holds the states which are subscribing a channel
   private val waitingStatesMap =
-    MutableMap[ChannelID, WaitingStateList]()
+    //  MutableMap[ChannelID, WaitingStateList]()
+    MutableMap[ChannelID, WaitingStateSet]()
 
   private val closedChannels = new ClosedChannels()
 
   def receive = {
 
-    case TryTransportMessages => {
-      for ((key, queue) <- this.messageQueueMap) {
-        for (message <- queue) {
-          this.tryTransportMessage(message);
-        }
-      }
-    }
+    //    case TryTransportMessages => {
+    //      for ((key, queue) <- this.messageQueueMap) {
+    //        for (message <- queue) {
+    //          tryTransportMessage(message)
+    //        }
+    //      }
+    //    }
 
-    case SubjectToSubjectMessageReceived(sm) => {
-      val queue = this.messageQueueMap.get((sm.from, sm.messageType))
-      val newQueue = queue.filterNot(_ == sm).asInstanceOf[Queue[SubjectToSubjectMessage]]
-      this.messageQueueMap.put((sm.from, sm.messageType), newQueue)
-    }
+    //    case SubjectToSubjectMessageReceived(sm) => {
+    //      val channel = (sm.from, sm.messageType)
+    //      val queue = this.messageQueueMap.get(channel)
+    //      val newQueue = queue.filterNot(_ == sm).asInstanceOf[Queue[SubjectToSubjectMessage]]
+    //      messageQueueMap.put((sm.from, sm.messageType), newQueue)
+    //    }
 
     case registerAll: Array[SubscribeIncomingMessages] => {
       handleSubscribers(registerAll)
@@ -113,6 +119,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     case UnSubscribeIncomingMessages(stateID) => {
       // unregister the waiting states
       // TODO increase performance
+      //      waitingStatesMap.map(_._2.remove(stateID))
       waitingStatesMap.map(_._2.remove(stateID))
     }
 
@@ -130,10 +137,23 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       logger.debug("InputPool received: " + message)
       // Unlock the sender
       sender ! Stored(message.messageID)
-      // try to transport the message
-      tryTransportMessage(message)
+      // store the message
+      enqueueMessage(message)
+      logger.debug("Inputpool has: " +
+        getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
+      // inform the states about this change
+      broadcastChangeFor((message.from, message.messageType))
       // unblock this user
       blockingHandlerActor ! UnBlockUser(userID)
+    }
+
+    case DeleteInputPoolMessages(fromSubject, messageType, messages) => {
+      val result =
+        dequeueMessages((fromSubject, messageType), messages)
+      if (!result) {
+        // TODO error, delete failed
+      }
+      broadcastChangeFor((fromSubject, messageType))
     }
 
     case CloseInputPool(channelId) => {
@@ -190,54 +210,69 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
 
     for (register <- registerAll) {
       // try to transport all messages
-      tryTransportMessagesTo(register)
+      sendChangeTo(register)
+      getWaitingStatesSet(register.fromSubject, register.messageType).add(register)
     }
 
     // inform the sender, that this subscription has been performed
     sender ! InputPoolSubscriptionPerformed
   }
 
+  private def sendChangeTo(state: SubscribeIncomingMessages) {
+    val messages = getMessageArray(state.fromSubject, state.messageType)
+    state ! InputPoolMessagesChanged(state.fromSubject, state.messageType, messages)
+  }
+
+  private def broadcastChangeFor(channelID: ChannelID) {
+    val messages = getMessageArray(channelID._1, channelID._2)
+    getWaitingStatesSet(channelID).sendToAll(InputPoolMessagesChanged(channelID._1, channelID._2, messages))
+  }
+
   /**
    * Tries to transport the messages, which are already in the pool
    * to the state described by the input
    * Will also register the state as waiting in the map, if needed
+   * //
    */
-  private def tryTransportMessagesTo(state: SubscribeIncomingMessages) {
-    val key = (state.fromSubject, state.messageType)
-    // while it is needed and it is possible, send the message to the request state
-    while (state.count > 0 && !messageQueueIsEmpty(key)) {
-      // get the message
-      val message = dequeueMessage(key)
-      // transport the message
-      state ! message
-    }
-
-    // if its still needed, register the state into the waiting list
-    if (state.count > 0) {
-      getWaitingStatesList(key).add(state)
-    }
-  }
-
-  /**
-   * Tries to transport the message to the waiting state.
-   * Stores the message in the pool, if no state is waiting for the message,
-   */
-  private def tryTransportMessage(message: SubjectToSubjectMessage) {
-    val state =
-      getWaitingStatesList((message.from, message.messageType)).get
-    if (state != null) {
-      state ! message
-    } else {
-      enqueueMessage(message)
-    }
-  }
+  //  private def tryTransportMessagesTo(state: SubscribeIncomingMessages) {
+  //    val key = (state.fromSubject, state.messageType)
+  //    // while it is needed and it is possible, send the message to the request state
+  //    while (state.count > 0 && !messageQueueIsEmpty(key)) {
+  //      // get the message
+  //      val message = dequeueMessage(key)
+  //      // transport the message
+  //      state ! message
+  //    }
+  //
+  //    // if its still needed, register the state into the waiting list
+  //    if (state.count > 0) {
+  //      getWaitingStatesList(key).add(state)
+  //    }
+  //  }
+  //
+  //  /**
+  //   * Tries to transport the message to the waiting state.
+  //   * Stores the message in the pool, if no state is waiting for the message,
+  //   */
+  //  private def tryTransportMessage(message: SubjectToSubjectMessage) {
+  //    val state =
+  //      getWaitingStatesList((message.from, message.messageType)).get
+  //    if (state != null) {
+  //      state ! message
+  //    } else {
+  //      enqueueMessage(message)
+  //    }
+  //  }
 
   /**
    * Returns the WaitingStateList for the key
    * Creates and returns the list, if it does not exists
    */
-  private def getWaitingStatesList(key: (SubjectID, MessageType)) =
-    waitingStatesMap.getOrElseUpdate(key, new WaitingStateList())
+  private def getWaitingStatesSet(key: (SubjectID, MessageType)) =
+    waitingStatesMap.getOrElseUpdate(key, new WaitingStateSet())
+
+  private def getMessageArray(subjectID: SubjectID, messageType: MessageType): Array[SubjectToSubjectMessage] =
+    messageQueueMap.getOrElse((subjectID, messageType), Queue[SubjectToSubjectMessage]()).toArray
 
   /**
    * Enqueue a message, add it to the correct queue
@@ -254,6 +289,16 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       messageQueue.enqueue(message)
     } else {
       // TODO log error?
+    }
+  }
+
+  private def dequeueMessages(key: (SubjectID, MessageType), messages: Array[MessageID]): Boolean = {
+    if (messages forall (id => messageQueueMap(key).exists(_.messageID == id))) {
+      // TODO might increase performance
+      messages foreach (id => messageQueueMap(key).dequeueAll(_ == id))
+      true
+    } else {
+      false
     }
   }
 
@@ -278,34 +323,22 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
  * The same state cannot register twice (adding will remove old registration)
  * /Currently only one state will be hold in this list, but will be usefull for modal split
  */
-private class WaitingStateList {
-  private val queue = Queue[SubscribeIncomingMessages]()
+private class WaitingStateSet {
+  private val states = MutableSet[SubscribeIncomingMessages]()
 
   def add(state: SubscribeIncomingMessages) {
     // a state can not register twice
     remove(state.stateID)
     // enqueue the state at the back of the queue
-    queue.enqueue(state)
+    states += state
   }
 
-  def get = {
-    // remove disused
-    removeDisused()
-    // return the first element
-    if (queue.isEmpty) null else queue.head
-  }
-
-  def isEmpty = {
-    removeDisused()
-    queue.isEmpty
+  def sendToAll(message: Any) {
+    states.map(_ ! message)
   }
 
   def remove(id: StateID) {
-    queue.dequeueAll(_.stateID == id)
-  }
-
-  private def removeDisused() {
-    queue.dequeueAll(_.count <= 0)
+    states --= states.filter(_.stateID == id)
   }
 }
 
