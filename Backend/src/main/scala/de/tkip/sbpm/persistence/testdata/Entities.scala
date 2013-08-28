@@ -110,7 +110,8 @@ object Entities {
     (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
     (Process(None, """Macro Example""", false) -> loadJson("macro_example")),
     (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
-    (Process(None, """Simple Observer Example""", false) -> loadJson("simple_observer_example")))
+    (Process(None, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
+    (Process(None, """Shared IP Test""", false) -> loadJson("shared_ip_test")))
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list
