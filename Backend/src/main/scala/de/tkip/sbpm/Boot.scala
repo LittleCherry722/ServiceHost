@@ -35,6 +35,7 @@ import de.tkip.sbpm.rest.auth._
 import de.tkip.sbpm.rest.google.GDriveActor
 import spray.can.Http
 import de.tkip.sbpm.bir._
+import de.tkip.sbpm.application.change._
 
 import de.tkip.sbpm.logging.LogPersistenceActor
 
@@ -83,7 +84,8 @@ object Boot extends App {
     system.actorOf(Props[GDriveActor], googleDriveActorName),
 
     system.actorOf(Props[LogPersistenceActor], logPersistenceActorName),
-    system.actorOf(Props[GoogleBIRActor], googleBIRActorName)
+    system.actorOf(Props[GoogleBIRActor], googleBIRActorName),
+    system.actorOf(Props[ChangeActor], changeActorName)
   )
 
 

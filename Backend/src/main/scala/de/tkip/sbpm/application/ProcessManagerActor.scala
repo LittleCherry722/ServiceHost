@@ -131,7 +131,6 @@ class ProcessManagerActor extends Actor {
     }
     
     case GetHistorySince(t) => {
-      println("time of the first entry is: "+history.entries(0).timeStamp.getTime())
       Future { getHistoryChange(t) } pipeTo sender
     }
 
@@ -176,10 +175,11 @@ class ProcessManagerActor extends Actor {
     for (i <- 0 until changes.length){
       var id = changes(i).userId.get
       var name = changes(i).process.processName
-      temp += """"inserted" : [ { "id" : """ + id + """, "name": """"+name+"""" } ]""" 
+      temp += """{"id":""" + id + ""","name":""""+name+""""}""" 
     }
-    val result = """{ "history": {""" + temp.mkString(",") + """ } }"""
+    var result = ""
+    if (temp.length > 0)
+      result = """"history":{"inserted":""" + temp.mkString("[",",","]") + """}"""
     result
-    
   }
 }

@@ -100,7 +100,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val configurationInterfaceActor = context.actorOf(Props[ConfigurationInterfaceActor], "configuration-interface")
   private val debugInterfaceActor = context.actorOf(Props[DebugInterfaceActor], "debug-interface")
   private val gbirInterfaceActor = context.actorOf(Props[GoogleBIRInterfaceActor], "gbir-interface")
-  private val historyChangeActor = context.actorOf(Props[HistoryChangeActor], "history-change")
+  private val ChangeInterfaceActor = context.actorOf(Props[ChangeInterfaceActor], "change-interface")
   
   def receive = runRoute({
     pathPrefix("BIR") {
@@ -112,7 +112,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
 //      }
     } ~
     pathPrefix("changes") {
-      delegateTo(historyChangeActor)
+      delegateTo(ChangeInterfaceActor)
     } ~
       /**
        * redirect all calls beginning with "processinstance" (val EXECUTION) to ExecutionInterfaceActor
