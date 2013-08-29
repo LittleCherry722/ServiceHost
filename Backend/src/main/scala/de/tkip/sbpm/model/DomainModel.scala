@@ -43,6 +43,14 @@ case class Process(id: Option[Int], name: String, isCase: Boolean = false, start
 case class Message(id: Option[Int], from: Int, to: Int, instanceId: Int, isRead: Boolean, data: String, date: java.sql.Timestamp)
 case class Action(id: Option[Int], data: String) // TODO extend this case class to fit the requirements
 
+// Model for changeAPI
+trait ProcessChangeData
+case class ProcessChange(process: Process, info: String, date: java.util.Date) extends ProcessChangeData
+case class ProcessDelete(id: Int, date: java.util.Date) extends ProcessChangeData
+trait ActionChangeData
+case class ActionChange(action: Action, info: String, date: java.util.Date) extends ActionChangeData
+
+
 case class Configuration(key: String,
   label: Option[String],
   value: Option[String],

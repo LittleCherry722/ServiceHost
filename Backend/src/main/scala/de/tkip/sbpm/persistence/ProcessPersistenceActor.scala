@@ -27,7 +27,11 @@ import de.tkip.sbpm.persistence.query.Graphs
 import akka.actor.PoisonPill
 import de.tkip.sbpm.persistence.query.BaseQuery
 import akka.actor.ActorRef
+
 import scala.concurrent.duration._
+
+import de.tkip.sbpm._
+
 
 private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
   import de.tkip.sbpm.model._
@@ -113,6 +117,8 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
   with DatabaseAccess with schema.ProcessesSchema with schema.ProcessActiveGraphsSchema {
   // import current slick driver dynamically
   import driver.simple._
+  
+  private lazy val changeActor = ActorLocator.changeActor
 
   override def receive = {
     // get all processes
@@ -147,8 +153,11 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       saveProcessWithGraph(p, g)
     }
     // delete process with given id
-    case Delete.ById(id) => answer { session =>
+    case Delete.ById(id) =>  { answer { session =>
       Processes.where(_.id === id).delete(session)
+    }
+    println("!!!!!!!!!!! process deleted: "+id)
+    changeActor ! ProcessDelete(id, new java.util.Date())
     }
   }
 
@@ -173,6 +182,18 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     if (entities._2.isDefined)
       ProcessActiveGraphs.insert(mapping.ProcessActiveGraph(id, entities._2.get))
     id
+  }
+  
+  /**
+   *  Insert new row for graphs to mark delete time
+   */
+  private def insertForDelete(id: Int)(implicit session: Session) = {
+    val date = new java.util.Date()
+    val time = new java.sql.Timestamp(date.getTime())
+    val gid = Graphs.autoInc.insert(mapping.Graph(Some(16), id, time))
+    println("gid is: "+gid+" and id is: "+id)
+    println("time is: "+time.getTime())
+    val res = Graphs.insert(mapping.Graph(Some(gid), id, time))
   }
 
   /**
@@ -225,6 +246,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       resultId = Some(insert(process))
       // inject id into process
       process = process.copy(id = resultId)
+      changeActor ! ProcessChange(process,"insert",new java.util.Date())
     } else {
       // update the process
       val res = Processes.where(_.id === process.id).update(convert(process)._1)
@@ -235,6 +257,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       //        throw new EntityNotFoundException("Process with id %d does not exist.", process.id.get)
       // result on update is always None
       resultId = None
+      changeActor ! ProcessChange(process,"update",new java.util.Date())
     }
     // set process id in graph
     graph = graph.copy(processId = process.id)
