@@ -165,17 +165,27 @@ var gv_predefinedActions	= {
  * @type Object
  */
 var gv_varManOperations	= {
+	
+	// assign to new variable
+	new: {label: "assign new", desc: "", hideSecondVar: true},
+	
+	// extract content of one variable and store it in another variable
+	extract: {label: "extract", desc: "", hideSecondVar: true},
+	
+	// select a subset of a variable
+	select: {label: "select", desc: "", hideSecondVar: true},
+	
 	// the boolean and operation
-	and: {label: "&", desc: "AND"},
+	and: {label: "&", desc: "AND", hideSecondVar: false},
 	
 	// the boolean or operation
-	or: {label: "|", desc: "OR"},
+	or: {label: "|", desc: "OR", hideSecondVar: false},
 	
 	// the boolean xor operation
-	xor: {label: "^", desc: "XOR"},
+	// xor: {label: "^", desc: "XOR", hideSecondVar: false},
 	
 	// the boolean complement (A minus B)
-	complement: {label: "\\", desc: "Complement"}
+	complement: {label: "\\", desc: "Complement", hideSecondVar: false}
 };
 
 /**

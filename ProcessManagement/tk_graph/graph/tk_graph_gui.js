@@ -666,6 +666,24 @@ function gf_guiDisplayNode (node)
 		};
 	}
 	
+	// add onChange listener to varManOperation Drop Down
+	if (gf_elementExists(gv_elements.inputNodeVarManVarStore))
+	{
+		document.getElementById(gv_elements.inputNodeVarManOperation).onchange = function ()
+		{
+			var gt_selected	= document.getElementById(gv_elements.inputNodeVarManOperation).value;
+			
+			if (gf_isset(gv_varManOperations[gt_selected]) && gv_varManOperations[gt_selected].hideSecondVar)
+			{
+				gf_guiElementHide(gv_elements.inputNodeVarManVar2);
+			}
+			else
+			{
+				gf_guiElementShow(gv_elements.inputNodeVarManVar2);
+			}
+		};
+	}
+	
 	// add onChange listener to macro Drop Down
 	if (gf_elementExists(gv_elements.inputNodeMacro))
 	{
@@ -706,6 +724,16 @@ function gf_guiDisplayNode (node)
 		gf_guiElementWrite(gv_elements.inputNodeVarManVar2, "string", node.getVarMan("var2"), "");
 		gf_guiElementWrite(gv_elements.inputNodeVarManVarStore, "string", node.getVarMan("storevar"), "");
 		gf_guiElementWrite(gv_elements.inputNodeVarManOperation, "string", node.getVarMan("operation"), "");
+		
+		// hide second variable field depending on selected operation
+		if (gf_isset(gv_varManOperations[node.getVarMan("operation")]) && gv_varManOperations[node.getVarMan("operation")].hideSecondVar)
+		{
+			gf_guiElementHide(gv_elements.inputNodeVarManVar2);
+		}
+		else
+		{
+			gf_guiElementShow(gv_elements.inputNodeVarManVar2);
+		}
 		
 		// macro
 		gf_guiElementWrite(gv_elements.inputNodeMacro, "string", node.getMacro());
@@ -1610,20 +1638,15 @@ function gf_guiLoadDropDownVarManOperations (elementVarMan)
 			gt_option.id		= elementVarMan + "_00000.1";
 			gt_select.add(gt_option);
 		
-			gt_option			= document.createElement("option");
-			gt_option.text		= "assign new";
-			gt_option.value		= "new";
-			gt_option.id		= elementVarMan + "_new";
-			gt_select.add(gt_option);
-		
 		// add the operations to the select field
 		for (var gt_vmid in gv_varManOperations)
 		{
-			gt_option		= document.createElement("option");
-			gt_option.text	= gv_varManOperations[gt_vmid].label + " (" + gv_varManOperations[gt_vmid].desc + ")";
-			gt_option.value	= gt_vmid;
-			gt_option.id	= elementVarMan + "_" + gt_vmid;
-			gt_select.add(gt_option);
+			var gt_desc			= gv_varManOperations[gt_vmid].desc != "" ? " (" + gv_varManOperations[gt_vmid].desc + ")" : "";
+				gt_option		= document.createElement("option");
+				gt_option.text	= gv_varManOperations[gt_vmid].label + gt_desc;
+				gt_option.value	= gt_vmid;
+				gt_option.id	= elementVarMan + "_" + gt_vmid;
+				gt_select.add(gt_option);
 		}
 	}
 }
@@ -1880,6 +1903,11 @@ function gf_guiReadNode ()
 		gt_varMan.storevar		= gf_guiElementRead(gv_elements.inputNodeVarManVarStore, "string", "");
 		gt_varMan.operation		= gf_guiElementRead(gv_elements.inputNodeVarManOperation, "string", "");
 		gt_varMan.storevarText	= gf_guiElementRead(gv_elements.inputNodeVarManVarStoreN, "string", "");
+	
+	if (gf_isset(gv_varManOperations[gt_varMan.operation]) && gv_varManOperations[gt_varMan.operation].hideSecondVar)
+	{
+		gt_varMan.var2	= "";
+	}
 		
 	var gt_macro		= gf_guiElementRead(gv_elements.inputNodeMacro, "string", "");
 	var gt_macroText	= gf_guiElementRead(gv_elements.inputNodeMacroNew, "string", "");

@@ -349,6 +349,11 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 					if (gt_result != null && gf_isset(gv_varManOperations[gt_result]))
 						gt_result	= gv_varManOperations[gt_result].label;	
 				}
+				else if (type == "hideSecondVar")
+				{
+					if (gt_result != null && gf_isset(gv_varManOperations[gt_result]))
+						gt_result	= gv_varManOperations[gt_result].hideSecondVar;
+				}
 			}
 		}
 		
@@ -695,11 +700,17 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			else
 				text	= text + " = ";
 				
-			text += this.getVarMan("var1", "name");
-			
-			if (this.getVarMan("operation") != "new")
+			if (this.getVarMan("operation", "hideSecondVar"))
 			{
-				text += " " + this.getVarMan("operation", "name") + " " + this.getVarMan("var2", "name");
+				if (this.getVarMan("operation") != "new")
+				{
+					text += this.getVarMan("operation", "name") + " ";
+				}
+				text += this.getVarMan("var1", "name");
+			}
+			else
+			{
+				text += this.getVarMan("var1", "name") + " " + this.getVarMan("operation", "name") + " " + this.getVarMan("var2", "name");
 			}
 			
 			text += " =: " + this.getVarMan("storevar", "name");
