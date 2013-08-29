@@ -713,7 +713,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			var gt_subject			= gf_isset(this.options.subject)		? this.options.subject			: null;
 			var gt_conversation			= gf_isset(this.options.conversation)		? this.options.conversation			: null;
 			var gt_correlationId	= gf_isset(this.options.correlationId)	? this.options.correlationId	: null;
-			var gt_state			= gf_isset(this.options.state)			? this.options.state			: null;
+			var gt_state			= gf_isset(this.options.state)			? "n" + this.options.state		: null;
 			
 			// message type
 			if (gt_messageType != null && gf_isset(gv_graph.messageTypes[gt_messageType]))

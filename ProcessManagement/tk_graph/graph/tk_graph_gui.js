@@ -1314,7 +1314,7 @@ function gf_guiLoadDropDownStates (behavior, elementState)
 			gt_node	= behavior.getMacro().nodes[gt_nodeId];
 			if (gt_node.isStart() && !gt_node.isMajorStartNode())
 			{
-				gt_statesArray[gt_statesArray.length]	= {id: gt_nodeId, text: behavior.getMacro().nodes[gt_nodeId].text};
+				gt_statesArray[gt_statesArray.length]	= {id: gt_node.getId(), text: behavior.getMacro().nodes[gt_nodeId].text};
 			}
 		}
 		
