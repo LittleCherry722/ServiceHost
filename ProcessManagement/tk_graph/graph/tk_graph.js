@@ -346,31 +346,8 @@ function gf_checkCardinality (macro, start, end, desiredType, currentType, actio
 						gt_result.type		= desiredType == gt_typeCondition ? typeC : typeX;
 					}
 					
-					// predefined actions
-					else if (gt_startNodeType.substr(0, 1) == "$" || gt_startNodeType == "macro")
-					{
-						var allowedC	= false;
-						var allowedX	= false;
-						var typeC		= null;
-						var typeX		= null;
-						
-						// for add action
-						allowedC	= gt_countTotal == 0;
-						
-						if (action == "update")
-						{
-							allowedC	= allowedC || gt_bnTotal == 1;
-						}
-						
-						typeC		= allowedC ? gt_typeCondition : null;
-						typeX		= typeC;
-						
-						gt_result.allowed	= desiredType == gt_typeCondition ? allowedC : allowedX;
-						gt_result.type		= desiredType == gt_typeCondition ? typeC : typeX;
-					}
-					
-					// send, receive, action
-					else if (gt_startNodeType == "send" || gt_startNodeType == "receive" || gt_startNodeType == "action")
+					// send, receive, action, create subjects, split guard
+					else if (gt_startNodeType == "send" || gt_startNodeType == "receive" || gt_startNodeType == "action" || gt_startNodeType == "$createsubjects" || gt_startNodeType == "$splitguard")
 					{
 						var allowedC	= false;
 						var allowedE	= false;
@@ -381,7 +358,7 @@ function gf_checkCardinality (macro, start, end, desiredType, currentType, actio
 						var typeT		= null;
 						var typeB		= null;
 						
-						if (gt_startNodeType == "send")
+						if (gt_startNodeType == "send" || gt_startNodeType == "$createsubjects" || gt_startNodeType == "$splitguard")
 						{
 							// for add action
 							allowedC	= gt_countCondition == 0 && gt_bnException == 0;
@@ -449,6 +426,29 @@ function gf_checkCardinality (macro, start, end, desiredType, currentType, actio
 							gt_result.allowed	= allowedB;
 							gt_result.type		= typeB;	
 						}
+					}
+					
+					// predefined actions
+					else if (gt_startNodeType.substr(0, 1) == "$" || gt_startNodeType == "macro")
+					{
+						var allowedC	= false;
+						var allowedX	= false;
+						var typeC		= null;
+						var typeX		= null;
+						
+						// for add action
+						allowedC	= gt_countTotal == 0;
+						
+						if (action == "update")
+						{
+							allowedC	= allowedC || gt_bnTotal == 1;
+						}
+						
+						typeC		= allowedC ? gt_typeCondition : null;
+						typeX		= typeC;
+						
+						gt_result.allowed	= desiredType == gt_typeCondition ? allowedC : allowedX;
+						gt_result.type		= desiredType == gt_typeCondition ? typeC : typeX;
 					}
 				}
 			}

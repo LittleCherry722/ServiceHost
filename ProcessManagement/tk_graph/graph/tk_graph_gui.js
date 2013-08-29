@@ -370,11 +370,13 @@ function gf_guiDisplayEdge (edge, startType)
 	gf_guiElementWrite(gv_elements.inputEdgeComment, "string", edge.getComment());
 	
 	// optional edges
+	/* deactivated as of 2013-08-29
 	if (startType == "modalsplit")
 	{
 		gf_guiElementShow(gv_elements.inputEdgeOptionalO);
 		gf_guiElementWrite(gv_elements.inputEdgeOptional, "bool", edge.isOptional());
 	}
+	*/
 	
 	// show edge types startNode dependent
 	if (startType == "$isipempty")
@@ -1810,7 +1812,7 @@ function gf_guiReadEdge ()
 	var gt_text				= gf_guiElementRead(gv_elements.inputEdgeText, "string", "");
 	var gt_exception		= gf_guiElementRead(gv_elements.inputEdgeExceptionText, "string", "");
 	var gt_timeout			= gf_guiElementRead(gv_elements.inputEdgeTimeout, "string", "");
-	var gt_optional			= gf_guiElementRead(gv_elements.inputEdgeOptional, "bool", false);
+	var gt_optional			= false;	// gf_guiElementRead(gv_elements.inputEdgeOptional, "bool", false); -> deactivated as of 2013-08-29
 	var gt_messageType		= gf_guiElementRead(gv_elements.inputEdgeMessage, "string", "");
 	var gt_priority			= gf_guiElementRead(gv_elements.inputEdgePriority, "string", "1");
 	var gt_manualTimeout	= gf_guiElementRead(gv_elements.inputEdgeTimeoutManual, "bool", false);
@@ -1822,7 +1824,7 @@ function gf_guiReadEdge ()
 	var gt_storeVar			= gf_guiElementRead(gv_elements.inputEdgeStoreVariable, "string", "");
 	var gt_storeVarNew		= gf_guiElementRead(gv_elements.inputEdgeStoreVariableN, "string", "");
 	
-	var gt_correlationId	= gf_guiElementRead(gv_elements.inputEdgeCorrelationId, "string", "");
+	var gt_correlationId	= ""; // gf_guiElementRead(gv_elements.inputEdgeCorrelationId, "string", ""); -> deactivated as of 2013-08-29
 	
 	var gt_isVariable		= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeV, "bool", false);
 	var gt_isAll			= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeA, "bool", false);
