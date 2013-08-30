@@ -178,7 +178,7 @@ class SubjectContainer(
   }
 
   def sendToExternal(message: SubjectToSubjectMessage) {
-    val dummyUser = -17
+    val dummyUser = -17 //TODO change and/or make constant
     sendTo(Array(dummyUser), message)
   }
 

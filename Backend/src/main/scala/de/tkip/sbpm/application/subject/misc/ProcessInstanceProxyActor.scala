@@ -62,10 +62,10 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, graph: ProcessGraph) exte
 
   // for better testing, use always the first users for now
   private def selectRandomUsers(message: SubjectToSubjectMessage, userIds: Array[UserID]) :Array[UserID] = {
-    if(userIds.size < message.target.min) {
-      throw new IllegalStateException("at least "+message.target.min+" users required, but only "+userIds.size+" found")
+    if(userIds.isEmpty) {
+      throw new IllegalStateException("no user found")
     }
 
-    userIds.take(message.target.min)
+    userIds.take(1)
   }
 }
