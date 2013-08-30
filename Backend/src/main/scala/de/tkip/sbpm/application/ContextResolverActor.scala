@@ -83,6 +83,7 @@ class ContextResolverActor extends Actor with DefaultLogging {
         log.info("searching users for " + subjectInformation)
         val future = ActorLocator.persistenceActor ? Users.Read.BySubject(subjectId, processInstanceId, processId)
         val users = Await.result(future, timeout.duration).asInstanceOf[Seq[User]]
+        log.info("found " + users)
         users.map(_.id.get).toArray
       }
     }
