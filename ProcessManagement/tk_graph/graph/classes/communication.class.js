@@ -1468,6 +1468,9 @@ function GCcommunication ()
 								if (gf_isset(gt_node.varMan))
 									gt_createdNode.setVarMan(gt_node.varMan);
 									
+								if (gf_isset(gt_node.createSubjects))
+									gt_createdNode.setCreateSubjects(gt_node.createSubjects);
+									
 								if (gf_isset(gt_node.macro))
 									gt_createdNode.setMacro(gt_node.macro);
 									
@@ -1689,6 +1692,7 @@ function GCcommunication ()
 							conversation:		gt_node.getConversation(),
 							variable:		gt_node.getVariable(),
 							varMan:			gt_node.getVarMan("all"),
+							createSubjects: gt_node.getCreateSubjects("all"),
 							macro:			gt_node.getMacro(),
 							comment:		gt_node.getComment()
 					};

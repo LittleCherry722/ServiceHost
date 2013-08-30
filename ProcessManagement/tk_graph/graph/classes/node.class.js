@@ -48,6 +48,13 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	this.correlationId	= "##cid##";
 	
 	/**
+	 * Settings for the predefined "create subjects" action.
+	 * 
+	 * @type Object
+	 */
+	this.createSubjects	= {subject: null, storevar: "", min: -1, max: -1};
+	
+	/**
 	 * This attribute states whether the node is deactivated.
 	 * 
 	 * @type boolean
@@ -210,6 +217,54 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	};
 	
 	/**
+	 * Returns either one entry of the varMan objct or the whole object.
+	 * 
+	 * @param {String} attribute The attribute to return. When set to "all" the whole object will be returned.
+	 * @param {String} type An optional parameter. When set to "name" the name of the variable stored in subject or storevar will be returned instead of its id.
+	 * @returns {String|Object} Either the whole createSubjects object or a single entry.
+	 */
+	this.getCreateSubjects = function (attribute, type)
+	{
+		var gt_result	= this.createSubjects;
+		
+		if (!gf_isset(type))
+			type = "id";
+		
+		if (gf_isset(attribute))
+		{
+			attribute	= attribute.toLowerCase();
+			
+			if (attribute == "storevar")
+			{
+				gt_result	= gf_isset(this.createSubjects[attribute]) ? this.createSubjects[attribute] : "";
+				
+				if (type == "name")
+				{
+					var gt_variables	= this.parentBehavior.variables;
+					if (gt_result != null && gf_isset(gt_variables[gt_result]))
+						gt_result	= gt_variables[gt_result];	
+				}
+			}
+			else if (attribute == "subject")
+			{
+				gt_result	= gf_isset(this.createSubjects[attribute]) ? this.createSubjects[attribute] : "";
+				
+				if (type == "name")
+				{
+					if (gt_result != null && gf_isset(gv_graph.subjects[gt_result]))
+						gt_result	= gv_graph.subjects[gt_result].getText();	
+				}
+			}
+			else if (attribute == "min" || attribute == "max")
+			{
+				gt_result	= gf_isset(this.createSubjects[attribute]) ? this.createSubjects[attribute] : -1;
+			}
+		}
+		
+		return gt_result;
+	};
+	
+	/**
 	 * Returns the id of this node.
 	 * 
 	 * @returns {String} The id of the node.
@@ -314,7 +369,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	/**
 	 * Returns either one entry of the varMan objct or the whole object.
 	 * 
-	 * @param {String} attribite The attribute to return. When set to "all" the whole object will be returned.
+	 * @param {String} attribute The attribute to return. When set to "all" the whole object will be returned.
 	 * @param {String} type An optional parameter. When set to "name" the name of the variable stored in var1, var2, storevar will be returned instead of its id.
 	 * @returns {String|Object} Either the whole varMan object or a single entry.
 	 */
@@ -485,6 +540,27 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		if (gf_isset(correlationId))
 		{
 			this.correlationId = correlationId;
+		}
+	};
+	
+	/**
+	 * Update the settings of the "create subjects" predefined action.
+	 * 
+	 * @param {Object} An object holding the necessary data for the subjects to be created.
+	 * @returns {void}
+	 */
+	this.setCreateSubjects = function (createSubjects)
+	{
+		if (this.getType() == "$createsubjects" && gf_isset(createSubjects))
+		{
+			if (gf_isset(createSubjects.subject))
+				this.createSubjects.subject		= createSubjects.subject;
+			if (gf_isset(createSubjects.storevar))
+				this.createSubjects.storevar	= createSubjects.storevar;
+			if (gf_isset(createSubjects.min))
+				this.createSubjects.min			= createSubjects.min;
+			if (gf_isset(createSubjects.max))
+				this.createSubjects.max			= createSubjects.max;
 		}
 	};
 	
@@ -714,6 +790,26 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			}
 			
 			text += " =: " + this.getVarMan("storevar", "name");
+		}
+		else if (type == "$createsubjects")
+		{
+			text	= gv_predefinedActions[type.substr(1)].label + "\n";
+				
+			var gt_cs_subject	= this.getCreateSubjects("subject", "name");
+			var gt_cs_min		= this.getCreateSubjects("min");
+			var gt_cs_max		= this.getCreateSubjects("max");
+			var gt_cs_variable	= this.getCreateSubjects("storevar", "name");
+			
+			if (gt_cs_min == "-1" && gt_cs_max == "-1")
+			{
+				text += "all of ";
+			}
+			else
+			{
+				text += gt_cs_min + " to " + gt_cs_max + " of ";
+			}
+			
+			text += gt_cs_subject + " =: " + gt_cs_variable;
 		}
 		else if (type.length > 0 && type.charAt(0) == '$' && gf_isset(gv_predefinedActions[type.substr(1)]))
 		{

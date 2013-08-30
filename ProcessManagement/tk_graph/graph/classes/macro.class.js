@@ -758,6 +758,7 @@ function GCmacro (parent, id, name)
 			var gt_variable			= gf_isset(values.variable)			? values.variable			: "";
 			var gt_options			= gf_isset(values.options)			? values.options			: {};
 			var gt_varMan			= gf_isset(values.varMan)			? values.varMan				: {};
+			var gt_createSubjects	= gf_isset(values.createSubjects)	? values.createSubjects		: {};
 			var gt_macro			= gf_isset(values.macro)			? values.macro				: "";
 			var gt_comment			= gf_isset(values.comment)			? values.comment			: "";
 			
@@ -787,6 +788,11 @@ function GCmacro (parent, id, name)
 			{
 				gt_varMan.storevar	= this.parent.addVariable(gt_varMan.storevarText, gt_varMan.storevar);
 			}
+			
+			if (gf_isset(gt_createSubjects.storevar, gt_createSubjects.storevarText))
+			{
+				gt_createSubjects.storevar	= this.parent.addVariable(gt_createSubjects.storevarText, gt_createSubjects.storevar);
+			}
 		
 			gt_node.setText(gt_text);
 			gt_node.setType(gt_type);
@@ -797,6 +803,7 @@ function GCmacro (parent, id, name)
 			gt_node.setVariable(gt_variable);
 			gt_node.setConversation(gv_graph.addConversation(gt_conversationText, gt_conversation));
 			gt_node.setVarMan(gt_varMan);
+			gt_node.setCreateSubjects(gt_createSubjects);
 			gt_node.setComment(gt_comment);
 			
 			// macro
