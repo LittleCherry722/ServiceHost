@@ -16,7 +16,11 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 import com.google.appengine.api.datastore.KeyFactory;
 
+import de.tkip.sbpm.proto.GAEexecution.Action;
+import de.tkip.sbpm.proto.GAEexecution.ActionData;
+import de.tkip.sbpm.proto.GAEexecution.ListActions;
 import de.tkip.sbpm.proto.GAEexecution.ListProcesses;
+import de.tkip.sbpm.proto.GAEexecution.ProcessInstanceData;
 import de.tkip.sbpm.proto.GAEexecution.ListProcesses.ProcessInfo;
 
 public class ShowProcessInstance extends HttpServlet {
@@ -29,6 +33,7 @@ public class ShowProcessInstance extends HttpServlet {
 			List<ProcessManager> processManagerList = (List<ProcessManager>) query
 					.execute();
 			String url = req.getRequestURI();
+			System.out.println("get:");
 			if (url.equals("/get") || url.equals("/get/")) {
 				if (processManagerList.isEmpty()) {
 					System.out.println("Try again later.");
@@ -46,7 +51,8 @@ public class ShowProcessInstance extends HttpServlet {
 							System.out.println("process id: " + id + "   process name: " + name);
 							ProcessInfo.Builder processInfoBuilder = ProcessInfo.newBuilder();
 							processInfoBuilder.setId(pi.getProcessInstanceID())
-											  .setProcessId(pi.getProcessData().getProcessID());
+											  .setProcessId(pi.getProcessData().getProcessID())
+											  .setName(name);
 							ProcessInfo processInfo = processInfoBuilder.build();
 							listProcessesBuilder.addProcesses(processInfo);
 						}
@@ -58,23 +64,34 @@ public class ShowProcessInstance extends HttpServlet {
 				}
 			} else if (url.equals("/get/action") || url.equals("/get/action/")) {
 				ProcessManager processManager = processManagerList.get(0);
-				Map<State, Boolean> availbleActions = processManager.getAvailbleActions();
-				Iterator it = availbleActions.keySet().iterator();
-				while (it.hasNext()) {
-					State state = (State) it.next();
-					boolean executable = availbleActions.get(state);
-					System.out.println(
-							"Process Instance ID: " + state.processInstanceID
-									+ "   State: " + state.text + "   "
-									+ executable);
-					Iterator it1 = state.getTransitions().iterator();
-					while (it1.hasNext()) {
-						Transition transition = (Transition) it1.next();
-						System.out.println(transition.text);
+				ListActions.Builder listActionsBuilder = ListActions.newBuilder();
+				Iterator it = processManager.getAvailbleActions().keySet().iterator();
+				while(it.hasNext()){
+					State state1 = (State) it.next();
+					Action.Builder actionBuilder = Action.newBuilder();
+					actionBuilder.setUserID(0)
+								 .setProcessInstanceID(state1.getProcessInstanceID())
+								 .setSubjectID(state1.getSubjectID())
+								 .setStateID(state1.getId())
+								 .setStateText(state1.getText())
+								 .setStateType(state1.getStateType().name());
+					for(int i = 0; i < state1.getTransitions().size(); i++){
+						String text  = state1.getTransitions().get(i).getText();
+						String transitionType = state1.getTransitions().get(i).getTransitionType();
+						ActionData.Builder actionDataBuilder = ActionData.newBuilder();
+						actionDataBuilder.setText(text)
+										 .setExecutable(processManager.getAvailbleActions().get(state1))
+										 .setTransitionType(transitionType);
+						ActionData actionData = actionDataBuilder.build();
+						actionBuilder.addActionData(actionData);
 					}
-					System.out.println(
-							"-------------------------------------------");
+					Action newAction = actionBuilder.build();
+					listActionsBuilder.addActions(newAction);
 				}
+				ListActions listActions = listActionsBuilder.build();
+				resp.getOutputStream().write(listActions.toByteArray());
+	            resp.getOutputStream().flush();
+	            resp.getOutputStream().close();
 			} else {
 				String[] urls = url.split("/");
 				int id = Integer.valueOf(urls[urls.length - 1]);
@@ -90,20 +107,20 @@ public class ShowProcessInstance extends HttpServlet {
 								"process id: " + id + "   process name: "
 										+ name);
 						System.out.println();
-						for (int i = 0; i < pi.getProcessData().getSubjects().size(); i++) {
-							System.out.println("Subject " + i + ": " + pi.getProcessData().getSubjects().get(i).getSubjectName());
-							System.out.println("current state: " + pi.getProcessData().getSubjects().get(i).getInternalBehavior().getCurrentState());
-							Iterator it1 = pi.getProcessData().getSubjects().get(i).getInternalBehavior().getStatesMap()
-									.get(pi.getProcessData().getSubjects().get(i).getInternalBehavior().getCurrentState()).getTransitions()
-									.iterator();
-							System.out.println("available actions: ");
-							while (it1.hasNext()) {
-								Transition transition = (Transition) it1.next();
-								System.out.println("        " + transition.text);
-							}
-							System.out.println("----------------------------------------------------------------");
-						}
-
+						ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
+						pidbuilder.setId(id)
+								  .setName(name)
+								  .setProcessId(pi.getProcessData().getProcessID())
+								  .setProcessName(pi.getProcessData().getProcessName())
+								  .setIsTerminated(pi.isTerminated())
+								  .setDate(pi.getProcessData().date)
+								  .setOwner(0)
+								  .setHistory("")
+								  .setGraph(processManager.getGraph(pi.getProcessData().getProcessID()));
+						ProcessInstanceData pid = pidbuilder.build();
+						resp.getOutputStream().write(pid.toByteArray());
+			            resp.getOutputStream().flush();
+			            resp.getOutputStream().close();
 					} else {
 						System.out.println("There is no process instance.");
 					}

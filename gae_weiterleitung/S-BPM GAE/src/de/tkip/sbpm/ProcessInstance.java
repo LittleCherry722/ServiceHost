@@ -1,11 +1,14 @@
 package de.tkip.sbpm;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ProcessInstance implements Serializable {
 	public int processInstanceID;
+	public String date;
+	public boolean terminated = false;
 	public Process processData;
 	
 	public ProcessInstance(){
@@ -26,5 +29,21 @@ public class ProcessInstance implements Serializable {
 
 	public void setProcessInstanceID(int processInstanceID) {
 		this.processInstanceID = processInstanceID;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public boolean isTerminated() {
+		return terminated;
+	}
+
+	public void setTerminated(boolean terminated) {
+		this.terminated = terminated;
 	}
 }

@@ -15,8 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import de.tkip.sbpm.State.StateType;
+import de.tkip.sbpm.proto.GAEexecution.Action;
+import de.tkip.sbpm.proto.GAEexecution.ActionData;
 import de.tkip.sbpm.proto.GAEexecution.CreateProcessInstance;
 import de.tkip.sbpm.proto.GAEexecution.Graph;
+import de.tkip.sbpm.proto.GAEexecution.ListActions;
 import de.tkip.sbpm.proto.GAEexecution.ProcessInstanceData;
 
 public class CreateProcessInst extends HttpServlet {
@@ -29,83 +32,165 @@ public class CreateProcessInst extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		InputStream is = req.getInputStream();
+		String url = req.getRequestURI();
 		try {
 			int size = req.getContentLength();
 			byte[] byteProto = new byte[size];
 			is.read(byteProto);
 			CreateProcessInstance cp = CreateProcessInstance.parseFrom(byteProto);
 			int processID = cp.getProcessId();
-			System.out.println("ProID:" + processID);
 			ProcessInstance pi = new ProcessInstance();
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 			try {
 				Query query = pm.newQuery(ProcessManager.class);
 				List<ProcessManager> processManagerList = (List<ProcessManager>) query.execute();
 				if (processManagerList.isEmpty()) {
-//					ProcessManager processManager = new ProcessManager();
-//					pm.makePersistent(processManager);
+					ProcessManager processManager = new ProcessManager();
+					pm.makePersistent(processManager);
 					System.out.println("waiting for process manager initialization");
 				}else{
-					pm.currentTransaction().begin();
-					ProcessManager processManager = processManagerList.get(0);
-					System.out.println(processManager.processList.size());
-					if(processManager.containsProcess(processID)){
-						Process process = processManager.getProcess(processID);
-						int processInstanceID = processManager.getProcessInstanceID();
-						pi.setProcessInstanceID(processInstanceID) ;
-						pi.setProcessData(process);
-						if(!pi.getProcessData().getSubjects().isEmpty()){
-							Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
-							while(it.hasNext()){
-								String id = (String) it.next();
-								Subject sub = pi.getProcessData().getSubjects().get(id);
-								sub.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
-								State state = sub.getInternalBehavior().getStatesMap().get(sub.getInternalBehavior().getStartState());
-								boolean executable = true;
-								if(state.getStateType().equals(StateType.receive)){
-									String[] s = state.getTransitions().get(0).getText().split("(1)");
-									String text = s[0].trim();
-									int num = sub.checkMessageNumberFromSubjectIDAndType(sub.getSubjectID(), text);
-									if(num == 0){
-										executable = false;
-									}		
+					if (url.equals("/post") || url.equals("/post/")){
+						pm.currentTransaction().begin();
+						ProcessManager processManager = processManagerList.get(0);
+//						System.out.println(processManager.processList.size());
+						if(!processManager.containsProcess(processID)){
+							Graph graph = cp.getGraph();
+							processManager.addGraph(processID, graph);
+							int subjectNum = graph.getSubjectsCount();
+							Process process = new Process();
+							process.setProcessID(processID);
+							process.setDate(graph.getDate());
+							process.setProcessName(cp.getName());
+							for(int i = 0; i < subjectNum; i++){
+								Subject subject = new Subject();
+								subject.setProcessID(processID);
+								subject.setSubjectID(graph.getSubjects(i).getId());
+								subject.setSubjectName(graph.getSubjects(i).getName());
+								subject.setSubjectType(graph.getSubjects(i).getSubjectType());
+								subject.setDisabled(graph.getSubjects(i).getIsDisabled());
+								subject.setStartSubject(graph.getSubjects(i).getIsStartSubject());
+								subject.getInputPool().setMessageLimit(graph.getSubjects(i).getInputPool());
+								subject.getInternalBehavior().setSubjectID(graph.getSubjects(i).getId());
+								int graphNodeNum = graph.getSubjects(i).getMacros(0).getNodesCount();
+								for(int j = 0; j < graphNodeNum; j++){
+									State state = new State();
+									state.setId(graph.getSubjects(i).getMacros(0).getNodes(j).getId());
+									state.setText(graph.getSubjects(i).getMacros(0).getNodes(j).getText());
+									state.setStartState(graph.getSubjects(i).getMacros(0).getNodes(j).getIsStart());
+									state.setEndState(graph.getSubjects(i).getMacros(0).getNodes(j).getIsEnd());
+									state.setStateType(StateType.valueOf(graph.getSubjects(i).getMacros(0).getNodes(j).getNodeType()));
+									state.setDisabled(graph.getSubjects(i).getMacros(0).getNodes(j).getIsDisabled());
+									state.setMajorStart(graph.getSubjects(i).getMacros(0).getNodes(j).getIsMajorStartNode());
+									subject.getInternalBehavior().addState(state);
 								}
-								sub.getInternalBehavior().setExecutable(executable);
-								processManager.addAvailableActions(state, executable);
-								System.out.println(executable);
+								int graphEdgeNum = graph.getSubjects(i).getMacros(0).getEdgesCount();
+								for(int j = 0; j < graphEdgeNum; j++){
+									int stateID = graph.getSubjects(i).getMacros(0).getEdges(j).getStartNodeId();
+									State state = subject.getInternalBehavior().getStatesMap().get(stateID);
+									Transition transition = new Transition();
+									transition.setText(graph.getSubjects(i).getMacros(0).getEdges(j).getText());
+									transition.setTransitionType(graph.getSubjects(i).getMacros(0).getEdges(j).getEdgeType());
+									transition.setSuccessorID(graph.getSubjects(i).getMacros(0).getEdges(j).getEndNodeId());
+									transition.setDisabled(graph.getSubjects(i).getMacros(0).getEdges(j).getIsDisabled());
+									transition.setOptional(graph.getSubjects(i).getMacros(0).getEdges(j).getIsOptional());
+									transition.setManualTimeout(graph.getSubjects(i).getMacros(0).getEdges(j).getManualTimeout());
+									transition.setPriority(graph.getSubjects(i).getMacros(0).getEdges(j).getPriority());
+									state.transitions.add(transition);
+								}
+								process.addSubject(subject);
 							}
+								processManager.addProcess(process);
 						}
-						processManager.addProcessInstance(pi);
-						System.out.println(pi.processInstanceID);
-						System.out.println(pi.processData.processName);
-//						JDOHelper.makeDirty(processManager, "processInstanceList");
-						int t = processManager.getProcessInstanceID() +1;
-						processManager.setProcessInstanceID(t);
-//						pm.makePersistent(processManager);
-						Date dt=new Date();
-						SimpleDateFormat matter=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-						ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
-						pidbuilder.setId(processInstanceID)
-								  .setName("travel")
-								  .setProcessId(processID)
-								  .setProcessName(processManager.getProcess(processID).getProcessName())
-								  .setIsTerminated(false)
-								  .setDate(matter.format(dt))
-								  .setOwner(0)
-								  .setHistory("");
-						Graph.Builder graphbuilder = Graph.newBuilder();
-						graphbuilder.setDate(matter.format(dt));
-						Graph graph = graphbuilder.build();
-						pidbuilder.setGraph(graph);
-						ProcessInstanceData pid = pidbuilder.build();
-						resp.getOutputStream().write(pid.toByteArray());
+						if(processManager.containsProcess(processID)){
+							Process process = processManager.getProcess(processID);
+							int processInstanceID = processManager.getProcessInstanceID();
+							Date dt=new Date();
+							SimpleDateFormat matter=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+							String date = matter.format(dt);
+							pi.setProcessInstanceID(processInstanceID) ;
+							pi.setDate(date);
+							pi.setProcessData(process);
+							if(!pi.getProcessData().getSubjects().isEmpty()){
+								Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
+								while(it.hasNext()){
+									String id = (String) it.next();
+									Subject sub = pi.getProcessData().getSubjects().get(id);
+									sub.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
+									State state = sub.getInternalBehavior().getStatesMap().get(sub.getInternalBehavior().getStartState());
+									boolean executable = true;
+									if(state.getStateType().equals(StateType.receive)){
+										String[] s = state.getTransitions().get(0).getText().split("(1)");
+										String text = s[0].trim();
+										int num = sub.checkMessageNumberFromSubjectIDAndType(sub.getSubjectID(), text);
+										if(num == 0){
+											executable = false;
+										}		
+									}
+									sub.getInternalBehavior().setExecutable(executable);
+									processManager.addAvailableActions(state, executable);
+								}
+							}
+							processManager.addProcessInstance(pi);
+							System.out.println(pi.processInstanceID);
+							System.out.println(pi.processData.processName);
+							int t = processManager.getProcessInstanceID() +1;
+							processManager.setProcessInstanceID(t);		
+							ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
+							pidbuilder.setId(processInstanceID)
+									  .setName("travel")
+									  .setProcessId(processID)
+									  .setProcessName(processManager.getProcess(processID).getProcessName())
+									  .setIsTerminated(false)
+									  .setDate(date)
+									  .setOwner(0)
+									  .setHistory("");
+							pidbuilder.setGraph(cp.getGraph());
+							ProcessInstanceData pid = pidbuilder.build();
+							resp.getOutputStream().write(pid.toByteArray());
+				            resp.getOutputStream().flush();
+				            resp.getOutputStream().close();
+							pm.currentTransaction().commit();
+						}else{
+							System.out.println("no process");
+							pm.currentTransaction().commit();
+						}	
+					}else {
+						String[] urls = url.split("/");
+						int piid = Integer.valueOf(urls[urls.length - 1]);
+						pm.currentTransaction().begin();
+						ProcessManager processManager = processManagerList.get(0);
+						ListActions.Builder listActionsBuilder = ListActions.newBuilder();
+						Iterator it = processManager.getAvailbleActions().keySet().iterator();
+						while(it.hasNext()){
+							State state1 = (State) it.next();						
+							if(state1.getProcessInstanceID() == piid){
+								Action.Builder actionBuilder = Action.newBuilder();
+								actionBuilder.setUserID(0)
+								 .setProcessInstanceID(state1.getProcessInstanceID())
+								 .setSubjectID(state1.getSubjectID())
+								 .setStateID(state1.getId())
+								 .setStateText(state1.getText())
+								 .setStateType(state1.getStateType().name());
+								for(int i = 0; i < state1.getTransitions().size(); i++){
+									String text  = state1.getTransitions().get(i).getText();
+									String transitionType = state1.getTransitions().get(i).getTransitionType();
+									ActionData.Builder actionDataBuilder = ActionData.newBuilder();
+									actionDataBuilder.setText(text)
+													 .setExecutable(processManager.getAvailbleActions().get(state1))
+													 .setTransitionType(transitionType);
+									ActionData actionData = actionDataBuilder.build();
+									actionBuilder.addActionData(actionData);
+								}
+								Action newAction = actionBuilder.build();
+								listActionsBuilder.addActions(newAction);
+							}			
+						}
+						ListActions listActions = listActionsBuilder.build();
+						resp.getOutputStream().write(listActions.toByteArray());
 			            resp.getOutputStream().flush();
 			            resp.getOutputStream().close();
-						pm.currentTransaction().commit();
-					}else{
-						System.out.println("no process");
-						pm.currentTransaction().commit();
-					}	
+			            pm.currentTransaction().commit();
+					}
 				}
 			} catch(Exception e){
 				e.printStackTrace();

@@ -15,6 +15,7 @@ import javax.jdo.annotations.PrimaryKey;
 import com.google.appengine.api.datastore.Key;
 
 import de.tkip.sbpm.State.StateType;
+import de.tkip.sbpm.proto.GAEexecution.Graph;
 
 @PersistenceCapable
 public class ProcessManager {
@@ -30,6 +31,8 @@ public class ProcessManager {
 	public List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
 	@Persistent(serialized = "true")
 	public Map<State,Boolean> availableActions = new HashMap<State,Boolean>();
+	@Persistent(serialized = "true")
+	public Map<Integer,Graph> graphMap = new HashMap<Integer,Graph>();
 	
 	public ProcessManager(){
 //		processInstanceID = 10000;
@@ -43,7 +46,6 @@ public class ProcessManager {
 			Iterator it = processList.iterator();
 			while(it.hasNext()){
 				Process process = (Process) it.next();
-				System.out.println("promana:" + process.processID);
 				if(id == process.processID){
 					return true;
 				}
@@ -58,7 +60,6 @@ public class ProcessManager {
 			while(it.hasNext()){
 				Process process = (Process) it.next();
 				if(id == process.processID){
-					System.out.println("process" + process.processID);
 					return process;
 				}
 			}
@@ -138,6 +139,14 @@ public class ProcessManager {
 	
 	public void removeAvailableActions(State state){
 		this.availableActions.remove(state);
+	}
+	
+	public void addGraph(int id, Graph graph){
+		this.graphMap.put(id, graph);
+	}
+	
+	public Graph getGraph(int id){
+		return this.graphMap.get(id);
 	}
 
 	public Key getKey() {
