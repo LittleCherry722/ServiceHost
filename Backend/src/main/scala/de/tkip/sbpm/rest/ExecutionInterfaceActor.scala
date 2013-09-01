@@ -68,24 +68,14 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
       get {
         //READ
         path(IntNumber) { processInstanceID =>
-          println("get")
-
           complete {
-            System.err.println("/get/" + processInstanceID)
-
-            val result = ProtobufWrapper.buildProcessInstanceData(talkWithGAE("get/" + processInstanceID, "GET"))
-            System.err.println(result)
-            result
+            ProtobufWrapper.buildProcessInstanceData(talkWithGAE("get/" + processInstanceID, "GET"))
           }
         } ~
           // Show Actions
           path("action") {
             complete {
-              System.err.println("/get/action")
-
-              val result = ProtobufWrapper.buildAvailableAction(talkWithGAE("get/action", "GET"))
-              System.err.println(result)
-              result
+              ProtobufWrapper.buildActions(talkWithGAE("get/action", "GET"))
             }
           } ~
           path("history") {
@@ -96,12 +86,8 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           } ~
           //LIST
           path("") {
-            System.err.println("/get")
-
             complete {
-              val result = ProtobufWrapper.buildProcessInstanceInfos(talkWithGAE("get", "GET"))
-              System.err.println(result)
-              result
+              ProtobufWrapper.buildProcessInstanceInfos(talkWithGAE("get", "GET"))
             }
           }
       } ~
@@ -117,9 +103,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
 
                 //execute next step
                 complete {
-                  val result = ProtobufWrapper.buildAvailableAction(talkWithGAE("post/" + processInstanceID, "POST" ,Some(proto)))
-                  System.err.println(result)
-                  result
+                  ProtobufWrapper.buildAvailableAction(talkWithGAE("post/" + processInstanceID, "POST" ,Some(proto)))
                 }
               }
             }
@@ -261,6 +245,8 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
     val url = new URL(googleUri + subUrl)
     val connection: HttpURLConnection = 
       url.openConnection().asInstanceOf[HttpURLConnection]
+    
+    connection.setDoInput(true)
 
     ByteStreams.toByteArray(connection.getInputStream())
   }

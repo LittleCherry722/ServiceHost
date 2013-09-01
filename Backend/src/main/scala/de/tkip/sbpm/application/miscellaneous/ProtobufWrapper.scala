@@ -48,9 +48,11 @@ object ProtobufWrapper {
   }
   
   def buildProcessInstanceInfos(bytes: Array[Byte]): Array[ProcessInstanceInfo] = {
-    val protoInfos = GAEexecution.ListProcesses.parseFrom(bytes).getProcessesList().toArray().asInstanceOf[List[proto.ListProcesses.ProcessInfo]]
+    val protoInfos = GAEexecution.ListProcesses.parseFrom(bytes)
+    
+    val infos = protoInfos.getProcessesList().toArray().asInstanceOf[List[proto.ListProcesses.ProcessInfo]]
   
-    val processes = for(info <- protoInfos) 
+    val processes = for(info <- infos) 
       yield ProcessInstanceInfo(info.getId(), info.getName(), info.getProcessId())
     
     processes.toArray
@@ -121,7 +123,7 @@ object ProtobufWrapper {
       buildActionData(action.getActionDataList().toArray().toList.asInstanceOf[List[proto.ActionData]]))
   }
 
-  def buildActions(protoActions: List[proto.Action]): Array[AvailableAction] = {
+  private def buildActionsFromList(protoActions: List[proto.Action]): Array[AvailableAction] = {
     (for (action <- protoActions)
       yield AvailableAction(
       action.getUserID(),
@@ -132,6 +134,12 @@ object ProtobufWrapper {
       action.getStateText(),
       action.getStateType(),
       buildActionData(action.getActionDataList().toArray().toList.asInstanceOf[List[proto.ActionData]]))).toArray
+  }
+  
+  def buildActions(bytes: Array[Byte]) : Array[AvailableAction] = {
+    val actions = GAEexecution.ListActions.parseFrom(bytes)
+    
+    buildActionsFromList(actions.getActionsList().toArray().toList.asInstanceOf[List[proto.Action]])
   }
 
   def buildActionData(actionData: List[proto.ActionData]): Array[ActionData] = {
@@ -157,7 +165,7 @@ object ProtobufWrapper {
       (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).parse(protoInstanceData.getDate()),
       protoInstanceData.getOwner(),
       History(protoInstanceData.getName(), protoInstanceData.getProcessId()), // TODO HISTORY
-      buildActions(protoInstanceData.getActionsList().toArray().toList.asInstanceOf[List[proto.Action]]))
+      buildActionsFromList(protoInstanceData.getActionsList().toArray().toList.asInstanceOf[List[proto.Action]]))
   }
 
   def buildProto(createProcess: CreateProcessInstance, graph: Graph): Array[Byte] = {
