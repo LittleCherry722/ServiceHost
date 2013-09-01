@@ -71,39 +71,56 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           println("get")
 
           complete {
-            ProtobufWrapper.buildProcessInstanceData(talkWithGAE("get/" + processInstanceID))
+            System.err.println("/get/" + processInstanceID)
+
+            val result = ProtobufWrapper.buildProcessInstanceData(talkWithGAE("get/" + processInstanceID, "GET"))
+            System.err.println(result)
+            result
           }
         } ~
-        // Show Actions
-        path("action") {
-          complete {
-            ProtobufWrapper.buildAvailableAction(talkWithGAE("get/action"))
+          // Show Actions
+          path("action") {
+            complete {
+              System.err.println("/get/action")
+
+              val result = ProtobufWrapper.buildAvailableAction(talkWithGAE("get/action", "GET"))
+              System.err.println(result)
+              result
+            }
+          } ~
+          path("history") {
+            //you cannot run statements inside the path-block like above, instead, put them into a block inside the complete statement
+            complete {
+              Array[NewHistoryEntry]()
+            }
+          } ~
+          //LIST
+          path("") {
+            System.err.println("/get")
+
+            complete {
+              val result = ProtobufWrapper.buildProcessInstanceInfos(talkWithGAE("get", "GET"))
+              System.err.println(result)
+              result
+            }
           }
-        } ~
-        path("history") {
-          //you cannot run statements inside the path-block like above, instead, put them into a block inside the complete statement
-          complete {
-            Array[NewHistoryEntry]()
-          }
-        } ~
-        //LIST
-        path("") {
-         complete {
-            ProtobufWrapper.buildProcessInstanceInfos(talkWithGAE("get"))
-          }
-        }
       } ~
         put {
           //UPDATE
           pathPrefix(IntNumber) { processInstanceID =>
             path("") {
               entity(as[ExecuteAction]) { json =>
+                System.err.println("/post/" + processInstanceID)
                 // create the url connection
                 //              val url = new URL(googleUri + "put/id")
                 val proto = ProtobufWrapper.buildProto(json)
 
                 //execute next step
-                complete(ProtobufWrapper.buildAvailableAction(talkWithGAE("post/" + processInstanceID, Some(proto))))
+                complete {
+                  val result = ProtobufWrapper.buildAvailableAction(talkWithGAE("post/" + processInstanceID, "POST" ,Some(proto)))
+                  System.err.println(result)
+                  result
+                }
               }
             }
           }
@@ -114,6 +131,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
             path("") {
               entity(as[ProcessIdHeader]) { json =>
                 complete {
+                  System.err.println("/post")
                   import de.tkip.sbpm.persistence.query.{ Processes, Graphs }
                   import de.tkip.sbpm.model
                   val persistenceActor = ActorLocator.persistenceActor
@@ -125,16 +143,18 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                       proto = ProtobufWrapper.buildProto(CreateProcessInstance(userId, json.processId, name), graph.get)
 
                       result = {
-                        println(graph.get)
-                        
+                        System.err.println(graph.get)
+
                         //execute next step
-                        ProtobufWrapper.buildProcessInstanceData(talkWithGAE("post", Some(proto)))
+                        ProtobufWrapper.buildProcessInstanceData(talkWithGAE("post","POST", Some(proto)))
                       }
                     } yield result
-                  future onComplete { s =>
-                    println(s)
-                  }
-                  future.map(r => StatusCodes.NoContent)
+
+                    future onComplete {
+                      s => println(s)
+                    }
+                    
+                  future.map(result => result)
                 }
               }
             }
@@ -218,7 +238,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
       }
   })
 
-  private def talkWithGAE(subUrl: String, protobytes: Option[Array[Byte]]): Array[Byte] = {
+  private def doPost(subUrl: String, protobytes: Option[Array[Byte]]): Array[Byte] = {
     val url = new URL(googleUri + subUrl)
     val connection: HttpURLConnection =
       url.openConnection().asInstanceOf[HttpURLConnection]
@@ -229,15 +249,30 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
     connection.setRequestProperty("Content-Length", if (protobytes.isDefined) protobytes.get.length.toString else "0")
 
     val out = new DataOutputStream(connection.getOutputStream())
-    if(protobytes.isDefined) out.write(protobytes.get)
+    if (protobytes.isDefined) out.write(protobytes.get)
     out.flush()
     out.close()
 
     val in = connection.getInputStream()
     ByteStreams.toByteArray(in)
   }
+  
+  private def doGet(subUrl: String): Array[Byte] = {
+    val url = new URL(googleUri + subUrl)
+    val connection: HttpURLConnection = 
+      url.openConnection().asInstanceOf[HttpURLConnection]
 
-  private def talkWithGAE(subUrl: String): Array[Byte] = {
-    talkWithGAE(subUrl, None)
+    ByteStreams.toByteArray(connection.getInputStream())
+  }
+  
+  private def talkWithGAE(subUrl: String, httpMode: String, protobytes: Option[Array[Byte]]): Array[Byte] = {
+    httpMode match {
+      case "POST" => doPost(subUrl, protobytes)
+      case "GET" => doGet(subUrl)
+    }
+  }
+
+  private def talkWithGAE(subUrl: String, httpMode: String): Array[Byte] = {
+    talkWithGAE(subUrl, httpMode, None)
   }
 }
