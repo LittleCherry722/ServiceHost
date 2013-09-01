@@ -75,6 +75,7 @@ public class CreateProcessInst extends HttpServlet {
 								for(int j = 0; j < graphNodeNum; j++){
 									State state = new State();
 									state.setId(graph.getSubjects(i).getMacros(0).getNodes(j).getId());
+									state.setSubjectID(graph.getSubjects(i).getId());
 									state.setText(graph.getSubjects(i).getMacros(0).getNodes(j).getText());
 									state.setStartState(graph.getSubjects(i).getMacros(0).getNodes(j).getIsStart());
 									state.setEndState(graph.getSubjects(i).getMacros(0).getNodes(j).getIsEnd());

@@ -36,6 +36,11 @@ public class ShowProcessInstance extends HttpServlet {
 			System.out.println("get:");
 			if (url.equals("/get") || url.equals("/get/")) {
 				if (processManagerList.isEmpty()) {
+					ListProcesses.Builder listProcessesBuilder = ListProcesses.newBuilder();
+					ListProcesses listProcesses = listProcessesBuilder.build();
+					resp.getOutputStream().write(listProcesses.toByteArray());
+			        resp.getOutputStream().flush();
+			        resp.getOutputStream().close();
 					System.out.println("Try again later.");
 				} else {
 					ProcessManager processManager = processManagerList.get(0);
@@ -63,66 +68,84 @@ public class ShowProcessInstance extends HttpServlet {
 					}
 				}
 			} else if (url.equals("/get/action") || url.equals("/get/action/")) {
-				ProcessManager processManager = processManagerList.get(0);
-				ListActions.Builder listActionsBuilder = ListActions.newBuilder();
-				Iterator it = processManager.getAvailbleActions().keySet().iterator();
-				while(it.hasNext()){
-					State state1 = (State) it.next();
-					Action.Builder actionBuilder = Action.newBuilder();
-					actionBuilder.setUserID(0)
-								 .setProcessInstanceID(state1.getProcessInstanceID())
-								 .setSubjectID(state1.getSubjectID())
-								 .setStateID(state1.getId())
-								 .setStateText(state1.getText())
-								 .setStateType(state1.getStateType().name());
-					for(int i = 0; i < state1.getTransitions().size(); i++){
-						String text  = state1.getTransitions().get(i).getText();
-						String transitionType = state1.getTransitions().get(i).getTransitionType();
-						ActionData.Builder actionDataBuilder = ActionData.newBuilder();
-						actionDataBuilder.setText(text)
-										 .setExecutable(processManager.getAvailbleActions().get(state1))
-										 .setTransitionType(transitionType);
-						ActionData actionData = actionDataBuilder.build();
-						actionBuilder.addActionData(actionData);
-					}
-					Action newAction = actionBuilder.build();
-					listActionsBuilder.addActions(newAction);
-				}
-				ListActions listActions = listActionsBuilder.build();
-				resp.getOutputStream().write(listActions.toByteArray());
-	            resp.getOutputStream().flush();
-	            resp.getOutputStream().close();
-			} else {
-				String[] urls = url.split("/");
-				int id = Integer.valueOf(urls[urls.length - 1]);
-				ProcessManager processManager = processManagerList.get(0);
-				if (processManager.getProcessInstanceList().isEmpty()) {
-					System.out.println("There is no process instance.");
+				if (processManagerList.isEmpty()) {
+					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
+					ListActions listActions = listActionsBuilder.build();
+					resp.getOutputStream().write(listActions.toByteArray());
+			        resp.getOutputStream().flush();
+			        resp.getOutputStream().close();
+					System.out.println("Try again later.");
 				} else {
-					if (processManager.containsProcessInstance(id)) {
-						ProcessInstance pi = processManager
-								.getProcessInstance(id);
-						String name = pi.getProcessData().getProcessName();
-						System.out.println(
-								"process id: " + id + "   process name: "
-										+ name);
-						System.out.println();
-						ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
-						pidbuilder.setId(id)
-								  .setName(name)
-								  .setProcessId(pi.getProcessData().getProcessID())
-								  .setProcessName(pi.getProcessData().getProcessName())
-								  .setIsTerminated(pi.isTerminated())
-								  .setDate(pi.getProcessData().date)
-								  .setOwner(0)
-								  .setHistory("")
-								  .setGraph(processManager.getGraph(pi.getProcessData().getProcessID()));
-						ProcessInstanceData pid = pidbuilder.build();
-						resp.getOutputStream().write(pid.toByteArray());
-			            resp.getOutputStream().flush();
-			            resp.getOutputStream().close();
-					} else {
+					ProcessManager processManager = processManagerList.get(0);
+					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
+					Iterator it = processManager.getAvailbleActions().keySet().iterator();
+					while(it.hasNext()){
+						State state1 = (State) it.next();
+						Action.Builder actionBuilder = Action.newBuilder();
+						actionBuilder.setUserID(0)
+									 .setProcessInstanceID(state1.getProcessInstanceID())
+									 .setSubjectID(state1.getSubjectID())
+									 .setStateID(state1.getId())
+									 .setStateText(state1.getText())
+									 .setStateType(state1.getStateType().name());
+						for(int i = 0; i < state1.getTransitions().size(); i++){
+							String text  = state1.getTransitions().get(i).getText();
+							String transitionType = state1.getTransitions().get(i).getTransitionType();
+							ActionData.Builder actionDataBuilder = ActionData.newBuilder();
+							actionDataBuilder.setText(text)
+											 .setExecutable(processManager.getAvailbleActions().get(state1))
+											 .setTransitionType(transitionType);
+							ActionData actionData = actionDataBuilder.build();
+							actionBuilder.addActionData(actionData);
+						}
+						Action newAction = actionBuilder.build();
+						listActionsBuilder.addActions(newAction);
+					}
+					ListActions listActions = listActionsBuilder.build();
+					resp.getOutputStream().write(listActions.toByteArray());
+		            resp.getOutputStream().flush();
+		            resp.getOutputStream().close();
+				}
+			} else {
+				if (processManagerList.isEmpty()) {
+//					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
+//					ListActions listActions = listActionsBuilder.build();
+//					resp.getOutputStream().write(listActions.toByteArray());
+//			        resp.getOutputStream().flush();
+//			        resp.getOutputStream().close();
+					System.out.println("Try again later.");
+				} else {
+					String[] urls = url.split("/");
+					int id = Integer.valueOf(urls[urls.length - 1]);
+					ProcessManager processManager = processManagerList.get(0);
+					if (processManager.getProcessInstanceList().isEmpty()) {
 						System.out.println("There is no process instance.");
+					} else {
+						if (processManager.containsProcessInstance(id)) {
+							ProcessInstance pi = processManager
+									.getProcessInstance(id);
+							String name = pi.getProcessData().getProcessName();
+							System.out.println(
+									"process id: " + id + "   process name: "
+											+ name);
+							System.out.println();
+							ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
+							pidbuilder.setId(id)
+									  .setName(name)
+									  .setProcessId(pi.getProcessData().getProcessID())
+									  .setProcessName(pi.getProcessData().getProcessName())
+									  .setIsTerminated(pi.isTerminated())
+									  .setDate(pi.getProcessData().date)
+									  .setOwner(0)
+									  .setHistory("")
+									  .setGraph(processManager.getGraph(pi.getProcessData().getProcessID()));
+							ProcessInstanceData pid = pidbuilder.build();
+							resp.getOutputStream().write(pid.toByteArray());
+				            resp.getOutputStream().flush();
+				            resp.getOutputStream().close();
+						} else {
+							System.out.println("There is no process instance.");
+						}
 					}
 				}
 			}
