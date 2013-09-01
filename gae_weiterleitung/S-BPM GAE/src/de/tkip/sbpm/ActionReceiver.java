@@ -29,30 +29,10 @@ public class ActionReceiver extends HttpServlet {
 				System.out.println("Try again later.");
 			}else{
 				ProcessManager processManager = processManagerList.get(0);
-				Iterator it = processManager.getAvailableActions().iterator();
+				Iterator it = processManager.getAvailableActionsList().iterator();
 				while(it.hasNext()){
-					State state1 = (State) it.next();
-					Action.Builder actionBuilder = Action.newBuilder();
-					actionBuilder.setUserID(0)
-								 .setProcessInstanceID(state1.getProcessInstanceID())
-								 .setSubjectID(state1.getSubjectID())
-								 .setStateID(state1.getId())
-								 .setStateText(state1.getText())
-								 .setStateType(state1.getStateType().name());
-					for(int i = 0; i < state1.getTransitions().size(); i++){
-						String text  = state1.getTransitions().get(i).getText();
-						String transitionType = state1.getTransitions().get(i).getTransitionType();
-						int processInstanceID = state1.getProcessInstanceID();
-						String subjectID = state1.getSubjectID();
-						ActionData.Builder actionDataBuilder = ActionData.newBuilder();
-						actionDataBuilder.setText(text)
-										 .setExecutable(processManager.getProcessInstance(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().isExecutable())
-										 .setTransitionType(transitionType);
-						ActionData actionData = actionDataBuilder.build();
-						actionBuilder.addActionData(actionData);
-					}
-					Action newAction = actionBuilder.build();
-					listActionsBuilder.addActions(newAction);
+					Action action = (Action) it.next();
+					listActionsBuilder.addActions(action);
 				}
 				ListActions listActions = listActionsBuilder.build();
 				resp.getOutputStream().write(listActions.toByteArray());
@@ -140,8 +120,8 @@ public class ActionReceiver extends HttpServlet {
 							}
 							break;
 						}
-						State cState = processManager.getState(processInstanceID, action.getStateID());
-						processManager.removeAvailableActions(cState);
+						Action cAction = processManager.getAction(processInstanceID, action.getStateID());
+						processManager.removeAvailableActions(cAction);
 						if(!isEnd){
 							String transitonText = action.getActionData(0).getText();
 							int nextStateID = s.getInternalBehavior().getNextStateID(transitonText);
@@ -158,32 +138,33 @@ public class ActionReceiver extends HttpServlet {
 									}		
 								}
 								s.getInternalBehavior().setExecutable(executable);
-//								processManager.addAvailableActions(state);
+								Action.Builder actionBuilder = Action.newBuilder();
+								actionBuilder.setUserID(0)
+											 .setProcessInstanceID(state.getProcessInstanceID())
+											 .setSubjectID(state.getSubjectID())
+											 .setStateID(state.getId())
+											 .setStateText(state.getText())
+											 .setStateType(state.getStateType().name());
+								for(int i = 0; i < state.getTransitions().size(); i++){
+									String text  = state.getTransitions().get(i).getText();
+									String transitionType = state.getTransitions().get(i).getTransitionType();
+									int processInstanceID1 = state.getProcessInstanceID();
+									String subjectID1 = state.getSubjectID();
+									ActionData.Builder actionDataBuilder = ActionData.newBuilder();
+									actionDataBuilder.setText(text)
+													 .setExecutable(executable)
+													 .setTransitionType(transitionType);
+									ActionData actionData = actionDataBuilder.build();
+									actionBuilder.addActionData(actionData);
+								}
+								Action newAction = actionBuilder.build();
+								processManager.addAvailableActions(newAction);
+								
 								ListActions.Builder listActionsBuilder = ListActions.newBuilder();
-								Iterator it = processManager.getAvailableActions().iterator();
+								Iterator it = processManager.getAvailableActionsList().iterator();
 								while(it.hasNext()){
-									State state1 = (State) it.next();
-									Action.Builder actionBuilder = Action.newBuilder();
-									actionBuilder.setUserID(0)
-												 .setProcessInstanceID(state1.getProcessInstanceID())
-												 .setSubjectID(state1.getSubjectID())
-												 .setStateID(state1.getId())
-												 .setStateText(state1.getText())
-												 .setStateType(state1.getStateType().name());
-									for(int i = 0; i < state1.getTransitions().size(); i++){
-										String text  = state1.getTransitions().get(i).getText();
-										String transitionType = state1.getTransitions().get(i).getTransitionType();
-										int processInstanceID1 = state1.getProcessInstanceID();
-										String subjectID1 = state1.getSubjectID();
-										ActionData.Builder actionDataBuilder = ActionData.newBuilder();
-										actionDataBuilder.setText(text)
-														 .setExecutable(processManager.getProcessInstance(processInstanceID1).getProcessData().getSubjects().get(subjectID1).getInternalBehavior().isExecutable())
-														 .setTransitionType(transitionType);
-										ActionData actionData = actionDataBuilder.build();
-										actionBuilder.addActionData(actionData);
-									}
-									Action newAction = actionBuilder.build();
-									listActionsBuilder.addActions(newAction);
+									Action action1 = (Action) it.next();
+									listActionsBuilder.addActions(action1);
 								}
 								ListActions listActions = listActionsBuilder.build();
 								resp.getOutputStream().write(listActions.toByteArray());

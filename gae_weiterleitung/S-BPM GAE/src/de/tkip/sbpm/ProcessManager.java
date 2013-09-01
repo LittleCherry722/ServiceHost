@@ -33,8 +33,6 @@ public class ProcessManager {
 	@Persistent(serialized = "true")
 	public List<Action> availableActionsList = new ArrayList<Action>();
 	@Persistent(serialized = "true")
-	public List<State> availableActions = new ArrayList<State>();
-	@Persistent(serialized = "true")
 	public List<Graph> graph = new ArrayList<Graph>();
 	
 	public ProcessManager(){
@@ -100,23 +98,24 @@ public class ProcessManager {
 		this.processInstanceList.remove(pi);
 	}
 	
-	public State getState(int processInstanceID, int stateID){
-		Iterator it = availableActions.iterator();
+	public Action getAction(int processInstanceID, int stateID){
+		Iterator it = this.availableActionsList.iterator();
 		while(it.hasNext()){
-			State state = (State) it.next();
-			if(state.getProcessInstanceID() == processInstanceID && state.getId() == stateID){
-				return state;
+			Action action = (Action) it.next();
+			if(action.getProcessInstanceID() == processInstanceID && action.getStateID() == stateID){
+				return action;
 			}
 		}
 		return null;
 	}
 	
 	public void checkReceiveActions(){
-		Iterator it = this.availableActions.iterator();
+		Iterator it = this.availableActionsList.iterator();
 		while(it.hasNext()){
-			State state = (State) it.next();
-			int processInstanceID = state.getProcessInstanceID();
-			String subjectID = state.getSubjectID();
+			Action action = (Action) it.next();
+			int processInstanceID = action.getProcessInstanceID();
+			String subjectID = action.getSubjectID();
+			State state = getProcessInstance(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().getStatesMap().get(action.getStateID());
 			if(state.stateType.equals(StateType.receive)){
 				String[] str = state.getTransitions().get(0).getText().split("(1)");
 				String text = str[0].trim();
@@ -159,8 +158,8 @@ public class ProcessManager {
 		this.processInstanceList.add(pi);
 	}
 	
-	public void removeAvailableActions(State state){
-		this.availableActions.remove(state);
+	public void removeAvailableActions(Action action){
+		this.availableActionsList.remove(action);
 	}
 	
 	public void addGraph(Graph graph){
@@ -197,14 +196,6 @@ public class ProcessManager {
 
 	public void setProcessInstanceList(List<ProcessInstance> processInstanceList) {
 		this.processInstanceList = processInstanceList;
-	}
-
-	public List<State> getAvailableActions() {
-		return availableActions;
-	}
-
-	public void setAvailableActions(List<State> availableActions) {
-		this.availableActions = availableActions;
 	}
 
 	public List<Action> getAvailableActionsList() {

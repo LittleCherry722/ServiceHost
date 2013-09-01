@@ -186,31 +186,11 @@ public class CreateProcessInst extends HttpServlet {
 						pm.currentTransaction().begin();
 						ProcessManager processManager = processManagerList.get(0);
 						ListActions.Builder listActionsBuilder = ListActions.newBuilder();
-						Iterator it = processManager.getAvailableActions().iterator();
+						Iterator it = processManager.getAvailableActionsList().iterator();
 						while(it.hasNext()){
-							State state1 = (State) it.next();						
-							if(state1.getProcessInstanceID() == piid){
-								Action.Builder actionBuilder = Action.newBuilder();
-								actionBuilder.setUserID(0)
-								 .setProcessInstanceID(state1.getProcessInstanceID())
-								 .setSubjectID(state1.getSubjectID())
-								 .setStateID(state1.getId())
-								 .setStateText(state1.getText())
-								 .setStateType(state1.getStateType().name());
-								for(int i = 0; i < state1.getTransitions().size(); i++){
-									String text  = state1.getTransitions().get(i).getText();
-									String transitionType = state1.getTransitions().get(i).getTransitionType();
-									int processInstanceID1 = state1.getProcessInstanceID();
-									String subjectID1 = state1.getSubjectID();
-									ActionData.Builder actionDataBuilder = ActionData.newBuilder();
-									actionDataBuilder.setText(text)
-													 .setExecutable(processManager.getProcessInstance(processInstanceID1).getProcessData().getSubjects().get(subjectID1).getInternalBehavior().isExecutable())
-													 .setTransitionType(transitionType);
-									ActionData actionData = actionDataBuilder.build();
-									actionBuilder.addActionData(actionData);
-								}
-								Action newAction = actionBuilder.build();
-								listActionsBuilder.addActions(newAction);
+							Action action = (Action) it.next();						
+							if(action.getProcessInstanceID() == piid){
+								listActionsBuilder.addActions(action);
 							}			
 						}
 						ListActions listActions = listActionsBuilder.build();
