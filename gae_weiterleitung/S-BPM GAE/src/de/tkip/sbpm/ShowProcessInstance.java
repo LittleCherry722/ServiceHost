@@ -49,6 +49,7 @@ public class ShowProcessInstance extends HttpServlet {
 					} else {
 						ListProcesses.Builder listProcessesBuilder = ListProcesses.newBuilder();
 						Iterator it = processManager.getProcessInstanceList().iterator();
+						System.out.println("processInstanceList:");
 						while (it.hasNext()) {
 							ProcessInstance pi = (ProcessInstance)it.next();
 							int id = pi.getProcessInstanceID();
@@ -60,6 +61,7 @@ public class ShowProcessInstance extends HttpServlet {
 											  .setName(name);
 							ProcessInfo processInfo = processInfoBuilder.build();
 							listProcessesBuilder.addProcesses(processInfo);
+							System.out.println("processInstance:" + id);
 						}
 						ListProcesses listProcesses = listProcessesBuilder.build();
 						resp.getOutputStream().write(listProcesses.toByteArray());
@@ -88,6 +90,7 @@ public class ShowProcessInstance extends HttpServlet {
 									 .setStateID(state1.getId())
 									 .setStateText(state1.getText())
 									 .setStateType(state1.getStateType().name());
+						System.out.println("Action: " + state1.getText() + " in processInstance: " +state1.getProcessInstanceID());
 						for(int i = 0; i < state1.getTransitions().size(); i++){
 							String text  = state1.getTransitions().get(i).getText();
 							String transitionType = state1.getTransitions().get(i).getTransitionType();
@@ -105,6 +108,7 @@ public class ShowProcessInstance extends HttpServlet {
 					resp.getOutputStream().write(listActions.toByteArray());
 		            resp.getOutputStream().flush();
 		            resp.getOutputStream().close();
+		            System.out.println("send actions ok");
 				}
 			} else {
 				if (processManagerList.isEmpty()) {
