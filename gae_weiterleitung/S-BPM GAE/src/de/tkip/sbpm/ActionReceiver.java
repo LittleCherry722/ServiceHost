@@ -158,7 +158,7 @@ public class ActionReceiver extends HttpServlet {
 									}		
 								}
 								s.getInternalBehavior().setExecutable(executable);
-								processManager.addAvailableActions(state);
+//								processManager.addAvailableActions(state);
 								ListActions.Builder listActionsBuilder = ListActions.newBuilder();
 								Iterator it = processManager.getAvailableActions().iterator();
 								while(it.hasNext()){

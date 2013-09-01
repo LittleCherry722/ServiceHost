@@ -131,7 +131,27 @@ public class CreateProcessInst extends HttpServlet {
 									}
 									sub.getInternalBehavior().setExecutable(executable);
 									if(sub.isStartSubject){
-										processManager.addAvailableActions(state);
+										Action.Builder actionBuilder = Action.newBuilder();
+										actionBuilder.setUserID(0)
+													 .setProcessInstanceID(state.getProcessInstanceID())
+													 .setSubjectID(state.getSubjectID())
+													 .setStateID(state.getId())
+													 .setStateText(state.getText())
+													 .setStateType(state.getStateType().name());
+										for(int i = 0; i < state.getTransitions().size(); i++){
+											String text  = state.getTransitions().get(i).getText();
+											String transitionType = state.getTransitions().get(i).getTransitionType();
+											int processInstanceID1 = state.getProcessInstanceID();
+											String subjectID1 = state.getSubjectID();
+											ActionData.Builder actionDataBuilder = ActionData.newBuilder();
+											actionDataBuilder.setText(text)
+															 .setExecutable(executable)
+															 .setTransitionType(transitionType);
+											ActionData actionData = actionDataBuilder.build();
+											actionBuilder.addActionData(actionData);
+										}
+										Action newAction = actionBuilder.build();
+										processManager.addAvailableActions(newAction);
 									}				
 								}
 							}

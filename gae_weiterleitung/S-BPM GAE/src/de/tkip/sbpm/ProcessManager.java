@@ -15,6 +15,7 @@ import javax.jdo.annotations.PrimaryKey;
 import com.google.appengine.api.datastore.Key;
 
 import de.tkip.sbpm.State.StateType;
+import de.tkip.sbpm.proto.GAEexecution.Action;
 import de.tkip.sbpm.proto.GAEexecution.Graph;
 
 @PersistenceCapable
@@ -29,6 +30,8 @@ public class ProcessManager {
 	public List<Process> processList = new ArrayList<Process>();;
 	@Persistent(serialized = "true")
 	public List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
+	@Persistent(serialized = "true")
+	public List<Action> availableActionsList = new ArrayList<Action>();
 	@Persistent(serialized = "true")
 	public List<State> availableActions = new ArrayList<State>();
 	@Persistent(serialized = "true")
@@ -139,9 +142,14 @@ public class ProcessManager {
 		return null;
 	}
 	
-	public void addAvailableActions(State state){
-		this.availableActions.add(state);
+	
+	public void addAvailableActions(Action action){
+		this.availableActionsList.add(action);
 	}
+	
+//	public void addAvailableActions(State state){
+//		this.availableActions.add(state);
+//	}
 	
 	public void addProcess(Process process){
 		this.processList.add(process);
@@ -197,6 +205,22 @@ public class ProcessManager {
 
 	public void setAvailableActions(List<State> availableActions) {
 		this.availableActions = availableActions;
+	}
+
+	public List<Action> getAvailableActionsList() {
+		return availableActionsList;
+	}
+
+	public void setAvailableActionsList(List<Action> availableActionsList) {
+		this.availableActionsList = availableActionsList;
+	}
+
+	public List<Graph> getGraph() {
+		return graph;
+	}
+
+	public void setGraph(List<Graph> graph) {
+		this.graph = graph;
 	}
 
 }
