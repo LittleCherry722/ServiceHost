@@ -34,6 +34,7 @@ import de.tkip.sbpm.application.subject.misc.AvailableAction
 import java.util.Date
 import java.text.SimpleDateFormat
 import de.tkip.sbpm.application.History
+import scala.collection.JavaConverters._
 
 object ProtobufWrapper {
 
@@ -50,9 +51,9 @@ object ProtobufWrapper {
   def buildProcessInstanceInfos(bytes: Array[Byte]): Array[ProcessInstanceInfo] = {
     val protoInfos = GAEexecution.ListProcesses.parseFrom(bytes)
     
-    val infos = protoInfos.getProcessesList().toArray().asInstanceOf[List[proto.ListProcesses.ProcessInfo]]
-  
-    val processes = for(info <- infos) 
+    val infos = protoInfos.getProcessesList()
+    
+    val processes = for(info <- infos.asScala) 
       yield ProcessInstanceInfo(info.getId(), info.getName(), info.getProcessId())
     
     processes.toArray
@@ -120,7 +121,7 @@ object ProtobufWrapper {
       action.getStateID(),
       action.getStateText(),
       action.getStateType(),
-      buildActionData(action.getActionDataList().toArray().toList.asInstanceOf[List[proto.ActionData]]))
+      buildActionData(action.getActionDataList().asScala.toList))
   }
 
   private def buildActionsFromList(protoActions: List[proto.Action]): Array[AvailableAction] = {
@@ -133,13 +134,13 @@ object ProtobufWrapper {
       action.getStateID(),
       action.getStateText(),
       action.getStateType(),
-      buildActionData(action.getActionDataList().toArray().toList.asInstanceOf[List[proto.ActionData]]))).toArray
+      buildActionData(action.getActionDataList().asScala.toList))).toArray
   }
   
   def buildActions(bytes: Array[Byte]) : Array[AvailableAction] = {
     val actions = GAEexecution.ListActions.parseFrom(bytes)
     
-    buildActionsFromList(actions.getActionsList().toArray().toList.asInstanceOf[List[proto.Action]])
+    buildActionsFromList(actions.getActionsList().asScala.toList)
   }
 
   def buildActionData(actionData: List[proto.ActionData]): Array[ActionData] = {
@@ -165,7 +166,7 @@ object ProtobufWrapper {
       (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).parse(protoInstanceData.getDate()),
       protoInstanceData.getOwner(),
       History(protoInstanceData.getName(), protoInstanceData.getProcessId()), // TODO HISTORY
-      buildActionsFromList(protoInstanceData.getActionsList().toArray().toList.asInstanceOf[List[proto.Action]]))
+      buildActionsFromList(protoInstanceData.getActionsList().asScala.toList))
   }
 
   def buildProto(createProcess: CreateProcessInstance, graph: Graph): Array[Byte] = {
@@ -417,10 +418,10 @@ object ProtobufWrapper {
       if (protoGraph.hasId()) Some(protoGraph.getId()) else None,
       if (protoGraph.hasProcessId()) Some(protoGraph.getProcessId()) else None,
       java.sql.Timestamp.valueOf(protoGraph.getDate()),
-      buildGraphConversations(protoGraph.getConversationsList().toArray().toList.asInstanceOf[List[proto.GraphConversation]]),
-      buildGraphMessages(protoGraph.getMessagesList().toArray().toList.asInstanceOf[List[proto.GraphMessage]]),
-      buildGraphSubjects(protoGraph.getSubjectsList().toArray().toList.asInstanceOf[List[proto.GraphSubject]]),
-      buildGraphRouting(protoGraph.getRoutingsList().toArray().toList.asInstanceOf[List[proto.GraphRouting]]))
+      buildGraphConversations(protoGraph.getConversationsList().asScala.toList),
+      buildGraphMessages(protoGraph.getMessagesList().asScala.toList),
+      buildGraphSubjects(protoGraph.getSubjectsList().asScala.toList),
+      buildGraphRouting(protoGraph.getRoutingsList().asScala.toList))
   }
 
   private def buildGraphConversations(conversationArray: List[proto.GraphConversation]): Map[String, GraphConversation] = {
@@ -454,8 +455,8 @@ object ProtobufWrapper {
           if (subject.hasRole()) None else None, // TODO
           if (subject.hasUrl()) Some(subject.getUrl()) else None,
           if (subject.hasComment()) Some(subject.getComment()) else None,
-          buildGraphVariables(subject.getVariablesList().toArray().toList.asInstanceOf[List[proto.GraphVariable]]),
-          buildGraphMacros(subject.getMacrosList().toArray().toList.asInstanceOf[List[proto.GraphMacro]])))
+          buildGraphVariables(subject.getVariablesList().asScala.toList),
+          buildGraphMacros(subject.getMacrosList().asScala.toList)))
 
     subjects.toMap
   }
@@ -476,8 +477,8 @@ object ProtobufWrapper {
         GraphMacro(
           macro.getId(),
           macro.getName(),
-          buildGraphNodes(macro.getNodesList().toArray().toList.asInstanceOf[List[proto.GraphNode]]),
-          buildGraphEdges(macro.getEdgesList().toArray().toList.asInstanceOf[List[proto.GraphEdge]])))
+          buildGraphNodes(macro.getNodesList().asScala.toList),
+          buildGraphEdges(macro.getEdgesList().asScala.toList)))
 
     macros.toMap
   }
@@ -537,7 +538,7 @@ object ProtobufWrapper {
         if (edge.hasVariableId()) Some(edge.getVariableId()) else None,
         if (edge.hasCorrelationId()) Some(edge.getCorrelationId()) else None,
         if (edge.hasComment()) Some(edge.getComment()) else None,
-        edge.getTransportMethodList().toArray().toList.asInstanceOf[List[String]])
+        edge.getTransportMethodList().asScala.toList)
 
     edges.asInstanceOf[Seq[GraphEdge]]
   }
