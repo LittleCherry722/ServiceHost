@@ -36,6 +36,8 @@ public class ShowProcessInstance extends HttpServlet {
 			System.out.println("get:");
 			if (url.equals("/get") || url.equals("/get/")) {
 				if (processManagerList.isEmpty()) {
+					ProcessManager processManager = new ProcessManager();
+					pm.makePersistent(processManager);
 					ListProcesses.Builder listProcessesBuilder = ListProcesses.newBuilder();
 					ListProcesses listProcesses = listProcessesBuilder.build();
 					resp.getOutputStream().write(listProcesses.toByteArray());
@@ -71,6 +73,8 @@ public class ShowProcessInstance extends HttpServlet {
 				}
 			} else if (url.equals("/get/action") || url.equals("/get/action/")) {
 				if (processManagerList.isEmpty()) {
+					ProcessManager processManager = new ProcessManager();
+					pm.makePersistent(processManager);
 					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
 					ListActions listActions = listActionsBuilder.build();
 					resp.getOutputStream().write(listActions.toByteArray());
@@ -80,7 +84,8 @@ public class ShowProcessInstance extends HttpServlet {
 				} else {
 					ProcessManager processManager = processManagerList.get(0);
 					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
-					Iterator it = processManager.getAvailbleActions().keySet().iterator();
+					Iterator it = processManager.getAvailableActions().iterator();
+					System.out.println("Action number: " + processManager.getAvailableActions().size());
 					while(it.hasNext()){
 						State state1 = (State) it.next();
 						Action.Builder actionBuilder = Action.newBuilder();
@@ -94,9 +99,11 @@ public class ShowProcessInstance extends HttpServlet {
 						for(int i = 0; i < state1.getTransitions().size(); i++){
 							String text  = state1.getTransitions().get(i).getText();
 							String transitionType = state1.getTransitions().get(i).getTransitionType();
+							int processInstanceID1 = state1.getProcessInstanceID();
+							String subjectID1 = state1.getSubjectID();
 							ActionData.Builder actionDataBuilder = ActionData.newBuilder();
 							actionDataBuilder.setText(text)
-											 .setExecutable(processManager.getAvailbleActions().get(state1))
+											 .setExecutable(processManager.getProcessInstance(processInstanceID1).getProcessData().getSubjects().get(subjectID1).getInternalBehavior().isExecutable())
 											 .setTransitionType(transitionType);
 							ActionData actionData = actionDataBuilder.build();
 							actionBuilder.addActionData(actionData);
@@ -108,10 +115,11 @@ public class ShowProcessInstance extends HttpServlet {
 					resp.getOutputStream().write(listActions.toByteArray());
 		            resp.getOutputStream().flush();
 		            resp.getOutputStream().close();
-		            System.out.println("send actions ok");
 				}
 			} else {
 				if (processManagerList.isEmpty()) {
+					ProcessManager processManager = new ProcessManager();
+					pm.makePersistent(processManager);
 //					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
 //					ListActions listActions = listActionsBuilder.build();
 //					resp.getOutputStream().write(listActions.toByteArray());
@@ -134,6 +142,7 @@ public class ShowProcessInstance extends HttpServlet {
 											+ name);
 							System.out.println();
 							ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
+							System.out.println(pi.getProcessData().getProcessID());
 							pidbuilder.setId(id)
 									  .setName(name)
 									  .setProcessId(pi.getProcessData().getProcessID())
@@ -142,7 +151,7 @@ public class ShowProcessInstance extends HttpServlet {
 									  .setDate(pi.getProcessData().date)
 									  .setOwner(0)
 									  .setHistory("")
-									  .setGraph(processManager.getGraph(pi.getProcessData().getProcessID()));
+									  .setGraph(processManager.getGraphFromProcessID(pi.getProcessData().getProcessID()));
 							ProcessInstanceData pid = pidbuilder.build();
 							resp.getOutputStream().write(pid.toByteArray());
 				            resp.getOutputStream().flush();

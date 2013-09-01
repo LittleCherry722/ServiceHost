@@ -39,7 +39,6 @@ public class CreateProcessInst extends HttpServlet {
 			is.read(byteProto);
 			CreateProcessInstance cp = CreateProcessInstance.parseFrom(byteProto);
 			int processID = cp.getProcessId();
-			ProcessInstance pi = new ProcessInstance();
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 			try {
 				Query query = pm.newQuery(ProcessManager.class);
@@ -55,9 +54,8 @@ public class CreateProcessInst extends HttpServlet {
 //						System.out.println(processManager.processList.size());
 						if(!processManager.containsProcess(processID)){
 							Graph graph = cp.getGraph();
-							processManager.addGraph(processID, graph);
+							processManager.addGraph(graph);
 							int subjectNum = graph.getSubjectsCount();
-							System.out.println("subjectNum: " + subjectNum);
 							Process process = new Process();
 							process.setProcessID(processID);
 							process.setDate(graph.getDate());
@@ -73,7 +71,6 @@ public class CreateProcessInst extends HttpServlet {
 								subject.getInputPool().setMessageLimit(graph.getSubjects(i).getInputPool());
 								subject.getInternalBehavior().setSubjectID(graph.getSubjects(i).getId());
 								int graphNodeNum = graph.getSubjects(i).getMacros(0).getNodesCount();
-								System.out.println("graphNodeNum: " + graphNodeNum + "in subject: " + i);
 								for(int j = 0; j < graphNodeNum; j++){
 									State state = new State();
 									state.setId(graph.getSubjects(i).getMacros(0).getNodes(j).getId());
@@ -85,7 +82,6 @@ public class CreateProcessInst extends HttpServlet {
 									state.setDisabled(graph.getSubjects(i).getMacros(0).getNodes(j).getIsDisabled());
 									state.setMajorStart(graph.getSubjects(i).getMacros(0).getNodes(j).getIsMajorStartNode());
 									subject.getInternalBehavior().addState(state);
-									System.out.println("state name: " + state.getText());
 								}
 								int graphEdgeNum = graph.getSubjects(i).getMacros(0).getEdgesCount();
 								for(int j = 0; j < graphEdgeNum; j++){
@@ -106,6 +102,7 @@ public class CreateProcessInst extends HttpServlet {
 								processManager.addProcess(process);
 						}
 						if(processManager.containsProcess(processID)){
+							ProcessInstance pi = new ProcessInstance();
 							Process process = processManager.getProcess(processID);
 							int processInstanceID = processManager.getProcessInstanceID();
 							Date dt=new Date();
@@ -120,6 +117,8 @@ public class CreateProcessInst extends HttpServlet {
 									String id = (String) it.next();
 									Subject sub = pi.getProcessData().getSubjects().get(id);
 									sub.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
+									System.out.println("pi id: " + processInstanceID);
+									System.out.println("sub id " + id);
 									State state = sub.getInternalBehavior().getStatesMap().get(sub.getInternalBehavior().getStartState());
 									boolean executable = true;
 									if(state.getStateType().equals(StateType.receive)){
@@ -131,14 +130,17 @@ public class CreateProcessInst extends HttpServlet {
 										}		
 									}
 									sub.getInternalBehavior().setExecutable(executable);
-									processManager.addAvailableActions(state, executable);
+									if(sub.isStartSubject){
+										processManager.addAvailableActions(state);
+									}				
 								}
 							}
 							processManager.addProcessInstance(pi);
-							System.out.println(pi.processInstanceID);
-							System.out.println(pi.processData.processName);
+//							System.out.println(pi.processInstanceID);
+//							System.out.println(pi.processData.processName);
 							int t = processManager.getProcessInstanceID() +1;
-							processManager.setProcessInstanceID(t);		
+							processManager.setProcessInstanceID(t);
+							
 							ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
 							pidbuilder.setId(processInstanceID)
 									  .setName("travel")
@@ -164,7 +166,7 @@ public class CreateProcessInst extends HttpServlet {
 						pm.currentTransaction().begin();
 						ProcessManager processManager = processManagerList.get(0);
 						ListActions.Builder listActionsBuilder = ListActions.newBuilder();
-						Iterator it = processManager.getAvailbleActions().keySet().iterator();
+						Iterator it = processManager.getAvailableActions().iterator();
 						while(it.hasNext()){
 							State state1 = (State) it.next();						
 							if(state1.getProcessInstanceID() == piid){
@@ -178,9 +180,11 @@ public class CreateProcessInst extends HttpServlet {
 								for(int i = 0; i < state1.getTransitions().size(); i++){
 									String text  = state1.getTransitions().get(i).getText();
 									String transitionType = state1.getTransitions().get(i).getTransitionType();
+									int processInstanceID1 = state1.getProcessInstanceID();
+									String subjectID1 = state1.getSubjectID();
 									ActionData.Builder actionDataBuilder = ActionData.newBuilder();
 									actionDataBuilder.setText(text)
-													 .setExecutable(processManager.getAvailbleActions().get(state1))
+													 .setExecutable(processManager.getProcessInstance(processInstanceID1).getProcessData().getSubjects().get(subjectID1).getInternalBehavior().isExecutable())
 													 .setTransitionType(transitionType);
 									ActionData actionData = actionDataBuilder.build();
 									actionBuilder.addActionData(actionData);

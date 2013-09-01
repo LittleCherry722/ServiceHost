@@ -75,7 +75,7 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ActionReceiver</servlet-name>
-		<url-pattern>/put/*</url-pattern>
+		<url-pattern>/putfff/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>GraphToProcess</servlet-name>

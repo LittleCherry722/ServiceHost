@@ -32,6 +32,7 @@ public class InternalBehavior implements Serializable{
 	}
 
 	public void setProcessInstanceIDofStates(int processInstanceID){
+		System.out.println("internalBehavior:" + processInstanceID);
 		Iterator it = statesMap.values().iterator();
 		while(it.hasNext()){
 			State state = (State) it.next();

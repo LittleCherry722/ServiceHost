@@ -30,9 +30,9 @@ public class ProcessManager {
 	@Persistent(serialized = "true")
 	public List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
 	@Persistent(serialized = "true")
-	public Map<State,Boolean> availableActions = new HashMap<State,Boolean>();
+	public List<State> availableActions = new ArrayList<State>();
 	@Persistent(serialized = "true")
-	public Map<Integer,Graph> graphMap = new HashMap<Integer,Graph>();
+	public List<Graph> graph = new ArrayList<Graph>();
 	
 	public ProcessManager(){
 //		processInstanceID = 10000;
@@ -98,7 +98,7 @@ public class ProcessManager {
 	}
 	
 	public State getState(int processInstanceID, int stateID){
-		Iterator it = availableActions.keySet().iterator();
+		Iterator it = availableActions.iterator();
 		while(it.hasNext()){
 			State state = (State) it.next();
 			if(state.getProcessInstanceID() == processInstanceID && state.getId() == stateID){
@@ -109,24 +109,38 @@ public class ProcessManager {
 	}
 	
 	public void checkReceiveActions(){
-		Iterator it = this.availableActions.keySet().iterator();
+		Iterator it = this.availableActions.iterator();
 		while(it.hasNext()){
 			State state = (State) it.next();
+			int processInstanceID = state.getProcessInstanceID();
+			String subjectID = state.getSubjectID();
 			if(state.stateType.equals(StateType.receive)){
 				String[] str = state.getTransitions().get(0).getText().split("(1)");
 				String text = str[0].trim();
 				ProcessInstance pi = getProcessInstance(state.getProcessInstanceID());
 				if(pi.getProcessData().getSubjects().get(state.getSubjectID()).checkMessageNumberFromSubjectIDAndType(state.getSubjectID(), text) > 0){
-					this.availableActions.put(state, true);
+					this.processInstanceList.get(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().setExecutable(true);
 				}else{
-					this.availableActions.put(state, false);
+					this.processInstanceList.get(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().setExecutable(false);
 				}	
 			}
 		}
 	}
 	
-	public void addAvailableActions(State state, boolean b){
-		this.availableActions.put(state, b);
+	public Graph getGraphFromProcessID(int processID){
+		Iterator it = this.graph.iterator();
+		while(it.hasNext()){
+			Graph graph = (Graph) it.next();
+			int pid = graph.getProcessId();
+			if(pid == processID){
+				return graph;
+			}
+		}
+		return null;
+	}
+	
+	public void addAvailableActions(State state){
+		this.availableActions.add(state);
 	}
 	
 	public void addProcess(Process process){
@@ -141,12 +155,8 @@ public class ProcessManager {
 		this.availableActions.remove(state);
 	}
 	
-	public void addGraph(int id, Graph graph){
-		this.graphMap.put(id, graph);
-	}
-	
-	public Graph getGraph(int id){
-		return this.graphMap.get(id);
+	public void addGraph(Graph graph){
+		this.graph.add(graph);
 	}
 
 	public Key getKey() {
@@ -181,11 +191,12 @@ public class ProcessManager {
 		this.processInstanceList = processInstanceList;
 	}
 
-	public Map<State, Boolean> getAvailbleActions() {
+	public List<State> getAvailableActions() {
 		return availableActions;
 	}
 
-	public void setAvailbleActions(Map<State, Boolean> availbleActions) {
-		this.availableActions = availbleActions;
+	public void setAvailableActions(List<State> availableActions) {
+		this.availableActions = availableActions;
 	}
+
 }
