@@ -57,6 +57,7 @@ public class CreateProcessInst extends HttpServlet {
 							Graph graph = cp.getGraph();
 							processManager.addGraph(processID, graph);
 							int subjectNum = graph.getSubjectsCount();
+							System.out.println("subjectNum: " + subjectNum);
 							Process process = new Process();
 							process.setProcessID(processID);
 							process.setDate(graph.getDate());
@@ -72,6 +73,7 @@ public class CreateProcessInst extends HttpServlet {
 								subject.getInputPool().setMessageLimit(graph.getSubjects(i).getInputPool());
 								subject.getInternalBehavior().setSubjectID(graph.getSubjects(i).getId());
 								int graphNodeNum = graph.getSubjects(i).getMacros(0).getNodesCount();
+								System.out.println("graphNodeNum: " + graphNodeNum + "in subject: " + i);
 								for(int j = 0; j < graphNodeNum; j++){
 									State state = new State();
 									state.setId(graph.getSubjects(i).getMacros(0).getNodes(j).getId());
@@ -83,6 +85,7 @@ public class CreateProcessInst extends HttpServlet {
 									state.setDisabled(graph.getSubjects(i).getMacros(0).getNodes(j).getIsDisabled());
 									state.setMajorStart(graph.getSubjects(i).getMacros(0).getNodes(j).getIsMajorStartNode());
 									subject.getInternalBehavior().addState(state);
+									System.out.println("state name: " + state.getText());
 								}
 								int graphEdgeNum = graph.getSubjects(i).getMacros(0).getEdgesCount();
 								for(int j = 0; j < graphEdgeNum; j++){
@@ -198,7 +201,6 @@ public class CreateProcessInst extends HttpServlet {
 				pm.currentTransaction().rollback();
 			}finally {
 				pm.close();
-				System.out.println("finally");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
