@@ -111,5 +111,5 @@ public class State implements Serializable{
 
 	public void setMajorStart(boolean majorStart) {
 		MajorStart = majorStart;
-	}	
+	}
 }

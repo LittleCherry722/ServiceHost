@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -20,6 +22,7 @@ import de.tkip.sbpm.proto.GAEexecution.ActionData;
 import de.tkip.sbpm.proto.GAEexecution.CreateProcessInstance;
 import de.tkip.sbpm.proto.GAEexecution.Graph;
 import de.tkip.sbpm.proto.GAEexecution.ListActions;
+import de.tkip.sbpm.proto.GAEexecution.MessageData;
 import de.tkip.sbpm.proto.GAEexecution.ProcessInstanceData;
 
 public class CreateProcessInst extends HttpServlet {
@@ -60,6 +63,13 @@ public class CreateProcessInst extends HttpServlet {
 							process.setProcessID(processID);
 							process.setDate(graph.getDate());
 							process.setProcessName(cp.getName());
+							Map<String, String> msgMap = new HashMap<String, String>();
+							for(int i = 0; i< graph.getMessagesCount(); i++){
+								String msgID = graph.getMessages(i).getId();
+								String msg = graph.getMessages(i).getName();
+								msgMap.put(msgID, msg);
+//								System.out.println("msgID: " + msgID + " msg: " + msg);
+							}
 							for(int i = 0; i < subjectNum; i++){
 								Subject subject = new Subject();
 								subject.setProcessID(processID);
@@ -88,13 +98,18 @@ public class CreateProcessInst extends HttpServlet {
 									int stateID = graph.getSubjects(i).getMacros(0).getEdges(j).getStartNodeId();
 									State state = subject.getInternalBehavior().getStatesMap().get(stateID);
 									Transition transition = new Transition();
-									transition.setText(graph.getSubjects(i).getMacros(0).getEdges(j).getText());
+									if(msgMap.containsKey(graph.getSubjects(i).getMacros(0).getEdges(j).getText())){
+										transition.setText(msgMap.get(graph.getSubjects(i).getMacros(0).getEdges(j).getText()));
+									}else{
+										transition.setText(graph.getSubjects(i).getMacros(0).getEdges(j).getText());
+									}
 									transition.setTransitionType(graph.getSubjects(i).getMacros(0).getEdges(j).getEdgeType());
 									transition.setSuccessorID(graph.getSubjects(i).getMacros(0).getEdges(j).getEndNodeId());
 									transition.setDisabled(graph.getSubjects(i).getMacros(0).getEdges(j).getIsDisabled());
 									transition.setOptional(graph.getSubjects(i).getMacros(0).getEdges(j).getIsOptional());
 									transition.setManualTimeout(graph.getSubjects(i).getMacros(0).getEdges(j).getManualTimeout());
 									transition.setPriority(graph.getSubjects(i).getMacros(0).getEdges(j).getPriority());
+									transition.setRelatedSubject(graph.getSubjects(i).getMacros(0).getEdges(j).getTarget().getSubjectId());			
 									state.transitions.add(transition);
 								}
 								process.addSubject(subject);
@@ -109,7 +124,7 @@ public class CreateProcessInst extends HttpServlet {
 							SimpleDateFormat matter=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 							String date = matter.format(dt);
 							pi.setProcessInstanceID(processInstanceID) ;
-							pi.setDate(date);
+							pi.setDate(cp.getName());
 							pi.setProcessData(process);
 							if(!pi.getProcessData().getSubjects().isEmpty()){
 								Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
@@ -117,8 +132,6 @@ public class CreateProcessInst extends HttpServlet {
 									String id = (String) it.next();
 									Subject sub = pi.getProcessData().getSubjects().get(id);
 									sub.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
-									System.out.println("pi id: " + processInstanceID);
-									System.out.println("sub id " + id);
 									State state = sub.getInternalBehavior().getStatesMap().get(sub.getInternalBehavior().getStartState());
 									boolean executable = true;
 									if(state.getStateType().equals(StateType.receive)){
@@ -132,7 +145,7 @@ public class CreateProcessInst extends HttpServlet {
 									sub.getInternalBehavior().setExecutable(executable);
 									if(sub.isStartSubject){
 										Action.Builder actionBuilder = Action.newBuilder();
-										actionBuilder.setUserID(0)
+										actionBuilder.setUserID(7)
 													 .setProcessInstanceID(state.getProcessInstanceID())
 													 .setSubjectID(state.getSubjectID())
 													 .setStateID(state.getId())
@@ -147,6 +160,20 @@ public class CreateProcessInst extends HttpServlet {
 											actionDataBuilder.setText(text)
 															 .setExecutable(executable)
 															 .setTransitionType(transitionType);
+											if(!state.getTransitions().get(i).getRelatedSubject().equals("")){
+												actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
+											}
+											if(state.getStateType().equals(StateType.receive)){
+												MessageData.Builder msgBuilder = MessageData.newBuilder();
+												String[] s = state.getTransitions().get(0).getText().split("(1)");
+												String text1 = s[0].trim();
+												int num = sub.checkMessageNumberFromSubjectIDAndType(sub.getSubjectID(), text1);
+												if(num == 0){
+													msgBuilder.setMessageContent("");
+												}else{
+													msgBuilder.setMessageContent(sub.getMessageFromSubjcetIDAndType(sub.getSubjectID(), text1));
+												}
+											}
 											ActionData actionData = actionDataBuilder.build();
 											actionBuilder.addActionData(actionData);
 										}

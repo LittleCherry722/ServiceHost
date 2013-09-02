@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class Transition implements Serializable {
 	public String transitionType;
 	public String text;
+	public String relatedSubject;
 	public int successorID;
 	public int priority;
 	public boolean disabled;
@@ -90,5 +91,17 @@ public class Transition implements Serializable {
 
 	public void setManualTimeout(boolean manualTimeout) {
 		this.manualTimeout = manualTimeout;
+	}
+
+
+
+	public String getRelatedSubject() {
+		return relatedSubject;
+	}
+
+
+
+	public void setRelatedSubject(String relatedSubject) {
+		this.relatedSubject = relatedSubject;
 	}
 }

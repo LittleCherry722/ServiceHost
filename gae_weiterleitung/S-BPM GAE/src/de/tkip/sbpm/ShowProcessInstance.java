@@ -33,7 +33,6 @@ public class ShowProcessInstance extends HttpServlet {
 			List<ProcessManager> processManagerList = (List<ProcessManager>) query
 					.execute();
 			String url = req.getRequestURI();
-			System.out.println("get:");
 			if (url.equals("/get") || url.equals("/get/")) {
 				if (processManagerList.isEmpty()) {
 					ProcessManager processManager = new ProcessManager();
@@ -51,19 +50,19 @@ public class ShowProcessInstance extends HttpServlet {
 					} else {
 						ListProcesses.Builder listProcessesBuilder = ListProcesses.newBuilder();
 						Iterator it = processManager.getProcessInstanceList().iterator();
-						System.out.println("processInstanceList:");
+//						System.out.println("processInstanceList:");
 						while (it.hasNext()) {
 							ProcessInstance pi = (ProcessInstance)it.next();
 							int id = pi.getProcessInstanceID();
-							String name = pi.getProcessData().getProcessName();
-							System.out.println("process id: " + id + "   process name: " + name);
+							String name = pi.getName();
+//							System.out.println("process id: " + id + "   process name: " + name);
 							ProcessInfo.Builder processInfoBuilder = ProcessInfo.newBuilder();
 							processInfoBuilder.setId(pi.getProcessInstanceID())
 											  .setProcessId(pi.getProcessData().getProcessID())
 											  .setName(name);
 							ProcessInfo processInfo = processInfoBuilder.build();
 							listProcessesBuilder.addProcesses(processInfo);
-							System.out.println("processInstance:" + id);
+//							System.out.println("processInstance:" + id);
 						}
 						ListProcesses listProcesses = listProcessesBuilder.build();
 						resp.getOutputStream().write(listProcesses.toByteArray());
@@ -85,7 +84,7 @@ public class ShowProcessInstance extends HttpServlet {
 					ProcessManager processManager = processManagerList.get(0);
 					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
 					Iterator it = processManager.getAvailableActionsList().iterator();
-					System.out.println("Action number: " + processManager.getAvailableActionsList().size());
+//					System.out.println("Action number: " + processManager.getAvailableActionsList().size());
 					while(it.hasNext()){
 						Action action = (Action) it.next();
 						listActionsBuilder.addActions(action);
