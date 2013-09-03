@@ -178,7 +178,7 @@ class SubjectContainer(
   }
 
   def sendToExternal(message: SubjectToSubjectMessage) {
-    val dummyUser = -1
+    val dummyUser = -17 //TODO change and/or make constant
     sendTo(Array(dummyUser), message)
   }
 
@@ -201,7 +201,7 @@ class SubjectContainer(
     var running: Boolean = true) {
 
     def tell(message: Any, from: ActorRef) {
-      System.err.println("FORWARD: " + message);
+      System.err.println("FORWARD: " + message + " TO " + from)
       println(ref.isCompleted)
       ref.onComplete {
         case r =>

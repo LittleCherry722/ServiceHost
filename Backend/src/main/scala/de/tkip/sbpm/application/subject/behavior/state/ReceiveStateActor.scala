@@ -48,6 +48,8 @@ protected case class ReceiveStateActor(data: StateData)
       ((t.subjectID, t.messageType), new ExtendedExitTransition(t)))
       .toMap[(SubjectID, MessageType), ExtendedExitTransition]
 
+  log.debug("exitTransitionsMap: "+exitTransitionsMap.mkString(","))
+
   // register to subscribe the messages at the inputpool
   inputPoolActor ! {
     // convert the transition array into the request array
@@ -99,6 +101,8 @@ protected case class ReceiveStateActor(data: StateData)
         variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
         System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
+
+      log.debug("sending "+SubjectToSubjectMessageReceived(sm)+" to "+sender)
 
       sender ! SubjectToSubjectMessageReceived(sm)
     }

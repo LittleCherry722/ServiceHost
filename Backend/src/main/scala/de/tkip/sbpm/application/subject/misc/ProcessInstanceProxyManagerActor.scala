@@ -31,8 +31,8 @@ class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url
   logger.info("register initial process instance proxy for: "+url)
 
   private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
-  private val processInstanceMap: mutable.Map[(UserID, ProcessID, String), Future[ProcessInstanceProxy]] =
-    mutable.Map((userId, processId, url) -> (for {
+  private val processInstanceMap: mutable.Map[(ProcessID, String), Future[ProcessInstanceProxy]] =
+    mutable.Map((processId, url) -> (for {
       proxy <- (actor ? GetProxyActor).mapTo[ActorRef]
     } yield new ProcessInstanceProxy(actor, proxy)))
 
@@ -50,7 +50,7 @@ class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url
       val processInstanceInfo =
         processInstanceMap
           .getOrElseUpdate(
-            (userId, processId, targetAddress),
+            (processId, targetAddress),
             createProcessInstanceEntry(userId, processId, targetManager))
 
       // create the answer
