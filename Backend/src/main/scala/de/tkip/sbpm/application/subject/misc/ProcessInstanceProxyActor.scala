@@ -1,6 +1,6 @@
 package de.tkip.sbpm.application.subject.misc
 
-import akka.actor.Actor
+import akka.actor.{ActorRef, Actor}
 import akka.util.Timeout
 import akka.pattern.{ask, pipe}
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -25,7 +25,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
   private lazy val contextResolver = ActorLocator.contextResolverActor
   implicit val timeout = Timeout(4 seconds)
 
-  private case class RandomUsersLoaded(message: SubjectToSubjectMessage, userIds: Array[UserID])
+  private case class RandomUsersLoaded(message: SubjectToSubjectMessage, from: ActorRef, userIds: Array[UserID])
 
   def receive = {
     case message: SubjectToSubjectMessage => {
@@ -41,12 +41,12 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
       }
     }
 
-    case RandomUsersLoaded(message, userIds) => {
+    case RandomUsersLoaded(message, from, userIds) => {
       log.info("random users: "+userIds.mkString)
       val selectedUsers = selectRandomUsers(message, userIds)
       log.info("selected users: "+userIds.mkString)
       message.target.insertTargetUsers(selectedUsers)
-      context.parent forward message
+      context.parent.tell(message, from)
     }
 
     case message => {
@@ -58,7 +58,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
     log.info("load random users...")
     val request =  RequestUserID(SubjectInformation(processId, id, message.to), userIds => userIds)
     val result = (contextResolver ? request).mapTo[Array[UserID]]
-    result.map(userIds => RandomUsersLoaded(message, userIds)) pipeTo self
+    result.map(userIds => RandomUsersLoaded(message, sender, userIds)) pipeTo self
   }
 
   // for better testing, use always the first users for now
