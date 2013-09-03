@@ -53,6 +53,8 @@ protected case class ReceiveStateActor(data: StateData)
       ((t.subjectID, t.messageType), new ExtendedExitTransition(t)))
       .toMap[(SubjectID, MessageType), ExtendedExitTransition]
 
+  log.debug("exitTransitionsMap: "+exitTransitionsMap.mkString(","))
+
   // register to subscribe the messages at the inputpool
   inputPoolActor ! {
     // convert the transition array into the request array
@@ -91,7 +93,7 @@ protected case class ReceiveStateActor(data: StateData)
       blockingHandlerActor ! ActionExecuted(action)
     }
 
-    case sm: SubjectToSubjectMessage  => {
+    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
       logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
