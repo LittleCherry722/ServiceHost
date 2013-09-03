@@ -91,7 +91,7 @@ protected case class ReceiveStateActor(data: StateData)
       blockingHandlerActor ! ActionExecuted(action)
     }
 
-    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
+    case sm: SubjectToSubjectMessage  => {
       logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
         sm.messageType + "\" from \"" + sm.from +
         "\" with content \"" + sm.messageContent + "\"")
