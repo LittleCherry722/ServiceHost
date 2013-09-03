@@ -21,9 +21,9 @@ import de.tkip.sbpm.logging.DefaultLogging
 
 case object GetProxyActor
 
-case class GetProcessInstanceProxy(userId: UserID, processId: ProcessID, url: String)
+case class GetProcessInstanceProxy(processId: ProcessID, url: String)
 
-class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor with DefaultLogging {
+class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor with DefaultLogging {
   implicit val timeout = Timeout(2000)
 
   log.debug("register initial process instance proxy for: {}", url)
@@ -36,7 +36,7 @@ class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url
 
   def receive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
-    case GetProcessInstanceProxy(userId, processId, targetAddress) => {
+    case GetProcessInstanceProxy(processId, targetAddress) => {
 
       // TODO we only use tcp protocol?
       val protocol = if (targetAddress == "") "" else ".tcp"
@@ -49,7 +49,7 @@ class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url
         processInstanceMap
           .getOrElseUpdate(
             (processId, targetAddress),
-            createProcessInstanceEntry(userId, processId, targetManager))
+            createProcessInstanceEntry(processId, targetManager))
 
       // create the answer
       val answer = for {
@@ -65,13 +65,12 @@ class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url
     }
   }
 
-  private def createProcessInstanceEntry(userId: UserID,
-    processId: ProcessID,
+  private def createProcessInstanceEntry(processId: ProcessID,
     targetManager: ProcessManagerRef): Future[ProcessInstanceProxy] = {
     // TODO name?
     val newProcessInstanceName = "Unnamed"
     // create the message which is used to create a process instance
-    val createMessage = CreateProcessInstance(userId, processId, newProcessInstanceName, Some(self))
+    val createMessage = CreateProcessInstance(ExternalUser, processId, newProcessInstanceName, Some(self))
 
     for {
       // create the processinstance

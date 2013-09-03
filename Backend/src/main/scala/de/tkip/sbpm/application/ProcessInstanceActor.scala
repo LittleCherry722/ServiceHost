@@ -76,7 +76,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceProxyManagerActor(request.userID, request.processID, url, self))))
+      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self))))
 
 
   // this actor handles the blocking for answer to the user
