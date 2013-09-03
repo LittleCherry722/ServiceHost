@@ -58,7 +58,8 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
     log.info("load random users...")
     val request =  RequestUserID(SubjectInformation(processId, id, message.to), userIds => userIds)
     val result = (contextResolver ? request).mapTo[Array[UserID]]
-    result.map(userIds => RandomUsersLoaded(message, sender, userIds)) pipeTo self
+    val from = context.sender
+    result.map(userIds => RandomUsersLoaded(message, from, userIds)) pipeTo self
   }
 
   // for better testing, use always the first users for now
