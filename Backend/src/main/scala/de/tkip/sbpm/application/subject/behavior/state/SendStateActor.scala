@@ -199,7 +199,7 @@ protected case class SendStateActor(data: StateData)
         HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
       // Change the state and enter the History entry
       remainingStored -= 1
-      if (remainingStored == 0) {
+      if (remainingStored <= 0) {
         changeState(transition.successorID, data,message)
         blockingHandlerActor ! UnBlockUser(userID)
       }
