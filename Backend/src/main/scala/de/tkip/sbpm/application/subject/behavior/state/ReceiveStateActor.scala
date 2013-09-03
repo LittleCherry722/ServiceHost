@@ -107,6 +107,8 @@ protected case class ReceiveStateActor(data: StateData)
         System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
 
+      log.debug("sending "+SubjectToSubjectMessageReceived(sm)+" to "+sender)
+
       sender ! SubjectToSubjectMessageReceived(sm)
     }
 
