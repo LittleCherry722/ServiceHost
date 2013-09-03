@@ -29,6 +29,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
 
   def receive = {
     case message: SubjectToSubjectMessage => {
+      log.debug("S2SMsg " + message + " from " + sender)
       // Exchange the sending subject id
       message.from =
         subjectIdMap.getOrElse((message.processID, message.from), message.from)

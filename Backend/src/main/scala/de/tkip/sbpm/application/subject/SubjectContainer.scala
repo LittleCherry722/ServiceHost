@@ -201,7 +201,7 @@ class SubjectContainer(
     var running: Boolean = true) {
 
     def tell(message: Any, from: ActorRef) {
-      System.err.println("FORWARD: " + message);
+      System.err.println("FORWARD: " + message + " TO " + from)
       println(ref.isCompleted)
       ref.onComplete {
         case r =>
