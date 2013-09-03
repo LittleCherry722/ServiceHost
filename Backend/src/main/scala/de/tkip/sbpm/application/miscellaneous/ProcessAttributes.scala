@@ -17,7 +17,7 @@ import akka.actor.ActorRef
 
 object ProcessAttributes {
 
-  type UserID = Int; val AllUser = -1
+  type UserID = Int; val AllUser = -1; val ExternalUser = -2
   type ProcessID = Int
   type ProcessInstanceID = Int; val AllProcessInstances = -1
 
