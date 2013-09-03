@@ -67,7 +67,7 @@ class ContextResolverActor extends Actor with DefaultLogging {
     case ruid: RequestUserID =>
       sender ! ruid.generateAnswer(evaluateUserID(ruid.subjectInformation))
 
-    case ss => logger.error("ContextResolver not yet implemented Message: " + ss)
+    case ss => logger.error("ContextResolver not yet implemented Message: {}", ss)
   }
 
   private def evaluateUserID(subjectInformation: SubjectInformation): Array[UserID] = {
@@ -76,14 +76,14 @@ class ContextResolverActor extends Actor with DefaultLogging {
         subjectInstanceMap contains ((processId, processInstanceId, subjectId))
       } => {
         val userId = subjectInstanceMap((processId, processInstanceId, subjectId))
-        log.info("using registered user " + userId+" for lookup " + subjectInformation)
+        log.debug("using registered user {} for lookup {}", userId, subjectInformation)
         Array(userId)
       }
       case SubjectInformation(processId, processInstanceId, subjectId) => {
-        log.info("searching users for " + subjectInformation)
+        log.debug("searching users for {}", subjectInformation)
         val future = ActorLocator.persistenceActor ? Users.Read.BySubject(subjectId, processInstanceId, processId)
         val users = Await.result(future, timeout.duration).asInstanceOf[Seq[User]]
-        log.info("found " + users)
+        log.info("found {}", users)
         users.map(_.id.get).toArray
       }
     }

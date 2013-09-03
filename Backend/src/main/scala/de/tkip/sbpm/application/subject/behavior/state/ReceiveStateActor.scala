@@ -102,9 +102,10 @@ protected case class ReceiveStateActor(data: StateData)
         System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
 
-      log.debug("sending "+SubjectToSubjectMessageReceived(sm)+" to "+sender)
+      val ack = SubjectToSubjectMessageReceived(sm)
 
-      sender ! SubjectToSubjectMessageReceived(sm)
+      logger.debug("sending {} to {}", ack, sender)
+      sender ! ack
     }
 
     case InputPoolSubscriptionPerformed => {

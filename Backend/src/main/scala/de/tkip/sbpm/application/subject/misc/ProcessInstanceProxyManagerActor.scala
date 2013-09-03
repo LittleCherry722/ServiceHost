@@ -17,18 +17,16 @@ import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import akka.pattern.pipe
+import de.tkip.sbpm.logging.DefaultLogging
 
 case object GetProxyActor
 
 case class GetProcessInstanceProxy(userId: UserID, processId: ProcessID, url: String)
 
-class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor {
+class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor with DefaultLogging {
   implicit val timeout = Timeout(2000)
-  //  import context.dispatcher
 
-  protected val logger = Logging(context.system, ProcessInstanceProxyManagerActor.this)
-
-  logger.info("register initial process instance proxy for: "+url)
+  log.debug("register initial process instance proxy for: {}", url)
 
   private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
   private val processInstanceMap: mutable.Map[(ProcessID, String), Future[ProcessInstanceProxy]] =
@@ -63,7 +61,7 @@ class ProcessInstanceProxyManagerActor(userId: UserID, processId: ProcessID, url
     }
 
     case s => {
-      logger.error("got, but cant use " + s)
+      log.error("got, but cant use {}", s)
     }
   }
 

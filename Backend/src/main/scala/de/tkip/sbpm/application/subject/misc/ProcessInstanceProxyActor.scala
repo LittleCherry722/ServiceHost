@@ -29,7 +29,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
 
   def receive = {
     case message: SubjectToSubjectMessage => {
-      log.debug("S2SMsg " + message + " from " + sender)
+      log.debug("got {} from {}", message, sender)
       // Exchange the sending subject id
       message.from =
         subjectIdMap.getOrElse((message.processID, message.from), message.from)
@@ -42,9 +42,9 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
     }
 
     case RandomUsersLoaded(message, from, userIds) => {
-      log.info("random users: "+userIds.mkString)
+      log.debug("random users: {}", userIds.mkString(","))
       val selectedUsers = selectRandomUsers(message, userIds)
-      log.info("selected users: "+userIds.mkString)
+      log.debug("selected users: {}", userIds.mkString(","))
       message.target.insertTargetUsers(selectedUsers)
       context.parent.tell(message, from)
     }
@@ -55,7 +55,8 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
   }
 
   private def loadRandomUsers(message: SubjectToSubjectMessage) {
-    log.info("load random users...")
+    log.debug("load random users...")
+
     val request =  RequestUserID(SubjectInformation(processId, id, message.to), userIds => userIds)
     val result = (contextResolver ? request).mapTo[Array[UserID]]
     val from = context.sender

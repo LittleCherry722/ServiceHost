@@ -198,7 +198,7 @@ protected case class SendStateActor(data: StateData)
       // Change the state and enter the History entry
       remainingStored -= 1
 
-      log.debug("message with id %i stored. remaining: %i", messageID, remainingStored)
+      log.debug("message with id {} stored. remaining: {}", messageID, remainingStored)
 
       if (remainingStored <= 0) {
         changeState(transition.successorID, data,message)
@@ -207,7 +207,7 @@ protected case class SendStateActor(data: StateData)
     }
 
     case Stored(messageID) => {
-      log.warning("unknown message with id %i", messageID)
+      log.warning("unknown message with id {}", messageID)
     }
 
     case Rejected(messageID) if (
