@@ -199,10 +199,17 @@ protected case class SendStateActor(data: StateData)
         HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
       // Change the state and enter the History entry
       remainingStored -= 1
+
+      log.debug("message with id %i stored. remaining: %i", messageID, remainingStored)
+
       if (remainingStored <= 0) {
         changeState(transition.successorID, data,message)
         blockingHandlerActor ! UnBlockUser(userID)
       }
+    }
+
+    case Stored(messageID) => {
+      log.warning("unknown message with id %i", messageID)
     }
 
     case Rejected(messageID) if (
