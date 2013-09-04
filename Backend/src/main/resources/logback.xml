@@ -22,9 +22,12 @@
 	</appender>
 
 	<logger name="de.tkip.sbpm" level="DEBUG">
-		<appender-ref ref="STDOUT" />
-		<appender-ref ref="FILE" />
 		<appender-ref ref="SLICK" />
 	</logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
+    </root>
 </configuration>
 

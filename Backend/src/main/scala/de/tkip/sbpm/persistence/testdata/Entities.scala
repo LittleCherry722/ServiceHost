@@ -112,7 +112,9 @@ object Entities {
     (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
     (Process(None, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),
     (Process(None, """Fortgeschritten Lieferung""", false) -> loadJson("fortgeschritten_lieferung")),
-    (Process(None, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")))
+    (Process(None, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
+    (Process(None, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
+    (Process(None, """Shared IP Test""", false) -> loadJson("shared_ip_test")))
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list

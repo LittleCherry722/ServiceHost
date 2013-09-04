@@ -27,7 +27,7 @@ class ChangeActor extends Actor {
     }
 
     case GetProcessChange(t) => {
-      Future { getProcessChange(t) } pipeTo sender
+      Future { getProcessData(t) } pipeTo sender
     }
     
     case q: ActionChangeData => {
@@ -91,6 +91,35 @@ class ChangeActor extends Actor {
 
   }
   
+  private def getProcessData(t: Long) = {
+   
+    val tempInsert = new ArrayBuffer[ProcessRelatedChangeData]()
+    val tempUpdate = new ArrayBuffer[ProcessRelatedChangeData]()
+    val tempDelete = new ArrayBuffer[ProcessRelatedDeleteData]()
+    
+    for (i <- 0 until processChangeEntries.length) {
+      processChangeEntries(i) match {
+        case ProcessChange(p, info, date) => {
+          if (date.getTime() > t * 1000) {
+            if (info == "insert")
+              tempInsert += ProcessRelatedChangeData(p.id.get,p.name)
+            if (info == "update")
+              tempUpdate += ProcessRelatedChangeData(p.id.get,p.name)
+          }
+        }
+        case ProcessDelete(id, date) => {
+          if (date.getTime() > t * 1000) {
+            tempDelete += ProcessRelatedDeleteData(id)
+          }
+        }
+      }
+    }
+    
+    ChangeRelatedData(Some(ProcessRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray))))
+
+
+  }
+  
   private def getActionChange(t: Long) = {
     val resultHead = """"action":"""
     val insertHead = """"inserted":"""
@@ -105,11 +134,11 @@ class ChangeActor extends Actor {
         case ActionChange(a, info, date) => {
           if (date.getTime() > t * 1000) {
             if (info == "insert")
-              tempInsert += """{ "id": """ + a.id.get + """, "data": """" + a.data + """"}"""
+              tempInsert += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
             if (info == "update")
-              tempUpdate += """{ "id": """ + a.id.get + """, "data": """" + a.data + """"}"""
+              tempUpdate += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
             if (info == "delete")
-              tempDelete += """{ "id": """ + a.id.get + """, "data": """" + a.data + """"}"""
+              tempDelete += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
           }
         }
       }

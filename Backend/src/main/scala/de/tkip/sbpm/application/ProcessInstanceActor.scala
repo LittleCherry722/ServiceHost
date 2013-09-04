@@ -54,6 +54,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
   implicit val timeout = Timeout(4 seconds)
+  implicit val config = context.system.settings.config
 
   // this fields are set in the preStart, dont change them afterwards!!!
   private var id: ProcessInstanceID = _
@@ -70,13 +71,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
-  private val host = context.system.settings.config.getString("akka.remote.netty.tcp.hostname")
-  private val port = context.system.settings.config.getInt("akka.remote.netty.tcp.port")
-  private val url = "@"+host+":"+port
+  val url = SystemProperties.akkaRemoteUrl
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceProxyManagerActor(request.userID, request.processID, url, self))))
+      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self))))
 
 
   // this actor handles the blocking for answer to the user
@@ -84,7 +83,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this actory is used to exchange the subject ids for external input messages
   // TODO
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, graph)))
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph)))
 
   override def preStart() {
     try {

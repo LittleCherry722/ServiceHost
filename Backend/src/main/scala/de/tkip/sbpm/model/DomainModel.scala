@@ -22,6 +22,7 @@ import spray.json.{
   DeserializationException,
   JsNumber
 }
+import de.tkip.sbpm.application.subject.misc.AvailableAction
 
 // Model for Administration
 case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, gdriveId: String = "")
@@ -41,14 +42,29 @@ case class GroupUser(groupId: Int, userId: Int)
 case class ProcessInstance(id: Option[Int], processId: Int, graphId: Int, data: Option[String] = None)
 case class Process(id: Option[Int], name: String, isCase: Boolean = false, startAble: Option[Boolean] = None, activeGraphId: Option[Int] = None)
 case class Message(id: Option[Int], from: Int, to: Int, instanceId: Int, isRead: Boolean, data: String, date: java.sql.Timestamp)
-case class Action(id: Option[Int], data: String) // TODO extend this case class to fit the requirements
+//case class Action(id: Option[Int], data: String) // TODO extend this case class to fit the requirements
 
 // Model for changeAPI
-trait ProcessChangeData
+object ChangeDataMode {
+  type ChangeMode = String
+  val Inserted = "insert"
+  val Updated = "updated"
+  val Deleted = "delete"
+}
+trait ChangeData {
+  def date: java.util.Date
+}
+trait ProcessChangeData extends ChangeData
 case class ProcessChange(process: Process, info: String, date: java.util.Date) extends ProcessChangeData
 case class ProcessDelete(id: Int, date: java.util.Date) extends ProcessChangeData
-trait ActionChangeData
-case class ActionChange(action: Action, info: String, date: java.util.Date) extends ActionChangeData
+trait ActionChangeData extends ChangeData
+case class ActionChange(action: AvailableAction, info: String, date: java.util.Date) extends ActionChangeData
+case class ActionDelete(id: Int, date: java.util.Date) extends ActionChangeData
+
+case class ProcessRelatedChangeData(id: Int, name: String)
+case class ProcessRelatedDeleteData(id: Int)
+case class ProcessRelatedChange(inserted: Option[Array[ProcessRelatedChangeData]], updated: Option[Array[ProcessRelatedChangeData]], deleted: Option[Array[ProcessRelatedDeleteData]])
+case class ChangeRelatedData(process: Option[ProcessRelatedChange])
 
 
 case class Configuration(key: String,

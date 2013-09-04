@@ -112,16 +112,16 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   // DomainModel
   implicit val domainProcessFormat = jsonFormat5(Process)
-  implicit val actionFormat = jsonFormat2(Action)
+//  implicit val actionFormat = jsonFormat2(Action)
   
   implicit val configFormat = jsonFormat4(Configuration)
 
 
   implicit val processInstanceInfoFormat = jsonFormat3(ProcessInstanceInfo)
-  implicit val targetUserFormat = jsonFormat3(TargetUser)
-  implicit val messageDataFormat = jsonFormat5(MessageData)
+  implicit val targetUserFormat = jsonFormat4(TargetUser)
+  implicit val messageDataFormat = jsonFormat6(MessageData)
   implicit val actionDataFormat = jsonFormat8(ActionData)
-  implicit val availableActionFormat = jsonFormat8(AvailableAction)
+  implicit val availableActionFormat = jsonFormat9(AvailableAction)
   implicit val processInstanceDataFormat = jsonFormat9(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
@@ -135,5 +135,9 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val newHistoryEntryFormat = jsonFormat6(NewHistoryEntry)
   implicit val newHistoryFormat = jsonFormat1(NewHistory)
   
+  implicit val processRelatedChangeDataFormat = jsonFormat2(ProcessRelatedChangeData)
+  implicit val processRelatedDeleteDataFormat = jsonFormat1(ProcessRelatedDeleteData)
+  implicit val processRelatedChangeFormat = jsonFormat3(ProcessRelatedChange)
+  implicit val changeData = jsonFormat1(ChangeRelatedData)
 
 }
