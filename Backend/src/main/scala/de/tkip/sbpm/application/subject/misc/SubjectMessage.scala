@@ -93,6 +93,7 @@ case class ActionData(
 
 // Answer to the GetAvailable Action request
 case class AvailableAction(
+  id: Int,
   userID: UserID,
   processInstanceID: ProcessInstanceID,
   subjectID: SubjectID,
