@@ -79,7 +79,7 @@ case class MessageData(
   iconLink: Option[String] = None
 )
 
-case class TargetUser(min: Int, max: Int, targetUsers: Array[UserID])
+case class TargetUser(min: Int, max: Int, external: Boolean, targetUsers: Array[UserID])
 
 case class ActionData(
   text: String, // = messagetype
