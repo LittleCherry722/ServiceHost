@@ -1,39 +1,45 @@
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
-import scala.language.postfixOps
+import scala.concurrent.duration._
+import akka.event.Logging
 import akka.pattern.ask
-import de.tkip.sbpm.logging.DefaultLogging
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.Message
+import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.rest.SprayJsonSupport._
 import spray.http.StatusCodes
-import spray.httpx.SprayJsonSupport._
-import spray.json.pimpAny
-import spray.json.pimpString
 import spray.routing._
-import spray.routing.Directive.pimpApply
-import spray.routing.directives.CompletionMagnet._
-import spray.routing.directives.FieldDefMagnet.apply
 import spray.util.LoggingContext
+import scala.concurrent.ExecutionContext
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.persistence.query._
-import spray.httpx.marshalling.Marshaller
-import scala.concurrent.Future
 
-class MessageInterfaceActor extends Actor  with PersistenceInterface {
+class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
+  import context.dispatcher
+  implicit val timeout = Timeout(5 seconds)
+
+  def actorRefFactory = context
+
+  private lazy val persistence = ActorLocator.persistenceActor
 
   def routing = runRoute({
     get {
       //READ
       path(IntNumber) { messageID =>
-        //          completeWithQuery[Message](Messages.Read.ById(messageID))
-        val m = Message(None, 1, 2, "", false, "", null)
-        complete(m)
+        //                  completeWithQuery[Message](Messages.Read.ById(messageID))
+        complete {
+          (persistence ? Messages.Read.ById(messageID)).mapTo[Option[Message]]
+        }
       } ~
         //LIST
         path("") {
-          completeWithQuery[Seq[Message]](Messages.Read())
+          //          completeWithQuery[Seq[Message]](Messages.Read())        
+          complete {
+            (persistence ? Messages.Read.All).mapTo[Seq[Message]]
+          }
         }
     } ~
       delete {
@@ -50,8 +56,10 @@ class MessageInterfaceActor extends Actor  with PersistenceInterface {
         //CREATE
         pathPrefix("") {
           path("") {
-            entity(as[ProcessIdHeader]) { json =>
+            entity(as[SendMessageHeader]) { json =>
               complete {
+                val message = Message(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))
+                persistence ! Messages.Save(message)
                 StatusCodes.NoContent
               }
             }

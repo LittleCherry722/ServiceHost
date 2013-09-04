@@ -109,7 +109,9 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   // for message system
   import de.tkip.sbpm.model
+  case class SendMessageHeader(toUser: UserID, title: String, content: String)
   implicit val messageFormat = jsonFormat7(model.Message)
+  implicit val messageHeaderFormat = jsonFormat3(SendMessageHeader)
 
   // used for login
   implicit val userPassFormat = jsonFormat2(UserPass)
