@@ -23,6 +23,7 @@ import spray.json.{
   JsNumber
 }
 import de.tkip.sbpm.application.subject.misc.AvailableAction
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 
 // Model for Administration
 case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, gdriveId: String = "")
@@ -41,7 +42,7 @@ case class GroupUser(groupId: Int, userId: Int)
 // Model for Modeling/Execution
 case class ProcessInstance(id: Option[Int], processId: Int, graphId: Int, data: Option[String] = None)
 case class Process(id: Option[Int], name: String, isCase: Boolean = false, startAble: Option[Boolean] = None, activeGraphId: Option[Int] = None)
-case class Message(id: Option[Int], from: Int, to: Int, title: String, isRead: Boolean, data: String, date: java.sql.Timestamp)
+case class Message(id: Option[Int], fromUser: UserID, toUser: UserID, title: String, isRead: Boolean, content: String, date: java.sql.Timestamp)
 //case class Action(id: Option[Int], data: String) // TODO extend this case class to fit the requirements
 
 // Model for changeAPI
