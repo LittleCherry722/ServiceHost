@@ -295,7 +295,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   private def dequeueMessages(key: (SubjectID, MessageType), messages: Array[MessageID]): Boolean = {
     if (messages forall (id => messageQueueMap(key).exists(_.messageID == id))) {
       // TODO might increase performance
-      messages foreach (id => messageQueueMap(key).dequeueAll(_ == id))
+      messages foreach (id => messageQueueMap(key).dequeueAll(_.messageID == id))
       true
     } else {
       false

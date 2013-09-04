@@ -222,12 +222,11 @@ protected case class ReceiveStateActor(data: StateData)
     var ready = false
     var messageID: MessageID = -1
     var messageContent: Option[MessageContent] = None
+    private var remaining = transition.target.get.min
 
     val messageData: ArrayBuffer[MessageData] = ArrayBuffer[MessageData]()
 
     def messages = messageData.toArray
-
-    private var remaining = transition.target.get.min
 
     def receiveMessages: Array[MessageID] = {
       // TODO Transition max valie
@@ -237,7 +236,17 @@ protected case class ReceiveStateActor(data: StateData)
     }
 
     def setMessages(messages: Array[SubjectToSubjectMessage]) {
+      clearMessages()
       for (message <- messages) addMessage(message)
+    }
+
+    private def clearMessages() {
+      // reset all fields
+      ready = false
+      messageID = -1
+      messageContent = None
+      remaining = transition.target.get.min
+      messageData.clear()
     }
 
     private def addMessage(message: SubjectToSubjectMessage) {
