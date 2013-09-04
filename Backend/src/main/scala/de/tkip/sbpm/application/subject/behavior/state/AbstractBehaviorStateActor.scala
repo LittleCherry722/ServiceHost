@@ -164,7 +164,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
   private def generalReceive: Receive = {
 
     case DisableState => {
-      disabled = true
+      if (!disabled) {
+        disabled = true
+        actionChanged()
+      }
     }
 
     case action: ExecuteAction if (disabled) => {
@@ -273,10 +276,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
   }
 
   private lazy val actionID = ActionIDProvider.nextActionID()
-  
+
   /**
    * Call this method, when the action has changed
-   * 
+   *
    * it informs the ChangeActor about the new action
    */
   protected def actionChanged(changeMode: ChangeMode = Updated) {

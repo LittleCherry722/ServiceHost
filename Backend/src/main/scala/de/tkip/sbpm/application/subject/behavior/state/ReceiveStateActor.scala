@@ -39,6 +39,8 @@ import de.tkip.sbpm.application.subject.misc.DisableNonObserverStates
 import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
 import de.tkip.sbpm.application.subject.behavior.InputPoolMessagesChanged
 import de.tkip.sbpm.application.subject.behavior.DeleteInputPoolMessages
+import de.tkip.sbpm.model.ChangeDataMode._
+
 
 protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
@@ -115,6 +117,9 @@ protected case class ReceiveStateActor(data: StateData)
       //      logger.debug("sending {} to {}", ack, sender)
       //      sender ! ack
       //      sender ! SubjectToSubjectMessageReceived(sm)
+
+      // send information about changed actions to actionchangeactor
+      actionChanged(Updated)
 
       // try to disable other states, when this state is an observer
       tryDisableNonObserverStates()
