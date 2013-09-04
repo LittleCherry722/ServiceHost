@@ -54,6 +54,8 @@ import de.tkip.sbpm.model.ChangeDataMode._
 import de.tkip.sbpm.model.ActionDelete
 import java.util.Date
 import de.tkip.sbpm.model.ActionChange
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * The data, which is necessary to create any state
@@ -76,27 +78,6 @@ private[subject] case object KillState
 
 // the message to signal, that a timeout has expired
 private case object TimeoutExpired
-
-/**
- * The actor to perform a timeout
- * waits the given time (in millis)
- * then informs the parent, that the timeout has expired
- * and kills itself
- */
-private class TimeoutActor(time: Long) extends Actor {
-
-  override def preStart() {
-    // just wait the time
-    Thread.sleep(time)
-    // inform the parent
-    context.parent ! TimeoutExpired
-    // and kill this actor
-    context.stop(self)
-  }
-
-  def receive = FSM.NullFunction
-
-}
 
 // disables the state, so it cannot execute actions
 case object DisableState
@@ -146,7 +127,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
     if (timeoutTransition.isDefined) {
       val stateTimeout = timeoutTransition.get.myType.asInstanceOf[TimeoutCond]
       if (!stateTimeout.manual) {
-        context.actorOf(Props(new TimeoutActor(stateTimeout.duration * 1000)))
+        context.system.scheduler.scheduleOnce(FiniteDuration(stateTimeout.duration, "s"), self, TimeoutExpired)
       }
     }
     actionChanged(Inserted)
@@ -238,10 +219,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
     self ! PoisonPill
   }
 
-  protected def actionStatusChanged() {
-    //TODO
-  }
-
   /**
    * Executes a timeout by executing the timeout edge
    *
@@ -249,6 +226,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
    */
   protected def executeTimeout() {
     if (timeoutTransition.isDefined) {
+      logger.debug("Executing Timeout")
       changeState(timeoutTransition.get.successorID, data, null)
     }
   }
@@ -273,10 +251,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
   }
 
   private lazy val actionID = ActionIDProvider.nextActionID()
-  
+
   /**
    * Call this method, when the action has changed
-   * 
+   *
    * it informs the ChangeActor about the new action
    */
   protected def actionChanged(changeMode: ChangeMode = Updated) {
