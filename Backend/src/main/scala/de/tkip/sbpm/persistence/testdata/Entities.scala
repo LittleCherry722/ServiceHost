@@ -109,7 +109,10 @@ object Entities {
     (Process(None, """IP Test""", false) -> loadJson("ip_test")),
     (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
     (Process(None, """Macro Example""", false) -> loadJson("macro_example")),
-    (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")))
+    (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
+    (Process(None, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),
+    (Process(None, """Fortgeschritten Lieferung""", false) -> loadJson("fortgeschritten_lieferung")),
+    (Process(None, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")))
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list
