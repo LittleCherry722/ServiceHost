@@ -85,6 +85,10 @@ class ProcessManagerActor extends Actor {
         history.entries += createHistoryEntry(None, id, "killed")
       }
       processInstanceMap.clear()
+      // TODO delete the history, in future the history should be in a database,
+      // so there is no extra message for it
+      history.entries.clear()
+      
       kill.sender ! ProcessInstancesKilled
     }
 

@@ -15,9 +15,8 @@ package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.Array.canBuildFrom
 import scala.collection.mutable.ArrayBuffer
-
 import akka.actor.actorRef2Scala
-import de.tkip.sbpm.application.history.{Message => HistoryMessage}
+import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageContent
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.MessageID
@@ -35,8 +34,11 @@ import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import de.tkip.sbpm.application.subject.misc.MessageData
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessageReceived
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
+import de.tkip.sbpm.application.subject.misc.DisableNonObserverStates
+import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
+import de.tkip.sbpm.application.subject.behavior.InputPoolMessagesChanged
+import de.tkip.sbpm.application.subject.behavior.DeleteInputPoolMessages
 
 protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
@@ -48,16 +50,14 @@ protected case class ReceiveStateActor(data: StateData)
       ((t.subjectID, t.messageType), new ExtendedExitTransition(t)))
       .toMap[(SubjectID, MessageType), ExtendedExitTransition]
 
-  log.debug("exitTransitionsMap: "+exitTransitionsMap.mkString(","))
+  log.debug("exitTransitionsMap: " + exitTransitionsMap.mkString(","))
 
   // register to subscribe the messages at the inputpool
   inputPoolActor ! {
     // convert the transition array into the request array
     for (transition <- exitTransitions if (transition.target.isDefined)) yield {
-      // maximum number of messages the state is able to process
-      val count = transition.target.get.max
       // the register-message for the inputpool
-      SubscribeIncomingMessages(id, transition.subjectID, transition.messageType, count)
+      SubscribeIncomingMessages(id, transition.subjectID, transition.messageType)
     }
   }
 
@@ -81,6 +81,11 @@ protected case class ReceiveStateActor(data: StateData)
       // create the Historymessage
       val message =
         HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
+
+      // TODO check if possible
+      inputPoolActor !
+        DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+
       // change the state and enter the history entry
       changeState(transition.successorID, data, message)
 
@@ -88,33 +93,73 @@ protected case class ReceiveStateActor(data: StateData)
       blockingHandlerActor ! ActionExecuted(action)
     }
 
-    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
-      logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
-        sm.messageType + "\" from \"" + sm.from +
-        "\" with content \"" + sm.messageContent + "\"")
+    case InputPoolMessagesChanged(fromSubject, messageType, messages) if (exitTransitionsMap.contains((fromSubject, messageType))) => {
 
-      exitTransitionsMap(sm.from, sm.messageType).addMessage(sm)
+      logger.debug("Receive@" + userID + "/" + subjectID + ": " +
+        messages.size + ". Messages \"" +
+        messageType + "\" from \"" + fromSubject +
+        "\" with content \"" + messages.map(_.messageContent).mkString("[", ", ", "]") + "\"")
 
-      val t = exitTransitionsMap(sm.from, sm.messageType).transition
+      exitTransitionsMap(fromSubject, messageType).setMessages(messages)
+
+      val t = exitTransitionsMap(fromSubject, messageType).transition
       val varID = t.storeVar
       if (t.storeToVar && varID.isDefined) {
-        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
-        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
+        // FIXME variablen in dem context
+        //        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
+        //        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
 
-      val ack = SubjectToSubjectMessageReceived(sm)
+      //      val ack = SubjectToSubjectMessageReceived(sm)
+      //
+      //      logger.debug("sending {} to {}", ack, sender)
+      //      sender ! ack
+      //      sender ! SubjectToSubjectMessageReceived(sm)
 
-      logger.debug("sending {} to {}", ack, sender)
-      sender ! ack
+      // try to disable other states, when this state is an observer
+      tryDisableNonObserverStates()
     }
+
+    //    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
+    //      logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
+    //        sm.messageType + "\" from \"" + sm.from +
+    //        "\" with content \"" + sm.messageContent + "\"")
+    //
+    //      exitTransitionsMap(sm.from, sm.messageType).addMessage(sm)
+    //
+    //      val t = exitTransitionsMap(sm.from, sm.messageType).transition
+    //      val varID = t.storeVar
+    //      if (t.storeToVar && varID.isDefined) {
+    //        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
+    //        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
+    //      }
+    //
+    //      //      sender ! SubjectToSubjectMessageReceived(sm)
+    //
+    //      // try to disable other states, when this state is an observer
+    //      tryDisableNonObserverStates()
+    //    }
 
     case InputPoolSubscriptionPerformed => {
       // This state has all inputpool information -> unblock the user
       blockingHandlerActor ! UnBlockUser(userID)
     }
+
+    case KillState => {
+      // inform the inputpool, that this state is not waiting for messages anymore
+      inputPoolActor ! UnSubscribeIncomingMessages(id)
+      suicide()
+    }
   }
 
   override protected def delayUnblockAtStart = true
+
+  private def tryDisableNonObserverStates() {
+    // TODO check if timeout is ready
+    if (model.observerState && exitTransitionsMap.exists(_._2.ready)) {
+      subjectActor ! DisableNonObserverStates
+    }
+  }
 
   // only for startstate creation, check if subjectready should be sent
   var sendSubjectReady = startState
@@ -130,6 +175,10 @@ protected case class ReceiveStateActor(data: StateData)
     val exitTransition =
       exitTransitionsMap.map(_._2).filter(_.ready).map(_.transition)
         .reduceOption((t1, t2) => if (t1.priority < t2.priority) t1 else t2)
+
+    // if this is an observer state disable the other states,
+    // because this state fires a transition
+    tryDisableNonObserverStates()
 
     if (exitTransition.isDefined) {
       // TODO richtige historymessage
@@ -154,6 +203,10 @@ protected case class ReceiveStateActor(data: StateData)
     // inform the inputpool, that this state is not waiting for messages anymore
     inputPoolActor ! UnSubscribeIncomingMessages(id)
 
+    if (data.stateModel.observerState) {
+      subjectActor ! KillNonObserverStates
+    }
+
     // change the state
     super.changeState(successorID, data, historyMessage)
   }
@@ -169,14 +222,34 @@ protected case class ReceiveStateActor(data: StateData)
     var ready = false
     var messageID: MessageID = -1
     var messageContent: Option[MessageContent] = None
+    private var remaining = transition.target.get.min
 
     val messageData: ArrayBuffer[MessageData] = ArrayBuffer[MessageData]()
 
     def messages = messageData.toArray
 
-    private var remaining = transition.target.get.min
+    def receiveMessages: Array[MessageID] = {
+      // TODO Transition max valie
+      if (ready) messages.take(Math.min(1, messages.size)).map(_.messageID)
 
-    def addMessage(message: SubjectToSubjectMessage) {
+      else Array()
+    }
+
+    def setMessages(messages: Array[SubjectToSubjectMessage]) {
+      clearMessages()
+      for (message <- messages) addMessage(message)
+    }
+
+    private def clearMessages() {
+      // reset all fields
+      ready = false
+      messageID = -1
+      messageContent = None
+      remaining = transition.target.get.min
+      messageData.clear()
+    }
+
+    private def addMessage(message: SubjectToSubjectMessage) {
       // validate
       if (!(message.messageType == messageType && message.from == from)) {
         logger.error("Transportmessage is invalid to transition: " + message +
@@ -190,11 +263,11 @@ protected case class ReceiveStateActor(data: StateData)
       // TODO auf mehrere messages umbauen, anstatt immer nur die letzte
       messageID = message.messageID
       messageContent = Some(message.messageContent)
-      val (title,url,iconLink) = message.fileInfo match {
-        case Some(GDriveFileInfo(title,url,iconLink)) => (Some(title),Some(url),Some(iconLink))
-        case None => (None,None,None)
+      val (title, url, iconLink) = message.fileInfo match {
+        case Some(GDriveFileInfo(title, url, iconLink)) => (Some(title), Some(url), Some(iconLink))
+        case None                                       => (None, None, None)
       }
-      messageData += MessageData(message.userID, message.messageContent, title, url, iconLink)
+      messageData += MessageData(message.messageID, message.userID, message.messageContent, title, url, iconLink)
     }
   }
 }
