@@ -53,9 +53,9 @@ case class Process(id: Option[Int],
 case class Message(id: Option[Int],
   fromUserId: Int,
   toUserId: Int,
-  processInstanceId: Int,
+  title: String,
   isRead: Boolean,
-  data: String,
+  content: String,
   date: java.sql.Timestamp)
 
 case class ProcessActiveGraph(processId: Int, graphId: Int)

@@ -41,7 +41,7 @@ case class GroupUser(groupId: Int, userId: Int)
 // Model for Modeling/Execution
 case class ProcessInstance(id: Option[Int], processId: Int, graphId: Int, data: Option[String] = None)
 case class Process(id: Option[Int], name: String, isCase: Boolean = false, startAble: Option[Boolean] = None, activeGraphId: Option[Int] = None)
-case class Message(id: Option[Int], from: Int, to: Int, instanceId: Int, isRead: Boolean, data: String, date: java.sql.Timestamp)
+case class Message(id: Option[Int], from: Int, to: Int, title: String, isRead: Boolean, data: String, date: java.sql.Timestamp)
 //case class Action(id: Option[Int], data: String) // TODO extend this case class to fit the requirements
 
 // Model for changeAPI

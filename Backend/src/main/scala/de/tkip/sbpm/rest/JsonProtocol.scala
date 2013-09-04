@@ -50,7 +50,7 @@ object JsonProtocol extends DefaultJsonProtocol {
     def read(json: JsValue) = {
       json.asJsObject().getFields("date") match {
         case Seq(JsNumber(time)) => new Timestamp(time.toLong)
-        case _ => throw new DeserializationException("Date expected")
+        case _                   => throw new DeserializationException("Date expected")
       }
     }
   }
@@ -62,7 +62,7 @@ object JsonProtocol extends DefaultJsonProtocol {
     def read(json: JsValue) = {
       json.asJsObject().getFields("date") match {
         case Seq(JsNumber(date)) => new Date(date.toLong)
-        case _ => throw new DeserializationException("Date expected")
+        case _                   => throw new DeserializationException("Date expected")
       }
     }
   }
@@ -82,7 +82,7 @@ object JsonProtocol extends DefaultJsonProtocol {
     def write(array: scala.collection.mutable.Buffer[T]) = JsArray(array.map(_.toJson).toList)
     def read(value: JsValue) = value match {
       case JsArray(elements) => scala.collection.mutable.Buffer[T]() ++ elements.map(_.convertTo[T])
-      case x => deserializationError("Expected Array as JsArray, but got " + x)
+      case x                 => deserializationError("Expected Array as JsArray, but got " + x)
     }
   }
 
@@ -91,7 +91,7 @@ object JsonProtocol extends DefaultJsonProtocol {
    */
   // TODO name should not be optional
   case class ProcessIdHeader(name: Option[String], processId: Int)
-  case class GraphHeader(name: String, graph: Option[Graph], isCase: Boolean, id: Option[Int] = None){
+  case class GraphHeader(name: String, graph: Option[Graph], isCase: Boolean, id: Option[Int] = None) {
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
   }
 
@@ -106,16 +106,19 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val groupUserFormat = jsonFormat2(GroupUser)
   implicit val groupRoleFormat = jsonFormat2(GroupRole)
   implicit val password = jsonFormat2(SetPassword)
-  
+
+  // for message system
+  import de.tkip.sbpm.model
+  implicit val messageFormat = jsonFormat7(model.Message)
+
   // used for login
   implicit val userPassFormat = jsonFormat2(UserPass)
 
   // DomainModel
   implicit val domainProcessFormat = jsonFormat5(Process)
-//  implicit val actionFormat = jsonFormat2(Action)
-  
-  implicit val configFormat = jsonFormat4(Configuration)
+  //  implicit val actionFormat = jsonFormat2(Action)
 
+  implicit val configFormat = jsonFormat4(Configuration)
 
   implicit val processInstanceInfoFormat = jsonFormat3(ProcessInstanceInfo)
   implicit val targetUserFormat = jsonFormat3(TargetUser)
@@ -134,7 +137,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val newHistoryTransitionDataFormat = jsonFormat5(NewHistoryTransitionData)
   implicit val newHistoryEntryFormat = jsonFormat6(NewHistoryEntry)
   implicit val newHistoryFormat = jsonFormat1(NewHistory)
-  
+
   implicit val processRelatedChangeDataFormat = jsonFormat2(ProcessRelatedChangeData)
   implicit val processRelatedDeleteDataFormat = jsonFormat1(ProcessRelatedDeleteData)
   implicit val processRelatedChangeFormat = jsonFormat3(ProcessRelatedChange)
