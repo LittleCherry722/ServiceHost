@@ -48,6 +48,8 @@ protected case class ReceiveStateActor(data: StateData)
       ((t.subjectID, t.messageType), new ExtendedExitTransition(t)))
       .toMap[(SubjectID, MessageType), ExtendedExitTransition]
 
+  log.debug("exitTransitionsMap: "+exitTransitionsMap.mkString(","))
+
   // register to subscribe the messages at the inputpool
   inputPoolActor ! {
     // convert the transition array into the request array
@@ -100,7 +102,10 @@ protected case class ReceiveStateActor(data: StateData)
         System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
 
-      sender ! SubjectToSubjectMessageReceived(sm)
+      val ack = SubjectToSubjectMessageReceived(sm)
+
+      logger.debug("sending {} to {}", ack, sender)
+      sender ! ack
     }
 
     case InputPoolSubscriptionPerformed => {

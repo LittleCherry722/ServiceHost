@@ -257,7 +257,6 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputNodeStartOuter);
 	gf_guiElementHide(gv_elements.inputNodeVariableO);
 	gf_guiElementHide(gv_elements.inputSubjectRelOuter);
-	gf_guiElementHide(gv_elements.inputEdgeTargetMTypeNO);
 	gf_guiElementHide(gv_elements.inputEdgeTargetMTypeVO);
 	gf_guiElementHide(gv_elements.inputEdgeTargetMVarTextO);
 	gf_guiElementHide(gv_elements.inputEdgeTypeBooleanOuter);
@@ -266,6 +265,8 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputNodeVarManVarStoreNO);
 	gf_guiElementHide(gv_elements.inputNodeMacroOuter);
 	gf_guiElementHide(gv_elements.inputNodeMacroNewOuter);
+	gf_guiElementHide(gv_elements.inputNodeCSubjectsO);
+	gf_guiElementHide(gv_elements.inputNodeCSubjectsCVarO);
 	
 	// clear element values
 	gf_guiElementWrite(gv_elements.guiConversationSelect, "string", "");
@@ -277,8 +278,6 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputEdgeStoreVariable, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeStoreVariableN, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTarget, "string", "");
-	gf_guiElementWrite(gv_elements.inputEdgeTargetMMin, "string", "");
-	gf_guiElementWrite(gv_elements.inputEdgeTargetMMax, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetNewName, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetNewRole, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeText, "string", "");
@@ -301,7 +300,6 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectText, "string", "");
-	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeN, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMVariable, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMVarText, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeVarManOperation, "string", "");
@@ -311,6 +309,11 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputNodeVarManVarStoreN, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeMacro, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeMacroNew, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeCSubjectsCVarT, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeCSubjectsSubject, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeCSubjectsVar, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeCSubjectsMin, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeCSubjectsMax, "string", "");
 	
 	// uncheck elements
 	gf_guiElementWrite(gv_elements.inputEdgeOptional, "bool", false);
@@ -324,7 +327,6 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectStartSubject, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeA, "bool", false);
-	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeL, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeV, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanFalse, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanTrue, "bool", false);
@@ -370,11 +372,13 @@ function gf_guiDisplayEdge (edge, startType)
 	gf_guiElementWrite(gv_elements.inputEdgeComment, "string", edge.getComment());
 	
 	// optional edges
+	/* deactivated as of 2013-08-29
 	if (startType == "modalsplit")
 	{
 		gf_guiElementShow(gv_elements.inputEdgeOptionalO);
 		gf_guiElementWrite(gv_elements.inputEdgeOptional, "bool", edge.isOptional());
 	}
+	*/
 	
 	// show edge types startNode dependent
 	if (startType == "$isipempty")
@@ -438,8 +442,8 @@ function gf_guiDisplayEdge (edge, startType)
 		if (startType == "send" || startType == "receive")
 		{
 			
-			var gt_isAll		= edge.getRelatedSubject("min") == "-1" && edge.getRelatedSubject("max") == "-1";
-			var gt_createNew	= edge.getRelatedSubject("createNew");
+			var gt_isAll		= true;
+			var gt_createNew	= false;
 			var gt_isVariable	= edge.getRelatedSubject("variable") != null && edge.getRelatedSubject("variable") != "";
 			
 			// load drop down fields
@@ -457,9 +461,6 @@ function gf_guiDisplayEdge (edge, startType)
 			if (edge.getRelatedSubject("multi"))
 				gf_guiElementShow(gv_elements.inputEdgeTargetMOuter);
 				
-			if (!gt_isAll && !gt_isVariable)
-				gf_guiElementShow(gv_elements.inputEdgeTargetMMMO);
-				
 			if (gt_isVariable)
 				gf_guiElementShow(gv_elements.inputEdgeTargetMTypeVO);
 			
@@ -467,15 +468,11 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiElementWrite(gv_elements.inputEdgeCorrelationId, "string", edge.getCorrelationId(), "");
 			gf_guiElementWrite(gv_elements.inputEdgeTarget, "string", edge.getRelatedSubject(), "");
 			gf_guiElementWrite(gv_elements.inputEdgeMessage, "string", edge.getText());
-			gf_guiElementWrite(gv_elements.inputEdgeTargetMMin, "string", edge.getRelatedSubject("min"));
-			gf_guiElementWrite(gv_elements.inputEdgeTargetMMax, "string", edge.getRelatedSubject("max"));
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMVariable, "string", edge.getRelatedSubject("variable"), "");
 			// gf_guiElementWrite(gv_elements.inputEdgeTransportMethod, "string", edge.getTransportMethod(), "");
 			
 			// set boolean values
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeA, "bool", gt_isAll && !gt_isVariable);
-			gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeL, "bool", !gt_isAll && !gt_createNew && !gt_isVariable);
-			gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeN, "bool", !gt_isAll && gt_createNew && !gt_isVariable);
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeV, "bool", gt_isVariable);
 			
 		
@@ -531,26 +528,6 @@ function gf_guiDisplayEdge (edge, startType)
 				};
 			}
 			
-			// add onClick event for "limited # of subjects" option to show additional options
-			if (gf_elementExists(gv_elements.inputEdgeTargetMTypeL))
-			{
-				document.getElementById(gv_elements.inputEdgeTargetMTypeL).onclick	= function ()
-				{
-					gf_guiElementShow(gv_elements.inputEdgeTargetMMMO);
-					gf_guiElementHide(gv_elements.inputEdgeTargetMTypeVO);
-				};
-			}
-			
-			// add onClick event for "create new subjects" option to show additional options
-			if (gf_elementExists(gv_elements.inputEdgeTargetMTypeN))
-			{
-				document.getElementById(gv_elements.inputEdgeTargetMTypeN).onclick	= function ()
-				{
-					gf_guiElementShow(gv_elements.inputEdgeTargetMMMO);
-					gf_guiElementHide(gv_elements.inputEdgeTargetMTypeVO);
-				};
-			}
-			
 			// add onClick event for "load from variable" option to show additional options
 			if (gf_elementExists(gv_elements.inputEdgeTargetMTypeV))
 			{
@@ -560,12 +537,6 @@ function gf_guiDisplayEdge (edge, startType)
 					gf_guiElementHide(gv_elements.inputEdgeTargetMMMO);
 				};
 			}
-		}
-		
-		// fields that are only available for startNode == send
-		if (startType == "send")
-		{
-			gf_guiElementShow(gv_elements.inputEdgeTargetMTypeNO);
 		}
 		
 		// fields that are only available for startNode == receive
@@ -666,6 +637,18 @@ function gf_guiDisplayNode (node)
 		};
 	}
 	
+	// add onChange listener to varStore Drop Down
+	if (gf_elementExists(gv_elements.inputNodeCSubjectsVar))
+	{
+		document.getElementById(gv_elements.inputNodeCSubjectsVar).onchange	= function ()
+		{
+			if (gf_guiElementRead(gv_elements.inputNodeCSubjectsVar, "string") == "##createNew##")
+				gf_guiElementShow(gv_elements.inputNodeCSubjectsCVarO);
+			else
+				gf_guiElementHide(gv_elements.inputNodeCSubjectsCVarO);
+		};
+	}
+	
 	// add onChange listener to varManOperation Drop Down
 	if (gf_elementExists(gv_elements.inputNodeVarManVarStore))
 	{
@@ -734,6 +717,12 @@ function gf_guiDisplayNode (node)
 		{
 			gf_guiElementShow(gv_elements.inputNodeVarManVar2);
 		}
+		
+		// set settings for create subjects
+		gf_guiElementWrite(gv_elements.inputNodeCSubjectsMin, "string", node.getCreateSubjects("min"), "");
+		gf_guiElementWrite(gv_elements.inputNodeCSubjectsMax, "string", node.getCreateSubjects("max"), "");
+		gf_guiElementWrite(gv_elements.inputNodeCSubjectsSubject, "string", node.getCreateSubjects("subject"), "");
+		gf_guiElementWrite(gv_elements.inputNodeCSubjectsVar, "string", node.getCreateSubjects("storevar"), "");
 		
 		// macro
 		gf_guiElementWrite(gv_elements.inputNodeMacro, "string", node.getMacro());
@@ -1170,6 +1159,66 @@ function gf_guiLoadDropDownMessageTypes (elementMessage, newMessage, wildcard)
 			gt_option.text		= "create a new message type";
 			gt_option.value		= "##createNew##";
 			gt_option.id		= elementMessage + "_00000.new";
+			gt_select.add(gt_option);
+		}
+	}
+}
+
+/**
+ * This method is used to fill a select field with all available multi-subjects.
+ * 
+ * @param {String} elementSubject The ID of the select element that holds the available multi-subjects.
+ * @param {String} excludeSubject The subject to exclude from the list.
+ * @returns {void}
+ */
+function gf_guiLoadDropDownMultiSubjects (elementSubject, excludeSubject)
+{
+	if (!gf_isset(excludeSubject))
+		excludeSubject	= null;
+		
+	// load subjects
+	if (elementSubject != null && gf_elementExists(elementSubject))
+	{
+		var gt_select			= document.getElementById(elementSubject).options;
+			gt_select.length	= 0;
+		
+		var gt_option			= document.createElement("option");
+			gt_option.text		= "please select";
+			gt_option.value		= "";
+			gt_option.id		= elementSubject + "_00000.0";
+			gt_select.add(gt_option);
+		
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementSubject + "_00000.1";
+			gt_select.add(gt_option);
+		
+		// read the subjects that can be related
+		var gt_subjectArray = [];
+		
+		for (var gt_sid in gv_graph.subjects)
+		{
+			var gt_subject	= gv_graph.subjects[gt_sid];
+			if (gt_sid != excludeSubject && gt_subject.isMulti())
+			{
+				gt_subjectArray[gt_subjectArray.length]		= gt_subject.getText() + " (" + gt_subject.getRole() + ")##;##" + gt_sid;
+			}
+		}
+		
+		// sort the subjects
+		gt_subjectArray.sort();
+		
+		// add the subjects as options to the select field
+		for (var gt_sid in gt_subjectArray)
+		{						
+			var gt_subjArray	= gt_subjectArray[gt_sid].split("##;##");
+			var gt_subjID		= gt_subjArray[1];
+			
+			gt_option		= document.createElement("option");
+			gt_option.text	= gf_replaceNewline(gt_subjArray[0], " ");
+			gt_option.value = gt_subjID;
+			gt_option.id	= elementSubject + "_" + gt_subjID;
 			gt_select.add(gt_option);
 		}
 	}
@@ -1691,6 +1740,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 	if (!gf_isset(nodeType))
 		nodeType	= "action";
 		
+	gf_guiElementHide(gv_elements.inputNodeCSubjectsO);
 	gf_guiElementHide(gv_elements.inputNodeOptMessageO);
 	gf_guiElementHide(gv_elements.inputNodeOptSubjectO);
 	gf_guiElementHide(gv_elements.inputNodeOptConversationOuter);
@@ -1709,7 +1759,15 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 		gf_guiLoadDropDownVariables(behavior, gv_elements.inputNodeVarManVar2, false, false);
 		gf_guiLoadDropDownVariables(behavior, gv_elements.inputNodeVarManVarStore, true, false);
 		gf_guiLoadDropDownVarManOperations(gv_elements.inputNodeVarManOperation);
+		
+	}
+	else if (nodeType == "$createsubjects")
+	{	
+		gf_guiElementShow(gv_elements.inputNodeCSubjectsO);
 			
+		gf_guiLoadDropDownVariables(behavior, gv_elements.inputNodeCSubjectsVar, true, false);
+		gf_guiLoadDropDownMultiSubjects(gv_elements.inputNodeCSubjectsSubject, gv_graph.selectedSubject);
+		
 	}
 	else if (nodeType.substr(0, 1) == "$")
 	{
@@ -1810,7 +1868,7 @@ function gf_guiReadEdge ()
 	var gt_text				= gf_guiElementRead(gv_elements.inputEdgeText, "string", "");
 	var gt_exception		= gf_guiElementRead(gv_elements.inputEdgeExceptionText, "string", "");
 	var gt_timeout			= gf_guiElementRead(gv_elements.inputEdgeTimeout, "string", "");
-	var gt_optional			= gf_guiElementRead(gv_elements.inputEdgeOptional, "bool", false);
+	var gt_optional			= false;	// gf_guiElementRead(gv_elements.inputEdgeOptional, "bool", false); -> deactivated as of 2013-08-29
 	var gt_messageType		= gf_guiElementRead(gv_elements.inputEdgeMessage, "string", "");
 	var gt_priority			= gf_guiElementRead(gv_elements.inputEdgePriority, "string", "1");
 	var gt_manualTimeout	= gf_guiElementRead(gv_elements.inputEdgeTimeoutManual, "bool", false);
@@ -1822,21 +1880,21 @@ function gf_guiReadEdge ()
 	var gt_storeVar			= gf_guiElementRead(gv_elements.inputEdgeStoreVariable, "string", "");
 	var gt_storeVarNew		= gf_guiElementRead(gv_elements.inputEdgeStoreVariableN, "string", "");
 	
-	var gt_correlationId	= gf_guiElementRead(gv_elements.inputEdgeCorrelationId, "string", "");
+	var gt_correlationId	= ""; // gf_guiElementRead(gv_elements.inputEdgeCorrelationId, "string", ""); -> deactivated as of 2013-08-29
 	
 	var gt_isVariable		= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeV, "bool", false);
 	var gt_isAll			= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeA, "bool", false);
 	
-	gt_relatedSubject.id				= gf_guiElementRead(gv_elements.inputEdgeTarget, "string", "");
-	gt_relatedSubject.min				= !gt_isAll ? gf_guiElementRead(gv_elements.inputEdgeTargetMMin, "string", "-1") : "-1";
-	gt_relatedSubject.max				= !gt_isAll ? gf_guiElementRead(gv_elements.inputEdgeTargetMMax, "string", "-1") : "-1";
-	gt_relatedSubject.createNew			= gf_guiElementRead(gv_elements.inputEdgeTargetMTypeN, "bool", false);
-	gt_relatedSubject.variable			= gt_isVariable ? gt_targetVar : "";
-	gt_relatedSubject.variableText		= gt_isVariable ? gt_targetVarNew : "";
-	gt_relatedSubject.useVariable		= gt_isVariable;
+	gt_relatedSubject.id			= gf_guiElementRead(gv_elements.inputEdgeTarget, "string", "");
+	gt_relatedSubject.min			= -1;
+	gt_relatedSubject.max			= -1;
+	gt_relatedSubject.createNew		= false;
+	gt_relatedSubject.variable		= gt_isVariable ? gt_targetVar : "";
+	gt_relatedSubject.variableText	= gt_isVariable ? gt_targetVarNew : "";
+	gt_relatedSubject.useVariable	= gt_isVariable;
 	gt_relatedSubject.createNewSubject	= gf_guiElementRead(gv_elements.inputEdgeTarget, "string", "") == "##createNew##";
-	gt_relatedSubject.createNewRole		= gf_guiElementRead(gv_elements.inputEdgeTargetNewRole, "string", "");
-	gt_relatedSubject.createNewName		= gf_guiElementRead(gv_elements.inputEdgeTargetNewName, "string", "");
+	gt_relatedSubject.createNewRole	= gf_guiElementRead(gv_elements.inputEdgeTargetNewRole, "string", "");
+	gt_relatedSubject.createNewName	= gf_guiElementRead(gv_elements.inputEdgeTargetNewName, "string", "");
 	
 	var gt_type				= "exitcondition";
 	
@@ -1874,18 +1932,18 @@ function gf_guiReadEdge ()
  * Read the values for the selected node from the input fields.
  * 
  * @see GCcommunication::updateNode()
- * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, macro, macroText, comment
+ * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, createSubjects, macro, macroText, comment
  */
 function gf_guiReadNode ()
 {
-	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", conversation: "", state: ""}, isMajorStartNode: false, conversation: "", conversationText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, macro: "", macroText: "", comment: ""};
+	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", conversation: "", state: ""}, isMajorStartNode: false, conversation: "", conversationText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, createSubjects: {subject: "", storevar: "", storevarText: "", min: -1, max: -1}, macro: "", macroText: "", comment: ""};
 	
 	var gt_text					= gf_guiElementRead(gv_elements.inputNodeText, "string", "");
 	var gt_isStart				= gf_guiElementRead(gv_elements.inputNodeStart, "bool", false);
 	var gt_type 				= gf_guiElementRead(gv_elements.inputNodeType, "string", "").toLowerCase();
 	var gt_opt_subject 			= gf_guiElementRead(gv_elements.inputNodeOptSubject, "string", "");
 	var gt_opt_message 			= gf_guiElementRead(gv_elements.inputNodeOptMessage, "string", "");
-	var gt_opt_conversation 			= gf_guiElementRead(gv_elements.inputNodeOptConversation, "string", "");
+	var gt_opt_conversation 	= gf_guiElementRead(gv_elements.inputNodeOptConversation, "string", "");
 	var gt_opt_correlationId 	= gf_guiElementRead(gv_elements.inputNodeOptCorrelationId, "string", "");
 	var gt_opt_state 			= gf_guiElementRead(gv_elements.inputNodeOptState, "string", "");
 	var gt_isMajorStartNode		= gf_guiElementRead(gv_elements.inputNodeMajorStart, "bool", false);
@@ -1903,6 +1961,13 @@ function gf_guiReadNode ()
 		gt_varMan.storevar		= gf_guiElementRead(gv_elements.inputNodeVarManVarStore, "string", "");
 		gt_varMan.operation		= gf_guiElementRead(gv_elements.inputNodeVarManOperation, "string", "");
 		gt_varMan.storevarText	= gf_guiElementRead(gv_elements.inputNodeVarManVarStoreN, "string", "");
+		
+	var gt_createSubjects	= {};
+		gt_createSubjects.subject		= gf_guiElementRead(gv_elements.inputNodeCSubjectsSubject, "string", "");;
+		gt_createSubjects.storevar		= gf_guiElementRead(gv_elements.inputNodeCSubjectsVar, "string", "");;
+		gt_createSubjects.storevarText	= gf_guiElementRead(gv_elements.inputNodeCSubjectsCVarT, "string", "");;
+		gt_createSubjects.min			= gf_guiElementRead(gv_elements.inputNodeCSubjectsMin, "string", -1);
+		gt_createSubjects.max			= gf_guiElementRead(gv_elements.inputNodeCSubjectsMax, "string", -1);
 	
 	if (gf_isset(gv_varManOperations[gt_varMan.operation]) && gv_varManOperations[gt_varMan.operation].hideSecondVar)
 	{
@@ -1916,7 +1981,7 @@ function gf_guiReadNode ()
 	
 	gt_options.subject			= gt_opt_subject;
 	gt_options.message			= gt_opt_message;
-	gt_options.conversation			= gt_opt_conversation;
+	gt_options.conversation		= gt_opt_conversation;
 	gt_options.correlationId	= gt_opt_correlationId;
 	gt_options.state			= gt_opt_state;
 	
@@ -1925,10 +1990,11 @@ function gf_guiReadNode ()
 	gt_result.type				= gt_type;
 	gt_result.options			= gt_options;
 	gt_result.isMajorStartNode	= gt_isMajorStartNode;
-	gt_result.conversation			= gt_conversation;
-	gt_result.conversationText		= gt_conversationNew;
+	gt_result.conversation		= gt_conversation;
+	gt_result.conversationText	= gt_conversationNew;
 	gt_result.variable			= gt_variable;
 	gt_result.varMan			= gt_varMan;
+	gt_result.createSubjects	= gt_createSubjects;
 	gt_result.macro				= gt_macro;
 	gt_result.macroText			= gt_macroText;
 	gt_result.comment			= gt_comment;

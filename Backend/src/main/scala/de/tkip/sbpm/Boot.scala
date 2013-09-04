@@ -38,11 +38,15 @@ import de.tkip.sbpm.bir._
 import de.tkip.sbpm.application.change._
 
 import de.tkip.sbpm.logging.LogPersistenceActor
+import de.tkip.sbpm.application.miscellaneous.SystemProperties._
 
 object Boot extends App {
 
   implicit val system = ActorSystem("sbpm")
+  implicit val config = system.settings.config
   val logging = system.log
+
+  logging.info("System Configuration: SBPM[{}:{}], AKKA[{}:{}]", sbpmHostname, sbpmPort, akkaRemoteHostname, akkaRemotePort)
 
   sys.addShutdownHook {
     logging.debug("Shutting down the system...")
@@ -67,9 +71,9 @@ object Boot extends App {
     context
   }
 
-  val frontendInterfaceActor = system.actorOf(Props[FrontendInterfaceActor], frontendInterfaceActorName);
+  val frontendInterfaceActor = system.actorOf(Props[FrontendInterfaceActor], frontendInterfaceActorName)
   val subjectProviderManagerActor = system.actorOf(Props[SubjectProviderManagerActor], subjectProviderManagerActorName)
-  val persistenceActor = system.actorOf(Props[PersistenceActor], persistenceActorName);
+  val persistenceActor = system.actorOf(Props[PersistenceActor], persistenceActorName)
 
   // create and start our service actor
   val rootActors = List(persistenceActor,
@@ -88,13 +92,8 @@ object Boot extends App {
     system.actorOf(Props[ChangeActor], changeActorName)
   )
 
-
-
   // binding the frontendInterfaceActor to a HttpListener
-  IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
-
-  printf(sys.env.getOrElse("SBPM_PORT", "8080"))
-  printf(sys.env.getOrElse("AKKA_PORT", "2552"))
+  IO(Http) ! Http.Bind(frontendInterfaceActor, interface = sbpmHostname, port = sbpmPort)
 
   // db init code below
   implicit val timout = Timeout(30 seconds)

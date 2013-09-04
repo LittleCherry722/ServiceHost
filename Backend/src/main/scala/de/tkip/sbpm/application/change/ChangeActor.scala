@@ -115,7 +115,7 @@ class ChangeActor extends Actor {
       }
     }
     
-    ChangeData(Some(ProcessRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray))))
+    ChangeRelatedData(Some(ProcessRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray))))
 
 
   }
@@ -134,11 +134,11 @@ class ChangeActor extends Actor {
         case ActionChange(a, info, date) => {
           if (date.getTime() > t * 1000) {
             if (info == "insert")
-              tempInsert += """{ "id": """ + a.id.get + """, "data": """" + a.data + """"}"""
+              tempInsert += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
             if (info == "update")
-              tempUpdate += """{ "id": """ + a.id.get + """, "data": """" + a.data + """"}"""
+              tempUpdate += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
             if (info == "delete")
-              tempDelete += """{ "id": """ + a.id.get + """, "data": """" + a.data + """"}"""
+              tempDelete += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
           }
         }
       }

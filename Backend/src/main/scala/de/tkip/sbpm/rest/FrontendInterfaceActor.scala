@@ -28,6 +28,7 @@ import de.tkip.sbpm.rest._
 import scala.concurrent.Future
 import DefaultJsonProtocol._
 import de.tkip.sbpm.rest.ChangeInterfaceActor
+import de.tkip.sbpm.application.miscellaneous.SystemProperties
 
 object Entity {
   val PROCESS = "process"
@@ -248,9 +249,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private def attachExternalAddress(requestContext: RequestContext): String = {
     val jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
 
-    val hostname = context.system.settings.config.getString("akka.remote.netty.tcp.hostname")
-    val port = context.system.settings.config.getString("akka.remote.netty.tcp.port")
-    val url = "@" + hostname + ":" + port
+    val url = SystemProperties.akkaRemoteUrl(context.system.settings.config)
     jsObject.copy(Map("url" -> (url).toJson) ++ jsObject.fields).toString
   }
 

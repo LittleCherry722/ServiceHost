@@ -135,28 +135,34 @@ var gv_emptyImgPath	= gv_imgPath + gv_nodeTypeImg.emptyNodeImg;
  */
 var gv_predefinedActions	= {
 	// the closeIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to close the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
-	closeip: {subject: true, message: true, wildcard: true, label: "closeIP", conversation: true, correlationid: true, options: true, state: false, variableman: false, booledge: false},
+	closeip: {subject: true, message: true, wildcard: true, label: "closeIP", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 	
 	// the openIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
-	openip: {subject: true, message: true, wildcard: true, label: "openIP", conversation: true, correlationid: true, options: true, state: false, variableman: false, booledge: false},
+	openip: {subject: true, message: true, wildcard: true, label: "openIP", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 	
 	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
-	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", conversation: true, correlationid: true, options: true, state: false, variableman: false, booledge: true},
+	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: true, createsubjects: false},
 	
 	// the ignore action has one parameter (subject without wildcard)
-	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false},
+	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 	
 	// the acknowledge action has one parameter (subject without wildcard)
-	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false},
+	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 	
 	// the Activate State action has one parameter (state) and is used to activate a certain start state within an internal behavior
-	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false},
+	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false, createsubjects: false},
 	
 	// the Deactivate State action has one parameter (state) and is used to deactivate a certain start state within an internal behavior
-	deactivatestate: {subject: false, message: false, wildcard: false, label: "Deactivate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false},
+	deactivatestate: {subject: false, message: false, wildcard: false, label: "Deactivate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false, createsubjects: false},
 	
 	// options for manipulating a variable
-	variableman: {subject: false, message: false, wildcard: false, label: "Variable Manipulation", conversation: false, correlationid: false, options: true, state: false, variableman: true, booledge: false}
+	variableman: {subject: false, message: false, wildcard: false, label: "Variable Manipulation", conversation: false, correlationid: false, options: true, state: false, variableman: true, booledge: false, createsubjects: false},
+	
+	// creates a new set of subjects and stores it in a variable
+	createsubjects: {subject: false, message: false, wildcard: false, label: "Create Subjects", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: true},
+	
+	// split guard to allow changes in modalSplit-paths
+	splitguard: {subject: false, message: false, wildcard: false, label: "Split Guard", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false}
 };
 
 /**

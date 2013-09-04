@@ -33,7 +33,7 @@ class ChangeInterfaceActor extends Actor with HttpService with DefaultLogging{
           log.debug(s"${getClass.getName} received polling request with timestemp: $time")
           (processManagerActor ? GetHistorySince(time.toLong)).mapTo[String].onComplete {
             case Success(history) => {
-              (changeActor ? GetProcessChange(time.toLong)).mapTo[ChangeData].onComplete {
+              (changeActor ? GetProcessChange(time.toLong)).mapTo[ChangeRelatedData].onComplete {
                 case Success(process) => {
 //                  var result = new ArrayBuffer[String]()
 //                  if (process != "")
