@@ -27,7 +27,7 @@ class ChangeActor extends Actor {
     }
 
     case GetProcessChange(t) => {
-      Future { getProcessChange(t) } pipeTo sender
+      Future { getProcessData(t) } pipeTo sender
     }
     
     case q: ActionChangeData => {
@@ -88,6 +88,35 @@ class ChangeActor extends Actor {
     if (result.length > 0)
       resultHead + result.mkString("{",",","}")
     else ""
+
+  }
+  
+  private def getProcessData(t: Long) = {
+   
+    val tempInsert = new ArrayBuffer[ProcessRelatedChangeData]()
+    val tempUpdate = new ArrayBuffer[ProcessRelatedChangeData]()
+    val tempDelete = new ArrayBuffer[ProcessRelatedDeleteData]()
+    
+    for (i <- 0 until processChangeEntries.length) {
+      processChangeEntries(i) match {
+        case ProcessChange(p, info, date) => {
+          if (date.getTime() > t * 1000) {
+            if (info == "insert")
+              tempInsert += ProcessRelatedChangeData(p.id.get,p.name)
+            if (info == "update")
+              tempUpdate += ProcessRelatedChangeData(p.id.get,p.name)
+          }
+        }
+        case ProcessDelete(id, date) => {
+          if (date.getTime() > t * 1000) {
+            tempDelete += ProcessRelatedDeleteData(id)
+          }
+        }
+      }
+    }
+    
+    ChangeData(Some(ProcessRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray))))
+
 
   }
   

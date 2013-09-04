@@ -27,6 +27,7 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.rest._
 import scala.concurrent.Future
 import DefaultJsonProtocol._
+import de.tkip.sbpm.rest.ChangeInterfaceActor
 
 object Entity {
   val PROCESS = "process"

@@ -50,6 +50,11 @@ case class ProcessDelete(id: Int, date: java.util.Date) extends ProcessChangeDat
 trait ActionChangeData
 case class ActionChange(action: Action, info: String, date: java.util.Date) extends ActionChangeData
 
+case class ProcessRelatedChangeData(id: Int, name: String)
+case class ProcessRelatedDeleteData(id: Int)
+case class ProcessRelatedChange(inserted: Option[Array[ProcessRelatedChangeData]], updated: Option[Array[ProcessRelatedChangeData]], deleted: Option[Array[ProcessRelatedDeleteData]])
+case class ChangeData(process: Option[ProcessRelatedChange])
+
 
 case class Configuration(key: String,
   label: Option[String],
