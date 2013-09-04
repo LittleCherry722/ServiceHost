@@ -32,6 +32,7 @@ object ProcessAttributes {
   type MessageType = String; val AllMessages = ""
   type MessageContent = String
   type MessageID = Int
+  type ActionID = Int
 
   type SubjectProviderManagerRef = ActorRef
   type SubjectProviderRef = ActorRef
