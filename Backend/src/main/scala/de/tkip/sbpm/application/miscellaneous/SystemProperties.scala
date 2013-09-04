@@ -13,7 +13,7 @@ object SystemProperties {
   }
 
   def akkaRemoteUrl(implicit config: Config) = {
-    "@" + akkaRemoteHostname + ":" + akkaRemoteHostname
+    "@" + akkaRemoteHostname + ":" + akkaRemotePort
   }
 
   def sbpmPort(implicit config: Config) = {
