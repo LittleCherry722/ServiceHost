@@ -27,6 +27,7 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.rest._
 import scala.concurrent.Future
 import DefaultJsonProtocol._
+import de.tkip.sbpm.application.miscellaneous.SystemProperties
 
 object Entity {
   val PROCESS = "process"
@@ -102,20 +103,20 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val configurationInterfaceActor = context.actorOf(Props[ConfigurationInterfaceActor], "configuration-interface")
   private val debugInterfaceActor = context.actorOf(Props[DebugInterfaceActor], "debug-interface")
   private val gbirInterfaceActor = context.actorOf(Props[GoogleBIRInterfaceActor], "gbir-interface")
-  private val historyChangeActor = context.actorOf(Props[HistoryChangeActor], "history-change")
-
+  private val ChangeInterfaceActor = context.actorOf(Props[ChangeInterfaceActor], "change-interface")
+  
   def receive = runRoute({
     pathPrefix("BIR") {
       delegateTo(gbirInterfaceActor)
-      //      post {
-      //      formFields("content") { content => ctx =>
-      //          println("content is: "+content)
-      //      }
-      //      }
+//      post {
+//      formFields("content") { content => ctx =>
+//          println("content is: "+content)
+//      }
+//      }
     } ~
-      pathPrefix("changes") {
-        delegateTo(historyChangeActor)
-      } ~
+    pathPrefix("changes") {
+      delegateTo(ChangeInterfaceActor)
+    } ~
       /**
        * redirect all calls beginning with "processinstance" (val EXECUTION) to ExecutionInterfaceActor
        *
@@ -247,9 +248,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private def attachExternalAddress(requestContext: RequestContext): String = {
     val jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
 
-    val hostname = context.system.settings.config.getString("akka.remote.netty.tcp.hostname")
-    val port = context.system.settings.config.getString("akka.remote.netty.tcp.port")
-    val url = "@" + hostname + ":" + port
+    val url = SystemProperties.akkaRemoteUrl(context.system.settings.config)
     jsObject.copy(Map("url" -> (url).toJson) ++ jsObject.fields).toString
   }
 

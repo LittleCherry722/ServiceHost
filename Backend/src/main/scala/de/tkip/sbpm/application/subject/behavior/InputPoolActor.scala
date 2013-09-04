@@ -134,7 +134,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     }
 
     case message: SubjectToSubjectMessage => {
-      logger.debug("InputPool received: " + message)
+      logger.debug("InputPool received: " + message + " from " + sender)
       // Unlock the sender
       sender ! Stored(message.messageID)
       // store the message

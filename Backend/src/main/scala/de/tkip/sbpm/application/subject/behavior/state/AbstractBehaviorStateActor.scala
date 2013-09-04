@@ -21,7 +21,7 @@ import akka.actor.Props
 import akka.actor.Status.Failure
 import akka.actor.actorRef2Scala
 import akka.event.Logging
-import de.tkip.sbpm.application.history.{Message => HistoryMessage}
+import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.timeoutLabel
@@ -46,6 +46,14 @@ import scala.collection.mutable.Stack
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import akka.actor.PoisonPill
+import de.tkip.sbpm.application.subject.misc.ActionIDProvider
+import scala.collection.mutable.ArrayBuffer
+import de.tkip.sbpm.application.subject.misc.AvailableAction
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.model.ChangeDataMode._
+import de.tkip.sbpm.model.ActionDelete
+import java.util.Date
+import de.tkip.sbpm.model.ActionChange
 
 /**
  * The data, which is necessary to create any state
@@ -141,6 +149,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
         context.actorOf(Props(new TimeoutActor(stateTimeout.duration * 1000)))
       }
     }
+    actionChanged(Inserted)
   }
 
   // first try the "receive" function of the inheritance state
@@ -258,8 +267,20 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
    * Changes the state and creates a history entry with the history message
    */
   protected def changeState(successorID: StateID, prevStateData: StateData, historyMessage: HistoryMessage) {
+    ActorLocator.changeActor ! ActionDelete(actionID, new Date())
     blockingHandlerActor ! BlockUser(userID)
     internalBehaviorActor ! ChangeState(id, successorID, internalStatus, prevStateData, historyMessage)
+  }
+
+  private lazy val actionID = ActionIDProvider.nextActionID()
+  
+  /**
+   * Call this method, when the action has changed
+   * 
+   * it informs the ChangeActor about the new action
+   */
+  protected def actionChanged(changeMode: ChangeMode = Updated) {
+    ActorLocator.changeActor ! ActionChange(createAvailableAction, changeMode, new Date())
   }
 
   /**
@@ -280,6 +301,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
       actionData.foreach(_.executeAble = false)
     }
     AvailableAction(
+      actionID,
       userID,
       processInstanceID,
       subjectID,
