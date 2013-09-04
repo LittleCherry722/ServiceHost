@@ -145,7 +145,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
   private def generalReceive: Receive = {
 
     case DisableState => {
-      disabled = true
+      if (!disabled) {
+        disabled = true
+        actionChanged()
+      }
     }
 
     case action: ExecuteAction if (disabled) => {
