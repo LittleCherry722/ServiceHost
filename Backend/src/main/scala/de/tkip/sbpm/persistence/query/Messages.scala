@@ -14,6 +14,7 @@
 package de.tkip.sbpm.persistence.query
 
 import de.tkip.sbpm.model.Message
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 
 /**
  * PersistenceActor queries for "Messages".
@@ -28,6 +29,11 @@ object Messages {
      * returns all messages (Seq[Messages])
      */
     case object All extends Query
+    
+    
+    case class WithSource(id: UserID) extends Query
+    
+    case class WithTarget(id: UserID) extends Query
     /**
      * returns message by id or None if not found (Option[Message])
      */

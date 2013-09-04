@@ -38,7 +38,25 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
         path("") {
           //          completeWithQuery[Seq[Message]](Messages.Read())        
           complete {
-            (persistence ? Messages.Read.All).mapTo[Seq[Message]]
+            val from = (persistence ? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
+            val to = (persistence ? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
+            for {
+              f <- from
+              t <- to
+            } yield f ++ t
+          }
+        } ~
+        path("from") {
+          //          completeWithQuery[Seq[Message]](Messages.Read())        
+          complete {
+            (persistence ? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
+          }
+        } ~
+        //LIST
+        path("to") {
+          //          completeWithQuery[Seq[Message]](Messages.Read())        
+          complete {
+            (persistence ? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
           }
         }
     } ~
