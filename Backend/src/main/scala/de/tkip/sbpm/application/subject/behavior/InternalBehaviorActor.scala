@@ -28,7 +28,6 @@ import de.tkip.sbpm.application.history.NewHistoryTransitionData
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.logging.DefaultLogging
-import de.tkip.sbpm.application.subject.misc.TryTransportMessages
 import de.tkip.sbpm.application.history.{
   Message => HistoryMessage
 }
@@ -43,6 +42,8 @@ import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
 
 case object StartMacroExecution
+case class ActivateState(id: StateID)
+case class DeactivateState(id: StateID)
 
 // TODO this is for history + statechange
 case class ChangeState(
@@ -67,6 +68,8 @@ class InternalBehaviorActor(
   val subjectID = data.subject.id
   val userID = data.userID
 
+  private val subjectActor = context.parent
+
   private val statesMap = collection.mutable.Map[StateID, State]()
   private var startState: StateID = _
   //  private var currentState: BehaviorStateRef = null
@@ -80,6 +83,35 @@ class InternalBehaviorActor(
 
     case StartMacroExecution => {
       addState(startState)
+    }
+
+    case DisableNonObserverStates => {
+      for (
+        (id, state) <- currentStatesMap;
+        if (!statesMap(id).observerState)
+      ) {
+        state ! DisableState
+      }
+
+    }
+    case KillNonObserverStates => {
+      // TODO kill other macros!
+      for (
+        state <- currentStatesMap.map(_._1);
+        if (!statesMap(state).observerState)
+      ) {
+        killState(state)
+      }
+    }
+
+    case ActivateState(id) => {
+      addState(id)
+    }
+
+    case DeactivateState(id) => {
+      // TODO this will cause an error, because receive states still will
+      // subscribe the inputpool messages 
+      killState(id)
     }
 
     case change: ChangeState => {
@@ -113,15 +145,13 @@ class InternalBehaviorActor(
     }
 
     case terminated: MacroTerminated => {
-      if(macroStartState.isDefined) {
+      if (macroStartState.isDefined) {
         data.blockingHandlerActor ! BlockUser(userID)
-        println("send"+macroStartState)
-        println(macroStartState.get.isTerminated)
         macroStartState.get ! terminated
       }
       context.parent ! terminated
     }
-    
+
     case m: CallMacro => {
       context.parent ! m
     }
@@ -155,26 +185,29 @@ class InternalBehaviorActor(
       startState = state.id
     }
     statesMap += state.id -> state
-
-    inputPoolActor ! TryTransportMessages
   }
 
   private val currentStatesMap: mutable.Map[StateID, BehaviorStateRef] = mutable.Map()
   private def changeState(from: StateID, to: StateID) = {
     // kill the currentState
-    if (currentStatesMap contains from) {
-      val currentState = currentStatesMap(from)
-      // kill the from State
-      currentState ! PoisonPill
-      currentStatesMap -= from
-    } else {
-      log.debug("Change State from a State, which does not exits")
-    }
+    killState(from)
 
     // TODO damit umgehen, wenn target ein ModalJoin State ist
     log.debug("Execute: /%s/%s/[%s]->[%s]".format(userID, subjectID, from, to))
     addState(to)
   }
+
+  private def killState(state: StateID) {
+    if (currentStatesMap contains state) {
+      val currentState = currentStatesMap(state)
+      // kill the state
+      currentState ! KillState
+      currentStatesMap -= state
+    } else {
+      log.debug("Kill State for a State, which does not exits")
+    }
+  }
+
   private def addState(state: StateID) {
     if (statesMap.contains(state)) {
       log.debug("Starting state: /%s/%s/%s/%s".format(userID, subjectID, macroId, state))
@@ -206,6 +239,7 @@ class InternalBehaviorActor(
       subjectID,
       macroId,
       self,
+      context.parent,
       processInstanceActor,
       inputPoolActor,
       internalStatus,
@@ -248,9 +282,17 @@ class InternalBehaviorActor(
       case ModalJoinStateType => {
         context.actorOf(Props(new ModalJoinStateActor(stateData)))
       }
-      
+
       case MacroStateType => {
         context.actorOf(Props(new MacroStateActor(stateData)))
+      }
+
+      case ActivateStateType => {
+        context.actorOf(Props(new ActivateStateActor(stateData)))
+      }
+
+      case DeactivateStateType => {
+        context.actorOf(Props(new DeactivateStateActor(stateData)))
       }
     }
   }

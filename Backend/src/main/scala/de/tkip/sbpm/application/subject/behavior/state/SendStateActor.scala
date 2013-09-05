@@ -230,7 +230,7 @@ protected case class SendStateActor(data: StateData)
         exitCondLabel,
         relatedSubject = Some(sendTransition.subjectID),
         targetUsersData =
-          Some(TargetUser(sendTarget.min, sendTarget.max, targetUserIDs.getOrElse(Array())))))
+          Some(TargetUser(sendTarget.min, sendTarget.max, sendTarget.toExternal, targetUserIDs.getOrElse(Array())))))
 
   /**
    * Generates a new message ID
