@@ -34,9 +34,7 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
           (persistence ? Messages.Read.ById(messageID)).mapTo[Option[Message]]
         }
       } ~
-        //LIST
         path("") {
-          //          completeWithQuery[Seq[Message]](Messages.Read())        
           complete {
             val from = (persistence ? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
             val to = (persistence ? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
@@ -46,15 +44,12 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
             } yield f ++ t
           }
         } ~
-        path("from") {
-          //          completeWithQuery[Seq[Message]](Messages.Read())        
+        path("outbox") {
           complete {
             (persistence ? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
           }
         } ~
-        //LIST
-        path("to") {
-          //          completeWithQuery[Seq[Message]](Messages.Read())        
+        path("inbox") {
           complete {
             (persistence ? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
           }
