@@ -64,7 +64,12 @@ case class ActionDelete(id: Int, date: java.util.Date) extends ActionChangeData
 case class ProcessRelatedChangeData(id: Int, name: String)
 case class ProcessRelatedDeleteData(id: Int)
 case class ProcessRelatedChange(inserted: Option[Array[ProcessRelatedChangeData]], updated: Option[Array[ProcessRelatedChangeData]], deleted: Option[Array[ProcessRelatedDeleteData]])
-case class ChangeRelatedData(process: Option[ProcessRelatedChange])
+
+case class ActionRelatedChangeData(id: Int, userID: Int, processInstanceID: Int, subjectID: String)
+case class ActionRelatedDeleteData(id: Int)
+case class ActionRelatedChange(inserted: Option[Array[ActionRelatedChangeData]], updated: Option[Array[ActionRelatedChangeData]], deleted: Option[Array[ActionRelatedDeleteData]])
+
+case class ChangeRelatedData(process: Option[ProcessRelatedChange], action: Option[ActionRelatedChange])
 
 
 case class Configuration(key: String,

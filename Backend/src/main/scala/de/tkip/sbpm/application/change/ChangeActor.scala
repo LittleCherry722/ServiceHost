@@ -36,7 +36,7 @@ class ChangeActor extends Actor {
     }
     
     case GetActionChange(t) => {
-      Future { getActionChange(t) } pipeTo sender
+      Future { getActionData(t) } pipeTo sender
     }
 
   }
@@ -115,7 +115,36 @@ class ChangeActor extends Actor {
       }
     }
     
-    ChangeRelatedData(Some(ProcessRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray))))
+    Some(ProcessRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray)))
+
+
+  }
+  
+    private def getActionData(t: Long) = {
+   
+    val tempInsert = new ArrayBuffer[ActionRelatedChangeData]()
+    val tempUpdate = new ArrayBuffer[ActionRelatedChangeData]()
+    val tempDelete = new ArrayBuffer[ActionRelatedDeleteData]()
+    
+    for (i <- 0 until actionChangeEntries.length) {
+      actionChangeEntries(i) match {
+        case ActionChange(a, info, date) => {
+          if (date.getTime() > t * 1000) {
+            if (info == "insert")
+              tempInsert += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID)
+            if (info == "update")
+              tempUpdate += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID)
+          }
+        }
+        case ActionDelete(id, date) => {
+          if (date.getTime() > t * 1000) {
+            tempDelete += ActionRelatedDeleteData(id)
+          }
+        }
+      }
+    }
+    
+    Some(ActionRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray)))
 
 
   }
