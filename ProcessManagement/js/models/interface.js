@@ -22,6 +22,7 @@ define([
     creator: "string",
     description: "string",
     processId: "integer",
+    subjectId: "integer",
     graph: {
 			type: "json",
 			lazy: false
