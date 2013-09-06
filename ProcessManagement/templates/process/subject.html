@@ -1,5 +1,108 @@
-<div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
+<div id="row">
+	<div class="col-md-10"><div id="graph_cv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div></div>
+	<div class="col-md-2">
+		<div class="graphsettings">
+			
+			<div class="panel panel-default">
+				<div class="panel-heading" data-chardin-intro="Export this process as a JSON string or import the JSON string of another process." data-chardin-position="left">Import &amp; Export<span class="processSettingsTrigger pull-right">&times;</span></div>
+				<div class="panel-body">
+					<!-- <label for="timestamps">Change revision</label>-->
+		            <!-- <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>-->
+		            <!-- <br />-->
+		            <a class="btn" id="importGraphButton" href="#importModal" data-bind="click: clearGraphText">Import</a>
+		            <a class="btn" id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph">Export</a>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">Subject settings</div>
+				<div class="panel-body">
+					<p class="warning" data-bind="if: isShowRoleWarning">
+		            You have to assign a role before you can enter a text.
+		        </p>
+		
+		        <div data-chardin-intro="Edit attributes of the currently selected subject." data-chardin-position="left">
+		            <label class="graphsectionheader">Subject Name:</label>
+		            <input type="text" id="ge_cv_text" title="Name of a role instance"/>
+		
+		            <label class="graphsectionheader" data-bind="text: assignedRoleText">Assigned-Role:</label>
+		            <select id="ge_cv_id" title="Assign a specific role to a subject"
+		                    data-bind="options: rolesOrUsers, optionsValue: 'name', optionsText: 'name'">
+		            </select>
+		        </div>
+		        <label class="graphsectionheader">Input Pool:</label>
+		        <input type="text" id="ge_cv_inputPool" name="ge_cv_inputPool" title="Size of the Input Pool"/>
+		
+		        <div id="subjectType" data-chardin-intro="Choose subject type. MULTI allows multiple instances of one subject."
+		             data-chardin-position="left">
+		            <label class="graphsectionheader">Subject type:</label>
+		            <label class="checkbox" title="Are there multiple instances of this subject?">
+		                <input type="checkbox" id="ge_cv_type_multi" name="ge_cv_type_multi"/>
+		                Multi
+		            </label>
+		            <label class="checkbox" title="Does the subject come from without this Process or Case">
+		                <input type="checkbox" id="ge_cv_type_external" name="ge_cv_type_external"/>
+		                External
+		            </label>
+		            <label class="checkbox" title="Can the subject start a process / case instance?">
+		                <input type="checkbox" id="ge_cv_startSubject" name="ge_cv_startSubject"/>
+		                Start Subject
+		            </label>
+		        </div>
+		
+		        <div style="display:none;" id="ge_cv_relatedOuter">
+		            <label class="graphsectionheader">Type of External Subject:</label>
+		
+		            <div style="text-align:left;">
+		                <label align="left" class="checkbox">
+		                    <input type="radio" id="ge_cv_external_external" name="ge_cv_external_type"/>
+		                    External Subject
+		                </label>
+		
+		                <label align="left" class="checkbox">
+		                    <input type="radio" id="ge_cv_external_interface" name="ge_cv_external_type"/>
+		                    Interface
+		                </label>
+		
+		                <label align="left" class="checkbox">
+		                    <input type="radio" id="ge_cv_external_instantInterface" name="ge_cv_external_type"/>
+		                    Instant Interface
+		                </label>
+		            </div>
+		
+		            <label class="graphsectionheader">Related Process:</label>
+		            <select id="ge_cv_relatedProcess"
+		                    data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', optionsCaption: 'Select a process...'"></select>
+		
+		            <label class="graphsectionheader">Related Subject:</label>
+		            <input type="text" id="ge_cv_relatedSubject"/>
+		        </div>
+		
+		        <div id="subjectType" data-chardin-intro="Can be used for remarks regarding the currently selected subject."
+		             data-chardin-position="left">
+		            <label class="graphsectionheader">Comment:</label>
+		            <textarea id="ge_subject_comment" title="Miscellaneous annotations"></textarea>
+		        </div>
+		        <input type="button" id="UpdateSubjectButton" title="Macro : Press &#34;U&#34;" onclick="gv_graph.updateNode();"
+		               value="Update subject"/>
+		
+		        <div id="subjectType" data-chardin-intro="Add (Shortcut: [A]) or delete [D] subject."
+		             data-chardin-position="left">
+		            <label class="graphsectionheader">Node functions:</label>
+		            <input type="button" id="AddSubjectButton" title="Macro : Press &#34;A&#34;"
+		                   onclick="gv_graph.createNode();" value="Add subject"/>
+		            <input type="button" id="DeleteSubjectButton" title="Macro : Press &#34;D&#34;"
+		                   onclick="gv_graph.deleteNode();" value="Delete subject"/>
+		            <input type="button" id="DeactivateSubjectButton" title="Macro : Press &#34;I&#34;"
+		                   onclick="gf_deactivateNode();" value="De-/Activate subject"/>
+		        </div>
+		        <br/>
+				</div>
+			</div>
 
+		</div>
+	</div>
+	<div class="clearfix"></div>
+</div>
 <div class="hide">
     <div id="exportModal">
         <textarea data-bind='value: graphText' rows='15' onclick="this.select()" style="width: 400px"> </textarea><br>
@@ -12,114 +115,3 @@
         <a class="btn btn-primary pull-right" href="#" data-bind="click: importGraph" id="importGraphButtonAction">Import</a>
     </div>
 </div>
-
-<div id="process-subject-help" class="invisible">
-    <p>Here you can create the first subject</p>
-</div>
-
-<div class="graphsettings">
-    <fieldset class="clearfix"
-              data-chardin-intro="Export this process as a JSON string or import the JSON string of another process."
-              data-chardin-position="left">
-        <legend>Import &amp; Export<span class="processSettingsTrigger">Hide</span></legend>
-        <div style="margin-bottom: 10px">
-            <!-- <label for="timestamps">Change revision</label>-->
-            <!-- <select id="timestamps" data-bind="options: graphHistory(), optionsText: 'date', value: currentGraph, optionsCaption: 'Graph history'"></select>-->
-            <!-- <br />-->
-            <a class="btn" id="importGraphButton" href="#importModal" data-bind="click: clearGraphText">Import</a>
-            <a class="btn" id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph">Export</a>
-        </div>
-    </fieldset>
-    <fieldset class="tooltip-enabled">
-        <legend>Subject settings</legend>
-
-        <p class="warning" data-bind="if: isShowRoleWarning">
-            You have to assign a role before you can enter a text.
-        </p>
-
-        <div data-chardin-intro="Edit attributes of the currently selected subject." data-chardin-position="left">
-            <label class="graphsectionheader">Subject Name:</label>
-            <input type="text" id="ge_cv_text" title="Name of a role instance"/>
-
-            <label class="graphsectionheader" data-bind="text: assignedRoleText">Assigned-Role:</label>
-            <select id="ge_cv_id" title="Assign a specific role to a subject"
-                    data-bind="options: rolesOrUsers, optionsValue: 'name', optionsText: 'name'">
-            </select>
-        </div>
-        <label class="graphsectionheader">Input Pool:</label>
-        <input type="text" id="ge_cv_inputPool" name="ge_cv_inputPool" title="Size of the Input Pool"/>
-
-        <div id="subjectType" data-chardin-intro="Choose subject type. MULTI allows multiple instances of one subject."
-             data-chardin-position="left">
-            <label class="graphsectionheader">Subject type:</label>
-            <label class="checkbox" title="Are there multiple instances of this subject?">
-                <input type="checkbox" id="ge_cv_type_multi" name="ge_cv_type_multi"/>
-                Multi
-            </label>
-            <label class="checkbox" title="Does the subject come from without this Process or Case">
-                <input type="checkbox" id="ge_cv_type_external" name="ge_cv_type_external"/>
-                External
-            </label>
-            <label class="checkbox" title="Can the subject start a process / case instance?">
-                <input type="checkbox" id="ge_cv_startSubject" name="ge_cv_startSubject"/>
-                Start Subject
-            </label>
-        </div>
-
-        <div style="display:none;" id="ge_cv_relatedOuter">
-            <label class="graphsectionheader">Type of External Subject:</label>
-
-            <div style="text-align:left;">
-                <label align="left" class="checkbox">
-                    <input type="radio" id="ge_cv_external_external" name="ge_cv_external_type"/>
-                    External Subject
-                </label>
-
-                <label align="left" class="checkbox">
-                    <input type="radio" id="ge_cv_external_interface" name="ge_cv_external_type"/>
-                    Interface
-                </label>
-
-                <label align="left" class="checkbox">
-                    <input type="radio" id="ge_cv_external_instantInterface" name="ge_cv_external_type"/>
-                    Instant Interface
-                </label>
-            </div>
-
-            <label class="graphsectionheader">Related Process:</label>
-            <select id="ge_cv_relatedProcess"
-                    data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', optionsCaption: 'Select a process...'"></select>
-
-            <label class="graphsectionheader">Related Subject:</label>
-            <input type="text" id="ge_cv_relatedSubject"/>
-        </div>
-
-        <div id="subjectType" data-chardin-intro="Can be used for remarks regarding the currently selected subject."
-             data-chardin-position="left">
-            <label class="graphsectionheader">Comment:</label>
-            <textarea id="ge_subject_comment" title="Miscellaneous annotations"></textarea>
-        </div>
-        <input type="button" id="UpdateSubjectButton" title="Macro : Press &#34;U&#34;" onclick="gv_graph.updateNode();"
-               value="Update subject"/>
-
-        <div id="subjectType" data-chardin-intro="Add (Shortcut: [A]) or delete [D] subject."
-             data-chardin-position="left">
-            <label class="graphsectionheader">Node functions:</label>
-            <input type="button" id="AddSubjectButton" title="Macro : Press &#34;A&#34;"
-                   onclick="gv_graph.createNode();" value="Add subject"/>
-            <input type="button" id="DeleteSubjectButton" title="Macro : Press &#34;D&#34;"
-                   onclick="gv_graph.deleteNode();" value="Delete subject"/>
-            <input type="button" id="DeactivateSubjectButton" title="Macro : Press &#34;I&#34;"
-                   onclick="gf_deactivateNode();" value="De-/Activate subject"/>
-        </div>
-        <br/>
-
-        <!--
-        <br/>
-        <input type="button" onclick="SBPM.Dialog.YesNo('Warning', 'Do you really want to clear the graph?', function(){gv_graph.clearGraph();parent.$.fancybox.close();});" value="Clear graph" />
-        <br/>
-        -->
-
-    </fieldset>
-</div>
-

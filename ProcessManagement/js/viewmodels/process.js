@@ -9,7 +9,8 @@ define([
 	"async",
 	"models/user",
 	"models/role",
-	"models/interface"
+	"models/interface",
+	"select2"
 ], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface ) {
 
 	// The main viewmodel. Every observable defined inside can be used by the
@@ -547,9 +548,9 @@ define([
 
 	var initializeDOM = function() {
 		// Initialize our chosen selects for subjects and conversations.
-		$( "#slctSbj" ).chosen();
-		$( "#slctCon" ).chosen();
-		$( "#slctMacro" ).chosen();
+		$( "#slctSbj" ).select2();
+		$( "#slctCon" ).select2();
+		$( "#slctMacro" ).select2();
 
 		// fancybox
 		$('#exportGraphButton').fancybox();
