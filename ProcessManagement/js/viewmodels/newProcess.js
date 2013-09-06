@@ -6,7 +6,6 @@ define([
 	"models/process",
 	"models/message",
 	"models/subject"
-	// "tk_graph"
 ], function( ko, App, Notify, Router, Process, Message, Subject ) {
 	window.Message = Message;
 	window.Subject = Subject;
@@ -106,7 +105,7 @@ define([
 
 		this.removeSubject = Subject.remove;
 		this.removeMessage = Message.remove;
-	}
+	};
 
 	/*
 	 * The current Process.
@@ -138,10 +137,10 @@ define([
 				Router.goTo( currentProcess() );
 			},
 			error: function() {
-				Notify.error("Error", "Saving the process failed.")
+				Notify.error("Error", "Saving the process failed.");
 			}
 		});
-	}
+	};
 
 	// Initialize our View.
 	// Includes loading the template and creating the viewModel
@@ -155,11 +154,11 @@ define([
 			App.loadTemplate( "newProcess/quickView", viewModel, "quick_table" );
 
 		});
-	}
+	};
 
 	// Everything in this object will be the public API
 	return {
 		init: initialize
-	}
+	};
 });
 

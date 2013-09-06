@@ -33,25 +33,26 @@ define([
 				classes: [ infoClass ],
 				autohide: true
 			});
-		}
+		};
 
 		this.error = function( title, text ) {
 			return context.jQuery( freeOwId ).freeow( title, text, {
 				classes: [ errClass ],
 				autohide: true
 			});
-		}
+		};
 
 		this.warning = function( title, text ) {
+
 			return context.jQuery( freeOwId ).freeow( title, text, {
 				classes: [ warnClass ],
 				autohide: true
 			});
-		}
-	}
+		};
+	};
 
 	// Everything in this object will be the public API
-	return new Notify()
+	return new Notify();
 });
 
 // SBPM.Notification = new Notification();
