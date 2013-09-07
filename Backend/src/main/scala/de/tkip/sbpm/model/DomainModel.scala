@@ -23,7 +23,8 @@ import spray.json.{
   JsNumber
 }
 import de.tkip.sbpm.application.subject.misc.AvailableAction
-
+import de.tkip.sbpm.application.subject.misc.ActionData
+import de.tkip.sbpm.application.history._
 // Model for Administration
 case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, gdriveId: String = "")
 case class ProviderMail(provider: String, mail: String)
@@ -61,15 +62,18 @@ trait ActionChangeData extends ChangeData
 case class ActionChange(action: AvailableAction, info: String, date: java.util.Date) extends ActionChangeData
 case class ActionDelete(id: Int, date: java.util.Date) extends ActionChangeData
 
-case class ProcessRelatedChangeData(id: Int, name: String)
+case class ProcessRelatedChangeData(id: Int, name: String, isCase: Boolean, startAble: Boolean, activeGraphId: Option[Int])
 case class ProcessRelatedDeleteData(id: Int)
 case class ProcessRelatedChange(inserted: Option[Array[ProcessRelatedChangeData]], updated: Option[Array[ProcessRelatedChangeData]], deleted: Option[Array[ProcessRelatedDeleteData]])
 
-case class ActionRelatedChangeData(id: Int, userID: Int, processInstanceID: Int, subjectID: String)
+case class ActionRelatedChangeData(id: Int, userID: Int, processInstanceID: Int, subjectID: String, macroID: String, stateID: Int, stateText: String, stateType: String, actionData: Array[ActionData])
 case class ActionRelatedDeleteData(id: Int)
 case class ActionRelatedChange(inserted: Option[Array[ActionRelatedChangeData]], updated: Option[Array[ActionRelatedChangeData]], deleted: Option[Array[ActionRelatedDeleteData]])
 
-case class ChangeRelatedData(process: Option[ProcessRelatedChange], action: Option[ActionRelatedChange])
+case class HistoryRelatedChangeData(userId: Option[Int], process: NewHistoryProcessData, subject: Option[String], transitionEvent: Option[NewHistoryTransitionData], lifecycleEvent: Option[String])
+case class HistoryRelatedChange(inserted: Option[Array[HistoryRelatedChangeData]])
+
+case class ChangeRelatedData(process: Option[ProcessRelatedChange], action: Option[ActionRelatedChange], history: Option[HistoryRelatedChange])
 
 
 case class Configuration(key: String,

@@ -102,9 +102,9 @@ class ChangeActor extends Actor {
         case ProcessChange(p, info, date) => {
           if (date.getTime() > t * 1000) {
             if (info == "insert")
-              tempInsert += ProcessRelatedChangeData(p.id.get,p.name)
+              tempInsert += ProcessRelatedChangeData(p.id.get,p.name,p.isCase,p.startAble.get,p.activeGraphId)
             if (info == "update")
-              tempUpdate += ProcessRelatedChangeData(p.id.get,p.name)
+              tempUpdate += ProcessRelatedChangeData(p.id.get,p.name,p.isCase,p.startAble.get,p.activeGraphId)
           }
         }
         case ProcessDelete(id, date) => {
@@ -131,9 +131,9 @@ class ChangeActor extends Actor {
         case ActionChange(a, info, date) => {
           if (date.getTime() > t * 1000) {
             if (info == "insert")
-              tempInsert += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID)
-            if (info == "update")
-              tempUpdate += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID)
+              tempInsert += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID,a.macroID,a.stateID,a.stateText,a.stateType,a.actionData)
+            if (info == "updated")
+              tempUpdate += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID,a.macroID,a.stateID,a.stateText,a.stateType,a.actionData)
           }
         }
         case ActionDelete(id, date) => {

@@ -25,6 +25,7 @@ import java.util.Date
 import scala.concurrent.Future
 import akka.pattern.pipe
 import scala.collection.mutable.ArrayBuffer
+import de.tkip.sbpm.model._
 
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
@@ -175,15 +176,12 @@ class ProcessManagerActor extends Actor {
   
   private def getHistoryChange(t: Long) = {
     val changes = history.entries.filter(_.timeStamp.getTime() > t * 1000)
-    var temp = ArrayBuffer[String]()
+    val temp = ArrayBuffer[HistoryRelatedChangeData]()
     for (i <- 0 until changes.length){
-      var id = changes(i).userId.get
-      var name = changes(i).process.processName
-      temp += """{"id":""" + id + ""","name":""""+name+""""}""" 
+      val entry = changes(i)
+      temp += HistoryRelatedChangeData(entry.userId, entry.process, entry.subject, entry.transitionEvent, entry.lifecycleEvent)
     }
-    var result = ""
-    if (temp.length > 0)
-      result = """"history":{"inserted":""" + temp.mkString("[",",","]") + """}"""
-    result
+    Some(HistoryRelatedChange(Some(temp.toArray)))
+  
   }
 }
