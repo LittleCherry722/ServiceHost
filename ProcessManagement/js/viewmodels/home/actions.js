@@ -3,8 +3,10 @@ define([
 	"app",
 	"underscore",
 	"models/actions",
-	"models/processInstance"
-], function( ko, App, _, Actions, ProcessInstances) {
+	"models/processInstance",
+  "models/process",
+  "notify"
+], function( ko, App, _, Actions, ProcessInstance, Process, Notify ) {
 
 	var ViewModel = function() {
 		var self = this;
@@ -17,9 +19,9 @@ define([
 		this.selectedStart = selectedStart;
 		this.selectedEnd = selectedEnd;
 		this.showGraph = showGraph;
-		
-      	this.googleDriveData = ko.observable();
-	    this.refreshGoogleDriveData = function() {
+
+    this.googleDriveData = ko.observable();
+	  this.refreshGoogleDriveData = function() {
 			$.ajax({
 				cache: false,
 				dataType: "json",
@@ -30,19 +32,21 @@ define([
 				},
 				error: function( jqXHR, textStatus, error ) {
 					Notify.error("Error", "There has been an Error retrieving the file list." +
-											"Please make sure you have the appropriate permissions.");
+											 "Please make sure you have the appropriate permissions.");
 				}
 			});
-		};  
+		};
 		this.selectFile = function() {
 			//console.log("call");
 			$('#googleDriveModal').modal('hide');
 			parent.currentSelectedFile( this );
-		}; 
-				
+		};
+
 	};
+
 	var actionsList = ko.observableArray();
 	var actions = ko.computed(function() {actionsList(Actions.all().slice(0));});
+
 
 	/* Filter Start */
 	var selectedUser = ko.observable();

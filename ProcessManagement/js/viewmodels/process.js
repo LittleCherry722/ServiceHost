@@ -150,14 +150,10 @@ define([
 		});
 
 		this.saveBusinessInterface = function() {
-      this.newBusinessInterface().graph(this.currentProcess().graph().definition.process.filter(function(s) {
-        if ( s.id === this.interfaceReplacementSubject() ) {
-          return true;
-        } else {
-          return false;
-        }
-      })[0]);
+      this.newBusinessInterface()
+        .graph(currentProcess().associatedGraph(this.interfaceReplacementSubject()));
       this.newBusinessInterface().processId(currentProcess().id())
+      this.newBusinessInterface().subjectId(this.interfaceReplacementSubject())
 
 			this.newBusinessInterface().save({}, {
 				success: function() {
