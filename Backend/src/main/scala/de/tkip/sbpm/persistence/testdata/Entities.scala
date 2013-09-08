@@ -110,6 +110,8 @@ object Entities {
     (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
     (Process(None, """Macro Example""", false) -> loadJson("macro_example")),
     (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
+    (Process(None, """Projektleiter""", false) -> loadJson("projektleiter")),
+    (Process(None, """Projekt Team""", false) -> loadJson("projekt_team")),
     (Process(None, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),
     (Process(None, """Fortgeschritten Lieferung""", false) -> loadJson("fortgeschritten_lieferung")),
     (Process(None, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),

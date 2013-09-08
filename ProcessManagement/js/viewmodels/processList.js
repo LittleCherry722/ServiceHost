@@ -78,17 +78,20 @@ define([
 		processlist.removeAll();
 		$.each( Process.all(), function ( i, value ) {
 			var filter = false;
-			if((selectedEnd() ||selectedStart()) && value.processInstances().length<1) {
+			if((selectedEnd() ||selectedStart()) && (typeof value.processInstances !== "function" || value.processInstances().length<1)) {
 				filter = true;
 			}
-			$.each( value.processInstances(), function ( i, valueis ) {
-				if(selectedStart() && parseInt(moment(selectedStart()).format("X")) >= parseInt(moment(valueis.startedAt().date).format('X'))){
-					filter = true;
-				}
-				if(selectedEnd() && parseInt(moment(selectedEnd()).format("X"))<= parseInt(moment(valueis.startedAt().date).format('X'))){
-					filter = true;
-				}
-			});
+                        if (typeof value.processInstances === "function") {
+                            $.each( value.processInstances(), function ( i, valueis ) {
+                                    if(selectedStart() && parseInt(moment(selectedStart()).format("X")) >= parseInt(moment(valueis.startedAt().date).format('X'))){
+                                            filter = true;
+                                    }
+                                    if(selectedEnd() && parseInt(moment(selectedEnd()).format("X"))<= parseInt(moment(valueis.startedAt().date).format('X'))){
+                                            filter = true;
+                                    }
+                            });
+                        }
+                        
 			if (selectedProcess() && selectedProcess() != value.id() ) {
 				filter = true;
 			}
