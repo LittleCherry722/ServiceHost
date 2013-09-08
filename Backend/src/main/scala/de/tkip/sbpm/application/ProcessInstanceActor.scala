@@ -42,6 +42,7 @@ import akka.actor.Status.Failure
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
+import de.tkip.sbpm.model.ExternalSubject
 
 // represents the history of the instance
 
@@ -83,7 +84,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   // this actory is used to exchange the subject ids for external input messages
   // TODO
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph)))
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)))
 
   override def preStart() {
     try {
@@ -180,6 +181,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case message: ReadProcessInstance => {
       createReadProcessInstanceAnswer(message)
     }
+    
+    case message: GetSubjectMapping => {
+      sender ! getSubjectMapping(message.processId, message.url)
+    }
   }
 
   private var sendProcessInstanceCreated = true
@@ -220,6 +225,15 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
+	var optionalId: Option[SubjectID] = None      
+    if (subject.external){
+      optionalId = getSubjectIdFromMapping(subject.id)
+      //kann man Gleichheit mit None so überprüfen?
+      if (optionalId == None){
+        //TODO: werte aus dem Graph holen?
+      }
+    }
+    
     new SubjectContainer(
       subject,
       processID,
@@ -227,7 +241,24 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       processInstanceManger,
       logger,
       blockingHandlerActor,
+      optionalId,
       () => runningSubjectCounter += 1,
       () => runningSubjectCounter -= 1)
+  }
+  private def getSubjectIdFromMapping(id: SubjectID): Option[SubjectID] = request.subjectMapping.get(id) match {
+    case Some((processId, subjectId)) => Some(subjectId)
+    case None => None
+  }
+  private def getSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, (ProcessID, SubjectID)] = {
+    import scala.collection.mutable.{ Map => MutableMap }
+    val subjectMapping = MutableMap[SubjectID, (ProcessID, SubjectID)]()
+    for (subjectLike <- graph.subjects){
+      //TODO: graph liefert interfaces?
+      if (subjectLike._2.external){
+        val externalSubject = subjectLike.asInstanceOf[ExternalSubject]
+        subjectMapping.put(externalSubject.id, (externalSubject.relatedProcessId, externalSubject.relatedSubjectId))
+      }
+    }
+    subjectMapping
   }
 }

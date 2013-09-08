@@ -80,7 +80,9 @@ case class ProcessInstanceData(id: ProcessInstanceID,
 case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
 
-case class CreateProcessInstance(userID: UserID, processID: ProcessID, name: String, manager: Option[ActorRef] = None) extends AnswerAbleControlMessage
+case class GetSubjectMapping (url: String, processId: ProcessID)
+
+case class CreateProcessInstance(userID: UserID, processID: ProcessID, name: String, manager: Option[ActorRef] = None, subjectMapping:  Map[SubjectID, (ProcessID, SubjectID)]) extends AnswerAbleControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceActor: ProcessInstanceRef,
                                   answer: ProcessInstanceData) extends AnswerControlMessage {

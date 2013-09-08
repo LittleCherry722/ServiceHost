@@ -13,11 +13,11 @@ import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.Future
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
-
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import akka.pattern.pipe
 import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.application.miscellaneous.GetSubjectMapping
 
 case object GetProxyActor
 
@@ -67,10 +67,33 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
 
   private def createProcessInstanceEntry(processId: ProcessID,
     targetManager: ProcessManagerRef): Future[ProcessInstanceProxy] = {
+    import scala.collection.mutable.{ Map => MutableMap }
     // TODO name?
     val newProcessInstanceName = "Unnamed"
+
+    /**
+     * (offen) mapping von prozessinstanzen abfragen (neuer nachrichtentyp) über proxy mit adresse (targetAddress und processId), für welche url das mapping gewünscht ist
+     * (erledigt) prozessinstanzen fragen informationen vom graph ab -> graph liefert die interfaces, deswegen dummy-wert eintragen und TODO hinzufügen
+     * (erledigt) über graph-map iterieren, abfragen ob externes subject, matching zwischen url und processId -> Map[SubjectId, (ProcessId, SubjectId)]
+     * (erledigt) beim erstellen eines neuen SubjectContainers bekommt dieser sein relatedSubject (SubjectID) mit, entweder aus der CreateProcessInstance-nachricht oder dem graph -> optionaler konstruktor-parameter (nur für externe subjekte), kann vorerst graph ignorieren
+     */
+
+    //TODO: mutable oder immutable?
+    val subjectMapping = Map[SubjectID, (ProcessID, SubjectID)]()
+
+    for (processInstance <- processInstanceMap) {
+      val processInstanceProxyFuture = processInstance._2.mapTo[ProcessInstanceProxyActor]
+      val subjectMappingTemp = Map[SubjectID, (ProcessID, SubjectID)]()
+
+      //TODO: fix
+      //      processInstanceProxyFuture onSuccess {
+      //        case result => subjectMappingTemp = (result ? GetSubjectMapping()) 
+      //      }
+
+      subjectMapping ++ subjectMappingTemp
+    }
     // create the message which is used to create a process instance
-    val createMessage = CreateProcessInstance(ExternalUser, processId, newProcessInstanceName, Some(self))
+    val createMessage = CreateProcessInstance(ExternalUser, processId, newProcessInstanceName, Some(self), subjectMapping)
 
     for {
       // create the processinstance

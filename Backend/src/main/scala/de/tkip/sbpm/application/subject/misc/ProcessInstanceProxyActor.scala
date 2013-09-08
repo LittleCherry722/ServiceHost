@@ -10,17 +10,18 @@ import de.tkip.sbpm.application.{SubjectInformation, RequestUserID}
 import de.tkip.sbpm.ActorLocator
 import scala.concurrent.duration._
 import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 
-class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, graph: ProcessGraph) extends Actor with DefaultLogging {
+class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, graph: ProcessGraph, createMessage: CreateProcessInstance) extends Actor with DefaultLogging {
 
   import context.dispatcher
 
   // this map maps the external subjects of this process to the related subject id
   private val subjectIdMap: Map[(ProcessID, SubjectID), SubjectID] =
-    graph.subjects collect {
+    (graph.subjects collect {
       case (subjectId, external: ExternalSubject) =>
         (external.relatedProcessId, external.relatedSubjectId) -> subjectId
-    } toMap
+    } toMap) ++ createMessage.subjectMapping.map(_.swap)
 
   private lazy val contextResolver = ActorLocator.contextResolverActor
   implicit val timeout = Timeout(4 seconds)

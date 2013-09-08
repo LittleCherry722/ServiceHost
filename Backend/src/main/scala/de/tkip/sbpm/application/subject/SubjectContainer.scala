@@ -43,6 +43,7 @@ class SubjectContainer(
   processInstanceManager: ActorRef,
   logger: LoggingAdapter,
   blockingHandlerActor: ActorRef,
+  relatedSubject: Option[SubjectID],
   increaseSubjectCounter: () => Unit,
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) {
   import scala.collection.mutable.{ Map => MutableMap }
