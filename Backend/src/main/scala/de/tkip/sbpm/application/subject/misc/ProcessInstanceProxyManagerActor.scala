@@ -71,24 +71,15 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     // TODO name?
     val newProcessInstanceName = "Unnamed"
 
-    /**
-     * (offen) mapping von prozessinstanzen abfragen (neuer nachrichtentyp) über proxy mit adresse (targetAddress und processId), für welche url das mapping gewünscht ist
-     * (erledigt) prozessinstanzen fragen informationen vom graph ab -> graph liefert die interfaces, deswegen dummy-wert eintragen und TODO hinzufügen
-     * (erledigt) über graph-map iterieren, abfragen ob externes subject, matching zwischen url und processId -> Map[SubjectId, (ProcessId, SubjectId)]
-     * (erledigt) beim erstellen eines neuen SubjectContainers bekommt dieser sein relatedSubject (SubjectID) mit, entweder aus der CreateProcessInstance-nachricht oder dem graph -> optionaler konstruktor-parameter (nur für externe subjekte), kann vorerst graph ignorieren
-     */
-
-    //TODO: mutable oder immutable?
     val subjectMapping = Map[SubjectID, (ProcessID, SubjectID)]()
 
     for (processInstance <- processInstanceMap) {
-      val processInstanceProxyFuture = processInstance._2.mapTo[ProcessInstanceProxyActor]
-      val subjectMappingTemp = Map[SubjectID, (ProcessID, SubjectID)]()
+      val processId = processInstance._1._1
+      val processUrl = processInstance._1._2
+      val processInstanceProxyFuture = processInstance._2
+      var subjectMappingTemp = Map[SubjectID, (ProcessID, SubjectID)]()
 
-      //TODO: fix
-      //      processInstanceProxyFuture onSuccess {
-      //        case result => subjectMappingTemp = (result ? GetSubjectMapping()) 
-      //      }
+      processInstanceProxyFuture map {processInstanceProxy => processInstanceProxy.proxy ? GetSubjectMapping(processId, processUrl)}
 
       subjectMapping ++ subjectMappingTemp
     }

@@ -28,6 +28,7 @@ import scala.concurrent.ExecutionContext
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 /**
  * This Actor is only used to process REST calls regarding "execution"
@@ -119,8 +120,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
             entity(as[ProcessIdHeader]) { json =>
               complete {
                 val name = json.name.getOrElse("Unnamed")// TODO not as an Option
-                //TODO: replace null parameter
-                val future = (subjectProviderManager ? CreateProcessInstance(userId, json.processId, name, None, null)).mapTo[ProcessInstanceCreated]
+                val future = (subjectProviderManager ? CreateProcessInstance(userId, json.processId, name, None, Map[SubjectID, (ProcessID, SubjectID)]())).mapTo[ProcessInstanceCreated]
                 future.map(result => result.answer)
               }
             }

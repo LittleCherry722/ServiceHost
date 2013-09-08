@@ -80,10 +80,10 @@ case class ProcessInstanceData(id: ProcessInstanceID,
 case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
 
-case class GetSubjectMapping (url: String, processId: ProcessID)
-case class SubjectMappingResponse(subjectMapping:  Map[SubjectID, (ProcessID, SubjectID)])
+case class GetSubjectMapping (processId: ProcessID, url: String)
+case class SubjectMappingResponse(subjectMapping:  scala.collection.Map[SubjectID, (ProcessID, SubjectID)])
 
-case class CreateProcessInstance(userID: UserID, processID: ProcessID, name: String, manager: Option[ActorRef] = None, subjectMapping:  Map[SubjectID, (ProcessID, SubjectID)]) extends AnswerAbleControlMessage
+case class CreateProcessInstance(userID: UserID, processID: ProcessID, name: String, manager: Option[ActorRef] = None, subjectMapping:  scala.collection.Map[SubjectID, (ProcessID, SubjectID)]) extends AnswerAbleControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceActor: ProcessInstanceRef,
                                   answer: ProcessInstanceData) extends AnswerControlMessage {

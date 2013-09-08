@@ -83,7 +83,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor])
 
   // this actory is used to exchange the subject ids for external input messages
-  // TODO
   private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)))
 
   override def preStart() {
@@ -183,8 +182,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
     
     case message: GetSubjectMapping => {
-      //TODO: mutable or immutable?
-//      sender ! SubjectMappingResponse(getSubjectMapping(message.processId, message.url))
+      sender ! SubjectMappingResponse(getSubjectMapping(message.processId, message.url))
     }
   }
 
@@ -254,7 +252,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     import scala.collection.mutable.{ Map => MutableMap }
     val subjectMapping = MutableMap[SubjectID, (ProcessID, SubjectID)]()
     for (subjectLike <- graph.subjects){
-      //TODO: graph liefert interfaces?
+      //TODO: graph liefert interfaces? -> dummy-values
       if (subjectLike._2.external){
         val externalSubject = subjectLike.asInstanceOf[ExternalSubject]
         subjectMapping.put(externalSubject.id, (externalSubject.relatedProcessId, externalSubject.relatedSubjectId))
