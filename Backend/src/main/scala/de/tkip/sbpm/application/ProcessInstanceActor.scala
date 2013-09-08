@@ -183,7 +183,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
     
     case message: GetSubjectMapping => {
-      sender ! getSubjectMapping(message.processId, message.url)
+      //TODO: mutable or immutable?
+//      sender ! SubjectMappingResponse(getSubjectMapping(message.processId, message.url))
     }
   }
 
@@ -227,10 +228,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
 	var optionalId: Option[SubjectID] = None      
     if (subject.external){
-      optionalId = getSubjectIdFromMapping(subject.id)
-      //kann man Gleichheit mit None so überprüfen?
-      if (optionalId == None){
-        //TODO: werte aus dem Graph holen?
+      val subjectId = subject.id
+      optionalId = getSubjectIdFromMapping(subjectId)
+      if (!optionalId.isDefined){
+        optionalId = Option((graph.subjects.get(subjectId).asInstanceOf[ExternalSubject]).relatedSubjectId)
       }
     }
     

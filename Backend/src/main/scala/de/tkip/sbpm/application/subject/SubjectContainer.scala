@@ -168,7 +168,7 @@ class SubjectContainer(
 
       if (external) {
         // exchange the target subject id
-        message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+        message.target.subjectID = relatedSubject.get
         logger.debug("SEND (target exchanged): {}", message)
 
         // TODO we need this unblock!
