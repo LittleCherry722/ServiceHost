@@ -2,9 +2,11 @@ package de.tkip.sbpm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.NotPersistent;
@@ -31,7 +33,7 @@ public class ProcessManager {
 	@Persistent(serialized = "true")
 	public List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
 	@Persistent(serialized = "true")
-	public List<Action> availableActionsList = new ArrayList<Action>();
+	public Set<Action> availableActionsList = new HashSet<Action>();
 	@Persistent(serialized = "true")
 	public List<Graph> graph = new ArrayList<Graph>();
 	
@@ -198,11 +200,11 @@ public class ProcessManager {
 		this.processInstanceList = processInstanceList;
 	}
 
-	public List<Action> getAvailableActionsList() {
+	public Set<Action> getAvailableActionsList() {
 		return availableActionsList;
 	}
 
-	public void setAvailableActionsList(List<Action> availableActionsList) {
+	public void setAvailableActionsList(Set<Action> availableActionsList) {
 		this.availableActionsList = availableActionsList;
 	}
 
