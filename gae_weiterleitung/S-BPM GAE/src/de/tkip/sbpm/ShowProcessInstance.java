@@ -33,7 +33,7 @@ public class ShowProcessInstance extends HttpServlet {
 			List<ProcessManager> processManagerList = (List<ProcessManager>) query
 					.execute();
 			String url = req.getRequestURI();
-			if (url.equals("/get") || url.equals("/get/")) {
+			if (url.equals("/get")) {
 				if (processManagerList.isEmpty()) {
 					ProcessManager processManager = new ProcessManager();
 					pm.makePersistent(processManager);

@@ -98,11 +98,11 @@ public class ProcessManager {
 		this.processInstanceList.remove(pi);
 	}
 	
-	public Action getAction(int processInstanceID, int stateID){
+	public Action getAction(int processInstanceID, String subjectID, int stateID){
 		Iterator it = this.availableActionsList.iterator();
 		while(it.hasNext()){
 			Action action = (Action) it.next();
-			if(action.getProcessInstanceID() == processInstanceID && action.getStateID() == stateID){
+			if(action.getProcessInstanceID() == processInstanceID && action.getSubjectID().equals(subjectID) && action.getStateID() == stateID){
 				return action;
 			}
 		}
@@ -121,9 +121,9 @@ public class ProcessManager {
 				String text = str[0].trim();
 				ProcessInstance pi = getProcessInstance(state.getProcessInstanceID());
 				if(pi.getProcessData().getSubjects().get(state.getSubjectID()).checkMessageNumberFromSubjectIDAndType(state.getSubjectID(), text) > 0){
-					this.processInstanceList.get(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().setExecutable(true);
+					getProcessInstance(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().setExecutable(true);
 				}else{
-					this.processInstanceList.get(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().setExecutable(false);
+					getProcessInstance(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().setExecutable(false);
 				}	
 			}
 		}

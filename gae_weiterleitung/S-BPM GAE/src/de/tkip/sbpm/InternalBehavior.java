@@ -39,11 +39,15 @@ public class InternalBehavior implements Serializable{
 		}
 	}
 	
+	public int getNextStateIDNoBranch(){
+		return statesMap.get(currentState).transitions.get(0).getSuccessorID();
+	}
+	
 	public int getNextStateID(String transitonText){
 		for(int i = 0; i < statesMap.get(currentState).transitions.size(); i++){
 			String text = statesMap.get(currentState).transitions.get(i).text;
 			if(text.equals(transitonText)){
-				return statesMap.get(currentState).transitions.get(i).successorID;
+				return statesMap.get(currentState).transitions.get(i).getSuccessorID();
 			}
 		}
 		return -1;

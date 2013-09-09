@@ -17,8 +17,8 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-class>de.tkip.test.ShowActions</servlet-class>
 	</servlet>
 	<servlet>
-		<servlet-name>CreateProcessInst</servlet-name>
-		<servlet-class>de.tkip.sbpm.CreateProcessInst</servlet-class>
+		<servlet-name>ProcessInstanceManager</servlet-name>
+		<servlet-class>de.tkip.sbpm.ProcessInstanceManager</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>ShowProcessInstance</servlet-name>
@@ -45,10 +45,6 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-class>de.tkip.test.PMFTestDelete</servlet-class>
 	</servlet>
 	<servlet>
-		<servlet-name>ActionReceiver</servlet-name>
-		<servlet-class>de.tkip.sbpm.ActionReceiver</servlet-class>
-	</servlet>
-	<servlet>
 	<servlet-name>GraphToProcess</servlet-name>
 		<servlet-class>de.tkip.sbpm.GraphToProcess</servlet-class>
 	</servlet>
@@ -66,16 +62,12 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<url-pattern>/pmfdelete</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>CreateProcessInst</servlet-name>
-		<url-pattern>/post</url-pattern>
+		<servlet-name>ProcessInstanceManager</servlet-name>
+		<url-pattern>/post/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ShowProcessInstance</servlet-name>
 		<url-pattern>/get/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>ActionReceiver</servlet-name>
-		<url-pattern>/putfff/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>GraphToProcess</servlet-name>
