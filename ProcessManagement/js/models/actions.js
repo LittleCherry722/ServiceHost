@@ -27,7 +27,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 		subjectID : "string",
 		data : "json",
 		messageContent : "string",
-		currentSelectedFile : "string"		
+		currentSelectedFile : "string"
 	});
 
 	Actions.all = ko.observableArray();
@@ -91,8 +91,22 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 			});
 
 			if (this.actionData()) {
-				this.actionData().data = data;
+				self.actionData().data = data;
 			}
+
+      this.hasUsers = ko.computed(function() {
+        if (!self.actionData()) {
+          return false;
+        }
+        return !self.actionData().some(function( data ) {
+          if (!data.targetUsersData) return false;
+          return data.targetUsersData.external;
+        })
+      });
+
+      this.isSend = ko.computed(function() {
+        return self.stateType() === "send";
+      });
 
 			this.relatedSubject = ko.computed(function() {
 				return self.relatedSubject();
@@ -144,8 +158,9 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 			});
 
 			this.actionTitle = ko.computed(function() {
-				if (self.stateText() != "")
+				if (self.stateText() != "") {
 					return self.stateText();
+        }
 
 				var title = "";
 				var titleExecutable = "";
@@ -195,8 +210,9 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 			this.executable = ko.computed(function() {
 				var executable = false;
 				_.each(self.actionData(), function(element) {
-					if (element.executeAble)
+					if (element.executeAble){
 						executable = true;
+          }
 				});
 
 				return executable;
@@ -236,7 +252,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
 		},
 
-		send : function(obj) {			
+		send : function(obj) {
 			if (this.data.actionData[0].targetUsersData.min > this.data.actionData[0].selectedUsers().length || this.data.actionData[0].targetUsersData.max < this.data.actionData[0].selectedUsers().length) {
 				var errorMsg = "Please select the correct amount of users. <br/>";
 
@@ -253,7 +269,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
 			data.actionData.messageContent = data.actionData.messageText();
 			delete data.actionData.messageText;
-			
+
 			data.actionData.fileId = obj;
 
 			if (data.actionData.messageContent === undefined || data.actionData.messageContent == "") {

@@ -390,8 +390,9 @@
           }
         ],
         "name": "Staples",
-        "relatedProcess": 2,
+        "relatedProcess": 3,
         "relatedSubject": "Staples",
+        "relatedInterface": "",
         "url": "@127.0.0.1:2553",
         "role": "Staples",
         "type": "external",
