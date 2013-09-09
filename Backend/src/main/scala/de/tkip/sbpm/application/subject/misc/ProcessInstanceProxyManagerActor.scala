@@ -7,7 +7,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import akka.actor.ActorRef
 import scala.collection.mutable
 import scala.concurrent.Await
-import akka.event.Logging
+import scala.concurrent.duration._
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.Future
@@ -17,7 +17,6 @@ import akka.pattern.pipe
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.Some
-import de.tkip.sbpm.application.subject.misc.GetProcessInstanceProxy
 import de.tkip.sbpm.application.miscellaneous.GetSubjectMapping
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 
@@ -26,7 +25,7 @@ case object GetProxyActor
 case class GetProcessInstanceProxy(processId: ProcessID, url: String)
 
 class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor with DefaultLogging {
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(5 seconds)
 
   log.debug("register initial process instance proxy for: {}", url)
 
@@ -69,7 +68,6 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
 
   private def createProcessInstanceEntry(processId: ProcessID, targetAddress: String,
     targetManager: ProcessManagerRef): Future[ProcessInstanceProxy] = {
-    import scala.collection.mutable.{ Map => MutableMap }
     // TODO name?
     val newProcessInstanceName = "Unnamed"
 

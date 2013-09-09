@@ -14,10 +14,7 @@
 package de.tkip.sbpm.application
 
 import java.util.Date
-import scala.collection.mutable.Buffer
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent._
-import scala.concurrent.Future._
 import scala.concurrent.duration._
 import akka.actor._
 import akka.pattern.ask
@@ -26,18 +23,12 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessGraph
-import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.model.Process
 import de.tkip.sbpm.model.ProcessInstance
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
-import de.tkip.sbpm.persistence._
 import akka.event.Logging
-import scala.collection.mutable.SortedSet
-import scala.collection.mutable.Set
-import scala.collection.mutable.LinkedList
 import scala.collection.mutable.Map
-import ExecutionContext.Implicits.global
 import akka.actor.Status.Failure
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
@@ -86,6 +77,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)))
 
   override def preStart() {
+    logger.debug("subject mapping: {}", request.subjectMapping)
+
     try {
       // TODO schoener machen
       val dataBaseAccessFuture = for {
@@ -251,14 +244,21 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, (ProcessID, SubjectID)] = {
+    logger.debug("create subject mapping for {}@{}", processId, url)
+
     import scala.collection.mutable.{ Map => MutableMap }
     val subjectMapping = MutableMap[SubjectID, (ProcessID, SubjectID)]()
-    for (subjectLike <- graph.subjects){
-      //TODO: graph liefert interfaces? -> dummy-values
-      if (subjectLike._2.external){
-        val externalSubject = subjectLike.asInstanceOf[ExternalSubject]
-        subjectMapping.put(externalSubject.id, (externalSubject.relatedProcessId, externalSubject.relatedSubjectId))
-      }
+    for (subject <- graph.subjects if subject._2.external){
+      val externalSubject = subject.asInstanceOf[ExternalSubject]
+      val connectedSubject = findConnectedSubject(externalSubject.id)
+
+      logger.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
+
+      val mappingA = (externalSubject.relatedSubjectId -> (processID, externalSubject.id))
+      val mappingB = (externalSubject.relatedInterfaceId -> (processID, connectedSubject.id))
+
+      subjectMapping += mappingA
+      subjectMapping += mappingB
     }
     subjectMapping
   }
