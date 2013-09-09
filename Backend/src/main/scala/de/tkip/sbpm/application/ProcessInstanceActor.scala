@@ -223,7 +223,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       val subjectId = subject.id
       optionalId = subjectIdFromMapping(subjectId)
       if (!optionalId.isDefined){
-        optionalId = Option((graph.subjects.get(subjectId).asInstanceOf[ExternalSubject]).relatedSubjectId)
+        optionalId = Option((subject.asInstanceOf[ExternalSubject]).relatedSubjectId)
       }
     }
     
