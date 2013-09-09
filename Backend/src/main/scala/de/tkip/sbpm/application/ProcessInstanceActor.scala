@@ -249,7 +249,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     import scala.collection.mutable.{ Map => MutableMap }
     val subjectMapping = MutableMap[SubjectID, (ProcessID, SubjectID)]()
-    for (subject <- graph.subjects if subject._2.external){
+    for (subject <- graph.subjects.values if subject.external){
       val externalSubject = subject.asInstanceOf[ExternalSubject]
       val connectedSubject = findConnectedSubject(externalSubject.id)
 
