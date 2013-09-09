@@ -267,12 +267,11 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private def findConnectedSubject(subjectId: SubjectID) :SubjectLike = {
     val subject = persistenceGraph.subjects(subjectId)
     val mainMacro = subject.macros("##main##")
-    val nodes = mainMacro.nodes.values
 
-    val randomSendNode = nodes.find(_.options.subjectId.isDefined)
+    val randomSendEdge = mainMacro.edges.find(_.target.isDefined)
 
-    randomSendNode match {
-      case Some(node) => graph.subjects(node.options.subjectId.get)
+    randomSendEdge match {
+      case Some(edge) => graph.subjects(edge.target.get.subjectId)
       case None => throw new IllegalStateException("could not find connected subject for subjectID "+subjectId)
     }
   }
