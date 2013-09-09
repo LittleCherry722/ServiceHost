@@ -24,7 +24,6 @@ var polling = {
                  }
             },
             updated: function(data) {
-                console.log("Updated: ", data);
                 var changedIndex = polling.getIndexById(Process.all(), data.id);
                 var newItem = new Process(data);
                 Process.all()[changedIndex] = newItem;
@@ -39,38 +38,43 @@ var polling = {
         action: {
             inserted: function(data) {
                 if (polling.getIndexById(Actions.all(), data.id) === -1) {
-                    console.log("Actions.all().length",Actions.all().length);
-                    console.log("inserted: ", data);
                     var newItem = new Actions(data);
                     Actions.all().push(newItem);
-                    console.log("Actions.all().length",Actions.all().length);
                  }  
             },
             updated: function(data) {
-                console.log("Actions.all().length",Actions.all().length);
-                console.log("updated: ", data);
                 var changedIndex = polling.getIndexById(Actions.all(), data.id);
                 var newItem = new Actions(data);
                 Actions.all()[changedIndex] = newItem;
-                console.log("Actions.all().length",Actions.all().length);
             },
             deleted: function(data) {
-                console.log("Actions.all().length",Actions.all().length);
-                console.log("deleted: ", data);
                 var deletedIndex = polling.getIndexById(Actions.all(), data.id);
                 Actions.all().splice(deletedIndex, 1);
-                console.log("Actions.all().length",Actions.all().length);
             }
         },
         history: {
             inserted: function(data) {
                 if (polling.getIndexById(History.all(), data.id) === -1) {
-                    console.log("History.all().length",History.all().length);
-                    console.log("inserted: ", data);
                     var newItem = new History(data);
                     History.all().push(newItem);
-                    console.log("History.all().length",History.all().length);
                  }  
+            }
+        },
+        processInstance: {
+            inserted: function(data) {
+                 if (polling.getIndexById(ProcessInstance.all(), data.id) === -1) {
+                    var newItem = new ProcessInstance(data);
+                    ProcessInstance.all().push(newItem);
+                 }               
+            },
+            updated: function(data) {
+                var changedIndex = polling.getIndexById(ProcessInstance.all(), data.id);
+                var newItem = new ProcessInstance(data);
+                ProcessInstance.all()[changedIndex] = newItem;
+            },
+            deleted: function(data) {
+                var deletedIndex = polling.getIndexById(ProcessInstance.all(), data.id);
+                ProcessInstance.all().splice(deletedIndex, 1);
             }
         }
              
@@ -130,14 +134,16 @@ var polling = {
         var self = this;
         var changesReceived = 0;
         var changedResources = [];
+        var resourceOrder = ["process", "processInstance", "action", "history"];
         var actionOrder = ["inserted", "updated", "deleted"];
         
-        $.each(pollingData, function(resourceName, resource) {
+        
+        $.each(resourceOrder, function(resourceIndex, resourceName) {
             if (self.updateHandler[resourceName]) {
                 
                 $.each(actionOrder, function(actionIndex, actionName) {
                     if (self.updateHandler[resourceName][actionName]) {
-                        var action = resource[actionName];
+                        var action = pollingData[resourceName][actionName];
                         
                         $.each(action, function(itemIndex, item) {
                             changesReceived++;
@@ -156,7 +162,7 @@ var polling = {
             this.updateView(changedResources);
         }
         
-        console.log(changesReceived+" changes Received. Next poll in "+this.waitingTime()+" seconds. Data: ", pollingData);
+        console.log(changesReceived+" changes Received. Next poll in "+this.waitingTime()+" seconds.");
         
         window.setTimeout(  function() { polling.poll(); }, 
                             this.waitingTime()*1000 );
