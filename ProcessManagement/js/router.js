@@ -71,6 +71,7 @@ define([ "director", "app"], function( Director, App ) {
 	// Show the home (index) page.
 	var showHome = function(tab) {
 		if ( App.isViewLoaded( "home" ) ) {
+                        loadView( "home", [ tab ], globalCallback() );
 			App.currentMainViewModel().setView(tab)
 		} else {
 			loadView( "home", [ tab ], globalCallback() );

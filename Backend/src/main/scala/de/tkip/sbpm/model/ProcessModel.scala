@@ -101,6 +101,7 @@ case class ExternalSubject(
   relatedProcessId: ProcessID,
   relatedGraphId: Int,
   relatedSubjectId: SubjectID,
+  relatedInterfaceId: SubjectID,
   url: Option[String]) extends SubjectLike {
   lazy val external = true
 }

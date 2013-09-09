@@ -11,11 +11,15 @@ case class GetProcessChange(timeStamp: Long)
 
 case class GetActionChange(timeStamp: Long)
 
+case class GetProcessInstanceChange(timeStamp: Long)
+
 class ChangeActor extends Actor {
 
   val processChangeEntries = new ArrayBuffer[ProcessChangeData]()
   
   val actionChangeEntries = new ArrayBuffer[ActionChangeData]()
+  
+  val processInstanceChangeEntries = new ArrayBuffer[ProcessInstanceChangeData]()
 
   implicit val ec = context.dispatcher
 
@@ -35,8 +39,17 @@ class ChangeActor extends Actor {
       addActionChangeData(q)
     }
     
+    case q: ProcessInstanceChangeData => {
+      println("add processInstance change data: "+ q.toString())
+      addProcessInstanceChangeData(q)
+    }
+    
     case GetActionChange(t) => {
-      Future { getActionChange(t) } pipeTo sender
+      Future { getActionData(t) } pipeTo sender
+    }
+    
+    case GetProcessInstanceChange(t) => {
+      Future { getProcessInstanceData(t) } pipeTo sender
     }
 
   }
@@ -48,47 +61,9 @@ class ChangeActor extends Actor {
   private def addActionChangeData(a: ActionChangeData) = {
     actionChangeEntries += a
   }
-
-  private def getProcessChange(t: Long) = {
-    val resultHead = """"process":"""
-    val insertHead = """"inserted":"""
-    val updateHead = """"updated":"""
-    val deleteHead = """"deleted":"""
-    var result = new ArrayBuffer[String]()
-    var tempInsert = new ArrayBuffer[String]()
-    var tempUpdate = new ArrayBuffer[String]()
-    var tempDelete = new ArrayBuffer[String]()
-    for (i <- 0 until processChangeEntries.length) {
-      processChangeEntries(i) match {
-        case ProcessChange(p, info, date) => {
-          if (date.getTime() > t * 1000) {
-            if (info == "insert")
-              tempInsert += """{ "id": """ + p.id.get + """, "name": """" + p.name + """"}"""
-            if (info == "update")
-              tempUpdate += """{ "id": """ + p.id.get + """, "name": """" + p.name + """"}"""
-          }
-        }
-        case ProcessDelete(id, date) => {
-          if (date.getTime() > t * 1000) {
-            tempDelete += """{"id" :""" + id + """}"""
-          }
-        }
-      }
-    }
-
-      if (tempInsert.length > 0) {
-        result += insertHead + tempInsert.mkString("[", ",", "]")
-      }
-      if (tempUpdate.length > 0) {
-        result += updateHead + tempInsert.mkString("[", ",", "]")
-      }
-      if (tempDelete.length > 0) {
-        result += deleteHead + tempInsert.mkString("[", ",", "]")
-      }
-    if (result.length > 0)
-      resultHead + result.mkString("{",",","}")
-    else ""
-
+  
+  private def addProcessInstanceChangeData(p: ProcessInstanceChangeData) = {
+    processInstanceChangeEntries += p
   }
   
   private def getProcessData(t: Long) = {
@@ -102,9 +77,9 @@ class ChangeActor extends Actor {
         case ProcessChange(p, info, date) => {
           if (date.getTime() > t * 1000) {
             if (info == "insert")
-              tempInsert += ProcessRelatedChangeData(p.id.get,p.name)
+              tempInsert += ProcessRelatedChangeData(p.id.get,p.name,p.isCase,p.startAble.get,p.activeGraphId)
             if (info == "update")
-              tempUpdate += ProcessRelatedChangeData(p.id.get,p.name)
+              tempUpdate += ProcessRelatedChangeData(p.id.get,p.name,p.isCase,p.startAble.get,p.activeGraphId)
           }
         }
         case ProcessDelete(id, date) => {
@@ -115,48 +90,67 @@ class ChangeActor extends Actor {
       }
     }
     
-    ChangeRelatedData(Some(ProcessRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray))))
+    Some(ProcessRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray)))
 
 
   }
   
-  private def getActionChange(t: Long) = {
-    val resultHead = """"action":"""
-    val insertHead = """"inserted":"""
-    val updateHead = """"updated":"""
-    val deleteHead = """"deleted":"""
-    var result = new ArrayBuffer[String]()
-    var tempInsert = new ArrayBuffer[String]()
-    var tempUpdate = new ArrayBuffer[String]()
-    var tempDelete = new ArrayBuffer[String]()
+  private def getProcessInstanceData(t: Long) = {
+   
+    val tempInsert = new ArrayBuffer[ProcessInstanceRelatedChangeData]()
+    val tempUpdate = new ArrayBuffer[ProcessInstanceRelatedChangeData]()
+    val tempDelete = new ArrayBuffer[ProcessInstanceRelatedDeleteData]()
+    
+    for (i <- 0 until processInstanceChangeEntries.length) {
+      processInstanceChangeEntries(i) match {
+        case ProcessInstanceChange(id, pid, pname, name, info, date) => {
+          if (date.getTime() > t * 1000) {
+            if (info == "insert")
+              tempInsert += ProcessInstanceRelatedChangeData(id,pid,pname,name)
+            if (info == "update")
+              tempUpdate += ProcessInstanceRelatedChangeData(id,pid,pname,name)
+          }
+        }
+        case ProcessInstanceDelete(id, date) => {
+          if (date.getTime() > t * 1000) {
+            tempDelete += ProcessInstanceRelatedDeleteData(id)
+          }
+        }
+      }
+    }
+  
+    Some(ProcessInstanceRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray)))
+  }
+  
+    private def getActionData(t: Long) = {
+   
+    val tempInsert = new ArrayBuffer[ActionRelatedChangeData]()
+    val tempUpdate = new ArrayBuffer[ActionRelatedChangeData]()
+    val tempDelete = new ArrayBuffer[ActionRelatedDeleteData]()
+    
     for (i <- 0 until actionChangeEntries.length) {
       actionChangeEntries(i) match {
         case ActionChange(a, info, date) => {
           if (date.getTime() > t * 1000) {
             if (info == "insert")
-              tempInsert += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
-            if (info == "update")
-              tempUpdate += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
-            if (info == "delete")
-              tempDelete += """{ "id": """ + a.id + """, "data": """" + a + """"}"""
+              tempInsert += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID,a.macroID,a.stateID,a.stateText,a.stateType,a.actionData)
+            if (info == "updated")
+              tempUpdate += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID,a.macroID,a.stateID,a.stateText,a.stateType,a.actionData)
+          }
+        }
+        case ActionDelete(id, date) => {
+          if (date.getTime() > t * 1000) {
+            tempDelete += ActionRelatedDeleteData(id)
           }
         }
       }
     }
+    
+    Some(ActionRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray)))
 
-      if (tempInsert.length > 0) {
-        result += insertHead + tempInsert.mkString("[", ",", "]")
-      }
-      if (tempUpdate.length > 0) {
-        result += updateHead + tempInsert.mkString("[", ",", "]")
-      }
-      if (tempDelete.length > 0) {
-        result += deleteHead + tempInsert.mkString("[", ",", "]")
-      }
-    if (result.length > 0)
-      resultHead + result.mkString("{",",","}")
-    else ""
 
   }
+  
+
 
 }

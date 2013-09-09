@@ -57,6 +57,7 @@ object GraphMappings {
       s.inputPool,
       s.relatedSubjectId,
       s.relatedGraphId,
+      s.relatedInterfaceId,
       s.externalType,
       if (s.role.isDefined) s.role.get.id else None,
       s.url,
@@ -267,6 +268,7 @@ object GraphMappings {
       s.inputPool,
       s.relatedSubjectId,
       s.relatedGraphId,
+      s.relatedInterfaceId,
       s.externalType,
       s.roleId match {
         case None     => None
