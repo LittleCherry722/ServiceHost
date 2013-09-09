@@ -9,6 +9,7 @@ public class ProcessInstance implements Serializable {
 	public int processInstanceID;
 	public String name;
 	public boolean terminated = false;
+	public String history = "";
 	public Process processData;
 	
 	public ProcessInstance(){
@@ -53,5 +54,13 @@ public class ProcessInstance implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getHistory() {
+		return history;
+	}
+
+	public void setHistory(String history) {
+		this.history = history;
 	}
 }
