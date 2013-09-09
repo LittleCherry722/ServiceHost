@@ -3,21 +3,23 @@ package de.tkip.sbpm.application.subject.misc
 import akka.actor.Actor
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import de.tkip.sbpm.application.miscellaneous._
 import akka.actor.ActorRef
 import scala.collection.mutable
-import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.concurrent.Await
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.Future
-import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import akka.pattern.pipe
 import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
+import scala.Some
+import de.tkip.sbpm.application.subject.misc.GetProcessInstanceProxy
 import de.tkip.sbpm.application.miscellaneous.GetSubjectMapping
+import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 
 case object GetProxyActor
 
@@ -49,7 +51,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
         processInstanceMap
           .getOrElseUpdate(
             (processId, targetAddress),
-            createProcessInstanceEntry(processId, targetManager))
+            createProcessInstanceEntry(processId, targetAddress, targetManager))
 
       // create the answer
       val answer = for {
@@ -65,26 +67,26 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     }
   }
 
-  private def createProcessInstanceEntry(processId: ProcessID,
+  private def createProcessInstanceEntry(processId: ProcessID, targetAddress: String,
     targetManager: ProcessManagerRef): Future[ProcessInstanceProxy] = {
     import scala.collection.mutable.{ Map => MutableMap }
     // TODO name?
     val newProcessInstanceName = "Unnamed"
 
-    val subjectMapping = Map[SubjectID, (ProcessID, SubjectID)]()
+    val getMappingMsg = GetSubjectMapping(processId, targetAddress)
 
-    for (processInstance <- processInstanceMap) {
-      val processId = processInstance._1._1
-      val processUrl = processInstance._1._2
-      val processInstanceProxyFuture = processInstance._2
-      var subjectMappingTemp = Map[SubjectID, (ProcessID, SubjectID)]()
-
-      processInstanceProxyFuture map {processInstanceProxy => processInstanceProxy.proxy ? GetSubjectMapping(processId, processUrl)}
-
-      subjectMapping ++ subjectMappingTemp
+    val futures = for (processInstanceFuture <- processInstanceMap.values) yield {
+      val resultFuture = processInstanceFuture map {processInstance => processInstance.proxy ? getMappingMsg}
+      resultFuture.mapTo[SubjectMappingResponse]
     }
+
+    val resultsFuture = Future.sequence(futures)
+    val results = Await.result(resultsFuture, timeout.duration)
+
+    val mapping = results.map(_.subjectMapping).foldLeft(Map[SubjectID, (ProcessID, SubjectID)]())(_ ++ _)
+
     // create the message which is used to create a process instance
-    val createMessage = CreateProcessInstance(ExternalUser, processId, newProcessInstanceName, Some(self), subjectMapping)
+    val createMessage = CreateProcessInstance(ExternalUser, processId, newProcessInstanceName, Some(self), mapping)
 
     for {
       // create the processinstance
