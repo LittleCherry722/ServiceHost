@@ -74,7 +74,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     val getMappingMsg = GetSubjectMapping(processId, targetAddress)
 
     val futures = for (processInstanceFuture <- processInstanceMap.values) yield {
-      val resultFuture = processInstanceFuture map {processInstance => processInstance.proxy ? getMappingMsg}
+      val resultFuture = processInstanceFuture flatMap {processInstance => processInstance.proxy ? getMappingMsg}
       resultFuture.mapTo[SubjectMappingResponse]
     }
 
