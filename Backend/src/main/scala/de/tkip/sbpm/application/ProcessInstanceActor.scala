@@ -182,7 +182,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
     
     case message: GetSubjectMapping => {
-      sender ! SubjectMappingResponse(getSubjectMapping(message.processId, message.url))
+      sender ! SubjectMappingResponse(createSubjectMapping(message.processId, message.url))
     }
   }
 
@@ -227,7 +227,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 	var optionalId: Option[SubjectID] = None      
     if (subject.external){
       val subjectId = subject.id
-      optionalId = getSubjectIdFromMapping(subjectId)
+      optionalId = subjectIdFromMapping(subjectId)
       if (!optionalId.isDefined){
         optionalId = Option((graph.subjects.get(subjectId).asInstanceOf[ExternalSubject]).relatedSubjectId)
       }
@@ -244,11 +244,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       () => runningSubjectCounter += 1,
       () => runningSubjectCounter -= 1)
   }
-  private def getSubjectIdFromMapping(id: SubjectID): Option[SubjectID] = request.subjectMapping.get(id) match {
+
+  private def subjectIdFromMapping(id: SubjectID): Option[SubjectID] = request.subjectMapping.get(id) match {
     case Some((processId, subjectId)) => Some(subjectId)
     case None => None
   }
-  private def getSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, (ProcessID, SubjectID)] = {
+
+  private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, (ProcessID, SubjectID)] = {
     import scala.collection.mutable.{ Map => MutableMap }
     val subjectMapping = MutableMap[SubjectID, (ProcessID, SubjectID)]()
     for (subjectLike <- graph.subjects){
@@ -259,5 +261,18 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       }
     }
     subjectMapping
+  }
+
+  private def findConnectedSubject(subjectId: SubjectID) :SubjectLike = {
+    val subject = persistenceGraph.subjects(subjectId)
+    val mainMacro = subject.macros("##main##")
+    val nodes = mainMacro.nodes.values
+
+    val randomSendNode = nodes.find(_.options.subjectId.isDefined)
+
+    randomSendNode match {
+      case Some(node) => graph.subjects(node.options.subjectId.get)
+      case None => throw new IllegalStateException("could not find connected subject for subjectID "+subjectId)
+    }
   }
 }
