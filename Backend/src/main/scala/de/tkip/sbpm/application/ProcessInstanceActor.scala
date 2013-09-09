@@ -45,6 +45,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
+  import context.dispatcher
   implicit val timeout = Timeout(4 seconds)
   implicit val config = context.system.settings.config
 
