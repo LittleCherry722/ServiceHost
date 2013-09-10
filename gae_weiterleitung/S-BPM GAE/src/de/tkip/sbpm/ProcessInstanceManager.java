@@ -206,7 +206,6 @@ public class ProcessInstanceManager extends HttpServlet {
 									  .setOwner(userID)
 									  .setHistory(pi.getHistory());
 							pidBuilder.setGraph(cp.getGraph());
-							System.out.println(date);
 							Iterator it = processManager.getAvailableActionsList().iterator();
 							while(it.hasNext()){
 								Action action1 = (Action) it.next();

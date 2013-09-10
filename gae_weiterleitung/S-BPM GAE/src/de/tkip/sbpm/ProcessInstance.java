@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class ProcessInstance implements Serializable {
 	public int processInstanceID;
+	public String date;
 	public String name;
 	public boolean terminated = false;
 	public String history = "";
@@ -33,11 +34,11 @@ public class ProcessInstance implements Serializable {
 	}
 
 	public String getDate() {
-		return name;
+		return date;
 	}
 
 	public void setDate(String date) {
-		this.name = date;
+		this.date = date;
 	}
 
 	public boolean isTerminated() {

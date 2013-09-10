@@ -124,6 +124,7 @@ public class ShowProcessInstance extends HttpServlet {
 									  .setOwner(userID)
 									  .setHistory("")
 									  .setGraph(processManager.getGraphFromProcessID(pi.getProcessData().getProcessID()));
+							System.out.println("date: " + pi.getDate());
 							Iterator it = processManager.getAvailableActionsList().iterator();
 							while(it.hasNext()){
 								Action action = (Action) it.next();

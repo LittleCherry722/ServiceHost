@@ -4,18 +4,7 @@ xmlns="http://java.sun.com/xml/ns/javaee"
 xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
-	<servlet>
-		<servlet-name>S_BPM_GAE</servlet-name>
-		<servlet-class>de.tkip.test.S_BPM_GAEServlet</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>PMFDelete</servlet-name>
-		<servlet-class>de.tkip.sbpm.PMFDelete</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>ShowActions</servlet-name>
-		<servlet-class>de.tkip.test.ShowActions</servlet-class>
-	</servlet>
+
 	<servlet>
 		<servlet-name>ProcessInstanceManager</servlet-name>
 		<servlet-class>de.tkip.sbpm.ProcessInstanceManager</servlet-class>
@@ -25,42 +14,10 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-class>de.tkip.sbpm.ShowProcessInstance</servlet-class>
 	</servlet>
 	<servlet>
-		<servlet-name>SubjectTest</servlet-name>
-		<servlet-class>de.tkip.test.SubjectTest</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>BehaviorExample</servlet-name>
-		<servlet-class>de.tkip.sbpm.InternalBehaviorExample</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>TravalRequestProcess</servlet-name>
-		<servlet-class>de.tkip.sbpm.TravalRequestProcess</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>PMFTestServlet</servlet-name>
-		<servlet-class>de.tkip.test.PMFTestServlet</servlet-class>
-	</servlet>
-	<servlet>
 		<servlet-name>PMFTestDelete</servlet-name>
 		<servlet-class>de.tkip.test.PMFTestDelete</servlet-class>
 	</servlet>
-	<servlet>
-	<servlet-name>GraphToProcess</servlet-name>
-		<servlet-class>de.tkip.sbpm.GraphToProcess</servlet-class>
-	</servlet>
 	
-	<servlet-mapping>
-		<servlet-name>S_BPM_GAE</servlet-name>
-		<url-pattern>/s_bpm_gae</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>ShowActions</servlet-name>
-		<url-pattern>/showactions/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>PMFDelete</servlet-name>
-		<url-pattern>/pmfdelete</url-pattern>
-	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ProcessInstanceManager</servlet-name>
 		<url-pattern>/post/*</url-pattern>
@@ -68,26 +25,6 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 	<servlet-mapping>
 		<servlet-name>ShowProcessInstance</servlet-name>
 		<url-pattern>/get/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>GraphToProcess</servlet-name>
-		<url-pattern>/putgraph</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>SubjectTest</servlet-name>
-		<url-pattern>/subjectTest</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>BehaviorExample</servlet-name>
-		<url-pattern>/behaviorExample</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>TravalRequestProcess</servlet-name>
-		<url-pattern>/travelrequest</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>PMFTestServlet</servlet-name>
-		<url-pattern>/pmftest</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>PMFTestDelete</servlet-name>
