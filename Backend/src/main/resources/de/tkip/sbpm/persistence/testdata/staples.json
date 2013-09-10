@@ -506,7 +506,7 @@
         "name": "Lieferant",
         "relatedProcess": 3,
         "relatedSubject": "Zulieferer",
-        "relatedInterface": "Kunde",
+        "relatedInterface": "Staples",
         "url": "@127.0.0.1:2554",
         "role": "Zulieferer",
         "type": "external",
