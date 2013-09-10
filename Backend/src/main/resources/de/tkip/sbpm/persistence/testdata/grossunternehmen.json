@@ -390,9 +390,9 @@
           }
         ],
         "name": "Staples",
-        "relatedProcess": 3,
+        "relatedProcess": 2,
         "relatedSubject": "Staples",
-        "relatedInterface": "Gro\u00dfunternehmen",
+        "relatedInterface": "Kunde",
         "url": "@127.0.0.1:2553",
         "role": "Staples",
         "type": "external",
