@@ -27,6 +27,7 @@ public class ShowProcessInstance extends HttpServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
+		int userID = 1;
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
 			Query query = pm.newQuery(ProcessManager.class);
@@ -98,11 +99,6 @@ public class ShowProcessInstance extends HttpServlet {
 				if (processManagerList.isEmpty()) {
 					ProcessManager processManager = new ProcessManager();
 					pm.makePersistent(processManager);
-//					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
-//					ListActions listActions = listActionsBuilder.build();
-//					resp.getOutputStream().write(listActions.toByteArray());
-//			        resp.getOutputStream().flush();
-//			        resp.getOutputStream().close();
 					System.out.println("Try again later.");
 				} else {
 					String[] urls = url.split("/");
@@ -118,16 +114,14 @@ public class ShowProcessInstance extends HttpServlet {
 							System.out.println(
 									"process id: " + id + "   process name: "
 											+ name);
-							System.out.println();
 							ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
-							System.out.println(pi.getProcessData().getProcessID());
 							pidbuilder.setId(id)
 									  .setName(name)
 									  .setProcessId(pi.getProcessData().getProcessID())
 									  .setProcessName(pi.getProcessData().getProcessName())
 									  .setIsTerminated(pi.isTerminated())
-									  .setDate(pi.getProcessData().date)
-									  .setOwner(0)
+									  .setDate(pi.getDate())
+									  .setOwner(userID)
 									  .setHistory("")
 									  .setGraph(processManager.getGraphFromProcessID(pi.getProcessData().getProcessID()));
 							Iterator it = processManager.getAvailableActionsList().iterator();

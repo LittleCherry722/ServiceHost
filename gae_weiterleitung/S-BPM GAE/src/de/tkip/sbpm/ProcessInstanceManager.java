@@ -40,6 +40,7 @@ public class ProcessInstanceManager extends HttpServlet {
 		String url = req.getRequestURI();
 		int userID = 1;
 		if(url.equals("/post")){
+			System.out.println("/post");
 			try {
 				int size = req.getContentLength();
 				byte[] byteProto = new byte[size];
@@ -70,7 +71,6 @@ public class ProcessInstanceManager extends HttpServlet {
 								String msgID = graph.getMessages(i).getId();
 								String msg = graph.getMessages(i).getName();
 								msgMap.put(msgID, msg);
-//								System.out.println("msgID: " + msgID + " msg: " + msg);
 							}
 							for(int i = 0; i < subjectNum; i++){
 								Subject subject = new Subject();
@@ -126,8 +126,9 @@ public class ProcessInstanceManager extends HttpServlet {
 							SimpleDateFormat matter=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 							String date = matter.format(dt);
 							pi.setProcessInstanceID(processInstanceID) ;
-							pi.setDate(cp.getName());
+							pi.setDate(date);
 							pi.setProcessData(process);
+							pi.setName(cp.getName());
 							if(!pi.getProcessData().getSubjects().isEmpty()){
 								Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
 								while(it.hasNext()){
@@ -195,17 +196,24 @@ public class ProcessInstanceManager extends HttpServlet {
 							int t = processManager.getProcessInstanceID() +1;
 							processManager.setProcessInstanceID(t);
 							
-							ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
-							pidbuilder.setId(processInstanceID)
-									  .setName("travel")
+							ProcessInstanceData.Builder pidBuilder = ProcessInstanceData.newBuilder();
+							pidBuilder.setId(processInstanceID)
+									  .setName(pi.getName())
 									  .setProcessId(processID)
-									  .setProcessName(processManager.getProcess(processID).getProcessName())
-									  .setIsTerminated(false)
+									  .setProcessName(process.getProcessName())
+									  .setIsTerminated(pi.isTerminated())
 									  .setDate(date)
 									  .setOwner(userID)
-									  .setHistory("");
-							pidbuilder.setGraph(cp.getGraph());
-							ProcessInstanceData pid = pidbuilder.build();
+									  .setHistory(pi.getHistory());
+							pidBuilder.setGraph(cp.getGraph());
+							Iterator it = processManager.getAvailableActionsList().iterator();
+							while(it.hasNext()){
+								Action action1 = (Action) it.next();
+								if(action1.getProcessInstanceID() == processInstanceID){
+									pidBuilder.addActions(action1);
+								}
+							}
+							ProcessInstanceData pid = pidBuilder.build();
 							resp.getOutputStream().write(pid.toByteArray());
 				            resp.getOutputStream().flush();
 				            resp.getOutputStream().close();
@@ -229,8 +237,8 @@ public class ProcessInstanceManager extends HttpServlet {
 			try {
 				pm.currentTransaction().begin();
 				String[] urls = url.split("/");
-				System.out.println("Action Receiver: ");
 				int id = Integer.valueOf(urls[urls.length - 1]);
+				System.out.println("Action Receiver: /post/" + id);
 				int size = req.getContentLength();
 				byte[] byteProto = new byte[size];
 				is.read(byteProto);
