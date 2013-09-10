@@ -223,7 +223,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       val subjectId = subject.id
       optionalId = subjectIdFromMapping(subjectId)
       if (!optionalId.isDefined){
-        optionalId = Option((graph.subjects.get(subjectId).asInstanceOf[ExternalSubject]).relatedSubjectId)
+        optionalId = Option((graph.subjects.get(subjectId).asInstanceOf[ExternalSubject]).relatedSubjectId.get)
       }
     }
     
@@ -255,8 +255,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
       logger.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
 
-      val mappingA = (externalSubject.relatedSubjectId -> (processID, externalSubject.id))
-      val mappingB = (externalSubject.relatedInterfaceId -> (processID, connectedSubject.id))
+      val mappingA = (externalSubject.relatedSubjectId.get -> (processID, externalSubject.id))
+      val mappingB = (externalSubject.relatedInterfaceId.get -> (processID, connectedSubject.id))
 
       subjectMapping += mappingA
       subjectMapping += mappingB

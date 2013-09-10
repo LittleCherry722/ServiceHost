@@ -20,7 +20,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
   private val subjectIdMap: Map[(ProcessID, SubjectID), SubjectID] =
     (graph.subjects collect {
       case (subjectId, external: ExternalSubject) =>
-        (external.relatedProcessId, external.relatedSubjectId) -> subjectId
+        (external.relatedProcessId.get, external.relatedSubjectId.get) -> subjectId
     } toMap) ++ createMessage.subjectMapping.map(_.swap)
 
   private lazy val contextResolver = ActorLocator.contextResolverActor

@@ -105,7 +105,7 @@ class SubjectContainer(
       // TODO mit futures
       val processInstanceRef =
         (processInstanceManager ?
-          GetProcessInstanceProxy(ext.relatedProcessId, url))
+          GetProcessInstanceProxy(ext.relatedProcessId.get, url))
           .mapTo[ActorRef]
 
       // TODO we need this unblock!

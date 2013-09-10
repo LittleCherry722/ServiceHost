@@ -100,7 +100,7 @@ object parseGraph {
         val relatedInterfaceId = subject.relatedInterfaceId.get
         val url = subject.url
 
-        ExternalSubject(id, subject.inputPool, multi, relatedProcessId, relatedGraphId, relatedSubjectId, relatedInterfaceId, url)
+        ExternalSubject(id, subject.inputPool, multi, Option(relatedProcessId), Option(relatedGraphId), Option(relatedSubjectId), Option(relatedInterfaceId), url)
       }
     }
 
