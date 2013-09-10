@@ -161,7 +161,16 @@ public class ProcessInstanceManager extends HttpServlet {
 											ActionData.Builder actionDataBuilder = ActionData.newBuilder();
 											actionDataBuilder.setText(text)
 															 .setExecutable(executable)
-															 .setTransitionType(transitionType);	
+															 .setTransitionType(transitionType);
+											if(state.getStateType().equals(StateType.send)){
+												TargetUserData.Builder tudBuilder = TargetUserData.newBuilder();
+												tudBuilder.setMin(1)
+														  .setMax(1)
+														  .addTargetUsers(userID);
+												TargetUserData tud = tudBuilder.build();
+												actionDataBuilder.setTargetUserData(tud);
+												actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
+											}
 											if(state.getStateType().equals(StateType.receive)){
 												actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
 												MessageData.Builder msgBuilder = MessageData.newBuilder();
@@ -338,6 +347,18 @@ public class ProcessInstanceManager extends HttpServlet {
 											TargetUserData tud = tudBuilder.build();
 											actionDataBuilder.setTargetUserData(tud);
 											actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
+										}
+										if(state.getStateType().equals(StateType.receive)){
+											actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
+											MessageData.Builder msgBuilder = MessageData.newBuilder();
+											String[] s = state.getTransitions().get(0).getText().split("(1)");
+											String text1 = s[0].trim();
+											int num = subject.checkMessageNumberFromSubjectIDAndType(subject.getSubjectID(), text1);
+											if(num == 0){
+												msgBuilder.setMessageContent("");
+											}else{
+												msgBuilder.setMessageContent(subject.getMessageFromSubjcetIDAndType(subject.getSubjectID(), text1));
+											}
 										}
 										ActionData actionData = actionDataBuilder.build();
 										actionBuilder.addActionData(actionData);
