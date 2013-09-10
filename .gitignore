@@ -15,3 +15,4 @@
 Repository/target/*
 Repository/project/target/*
 ProcessManagement/nbproject/*
+ProcessManagement/.sass-cache/*

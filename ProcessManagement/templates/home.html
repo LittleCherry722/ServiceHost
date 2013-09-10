@@ -3,22 +3,22 @@
     <h1>S-BPM Groupware v1.2</h1>
     <div class="row" id="filter">
   		<div class="col-sm-2">
-      		<select class="form-control" data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>   
+      		<select class="form-control input-sm" data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>   
       	</div>
       	<div class="col-sm-2">	
-      		<select class="form-control" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
+      		<select class="form-control input-sm" data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
       	</div>
       	<div class="col-sm-2">
-      		<select class="form-control" data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
+      		<select class="form-control input-sm" data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
       	</div>
       	<div class="col-sm-2">
-      		<div class="input-group">
+      		<div class="input-group input-group-sm">
   				<span class="input-group-addon">From:</span>
       			<input class="form-control" type="text" id="from" name="from" data-bind="value: selectedStart" />
       		</div>
       	</div>
       	<div class="col-sm-2">
-      		<div class="input-group">
+      		<div class="input-group input-group-sm">
   				<span class="input-group-addon">To:</span>
       			<input class="form-control" type="text" id="to" name="to" data-bind="value: selectedEnd"/>
       		</div>
