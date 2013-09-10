@@ -18,23 +18,51 @@ define([
 	"notify"
 ], function( ko, Model, _, async, notify ) {
 
-	UserMessage = Model( "UserMessage" );
+	UserMessage = Model( "UserMessage" , {
+		remotePath : 'message/inbox'
+	});
 
 	UserMessage.attrs({
-		fromUserId: "integer",
-		toUserId: "integer",
+		fromUser: "integer",
+		toUser: "integer",
 		title: "string",
 		content: "string",
-		timestamp: "integer"
+		date: "json"
 	});
+        
+        UserMessage.all = ko.observableArray();
 
 	UserMessage.include({
 		initialize: function( data ) {
 			var self = this;
 			this.formattedDate = ko.computed(function(){
-				return new Date(self.timestamp()).toLocaleString();
+				if (self.date()) {
+                                    return new Date(self.date().date).toLocaleString();
+                                }
+                                else {
+                                    return self.date();
+                                }
+                                
 			});
-		}
+		},
+                        
+                save: function() {
+                    
+                    $.ajax({    
+                        type: "POST",
+                        url: "/message",
+                        data: JSON.stringify({  toUser: this.toUser(),
+                                                title: this.title(),
+                                                content: this.content()}),
+                        success: function(r) {
+                            window.location.hash = "#/messages/messagesOverview";
+                            notify.info("Success!", "Message successfully sent.");
+                        },
+                        contentType:"application/json; charset=utf-8"
+                      });
+
+
+                }
 	})
 
 	return UserMessage;

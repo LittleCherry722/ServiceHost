@@ -3,15 +3,16 @@ define ([
 	"app",
 	"underscore",
 	"models/user",
-	"models/userMessage"
+	"models/userMessage", 
+        "notify"
 ],
-	function (ko, App, _, User, UserMessage) {
+	function (ko, App, _, User, UserMessage, notify) {
 		var ViewModel = function () {
 			var self = this;
 
 			self.users = User.all;
-			self.fromUserId = ko.observable ();
-			self.toUserId = ko.observable ();
+			self.fromUser = ko.observable ();
+			self.toUser = ko.observable ();
 			self.title = ko.observable ();
 			self.content = ko.observable ();
 
@@ -23,29 +24,31 @@ define ([
 			self.currentTab.subscribe(function(){
 				$('.message').addClass('hide');
 			});
-
+                        
+                        
 			self.send = function () {
-				if (self.fromUserId () && self.toUserId ()) {
+				if (self.toUser() && self.title() && self.content()) {
 					var message = new UserMessage ({
-						"fromUserId": self.fromUserId (),
-						"toUserId": self.toUserId (),
+						"toUser": self.toUser (),
 						"title": self.title (),
-						"content": self.content (),
-						"timestamp": Date.now()
+						"content": self.content ()
 					});
 					message.id(self.messages().length);
-//					message.save();
+					message.save();
 					self.messages.unshift (message);
-					self.fromUserId (undefined);
-					self.toUserId (undefined);
+					self.fromUser (undefined);
+					self.toUser (undefined);
 					self.title (undefined);
 					self.content (undefined);
 				}
+                                else {
+                                    notify.warning("Error", "Please fill out all input fields.");
+                                }
 			};
 
 			self.reset = function () {
-				self.fromUserId (undefined);
-				self.toUserId (undefined);
+				self.fromUser (undefined);
+				self.toUser (undefined);
 				self.title (undefined);
 				self.content (undefined);
 				self.messages.removeAll ();
@@ -62,7 +65,7 @@ define ([
 					return self.messages ();
 				} else {
 					return ko.utils.arrayFilter (self.messages (), function (item) {
-						return item.toUserId () === filter;
+						return item.toUser () === filter;
 					});
 				}
 			});
@@ -77,11 +80,11 @@ define ([
 
 			self.replyMessage = function (message) {
 				self.title("Re: " + message.title());
-				self.fromUserId(message.toUserId());
-				self.toUserId(message.fromUserId());
+				self.fromUser(message.toUser());
+				self.toUser(message.fromUser());
 
 				var reply = "\n\n";
-				reply += "On " + message.formattedDate() + ", " + self.userNameById(message.fromUserId()) +" wrote:\n";
+				reply += "On " + message.formattedDate() + ", " + self.userNameById(message.fromUser()) +" wrote:\n";
 				reply += message.content().replace(/^(.*)$/mg, '> $1');
 				self.content(reply);
 
