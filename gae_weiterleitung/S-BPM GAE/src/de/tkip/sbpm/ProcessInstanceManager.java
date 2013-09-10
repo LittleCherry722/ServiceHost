@@ -112,7 +112,7 @@ public class ProcessInstanceManager extends HttpServlet {
 									transition.setManualTimeout(graph.getSubjects(i).getMacros(0).getEdges(j).getManualTimeout());
 									transition.setPriority(graph.getSubjects(i).getMacros(0).getEdges(j).getPriority());
 									transition.setRelatedSubject(graph.getSubjects(i).getMacros(0).getEdges(j).getTarget().getSubjectId());			
-									state.transitions.add(transition);
+									state.getTransitions().add(transition);
 								}
 								process.addSubject(subject);
 							}
@@ -206,6 +206,7 @@ public class ProcessInstanceManager extends HttpServlet {
 									  .setOwner(userID)
 									  .setHistory(pi.getHistory());
 							pidBuilder.setGraph(cp.getGraph());
+							System.out.println(date);
 							Iterator it = processManager.getAvailableActionsList().iterator();
 							while(it.hasNext()){
 								Action action1 = (Action) it.next();
