@@ -16,12 +16,15 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
 
   import context.dispatcher
 
+  private val subjectIdMapFromGraph = (graph.subjects collect {
+    case (subjectId, external: ExternalSubject) =>
+      (external.relatedProcessId.get, external.relatedSubjectId.get) -> subjectId
+  } toMap)
+
+  private val subjectIdMapFromMapping = createMessage.subjectMapping.mapValues(mappingInfo => (mappingInfo.processId, mappingInfo.subjectId)).map(_.swap)
+
   // this map maps the external subjects of this process to the related subject id
-  private val subjectIdMap: Map[(ProcessID, SubjectID), SubjectID] =
-    (graph.subjects collect {
-      case (subjectId, external: ExternalSubject) =>
-        (external.relatedProcessId.get, external.relatedSubjectId.get) -> subjectId
-    } toMap) ++ createMessage.subjectMapping.map(_.swap)
+  private val subjectIdMap: Map[(ProcessID, SubjectID), SubjectID] = subjectIdMapFromGraph ++ subjectIdMapFromMapping
 
   private lazy val contextResolver = ActorLocator.contextResolverActor
   implicit val timeout = Timeout(4 seconds)

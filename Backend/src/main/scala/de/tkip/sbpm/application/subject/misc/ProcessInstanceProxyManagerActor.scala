@@ -19,6 +19,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.Some
 import de.tkip.sbpm.application.miscellaneous.GetSubjectMapping
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import de.tkip.sbpm.application.MappingInfo
 
 case object GetProxyActor
 
@@ -81,7 +82,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     val resultsFuture = Future.sequence(futures)
     val results = Await.result(resultsFuture, timeout.duration)
 
-    val mapping = results.map(_.subjectMapping).foldLeft(Map[SubjectID, (ProcessID, SubjectID)]())(_ ++ _)
+    val mapping = results.map(_.subjectMapping).foldLeft(Map[SubjectID, MappingInfo]())(_ ++ _)
 
     // create the message which is used to create a process instance
     val createMessage = CreateProcessInstance(ExternalUser, processId, newProcessInstanceName, Some(self), mapping)

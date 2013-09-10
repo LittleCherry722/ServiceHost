@@ -35,7 +35,7 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
 import de.tkip.sbpm.model.ExternalSubject
 
-// represents the history of the instance
+case class MappingInfo(subjectId: SubjectID, processId : ProcessID, address: String)
 
 /**
  * instantiates SubjectActor's and manages their interactions
@@ -176,7 +176,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
     
     case message: GetSubjectMapping => {
-      sender ! SubjectMappingResponse(createSubjectMapping(message.processId, message.url))
+      sender ! SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
     }
   }
 
@@ -218,13 +218,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
-	var optionalId: Option[SubjectID] = None      
-    if (subject.external){
-      val subjectId = subject.id
-      optionalId = subjectIdFromMapping(subjectId)
-      if (!optionalId.isDefined){
-        optionalId = Option((subject.asInstanceOf[ExternalSubject]).relatedSubjectId.get)
-      }
+	  val optionalId = if (subject.external){
+      Some(externalSubjectMapping(subject.asInstanceOf[ExternalSubject]))
+    } else {
+      None
     }
     
     new SubjectContainer(
@@ -239,24 +236,28 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       () => runningSubjectCounter -= 1)
   }
 
-  private def subjectIdFromMapping(id: SubjectID): Option[SubjectID] = request.subjectMapping.get(id) match {
-    case Some((processId, subjectId)) => Some(subjectId)
-    case None => None
+  private def externalSubjectMapping(subject: ExternalSubject) :MappingInfo = {
+    if(request.subjectMapping.contains(subject.id)) {
+      request.subjectMapping(subject.id)
+    } else {
+      MappingInfo(subject.relatedSubjectId.get, subject.relatedProcessId.get, subject.url.get)
+    }
   }
 
-  private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, (ProcessID, SubjectID)] = {
+  private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, MappingInfo] = {
     logger.debug("create subject mapping for {}@{}", processId, url)
 
     import scala.collection.mutable.{ Map => MutableMap }
-    val subjectMapping = MutableMap[SubjectID, (ProcessID, SubjectID)]()
+    val subjectMapping = MutableMap[SubjectID, MappingInfo]()
     for (subject <- graph.subjects.values if subject.external){
       val externalSubject = subject.asInstanceOf[ExternalSubject]
       val connectedSubject = findConnectedSubject(externalSubject.id)
+      val ownUrl = SystemProperties.akkaRemoteUrl
 
       logger.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
 
-      val mappingA = (externalSubject.relatedSubjectId.get -> (processID, externalSubject.id))
-      val mappingB = (externalSubject.relatedInterfaceId.get -> (processID, connectedSubject.id))
+      val mappingA = (externalSubject.relatedSubjectId.get -> MappingInfo(externalSubject.id, processID, ownUrl))
+      val mappingB = (externalSubject.relatedInterfaceId.get -> MappingInfo(connectedSubject.id, processID, ownUrl))
 
       subjectMapping += mappingA
       subjectMapping += mappingB
