@@ -103,7 +103,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
 
                 //execute next step
                 complete {
-                  ProtobufWrapper.buildAvailableAction(talkWithGAE("post/" + processInstanceID, "POST" ,Some(proto)))
+                  ProtobufWrapper.buildProcessInstanceData(talkWithGAE("post/" + processInstanceID, "POST" ,Some(proto)))
                 }
               }
             }
