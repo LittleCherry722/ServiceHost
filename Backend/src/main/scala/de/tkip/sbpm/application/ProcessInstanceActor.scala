@@ -251,16 +251,19 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     val subjectMapping = MutableMap[SubjectID, MappingInfo]()
     for (subject <- graph.subjects.values if subject.external){
       val externalSubject = subject.asInstanceOf[ExternalSubject]
-      val connectedSubject = findConnectedSubject(externalSubject.id)
-      val ownUrl = SystemProperties.akkaRemoteUrl
 
-      logger.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
+      if(externalSubject.relatedProcessId.exists(_ == processId) && externalSubject.url.exists(_ == url)) {
+        val connectedSubject = findConnectedSubject(externalSubject.id)
+        val ownUrl = SystemProperties.akkaRemoteUrl
 
-      val mappingA = (externalSubject.relatedSubjectId.get -> MappingInfo(externalSubject.id, processID, ownUrl))
-      val mappingB = (externalSubject.relatedInterfaceId.get -> MappingInfo(connectedSubject.id, processID, ownUrl))
+        logger.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
 
-      subjectMapping += mappingA
-      subjectMapping += mappingB
+        val mappingA = (externalSubject.relatedSubjectId.get -> MappingInfo(externalSubject.id, processID, ownUrl))
+        val mappingB = (externalSubject.relatedInterfaceId.get -> MappingInfo(connectedSubject.id, processID, ownUrl))
+
+        subjectMapping += mappingA
+        subjectMapping += mappingB
+      }
     }
     subjectMapping
   }
