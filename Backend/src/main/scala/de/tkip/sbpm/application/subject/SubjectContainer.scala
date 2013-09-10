@@ -18,19 +18,19 @@ import akka.actor.ActorContext
 import akka.actor.Props
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
-import de.tkip.sbpm.application.SubjectCreated
+import de.tkip.sbpm.application.{MappingInfo, SubjectCreated, RegisterSingleSubjectInstance}
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.RegisterSingleSubjectInstance
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
-import de.tkip.sbpm.model.ExternalSubject
 import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration._
+import akka.util.Timeout
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -43,9 +43,12 @@ class SubjectContainer(
   processInstanceManager: ActorRef,
   logger: LoggingAdapter,
   blockingHandlerActor: ActorRef,
+  mapping: Option[MappingInfo],
   increaseSubjectCounter: () => Unit,
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) {
   import scala.collection.mutable.{ Map => MutableMap }
+
+  implicit val timeout = Timeout(5 seconds)
 
   private val multi = subject.multi
   private val single = !multi
@@ -97,14 +100,10 @@ class SubjectContainer(
       logger.debug("CREATE: {}", subjectData.subject)
 
       // process schon vorhanden?
-      implicit val timeout = akka.util.Timeout(3500)
-      val ext = subjectData.subject.asInstanceOf[ExternalSubject]
-      val url = ext.url.getOrElse("")
-
       // TODO mit futures
       val processInstanceRef =
         (processInstanceManager ?
-          GetProcessInstanceProxy(ext.relatedProcessId, url))
+          GetProcessInstanceProxy(mapping.get.processId, mapping.get.address))
           .mapTo[ActorRef]
 
       // TODO we need this unblock!
@@ -167,7 +166,7 @@ class SubjectContainer(
 
       if (external) {
         // exchange the target subject id
-        message.target.subjectID = subject.asInstanceOf[ExternalSubject].relatedSubjectId
+        message.target.subjectID = mapping.get.subjectId
         logger.debug("SEND (target exchanged): {}", message)
 
         // TODO we need this unblock!

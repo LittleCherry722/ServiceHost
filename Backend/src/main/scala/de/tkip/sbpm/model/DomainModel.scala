@@ -23,6 +23,8 @@ import spray.json.{
   JsNumber
 }
 import de.tkip.sbpm.application.subject.misc.AvailableAction
+import de.tkip.sbpm.application.subject.misc.ActionData
+import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 
 // Model for Administration
@@ -58,14 +60,31 @@ trait ChangeData {
 trait ProcessChangeData extends ChangeData
 case class ProcessChange(process: Process, info: String, date: java.util.Date) extends ProcessChangeData
 case class ProcessDelete(id: Int, date: java.util.Date) extends ProcessChangeData
+
 trait ActionChangeData extends ChangeData
 case class ActionChange(action: AvailableAction, info: String, date: java.util.Date) extends ActionChangeData
 case class ActionDelete(id: Int, date: java.util.Date) extends ActionChangeData
 
-case class ProcessRelatedChangeData(id: Int, name: String)
+trait ProcessInstanceChangeData extends ChangeData
+case class ProcessInstanceChange(id: Int, processID: Int, processName: String, name: String, info: String, date: java.util.Date) extends ProcessInstanceChangeData
+case class ProcessInstanceDelete(id: Int, date: java.util.Date) extends ProcessInstanceChangeData
+
+case class ProcessRelatedChangeData(id: Int, name: String, isCase: Boolean, startAble: Boolean, activeGraphId: Option[Int])
 case class ProcessRelatedDeleteData(id: Int)
 case class ProcessRelatedChange(inserted: Option[Array[ProcessRelatedChangeData]], updated: Option[Array[ProcessRelatedChangeData]], deleted: Option[Array[ProcessRelatedDeleteData]])
-case class ChangeRelatedData(process: Option[ProcessRelatedChange])
+
+case class ActionRelatedChangeData(id: Int, userID: Int, processInstanceID: Int, subjectID: String, macroID: String, stateID: Int, stateText: String, stateType: String, actionData: Array[ActionData])
+case class ActionRelatedDeleteData(id: Int)
+case class ActionRelatedChange(inserted: Option[Array[ActionRelatedChangeData]], updated: Option[Array[ActionRelatedChangeData]], deleted: Option[Array[ActionRelatedDeleteData]])
+
+case class HistoryRelatedChangeData(userId: Option[Int], process: NewHistoryProcessData, subject: Option[String], transitionEvent: Option[NewHistoryTransitionData], lifecycleEvent: Option[String])
+case class HistoryRelatedChange(inserted: Option[Array[HistoryRelatedChangeData]])
+
+case class ProcessInstanceRelatedChangeData(id: Int, processID: Int, processName: String, name: String)
+case class ProcessInstanceRelatedDeleteData(id: Int)
+case class ProcessInstanceRelatedChange(inserted: Option[Array[ProcessInstanceRelatedChangeData]], updated: Option[Array[ProcessInstanceRelatedChangeData]], deleted: Option[Array[ProcessInstanceRelatedDeleteData]])
+
+case class ChangeRelatedData(process: Option[ProcessRelatedChange], processInstance: Option[ProcessInstanceRelatedChange], action: Option[ActionRelatedChange], history: Option[HistoryRelatedChange])
 
 
 case class Configuration(key: String,
@@ -102,6 +121,7 @@ case class GraphSubject(id: String,
   inputPool: Short,
   relatedSubjectId: Option[String],
   relatedGraphId: Option[Int],
+  relatedInterfaceId: Option[String],
   externalType: Option[String],
   role: Option[Role],
   url: Option[String],
