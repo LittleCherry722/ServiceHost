@@ -94,13 +94,8 @@ object parseGraph {
       else {
         // FIXME GraphId != processId
         // TODO check ob vorhanden!
-        val relatedProcessId = subject.relatedGraphId.get
-        val relatedGraphId = subject.relatedGraphId.get
-        val relatedSubjectId = subject.relatedSubjectId.get
-        val relatedInterfaceId = subject.relatedInterfaceId.get
-        val url = subject.url
 
-        ExternalSubject(id, subject.inputPool, multi, Option(relatedProcessId), Option(relatedGraphId), Option(relatedSubjectId), Option(relatedInterfaceId), url)
+        ExternalSubject(id, subject.inputPool, multi, subject.relatedGraphId, subject.relatedSubjectId, subject.relatedInterfaceId, subject.url)
       }
     }
 

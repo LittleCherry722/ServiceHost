@@ -99,7 +99,6 @@ case class ExternalSubject(
   inputPool: Int,
   multi: Boolean,
   relatedProcessId: Option[ProcessID],
-  relatedGraphId: Option[Int],
   relatedSubjectId: Option[SubjectID],
   relatedInterfaceId: Option[SubjectID],
   url: Option[String]) extends SubjectLike {
