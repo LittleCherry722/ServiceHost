@@ -17,7 +17,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
   import context.dispatcher
 
   private val subjectIdMapFromGraph = (graph.subjects collect {
-    case (subjectId, external: ExternalSubject) =>
+    case (subjectId, external: ExternalSubject) if external.relatedProcessId.isDefined && external.relatedSubjectId.isDefined =>
       (external.relatedProcessId.get, external.relatedSubjectId.get) -> subjectId
   } toMap)
 
