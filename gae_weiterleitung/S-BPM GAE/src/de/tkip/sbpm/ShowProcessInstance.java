@@ -130,6 +130,13 @@ public class ShowProcessInstance extends HttpServlet {
 									  .setOwner(0)
 									  .setHistory("")
 									  .setGraph(processManager.getGraphFromProcessID(pi.getProcessData().getProcessID()));
+							Iterator it = processManager.getAvailableActionsList().iterator();
+							while(it.hasNext()){
+								Action action = (Action) it.next();
+								if(action.getProcessInstanceID() == id){
+									pidbuilder.addActions(action);
+								}
+							}
 							ProcessInstanceData pid = pidbuilder.build();
 							resp.getOutputStream().write(pid.toByteArray());
 				            resp.getOutputStream().flush();
