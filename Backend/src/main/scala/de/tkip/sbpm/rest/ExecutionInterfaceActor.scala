@@ -96,14 +96,16 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           pathPrefix(IntNumber) { processInstanceID =>
             path("") {
               entity(as[ExecuteAction]) { json =>
-                System.err.println("/post/" + processInstanceID)
+                System.err.println("/put/" + processInstanceID)
                 // create the url connection
                 //              val url = new URL(googleUri + "put/id")
                 val proto = ProtobufWrapper.buildProto(json)
 
+                println(proto)
+
                 //execute next step
                 complete {
-                  ProtobufWrapper.buildProcessInstanceData(talkWithGAE("post/" + processInstanceID, "POST" ,Some(proto)))
+                  ProtobufWrapper.buildProcessInstanceData(talkWithGAE("post/" + processInstanceID, "POST", Some(proto)))
                 }
               }
             }
@@ -130,14 +132,14 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
                         System.err.println(graph.get)
 
                         //execute next step
-                        ProtobufWrapper.buildProcessInstanceData(talkWithGAE("post","POST", Some(proto)))
+                        ProtobufWrapper.buildProcessInstanceData(talkWithGAE("post", "POST", Some(proto)))
                       }
                     } yield result
 
-                    future onComplete {
-                      s => println(s)
-                    }
-                    
+                  future onComplete {
+                    s => println(s)
+                  }
+
                   future.map(result => result)
                 }
               }
@@ -240,21 +242,21 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
     val in = connection.getInputStream()
     ByteStreams.toByteArray(in)
   }
-  
+
   private def doGet(subUrl: String): Array[Byte] = {
     val url = new URL(googleUri + subUrl)
-    val connection: HttpURLConnection = 
+    val connection: HttpURLConnection =
       url.openConnection().asInstanceOf[HttpURLConnection]
-    
+
     connection.setDoInput(true)
 
     ByteStreams.toByteArray(connection.getInputStream())
   }
-  
+
   private def talkWithGAE(subUrl: String, httpMode: String, protobytes: Option[Array[Byte]]): Array[Byte] = {
     httpMode match {
       case "POST" => doPost(subUrl, protobytes)
-      case "GET" => doGet(subUrl)
+      case "GET"  => doGet(subUrl)
     }
   }
 

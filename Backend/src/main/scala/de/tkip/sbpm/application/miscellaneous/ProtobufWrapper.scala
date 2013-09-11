@@ -35,6 +35,10 @@ import java.util.Date
 import java.text.SimpleDateFormat
 import de.tkip.sbpm.application.History
 import scala.collection.JavaConverters._
+import de.tkip.sbpm.application.subject.misc.TargetUser
+import de.tkip.sbpm.application.subject.misc.TargetUser
+import de.tkip.sbpm.application.subject.misc.MessageData
+import de.tkip.sbpm.application.subject.misc.MessageData
 
 object ProtobufWrapper {
 
@@ -47,25 +51,24 @@ object ProtobufWrapper {
 
     processInfoBuilder.build().toByteArray()
   }
-  
+
   def buildProcessInstanceInfos(bytes: Array[Byte]): Array[ProcessInstanceInfo] = {
     val protoInfos = GAEexecution.ListProcesses.parseFrom(bytes)
-    
+
     val infos = protoInfos.getProcessesList()
-    
-    val processes = for(info <- infos.asScala) 
+
+    val processes = for (info <- infos.asScala)
       yield ProcessInstanceInfo(info.getId(), info.getName(), info.getProcessId())
-    
+
     processes.toArray
   }
-  
+
   private def buildProcessInstanceInfo(bytes: Array[Byte]): ProcessInstanceInfo = {
     val protoInfos = GAEexecution.ListProcesses.ProcessInfo.parseFrom(bytes)
-    
+
     ProcessInstanceInfo(protoInfos.getId(), protoInfos.getName(), protoInfos.getProcessId())
   }
 
-  
   def buildProto(action: ExecuteAction): Array[Byte] = {
     val executeActionBuilder = proto.ExecuteAction.newBuilder()
 
@@ -136,10 +139,10 @@ object ProtobufWrapper {
       action.getStateType(),
       buildActionData(action.getActionDataList().asScala.toList))).toArray
   }
-  
-  def buildActions(bytes: Array[Byte]) : Array[AvailableAction] = {
+
+  def buildActions(bytes: Array[Byte]): Array[AvailableAction] = {
     val actions = GAEexecution.ListActions.parseFrom(bytes)
-    
+
     buildActionsFromList(actions.getActionsList().asScala.toList)
   }
 
@@ -148,10 +151,18 @@ object ProtobufWrapper {
       yield ActionData(
       data.getText(),
       data.getExecutable(),
-      data.getTransitionType() //            data.getTa/
-      // TODO...
-      )).toArray
+      data.getTransitionType(), //            data.getTa/
+      Some(TargetUser(1, 1, Array(7))),
+      relatedSubject = if (data.hasRelatedSubject()) Some(data.getRelatedSubject()) else None, // TODO...
+      messages = buildMessageData(data.getMessagesList().asScala.toList))).toArray
   }
+
+  def buildMessageData(messageData: List[proto.MessageData]): Option[Array[MessageData]] =
+    if (messageData.isEmpty) None
+    else Some((for (data <- messageData)
+      yield MessageData(
+      data.getUserID(),
+      data.getMessageContent())).toArray)
 
   def buildProcessInstanceData(bytes: Array[Byte]): ProcessInstanceData = {
     val protoInstanceData = GAEexecution.ProcessInstanceData.parseFrom(bytes)
