@@ -40,7 +40,6 @@ public class ProcessInstanceManager extends HttpServlet {
 		String url = req.getRequestURI();
 		int userID = 1;
 		if(url.equals("/post")){
-			System.out.println("/post");
 			try {
 				int size = req.getContentLength();
 				byte[] byteProto = new byte[size];
@@ -130,10 +129,9 @@ public class ProcessInstanceManager extends HttpServlet {
 							pi.setProcessData(process);
 							pi.setName(cp.getName());
 							if(!pi.getProcessData().getSubjects().isEmpty()){
-								Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
+								Iterator it = pi.getProcessData().getSubjects().iterator();
 								while(it.hasNext()){
-									String id = (String) it.next();
-									Subject sub = pi.getProcessData().getSubjects().get(id);
+									Subject sub = (Subject) it.next();
 									sub.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
 									State state = sub.getInternalBehavior().getStatesMap().get(sub.getInternalBehavior().getStartState());
 									boolean executable = true;
@@ -238,7 +236,6 @@ public class ProcessInstanceManager extends HttpServlet {
 				pm.currentTransaction().begin();
 				String[] urls = url.split("/");
 				int id = Integer.valueOf(urls[urls.length - 1]);
-				System.out.println("Action Receiver: /post/" + id);
 				int size = req.getContentLength();
 				byte[] byteProto = new byte[size];
 				is.read(byteProto);
@@ -254,7 +251,7 @@ public class ProcessInstanceManager extends HttpServlet {
 					if(processManager.containsProcessInstance(processInstanceID)){
 						processManager.checkReceiveActions();
 						ProcessInstance pi = processManager.getProcessInstance(processInstanceID);
-						Subject subject = pi.getProcessData().getSubjects().get(action.getSubjectID());
+						Subject subject = pi.getProcessData().getSubjectByID(action.getSubjectID());
 						if(action.getStateID() == subject.getInternalBehavior().getCurrentState() && subject.getInternalBehavior().isExecutable()){
 							State currentState = subject.getInternalBehavior().getStatesMap().get(action.getStateID());
 							String msg;
@@ -276,14 +273,15 @@ public class ProcessInstanceManager extends HttpServlet {
 								String[] str1 = currentState.getTransitions().get(0).getText().split("to:");
 								String sName = str1[str1.length-1].trim();
 								String messageType = str1[0].trim();
+								System.out.println("msgCount: " + action.getActionData(0).getMessagesCount());
 								String msgContent = action.getActionData(0).getMessages(0).getMessageContent();
 								System.out.println("msgContent: " + msgContent);
-								Iterator it = pi.getProcessData().getSubjects().keySet().iterator();
+								Iterator it = pi.getProcessData().getSubjects().iterator();
 								while(it.hasNext()){
-									String subjectID = (String)it.next();
-									String subjectName = pi.getProcessData().getSubjects().get(subjectID).getSubjectName();
+									Subject sub = (Subject) it.next();
+									String subjectName = sub.getSubjectName();
 									if(sName.equals(subjectName)){
-										target_subjectID = subjectID;
+										target_subjectID = sub.getSubjectID();
 									}
 								}	
 								SubjectToSubjectMessage stsmsg = new SubjectToSubjectMessage(messageID, userID, from_subjectID, target_subjectID, processInstanceID, messageType, msgContent);
@@ -294,7 +292,7 @@ public class ProcessInstanceManager extends HttpServlet {
 							case "end":
 								isEnd = true;
 								boolean isPIEnd = true;
-								Iterator it1 = pi.getProcessData().getSubjects().values().iterator();
+								Iterator it1 = pi.getProcessData().getSubjects().iterator();
 								while(it1.hasNext()){
 									Subject s1 = (Subject) it1.next();
 									int cs = s1.getInternalBehavior().getCurrentState();

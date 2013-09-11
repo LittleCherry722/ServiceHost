@@ -56,14 +56,12 @@ public class ShowProcessInstance extends HttpServlet {
 							ProcessInstance pi = (ProcessInstance)it.next();
 							int id = pi.getProcessInstanceID();
 							String name = pi.getName();
-//							System.out.println("process id: " + id + "   process name: " + name);
 							ProcessInfo.Builder processInfoBuilder = ProcessInfo.newBuilder();
 							processInfoBuilder.setId(pi.getProcessInstanceID())
 											  .setProcessId(pi.getProcessData().getProcessID())
 											  .setName(name);
 							ProcessInfo processInfo = processInfoBuilder.build();
 							listProcessesBuilder.addProcesses(processInfo);
-//							System.out.println("processInstance:" + id);
 						}
 						ListProcesses listProcesses = listProcessesBuilder.build();
 						resp.getOutputStream().write(listProcesses.toByteArray());
@@ -85,7 +83,6 @@ public class ShowProcessInstance extends HttpServlet {
 					ProcessManager processManager = processManagerList.get(0);
 					ListActions.Builder listActionsBuilder = ListActions.newBuilder();
 					Iterator it = processManager.getAvailableActionsList().iterator();
-//					System.out.println("Action number: " + processManager.getAvailableActionsList().size());
 					while(it.hasNext()){
 						Action action = (Action) it.next();
 						listActionsBuilder.addActions(action);
@@ -111,9 +108,6 @@ public class ShowProcessInstance extends HttpServlet {
 							ProcessInstance pi = processManager
 									.getProcessInstance(id);
 							String name = pi.getProcessData().getProcessName();
-							System.out.println(
-									"process id: " + id + "   process name: "
-											+ name);
 							ProcessInstanceData.Builder pidbuilder = ProcessInstanceData.newBuilder();
 							pidbuilder.setId(id)
 									  .setName(name)
@@ -124,7 +118,6 @@ public class ShowProcessInstance extends HttpServlet {
 									  .setOwner(userID)
 									  .setHistory("")
 									  .setGraph(processManager.getGraphFromProcessID(pi.getProcessData().getProcessID()));
-							System.out.println("date: " + pi.getDate());
 							Iterator it = processManager.getAvailableActionsList().iterator();
 							while(it.hasNext()){
 								Action action = (Action) it.next();

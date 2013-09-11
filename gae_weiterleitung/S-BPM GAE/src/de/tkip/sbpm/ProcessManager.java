@@ -23,9 +23,9 @@ import de.tkip.sbpm.proto.GAEexecution.Graph;
 @PersistenceCapable
 public class ProcessManager {
 	@PrimaryKey
-    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
-	
+	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	private Key key;
+
 	@Persistent
 	public int processInstanceID = 10000;
 	@Persistent(serialized = "true")
@@ -33,138 +33,144 @@ public class ProcessManager {
 	@Persistent(serialized = "true")
 	public List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
 	@Persistent(serialized = "true")
-	public Set<Action> availableActionsList = new HashSet<Action>();
+	public List<Action> availableActionsList = new ArrayList<Action>();
 	@Persistent(serialized = "true")
 	public List<Graph> graph = new ArrayList<Graph>();
-	
-	public ProcessManager(){
-//		processInstanceID = 10000;
-//		processList = new ArrayList<Process>();
-//		processInstanceList = new ArrayList<ProcessInstance>();
-//		availbleActions = new HashMap<State,Boolean>();
+
+	public ProcessManager() {
+		// processInstanceID = 10000;
+		// processList = new ArrayList<Process>();
+		// processInstanceList = new ArrayList<ProcessInstance>();
+		// availbleActions = new HashMap<State,Boolean>();
 	}
-	
-	public boolean containsProcess(int id){
-		if(!processList.isEmpty()){
+
+	public boolean containsProcess(int id) {
+		if (!processList.isEmpty()) {
 			Iterator it = processList.iterator();
-			while(it.hasNext()){
+			while (it.hasNext()) {
 				Process process = (Process) it.next();
-				if(id == process.processID){
+				if (id == process.processID) {
 					return true;
 				}
 			}
-		}		
+		}
 		return false;
 	}
-	
-	public Process getProcess(int id){
-		if(!processList.isEmpty()){
+
+	public Process getProcess(int id) {
+		if (!processList.isEmpty()) {
 			Iterator it = processList.iterator();
-			while(it.hasNext()){
+			while (it.hasNext()) {
 				Process process = (Process) it.next();
-				if(id == process.processID){
+				if (id == process.processID) {
 					return process;
 				}
 			}
-		}	
+		}
 		return null;
 	}
-	
-	public boolean containsProcessInstance(int id){
-		if(!processInstanceList.isEmpty()){
+
+	public boolean containsProcessInstance(int id) {
+		if (!processInstanceList.isEmpty()) {
 			Iterator it = processInstanceList.iterator();
-			while(it.hasNext()){
+			while (it.hasNext()) {
 				ProcessInstance processInstance = (ProcessInstance) it.next();
-				if(id == processInstance.processInstanceID){
+				if (id == processInstance.processInstanceID) {
 					return true;
 				}
-			}	
-		}	
+			}
+		}
 		return false;
 	}
-	
-	public ProcessInstance getProcessInstance(int id){
-		if(!processInstanceList.isEmpty()){
+
+	public ProcessInstance getProcessInstance(int id) {
+		if (!processInstanceList.isEmpty()) {
 			Iterator it = processInstanceList.iterator();
-			while(it.hasNext()){
+			while (it.hasNext()) {
 				ProcessInstance processInstance = (ProcessInstance) it.next();
-				if(id == processInstance.processInstanceID){
+				if (id == processInstance.processInstanceID) {
 					return processInstance;
 				}
 			}
-		}	
+		}
 		return null;
 	}
-	
-	public void removeProcessInstance(ProcessInstance pi){
+
+	public void removeProcessInstance(ProcessInstance pi) {
 		this.processInstanceList.remove(pi);
 	}
-	
-	public Action getAction(int processInstanceID, String subjectID, int stateID){
+
+	public Action getAction(int processInstanceID, String subjectID, int stateID) {
 		Iterator it = this.availableActionsList.iterator();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			Action action = (Action) it.next();
-			if(action.getProcessInstanceID() == processInstanceID && action.getSubjectID().equals(subjectID) && action.getStateID() == stateID){
+			if (action.getProcessInstanceID() == processInstanceID
+					&& action.getSubjectID().equals(subjectID)
+					&& action.getStateID() == stateID) {
 				return action;
 			}
 		}
 		return null;
 	}
-	
-	public void checkReceiveActions(){
+
+	public void checkReceiveActions() {
 		Iterator it = this.availableActionsList.iterator();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			Action action = (Action) it.next();
 			int processInstanceID = action.getProcessInstanceID();
 			String subjectID = action.getSubjectID();
-			State state = getProcessInstance(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().getStatesMap().get(action.getStateID());
-			if(state.stateType.equals(StateType.receive)){
-				String[] str = state.getTransitions().get(0).getText().split("(1)");
+			State state = getProcessInstance(processInstanceID)
+					.getProcessData().getSubjectByID(subjectID)
+					.getInternalBehavior().getStatesMap()
+					.get(action.getStateID());
+			if (state.stateType.equals(StateType.receive)) {
+				String[] str = state.getTransitions().get(0).getText()
+						.split("(1)");
 				String text = str[0].trim();
-				ProcessInstance pi = getProcessInstance(state.getProcessInstanceID());
-				if(pi.getProcessData().getSubjects().get(state.getSubjectID()).checkMessageNumberFromSubjectIDAndType(state.getSubjectID(), text) > 0){
-					getProcessInstance(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().setExecutable(true);
-				}else{
-					getProcessInstance(processInstanceID).getProcessData().getSubjects().get(subjectID).getInternalBehavior().setExecutable(false);
-				}	
+				ProcessInstance pi = getProcessInstance(state
+						.getProcessInstanceID());
+				if (pi.getProcessData().getSubjectByID(state.getSubjectID()).checkMessageNumberFromSubjectIDAndType(state.getSubjectID(), text) > 0) {
+					getProcessInstance(processInstanceID).getProcessData().getSubjectByID(subjectID).getInternalBehavior().setExecutable(true);
+				} else {
+					getProcessInstance(processInstanceID).getProcessData().getSubjectByID(subjectID).getInternalBehavior().setExecutable(false);
+				}
 			}
 		}
 	}
-	
-	public Graph getGraphFromProcessID(int processID){
+
+	public Graph getGraphFromProcessID(int processID) {
 		Iterator it = this.graph.iterator();
-		while(it.hasNext()){
+		while (it.hasNext()) {
 			Graph graph = (Graph) it.next();
 			int pid = graph.getProcessId();
-			if(pid == processID){
+			if (pid == processID) {
 				return graph;
 			}
 		}
 		return null;
 	}
-	
-	
-	public void addAvailableActions(Action action){
+
+	public void addAvailableActions(Action action) {
 		this.availableActionsList.add(action);
 	}
-	
-//	public void addAvailableActions(State state){
-//		this.availableActions.add(state);
-//	}
-	
-	public void addProcess(Process process){
+
+	// public void addAvailableActions(State state){
+	// this.availableActions.add(state);
+	// }
+
+	public void addProcess(Process process) {
 		this.processList.add(process);
 	}
-	
-	public void addProcessInstance(ProcessInstance pi){
+
+	public void addProcessInstance(ProcessInstance pi) {
 		this.processInstanceList.add(pi);
 	}
-	
-	public void removeAvailableActions(Action action){
+
+	public void removeAvailableActions(Action action) {
 		this.availableActionsList.remove(action);
 	}
-	
-	public void addGraph(Graph graph){
+
+	public void addGraph(Graph graph) {
 		this.graph.add(graph);
 	}
 
@@ -200,11 +206,11 @@ public class ProcessManager {
 		this.processInstanceList = processInstanceList;
 	}
 
-	public Set<Action> getAvailableActionsList() {
+	public List<Action> getAvailableActionsList() {
 		return availableActionsList;
 	}
 
-	public void setAvailableActionsList(Set<Action> availableActionsList) {
+	public void setAvailableActionsList(List<Action> availableActionsList) {
 		this.availableActionsList = availableActionsList;
 	}
 
