@@ -39,6 +39,7 @@ import de.tkip.sbpm.application.subject.misc.TargetUser
 import de.tkip.sbpm.application.subject.misc.TargetUser
 import de.tkip.sbpm.application.subject.misc.MessageData
 import de.tkip.sbpm.application.subject.misc.MessageData
+import de.tkip.sbpm.application.subject.misc.TargetUser
 
 object ProtobufWrapper {
 
@@ -104,6 +105,7 @@ object ProtobufWrapper {
     }
     // add the messageContent (TODO)
 
+    actionBuilder.addActionData(actionDataBuilder.build())
     //    actionBuilder.setActionData(d, actionDataBuilder.build())
 
     executeActionBuilder.setAction(actionBuilder.build())
@@ -152,10 +154,19 @@ object ProtobufWrapper {
       data.getText(),
       data.getExecutable(),
       data.getTransitionType(), //            data.getTa/
-      Some(TargetUser(1, 1, Array(7))),
+      targetUsersData = if (data.hasTargetUserData()) Some(buildTargetUser(data.getTargetUserData())) else None,
       relatedSubject = if (data.hasRelatedSubject()) Some(data.getRelatedSubject()) else None, // TODO...
       messages = buildMessageData(data.getMessagesList().asScala.toList))).toArray
   }
+
+  def buildTargetUser(data: proto.TargetUserData): TargetUser =
+    TargetUser(
+      data.getMin(),
+      data.getMax(), {
+        val x =
+          data.getTargetUsersList().asScala.toList
+        x.map(_.toInt).toArray
+      })
 
   def buildMessageData(messageData: List[proto.MessageData]): Option[Array[MessageData]] =
     if (messageData.isEmpty) None
