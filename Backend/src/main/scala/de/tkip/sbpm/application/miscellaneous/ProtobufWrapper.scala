@@ -99,6 +99,15 @@ object ProtobufWrapper {
       }
       actionDataBuilder.setTargetUserData(targetUserBuilder)
     }
+
+    if (data.messages.isDefined) {
+      for (message <- data.messages.get) {
+        val messageDataBuilder = proto.MessageData.newBuilder()
+        messageDataBuilder.setMessageContent(message.messageContent)
+        messageDataBuilder.setUserID(message.userID)
+        actionDataBuilder.addMessages(messageDataBuilder)
+      }
+    }
     // add the related subject
     if (data.relatedSubject.isDefined) {
       actionDataBuilder.setRelatedSubject(data.relatedSubject.get)
