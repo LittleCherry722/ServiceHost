@@ -24,6 +24,7 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
   def actorRefFactory = context
 
   private lazy val persistence = ActorLocator.persistenceActor
+  private lazy val changeActor = ActorLocator.changeActor
 
   def routing = runRoute({
     get {
@@ -73,6 +74,7 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
               complete {
                 val message = Message(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))
                 persistence ! Messages.Save(message)
+                changeActor ! MessageChange(message, "insert", new java.util.Date())
                 StatusCodes.NoContent
               }
             }

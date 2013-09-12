@@ -69,6 +69,9 @@ trait ProcessInstanceChangeData extends ChangeData
 case class ProcessInstanceChange(id: Int, processID: Int, processName: String, name: String, info: String, date: java.util.Date) extends ProcessInstanceChangeData
 case class ProcessInstanceDelete(id: Int, date: java.util.Date) extends ProcessInstanceChangeData
 
+trait MessageChangeData extends ChangeData
+case class MessageChange(message: Message, info: String, date: java.util.Date) extends MessageChangeData
+
 case class ProcessRelatedChangeData(id: Int, name: String, isCase: Boolean, startAble: Boolean, activeGraphId: Option[Int])
 case class ProcessRelatedDeleteData(id: Int)
 case class ProcessRelatedChange(inserted: Option[Array[ProcessRelatedChangeData]], updated: Option[Array[ProcessRelatedChangeData]], deleted: Option[Array[ProcessRelatedDeleteData]])
@@ -84,7 +87,10 @@ case class ProcessInstanceRelatedChangeData(id: Int, processID: Int, processName
 case class ProcessInstanceRelatedDeleteData(id: Int)
 case class ProcessInstanceRelatedChange(inserted: Option[Array[ProcessInstanceRelatedChangeData]], updated: Option[Array[ProcessInstanceRelatedChangeData]], deleted: Option[Array[ProcessInstanceRelatedDeleteData]])
 
-case class ChangeRelatedData(process: Option[ProcessRelatedChange], processInstance: Option[ProcessInstanceRelatedChange], action: Option[ActionRelatedChange], history: Option[HistoryRelatedChange])
+case class MessageRelatedChangeData(id: Option[Int], fromUser: Int, toUser: Int, title: String, isRead: Boolean, content: String)
+case class MessageRelatedChange(inserted: Option[Array[MessageRelatedChangeData]])
+
+case class ChangeRelatedData(process: Option[ProcessRelatedChange], processInstance: Option[ProcessInstanceRelatedChange], action: Option[ActionRelatedChange], history: Option[HistoryRelatedChange], message: Option[MessageRelatedChange])
 
 
 case class Configuration(key: String,

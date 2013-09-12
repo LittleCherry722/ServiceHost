@@ -36,7 +36,8 @@ class ChangeInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
                   process <- (changeActor ? GetProcessChange(time.toLong)).mapTo[Option[ProcessRelatedChange]]
                   action <- (changeActor ? GetActionChange(time.toLong)).mapTo[Option[ActionRelatedChange]]
                   processInstance <- (changeActor ? GetProcessInstanceChange(time.toLong)).mapTo[Option[ProcessInstanceRelatedChange]]
-                  result = ChangeRelatedData(process, processInstance, action, history)	  
+                  message <- (changeActor ? GetMessageChange(time.toLong)).mapTo[Option[MessageRelatedChange]]
+                  result = ChangeRelatedData(process, processInstance, action, history, message)	  
                 } yield result
                 
                 future.map(result => result)

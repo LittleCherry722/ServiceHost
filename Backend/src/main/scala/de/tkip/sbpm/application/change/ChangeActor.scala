@@ -13,6 +13,8 @@ case class GetActionChange(timeStamp: Long)
 
 case class GetProcessInstanceChange(timeStamp: Long)
 
+case class GetMessageChange(timeStamp: Long)
+
 class ChangeActor extends Actor {
 
   val processChangeEntries = new ArrayBuffer[ProcessChangeData]()
@@ -20,6 +22,8 @@ class ChangeActor extends Actor {
   val actionChangeEntries = new ArrayBuffer[ActionChangeData]()
   
   val processInstanceChangeEntries = new ArrayBuffer[ProcessInstanceChangeData]()
+  
+  val messageChangeEntries = new ArrayBuffer[MessageChangeData]()
 
   implicit val ec = context.dispatcher
 
@@ -51,6 +55,15 @@ class ChangeActor extends Actor {
     case GetProcessInstanceChange(t) => {
       Future { getProcessInstanceData(t) } pipeTo sender
     }
+    
+    case q: MessageChangeData => {
+      println("add message change data: "+ q.toString())
+      addMessageChangeData(q)
+    }
+    
+    case GetMessageChange(t) => {
+      Future { getMessageData(t) } pipeTo sender
+    }
 
   }
 
@@ -64,6 +77,10 @@ class ChangeActor extends Actor {
   
   private def addProcessInstanceChangeData(p: ProcessInstanceChangeData) = {
     processInstanceChangeEntries += p
+  }
+  
+  private def addMessageChangeData(m: MessageChangeData) = {
+    messageChangeEntries += m
   }
   
   private def getProcessData(t: Long) = {
@@ -147,6 +164,26 @@ class ChangeActor extends Actor {
     }
     
     Some(ActionRelatedChange(Some(tempInsert.toArray),Some(tempUpdate.toArray),Some(tempDelete.toArray)))
+
+
+  }
+    
+  private def getMessageData(t: Long) = {
+   
+    val tempInsert = new ArrayBuffer[MessageRelatedChangeData]()
+    
+    for (i <- 0 until messageChangeEntries.length) {
+      messageChangeEntries(i) match {
+        case MessageChange(m, info, date) => {
+          if (date.getTime() > t * 1000) {
+            if (info == "insert")
+              tempInsert += MessageRelatedChangeData(m.id, m.fromUser, m.toUser, m.title, m.isRead, m.content)
+          }
+        }
+      }
+    }
+    
+    Some(MessageRelatedChange(Some(tempInsert.toArray)))
 
 
   }
