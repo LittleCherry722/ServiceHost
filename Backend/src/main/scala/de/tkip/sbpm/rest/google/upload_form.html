@@ -1,0 +1,13 @@
+<html>
+  <body>
+    <h1>File Upload Test</h1>
+    <form action ="http://localhost:8080/googledrive/file-upload" enctype="multipart/form-data" method="post">
+      <input type="text" name="userId" value="abc"/><br/>
+      <input type="text" name="fname" value="upload.txt"/><br/>
+      <input type="text" name="mimeType" value="text/plain"/><br/>
+      <input type="file" name="datafile" multiple=""/>
+      <br/>
+      <input type="submit">Submit</input>
+    </form>
+  </body>
+</html>

@@ -27,6 +27,10 @@ import spray.routing.HttpService
 import spray.json.JsonFormat
 import spray.http.StatusCodes
 import spray.http.MediaTypes._
+import spray.io.CommandWrapper
+import spray.http._
+import HttpHeaders._
+import parser.HttpParser
 
 import de.tkip.sbpm.rest.google.{
   GDriveActor,
@@ -34,7 +38,7 @@ import de.tkip.sbpm.rest.google.{
   GDriveControl,
   GCalendarActor
 }
-import GDriveActor.{FindFiles, InitCredentials, RetrieveCredentials}
+import GDriveActor.{FindFiles, InitCredentials, RetrieveCredentials, UploadFile}
 import GAuthCtrl.{NoCredentialsException}
 import GCalendarActor.{CreateEvent}
 
@@ -78,7 +82,21 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
               case Failure(e) => ctx.complete(e.toString)
             }
         }
+      } ~
+      path("file-upload") {
+      formFields('userId.as[String], 'datafile.as[Array[Byte]], 'fname.as[String], 'mimeType.as[String]) {
+        (userId, fileArray, fname, mimeType) => ctx =>
+          val path = "gDriveFileUpload.tmp"
+          val out = new java.io.FileOutputStream(path)
+          out.write(fileArray)
+          out.close()
+          (driveActor ? UploadFile(userId, fname, "", mimeType, path))
+            .onComplete {
+              case Success(gFileJson) => ctx.complete(gFileJson.toString)
+              case Failure(e) => ctx.complete(e)
+            }
       }
+    }
     } ~
     get {
       // callback endpoint called by Google after an authentication request
@@ -110,4 +128,61 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
       }
     }
   }
+}
+
+class DirectHttpRequestHandler extends Actor {
+
+  var chunkHandlers = Map.empty[ActorRef, ActorRef]
+
+  def receive = {
+    case s@ChunkedRequestStart(HttpRequest(_, _, _, _, _)) =>
+      require(!chunkHandlers.contains(sender))
+      val client = sender
+      val handler = context.actorOf(Props(new FileUploadHandler(client, s)))
+      chunkHandlers += (client -> handler)
+      handler.tell(s, client)
+    case c: MessageChunk =>
+      chunkHandlers(sender).tell(c, sender)
+    case e: ChunkedMessageEnd =>
+      chunkHandlers(sender).tell(e, sender)
+      chunkHandlers -= sender
+  }
+
+}
+
+class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Actor {
+  import start.request._
+  import context.dispatcher
+
+  implicit val timeout = Timeout(15 seconds)
+  private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
+
+  client ! CommandWrapper(SetRequestTimeout(Duration.Inf))
+
+  val tmpFile = java.io.File.createTempFile("chunked-receiver", ".tmp", new java.io.File("/tmp"))
+  tmpFile.deleteOnExit()
+  val output = new java.io.FileOutputStream(tmpFile)
+  val Some(HttpHeaders.`Content-Type`(ContentType(multipart: MultipartMediaType, _))) = header[HttpHeaders.`Content-Type`]
+  val boundary = multipart.parameters("boundary")
+
+  def receive = {
+    case c: MessageChunk =>
+      output.write(c.body)
+
+    case e: ChunkedMessageEnd =>
+      output.close()
+
+      (driveActor ? UploadFile("abc", "test.txt", "", "text/plain", "gDriveFileUpload.tmp"))
+        .onComplete {
+          case Success(gFileJson) =>
+            client ! HttpResponse(status = 200, entity = gFileJson.toString)
+            tmpFile.delete()
+          case Failure(e) =>
+            client ! HttpResponse(status = 200, entity = e.toString)
+        }
+
+      client ! CommandWrapper(SetRequestTimeout(2.seconds))   
+      context.stop(self)
+  }
+
 }
