@@ -1,0 +1,35 @@
+[
+	{
+		"name": "Execution API",
+		"methods": [
+			{
+				"title": "List all processes",
+				"description": "test test test",
+				"url": "/process",
+				"method": "GET",
+				"parameters": {},
+				"returnValues": {
+					"id": "ID des Prozesses",
+					"name": "Name des Prozesses als String",
+					"isCase": "Boolean ob Case oder Prozess",
+					"startAble": "Boolean ob der Prozess von Benutzer gestartet werden kann oder es nur möglich ist ihn von extern zu starten"
+				}
+			},
+			{
+				"title": "List a single process",
+				"description": "test test test",
+				"url": "/process/{id}",
+				"method": "GET",
+				"parameters": {
+					"id": "ID des Prozesses"
+				},
+				"returnValues": {
+					"id": "ID des Prozesses",
+					"name": "Name des Prozesses als String",
+					"graph": "Graph als JSON String",
+					"isCase": "Boolean ob Case oder Prozess"
+				}
+			}
+		]
+	}
+]
