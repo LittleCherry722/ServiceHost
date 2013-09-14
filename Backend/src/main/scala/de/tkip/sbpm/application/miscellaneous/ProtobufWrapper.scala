@@ -100,6 +100,16 @@ object ProtobufWrapper {
       actionDataBuilder.setTargetUserData(targetUserBuilder)
     }
 
+    if (data.messageContent.isDefined) {
+      val messageDataBuilder = proto.MessageData.newBuilder()
+      messageDataBuilder.setMessageContent(data.messageContent.get)
+      val targetUser = 
+        if(data.targetUsersData.isDefined)
+          data.targetUsersData.get.targetUsers.headOption.getOrElse(1)
+        else 1
+      messageDataBuilder.setUserID(targetUser)
+      actionDataBuilder.addMessages(messageDataBuilder)
+    }
     if (data.messages.isDefined) {
       for (message <- data.messages.get) {
         val messageDataBuilder = proto.MessageData.newBuilder()
@@ -112,7 +122,6 @@ object ProtobufWrapper {
     if (data.relatedSubject.isDefined) {
       actionDataBuilder.setRelatedSubject(data.relatedSubject.get)
     }
-    // add the messageContent (TODO)
 
     actionBuilder.addActionData(actionDataBuilder.build())
     //    actionBuilder.setActionData(d, actionDataBuilder.build())
