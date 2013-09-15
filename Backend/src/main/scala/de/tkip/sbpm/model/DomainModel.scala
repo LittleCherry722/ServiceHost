@@ -87,7 +87,7 @@ case class ProcessInstanceRelatedChangeData(id: Int, processID: Int, processName
 case class ProcessInstanceRelatedDeleteData(id: Int)
 case class ProcessInstanceRelatedChange(inserted: Option[Array[ProcessInstanceRelatedChangeData]], updated: Option[Array[ProcessInstanceRelatedChangeData]], deleted: Option[Array[ProcessInstanceRelatedDeleteData]])
 
-case class MessageRelatedChangeData(id: Option[Int], fromUser: Int, toUser: Int, title: String, isRead: Boolean, content: String)
+case class MessageRelatedChangeData(id: Option[Int], fromUser: Int, toUser: Int, title: String, isRead: Boolean, content: String, date: java.sql.Timestamp)
 case class MessageRelatedChange(inserted: Option[Array[MessageRelatedChangeData]])
 
 case class ChangeRelatedData(process: Option[ProcessRelatedChange], processInstance: Option[ProcessInstanceRelatedChange], action: Option[ActionRelatedChange], history: Option[HistoryRelatedChange], message: Option[MessageRelatedChange])

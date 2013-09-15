@@ -120,6 +120,7 @@ define([ "director", "app"], function( Director, App ) {
 
 	var showMessages = function ( tab ) {
 		if ( App.isViewLoaded( "messages" ) ) {
+                        App.loadView( "messages", [tab], globalCallback() );
 			App.currentMainViewModel().setView( tab )
 		} else {
 			App.loadView( "messages", [tab], globalCallback() );

@@ -76,6 +76,24 @@ var polling = {
                 var deletedIndex = polling.getIndexById(ProcessInstance.all(), data.id);
                 ProcessInstance.all().splice(deletedIndex, 1);
             }
+        },
+        message: {
+            inserted: function(data) { 
+               
+                if (data.toUser === currentUser().id() && polling.getIndexById(UserMessage.all(), data.id) === -1) {
+                    var newItem = new UserMessage(data);
+                    UserMessage.all().push(newItem);
+                 }               
+            },
+            updated: function(data) {
+                var changedIndex = polling.getIndexById(UserMessage.all(), data.id);
+                var newItem = new UserMessage(data);
+                UserMessage.all()[changedIndex] = newItem;
+            },
+            deleted: function(data) {
+                var deletedIndex = polling.getIndexById(UserMessage.all(), data.id);
+                UserMessage.all().splice(deletedIndex, 1);
+            }
         }
              
     },
@@ -94,7 +112,8 @@ var polling = {
     updateView: function(changedResources) {
         var affectedViews = {   process:    ["#/processList"],
                                 action:     ["", "#", "#/", "#/home", "#/home/Actions"],
-                                history:    ["#/home/History"]};
+                                history:    ["#/home/History"],
+                                message:    ["#/messages", "#/messages/messagesOverview"]};
         var wl = window.location;
         var currentView = wl.hash;
         
@@ -134,7 +153,7 @@ var polling = {
         var self = this;
         var changesReceived = 0;
         var changedResources = [];
-        var resourceOrder = ["process", "processInstance", "action", "history"];
+        var resourceOrder = ["process", "processInstance", "action", "history", "message"];
         var actionOrder = ["inserted", "updated", "deleted"];
         
         
@@ -142,7 +161,7 @@ var polling = {
             if (self.updateHandler[resourceName]) {
                 
                 $.each(actionOrder, function(actionIndex, actionName) {
-                    if (self.updateHandler[resourceName][actionName]) {
+                    if (self.updateHandler[resourceName][actionName] && pollingData[resourceName] && pollingData[resourceName][actionName]) {
                         var action = pollingData[resourceName][actionName];
                         
                         $.each(action, function(itemIndex, item) {
