@@ -3,32 +3,164 @@
 		"name": "Execution API",
 		"methods": [
 			{
+				"title": "Create new process",
+				"description": "Speichert diesen Process in der Datenbank.",
+				"url": "/process",
+				"method": "POST",
+				"parameters": [
+					{ "parameter": "name", "description": "Name des Prozesses als String", "type": "string" },
+					{ "parameter": "graph", "description": "Graph als JSON String", "type": "string" },
+					{ "parameter": "startSubjects", "description": "Array der start Subjects ( [ subjectId1, subjectId2, ... ] )", "type": "array" },
+					{ "parameter": "isCase", "description": "Boolean ob Case oder Prozess ", "type": "boolean" }
+				],
+				"returnDescription": "",
+				"returnValues": [
+					{ "name": "id", "description": "ID unter der der erstellte Process angesprochen werden kann." },
+					{ "name": "graphId", "description": "ID des Graphen der zu dem Process gehört" }
+				]
+			},
+			{
 				"title": "List all processes",
-				"description": "test test test",
+				"description": "Gibt eine Liste aller ladbaren Prozesse zurück.",
 				"url": "/process",
 				"method": "GET",
-				"parameters": {},
-				"returnValues": {
-					"id": "ID des Prozesses",
-					"name": "Name des Prozesses als String",
-					"isCase": "Boolean ob Case oder Prozess",
-					"startAble": "Boolean ob der Prozess von Benutzer gestartet werden kann oder es nur möglich ist ihn von extern zu starten"
-				}
+				"parameters": [],
+				"returnDescription": "An array of processes",
+				"returnValues": [
+					{ "name": "id", "description": "ID des Prozesses" },
+					{ "name": "name", "description": "Name des Prozesses als String" },
+					{ "name": "isCase", "description": "Boolean ob Case oder Prozess" },
+					{ "name": "startAble", "description": "Boolean ob der Prozess von Benutzer gestartet werden kann oder es nur möglich ist ihn von extern zu starten" }
+				]
 			},
 			{
 				"title": "List a single process",
-				"description": "test test test",
+				"description": "Gibt die Kompletten Informationen zu einem ladbaren Prozess wieder.",
 				"url": "/process/{id}",
 				"method": "GET",
-				"parameters": {
-					"id": "ID des Prozesses"
-				},
-				"returnValues": {
-					"id": "ID des Prozesses",
-					"name": "Name des Prozesses als String",
-					"graph": "Graph als JSON String",
-					"isCase": "Boolean ob Case oder Prozess"
-				}
+				"parameters": [
+					{ "parameter": "id", "description": "ID des Prozesses", "type": "int" }
+				],
+				"returnDescription": "",
+				"returnValues": [
+					{ "name": "id", "description": "ID des Prozesses" },
+					{ "name": "name", "description": "Name des Prozesses als String" },
+					{ "name": "graph", "description": "Graph als JSON String" },
+					{ "name": "isCase", "description": "Boolean ob Case oder Prozess" }
+				]
+			},
+			{
+				"title": "Update a process",
+				"description": "Aktualisiert ein Prozess. Namen ändern, etc. Der Prozess wird im Grunde komplett ersetzt durch die gegebenen Parameter. ",
+				"url": "/process/{id}",
+				"method": "PUT",
+				"parameters": [
+					{ "parameter": "id", "description": "ID des Prozesses", "type": "int" },
+					{ "parameter": "name", "description": "Name des Prozesses", "type": "string" },
+					{ "parameter": "graph", "description": "Graph als JSON String", "type": "string" },
+					{ "parameter": "startSubjects", "description": "Array der start Subjects", "type": "array" },
+					{ "parameter": "isCase", "description": "Boolean ob Case oder Prozess", "type": "boolean" }
+				],
+				"returnDescription": "",
+				"returnValues": [
+					{ "name": "id", "description": "ID unter des geupdateten Process." }
+				]
+			},
+			{
+				"title": "Delete a process",
+				"description": "Löscht den Prozess aus der Datenbank.",
+				"url": "/process/{id}",
+				"method": "DELETE",
+				"parameters": [
+					{ "parameter": "id", "description": "ID des Prozesses", "type": "int" }
+				],
+				"returnDescription": "",
+				"returnValues": []
+			},
+
+			{
+				"title": "Create process instance",
+				"description": "Erstellt eine Prozessesinstanz für die übergebene ProcessID.",
+				"url": "/processinstance",
+				"method": "POST",
+				"parameters": [
+					{ "parameter": "processId", "description": "Die ID des Prozesses für den diese Instanz erstellt werden soll", "type": "int" },
+					{ "parameter": "name", "description": "Der Name der zu erstellenden ProzessInstanz", "type": "string" }
+				],
+				"returnDescription": "Alle Felder der ProzessInstanz:",
+				"returnValues": [
+					{ "name": "id", "description": "Die ID dieser ProcessInstanz" },
+					{ "name": "name", "description": "Der Name dieser ProzessInstanz" },
+					{ "name": "processId", "description": "Die ID des Prozesses zu dem diese Instanz gehört" },
+					{ "name": "graph", "description": "Eine Liste der internen Verhalten, die durch den aktuellen User abgebildet werden" },
+					{ "name": "isTerminated", "description": "Boolean ob Process durchgelaufen ist" },
+					{ "name": "startedAt", "description": "Das Datum, wann die ProzessInstanz gestarted ist" },
+					{ "name": "owner", "description": "" },
+					{ "name": "history", "description": "Die bisher durchgeführten Schritte im Prozess" },
+					{ "name": "actions", "description": "Eine Liste der möglichen Actions, beschrieben durch einen JSON-String." }
+				]
+			},
+			{
+				"title": "List all process instance actions",
+				"description": "Gibt eine Liste der IDs aller verfügbaren Actions zurück.",
+				"url": "/processinstance/action",
+				"method": "GET",
+				"parameters": [],
+				"returnDescription": "Liste aller Actions, die der aktuell angemeldete User ausführen kann",
+				"returnValues": []
+			},
+			{
+				"title": "List single process instance",
+				"description": "Gibt eine Liste der IDs aller verfügbaren Actions zurück.",
+				"url": "/processinstance/{id}",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "ID der Prozessinstanz", "type": "int" }
+				],
+				"returnDescription": "Gibt die kompletten Informationen zu einer Prozessinstanz wieder.",
+				"returnValues": [
+					{ "name": "id", "description": "Die ID dieser ProcessInstanz" },
+					{ "name": "name", "description": "Der Name dieser ProzessInstanz" },
+					{ "name": "processId", "description": "Die ID des Prozesses zu dem diese Instanz gehört" },
+					{ "name": "graph", "description": "Eine Liste der internen Verhalten, die durch den aktuellen User abgebildet werden" },
+					{ "name": "isTerminated", "description": "Boolean ob Process durchgelaufen ist" },
+					{ "name": "startedAt", "description": "Das Datum, wann die ProzessInstanz gestarted ist" },
+					{ "name": "history", "description": "Die bisher durchgeführten Schritte im Prozess" },
+					{ "name": "actions", "description": "Eine Liste der möglichen Actions, beschrieben durch einen JSON-String." }
+				]
+			},
+			{
+				"title": "Update single process instance",
+				"description": "Führt eine action auf einer laufenden Prozess Instanz durch.",
+				"url": "/processinstance/{id}",
+				"method": "PUT",
+				"parameters": [
+					{ "parameter": "id", "description": "ID der Prozessinstanz", "type": "int" },
+					{ "parameter": "action", "description": "Ein Action die zuvor beim READ zurückgegeben wurde als JSON-String", "type": "string" }
+				],
+				"returnDescription": "Alle Felder der ProzessInstanz",
+				"returnValues": [
+					{ "name": "id", "description": "Die ID dieser ProcessInstanz" },
+					{ "name": "name", "description": "Der Name dieser ProzessInstanz" },
+					{ "name": "processId", "description": "Die ID des Prozesses zu dem diese Instanz gehört" },
+					{ "name": "graph", "description": "Eine Liste der internen Verhalten, die durch den aktuellen User abgebildet werden" },
+					{ "name": "isTerminated", "description": "Boolean ob Process durchgelaufen ist" },
+					{ "name": "startedAt", "description": "Das Datum, wann die ProzessInstanz gestarted ist" },
+					{ "name": "owner", "description": "Die ID des Users, der die ProcessInstanz gestartet hat" },
+					{ "name": "history", "description": "Die bisher durchgeführten Schritte im Prozess" },
+					{ "name": "actions", "description": "Eine Liste der möglichen Actions, beschrieben durch einen JSON-String." }
+				]
+			},
+			{
+				"title": "Delete single process instance",
+				"description": "Löscht den ProcessInstanceActor der Prozessesinstanz mit der übergebenen id. Der Prozess wird nicht aus der Datenbank entfernt. Wird der Prozess gerade ausgeführt, dann wird die Ausführung abgebrochen. Der Prozess erscheint nicht mehr in der Liste der ausgeführten Prozesse.",
+				"url": "/processinstance/{id}",
+				"method": "DELETE",
+				"parameters": [
+					{ "parameter": "id", "description": "ID der Prozessinstanz", "type": "int" }
+				],
+				"returnDescription": "",
+				"returnValues": []
 			}
 		]
 	}
