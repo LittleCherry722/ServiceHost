@@ -29,6 +29,8 @@ object GDriveActor {
   case class UnpublishFile(userId: String, fileId: String)
   case class ShareFile(userId: String, fileId: String, targetId: String)
   case class RetrieveEmail(userId: String)
+  case class UploadFile(userId: String, fileName: String, description: String,
+                        mimeType: String, path: String)
   
 }
 
@@ -55,6 +57,8 @@ class GDriveActor extends Actor {
       Future { driveCtrl.shareFile(u,f,t) } pipeTo sender
     case RetrieveEmail(u) =>
       Future { driveCtrl.userEmail(u) } pipeTo sender
+    case UploadFile(u,f,d,m,p) =>
+      Future { driveCtrl.insertFile(u,f,d,m,p) } pipeTo sender
     
   }
 
