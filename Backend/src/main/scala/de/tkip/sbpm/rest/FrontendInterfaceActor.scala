@@ -27,7 +27,6 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.rest._
 import scala.concurrent.Future
 import DefaultJsonProtocol._
-import de.tkip.sbpm.rest.ChangeInterfaceActor
 import de.tkip.sbpm.application.miscellaneous.SystemProperties
 
 object Entity {
@@ -71,7 +70,6 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val frontendIndexFile = configString("frontend.indexFile")
   private val frontendBaseDir = configString("frontend.baseDirectory")
   private val authenticationEnabled = configFlag("rest.authentication")
-  private val repoLocation = configString("repo.address")
 
   implicit val rejectionHandler = RejectionHandler {
     // on authorization required rejection -> provide user a set of
@@ -107,6 +105,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val gbirInterfaceActor = context.actorOf(Props[GoogleBIRInterfaceActor], "gbir-interface")
   private val changeInterfaceActor = context.actorOf(Props[ChangeInterfaceActor], "change-interface")
   private val messageInterfaceActor = context.actorOf(Props[MessageInterfaceActor], "message-interface")
+  private val repositoryInterfaceActor = context.actorOf(Props[RepositoryInterfaceActor], "repository-interface")
 
   def receive = runRoute({
     pathPrefix("BIR") {
@@ -219,28 +218,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         }
       } ~
       pathPrefix(Entity.REPOSITORY) {
-        val pipeline: HttpRequest => Future[String] = (
-          sendReceive
-          ~> unmarshal[String])
-        //TODO: forward error codes (such as 404) instead of delivering a 500 response
-        get {
-          requestContext =>
-            requestContext.complete {
-              val response = pipeline(Get(repoLocation + requestContext.unmatchedPath.toString))
-              response
-            }
-        } ~
-          post {
-            requestContext =>
-              requestContext.complete {
-                val jsWithAddress = attachExternalAddress(requestContext)
-                //TODO: calling attachExternalAddress removes JSON formatting, compare:
-                //log.info(requestContext.request.entity.asString)
-                //log.info(jsWithAddress)
-                val response = pipeline(Post(repoLocation, jsWithAddress))
-                response
-              }
-          }
+        authenticated {
+          delegateTo(repositoryInterfaceActor)
+        }
       } ~
       pathPrefix(Entity.ISALIVE) {
         get {
