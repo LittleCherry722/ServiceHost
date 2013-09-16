@@ -24,20 +24,48 @@ define([
 
 		this.executeRequest = function(method){
 			var viewElement = $('#console'),
-				url = method.url;
+				url = method.url,
+				urlParameters = [],
+				requestData = {},
+				data;
 
 			// replace url parameters
 			_.each(url.match(/(\{\w*\})/ig), function(match){
 				var elementName = match.replace(/\{(\w*)\}/ig, "$1"),
 					val = $('.parameters-list input[name="'+elementName+'"]', viewElement).val();
 
-				url = url.replace(match, val)
+				url = url.replace(match, val);
+				urlParameters.push(elementName);
 			});
 
+			$('.parameters-list input').each(function(){
+				var name = $(this).attr('name'),
+					dataType = $(this).attr('data-type').toLowerCase(),
+					value = $(this).val();
+
+				if(!_.contains(urlParameters, name)){
+					if('boolean' === dataType) {
+						value = Boolean(value);
+					} else if ('int' === dataType) {
+						value = parseInt(value);
+					} else if ('float' === dataType) {
+						value = parseFloat(value);
+					}
+					requestData[name] = value;
+				}
+			});
+
+			if(method.method.toLowerCase() === "get") {
+				data = requestData;
+			} else {
+				data = _.size(requestData) > 0 ? JSON.stringify(requestData) : undefined;
+			}
 			$.ajax({
 				url: url,
 				type: method.method,
-				dataType: 'text'
+				dataType: 'text',
+				contentType: "application/json; charset=UTF-8",
+				data: data
 			}).always(function(data){
 				var text = data;
 				if(typeof  data === 'object' && 'responseText' in data){
