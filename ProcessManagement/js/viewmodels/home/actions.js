@@ -95,7 +95,7 @@ define([
 				processInstance, currentState, process;
 
 			// fetch process instance
-			_.each( ProcessInstances.all(), function (element) {
+			_.each( ProcessInstance.all(), function (element) {
 				if( element.id () === action.processInstanceID() ) {
 					processInstance = element;
 				}
@@ -131,7 +131,7 @@ define([
 
 		App.loadTemplate( "home/actions", viewModel, "executionContent", function() {
 			$('.show-graph').fancybox({
-				scrolling: 'yes',
+				scrolling: 'no',
 				transitionIn: 'none',
 				transitionOut: 'none'
 			});
