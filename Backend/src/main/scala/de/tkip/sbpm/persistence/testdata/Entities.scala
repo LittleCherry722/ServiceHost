@@ -37,25 +37,7 @@ object Entities {
     Group(None, """Zulieferer""", true),
 
     Group(None, """_SAME_""", true),
-    Group(None, """_ANY_""", true),
-    Group(None, """SBPM_Ltd""", true),
-    Group(None, """SBPM_Ltd_DE""", true),
-    Group(None, """SBPM_Ltd_DE_Accounting""", true),
-    Group(None, """SBPM_Ltd_DE_Procurement""", true),
-    Group(None, """SBPM_Ltd_DE_Human_Resources""", true),
-    Group(None, """SBPM_Ltd_DE_Warehouse""", true),
-    Group(None, """SBPM_Ltd_DE_Board""", true),
-    Group(None, """SBPM_Ltd_UK""", true),
-    Group(None, """SBPM_Ltd_UK_Accounting""", true),
-    Group(None, """SBPM_Ltd_UK_Procurement""", true),
-    Group(None, """SBPM_Ltd_UK_Human_Resources""", true),
-    Group(None, """SBPM_Ltd_UK_Warehouse""", true),
-    Group(None, """SBPM_Ltd_UK_Board""", true),
-    Group(None, """Manager""", true),
-    Group(None, """Teamleader""", true),
-    Group(None, """Head_of_Department""", true),
-    Group(None, """IT-Stuff""", true),
-    Group(None, """External""", true))
+    Group(None, """_ANY_""", true))
 
   val roles = List(
     Role(None, "Gro\u00dfunternehmen", true),
@@ -65,16 +47,9 @@ object Entities {
     Role(None, """Zulieferer""", true),
 
     Role(None, """Employee""", true),
-    Role(None, """Employee_DE""", true),
-    Role(None, """Employee_UK""", true),
-    Role(None, """Accounting""", true),
-    Role(None, """Procurement""", true),
     Role(None, """HR_Data_Access""", true),
-    Role(None, """Salary_Statement_DE""", true),
-    Role(None, """Salary_Statement_UK""", true),
     Role(None, """Warehouse""", true),
     Role(None, """Purchase_Requisitions""", true),
-    Role(None, """Board_Member""", true),
     Role(None, """Supervisor""", true),
     Role(None, """Cost_Center_Manager""", true))
 
@@ -99,13 +74,9 @@ object Entities {
     (Process(None, "Gro\u00dfunternehmen", false) -> loadJson("grossunternehmen")),
     (Process(None, """Staples""", false) -> loadJson("staples")),
     (Process(None, """Transportdienstleister""", false) -> loadJson("lieferant")),
-    (Process(None, """Travel Request""", false) -> loadJson("travel_request")),
-    (Process(None, """Travel Request No Loop""", false) -> loadJson("travel_request_no_loop")),
-    (Process(None, """Travel Request Timeout""", false) -> loadJson("travel_request_timeout")),
-    (Process(None, """Order""", false) -> loadJson("order")),
-    (Process(None, """Supplier (E)""", false) -> loadJson("supplier")),
-    (Process(None, """Order(simple)""", false) -> loadJson("simpleorder")),
-    (Process(None, """Supplier(simple) (E)""", false) -> loadJson("simplesupplier")),
+
+    (Process(None, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
+    (Process(None, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
     (Process(None, """IP Test""", false) -> loadJson("ip_test")),
     (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
     (Process(None, """Macro Example""", false) -> loadJson("macro_example")),
@@ -129,21 +100,10 @@ object Entities {
     (1, 3),
     (2, 4),
 
+    // other matchings
     (4, 5),
-    (4, 6),
-    (5, 8),
-    (5, 9),
-    (6, 10),
-    (8, 7),
-    (9, 8),
-    (9, 9),
-    (10, 7),
-    (11, 8),
-    (11, 9),
-    (13, 11),
-    (13, 12),
-    (14, 11),
-    (15, 11))
+    (4, 6))
+
 
   // group -> user mappings
   // _1 = index in groups list, _2 = index in users list
@@ -154,18 +114,9 @@ object Entities {
     (1, 2),
     (2, 3),
 
+    // other matchings
     (4, 0),
-    (4, 3),
-    (6, 5),
-    (7, 6),
-    (7, 8),
-    (9, 8),
-    (12, 6),
-    (13, 4),
-    (13, 5),
-    (13, 6),
-    (14, 2),
-    (15, 4))
+    (4, 3))
 
   implicit val timeout = akka.util.Timeout(100 seconds)
 
