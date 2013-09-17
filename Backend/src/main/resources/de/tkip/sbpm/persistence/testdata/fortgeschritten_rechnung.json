@@ -26,9 +26,9 @@
                     }
                 ],
                 "name": "Lieferant",
-                "relatedProcess": 18,
+                "relatedProcess": 13,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
                 "subjectType": "external",
                 "type": "external",
@@ -254,7 +254,7 @@
                 "name": "Rechnungspr\u00fcfung",
                 "relatedProcess": null,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
                 "subjectType": "single",
                 "type": "single",
@@ -423,7 +423,7 @@
                 "name": "Buchhaltung",
                 "relatedProcess": null,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
                 "subjectType": "single",
                 "type": "single",
@@ -433,4 +433,4 @@
         ]
     },
     "routings": []
-    }
+}

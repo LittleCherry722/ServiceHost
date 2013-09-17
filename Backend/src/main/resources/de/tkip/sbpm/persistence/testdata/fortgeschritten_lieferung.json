@@ -27,13 +27,12 @@
                     }
                 ],
                 "name": "Lager",
-                "relatedInterface": null,
-                "relatedProcess": 17,
+                "relatedProcess": 12,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
+                "subjectType": "external",
                 "type": "external",
-                "url": null,
                 "variableCounter": 1,
                 "variables": {}
             },
@@ -51,7 +50,8 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 2,
+                                "edgeType": "exitcondition",
+                                "end": 3,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
@@ -74,11 +74,13 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 3,
+                                "edgeType": "exitcondition",
+                                "end": 4,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 2,
+                                "start": 3,
+                                "target": "",
                                 "text": "Ware verpackt",
                                 "transportMethod": [
                                     "internal"
@@ -90,11 +92,12 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 4,
+                                "edgeType": "exitcondition",
+                                "end": 5,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 3,
+                                "start": 4,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj1",
@@ -113,11 +116,13 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 5,
+                                "edgeType": "exitcondition",
+                                "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 4,
+                                "start": 5,
+                                "target": "",
                                 "text": "Rechnung erstellt",
                                 "transportMethod": [
                                     "internal"
@@ -129,11 +134,12 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 1,
+                                "edgeType": "exitcondition",
+                                "end": 2,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 5,
+                                "start": 1,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj3",
@@ -154,12 +160,20 @@
                         "nodeCounter": 6,
                         "nodes": [
                             {
+                                "comment": "",
                                 "conversation": "",
+                                "createSubjects": {
+                                    "max": -1,
+                                    "min": -1,
+                                    "storevar": "",
+                                    "subject": null
+                                },
                                 "deactivated": false,
                                 "end": false,
                                 "id": 0,
                                 "macro": "",
                                 "majorStartNode": true,
+                                "nodeType": "receive",
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
@@ -179,12 +193,20 @@
                                 "variable": ""
                             },
                             {
+                                "comment": "",
                                 "conversation": "",
+                                "createSubjects": {
+                                    "max": -1,
+                                    "min": -1,
+                                    "storevar": "",
+                                    "subject": null
+                                },
                                 "deactivated": false,
                                 "end": false,
-                                "id": 5,
+                                "id": 1,
                                 "macro": "",
                                 "majorStartNode": false,
+                                "nodeType": "send",
                                 "options": {
                                     "conversation": "*",
                                     "correlationId": "*",
@@ -204,12 +226,20 @@
                                 "variable": ""
                             },
                             {
+                                "comment": "",
                                 "conversation": "",
+                                "createSubjects": {
+                                    "max": -1,
+                                    "min": -1,
+                                    "storevar": "",
+                                    "subject": null
+                                },
                                 "deactivated": false,
                                 "end": true,
-                                "id": 1,
+                                "id": 2,
                                 "macro": "",
                                 "majorStartNode": false,
+                                "nodeType": "end",
                                 "options": {
                                     "conversation": "*",
                                     "correlationId": "*",
@@ -229,12 +259,20 @@
                                 "variable": ""
                             },
                             {
+                                "comment": "",
                                 "conversation": "",
+                                "createSubjects": {
+                                    "max": -1,
+                                    "min": -1,
+                                    "storevar": "",
+                                    "subject": null
+                                },
                                 "deactivated": false,
                                 "end": false,
-                                "id": 2,
+                                "id": 3,
                                 "macro": "",
                                 "majorStartNode": false,
+                                "nodeType": "action",
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
@@ -254,12 +292,20 @@
                                 "variable": ""
                             },
                             {
+                                "comment": "",
                                 "conversation": "",
+                                "createSubjects": {
+                                    "max": -1,
+                                    "min": -1,
+                                    "storevar": "",
+                                    "subject": null
+                                },
                                 "deactivated": false,
                                 "end": false,
-                                "id": 3,
+                                "id": 4,
                                 "macro": "",
                                 "majorStartNode": false,
+                                "nodeType": "send",
                                 "options": {
                                     "conversation": "*",
                                     "correlationId": "*",
@@ -279,12 +325,20 @@
                                 "variable": ""
                             },
                             {
+                                "comment": "",
                                 "conversation": "",
+                                "createSubjects": {
+                                    "max": -1,
+                                    "min": -1,
+                                    "storevar": "",
+                                    "subject": null
+                                },
                                 "deactivated": false,
                                 "end": false,
-                                "id": 4,
+                                "id": 5,
                                 "macro": "",
                                 "majorStartNode": false,
+                                "nodeType": "action",
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
@@ -307,13 +361,12 @@
                     }
                 ],
                 "name": "Lieferant",
-                "relatedInterface": null,
                 "relatedProcess": null,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
+                "subjectType": "single",
                 "type": "single",
-                "url": null,
                 "variableCounter": 1,
                 "variables": {}
             },
@@ -334,13 +387,12 @@
                     }
                 ],
                 "name": "Rechnungspr\u00fcfung",
-                "relatedInterface": null,
-                "relatedProcess": 19,
+                "relatedProcess": 14,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
+                "subjectType": "external",
                 "type": "external",
-                "url": null,
                 "variableCounter": 1,
                 "variables": {}
             }

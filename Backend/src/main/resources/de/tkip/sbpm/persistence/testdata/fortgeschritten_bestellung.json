@@ -27,11 +27,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 1,
+                                "end": 2,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 4,
+                                "start": 5,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj2",
@@ -50,11 +50,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 2,
+                                "end": 3,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 1,
+                                "start": 2,
                                 "text": "Bestellantrag genehmigt",
                                 "transportMethod": [
                                     "internal"
@@ -66,11 +66,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 3,
+                                "end": 4,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 2,
+                                "start": 3,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj2",
@@ -93,7 +93,7 @@
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 1,
+                                "start": 2,
                                 "text": "Bestellantrag abgelehnt",
                                 "transportMethod": [
                                     "internal"
@@ -105,7 +105,7 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 5,
+                                "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
@@ -157,8 +157,33 @@
                             {
                                 "conversation": "",
                                 "deactivated": false,
-                                "end": true,
+                                "end": false,
                                 "id": 5,
+                                "macro": "",
+                                "majorStartNode": true,
+                                "options": {
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
+                                },
+                                "start": true,
+                                "text": "Bestellantrag emfpangen",
+                                "type": "receive",
+                                "varMan": {
+                                    "operation": "and",
+                                    "storevar": "",
+                                    "var1": "",
+                                    "var2": ""
+                                },
+                                "variable": ""
+                            },
+                            {
+                                "conversation": "",
+                                "deactivated": false,
+                                "end": true,
+                                "id": 1,
                                 "macro": "",
                                 "majorStartNode": false,
                                 "options": {
@@ -183,7 +208,7 @@
                                 "conversation": "",
                                 "deactivated": false,
                                 "end": false,
-                                "id": 1,
+                                "id": 2,
                                 "macro": "",
                                 "majorStartNode": false,
                                 "options": {
@@ -208,7 +233,7 @@
                                 "conversation": "",
                                 "deactivated": false,
                                 "end": false,
-                                "id": 2,
+                                "id": 3,
                                 "macro": "",
                                 "majorStartNode": false,
                                 "options": {
@@ -233,7 +258,7 @@
                                 "conversation": "",
                                 "deactivated": false,
                                 "end": true,
-                                "id": 3,
+                                "id": 4,
                                 "macro": "",
                                 "majorStartNode": false,
                                 "options": {
@@ -253,31 +278,6 @@
                                     "var2": ""
                                 },
                                 "variable": ""
-                            },
-                            {
-                                "conversation": "",
-                                "deactivated": false,
-                                "end": false,
-                                "id": 4,
-                                "macro": "",
-                                "majorStartNode": true,
-                                "options": {
-                                    "conversation": "",
-                                    "correlationId": "",
-                                    "message": "*",
-                                    "state": null,
-                                    "subject": "*"
-                                },
-                                "start": true,
-                                "text": "Bestellantrag emfpangen",
-                                "type": "receive",
-                                "varMan": {
-                                    "operation": "and",
-                                    "storevar": "",
-                                    "var1": "",
-                                    "var2": ""
-                                },
-                                "variable": ""
                             }
                         ]
                     }
@@ -286,7 +286,7 @@
                 "relatedInterface": null,
                 "relatedProcess": null,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
                 "type": "single",
                 "url": null,
@@ -307,7 +307,7 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 7,
+                                "end": 5,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
@@ -323,11 +323,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 5,
+                                "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 7,
+                                "start": 5,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj1",
@@ -346,11 +346,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 3,
+                                "end": 6,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 5,
+                                "start": 1,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj1",
@@ -369,11 +369,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 1,
+                                "end": 2,
                                 "manualTimeout": true,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 5,
+                                "start": 1,
                                 "text": "0",
                                 "transportMethod": [
                                     "internal"
@@ -385,11 +385,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 5,
+                                "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 1,
+                                "start": 2,
                                 "text": "Genehmiger an Pr\u00fcfung des Bestellantrags erinnert",
                                 "transportMethod": [
                                     "internal"
@@ -401,11 +401,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 8,
+                                "end": 7,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 5,
+                                "start": 1,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj3",
@@ -424,11 +424,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 6,
+                                "end": 3,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 8,
+                                "start": 7,
                                 "text": "Ware gepr\u00fcft",
                                 "transportMethod": [
                                     "internal"
@@ -440,11 +440,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 4,
+                                "end": 8,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 5,
+                                "start": 1,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj3",
@@ -463,11 +463,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 5,
+                                "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 4,
+                                "start": 8,
                                 "text": "Liefertermin gepr\u00fcft",
                                 "transportMethod": [
                                     "internal"
@@ -479,11 +479,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 2,
+                                "end": 4,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 5,
+                                "start": 1,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj1",
@@ -502,11 +502,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 5,
+                                "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 2,
+                                "start": 4,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj3",
@@ -566,8 +566,8 @@
                                     "subject": "*"
                                 },
                                 "start": false,
-                                "text": "Auf Antwort warten",
-                                "type": "receive",
+                                "text": "Bestellantrag senden",
+                                "type": "send",
                                 "varMan": {
                                     "operation": "and",
                                     "storevar": "",
@@ -591,8 +591,8 @@
                                     "subject": "*"
                                 },
                                 "start": false,
-                                "text": "Genehmiger an Pr\u00fcfung des Bestellantrags erinnern",
-                                "type": "action",
+                                "text": "Auf Antwort warten",
+                                "type": "receive",
                                 "varMan": {
                                     "operation": "and",
                                     "storevar": "",
@@ -606,81 +606,6 @@
                                 "deactivated": false,
                                 "end": true,
                                 "id": 6,
-                                "macro": "",
-                                "majorStartNode": false,
-                                "options": {
-                                    "conversation": "",
-                                    "correlationId": "",
-                                    "message": "*",
-                                    "state": null,
-                                    "subject": "*"
-                                },
-                                "start": false,
-                                "text": "Ware erhalten",
-                                "type": "end",
-                                "varMan": {
-                                    "operation": "and",
-                                    "storevar": "",
-                                    "var1": "",
-                                    "var2": ""
-                                },
-                                "variable": ""
-                            },
-                            {
-                                "conversation": "",
-                                "deactivated": false,
-                                "end": false,
-                                "id": 2,
-                                "macro": "",
-                                "majorStartNode": false,
-                                "options": {
-                                    "conversation": "",
-                                    "correlationId": "",
-                                    "message": "*",
-                                    "state": null,
-                                    "subject": "*"
-                                },
-                                "start": false,
-                                "text": "Bestellunge senden",
-                                "type": "send",
-                                "varMan": {
-                                    "operation": "and",
-                                    "storevar": "",
-                                    "var1": "",
-                                    "var2": ""
-                                },
-                                "variable": ""
-                            },
-                            {
-                                "conversation": "",
-                                "deactivated": false,
-                                "end": false,
-                                "id": 7,
-                                "macro": "",
-                                "majorStartNode": false,
-                                "options": {
-                                    "conversation": "",
-                                    "correlationId": "",
-                                    "message": "*",
-                                    "state": null,
-                                    "subject": "*"
-                                },
-                                "start": false,
-                                "text": "Bestellantrag senden",
-                                "type": "send",
-                                "varMan": {
-                                    "operation": "and",
-                                    "storevar": "",
-                                    "var1": "",
-                                    "var2": ""
-                                },
-                                "variable": ""
-                            },
-                            {
-                                "conversation": "",
-                                "deactivated": false,
-                                "end": true,
-                                "id": 3,
                                 "macro": "",
                                 "majorStartNode": false,
                                 "options": {
@@ -705,7 +630,32 @@
                                 "conversation": "",
                                 "deactivated": false,
                                 "end": false,
-                                "id": 8,
+                                "id": 2,
+                                "macro": "",
+                                "majorStartNode": false,
+                                "options": {
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
+                                },
+                                "start": false,
+                                "text": "Genehmiger an Pr\u00fcfung des Bestellantrags erinnern",
+                                "type": "action",
+                                "varMan": {
+                                    "operation": "and",
+                                    "storevar": "",
+                                    "var1": "",
+                                    "var2": ""
+                                },
+                                "variable": ""
+                            },
+                            {
+                                "conversation": "",
+                                "deactivated": false,
+                                "end": false,
+                                "id": 7,
                                 "macro": "",
                                 "majorStartNode": false,
                                 "options": {
@@ -717,6 +667,56 @@
                                 },
                                 "start": false,
                                 "text": "Ware pr\u00fcfen",
+                                "type": "action",
+                                "varMan": {
+                                    "operation": "and",
+                                    "storevar": "",
+                                    "var1": "",
+                                    "var2": ""
+                                },
+                                "variable": ""
+                            },
+                            {
+                                "conversation": "",
+                                "deactivated": false,
+                                "end": true,
+                                "id": 3,
+                                "macro": "",
+                                "majorStartNode": false,
+                                "options": {
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
+                                },
+                                "start": false,
+                                "text": "Ware erhalten",
+                                "type": "end",
+                                "varMan": {
+                                    "operation": "and",
+                                    "storevar": "",
+                                    "var1": "",
+                                    "var2": ""
+                                },
+                                "variable": ""
+                            },
+                            {
+                                "conversation": "",
+                                "deactivated": false,
+                                "end": false,
+                                "id": 8,
+                                "macro": "",
+                                "majorStartNode": false,
+                                "options": {
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
+                                },
+                                "start": false,
+                                "text": "Liefertermin pr\u00fcfen",
                                 "type": "action",
                                 "varMan": {
                                     "operation": "and",
@@ -741,8 +741,8 @@
                                     "subject": "*"
                                 },
                                 "start": false,
-                                "text": "Liefertermin pr\u00fcfen",
-                                "type": "action",
+                                "text": "Bestellunge senden",
+                                "type": "send",
                                 "varMan": {
                                     "operation": "and",
                                     "storevar": "",
@@ -758,7 +758,7 @@
                 "relatedInterface": null,
                 "relatedProcess": null,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": true,
                 "type": "single",
                 "url": null,
@@ -779,7 +779,7 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 5,
+                                "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
@@ -802,11 +802,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 1,
+                                "end": 2,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 5,
+                                "start": 1,
                                 "text": "Ware auf Lager",
                                 "transportMethod": [
                                     "internal"
@@ -818,11 +818,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 3,
+                                "end": 6,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 1,
+                                "start": 2,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj2",
@@ -841,11 +841,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 2,
+                                "end": 4,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 5,
+                                "start": 1,
                                 "text": "Ware nicht auf Lager",
                                 "transportMethod": [
                                     "internal"
@@ -857,11 +857,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 7,
+                                "end": 5,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 2,
+                                "start": 4,
                                 "text": "Angebote gefunden",
                                 "transportMethod": [
                                     "internal"
@@ -873,11 +873,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 6,
+                                "end": 3,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 7,
+                                "start": 5,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj4",
@@ -896,11 +896,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 4,
+                                "end": 7,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 6,
+                                "start": 3,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj4",
@@ -919,11 +919,11 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "end": 1,
+                                "end": 2,
                                 "manualTimeout": false,
                                 "optional": false,
                                 "priority": 1,
-                                "start": 4,
+                                "start": 7,
                                 "target": {
                                     "createNew": false,
                                     "id": "Subj4",
@@ -983,8 +983,8 @@
                                     "subject": "*"
                                 },
                                 "start": false,
-                                "text": "Lagerbestsand pr\u00fcfen",
-                                "type": "action",
+                                "text": "Liefetermin mitteilen",
+                                "type": "send",
                                 "varMan": {
                                     "operation": "and",
                                     "storevar": "",
@@ -1008,57 +1008,7 @@
                                     "subject": "*"
                                 },
                                 "start": false,
-                                "text": "Ware liefern",
-                                "type": "send",
-                                "varMan": {
-                                    "operation": "and",
-                                    "storevar": "",
-                                    "var1": "",
-                                    "var2": ""
-                                },
-                                "variable": ""
-                            },
-                            {
-                                "conversation": "",
-                                "deactivated": false,
-                                "end": false,
-                                "id": 6,
-                                "macro": "",
-                                "majorStartNode": false,
-                                "options": {
-                                    "conversation": "",
-                                    "correlationId": "",
-                                    "message": "*",
-                                    "state": null,
-                                    "subject": "*"
-                                },
-                                "start": false,
-                                "text": "Auf Lieferung warten",
-                                "type": "send",
-                                "varMan": {
-                                    "operation": "and",
-                                    "storevar": "",
-                                    "var1": "",
-                                    "var2": ""
-                                },
-                                "variable": ""
-                            },
-                            {
-                                "conversation": "",
-                                "deactivated": false,
-                                "end": false,
-                                "id": 2,
-                                "macro": "",
-                                "majorStartNode": false,
-                                "options": {
-                                    "conversation": "",
-                                    "correlationId": "",
-                                    "message": "*",
-                                    "state": null,
-                                    "subject": "*"
-                                },
-                                "start": false,
-                                "text": "Nach Angeboten suchen und Liefertermin eintragen",
+                                "text": "Lagerbestsand pr\u00fcfen",
                                 "type": "action",
                                 "varMan": {
                                     "operation": "and",
@@ -1071,33 +1021,8 @@
                             {
                                 "conversation": "",
                                 "deactivated": false,
-                                "end": false,
-                                "id": 7,
-                                "macro": "",
-                                "majorStartNode": false,
-                                "options": {
-                                    "conversation": "",
-                                    "correlationId": "",
-                                    "message": "*",
-                                    "state": null,
-                                    "subject": "*"
-                                },
-                                "start": false,
-                                "text": "Liefetermin mitteilen",
-                                "type": "send",
-                                "varMan": {
-                                    "operation": "and",
-                                    "storevar": "",
-                                    "var1": "",
-                                    "var2": ""
-                                },
-                                "variable": ""
-                            },
-                            {
-                                "conversation": "",
-                                "deactivated": false,
                                 "end": true,
-                                "id": 3,
+                                "id": 6,
                                 "macro": "",
                                 "majorStartNode": false,
                                 "options": {
@@ -1122,7 +1047,32 @@
                                 "conversation": "",
                                 "deactivated": false,
                                 "end": false,
-                                "id": 4,
+                                "id": 2,
+                                "macro": "",
+                                "majorStartNode": false,
+                                "options": {
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
+                                },
+                                "start": false,
+                                "text": "Ware liefern",
+                                "type": "send",
+                                "varMan": {
+                                    "operation": "and",
+                                    "storevar": "",
+                                    "var1": "",
+                                    "var2": ""
+                                },
+                                "variable": ""
+                            },
+                            {
+                                "conversation": "",
+                                "deactivated": false,
+                                "end": false,
+                                "id": 7,
                                 "macro": "",
                                 "majorStartNode": false,
                                 "options": {
@@ -1142,6 +1092,56 @@
                                     "var2": ""
                                 },
                                 "variable": ""
+                            },
+                            {
+                                "conversation": "",
+                                "deactivated": false,
+                                "end": false,
+                                "id": 3,
+                                "macro": "",
+                                "majorStartNode": false,
+                                "options": {
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
+                                },
+                                "start": false,
+                                "text": "Auf Lieferung warten",
+                                "type": "send",
+                                "varMan": {
+                                    "operation": "and",
+                                    "storevar": "",
+                                    "var1": "",
+                                    "var2": ""
+                                },
+                                "variable": ""
+                            },
+                            {
+                                "conversation": "",
+                                "deactivated": false,
+                                "end": false,
+                                "id": 4,
+                                "macro": "",
+                                "majorStartNode": false,
+                                "options": {
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
+                                },
+                                "start": false,
+                                "text": "Nach Angeboten suchen und Liefertermin eintragen",
+                                "type": "action",
+                                "varMan": {
+                                    "operation": "and",
+                                    "storevar": "",
+                                    "var1": "",
+                                    "var2": ""
+                                },
+                                "variable": ""
                             }
                         ]
                     }
@@ -1150,7 +1150,7 @@
                 "relatedInterface": null,
                 "relatedProcess": null,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
                 "type": "single",
                 "url": null,
@@ -1175,9 +1175,9 @@
                 ],
                 "name": "Lieferant",
                 "relatedInterface": null,
-                "relatedProcess": 18,
+                "relatedProcess": null,
                 "relatedSubject": "",
-                "role": "",
+                "role": "Employee",
                 "startSubject": false,
                 "type": "external",
                 "url": null,

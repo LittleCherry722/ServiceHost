@@ -223,7 +223,7 @@ define([
 
 		this.exportGraph = function() {
 			var graph = currentProcess().graphString();
-			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
+			// graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
 			this.graphText(graph);
 
