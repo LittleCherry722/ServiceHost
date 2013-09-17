@@ -775,7 +775,8 @@ define([
 	}
 
 	var goToExternalProcess = function( process ) {
-		Router.goTo( Process.findByName( process )[0] )
+    console.log(process)
+		Router.goTo( Process.find( process ) )
 	}
 
 	// Compute whether to show or hide the role warning.

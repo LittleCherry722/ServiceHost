@@ -26,7 +26,7 @@
                     }
                 ],
                 "name": "Lieferant",
-                "relatedProcess": null,
+                "relatedProcess": 18,
                 "relatedSubject": "",
                 "role": "",
                 "startSubject": false,
@@ -114,7 +114,7 @@
                         ],
                         "id": "##main##",
                         "name": "internal behavior",
-                        "nodeCounter": 9,
+                        "nodeCounter": 4,
                         "nodes": [
                             {
                                 "comment": "",
@@ -134,9 +134,9 @@
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
-                                    "message": "",
-                                    "state": "",
-                                    "subject": ""
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
                                 },
                                 "start": true,
                                 "text": "Rechnung Empfangen",
@@ -167,9 +167,9 @@
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
-                                    "message": "",
-                                    "state": "",
-                                    "subject": ""
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
                                 },
                                 "start": false,
                                 "text": "Rechnung pr\u00fcfen",
@@ -200,9 +200,9 @@
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
-                                    "message": "",
-                                    "state": "",
-                                    "subject": ""
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
                                 },
                                 "start": false,
                                 "text": "",
@@ -233,9 +233,9 @@
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
-                                    "message": "",
-                                    "state": "",
-                                    "subject": ""
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
                                 },
                                 "start": false,
                                 "text": "Ende (Rechnung gepr\u00fcft OK)",
@@ -316,7 +316,7 @@
                         ],
                         "id": "##main##",
                         "name": "internal behavior",
-                        "nodeCounter": 6,
+                        "nodeCounter": 3,
                         "nodes": [
                             {
                                 "comment": "",
@@ -336,9 +336,9 @@
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
-                                    "message": "",
-                                    "state": "",
-                                    "subject": ""
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
                                 },
                                 "start": true,
                                 "text": "",
@@ -369,9 +369,9 @@
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
-                                    "message": "",
-                                    "state": "",
-                                    "subject": ""
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
                                 },
                                 "start": false,
                                 "text": "Zahlung einleiten",
@@ -402,9 +402,9 @@
                                 "options": {
                                     "conversation": "",
                                     "correlationId": "",
-                                    "message": "",
-                                    "state": "",
-                                    "subject": ""
+                                    "message": "*",
+                                    "state": null,
+                                    "subject": "*"
                                 },
                                 "start": false,
                                 "text": "Ende (Zahlung eingeleitet)",
@@ -433,4 +433,4 @@
         ]
     },
     "routings": []
-}
+    }
