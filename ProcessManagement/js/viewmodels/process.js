@@ -453,6 +453,7 @@ define([
 
 		// Load all changes into the process model.
 		setGraph( process );
+    process.isNewRecord = false;
 
 		// Something is not right with lazy attributes... Need to set it twice -.-
 		process.save(null, {
