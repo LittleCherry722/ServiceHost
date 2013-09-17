@@ -27,7 +27,6 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.rest._
 import scala.concurrent.Future
 import DefaultJsonProtocol._
-import de.tkip.sbpm.application.miscellaneous.SystemProperties
 
 object Entity {
   val PROCESS = "process"
@@ -232,13 +231,6 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         serveStaticFiles
       }
   })
-
-  private def attachExternalAddress(requestContext: RequestContext): String = {
-    val jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
-
-    val url = SystemProperties.akkaRemoteUrl(context.system.settings.config)
-    jsObject.copy(Map("url" -> (url).toJson) ++ jsObject.fields).toString
-  }
 
   def serveStaticFiles: Route = {
     // root folder -> redirect to frontendBaseUrl
