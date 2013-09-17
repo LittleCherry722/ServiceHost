@@ -115,7 +115,7 @@
 
                 <div data-bind="visible: stateType()==='receive', foreach: actionData">
                     <div data-bind="visible: $data.executeAble">
-                        <strong data-bind="text: $data.text"></strong>
+                        <strong data-bind="html: $data.text"></strong>
                         by
                         <strong data-bind="text: $data.relatedSubject"></strong>
 

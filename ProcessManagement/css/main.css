@@ -7763,6 +7763,9 @@ span.icon_clear:hover {
   width: 240px;
   margin-right: 16px;
   background-color: #eee;
+
+  margin-bottom: 20px;
+  max-height: 700px;
 }
 
 #console .list h3 {
