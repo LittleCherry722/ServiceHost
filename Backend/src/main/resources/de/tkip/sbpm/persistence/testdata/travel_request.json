@@ -15,7 +15,7 @@
         "relatedProcess":null,
         "relatedSubject":null,
         "externalType":"external",
-        "role":"Employee",
+        "role":"default",
         "comment":"",
         "macros":[
           {
@@ -381,7 +381,7 @@
         "relatedProcess":null,
         "relatedSubject":"",
         "externalType":"external",
-        "role":"Supervisor",
+        "role":"assess_travel_requests",
         "comment":"",
         "macros":[
           {
@@ -759,7 +759,7 @@
         "relatedProcess":null,
         "relatedSubject":"",
         "externalType":"external",
-        "role":"HR_Data_Access",
+        "role":"recieve_approved_travel_requests",
         "comment":"",
         "macros":[
           {

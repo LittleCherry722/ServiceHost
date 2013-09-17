@@ -12,7 +12,7 @@
             "relatedProcess":null,
             "relatedSubject":"",
             "externalType":"external",
-            "role":"Purchase_Requisitions",
+            "role":"handle_purchases",
             "comment":"",
             "macros":[
                {
@@ -485,7 +485,7 @@
             "relatedProcessName":"Supplier (E)",
             "relatedSubject":"Subj1",
             "externalType":"external",
-            "role":"Warehouse",
+            "role":"execute_orders",
             "comment":"",
             "macros":[
                {
@@ -517,7 +517,7 @@
             "relatedSubject":"Subj1",
             "startSubject": false,
             "externalType":"external",
-            "role":"Warehouse",
+            "role":"execute_orders",
             "comment":"",
             "macros":[
                {
@@ -1066,7 +1066,7 @@
             "relatedProcess":null,
             "relatedSubject":"",
             "externalType":"external",
-            "role":"Cost_Center_Manager",
+            "role":"manage_cost_center",
             "comment":"",
             "macros":[
                {
