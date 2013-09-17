@@ -16,6 +16,7 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.persistence.query._
+import scala.concurrent.Await
 
 class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
   import context.dispatcher
@@ -73,8 +74,17 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
             entity(as[SendMessageHeader]) { json =>
               complete {
                 val message = Message(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))
+                
+                val future = for {
+                  all <- (persistence ? Messages.Read.All).mapTo[Seq[Message]]
+                  length = all.length
+                } yield length
+                val result = Await.result(future, 5 seconds).asInstanceOf[Int]
+                val messageWithID = message.copy(id = Some(result + 1))
+
                 persistence ! Messages.Save(message)
-                changeActor ! MessageChange(message, "insert", new java.util.Date())
+
+                changeActor ! MessageChange(messageWithID, "insert", new java.util.Date())
                 StatusCodes.NoContent
               }
             }

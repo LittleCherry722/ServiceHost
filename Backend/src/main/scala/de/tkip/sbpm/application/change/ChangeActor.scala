@@ -177,7 +177,7 @@ class ChangeActor extends Actor {
         case MessageChange(m, info, date) => {
           if (date.getTime() > t * 1000) {
             if (info == "insert")
-              tempInsert += MessageRelatedChangeData(m.id, m.fromUser, m.toUser, m.title, m.isRead, m.content)
+              tempInsert += MessageRelatedChangeData(m.id, m.fromUser, m.toUser, m.title, m.isRead, m.content, m.date)
           }
         }
       }

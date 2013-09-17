@@ -1,0 +1,474 @@
+[
+	{
+		"name": "Execution API",
+		"methods": [
+			{
+				"title": "Create new process",
+				"description": "Speichert diesen Process in der Datenbank.",
+				"url": "/process",
+				"method": "POST",
+				"parameters": [
+					{ "parameter": "name", "description": "Name des Prozesses als String", "type": "string" },
+					{ "parameter": "graph", "description": "Graph als JSON String", "type": "string" },
+					{ "parameter": "startSubjects", "description": "Array der start Subjects ( [ subjectId1, subjectId2, ... ] )", "type": "array" },
+					{ "parameter": "isCase", "description": "Boolean ob Case oder Prozess ", "type": "boolean" }
+				],
+				"returnDescription": "",
+				"returnValues": [
+					{ "name": "id", "description": "ID unter der der erstellte Process angesprochen werden kann." },
+					{ "name": "graphId", "description": "ID des Graphen der zu dem Process gehört" }
+				]
+			},
+			{
+				"title": "List all processes",
+				"description": "Gibt eine Liste aller ladbaren Prozesse zurück.",
+				"url": "/process",
+				"method": "GET",
+				"parameters": [],
+				"returnDescription": "An array of processes",
+				"returnValues": [
+					{ "name": "id", "description": "ID des Prozesses" },
+					{ "name": "name", "description": "Name des Prozesses als String" },
+					{ "name": "isCase", "description": "Boolean ob Case oder Prozess" },
+					{ "name": "startAble", "description": "Boolean ob der Prozess von Benutzer gestartet werden kann oder es nur möglich ist ihn von extern zu starten" }
+				]
+			},
+			{
+				"title": "List a single process",
+				"description": "Gibt die Kompletten Informationen zu einem ladbaren Prozess wieder.",
+				"url": "/process/{id}",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "ID des Prozesses", "type": "int" }
+				],
+				"returnDescription": "",
+				"returnValues": [
+					{ "name": "id", "description": "ID des Prozesses" },
+					{ "name": "name", "description": "Name des Prozesses als String" },
+					{ "name": "graph", "description": "Graph als JSON String" },
+					{ "name": "isCase", "description": "Boolean ob Case oder Prozess" }
+				]
+			},
+			{
+				"title": "Update a process",
+				"description": "Aktualisiert ein Prozess. Namen ändern, etc. Der Prozess wird im Grunde komplett ersetzt durch die gegebenen Parameter. ",
+				"url": "/process/{id}",
+				"method": "PUT",
+				"parameters": [
+					{ "parameter": "id", "description": "ID des Prozesses", "type": "int" },
+					{ "parameter": "name", "description": "Name des Prozesses", "type": "string" },
+					{ "parameter": "graph", "description": "Graph als JSON String", "type": "string" },
+					{ "parameter": "startSubjects", "description": "Array der start Subjects", "type": "array" },
+					{ "parameter": "isCase", "description": "Boolean ob Case oder Prozess", "type": "boolean" }
+				],
+				"returnDescription": "",
+				"returnValues": [
+					{ "name": "id", "description": "ID unter des geupdateten Process." }
+				]
+			},
+			{
+				"title": "Delete a process",
+				"description": "Löscht den Prozess aus der Datenbank.",
+				"url": "/process/{id}",
+				"method": "DELETE",
+				"parameters": [
+					{ "parameter": "id", "description": "ID des Prozesses", "type": "int" }
+				],
+				"returnDescription": "",
+				"returnValues": []
+			},
+
+			{
+				"title": "Create process instance",
+				"description": "Erstellt eine Prozessesinstanz für die übergebene ProcessID.",
+				"url": "/processinstance",
+				"method": "POST",
+				"parameters": [
+					{ "parameter": "processId", "description": "Die ID des Prozesses für den diese Instanz erstellt werden soll", "type": "int" },
+					{ "parameter": "name", "description": "Der Name der zu erstellenden ProzessInstanz", "type": "string" }
+				],
+				"returnDescription": "Alle Felder der ProzessInstanz:",
+				"returnValues": [
+					{ "name": "id", "description": "Die ID dieser ProcessInstanz" },
+					{ "name": "name", "description": "Der Name dieser ProzessInstanz" },
+					{ "name": "processId", "description": "Die ID des Prozesses zu dem diese Instanz gehört" },
+					{ "name": "graph", "description": "Eine Liste der internen Verhalten, die durch den aktuellen User abgebildet werden" },
+					{ "name": "isTerminated", "description": "Boolean ob Process durchgelaufen ist" },
+					{ "name": "startedAt", "description": "Das Datum, wann die ProzessInstanz gestarted ist" },
+					{ "name": "owner", "description": "" },
+					{ "name": "history", "description": "Die bisher durchgeführten Schritte im Prozess" },
+					{ "name": "actions", "description": "Eine Liste der möglichen Actions, beschrieben durch einen JSON-String." }
+				]
+			},
+			{
+				"title": "List all process instance actions",
+				"description": "Gibt eine Liste der IDs aller verfügbaren Actions zurück.",
+				"url": "/processinstance/action",
+				"method": "GET",
+				"parameters": [],
+				"returnDescription": "Liste aller Actions, die der aktuell angemeldete User ausführen kann",
+				"returnValues": []
+			},
+			{
+				"title": "List single process instance",
+				"description": "Gibt eine Liste der IDs aller verfügbaren Actions zurück.",
+				"url": "/processinstance/{id}",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "ID der Prozessinstanz", "type": "int" }
+				],
+				"returnDescription": "Gibt die kompletten Informationen zu einer Prozessinstanz wieder.",
+				"returnValues": [
+					{ "name": "id", "description": "Die ID dieser ProcessInstanz" },
+					{ "name": "name", "description": "Der Name dieser ProzessInstanz" },
+					{ "name": "processId", "description": "Die ID des Prozesses zu dem diese Instanz gehört" },
+					{ "name": "graph", "description": "Eine Liste der internen Verhalten, die durch den aktuellen User abgebildet werden" },
+					{ "name": "isTerminated", "description": "Boolean ob Process durchgelaufen ist" },
+					{ "name": "startedAt", "description": "Das Datum, wann die ProzessInstanz gestarted ist" },
+					{ "name": "history", "description": "Die bisher durchgeführten Schritte im Prozess" },
+					{ "name": "actions", "description": "Eine Liste der möglichen Actions, beschrieben durch einen JSON-String." }
+				]
+			},
+			{
+				"title": "Update single process instance",
+				"description": "Führt eine action auf einer laufenden Prozess Instanz durch.",
+				"url": "/processinstance/{id}",
+				"method": "PUT",
+				"parameters": [
+					{ "parameter": "id", "description": "ID der Prozessinstanz", "type": "int" },
+					{ "parameter": "action", "description": "Ein Action die zuvor beim READ zurückgegeben wurde als JSON-String", "type": "string" }
+				],
+				"returnDescription": "Alle Felder der ProzessInstanz",
+				"returnValues": [
+					{ "name": "id", "description": "Die ID dieser ProcessInstanz" },
+					{ "name": "name", "description": "Der Name dieser ProzessInstanz" },
+					{ "name": "processId", "description": "Die ID des Prozesses zu dem diese Instanz gehört" },
+					{ "name": "graph", "description": "Eine Liste der internen Verhalten, die durch den aktuellen User abgebildet werden" },
+					{ "name": "isTerminated", "description": "Boolean ob Process durchgelaufen ist" },
+					{ "name": "startedAt", "description": "Das Datum, wann die ProzessInstanz gestarted ist" },
+					{ "name": "owner", "description": "Die ID des Users, der die ProcessInstanz gestartet hat" },
+					{ "name": "history", "description": "Die bisher durchgeführten Schritte im Prozess" },
+					{ "name": "actions", "description": "Eine Liste der möglichen Actions, beschrieben durch einen JSON-String." }
+				]
+			},
+			{
+				"title": "Delete single process instance",
+				"description": "Löscht den ProcessInstanceActor der Prozessesinstanz mit der übergebenen id. Der Prozess wird nicht aus der Datenbank entfernt. Wird der Prozess gerade ausgeführt, dann wird die Ausführung abgebrochen. Der Prozess erscheint nicht mehr in der Liste der ausgeführten Prozesse.",
+				"url": "/processinstance/{id}",
+				"method": "DELETE",
+				"parameters": [
+					{ "parameter": "id", "description": "ID der Prozessinstanz", "type": "int" }
+				],
+				"returnDescription": "",
+				"returnValues": []
+			}
+		]
+	},
+
+
+	{
+		"name": "Group API",
+		"methods": [
+			{
+				"title": "Create Group",
+				"description": "Erstellt eine neue Gruppe",
+				"url": "/group",
+				"method": "POST",
+				"parameters": [
+					{ "parameter": "name", "description": "Name der Gruppe", "type": "string" },
+					{ "parameter": "isActive", "description": "", "type": "boolean" }
+				],
+				"returnDescription": "ID der erstellten Gruppe",
+				"returnValues": []
+			},
+			{
+				"title": "Delete Group",
+				"description": "Löscht eine Gruppe",
+				"url": "/group/{id}",
+				"method": "DELETE",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Gruppe", "type": "int" }
+				],
+				"returnDescription": "(bis jetzt accept) eventuell einen Fehler, falls es die Gruppen ID nicht gab",
+				"returnValues": []
+			},
+			{
+				"title": "List all Groups",
+				"description": "Liste aller Gruppen",
+				"url": "/group",
+				"method": "GET",
+				"parameters": [],
+				"returnDescription": "Liefert eine Liste aller vorhandenen Gruppen",
+				"returnValues": []
+			},
+			{
+				"title": "List single Group",
+				"description": "Liefert die interne Darstellung der Gruppe als JSON-String",
+				"url": "/group/{id}",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Gruppe", "type": "int" }
+				],
+				"returnDescription": "Interne Repräsentation der Gruppe bzw. Error 404, falls es die Gruppe nicht gibt",
+				"returnValues": []
+			},
+			{
+				"title": "Update Group",
+				"description": "Updated eine Gruppe",
+				"url": "/group/{id}",
+				"method": "PUT",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Gruppe", "type": "int" },
+					{ "parameter": "name", "description": "Name der Gruppe", "type": "string" },
+					{ "parameter": "isActive", "description": "", "type": "boolean" }
+				],
+				"returnDescription": "accepted bzw Fehler, falls es die Gruppe nicht gibt",
+				"returnValues": []
+			},
+			{
+				"title": "Add/Remove User -> Group",
+				"description": "Fügt einen User zu einer Gruppe hinzu oder entfernt ihn",
+				"url": "/group/{id}",
+				"method": "PUT",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Gruppe", "type": "int" },
+					{ "parameter": "userId", "description": "", "type": "int" },
+					{ "parameter": "userFlag", "description": "", "type": "boolean" }
+				],
+				"returnDescription": "accepted bzw Fehler, falls es die Gruppe nicht gibt",
+				"returnValues": []
+			},
+			{
+				"title": "Add/Remove Role from Group",
+				"description": "Fügt eine Rolle zu einer Gruppe hinzu",
+				"url": "/group/{id}",
+				"method": "PUT",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Gruppe", "type": "int" },
+					{ "parameter": "roleId", "description": "", "type": "int" },
+					{ "parameter": "userFlag", "description": "", "type": "boolean" }
+				],
+				"returnDescription": "accepted bzw Fehler, falls es die Gruppe nicht gibt",
+				"returnValues": []
+			}
+		]
+	},
+
+
+	{
+		"name": "Role API",
+		"methods": [
+			{
+				"title": "Create Role",
+				"description": "Erzeugt eine neue Rolle und liefert deren ID zurück",
+				"url": "/role",
+				"method": "POST",
+				"parameters": [
+					{ "parameter": "name", "description": "", "type": "string" },
+					{ "parameter": "isActive", "description": "", "type": "boolean" }
+				],
+				"returnDescription": "ID der erzeugten Rolle",
+				"returnValues": []
+			},
+			{
+				"title": "Delete Role",
+				"description": "Löscht eine Rolle",
+				"url": "/role/{id}",
+				"method": "DELETE",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Rolle", "type": "int" }
+				],
+				"returnDescription": "accepted bzw Fehler, falls es die Rolle nicht gibt",
+				"returnValues": []
+			},
+			{
+				"title": "List all Roles",
+				"description": "Liefert eine Liste aller vorhandenen Rollen",
+				"url": "/role",
+				"method": "GET",
+				"parameters": [],
+				"returnDescription": "Liste aller Rollen",
+				"returnValues": []
+			},
+			{
+				"title": "List single Role",
+				"description": "Liefert die interne Darstellung der Rolle als JSON-String",
+				"url": "/role/{id}",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Rolle", "type": "int" }
+				],
+				"returnDescription": "Interne Repräsentation der Rolle bzw. Error 404, falls es die Rolle nicht gibt",
+				"returnValues": []
+			}
+		]
+	},
+
+
+	{
+		"name": "User API",
+		"methods": [
+			{
+				"title": "Create User",
+				"description": "Erzeugt einen neuen User und liefert dessen ID zurück",
+				"url": "/user",
+				"method": "POST",
+				"parameters": [
+					{ "parameter": "name", "description": "", "type": "string" },
+					{ "parameter": "isActive", "description": "", "type": "boolean" },
+					{ "parameter": "inputPoolSize", "description": "", "type": "int" }
+				],
+				"returnDescription": "ID des erzeugten Users",
+				"returnValues": []
+			},
+			{
+				"title": "Delete User",
+				"description": "Löscht einen User",
+				"url": "/user/{id}",
+				"method": "DELETE",
+				"parameters": [
+					{ "parameter": "id", "description": "Id des Users", "type": "int" }
+				],
+				"returnDescription": "accepted bzw Fehler, falls es den User nicht gibt",
+				"returnValues": []
+			},
+			{
+				"title": "List all Users",
+				"description": "Liefert eine Liste aller vorhandenen User",
+				"url": "/user",
+				"method": "GET",
+				"parameters": [],
+				"returnDescription": "Liste aller User",
+				"returnValues": []
+			},
+			{
+				"title": "List single User",
+				"description": "Liefert die interne Darstellung des Users als JSON-String",
+				"url": "/user/{id}",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "Id des Users", "type": "int" }
+				],
+				"returnDescription": "Interne Repräsentation des Users bzw. Error 404, falls es den User nicht gibt",
+				"returnValues": []
+			},
+			{
+				"title": "User <> Group Mapping",
+				"description": "Gibt alle User mit dazugehörigen Gruppen zurück",
+				"url": "/user/group",
+				"method": "GET",
+				"parameters": [],
+				"returnDescription": "User <> Gruppen Zuordnung",
+				"returnValues": []
+			},
+			{
+				"title": "User <> Group Mapping for one User",
+				"description": "Gibt alle User mit dazugehörigen Gruppen zurück",
+				"url": "/user/{id}/group",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "Id des Users", "type": "int" }
+				],
+				"returnDescription": "Liste von Gruppen für den angegebenen User",
+				"returnValues": []
+			},
+			{
+				"title": "User <> Group Mapping for one User and one Group",
+				"description": "Gibt an, ob ein User in einer Gruppe ist",
+				"url": "/user/{id}/group/{idGroup}",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "Id des Users", "type": "int" },
+					{ "parameter": "idGroup", "description": "Id der Group", "type": "int" }
+				],
+				"returnDescription": "TRUE wenn der User in der angegebenen Gruppe ist, FALSE sonst",
+				"returnValues": []
+			}
+		]
+	},
+
+
+	{
+		"name": "Configuration API",
+		"methods": [
+			{
+				"title": "Create Configuration",
+				"description": "Erzeugt eine neue Configuration und liefert desren ID zurück",
+				"url": "/configuration",
+				"method": "POST",
+				"parameters": [
+					{ "parameter": "key", "description": "", "type": "string" },
+					{ "parameter": "label", "description": "", "type": "string" },
+					{ "parameter": "value", "description": "", "type": "string" },
+					{ "parameter": "datatype", "description": "", "type": "string" }
+				],
+				"returnDescription": "ID der erzeugten Configuration",
+				"returnValues": []
+			},
+			{
+				"title": "Delete Configuration",
+				"description": "Löscht eine Configuration",
+				"url": "/configuration/{id}",
+				"method": "DELETE",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Configuration", "type": "int" }
+				],
+				"returnDescription": "accepted bzw Fehler, falls es die Configuration nicht gibt",
+				"returnValues": []
+			},
+			{
+				"title": "List all Configurations",
+				"description": "Liefert eine Liste aller vorhandenen Configurationen",
+				"url": "/configuration",
+				"method": "GET",
+				"parameters": [],
+				"returnDescription": "Liste aller Configurationen",
+				"returnValues": []
+			},
+			{
+				"title": "List single Configuration",
+				"description": "Gibt die Configuration mit der spezifizierten ID zurück, bzw einen Fehler, falls es keine Configuration mit dieser ID gibt",
+				"url": "/configuration/{id}",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Configuration", "type": "int" }
+				],
+				"returnDescription": "Interne Repräsentation der Configuration bzw. Error 404, falls es die Configuration nicht gibt",
+				"returnValues": []
+			},
+			{
+				"title": "Update Configuration",
+				"description": "Gibt die Configuration mit der spezifizierten ID zurück, bzw einen Fehler, falls es keine Configuration mit dieser ID gibt",
+				"url": "/configuration/{id}",
+				"method": "PUT",
+				"parameters": [
+					{ "parameter": "id", "description": "Id der Configuration", "type": "int" },
+					{ "parameter": "key", "description": "", "type": "string" },
+					{ "parameter": "label", "description": "", "type": "string" },
+					{ "parameter": "value", "description": "", "type": "string" },
+					{ "parameter": "datatype", "description": "", "type": "string" }
+				],
+				"returnDescription": "accepted bzw Fehler, falls es die Configuration nicht gibt",
+				"returnValues": []
+			}
+		]
+	},
+
+
+	{
+		"name": "Changes API",
+		"methods": [
+			{
+				"title": "Get Changes",
+				"description": "Über die Changes-API sollen alle Ressourcen abrufbar sein, die sich seit eines bestimmten Zeitpunkts geändert haben.",
+				"url": "/changes",
+				"method": "GET",
+				"parameters": [
+					{ "parameter": "since", "description": "timestamp", "type": "int" }
+				],
+				"returnDescription": "Als Antwort liefert das Backend ein JSON-Objekt mit den entsprechenden Objekten. Jeweils zuerst nach Ressourcentyp und anschließend nach der Art der Änderung (inserted, updated, deleted) gruppiert. Es werden jeweils alle geänderten Attribute übertragen. Nur bei gelöschten Objekten genügt offensichtlich die ID.",
+				"returnValues": []
+			}
+		]
+	}
+]
