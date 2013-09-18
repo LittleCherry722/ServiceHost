@@ -26,77 +26,77 @@ define([
 
 	ProcessInstance.belongsTo( "process" );
 
-	ProcessInstance.attrs({
-		processId: "integer",
-		name: "string",
-		owner: "string",
-		startedAt: {
-			type: "json",
-			defaults: {
-				date: "string"
-			}
-		},
-		graph: {
-			type: "json",
-			defaults: {
-				routings: [],
-				definition: {
-					conversationCounter: 1,
-					conversations: {},
-					messageCounter: 0,
-					messages: {},
-					nodeCounter: 0,
-					process: []
-				}
-			},
-			lazy: true
-		},
-		history: {
-			type: "json",
-			defaults: "{}",
-			lazy: true
-		},
-		actions: {
-			type: "json",
-			defaults: [],
-			lazy: true
-		},
-		isTerminated: {
-			type: "boolean",
-			defaults: false,
-			lazy: true
-		}
-	});
+  ProcessInstance.attrs({
+    processId: "integer",
+    name: "string",
+    owner: "string",
+    startedAt: {
+      type: "json",
+      defaults: {
+        date: "string"
+      }
+    },
+    graph: {
+      type: "json",
+      defaults: {
+        routings: [],
+        definition: {
+          conversationCounter: 1,
+          conversations: {},
+          messageCounter: 0,
+          messages: {},
+          nodeCounter: 0,
+          process: []
+        }
+      },
+      lazy: true
+    },
+    history: {
+      type: "json",
+      defaults: "{}",
+      lazy: true
+    },
+    actions: {
+      type: "json",
+      defaults: [],
+      lazy: true
+    },
+    isTerminated: {
+      type: "boolean",
+      defaults: false,
+      lazy: true
+    }
+  });
 
-	ProcessInstance.include({
-		initialize: function() {
-			var self = this;
+  ProcessInstance.include({
+    initialize: function() {
+      var self = this;
 
-			this.instanceName = ko.computed(function() {
-				return "Instance #" + self.id();
-			});
-			
-			this.hasActions = ko.computed({
-				deferEvaluation: true,
-				read: function() {
-					var len = 0;
-					if (self.actions()) {
-						_.each(self.actions(), function(actions) {
-          					len += actions.actionData.length;
-						});
-			        }
-			        return len  > 0;
-		       }
-			});
-		
+      this.instanceName = ko.computed(function() {
+        return "Instance #" + self.id();
+      });
+
+      this.hasActions = ko.computed({
+        deferEvaluation: true,
+        read: function() {
+          var len = 0;
+          if (self.actions()) {
+            _.each(self.actions(), function(actions) {
+              len += actions.data.length;
+            });
+              }
+              return len  > 0;
+           }
+      });
+
 			this.executable = ko.computed({
 				deferEvaluation: true,
 				read: function() {
-			        var executable = false;
-			        _.each(self.actions(), function(actions) {
-			        	_.each(actions.actionData, function(element) {
-			          		if (element.executeAble) executable = true;
-			         	});
+          var executable = false;
+          _.each(self.actions(), function(actions) {
+            _.each(actions.data, function(element) {
+              if (element.executeAble) executable = true;
+            });
 					});
 					return executable;
 				}
@@ -117,19 +117,19 @@ define([
 					self.graph( graph );
 				}
 			});
-			
+
 			this.ownerUser = ko.computed({
 				deferEvaluation: true,
 				read: function() {
-			        var u = null;
-			        _.each(User.all(), function(element) {		        	
-			       		if (element.id() == self.owner()) {
-							u = element;
-						}
-			        });
-			        return u;
-		       }
-		   	});
+          var u = null;
+          _.each(User.all(), function(element) {
+            if (element.id() == self.owner()) {
+              u = element;
+            }
+          });
+          return u;
+        }
+      });
 		},
 
 		getCurrentState: function (subject) {

@@ -55,7 +55,7 @@
         <tr style="display: none;" data-bind="attr: {id: instanceDetailsDivId()}">
             <td colspan="4" class="item_info">
 
-                <div data-bind="visible: $data.isSend, foreach: actionData">
+                <div data-bind="visible: $data.isSend, foreach: data">
                     <div>
                         <strong>Send:</strong>
                         <span style="display: inline;"
@@ -108,12 +108,12 @@
                     </div>
                 </div>
 
-                <div data-bind="visible: stateType()==='action', foreach: actionData">
+                <div data-bind="visible: stateType()==='action', foreach: data">
                     <input class="btn" type="button"
                            data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action, visible: $data.executeAble"/>
                 </div>
 
-                <div data-bind="visible: stateType()==='receive', foreach: actionData">
+                <div data-bind="visible: stateType()==='receive', foreach: data">
                     <div data-bind="visible: $data.executeAble">
                         <strong data-bind="html: $data.text"></strong>
                         by

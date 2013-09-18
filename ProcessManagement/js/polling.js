@@ -12,15 +12,15 @@
  */
 
 var polling = {
-    lastUpdate: parseInt( (new Date().getTime())/1000 ),
+    lastUpdate: parseInt( (new Date().getTime())/1000, 10 ),
     pollingUrl: "/changes",
-    
+
     updateHandler: {
         process: {
             inserted: function(data) {
                  if (polling.getIndexById(Process.all(), data.id) === -1) {
                     var newItem = new Process(data);
-                    Process.all().push(newItem);
+                    Process.all.push(newItem);
                  }
             },
             updated: function(data) {
@@ -37,19 +37,21 @@ var polling = {
         },
         action: {
             inserted: function(data) {
-                if (polling.getIndexById(Actions.all(), data.id) === -1) {
+                if ( !Actions.find( data.id ) ) {
                     var newItem = new Actions(data);
-                    Actions.all().push(newItem);
-                 }  
+                    Actions.all.push( newItem );
+                 }
             },
             updated: function(data) {
-                var changedIndex = polling.getIndexById(Actions.all(), data.id);
-                var newItem = new Actions(data);
-                Actions.all()[changedIndex] = newItem;
+              action = Actions.find(data.id)
+              if ( action ) {
+                action.applyData( data );
+              }
             },
             deleted: function(data) {
-                var deletedIndex = polling.getIndexById(Actions.all(), data.id);
-                Actions.all().splice(deletedIndex, 1);
+                Actions.all.remove(function( model ) {
+                  return model.id() === data.id;
+                })
             }
         },
         history: {
@@ -57,7 +59,7 @@ var polling = {
                 if (polling.getIndexById(History.all(), data.id) === -1) {
                     var newItem = new History(data);
                     History.all().push(newItem);
-                 }  
+                 }
             }
         },
         processInstance: {
@@ -65,7 +67,7 @@ var polling = {
                  if (polling.getIndexById(ProcessInstance.all(), data.id) === -1) {
                     var newItem = new ProcessInstance(data);
                     ProcessInstance.all().push(newItem);
-                 }               
+                 }
             },
             updated: function(data) {
                 var changedIndex = polling.getIndexById(ProcessInstance.all(), data.id);
@@ -78,12 +80,12 @@ var polling = {
             }
         },
         message: {
-            inserted: function(data) { 
-               
+            inserted: function(data) {
+
                 if (data.toUser === currentUser().id() && polling.getIndexById(UserMessage.all(), data.id) === -1) {
                     var newItem = new UserMessage(data);
                     UserMessage.all().push(newItem);
-                 }               
+                 }
             },
             updated: function(data) {
                 var changedIndex = polling.getIndexById(UserMessage.all(), data.id);
@@ -95,75 +97,75 @@ var polling = {
                 UserMessage.all().splice(deletedIndex, 1);
             }
         }
-             
+
     },
-            
-            
+
+
     getIndexById: function(arr, id) {
         var returnIndex = -1;
         $.each(arr, function(index, value) {
             if (value.id() === id) {
                 returnIndex = index;
             }
-        }); 
+        });
         return returnIndex;
     },
-            
+
     updateView: function(changedResources) {
         var affectedViews = {   process:    ["#/processList"],
-                                action:     ["", "#", "#/", "#/home", "#/home/Actions"],
+                                action:     ["", "#", "#/", "#/home"],
                                 history:    ["#/home/History"],
                                 message:    ["#/messages", "#/messages/messagesOverview"]};
         var wl = window.location;
         var currentView = wl.hash;
-        
+
         var viewsToUpdate = [];
 
         $.each(changedResources, function(index, resource) {
             viewsToUpdate = viewsToUpdate.concat(affectedViews[resource]);
         });
-        
-        
+
+
         if ($.inArray(currentView, viewsToUpdate) >= 0) {
             wl.hash = "#/refresh";
             wl.hash = currentView;
             console.log("view updated:", currentView);
         }
     },
-            
+
     waitingTime: function() {
-        var now = parseInt( (new Date().getTime())/1000 );
+        var now = parseInt( (new Date().getTime())/1000, 10 );
         var s =  now - this.lastUpdate;
         if (s <    30) return 2;
         if (s <  5*60) return 10;
         if (s < 30*60) return 30;
         return 3*60;
-        
+
     },
-    
+
     poll: function() {
-        $.getJSON(  this.pollingUrl, 
+        $.getJSON(  this.pollingUrl,
                     {since: this.lastUpdate},
                     function(data) {
                         polling.update(data);
                     });
     },
-    
+
     update: function(pollingData) {
         var self = this;
         var changesReceived = 0;
         var changedResources = [];
         var resourceOrder = ["process", "processInstance", "action", "history", "message"];
         var actionOrder = ["inserted", "updated", "deleted"];
-        
-        
+
+
         $.each(resourceOrder, function(resourceIndex, resourceName) {
             if (self.updateHandler[resourceName]) {
-                
+
                 $.each(actionOrder, function(actionIndex, actionName) {
                     if (self.updateHandler[resourceName][actionName] && pollingData[resourceName] && pollingData[resourceName][actionName]) {
                         var action = pollingData[resourceName][actionName];
-                        
+
                         $.each(action, function(itemIndex, item) {
                             changesReceived++;
                             if ($.inArray(resourceName, changedResources)=== -1) {
@@ -175,20 +177,20 @@ var polling = {
                 });
             }
         });
-        
+
         if (changesReceived > 0) {
             this.lastUpdate = Math.ceil( (new Date().getTime())/1000 );
             this.updateView(changedResources);
         }
-        
+
         console.log(changesReceived+" changes Received. Next poll in "+this.waitingTime()+" seconds.");
-        
-        window.setTimeout(  function() { polling.poll(); }, 
+
+        window.setTimeout(  function() { polling.poll(); },
                             this.waitingTime()*1000 );
     }
 
 };
 
 
-window.setTimeout(  function() { polling.poll(); }, 
+window.setTimeout(  function() { polling.poll(); },
                     2500 );
