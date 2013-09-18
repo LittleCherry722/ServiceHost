@@ -85,7 +85,11 @@ public class ShowProcessInstance extends HttpServlet {
 					Iterator it = processManager.getAvailableActionsList().iterator();
 					while(it.hasNext()){
 						Action action = (Action) it.next();
-						listActionsBuilder.addActions(action);
+						if(action.getStateType().equals("end")){
+							processManager.removeAvailableActions(action);
+						}else{
+							listActionsBuilder.addActions(action);
+						}
 					}
 					ListActions listActions = listActionsBuilder.build();
 					resp.getOutputStream().write(listActions.toByteArray());

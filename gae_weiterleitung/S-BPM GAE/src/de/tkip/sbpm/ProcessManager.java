@@ -18,7 +18,9 @@ import com.google.appengine.api.datastore.Key;
 
 import de.tkip.sbpm.State.StateType;
 import de.tkip.sbpm.proto.GAEexecution.Action;
+import de.tkip.sbpm.proto.GAEexecution.ActionData;
 import de.tkip.sbpm.proto.GAEexecution.Graph;
+import de.tkip.sbpm.proto.GAEexecution.MessageData;
 
 @PersistenceCapable
 public class ProcessManager {
@@ -38,10 +40,7 @@ public class ProcessManager {
 	public List<Graph> graph = new ArrayList<Graph>();
 
 	public ProcessManager() {
-		// processInstanceID = 10000;
-		// processList = new ArrayList<Process>();
-		// processInstanceList = new ArrayList<ProcessInstance>();
-		// availbleActions = new HashMap<State,Boolean>();
+		
 	}
 
 	public boolean containsProcess(int id) {
@@ -100,13 +99,11 @@ public class ProcessManager {
 		this.processInstanceList.remove(pi);
 	}
 
-	public Action getAction(int processInstanceID, String subjectID, int stateID) {
+	public Action getAction(int processInstanceID, String subjectID) {
 		Iterator it = this.availableActionsList.iterator();
 		while (it.hasNext()) {
 			Action action = (Action) it.next();
-			if (action.getProcessInstanceID() == processInstanceID
-					&& action.getSubjectID().equals(subjectID)
-					&& action.getStateID() == stateID) {
+			if (action.getProcessInstanceID() == processInstanceID && action.getSubjectID().equals(subjectID)) {
 				return action;
 			}
 		}
@@ -124,15 +121,17 @@ public class ProcessManager {
 					.getInternalBehavior().getStatesMap()
 					.get(action.getStateID());
 			if (state.stateType.equals(StateType.receive)) {
-				String[] str = state.getTransitions().get(0).getText()
-						.split("(1)");
-				String text = str[0].trim();
-				ProcessInstance pi = getProcessInstance(state
-						.getProcessInstanceID());
-				if (pi.getProcessData().getSubjectByID(state.getSubjectID()).checkMessageNumberFromSubjectIDAndType(state.getSubjectID(), text) > 0) {
-					getProcessInstance(processInstanceID).getProcessData().getSubjectByID(subjectID).getInternalBehavior().setExecutable(true);
-				} else {
-					getProcessInstance(processInstanceID).getProcessData().getSubjectByID(subjectID).getInternalBehavior().setExecutable(false);
+				for(int i = 0; i < state.getTransitions().size(); i++){
+					String text = state.getTransitions().get(i).getText();
+					String relatedSubjectID = state.getTransitions().get(i).getRelatedSubject();
+					ProcessInstance pi = getProcessInstance(state
+							.getProcessInstanceID());
+					if (pi.getProcessData().getSubjectByID(state.getSubjectID()).checkMessageNumberFromSubjectIDAndType(relatedSubjectID, text) > 0) {
+						getProcessInstance(processInstanceID).getProcessData().getSubjectByID(subjectID).getInternalBehavior().setExecutable(true);
+						break;
+					} else {
+						getProcessInstance(processInstanceID).getProcessData().getSubjectByID(subjectID).getInternalBehavior().setExecutable(false);
+					}
 				}
 			}
 		}
@@ -153,10 +152,6 @@ public class ProcessManager {
 	public void addAvailableActions(Action action) {
 		this.availableActionsList.add(action);
 	}
-
-	// public void addAvailableActions(State state){
-	// this.availableActions.add(state);
-	// }
 
 	public void addProcess(Process process) {
 		this.processList.add(process);

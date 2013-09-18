@@ -6938,47 +6938,54 @@ public final class GAEexecution {
     // repeated .de.tkip.sbpm.proto.MessageData messages = 6;
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-     *
-     * <pre>
-     * TODO messageContent for send
-     * </pre>
      */
     java.util.List<de.tkip.sbpm.proto.GAEexecution.MessageData> 
         getMessagesList();
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-     *
-     * <pre>
-     * TODO messageContent for send
-     * </pre>
      */
     de.tkip.sbpm.proto.GAEexecution.MessageData getMessages(int index);
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-     *
-     * <pre>
-     * TODO messageContent for send
-     * </pre>
      */
     int getMessagesCount();
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-     *
-     * <pre>
-     * TODO messageContent for send
-     * </pre>
      */
     java.util.List<? extends de.tkip.sbpm.proto.GAEexecution.MessageDataOrBuilder> 
         getMessagesOrBuilderList();
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
+     */
+    de.tkip.sbpm.proto.GAEexecution.MessageDataOrBuilder getMessagesOrBuilder(
+        int index);
+
+    // optional string messageContent = 7;
+    /**
+     * <code>optional string messageContent = 7;</code>
      *
      * <pre>
      * TODO messageContent for send
      * </pre>
      */
-    de.tkip.sbpm.proto.GAEexecution.MessageDataOrBuilder getMessagesOrBuilder(
-        int index);
+    boolean hasMessageContent();
+    /**
+     * <code>optional string messageContent = 7;</code>
+     *
+     * <pre>
+     * TODO messageContent for send
+     * </pre>
+     */
+    java.lang.String getMessageContent();
+    /**
+     * <code>optional string messageContent = 7;</code>
+     *
+     * <pre>
+     * TODO messageContent for send
+     * </pre>
+     */
+    com.google.protobuf.ByteString
+        getMessageContentBytes();
   }
   /**
    * Protobuf type {@code de.tkip.sbpm.proto.ActionData}
@@ -7070,6 +7077,11 @@ public final class GAEexecution {
                 mutable_bitField0_ |= 0x00000020;
               }
               messages_.add(input.readMessage(de.tkip.sbpm.proto.GAEexecution.MessageData.PARSER, extensionRegistry));
+              break;
+            }
+            case 58: {
+              bitField0_ |= 0x00000020;
+              messageContent_ = input.readBytes();
               break;
             }
           }
@@ -7287,20 +7299,12 @@ public final class GAEexecution {
     private java.util.List<de.tkip.sbpm.proto.GAEexecution.MessageData> messages_;
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-     *
-     * <pre>
-     * TODO messageContent for send
-     * </pre>
      */
     public java.util.List<de.tkip.sbpm.proto.GAEexecution.MessageData> getMessagesList() {
       return messages_;
     }
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-     *
-     * <pre>
-     * TODO messageContent for send
-     * </pre>
      */
     public java.util.List<? extends de.tkip.sbpm.proto.GAEexecution.MessageDataOrBuilder> 
         getMessagesOrBuilderList() {
@@ -7308,34 +7312,77 @@ public final class GAEexecution {
     }
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-     *
-     * <pre>
-     * TODO messageContent for send
-     * </pre>
      */
     public int getMessagesCount() {
       return messages_.size();
     }
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-     *
-     * <pre>
-     * TODO messageContent for send
-     * </pre>
      */
     public de.tkip.sbpm.proto.GAEexecution.MessageData getMessages(int index) {
       return messages_.get(index);
     }
     /**
      * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
+     */
+    public de.tkip.sbpm.proto.GAEexecution.MessageDataOrBuilder getMessagesOrBuilder(
+        int index) {
+      return messages_.get(index);
+    }
+
+    // optional string messageContent = 7;
+    public static final int MESSAGECONTENT_FIELD_NUMBER = 7;
+    private java.lang.Object messageContent_;
+    /**
+     * <code>optional string messageContent = 7;</code>
      *
      * <pre>
      * TODO messageContent for send
      * </pre>
      */
-    public de.tkip.sbpm.proto.GAEexecution.MessageDataOrBuilder getMessagesOrBuilder(
-        int index) {
-      return messages_.get(index);
+    public boolean hasMessageContent() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional string messageContent = 7;</code>
+     *
+     * <pre>
+     * TODO messageContent for send
+     * </pre>
+     */
+    public java.lang.String getMessageContent() {
+      java.lang.Object ref = messageContent_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          messageContent_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string messageContent = 7;</code>
+     *
+     * <pre>
+     * TODO messageContent for send
+     * </pre>
+     */
+    public com.google.protobuf.ByteString
+        getMessageContentBytes() {
+      java.lang.Object ref = messageContent_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        messageContent_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
     }
 
     private void initFields() {
@@ -7345,6 +7392,7 @@ public final class GAEexecution {
       targetUserData_ = de.tkip.sbpm.proto.GAEexecution.TargetUserData.getDefaultInstance();
       relatedSubject_ = "";
       messages_ = java.util.Collections.emptyList();
+      messageContent_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -7400,6 +7448,9 @@ public final class GAEexecution {
       for (int i = 0; i < messages_.size(); i++) {
         output.writeMessage(6, messages_.get(i));
       }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeBytes(7, getMessageContentBytes());
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -7432,6 +7483,10 @@ public final class GAEexecution {
       for (int i = 0; i < messages_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(6, messages_.get(i));
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(7, getMessageContentBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -7571,6 +7626,8 @@ public final class GAEexecution {
         } else {
           messagesBuilder_.clear();
         }
+        messageContent_ = "";
+        bitField0_ = (bitField0_ & ~0x00000040);
         return this;
       }
 
@@ -7632,6 +7689,10 @@ public final class GAEexecution {
         } else {
           result.messages_ = messagesBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.messageContent_ = messageContent_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -7694,6 +7755,11 @@ public final class GAEexecution {
               messagesBuilder_.addAllMessages(other.messages_);
             }
           }
+        }
+        if (other.hasMessageContent()) {
+          bitField0_ |= 0x00000040;
+          messageContent_ = other.messageContent_;
+          onChanged();
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -8133,10 +8199,6 @@ public final class GAEexecution {
 
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public java.util.List<de.tkip.sbpm.proto.GAEexecution.MessageData> getMessagesList() {
         if (messagesBuilder_ == null) {
@@ -8147,10 +8209,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public int getMessagesCount() {
         if (messagesBuilder_ == null) {
@@ -8161,10 +8219,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public de.tkip.sbpm.proto.GAEexecution.MessageData getMessages(int index) {
         if (messagesBuilder_ == null) {
@@ -8175,10 +8229,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder setMessages(
           int index, de.tkip.sbpm.proto.GAEexecution.MessageData value) {
@@ -8196,10 +8246,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder setMessages(
           int index, de.tkip.sbpm.proto.GAEexecution.MessageData.Builder builderForValue) {
@@ -8214,10 +8260,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder addMessages(de.tkip.sbpm.proto.GAEexecution.MessageData value) {
         if (messagesBuilder_ == null) {
@@ -8234,10 +8276,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder addMessages(
           int index, de.tkip.sbpm.proto.GAEexecution.MessageData value) {
@@ -8255,10 +8293,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder addMessages(
           de.tkip.sbpm.proto.GAEexecution.MessageData.Builder builderForValue) {
@@ -8273,10 +8307,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder addMessages(
           int index, de.tkip.sbpm.proto.GAEexecution.MessageData.Builder builderForValue) {
@@ -8291,10 +8321,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder addAllMessages(
           java.lang.Iterable<? extends de.tkip.sbpm.proto.GAEexecution.MessageData> values) {
@@ -8309,10 +8335,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder clearMessages() {
         if (messagesBuilder_ == null) {
@@ -8326,10 +8348,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public Builder removeMessages(int index) {
         if (messagesBuilder_ == null) {
@@ -8343,10 +8361,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public de.tkip.sbpm.proto.GAEexecution.MessageData.Builder getMessagesBuilder(
           int index) {
@@ -8354,10 +8368,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public de.tkip.sbpm.proto.GAEexecution.MessageDataOrBuilder getMessagesOrBuilder(
           int index) {
@@ -8368,10 +8378,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public java.util.List<? extends de.tkip.sbpm.proto.GAEexecution.MessageDataOrBuilder> 
            getMessagesOrBuilderList() {
@@ -8383,10 +8389,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public de.tkip.sbpm.proto.GAEexecution.MessageData.Builder addMessagesBuilder() {
         return getMessagesFieldBuilder().addBuilder(
@@ -8394,10 +8396,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public de.tkip.sbpm.proto.GAEexecution.MessageData.Builder addMessagesBuilder(
           int index) {
@@ -8406,10 +8404,6 @@ public final class GAEexecution {
       }
       /**
        * <code>repeated .de.tkip.sbpm.proto.MessageData messages = 6;</code>
-       *
-       * <pre>
-       * TODO messageContent for send
-       * </pre>
        */
       public java.util.List<de.tkip.sbpm.proto.GAEexecution.MessageData.Builder> 
            getMessagesBuilderList() {
@@ -8428,6 +8422,104 @@ public final class GAEexecution {
           messages_ = null;
         }
         return messagesBuilder_;
+      }
+
+      // optional string messageContent = 7;
+      private java.lang.Object messageContent_ = "";
+      /**
+       * <code>optional string messageContent = 7;</code>
+       *
+       * <pre>
+       * TODO messageContent for send
+       * </pre>
+       */
+      public boolean hasMessageContent() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional string messageContent = 7;</code>
+       *
+       * <pre>
+       * TODO messageContent for send
+       * </pre>
+       */
+      public java.lang.String getMessageContent() {
+        java.lang.Object ref = messageContent_;
+        if (!(ref instanceof java.lang.String)) {
+          java.lang.String s = ((com.google.protobuf.ByteString) ref)
+              .toStringUtf8();
+          messageContent_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string messageContent = 7;</code>
+       *
+       * <pre>
+       * TODO messageContent for send
+       * </pre>
+       */
+      public com.google.protobuf.ByteString
+          getMessageContentBytes() {
+        java.lang.Object ref = messageContent_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          messageContent_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string messageContent = 7;</code>
+       *
+       * <pre>
+       * TODO messageContent for send
+       * </pre>
+       */
+      public Builder setMessageContent(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        messageContent_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string messageContent = 7;</code>
+       *
+       * <pre>
+       * TODO messageContent for send
+       * </pre>
+       */
+      public Builder clearMessageContent() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        messageContent_ = getDefaultInstance().getMessageContent();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string messageContent = 7;</code>
+       *
+       * <pre>
+       * TODO messageContent for send
+       * </pre>
+       */
+      public Builder setMessageContentBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
+        messageContent_ = value;
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:de.tkip.sbpm.proto.ActionData)
@@ -27969,67 +28061,68 @@ public final class GAEexecution {
       "\021processInstanceID\030\002 \002(\005\022\021\n\tsubjectID\030\003 " +
       "\002(\t\022\017\n\007stateID\030\004 \002(\005\022\021\n\tstateText\030\005 \002(\t\022" +
       "\021\n\tstateType\030\006 \002(\t\0222\n\nactionData\030\007 \003(\0132\036",
-      ".de.tkip.sbpm.proto.ActionData\"\315\001\n\nActio" +
+      ".de.tkip.sbpm.proto.ActionData\"\345\001\n\nActio" +
       "nData\022\014\n\004text\030\001 \002(\t\022\022\n\nexecutable\030\002 \002(\010\022" +
       "\026\n\016transitionType\030\003 \002(\t\022:\n\016targetUserDat" +
       "a\030\004 \001(\0132\".de.tkip.sbpm.proto.TargetUserD" +
       "ata\022\026\n\016relatedSubject\030\005 \001(\t\0221\n\010messages\030" +
-      "\006 \003(\0132\037.de.tkip.sbpm.proto.MessageData\"?" +
-      "\n\016TargetUserData\022\013\n\003min\030\001 \002(\005\022\013\n\003max\030\002 \002" +
-      "(\005\022\023\n\013targetUsers\030\003 \003(\005\"F\n\013MessageData\022\016" +
-      "\n\006userID\030\001 \002(\005\022\026\n\016messageContent\030\002 \002(\t\022\017" +
-      "\n\007fileUrl\030\004 \001(\t\"\216\002\n\005Graph\022\n\n\002id\030\001 \001(\005\022\021\n",
-      "\tprocessId\030\002 \001(\005\022\014\n\004date\030\003 \002(\t\022<\n\rconver" +
-      "sations\030\004 \003(\0132%.de.tkip.sbpm.proto.Graph" +
-      "Conversation\0222\n\010messages\030\005 \003(\0132 .de.tkip" +
-      ".sbpm.proto.GraphMessage\0222\n\010subjects\030\006 \003" +
-      "(\0132 .de.tkip.sbpm.proto.GraphSubject\0222\n\010" +
-      "routings\030\007 \003(\0132 .de.tkip.sbpm.proto.Grap" +
-      "hRouting\"-\n\021GraphConversation\022\n\n\002id\030\001 \002(" +
-      "\t\022\014\n\004name\030\002 \002(\t\"(\n\014GraphMessage\022\n\n\002id\030\001 " +
-      "\002(\t\022\014\n\004name\030\002 \002(\t\"\326\002\n\014GraphSubject\022\n\n\002id" +
-      "\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\022\023\n\013subjectType\030\003 \002(",
-      "\t\022\022\n\nisDisabled\030\004 \002(\010\022\026\n\016isStartSubject\030" +
-      "\005 \001(\010\022\021\n\tinputPool\030\006 \002(\005\022\030\n\020relatedSubje" +
-      "ctId\030\007 \001(\t\022\026\n\016relatedGraphId\030\010 \001(\005\022\024\n\014ex" +
-      "ternalType\030\t \001(\t\022\014\n\004role\030\n \001(\t\022\013\n\003url\030\016 " +
-      "\001(\t\022\017\n\007comment\030\013 \001(\t\0224\n\tvariables\030\014 \003(\0132" +
-      "!.de.tkip.sbpm.proto.GraphVariable\022.\n\006ma" +
-      "cros\030\r \003(\0132\036.de.tkip.sbpm.proto.GraphMac" +
-      "ro\")\n\rGraphVariable\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030" +
-      "\002 \002(\t\"\202\001\n\nGraphMacro\022\n\n\002id\030\001 \002(\t\022\014\n\004name" +
-      "\030\002 \002(\t\022,\n\005nodes\030\003 \003(\0132\035.de.tkip.sbpm.pro",
-      "to.GraphNode\022,\n\005edges\030\004 \003(\0132\035.de.tkip.sb" +
-      "pm.proto.GraphEdge\"\252\002\n\tGraphNode\022\n\n\002id\030\001" +
-      " \002(\005\022\014\n\004text\030\002 \002(\t\022\017\n\007isStart\030\003 \002(\010\022\r\n\005i" +
-      "sEnd\030\004 \002(\010\022\020\n\010nodeType\030\005 \002(\t\022\022\n\nisDisabl" +
-      "ed\030\006 \002(\010\022\030\n\020isMajorStartNode\030\007 \002(\010\022\026\n\016co" +
-      "nversationId\030\010 \001(\t\022\022\n\nvariableId\030\t \001(\t\0225" +
-      "\n\007options\030\n \002(\0132$.de.tkip.sbpm.proto.Gra" +
-      "phNodeOptions\022\017\n\007macroId\030\013 \001(\t\022/\n\006varMan" +
-      "\030\014 \001(\0132\037.de.tkip.sbpm.proto.GraphVarMan\"" +
-      "w\n\020GraphNodeOptions\022\021\n\tmessageId\030\001 \001(\t\022\021",
-      "\n\tsubjectId\030\002 \001(\t\022\025\n\rcorrelationId\030\003 \001(\t" +
-      "\022\026\n\016conversationId\030\004 \001(\t\022\016\n\006nodeId\030\005 \001(\005" +
-      "\"T\n\013GraphVarMan\022\016\n\006var1Id\030\001 \002(\t\022\016\n\006var2I" +
-      "d\030\002 \002(\t\022\021\n\toperation\030\003 \002(\t\022\022\n\nstoreVarId" +
-      "\030\004 \002(\t\"\256\002\n\tGraphEdge\022\023\n\013startNodeId\030\001 \002(" +
-      "\005\022\021\n\tendNodeId\030\002 \002(\005\022\014\n\004text\030\003 \002(\t\022\020\n\010ed" +
-      "geType\030\004 \002(\t\0223\n\006target\030\005 \001(\0132#.de.tkip.s" +
-      "bpm.proto.GraphEdgeTarget\022\022\n\nisDisabled\030" +
-      "\006 \002(\010\022\022\n\nisOptional\030\007 \002(\010\022\020\n\010priority\030\010 " +
-      "\002(\005\022\025\n\rmanualTimeout\030\t \002(\010\022\022\n\nvariableId",
-      "\030\n \001(\t\022\025\n\rcorrelationId\030\013 \001(\t\022\017\n\007comment" +
-      "\030\014 \001(\t\022\027\n\017transportMethod\030\r \003(\t\"e\n\017Graph" +
-      "EdgeTarget\022\021\n\tsubjectId\030\001 \002(\t\022\013\n\003min\030\002 \002" +
-      "(\005\022\013\n\003max\030\003 \002(\005\022\021\n\tcreateNew\030\004 \002(\010\022\022\n\nva" +
-      "riableId\030\005 \001(\t\"\232\001\n\014GraphRouting\022\n\n\002id\030\001 " +
-      "\002(\t\022=\n\tcondition\030\002 \002(\0132*.de.tkip.sbpm.pr" +
-      "oto.GraphRoutingExpression\022?\n\013implicatio" +
-      "n\030\003 \002(\0132*.de.tkip.sbpm.proto.GraphRoutin" +
-      "gExpression\"^\n\026GraphRoutingExpression\022\021\n" +
-      "\tsubjectId\030\001 \002(\t\022\020\n\010operator\030\002 \002(\010\022\017\n\007gr",
-      "oupId\030\003 \001(\005\022\016\n\006userId\030\004 \001(\005"
+      "\006 \003(\0132\037.de.tkip.sbpm.proto.MessageData\022\026" +
+      "\n\016messageContent\030\007 \001(\t\"?\n\016TargetUserData" +
+      "\022\013\n\003min\030\001 \002(\005\022\013\n\003max\030\002 \002(\005\022\023\n\013targetUser" +
+      "s\030\003 \003(\005\"F\n\013MessageData\022\016\n\006userID\030\001 \002(\005\022\026" +
+      "\n\016messageContent\030\002 \002(\t\022\017\n\007fileUrl\030\004 \001(\t\"",
+      "\216\002\n\005Graph\022\n\n\002id\030\001 \001(\005\022\021\n\tprocessId\030\002 \001(\005" +
+      "\022\014\n\004date\030\003 \002(\t\022<\n\rconversations\030\004 \003(\0132%." +
+      "de.tkip.sbpm.proto.GraphConversation\0222\n\010" +
+      "messages\030\005 \003(\0132 .de.tkip.sbpm.proto.Grap" +
+      "hMessage\0222\n\010subjects\030\006 \003(\0132 .de.tkip.sbp" +
+      "m.proto.GraphSubject\0222\n\010routings\030\007 \003(\0132 " +
+      ".de.tkip.sbpm.proto.GraphRouting\"-\n\021Grap" +
+      "hConversation\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\"" +
+      "(\n\014GraphMessage\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002(" +
+      "\t\"\326\002\n\014GraphSubject\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002",
+      " \002(\t\022\023\n\013subjectType\030\003 \002(\t\022\022\n\nisDisabled\030" +
+      "\004 \002(\010\022\026\n\016isStartSubject\030\005 \001(\010\022\021\n\tinputPo" +
+      "ol\030\006 \002(\005\022\030\n\020relatedSubjectId\030\007 \001(\t\022\026\n\016re" +
+      "latedGraphId\030\010 \001(\005\022\024\n\014externalType\030\t \001(\t" +
+      "\022\014\n\004role\030\n \001(\t\022\013\n\003url\030\016 \001(\t\022\017\n\007comment\030\013" +
+      " \001(\t\0224\n\tvariables\030\014 \003(\0132!.de.tkip.sbpm.p" +
+      "roto.GraphVariable\022.\n\006macros\030\r \003(\0132\036.de." +
+      "tkip.sbpm.proto.GraphMacro\")\n\rGraphVaria" +
+      "ble\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\"\202\001\n\nGraphM" +
+      "acro\022\n\n\002id\030\001 \002(\t\022\014\n\004name\030\002 \002(\t\022,\n\005nodes\030",
+      "\003 \003(\0132\035.de.tkip.sbpm.proto.GraphNode\022,\n\005" +
+      "edges\030\004 \003(\0132\035.de.tkip.sbpm.proto.GraphEd" +
+      "ge\"\252\002\n\tGraphNode\022\n\n\002id\030\001 \002(\005\022\014\n\004text\030\002 \002" +
+      "(\t\022\017\n\007isStart\030\003 \002(\010\022\r\n\005isEnd\030\004 \002(\010\022\020\n\010no" +
+      "deType\030\005 \002(\t\022\022\n\nisDisabled\030\006 \002(\010\022\030\n\020isMa" +
+      "jorStartNode\030\007 \002(\010\022\026\n\016conversationId\030\010 \001" +
+      "(\t\022\022\n\nvariableId\030\t \001(\t\0225\n\007options\030\n \002(\0132" +
+      "$.de.tkip.sbpm.proto.GraphNodeOptions\022\017\n" +
+      "\007macroId\030\013 \001(\t\022/\n\006varMan\030\014 \001(\0132\037.de.tkip" +
+      ".sbpm.proto.GraphVarMan\"w\n\020GraphNodeOpti",
+      "ons\022\021\n\tmessageId\030\001 \001(\t\022\021\n\tsubjectId\030\002 \001(" +
+      "\t\022\025\n\rcorrelationId\030\003 \001(\t\022\026\n\016conversation" +
+      "Id\030\004 \001(\t\022\016\n\006nodeId\030\005 \001(\005\"T\n\013GraphVarMan\022" +
+      "\016\n\006var1Id\030\001 \002(\t\022\016\n\006var2Id\030\002 \002(\t\022\021\n\topera" +
+      "tion\030\003 \002(\t\022\022\n\nstoreVarId\030\004 \002(\t\"\256\002\n\tGraph" +
+      "Edge\022\023\n\013startNodeId\030\001 \002(\005\022\021\n\tendNodeId\030\002" +
+      " \002(\005\022\014\n\004text\030\003 \002(\t\022\020\n\010edgeType\030\004 \002(\t\0223\n\006" +
+      "target\030\005 \001(\0132#.de.tkip.sbpm.proto.GraphE" +
+      "dgeTarget\022\022\n\nisDisabled\030\006 \002(\010\022\022\n\nisOptio" +
+      "nal\030\007 \002(\010\022\020\n\010priority\030\010 \002(\005\022\025\n\rmanualTim",
+      "eout\030\t \002(\010\022\022\n\nvariableId\030\n \001(\t\022\025\n\rcorrel" +
+      "ationId\030\013 \001(\t\022\017\n\007comment\030\014 \001(\t\022\027\n\017transp" +
+      "ortMethod\030\r \003(\t\"e\n\017GraphEdgeTarget\022\021\n\tsu" +
+      "bjectId\030\001 \002(\t\022\013\n\003min\030\002 \002(\005\022\013\n\003max\030\003 \002(\005\022" +
+      "\021\n\tcreateNew\030\004 \002(\010\022\022\n\nvariableId\030\005 \001(\t\"\232" +
+      "\001\n\014GraphRouting\022\n\n\002id\030\001 \002(\t\022=\n\tcondition" +
+      "\030\002 \002(\0132*.de.tkip.sbpm.proto.GraphRouting" +
+      "Expression\022?\n\013implication\030\003 \002(\0132*.de.tki" +
+      "p.sbpm.proto.GraphRoutingExpression\"^\n\026G" +
+      "raphRoutingExpression\022\021\n\tsubjectId\030\001 \002(\t",
+      "\022\020\n\010operator\030\002 \002(\010\022\017\n\007groupId\030\003 \001(\005\022\016\n\006u" +
+      "serId\030\004 \001(\005"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -28083,7 +28176,7 @@ public final class GAEexecution {
           internal_static_de_tkip_sbpm_proto_ActionData_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_de_tkip_sbpm_proto_ActionData_descriptor,
-              new java.lang.String[] { "Text", "Executable", "TransitionType", "TargetUserData", "RelatedSubject", "Messages", });
+              new java.lang.String[] { "Text", "Executable", "TransitionType", "TargetUserData", "RelatedSubject", "Messages", "MessageContent", });
           internal_static_de_tkip_sbpm_proto_TargetUserData_descriptor =
             getDescriptor().getMessageTypes().get(7);
           internal_static_de_tkip_sbpm_proto_TargetUserData_fieldAccessorTable = new

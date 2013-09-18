@@ -11,10 +11,9 @@ public class SubjectToSubjectMessage implements Serializable{
 	String messageType;
 	String messageContent;
 
-	public SubjectToSubjectMessage(int messageID, int userID,
+	public SubjectToSubjectMessage(int userID,
 			String from_subjectID, String target_subjectID,int processInstanceID, String messageType,
 			String messageContent) {
-		this.messageID = messageID;
 		this.userID = userID;
 		this.from_subjectID = from_subjectID;
 		this.target_subjectID = target_subjectID;

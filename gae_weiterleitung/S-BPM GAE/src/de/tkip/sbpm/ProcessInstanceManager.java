@@ -131,20 +131,24 @@ public class ProcessInstanceManager extends HttpServlet {
 							if(!pi.getProcessData().getSubjects().isEmpty()){
 								Iterator it = pi.getProcessData().getSubjects().iterator();
 								while(it.hasNext()){
-									Subject sub = (Subject) it.next();
-									sub.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
-									State state = sub.getInternalBehavior().getStatesMap().get(sub.getInternalBehavior().getStartState());
+									Subject subject = (Subject) it.next();
+									subject.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
+									State state = subject.getInternalBehavior().getStatesMap().get(subject.getInternalBehavior().getStartState());
 									boolean executable = true;
 									if(state.getStateType().equals(StateType.receive)){
-										String[] s = state.getTransitions().get(0).getText().split("(1)");
-										String text = s[0].trim();
-										int num = sub.checkMessageNumberFromSubjectIDAndType(sub.getSubjectID(), text);
-										if(num == 0){
-											executable = false;
-										}		
+										for(int i = 0; i < state.getTransitions().size(); i++){
+											String text = state.getTransitions().get(i).getText();
+											String relatedSubjectID = state.getTransitions().get(i).getRelatedSubject();
+											int num = subject.checkMessageNumberFromSubjectIDAndType(relatedSubjectID, text);
+											if(num > 0){
+												break;
+											}else{
+												executable = false;
+											}
+										}
 									}
-									sub.getInternalBehavior().setExecutable(executable);
-									if(sub.isStartSubject){
+									subject.getInternalBehavior().setExecutable(executable);
+									if(subject.isStartSubject){
 										Action.Builder actionBuilder = Action.newBuilder();
 										actionBuilder.setUserID(userID)
 													 .setProcessInstanceID(state.getProcessInstanceID())
@@ -171,16 +175,8 @@ public class ProcessInstanceManager extends HttpServlet {
 												actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
 											}
 											if(state.getStateType().equals(StateType.receive)){
-												actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
-												MessageData.Builder msgBuilder = MessageData.newBuilder();
-												String[] s = state.getTransitions().get(0).getText().split("(1)");
-												String text1 = s[0].trim();
-												int num = sub.checkMessageNumberFromSubjectIDAndType(sub.getSubjectID(), text1);
-												if(num == 0){
-													msgBuilder.setMessageContent("");
-												}else{
-													msgBuilder.setMessageContent(sub.getMessageFromSubjcetIDAndType(sub.getSubjectID(), text1));
-												}
+												String relatedSubject = state.getTransitions().get(i).getRelatedSubject();
+												actionDataBuilder.setRelatedSubject(relatedSubject);
 											}
 											ActionData actionData = actionDataBuilder.build();
 											actionBuilder.addActionData(actionData);
@@ -249,44 +245,88 @@ public class ProcessInstanceManager extends HttpServlet {
 				}else{
 					ProcessManager processManager = processManagerList.get(0);
 					if(processManager.containsProcessInstance(processInstanceID)){
-						processManager.checkReceiveActions();
 						ProcessInstance pi = processManager.getProcessInstance(processInstanceID);
 						Subject subject = pi.getProcessData().getSubjectByID(action.getSubjectID());
-						if(action.getStateID() == subject.getInternalBehavior().getCurrentState() && subject.getInternalBehavior().isExecutable()){
+						if(true || action.getStateID() == subject.getInternalBehavior().getCurrentState()){
 							State currentState = subject.getInternalBehavior().getStatesMap().get(action.getStateID());
-							String msg;
 							boolean isEnd = false;
 							switch(action.getStateType()){
 							case "action":
 								System.out.println("type: action");
 								break;
 							case "receive":
-								String[] str = currentState.getTransitions().get(0).getText().split("(1)");
-								String text = str[0].trim();
-								msg = subject.getMessageFromSubjcetIDAndType(subject.getSubjectID(), text);
 								System.out.println("type: receive");
 								break;
 							case "send":
-								int messageID = 0;
 								String from_subjectID = subject.getSubjectID();
-								String target_subjectID = "0";
-								String[] str1 = currentState.getTransitions().get(0).getText().split("to:");
-								String sName = str1[str1.length-1].trim();
-								String messageType = str1[0].trim();
-								System.out.println("msgCount: " + action.getActionData(0).getMessagesCount());
+								String target_subjectID = action.getActionData(0).getRelatedSubject();	
+								String messageType = currentState.getTransitions().get(0).getText();
 								String msgContent = action.getActionData(0).getMessages(0).getMessageContent();
-								System.out.println("msgContent: " + msgContent);
-								Iterator it = pi.getProcessData().getSubjects().iterator();
-								while(it.hasNext()){
-									Subject sub = (Subject) it.next();
-									String subjectName = sub.getSubjectName();
-									if(sName.equals(subjectName)){
-										target_subjectID = sub.getSubjectID();
+								SubjectToSubjectMessage stsmsg = new SubjectToSubjectMessage(userID, from_subjectID, target_subjectID, processInstanceID, messageType, msgContent);
+								Subject targetSubject = pi.getProcessData().getSubjectByID(target_subjectID);
+								targetSubject.addMessage(stsmsg);
+								State state = targetSubject.getInternalBehavior().getStatesMap().get(targetSubject.getInternalBehavior().getCurrentState());
+//								processManager.checkReceiveActions();
+								if(processManager.getAction(processInstanceID, target_subjectID) == null && targetSubject.getInternalBehavior().getCurrentState() == targetSubject.getInternalBehavior().getStartState()){
+									System.out.println("null");
+									Action.Builder actionBuilder = Action.newBuilder();
+									actionBuilder.setUserID(userID)
+												 .setProcessInstanceID(state.getProcessInstanceID())
+												 .setSubjectID(state.getSubjectID())
+												 .setStateID(state.getId())
+												 .setStateText(state.getText())
+												 .setStateType(state.getStateType().name());
+									for(int i = 0; i < state.getTransitions().size(); i++){
+										String text1  = state.getTransitions().get(i).getText();
+										String transitionType = state.getTransitions().get(i).getTransitionType();
+										int processInstanceID1 = state.getProcessInstanceID();
+										String subjectID1 = state.getSubjectID();
+										ActionData.Builder actionDataBuilder = ActionData.newBuilder();
+										actionDataBuilder.setText(text1)
+														 .setExecutable(false)
+														 .setTransitionType(transitionType);
+										actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
+										int num = targetSubject.checkMessageNumberFromSubjectIDAndType(from_subjectID, text1);
+										if(num > 0){
+											actionDataBuilder.setExecutable(true);
+											MessageData.Builder msgBuilder = MessageData.newBuilder();
+											msgBuilder.setUserID(userID);
+											String msg = targetSubject.getMessageFromSubjcetIDAndType(from_subjectID, text1);
+											msgBuilder.setMessageContent(msg);
+											MessageData msgData = msgBuilder.build();
+											actionDataBuilder.addMessages(msgData);
+											actionDataBuilder.setMessageContent(msg);
+										}
+										ActionData actionData = actionDataBuilder.build();
+										actionBuilder.addActionData(actionData);
+									}		
+									Action newAction = actionBuilder.build();
+									processManager.addAvailableActions(newAction);
+								}else {
+									Action receiveAction = processManager.getAction(processInstanceID, target_subjectID);
+									processManager.removeAvailableActions(receiveAction);
+									Action.Builder receiveActionBuilder = receiveAction.toBuilder();
+									for(int i = 0; i < state.getTransitions().size(); i++){
+										String text1  = state.getTransitions().get(i).getText();
+										ActionData receiveActionData = receiveAction.getActionData(i);
+										ActionData.Builder receiveActionDataBuilder = receiveActionData.toBuilder();
+										int num = targetSubject.checkMessageNumberFromSubjectIDAndType(from_subjectID, text1);
+										if(num > 0){
+											receiveActionDataBuilder.setExecutable(true);
+											MessageData.Builder msgBuilder = MessageData.newBuilder();
+											msgBuilder.setUserID(userID);
+											String msg = targetSubject.getMessageFromSubjcetIDAndType(from_subjectID, text1);
+											msgBuilder.setMessageContent(msg);
+											MessageData msgData = msgBuilder.build();
+											receiveActionDataBuilder.addMessages(msgData);
+											receiveActionDataBuilder.setMessageContent(msg);
+										}
+										receiveActionData = receiveActionDataBuilder.build();
+										receiveActionBuilder.setActionData(i, receiveActionData);
 									}
-								}	
-								SubjectToSubjectMessage stsmsg = new SubjectToSubjectMessage(messageID, userID, from_subjectID, target_subjectID, processInstanceID, messageType, msgContent);
-								subject.addMessage(stsmsg);
-								processManager.checkReceiveActions();
+									receiveAction = receiveActionBuilder.build();
+									processManager.addAvailableActions(receiveAction);
+								}
 								System.out.println("type: send");
 								break;
 							case "end":
@@ -306,26 +346,29 @@ public class ProcessInstanceManager extends HttpServlet {
 								}
 								System.out.println("type: end");
 								break;
-							default: System.out.println("wrong type");
+							default: 
+								System.out.println("wrong type");
 							}
-							Action cAction = processManager.getAction(processInstanceID, action.getSubjectID(), action.getStateID());
+							Action cAction = processManager.getAction(processInstanceID, action.getSubjectID());
 							processManager.removeAvailableActions(cAction);
 							if(!isEnd){
-								System.out.println("action count: " + action.getActionDataCount());
-								int nextStateID = subject.getInternalBehavior().getNextStateIDNoBranch();
-								System.out.println("nextStateID: " + nextStateID);
-//								String transitonText = action.getActionData(0).getText();
-//								int nextStateID = s.getInternalBehavior().getNextStateID(transitonText);
+								String transitionText = action.getActionData(0).getText();
+								int nextStateID = subject.getInternalBehavior().getNextStateID(transitionText);
 								if(nextStateID != -1){
 									subject.getInternalBehavior().nextState(nextStateID);
 									State state = subject.getInternalBehavior().getStatesMap().get(nextStateID);
+									System.out.println("next state: " + state.getStateType());
 									boolean executable = true;
 									if(state.getStateType().equals(StateType.receive)){
-										String[] str = state.getTransitions().get(0).getText().split("(1)");
-										String text = str[0].trim();
-										int num = subject.checkMessageNumberFromSubjectIDAndType(subject.getSubjectID(), text);
-										if(num == 0){
-											executable = false;
+										for(int i = 0; i < state.getTransitions().size(); i++){
+											String text = state.getTransitions().get(i).getText();
+											String relatedSubjectID = state.getTransitions().get(i).getRelatedSubject();
+											int num = subject.checkMessageNumberFromSubjectIDAndType(relatedSubjectID, text);
+											if(num > 0){
+												break;
+											}else{
+												executable = false;
+											}
 										}
 									}
 									subject.getInternalBehavior().setExecutable(executable);
@@ -356,14 +399,16 @@ public class ProcessInstanceManager extends HttpServlet {
 										}
 										if(state.getStateType().equals(StateType.receive)){
 											actionDataBuilder.setRelatedSubject(state.getTransitions().get(i).getRelatedSubject());
-											MessageData.Builder msgBuilder = MessageData.newBuilder();
-											String[] s = state.getTransitions().get(0).getText().split("(1)");
-											String text1 = s[0].trim();
-											int num = subject.checkMessageNumberFromSubjectIDAndType(subject.getSubjectID(), text1);
-											if(num == 0){
-												msgBuilder.setMessageContent("");
-											}else{
-												msgBuilder.setMessageContent(subject.getMessageFromSubjcetIDAndType(subject.getSubjectID(), text1));
+											int num = subject.checkMessageNumberFromSubjectIDAndType(state.getTransitions().get(i).getRelatedSubject(), text);
+											if(num > 0){
+												actionDataBuilder.setExecutable(true);
+												MessageData.Builder msgBuilder = MessageData.newBuilder();
+												msgBuilder.setUserID(userID);
+												String msg = subject.getMessageFromSubjcetIDAndType(state.getTransitions().get(i).getRelatedSubject(), text);
+												msgBuilder.setMessageContent(msg);
+												MessageData msgData = msgBuilder.build();
+												actionDataBuilder.addMessages(msgData);
+												actionDataBuilder.setMessageContent(msg);
 											}
 										}
 										ActionData actionData = actionDataBuilder.build();
@@ -387,6 +432,8 @@ public class ProcessInstanceManager extends HttpServlet {
 										Action action1 = (Action) it.next();
 										if(action1.getProcessInstanceID() == processInstanceID){
 											pidBuilder.addActions(action1);
+//											System.out.println("action: " + action1.getStateType());
+//											System.out.println("executeable: " + action1.getActionData(0).getExecutable());
 										}
 									}
 									ProcessInstanceData pid = pidBuilder.build();
