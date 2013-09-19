@@ -11,7 +11,7 @@ public class ProcessInstance implements Serializable {
 	public String name;
 	public boolean terminated = false;
 	public String history = "";
-	public Process processData;
+	public Process processData = new Process();
 	
 	public ProcessInstance(){
 		processData = new Process();

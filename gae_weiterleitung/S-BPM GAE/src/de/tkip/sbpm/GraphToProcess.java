@@ -61,7 +61,7 @@ public class GraphToProcess extends HttpServlet {
 				int graphEdgeNum = graph.getSubjects(i).getMacros(0).getEdgesCount();
 				for(int j = 0; j < graphEdgeNum; j++){
 					int stateID = graph.getSubjects(i).getMacros(0).getEdges(j).getStartNodeId();
-					State state = subject.getInternalBehavior().getStatesMap().get(stateID);
+					State state = subject.getInternalBehavior().getStateByID(stateID);
 					Transition transition = new Transition();
 					transition.setText(graph.getSubjects(i).getMacros(0).getEdges(j).getText());
 					transition.setTransitionType(graph.getSubjects(i).getMacros(0).getEdges(j).getEdgeType());

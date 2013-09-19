@@ -1,14 +1,15 @@
 package de.tkip.sbpm;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
-public class Process implements Serializable {	
+public class Process extends SerialCloneable {	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4673557180565126612L;
 	public int processID;
 	public String processName;
 	public String date;

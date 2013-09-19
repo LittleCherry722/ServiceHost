@@ -10,7 +10,7 @@ import java.util.Map;
 public class InternalBehavior implements Serializable{
 	public String subjectID;
 	public int userID;
-	public Map<Integer, State> statesMap = new HashMap<Integer, State>();
+	public List<State> statesList = new ArrayList<State>();
 	public int startState = 0;
 	public int currentState = 0; 
 	public boolean executable;
@@ -20,33 +20,41 @@ public class InternalBehavior implements Serializable{
 	}
 	
 	public void addState(State state){
-		if(state.startState){
-			startState = state.id;
-			currentState = startState;
-		}
-		statesMap.put(state.id, state);
+		this.statesList.add(state);
 	}
 	
 	public void nextState(int stateID){
-		currentState = stateID;
+		this.currentState = stateID;
 	}
 
-	public void setProcessInstanceIDofStates(int processInstanceID){
-		Iterator it = statesMap.values().iterator();
+	public State getStateByID(int stateID){
+		Iterator it = this.statesList.iterator();
 		while(it.hasNext()){
 			State state = (State) it.next();
-			state.processInstanceID = processInstanceID;
+			if(state.getId() == stateID){
+				return state;
+			}
+		}
+		return null;
+	}
+	
+	public void setProcessInstanceIDofStates(int processInstanceID){
+		Iterator it = this.statesList.iterator();
+		System.out.println("num: " + statesList.size());
+		while(it.hasNext()){
+			State state = (State) it.next();
+			state.setProcessInstanceID(processInstanceID);
 		}
 	}
 	
 	public int getNextStateID(String transitonText){
-		for(int i = 0; i < statesMap.get(currentState).transitions.size(); i++){
-			String text = statesMap.get(currentState).transitions.get(i).text;
+		for(int i = 0; i < getStateByID(currentState).transitions.size(); i++){
+			String text = getStateByID(currentState).transitions.get(i).text;
 			if(text.equals(transitonText)){
-				return statesMap.get(currentState).transitions.get(i).getSuccessorID();
+				return this.getStateByID(currentState).transitions.get(i).getSuccessorID();
 			}
 		}
-		return statesMap.get(currentState).transitions.get(0).getSuccessorID();
+		return getStateByID(currentState).transitions.get(0).getSuccessorID();
 	}
 	
 	public String getSubjectID() {
@@ -65,12 +73,12 @@ public class InternalBehavior implements Serializable{
 		this.userID = userID;
 	}
 
-	public Map<Integer, State> getStatesMap() {
-		return statesMap;
+	public List<State> getStatesList() {
+		return statesList;
 	}
 
-	public void setStatesMap(Map<Integer, State> statesMap) {
-		this.statesMap = statesMap;
+	public void setStatesList(List<State> statesList) {
+		this.statesList = statesList;
 	}
 
 	public int getStartState() {

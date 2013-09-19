@@ -118,8 +118,7 @@ public class ProcessManager {
 			String subjectID = action.getSubjectID();
 			State state = getProcessInstance(processInstanceID)
 					.getProcessData().getSubjectByID(subjectID)
-					.getInternalBehavior().getStatesMap()
-					.get(action.getStateID());
+					.getInternalBehavior().getStateByID(action.getStateID());
 			if (state.stateType.equals(StateType.receive)) {
 				for(int i = 0; i < state.getTransitions().size(); i++){
 					String text = state.getTransitions().get(i).getText();

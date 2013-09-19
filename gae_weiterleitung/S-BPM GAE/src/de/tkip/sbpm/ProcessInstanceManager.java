@@ -93,11 +93,15 @@ public class ProcessInstanceManager extends HttpServlet {
 									state.setDisabled(graph.getSubjects(i).getMacros(0).getNodes(j).getIsDisabled());
 									state.setMajorStart(graph.getSubjects(i).getMacros(0).getNodes(j).getIsMajorStartNode());
 									subject.getInternalBehavior().addState(state);
+									if(state.isStartState()){
+										subject.getInternalBehavior().setStartState(state.getId());
+										subject.getInternalBehavior().setCurrentState(state.getId());
+									}
 								}
 								int graphEdgeNum = graph.getSubjects(i).getMacros(0).getEdgesCount();
 								for(int j = 0; j < graphEdgeNum; j++){
 									int stateID = graph.getSubjects(i).getMacros(0).getEdges(j).getStartNodeId();
-									State state = subject.getInternalBehavior().getStatesMap().get(stateID);
+									State state = subject.getInternalBehavior().getStateByID(stateID);
 									Transition transition = new Transition();
 									if(msgMap.containsKey(graph.getSubjects(i).getMacros(0).getEdges(j).getText())){
 										transition.setText(msgMap.get(graph.getSubjects(i).getMacros(0).getEdges(j).getText()));
@@ -119,8 +123,13 @@ public class ProcessInstanceManager extends HttpServlet {
 						}
 						if(processManager.containsProcess(processID)){
 							ProcessInstance pi = new ProcessInstance();
-							Process process = processManager.getProcess(processID);
+							Process process = (Process)processManager.getProcess(processID).clone();
 							int processInstanceID = processManager.getProcessInstanceID();
+							while(processManager.containsProcessInstance(processInstanceID)){
+								int t = processManager.getProcessInstanceID() +1;
+								processManager.setProcessInstanceID(t);
+								processInstanceID = processManager.getProcessInstanceID();
+							}
 							Date dt=new Date();
 							SimpleDateFormat matter=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 							String date = matter.format(dt);
@@ -133,7 +142,7 @@ public class ProcessInstanceManager extends HttpServlet {
 								while(it.hasNext()){
 									Subject subject = (Subject) it.next();
 									subject.getInternalBehavior().setProcessInstanceIDofStates(processInstanceID);
-									State state = subject.getInternalBehavior().getStatesMap().get(subject.getInternalBehavior().getStartState());
+									State state = subject.getInternalBehavior().getStateByID(subject.getInternalBehavior().getStartState());
 									boolean executable = true;
 									if(state.getStateType().equals(StateType.receive)){
 										for(int i = 0; i < state.getTransitions().size(); i++){
@@ -248,14 +257,14 @@ public class ProcessInstanceManager extends HttpServlet {
 						ProcessInstance pi = processManager.getProcessInstance(processInstanceID);
 						Subject subject = pi.getProcessData().getSubjectByID(action.getSubjectID());
 						if(true || action.getStateID() == subject.getInternalBehavior().getCurrentState()){
-							State currentState = subject.getInternalBehavior().getStatesMap().get(action.getStateID());
+							State currentState = subject.getInternalBehavior().getStateByID(action.getStateID());
 							boolean isEnd = false;
 							switch(action.getStateType()){
 							case "action":
-								System.out.println("type: action");
+//								System.out.println("type: action");
 								break;
 							case "receive":
-								System.out.println("type: receive");
+//								System.out.println("type: receive");
 								break;
 							case "send":
 								String from_subjectID = subject.getSubjectID();
@@ -265,10 +274,16 @@ public class ProcessInstanceManager extends HttpServlet {
 								SubjectToSubjectMessage stsmsg = new SubjectToSubjectMessage(userID, from_subjectID, target_subjectID, processInstanceID, messageType, msgContent);
 								Subject targetSubject = pi.getProcessData().getSubjectByID(target_subjectID);
 								targetSubject.addMessage(stsmsg);
-								State state = targetSubject.getInternalBehavior().getStatesMap().get(targetSubject.getInternalBehavior().getCurrentState());
-//								processManager.checkReceiveActions();
-								if(processManager.getAction(processInstanceID, target_subjectID) == null && targetSubject.getInternalBehavior().getCurrentState() == targetSubject.getInternalBehavior().getStartState()){
+								State state = targetSubject.getInternalBehavior().getStateByID(targetSubject.getInternalBehavior().getCurrentState());
+								if((processManager.getAction(processInstanceID, target_subjectID) == null && targetSubject.getInternalBehavior().getCurrentState() == targetSubject.getInternalBehavior().getStartState())
+									|| state.getStateType().equals(StateType.end)){
 									System.out.println("null");
+									if(state.getStateType().equals(StateType.end)){
+										Action endAction = processManager.getAction(processInstanceID, target_subjectID);
+										processManager.removeAvailableActions(endAction);
+										targetSubject.getInternalBehavior().setCurrentState(targetSubject.getInternalBehavior().getStartState());
+										state = targetSubject.getInternalBehavior().getStateByID(targetSubject.getInternalBehavior().getCurrentState());
+									}
 									Action.Builder actionBuilder = Action.newBuilder();
 									actionBuilder.setUserID(userID)
 												 .setProcessInstanceID(state.getProcessInstanceID())
@@ -329,23 +344,23 @@ public class ProcessInstanceManager extends HttpServlet {
 								}
 								System.out.println("type: send");
 								break;
-							case "end":
-								isEnd = true;
-								boolean isPIEnd = true;
-								Iterator it1 = pi.getProcessData().getSubjects().iterator();
-								while(it1.hasNext()){
-									Subject s1 = (Subject) it1.next();
-									int cs = s1.getInternalBehavior().getCurrentState();
-									if(!s1.getInternalBehavior().getStatesMap().get(cs).getStateType().equals(StateType.end)){
-										isPIEnd = false;
-										break;
-									}
-								}
-								if(isPIEnd){
-									processManager.removeProcessInstance(pi);
-								}
-								System.out.println("type: end");
-								break;
+//							case "end":
+//								isEnd = true;
+//								boolean isPIEnd = true;
+//								Iterator it1 = pi.getProcessData().getSubjects().iterator();
+//								while(it1.hasNext()){
+//									Subject s1 = (Subject) it1.next();
+//									int cs = s1.getInternalBehavior().getCurrentState();
+//									if(!s1.getInternalBehavior().getStateByID(cs).getStateType().equals(StateType.end)){
+//										isPIEnd = false;
+//										break;
+//									}
+//								}
+//								if(isPIEnd){
+//									processManager.removeProcessInstance(pi);
+//								}
+//								System.out.println("type: end");
+//								break;
 							default: 
 								System.out.println("wrong type");
 							}
@@ -353,11 +368,15 @@ public class ProcessInstanceManager extends HttpServlet {
 							processManager.removeAvailableActions(cAction);
 							if(!isEnd){
 								String transitionText = action.getActionData(0).getText();
+								System.out.println("text: " + transitionText);
 								int nextStateID = subject.getInternalBehavior().getNextStateID(transitionText);
 								if(nextStateID != -1){
 									subject.getInternalBehavior().nextState(nextStateID);
-									State state = subject.getInternalBehavior().getStatesMap().get(nextStateID);
-									System.out.println("next state: " + state.getStateType());
+									State state = subject.getInternalBehavior().getStateByID(nextStateID);
+									System.out.println("pi id: " + state.getProcessInstanceID());
+									System.out.println("pi id: " + subject.getProcessInstanceID());
+									System.out.println("stateID: " + cAction.getStateID());
+									System.out.println("next state: " + state.getStateType().name());
 									boolean executable = true;
 									if(state.getStateType().equals(StateType.receive)){
 										for(int i = 0; i < state.getTransitions().size(); i++){
