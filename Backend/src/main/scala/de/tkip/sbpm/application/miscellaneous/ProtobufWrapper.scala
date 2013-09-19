@@ -103,8 +103,8 @@ object ProtobufWrapper {
     if (data.messageContent.isDefined) {
       val messageDataBuilder = proto.MessageData.newBuilder()
       messageDataBuilder.setMessageContent(data.messageContent.get)
-      val targetUser = 
-        if(data.targetUsersData.isDefined)
+      val targetUser =
+        if (data.targetUsersData.isDefined)
           data.targetUsersData.get.targetUsers.headOption.getOrElse(1)
         else 1
       messageDataBuilder.setUserID(targetUser)
@@ -121,6 +121,10 @@ object ProtobufWrapper {
     // add the related subject
     if (data.relatedSubject.isDefined) {
       actionDataBuilder.setRelatedSubject(data.relatedSubject.get)
+    }
+
+    if (data.messageContent.isDefined) {
+      actionDataBuilder.setMessageContent(data.messageContent.get)
     }
 
     actionBuilder.addActionData(actionDataBuilder.build())
@@ -174,6 +178,7 @@ object ProtobufWrapper {
       data.getTransitionType(), //            data.getTa/
       targetUsersData = if (data.hasTargetUserData()) Some(buildTargetUser(data.getTargetUserData())) else None,
       relatedSubject = if (data.hasRelatedSubject()) Some(data.getRelatedSubject()) else None, // TODO...
+      messageContent = if(data.hasMessageContent()) Some(data.getMessageContent()) else None,
       messages = buildMessageData(data.getMessagesList().asScala.toList))).toArray
   }
 

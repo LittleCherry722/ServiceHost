@@ -88,6 +88,7 @@ message ActionData {
 	optional string relatedSubject = 5;
 	repeated MessageData messages = 6;
 	// TODO messageContent for send
+        optional string messageContent = 7;
 }
 
 message TargetUserData {
