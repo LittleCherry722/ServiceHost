@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.repo
 
 import akka.actor.{ActorLogging, Actor}
@@ -56,7 +69,7 @@ class RepoActor extends Actor with ActorLogging {
     val url = entry.fields("url")
     val interfaceId = entry.fields("subjectId")
     val graph = entry.fields("graph").asJsObject
-    val convertedGraph = convertGraph(graph, processId, url, interfaceId)
+    val convertedGraph = convertGraph(id, graph, processId, url, interfaceId)
 
     var fields = entry.fields
     fields -= "processId"
@@ -68,12 +81,15 @@ class RepoActor extends Actor with ActorLogging {
     entry.copy(fields)
   }
 
-  private def convertGraph(graph: JsObject, processId: JsValue, url: JsValue, interfaceId: JsValue) = {
-    val id = graph.fields("id")
+  private def convertGraph(id: Int, graph: JsObject, processId: JsValue, url: JsValue, interfaceId: JsValue) = {
+    val oldId = graph.fields("id")
+    val subjectId = "ext" + id
 
     var fields = graph.fields
     fields -= "id"
-    fields += ("relatedSubject" -> id)
+    fields += ("id" -> subjectId.toJson)
+    fields += ("relatedSubject" -> oldId)
+    fields += ("relatedSubject" -> oldId)
     fields += ("relatedInterface" -> interfaceId)
     fields += ("relatedProcess" -> processId)
     fields += ("url" -> url)

@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
@@ -36,7 +49,7 @@ class ChangeInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
                   process <- (changeActor ? GetProcessChange(time.toLong)).mapTo[Option[ProcessRelatedChange]]
                   action <- (changeActor ? GetActionChange(time.toLong)).mapTo[Option[ActionRelatedChange]]
                   processInstance <- (changeActor ? GetProcessInstanceChange(time.toLong)).mapTo[Option[ProcessInstanceRelatedChange]]
-                  message <- (changeActor ? GetMessageChange(time.toLong)).mapTo[Option[MessageRelatedChange]]
+                  message <- (changeActor ? GetMessageChange(time.toLong, userId)).mapTo[Option[MessageRelatedChange]]
                   result = ChangeRelatedData(process, processInstance, action, history, message)	  
                 } yield result
                 

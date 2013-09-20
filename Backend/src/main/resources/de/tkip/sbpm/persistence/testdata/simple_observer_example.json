@@ -430,7 +430,7 @@
                     }
                 ], 
                 "variableCounter": 1, 
-                "role": "Employee", 
+                "role": "default", 
                 "inputPool": 10, 
                 "externalType": "external", 
                 "type": "single", 
@@ -746,7 +746,7 @@
                     }
                 ], 
                 "variableCounter": 1, 
-                "role": "Employee", 
+                "role": "default", 
                 "inputPool": 10, 
                 "externalType": "external", 
                 "type": "single", 

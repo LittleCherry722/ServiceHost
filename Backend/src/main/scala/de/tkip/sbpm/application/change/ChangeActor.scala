@@ -1,3 +1,16 @@
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package de.tkip.sbpm.application.change
 
 import akka.actor.Actor
@@ -13,7 +26,7 @@ case class GetActionChange(timeStamp: Long)
 
 case class GetProcessInstanceChange(timeStamp: Long)
 
-case class GetMessageChange(timeStamp: Long)
+case class GetMessageChange(timeStamp: Long, userID: Int)
 
 class ChangeActor extends Actor {
 
@@ -61,8 +74,8 @@ class ChangeActor extends Actor {
       addMessageChangeData(q)
     }
     
-    case GetMessageChange(t) => {
-      Future { getMessageData(t) } pipeTo sender
+    case GetMessageChange(t, id) => {
+      Future { getMessageData(t, id) } pipeTo sender
     }
 
   }
@@ -168,7 +181,7 @@ class ChangeActor extends Actor {
 
   }
     
-  private def getMessageData(t: Long) = {
+  private def getMessageData(t: Long, id: Int) = {
    
     val tempInsert = new ArrayBuffer[MessageRelatedChangeData]()
     
@@ -176,7 +189,7 @@ class ChangeActor extends Actor {
       messageChangeEntries(i) match {
         case MessageChange(m, info, date) => {
           if (date.getTime() > t * 1000) {
-            if (info == "insert")
+            if (info == "insert" && m.fromUser == id)
               tempInsert += MessageRelatedChangeData(m.id, m.fromUser, m.toUser, m.title, m.isRead, m.content, m.date)
           }
         }

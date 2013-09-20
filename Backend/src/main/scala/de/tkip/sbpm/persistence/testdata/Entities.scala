@@ -37,7 +37,15 @@ object Entities {
     Group(None, """Zulieferer""", true),
 
     Group(None, """_SAME_""", true),
-    Group(None, """_ANY_""", true))
+    Group(None, """_ANY_""", true),
+
+    Group(None, """Employees""", true),
+    Group(None, """Supervisors""", true),
+    Group(None, """Human Resources""", true),
+
+    Group(None, """Warehouse""", true),
+    Group(None, """Purchasing""", true)
+  )
 
   val roles = List(
     Role(None, "Gro\u00dfunternehmen", true),
@@ -46,12 +54,14 @@ object Entities {
     Role(None, """Staples""", true),
     Role(None, """Zulieferer""", true),
 
-    Role(None, """Employee""", true),
-    Role(None, """HR_Data_Access""", true),
-    Role(None, """Warehouse""", true),
-    Role(None, """Purchase_Requisitions""", true),
-    Role(None, """Supervisor""", true),
-    Role(None, """Cost_Center_Manager""", true))
+    Role(None, """default""", true),
+    Role(None, """assess_travel_requests""", true),
+    Role(None, """recieve_approved_travel_requests""", true),
+
+    Role(None, """execute_orders""", true),
+    Role(None, """handle_purchases""", true),
+    Role(None, """manage_cost_center""", true)
+  )
 
   // users and one default identity with password for login
   val users = List(
@@ -102,8 +112,15 @@ object Entities {
 
     // other matchings
     (4, 5),
-    (4, 6))
+    (4, 6),
+    (5, 5),
+    (6, 6),
+    (7, 7),
 
+    (8, 8),
+    (9, 9),
+    (6, 10)
+  )
 
   // group -> user mappings
   // _1 = index in groups list, _2 = index in users list
@@ -116,7 +133,13 @@ object Entities {
 
     // other matchings
     (4, 0),
-    (4, 3))
+    (4, 3),
+    (5, 0),
+    (6, 0),
+    (7, 0),
+    (8, 0),
+    (9, 0)
+  )
 
   implicit val timeout = akka.util.Timeout(100 seconds)
 
