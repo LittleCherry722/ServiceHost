@@ -5,8 +5,9 @@ define([
   "models/actions",
   "models/processInstance",
   "models/process",
-  "notify"
-], function( ko, App, _, Actions, ProcessInstance, Process, Notify ) {
+  "notify",
+  "moment"
+], function( ko, App, _, Actions, ProcessInstance, Process, Notify, moment ) {
 
   var ViewModel = function() {
     var self = this;
@@ -19,6 +20,7 @@ define([
     this.selectedStart = selectedStart;
     this.selectedEnd = selectedEnd;
     this.showGraph = showGraph;
+    this.hasActions = hasActions;
 
     this.googleDriveData = ko.observable();
     this.refreshGoogleDriveData = function() {
@@ -44,46 +46,38 @@ define([
 
   };
 
-  var actionsList = ko.observableArray();
-  var actions = ko.computed(function() {actionsList(Actions.all().slice(0));});
-
-
   /* Filter Start */
   var selectedUser = ko.observable();
   var selectedProcess = ko.observable();
   var selectedStatetype = ko.observable();
   var selectedStart = ko.observable();
   var selectedEnd = ko.observable();
-  selectedUser.subscribe(function() { filter(); });
-  selectedProcess.subscribe(function() { filter(); });
-  selectedStatetype.subscribe(function() { filter(); });
-  selectedStart.subscribe(function() { filter(); });
-  selectedEnd.subscribe(function() { filter();});
 
-  var filter = function() {
-    actionsList.removeAll();
-    $.each( Actions.all(), function ( i, value ) {
-      var filter = false;
-      if (selectedUser() && selectedUser() !== value.userID()) {
-        filter = true;
+  var actionsList = ko.computed(function() {
+    return _.chain( Actions.all()).map(function( action ) {
+      var processStarted = parseInt(moment(action.processStarted).format('X'), 10);
+      if (selectedUser() && selectedUser() !== action.userID()) {
+        return null;
       }
-      if (selectedProcess() && selectedProcess() !== value.process().name() ) {
-        filter = true;
+      if (selectedProcess() && selectedProcess() !== action.process().name() ) {
+        return null;
       }
-      if (selectedStatetype() && selectedStatetype() !== value.stateType()) {
-        filter = true;
+      if (selectedStatetype() && selectedStatetype() !== action.stateType()) {
+        return null;
       }
-      if (selectedStart() && parseInt(selectedStart()) >= parseInt(moment(value.processStarted).format('X'))) {
-          filter = true;
+      if (selectedStart() && parseInt(selectedStart(), 10) >= processStarted) {
+        return null;
       }
-      if (selectedEnd() && parseInt(selectedEnd()) <= parseInt(moment(value.processStarted).format('X'))) {
-        filter = true;
+      if (selectedEnd() && parseInt(selectedEnd(), 10) <= processStarted) {
+        return null;
       }
-      if(filter == false) {
-        actionsList.push(value);
-      }
-    });
-  };
+      return action;
+    }).compact().value();
+  });
+
+  var hasActions = ko.computed(function () {
+    return !!actionsList.length;
+  });
 
   var showGraph = function(action){
 

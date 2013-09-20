@@ -19,10 +19,11 @@ define([
 	"async",
   "model/associations",
   "model/attributes",
-  "model/storage"
+  "model/storage",
+  "model/polling"
   // "arne/model/attributes"
 	// "jquery"
-], function( _, ko, Router, require, async, Associations, Attributes, Storage ) {
+], function( _, ko, Router, require, async, Associations, Attributes, Storage, Polling ) {
 	var Model,
 			models = [];
 
@@ -282,6 +283,7 @@ define([
 		Attributes( Result );
 		Associations( Result );
 		Storage( Result, ajaxOptions );
+		Polling( Result );
 
 		// Return our newly defined object.
 		return Result;
@@ -307,7 +309,13 @@ define([
 		});
 	}
 
+  Model.startPolling = function( callback ) {
+    window.setTimeout( Polling.poll, 2500);
+    if ( callback && typeof callback === "function" ) {
+      callback();
+    }
+  }
+
 	// Everything in this object will be the public API.
 	return Model
 });
-

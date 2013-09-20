@@ -29,40 +29,40 @@ define([
 		content: "string",
 		date: "json"
 	});
-        
-        UserMessage.all = ko.observableArray();
+
+  UserMessage.all = ko.observableArray();
+
+  UserMessage.enablePolling();
 
 	UserMessage.include({
 		initialize: function( data ) {
 			var self = this;
 			this.formattedDate = ko.computed(function(){
 				if (self.date()) {
-                                    return new Date(self.date().date).toLocaleString();
-                                }
-                                else {
-                                    return self.date();
-                                }
-                                
+          return new Date(self.date().date).toLocaleString();
+        }
+        else {
+          return self.date();
+        }
 			});
 		},
-                        
-                save: function() {
-                    
-                    $.ajax({    
-                        type: "POST",
-                        url: "/message",
-                        data: JSON.stringify({  toUser: this.toUser(),
-                                                title: this.title(),
-                                                content: this.content()}),
-                        success: function(r) {
-                            window.location.hash = "#/messages/messagesOverview";
-                            notify.info("Success!", "Message successfully sent.");
-                        },
-                        contentType:"application/json; charset=utf-8"
-                      });
+
+    save: function() {
+      $.ajax({
+        type: "POST",
+        url: "/message",
+        data: JSON.stringify({ toUser: this.toUser(),
+                               title: this.title(),
+                               content: this.content()}),
+        success: function() {
+          window.location.hash = "#/messages/messagesOverview";
+          notify.info("Success!", "Message successfully sent.");
+        },
+        contentType:"application/json; charset=utf-8"
+      });
 
 
-                }
+    }
 	})
 
 	return UserMessage;

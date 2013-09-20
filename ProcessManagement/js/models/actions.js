@@ -30,6 +30,8 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
     currentSelectedFile : "string"
   });
 
+  Actions.enablePolling( "action" );
+
   Actions.all = ko.observableArray();
 
   Actions.include({

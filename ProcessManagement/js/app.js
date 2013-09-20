@@ -60,16 +60,15 @@ define([
       // tell everyone that we are done (call the callback).
 
       async.auto({
-
         fetchAll : Model.fetchAll,
         setCurrentUser : ["fetchAll", function(callback) {
           loadCurrentUser();
           callback();
         }],
+        initPolling: Model.startPolling,
         initViews : ["fetchAll", "setCurrentUser", initializeViews],
-        callback : ["initViews", callback]
+        callback : ["initViews", "initPolling", callback]
       });
-
     });
   };
 
