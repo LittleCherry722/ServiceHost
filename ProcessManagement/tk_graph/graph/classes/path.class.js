@@ -234,7 +234,69 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			var rcX		= Math.round((x1 + x2) / 2);
 			var rcY		= Math.round((y1 + y2) / 2);
 			
-			if (absDiffX > 0 || absDiffY > 0)
+			// shape "straight" for ltl
+			if (shape == "STRAIGHT")
+			{
+				cX		= rcX;
+				cY		= rcY;
+				cPath	= absDiffX > absDiffY ? "H" + x2 : "V" + y2;
+				this.calculatePathSegments(null, {x: x2, y: y2});
+			}
+			
+			// shapes for ltl with one straight element and one diagonal element
+			else if (shape == "DIAGVERT" || shape == "VERTDIAG")
+			{
+				var bendX		= shape == "DIAGVERT" ? x2 : x1;
+				
+				cPath	= "L" + bendX + "," + rcY + "L" + x2 + "," + y2;
+				cX		= bendX;
+				cY		= rcY;
+			}
+			
+			// loop edge in ltl
+			else if (shape == "LOOP")
+			{
+				cPath	= "H" + x2 + "V" + y2 + "H" + (x1 + 20);
+				cX		= x2;
+				cY		= rcY;
+			}
+			
+			// diagonal line for ltl
+			else if (shape == "DIAG")
+			{
+				// straight line for same x
+				if (x2 == x1)
+				{
+					cPath	= "V" + y2;
+					cX	= x1;
+					cY	= rcY;
+				}
+				
+				else if (y2 == y1)
+				{
+					cPath	= "H" + x2;
+					cX	= rcX;
+					cY	= y1;	
+				}
+				
+				// diagonal lines
+				else
+				{
+					var thirdX	= Math.abs(Math.floor(diffX / 3));
+					var fifthY	= Math.abs(Math.floor(diffY / 5));
+					
+					var xTemp1	= (x1 < x2) ? x1 + thirdX : x1 - thirdX;
+					var xTemp2	= (x1 < x2) ? x2 - thirdX : x2 + thirdX;
+					var yTemp1	= (y1 < y2) ? y1 + fifthY : y1 - fifthY;
+					var yTemp2	= (y1 < y2) ? y2 - fifthY : y2 + fifthY;
+					
+					cX	= (x1 < x2) ? xTemp1 : xTemp2;
+					cY	= (x1 < x2) ? yTemp1 : yTemp2;
+					cPath = "L" + xTemp1 + "," + yTemp1 + "L" + xTemp2 + "," + yTemp2 + "L" + x2 + "," + y2;
+				}
+			}
+			
+			else if (absDiffX > 0 || absDiffY > 0)
 			{
 				if (shape == "I" && absDiffX > 0 && absDiffY > 0)
 				{
@@ -800,6 +862,17 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		
 		if (!performanceMode)
 			this.refreshStyle();
+	};
+	
+	/**
+	 * Sets a flag whether the text dimensions should be estimated or not.
+	 * 
+	 * @param {boolean} estimate True or false.
+	 * @returns {void}
+	 */
+	this.setEstimateTextDimensions = function (estimate)
+	{
+		this.label.setEstimateTextDimensions(estimate);
 	};
 	
 	/**

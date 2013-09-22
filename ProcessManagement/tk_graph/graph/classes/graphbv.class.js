@@ -398,7 +398,13 @@ function GCgraphbv ()
 		
 		// create the path
 		// var gt_bv_edge	= new GCpath(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_shape, edgeData.edge.textToString(), edgeData.id, true);
+		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
 		var gt_bv_edge	= new GCpath(0, 0, 100, 100, "Z", edgeData.edge.textToString(), edgeData.id, true);
+		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
+
+		gf_timeCalc("drawing edges - drawArrow() - apply settings");		
+		if (gv_estimateTextDimensions)
+			gt_bv_edge.setEstimateTextDimensions(true);
 				
 		// apply the deactivation status to the path
 		if (edgeData.edge.isDeactivated())
@@ -413,7 +419,9 @@ function GCgraphbv ()
 		
 		// add the click events to the path
 		gt_bv_edge.click();
+		gf_timeCalc("drawing edges - drawArrow() - apply settings");
 			
+		gf_timeCalc("drawing edges - drawArrow() - apply style");
 		// update the style
 		var gt_bv_edgeStyle	= gv_bv_arrow.style;
 		if (edgeData.edge.getType() == "timeout")
@@ -422,6 +430,7 @@ function GCgraphbv ()
 			gt_bv_edgeStyle	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleException);
 			
 		gt_bv_edge.setStyle(gt_bv_edgeStyle);
+		gf_timeCalc("drawing edges - drawArrow() - apply style");
 		
 		// hide the path as long as it has not the final shape
 			gt_bv_edge.hide();
@@ -503,18 +512,22 @@ function GCgraphbv ()
 							gt_bv_asSpace1	= gt_bv_arrowShape.space1 * gt_bv_asm1;
 							gt_bv_asSpace2	= gt_bv_arrowShape.space2 * gt_bv_asm2;
 							
+							gf_timeCalc("drawing edges - drawArrow() - update path (position, space)");
 							gt_bv_edge.setPositionStart(gt_bv_x1, gt_bv_y1);
 							gt_bv_edge.setPositionEnd(gt_bv_x2, gt_bv_y2);
 							gt_bv_edge.setFirstLine(gt_bv_arrowShape.firstLine);
 							gt_bv_edge.setSpace1(gt_bv_asSpace1);
 							gt_bv_edge.setSpace2(gt_bv_asSpace2);
+							gf_timeCalc("drawing edges - drawArrow() - update path (position, space)");
 							
 							gf_timeCalc("drawing edges - drawArrow() - update path (shape)");
 							gt_bv_edge.setShape(gt_bv_arrowShape.shape, 1);
 							gf_timeCalc("drawing edges - drawArrow() - update path (shape)");
 														
 							// check if the new arrow would fit better than the currently best
+							gf_timeCalc("drawing edges - drawArrow() - update path (check inters.)");
 							var gt_bv_intersectionCheck	= gt_bv_edge.checkIntersection(false, {x1: gt_bv_startx, y1: gt_bv_starty, x2: gt_bv_endx, y2: gt_bv_endy});
+							gf_timeCalc("drawing edges - drawArrow() - update path (check inters.)");
 							
 							if (!gt_bv_intersectionCheck)
 							{
@@ -628,6 +641,7 @@ function GCgraphbv ()
 		gt_bv_endy		= gt_bv_endLine == "v"		? gt_bv_objEnd[mapPorts[gt_bv_posEnd]]		: gt_bv_objEnd.y;
 		
 		// apply the start and end position to the path
+		gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
 		gt_bv_edge.setPositionStart(gt_bv_startx, gt_bv_starty);
 		gt_bv_edge.setPositionEnd(gt_bv_endx, gt_bv_endy);
 		
@@ -640,7 +654,6 @@ function GCgraphbv ()
 		gt_bv_edge.setShape(gt_bv_shape, 2);
 		
 		// show the path as it now is complete
-		gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
 		gt_bv_edge.show(true);		
 		gf_timeCalc("drawing edges - drawArrow() - apply calculated path");
 	};
@@ -935,6 +948,10 @@ function GCgraphbv ()
 		gf_timeCalc("drawing nodes - drawNode() - create");
 		
 		gf_timeCalc("drawing nodes - drawNode() - apply");
+		
+		if (gv_estimateTextDimensions)
+			gt_bv_rect.setEstimateTextDimensions(true);
+		
 		// apply the deactivation status to the label
 		if (node.node.isDeactivated(true))
 			gt_bv_rect.deactivate(true);

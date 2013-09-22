@@ -421,40 +421,76 @@ function GCmacro (parent, id, name)
 		{
 			// convert all data to gv_bv_graphs[name]
 			
-			gf_timeCalc("macro - draw (preparation)");
-			
-			gv_graph_bv.deleteSubject(this.parent.name);
-			
-			gv_graph_bv.addSubject(this.parent.name);
-			
-			// add all nodes to the graph
-			for (var gt_nid in this.nodes)
+			// linear time algorithm
+			if (gv_layoutAlgorithm == "ltl" && gf_functionExists("LinearTimeLayout"))
 			{
-				var gt_node = this.nodes[gt_nid];
-				gv_graph_bv.addNode(this.parent.name, gt_nid.substr(1), gt_node, this.selectedNode == gt_nid.substr(1));
-			}
+				gf_timeCalc("macro - draw (preparation)");
+				var ltl	= new LinearTimeLayout();
 			
-			// add all edges to the graph
-			for (var gt_eid in this.edges)
-			{
-				var gt_edge = this.edges[gt_eid];
-				var gt_start = gt_edge.getStart();
-				var gt_end = gt_edge.getEnd();
-							
-				if (gf_isset(this.nodes["n" + gt_start], this.nodes["n" + gt_end]))
+				for (var gt_nid in this.nodes)
 				{
-					gv_graph_bv.addEdge(this.parent.name, gt_eid.substr(1), gt_start, gt_end, gt_edge, this.selectedEdge == gt_eid.substr(1));
+					var gt_node		= this.nodes[gt_nid];
+					ltl.addNode(gt_nid, gt_node);
 				}
+				
+				// add all edges to the graph
+				for (var gt_eid in this.edges)
+				{
+					var gt_edge		= this.edges[gt_eid];
+					var gt_start	= "n" + gt_edge.getStart();
+					var gt_end		= "n" + gt_edge.getEnd();
+					if (gf_isset(this.nodes[gt_start], this.nodes[gt_end]))
+					{
+						gt_edge.selected	= (this.selectedEdge == gt_eid.substr(1));
+						ltl.addEdge(gt_eid, gt_start, gt_end, gt_edge);
+					}
+					
+				}
+				gf_timeCalc("macro - draw (preparation)");
+				
+				gf_timeCalc("macro - draw (drawGraph)");
+				// if (this.edgeCounter > 0)
+					ltl.layout();
+				gf_timeCalc("macro - draw (drawGraph)");
 			}
-			gf_timeCalc("macro - draw (preparation)");
 			
-			gf_timeCalc("macro - draw (drawGraph)");
-			gv_graph_bv.drawGraph(this.parent.name);
-			gf_timeCalc("macro - draw (drawGraph)");
-			
+			// default layout algorithm
+			else
+			{
+				gf_timeCalc("macro - draw (preparation)");
+				
+				gv_graph_bv.deleteSubject(this.parent.name);
+				gv_graph_bv.addSubject(this.parent.name);
+				
+				// add all nodes to the graph
+				for (var gt_nid in this.nodes)
+				{
+					var gt_node = this.nodes[gt_nid];
+					gv_graph_bv.addNode(this.parent.name, gt_nid.substr(1), gt_node, this.selectedNode == gt_nid.substr(1));
+				}
+				
+				// add all edges to the graph
+				for (var gt_eid in this.edges)
+				{
+					var gt_edge = this.edges[gt_eid];
+					var gt_start = gt_edge.getStart();
+					var gt_end = gt_edge.getEnd();
+								
+					if (gf_isset(this.nodes["n" + gt_start], this.nodes["n" + gt_end]))
+					{
+						gv_graph_bv.addEdge(this.parent.name, gt_eid.substr(1), gt_start, gt_end, gt_edge, this.selectedEdge == gt_eid.substr(1));
+					}
+				}
+				gf_timeCalc("macro - draw (preparation)");
+				
+				gf_timeCalc("macro - draw (drawGraph)");
+				gv_graph_bv.drawGraph(this.parent.name);
+				gf_timeCalc("macro - draw (drawGraph)");
+			}
+				
 			gf_timeCalc("macro - draw (select conversation)");
 			this.selectConversation(this.parent.selectedConversation);
-			gf_timeCalc("macro - draw (select conversation)");
+			gf_timeCalc("macro - draw (select conversation)");	
 		}
  	};
 	
