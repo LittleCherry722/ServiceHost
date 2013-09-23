@@ -228,6 +228,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
     },
 
     action : function( message ) {
+      var data, id, actionData;
       data = this.toJSON();
       id = data.processInstanceID;
       actionData = {
@@ -261,7 +262,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
     },
 
     send : function( message, obj ) {
-      var self = this;
+      var data, id, actionData;
 
       if (this.data()[0].targetUsersData.min > this.data()[0].selectedUsers().length || this.data()[0].targetUsersData.max < this.data()[0].selectedUsers().length) {
         var errorMsg = "Please select the correct amount of users. <br/>";

@@ -293,16 +293,15 @@ define([
 	Model.fetchAll = function( callback ) {
 		async.map( models, function( model, cb ) {
 			model.fetch( null, {
-				error: function( textStatus, error ) { cb( error ); },
-				success: function() { cb() }
+				error: function( textStatus, error ) {
+					console.error("Error while fetching: " + error );
+          cb();
+        },
+				success: function() {
+          cb()
+        }
 			});
 		}, function( error, results ) {
-			if ( error ) {
-				if (console && typeof console.error === "function") {
-					console.error("Error while fetching ");
-				}
-			}
-
 			if ( typeof callback === "function" ) {
 				callback();
 			}
