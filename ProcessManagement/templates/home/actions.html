@@ -104,13 +104,13 @@
 
                         <br />
                         <input type="button" value="Send" class="btn"
-                               data-bind="click: $parent.send.bind($data, $parent.currentSelectedFile().id), visible: $data.executeAble"/>
+                               data-bind="click: $parent.send.bind($parent, $data), visible: $data.executeAble"/>
                     </div>
                 </div>
 
                 <div data-bind="visible: stateType()==='action', foreach: data">
                     <input class="btn" type="button"
-                           data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action, visible: $data.executeAble"/>
+                           data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action.bind($parent, $data), visible: $data.executeAble"/>
                 </div>
 
                 <div data-bind="visible: stateType()==='receive', foreach: data">
@@ -136,7 +136,7 @@
                         <!-- /ko -->
 
                         <input class="btn" type="button" value="Received"
-                               data-bind="click: $parent.action, enable: $data.executeAble"/>
+                               data-bind="click: $parent.action.bind($parent, $data), enable: $data.executeAble"/>
                     </div>
                     <div data-bind="visible: !$data.executeAble, visible: !$parent.executable()">
                         Waiting for <strong data-bind="text: $data.relatedSubject + 's'"></strong>: <strong

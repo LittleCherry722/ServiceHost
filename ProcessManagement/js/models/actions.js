@@ -18,14 +18,17 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
   Actions.attrs({
     userID : "integer",
+    macroID : "string",
     processInstanceID : "integer",
     stateID : "integer",
     stateText : "string",
     stateType : "string",
-    actionData : "jsonArray",
+    actionData : {
+      type: "jsonArray",
+      lazy: false
+    },
     relatedSubject : "string",
     subjectID : "string",
-    data : "json",
     messageContent : "string",
     currentSelectedFile : "string"
   });
@@ -75,6 +78,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
       this.data = ko.computed(function() {
         var ad = self.actionData();
+        User.all();
         if (ad) {
           _.each(ad, function(a) {
             if (a.messages) {
@@ -86,7 +90,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
                 });
               });
             }
-            a.data = data;
+            // a.data = data;
             a.messageText = ko.observable();
             a.selectedUsers = ko.observableArray();
             a.currentSelectedFile = ko.observable();
@@ -95,9 +99,9 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
         return ad;
       });
 
-      if (this.actionData()) {
-        self.actionData().data = data;
-      }
+      // if (this.actionData()) {
+      //   self.actionData().data = data;
+      // }
 
       this.hasUsers = ko.computed(function() {
         if (!self.actionData()) {
@@ -216,7 +220,6 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
         return executable;
       });
 
-      this.currentSelectedFile = ko.observable(self.currentSelectedFile());
       this.selectFile = function() {
         $('.gdrive-modal').modal('hide');
         self.currentSelectedFile(this);
@@ -224,11 +227,19 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
     },
 
-    action : function() {
-      data = this.data;
+    action : function( message ) {
+      data = this.toJSON();
       id = data.processInstanceID;
-      data.actionData = this;
-      delete data.actionData.data;
+      actionData = {
+        executeAble: message.executeAble,
+        messageContent: message.messageText(),
+        relatedSubject: message.relatedSubject,
+        text: message.text,
+        transition: message.transition,
+        targetUsersData: message.targetUsersData,
+        transitionType: message.transitionType
+      }
+      data.actionData = actionData;
 
       data = JSON.stringify(data);
       $.ajax({
@@ -247,11 +258,12 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
           Notify.error("Error", "Unable to send action. Please try again.");
         }
       });
-
     },
 
-    send : function(obj) {
-      if (this.data.actionData[0].targetUsersData.min > this.data.actionData[0].selectedUsers().length || this.data.actionData[0].targetUsersData.max < this.data.actionData[0].selectedUsers().length) {
+    send : function( message, obj ) {
+      var self = this;
+
+      if (this.data()[0].targetUsersData.min > this.data()[0].selectedUsers().length || this.data()[0].targetUsersData.max < this.data()[0].selectedUsers().length) {
         var errorMsg = "Please select the correct amount of users. <br/>";
 
         errorMsg += "minimum: " + this.data.actionData[0].targetUsersData.min + "<br/>";
@@ -260,26 +272,31 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
         return;
       }
 
-      data = this.data;
+      data = this.toJSON();
       id = data.processInstanceID;
-      data.actionData = this;
-      delete data.actionData.data;
-
-      data.actionData.messageContent = data.actionData.messageText();
-      delete data.actionData.messageText;
-
-      data.actionData.fileId = obj;
-
-      if (data.actionData.messageContent === undefined || data.actionData.messageContent == "") {
-        data.actionData.messageContent = "[empty message]";
+      actionData = {
+        executeAble: message.executeAble,
+        messageContent: message.messageText(),
+        relatedSubject: message.relatedSubject,
+        text: message.text,
+        transition: message.transition,
+        targetUsersData: message.targetUsersData,
+        transitionType: message.transitionType
+      }
+      if (this.currentSelectedFile()) {
+        actionData.fileId = this.currentSelectedFile().id;
       }
 
-      var selUsers = data.actionData.selectedUsers().map(function(u) {
+      var selUsers = message.selectedUsers().map(function(u) {
         return u.id();
       });
+      actionData.targetUsersData.targetUsers = selUsers;
 
-      data.actionData.targetUsersData.targetUsers = selUsers;
-      delete data.actionData.selectedUsers;
+      data.actionData = actionData;
+
+      if (!data.actionData.messageContent) {
+        data.actionData.messageContent = "[empty message]";
+      }
 
       data = JSON.stringify(data);
       $.ajax({
