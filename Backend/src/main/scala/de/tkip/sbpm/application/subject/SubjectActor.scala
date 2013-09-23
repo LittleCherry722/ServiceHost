@@ -31,6 +31,9 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import akka.util.Timeout
+import de.tkip.sbpm.application.subject.misc.DisableNonObserverStates
+import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
+import akka.actor.Status.Failure
 
 case class CallMacro(callActor: ActorRef, name: String)
 
@@ -130,12 +133,12 @@ class SubjectActor(data: SubjectData) extends Actor {
       // TODO:
     }
 
-    case history.Transition(from, to, msg) => {
-      // forward history entries from internal behavior up to instance actor
-      context.parent !
-        history.Entry(new Date(), subjectName, from, to, if (msg != null) Some(msg) else None)
+    case s @ KillNonObserverStates => {
+      macroBehaviorActors.map(_._2 ! s)
     }
-    case transition: history.NewHistoryTransitionData => {
+    case s @ DisableNonObserverStates => {
+      macroBehaviorActors.map(_._2 ! s)
+    } case transition: history.NewHistoryTransitionData => {
       // forward history entries from internal behavior up to instance actor
       context.parent !
         history.NewHistoryEntry(new Date(), Some(userID), null, Some(subjectID), Some(transition), None)
@@ -172,8 +175,16 @@ class SubjectActor(data: SubjectData) extends Actor {
     }
 
     case action: ExecuteAction => {
-      // route the action to the correct macro
-      macroBehaviorActors(action.macroID) forward action
+      if (macroBehaviorActors.contains(action.macroID)) {
+        // route the action to the correct macro
+        macroBehaviorActors(action.macroID) forward action
+      } else {
+        if (action.isInstanceOf[AnswerAbleMessage]) {
+          action.asInstanceOf[AnswerAbleMessage].sender !
+            Failure(new IllegalArgumentException(
+              "Invalid Argument: The macro does not exist"))
+        }
+      }
     }
 
     case message: SubjectProviderMessage => {

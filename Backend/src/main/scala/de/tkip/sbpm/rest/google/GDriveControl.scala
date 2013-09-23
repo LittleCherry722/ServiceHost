@@ -17,6 +17,7 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.extensions.java6.auth.oauth2.FileCredentialStore
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.http.{
+  FileContent,
   HttpTransport,
   HttpResponse,
   HttpResponseException
@@ -65,6 +66,19 @@ object GDriveControl {
     drive.files()
       .get(fileId)
       .execute()
+
+  def insertFile(service: Drive, title: String, description: String,
+                 mimeType: String, filename: String) = {
+    val gFile = new File()
+    gFile.setTitle(title)
+    gFile.setDescription(description)
+    gFile.setMimeType(mimeType)
+
+    val file = new java.io.File(filename)
+    val gFileContent = new FileContent(mimeType, file)
+
+    service.files().insert(gFile, gFileContent).execute()
+  }
 
   // Permissions
 
@@ -143,6 +157,10 @@ class GDriveControl {
     val f = getFile(driveOf(userId), fileId)
     GDriveFileInfo(f.getTitle, f.getAlternateLink, f.getIconLink)
   }
+
+  def insertFile(userId: String, title: String, description: String,
+                 mimeType: String, filename: String) =
+    GDriveControl.insertFile(driveOf(userId), title, description, mimeType, filename)
 
   def userInfo(userId: String): String =
     getUserInfo(GAuthCtrl.getCredentials(userId))

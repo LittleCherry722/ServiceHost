@@ -19,10 +19,11 @@ define([
 	"async",
   "model/associations",
   "model/attributes",
-  "model/storage"
+  "model/storage",
+  "model/polling"
   // "arne/model/attributes"
 	// "jquery"
-], function( _, ko, Router, require, async, Associations, Attributes, Storage ) {
+], function( _, ko, Router, require, async, Associations, Attributes, Storage, Polling ) {
 	var Model,
 			models = [];
 
@@ -282,6 +283,7 @@ define([
 		Attributes( Result );
 		Associations( Result );
 		Storage( Result, ajaxOptions );
+		Polling( Result );
 
 		// Return our newly defined object.
 		return Result;
@@ -291,23 +293,28 @@ define([
 	Model.fetchAll = function( callback ) {
 		async.map( models, function( model, cb ) {
 			model.fetch( null, {
-				error: function( textStatus, error ) { cb( error ); },
-				success: function() { cb() }
+				error: function( textStatus, error ) {
+					console.error("Error while fetching: " + error );
+          cb();
+        },
+				success: function() {
+          cb()
+        }
 			});
 		}, function( error, results ) {
-			if ( error ) {
-				if (console && typeof console.error === "function") {
-					console.error("Error while fetching ");
-				}
-			}
-
 			if ( typeof callback === "function" ) {
 				callback();
 			}
 		});
 	}
 
+  Model.startPolling = function( callback ) {
+    window.setTimeout( Polling.poll, 2500);
+    if ( callback && typeof callback === "function" ) {
+      callback();
+    }
+  }
+
 	// Everything in this object will be the public API.
 	return Model
 });
-

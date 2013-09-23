@@ -44,6 +44,13 @@ private[persistence] class MessagePersistenceActor extends Actor
     case Read.All => answer { implicit session =>
       Query(Messages).list.map(toDomainModel)
     }
+
+    case Read.WithTarget(userID) => answer { implicit session =>
+      Query(Messages).where(_.toUserId === userID).list.map(toDomainModel)
+    }
+    case Read.WithSource(userID) => answer { implicit session =>
+      Query(Messages).where(_.fromUserId === userID).list.map(toDomainModel)
+    }
     // get message with given id
     case Read.ById(id) => answer { implicit session =>
       toDomainModel(Query(Messages).where(_.id === id).firstOption)
@@ -56,7 +63,7 @@ private[persistence] class MessagePersistenceActor extends Actor
         // otherwise update
         case m @ Message(id, _, _, _, _, _, _)   => update(id, m)
       } match {
-         // only one message was given, return it's id
+        // only one message was given, return it's id
         case ids if (ids.size == 1) => ids.head
         // more messages were given return all ids
         case ids                    => ids

@@ -421,40 +421,76 @@ function GCmacro (parent, id, name)
 		{
 			// convert all data to gv_bv_graphs[name]
 			
-			gf_timeCalc("macro - draw (preparation)");
-			
-			gv_graph_bv.deleteSubject(this.parent.name);
-			
-			gv_graph_bv.addSubject(this.parent.name);
-			
-			// add all nodes to the graph
-			for (var gt_nid in this.nodes)
+			// linear time algorithm
+			if (gv_layoutAlgorithm == "ltl" && gf_functionExists("LinearTimeLayout"))
 			{
-				var gt_node = this.nodes[gt_nid];
-				gv_graph_bv.addNode(this.parent.name, gt_nid.substr(1), gt_node, this.selectedNode == gt_nid.substr(1));
-			}
+				gf_timeCalc("macro - draw (preparation)");
+				var ltl	= new LinearTimeLayout();
 			
-			// add all edges to the graph
-			for (var gt_eid in this.edges)
-			{
-				var gt_edge = this.edges[gt_eid];
-				var gt_start = gt_edge.getStart();
-				var gt_end = gt_edge.getEnd();
-							
-				if (gf_isset(this.nodes["n" + gt_start], this.nodes["n" + gt_end]))
+				for (var gt_nid in this.nodes)
 				{
-					gv_graph_bv.addEdge(this.parent.name, gt_eid.substr(1), gt_start, gt_end, gt_edge, this.selectedEdge == gt_eid.substr(1));
+					var gt_node		= this.nodes[gt_nid];
+					ltl.addNode(gt_nid, gt_node);
 				}
+				
+				// add all edges to the graph
+				for (var gt_eid in this.edges)
+				{
+					var gt_edge		= this.edges[gt_eid];
+					var gt_start	= "n" + gt_edge.getStart();
+					var gt_end		= "n" + gt_edge.getEnd();
+					if (gf_isset(this.nodes[gt_start], this.nodes[gt_end]))
+					{
+						gt_edge.selected	= (this.selectedEdge == gt_eid.substr(1));
+						ltl.addEdge(gt_eid, gt_start, gt_end, gt_edge);
+					}
+					
+				}
+				gf_timeCalc("macro - draw (preparation)");
+				
+				gf_timeCalc("macro - draw (drawGraph)");
+				// if (this.edgeCounter > 0)
+					ltl.layout();
+				gf_timeCalc("macro - draw (drawGraph)");
 			}
-			gf_timeCalc("macro - draw (preparation)");
 			
-			gf_timeCalc("macro - draw (drawGraph)");
-			gv_graph_bv.drawGraph(this.parent.name);
-			gf_timeCalc("macro - draw (drawGraph)");
-			
+			// default layout algorithm
+			else
+			{
+				gf_timeCalc("macro - draw (preparation)");
+				
+				gv_graph_bv.deleteSubject(this.parent.name);
+				gv_graph_bv.addSubject(this.parent.name);
+				
+				// add all nodes to the graph
+				for (var gt_nid in this.nodes)
+				{
+					var gt_node = this.nodes[gt_nid];
+					gv_graph_bv.addNode(this.parent.name, gt_nid.substr(1), gt_node, this.selectedNode == gt_nid.substr(1));
+				}
+				
+				// add all edges to the graph
+				for (var gt_eid in this.edges)
+				{
+					var gt_edge = this.edges[gt_eid];
+					var gt_start = gt_edge.getStart();
+					var gt_end = gt_edge.getEnd();
+								
+					if (gf_isset(this.nodes["n" + gt_start], this.nodes["n" + gt_end]))
+					{
+						gv_graph_bv.addEdge(this.parent.name, gt_eid.substr(1), gt_start, gt_end, gt_edge, this.selectedEdge == gt_eid.substr(1));
+					}
+				}
+				gf_timeCalc("macro - draw (preparation)");
+				
+				gf_timeCalc("macro - draw (drawGraph)");
+				gv_graph_bv.drawGraph(this.parent.name);
+				gf_timeCalc("macro - draw (drawGraph)");
+			}
+				
 			gf_timeCalc("macro - draw (select conversation)");
 			this.selectConversation(this.parent.selectedConversation);
-			gf_timeCalc("macro - draw (select conversation)");
+			gf_timeCalc("macro - draw (select conversation)");	
 		}
  	};
 	
@@ -758,6 +794,7 @@ function GCmacro (parent, id, name)
 			var gt_variable			= gf_isset(values.variable)			? values.variable			: "";
 			var gt_options			= gf_isset(values.options)			? values.options			: {};
 			var gt_varMan			= gf_isset(values.varMan)			? values.varMan				: {};
+			var gt_createSubjects	= gf_isset(values.createSubjects)	? values.createSubjects		: {};
 			var gt_macro			= gf_isset(values.macro)			? values.macro				: "";
 			var gt_comment			= gf_isset(values.comment)			? values.comment			: "";
 			
@@ -787,6 +824,11 @@ function GCmacro (parent, id, name)
 			{
 				gt_varMan.storevar	= this.parent.addVariable(gt_varMan.storevarText, gt_varMan.storevar);
 			}
+			
+			if (gf_isset(gt_createSubjects.storevar, gt_createSubjects.storevarText))
+			{
+				gt_createSubjects.storevar	= this.parent.addVariable(gt_createSubjects.storevarText, gt_createSubjects.storevar);
+			}
 		
 			gt_node.setText(gt_text);
 			gt_node.setType(gt_type);
@@ -797,6 +839,7 @@ function GCmacro (parent, id, name)
 			gt_node.setVariable(gt_variable);
 			gt_node.setConversation(gv_graph.addConversation(gt_conversationText, gt_conversation));
 			gt_node.setVarMan(gt_varMan);
+			gt_node.setCreateSubjects(gt_createSubjects);
 			gt_node.setComment(gt_comment);
 			
 			// macro

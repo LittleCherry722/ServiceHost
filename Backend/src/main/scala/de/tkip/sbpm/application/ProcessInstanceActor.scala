@@ -14,10 +14,7 @@
 package de.tkip.sbpm.application
 
 import java.util.Date
-import scala.collection.mutable.Buffer
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent._
-import scala.concurrent.Future._
 import scala.concurrent.duration._
 import akka.actor._
 import akka.pattern.ask
@@ -26,30 +23,19 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessGraph
-import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.model.Process
 import de.tkip.sbpm.model.ProcessInstance
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
-import de.tkip.sbpm.persistence._
 import akka.event.Logging
-import scala.collection.mutable.SortedSet
-import scala.collection.mutable.Set
-import scala.collection.mutable.LinkedList
 import scala.collection.mutable.Map
-import ExecutionContext.Implicits.global
 import akka.actor.Status.Failure
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
+import de.tkip.sbpm.model.ExternalSubject
 
-// represents the history of the instance
-case class History(
-  var processName: String,
-  instanceId: ProcessInstanceID,
-  var processStarted: Option[Date] = None, // None if not started yet
-  var processEnded: Option[Date] = None, // None if not started or still running
-  entries: Buffer[history.Entry] = ArrayBuffer[history.Entry]()) // recorded state transitions in the history
+case class MappingInfo(subjectId: SubjectID, processId : ProcessID, address: String)
 
 /**
  * instantiates SubjectActor's and manages their interactions
@@ -59,7 +45,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
+  import context.dispatcher
   implicit val timeout = Timeout(4 seconds)
+  implicit val config = context.system.settings.config
 
   // this fields are set in the preStart, dont change them afterwards!!!
   private var id: ProcessInstanceID = _
@@ -76,26 +64,22 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // this map stores all Subject(Container) with their IDs 
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
+  val url = SystemProperties.akkaRemoteUrl
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceProxyManagerActor())))
+      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self))))
 
-  // recorded transitions in the subjects of this instance
-  // every subject actor has to report its transitions by sending
-  // history.Entry messages to this actor
-  private val executionHistory = History(processName, id, Some(new Date()))
-  // provider actor for debug payload used in history's debug data
-  private lazy val debugMessagePayloadProvider = context.actorOf(Props[DebugHistoryMessagePayloadActor])
 
   // this actor handles the blocking for answer to the user
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor])
 
   // this actory is used to exchange the subject ids for external input messages
-  // TODO
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, graph)))
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)))
 
   override def preStart() {
+    logger.debug("subject mapping: {}", request.subjectMapping)
+
     try {
       // TODO schoener machen
       val dataBaseAccessFuture = for {
@@ -122,8 +106,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       val startSubjects: Iterable[SubjectID] = graphTemp.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
       // parse the graph into the internal structure
       graph = parseGraph(graphTemp)
-
-      executionHistory.processName = processName
 
       // TODO modify to the right version
       for (startSubject <- startSubjects) {
@@ -158,10 +140,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subjectMap(st.subjectID).handleSubjectTerminated(st)
 
       logger.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
-      if (isTerminated) {
-        // log end time in history
-        executionHistory.processEnded = Some(new Date())
-      }
     }
 
     case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to)) => {
@@ -170,26 +148,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to))).send(sm)
     }
 
-    // add an entry to the history
-    // (should be called by subject actors when a transition occurs)
-    case he: history.Entry => {
-      executionHistory.entries += he
-    }
-
     case he: history.NewHistoryEntry => {
       he.process = history.NewHistoryProcessData(processName, id, name)
       context.parent.forward(he)
-    }
-
-    // return current process instance history
-    case msg: GetHistory => {
-      sender ! {
-        if (msg.isInstanceOf[Debug]) {
-          HistoryAnswer(msg, HistoryTestData.generate(processName, id)(debugMessagePayloadProvider))
-        } else {
-          HistoryAnswer(msg, executionHistory)
-        }
-      }
     }
 
     case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
@@ -213,11 +174,15 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case message: ReadProcessInstance => {
       createReadProcessInstanceAnswer(message)
     }
+    
+    case message: GetSubjectMapping => {
+      sender ! SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
+    }
   }
 
   private var sendProcessInstanceCreated = true
   private def createProcessInstanceData(actions: Array[AvailableAction]) =
-    ProcessInstanceData(id, name, processID, processName, persistenceGraph, false, startTime, request.userID, executionHistory, actions)
+    ProcessInstanceData(id, name, processID, processName, persistenceGraph, false, startTime, request.userID, actions)
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {
@@ -253,6 +218,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
+	  val optionalId = if (subject.external){
+      Some(externalSubjectMapping(subject.asInstanceOf[ExternalSubject]))
+    } else {
+      None
+    }
+    
     new SubjectContainer(
       subject,
       processID,
@@ -260,7 +231,52 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       processInstanceManger,
       logger,
       blockingHandlerActor,
+      optionalId,
       () => runningSubjectCounter += 1,
       () => runningSubjectCounter -= 1)
+  }
+
+  private def externalSubjectMapping(subject: ExternalSubject) :MappingInfo = {
+    if(request.subjectMapping.contains(subject.id)) {
+      request.subjectMapping(subject.id)
+    } else {
+      MappingInfo(subject.relatedSubjectId.get, subject.relatedProcessId.get, subject.url.get)
+    }
+  }
+
+  private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, MappingInfo] = {
+    logger.debug("create subject mapping for {}@{}", processId, url)
+
+    import scala.collection.mutable.{ Map => MutableMap }
+    val subjectMapping = MutableMap[SubjectID, MappingInfo]()
+    for (subject <- graph.subjects.values if subject.external){
+      val externalSubject = subject.asInstanceOf[ExternalSubject]
+
+      if(externalSubject.relatedProcessId.exists(_ == processId) && externalSubject.url.exists(_ == url)) {
+        val connectedSubject = findConnectedSubject(externalSubject.id)
+        val ownUrl = SystemProperties.akkaRemoteUrl
+
+        logger.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
+
+        val mappingA = (externalSubject.relatedSubjectId.get -> MappingInfo(externalSubject.id, processID, ownUrl))
+        val mappingB = (externalSubject.relatedInterfaceId.get -> MappingInfo(connectedSubject.id, processID, ownUrl))
+
+        subjectMapping += mappingA
+        subjectMapping += mappingB
+      }
+    }
+    subjectMapping
+  }
+
+  private def findConnectedSubject(subjectId: SubjectID) :SubjectLike = {
+    val subject = persistenceGraph.subjects(subjectId)
+    val mainMacro = subject.macros("##main##")
+
+    val randomSendEdge = mainMacro.edges.find(_.target.isDefined)
+
+    randomSendEdge match {
+      case Some(edge) => graph.subjects(edge.target.get.subjectId)
+      case None => throw new IllegalStateException("could not find connected subject for subjectID "+subjectId)
+    }
   }
 }

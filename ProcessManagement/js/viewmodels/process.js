@@ -42,8 +42,8 @@ define([
 
 		// Needed for saving the business Interface
 		this.newBusinessInterface = newBusinessInterface;
-		newBusinessInterface.name("");
-		newBusinessInterface.creator(App.currentUser().name());
+		this.newBusinessInterface().name("");
+		this.newBusinessInterface().creator(App.currentUser().name());
 
 		this.selectedInterface = ko.observable();
 		this.selectedInterfaceName = ko.computed(function() {
@@ -131,13 +131,13 @@ define([
 			loadGraph( newGraph );
 		}
 
-		this.newBusinessInterfaceName = newBusinessInterface.name;
-		this.newBusinessInterfaceAuthor = newBusinessInterface.creator;
+		this.newBusinessInterfaceName = newBusinessInterface().name;
+		this.newBusinessInterfaceAuthor = newBusinessInterface().creator;
 
 		// Validation errors for saving a process under a different name
 		this.businessInterfaceNameError = ko.computed(function() {
-			if ( Interface.nameAlreadyTaken( newBusinessInterface.name() ) ) {
-				return "Interface name '" + newBusinessInterface.name() + "' is not available.";
+			if ( Interface.nameAlreadyTaken( newBusinessInterface().name() ) ) {
+				return "Interface name '" + newBusinessInterface().name() + "' is not available.";
 			} else {
 				return "";
 			}
@@ -150,15 +150,20 @@ define([
 		});
 
 		this.saveBusinessInterface = function() {
-			newBusinessInterface.save({}, {
+      this.newBusinessInterface()
+        .graph(currentProcess().associatedGraph(this.interfaceReplacementSubject()));
+      this.newBusinessInterface().processId(currentProcess().id())
+      this.newBusinessInterface().subjectId(this.interfaceReplacementSubject())
+
+			this.newBusinessInterface().save({}, {
 				success: function() {
 					Notify.info("Success", "Business Interface '" +
-						currentProcess().name() + "' has successfully been made public.");
+						this.currentProcess().name() + "' has successfully been made public.");
 
-					newBusinessInterface = self.newbusinessInterface = new Interface({
+					this.newBusinessInterface(new Interface({
 						name: "",
 						creator: App.currentUser().name()
-					});
+					}));
 				},
 				error: function() {
 					// TODO: real error handling
@@ -218,7 +223,7 @@ define([
 
 		this.exportGraph = function() {
 			var graph = currentProcess().graphString();
-			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
+			// graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
 			this.graphText(graph);
 
@@ -307,7 +312,7 @@ define([
 
 	var newProcessName = ko.observable("");
 
-	var newBusinessInterface = new Interface();
+	var newBusinessInterface = ko.observable(new Interface());
 
 	// Currently selected subject and conversation (in chosen)
 	var currentSubject = ko.observable();
@@ -448,6 +453,7 @@ define([
 
 		// Load all changes into the process model.
 		setGraph( process );
+    process.isNewRecord = false;
 
 		// Something is not right with lazy attributes... Need to set it twice -.-
 		process.save(null, {
@@ -770,7 +776,8 @@ define([
 	}
 
 	var goToExternalProcess = function( process ) {
-		Router.goTo( Process.findByName( process )[0] )
+    console.log(process)
+		Router.goTo( Process.find( process ) )
 	}
 
 	// Compute whether to show or hide the role warning.

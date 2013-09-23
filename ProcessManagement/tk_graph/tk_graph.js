@@ -38,6 +38,23 @@ gf_includeJS("graph/classes/path.class.js");
 gf_includeJS("graph/classes/subject.class.js");
 gf_includeJS("graph/classes/time.class.js");
 
+// include LinearTimeLayout
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.BasicEdge.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.Edge.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.Fragment.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.LowAndDescDFS.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.Node.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.NormGraph.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.NumberDFS.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.PST.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.RPST.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.RPSTNode.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.SplitCompDFS.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.TCTree.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.TCTreeNode.js");
+gf_includeJS("graph/LinearTimeLayout/LinearTimeLayout.TCTreeSkeleton.js");
+
 // include libs
 gf_includeJS("graph/tk_graph.js");
 gf_includeJS("graph/tk_graph_api.js");

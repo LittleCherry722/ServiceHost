@@ -1,8 +1,14 @@
+<div class="hide">
+    <div id="graphModal">
+        <div id="graph_bv_outer"></div>
+    </div>
+</div>
+
 <div data-bind="visible: actions().length==0">
     <p class="lead" style="margin-top: 20px;">
         There are no Processes running at the moment :(
     </p>
-    
+
     <img style="position: absolute; top: 96px; left: 366px;" src="images/arrow_dashboard.png"/>
 
     <p style="font-size: 140%; line-height: 150%; margin-top: 20px;">
@@ -14,7 +20,7 @@
     </p>
 </div>
 
-<div id="clickablelist" data-bind='foreach: actions()'>
+<div id="clickablelist" data-bind="foreach: actions">
     <!-- ko if: process() && (executable() || hasActions())-->
     <table class="result" data-bind="attr: {id: instanceTableId()}">
         <tr style="cursor: pointer;" data-bind="click: function(data, event) { $(event.currentTarget).next().toggle(); }">
@@ -49,16 +55,18 @@
         <tr style="display: none;" data-bind="attr: {id: instanceDetailsDivId()}">
             <td colspan="4" class="item_info">
 
-                <div data-bind="visible: stateType()==='send', foreach: actionData">
+                <div data-bind="visible: $data.isSend, foreach: data">
                     <div>
                         <strong>Send:</strong>
                         <span style="display: inline;"
                               data-bind="html: $data.text + ' to ' + $data.relatedSubject"></span>
                         <br/><br/>
 
-                        <strong>User:</strong>
-                        <select data-bind="options: $parent.selectUsers, optionsText: 'name', selectedOptions: selectedUsers, optionsCaption: $parent.selectedUsersMax() == 1 ? 'Choose...': null, attr: {size : $parent.selectedUsersMax() > 1 ? 5 : 1, multiple: $parent.selectedUsersMax() > 1 ? 'multiple' : null}"></select>
-                        <br/>
+                        <div data-bind="visible: $parent.hasUsers">
+                          <strong>User:</strong>
+                          <select data-bind="options: $parent.selectUsers, optionsText: 'name', selectedOptions: selectedUsers, optionsCaption: $parent.selectedUsersMax() == 1 ? 'Choose...': null, attr: {size : $parent.selectedUsersMax() > 1 ? 5 : 1, multiple: $parent.selectedUsersMax() > 1 ? 'multiple' : null}"></select>
+                          <br/>
+                        </div>
 
                         <strong>Message:</strong>
                         <input type="text" data-bind="value: messageText"/>
@@ -66,7 +74,7 @@
                         <input type="text" placeholder="No file selected" disabled="disabled" class="disabled" data-bind="value: $parent.currentSelectedFile().title" style="margin-left:0;" />
                         <a href="#googleDriveModal" style="width:130px;" data-bind="click: $root.refreshGoogleDriveData, attr: { href:'#googleDriveModal'+$parent.processInstanceID()+$parent.subjectID()  }" class="btn" id="googleDriveButton" data-toggle="modal">
 				            <i class="icon-cloud icon-large"></i> Choose File
-				        </a>				        
+				        </a>
 				        <div data-bind="attr: { id:'googleDriveModal'+$parent.processInstanceID()+$parent.subjectID() }" class="modal hide gdrive-modal" tabindex="-1">
 							<div class="modal-header">
 								<a type="button" class="close pull-right" data-dismiss="modal">x</a>
@@ -92,22 +100,22 @@
 									</div>
 								<!-- /ko -->
 							</div>
-						</div>			        
-				        
+						</div>
+
                         <br />
                         <input type="button" value="Send" class="btn"
-                               data-bind="click: $parent.send.bind($data, $parent.currentSelectedFile().id), visible: $data.executeAble"/>
+                               data-bind="click: $parent.send.bind($parent, $data), visible: $data.executeAble"/>
                     </div>
                 </div>
 
-                <div data-bind="visible: stateType()==='action', foreach: actionData">
+                <div data-bind="visible: stateType()==='action', foreach: data">
                     <input class="btn" type="button"
-                           data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action, visible: $data.executeAble"/>
+                           data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action.bind($parent, $data), visible: $data.executeAble"/>
                 </div>
 
-                <div data-bind="visible: stateType()==='receive', foreach: actionData">
+                <div data-bind="visible: stateType()==='receive', foreach: data">
                     <div data-bind="visible: $data.executeAble">
-                        <strong data-bind="text: $data.text"></strong>
+                        <strong data-bind="html: $data.text"></strong>
                         by
                         <strong data-bind="text: $data.relatedSubject"></strong>
 
@@ -119,7 +127,7 @@
                             Message from <strong data-bind="text: user.name()"></strong>: <span
                                 style="padding: 5px; background: #ddd; border: 1px solid #999;"
                                 data-bind="html: messageContent"></span>
-                                
+
 								<!-- ko if: $data.url -->
 								<br />
 								<a target="_blank" data-bind="attr: { href: url, title: title }"><img data-bind="attr: { src:iconLink }" />&nbsp;<span data-bind="text: title" style="display: inline;"></span></a>
@@ -128,7 +136,7 @@
                         <!-- /ko -->
 
                         <input class="btn" type="button" value="Received"
-                               data-bind="click: $parent.action, enable: $data.executeAble"/>
+                               data-bind="click: $parent.action.bind($parent, $data), enable: $data.executeAble"/>
                     </div>
                     <div data-bind="visible: !$data.executeAble, visible: !$parent.executable()">
                         Waiting for <strong data-bind="text: $data.relatedSubject + 's'"></strong>: <strong
@@ -141,9 +149,7 @@
                     <strong>Process ended. No actions available.</strong>
                 </div>
 
-                <input type="button" value="Show Graph" class="btn pull-right show-graph" data-bind="click: $parent.showGraph"/>
-                <div class="graph"></div>
-
+                <a href="#graphModal" class="btn pull-right show-graph" data-bind="click: $parent.showGraph">Show Graph</a>
             </td>
         </tr>
     </table>

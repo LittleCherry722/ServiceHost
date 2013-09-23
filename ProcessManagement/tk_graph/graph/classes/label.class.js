@@ -61,6 +61,27 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	this.ellipse	= null;
 	
 	/**
+	 * Estimated height of the label's text.
+	 * 
+	 * @type int
+	 */
+	this.estimatedTextHeight	= 0;
+	
+	/**
+	 * Estimated width of the label's text.
+	 * 
+	 * @type int
+	 */
+	this.estimatedTextWidth		= 0;
+	
+	/**
+	 * When set to true the label's text dimensions will be estimated rather than measured.
+	 * 
+	 * @type boolean
+	 */
+	this.estimateTextDimensions	= false;
+	
+	/**
 	 * The id of this label.
 	 * 
 	 * @type String
@@ -603,6 +624,37 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	};
 	
 	/**
+	 * Set estimations for the width / height of the label's text.
+	 * 
+	 * @param {int} width The estimated width.
+	 * @param {int} height The estimated height.
+	 * @returns {void}
+	 */
+	this.setEstimatedTextDimensions = function (width, height)
+	{
+		if (gf_isset(width) && width > 0)
+		{
+			this.estimatedTextWidth	= width;
+		}
+		
+		if (gf_isset(height) && height > 0)
+		{
+			this.estimatedTextHeight	= height;
+		}
+	};
+	
+	/**
+	 * Sets a flag whether the text dimensions should be estimated or not.
+	 * 
+	 * @param {boolean} estimate True or false.
+	 * @returns {void}
+	 */
+	this.setEstimateTextDimensions = function (estimate)
+	{
+		this.estimateTextDimensions	= gf_isset(estimate) && estimate === true;
+	};
+	
+	/**
 	 * Updates the source and dimensions of the label's image.
 	 * 
 	 * @param {String} src The source of the image.
@@ -859,7 +911,25 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	{
 		// TODO: some more options like apply padding and move the text according to the new position
 		
-		var gt_textBBox	= this.textString == "" ? {top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0} : this.text.getBBox();
+		var gt_textBBox	= {top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0};
+		
+		if (this.textString != "")
+		{
+			if (this.estimateTextDimensions)
+			{
+				this.setEstimatedTextDimensions(gf_estimateTextWidth(this.textString, this.style), gf_estimateTextHeight(this.textString, this.style));
+			}
+			
+			if (this.estimatedTextHeight > 0 && this.estimatedTextWidth > 0)
+			{
+				gt_textBBox.height	= this.estimatedTextHeight;
+				gt_textBBox.width	= this.estimatedTextWidth;
+			}
+			else
+			{
+				gt_textBBox	= this.text.getBBox();
+			}
+		}
 		
 		this.updateBoundariesText(gt_textBBox);
 
@@ -932,7 +1002,23 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		if (this.text != null && this.textString != "")
 		{		
 			if (!gf_isset(bbox))
-				bbox	= this.textString == "" ? {width: 0, height: 0} : this.text.getBBox();
+			{
+				bbox	= {width: 0, height: 0};
+				if (this.estimateTextDimensions)
+				{
+					this.setEstimatedTextDimensions(gf_estimateTextWidth(this.textString, this.style), gf_estimateTextHeight(this.textString, this.style));
+				}
+				
+				if (this.estimatedTextHeight > 0 && this.estimatedTextWidth > 0)
+				{
+					bbox.height	= this.estimatedTextHeight;
+					bbox.width	= this.estimatedTextWidth;
+				}
+				else
+				{
+					bbox	= this.text.getBBox();
+				}
+			}
 	
 			// correct the text position depending on the textAlign
 			if (gf_getTextPosition(this.readStyle(this.textAlignAttribute, ""), "").align == "start")

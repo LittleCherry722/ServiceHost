@@ -29,6 +29,7 @@ object ActorLocator {
   val googleDriveActorName = "google-drive"
   val googleCalendarActorName = "google-calendar"
   val googleBIRActorName = "google-BIR"
+  val changeActorName = "change"
 
   def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
 
@@ -42,5 +43,6 @@ object ActorLocator {
   def googleDriveActor(implicit ctx: ActorRefFactory) = actor(googleDriveActorName)
   def googleCalendarActor(implicit ctx: ActorRefFactory) = actor(googleCalendarActorName)
   def googleBIRActor(implicit ctx: ActorRefFactory) = actor(googleBIRActorName)
+  def changeActor(implicit ctx: ActorRefFactory) = actor(changeActorName)
 }
 
