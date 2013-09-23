@@ -512,6 +512,54 @@ function gf_elementExists ()
 }
 
 /**
+ * Estimate the height of a given text.
+ * 
+ * @private
+ * @param {String} text The text whose height is to be estimated.
+ * @param {Object} style The style settings to use for estimation
+ * @returns {int} The estimated text height.
+ */
+function gf_estimateTextHeight (text, style)
+{
+	var height	= 0;
+	
+	if (text != "")
+	{
+		var split	= text.split(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi);
+		
+		// estimation: number of lines * (fontSize + someSpace)
+		height	= Math.ceil(split.length * (style.fontSize + 3));
+	}
+	
+	return height;
+}
+
+/**
+ * Estimate the width of a given text.
+ * 
+ * @private
+ * @param {String} text The text whose width is to be estimated.
+ * @param {Object} style The style settings to use for estimation
+ * @returns {int} The estimated text width.
+ */
+function gf_estimateTextWidth (text, style)
+{
+	var width	= 0;
+	
+	if (text != "")
+	{
+		var split	= text.split(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi);
+		for (var s in split)
+		{
+			// estimation: max of length of each line
+			width	= Math.ceil(Math.max(split[s].length * (style.fontSize / 1.89), width));		// 2.434
+		}
+	}
+	
+	return width;
+}
+
+/**
  * Checks if the given function(s) exists.
  * You can pass any number of function names to this method.
  * If at least one of the functions is not present this method returns false.

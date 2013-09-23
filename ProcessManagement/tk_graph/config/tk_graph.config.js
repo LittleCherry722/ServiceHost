@@ -16,18 +16,33 @@
  */
 
 /**
- * When set to true the tk_graph library will alter attributes of DOM Elements; when set to false the proper GUI has to make all changes
+ * When set to true the dimensions of the labels' texts is estimated rather than measured.
  * 
  * @type boolean
  */
-gv_standAlone	= false;
+var gv_estimateTextDimensions	= true;
+
+/**
+ * Set the layout algorithm.
+ * Possible values: default, ltl (linear time layout)
+ * 
+ * @type string
+ */
+var gv_layoutAlgorithm	= "default";
 
 /**
  * When set to true the times used for certain tasks will be printed to the console.
  * 
  * @type boolean
  */
-gv_printTimes	= true;
+var gv_printTimes	= false;
+
+/**
+ * When set to true the tk_graph library will alter attributes of DOM Elements; when set to false the proper GUI has to make all changes
+ * 
+ * @type boolean
+ */
+var gv_standAlone	= false;
 
 
 /*

@@ -61,10 +61,10 @@ define([
         
                 } else if( $('#main [data-chardin-intro]').length ) {
                     
-			$('#main').chardinJs('start')
+			$('#main').chardinJs('start');
                         
 		}
-	}
+	};
 
 	var oauthLogin = function() {
 		if( App.currentUser().id() === 0 ) {
@@ -74,7 +74,7 @@ define([
 
 		var data = {
 			id: App.currentUser().id()
-		}
+		};
 
 		$.ajax({
 			url: "/oauth2callback/init_auth",
@@ -85,14 +85,25 @@ define([
 				if ( !response_url ) {
 					Notify.info( "Success", "User account is already linked with Google." );
 				} else {
-					window.open( response_url, "Google OAuth 2", "width=600,height=400" );
+					console.log(response_url);
+					var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+				  	'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+				  	'((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+				  	'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+				  	'(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+				  	'(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+      					if(!pattern.test(response_url)) {
+						Notify.info( "Success", "User account is already linked with Google." );
+  					} else {
+						window.open( response_url, "Google OAuth 2", "width=600,height=400" );
+					}
 				}
 			},
 			error: function() {
 				Notify.error( "Error", "Error while linking user account with Google." );
 			}
 		});
-	}
+	};
 
 	var logout = function() {
 		console.log("logout");
