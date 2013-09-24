@@ -85,6 +85,10 @@ object Entities {
     (Process(None, """Staples""", false) -> loadJson("staples")),
     (Process(None, """Transportdienstleister""", false) -> loadJson("lieferant")),
 
+    (Process(None, "Gro\u00dfunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
+    (Process(None, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
+    (Process(None, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
+
     (Process(None, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
     (Process(None, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
     (Process(None, """IP Test""", false) -> loadJson("ip_test")),

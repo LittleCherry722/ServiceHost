@@ -622,7 +622,6 @@ define([
 			var svg = $('#processContent svg');
 			if(svg.length > 0){
 				svg.on('DOMSubtreeModified', function(){
-					console.log('dom nodes changed', gv_graph.getSubjectNames())
 					if(gv_graph.getSubjectNames().length > 0) {
 						$('#process-subject-help').addClass('invisible');
 					} else {
