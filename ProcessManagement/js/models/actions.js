@@ -33,6 +33,8 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
     currentSelectedFile : "string"
   });
 
+	Actions.belongsTo( "processInstance", { foreignKey: "processInstanceID" } );
+
   Actions.enablePolling( "action" );
 
   Actions.all = ko.observableArray();
@@ -59,15 +61,6 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
         },
         deferEvaluation: true
       });
-
-      // this.processInstanceID = ko.computed(function() { return self.processInstanceID(); });
-      // this.stateID = ko.computed(function() { return self.stateID(); });
-      // this.stateText = ko.computed(function() { return self.stateText(); });
-      // this.stateType = ko.computed(function() { return self.stateType(); });
-      // this.processInstanceID = ko.observable(self.processInstanceID());
-      // this.stateType = ko.observable(self.stateType());
-      // this.stateID= ko.observable(self.stateID());
-      // this.stateText = ko.observable(self.stateText());
 
       this.instanceDetailsDivId = ko.computed(function() {
         return "instanceDetails_" + self.processInstanceID() + "_" + self.subjectID();
@@ -183,23 +176,19 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
       });
 
       this.process = ko.computed(function() {
-        var processId = null;
-        _.each(ProcessInstances.all(), function(element) {
-          if (element.id() === self.processInstanceID()) {
-            processId = element.processId();
-            instanceName = element.name();
-            processStarted = element.startedAt().date;
-          }
-        });
+        if ( self.processInstance() ) {
+          return self.processInstance().process();
+        } else {
+          return undefined;
+        }
+      });
 
-        var p = null;
-        _.each(Process.all(), function(element) {
-          if (element.id() === processId) {
-            p = element;
-          }
-        });
-
-        return p;
+      this.instanceName = ko.computed(function() {
+        if ( self.processInstance() ) {
+          return self.processInstance().name();
+        } else {
+          return "";
+        }
       });
 
       this.hasActions = ko.computed(function() {
