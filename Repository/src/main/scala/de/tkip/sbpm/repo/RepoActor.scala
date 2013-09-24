@@ -76,6 +76,7 @@ class RepoActor extends Actor with ActorLogging {
     fields -= "url"
     fields -= "subjectId"
     fields += ("id" -> id.toJson)
+    fields += ("date" -> System.currentTimeMillis.toJson)
     fields += ("graph" -> convertedGraph)
 
     entry.copy(fields)
