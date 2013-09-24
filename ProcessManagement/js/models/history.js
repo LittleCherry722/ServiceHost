@@ -77,21 +77,18 @@ define([
   History.enablePolling();
 
 	History.all = ko.observableArray();
+
 	History.include({
     initialize: function( data ) {
       var self = this;
-      if(self.process()){
-        this.processinstance = ko.computed(function() {
-          var processId = null;
-          var processInstanceId = self.process().processInstanceId;
-          _.each(ProcessInstances.all(), function(element) {
-            if (element.id() === processInstanceId) {
-              //processName = element.processName();
-              var instanceName = element.name();
-            }
-          });
-        });
-      }
+
+      this.instanceName = ko.computed(function() {
+        return self.process().processInstanceName;
+      });
+
+      this.processName = ko.computed(function() {
+        return self.process().processName;
+      });
     }
   });
 
