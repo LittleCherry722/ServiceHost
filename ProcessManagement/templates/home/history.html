@@ -2,20 +2,20 @@
 		  <p class="lead" style="margin-top: 20px;">
 		    Your history is empty :(
 		  </p>
-                  
+
                 <img style="position: absolute; top: 96px; left: 366px;" src="images/arrow_dashboard.png"/>
-  
+
                 <p style="font-size: 140%; line-height: 150%; margin-top: 20px;">
                     If you start a new process instance (blue arrow), all corresponding actions will be tracked here.<br/>
                     <br/>
                     You don't find what you're looking for? <a style="font-weight: bold; text-decoration: underline;" href="#/processes/new">create a new Process</a>! <br/>
-                </p>  
+                </p>
         </div>
 
 <div id="history">
   <div class="flexbox" id="clickablelist" style="height: 100%;">
       <div class="fluid" style="height: 100%;">
-        
+
         <table class="table result" data-bind="visible: historys().length>=1">
           <thead>
             <th>Time</th>
@@ -27,7 +27,7 @@
           <tbody data-bind="foreach: historys()">
             <tr class="state" data-bind="click:  function() { if(transitionEvent() && $data.transitionEvent().hasOwnProperty('message')) $('.message'+$index()).toggle(); }, style: { cursor: transitionEvent() && $data.transitionEvent().hasOwnProperty('message') ? 'pointer' : '' }">
               <td data-bind="text: ts"></td>
-              <td data-bind="text: process().processName  + ' - ' + instanceName "></td>
+              <td data-bind="text: processName()  + ' - ' + instanceName() "></td>
               <td class="event">
               	<!-- ko if: transitionEvent() -->
               		<div class="left"><strong>From:</strong></div><div class="right">&nbsp;<span data-bind="text: transitionEvent().fromState.text"></span></div><div style="clear:both;"></div>
@@ -63,7 +63,7 @@
                 	</div>
                 </td>
               </tr>
-              <!-- /ko -->   
+              <!-- /ko -->
           </tbody>
         </table>
       </div>

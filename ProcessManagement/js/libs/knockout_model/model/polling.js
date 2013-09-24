@@ -1,7 +1,7 @@
 define([
 	"underscore"
 ], function( _ ) {
-  var pollingRescources = {},
+  var pollingRescources = [],
   lastUpdate = parseInt( (new Date().getTime())/1000, 10 ),
   pollingUrl = "/changes";
 
@@ -19,12 +19,19 @@ define([
     return 3*60;
   }
 
-  var enablePolling = function( name ) {
+  var enablePolling = function( name, priority ) {
     Resource = this;
     if ( !name ) {
       name = Resource.className.toLowerCase()
     }
-    pollingRescources[name] = Resource;
+    if ( !priority ) {
+      priority = 0;
+    }
+    pollingRescources.push({
+      resource: Resource,
+      name: name,
+      priority: priority
+    });
   }
 
   var updateHandler = {
@@ -66,12 +73,12 @@ define([
   var update = function( pollingData ) {
     var changesReceived = false;
 
-    _(pollingRescources).each(function( resource, resourceName ) {
-      if ( !pollingData[resourceName] ) { return }
+    _.chain(pollingRescources).sortBy( "priority" ).reverse().each(function( resourceObj ) {
+      if ( !pollingData[resourceObj.name] ) { return }
       _.each(updateHandler, function( action, actionName ) {
-        _(pollingData[resourceName][actionName]).each(function( item ) {
+        _(pollingData[resourceObj.name][actionName]).each(function( item ) {
           changesReceived = true;
-          action(item, resource);
+          action(item, resourceObj.resource);
         })
       });
     });

@@ -26,6 +26,8 @@ define([
 
 	ProcessInstance.belongsTo( "process" );
 
+	ProcessInstance.enablePolling( "processInstance", 10 );
+
   ProcessInstance.attrs({
     processId: "integer",
     name: "string",
