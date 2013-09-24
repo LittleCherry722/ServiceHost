@@ -393,7 +393,7 @@
         "relatedProcess": 2,
         "relatedSubject": "Staples",
         "relatedInterface": "Gro\u00dfunternehmen",
-        "url": "@ec2-54-229-91-177.eu-west-1.compute.amazonaws.com:2552",
+        "url": "@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com:2552",
         "role": "Staples",
         "type": "external",
         "variableCounter": 1,
