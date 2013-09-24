@@ -9,7 +9,7 @@ object SystemProperties {
   }
 
   def akkaRemoteHostname(implicit config: Config) = {
-    config.getString("sbpm.remote.hostname")
+    config.getString("akka.remote.netty.tcp.hostname")
   }
 
   def akkaRemoteUrl(implicit config: Config) = {
