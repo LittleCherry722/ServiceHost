@@ -6,7 +6,6 @@ role :app, %w[
    ubuntu@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com
 ]
 role :repo_host, %w[ ubuntu@ec2-54-229-92-171.eu-west-1.compute.amazonaws.com ]
-
 set :deploy_to, "/home/ubuntu/apps/sbpm"
 
 set :artifact_branch, "amazon_instanzen"
