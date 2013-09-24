@@ -66,7 +66,7 @@ case class ActionChange(action: AvailableAction, info: String, date: java.util.D
 case class ActionDelete(id: Int, date: java.util.Date) extends ActionChangeData
 
 trait ProcessInstanceChangeData extends ChangeData
-case class ProcessInstanceChange(id: Int, processID: Int, processName: String, name: String, info: String, date: java.util.Date) extends ProcessInstanceChangeData
+case class ProcessInstanceChange(id: Int, processId: Int, processName: String, name: String, info: String, date: java.util.Date) extends ProcessInstanceChangeData
 case class ProcessInstanceDelete(id: Int, date: java.util.Date) extends ProcessInstanceChangeData
 
 trait MessageChangeData extends ChangeData
@@ -83,7 +83,7 @@ case class ActionRelatedChange(inserted: Option[Array[ActionRelatedChangeData]],
 case class HistoryRelatedChangeData(userId: Option[Int], process: NewHistoryProcessData, subject: Option[String], transitionEvent: Option[NewHistoryTransitionData], lifecycleEvent: Option[String])
 case class HistoryRelatedChange(inserted: Option[Array[HistoryRelatedChangeData]])
 
-case class ProcessInstanceRelatedChangeData(id: Int, processID: Int, processName: String, name: String)
+case class ProcessInstanceRelatedChangeData(id: Int, processId: Int, processName: String, name: String)
 case class ProcessInstanceRelatedDeleteData(id: Int)
 case class ProcessInstanceRelatedChange(inserted: Option[Array[ProcessInstanceRelatedChangeData]], updated: Option[Array[ProcessInstanceRelatedChangeData]], deleted: Option[Array[ProcessInstanceRelatedDeleteData]])
 
