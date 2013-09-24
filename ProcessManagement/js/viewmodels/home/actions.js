@@ -54,7 +54,7 @@ define([
   var selectedEnd = ko.observable();
 
   var actionsList = ko.computed(function() {
-    return _.chain( Actions.all()).map(function( action ) {
+    var actions = _.chain( Actions.all()).map(function( action ) {
       var processStarted = parseInt(moment(action.processStarted).format('X'), 10);
       if (selectedUser() && selectedUser() !== action.userID()) {
         return null;
@@ -73,6 +73,8 @@ define([
       }
       return action;
     }).compact().value();
+
+    return actions;
   });
 
   var hasActions = ko.computed(function () {
