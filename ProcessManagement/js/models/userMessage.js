@@ -32,7 +32,7 @@ define([
 
   UserMessage.all = ko.observableArray();
 
-  UserMessage.enablePolling();
+  UserMessage.enablePolling("message");
 
 	UserMessage.include({
 		initialize: function( data ) {
