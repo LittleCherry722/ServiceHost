@@ -30,7 +30,7 @@ define([
 				parent.$.fancybox.close();
 			});
 		}
-		
+
 		self.removeInstance = function( processInstance ) {
 			Dialog.yesNo( 'Warning', "Do you really want to delete this Processinstance?", function(){
 				destroyProcessInstance( processInstance )
@@ -47,7 +47,7 @@ define([
 				owner: App.currentUser().id(),
 				graph: process.graph()
 			});
-		
+
 			instance.save(null, {
 				success: function() {
 					Actions.fetch();
@@ -72,8 +72,8 @@ define([
 	var selectedStart = ko.observable();
 	var selectedEnd = ko.observable();
 	var selectedProcess = ko.observable("");
-	
-	var processlist = ko.observableArray();		
+
+	var processlist = ko.observableArray();
 	var updateProcesslist = ko.computed(function() {
 		processlist.removeAll();
 		$.each( Process.all(), function ( i, value ) {
@@ -91,7 +91,7 @@ define([
                                     }
                             });
                         }
-                        
+
 			if (selectedProcess() && selectedProcess() != value.id() ) {
 				filter = true;
 			}
@@ -100,7 +100,7 @@ define([
 			}
 		});
 	});
-	
+
 
 	var destroyProcess = function( process ) {
 		process.destroy(null, {
@@ -112,7 +112,7 @@ define([
 			}
 		});
 	}
-	
+
 	var destroyProcessInstance = function( processInstance ) {
 		processInstance.destroy(null, {
 			success: function( textStatus ) {
@@ -145,29 +145,28 @@ define([
 				onClose: function( selectedDate ) {
 					$( "#from" ).datepicker( "option", "maxDate", selectedDate );
 				}
-			});	
+			});
 			$("#ui-datepicker-div").wrap('<div id="dashboard_datepicker" />');
 			$(".sel").prepend('<option/>').val(function(){return $('[selected]',this).val() ;});
 			var select2 = $(".sel").select2( {
-		        width: "copy",
-		        allowClear: true,
-		        dropdownAutoWidth: "true"
-	        });
-	        $(".sel").on("change", function(e) { 
+        width: "copy",
+        allowClear: true,
+        dropdownAutoWidth: "true"
+      });
+      $(".sel").on("change", function(e) {
 				viewModel.selectedProcess(e.val);
 			});
 			$(document).on('propertychange change keyup input paste', 'input.data_field', function(){
-    			var io = $(this).val().length ? 1 : 0 ;
-    			$(this).next('.icon_clear').stop().fadeTo(300,io);
+        var io = $(this).val().length ? 1 : 0 ;
+        $(this).next('.icon_clear').stop().fadeTo(300,io);
 			}).on('click', '.icon_clear', function() {
-    			$(this).delay(300).fadeTo(300,0).prev('input').val('').change();
+        $(this).delay(300).fadeTo(300,0).prev('input').val('').change();
 			});
 		});
 	};
-	
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize
 	};
 });
-

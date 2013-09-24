@@ -44,7 +44,9 @@ define([
 			},
 			lazy: true
 		}
-	});
+	})
+
+  Process.enablePolling();
 
 	Process.hasMany( "processInstances" );
 

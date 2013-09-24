@@ -269,5 +269,3 @@ define([
 		init: initialize
 	}
 });
-
-

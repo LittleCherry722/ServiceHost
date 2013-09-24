@@ -40,6 +40,7 @@ import de.tkip.sbpm.rest.google.GDriveActor.{ GetFileInfo, PublishFile }
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.drive.model.{ Permission }
+import de.tkip.sbpm.model.ChangeDataMode._
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
@@ -109,6 +110,8 @@ protected case class SendStateActor(data: StateData)
 
     case TargetUsers(userIDs) if (!targetUserIDs.isDefined) =>
       targetUserIDs = Some(userIDs)
+      // send information about changed actions to actionchangeactor
+      actionChanged(Updated)
       blockingHandlerActor ! UnBlockUser(userID)
 
     case action: ExecuteAction if (action.actionData.messageContent.isDefined) => {

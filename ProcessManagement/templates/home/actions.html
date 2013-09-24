@@ -44,7 +44,7 @@
             </td>
             <td class="col3">
                 <span class="process"
-                      data-bind="text: process().className + ': '+ process().name() + ' - '+ instanceName , attr: { title: 'Process #' + process().id() + ', Instance #' + processInstanceID() }"></span>
+                      data-bind="text: process().className + ': '+ process().name() + ' - '+ instanceName() , attr: { title: 'Process #' + process().id() + ', Instance #' + processInstanceID() }"></span>
                 <span class="description" data-bind="text: stateText()"></span>
             </td>
             <td class="col4">
@@ -55,7 +55,7 @@
         <tr style="display: none;" data-bind="attr: {id: instanceDetailsDivId()}">
             <td colspan="4" class="item_info">
 
-                <div data-bind="visible: $data.isSend, foreach: actionData">
+                <div data-bind="visible: $data.isSend, foreach: data">
                     <div>
                         <strong>Send:</strong>
                         <span style="display: inline;"
@@ -104,16 +104,16 @@
 
                         <br />
                         <input type="button" value="Send" class="btn"
-                               data-bind="click: $parent.send.bind($data, $parent.currentSelectedFile().id), visible: $data.executeAble"/>
+                               data-bind="click: $parent.send.bind($parent, $data), visible: $data.executeAble"/>
                     </div>
                 </div>
 
-                <div data-bind="visible: stateType()==='action', foreach: actionData">
+                <div data-bind="visible: stateType()==='action', foreach: data">
                     <input class="btn" type="button"
-                           data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action, visible: $data.executeAble"/>
+                           data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action.bind($parent, $data), visible: $data.executeAble"/>
                 </div>
 
-                <div data-bind="visible: stateType()==='receive', foreach: actionData">
+                <div data-bind="visible: stateType()==='receive', foreach: data">
                     <div data-bind="visible: $data.executeAble">
                         <strong data-bind="html: $data.text"></strong>
                         by
@@ -136,7 +136,7 @@
                         <!-- /ko -->
 
                         <input class="btn" type="button" value="Received"
-                               data-bind="click: $parent.action, enable: $data.executeAble"/>
+                               data-bind="click: $parent.action.bind($parent, $data), enable: $data.executeAble"/>
                     </div>
                     <div data-bind="visible: !$data.executeAble, visible: !$parent.executable()">
                         Waiting for <strong data-bind="text: $data.relatedSubject + 's'"></strong>: <strong
