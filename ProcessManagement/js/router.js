@@ -71,10 +71,15 @@ define([ "director", "app"], function( Director, App ) {
 	// Show the home (index) page.
 	var showHome = function(tab) {
 		if ( App.isViewLoaded( "home" ) ) {
+			loadView( "home", [ tab ], globalCallback() );
 			App.currentMainViewModel().setView(tab)
 		} else {
 			loadView( "home", [ tab ], globalCallback() );
 		}
+	}
+
+	var showConsole = function() {
+		loadView( "console", null, globalCallback() );
 	}
 
 	var showAccount = function() {
@@ -115,6 +120,7 @@ define([ "director", "app"], function( Director, App ) {
 
 	var showMessages = function ( tab ) {
 		if ( App.isViewLoaded( "messages" ) ) {
+                        App.loadView( "messages", [tab], globalCallback() );
 			App.currentMainViewModel().setView( tab )
 		} else {
 			App.loadView( "messages", [tab], globalCallback() );
@@ -160,7 +166,8 @@ define([ "director", "app"], function( Director, App ) {
 			"/:tab": {
 				on: showMessages
 			}
-		}
+		},
+		"console": showConsole
 	}
 
 	var expandListOfProcesses = function() {

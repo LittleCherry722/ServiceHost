@@ -27,7 +27,7 @@
 					<th class="col3"> Actions </th>
 				</tr>
 			</thead>
-			<tbody data-bind='foreach: processes'>
+			<tbody data-bind='foreach: Process.all()'>
 				<tr data-bind="click:  function() { if($data.hasInstances&&$data.startAble()) $('#'+id()).toggle(); $('#icon-triangle-s'+id()).toggle(); $('#icon-triangle-n'+id()).toggle(); }, style: { cursor: $data.hasInstances()&&$data.startAble() ? 'pointer' : '' }, attr: { class: !$data.hasInstances()||!$data.startAble() ? 'processitem noinstances' : 'processitem' }  ">
 					<td class="col1">
 						<!-- ko if: $data.hasInstances()&&$data.startAble() -->

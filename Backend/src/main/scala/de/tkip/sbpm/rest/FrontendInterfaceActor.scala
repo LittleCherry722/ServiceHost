@@ -42,6 +42,7 @@ object Entity {
   val LOGGING = "logging"
   val DEBUG = "debug"
   val REPOSITORY = "repo"
+  val MESSAGE = "message"
 
   // TODO define more entities if you need them
 }
@@ -68,7 +69,6 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val frontendIndexFile = configString("frontend.indexFile")
   private val frontendBaseDir = configString("frontend.baseDirectory")
   private val authenticationEnabled = configFlag("rest.authentication")
-  private val repoLocation = configString("repo.address")
 
   implicit val rejectionHandler = RejectionHandler {
     // on authorization required rejection -> provide user a set of
@@ -102,7 +102,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val configurationInterfaceActor = context.actorOf(Props[ConfigurationInterfaceActor], "configuration-interface")
   private val debugInterfaceActor = context.actorOf(Props[DebugInterfaceActor], "debug-interface")
   private val gbirInterfaceActor = context.actorOf(Props[GoogleBIRInterfaceActor], "gbir-interface")
-  private val historyChangeActor = context.actorOf(Props[HistoryChangeActor], "history-change")
+  private val changeInterfaceActor = context.actorOf(Props[ChangeInterfaceActor], "change-interface")
+  private val messageInterfaceActor = context.actorOf(Props[MessageInterfaceActor], "message-interface")
+  private val repositoryInterfaceActor = context.actorOf(Props[RepositoryInterfaceActor], "repository-interface")
 
   def receive = runRoute({
     pathPrefix("BIR") {
@@ -114,7 +116,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
       //      }
     } ~
       pathPrefix("changes") {
-        delegateTo(historyChangeActor)
+        delegateTo(changeInterfaceActor)
       } ~
       /**
        * redirect all calls beginning with "processinstance" (val EXECUTION) to ExecutionInterfaceActor
@@ -134,6 +136,11 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
       pathPrefix(Entity.PROCESS) {
         authenticated {
           delegateTo(processInterfaceActor)
+        }
+      } ~
+      pathPrefix(Entity.MESSAGE) {
+        authenticated {
+          delegateTo(messageInterfaceActor)
         }
       } ~
       /**
@@ -210,28 +217,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         }
       } ~
       pathPrefix(Entity.REPOSITORY) {
-        val pipeline: HttpRequest => Future[String] = (
-          sendReceive
-          ~> unmarshal[String])
-        //TODO: forward error codes (such as 404) instead of delivering a 500 response
-        get {
-          requestContext =>
-            requestContext.complete {
-              val response = pipeline(Get(repoLocation + requestContext.unmatchedPath.toString))
-              response
-            }
-        } ~
-          post {
-            requestContext =>
-              requestContext.complete {
-                val jsWithAddress = attachExternalAddress(requestContext)
-                //TODO: calling attachExternalAddress removes JSON formatting, compare:
-                //log.info(requestContext.request.entity.asString)
-                //log.info(jsWithAddress)
-                val response = pipeline(Post(repoLocation, jsWithAddress))
-                response
-              }
-          }
+        authenticated {
+          delegateTo(repositoryInterfaceActor)
+        }
       } ~
       pathPrefix(Entity.ISALIVE) {
         get {
@@ -243,15 +231,6 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
         serveStaticFiles
       }
   })
-
-  private def attachExternalAddress(requestContext: RequestContext): String = {
-    val jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
-
-    val hostname = context.system.settings.config.getString("akka.remote.netty.tcp.hostname")
-    val port = context.system.settings.config.getString("akka.remote.netty.tcp.port")
-    val url = "@" + hostname + ":" + port
-    jsObject.copy(Map("url" -> (url).toJson) ++ jsObject.fields).toString
-  }
 
   def serveStaticFiles: Route = {
     // root folder -> redirect to frontendBaseUrl

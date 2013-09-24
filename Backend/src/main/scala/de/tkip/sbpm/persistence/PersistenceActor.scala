@@ -21,6 +21,7 @@ import akka.actor.PoisonPill
 import akka.actor.Props
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.persistence.query._
+import de.tkip.sbpm._
 
 /**
  * Handles all DB operations using slick (http://slick.typesafe.com/).
@@ -28,6 +29,7 @@ import de.tkip.sbpm.persistence.query._
  */
 class PersistenceActor extends Actor with ActorLogging {
   private val processInspectActor = context.actorOf(Props[ProcessInspectActor])
+  private lazy val changeActor = ActorLocator.changeActor
   
   def receive = {
     // redirect all request to responsible sub actors
@@ -38,7 +40,10 @@ class PersistenceActor extends Actor with ActorLogging {
     case q: GroupsUsers.Query      => forwardTo[GroupUserPersistenceActor](q)
     case q: Messages.Query         => forwardTo[MessagePersistenceActor](q)
     case q: ProcessInstances.Query => forwardTo[ProcessInstancePersistenceActor](q)
-    case q: Processes.Query        => processInspectActor forward q
+    case q: Processes.Query        => {processInspectActor forward q
+      println("!!!!!!!!!!!  the query is: "+q)
+//    changeActor forward q
+    }
     case q: Graphs.Query           => forwardTo[GraphPersistenceActor](q)
     case q: Schema.Query           => forwardTo[SchemaActor](q)
   }

@@ -126,6 +126,15 @@ var gv_elements = {
 	inputNodeVarManVarStoreN:	"ge_node_varman_store_new",
 	inputNodeVarManVarStoreNO:	"ge_node_varman_store_new_outer",
 	
+	// create subjects predefined state
+	inputNodeCSubjectsO:		"ge_node_create_subjects_outer",
+	inputNodeCSubjectsSubject:	"ge_node_create_subjects_subject",
+	inputNodeCSubjectsMin:		"ge_node_create_subjects_min",
+	inputNodeCSubjectsMax:		"ge_node_create_subjects_max",
+	inputNodeCSubjectsVar:		"ge_node_create_subjects_variable",
+	inputNodeCSubjectsCVarO:	"ge_node_create_subjects_cvar_outer",
+	inputNodeCSubjectsCVarT:	"ge_node_create_subjects_cvar_text",
+	
 	// macro
 	inputNodeMacroOuter:		"ge_node_macro_outer",
 	inputNodeMacro:				"ge_node_macro",
@@ -230,7 +239,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 * 
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, macro, macroText, comment
+		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, createSubjects, macro, macroText, comment
 		 */
 		readNode:			"",
 		

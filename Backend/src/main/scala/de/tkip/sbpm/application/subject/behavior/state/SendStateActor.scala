@@ -40,6 +40,7 @@ import de.tkip.sbpm.rest.google.GDriveActor.{ GetFileInfo, PublishFile }
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.drive.model.{ Permission }
+import de.tkip.sbpm.model.ChangeDataMode._
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
@@ -109,6 +110,8 @@ protected case class SendStateActor(data: StateData)
 
     case TargetUsers(userIDs) if (!targetUserIDs.isDefined) =>
       targetUserIDs = Some(userIDs)
+      // send information about changed actions to actionchangeactor
+      actionChanged(Updated)
       blockingHandlerActor ! UnBlockUser(userID)
 
     case action: ExecuteAction if (action.actionData.messageContent.isDefined) => {
@@ -197,10 +200,17 @@ protected case class SendStateActor(data: StateData)
         HistoryMessage(messageID, transition.messageType, subjectID, transition.subjectID, messageContent.get)
       // Change the state and enter the History entry
       remainingStored -= 1
-      if (remainingStored == 0) {
+
+      log.debug("message with id {} stored. remaining: {}", messageID, remainingStored)
+
+      if (remainingStored <= 0) {
         changeState(transition.successorID, data,message)
         blockingHandlerActor ! UnBlockUser(userID)
       }
+    }
+
+    case Stored(messageID) => {
+      log.warning("unknown message with id {}", messageID)
     }
 
     case Rejected(messageID) if (
@@ -223,7 +233,7 @@ protected case class SendStateActor(data: StateData)
         exitCondLabel,
         relatedSubject = Some(sendTransition.subjectID),
         targetUsersData =
-          Some(TargetUser(sendTarget.min, sendTarget.max, targetUserIDs.getOrElse(Array())))))
+          Some(TargetUser(sendTarget.min, sendTarget.max, sendTarget.toExternal, targetUserIDs.getOrElse(Array())))))
 
   /**
    * Generates a new message ID

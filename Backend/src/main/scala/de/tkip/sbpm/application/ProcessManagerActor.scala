@@ -25,6 +25,8 @@ import java.util.Date
 import scala.concurrent.Future
 import akka.pattern.pipe
 import scala.collection.mutable.ArrayBuffer
+import de.tkip.sbpm.model._
+import de.tkip.sbpm._
 
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
@@ -44,6 +46,8 @@ class ProcessManagerActor extends Actor {
   // used to map answer messages back to the subjectProvider who sent a request
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
 
+  private lazy val changeActor = ActorLocator.changeActor
+  
   def receive = {
     case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProviderActor
@@ -76,6 +80,9 @@ class ProcessManagerActor extends Actor {
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
       history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
+      val p = ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
+      println("new processInstance has been added: "+p)
+      changeActor ! ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date())
     }
 
     case kill: KillAllProcessInstances => {
@@ -83,8 +90,13 @@ class ProcessManagerActor extends Actor {
       for ((id, _) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
         history.entries += createHistoryEntry(None, id, "killed")
+        changeActor ! ProcessInstanceDelete(id, new java.util.Date())
       }
       processInstanceMap.clear()
+      // TODO delete the history, in future the history should be in a database,
+      // so there is no extra message for it
+      history.entries.clear()
+      
       kill.sender ! ProcessInstancesKilled
     }
 
@@ -95,6 +107,7 @@ class ProcessManagerActor extends Actor {
         processInstanceMap -= id
         kill.sender ! KillProcessInstanceAnswer(kill)
         logger.debug("Killed process instance " + id)
+        changeActor ! ProcessInstanceDelete(id, new java.util.Date())
       } else {
         logger.error("Process Manager - can't kill process instance: " +
           id + ", it does not exists")
@@ -131,7 +144,6 @@ class ProcessManagerActor extends Actor {
     }
     
     case GetHistorySince(t) => {
-      println("time of the first entry is: "+history.entries(0).timeStamp.getTime())
       Future { getHistoryChange(t) } pipeTo sender
     }
 
@@ -172,14 +184,12 @@ class ProcessManagerActor extends Actor {
   
   private def getHistoryChange(t: Long) = {
     val changes = history.entries.filter(_.timeStamp.getTime() > t * 1000)
-    var temp = ArrayBuffer[String]()
+    val temp = ArrayBuffer[HistoryRelatedChangeData]()
     for (i <- 0 until changes.length){
-      var id = changes(i).userId.get
-      var name = changes(i).process.processName
-      temp += """"inserted" : [ { "id" : """ + id + """, "name": """"+name+"""" } ]""" 
+      val entry = changes(i)
+      temp += HistoryRelatedChangeData(entry.userId, entry.process, entry.subject, entry.transitionEvent, entry.lifecycleEvent)
     }
-    val result = """{ "history": {""" + temp.mkString(",") + """ } }"""
-    result
-    
+    Some(HistoryRelatedChange(Some(temp.toArray)))
+  
   }
 }

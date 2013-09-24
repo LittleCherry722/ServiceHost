@@ -6,32 +6,31 @@
             <h3>Messages</h3>
         </div>
 
-        <ul class="nav nav-tabs">
-            <li data-bind="css: { active: 'messagesOverview' === currentTab() }"><a href="#/messages/messagesOverview">Message Overview</a></li>
-            <li data-bind="css: { active: 'messageComposer' === currentTab() }"><a href="#/messages/messageComposer">New Message</a></li>
-        </ul>
-
+        <div class="header">
+            <ul class="nav nav-tabs">
+                <li data-bind="css: { active: 'messagesOverview' === currentTab() }"><a href="#/messages/messagesOverview">Message Overview</a></li>
+                <li data-bind="css: { active: 'messageComposer' === currentTab() }"><a href="#/messages/messageComposer">New Message</a></li>
+            </ul>
+        </div>
+        
         <div id="messages">
-            <div class="header"></div>
+            
 
             <div style="padding: 12px">
 
                 <div id="messagesOverview" data-bind="css: { hide: 'messagesOverview' !== currentTab() }">
-                    <div style="float: right">
-                        <b>Select Inbox of User:</b>
-                        <select style="margin-left: 20px" data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'All', value: userFilter  " class="chzn-select"></select>
-                    </div>
+                    
                     <div class="clear"></div>
 
-                    <div data-bind="css: { hide: selectInbox().length === 0}" style="margin: 20px 0">
-                        <div data-bind="foreach:selectInbox">
+                    <div style="margin: 20px 0">
+                        <div data-bind="foreach: UserMessage.all()  ">
                             <div style="margin-bottom: 1px" data-bind="attr: { id: $parent.messageContainerId(id()) }">
                                 <a href="#" style="background-color: #f5f5f5; display: block; padding: 14px;" data-bind="click: $parent.openMessage">
                                     <h4 data-bind="text:title" style="display: inline"></h4>
                                     <p style="float: right">
                                         <span data-bind="text:formattedDate()" style="inline-block; margin-right:30px"></span>
-                                        <span data-bind="text:$parent.userNameById(fromUserId())"></span>
-                                        --> <span data-bind="text:$parent.userNameById(toUserId())"></span>
+                                        <span data-bind="text:$parent.userNameById(fromUser())"></span>
+                                        <span style="font-weight: bold;font-size: 130%;font-family: monospace;color: #000;">&gt;</span> <span data-bind="text:$parent.userNameById(toUser())"></span>
                                     </p>
                                 </a>
                                 <div class="hide message" style="padding: 14px;">
@@ -42,7 +41,7 @@
                         </div>
                     </div>
 
-                    <h4 style="margin-bottom: 30px" data-bind="css: { hide: selectInbox().length > 0}">
+                    <h4 style="margin-bottom: 30px" data-bind="css: { hide: UserMessage.all().length > 0}">
                         No Messages in Inbox</h4>
 
                     <div class="clear"></div>
@@ -51,12 +50,8 @@
 
                 <div id="messageComposer" data-bind="css: { hide: 'messageComposer' !== currentTab() }" style="width: 500px">
                     <div style="margin:20px 0">
-                        <span style="display: inline-block; width: 40px">From: </span>
-                        <select data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'Choose User', value: fromUserId  "
-                                class="chzn-select" style="width: 260px"></select>
-                        <br>
                         <span style="display: inline-block; width: 40px">To: </span>
-                        <select data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'Choose User', value: toUserId "
+                        <select data-bind="options:users, optionsText: 'name', optionsValue : 'id', optionsCaption : 'Choose User', value: toUser "
                                 class="chzn-select" style="width: 260px"></select>
                     </div>
                     <input type="text" style="width: 288px" data-bind='value:title' placeholder="Title" onfocus="this.placeholder = ''"

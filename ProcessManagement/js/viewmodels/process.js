@@ -150,14 +150,10 @@ define([
 		});
 
 		this.saveBusinessInterface = function() {
-      this.newBusinessInterface().graph(this.currentProcess().graph().definition.process.filter(function(s) {
-        if ( s.id === this.interfaceReplacementSubject() ) {
-          return true;
-        } else {
-          return false;
-        }
-      })[0]);
+      this.newBusinessInterface()
+        .graph(currentProcess().associatedGraph(this.interfaceReplacementSubject()));
       this.newBusinessInterface().processId(currentProcess().id())
+      this.newBusinessInterface().subjectId(this.interfaceReplacementSubject())
 
 			this.newBusinessInterface().save({}, {
 				success: function() {
@@ -227,7 +223,7 @@ define([
 
 		this.exportGraph = function() {
 			var graph = currentProcess().graphString();
-			graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
+			// graph = graph.replace(/"role":"[^"]+/g, "\"role\":\"");
 			graph = graph.replace(/"routings":[^\]]+/g, "\"routings\":[");
 			this.graphText(graph);
 
@@ -457,6 +453,7 @@ define([
 
 		// Load all changes into the process model.
 		setGraph( process );
+    process.isNewRecord = false;
 
 		// Something is not right with lazy attributes... Need to set it twice -.-
 		process.save(null, {
@@ -779,7 +776,8 @@ define([
 	}
 
 	var goToExternalProcess = function( process ) {
-		Router.goTo( Process.findByName( process )[0] )
+    console.log(process)
+		Router.goTo( Process.find( process ) )
 	}
 
 	// Compute whether to show or hide the role warning.
