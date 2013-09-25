@@ -13,7 +13,7 @@
           "externalType": "interface",
           "role": "Staples",
           "startSubject": false,
-          "url": "@127.0.0.1:2553",
+          "url": "@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com:2552",
           "comment": "",
           "macros": [{
               "id": "##main##",
@@ -333,7 +333,7 @@
           "externalType": "interface",
           "role": "Kunde",
           "startSubject": false,
-          "url": "@127.0.0.1:2552",
+          "url": "@ec2-54-229-92-171.eu-west-1.compute.amazonaws.com/:2552",
           "comment": "",
           "macros": [{
               "id": "##main##",

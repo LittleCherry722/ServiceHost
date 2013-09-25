@@ -265,7 +265,7 @@
           "deactivated": false,
           "inputPool": 100,
           "relatedInterface": "Gro\u00dfunternehmen",
-          "url": "@127.0.0.1:2553",
+          "url": "@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com:2552",
           "relatedProcess": 2,
           "relatedSubject": "Staples",
           "externalType": "interface",
@@ -380,7 +380,7 @@
           "role": "Zulieferer",
           "startSubject": false,
           "relatedInterface": "Kunde",
-          "url": "@127.0.0.1:2554",
+          "url": "@ec2-54-229-91-177.eu-west-1.compute.amazonaws.com:2552",
           "comment": "",
           "macros": [{
               "id": "##main##",
