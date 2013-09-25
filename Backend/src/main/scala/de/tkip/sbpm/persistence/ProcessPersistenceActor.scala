@@ -39,7 +39,7 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
   import akka.util.Timeout
   import scala.concurrent.Future
   import scala.concurrent.ExecutionContext.Implicits.global
-  implicit val timeout = Timeout(30 seconds)
+  implicit val timeout = Timeout(5 minutes)
   def receive = {
     case q @ Save.Entity(ps @ _*) => {
       log.debug("Start checking: " + q)
