@@ -1391,6 +1391,12 @@ function GCcommunication ()
 					if (gf_isset(gt_subject.startSubject))
 						this.subjects[gt_subject.id].setStartSubject(gt_subject.startSubject);
 						
+					if (gf_isset(gt_subject.relatedInterface))
+						this.subjects[gt_subject.id].setRelatedInterface(gt_subject.relatedInterface);
+						
+					if (gf_isset(gt_subject.url))
+						this.subjects[gt_subject.id].setUrl(gt_subject.url);
+						
 					this.subjects[gt_subject.id].setRole(gt_role);
 				}
 				
@@ -1467,6 +1473,9 @@ function GCcommunication ()
 								
 								if (gf_isset(gt_node.varMan))
 									gt_createdNode.setVarMan(gt_node.varMan);
+									
+								if (gf_isset(gt_node.createSubjects))
+									gt_createdNode.setCreateSubjects(gt_node.createSubjects);
 									
 								if (gf_isset(gt_node.macro))
 									gt_createdNode.setMacro(gt_node.macro);
@@ -1652,11 +1661,13 @@ function GCcommunication ()
 						subjectType: this.subjects[gt_sid].getType(),
 						deactivated: this.subjects[gt_sid].isDeactivated(),
 						inputPool: this.subjects[gt_sid].getInputPool(),
+						relatedInterface: this.subjects[gt_sid].getRelatedInterface(),
 						relatedProcess: this.subjects[gt_sid].getRelatedProcess(),
 						relatedSubject: this.subjects[gt_sid].getRelatedSubject(),
 						externalType: this.subjects[gt_sid].getExternalType(),
 						role: this.subjects[gt_sid].getRole(),
 						startSubject: this.subjects[gt_sid].isStartSubject(),
+						url: this.subjects[gt_sid].getUrl(),
 						comment: this.subjects[gt_sid].getComment()
 			};
 			
@@ -1689,6 +1700,7 @@ function GCcommunication ()
 							conversation:		gt_node.getConversation(),
 							variable:		gt_node.getVariable(),
 							varMan:			gt_node.getVarMan("all"),
+							createSubjects: gt_node.getCreateSubjects("all"),
 							macro:			gt_node.getMacro(),
 							comment:		gt_node.getComment()
 					};

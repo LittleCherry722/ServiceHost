@@ -44,7 +44,9 @@ define([
 			},
 			lazy: true
 		}
-	});
+	})
+
+  Process.enablePolling();
 
 	Process.hasMany( "processInstances" );
 
@@ -82,8 +84,8 @@ define([
 				read: function() {
 					return self.instanceCount() > 0;
 				}
-			});                       
-                       
+			});
+
 			this.graphObject = ko.computed({
 				deferEvaluation: true,
 				read: function() {
@@ -121,6 +123,16 @@ define([
 					return subjects;
 				}
 			});
+
+      this.associatedGraph = function( subjectId ) {
+        return self.graphObject().process.filter(function( s ) {
+          return s.macros.some(function( m ) {
+            return m.edges.some(function( e ) {
+              return e.target && e.target.id === subjectId;
+            });
+          });
+        })[0];
+      }
 
 			this.subjectsArray = ko.computed({
 				deferEvaluation: true,

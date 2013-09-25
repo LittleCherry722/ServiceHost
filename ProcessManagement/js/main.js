@@ -36,7 +36,10 @@ require.config({
 		"async":               "libs/async/async",
 		"moment":              "libs/moment/moment",
 		"select2":             "libs/select2/select2.min",
-		"intro":               "libs/intro/intro"
+		"intro":               "libs/intro/intro",
+		"rainbow":			   "libs/rainbow/rainbow-custom.min",
+		"rainbow":			   "libs/rainbow/rainbow-custom.min",
+		"js_beautify":		   "libs/beautify/js_beautify"
 	},
 	shim: {
 		// Legacy libararies that do not follow the common.js module pattern.
@@ -45,6 +48,9 @@ require.config({
 		},
 		"underscore": {
 			exports: "_"
+		},
+		"rainbow": {
+			exports: "Rainbow"
 		}
 	}
 

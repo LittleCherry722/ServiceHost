@@ -1,12 +1,12 @@
 package de.tkip.sbpm.application.subject.behavior
 
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
-import akka.testkit.{TestKit, TestActorRef}
+import org.scalatest.{ BeforeAndAfterAll, FunSuite }
+import akka.testkit.{ TestKit, TestActorRef }
 import akka.actor._
 import akka.actor.ActorDSL._
 import de.tkip.sbpm.application.subject.SubjectData
 import de.tkip.sbpm.model.Subject
-import de.tkip.sbpm.application.subject.misc.{Rejected, Stored, SubjectToSubjectMessage}
+import de.tkip.sbpm.application.subject.misc.{ Rejected, Stored, SubjectToSubjectMessage }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 
 private class DummyBlockingActor extends Actor {
@@ -28,9 +28,10 @@ class InputPoolActorTest extends TestKit(ActorSystem("TestSystem")) with FunSuit
 
     actor ! SubscribeIncomingMessages(2, "other", "test")
 
+    assert(i.receive().isInstanceOf[InputPoolMessagesChanged])
     assert(i.receive() === InputPoolSubscriptionPerformed)
   }
-  
+
   test("message receiving after registration") {
     val actor = TestActorRef(new InputPoolActor(subjectData))
     implicit val i = inbox()
@@ -39,9 +40,20 @@ class InputPoolActorTest extends TestKit(ActorSystem("TestSystem")) with FunSuit
     actor ! SubscribeIncomingMessages(2, "other", "test")
     actor ! msg
 
+    assert(i.receive() match {
+      case InputPoolMessagesChanged("other", "test", m) => m.isEmpty
+      case _ => false
+    },
+      "An empty inputpool should not contain a message")
     assert(i.receive() === InputPoolSubscriptionPerformed)
     assert(i.receive() === Stored(1))
-    assert(i.receive() === msg)
+    assert(
+      i.receive() match {
+        case InputPoolMessagesChanged("other", "test", m) => true
+        case r => println(s"invalid: $r"); false
+
+      },
+      "The changed message should be send to the receive state")
   }
 
   test("close input pool") {
@@ -53,6 +65,11 @@ class InputPoolActorTest extends TestKit(ActorSystem("TestSystem")) with FunSuit
     actor ! CloseInputPool(("other", "test"))
     actor ! msg
 
+    assert(i.receive() match {
+      case InputPoolMessagesChanged("other", "test", m) => m.isEmpty
+      case _ => false
+    },
+      "A closed inputpool should not contain a message")
     assert(i.receive() === InputPoolSubscriptionPerformed)
     assert(i.receive() === InputPoolClosed)
     assert(i.receive() === Rejected(1))

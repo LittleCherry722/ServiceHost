@@ -13,8 +13,10 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
+import akka.actor.actorRef2Scala
+import de.tkip.sbpm.application.subject.behavior.InputPoolOpened
+import de.tkip.sbpm.application.subject.behavior.OpenInputPool
 import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.subject.behavior.{InputPoolOpened, OpenInputPool}
 
 protected case class OpenIPStateActor(data: StateData)
   extends BehaviorStateActor(data) {

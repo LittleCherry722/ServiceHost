@@ -46,7 +46,8 @@ define([
       "models/processInstance",
       "models/processInstance",
       "models/actions",
-      "models/interface"
+      "models/interface",
+      "models/userMessage"
       // "models/roles",
     ], function( Model, User, Process, Group, Role ) {
 
@@ -59,16 +60,14 @@ define([
       // tell everyone that we are done (call the callback).
 
       async.auto({
-
         fetchAll : Model.fetchAll,
         setCurrentUser : ["fetchAll", function(callback) {
-          loadCurrentUser();
-          callback();
+          loadCurrentUser(callback);
         }],
+        initPolling: Model.startPolling,
         initViews : ["fetchAll", "setCurrentUser", initializeViews],
-        callback : ["initViews", callback]
+        callback : ["initViews", "initPolling", callback]
       });
-
     });
   };
 
@@ -82,15 +81,31 @@ define([
     return ( result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(document.cookie)) ? (result[1]) : null;
   }
 
-  var loadCurrentUser = function() {
-    if (readCookie("sbpm-userId")) {
-      currentUser(User.find(parseInt(readCookie("sbpm-userId").replace(/"/g, ''), 10)));
-    } else {
-      //TODO Kein Cookie gesetzt, kein Zugang.
-      currentUser(new User({
-        name : "no user"
-      }));
-    }
+  var loadCurrentUser = function( callback ) {
+    require([
+      "models/userMessage",
+      "models/user"
+    ], function( userMessage, User ) {
+      User.fetch({}, function() {
+        if (readCookie("sbpm-userId")) {
+          currentUser(User.find(parseInt(readCookie("sbpm-userId").replace(/"/g, ''), 10)));
+        } else {
+          //TODO Kein Cookie gesetzt, kein Zugang.
+          currentUser(new User({
+            name : "No user"
+          }));
+        }
+
+        if (!currentUser()) {
+          currentUser(new User({
+            name: "No User"
+          }));
+        }
+        if ( callback && typeof callback === "function" ) {
+          callback();
+        }
+      });
+    });
   };
 
   // The current ViewModel loaded for the "main" view

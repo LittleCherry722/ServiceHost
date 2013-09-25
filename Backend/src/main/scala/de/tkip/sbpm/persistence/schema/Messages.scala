@@ -31,12 +31,12 @@ trait MessagesSchema extends ProcessInstancesSchema with UsersSchema {
     def id = autoIncIdCol[Int]
     def fromUserId = column[Int]("from_user_id")
     def toUserId = column[Int]("to_user_id")
-    def processInstanceId = column[Int]("process_instance_id")
+    def title = column[String]("title")
     def isRead = column[Boolean]("read")
     def data = column[String]("data", DbType.blob)
     def date = column[java.sql.Timestamp]("date")
 
-    def * = id.? ~ fromUserId ~ toUserId ~ processInstanceId ~
+    def * = id.? ~ fromUserId ~ toUserId ~ title ~
       isRead ~ data ~ date <> (Message, Message.unapply _)
     def autoInc = * returning id
 
@@ -44,8 +44,6 @@ trait MessagesSchema extends ProcessInstancesSchema with UsersSchema {
       foreignKey(fkName("users_from"), fromUserId, Users)(_.id)
     def toUser =
       foreignKey(fkName("users_to"), toUserId, Users)(_.id)
-    def processInstance =
-      foreignKey(fkName("process_instances"), processInstanceId, ProcessInstances)(_.id, NoAction, Cascade)
   }
 
 }

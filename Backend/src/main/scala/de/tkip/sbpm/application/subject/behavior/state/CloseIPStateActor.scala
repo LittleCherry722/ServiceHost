@@ -13,8 +13,10 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
+import akka.actor.actorRef2Scala
+import de.tkip.sbpm.application.subject.behavior.CloseInputPool
+import de.tkip.sbpm.application.subject.behavior.InputPoolClosed
 import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.subject.behavior.{InputPoolClosed, CloseInputPool}
 
 protected case class CloseIPStateActor(data: StateData)
   extends BehaviorStateActor(data) {

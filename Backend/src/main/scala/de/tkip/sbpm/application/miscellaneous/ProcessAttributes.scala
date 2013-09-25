@@ -17,7 +17,7 @@ import akka.actor.ActorRef
 
 object ProcessAttributes {
 
-  type UserID = Int; val AllUser = -1
+  type UserID = Int; val AllUser = -1; val ExternalUser = -2
   type ProcessID = Int
   type ProcessInstanceID = Int; val AllProcessInstances = -1
 
@@ -32,6 +32,7 @@ object ProcessAttributes {
   type MessageType = String; val AllMessages = ""
   type MessageContent = String
   type MessageID = Int
+  type ActionID = Int
 
   type SubjectProviderManagerRef = ActorRef
   type SubjectProviderRef = ActorRef

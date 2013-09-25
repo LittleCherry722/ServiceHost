@@ -79,18 +79,8 @@
 				<div id="ge_edge_target_multi_outer" style="display:none;">
 					<input type="radio" id="ge_edge_target_multi_type_all" name="ge_edge_target_multi_type">
 					<label  class="graphsectionheader">All known subjects</label>
-					<input type="radio" id="ge_edge_target_multi_type_limit" name="ge_edge_target_multi_type">
-					<label  class="graphsectionheader">Limited # of subjects</label>
-					<div id="ge_edge_target_multi_type_new_outer" style="display:none;">
-						<input type="radio" id="ge_edge_target_multi_type_new" name="ge_edge_target_multi_type">
-						<label  class="graphsectionheader">Create new Subjects</label>
-					</div>
 					<input type="radio" id="ge_edge_target_multi_type_var" name="ge_edge_target_multi_type">
 					<label  class="graphsectionheader">load from Variable</label>
-					<div id="ge_edge_target_multi_minmax_outer" style="display:none;">
-						Min: <input type="text" id="ge_edge_target_multi_min" style="width:30px;">
-						Max: <input type="text" id="ge_edge_target_multi_max" style="width:30px;">
-					</div>
 					<div id="ge_edge_target_multi_type_var_outer" style="display:none;">
 						<select id="ge_edge_target_multi_variable" ></select>
 						<div id="ge_edge_target_multi_variable_text_outer" style="display:none;">
@@ -226,6 +216,26 @@
 			</div>
 
 		</div>
+		
+		<div id="ge_node_create_subjects_outer" style="display:none;">
+			<label class="graphsectionheader">Multi-Subject:</label>
+			<select id="ge_node_create_subjects_subject"></select>
+			<br>
+			
+			Min: <input type="text" id="ge_node_create_subjects_min" style="width:30px;">
+			Max: <input type="text" id="ge_node_create_subjects_max" style="width:30px;">
+			
+			<label class="graphsectionheader">Store to:</label>
+			<select id="ge_node_create_subjects_variable"></select>
+			<div id="ge_node_create_subjects_cvar_outer" style="display:none;">
+				<label class="graphsectionheader">New Var:</label>
+				<input type="text" id="ge_node_create_subjects_cvar_text" />
+			</div>
+		</div>
+					<div id="ge_edge_target_multi_minmax_outer" style="display:none;">
+						Min: <input type="text" id="ge_edge_target_multi_min" style="width:30px;">
+						Max: <input type="text" id="ge_edge_target_multi_max" style="width:30px;">
+					</div>
 
 		<label class="graphsectionheader">Comment:</label>
 		<textarea id="ge_node_comment" ></textarea>

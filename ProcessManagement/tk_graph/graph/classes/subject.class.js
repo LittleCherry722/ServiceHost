@@ -81,6 +81,13 @@ function GCsubject (id, text, type, inputPool)
 	this.inputPool	= -1;
 	
 	/**
+	 * TODO
+	 * 
+	 * @type String
+	 */
+	this.relatedInterface	= null;
+	
+	/**
 	 * For external subjects: the referenced process.
 	 * 
 	 * @type String
@@ -122,6 +129,13 @@ function GCsubject (id, text, type, inputPool)
 	 * @type String
 	 */
 	this.type		= type;
+	
+	/**
+	 * TODO
+	 * 
+	 * @type String
+	 */
+	this.url		= null;
 	
 	/**
 	 * Activates a subject.
@@ -194,6 +208,17 @@ function GCsubject (id, text, type, inputPool)
 	};
 	
 	/**
+	 * TODO
+	 * Returns the related interface.
+	 * 
+	 * @returns {String} The related Interface 
+	 */
+	this.getRelatedInterface = function ()
+	{
+		return this.relatedInterface;
+	};
+	
+	/**
 	 * Returns the ID of the related process (only for external subjects).
 	 * 
 	 * @returns {String} The ID of the related process.
@@ -244,6 +269,16 @@ function GCsubject (id, text, type, inputPool)
 	this.getType = function ()
 	{
 		return this.type.toLowerCase();
+	};
+	
+	/**
+	 * Returns the corresponding url.
+	 * 
+	 * @returns {String} The corresponding url.
+	 */
+	this.getUrl = function ()
+	{
+		return this.url;
 	};
 	
 	/**
@@ -358,6 +393,20 @@ function GCsubject (id, text, type, inputPool)
 	};
 	
 	/**
+	 * Sets the related interface.
+	 * 
+	 * @param {String} relatedInterface The related interface.
+	 * @returns {void}
+	 */
+	this.setRelatedInterface = function (relatedInterface)
+	{
+		if (gf_isset(relatedInterface))
+		{
+			this.relatedInterface	= relatedInterface;
+		}
+	};
+	
+	/**
 	 * Returns the ID of the related process (only for external subjects).
 	 * 
 	 * @param {String} relatedProcess The ID of the related process.
@@ -439,6 +488,20 @@ function GCsubject (id, text, type, inputPool)
 			{
 				this.type = type;
 			}
+		}
+	};
+	
+	/**
+	 * Sets the corresponding url.
+	 * 
+	 * @param {String} url The corresponding url.
+	 * @returns {void}
+	 */
+	this.setUrl = function (url)
+	{
+		if (gf_isset(url))
+		{
+			this.url	= url;
 		}
 	};
 	

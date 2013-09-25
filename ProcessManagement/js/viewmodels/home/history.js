@@ -12,15 +12,15 @@ define([
 		this.selectedUser = selectedUser;
 		this.selectedProcess = selectedProcess;
 		this.selectedStatetype = selectedStatetype;
-		this.selectedStart = selectedStart;	
+		this.selectedStart = selectedStart;
 		this.selectedEnd = selectedEnd;
 	}
 	var historyList = ko.observableArray();
-	
+
 	var JSONtimestampToString = function( JSONtimestamp ){
 		return  moment(JSONtimestamp).format( "YYYY-MM-DD HH:mm" );
 	}
-	
+
 	/* Filter Start */
 	var selectedUser = ko.observable();
 	var selectedProcess = ko.observable();
@@ -58,14 +58,14 @@ define([
 			}
 		});
 	});
-	
-	
+
+
 	var initialize = function( instance ) {
 		var viewModel = new ViewModel();
 		App.loadTemplate( "home/history", viewModel, "executionContent", function() {});
 		History.fetch();
 	}
-	
+
 	// Everything in this object will be the public API
 	return {
 		init: initialize,

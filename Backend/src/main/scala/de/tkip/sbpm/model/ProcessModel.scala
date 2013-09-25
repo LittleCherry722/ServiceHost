@@ -27,6 +27,8 @@ object StateType extends Enumeration { // TODO just use a string?
   val OpenIPStateString = "$openip"
   val CloseIPStateString = "$closeip"
   val IsIPEmptyStateString = "$isipempty"
+  val ActivateStateString = "$activatestate"
+  val DeactivateStateString = "$deactivatestate"
   val ModalSplitStateString = "modalsplit"
   val ModalJoinStateString = "modaljoin"
   val MacroStateString = "macro"
@@ -39,6 +41,8 @@ object StateType extends Enumeration { // TODO just use a string?
   val OpenIPStateType = Value(OpenIPStateString)
   val CloseIPStateType = Value(CloseIPStateString)
   val IsIPEmptyStateType = Value(IsIPEmptyStateString)
+  val ActivateStateType = Value(ActivateStateString)
+  val DeactivateStateType = Value(DeactivateStateString)
   val ModalSplitStateType = Value(ModalSplitStateString)
   val ModalJoinStateType = Value(ModalJoinStateString)
   val MacroStateType = Value(MacroStateString)
@@ -63,26 +67,25 @@ case class State(
   text: String,
   stateType: StateType,
   startState: Boolean,
+  observerState: Boolean,
   callMacro: Option[String],
   options: StateOptions,
-  transitions: Array[Transition]
-)
+  transitions: Array[Transition])
 case class StateOptions(
   messageType: Option[MessageType],
   subjectId: Option[SubjectID],
   correlationId: Option[String],
-  conversation: Option[String], 
-  stateId: Option[StateID]
-)
+  conversation: Option[String],
+  stateId: Option[StateID])
 
 case class ProcessMacro(name: String, states: Array[State])
 case class Subject(
   id: SubjectID,
   inputPool: Int,
   // TODO macroName -> states?
-//  macros: Map[String, Array[State]],
+  //  macros: Map[String, Array[State]],
   macros: Map[String, ProcessMacro],
-//  states: Array[State],
+  //  states: Array[State],
   multi: Boolean) extends SubjectLike {
   lazy val external = false
   // TODO remove this function?
@@ -95,9 +98,9 @@ case class ExternalSubject(
   id: SubjectID,
   inputPool: Int,
   multi: Boolean,
-  relatedProcessId: ProcessID,
-  relatedGraphId: Int,
-  relatedSubjectId: SubjectID,
+  relatedProcessId: Option[ProcessID],
+  relatedSubjectId: Option[SubjectID],
+  relatedInterfaceId: Option[SubjectID],
   url: Option[String]) extends SubjectLike {
   lazy val external = true
 }

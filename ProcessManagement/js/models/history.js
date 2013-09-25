@@ -26,15 +26,13 @@ define([
 			defaults: {
 				processName: "string",
 				processInstanceId: "integer"
-			}
+			},
+      lazy: false
 		},
 		subject: "string",
 		processStarted: "string",
 		timeStamp: {
 			type: "json",
-			defaults: {
-				date: "string"
-			},
 			lazy: false
 		},
 		transitionEvent: {
@@ -44,7 +42,7 @@ define([
 					type: "json",
 					defaults: {
 						text: "string",
-						stateType: "string",
+						stateType: "string"
 					}
 				},
 				text: "string",
@@ -53,7 +51,7 @@ define([
 					type: "json",
 					defaults: {
 						text: "string",
-						stateType: "string",
+						stateType: "string"
 					}
 				},
 				message: {
@@ -61,37 +59,36 @@ define([
 					defaults: {
 						messageId: "string",
 						fromSubject: "string",
-		      			toSubject: "string",
-		      			messageType: "string",
-		      			text: "string"	
+            toSubject: "string",
+            messageType: "string",
+            text: "string"
 					},
 					lazy: true
-				},
-			},			
-			lazy: true
+				}
+			},
+			lazy: false
 		},
 		// ID des Users, der für diesen Zustandsübergang verantwortlich war
-		userId: "integer"		
+		userId: "integer"
 	});
-	
+
+  History.enablePolling();
+
 	History.all = ko.observableArray();
+
 	History.include({
-		initialize: function( data ) {
-		var self = this;
-      		if(self.process()){
-				this.processinstance = ko.computed(function() {
-					var processId = null;
-					var processInstanceId = self.process().processInstanceId;
-					_.each(ProcessInstances.all(), function(element) {
-						if (element.id() === processInstanceId) {
-			            	//processName = element.processName();
-			            	var instanceName = element.name();
-			          	}
-		        	});
-	   			});
-	   		}
-   		}
-	});
+    initialize: function( data ) {
+      var self = this;
+
+      this.instanceName = ko.computed(function() {
+        return self.process().processInstanceName;
+      });
+
+      this.processName = ko.computed(function() {
+        return self.process().processName;
+      });
+    }
+  });
 
 	return History;
 });

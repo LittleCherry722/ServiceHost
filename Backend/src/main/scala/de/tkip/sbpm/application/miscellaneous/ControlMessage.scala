@@ -13,13 +13,10 @@
 
 package de.tkip.sbpm.application.miscellaneous
 
-import de.tkip.sbpm.rest._
 import ProcessAttributes._
 import akka.actor._
-import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.application.History
+import de.tkip.sbpm.application.MappingInfo
 import de.tkip.sbpm.application.history._
-import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import java.util.Date
@@ -76,13 +73,15 @@ case class ProcessInstanceData(id: ProcessInstanceID,
                                isTerminated: Boolean,
                                startedAt: Date,
                                owner: UserID,
-                               history: History,
                                actions: Array[AvailableAction])
 
 case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
 
-case class CreateProcessInstance(userID: UserID, processID: ProcessID, name: String, manager: Option[ActorRef] = None) extends AnswerAbleControlMessage
+case class GetSubjectMapping (processId: ProcessID, url: String)
+case class SubjectMappingResponse(subjectMapping:  Map[SubjectID, MappingInfo])
+
+case class CreateProcessInstance(userID: UserID, processID: ProcessID, name: String, manager: Option[ActorRef] = None, subjectMapping: scala.collection.Map[SubjectID, MappingInfo]) extends AnswerAbleControlMessage
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceActor: ProcessInstanceRef,
                                   answer: ProcessInstanceData) extends AnswerControlMessage {
@@ -104,9 +103,6 @@ case class AvailableActionsAnswer(request: GetAvailableActions, availableActions
 //case class GetProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage;
 //case class ProcessInstanceAnswer(request: GetProcessInstance, graphs: Array[ProcessGraph]) extends AnswerAbleControlMessage;
 
-// history
-case class GetHistory(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ExecutionMessage with ProcessInstanceMessage
-case class HistoryAnswer(request: GetHistory, history: History) extends AnswerControlMessage
 // new history
 case class GetNewHistory extends AnswerAbleControlMessage
 case class NewHistoryAnswer(request: GetNewHistory, history: NewHistory) extends AnswerControlMessage

@@ -1,0 +1,70 @@
+<div id="console">
+    <h2>Interactive API Console</h2>
+
+    <div class="list">
+        <div data-bind="foreach: apis">
+            <h3 data-bind="text: name"></h3>
+
+            <ul>
+                <div data-bind="foreach: methods">
+                    <li>
+                        <a href="#" data-bind="text: title, click: $root.methodSelected"></a>
+                    </li>
+                </div>
+            </ul>
+        </div>
+    </div>
+
+    <div class="method-container">
+        <p class="no-method-selected" data-bind="ifnot: selectedMethod()">Please select a method from the list on the
+            left-hand side</p>
+
+        <div class="method" data-bind="if: selectedMethod()">
+            <div data-bind="with: selectedMethod()">
+                <h3 data-bind="text: title"></h3>
+
+                <p class="description">
+                    <b><span data-bind="text: method"></span> <span data-bind="text: url"></span></b><br>
+                    <span data-bind="text: description"></span>
+                </p>
+
+                <div class="parameters">
+                    <h4>Parameters</h4>
+
+                    <p data-bind="if: parameters.length === 0">No parameters</p>
+
+                    <div data-bind="foreach: parameters" class="parameters-list">
+                        <div class="single-parameter">
+                            <span class="parameter-name">
+                                <span data-bind="text: parameter"></span>
+                                (<span data-bind="text: type"></span>)
+                            </span>
+                            <input type="text" data-bind="attr: {name: parameter, 'data-type': type}"/><br>
+                            <span data-bind="text: description"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="execution">
+                    <h4>Request Execution</h4>
+
+                    <a href="#" class="btn" data-bind="click: $parent.executeRequest">Execute Request</a><br>
+
+                    <h4>Output</h4>
+
+                    <pre><code data-language="javascript" class="output">
+                    </code></pre>
+
+                    <div data-bind="if: $root.outputText().length > 0" class="return-description">
+                        <h4>Return description</h4>
+                        <p data-bind="text: returnDescription"></p>
+                        <ul data-bind="foreach: returnValues">
+                            <li><b><span data-bind="text: name"></span></b>: <span data-bind="text: description"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -13,35 +13,49 @@
 
 package de.tkip.sbpm.application.subject.behavior.state
 
-import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.duration._
-import scala.concurrent.Future
 import scala.Array.canBuildFrom
-import akka.actor._
-import akka.event.Logging
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.FSM
+import akka.actor.Props
 import akka.actor.Status.Failure
-import akka.pattern.ask
-import akka.util.Timeout
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.history.{
-  Transition => HistoryTransition,
-  Message => HistoryMessage,
-  State => HistoryState
-}
-import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.SubjectInformation
-import de.tkip.sbpm.application.RequestUserID
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
+import akka.actor.actorRef2Scala
+import akka.event.Logging
+import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
+import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
+import de.tkip.sbpm.application.miscellaneous.BlockUser
+import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.timeoutLabel
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.InternalBehaviorRef
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.ProcessInstanceRef
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
+import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import de.tkip.sbpm.application.subject.SubjectData
-import de.tkip.sbpm.application.subject.behavior.InternalStatus
-import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior.ChangeState
+import de.tkip.sbpm.application.subject.behavior.InternalStatus
 import de.tkip.sbpm.application.subject.behavior.TimeoutCond
-import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.application.subject.misc.ActionData
+import de.tkip.sbpm.application.subject.misc.ActionExecuted
+import de.tkip.sbpm.application.subject.misc.AvailableAction
+import de.tkip.sbpm.application.subject.misc.ExecuteAction
+import de.tkip.sbpm.application.subject.misc.GetAvailableAction
+import de.tkip.sbpm.model.State
+import de.tkip.sbpm.model.StateType.SendStateType
 import scala.collection.mutable.Stack
+import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import akka.actor.PoisonPill
+import de.tkip.sbpm.application.subject.misc.ActionIDProvider
+import scala.collection.mutable.ArrayBuffer
+import de.tkip.sbpm.application.subject.misc.AvailableAction
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.model.ChangeDataMode._
+import de.tkip.sbpm.model.ActionDelete
+import java.util.Date
+import de.tkip.sbpm.model.ActionChange
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * The data, which is necessary to create any state
@@ -53,41 +67,27 @@ protected case class StateData(
   subjectID: SubjectID,
   macroID: String,
   internalBehaviorActor: InternalBehaviorRef,
+  subjectActor: SubjectRef,
   processInstanceActor: ProcessInstanceRef,
   inputPoolActor: ActorRef,
   internalStatus: InternalStatus,
   visitedModalSplit: Stack[(Int, Int)] = new Stack) // (id, number of branches)
 
+// the correct way to kill a state instead of PoisonPill 
+private[subject] case object KillState
+
 // the message to signal, that a timeout has expired
 private case object TimeoutExpired
 
-/**
- * The actor to perform a timeout
- * waits the given time (in millis)
- * then informs the parent, that the timeout has expired
- * and kills itself
- */
-private class TimeoutActor(time: Long) extends Actor {
-
-  override def preStart() {
-    // just wait the time
-    Thread.sleep(time)
-    // inform the parent
-    context.parent ! TimeoutExpired
-    // and kill this actor
-    context.stop(self)
-  }
-
-  def receive = FSM.NullFunction
-
-}
+// disables the state, so it cannot execute actions
+case object DisableState
 
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
 protected abstract class BehaviorStateActor(data: StateData) extends Actor with DefaultLogging {
 
-  // RODO for compatibility
+  // TODO for compatibility
   protected val logger = log //Logging(context.system, this)
 
   protected val blockingHandlerActor = data.subjectData.blockingHandlerActor
@@ -104,12 +104,15 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
   protected val stateType = model.stateType
   protected val transitions = model.transitions
   protected val internalBehaviorActor = data.internalBehaviorActor
+  protected val subjectActor = data.subjectActor
   protected val processInstanceActor = data.processInstanceActor
   protected val inputPoolActor = data.inputPoolActor
   protected val internalStatus = data.internalStatus
   protected val variables = internalStatus.variables
   protected val timeoutTransition = transitions.find(_.isTimeout)
   protected val exitTransitions = transitions.filter(_.isExitCond)
+
+  private var disabled = false
 
   override def preStart() {
 
@@ -124,9 +127,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
     if (timeoutTransition.isDefined) {
       val stateTimeout = timeoutTransition.get.myType.asInstanceOf[TimeoutCond]
       if (!stateTimeout.manual) {
-        context.actorOf(Props(new TimeoutActor(stateTimeout.duration * 1000)))
+        context.system.scheduler.scheduleOnce(FiniteDuration(stateTimeout.duration, "s"), self, TimeoutExpired)
       }
     }
+    actionChanged(Inserted)
   }
 
   // first try the "receive" function of the inheritance state
@@ -139,6 +143,20 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
   // the receive of this behavior state, it will be executed
   // if the state-receive does not match
   private def generalReceive: Receive = {
+
+    case DisableState => {
+      if (!disabled) {
+        disabled = true
+        actionChanged()
+      }
+    }
+
+    case action: ExecuteAction if (disabled) => {
+      log.error(s"Cannot execute $action, this state is disabled")
+      action.asInstanceOf[AnswerAbleMessage].sender !
+        Failure(new IllegalArgumentException(
+          "Invalid Argument: The state of the action is disabled."))
+    }
 
     // filter all invalid action
     case action: ExecuteAction if {
@@ -170,6 +188,11 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
 
   import de.tkip.sbpm.model.StateType._
   private def errorReceive: Receive = {
+
+    case KillState => {
+      suicide()
+    }
+
     case message: AnswerAbleMessage => {
       message match {
         case action: ExecuteAction => {
@@ -195,6 +218,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
     }
   }
 
+  protected def suicide() {
+    self ! PoisonPill
+  }
+
   /**
    * Executes a timeout by executing the timeout edge
    *
@@ -202,7 +229,8 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
    */
   protected def executeTimeout() {
     if (timeoutTransition.isDefined) {
-      changeState(timeoutTransition.get.successorID, data ,null)
+      logger.debug("Executing Timeout")
+      changeState(timeoutTransition.get.successorID, data, null)
     }
   }
 
@@ -220,8 +248,20 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
    * Changes the state and creates a history entry with the history message
    */
   protected def changeState(successorID: StateID, prevStateData: StateData, historyMessage: HistoryMessage) {
+    ActorLocator.changeActor ! ActionDelete(actionID, new Date())
     blockingHandlerActor ! BlockUser(userID)
     internalBehaviorActor ! ChangeState(id, successorID, internalStatus, prevStateData, historyMessage)
+  }
+
+  private lazy val actionID = ActionIDProvider.nextActionID()
+
+  /**
+   * Call this method, when the action has changed
+   *
+   * it informs the ChangeActor about the new action
+   */
+  protected def actionChanged(changeMode: ChangeMode = Updated) {
+    ActorLocator.changeActor ! ActionChange(createAvailableAction, changeMode, new Date())
   }
 
   /**
@@ -237,8 +277,12 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
     if (timeoutTransition.isDefined) {
       actionData ++= Array(ActionData("timeout", true, timeoutLabel))
     }
-
+    if (disabled) {
+      // if disabled, disable all action
+      actionData.foreach(_.executeAble = false)
+    }
     AvailableAction(
+      actionID,
       userID,
       processInstanceID,
       subjectID,

@@ -316,8 +316,6 @@ define([
     Model.fetch = abstractMethod( function( options, callbacks ) {
       var ajax;
 
-      Model.all.removeAll();
-
       ajax = {
         url: pathBuilder.listPath(),
         type: ajaxOptions.methods.list,
@@ -329,10 +327,13 @@ define([
           // If previous statement was excuted successfully, create new
           // instance of our model
           _( data ).each(function( resultJSON ) {
-            var newInstance = new Model( data );
+            if ( Model.find(resultJSON.id) ) {
+              return;
+            }
+
+            var newInstance = new Model( resultJSON );
 
             // Mark this Record as not new (and therefore as already persisted)
-            newInstance = new Model( resultJSON );
             newInstance.isBeingInitialized = true;
             newInstance.isNewRecord = false;
             newInstance.hasChanged( false );
@@ -340,11 +341,22 @@ define([
 
             // Append the new model to our collection of Models.
             // Every observer will be notified about this event.
-            if ( ! _( Model.all() ).contains( newInstance ) ) {
-              Model.all.push( newInstance );
-            }
+            Model.all.push( newInstance );
 
           });
+          if ( _(data).every(function(e) { return e.id }) ) {
+            var modelIds, newIds, removedIds;
+            modelIds = Model.all().map(function( e ) {
+              return e.id();
+            });
+            newIds = data.map(function( e ) {
+              return e.id;
+            });
+            removedIds = _.difference( modelIds, newIds );
+            Model.all.remove(function( e ) {
+              return _(removedIds).contains( e.id() )
+            });
+          }
           callbacks.success.call( Model, textStatus  );
         },
         error: function( jqXHR, textStatus, error ) {

@@ -137,9 +137,9 @@ define([
 		var actions = processInstance().actions();
 		for ( var i = 0; i < actions.length; i++ ) {
 			var action = actions[i];
-			for ( var j = 0; j < action.actionData.length; j++ ) {
-				var actionData = action.actionData[j];
-				if ( actionData.executeAble === true ) {
+			for ( var j = 0; j < action.data.length; j++ ) {
+				var data = action.data[j];
+				if ( data.executeAble === true ) {
 					return action.subjectID;
 				}
 			}

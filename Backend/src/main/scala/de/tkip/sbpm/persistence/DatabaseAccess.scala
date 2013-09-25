@@ -29,6 +29,7 @@ import akka.util.Timeout
 import com.mchange.v2.c3p0._
 import com.typesafe.config.Config
 import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.application.miscellaneous.SystemProperties
 
 /**
  * Provides helper methods for connecting to database using slick.
@@ -136,22 +137,27 @@ private[persistence] object DatabaseAccess {
    * the database connection pool.
    */
   def connection(implicit config: Config) = synchronized {
-    // read jdbc uri from config
-    val uri = configString("uri")
+    val url = jdbcUrl
+
     // check if connection pool for the uri already exists
-    if (!dataSources.contains(uri)) {
+    if (!dataSources.contains(url)) {
       // create new connection pool data source
       val ds = new ComboPooledDataSource
       // read pool properties from akka config
       ds.setDriverClass(configString("jdbcDriver"))
-      ds.setJdbcUrl(uri)
+      ds.setJdbcUrl(url)
       ds.setMinPoolSize(configInt("minPoolSize"));
       ds.setAcquireIncrement(configInt("poolAcquireIncrement"));
       ds.setMaxPoolSize(configInt("maxPoolSize"));
       // add to data source pool
-      dataSources += (uri -> ds)
+      dataSources += (url -> ds)
     }
-    Database.forDataSource(dataSources(uri))
+    Database.forDataSource(dataSources(url))
+  }
+
+  private def jdbcUrl(implicit config: Config) = {
+    val uri = configString("uri")
+    uri.replaceAll("\\{SBPM_PORT\\}", SystemProperties.sbpmPort.toString)
   }
 
   // close all connection pools
