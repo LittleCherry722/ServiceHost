@@ -46,7 +46,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
   import context.dispatcher
-  implicit val timeout = Timeout(4 seconds)
+  implicit val timeout = Timeout(10 seconds)
   implicit val config = context.system.settings.config
 
   // this fields are set in the preStart, dont change them afterwards!!!

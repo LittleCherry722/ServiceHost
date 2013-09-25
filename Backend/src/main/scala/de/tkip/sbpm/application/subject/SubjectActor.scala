@@ -34,6 +34,7 @@ import akka.util.Timeout
 import de.tkip.sbpm.application.subject.misc.DisableNonObserverStates
 import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
 import akka.actor.Status.Failure
+import scala.concurrent.duration._
 
 case class CallMacro(callActor: ActorRef, name: String)
 
@@ -50,7 +51,7 @@ case class SubjectData(
  */
 class SubjectActor(data: SubjectData) extends Actor {
   private val logger = Logging(context.system, this)
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(10 seconds)
 
   // extract the information out of the input
   private val subject: Subject = data.subject match {

@@ -26,7 +26,7 @@ case object GetProxyActor
 case class GetProcessInstanceProxy(processId: ProcessID, url: String)
 
 class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor with DefaultLogging {
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(10 seconds)
 
   log.debug("register initial process instance proxy for: {}", url)
 

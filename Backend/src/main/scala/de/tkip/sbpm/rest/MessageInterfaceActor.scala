@@ -20,7 +20,7 @@ import scala.concurrent.Await
 
 class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
   import context.dispatcher
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(10 seconds)
 
   def actorRefFactory = context
 
