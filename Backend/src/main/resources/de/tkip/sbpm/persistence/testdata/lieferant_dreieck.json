@@ -7,13 +7,13 @@
           "subjectType": "external",
           "deactivated": false,
           "inputPool": 100,
-          "relatedInterface": "",
+          "relatedInterface": "Lieferant",
           "relatedProcess": 17,
-          "relatedSubject": "",
+          "relatedSubject": "Staples",
           "externalType": "interface",
           "role": "Staples",
           "startSubject": false,
-          "url": "",
+          "url": "@127.0.0.1:2553",
           "comment": "",
           "macros": [{
               "id": "##main##",
@@ -90,7 +90,7 @@
                   "type": "exitcondition",
                   "edgeType": "exitcondition",
                   "target": {
-                      "id": "Zulieferer",
+                      "id": "Lieferant",
                       "min": -1,
                       "max": -1,
                       "createNew": false,
@@ -111,7 +111,7 @@
           "variables": {},
           "variableCounter": 1
       }, {
-          "id": "Zulieferer",
+          "id": "Lieferant",
           "name": "Lieferant",
           "type": "single",
           "subjectType": "single",
@@ -321,19 +321,19 @@
           "variables": {},
           "variableCounter": 1
       }, {
-          "id": "Subj2",
+          "id": "Kunde",
           "name": "Kunde",
           "type": "external",
           "subjectType": "external",
           "deactivated": false,
           "inputPool": 100,
-          "relatedInterface": null,
+          "relatedInterface": "Lieferant",
           "relatedProcess": null,
-          "relatedSubject": "",
+          "relatedSubject": "Gro\u00dfunternehmen",
           "externalType": "interface",
           "role": "Kunde",
           "startSubject": false,
-          "url": null,
+          "url": "@127.0.0.1:2552",
           "comment": "",
           "macros": [{
               "id": "##main##",
@@ -410,7 +410,7 @@
                   "type": "exitcondition",
                   "edgeType": "exitcondition",
                   "target": {
-                      "id": "Zulieferer",
+                      "id": "Lieferant",
                       "min": -1,
                       "max": -1,
                       "createNew": false,

@@ -368,18 +368,18 @@
           "variables": {},
           "variableCounter": 1
       }, {
-          "id": "Subj2",
-          "name": "Zulieferer",
+          "id": "Lieferant",
+          "name": "Lieferant",
           "type": "external",
           "subjectType": "external",
           "deactivated": false,
           "inputPool": 100,
           "relatedProcess": null,
-          "relatedSubject": "",
+          "relatedSubject": "Staples",
           "externalType": "interface",
           "role": "Zulieferer",
           "startSubject": false,
-          "relatedInterface": "Zulieferer Dreieck",
+          "relatedInterface": "Kunde",
           "url": "@127.0.0.1:2554",
           "comment": "",
           "macros": [{
