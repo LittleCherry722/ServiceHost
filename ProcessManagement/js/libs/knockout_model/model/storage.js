@@ -348,11 +348,11 @@ define([
           modelIds = Model.all().map(function( e ) {
             return e.id();
           });
-          newIds = Model.all().map(function( e ) {
-            return e.id();
+          newIds = data.map(function( e ) {
+            return e.id;
           });
           removedIds = _.difference( modelIds, newIds );
-          Model.all.removeAll(function( e ) {
+          Model.all.remove(function( e ) {
             return _(removedIds).contains( e.id() )
           });
           callbacks.success.call( Model, textStatus  );

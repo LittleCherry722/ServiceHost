@@ -17,7 +17,7 @@ namespace :deploy do
         [
          { sbpm_port: 8081, akka_port: 2553 },
          { sbpm_port: 8082, akka_port: 2554 }
-        ].each do |port| 
+        ].each do |port|
           execute "cp", "backend.jar", "backend_#{port[:sbpm_port]}"
           with port do
             execute current_path.join('backend.sh')
