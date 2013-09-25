@@ -252,7 +252,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
 
     send : function( message, obj ) {
       var data, id, actionData,
-        selectedUsers = _(this.data()[0].selectedUsers()).compact.length;
+        selectedUsers = _(this.data()[0].selectedUsers()).compact().length;
 
       if (this.data()[0].targetUsersData.min > selectedUsers || this.data()[0].targetUsersData.max < selectedUsers) {
         var errorMsg = "Please select the correct amount of users. <br/>";
