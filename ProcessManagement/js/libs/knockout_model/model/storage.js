@@ -344,17 +344,19 @@ define([
             Model.all.push( newInstance );
 
           });
-          var modelIds, newIds, removedIds;
-          modelIds = Model.all().map(function( e ) {
-            return e.id();
-          });
-          newIds = data.map(function( e ) {
-            return e.id;
-          });
-          removedIds = _.difference( modelIds, newIds );
-          Model.all.remove(function( e ) {
-            return _(removedIds).contains( e.id() )
-          });
+          if ( _(data).every(function(e) { return e.id }) ) {
+            var modelIds, newIds, removedIds;
+            modelIds = Model.all().map(function( e ) {
+              return e.id();
+            });
+            newIds = data.map(function( e ) {
+              return e.id;
+            });
+            removedIds = _.difference( modelIds, newIds );
+            Model.all.remove(function( e ) {
+              return _(removedIds).contains( e.id() )
+            });
+          }
           callbacks.success.call( Model, textStatus  );
         },
         error: function( jqXHR, textStatus, error ) {
