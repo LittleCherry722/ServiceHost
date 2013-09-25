@@ -47,7 +47,7 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
   protected val database = DatabaseAccess.connection
 
   // default timeout for akka message sending
-  protected implicit val timeout = Timeout(30 seconds)
+  protected implicit val timeout = Timeout(1 minute)
 
   /**
    * Send the result of the given function (executed in one transaction)

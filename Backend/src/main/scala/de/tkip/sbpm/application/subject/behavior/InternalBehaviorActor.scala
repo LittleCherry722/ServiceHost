@@ -41,6 +41,7 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
+import scala.concurrent.duration._
 
 case object StartMacroExecution
 
@@ -61,7 +62,7 @@ class InternalBehaviorActor(
   data: SubjectData,
   inputPoolActor: ActorRef) extends Actor with DefaultLogging {
   // extract the data
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(10 seconds)
 
   val processInstanceActor = data.processInstanceActor
   val subjectID = data.subject.id

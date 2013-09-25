@@ -31,6 +31,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import akka.util.Timeout
+import scala.concurrent.duration._
 
 case class CallMacro(callActor: ActorRef, name: String)
 
@@ -47,7 +48,7 @@ case class SubjectData(
  */
 class SubjectActor(data: SubjectData) extends Actor {
   private val logger = Logging(context.system, this)
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(10 seconds)
 
   // extract the information out of the input
   private val subject: Subject = data.subject match {

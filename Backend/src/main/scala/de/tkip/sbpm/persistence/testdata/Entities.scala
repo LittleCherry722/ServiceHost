@@ -160,7 +160,7 @@ object Entities {
     (14, 2),
     (15, 4))
 
-  implicit val timeout = akka.util.Timeout(100 seconds)
+  implicit val timeout = akka.util.Timeout(5 minutes)
 
   /**
    * Load a resource json file as string.

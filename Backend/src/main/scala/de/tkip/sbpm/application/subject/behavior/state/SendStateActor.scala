@@ -49,7 +49,7 @@ private class GoogleSendProxyActor(
 
   lazy val driveActor = sbpm.ActorLocator.googleDriveActor
   implicit val ec = context.dispatcher
-  implicit val timeout = Timeout(3000)
+  implicit val timeout = Timeout(10 seconds)
 
   def receive = {
     case message: SubjectToSubjectMessage if message.fileID.isDefined =>
@@ -87,7 +87,7 @@ protected case class SendStateActor(data: StateData)
   // TODO so ist das noch nicht, besser machen!
   // ask the ContextResolver for the targetIDs
   // store them in a val
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(10 seconds)
 
   var targetUserIDs: Option[Array[UserID]] = None
 

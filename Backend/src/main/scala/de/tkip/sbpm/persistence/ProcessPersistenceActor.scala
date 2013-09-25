@@ -21,6 +21,7 @@ import akka.actor.Props
 import scala.slick.lifted
 import akka.pattern._
 import scala.concurrent._
+import scala.concurrent.duration._
 import akka.actor.ActorLogging
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.persistence.query.Graphs
@@ -34,7 +35,7 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
   import akka.util.Timeout
   import scala.concurrent.Future
   import scala.concurrent.ExecutionContext.Implicits.global
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(10 seconds)
   def receive = {
     case q @ Save.Entity(ps @ _*) => {
       log.debug("Start checking: " + q)

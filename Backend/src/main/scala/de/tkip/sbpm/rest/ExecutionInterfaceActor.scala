@@ -34,7 +34,7 @@ import de.tkip.sbpm.logging.DefaultLogging
  */
 class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
   import context.dispatcher
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(10 seconds)
 
   implicit def exceptionHandler(implicit log: LoggingContext) =
     ExceptionHandler {

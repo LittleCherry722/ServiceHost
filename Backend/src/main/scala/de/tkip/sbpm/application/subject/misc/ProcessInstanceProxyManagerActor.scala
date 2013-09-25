@@ -8,6 +8,7 @@ import akka.actor.ActorRef
 import scala.collection.mutable
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.concurrent.Await
+import scala.concurrent.duration._
 import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
@@ -23,7 +24,7 @@ case object GetProxyActor
 case class GetProcessInstanceProxy(userId: UserID, processId: ProcessID, url: String)
 
 class ProcessInstanceProxyManagerActor() extends Actor {
-  implicit val timeout = Timeout(2000)
+  implicit val timeout = Timeout(10 seconds)
   //  import context.dispatcher
 
   protected val logger = Logging(context.system, ProcessInstanceProxyManagerActor.this)

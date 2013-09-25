@@ -95,7 +95,7 @@ object Boot extends App {
   printf(sys.env.getOrElse("AKKA_PORT", "2552"))
 
   // db init code below
-  implicit val timout = Timeout(30 seconds)
+  implicit val timout = Timeout(2 minutes)
   implicit val executionContext = system.dispatcher
 
   // check startup actions defined in config

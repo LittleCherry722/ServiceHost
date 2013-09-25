@@ -59,7 +59,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
-  implicit val timeout = Timeout(4 seconds)
+  implicit val timeout = Timeout(10 seconds)
 
   // this fields are set in the preStart, dont change them afterwards!!!
   private var id: ProcessInstanceID = _

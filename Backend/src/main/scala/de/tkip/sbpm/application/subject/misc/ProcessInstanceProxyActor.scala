@@ -22,7 +22,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, graph: ProcessGraph) exte
     } toMap
 
   private lazy val contextResolver = ActorLocator.contextResolverActor
-  implicit val timeout = Timeout(4 seconds)
+  implicit val timeout = Timeout(10 seconds)
 
   private case class RandomUsersLoaded(message: SubjectToSubjectMessage, userIds: Array[UserID])
 

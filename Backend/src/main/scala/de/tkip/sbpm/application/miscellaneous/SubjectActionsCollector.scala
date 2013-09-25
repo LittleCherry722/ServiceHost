@@ -39,7 +39,7 @@ class SubjectActionsCollector extends Actor {
 
   def receive = {
     case CollectAvailableActions(subjects, processInstanceID, generateAnswer) => {
-      implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
+      implicit val timeout = akka.util.Timeout(10 seconds) // TODO how long the timeout?
 
       val actionFutureSeq: Seq[Future[Seq[Seq[AvailableAction]]]] =
         for (subject <- subjects.filterNot(_.isTerminated).toArray)

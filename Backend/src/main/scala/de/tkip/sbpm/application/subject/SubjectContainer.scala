@@ -35,6 +35,7 @@ import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -100,7 +101,7 @@ class SubjectContainer(
     } else {
       System.err.println("CREATE: " + subjectData.subject);
       // process schon vorhanden?
-      implicit val timeout = akka.util.Timeout(3500)
+      implicit val timeout = akka.util.Timeout(10 seconds)
       val ext = subjectData.subject.asInstanceOf[ExternalSubject]
       val url = ext.url.getOrElse("")
 

@@ -54,7 +54,7 @@ class ContextResolverActor extends Actor {
   val subjectInstanceMap =
     mutable.Map.empty[(ProcessID, ProcessInstanceID, SubjectID), UserID]
 
-  implicit val timeout = Timeout(1 seconds)
+  implicit val timeout = Timeout(10 seconds)
 
   def receive = {
     // register SingleSubjectInstance
