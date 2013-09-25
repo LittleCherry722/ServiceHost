@@ -187,7 +187,7 @@ class ProcessManagerActor extends Actor {
     val temp = ArrayBuffer[HistoryRelatedChangeData]()
     for (i <- 0 until changes.length){
       val entry = changes(i)
-      temp += HistoryRelatedChangeData(entry.userId, entry.process, entry.subject, entry.transitionEvent, entry.lifecycleEvent)
+      temp += HistoryRelatedChangeData(entry.userId, entry.process, entry.subject, entry.transitionEvent, entry.lifecycleEvent, new java.sql.Timestamp(entry.timeStamp.getTime()))
     }
     Some(HistoryRelatedChange(Some(temp.toArray)))
   
