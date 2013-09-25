@@ -264,7 +264,7 @@
           "subjectType": "external",
           "deactivated": false,
           "inputPool": 100,
-          "relatedInterface": "Gro\u00dfunternehmen",
+          "relatedInterface": "Kunde",
           "url": "@127.0.0.1:2553",
           "relatedProcess": 2,
           "relatedSubject": "Staples",
