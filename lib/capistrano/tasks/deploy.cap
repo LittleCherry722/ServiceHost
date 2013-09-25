@@ -7,6 +7,12 @@ namespace :deploy do
         execute(:mkdir, "pids") unless test("[ -d #{shared_path.join('pids')} ]")
       end
     end
+    on roles(:repo_host) do
+      within shared_path do
+        execute(:mkdir, "log") unless test("[ -d #{shared_path.join('log')} ]")
+        execute(:mkdir, "pids") unless test("[ -d #{shared_path.join('pids')} ]")
+      end
+    end
     on fetch(:artifact_host_host) do
       within "/home/ubuntu2/apps/sbpm" do
         execute(:mkdir, "artifacts") unless test("[ -d artifacts ]")
@@ -17,14 +23,14 @@ namespace :deploy do
 
   desc "starts the server"
   task :start do
-    on roles(:repo_host) do |host| 
+    on roles(:repo_host) do |host|
       within current_path do
         execute current_path.join('repository.sh')
       end
     end
     on roles(:app), in: :parallel do |host|
       within current_path do
-        with akka_hostname: ( fetch(:hostname) || host.hostname )do
+        with akka_hostname: ( fetch(:hostname) || host.hostname ) do
           execute current_path.join('backend.sh')
         end
       end
@@ -41,7 +47,7 @@ namespace :deploy do
       end
     end
   end
-  
+
   desc "(Re)starts the server"
   task :restart do
     invoke "deploy:stop"
