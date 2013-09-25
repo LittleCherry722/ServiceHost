@@ -26,15 +26,13 @@ define([
 			defaults: {
 				processName: "string",
 				processInstanceId: "integer"
-			}
+			},
+      lazy: false
 		},
 		subject: "string",
 		processStarted: "string",
 		timeStamp: {
 			type: "json",
-			defaults: {
-				date: "string"
-			},
 			lazy: false
 		},
 		transitionEvent: {
@@ -68,7 +66,7 @@ define([
 					lazy: true
 				}
 			},
-			lazy: true
+			lazy: false
 		},
 		// ID des Users, der für diesen Zustandsübergang verantwortlich war
 		userId: "integer"
