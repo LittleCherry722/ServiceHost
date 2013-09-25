@@ -6,6 +6,7 @@ role :app, %w[
    ubuntu@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com
 ]
 
+role :repo_host, %w[ ubuntu2@sbpm-gw.tk.informatik.tu-darmstadt.de ]
 
 set :deploy_to, "/home/ubuntu/apps/sbpm"
 
