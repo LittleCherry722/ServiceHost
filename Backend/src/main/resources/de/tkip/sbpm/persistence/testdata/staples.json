@@ -507,7 +507,7 @@
         "relatedProcess": 3,
         "relatedSubject": "Zulieferer",
         "relatedInterface": "Staples",
-        "url": "@ec2-54-229-92-171.eu-west-1.compute.amazonaws.com:2552",
+        "url": "@ec2-54-229-91-177.eu-west-1.compute.amazonaws.com:2552",
         "role": "Zulieferer",
         "type": "external",
         "variableCounter": 1,
