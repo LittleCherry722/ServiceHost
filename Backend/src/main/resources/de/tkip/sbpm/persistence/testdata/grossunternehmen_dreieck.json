@@ -264,7 +264,7 @@
           "subjectType": "external",
           "deactivated": false,
           "inputPool": 100,
-          "relatedInterface": "Gro\u00dfunternehmen",
+          "relatedInterface": "Kunde",
           "url": "@ec2-54-229-82-150.eu-west-1.compute.amazonaws.com:2552",
           "relatedProcess": 2,
           "relatedSubject": "Staples",
