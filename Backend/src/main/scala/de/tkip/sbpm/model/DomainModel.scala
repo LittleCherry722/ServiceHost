@@ -80,7 +80,7 @@ case class ActionRelatedChangeData(id: Int, userID: Int, processInstanceID: Int,
 case class ActionRelatedDeleteData(id: Int)
 case class ActionRelatedChange(inserted: Option[Array[ActionRelatedChangeData]], updated: Option[Array[ActionRelatedChangeData]], deleted: Option[Array[ActionRelatedDeleteData]])
 
-case class HistoryRelatedChangeData(userId: Option[Int], process: NewHistoryProcessData, subject: Option[String], transitionEvent: Option[NewHistoryTransitionData], lifecycleEvent: Option[String])
+case class HistoryRelatedChangeData(userId: Option[Int], process: NewHistoryProcessData, subject: Option[String], transitionEvent: Option[NewHistoryTransitionData], lifecycleEvent: Option[String], timeStamp: java.sql.Timestamp)
 case class HistoryRelatedChange(inserted: Option[Array[HistoryRelatedChangeData]])
 
 case class ProcessInstanceRelatedChangeData(id: Int, processId: Int, processName: String, name: String)
