@@ -148,7 +148,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val actionRelatedDeleteDataFormat = jsonFormat1(ActionRelatedDeleteData)
   implicit val actionRelatedChangeFormat = jsonFormat3(ActionRelatedChange)
   
-  implicit val historyRelatedChangeDataFormat = jsonFormat5(HistoryRelatedChangeData)
+  implicit val historyRelatedChangeDataFormat = jsonFormat6(HistoryRelatedChangeData)
   implicit val historyRelatedChange = jsonFormat1(HistoryRelatedChange)
   
   implicit val processInstanceRelatedChangeDataFormat = jsonFormat4(ProcessInstanceRelatedChangeData)

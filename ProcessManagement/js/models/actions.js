@@ -251,13 +251,14 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
     },
 
     send : function( message, obj ) {
-      var data, id, actionData;
+      var data, id, actionData,
+        selectedUsers = _(this.data()[0].selectedUsers()).compact.length;
 
-      if (this.data()[0].targetUsersData.min > this.data()[0].selectedUsers().length || this.data()[0].targetUsersData.max < this.data()[0].selectedUsers().length) {
+      if (this.data()[0].targetUsersData.min > selectedUsers || this.data()[0].targetUsersData.max < selectedUsers) {
         var errorMsg = "Please select the correct amount of users. <br/>";
 
-        errorMsg += "minimum: " + this.data.actionData[0].targetUsersData.min + "<br/>";
-        errorMsg += "maximum: " + this.data.actionData[0].targetUsersData.max;
+        errorMsg += "minimum: " + this.data()[0].targetUsersData.min + "<br/>";
+        errorMsg += "maximum: " + this.data()[0].targetUsersData.max;
         Notify.error("Error", errorMsg);
         return;
       }

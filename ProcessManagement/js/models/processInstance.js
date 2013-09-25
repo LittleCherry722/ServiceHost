@@ -84,7 +84,7 @@ define([
           var len = 0;
           if (self.actions()) {
             _.each(self.actions(), function(actions) {
-              len += actions.data.length;
+              len += actions.actionData.length;
             });
               }
               return len  > 0;

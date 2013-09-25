@@ -580,22 +580,13 @@ define([
 			});
 		});
 
-		$('#processContent svg').on('DOMSubtreeModified', function(){
-			console.log('dom nodes changed', gv_graph.getSubjectNames())
-			if(gv_graph.getSubjectNames().length > 0) {
-				$('#process-subject-help').addClass('invisible');
-			} else {
-				$('#process-subject-help').removeClass('invisible');
-			}
-		});
-
 		var updateSubjectIds = "#UpdateSubjectButton, #DeleteSubjectButton, #AddSubjectButton";
 		$(updateSubjectIds).live( "click", function() {
 			Router.setHasUnsavedChanges(true);
 			updateListOfSubjects();
 		});
 
-		$('importGraphButtonAction').click(function(){
+		$('#importGraphButtonAction').click(function(){
 			Router.setHasUnsavedChanges(true);
 		});
 
@@ -624,6 +615,22 @@ define([
 
 			gv_graph.selectedNode = null;
 		});
+	}
+
+	var initializeSvgChangeListener = function(){
+		var svgInt = setInterval(function(){
+			var svg = $('#processContent svg');
+			if(svg.length > 0){
+				svg.on('DOMSubtreeModified', function(){
+					if(gv_graph.getSubjectNames().length > 0) {
+						$('#process-subject-help').addClass('invisible');
+					} else {
+						$('#process-subject-help').removeClass('invisible');
+					}
+				});
+				clearInterval(svgInt);
+			}
+		}, 100);
 	}
 
 	var subscriptions = [];
@@ -868,6 +875,7 @@ define([
 					initialized = true;
 					initializeListeners();
 				}
+				initializeSvgChangeListener();
 
 				initializeDOM();
 
