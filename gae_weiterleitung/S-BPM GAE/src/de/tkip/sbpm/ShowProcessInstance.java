@@ -3,25 +3,29 @@ package de.tkip.sbpm;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-
-import com.google.appengine.api.datastore.KeyFactory;
-
 import de.tkip.sbpm.proto.GAEexecution.Action;
-import de.tkip.sbpm.proto.GAEexecution.ActionData;
 import de.tkip.sbpm.proto.GAEexecution.ListActions;
 import de.tkip.sbpm.proto.GAEexecution.ListProcesses;
 import de.tkip.sbpm.proto.GAEexecution.ProcessInstanceData;
 import de.tkip.sbpm.proto.GAEexecution.ListProcesses.ProcessInfo;
+
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 
 public class ShowProcessInstance extends HttpServlet {
 

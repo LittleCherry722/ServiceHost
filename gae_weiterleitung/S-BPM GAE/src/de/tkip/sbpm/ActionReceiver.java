@@ -1,7 +1,6 @@
 package de.tkip.sbpm;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,13 +10,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import de.tkip.sbpm.State.StateType;
 import de.tkip.sbpm.proto.GAEexecution.Action;
-import de.tkip.sbpm.proto.GAEexecution.ActionData;
-import de.tkip.sbpm.proto.GAEexecution.ExecuteAction;
 import de.tkip.sbpm.proto.GAEexecution.ListActions;
 
+/*
+ * S-BPM Groupware v1.2
+ *
+ * http://www.tk.informatik.tu-darmstadt.de/
+ *
+ * Copyright 2013 Telecooperation Group @ TU Darmstadt
+ * Contact: Stephan.Borgert@cs.tu-darmstadt.de
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 public class ActionReceiver extends HttpServlet {
+	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -50,6 +60,7 @@ public class ActionReceiver extends HttpServlet {
 		
 	}
 	
+	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 //		PersistenceManager pm = PMF.get().getPersistenceManager();
