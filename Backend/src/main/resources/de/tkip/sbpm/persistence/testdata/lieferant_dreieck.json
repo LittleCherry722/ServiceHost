@@ -285,7 +285,7 @@
                   "type": "exitcondition",
                   "edgeType": "exitcondition",
                   "target": {
-                      "id": "Subj2",
+                      "id": "Kunde",
                       "min": -1,
                       "max": -1,
                       "createNew": false,
@@ -333,7 +333,7 @@
           "externalType": "interface",
           "role": "Kunde",
           "startSubject": false,
-          "url": "@ec2-54-229-92-171.eu-west-1.compute.amazonaws.com/:2552",
+          "url": "@ec2-54-229-92-171.eu-west-1.compute.amazonaws.com:2552",
           "comment": "",
           "macros": [{
               "id": "##main##",
