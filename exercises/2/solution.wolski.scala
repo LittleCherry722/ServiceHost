@@ -32,41 +32,57 @@ object Tasks extends Tasks {
 
   new Task("Task 1") {
     def solution() = {
+      def signum (x: Int): Int = {
+        if(x < 0) -x else if(x == 0) 0 else x
+      }
 
-      // your solution for task 1 here
-
+      println("signum(-2):" + signum(-2));
+      println("signum(0):" + signum(0));
+      println("signum(3):" + signum(3));
     }
   }
 
   new Task("Task 2") {
     def solution() = {
-
-      // your solution for task 3 here
-
+      println("The value is () and its type is Unit");
     }
   }
 
   new Task("Task 4") {
     def solution() = {
-
-      // your solution for task 4 here
-
+      for(i <- (0 to 10).reverse) {
+        println(i)
+      }
     }
   }
 
   new Task("Task 5") {
     def solution() = {
+      def countdown(n: Int) : Unit = {
+        for(i <- (0 to n).reverse) {
+          println(i)
+        }
+      }
 
-      // your solution for task 9 here
-
+      println("countdown 5: ")
+      countdown(5)
     }
   }
 
   new Task("Task 10") {
     def solution() = {
+      def pow (x: Double, n: Int): Double = {
+        if (n == 0) 1.0
+        else if (n < 0) (1.0 / pow(x, -n))
+        else if (n % 2 == 0) {val y = pow(x, n/2); y * y}
+        else x * pow(x, n - 1)
+      }
 
-      // your solution for task 10 here
-
+      println("1^1: " + pow(1,1));
+      println("2^2: " + pow(2,2));
+      println("2^3: " + pow(2,3));
+      println("2^-3: " + pow(2,-3));
+      println("2.5^2: " + pow(2.5,2));
     }
   }
 
