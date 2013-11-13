@@ -208,8 +208,22 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 * The y ordinate of the top left corner.
 	 * 
 	 * @type int
-	 */	
+	 */
 	this.y = 0;
+
+    /**
+     * Indicates whether the element can be manually repositioned by the user or not
+     *
+     * @type {boolean}
+     */
+    this.draggable = false;
+
+    /**
+     * The user-defined manual offset for the label position
+     *
+     * @type {?{dx: int, dy: int}}
+     */
+    this.manualPositionOffset = null;
 	
 	/**
 	 * Activate the label and update its look.
@@ -235,7 +249,9 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			graph = graph.toLowerCase();
 			id = this.id;
 
-            this.addDragElementHandler()
+            if(this.draggable) {
+                this.addDragElementHandler()
+            }
 			
 			// set the event handlers for the communication view (label is a subject)
 			if (graph == "cv")
@@ -320,25 +336,41 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
     this.addDragElementHandler = function ()
     {
         var self = this,
-            copyElement = null,
-            origPosition;
+            copyElement, origPosition,
+            drag, deferredDragStart, dragEnd;
 
-        this.bboxObj.drag(function (dx, dy)
+        drag = function (dx, dy)
         {
-            self.setPosition(origPosition.x + dx, origPosition.y + dy);
-        }, function ()
+            if(!copyElement) {
+                deferredDragStart();
+            }
+            self.setPosition(origPosition.x + dx / gv_currentViewBox.zoom, origPosition.y + dy / gv_currentViewBox.zoom, 0);
+        };
+
+        deferredDragStart = function ()
         {
             origPosition = self.getPosition();
             copyElement = self.bboxObj.clone();
             copyElement.attr("opacity", 0.3);
             gv_paper.add(copyElement);
-            copyElement.toBack();
-        }, function ()
+
+            self.bboxObj.toFront();
+            if(self.text) self.text.toFront();
+            if(self.img) self.img.toFront();
+        };
+
+        dragEnd = function ()
         {
-            copyElement.remove();
-            copyElement = null;
-            self.setPosition(origPosition.x, origPosition.y)
-        });
+            if(copyElement) {
+                copyElement.remove();
+                copyElement = null;
+                self.manualPositionOffset = {dx: self.x - origPosition.x, dy: self.y - origPosition.y};
+                self.setPosition(origPosition.x, origPosition.y, 0)
+            }
+        };
+
+        // does add callback for dragStart. instead drag-start is deferred to not conflict with click events
+        this.bboxObj.drag(drag, null, dragEnd);
     };
 
 	/**
@@ -1092,10 +1124,14 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		
 		this.pathSegments	= [{x: gt_bbox.left, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.top}];
 	};
-	
+
 	// update the belongsToPath attribute
 	if (gf_isset(belongsToPath) && belongsToPath === true)
+    {
 		this.belongsToPath = true;
+    } else {
+        this.draggable = true;
+    }
 	
 	if (!gf_isset(performanceMode) || performanceMode != true)
 		performanceMode	= false;
