@@ -249,7 +249,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			graph = graph.toLowerCase();
 			id = this.id;
 
-            if(this.draggable) {
+            if(this.draggable && gv_interactionsEnabled) {
                 this.addDragElementHandler()
             }
 			

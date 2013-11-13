@@ -71,6 +71,14 @@ var gv_bv_paper = null;
 var gv_cv_paper = null;
 
 /**
+ * Indicates whether interactions like drag/drop of nodes are enabled or disabled
+ *
+ * @type boolean
+ */
+var gv_interactionsEnabled = false;
+
+
+/**
  * Using this method you can insert a node to the graph with the settings stored in gv_macros.
  * 
  * @param {String} id The id of the macro.
@@ -142,6 +150,7 @@ function gf_clearGraph (wholeProcess)
 	}
 	
 	gv_graph.clearGraph();
+    gv_interactionsEnabled = false;
 }
 
 /**
