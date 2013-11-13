@@ -9,7 +9,9 @@ test in assembly := {}
 
 mainClass in assembly := Some("de.tkip.sbpm.Boot")
 
-mergeStrategy in assembly := { 
+mergeStrategy in assembly := myDefaultMergeStrategy
+
+val myDefaultMergeStrategy: String => MergeStrategy = {
   case "reference.conf" =>
     MergeStrategy.concat
   // case PathList(ps @ _*) if isReadme(ps.last) || isLicenseFile(ps.last) =>
