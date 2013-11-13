@@ -38,32 +38,86 @@ object Tasks extends Tasks {
 
   new Task("Task 2") {
     def solution() = {
-
+      class BankAccount {
+        private var privateBalance = 0
+        def balance = privateBalance
+        def deposit(value: Int) { privateBalance += value }
+        def withdraw(value: Int) { privateBalance -= value }
+      }
     }
   }
 
   new Task("Task 3") {
     def solution() = {
+      class Time(val hours: Int, val minutes: Int) {
+        def before(other: Time) = other.hours > hours || (other.hours == hours && other.minutes > minutes)
+      }
+      val t1 = new Time(12,31)
+      val t2 = new Time(23,14)
+      println(t1)
+      println(t2)
+      println(t1.before(t2))
     }
   }
 
   new Task("Task 4") {
     def solution() = {
+      class Time(val totalMinutes: Int) {
+        def this(hours: Int, minutes: Int) {
+          this(minutes + 60 * hours)
+        }
+        
+        def hours = totalMinutes / 60
+        def before(other: Time) = other.totalMinutes > totalMinutes
+      }
+      val t1 = new Time(12,31)
+      val t2 = new Time(23,14)
+      println(t1)
+      println(t2)
+      println(t1.before(t2))
     }
   }
 
   new Task("Task 6") {
     def solution() = {
+      class Person(var age: Int) {
+        if (age < 0) age = 0
+      }
     }
   }
 
   new Task("Task 8") {
     def solution() = {
+      class Car(val manufacturer: String, val model: String, val year: Int, var licensePlate: String) {
+        // Choosen as primary constructor because it has all fields
+      
+        def this(manufacturer: String, model: String, year: Int) {
+          this(manufacturer, model, year, "")
+        }
+        def this(manufacturer: String, model: String, licensePlate: String) {
+          this(manufacturer, model, -1, licensePlate)
+        }
+        def this(manufacturer: String, model: String) {
+          this(manufacturer, model, -1)
+        }
+      }
     }
   }
 
   new Task("Task 10") {
     def solution() = {
+      class Employee() {
+        var name: String = "John Q. Public"
+        var salary: Double = 0.0
+        
+        def this(name: String, salary: Double) {
+          this()
+          this.name = name
+          this.salary = salary
+        }
+        
+        // I prefer the other constructor as primary constructor, as it saves much typework
+      }
     }
   }
 
