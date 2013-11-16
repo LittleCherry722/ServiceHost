@@ -47,7 +47,7 @@ function LinearTimeLayout (direction)
 	this.normGraph		= null;
 	this.on2nn			= {};
 	this.outEdges		= {};
-	this.renderer		= "raphael";
+	this.renderObjects	= {"nodes": {}, "edges": {}};
 	this.rpst			= null;
 	this.spaces			= {x: 0, y: 0, aesthetics: 0};
 }
@@ -145,7 +145,7 @@ branch, and once for the actual compaction).
 		}
 	}
 	
-	// 1) sort by x position
+	// 1) sort by x position	// this.sortByY
 	exitNodes.sort(this.sortByX);
 	
 	var lastX	= 0;
@@ -205,13 +205,31 @@ LinearTimeLayout.prototype.computeBranchDimensions = function (nodeID, parent)
 			newWidth	= this.branchWidth[targetNode];
 		}
 		
-		height	= Math.max(height, newHeight);
-		width	= width + k * this.spaces.aesthetics + newWidth;
+		// TODO: ignore spaces.aesthetics?
+		if (this.dirLtr())
+		{
+			height	= height + k * this.spaces.aesthetics + newHeight;
+			width	= Math.max(width, newWidth);
+		}
+		else
+		{
+			height	= Math.max(height, newHeight);
+			width	= width + k * this.spaces.aesthetics + newWidth;
+		}
 		k		= 1;
 	}
 	
-	height	= this.getHeight(nodeID, "node") + k * this.spaces.aesthetics + height;	// TODO: Math.max(this.getHeight(node), this.getHeight(edge))?
-	width	= Math.max(this.getWidth(nodeID, "node"), width);						// TODO: add space? Width of edge label?	/ Math.max(this.getWidth(nodeID, "node"), this.getWidth(edgeID, "edge"))?
+	// TODO: ignore spaces.aesthetics?
+	if (this.dirLtr())
+	{
+		height	= Math.max(this.getHeight(nodeID, "node"), height);
+		width	= this.getWidth(nodeID, "node") + k * this.spaces.aesthetics + width;
+	}
+	else
+	{
+		height	= this.getHeight(nodeID, "node") + k * this.spaces.aesthetics + height;	// TODO: Math.max(this.getHeight(node), this.getHeight(edge))?
+		width	= Math.max(this.getWidth(nodeID, "node"), width);						// TODO: add space? Width of edge label?	/ Math.max(this.getWidth(nodeID, "node"), this.getWidth(edgeID, "edge"))?
+	}
 	
 	this.branchHeight[nodeID]	= height;
 	this.branchWidth[nodeID]	= width;
@@ -342,6 +360,12 @@ LinearTimeLayout.prototype.decomposePST = function (graph)
 	return pst.decompose();
 };
 
+// Purpose of this function: saving some typing
+LinearTimeLayout.prototype.dirLtr = function ()
+{
+	return this.direction == "ltr";
+};
+
 LinearTimeLayout.prototype.draw = function (rpstnode, x, y)
 {	
 	var entry	= rpstnode.getEntry();
@@ -352,7 +376,7 @@ LinearTimeLayout.prototype.draw = function (rpstnode, x, y)
 	
 	x	+= rpstnode.x;
 	y	+= rpstnode.y;
-	
+
 	if (this.isAtomic(rpstnode))
 	{
 		// already done by drawing entry and exit of atomic fragment
@@ -386,7 +410,7 @@ LinearTimeLayout.prototype.draw = function (rpstnode, x, y)
 	{
 		var children		= this.rpst.getChildren2(rpstnode).entry;
 		var visited			= {};
-		var loopWidth	= rpstnode.dimensions.width - Math.round(this.spaces.x / 2);
+		var loopSpace		= this.dirLtr() ? (rpstnode.dimensions.height - Math.round(this.spaces.y / 2)) : (rpstnode.dimensions.width - Math.round(this.spaces.x / 2));
 		
 		while (gf_isset(children[entry]))
 		{
@@ -400,7 +424,7 @@ LinearTimeLayout.prototype.draw = function (rpstnode, x, y)
 			if (gf_isset(visited[entry]))
 			{
 				console.log("it loops");
-				this.loopEdges.push({start: child.getEntry(), end: child.getExit(), width: loopWidth});
+				this.loopEdges.push({start: child.getEntry(), end: child.getExit(), space: loopSpace});
 				break;
 			}
 		}
@@ -425,6 +449,9 @@ LinearTimeLayout.prototype.draw = function (rpstnode, x, y)
 LinearTimeLayout.prototype.drawEdges = function (rpstnode)
 {
 	var edges	= rpstnode.getFragment().edges;
+			
+	if (!gf_isset(this.renderObjects.edges))
+		this.renderObjects.edges	= {};
 	
 	for (var e in edges)
 	{
@@ -446,7 +473,7 @@ LinearTimeLayout.prototype.drawEdges = function (rpstnode)
 			var tgt		= this.nodes[tgtID];
 			var shape	= "straight";
 			
-			var width	= 0;
+			var loopSpace	= 0;
 			
 			// check loop edges
 			for (var l in this.loopEdges)
@@ -454,7 +481,7 @@ LinearTimeLayout.prototype.drawEdges = function (rpstnode)
 				var lEdge	= this.loopEdges[l];
 				if (lEdge.start == srcID && lEdge.end == tgtID)
 				{
-					width	= lEdge.width;
+					loopSpace	= lEdge.space;
 				}
 			}
 			
@@ -464,78 +491,107 @@ LinearTimeLayout.prototype.drawEdges = function (rpstnode)
 			if (tgtID.substr(0, 1) == "n")
 				tgtID	= tgtID.substr(1);
 			
-			var srcBBox	= gv_objects_nodes[srcID].getBoundaries();
-			var tgtBBox	= gv_objects_nodes[tgtID].getBoundaries();
 			
-			var x1	= srcBBox.x;
-			var x2	= tgtBBox.x;
-			var y1	= srcBBox.y;
-			var y2	= tgtBBox.y;
+			var x1	= src.x;
+			var x2	= tgt.x;
+			var y1	= src.y;
+			var y2	= tgt.y;
+			
+			var startH			= "center";
+			var startV			= "center";
+			var endH			= "center";
+			var endV			= "center";
+			var loopPosition	= "right";
+			
+			// loop edges
+			// take care of loops (ttb): x1: src.right, x2: tgt.right + loopSpace, y1: src.y, y2: tgt.y
+			// take care of loops (ltr): x1: src.x, x2: tgt.x, y1: src.top, y2: tgt.top - loopSpace
+			if (loopSpace != 0)
+			{
+				if (this.dirLtr())
+				{
+					shape			= "loopltr";
+					startV			= "bottom";
+					endV			= "bottom";
+					loopPosition	= "bottom";
+				}
+				else
+				{
+					shape			= "loop";
+					startH			= "right";
+					endH			= "right";
+					loopPosition	= "right";
+				}
+			}
 				
 			// straight
-			if (x1 == x2)
+			else if (x1 == x2)
 			{
-				y1		= y2 > y1	? srcBBox.bottom	: srcBBox.top;
-				y2		= y2 > y1	? tgtBBox.top		: tgtBBox.bottom;
+				startV	= y2 > y1	? "bottom"			: "top";
+				endV	= y2 > y1	? "top"				: "bottom";
 			}
 			
 			// straight
 			else if (y1 == y2)
 			{
-				x1		= x2 > x1	? srcBBox.right		: srcBBox.left;
-				x2		= x2 > x1	? tgtBBox.left		: tgtBBox.right;
+				startH	= x2 > x1	? "right"			: "left";
+				endH	= x2 > x1	? "left"			: "right";
 			}
 				
 			// diag: change y1 to src.y and y2 to tgt.y
 			else if (tgt.branchingJoin && src.branchingSplit)
 			{
 				shape	= "diag";
-				x1		= x2 > x1	? srcBBox.right		: srcBBox.left;
-				x2		= x2 > x1	? tgtBBox.left		: tgtBBox.right;
+				startH	= x2 > x1	? "right"			: "left";
+				endH	= x2 > x1	? "left"			: "right";
 			}
 			
-			// diagvert: change x2 to tgt.x
+			// diagvert / diaghor
 			else if (src.branchingSplit)
 			{
-				shape	= "diagvert";
-				x1		= x2 > x1	? srcBBox.right		: srcBBox.left;
-				y2		= y2 > y1	? tgtBBox.top		: tgtBBox.bottom;
+				if (this.dirLtr())
+				{
+					shape	= "diaghor";
+					
+					endH	= x2 > x1	? "left"			: "right";
+					startV	= y2 > y1	? "bottom"			: "top";
+				}
+				else
+				{
+					shape	= "diagvert";
+					
+					startH	= x2 > x1	? "right"			: "left";
+					endV	= y2 > y1	? "top"				: "bottom";
+				}
 			}
 				
-			// vertdiag: change x1 to src.x
+			// vertdiag / hordiag
 			else if (tgt.branchingJoin)
 			{
-				shape	= "vertdiag";
-				x2		= x2 > x1	? tgtBBox.left		: tgtBBox.right;
-				y1		= y2 > y1	? srcBBox.bottom	: srcBBox.top;
+				if (this.dirLtr())
+				{
+					shape	= "hordiag";
+					
+					startH	= x2 > x1	? "right"			: "left";
+					endV	= y2 > y1	? "top"				: "bottom";
+				}
+				else
+				{
+					shape	= "vertdiag";
+					
+					endH	= x2 > x1	? "left"			: "right";
+					startV	= y2 > y1	? "bottom"			: "top";
+				}	
 			}
-			
-			// loop edges
-			// take care of loops: x1: src.right, x2: tgt.right + width, y1: src.y, y2: tgt.y
-			else if (width != 0)
-			{
-				shape	= "loop";
-				x1		= srcBBox.right;
-				x2		= tgtBBox.right + width;
-			}
-			
-			var path	= new GCpath(x1, y1, x2, y2, shape, e.text, e.orgId, true);
-				// apply the deactivation status to the path
-				if (e.deactivated)
-					path.deactivate(true);
-		
-				// apply the optional status to the path
-				path.setOptional(e.optional, true);
-		
-				// apply the selection status to the path
-				if (e.selected)
-					path.select(true);
-		
-				// add the click events to the path
-				path.click();
-				
-				path.setStyle(e.style);
-				path.setShape(shape, 2);
+						
+			if (!gf_isset(this.renderObjects.edges[e.orgId]))
+				this.renderObjects.edges[e.orgId]	= new GCrenderEdge(e.orgId, e.edgeData);
+
+			this.renderObjects.edges[e.orgId].setEndPoints(srcID, tgtID);
+			this.renderObjects.edges[e.orgId].setLoopSpace(loopSpace, loopPosition);
+			this.renderObjects.edges[e.orgId].setShape(shape);
+			this.renderObjects.edges[e.orgId].setPosStart(startH, startV);
+			this.renderObjects.edges[e.orgId].setPosEnd(endH, endV);
 		}
 	}
 }
@@ -549,6 +605,21 @@ LinearTimeLayout.prototype.drawNode = function (id, rpstnode, paperOffsetX, pape
 		{
 			console.log("not set");
 			console.log(rpstnode);
+		}
+		else if (node.virtual == true)
+		{
+			// correct position as virtual nodes are not drawn
+			if (gf_isset(rpstnode) && rpstnode != null && rpstnode.getEntry() == id)
+			{
+				if (this.dirLtr())
+				{
+					rpstnode.x	-= this.spaces.x;
+				}
+				else
+				{
+					rpstnode.y	-= this.spaces.y;
+				}
+			}
 		}
 		else
 		{
@@ -564,28 +635,20 @@ LinearTimeLayout.prototype.drawNode = function (id, rpstnode, paperOffsetX, pape
 			
 			// console.log("... drawing " + id + " @ " + x + " / " + y);
 			
+			
+			// TODO: prepare for ltr layout
 			if (this.mostLeft == null || x < this.mostLeft)
 			{
 				this.mostLeft	= x;
 			}
 			
-			// do actual drawing
-			var label	= new GClabel(node.x, node.y, node.text, node.shape, node.orgId, false, true);
-
-				if (node.deactivated)
-					label.deactivate(true);
+			if (!gf_isset(this.renderObjects.nodes))
+				this.renderObjects.nodes	= {};
 				
-				if (node.selected)
-					label.select(true);
-			
-				// apply the image
-				if (node.img != null)
-					label.setImg(node.img.src, node.img.width, node.img.height);
-			
-				// apply the style
-				label.setStyle(node.style);
-			
-				label.click(node.clickType);
+			if (!gf_isset(this.renderObjects.nodes[node.node.id]))
+				this.renderObjects.nodes[node.node.id]	= new GCrenderNode(node.node.id, node.node);
+
+			this.renderObjects.nodes[node.node.id].setPosition(node.x, node.y);
 		}
 	}	
 };
@@ -993,8 +1056,8 @@ LinearTimeLayout.prototype.layout = function ()
 	}
 	
 	// additional step: draw elements
-	var x	= Math.round(gv_paperSizes.bv_width/2);		// TODO
-	var y	= 50;										// TODO
+	var x	= this.dirLtr()	? 50			: Math.round(gv_paperSizes.bv_width/2);		// TODO
+	var y	= this.dirLtr()	? Math.round(gv_paperSizes.bv_height/2)			: 50;		// TODO
 	
 	// addition: ignore single nodes
 	if (edgeCount > 0)
@@ -1018,26 +1081,29 @@ LinearTimeLayout.prototype.layout = function ()
 		gf_timeCalc("draw edges");
 	}
 	
-	// additional step: draw all free nodes
-	/*
-	 * TODO:
-	 * 1) calc most left spot of tree; move next node by 2x this.spaces.x to the left; increase space between all nodes by this.spaces.y
-	 */
-	if (this.mostLeft == null)
+	// additional step: draw all free nodes (only in ttb direction)
+	if (!this.dirLtr())
 	{
-		this.mostLeft	= x;
-	}
-	else
-	{
-		this.mostLeft	-= 2 * this.spaces.x;
-	}
-	
-	for (var n in this.nodes)
-	{
-		if (!gf_isset(this.drawnNodes[n]))
+		/*
+		 * TODO:
+		 * 1) calc most left spot of tree; move next node by 2x this.spaces.x to the left; increase space between all nodes by this.spaces.y
+		 */
+		if (this.mostLeft == null)
 		{
-			this.drawNode(n, null, this.mostLeft, y);
-			y	+= this.spaces.y;
+			this.mostLeft	= x;
+		}
+		else
+		{
+			this.mostLeft	-= 2 * this.spaces.x;
+		}
+		
+		for (var n in this.nodes)
+		{
+			if (!gf_isset(this.drawnNodes[n]))
+			{
+				this.drawNode(n, null, this.mostLeft, y);
+				y	+= this.spaces.y;
+			}
 		}
 	}
 };
@@ -1051,37 +1117,49 @@ LinearTimeLayout.prototype.layoutAtomic = function (node)
 
 LinearTimeLayout.prototype.layoutBranching = function (rpstnode)
 {	
+	var sumHeight	= 0;
 	var sumWidth	= 0;
 	var maxHeight	= 0 - this.spaces.y;
+	var maxWidth	= 0 - this.spaces.x;
 	
-	// precalc sumWidth
+	// precalc sumWidth, sumHeight
 	var children	= this.rpst.getChildren2(rpstnode).children;
 	for (var c in children)
 	{
 		var child	= children[c];
+		sumHeight	= sumHeight + child.dimensions.height;
 		sumWidth	= sumWidth + child.dimensions.width;
 		maxHeight	= Math.max(maxHeight, child.dimensions.height);
+		maxWidth	= Math.max(maxWidth, child.dimensions.width);
 	}
 	
-	var offset		= 0 - Math.ceil(sumWidth / 2);
+	var offset		= this.dirLtr()	? (0 - Math.ceil(sumHeight / 2)) : (0 - Math.ceil(sumWidth / 2));
 	var prevChild	= null;
 	
 	for (var c in children)
 	{
 		var child		= children[c];
 		
-		var prevWidth	= 0;
-		var prevX		= offset;
+		var prevSize	= 0;
+		var prevPos		= offset;
 		
 		// update child's position (except if child == entry of this node)
 		if (prevChild != null)
 		{
-			prevWidth	= prevChild.dimensions.width;
-			prevX		= prevChild.x;
+			prevSize	= this.dirLtr() ? prevChild.dimensions.height : prevChild.dimensions.width;
+			prevPos		= this.dirLtr() ? prevChild.y : prevChild.x;
 		}
 		
-		child.x		= prevX + Math.ceil(child.dimensions.width / 2) + Math.ceil(prevWidth / 2);
-		child.y		= 0;
+		if (this.dirLtr())
+		{
+			child.x		= 0;
+			child.y		= prevPos + Math.ceil(child.dimensions.height / 2) + Math.ceil(prevSize / 2);
+		}
+		else
+		{
+			child.x		= prevPos + Math.ceil(child.dimensions.width / 2) + Math.ceil(prevSize / 2);
+			child.y		= 0;
+		}
 		
 		// update data for next loop run
 		prevChild	= child;
@@ -1089,11 +1167,23 @@ LinearTimeLayout.prototype.layoutBranching = function (rpstnode)
 	
 	// update exit
 	var exit			= rpstnode.getExit();
-	this.nodes[exit].y	= maxHeight + this.spaces.y;
+	
+	if (this.dirLtr())
+		this.nodes[exit].x	= maxWidth	+ this.spaces.x;
+	else
+		this.nodes[exit].y	= maxHeight + this.spaces.y;
 	
 	// update size
-	rpstnode.dimensions.height	= maxHeight + this.spaces.y;
-	rpstnode.dimensions.width	= sumWidth;
+	if (this.dirLtr())
+	{
+		rpstnode.dimensions.height	= sumHeight;
+		rpstnode.dimensions.width	= maxWidth + this.spaces.x;
+	}
+	else
+	{
+		rpstnode.dimensions.height	= maxHeight + this.spaces.y;
+		rpstnode.dimensions.width	= sumWidth;
+	}
 };
 
 LinearTimeLayout.prototype.layoutFragment = function (rpstnode)
@@ -1130,8 +1220,10 @@ LinearTimeLayout.prototype.layoutFragment = function (rpstnode)
 LinearTimeLayout.prototype.layoutLoop = function (rpstnode)
 {
 	var entry		= rpstnode.getEntry();
+	var maxHeight	= 0;
 	var maxWidth	= 0;
 	var sumHeight	= 0 - this.spaces.y;
+	var sumWidth	= 0 - this.spaces.x;
 	var visited		= {};
 	
 	var prevChild	= null;
@@ -1151,13 +1243,22 @@ LinearTimeLayout.prototype.layoutLoop = function (rpstnode)
 		visited[entry]	= true;
 		
 		// update size of this node
+		maxHeight	= Math.max(maxHeight, child.dimensions.height);
 		maxWidth	= Math.max(maxWidth, child.dimensions.width);
 		sumHeight	= sumHeight + child.dimensions.height;
+		sumWidth	= sumWidth + child.dimensions.width;
 		
 		// update child's position (except if child == entry of this node)
 		if (prevChild != null)
 		{
-			child.y	= prevChild.y + prevChild.dimensions.height;
+			if (this.dirLtr())
+			{
+				child.x	= prevChild.x + prevChild.dimensions.width;
+			}
+			else
+			{
+				child.y	= prevChild.y + prevChild.dimensions.height;
+			}
 		}
 		
 		// update data for next loop run
@@ -1171,8 +1272,16 @@ LinearTimeLayout.prototype.layoutLoop = function (rpstnode)
 	}
 	
 	// update size
-	rpstnode.dimensions.height	= sumHeight;
-	rpstnode.dimensions.width	= maxWidth + this.spaces.x;
+	if (this.dirLtr())
+	{
+		rpstnode.dimensions.height	= maxHeight + this.spaces.y;
+		rpstnode.dimensions.width	= sumWidth;
+	}
+	else
+	{
+		rpstnode.dimensions.height	= sumHeight;
+		rpstnode.dimensions.width	= maxWidth + this.spaces.x;
+	}
 };
 
 LinearTimeLayout.prototype.layoutSequence = function (rpstnode)
@@ -1186,14 +1295,20 @@ LinearTimeLayout.prototype.layoutSequence = function (rpstnode)
 		// update position of exit
 		var exit	= rpstnode.getExit();
 		var node	= this.nodes[exit];
+		
+		if (this.dirLtr())
+			node.x	= this.spaces.x;
+		else
 			node.y	= this.spaces.y;
 	}
 	else
 	{
 	
 		var entry		= rpstnode.getEntry();
+		var maxHeight	= 0;
 		var maxWidth	= 0;
 		var sumHeight	= 0 - this.spaces.y;
+		var sumWidth	= 0 - this.spaces.x;
 		
 		var prevChild	= null;
 		
@@ -1207,13 +1322,22 @@ LinearTimeLayout.prototype.layoutSequence = function (rpstnode)
 			var child	= children[entry];
 			
 			// update size of this node
+			maxHeight	= Math.max(maxHeight, child.dimensions.height);
 			maxWidth	= Math.max(maxWidth, child.dimensions.width);
 			sumHeight	= sumHeight + child.dimensions.height;
+			sumWidth	= sumWidth + child.dimensions.width;
 			
 			// update child's position (except if child == entry of this node)
 			if (prevChild != null)
 			{
-				child.y	= prevChild.y + prevChild.dimensions.height;
+				if (this.dirLtr())
+				{
+					child.x	= prevChild.x + prevChild.dimensions.width;
+				}
+				else
+				{
+					child.y	= prevChild.y + prevChild.dimensions.height;
+				}
 			}
 			
 			// update data for next loop run
@@ -1222,8 +1346,16 @@ LinearTimeLayout.prototype.layoutSequence = function (rpstnode)
 		}
 		
 		// update size
-		rpstnode.dimensions.height	= sumHeight;
-		rpstnode.dimensions.width	= maxWidth;
+		if (this.dirLtr())
+		{
+			rpstnode.dimensions.height	= maxHeight;
+			rpstnode.dimensions.width	= sumWidth;
+		}
+		else
+		{
+			rpstnode.dimensions.height	= sumHeight;
+			rpstnode.dimensions.width	= maxWidth;
+		}
 		
 		
 		console.log(rpstnode.type + " " + rpstnode.name + " " + rpstnode.getEntry() + " " + rpstnode.getExit());
@@ -1231,7 +1363,15 @@ LinearTimeLayout.prototype.layoutSequence = function (rpstnode)
 		// update exit
 		var exit		= rpstnode.getExit();
 		var exitNode	= this.nodes[exit];
+		
+		if (this.dirLtr())
+		{
+			exitNode.x	= sumWidth + this.spaces.x;
+		}
+		else
+		{			
 			exitNode.y	= sumHeight + this.spaces.y;
+		}
 	}
 };
 
@@ -1284,6 +1424,7 @@ LinearTimeLayout.prototype.layoutUnstructured = function (rpstnode)
 	// 2) order edges to reduce number of crossings
 	var newFragment	= this.orderEdges(rpstnode, nodeID);
 	
+	// TODO: use newFragment and implement orderEdges
 	
 	// 3) internally reverse back edges and compute layout
 	// var fragmentEdges	= this.getEdges(rpstnode);	// TODO: newFragment?
@@ -1302,17 +1443,40 @@ LinearTimeLayout.prototype.layoutUnstructured = function (rpstnode)
 	this.compactLayout(rpstnode);
 	
 	// by Matthias Schrammek
-	rpstnode.dimensions.width	= this.branchWidth[nodeID];
-	rpstnode.dimensions.height	= this.branchHeight[nodeID] - this.spaces.y;
-	rpstnode.x					= 0;
+	if (this.dirLtr())
+	{
+		rpstnode.dimensions.width	= this.branchWidth[nodeID] - this.spaces.x;
+		rpstnode.dimensions.height	= this.branchHeight[nodeID];
+		rpstnode.y					= 0;
+	}
+	else
+	{
+		rpstnode.dimensions.width	= this.branchWidth[nodeID];
+		rpstnode.dimensions.height	= this.branchHeight[nodeID] - this.spaces.y;
+		rpstnode.x					= 0;
+	}
 	
 	for (var n in this.edgeMap)
 	{
-		this.nodes[n].x	-= Math.floor(this.branchWidth[nodeID] / 2);
+		if (this.dirLtr())
+		{
+			this.nodes[n].y	-= Math.floor(this.branchHeight[nodeID] / 2);
+		}
+		else
+		{
+			this.nodes[n].x	-= Math.floor(this.branchWidth[nodeID] / 2);
+		}
 	}
 	
 	// TODO: hack? keep it?
-	this.nodes[nodeID].x		= 0;
+	if (this.dirLtr())
+	{
+		this.nodes[nodeID].y		= 0;
+	}
+	else
+	{
+		this.nodes[nodeID].x		= 0;
+	}
 };
 
 LinearTimeLayout.prototype.lpstree = function (topology, type, parent, length)
@@ -1322,7 +1486,9 @@ LinearTimeLayout.prototype.lpstree = function (topology, type, parent, length)
 		var nodeID	= topology[nID];
 		
 		// TODO: change width to height (from top to bottom instead of left to right)
-		var width		= this.getWidth(nodeID, "node") + this.spaces.aesthetics;	// TODO: spaces.aesthetics?, add Math.max(width of node, width of edge)?
+		// var width		= this.getWidth(nodeID, "node") + this.spaces.aesthetics;
+		var space	= this.dirLtr() ? this.getWidth(nodeID, "node") : this.getHeight(nodeID, "node");	// TODO: spaces.aesthetics?, add Math.max(width of node, width of edge)?
+			space += this.spaces.aesthetics;
 		
 		var outEdges	= this.getOutEdges(nodeID);
 		for (var edgeID in outEdges)
@@ -1333,9 +1499,9 @@ LinearTimeLayout.prototype.lpstree = function (topology, type, parent, length)
 				var targetID	= this.target(edgeID);
 				
 				// TODO: replace width by height
-				if (!gf_isset(length[targetID]) || length[targetID] < length[nodeID] + width)
+				if (!gf_isset(length[targetID]) || length[targetID] < length[nodeID] + space)
 				{
-					length[targetID]	= length[nodeID] + width;
+					length[targetID]	= length[nodeID] + space;
 					parent[targetID]	= nodeID;
 				}
 			}
@@ -1386,13 +1552,22 @@ LinearTimeLayout.prototype.preliminaryLayout = function (nodeID, parent, x, y)
 	 * - branchheight, height, width, space als globale Variablen
 	 */
 	
-	this.nodex[nodeID]	= x + Math.floor((this.branchWidth[nodeID] - this.getWidth(nodeID, "node")) / 2);	// TODO: add Math.max(getWidth(node), getWidth(edge))?
-	this.nodey[nodeID]	= y;
+	if (this.dirLtr())
+	{
+		this.nodex[nodeID]	= x;
+		this.nodey[nodeID]	= y + Math.floor((this.branchHeight[nodeID] - this.getHeight(nodeID, "node")) / 2);	// TODO: add Math.max(getHeight(node), getHeight(edge))?
+	}
+	else
+	{
+		this.nodex[nodeID]	= x + Math.floor((this.branchWidth[nodeID] - this.getWidth(nodeID, "node")) / 2);	// TODO: add Math.max(getWidth(node), getWidth(edge))?
+		this.nodey[nodeID]	= y;
+	}
 	
 	// TODO: calculate a better position
 	this.nodes[nodeID].x	= this.nodex[nodeID];
 	this.nodes[nodeID].y	= this.nodey[nodeID];
 	
+	var height	= 0;
 	var width	= 0;
 	var k		= 0;
 	var outEdges	= this.getOutEdges(nodeID);
@@ -1401,18 +1576,28 @@ LinearTimeLayout.prototype.preliminaryLayout = function (nodeID, parent, x, y)
 		edgeID	= outEdges[edgeID].edge;
 		if (parent[this.target(edgeID)] == this.source(edgeID))
 		{
+			height	= height + k * this.spaces.aesthetics + this.branchHeight[this.target(edgeID)];
 			width	= width + k * this.spaces.aesthetics + this.branchWidth[this.target(edgeID)];
 		}
 		else
 		{
+			height	= height + k * this.spaces.aesthetics;
 			width	= width + k * this.spaces.aesthetics;
 		}
 		k	= 1;
 	}
 	
-	x	= x + Math.max(0, (this.branchWidth[nodeID] - width) / 2);
-	// y	= y + this.height[nodeID] + this.spaces.aesthetics;
-	y	= y + this.getHeight(nodeID, "node") + this.spaces.aesthetics;
+	if (this.dirLtr())
+	{
+		x	= x + this.getWidth(nodeID, "node") + this.spaces.aesthetics;
+		y	= y + Math.max(0, (this.branchHeight[nodeID] - height) / 2);
+	}
+	else
+	{
+		x	= x + Math.max(0, (this.branchWidth[nodeID] - width) / 2);
+		// y	= y + this.height[nodeID] + this.spaces.aesthetics;
+		y	= y + this.getHeight(nodeID, "node") + this.spaces.aesthetics;
+	}
 	
 	for (var edgeID in outEdges)
 	{
@@ -1420,12 +1605,28 @@ LinearTimeLayout.prototype.preliminaryLayout = function (nodeID, parent, x, y)
 		if (parent[this.target(edgeID)] == this.source(edgeID))
 		{
 			this.preliminaryLayout(this.target(edgeID), parent, x, y);
-			x	= x + this.branchWidth[this.target(edgeID)] + this.spaces.aesthetics;
+			
+			if (this.dirLtr())
+			{
+				y	= y + this.branchHeight[this.target(edgeID)] + this.spaces.aesthetics;
+			}
+			else
+			{				
+				x	= x + this.branchWidth[this.target(edgeID)] + this.spaces.aesthetics;
+			}
 		}
 		else
 		{
 			this.edgex[edgeID]	= x;
-			x	= x + this.spaces.aesthetics;
+			
+			if (this.dirLtr())
+			{
+				y	= y + this.spaces.aesthetics;
+			}
+			else
+			{
+				x	= x + this.spaces.aesthetics;
+			}
 		}
 	}
 };
@@ -1695,10 +1896,9 @@ LinearTimeLayout.prototype.setPos = function (id, x, y)
 	}
 };
 
-// renderer: raphael (test others)
-LinearTimeLayout.prototype.setRenderer = function (renderer)
+LinearTimeLayout.prototype.setRenderObjects = function (nodes, edges)
 {
-	// TODO: update renderer
+	this.renderObjects	= {"nodes": nodes, "edges": edges};
 };
 
 LinearTimeLayout.prototype.sortByX = function (elem1, elem2)
@@ -1710,6 +1910,23 @@ LinearTimeLayout.prototype.sortByX = function (elem1, elem2)
 			return -1;
 		}
 		else if (elem1.x > elem2.x)
+		{
+			return 1;
+		}
+	}
+	
+	return 0;
+};
+
+LinearTimeLayout.prototype.sortByY = function (elem1, elem2)
+{
+	if (gf_isset(elem1.y, elem2.y))
+	{
+		if (elem1.y < elem2.y)
+		{
+			return -1;
+		}
+		else if (elem1.y > elem2.y)
 		{
 			return 1;
 		}
@@ -1756,6 +1973,10 @@ LinearTimeLayout.prototype.topologySort = function (fragment, nodeID, type)
 	// 1) Setup
 	var inedges	= {};
 	var fragmentNodes	= this.getNodes(fragment);
+	
+	console.log("topo1");
+	console.log(fragmentNodes);
+	
 	var visited	= {};
 	for (var nID in fragmentNodes)
 	{
@@ -1773,6 +1994,10 @@ LinearTimeLayout.prototype.topologySort = function (fragment, nodeID, type)
 			inedges[newNode]	= 0;
 
 		var outEdges	= this.getInEdges(newNode);
+		
+		console.log("topo2");
+		console.log(outEdges);
+		
 		for (var edgeID in outEdges)
 		{
 			edgeID	= outEdges[edgeID].edge;
@@ -1818,6 +2043,9 @@ LinearTimeLayout.prototype.topologySort = function (fragment, nodeID, type)
 			}
 		}
 	}
+	
+	console.log("topo");
+	console.log(topology);
 	
 	return topology;
 };

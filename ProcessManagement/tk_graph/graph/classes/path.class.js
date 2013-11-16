@@ -253,17 +253,37 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 				cY		= rcY;
 			}
 			
+			// shapes for ltl with one straight element and one diagonal element for left-to-right layout
+			else if (shape == "DIAGHOR" || shape == "HORDIAG")
+			{
+				var bendY		= shape == "DIAGHOR" ? y2 : y1;
+				
+				cPath	= "L" + rcX + "," + bendY + "L" + x2 + "," + y2;
+				cX		= rcX;
+				cY		= bendY;
+			}
+			
 			// loop edge in ltl
 			else if (shape == "LOOP")
 			{
-				cPath	= "H" + x2 + "V" + y2 + "H" + (x1 + 20);
+				cPath	= "H" + x2 + "V" + y2 + "H" + x1;
 				cX		= x2;
 				cY		= rcY;
+			}
+			
+			// loop edge in ltl for left-to-right layout
+			else if (shape == "LOOPLTR")
+			{
+				console.log("keks");
+				cPath	= "V" + y2 + "H" + x2 + "V" + y1;
+				cX		= rcX;
+				cY		= y2;
 			}
 			
 			// diagonal line for ltl
 			else if (shape == "DIAG")
 			{
+				// TODO: remove if and else if as they are already handled by shape == "STRAIGHT" ??
 				// straight line for same x
 				if (x2 == x1)
 				{
