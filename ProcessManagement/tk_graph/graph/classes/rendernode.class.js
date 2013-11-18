@@ -31,9 +31,9 @@ function GCrenderNode (id, node)
 	
 	this.imgSrc		= "";
 	
-	this.isStart	= node.isStart(true);
+	this.isStart	= gf_isset(node.isStart) && node.isStart(true);
 	
-	this.isEnd		= node.isEnd(true);
+	this.isEnd		= gf_isset(node.isEnd) && node.isEnd(true);
 	
 	this.node		= node;
 	
@@ -53,11 +53,11 @@ function GCrenderNode (id, node)
 	
 	this.selected	= false;		// is set by GCmacro
 	
-	this.shape		= node.getShape();
+	this.shape		= gf_isset(node.getShape) ? node.getShape() : "roundedrectangle";
 	
 	this.style		= null;
 	
-	this.text		= node.textToString();
+	this.text		= gf_isset(node.textToString) ? node.textToString() : id;
 	
 	// initialize the object
 	this.init();
@@ -82,7 +82,7 @@ GCrenderNode.prototype.draw = function ()
 			rect.setEstimateTextDimensions(true);
 		
 		// apply the deactivation status to the label
-		if (this.node.isDeactivated(true))
+		if (gf_isset(this.node.isDeactivated) && this.node.isDeactivated(true))
 			rect.deactivate(true);
 				
 		// apply the selection status to the label
@@ -96,7 +96,7 @@ GCrenderNode.prototype.draw = function ()
 		// determine click type
 		var clickType	= "bv";
 		
-		if (this.node.getType() == "macro")
+		if (gf_isset(this.node.getType) && this.node.getType() == "macro")
 			clickType += "_dblclick";
 			
 		// apply the style

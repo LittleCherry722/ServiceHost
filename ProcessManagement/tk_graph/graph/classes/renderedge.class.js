@@ -52,7 +52,7 @@ function GCrenderEdge (id, edge)
 	
 	this.style			= null;
 	
-	this.text			= edge.textToString();
+	this.text			= gf_isset(edge.textToString) ? edge.textToString() : id;
 	
 	
 	// initialize the object
@@ -142,11 +142,11 @@ GCrenderEdge.prototype.draw = function ()
 		
 		gf_timeCalc("drawing edges - drawArrow() - apply settings");
 			// apply the deactivation status to the path
-			if (this.edge.isDeactivated())
+			if (gf_isset(this.edge.isDeactivated) && this.edge.isDeactivated())
 				path.deactivate(true);
 				
 			// apply the optional status to the path
-			path.setOptional(this.edge.isOptional(), true);
+			path.setOptional(gf_isset(this.edge.isOptional) && this.edge.isOptional(), true);
 			
 			// apply the selection status to the path
 			if (this.selected)
