@@ -85,7 +85,7 @@ var gv_interactionsEnabled = false;
  * @param {int} id the id of the subject or node for which the manual position offset should be set
  */
 function gf_addManualPositionOffset(offset, type, id) {
-    var obj, behavior;
+    var obj, behavior, existingOffset;
     if(null === gv_graph.selectedSubject) {
         obj = gv_graph.getSubjects()[id];
     } else {
@@ -94,12 +94,13 @@ function gf_addManualPositionOffset(offset, type, id) {
             obj = behavior.getNode(id);
         }
     }
-    if(obj) {
-        if(obj.manualPositionOffset && 'dx' in obj.manualPositionOffset && 'dy' in obj.manualPositionOffset) {
-            offset['dx'] += obj.manualPositionOffset['dx'];
-            offset['dy'] += obj.manualPositionOffset['dy'];
+    if(obj instanceof GCnode) {
+        existingOffset = obj.getManualPositionOffset();
+        if(existingOffset && 'dx' in existingOffset && 'dy' in existingOffset) {
+            offset.dx += existingOffset.dx;
+            offset.dy += existingOffset.dy;
         }
-        obj.manualPositionOffset = offset;
+        obj.setManualPositionOffset(offset);
         if(null === gv_graph.selectedSubject) {
             gv_graph.draw();
         } else {

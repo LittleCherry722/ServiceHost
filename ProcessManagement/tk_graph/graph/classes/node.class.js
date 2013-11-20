@@ -727,7 +727,18 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			this.type = type;
 		}
 	};
-	
+
+    /**
+     * Sets the user-defined manual offset for the node position
+     *
+     * @param {null|{dx: int, dy: int}} offset
+     * @returns {void}
+     */
+    this.setManualPositionOffset = function (offset)
+    {
+        this.manualPositionOffset = offset;
+    };
+
 	/**
 	 * Updates the variable of the node.
 	 * 

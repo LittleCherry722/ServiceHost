@@ -174,10 +174,11 @@ function GCmacro (parent, id, name)
 	 * @param {String} [type] The type of the node. Possible values are "send", "receive", "end", "action" (default: "action")
 	 * @param {boolean} [start] When set to true the node will be handled as a start node. (default: false)
 	 * @param {boolean} [end] When set to true the node will be handled as an end node. (default: false)
+	 * @param {{dx:int, dy:int}} [manualPositionOffset] The position offset the user manually defined or null if there is no position offset. (default: null)
 	 * @param {boolean} [deactivated] The deactivation status of the node. (default: false)
 	 * @returns {int} The id that identifies the node in the nodes array.
 	 */
-	this.addNode = function (id, text, type, start, end, deactivated)
+	this.addNode = function (id, text, type, start, end, manualPositionOffset, deactivated)
 	{
 		// create a new id if none is given
 		if (!gf_isset(id) || id === "")
@@ -205,10 +206,13 @@ function GCmacro (parent, id, name)
 		// pass the end attribute to the node
 		if (gf_isset(end) && end === true)
 			gt_node.setEnd(true);
-			
-		// pass the deactivated attribute to the node
-		if (gf_isset(deactivated) && deactivated === true)
-			gt_node.deactivate();
+
+        if (gf_isset(manualPositionOffset))
+            gt_node.setManualPositionOffset(manualPositionOffset);
+
+        // pass the deactivated attribute to the node
+        if (gf_isset(deactivated) && deactivated === true)
+            gt_node.deactivate();
 		
 		// store the node
 		this.nodes["n" + this.nodeCounter++] = gt_node;
