@@ -342,7 +342,7 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			}
 			else if (attribute == "max")
 			{
-				  relatedSubject	= parseInt(relatedSubject.max);
+				relatedSubject	= parseInt(relatedSubject.max);
 			}
 			else if (attribute == "createnew")
 			{

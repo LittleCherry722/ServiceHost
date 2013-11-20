@@ -419,6 +419,40 @@ function GCmacro (parent, id, name)
 	{
 		if (!gv_noRedraw)
 		{
+			
+			var gt_edgePositions	= {};
+			var gt_nodePositions	= {};
+			
+			/*
+			 * create nodes (GCrenderNode)
+			 * - set relative position change (setPositionRelative)
+			 */
+			
+			// initialize nodes
+			for (var gt_nid in this.nodes)
+			{
+				var gt_nodeId	= gt_nid.substr(1);
+					gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, this.nodes[gt_nid]);
+					
+					// TODO: Andreas Rueckle
+					// gt_nodePositions[gt_nodeId].setPositionRelative(x, y);
+			}
+			
+			if (this.selectedNode != null)
+				gt_nodePositions[this.selectedNode].selected = true;
+				
+			
+			// initialize edges
+			for (var gt_eid in this.edges)
+			{
+				var gt_edgeId	= gt_eid.substr(1);
+					gt_edgePositions[gt_edgeId]	= new GCrenderEdge(gt_edgeId, this.edges[gt_eid]);
+			}
+				
+			if (this.selectedEdge != null)
+				gt_edgePositions[this.selectedEdge].selected = true;
+			
+			
 			// convert all data to gv_bv_graphs[name]
 			
 			// linear time algorithm
@@ -426,6 +460,7 @@ function GCmacro (parent, id, name)
 			{
 				gf_timeCalc("macro - draw (preparation)");
 				var ltl	= new LinearTimeLayout();
+					ltl.setRenderObjects(gt_nodePositions, gt_edgePositions);
 			
 				for (var gt_nid in this.nodes)
 				{
@@ -461,6 +496,7 @@ function GCmacro (parent, id, name)
 				
 				gv_graph_bv.deleteSubject(this.parent.name);
 				gv_graph_bv.addSubject(this.parent.name);
+				gv_graph_bv.setRenderObjects(gt_nodePositions, gt_edgePositions);
 				
 				// add all nodes to the graph
 				for (var gt_nid in this.nodes)
@@ -486,7 +522,32 @@ function GCmacro (parent, id, name)
 				gf_timeCalc("macro - draw (drawGraph)");
 				gv_graph_bv.drawGraph(this.parent.name);
 				gf_timeCalc("macro - draw (drawGraph)");
+				
+				
+				// remove edge and node position objects to avoid redrawing
+				gt_edgePositions	= null;
+				gt_nodePositions	= null;
 			}
+				
+				
+			// draw nodes
+			if (gf_isset(gt_nodePositions))
+			{
+				for (var n in gt_nodePositions)
+				{
+					gt_nodePositions[n].draw();
+				}
+			}
+			
+				
+			// draw edges
+			if (gf_isset(gt_edgePositions))
+			{
+				for (var e in gt_edgePositions)
+				{
+					gt_edgePositions[e].draw();
+				}
+			}	
 				
 			gf_timeCalc("macro - draw (select conversation)");
 			this.selectConversation(this.parent.selectedConversation);

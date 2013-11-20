@@ -100,6 +100,14 @@ function GCgraphbv ()
 	this.portSettings	= {t: "io", b: "io", r: "io", l: "io"};
 	
 	/**
+	 * Render objects (only used for relative position changes).
+	 * 
+	 * @private
+	 * @type Object
+	 */
+	this.renderObjects	= {"nodes": {}, "edges": {}};
+	
+	/**
 	 * Time measuring: time used for intersection checks
 	 * 
 	 * @private
@@ -902,6 +910,12 @@ function GCgraphbv ()
 		var gt_bv_start		= node.node.isStart(true);
 		var gt_bv_end		= node.node.isEnd(true);
 		
+		if (gf_isset(this.renderObjects.nodes) && gf_isset(this.renderObjects.nodes[node.id]))
+		{
+			node.posx	+= this.renderObjects.nodes[node.id].posrx;
+			node.posy	+= this.renderObjects.nodes[node.id].posry;
+		}
+		
 		// when the shape of the node is a circle apply correct the style set for circles
 		if (gt_bv_shape == "circle")
 		{
@@ -1199,5 +1213,13 @@ function GCgraphbv ()
 		this.portSettings.b = gt_bv_b;
 		this.portSettings.l = gt_bv_l;
 		this.portSettings.r = gt_bv_r;
+	};
+
+	/**
+	 * TODO: comment
+	 */
+	this.setRenderObjects = function (nodes, edges)
+	{
+		this.renderObjects	= {"nodes": nodes, "edges": edges};
 	};
 }
