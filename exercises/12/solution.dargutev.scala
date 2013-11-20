@@ -92,7 +92,7 @@ object Tasks extends Tasks {
     }
   }
   
-  def unless(cond:Boolean)(then: => Unit)(els: => Unit){
+  def unless(cond:Boolean)(then: => Any)(els: => Any){
     if(!cond) then
     else els
   }
