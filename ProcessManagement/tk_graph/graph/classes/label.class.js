@@ -218,13 +218,6 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
      */
     this.draggable = false;
 
-    /**
-     * The user-defined manual offset for the label position
-     *
-     * @type {?{dx: int, dy: int}}
-     */
-    this.manualPositionOffset = null;
-	
 	/**
 	 * Activate the label and update its look.
 	 * 
@@ -361,11 +354,13 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 
         dragEnd = function ()
         {
+            var type, offset;
             if(copyElement) {
                 copyElement.remove();
                 copyElement = null;
-                self.manualPositionOffset = {dx: self.x - origPosition.x, dy: self.y - origPosition.y};
-                self.setPosition(origPosition.x, origPosition.y, 0)
+                offset = {dx: self.x - origPosition.x, dy: self.y - origPosition.y};
+                type = self.shape === 'circle' ? 'action' : 'subject';
+                gf_addManualPositionOffset(offset, type, id)
             }
         };
 

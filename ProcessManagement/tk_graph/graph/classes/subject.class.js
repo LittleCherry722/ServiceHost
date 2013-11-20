@@ -129,6 +129,13 @@ function GCsubject (id, text, type, inputPool)
 	 * @type String
 	 */
 	this.type		= type;
+
+    /**
+     * The user-defined manual offset for the subject position
+     *
+     * @type {?{dx: int, dy: int}}
+     */
+    this.manualPositionOffset = null;
 	
 	/**
 	 * TODO
@@ -270,6 +277,16 @@ function GCsubject (id, text, type, inputPool)
 	{
 		return this.type.toLowerCase();
 	};
+
+    /**
+     * The user-defined manual offset for the subject position
+     *
+     * @returns {null|{dx: int, dy: int}}
+     */
+    this.getManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset;
+    };
 	
 	/**
 	 * Returns the corresponding url.

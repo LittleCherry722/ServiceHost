@@ -431,11 +431,13 @@ function GCmacro (parent, id, name)
 			// initialize nodes
 			for (var gt_nid in this.nodes)
 			{
-				var gt_nodeId	= gt_nid.substr(1);
-					gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, this.nodes[gt_nid]);
-					
-					// TODO: Andreas Rueckle
-					// gt_nodePositions[gt_nodeId].setPositionRelative(x, y);
+				var gt_node =   this.nodes[gt_nid],
+                    gt_nodeId	= gt_nid.substr(1);
+					gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, gt_node);
+
+                    if(gt_node.getManualPositionOffset() && 'dx' in gt_node.getManualPositionOffset() && 'dy' in gt_node.getManualPositionOffset()) {
+					    gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
+                    }
 			}
 			
 			if (this.selectedNode != null)

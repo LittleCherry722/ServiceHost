@@ -748,7 +748,7 @@ function GCcommunication ()
 					this.selectedSubject = null;
 				}
 				this.selectedNode = null;
-				
+
 				this.draw();
 			}
 		}
@@ -873,7 +873,7 @@ function GCcommunication ()
 		}
 		
 		var gt_behavior = this.getBehavior(id);
-		
+
 		if (gt_behavior != null)
 		{
 			gf_timeReset();
@@ -1668,7 +1668,8 @@ function GCcommunication ()
 						role: this.subjects[gt_sid].getRole(),
 						startSubject: this.subjects[gt_sid].isStartSubject(),
 						url: this.subjects[gt_sid].getUrl(),
-						comment: this.subjects[gt_sid].getComment()
+						comment: this.subjects[gt_sid].getComment(),
+                        manualPositionOffset: this.subjects[gt_sid].getManualPositionOffset()
 			};
 			
 			var gt_behav 	= this.subjects[gt_sid].getBehavior();
@@ -1682,7 +1683,7 @@ function GCcommunication ()
 				var gt_edges	= gt_macro.getEdges();
 				var gt_newNodes	= [];
 				var gt_newEdges	= [];
-				
+
 				// transform the behavior's nodes
 				for (var gt_nid in gt_nodes)
 				{				
@@ -1702,7 +1703,8 @@ function GCcommunication ()
 							varMan:			gt_node.getVarMan("all"),
 							createSubjects: gt_node.getCreateSubjects("all"),
 							macro:			gt_node.getMacro(),
-							comment:		gt_node.getComment()
+							comment:		gt_node.getComment(),
+                            manualPositionOffset: gt_node.getManualPositionOffset()
 					};
 				}
 	

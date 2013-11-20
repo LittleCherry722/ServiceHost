@@ -154,6 +154,13 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	 * @type String
 	 */
 	this.type	= "action";
+
+    /**
+     * The user-defined manual offset for the node position
+     *
+     * @type {?{dx: int, dy: int}}
+     */
+    this.manualPositionOffset = null;
 	
 	/**
 	 * Activates the node.
@@ -344,6 +351,16 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			return this.type.toLowerCase();	
 		}
 	};
+
+    /**
+     * The user-defined manual offset for the node position
+     *
+     * @returns {*|?{dx: int, dy: int}}
+     */
+    this.getManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset;
+    };
 	
 	/**
 	 * Returns the variable of the node.
