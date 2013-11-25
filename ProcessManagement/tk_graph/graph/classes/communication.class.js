@@ -1452,7 +1452,7 @@ function GCcommunication ()
 						{
 							var gt_node		= gt_macroValues.nodes[gt_nodeId];
 							var gt_nodeType	= gf_isset(gt_node.nodeType) ? gt_node.nodeType : gt_node.type;
-							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, gt_node.manualPositionOffset, false);
+							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, gt_node.manualPositionOffsetX, gt_node.manualPositionOffsetY, false);
 							// var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 							
 							var gt_createdNode	= gt_macro.getNode(gt_nodeId);
@@ -1669,7 +1669,8 @@ function GCcommunication ()
 						startSubject: this.subjects[gt_sid].isStartSubject(),
 						url: this.subjects[gt_sid].getUrl(),
 						comment: this.subjects[gt_sid].getComment(),
-                        manualPositionOffset: this.subjects[gt_sid].getManualPositionOffset()
+                        manualPositionOffsetX: this.subjects[gt_sid].getManualPositionOffset().dx,
+                        manualPositionOffsetY: this.subjects[gt_sid].getManualPositionOffset().dy
 			};
 			
 			var gt_behav 	= this.subjects[gt_sid].getBehavior();
@@ -1694,6 +1695,8 @@ function GCcommunication ()
 							start:	gt_node.isStart(),
 							end:	gt_node.isEnd(),
 							type:	gt_node.getType(),
+                            manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
+                            manualPositionOffsetY: gt_node.getManualPositionOffset().dy,
 							nodeType:	gt_node.getType(),
 							options:	gt_node.getOptions(),
 							deactivated:	gt_node.isDeactivated(),
@@ -1703,8 +1706,7 @@ function GCcommunication ()
 							varMan:			gt_node.getVarMan("all"),
 							createSubjects: gt_node.getCreateSubjects("all"),
 							macro:			gt_node.getMacro(),
-							comment:		gt_node.getComment(),
-                            manualPositionOffset: gt_node.getManualPositionOffset()
+							comment:		gt_node.getComment()
 					};
 				}
 	

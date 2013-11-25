@@ -281,13 +281,21 @@ function GCsubject (id, text, type, inputPool)
     /**
      * The user-defined manual offset for the subject position
      *
-     * @returns {null|{dx: int, dy: int}}
+     * @returns {{dx: int, dy: int}}
      */
     this.getManualPositionOffset = function ()
     {
-        return this.manualPositionOffset;
+        return this.manualPositionOffset || {dx: 0, dy: 0};
     };
-	
+
+    /**
+     * @returns {boolean} true if the the subject has a user-defined offset
+     */
+    this.hasManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset !== null && 'dx' in this.manualPositionOffset && 'dy' in this.manualPositionOffset;
+    };
+
 	/**
 	 * Returns the corresponding url.
 	 * 

@@ -95,10 +95,9 @@ function gf_addManualPositionOffset(offset, type, id) {
         }
     }
     if(obj instanceof GCnode) {
-        existingOffset = obj.getManualPositionOffset();
-        if(existingOffset && 'dx' in existingOffset && 'dy' in existingOffset) {
-            offset.dx += existingOffset.dx;
-            offset.dy += existingOffset.dy;
+        if(offset) {
+            offset.dx += obj.getManualPositionOffset().dx;
+            offset.dy += obj.getManualPositionOffset().dy;
         }
         obj.setManualPositionOffset(offset);
         if(null === gv_graph.selectedSubject) {
