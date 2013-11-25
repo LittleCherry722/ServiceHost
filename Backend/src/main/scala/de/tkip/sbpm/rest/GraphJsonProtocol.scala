@@ -148,6 +148,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     "start",
     "end",
     "type",
+    "manualPositionOffsetX",
+    "manualPositionOffsetY",
     "deactivated",
     "majorStartNode",
     "conversation",
@@ -161,7 +163,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
    */
   implicit object NodesFormat extends RootJsonFormat[Map[Short, GraphNode]] {
     def write(map: Map[Short, GraphNode]) =
-      JsArray(map.values.map(_.toJson).toSeq: _*)
+      JsArray(map.values.map((g)=>{println("offsetx: "+g.manualPositionOffsetX);g.toJson}).toSeq: _*)
     def read(v: JsValue) = v match {
       case a: JsArray => a.elements.map { v =>
         val n = v.convertTo[GraphNode]

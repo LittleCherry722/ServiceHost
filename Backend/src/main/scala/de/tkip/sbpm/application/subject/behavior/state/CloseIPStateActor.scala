@@ -18,7 +18,7 @@ import de.tkip.sbpm.application.subject.behavior.CloseInputPool
 import de.tkip.sbpm.application.subject.behavior.InputPoolClosed
 import de.tkip.sbpm.application.subject.misc.ActionData
 
-protected case class CloseIPStateActor(data: StateData)
+case class CloseIPStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   inputPoolActor ! CloseInputPool((stateOptions.subjectId.get, stateOptions.messageType.get))

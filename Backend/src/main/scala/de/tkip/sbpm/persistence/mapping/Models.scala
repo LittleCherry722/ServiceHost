@@ -123,6 +123,8 @@ case class GraphNode(id: Short,
   isStart: Boolean,
   isEnd: Boolean,
   nodeType: String,
+  manualPositionOffsetX: Option[Short],
+  manualPositionOffsetY: Option[Short],
   isDisabled: Boolean,
   isMajorStartNode: Boolean,
   conversationId: Option[String],
@@ -137,6 +139,7 @@ case class GraphNode(id: Short,
   varManVar2Id: Option[String],
   varManOperation: Option[String],
   varManStoreVarId: Option[String])
+
 
 case class GraphEdge(startNodeId: Short,
   endNodeId: Short,

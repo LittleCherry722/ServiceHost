@@ -16,7 +16,6 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.parsing.json.JSONObject
 import scala.util.{Try, Success, Failure}
 
 import akka.actor.{Actor, ActorLogging}

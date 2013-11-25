@@ -104,5 +104,5 @@ case class AvailableActionsAnswer(request: GetAvailableActions, availableActions
 //case class ProcessInstanceAnswer(request: GetProcessInstance, graphs: Array[ProcessGraph]) extends AnswerAbleControlMessage;
 
 // new history
-case class GetNewHistory extends AnswerAbleControlMessage
+case class GetNewHistory() extends AnswerAbleControlMessage
 case class NewHistoryAnswer(request: GetNewHistory, history: NewHistory) extends AnswerControlMessage

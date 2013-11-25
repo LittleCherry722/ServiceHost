@@ -37,6 +37,8 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def isStart = column[Boolean]("start")
     def isEnd = column[Boolean]("end")
     def nodeType = column[String]("type", DbType.stringIdentifier)
+    def manualPositionOffsetX = column[Option[Short]]("manual_position_offset_x", DbType.smallint)
+    def manualPositionOffsetY = column[Option[Short]]("manual_position_offset_y", DbType.smallint)
     def isDisabled = column[Boolean]("disabled")
     def isMajorStartNode = column[Boolean]("major_start_node")
     def conversationId = column[Option[String]]("conversation_id", DbType.stringIdentifier)
@@ -52,7 +54,7 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def varManOperation = column[Option[String]]("var_man_operation", DbType.stringIdentifier)
     def varManStoreVarId = column[Option[String]]("var_man_store_var_id", DbType.stringIdentifier)
 
-    def * = id ~ macroId ~ subjectId ~ graphId ~ text ~ isStart ~ isEnd ~ nodeType ~ isDisabled ~
+    def * = id ~ macroId ~ subjectId ~ graphId ~ text ~ isStart ~ isEnd ~ nodeType ~ manualPositionOffsetX ~ manualPositionOffsetY ~ isDisabled ~
       isMajorStartNode ~ conversationId ~ variableId ~ optionMessageId ~ optionSubjectId ~
       optionCorrelationId ~ optionConversationId ~ optionNodeId ~ executeMacroId ~ varManVar1Id ~
       varManVar2Id ~ varManOperation ~ varManStoreVarId <> (GraphNode, GraphNode.unapply _)

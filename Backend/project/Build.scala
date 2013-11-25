@@ -11,7 +11,8 @@ object ProjectBuild extends Build {
       name := "S-BPM Groupware",
       organization := "TU Darmstadt Telecooperation Group",
       version := "1.2",
-      scalaVersion := "2.10.2",
+      scalaVersion := "2.11.0-M5",
+      crossScalaVersions := Seq("2.10.2", "2.11.0-M5"),
       resolvers ++= Seq(
         "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         "spray repo" at "http://repo.spray.io",
@@ -20,13 +21,13 @@ object ProjectBuild extends Build {
         "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"
       ),
       libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect" % "2.10.2",
-        "org.scalatest" %% "scalatest" % "2.0.M5b" % "test",
-        "com.typesafe.akka" %% "akka-actor" % "2.2.0",
-        "com.typesafe.akka" %% "akka-testkit" % "2.2.0" % "test",
-        "com.typesafe.akka" %% "akka-remote" % "2.2.0",
-        "com.typesafe.slick" %% "slick" % "1.0.1",
-        "com.typesafe.slick" %% "slick-testkit" % "1.0.1" % "test",
+        "org.scala-lang" % "scala-reflect" % "2.11.0-M5",
+        "org.scalatest" % "scalatest_2.10" % "2.0" % "test",
+        "com.typesafe.akka" % "akka-actor_2.10" % "2.2.0",
+        "com.typesafe.akka" % "akka-testkit_2.10" % "2.2.0" % "test",
+        "com.typesafe.akka" % "akka-remote_2.10" % "2.2.0",
+        "com.typesafe.slick" % "slick_2.10" % "1.0.1",
+        "com.typesafe.slick" % "slick-testkit_2.10" % "1.0.1" % "test",
 
         "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0",
         "ch.qos.logback" % "logback-classic" % "1.0.7",
@@ -36,9 +37,9 @@ object ProjectBuild extends Build {
         "io.spray" % "spray-can" % "1.2-20130710",
         "io.spray" % "spray-routing" % "1.2-20130710",
         "io.spray" % "spray-testkit" % "1.2-20130710" % "test",
-        "io.spray" %% "spray-json" % "1.2.5",
+        "io.spray" % "spray-json_2.10" % "1.2.5",
         "io.spray" % "spray-client" % "1.2-20130710",
-        "net.virtual-void" %%  "json-lenses" % "0.5.3",
+        "net.virtual-void" %  "json-lenses_2.10" % "0.5.3",
         "com.github.t3hnar" % "scala-bcrypt_2.10" % "2.1",
         "com.fasterxml.jackson.core" % "jackson-core" % "2.2.0",
 

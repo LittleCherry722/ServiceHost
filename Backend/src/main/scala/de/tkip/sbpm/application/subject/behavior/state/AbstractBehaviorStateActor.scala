@@ -60,7 +60,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * The data, which is necessary to create any state
  */
-protected case class StateData(
+case class StateData(
   subjectData: SubjectData,
   stateModel: State,
   userID: UserID,

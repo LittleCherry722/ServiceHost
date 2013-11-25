@@ -105,6 +105,8 @@ object GraphMappings {
       n.isStart,
       n.isEnd,
       n.nodeType,
+      n.manualPositionOffsetX,
+      n.manualPositionOffsetY,
       n.isDisabled,
       n.isMajorStartNode,
       n.conversationId,
@@ -258,7 +260,7 @@ object GraphMappings {
     val macros = ms.groupBy(_.subjectId)
     val nodes = ns.groupBy(_.subjectId)
     val edges = es.groupBy(_.subjectId)
-    
+
     (s.id -> domainModel.GraphSubject(
       s.id,
       s.name,
@@ -296,7 +298,7 @@ object GraphMappings {
     // group nodes and edges by it's macros
     val nodes = ns.groupBy(_.macroId).mapValues(_.map(convert).toMap)
     val edges = es.groupBy(_.macroId).mapValues(_.map(convert))
-    
+
     ms.map { m =>
       (m.id -> domainModel.GraphMacro(
         m.id,
@@ -330,6 +332,8 @@ object GraphMappings {
       n.isStart,
       n.isEnd,
       n.nodeType,
+      n.manualPositionOffsetX,
+      n.manualPositionOffsetY,
       n.isDisabled,
       n.isMajorStartNode,
       n.conversationId,
