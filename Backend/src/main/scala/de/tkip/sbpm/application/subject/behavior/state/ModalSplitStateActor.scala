@@ -10,7 +10,7 @@ import akka.actor.Status.Failure
 import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 
-case class ModalSplitStateActor(data: StateData)
+protected case class ModalSplitStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   override def preStart() {

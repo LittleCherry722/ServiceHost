@@ -19,7 +19,7 @@ import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.misc.SubjectTerminated
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
 
-case class EndStateActor(data: StateData)
+protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   // Inform the processinstance that this subject has terminated

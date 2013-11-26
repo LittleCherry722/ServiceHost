@@ -42,7 +42,7 @@ import de.tkip.sbpm.application.subject.behavior.DeleteInputPoolMessages
 import de.tkip.sbpm.model.ChangeDataMode._
 
 
-case class ReceiveStateActor(data: StateData)
+protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   // convert the transitions into a map of extended transitions, to work with

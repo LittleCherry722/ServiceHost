@@ -6,7 +6,7 @@ import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.behavior.DeactivateState
 
-class DeactivateStateActor(data: StateData)
+protected class DeactivateStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   override def preStart() {

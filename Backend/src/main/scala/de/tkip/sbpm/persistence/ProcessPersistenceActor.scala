@@ -43,7 +43,7 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
   def receive = {
     case q @ Save.Entity(ps @ _*) => {
       log.debug("Start checking: " + q)
-      // Check for all process graphs, if they are startAble
+      // Check for alle process graphs, if they are startAble
       val newProcesses =
         ps map { p =>
           if (p.activeGraphId.isDefined) {
@@ -107,7 +107,6 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
    * query using PoisonPill message.
    */
   private def forwardToPersistence(query: BaseQuery, from: ActorRef) = {
-    println("forward query ---> " + query)
     val actor = context.actorOf(Props[ProcessPersistenceActor])
     actor.tell(query, from)
     actor ! PoisonPill
@@ -144,10 +143,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
         // insert if id is None
         case p @ Process(None, _, _, _, _) => Some(insert(p))
         // update otherwise
-        case p @ Process(id, _, _, _, _)   => {
-          println("MUSS UPDATE PROCESS MACHEN MIT "  + p)
-          update(id, p)
-        }
+        case p @ Process(id, _, _, _, _)   => update(id, p)
       } match {
         // only one process was given, return it's id
         case ids if (ids.size == 1) => ids.head
@@ -241,9 +237,10 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
    */
   private def saveProcessWithGraph(p: Process, g: Graph)(implicit session: Session) = {
 
+    log.debug("Update Process with Graph: " + p)
+
     // set graph id to none -> insert new on every save to maintain old versions
     var graph = g.copy(id = None)
-
     // set current active graph to None (we don't know graph id yet)
     var process = p.copy(activeGraphId = None)
     var resultId = process.id
@@ -267,7 +264,6 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     }
     // set process id in graph
     graph = graph.copy(processId = process.id)
-    log.debug("COPIED GRAPH no.2 :::::: " + g)
     // save graph to db
     val gId = save(graph)
 

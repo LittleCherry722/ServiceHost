@@ -18,7 +18,7 @@ import de.tkip.sbpm.application.subject.behavior.InputPoolOpened
 import de.tkip.sbpm.application.subject.behavior.OpenInputPool
 import de.tkip.sbpm.application.subject.misc.ActionData
 
-case class OpenIPStateActor(data: StateData)
+protected case class OpenIPStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   inputPoolActor ! OpenInputPool((stateOptions.subjectId.get, stateOptions.messageType.get))
