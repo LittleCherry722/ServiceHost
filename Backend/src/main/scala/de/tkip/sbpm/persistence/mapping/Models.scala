@@ -136,7 +136,15 @@ case class GraphNode(id: Short,
   varManVar1Id: Option[String],
   varManVar2Id: Option[String],
   varManOperation: Option[String],
-  varManStoreVarId: Option[String])
+  varManStoreVarId: Option[String]) {
+
+  /*
+   * Additional parameters / fields can not be declared as case-class parameters because of the 22-parameters limit
+   * Though this will be possible in scala 2.11
+   */
+  var manualPositionOffsetX, manualPositionOffsetY: Option[Short]
+
+}
 
 case class GraphEdge(startNodeId: Short,
   endNodeId: Short,

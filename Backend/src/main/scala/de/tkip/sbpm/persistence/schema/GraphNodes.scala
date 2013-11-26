@@ -37,6 +37,8 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def isStart = column[Boolean]("start")
     def isEnd = column[Boolean]("end")
     def nodeType = column[String]("type", DbType.stringIdentifier)
+    def manualPositionOffsetX = column[Option[Short]]("manual_position_offset_x", DbType.smallint)
+    def manualPositionOffsetY = column[Option[Short]]("manual_position_offset_y", DbType.smallint)
     def isDisabled = column[Boolean]("disabled")
     def isMajorStartNode = column[Boolean]("major_start_node")
     def conversationId = column[Option[String]]("conversation_id", DbType.stringIdentifier)

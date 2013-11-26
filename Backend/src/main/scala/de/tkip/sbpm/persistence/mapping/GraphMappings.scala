@@ -97,7 +97,7 @@ object GraphMappings {
     // disassemble varMan object
     val (varManVar1Id, varManVar2Id, varManOperation, varManStoreVarId) =
       extractVarMan(n.varMan)
-    GraphNode(n.id,
+    val node = GraphNode(n.id,
       macroId,
       subjectId,
       graphId,
@@ -119,6 +119,11 @@ object GraphMappings {
       varManVar2Id,
       varManOperation,
       varManStoreVarId)
+
+    node.manualPositionOffsetX = n.manualPositionOffsetX
+    node.manualPositionOffsetY = n.manualPositionOffsetY
+
+    node
   }.toSeq
 
   /**
@@ -330,6 +335,8 @@ object GraphMappings {
       n.isStart,
       n.isEnd,
       n.nodeType,
+      n.manualPositionOffsetX,
+      n.manualPositionOffsetY,
       n.isDisabled,
       n.isMajorStartNode,
       n.conversationId,
