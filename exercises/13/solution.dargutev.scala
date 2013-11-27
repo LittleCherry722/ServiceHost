@@ -117,7 +117,7 @@ object Tasks extends Tasks {
   new Task("Task 6") {
     def solution() = {
 
-      println((List(1, 2, 3, 4, 5).reverse :\ List[Int]())(_ +: _))
+      println((List(1, 2, 3, 4, 5) :\ List[Int]())((a,b) => b :+ a))
       // :\ is the same as foldRight, whereas /: is the same as foldLeft
 
     }
