@@ -68,7 +68,7 @@ object Tasks extends Tasks {
         var value: Long = 0
         
         def apply(n: Int) = value >> n & 1
-        def update(n: Int, value: Boolean) = this.value = this.value | (1 << n)
+        def update(n: Int, value: Boolean) = this.value = if (value) this.value | (1 << n) else this.value & (0 << n) fi
       }
       val b = new BitSequence()
       println(b(3))
