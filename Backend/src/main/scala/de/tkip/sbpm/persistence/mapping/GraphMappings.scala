@@ -30,16 +30,16 @@ object GraphMappings {
    * If id of graph is None only graph itself is converted
    * id must be known for converting sub entities.
    */
-  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphEdge])] = {
+  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
     val graph = Graph(g.id, g.processId.get, g.date)
     if (!g.id.isDefined) {
       Left(graph)
     } else {
-      val (subjects, variables, macros, nodes, edges) = extractSubjects(g.subjects.values, g.id.get)
+      val (subjects, variables, macros, nodes, varMans, edges) = extractSubjects(g.subjects.values, g.id.get)
       val conversations = extractConversations(g.conversations.values, g.id.get)
       val messages = extractMessages(g.messages.values, g.id.get)
       val routings = extractRoutings(g.routings, g.id.get)
-      Right((graph, conversations, messages, routings, subjects, variables, macros, nodes, edges))
+      Right((graph, conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges))
     }
   }
 
@@ -47,7 +47,7 @@ object GraphMappings {
    * Disassembles object trees of given subjects into relational entities.
    * Returns subjects, variables, macros, nodes and edges.
    */
-  private def extractSubjects(ss: Iterable[domainModel.GraphSubject], graphId: Int): (Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphEdge]) = ss.map { s =>
+  private def extractSubjects(ss: Iterable[domainModel.GraphSubject], graphId: Int): (Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge]) = ss.map { s =>
     val subject = GraphSubject(s.id,
       graphId,
       s.name,
@@ -63,11 +63,11 @@ object GraphMappings {
       s.url,
       s.comment)
     val variables = extractVariables(s.variables.values, s.id, graphId)
-    val (macros, nodes, edges) = extractMacros(s.macros.values, s.id, graphId)
-    (subject, variables, macros, nodes, edges)
-  }.foldLeft((List[GraphSubject](), List[GraphVariable](), List[GraphMacro](), List[GraphNode](), List[GraphEdge]())) { (agg, t) =>
+    val (macros, nodes, varMans, edges) = extractMacros(s.macros.values, s.id, graphId)
+    (subject, variables, macros, nodes, varMans, edges)
+  }.foldLeft((List[GraphSubject](), List[GraphVariable](), List[GraphMacro](), List[GraphNode](), List[GraphVarMan](), List[GraphEdge]())) { (agg, t) =>
     // aggregate all entities for all subjects into flat lists
-    (agg._1 :+ t._1, agg._2 ++ t._2, agg._3 ++ t._3, agg._4 ++ t._4, agg._5 ++ t._5)
+    (agg._1 :+ t._1, agg._2 ++ t._2, agg._3 ++ t._3, agg._4 ++ t._4, agg._5 ++ t._5, agg._6 ++ t._6)
   }
 
   /**
@@ -81,49 +81,54 @@ object GraphMappings {
    * Disassembles object trees of given macros into relational entities.
    * Returns macros, nodes and edges.
    */
-  private def extractMacros(ms: Iterable[domainModel.GraphMacro], subjectId: String, graphId: Int): (Seq[GraphMacro], Seq[GraphNode], Seq[GraphEdge]) = ms.map { m =>
+  private def extractMacros(ms: Iterable[domainModel.GraphMacro], subjectId: String, graphId: Int): (Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge]) = ms.map { m =>
     val macro = GraphMacro(m.id, subjectId, graphId, m.name)
-    val nodes = extractNodes(m.nodes.values, m.id, subjectId, graphId)
+    val (nodes, varMans) = extractNodes(m.nodes.values, m.id, subjectId, graphId).unzip[GraphNode, GraphVarMan]
     val edges = extractEdges(m.edges, m.id, subjectId, graphId)
-    (macro, nodes, edges)
-  }.foldLeft((List[GraphMacro](), List[GraphNode](), List[GraphEdge]())) { (agg, t) =>
-    (agg._1 :+ t._1, agg._2 ++ t._2, agg._3 ++ t._3)
+    (macro, nodes, varMans, edges)
+  }.foldLeft((List[GraphMacro](), List[GraphNode](), List[GraphVarMan](), List[GraphEdge]())) { (agg, t) =>
+    (agg._1 :+ t._1, agg._2 ++ t._2, agg._3 ++ t._3, agg._4 ++ t._4)
   }
 
   /**
    * Disassembles object trees of given nodes into relational entities.
    */
-  private def extractNodes(ns: Iterable[domainModel.GraphNode], macroId: String, subjectId: String, graphId: Int): Seq[GraphNode] = ns.map { n =>
+  private def extractNodes(ns: Iterable[domainModel.GraphNode], macroId: String, subjectId: String, graphId: Int): Seq[(GraphNode, GraphVarMan)] = ns.map { n =>
     // disassemble varMan object
     val (varManVar1Id, varManVar2Id, varManOperation, varManStoreVarId) =
       extractVarMan(n.varMan)
-    val node = GraphNode(n.id,
-      macroId,
-      subjectId,
-      graphId,
-      n.text,
-      n.isStart,
-      n.isEnd,
-      n.nodeType,
-      n.isDisabled,
-      n.isMajorStartNode,
-      n.conversationId,
-      n.variableId,
-      n.options.messageId,
-      n.options.subjectId,
-      n.options.correlationId,
-      n.options.conversationId,
-      n.options.nodeId,
-      n.macroId,
-      varManVar1Id,
-      varManVar2Id,
-      varManOperation,
-      varManStoreVarId)
-
-    node.manualPositionOffsetX = n.manualPositionOffsetX
-    node.manualPositionOffsetY = n.manualPositionOffsetY
-
-    node
+    (
+      GraphNode(n.id,
+        macroId,
+        subjectId,
+        graphId,
+        n.text,
+        n.isStart,
+        n.isEnd,
+        n.nodeType,
+        n.manualPositionOffsetX,
+        n.manualPositionOffsetY,
+        n.isDisabled,
+        n.isMajorStartNode,
+        n.conversationId,
+        n.variableId,
+        n.options.messageId,
+        n.options.subjectId,
+        n.options.correlationId,
+        n.options.conversationId,
+        n.options.nodeId,
+        n.macroId)
+      ,
+      GraphVarMan(n.id,
+        macroId,
+        subjectId,
+        graphId,
+        varManVar1Id,
+        varManVar2Id,
+        varManOperation,
+        varManStoreVarId
+      )
+    )
   }.toSeq
 
   /**
@@ -209,8 +214,8 @@ object GraphMappings {
    * Convert all database entities of a graph to a single
    * object tree of domain model objects. 
    */
-  def convert(graph: Graph, subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphEdge]), roles: Seq[Role]): domainModel.Graph = {
-    val (conversations, messages, routings, subjects, variables, macros, nodes, edges) = subModels
+  def convert(graph: Graph, subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge]), roles: Seq[Role]): domainModel.Graph = {
+    val (conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges) = subModels
     domainModel.Graph(
       graph.id,
       Some(graph.processId),
@@ -218,7 +223,7 @@ object GraphMappings {
       conversations.map(convert).toMap,
       messages.map(convert).toMap,
       // inject subject object trees
-      convert(subjects, variables, macros, nodes, edges, roles.map(convert).toMap),
+      convert(subjects, variables, macros, nodes, varMans, edges, roles.map(convert).toMap),
       routings.map(convert))
   }
 
@@ -257,11 +262,12 @@ object GraphMappings {
    * Convert subjects with sub entities to domain model
    * object trees.
    */
-  def convert(ss: Seq[GraphSubject], vs: Seq[GraphVariable], ms: Seq[GraphMacro], ns: Seq[GraphNode], es: Seq[GraphEdge], roles: Map[Int, domainModel.Role]): Map[String, domainModel.GraphSubject] = ss.map { s =>
+  def convert(ss: Seq[GraphSubject], vs: Seq[GraphVariable], ms: Seq[GraphMacro], ns: Seq[GraphNode], vm: Seq[GraphVarMan], es: Seq[GraphEdge], roles: Map[Int, domainModel.Role]): Map[String, domainModel.GraphSubject] = ss.map { s =>
     // group variables, macros, nodes and edges by subject
     val variables = vs.groupBy(_.subjectId).mapValues(_.map(convert).toMap)
     val macros = ms.groupBy(_.subjectId)
     val nodes = ns.groupBy(_.subjectId)
+    val varMans = vm.groupBy(_.subjectId)
     val edges = es.groupBy(_.subjectId)
     
     (s.id -> domainModel.GraphSubject(
@@ -283,7 +289,7 @@ object GraphMappings {
       s.comment,
       variables.getOrElse(s.id, Map()),
       // convert macros, nodes and edges of current subject
-      convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), edges.getOrElse(s.id, List()))))
+      convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List()))))
   }.toMap
 
    /**
@@ -297,9 +303,13 @@ object GraphMappings {
      * object trees.
      * Returns id -> entity map.
      */
-  def convert(ms: Seq[GraphMacro], ns: Seq[GraphNode], es: Seq[GraphEdge]): Map[String, domainModel.GraphMacro] = {
+  def convert(ms: Seq[GraphMacro], ns: Seq[GraphNode], vm: Seq[GraphVarMan], es: Seq[GraphEdge]): Map[String, domainModel.GraphMacro] = {
     // group nodes and edges by it's macros
-    val nodes = ns.groupBy(_.macroId).mapValues(_.map(convert).toMap)
+    val nodes = ns.groupBy(_.macroId).mapValues(_.map(x => {
+      val filteredVarMans = vm.filter(t => t.id == x.id && t.macroId == x.macroId && t.subjectId == x.subjectId)
+      val varMan:Option[GraphVarMan] =  if (filteredVarMans.length == 0) None else Some(filteredVarMans(0))
+      convert(x, varMan)
+    }).toMap)
     val edges = es.groupBy(_.macroId).mapValues(_.map(convert))
     
     ms.map { m =>
@@ -315,19 +325,23 @@ object GraphMappings {
    * Convert node to domain model.
    * Returns id -> entity mapping
    */
-  def convert(n: GraphNode): (Short, domainModel.GraphNode) = {
+  def convert(n: GraphNode, vm: Option[GraphVarMan]): (Short, domainModel.GraphNode) = {
     // create list of varMan properties to check easily if all are defined
-    val graphVarManList = List(n.varManVar1Id, n.varManVar2Id, n.varManOperation, n.varManStoreVarId)
-    // if not all props are defined then varMan is None 
-    val graphVarMan =
-      if (graphVarManList.forall(_.isDefined))
-        Some(domainModel.GraphVarMan(
-          n.varManVar1Id.get,
-          n.varManVar2Id.get,
-          n.varManOperation.get,
-          n.varManStoreVarId.get))
-      else
-        None
+    val graphVarMan = vm match {
+      case Some(GraphVarMan(_, _, _, _, varManVar1Id, varManVar2Id, varManOperation, varManStoreVarId)) => {
+        val graphVarManList = List(varManVar1Id, varManVar2Id, varManOperation, varManStoreVarId)
+        // if not all props are defined then varMan is None
+        if (graphVarManList.forall(_.isDefined))
+          Some(domainModel.GraphVarMan(
+            vm.get.varManVar1Id.get,
+            vm.get.varManVar2Id.get,
+            vm.get.varManOperation.get,
+            vm.get.varManStoreVarId.get))
+        else
+          None
+      }
+      case null => None
+    }
 
     (n.id, domainModel.GraphNode(
       n.id,

@@ -49,15 +49,10 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def optionConversationId = column[Option[String]]("option_conversation_id", DbType.stringIdentifier)
     def optionNodeId = column[Option[Short]]("option_node_id", DbType.smallint)
     def executeMacroId = column[Option[String]]("execute_macro_id", DbType.stringIdentifier)
-    def varManVar1Id = column[Option[String]]("var_man_var1_id", DbType.stringIdentifier)
-    def varManVar2Id = column[Option[String]]("var_man_var2_id", DbType.stringIdentifier)
-    def varManOperation = column[Option[String]]("var_man_operation", DbType.stringIdentifier)
-    def varManStoreVarId = column[Option[String]]("var_man_store_var_id", DbType.stringIdentifier)
 
-    def * = id ~ macroId ~ subjectId ~ graphId ~ text ~ isStart ~ isEnd ~ nodeType ~ isDisabled ~
+    def * = id ~ macroId ~ subjectId ~ graphId ~ text ~ isStart ~ isEnd ~ nodeType ~ manualPositionOffsetX ~ manualPositionOffsetY ~ isDisabled ~
       isMajorStartNode ~ conversationId ~ variableId ~ optionMessageId ~ optionSubjectId ~
-      optionCorrelationId ~ optionConversationId ~ optionNodeId ~ executeMacroId ~ varManVar1Id ~
-      varManVar2Id ~ varManOperation ~ varManStoreVarId <> (GraphNode, GraphNode.unapply _)
+      optionCorrelationId ~ optionConversationId ~ optionNodeId ~ executeMacroId <> (GraphNode, GraphNode.unapply _)
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
 
@@ -77,12 +72,8 @@ trait GraphNodesSchema extends GraphMacrosSchema
       foreignKey(fkName("opt_node"), (optionNodeId, macroId, subjectId, graphId), GraphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId))
     def executeMacro =
       foreignKey(fkName("graph_macros_exec"), (executeMacroId, subjectId, graphId), GraphMacros)(m => (m.id, m.subjectId, m.graphId))
-    def varManVar1 =
-      foreignKey(fkName("graph_variables_var_man1"), (varManVar1Id, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
-    def varManVar2 =
-      foreignKey(fkName("graph_variables_var_man2"), (varManVar2Id, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
-    def varManStore =
-      foreignKey(fkName("graph_variables_var_man"), (varManStoreVarId, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
+//    def varMan =
+//      foreignKey(fkName("graph_var_man"), (id, subjectId, macroId, graphId), GraphVarMan)(vm => (vm.id, vm.subjectId, vm.macroId, vm.graphId))
   }
 
 }
