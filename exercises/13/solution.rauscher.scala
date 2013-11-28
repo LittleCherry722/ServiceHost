@@ -32,9 +32,12 @@ object Tasks extends Tasks {
 
   new Task("Task 1") {
     def solution() = {
-
-      // your solution for task 1 here
-
+      def indices(chars: String) = {
+        for (char <- chars) {
+          println(char)
+        }
+      }
+      println(indices("Mississippi"))
     }
   }
 
