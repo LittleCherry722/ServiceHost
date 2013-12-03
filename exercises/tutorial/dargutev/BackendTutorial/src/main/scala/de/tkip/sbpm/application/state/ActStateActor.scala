@@ -5,8 +5,9 @@ import de.tkip.sbpm.application._
 
 class ActStateActor(s: State) extends AbstractBeviorStateActor(s) {
   def receive = {
-    case ExecuteAction(_, succ) if (s.transitions contains succ) => {
+    case ExecuteAction(id, succ) if (s.transitions contains succ) => {
       context.parent ! ChangeState(s.transitions(s.transitions.indexOf(succ)))
+      context.parent ! ExecuteAction(id,2)
     }
   }
 }
