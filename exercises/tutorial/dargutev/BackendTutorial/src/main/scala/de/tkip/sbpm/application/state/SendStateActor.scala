@@ -12,7 +12,7 @@ class SendStateActor(s: State) extends AbstractBeviorStateActor(s) {
       if (TestData(2).subject1.subjectID == id) {
         context.parent ! SubjectToSubjectMessage(id, TestData(2).subject2.subjectID, "data")
       } else {
-        context.parent ! SubjectToSubjectMessage(TestData(2).subject2.subjectID, id, "data")
+        context.parent ! SubjectToSubjectMessage(id, TestData(2).subject1.subjectID, "data")
       }
       context.parent ! ChangeState(s.transitions(s.transitions.indexOf(succ)))
     }
