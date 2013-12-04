@@ -31,6 +31,7 @@ private[persistence] class SchemaActor extends Actor
   with DatabaseAccess
   with GraphEdgesSchema
   with GraphNodesSchema
+  with GraphVarMansSchema
   with GraphRoutingsSchema
   with GroupsRolesSchema
   with GroupsUsersSchema
@@ -49,6 +50,7 @@ private[persistence] class SchemaActor extends Actor
     GraphMacros,
     GraphMessages,
     GraphNodes,
+    GraphVarMans,
     GraphRoutings,
     Graphs,
     GraphSubjects,

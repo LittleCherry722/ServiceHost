@@ -71,6 +71,44 @@ var gv_bv_paper = null;
 var gv_cv_paper = null;
 
 /**
+ * Indicates whether interactions like drag/drop of nodes are enabled or disabled
+ *
+ * @type boolean
+ */
+var gv_interactionsEnabled = false;
+
+/**
+ * Sets the manual position offset fo a subject or node and redraws the related graph
+ *
+ * @param {null|{dx: int, dy: int}} offset the position offset or null if the offset should be cleared
+ * @param {String} type "subject" or "node"
+ * @param {int} id the id of the subject or node for which the manual position offset should be set
+ */
+function gf_addManualPositionOffset(offset, type, id) {
+    var obj, behavior, existingOffset;
+    if(null === gv_graph.selectedSubject) {
+        obj = gv_graph.getSubjects()[id];
+    } else {
+        behavior = gv_graph.getBehavior(gv_graph.selectedSubject);
+        if(behavior) {
+            obj = behavior.getNode(id);
+        }
+    }
+    if(obj instanceof GCnode) {
+        if(offset) {
+            offset.dx += obj.getManualPositionOffset().dx;
+            offset.dy += obj.getManualPositionOffset().dy;
+        }
+        obj.setManualPositionOffset(offset);
+        if(null === gv_graph.selectedSubject) {
+            gv_graph.draw();
+        } else {
+            gv_graph.drawBehavior();
+        }
+    }
+}
+
+/**
  * Using this method you can insert a node to the graph with the settings stored in gv_macros.
  * 
  * @param {String} id The id of the macro.

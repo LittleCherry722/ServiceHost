@@ -93,8 +93,8 @@ object Boot extends App {
   )
 
   // binding the frontendInterfaceActor to a HttpListener
-//  IO(Http) ! Http.Bind(frontendInterfaceActor, interface = sbpmHostname, port = sbpmPort)
-   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
+  IO(Http) ! Http.Bind(frontendInterfaceActor, interface = sbpmHostname, port = sbpmPort)
+//   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
 
   // db init code below
   implicit val timout = Timeout(30 seconds)

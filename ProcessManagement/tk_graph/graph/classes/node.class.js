@@ -154,6 +154,13 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	 * @type String
 	 */
 	this.type	= "action";
+
+    /**
+     * The user-defined manual offset for the node position
+     *
+     * @type {?{dx: int, dy: int}}
+     */
+    this.manualPositionOffset = null;
 	
 	/**
 	 * Activates the node.
@@ -344,6 +351,25 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			return this.type.toLowerCase();	
 		}
 	};
+
+    /**
+     * The user-defined manual offset for the node position. If the user defined no offset, an offstet of 0 pixels in
+     * each direction is returned
+     *
+     * @returns {{dx: int, dy: int}}
+     */
+    this.getManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset || {dx: 0, dy: 0};
+    };
+
+    /**
+     * @returns {boolean} true if the the node has a user-defined offset
+     */
+    this.hasManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset !== null && 'dx' in this.manualPositionOffset && 'dy' in this.manualPositionOffset;
+    };
 	
 	/**
 	 * Returns the variable of the node.
@@ -710,7 +736,18 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 			this.type = type;
 		}
 	};
-	
+
+    /**
+     * Sets the user-defined manual offset for the node position
+     *
+     * @param {null|{dx: int, dy: int}} offset
+     * @returns {void}
+     */
+    this.setManualPositionOffset = function (offset)
+    {
+        this.manualPositionOffset = offset;
+    };
+
 	/**
 	 * Updates the variable of the node.
 	 * 
