@@ -748,7 +748,7 @@ function GCcommunication ()
 					this.selectedSubject = null;
 				}
 				this.selectedNode = null;
-				
+
 				this.draw();
 			}
 		}
@@ -873,7 +873,7 @@ function GCcommunication ()
 		}
 		
 		var gt_behavior = this.getBehavior(id);
-		
+
 		if (gt_behavior != null)
 		{
 			gf_timeReset();
@@ -1312,7 +1312,7 @@ function GCcommunication ()
 	 * @returns {void}
 	 */
 	this.loadFromJSON = function (jsonString)
-	{		
+	{
 		var gt_messages		= {};		// messageText: messageID
 		
 		if (gf_isset(jsonString))
@@ -1452,7 +1452,7 @@ function GCcommunication ()
 						{
 							var gt_node		= gt_macroValues.nodes[gt_nodeId];
 							var gt_nodeType	= gf_isset(gt_node.nodeType) ? gt_node.nodeType : gt_node.type;
-							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, false);
+							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, gt_node.manualPositionOffsetX, gt_node.manualPositionOffsetY, false);
 							// var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 							
 							var gt_createdNode	= gt_macro.getNode(gt_nodeId);
@@ -1668,7 +1668,9 @@ function GCcommunication ()
 						role: this.subjects[gt_sid].getRole(),
 						startSubject: this.subjects[gt_sid].isStartSubject(),
 						url: this.subjects[gt_sid].getUrl(),
-						comment: this.subjects[gt_sid].getComment()
+						comment: this.subjects[gt_sid].getComment(),
+                        manualPositionOffsetX: this.subjects[gt_sid].getManualPositionOffset().dx,
+                        manualPositionOffsetY: this.subjects[gt_sid].getManualPositionOffset().dy
 			};
 			
 			var gt_behav 	= this.subjects[gt_sid].getBehavior();
@@ -1682,7 +1684,7 @@ function GCcommunication ()
 				var gt_edges	= gt_macro.getEdges();
 				var gt_newNodes	= [];
 				var gt_newEdges	= [];
-				
+
 				// transform the behavior's nodes
 				for (var gt_nid in gt_nodes)
 				{				
@@ -1693,6 +1695,8 @@ function GCcommunication ()
 							start:	gt_node.isStart(),
 							end:	gt_node.isEnd(),
 							type:	gt_node.getType(),
+                            manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
+                            manualPositionOffsetY: gt_node.getManualPositionOffset().dy,
 							nodeType:	gt_node.getType(),
 							options:	gt_node.getOptions(),
 							deactivated:	gt_node.isDeactivated(),

@@ -856,6 +856,7 @@ define([
 	var initialize = function( processId, subjectId, callback ) {
 		var viewModel = new ViewModel();
 		window.pView = viewModel;
+        gv_interactionsEnabled = true;
 		App.loadTemplate( "process", viewModel, null, function() {
 
 			// Load all sub templates. They are:
@@ -896,6 +897,7 @@ define([
 	// Must return true, otherwise the view will not be unloaded.
 	var unload = function() {
 		unsubscribeAll();
+        gv_interactionsEnabled = false;
 		return true;
 	}
 

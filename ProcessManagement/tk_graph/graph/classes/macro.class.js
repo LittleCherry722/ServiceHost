@@ -174,10 +174,12 @@ function GCmacro (parent, id, name)
 	 * @param {String} [type] The type of the node. Possible values are "send", "receive", "end", "action" (default: "action")
 	 * @param {boolean} [start] When set to true the node will be handled as a start node. (default: false)
 	 * @param {boolean} [end] When set to true the node will be handled as an end node. (default: false)
+	 * @param {int} [manualPositionOffsetX] The x position offset the user manually defined
+	 * @param {int} [manualPositionOffsetY] The y position offset the user manually defined
 	 * @param {boolean} [deactivated] The deactivation status of the node. (default: false)
 	 * @returns {int} The id that identifies the node in the nodes array.
 	 */
-	this.addNode = function (id, text, type, start, end, deactivated)
+	this.addNode = function (id, text, type, start, end, manualPositionOffsetX, manualPositionOffsetY, deactivated)
 	{
 		// create a new id if none is given
 		if (!gf_isset(id) || id === "")
@@ -205,10 +207,13 @@ function GCmacro (parent, id, name)
 		// pass the end attribute to the node
 		if (gf_isset(end) && end === true)
 			gt_node.setEnd(true);
-			
-		// pass the deactivated attribute to the node
-		if (gf_isset(deactivated) && deactivated === true)
-			gt_node.deactivate();
+
+        if (manualPositionOffsetX && manualPositionOffsetY)
+            gt_node.setManualPositionOffset({dx: manualPositionOffsetX, dy: manualPositionOffsetY});
+
+        // pass the deactivated attribute to the node
+        if (gf_isset(deactivated) && deactivated === true)
+            gt_node.deactivate();
 		
 		// store the node
 		this.nodes["n" + this.nodeCounter++] = gt_node;
@@ -431,11 +436,13 @@ function GCmacro (parent, id, name)
 			// initialize nodes
 			for (var gt_nid in this.nodes)
 			{
-				var gt_nodeId	= gt_nid.substr(1);
-					gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, this.nodes[gt_nid]);
-					
-					// TODO: Andreas Rueckle
-					// gt_nodePositions[gt_nodeId].setPositionRelative(x, y);
+				var gt_node =   this.nodes[gt_nid],
+                    gt_nodeId	= gt_nid.substr(1);
+					gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, gt_node);
+
+                    if(gt_node.getManualPositionOffset() && 'dx' in gt_node.getManualPositionOffset() && 'dy' in gt_node.getManualPositionOffset()) {
+					    gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
+                    }
 			}
 			
 			if (this.selectedNode != null)

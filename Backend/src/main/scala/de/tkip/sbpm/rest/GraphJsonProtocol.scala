@@ -148,6 +148,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     "start",
     "end",
     "type",
+    "manualPositionOffsetX",
+    "manualPositionOffsetY",
     "deactivated",
     "majorStartNode",
     "conversation",

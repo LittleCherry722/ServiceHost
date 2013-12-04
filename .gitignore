@@ -15,3 +15,7 @@
 Repository/target/*
 Repository/project/target/*
 ProcessManagement/nbproject/*
+
+# intellij project files
+.idea
+*.iml

@@ -60,6 +60,8 @@ define([
 				"start": true,
 				"end": false,
 				"type": "receive",
+                "manualPositionOffsetX": 0,
+                "manualPositionOffsetY": 0,
 				"deactivated": false,
 				"majorStartNode": true,
 				"options": {
@@ -82,6 +84,8 @@ define([
 				"start": false,
 				"end": false,
 				"type": "action",
+                "manualPositionOffsetX": 0,
+                "manualPositionOffsetY": 0,
 				"deactivated": false,
 				"majorStartNode": false,
 				"options": {
@@ -104,6 +108,8 @@ define([
 				"start": false,
 				"end": true,
 				"type": "end",
+                "manualPositionOffsetX": 0,
+                "manualPositionOffsetY": 0,
 				"deactivated": false,
 				"majorStartNode": false,
 				"options": {
