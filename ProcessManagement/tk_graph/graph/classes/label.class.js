@@ -1125,7 +1125,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
     {
 		this.belongsToPath = true;
     } else {
-        this.draggable = true;
+        this.draggable = (shape === 'circle');         // only actions, no subjects (at least at the moment)
     }
 	
 	if (!gf_isset(performanceMode) || performanceMode != true)
