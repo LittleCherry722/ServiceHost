@@ -64,10 +64,8 @@ define([
 
 		this.selectedInterfaceId = ko.computed(function() {
 			if ( self.selectedInterface() ) {
-				console.log("id: " + self.selectedInterface().id());
 				return self.selectedInterface().id();
 			} else {
-				console.log("...");
 				return -1;
 			}
 		});
@@ -617,20 +615,28 @@ define([
 		});
 	}
 
-	var initializeSvgChangeListener = function(){
-		var svgInt = setInterval(function(){
-			var svg = $('#processContent svg');
-			if(svg.length > 0){
-				svg.on('DOMSubtreeModified', function(){
-					if(gv_graph.getSubjectNames().length > 0) {
-						$('#process-subject-help').addClass('invisible');
-					} else {
-						$('#process-subject-help').removeClass('invisible');
-					}
-				});
-				clearInterval(svgInt);
-			}
-		}, 100);
+    /**
+     * Checks if there are no subject. In case of that, the help-box will be shown until the user adds a subject
+     */
+	var tryShowSubjectHelpBox = function(){
+        if(gv_graph.getSubjectNames().length == 0) {
+            $('#process-subject-help').removeClass('invisible');
+
+            var svgInterval = setInterval(function(){
+                var svg = $('#processContent svg'),
+                    checkHideSubjectHelp = function () {
+                        if(gv_graph.getSubjectNames().length > 0) {
+                            $('#process-subject-help').addClass('invisible');
+                            svg.off('DOMSubtreeModified');
+                        }
+                    };
+                if(svg.length > 0){
+                    svg.on('DOMSubtreeModified', checkHideSubjectHelp);
+                    clearInterval(svgInterval);
+                    checkHideSubjectHelp();
+                }
+            }, 200);
+        }
 	}
 
 	var subscriptions = [];
@@ -876,7 +882,7 @@ define([
 					initialized = true;
 					initializeListeners();
 				}
-				initializeSvgChangeListener();
+				tryShowSubjectHelpBox();
 
 				initializeDOM();
 
