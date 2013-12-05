@@ -84,7 +84,8 @@ var gv_interactionsEnabled = false;
  * @param {String} type "subject" or "node"
  * @param {int} id the id of the subject or node for which the manual position offset should be set
  */
-function gf_addManualPositionOffset(offset, type, id) {
+function gf_addManualPositionOffset(offset, type, id)
+{
     var obj, behavior, existingOffset;
     if(null === gv_graph.selectedSubject) {
         obj = gv_graph.getSubjects()[id];
@@ -106,6 +107,65 @@ function gf_addManualPositionOffset(offset, type, id) {
             gv_graph.drawBehavior();
         }
     }
+}
+
+/**
+ * Resets the manual position offsets for an internal subject behavior, the subject graph itself, or for all nodes in
+ * the current process
+ *
+ * @param {string} view either 'all', 'subjects', or 'inner'
+ * @param {int} id
+ */
+function gf_resetManualPositionOffsets(view, id)
+{
+    var objectsToReset = [],
+        subjects = gv_graph.getSubjects(),
+        nodes, subjectKey, nodeKey;
+
+    switch(view){
+        case 'inner':
+            if(gv_graph.getBehavior(id)) {
+                nodes = gv_graph.getBehavior(id).getNodes();
+                for (nodeKey in nodes) {
+                    objectsToReset.push(nodes[nodeKey]);
+                }
+            }
+            break;
+
+        case 'subjects':
+            for(subjectKey in subjects) {
+                objectsToReset.push(subjects[subjectKey])
+            }
+            break;
+
+        case 'all':
+            for(subjectKey in subjects) {
+                objectsToReset.push(subjects[subjectKey])
+                nodes = gv_graph.getBehavior(subjects[subjectKey]).getNodes();
+                for (nodeKey in nodes) {
+                    objectsToReset.push(nodes[nodeKey]);
+                }
+            }
+            break;
+    }
+
+    for (var i = 0; i < objectsToReset.length; i++) {
+        objectsToReset[i].setManualPositionOffset(null);
+    }
+
+    if(null === gv_graph.selectedSubject) {
+        gv_graph.draw();
+    } else {
+        gv_graph.drawBehavior();
+    }
+}
+
+/**
+ * Resets the manual position offsets for all nodes of the currently displayed inner process view
+ */
+function gf_resetManualPositionOffsetsCurrentInner ()
+{
+    gf_resetManualPositionOffsets('inner', gv_graph.selectedSubject);
 }
 
 /**
