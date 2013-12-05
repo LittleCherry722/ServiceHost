@@ -621,21 +621,12 @@ define([
 	var tryShowSubjectHelpBox = function(){
         if(gv_graph.getSubjectNames().length == 0) {
             $('#process-subject-help').removeClass('invisible');
-
-            var svgInterval = setInterval(function(){
-                var svg = $('#processContent svg'),
-                    checkHideSubjectHelp = function () {
-                        if(gv_graph.getSubjectNames().length > 0) {
-                            $('#process-subject-help').addClass('invisible');
-                            svg.off('DOMSubtreeModified');
-                        }
-                    };
-                if(svg.length > 0){
-                    svg.on('DOMSubtreeModified', checkHideSubjectHelp);
-                    clearInterval(svgInterval);
-                    checkHideSubjectHelp();
+            var subscription = $.subscribe(gv_topics.general.subjects, function(data){
+                if(data.action === 'add') {
+                    $.unsubscribe(subscription);
+                    $('#process-subject-help').addClass('invisible');
                 }
-            }, 200);
+            });
         }
 	}
 
