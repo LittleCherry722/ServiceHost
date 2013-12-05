@@ -127,7 +127,7 @@ define([
 
     App.loadTemplate( "home/actions", viewModel, "executionContent", function() {
       $('.show-graph').fancybox({
-        scrolling: 'no',
+        scrolling: 'yes',
         transitionIn: 'none',
         transitionOut: 'none'
       });
