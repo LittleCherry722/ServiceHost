@@ -15,6 +15,9 @@ case class SubjectAnswer(id: SubjectID, state: StateType, actions: Array[StateID
 // executes the specified action
 case class ExecuteAction(subjectId: SubjectID, action: StateID) extends SubjectMessage
 
+// ..
+case class ChangePair(pairId: Int)
+
 // all subjects switch to the startstate and restart
 case object RestartExecution
 
