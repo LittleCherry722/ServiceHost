@@ -81,10 +81,9 @@ var gv_interactionsEnabled = false;
  * Sets the manual position offset fo a subject or node and redraws the related graph
  *
  * @param {null|{dx: int, dy: int}} offset the position offset or null if the offset should be cleared
- * @param {String} type "subject" or "node"
  * @param {int} id the id of the subject or node for which the manual position offset should be set
  */
-function gf_addManualPositionOffset(offset, type, id)
+function gf_addManualPositionOffset(offset, id)
 {
     var obj, behavior, existingOffset;
     if(null === gv_graph.selectedSubject) {

@@ -958,7 +958,7 @@ function GCgraphbv ()
 			
 		gf_timeCalc("drawing nodes - drawNode() - create");
 		// create the GClabel at the x and y ordinates and pass the shape, the text and the id to the GClabel
-		var gt_bv_rect	= new GClabel(node.posx, node.posy, gt_bv_text, node.node.getShape(), node.id, false, true);
+		var gt_bv_rect	= new GClabel(node.posx, node.posy, gt_bv_text, node.node.getShape(), node.id, false, true, true);
 		gf_timeCalc("drawing nodes - drawNode() - create");
 		
 		gf_timeCalc("drawing nodes - drawNode() - apply");
