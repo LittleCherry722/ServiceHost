@@ -88,8 +88,8 @@ define([
     }
 
 
-    var prefix = changesReceived ? "Some " : "No "
-    console.log(prefix + "Changes Received. Next poll in " + waitingTime() + " seconds.");
+//    var prefix = changesReceived ? "Some " : "No "
+//    console.log(prefix + "Changes Received. Next poll in " + waitingTime() + " seconds.");
   }
 
   initialize.poll = poll;
