@@ -101,11 +101,7 @@ function gf_addManualPositionOffset(offset, type, id)
             offset.dy += obj.getManualPositionOffset().dy;
         }
         obj.setManualPositionOffset(offset);
-        if(null === gv_graph.selectedSubject) {
-            gv_graph.draw();
-        } else {
-            gv_graph.drawBehavior();
-        }
+        gf_redraw_graph();
     }
 }
 
@@ -153,11 +149,7 @@ function gf_resetManualPositionOffsets(view, id)
         objectsToReset[i].setManualPositionOffset(null);
     }
 
-    if(null === gv_graph.selectedSubject) {
-        gv_graph.draw();
-    } else {
-        gv_graph.drawBehavior();
-    }
+    gf_redraw_graph();
 }
 
 /**
@@ -166,6 +158,21 @@ function gf_resetManualPositionOffsets(view, id)
 function gf_resetManualPositionOffsetsCurrentInner ()
 {
     gf_resetManualPositionOffsets('inner', gv_graph.selectedSubject);
+}
+
+/**
+ * Redraws the current graph while preserving the current view box settings such as zoom and position
+ */
+function gf_redraw_graph()
+{
+    var viewBoxBeforeCopy = $.extend({}, gv_currentViewBox);
+    if(null === gv_graph.selectedSubject) {
+        gv_graph.draw();
+    } else {
+        gv_graph.drawBehavior();
+    }
+    gv_currentViewBox = viewBoxBeforeCopy;
+    gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);
 }
 
 /**
