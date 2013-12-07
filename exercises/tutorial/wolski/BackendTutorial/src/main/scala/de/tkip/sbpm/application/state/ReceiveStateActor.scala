@@ -10,5 +10,7 @@ class ReceiveStateActor(s: State) extends AbstractBeviorStateActor(s) {
       sender ! Ack
     }
     // TODO implement ExecuteAction
+    case ExecuteAction(subjectId, action) => println("ReceiveStateActor.receive ExecuteAction("+subjectId+", "+action+")")
+    case _ => println("ReceiveStateActor.receive invalid")
   }
 }
