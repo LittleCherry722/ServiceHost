@@ -64,22 +64,23 @@ define([
 				gf_clickedCVnode( subject );
 				loadBehaviorView( subject );
 				$('#graph_cv_outer').show();
-			}
+			} else if ( gv_graph.subjects[subject] && gv_graph.subjects[subject].isExternal() ) {
+                alert('The selected subject is external and cannot be shown');
+            }
 		}
+
+        previousSubject = currentSubject;
 	});
 
 	processInstance.subscribe(function( process ) {
 		reloadGraph();
 	});
-	actions.subscribe(function() {
+	actions.subscribe(function(actions) {
 		selectCurrentBehaviourState();
 	});
 
 	var reloadGraph = function() {
-		if( gv_paper ) {
-			gv_graph.changeView('cv');
-			gf_clearGraph();
-		}
+        gf_clearGraph();
 		gf_loadGraph( JSON.stringify( processInstance().graph().definition ) );
 	}
 
@@ -131,20 +132,33 @@ define([
 
 	/**
 	 * @returns {String} The ID of a subject which can execute an action in the current process. If no subject can
-	 * execute an action, the first subject ID will be returned.
+	 * execute an action, the first subject ID will be returned. Ignores external subjects. If all subjects are external,
+     * null will be returned
 	 */
 	var getActiveSubject = function() {
 		var actions = processInstance().actions();
 		for ( var i = 0; i < actions.length; i++ ) {
 			var action = actions[i];
-			for ( var j = 0; j < action.data.length; j++ ) {
-				var data = action.data[j];
-				if ( data.executeAble === true ) {
-					return action.subjectID;
-				}
-			}
+            if(gv_graph.subjects[action.subjectID].isExternal()) {
+                continue;
+            }
+            if($.isArray(action.data)) {
+                for ( var j = 0; j < action.data.length; j++ ) {
+                    var data = action.data[j];
+                    if ( data.executeAble === true ) {
+                        return action.subjectID;
+                    }
+                }
+            }
 		}
-		return subjectsArray()[0][0];
+
+        var internalSubjects = _.filter(subjectsArray(), function(subj) {
+            return !gv_graph.subjects[subj[0]].isExternal();
+        });
+        if(internalSubjects.length > 0) {
+            return internalSubjects[0][0];
+        }
+        return null;
 	}
 
 	var subscriptions = [];

@@ -24,9 +24,10 @@
  * @param {String} id The id of the label.
  * @param {boolean} belongsToPath This indicates whether the label belongs to a path.
  * @param {boolean} performanceMode When set to true the style won't be updated on init.
+ * @param {boolean} belongsToInnerView When set to true the label is marked that it belongs to an inner view. additional interactions such as drag/drop require a label to be in the inner view
  * @returns {void}
  */
-function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
+function GClabel (x, y, text, shape, id, belongsToPath, performanceMode, belongsToInnerView)
 {
 	
 	/**
@@ -359,8 +360,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
                 copyElement.remove();
                 copyElement = null;
                 offset = {dx: self.x - origPosition.x, dy: self.y - origPosition.y};
-                type = self.shape === 'circle' ? 'action' : 'subject';
-                gf_addManualPositionOffset(offset, type, id)
+                gf_addManualPositionOffset(offset, id)
             }
         };
 
@@ -1125,7 +1125,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
     {
 		this.belongsToPath = true;
     } else {
-        this.draggable = true;
+        this.draggable = true === belongsToInnerView;   // only actions, no subjects (at least at the moment)
     }
 	
 	if (!gf_isset(performanceMode) || performanceMode != true)

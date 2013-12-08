@@ -4,17 +4,18 @@ import de.tkip.sbpm.model.State
 import de.tkip.sbpm.application._
 
 class ReceiveStateActor(s: State) extends AbstractBeviorStateActor(s) {
-  var succ  = s.stateId
+  var msg_received = false
   
   def receive = {
     case SubjectToSubjectMessage(_, _, content) => {
       println(("ReceiveState[%s] received: " + content).format(s.stateType))
       sender ! Ack
-      context.parent ! ChangeState(succ)
+      msg_received = true
     }
-    // TODO implement ExecuteAction
+    
     case ExecuteAction(_, succ) if (s.transitions contains succ) => {
-      this.succ = succ
+      if(msg_received)
+    	  context.parent ! ChangeState(succ)
       println(("ReceiveState[%s] received: " + succ).format(s.stateType))
     }
     case _ => println("ReceiveStateActor received Unknown message")

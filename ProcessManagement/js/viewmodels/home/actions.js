@@ -97,8 +97,9 @@ define([
         }
       });
 
-      // load graph
+      gf_clearGraph();
       gf_loadGraph( JSON.stringify( processInstance.graph().definition ) );
+      gv_graph.changeView('bv');
       gv_graph.selectedSubject = null;
       gf_clickedCVnode( action.subjectID() );
       gf_clickedCVbehavior();
@@ -127,7 +128,7 @@ define([
 
     App.loadTemplate( "home/actions", viewModel, "executionContent", function() {
       $('.show-graph').fancybox({
-        scrolling: 'no',
+        scrolling: 'yes',
         transitionIn: 'none',
         transitionOut: 'none'
       });

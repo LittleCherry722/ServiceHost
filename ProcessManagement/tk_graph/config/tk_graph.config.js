@@ -70,7 +70,7 @@ var gv_paperSizes	= {
 	bv_width: 5000,		// width of the canvas for the behavioral view
 	bv_height: 6000,	// height of the canvas for the behavioral view
 	cv_width: 2000,		// width of the canvas for the communication view
-	cv_height: 500		// height of the canvas for the communication view
+	cv_height: 642		// height of the canvas for the communication view
 };
 
 /**

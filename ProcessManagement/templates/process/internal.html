@@ -1,4 +1,4 @@
-<div id="graph_bv_outer" class="fluid" style="min-width: 1px; height: 100%; overflow:auto;"></div>
+<div id="graph_bv_outer" class="fluid" style="min-width: 1px; height: 642px; overflow:auto;"></div>
 
 <div class="graphsettings">
 	<fieldset class="clearfix">
@@ -11,6 +11,7 @@
 			<input type="button" id="InsertReceiveButton" data-bind="tooltip : 'Macro : Press &#34;2&#34;'" onclick="gf_callMacro('newReceiveNode');" value="Insert receive state" />
 			<input type="button" id="InsertActionNodeButton" data-bind="tooltip : 'Macro : Press &#34;3&#34;'" onclick="gf_callMacro('newActionNode');" value="Insert action state" />
 			<br/>
+			<input type="button" id="internalClearManualPositionOffset" value="Reset node positions" onclick="gf_resetManualPositionOffsetsCurrentInner();" />
 			<input type="button" id="internalClearBehavior" value="Clear behavior" />
 		</div>
 	</fieldset>
