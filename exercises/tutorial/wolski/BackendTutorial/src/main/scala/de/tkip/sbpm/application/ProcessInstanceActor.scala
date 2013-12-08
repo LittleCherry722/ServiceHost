@@ -21,10 +21,11 @@ class ProcessInstanceActor(pair: Int) extends Actor {
       changePair(message.pairId)
     }
     case s2s_message: SubjectToSubjectMessage if (subjectMap contains s2s_message.to) => {
-      println("ProcessInstanceActor.receive s2s " + s2s_message.from + " -> " + s2s_message.to)
+      println("ProcessInstanceActor.receive SubjectToSubjectMessage from '" + s2s_message.from + "', forwarding it to '" + s2s_message.to + "'")
       subjectMap(s2s_message.to) forward s2s_message
     }
-    case x @ _ => println("ProcessInstanceActor.receive: unknown message: " + x)
+    case x @ SubjectToSubjectMessage => println("ProcessInstanceActor.receive: invalid SubjectToSubjectMessage: " + x)
+    //case x @ _ => println("ProcessInstanceActor.receive: unknown message: " + x)
   }
 
   private def changePair(newPair: Int) {

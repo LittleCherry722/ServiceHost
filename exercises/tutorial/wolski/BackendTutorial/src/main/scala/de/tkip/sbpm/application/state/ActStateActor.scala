@@ -9,5 +9,6 @@ class ActStateActor(s: State) extends AbstractBeviorStateActor(s) {
       // go to the requested state
       context.parent ! ChangeState(succ)
     }
+    case x @ _ => println("ActStateActor.receive invalid: " + x)
   }
 }
