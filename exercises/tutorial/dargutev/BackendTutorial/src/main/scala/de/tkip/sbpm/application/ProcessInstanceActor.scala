@@ -17,6 +17,9 @@ class ProcessInstanceActor(pair: Int) extends Actor {
     case message: SubjectMessage => {
       System.err.println("Unknown Subject for: " + message)
     }
+    case message: ChangePair =>{
+      changePair(message.id)
+    }    
   }
 
   private def changePair(newPair: Int) {

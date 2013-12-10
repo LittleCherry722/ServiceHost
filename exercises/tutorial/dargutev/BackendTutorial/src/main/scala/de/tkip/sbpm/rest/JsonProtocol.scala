@@ -8,8 +8,8 @@ import spray.json.JsValue
 
 object JsonProtocol extends DefaultJsonProtocol {
   case class ActionHeader(action: Int)
-  case class InstanceHeader(instance: Int, action: Int)
-  implicit val instanceHeaderFormat = jsonFormat2(InstanceHeader)
+  case class InstanceHeader(instance: Int)
+  implicit val instanceHeaderFormat = jsonFormat1(InstanceHeader)
   implicit val actionHeaderFormat = jsonFormat1(ActionHeader)
   implicit val readSubjectFormat = jsonFormat1(ReadSubject)
   implicit val subjectAnswerFormat = jsonFormat3(SubjectAnswer)

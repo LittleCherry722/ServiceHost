@@ -12,6 +12,5 @@ class ReceiveStateActor(s: State) extends AbstractBeviorStateActor(s) {
     case ExecuteAction(_, succ) if (s.transitions contains succ) => {
       context.parent ! ChangeState(s.transitions(s.transitions.indexOf(succ)))
     }
-    // TODO implement ExecuteAction
   }
 }

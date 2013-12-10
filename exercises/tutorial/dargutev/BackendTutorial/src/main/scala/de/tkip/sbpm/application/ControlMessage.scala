@@ -20,6 +20,7 @@ case object RestartExecution
 
 // internal change the current subjectstate
 case class ChangeState(id: StateID)
+case class ChangePair(id: Int)
 
 case class SubjectToSubjectMessage(from: SubjectID, to: SubjectID, message: String)
 // Acknowledge receive
