@@ -330,15 +330,21 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode, belongs
     this.addDragElementHandler = function ()
     {
         var self = this,
-            copyElement, origPosition,
-            drag, deferredDragStart, dragEnd;
+            copyElement, origPosition, snapPathX, snapPathY,
+            drag, deferredDragStart, dragEnd, createSnapPosition, removeSnapPaths;
 
         drag = function (dx, dy)
         {
+            var position;
             if(!copyElement) {
                 deferredDragStart();
             }
-            self.setPosition(origPosition.x + dx / gv_currentViewBox.zoom, origPosition.y + dy / gv_currentViewBox.zoom, 0);
+            removeSnapPaths();
+            position = createSnapPosition({
+                x: origPosition.x + dx / gv_currentViewBox.zoom,
+                y: origPosition.y + dy / gv_currentViewBox.zoom
+            });
+            self.setPosition(position.x, position.y, 0);
         };
 
         deferredDragStart = function ()
@@ -355,12 +361,55 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode, belongs
 
         dragEnd = function ()
         {
-            var type, offset;
+            var offset;
+            removeSnapPaths();
             if(copyElement) {
                 copyElement.remove();
                 copyElement = null;
                 offset = {dx: self.x - origPosition.x, dy: self.y - origPosition.y};
                 gf_addManualPositionOffset(offset, id)
+            }
+        };
+
+        createSnapPosition = function (position) {
+            var xvals = [],
+                yvals = [],
+                snappedPosition = {},
+                key, node, nodeBoundaries;
+
+            for(key in gv_objects_nodes) {
+                node = gv_objects_nodes[key];
+                if(node !== self) {
+                    nodeBoundaries = node.getBoundaries();
+                    xvals.push(nodeBoundaries.x);
+                    yvals.push(nodeBoundaries.y);
+                }
+            }
+            snappedPosition.x = Raphael.snapTo(xvals, position.x, 10);
+            snappedPosition.y = Raphael.snapTo(yvals, position.y, 10);
+
+            if(xvals.indexOf(snappedPosition.x) !== -1) {
+                snapPathX = gv_paper.path("M" + snappedPosition.x + "," + (snappedPosition.y - 1000) + "V" + (snappedPosition.y + 1000));
+                snapPathX.attr({"stroke": "#cdbe13"});
+                snapPathX.toBack();
+            }
+            if(yvals.indexOf(snappedPosition.y) !== -1) {
+                snapPathY = gv_paper.path("M" + (snappedPosition.x - 1000) + "," + snappedPosition.y + "H" + (snappedPosition.x + 1000));
+                snapPathY.attr({"stroke": "#cdbe13"});
+                snapPathY.toBack();
+            }
+
+            return snappedPosition;
+        };
+
+        removeSnapPaths = function () {
+            if (snapPathY) {
+                snapPathY.remove();
+                snapPathY = null;
+            }
+            if (snapPathX) {
+                snapPathX.remove();
+                snapPathX = null;
             }
         };
 
