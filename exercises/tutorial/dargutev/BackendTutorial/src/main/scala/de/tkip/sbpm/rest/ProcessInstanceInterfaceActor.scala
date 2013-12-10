@@ -36,14 +36,14 @@ class ProcessInstanceInterfaceActor extends Actor with HttpService {
           entity(as[InstanceHeader]) { json =>
             println("request: " + json)
             val pair=TestData(json.instance)
-            processInstanceActor ! ExecuteAction(pair.subject1.subjectID, json.action)
+            processInstanceActor ! ChangePair(pair.subject1.subjectID)
             complete("executed")
           }
         } ~
           path("restart") {
             processInstanceActor ! RestartExecution
             complete("restarted")
-          } ~
+          } ~ 
           pathPrefix(IntNumber) { id =>
             entity(as[ActionHeader]) { json =>
               println("request: " + json)

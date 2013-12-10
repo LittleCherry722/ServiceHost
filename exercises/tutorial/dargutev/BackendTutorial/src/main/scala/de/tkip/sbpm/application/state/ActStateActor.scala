@@ -7,7 +7,6 @@ class ActStateActor(s: State) extends AbstractBeviorStateActor(s) {
   def receive = {
     case ExecuteAction(id, succ) if (s.transitions contains succ) => {
       context.parent ! ChangeState(s.transitions(s.transitions.indexOf(succ)))
-      context.parent ! ExecuteAction(id,2)
     }
   }
 }
