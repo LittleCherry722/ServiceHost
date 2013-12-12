@@ -164,14 +164,23 @@ function gf_resetManualPositionOffsetsCurrentInner ()
  */
 function gf_redraw_graph()
 {
-    var viewBoxBeforeCopy = $.extend({}, gv_currentViewBox);
+    var viewBoxBeforeCopy = $.extend({}, gv_currentViewBox),
+        graphContainer, scrollTopBefore, scrollLeftBefore;
     if(null === gv_graph.selectedSubject) {
+        graphContainer = $('#' + gv_elements.graphCVouter);
+        scrollTopBefore = graphContainer.scrollTop();
+        scrollLeftBefore = graphContainer.scrollLeft();
         gv_graph.draw();
     } else {
+        graphContainer = $('#'+gv_elements.graphBVouter);
+        scrollTopBefore = graphContainer.scrollTop();
+        scrollLeftBefore = graphContainer.scrollLeft();
         gv_graph.drawBehavior();
     }
     gv_currentViewBox = viewBoxBeforeCopy;
     gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);
+    graphContainer.scrollTop(scrollTopBefore);
+    graphContainer.scrollLeft(scrollLeftBefore);
 }
 
 /**
