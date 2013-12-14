@@ -80,7 +80,7 @@ define([
 				}
 			}, {
 				"id": 1,
-				"text": "Handle Travel Application",
+				"text": "Archive Travel Application",
 				"start": false,
 				"end": false,
 				"type": "action",

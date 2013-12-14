@@ -24,11 +24,9 @@ import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 
-protected case class ActStateActor(data: StateData)
+protected case class ArchiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
-  
-  
-
+  inputPoolActor ! "test"
   protected def stateReceive = {
 
     case action: ExecuteAction => {

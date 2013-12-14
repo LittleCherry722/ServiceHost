@@ -40,6 +40,8 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
+import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
+import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 
 case object StartMacroExecution
 case class ActivateState(id: StateID)
@@ -266,7 +268,7 @@ class InternalBehaviorActor(
       case CloseIPStateType => {
         context.actorOf(Props(new CloseIPStateActor(stateData)))
       }
-
+      
       case OpenIPStateType => {
         context.actorOf(Props(new OpenIPStateActor(stateData)))
       }
@@ -293,6 +295,9 @@ class InternalBehaviorActor(
 
       case DeactivateStateType => {
         context.actorOf(Props(new DeactivateStateActor(stateData)))
+      }
+      case ArchiveStateType => {
+        context.actorOf(Props(new ArchiveStateActor(stateData)))
       }
     }
   }
