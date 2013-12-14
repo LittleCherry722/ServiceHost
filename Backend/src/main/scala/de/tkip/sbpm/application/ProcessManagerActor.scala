@@ -28,6 +28,8 @@ import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.model._
 import de.tkip.sbpm._
 
+import java.io._
+
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
 
@@ -48,12 +50,20 @@ class ProcessManagerActor extends Actor {
 
   private lazy val changeActor = ActorLocator.changeActor
   
+  private final val archivePath = "./log/"
+  
   def receive = {
     
     case autoArchive : ArchiveMessage =>{
 //      while(history.entries.last.userId )
       val lastEntry =  history.entries.last;
-      //TODO save message
+      val f = new File(archivePath+lastEntry.userId+"_"+lastEntry.process.processInstanceId)
+     
+      println(f.getAbsolutePath())
+      val writer = new PrintWriter(f)
+      writer.write(lastEntry.toString())
+      writer.close()
+      
     }
     
     case register: RegisterSubjectProvider => {
