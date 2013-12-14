@@ -24,6 +24,10 @@ trait SubjectProviderMessage {
   def userID: UserID
 }
 
+trait ArchiveMessage {
+  def userID: UserID
+}
+
 /**
  * Extend this trait if you want to send a message to / over a process instance
  */

@@ -41,7 +41,6 @@ import ExecutionContext.Implicits.global
 import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
-import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 
 case object StartMacroExecution
 case class ActivateState(id: StateID)

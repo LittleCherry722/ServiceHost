@@ -49,6 +49,13 @@ class ProcessManagerActor extends Actor {
   private lazy val changeActor = ActorLocator.changeActor
   
   def receive = {
+    
+    case autoArchive : ArchiveMessage =>{
+//      while(history.entries.last.userId )
+      val lastEntry =  history.entries.last;
+      //TODO save message
+    }
+    
     case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProviderActor
     }

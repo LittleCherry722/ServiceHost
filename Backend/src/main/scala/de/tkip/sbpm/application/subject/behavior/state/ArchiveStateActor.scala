@@ -14,7 +14,6 @@
 package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.Array.canBuildFrom
-
 import akka.actor.Status.Failure
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
@@ -23,10 +22,12 @@ import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
+import de.tkip.sbpm.application.miscellaneous.AutoArchive
 
 protected case class ArchiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
-  inputPoolActor ! "test"
+  subjectActor ! new AutoArchive(data.userID) 
+  
   protected def stateReceive = {
 
     case action: ExecuteAction => {
