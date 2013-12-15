@@ -82,7 +82,6 @@ define([
   });
 
   var showGraph = function(action){
-
     setTimeout(function(){
       var table = $( '#' + action.instanceTableId()),
         node = 0,
@@ -97,9 +96,9 @@ define([
         }
       });
 
+      gv_cv_paper = null;           // remove reference to any previous cv_paper. When cv_paper would be not null and no cv-container exists, tk_graph crashes
       gf_clearGraph();
       gf_loadGraph( JSON.stringify( processInstance.graph().definition ) );
-      gv_graph.changeView('bv');
       gv_graph.selectedSubject = null;
       gf_clickedCVnode( action.subjectID() );
       gf_clickedCVbehavior();

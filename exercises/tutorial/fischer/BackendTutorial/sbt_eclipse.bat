@@ -1,0 +1,1 @@
+java -jar ..\..\Source\Backend\sbt.jar eclipse
