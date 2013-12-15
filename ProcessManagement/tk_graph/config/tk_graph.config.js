@@ -154,7 +154,10 @@ var gv_predefinedActions	= {
 	
 	// the openIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
 	openip: {subject: true, message: true, wildcard: true, label: "openIP", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
-	
+
+    // archives a message
+    archive: {subject: false, message: true, wildcard: false, label: "Archive", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false},
+
 	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
 	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: true, createsubjects: false},
 	
