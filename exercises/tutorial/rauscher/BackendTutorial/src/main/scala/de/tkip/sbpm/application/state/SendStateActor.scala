@@ -16,4 +16,3 @@ class SendStateActor(s: State) extends AbstractBeviorStateActor(s) {
     case _ => println("ReceiveStateActor received invalid message!")
   }
 }
- 

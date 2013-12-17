@@ -14,8 +14,8 @@
 package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.Array.canBuildFrom
-
 import akka.actor.Status.Failure
+import java.io.File
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
@@ -23,39 +23,39 @@ import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
+import de.tkip.sbpm.application.miscellaneous.AutoArchive
+import de.tkip.sbpm.application.miscellaneous.AutoArchive
+import de.tkip.sbpm.application.miscellaneous.ArchiveMessage
+import java.io.PrintWriter
+import de.tkip.sbpm.application.miscellaneous.AutoArchive
+import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.util.Date
 
-protected case class ActStateActor(data: StateData)
+protected case class ArchiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
+  private final val archivePath = "./log/"
+  changeState(exitTransition.successorID, data, null)
   
   
-
+  
+  
   protected def stateReceive = {
-
-    case action: ExecuteAction => {
-      val input = action.actionData
-      val index = indexOfInput(input.text)
-      if (index != -1) {
-        changeState(exitTransitions(index).successorID, data, null)
-        blockingHandlerActor ! ActionExecuted(action)
-      } else {
-        action.asInstanceOf[AnswerAbleMessage].sender !
-          Failure(new IllegalArgumentException(
-            "Invalid Argument: " + input.text + " is not a valid action."))
-      }
+     case autoArchive : AutoArchive =>{
+      val msg =  autoArchive.toString();
+      val format=new SimpleDateFormat("yyyy_MM_dd HH_mm_ss")
+      val date=format.format(new Date);
+      val f = new File(archivePath+"archive"+"_"+date+".log")
+     
+      println(f.getAbsolutePath())
+      val writer = new PrintWriter(f)
+      writer.write(msg)
+      writer.close()
+      
     }
   }
-
+  private def exitTransition = exitTransitions(0)
   override protected def getAvailableAction: Array[ActionData] =
     exitTransitions.map((t: Transition) => ActionData(t.messageType, true, exitCondLabel))
 
-  private def indexOfInput(input: String): Int = {
-    var i = 0
-    for (t <- exitTransitions) {
-      if (t.messageType.equals(input)) {
-        return i
-      }
-      i += 1
-    }
-    -1
-  }
 }

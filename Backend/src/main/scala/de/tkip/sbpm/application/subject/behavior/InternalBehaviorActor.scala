@@ -40,6 +40,8 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
+import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
+import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 
 case object StartMacroExecution
 case class ActivateState(id: StateID)
@@ -121,9 +123,12 @@ class InternalBehaviorActor(
       // TODO check if current state is correct?
       // change the state
       changeState(change.currenState, change.nextState)
-
       val current: State = statesMap(change.currenState)
       val next: State = statesMap(change.nextState)
+      if(next.stateType == StateType.ArchiveStateType)
+    	  currentStatesMap(change.nextState) ! new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
+//          sender ! new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
+            
       // create the History Entry and send it to the subject
       context.parent !
         NewHistoryTransitionData(
@@ -266,7 +271,7 @@ class InternalBehaviorActor(
       case CloseIPStateType => {
         context.actorOf(Props(new CloseIPStateActor(stateData)))
       }
-
+      
       case OpenIPStateType => {
         context.actorOf(Props(new OpenIPStateActor(stateData)))
       }
@@ -293,6 +298,9 @@ class InternalBehaviorActor(
 
       case DeactivateStateType => {
         context.actorOf(Props(new DeactivateStateActor(stateData)))
+      }
+      case ArchiveStateType => {
+        context.actorOf(Props(new ArchiveStateActor(stateData)))
       }
     }
   }

@@ -31,6 +31,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val DeactivateStateString = "$deactivatestate"
   val ModalSplitStateString = "modalsplit"
   val ModalJoinStateString = "modaljoin"
+  val ArchiveStateString = "$archive"
   val MacroStateString = "macro"
 
   // the internal enums
@@ -46,6 +47,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val ModalSplitStateType = Value(ModalSplitStateString)
   val ModalJoinStateType = Value(ModalJoinStateString)
   val MacroStateType = Value(MacroStateString)
+  val ArchiveStateType = Value(ArchiveStateString)
 
   // for marshalling and unmarshalling:
   def fromStringtoStateType(stateType: String): StateType = try {
