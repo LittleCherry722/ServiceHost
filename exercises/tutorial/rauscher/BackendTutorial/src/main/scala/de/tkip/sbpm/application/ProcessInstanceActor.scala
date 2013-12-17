@@ -20,6 +20,9 @@ class ProcessInstanceActor(pair: Int) extends Actor {
     case message: ChangePairAction => {
       this.changePair(message.subjectId)
     }
+    case message: SubjectToSubjectMessage if (subjectMap contains message.to) => {
+      subjectMap(message.to) forward message
+    }
   }
 
   private def changePair(newPair: Int) {

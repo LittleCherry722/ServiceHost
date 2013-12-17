@@ -20,8 +20,10 @@ class SubjectActor(subject: Subject) extends Actor {
     // we only allow to read this subject!
     case ReadSubject(subject.subjectID) => sender ! readSubject
     case ea @ ExecuteAction(subject.subjectID, action) => currentState forward ea
+    case s2s @ SubjectToSubjectMessage(_, subject.subjectID, _) => currentState forward s2s
+    case s2s @ SubjectToSubjectMessage(subject.subjectID, _, _) => context.parent forward s2s
     case ChangeState(id) => changeState(id)
-    case _ => println("unsupported operation")
+    case x @ _ => println("unsupported operation: " + subject.subjectID + " | " + x)
   }
 
   private def readSubject: SubjectAnswer = {

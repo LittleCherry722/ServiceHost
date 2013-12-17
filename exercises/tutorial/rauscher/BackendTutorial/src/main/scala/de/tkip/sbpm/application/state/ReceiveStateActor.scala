@@ -9,6 +9,9 @@ class ReceiveStateActor(s: State) extends AbstractBeviorStateActor(s) {
       println("ReceiveState[%s] received: " + content)
       sender ! Ack
     }
-    // TODO implement ExecuteAction
+    case ExecuteAction(_, succ) if (s.transitions contains succ) => {
+      context.parent ! ChangeState(succ)
+    }
+    case x @ _ => println("ReceiveStateActor received invalid message! " + x)
   }
 }
