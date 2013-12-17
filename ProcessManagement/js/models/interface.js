@@ -79,30 +79,32 @@ define([
 					"storevar": ""
 				}
 			}, {
-				"id": 1,
-				"text": "Archive Travel Application",
-				"start": false,
-				"end": false,
-				"type": "action",
-                "manualPositionOffsetX": 0,
-                "manualPositionOffsetY": 0,
-				"deactivated": false,
-				"majorStartNode": false,
-				"options": {
-					"message": "*",
-					"subject": "*",
-					"correlationId": null,
-					"conversation": null,
-					"state": null
-				},
-				"macro": "",
-				"varMan": {
-					"var1": "",
-					"var2": "",
-					"operation": "and",
-					"storevar": ""
-				}
-			}, {
+            "id": 1,
+            "text": "Archive Travel Application",
+            "start": false,
+            "end": false,
+            "type": "$archive",
+            "manualPositionOffsetX": 0,
+            "manualPositionOffsetY": 0,
+            "deactivated": false,
+            "majorStartNode": false,
+            "conversation": "",
+            "variable": "",
+            "options": {
+              "message": "*",
+              "subject": "*",
+              "correlationId": "",
+              "conversation": "",
+              "state": null
+            },
+            "macro": "",
+            "varMan": {
+              "var1": "",
+              "var2": "",
+              "operation": "and",
+              "storevar": ""
+            }
+          }, {
 				"id": 2,
 				"text": "End process",
 				"start": false,
