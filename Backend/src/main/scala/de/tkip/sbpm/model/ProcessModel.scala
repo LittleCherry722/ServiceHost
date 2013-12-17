@@ -24,16 +24,14 @@ object StateType extends Enumeration { // TODO just use a string?
   val SendStateString = "send"
   val ReceiveStateString = "receive"
   val EndStateString = "end"
-//  val OpenIPStateString = "$openip"
-  val OpenIPStateString = "archive"
+  val OpenIPStateString = "$openip"
   val CloseIPStateString = "$closeip"
   val IsIPEmptyStateString = "$isipempty"
   val ActivateStateString = "$activatestate"
   val DeactivateStateString = "$deactivatestate"
   val ModalSplitStateString = "modalsplit"
   val ModalJoinStateString = "modaljoin"
-//  val ArchiveStateString = "archive"
-  val ArchiveStateString = "$openip"
+  val ArchiveStateString = "$archive"
   val MacroStateString = "macro"
 
   // the internal enums

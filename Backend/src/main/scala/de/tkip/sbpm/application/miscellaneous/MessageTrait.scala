@@ -16,6 +16,8 @@ package de.tkip.sbpm.application.miscellaneous
 import akka.actor.ActorRef
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.InterfaceRef
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.history.Message
+import de.tkip.sbpm.application.subject.behavior.Transition
 
 /**
  * Extend this trait if you want to send a message to / over a subject provider
@@ -25,7 +27,7 @@ trait SubjectProviderMessage {
 }
 
 trait ArchiveMessage {
-  def userID: UserID
+  def message: Transition
 }
 
 /**

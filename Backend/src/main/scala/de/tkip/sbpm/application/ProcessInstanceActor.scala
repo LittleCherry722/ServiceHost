@@ -129,10 +129,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
   def receive = {
     
-    case autoArchive : ArchiveMessage =>{
-      context.parent ! autoArchive
-    }
-    
     case GetProxyActor => {
       sender ! proxyActor
     }

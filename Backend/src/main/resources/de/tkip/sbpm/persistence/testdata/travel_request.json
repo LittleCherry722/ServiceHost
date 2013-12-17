@@ -795,8 +795,8 @@
                 "text":"Archive Travel Application",
                 "start":false,
                 "end":false,
-                "nodeType":"action",
-                "type":"action",
+                "nodeType":"$archive",
+                "type":"$archive",
                 "options":{
                   "message":"*",
                   "subject":"*"
