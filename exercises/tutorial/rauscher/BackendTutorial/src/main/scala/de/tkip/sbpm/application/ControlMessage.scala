@@ -12,7 +12,7 @@ case class ReadSubject(subjectId: SubjectID) extends SubjectMessage
 // the subject information
 case class SubjectAnswer(id: SubjectID, state: StateType, actions: Array[StateID])
 
-case class ChangePairAction(subjectId: SubjectID) extends SubjectMessage
+case class ChangePairAction(subjectId: SubjectID)
 
 // executes the specified action
 case class ExecuteAction(subjectId: SubjectID, action: StateID) extends SubjectMessage

@@ -28,6 +28,8 @@ import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.model._
 import de.tkip.sbpm._
 
+import java.io._
+
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
 
@@ -48,7 +50,9 @@ class ProcessManagerActor extends Actor {
 
   private lazy val changeActor = ActorLocator.changeActor
   
+  
   def receive = {
+    
     case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProviderActor
     }

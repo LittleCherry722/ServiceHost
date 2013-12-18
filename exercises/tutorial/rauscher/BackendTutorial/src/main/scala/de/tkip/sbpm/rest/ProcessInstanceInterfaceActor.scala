@@ -40,7 +40,6 @@ class ProcessInstanceInterfaceActor extends Actor with HttpService {
             processInstanceActor ! ChangePairAction(json.instance)
             complete("executed")
           }
-//          complete("Use /n, to control the n-th subject")
         } ~
           path("restart") {
             processInstanceActor ! RestartExecution
