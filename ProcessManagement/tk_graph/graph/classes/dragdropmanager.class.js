@@ -44,7 +44,7 @@ function GCdragDropManager() {
                 copyElement.remove();
                 copyElement = null;
                 offset = {dx: label.x - origPosition.x, dy: label.y - origPosition.y};
-                gf_addManualPositionOffset(offset, label.id)
+                gf_addManualPositionOffset(offset, label.id, 'node');
             }
         }
 
@@ -101,7 +101,31 @@ function GCdragDropManager() {
      * @param {GClabel} label
      */
     function addPathLabelDragDropListener(label) {
+        var dragging = false,
+            origPosition;
 
+        function drag (dx, dy)
+        {
+            if(!dragging) {
+                dragging = true;
+                origPosition = label.getPosition();
+            }
+            label.setPosition(origPosition.x + dx / gv_currentViewBox.zoom, origPosition.y + dy / gv_currentViewBox.zoom, 0);
+        }
+
+        function dragEnd() {
+            var offset;
+            if(dragging) {
+                dragging = false;
+                offset = {dx: label.x - origPosition.x, dy: label.y - origPosition.y};
+                gf_addManualPositionOffset(offset, label.id, 'edgeLabel');
+            }
+        }
+
+        // does add callback for dragStart. instead drag-start is deferred to not conflict with click events
+        if(label.bboxObj) {
+            label.bboxObj.drag(drag, null, dragEnd);
+        }
     }
 
     /**

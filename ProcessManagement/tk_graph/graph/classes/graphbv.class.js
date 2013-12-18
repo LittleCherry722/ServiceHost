@@ -423,6 +423,8 @@ function GCgraphbv ()
 		
 		// apply the optional status to the path
 		gt_bv_edge.setOptional(edgeData.edge.isOptional(), true);
+
+        gt_bv_edge.setManualPositionOffsetLabel(edgeData.edge.getManualPositionOffsetLabel());
 		
 		// apply the selection status to the path
 		if (gf_isset(edgeData.selected) && edgeData.selected === true)
@@ -430,6 +432,7 @@ function GCgraphbv ()
 		
 		// add the click events to the path
 		gt_bv_edge.click();
+        this.dragDropManager.addPathLabel(gt_bv_edge.label);
 		gf_timeCalc("drawing edges - drawArrow() - apply settings");
 			
 		gf_timeCalc("drawing edges - drawArrow() - apply style");

@@ -81,27 +81,42 @@ var gv_interactionsEnabled = false;
  * Sets the manual position offset fo a subject or node and redraws the related graph
  *
  * @param {null|{dx: int, dy: int}} offset the position offset or null if the offset should be cleared
- * @param {int} id the id of the subject or node for which the manual position offset should be set
+ * @param {int|string} id the id of the subject or node for which the manual position offset should be set
+ * @param {string} type 'node' or 'edgeLabel'
  */
-function gf_addManualPositionOffset(offset, id)
+function gf_addManualPositionOffset(offset, id, type)
 {
-    var obj, behavior, existingOffset;
+    var obj, behavior;
     if(null === gv_graph.selectedSubject) {
-        obj = gv_graph.getSubjects()[id];
+        if(type === 'node') {
+            obj = gv_graph.getSubjects()[id];
+        }
     } else {
         behavior = gv_graph.getBehavior(gv_graph.selectedSubject);
         if(behavior) {
-            obj = behavior.getNode(id);
+            if(type === 'node') {
+                obj = behavior.getNode(id);
+            } else if (type === 'edgeLabel') {
+                obj = behavior.getEdge(id);
+            }
         }
     }
-    if(obj instanceof GCnode) {
+
+    if(obj instanceof GCnode || obj instanceof GCsubject) {
         if(offset) {
             offset.dx += obj.getManualPositionOffset().dx;
             offset.dy += obj.getManualPositionOffset().dy;
         }
         obj.setManualPositionOffset(offset);
-        gf_redraw_graph();
+    } else if (obj instanceof  GCedge) {
+        if(offset) {
+            offset.dx += obj.getManualPositionOffsetLabel().dx;
+            offset.dy += obj.getManualPositionOffsetLabel().dy;
+        }
+        obj.setManualPositionOffsetLabel(offset);
     }
+
+    gf_redraw_graph();
 }
 
 /**

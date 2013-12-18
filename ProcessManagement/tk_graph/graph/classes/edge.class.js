@@ -170,7 +170,44 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	 * A variable is defined within an internal behavior and stores a set of messages (subjectprovider, message, correlationId).
 	 */
 	this.variable	= null;
-	
+
+        /**
+         * The user-defined manual offset for the position of the edge label
+         *
+         * @type {?{dx: int, dy: int}}
+         */
+        this.manualPositionOffsetLabel = null;
+
+        /**
+         * The user-defined manual offset for the edge label position. If the user defined no offset, an offstet of 0 pixels in
+         * each direction is returned
+         *
+         * @returns {{dx: int, dy: int}}
+         */
+        this.getManualPositionOffsetLabel = function ()
+        {
+            return this.manualPositionOffsetLabel || {dx: 0, dy: 0};
+        };
+
+        /**
+         * Sets the user-defined manual offset for the edge label position
+         *
+         * @param {null|{dx: int, dy: int}} offset
+         * @returns {void}
+         */
+        this.setManualPositionOffsetLabel = function (offset)
+        {
+            this.manualPositionOffsetLabel = offset;
+        };
+
+        /**
+         * @returns {boolean} true if the the edge label has a user-defined offset
+         */
+        this.hasManualPositionOffsetLabel = function ()
+        {
+            return this.manualPositionOffsetLabel !== null && 'dx' in this.manualPositionOffsetLabel && 'dy' in this.manualPositionOffsetLabel;
+        };
+
 	/**
 	 * Activates an edge.
 	 * 

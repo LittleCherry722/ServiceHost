@@ -63,7 +63,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	/**
 	 * The label of the path.
 	 * 
-	 * @type GClable
+	 * @type GClabel
 	 */
 	this.label	= null;
 	
@@ -156,7 +156,44 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	 * @type Object
 	 */
 	this.style = gv_defaultStyle;
-		
+
+    /**
+     * The user-defined manual offset for the position of the path label
+     *
+     * @type {?{dx: int, dy: int}}
+     */
+    this.manualPositionOffsetLabel = null;
+
+    /**
+     * The user-defined manual offset for the path label position. If the user defined no offset, an offstet of 0 pixels in
+     * each direction is returned
+     *
+     * @returns {{dx: int, dy: int}}
+     */
+    this.getManualPositionOffsetLabel = function ()
+    {
+        return this.manualPositionOffsetLabel || {dx: 0, dy: 0};
+    };
+
+    /**
+     * Sets the user-defined manual offset for the path label position
+     *
+     * @param {null|{dx: int, dy: int}} offset
+     * @returns {void}
+     */
+    this.setManualPositionOffsetLabel = function (offset)
+    {
+        this.manualPositionOffsetLabel = offset;
+    };
+
+    /**
+     * @returns {boolean} true if the the path label has a user-defined offset
+     */
+    this.hasManualPositionOffsetLabel = function ()
+    {
+        return this.manualPositionOffsetLabel !== null && 'dx' in this.manualPositionOffsetLabel && 'dy' in this.manualPositionOffsetLabel;
+    };
+
 	/**
 	 * Activate the path and its label and update its look.
 	 * 
@@ -1026,7 +1063,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			
 		this.label.setText(text, performanceMode);
 	};
-	
+
 	/**
 	 * Show the path and its label.
 	 * 
@@ -1083,7 +1120,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		
 		// move the label to the center of the label
 		gf_timeCalc("path - update path (label position)");
-		this.label.setPosition(newPath.x, newPath.y, performanceMode);
+		this.label.setPosition(newPath.x + this.getManualPositionOffsetLabel()['dx'], newPath.y + this.getManualPositionOffsetLabel()['dy'], performanceMode);
 		gf_timeCalc("path - update path (label position)");
 	};
 	

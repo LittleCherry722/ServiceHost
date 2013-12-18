@@ -438,11 +438,11 @@ function GCmacro (parent, id, name)
 			{
 				var gt_node =   this.nodes[gt_nid],
                     gt_nodeId	= gt_nid.substr(1);
-					gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, gt_node);
 
-                    if(gt_node.getManualPositionOffset() && 'dx' in gt_node.getManualPositionOffset() && 'dy' in gt_node.getManualPositionOffset()) {
-					    gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
-                    }
+                gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, gt_node);
+                if(gt_node.hasManualPositionOffset()) {
+                    gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
+                }
 			}
 			
 			if (this.selectedNode != null)
@@ -453,7 +453,7 @@ function GCmacro (parent, id, name)
 			for (var gt_eid in this.edges)
 			{
 				var gt_edgeId	= gt_eid.substr(1);
-					gt_edgePositions[gt_edgeId]	= new GCrenderEdge(gt_edgeId, this.edges[gt_eid]);
+                gt_edgePositions[gt_edgeId]	= new GCrenderEdge(gt_edgeId, this.edges[gt_eid]);
 			}
 				
 			if (this.selectedEdge != null)
@@ -467,7 +467,7 @@ function GCmacro (parent, id, name)
 			{
 				gf_timeCalc("macro - draw (preparation)");
 				var ltl	= new LinearTimeLayout();
-					ltl.setRenderObjects(gt_nodePositions, gt_edgePositions);
+                ltl.setRenderObjects(gt_nodePositions, gt_edgePositions);
 			
 				for (var gt_nid in this.nodes)
 				{

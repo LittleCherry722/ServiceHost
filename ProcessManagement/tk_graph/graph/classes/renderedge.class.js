@@ -53,7 +53,7 @@ function GCrenderEdge (id, edge)
 	this.style			= null;
 	
 	this.text			= gf_isset(edge.textToString) ? edge.textToString() : id;
-	
+
 	
 	// initialize the object
 	this.init();
@@ -136,7 +136,7 @@ GCrenderEdge.prototype.draw = function ()
 		}
 		
 		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
-			var path	= new GCpath(x1, y1, x2, y2, this.shape, this.text, this.id, true);
+            var path	= new GCpath(x1, y1, x2, y2, this.shape, this.text, this.id, true);
 		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
 		
 		

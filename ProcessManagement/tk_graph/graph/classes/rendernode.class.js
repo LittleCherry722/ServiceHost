@@ -38,15 +38,15 @@ function GCrenderNode (id, node)
 	this.node		= node;
 	
 	/*
-	 * relative change
-	 */
-	this.posrx		= 0;
-	
-	/*
-	 * relative change
-	 */
-	this.posry		= 0;
-	
+    * relative change
+    */
+    this.posrx		= 0;
+
+    /*
+     * relative change
+     */
+    this.posry		= 0;
+
 	this.posx		= 0;
 	
 	this.posy		= 0;
