@@ -106,6 +106,9 @@ function GCgraphbv ()
 	 * @type Object
 	 */
 	this.renderObjects	= {"nodes": {}, "edges": {}};
+
+
+    this.dragDropManager = new GCdragDropManager();
 	
 	/**
 	 * Time measuring: time used for intersection checks
@@ -407,7 +410,7 @@ function GCgraphbv ()
 		// create the path
 		// var gt_bv_edge	= new GCpath(gt_bv_startx, gt_bv_starty, gt_bv_endx, gt_bv_endy, gt_bv_shape, edgeData.edge.textToString(), edgeData.id, true);
 		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
-		var gt_bv_edge	= new GCpath(0, 0, 100, 100, "Z", edgeData.edge.textToString(), edgeData.id, true);
+		var gt_bv_edge	= new GCpath(0, 0, 100, 100, "Z", edgeData.edge.textToString(), edgeData.id, true, true);
 		gf_timeCalc("drawing edges - drawArrow() - create GCpath");
 
 		gf_timeCalc("drawing edges - drawArrow() - apply settings");		
@@ -958,7 +961,7 @@ function GCgraphbv ()
 			
 		gf_timeCalc("drawing nodes - drawNode() - create");
 		// create the GClabel at the x and y ordinates and pass the shape, the text and the id to the GClabel
-		var gt_bv_rect	= new GClabel(node.posx, node.posy, gt_bv_text, node.node.getShape(), node.id, false, true, true);
+		var gt_bv_rect	= new GClabel(node.posx, node.posy, gt_bv_text, node.node.getShape(), node.id, false, true);
 		gf_timeCalc("drawing nodes - drawNode() - create");
 		
 		gf_timeCalc("drawing nodes - drawNode() - apply");
@@ -992,7 +995,10 @@ function GCgraphbv ()
 		gf_timeCalc("drawing nodes - drawNode() - apply III");
 		gt_bv_rect.setStyle(gt_bv_style);
 		gf_timeCalc("drawing nodes - drawNode() - apply III");
-		gt_bv_rect.click(gt_clickType);	
+		gt_bv_rect.click(gt_clickType);
+        if(gv_interactionsEnabled) {
+            this.dragDropManager.addActionLabel(gt_bv_rect);
+        }
 		gf_timeCalc("drawing nodes - drawNode() - apply");
 	};
 	

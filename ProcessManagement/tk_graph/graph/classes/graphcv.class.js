@@ -387,7 +387,7 @@ function GCgraphcv ()
 		var gt_cv_shape	= subject.isMulti() ? "roundedrectanglemulti" : "roundedrectangle";
 		
 		// create a new GClabel
-		var gt_cv_rect	= new GClabel(x, y, subject.textToString(), gt_cv_shape, subject.getId(), undefined,  undefined, false);
+		var gt_cv_rect	= new GClabel(x, y, subject.textToString(), gt_cv_shape, subject.getId());
 			
 		// apply the correct style set
 		if (subject.isMulti() && subject.isExternal())

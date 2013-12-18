@@ -24,10 +24,9 @@
  * @param {String} id The id of the label.
  * @param {boolean} belongsToPath This indicates whether the label belongs to a path.
  * @param {boolean} performanceMode When set to true the style won't be updated on init.
- * @param {boolean} belongsToInnerView When set to true the label is marked that it belongs to an inner view. additional interactions such as drag/drop require a label to be in the inner view
  * @returns {void}
  */
-function GClabel (x, y, text, shape, id, belongsToPath, performanceMode, belongsToInnerView)
+function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 {
 	
 	/**
@@ -212,13 +211,6 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode, belongs
 	 */
 	this.y = 0;
 
-    /**
-     * Indicates whether the element can be manually repositioned by the user or not
-     *
-     * @type {boolean}
-     */
-    this.draggable = false;
-
 	/**
 	 * Activate the label and update its look.
 	 * 
@@ -243,10 +235,6 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode, belongs
 			graph = graph.toLowerCase();
 			id = this.id;
 
-            if(this.draggable && gv_interactionsEnabled) {
-                this.addDragElementHandler()
-            }
-			
 			// set the event handlers for the communication view (label is a subject)
 			if (graph == "cv")
 			{
@@ -323,99 +311,6 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode, belongs
 		}
 	};
 
-    /**
-     * Adds the handler to drag the element to a new position
-     * @returns {void}
-     */
-    this.addDragElementHandler = function ()
-    {
-        var self = this,
-            copyElement, origPosition, snapPathX, snapPathY,
-            drag, deferredDragStart, dragEnd, createSnapPosition, removeSnapPaths;
-
-        drag = function (dx, dy)
-        {
-            var position;
-            if(!copyElement) {
-                deferredDragStart();
-            }
-            removeSnapPaths();
-            position = createSnapPosition({
-                x: origPosition.x + dx / gv_currentViewBox.zoom,
-                y: origPosition.y + dy / gv_currentViewBox.zoom
-            });
-            self.setPosition(position.x, position.y, 0);
-        };
-
-        deferredDragStart = function ()
-        {
-            origPosition = self.getPosition();
-            copyElement = self.bboxObj.clone();
-            copyElement.attr("opacity", 0.3);
-            gv_paper.add(copyElement);
-
-            self.bboxObj.toFront();
-            if(self.text) self.text.toFront();
-            if(self.img) self.img.toFront();
-        };
-
-        dragEnd = function ()
-        {
-            var offset;
-            removeSnapPaths();
-            if(copyElement) {
-                copyElement.remove();
-                copyElement = null;
-                offset = {dx: self.x - origPosition.x, dy: self.y - origPosition.y};
-                gf_addManualPositionOffset(offset, id)
-            }
-        };
-
-        createSnapPosition = function (position) {
-            var xvals = [],
-                yvals = [],
-                snappedPosition = {},
-                key, node, nodeBoundaries;
-
-            for(key in gv_objects_nodes) {
-                node = gv_objects_nodes[key];
-                if(node !== self) {
-                    nodeBoundaries = node.getBoundaries();
-                    xvals.push(nodeBoundaries.x);
-                    yvals.push(nodeBoundaries.y);
-                }
-            }
-            snappedPosition.x = Raphael.snapTo(xvals, position.x, 10);
-            snappedPosition.y = Raphael.snapTo(yvals, position.y, 10);
-
-            if(xvals.indexOf(snappedPosition.x) !== -1) {
-                snapPathX = gv_paper.path("M" + snappedPosition.x + "," + (snappedPosition.y - 1000) + "V" + (snappedPosition.y + 1000));
-                snapPathX.attr({"stroke": "#cdbe13"});
-                snapPathX.toBack();
-            }
-            if(yvals.indexOf(snappedPosition.y) !== -1) {
-                snapPathY = gv_paper.path("M" + (snappedPosition.x - 1000) + "," + snappedPosition.y + "H" + (snappedPosition.x + 1000));
-                snapPathY.attr({"stroke": "#cdbe13"});
-                snapPathY.toBack();
-            }
-
-            return snappedPosition;
-        };
-
-        removeSnapPaths = function () {
-            if (snapPathY) {
-                snapPathY.remove();
-                snapPathY = null;
-            }
-            if (snapPathX) {
-                snapPathX.remove();
-                snapPathX = null;
-            }
-        };
-
-        // does add callback for dragStart. instead drag-start is deferred to not conflict with click events
-        this.bboxObj.drag(drag, null, dragEnd);
-    };
 
 	/**
 	 * Deactivate the label and update its look.
@@ -1173,10 +1068,8 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode, belongs
 	if (gf_isset(belongsToPath) && belongsToPath === true)
     {
 		this.belongsToPath = true;
-    } else {
-        this.draggable = true === belongsToInnerView;   // only actions, no subjects (at least at the moment)
     }
-	
+
 	if (!gf_isset(performanceMode) || performanceMode != true)
 		performanceMode	= false;
 	
