@@ -103,10 +103,11 @@ function gf_addManualPositionOffset(offset, id, type)
     }
 
     if(obj instanceof GCnode || obj instanceof GCsubject) {
-        var connectedEdges = obj.getConnectedEdges();
-        for(var i = 0; i < connectedEdges.length; i++) {
-            //reset manual position offsets for labels of all connected edges
-            connectedEdges[i].setManualPositionOffsetLabel(null);
+        if('getConnectedEdges' in obj) {    // reset manual position offsets for labels of all connected edges
+            var connectedEdges = obj.getConnectedEdges();
+            for(var i = 0; i < connectedEdges.length; i++) {
+                connectedEdges[i].setManualPositionOffsetLabel(null);
+            }
         }
         if(offset) {
             offset.dx += obj.getManualPositionOffset().dx;
