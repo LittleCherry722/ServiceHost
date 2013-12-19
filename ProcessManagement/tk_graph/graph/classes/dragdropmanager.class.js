@@ -101,22 +101,33 @@ function GCdragDropManager() {
      * @param {GClabel} label
      */
     function addPathLabelDragDropListener(label) {
-        var dragging = false,
-            origPosition;
+        var origPosition, copyElement;
 
         function drag (dx, dy)
         {
-            if(!dragging) {
-                dragging = true;
-                origPosition = label.getPosition();
+            if(!copyElement) {
+                deferredDragStart();
             }
             label.setPosition(origPosition.x + dx / gv_currentViewBox.zoom, origPosition.y + dy / gv_currentViewBox.zoom, 0);
         }
 
+        function deferredDragStart()
+        {
+            origPosition = label.getPosition();
+            copyElement = label.bboxObj.clone();
+            copyElement.attr("opacity", 0.3);
+            gv_paper.add(copyElement);
+
+            label.bboxObj.toFront();
+            if(label.text) label.text.toFront();
+            if(label.img) label.img.toFront();
+        }
+
         function dragEnd() {
             var offset;
-            if(dragging) {
-                dragging = false;
+            if(copyElement) {
+                copyElement.remove();
+                copyElement = null;
                 offset = {dx: label.x - origPosition.x, dy: label.y - origPosition.y};
                 gf_addManualPositionOffset(offset, label.id, 'edgeLabel');
             }
