@@ -474,6 +474,24 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		}
 		return false;
 	};
+
+    /**
+     * @returns {Array.<GCedge>} a list of edges that are connected to the node
+     */
+    this.getConnectedEdges = function ()
+    {
+        var gt_edges = this.parentMacro.getEdges(),
+            connectedEdges = [];
+
+        for (var gt_edgeId in gt_edges)
+        {
+            var gt_edge	= gt_edges[gt_edgeId];
+            if (gt_edge.end	== this.id || gt_edge.start == this.id) {
+                connectedEdges.push(gt_edge);
+            }
+        }
+        return connectedEdges;
+    };
 	
 	/**
 	 * Returns the deactivation status of this node.

@@ -317,7 +317,7 @@ function GCsubject (id, text, type, inputPool)
 	{
 		return !this.isExternal() || this.getExternalType() == "interface";
 	};
-	
+
 	/**
 	 * Returns the deactivate status of this subject.
 	 * 
