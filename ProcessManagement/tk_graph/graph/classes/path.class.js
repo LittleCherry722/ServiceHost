@@ -82,7 +82,16 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 	 * @type Element (from Raphael)
 	 */
 	this.path	= null;
-	
+
+
+    /**
+     * A Raphael Path which starts at the labels original position and ends on the labels offset position
+     *
+     * @see Paper.path() at the <a href="http://raphaeljs.com/reference.html#Paper.path">Raphael documentation</a>
+     * @type Element (from Raphael)
+     */
+    this.pathToLabel	= null;
+
 	/**
 	 * A Raphael Path.
 	 * This path will be a bit wider to ease the action of clicking a path.
@@ -164,35 +173,6 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
      */
     this.manualPositionOffsetLabel = null;
 
-    /**
-     * The user-defined manual offset for the path label position. If the user defined no offset, an offstet of 0 pixels in
-     * each direction is returned
-     *
-     * @returns {{dx: int, dy: int}}
-     */
-    this.getManualPositionOffsetLabel = function ()
-    {
-        return this.manualPositionOffsetLabel || {dx: 0, dy: 0};
-    };
-
-    /**
-     * Sets the user-defined manual offset for the path label position
-     *
-     * @param {null|{dx: int, dy: int}} offset
-     * @returns {void}
-     */
-    this.setManualPositionOffsetLabel = function (offset)
-    {
-        this.manualPositionOffsetLabel = offset;
-    };
-
-    /**
-     * @returns {boolean} true if the the path label has a user-defined offset
-     */
-    this.hasManualPositionOffsetLabel = function ()
-    {
-        return this.manualPositionOffsetLabel !== null && 'dx' in this.manualPositionOffsetLabel && 'dy' in this.manualPositionOffsetLabel;
-    };
 
 	/**
 	 * Activate the path and its label and update its look.
@@ -843,9 +823,10 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		if (!gf_isset(performanceMode) || performanceMode != true)
 			performanceMode	= false;
 			
-		this.path		= gv_paper.path("M0,0L10,10");
-		this.pathClick	= gv_paper.path("M0,0L10,10");
-		this.label		= new GClabel(0, 0, text, "roundedrectangle", id, true, performanceMode);
+		this.path		    = gv_paper.path("M0,0L10,10");
+        this.pathToLabel	= gv_paper.path("M0,0L0,0");
+		this.pathClick	    = gv_paper.path("M0,0L10,10");
+		this.label		    = new GClabel(0, 0, text, "roundedrectangle", id, true, performanceMode);
 	};
 	
 	/**
@@ -901,6 +882,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			params["opacity"]			= 0;
 			params["stroke-width"]		= strokeWidth * 6;	// set the width to 5 times the normal width
 		this.pathClick.attr(params);
+
+        this.pathToLabel.attr({'opacity': 0.5});
 	};
 	
 	/**
@@ -1064,6 +1047,36 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		this.label.setText(text, performanceMode);
 	};
 
+    /**
+     * The user-defined manual offset for the path label position. If the user defined no offset, an offstet of 0 pixels in
+     * each direction is returned
+     *
+     * @returns {{dx: int, dy: int}}
+     */
+    this.getManualPositionOffsetLabel = function ()
+    {
+        return this.manualPositionOffsetLabel || {dx: 0, dy: 0};
+    };
+
+    /**
+     * Sets the user-defined manual offset for the path label position
+     *
+     * @param {null|{dx: int, dy: int}} offset
+     * @returns {void}
+     */
+    this.setManualPositionOffsetLabel = function (offset)
+    {
+        this.manualPositionOffsetLabel = offset;
+    };
+
+    /**
+     * @returns {boolean} true if the the path label has a user-defined offset
+     */
+    this.hasManualPositionOffsetLabel = function ()
+    {
+        return this.manualPositionOffsetLabel !== null && 'dx' in this.manualPositionOffsetLabel && 'dy' in this.manualPositionOffsetLabel;
+    };
+
 	/**
 	 * Show the path and its label.
 	 * 
@@ -1076,6 +1089,7 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 			performanceMode	= false;
 			
 		this.path.show();
+        this.pathToLabel.show();
 		this.label.show(performanceMode);
 	};
 	
@@ -1097,6 +1111,8 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		var y2 = this.positionEnd.y;
 		
 		var shape	= this.shape;
+
+        var offsetPosX, offsetPosY;
 			
 		// calculate the shape
 		gf_timeCalc("path - update path (shape calculation)");
@@ -1120,8 +1136,11 @@ function GCpath (startx, starty, endx, endy, shape, text, id, performanceMode)
 		
 		// move the label to the center of the label
 		gf_timeCalc("path - update path (label position)");
-		this.label.setPosition(newPath.x + this.getManualPositionOffsetLabel()['dx'], newPath.y + this.getManualPositionOffsetLabel()['dy'], performanceMode);
-		gf_timeCalc("path - update path (label position)");
+        offsetPosX = newPath.x + this.getManualPositionOffsetLabel()['dx'];
+        offsetPosY = newPath.y + this.getManualPositionOffsetLabel()['dy'];
+        this.label.setPosition(offsetPosX, offsetPosY, performanceMode);
+        this.pathToLabel.attr("path", "M" + newPath.x + "," + newPath.y + "L" + offsetPosX + "," + offsetPosY);
+        gf_timeCalc("path - update path (label position)");
 	};
 	
 	if (!gf_isset(performanceMode) || performanceMode != true)
