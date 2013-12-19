@@ -31,10 +31,13 @@ import de.tkip.sbpm.application.miscellaneous.AutoArchive
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Date
+import de.tkip.sbpm.model.Subject
+import de.tkip.sbpm.model.Subject
 
 protected case class ArchiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
   private final val archivePath = "./log/"
+    
   changeState(exitTransition.successorID, data, null)
   
   
@@ -42,7 +45,8 @@ protected case class ArchiveStateActor(data: StateData)
   
   protected def stateReceive = {
      case autoArchive : AutoArchive =>{
-      val msg =  autoArchive.toString();
+       //TODO do not address hardcoded... iterate over all and write them
+      val msg =  data.internalStatus.variables.get("archiveMsg").get.messages(0).messageContent
       val format=new SimpleDateFormat("yyyy_MM_dd HH_mm_ss")
       val date=format.format(new Date);
       val f = new File(archivePath+"archive"+"_"+date+".log")

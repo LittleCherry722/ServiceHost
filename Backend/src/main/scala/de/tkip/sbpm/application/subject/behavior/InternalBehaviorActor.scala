@@ -42,6 +42,7 @@ import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
+import org.parboiled.support.Var
 
 case object StartMacroExecution
 case class ActivateState(id: StateID)
@@ -125,10 +126,8 @@ class InternalBehaviorActor(
       changeState(change.currenState, change.nextState)
       val current: State = statesMap(change.currenState)
       val next: State = statesMap(change.nextState)
-      if(next.stateType == StateType.ArchiveStateType)
-    	  currentStatesMap(change.nextState) ! new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
-//          sender ! new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
-            
+      if (next.stateType == StateType.ArchiveStateType)
+        currentStatesMap(change.nextState) ! new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
       // create the History Entry and send it to the subject
       context.parent !
         NewHistoryTransitionData(
@@ -174,6 +173,14 @@ class InternalBehaviorActor(
     // general matching
     case message: SubjectProviderMessage => {
       context.parent ! message
+    }
+    case av:AddVariable =>{
+        
+      if (!internalStatus.variables.contains(av.variableName)){
+        internalStatus.variables.put(av.variableName, new Variable(av.variableName))
+      }
+      internalStatus.variables(av.variableName).addMessage(av.message)
+      
     }
 
     case n => {
@@ -271,7 +278,7 @@ class InternalBehaviorActor(
       case CloseIPStateType => {
         context.actorOf(Props(new CloseIPStateActor(stateData)))
       }
-      
+
       case OpenIPStateType => {
         context.actorOf(Props(new OpenIPStateActor(stateData)))
       }

@@ -16,6 +16,7 @@ package de.tkip.sbpm.model
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.behavior.Transition
 import StateType.StateType
+import scala.collection.immutable.Map
 
 object StateType extends Enumeration { // TODO just use a string?
   type StateType = Value
@@ -62,6 +63,7 @@ trait SubjectLike {
   def inputPool: Int
   def multi: Boolean
   def external: Boolean
+  def variablesMap:Map[String,String]
 }
 // name raus ist ws in id
 case class State(
@@ -88,7 +90,8 @@ case class Subject(
   //  macros: Map[String, Array[State]],
   macros: Map[String, ProcessMacro],
   //  states: Array[State],
-  multi: Boolean) extends SubjectLike {
+  multi: Boolean,
+  variablesMap:Map[String,String]) extends SubjectLike {
   lazy val external = false
   // TODO remove this function?
   def states: Array[State] = mainMacro.states
@@ -103,7 +106,8 @@ case class ExternalSubject(
   relatedProcessId: Option[ProcessID],
   relatedSubjectId: Option[SubjectID],
   relatedInterfaceId: Option[SubjectID],
-  url: Option[String]) extends SubjectLike {
+  url: Option[String],
+  variablesMap:Map[String,String]) extends SubjectLike {
   lazy val external = true
 }
 case class ProcessGraph(subjects: Map[String, SubjectLike])
