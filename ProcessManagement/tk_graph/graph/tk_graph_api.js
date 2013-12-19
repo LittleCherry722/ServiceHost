@@ -130,7 +130,7 @@ function gf_resetManualPositionOffsets(view, id)
 {
     var objectsToReset = [],
         subjects = gv_graph.getSubjects(),
-        nodes, subjectKey, nodeKey;
+        nodes, edges, subjectKey, nodeKey, edgeKey;
 
     switch(view){
         case 'inner':
@@ -138,6 +138,10 @@ function gf_resetManualPositionOffsets(view, id)
                 nodes = gv_graph.getBehavior(id).getNodes();
                 for (nodeKey in nodes) {
                     objectsToReset.push(nodes[nodeKey]);
+                }
+                edges = gv_graph.getBehavior(id).getEdges();
+                for (edgeKey in edges) {
+                    objectsToReset.push(edges[edgeKey]);
                 }
             }
             break;
@@ -160,7 +164,11 @@ function gf_resetManualPositionOffsets(view, id)
     }
 
     for (var i = 0; i < objectsToReset.length; i++) {
-        objectsToReset[i].setManualPositionOffset(null);
+        if ('setManualPositionOffset' in objectsToReset[i]) {
+            objectsToReset[i].setManualPositionOffset(null);
+        } else if ('setManualPositionOffsetLabel' in objectsToReset[i]) {
+            objectsToReset[i].setManualPositionOffsetLabel(null);
+        }
     }
 
     gf_redraw_graph();
