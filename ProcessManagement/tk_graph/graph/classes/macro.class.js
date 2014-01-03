@@ -129,10 +129,12 @@ function GCmacro (parent, id, name)
 	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
 	 * @param {String} type The edge's type (exitcondition, timeout, errorcondition).
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
+     * @param {int} [manualPositionOffsetLabelX] The x position offset the user manually defined
+     * @param {int} [manualPositionOffsetLabelY] The y position offset the user manually defined
 	 * @param {boolean} [optional] The optional status of the edge. (default: false)
 	 * @returns {GCedge} The created edge or null on errors.  
 	 */
-	this.addEdge = function (start, end, text, relatedSubject, type, deactivated, optional)
+	this.addEdge = function (start, end, text, relatedSubject, type, deactivated, manualPositionOffsetLabelX, manualPositionOffsetLabelY, optional)
 	{
 		// read the startNode from nodeIDs when it is not numeric
 		if (parseInt(start) != start && gf_isset(this.nodeIDs[start]))
@@ -150,7 +152,10 @@ function GCmacro (parent, id, name)
 			// apply the deactivation status to the edge
 			if (deactivated === true)
 				gt_edge.deactivate();
-				
+
+            if (typeof manualPositionOffsetLabelX === "number" && typeof manualPositionOffsetLabelY === "number")
+                gt_edge.setManualPositionOffsetLabel({dx: manualPositionOffsetLabelX, dy: manualPositionOffsetLabelY});
+
 			// apply the status for optional edges
 			gt_edge.setOptional(optional);
 			
@@ -440,9 +445,7 @@ function GCmacro (parent, id, name)
                     gt_nodeId	= gt_nid.substr(1);
 
                 gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, gt_node);
-                if(gt_node.hasManualPositionOffset()) {
-                    gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
-                }
+                gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
 			}
 			
 			if (this.selectedNode != null)

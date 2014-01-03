@@ -186,6 +186,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     "end",
     "text",
     "type",
+    "manualPositionOffsetLabelX",
+    "manualPositionOffsetLabelY",
     "target",
     "deactivated",
     "optional",

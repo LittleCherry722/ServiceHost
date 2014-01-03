@@ -86,12 +86,14 @@ function GCbehavior (name)
 	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
 	 * @param {String} type The edge's type (exitcondition, timeout, errorcondition).
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
+     * @param {int} [manualPositionOffsetLabelX] The x position offset the user manually defined
+     * @param {int} [manualPositionOffsetLabelY] The y position offset the user manually defined
 	 * @param {boolean} [optional] The optional status of the edge. (default: false)
 	 * @returns {GCedge} The created edge or null on errors.  
 	 */
-	this.addEdge = function (start, end, text, relatedSubject, type, deactivated, optional)
+	this.addEdge = function (start, end, text, relatedSubject, type, deactivated, manualPositionOffsetLabelX, manualPositionOffsetLabelY, optional)
 	{
-		this.getMacro().addEdge(start, end, text, relatedSubject, type, deactivated, optional);
+		this.getMacro().addEdge(start, end, text, relatedSubject, type, deactivated, manualPositionOffsetLabelX, manualPositionOffsetLabelY, optional);
  	};
 	
 	/**
@@ -102,12 +104,14 @@ function GCbehavior (name)
 	 * @param {String} message The messageType (text not ID) associated to this edge.
 	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
+     * @param {int} [manualPositionOffsetLabelX] The x position offset the user manually defined
+     * @param {int} [manualPositionOffsetLabelY] The y position offset the user manually defined
 	 * @param {boolean} [optional] The optional status of the edge. (default: false)
 	 * @returns {GCedge} The created edge or null on errors.  
 	 */
-	this.addEdgeMessage = function (start, end, message, relatedSubject, deactivated, optional)
+	this.addEdgeMessage = function (start, end, message, relatedSubject, deactivated, manualPositionOffsetLabelX, manualPositionOffsetLabelY, optional)
 	{
-		return this.addEdge(start, end, gv_graph.addMessageType(message), relatedSubject, "exitcondition", deactivated, optional);
+		return this.addEdge(start, end, gv_graph.addMessageType(message), relatedSubject, "exitcondition", deactivated, manualPositionOffsetLabelX, manualPositionOffsetLabelY, optional);
 	};
 	
 	/**
@@ -119,12 +123,14 @@ function GCbehavior (name)
 	 * @param {String} [type] The type of the node. Possible values are "send", "receive", "end", "action" (default: "action")
 	 * @param {boolean} [start] When set to true the node will be handled as a start node. (default: false)
 	 * @param {boolean} [end] When set to true the node will be handled as an end node. (default: false)
+     * @param {int} [manualPositionOffsetX] The x position offset the user manually defined
+     * @param {int} [manualPositionOffsetY] The y position offset the user manually defined
 	 * @param {boolean} [deactivated] The deactivation status of the node. (default: false)
 	 * @returns {int} The id that identifies the node in the nodes array.
 	 */
-	this.addNode = function (id, text, type, start, end, deactivated)
+	this.addNode = function (id, text, type, start, end, manualPositionOffsetX, manualPositionOffsetY, deactivated)
 	{
-		return this.getMacro().addNode(id, text, type, start, end, deactivated);
+		return this.getMacro().addNode(id, text, type, start, end, manualPositionOffsetX, manualPositionOffsetY, deactivated);
  	};
  	
  	/**

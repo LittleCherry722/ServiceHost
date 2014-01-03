@@ -544,8 +544,8 @@ function GCcommunication ()
 				gt_behav.addNode("send", "create msg", "action", false, false, false);
 				
 				// add edges to start node
-				gt_behav.addEdge("start", "send", "send", null, "exitcondition", false, false);
-				gt_behav.addEdge("send", "start", "cancel", null, "exitcondition", false, false);
+				gt_behav.addEdge("start", "send", "send", null, "exitcondition", false);
+				gt_behav.addEdge("send", "start", "cancel", null, "exitcondition", false);
 				
 				// add sent messages
 				for (var gt_msId in gt_msgS)
@@ -555,8 +555,8 @@ function GCcommunication ()
 					
 					gt_behav.addNode("sM" + gt_msgId, "", "send", false, false, false);
 					
-					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, "exitcondition", false, false);
-					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, "exitcondition", false, false); 
+					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, "exitcondition", false);
+					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, "exitcondition", false);
 				}
 			}
 			
@@ -564,7 +564,7 @@ function GCcommunication ()
 			gt_behav.addNode("end", "", "end", false, true, false);
 			
 			// connect start and end
-			gt_behav.addEdge("start", "end", "end process", null, "exitcondition", false, false);
+			gt_behav.addEdge("start", "end", "end process", null, "exitcondition", false);
 			
 			// create nodes for received messages
 			if (gt_msgR.length > 0)
@@ -573,8 +573,8 @@ function GCcommunication ()
 				gt_behav.addNode("rcv", "", "receive", false, false, false);
 				
 				// add edges to start node
-				gt_behav.addEdge("start", "rcv", "receive", null, "exitcondition", false, false);
-				gt_behav.addEdge("rcv", "start", "cancel", null, "exitcondition", false, false);
+				gt_behav.addEdge("start", "rcv", "receive", null, "exitcondition", false);
+				gt_behav.addEdge("rcv", "start", "cancel", null, "exitcondition", false);
 				
 				// add received messages
 				for (var gt_mrId in gt_msgR)
@@ -584,8 +584,8 @@ function GCcommunication ()
 					
 					gt_behav.addNode("actM" + gt_msgId, "reaction msg " + gt_msgId, "action", false, false, false);
 					
-					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, "exitcondition", false, false);
-					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, "exitcondition", false, false); 
+					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, "exitcondition", false);
+					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, "exitcondition", false);
 				}
 			}
 		}
@@ -1510,7 +1510,7 @@ function GCcommunication ()
 								gt_text	= this.addMessageType(gt_text);
 							}
 							
-							var gt_createdEdge	= gt_macro.addEdge("loadedNode" + gt_edge.start, "loadedNode" + gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
+							var gt_createdEdge	= gt_macro.addEdge("loadedNode" + gt_edge.start, "loadedNode" + gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.manualPositionOffsetLabelX, gt_edge.manualPositionOffsetLabelY, gt_edge.optional);
 							
 							if (gt_createdEdge != null)
 							{
@@ -1668,9 +1668,9 @@ function GCcommunication ()
 						role: this.subjects[gt_sid].getRole(),
 						startSubject: this.subjects[gt_sid].isStartSubject(),
 						url: this.subjects[gt_sid].getUrl(),
-						comment: this.subjects[gt_sid].getComment(),
-                        manualPositionOffsetX: this.subjects[gt_sid].getManualPositionOffset().dx,
-                        manualPositionOffsetY: this.subjects[gt_sid].getManualPositionOffset().dy
+						comment: this.subjects[gt_sid].getComment()
+//                        manualPositionOffsetX: this.subjects[gt_sid].getManualPositionOffset().dx,
+//                        manualPositionOffsetY: this.subjects[gt_sid].getManualPositionOffset().dy
 			};
 			
 			var gt_behav 	= this.subjects[gt_sid].getBehavior();
@@ -1730,6 +1730,8 @@ function GCcommunication ()
 									end:	gt_edgeEndNode.getId(),
 									text:	gt_edge.getText(true),
 									type:	gt_edge.getType(),
+                                    manualPositionOffsetLabelX: gt_edge.getManualPositionOffsetLabel().dx,
+                                    manualPositionOffsetLabelY: gt_edge.getManualPositionOffsetLabel().dy,
 									edgeType:	gt_edge.getType(),
 									target: gt_relatedSubject == null ? "" : gt_relatedSubject,
 									deactivated:	gt_edge.isDeactivated(),
