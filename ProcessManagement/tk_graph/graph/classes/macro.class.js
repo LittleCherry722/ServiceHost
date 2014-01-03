@@ -208,7 +208,7 @@ function GCmacro (parent, id, name)
 		if (gf_isset(end) && end === true)
 			gt_node.setEnd(true);
 
-        if (manualPositionOffsetX && manualPositionOffsetY)
+        if (typeof manualPositionOffsetX === "number" && typeof manualPositionOffsetY === "number")
             gt_node.setManualPositionOffset({dx: manualPositionOffsetX, dy: manualPositionOffsetY});
 
         // pass the deactivated attribute to the node
