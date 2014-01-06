@@ -86,22 +86,7 @@ var gv_interactionsEnabled = false;
  */
 function gf_addManualPositionOffset(offset, id, type)
 {
-    var obj, behavior;
-    if(null === gv_graph.selectedSubject) {
-        if(type === 'node') {
-            obj = gv_graph.getSubjects()[id];
-        }
-    } else {
-        behavior = gv_graph.getBehavior(gv_graph.selectedSubject);
-        if(behavior) {
-            if(type === 'node') {
-                obj = behavior.getNode(id);
-            } else if (type === 'edgeLabel') {
-                obj = behavior.getEdge(id);
-            }
-        }
-    }
-
+    var obj = gv_graph.getObjectById(id, type);
     if(obj instanceof GCnode || obj instanceof GCsubject) {
         if('getConnectedEdges' in obj) {    // reset manual position offsets for labels of all connected edges
             var connectedEdges = obj.getConnectedEdges();
@@ -124,6 +109,22 @@ function gf_addManualPositionOffset(offset, id, type)
 
     gf_redraw_graph();
 }
+
+/**
+ * Finds the manual position offset for a node or edge label, depending on the current selected subject (for inner views)
+ * @param {int|string} id id of the object
+ * @param {string} type 'node' or 'edgeLabel'
+ * @return {{dx, dy}|null}
+ */
+gf_getManualPositionOffset = function(id, type) {
+    var obj = gv_graph.getObjectById(id, type);
+    if(obj instanceof GCnode || obj instanceof GCsubject) {
+        return obj.getManualPositionOffset();
+    } else if (obj instanceof  GCedge) {
+        return obj.getManualPositionOffsetLabel();
+    }
+    return null;
+};
 
 /**
  * Resets the manual position offsets for an internal subject behavior, the subject graph itself, or for all nodes in

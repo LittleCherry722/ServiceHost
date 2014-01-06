@@ -519,7 +519,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperClickEdge()
 		 * @param {int} ID The id of the clicked edge.
 		 */
-		edgeClicked:			"",
+		edgeClicked:			"tk_graph/edgeClicked",
 		
 		/**
 		 * notifier topic for when an edge is clicked (before the actual click is processed)
@@ -535,7 +535,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperClickNodeB()
 		 * @param {int} ID The id of the clicked node.
 		 */
-		nodeClicked:			"",
+		nodeClicked:			"tk_graph/nodeClicked",
 		
 		/**
 		 * notifier topic for when a node is clicked (before the actual click is processed)
@@ -551,7 +551,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperClickNodeC()
 		 * @param {String} ID The id of the clicked subject.
 		 */
-		subjectClicked:			"",
+		subjectClicked:			"tk_graph/subjectClicked",
 		
 		/**
 		 * notifier topic for when a subject is clicked (before the actual click is processed)
@@ -599,7 +599,7 @@ var gv_topics	= {
 		 * @see tk_graph.js :: gf_paperDblClickNodeC()
 		 * @param {String} ID The id of the double-clicked subject.
 		 */
-		subjectDblClickedHook:	""
+		subjectDblClickedHook:	"tk_graph/subjectDblClicked"
 	},
 	
 	/*

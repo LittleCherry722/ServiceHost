@@ -79,13 +79,13 @@ function GCcommunication ()
 	 * @type String
 	 */
 	this.selectedConversation	= "##all##";
-	
-	/**
-	 * The currenctly selected subject-node in the communication view.
-	 * 
-	 * @type String
-	 */
-	this.selectedNode		= null;
+
+    /**
+     * The currenctly selected subject-node in the communication view.
+     *
+     * @type String
+     */
+    this.selectedNode		= null;
 	
 	/**
 	 * The currently selected subject.
@@ -395,7 +395,7 @@ function GCcommunication ()
 			
 			this.selectedSubject	= null;
 			this.selectedNode		= null;
-			
+
 			this.nodeCounter		= 0;
 			
 			this.messageTypes		= {};
@@ -1130,7 +1130,7 @@ function GCcommunication ()
 	/**
 	 * Returns the id of the node currently selected depending on the current view.
 	 * 
-	 * @returns {int} The id of the selectedNode of the currently active view or null.
+	 * @returns {int|null} The id of the selectedNode of the currently active view or null.
 	 */
 	this.getSelectedNode = function ()
 	{
@@ -1147,6 +1147,18 @@ function GCcommunication ()
 		}
 		return null;
 	};
+
+    /**
+     * @returns the id of the edge currently selected depending on the current view
+     */
+    this.getSelectedEdge = function ()
+    {
+        if (gf_isset(this.subjects[this.selectedSubject]))
+        {
+            return this.getBehavior(this.selectedSubject).getMacro().selectedEdge;
+        }
+        return null;
+    };
 	
 	/**
 	 * Returns the IDs of all subjects of the graph.
@@ -2017,4 +2029,27 @@ function GCcommunication ()
 			}
 		}
 	};
+
+    /**
+     * Finds an object by id and type, based on the current selected subject
+     *
+     * @param {int|string} id the id of the subject or node
+     * @param {string} type 'node' or 'edgeLabel'
+     */
+    this.getObjectById = function(id, type) {
+        if(null === this.selectedSubject) {
+            if(type === 'node') {
+                return this.getSubjects()[id];
+            }
+        } else {
+            var behavior = this.getBehavior(this.selectedSubject);
+            if(behavior) {
+                if(type === 'node') {
+                    return behavior.getNode(id);
+                } else if (type === 'edgeLabel') {
+                    return behavior.getEdge(id);
+                }
+            }
+        }
+    }
 }
