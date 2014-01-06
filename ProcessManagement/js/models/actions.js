@@ -63,10 +63,10 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
       });
 
       this.instanceDetailsDivId = ko.computed(function() {
-        return "instanceDetails_" + self.processInstanceID() + "_" + self.subjectID();
+        return "instanceDetails_" + self.processInstanceID() + "_" + self.subjectID() + "_" + self.stateID();
       });
       this.instanceTableId = ko.computed(function() {
-        return "instance_" + self.processInstanceID() + "_" + self.subjectID();
+        return "instance_" + self.processInstanceID() + "_" + self.subjectID() + "_" + self.stateID();
       });
 
       this.data = ko.computed(function() {
