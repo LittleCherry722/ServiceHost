@@ -174,6 +174,7 @@ class InternalBehaviorActor(
     case message: SubjectProviderMessage => {
       context.parent ! message
     }
+
     case av:AddVariable =>{
         
       if (!internalStatus.variables.contains(av.variableName)){
@@ -306,8 +307,13 @@ class InternalBehaviorActor(
       case DeactivateStateType => {
         context.actorOf(Props(new DeactivateStateActor(stateData)))
       }
+
       case ArchiveStateType => {
         context.actorOf(Props(new ArchiveStateActor(stateData)))
+      }
+
+      case DecisionStateType => {
+        context.actorOf(Props(new DecisionStateActor(stateData)))
       }
     }
   }
