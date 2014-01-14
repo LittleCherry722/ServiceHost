@@ -1,12 +1,3 @@
-GIT
-  remote: git://github.com/capistrano/sshkit.git
-  revision: 14f658e87db64bab925b7b466e8f32478588f29a
-  specs:
-    sshkit (0.0.34)
-      net-scp
-      net-ssh
-      term-ansicolor
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -17,15 +8,19 @@ GEM
     i18n (0.6.4)
     net-scp (1.1.2)
       net-ssh (>= 2.6.5)
-    net-ssh (2.6.8)
+    net-ssh (2.7.0)
     rake (10.1.0)
+    sshkit (0.0.34)
+      net-scp
+      net-ssh
+      term-ansicolor
     term-ansicolor (1.2.2)
       tins (~> 0.8)
-    tins (0.8.3)
+    tins (0.13.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   capistrano (>= 3.0.0.beta)
-  sshkit!
+  sshkit (~> 0.0.23)
