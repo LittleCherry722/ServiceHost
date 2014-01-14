@@ -10,7 +10,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-define(["knockout", "app", "model", "underscore", "models/process", "models/user", "models/processInstance", "notify"], function(ko, App, Model, _, Process, User, ProcessInstances, Notify) {
+define(["knockout", "app", "model", "underscore", "models/process", "models/user", "models/processInstance", "notify", "models/message"], function(ko, App, Model, _, Process, User, ProcessInstances, Notify, Messages) {
 
     Actions = Model("Actions", {
         remotePath : 'processinstance/action'
@@ -241,9 +241,10 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
                 contentType : "application/json; charset=UTF-8",
                 success : function(data, textStatus, jqXHR) {
                     Actions.fetch({}, function(){
-                        _.each(ProcessInstances.all(), function(pi){
+                        var pi = ProcessInstances.find(id);
+                        if (pi) {
                             pi.refresh();
-                        });
+                        }
                     });
                     Notify.info("Done", "Action successfully executed.");
 
@@ -301,6 +302,7 @@ define(["knockout", "app", "model", "underscore", "models/process", "models/user
                 dataType : "json",
                 contentType : "application/json; charset=UTF-8",
                 success : function(data, textStatus, jqXHR) {
+                    Actions.all([]);
                     Actions.fetch({}, function(){
                         _.each(ProcessInstances.all(), function(pi){
                             pi.refresh();
