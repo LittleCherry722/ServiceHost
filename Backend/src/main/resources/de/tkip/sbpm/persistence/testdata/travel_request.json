@@ -555,6 +555,30 @@
                 },
                 "macro":"",
                 "comment":""
+              },
+              {
+                "id":7,
+                "text":"Decision",
+                "start":false,
+                "end":false,
+                "nodeType":"$decision",
+                "type":"$decision",
+                "options":{
+                  "message":"*",
+                  "subject":"*"
+                },
+                "deactivated":false,
+                "majorStartNode":false,
+                "conversation":null,
+                "variable":null,
+                "varMan":{
+                  "var1":"",
+                  "var2":"",
+                  "operation":"and",
+                  "storevar":""
+                },
+                "macro":"",
+                "comment":""
               }
             ],
             "edges":[
@@ -632,7 +656,7 @@
               },
               {
                 "start":0,
-                "end":5,
+                "end":7,
                 "text":"m0",
                 "edgeType":"exitcondition",
                 "type":"exitcondition",
@@ -643,6 +667,42 @@
                   "createNew":false,
                   "variable":null
                 },
+                "deactivated":false,
+                "optional":false,
+                "priority":1,
+                "manualTimeout":false,
+                "variable":"travel_request",
+                "correlationId":"",
+                "comment":"",
+                "transportMethod":[
+                  "internal"
+                ]
+              },
+              {
+                "start":7,
+                "end":5,
+                "text":"false",
+                "edgeType":"exitcondition",
+                "type":"exitcondition",
+                "tartget":null,
+                "deactivated":false,
+                "optional":false,
+                "priority":1,
+                "manualTimeout":false,
+                "variable":null,
+                "correlationId":"",
+                "comment":"",
+                "transportMethod":[
+                  "internal"
+                ]
+              },
+              {
+                "start":7,
+                "end":1,
+                "text":"true",
+                "edgeType":"exitcondition",
+                "type":"exitcondition",
+                "tartget":null,
                 "deactivated":false,
                 "optional":false,
                 "priority":1,
@@ -744,9 +804,9 @@
         ],
         "macroCounter":0,
         "variables":{
-
+		"travel_request":"travel_request"
         },
-        "variableCounter":0
+        "variableCounter":1
       },
       {
         "id":"Human Resource",
