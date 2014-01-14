@@ -13,7 +13,7 @@ namespace :artifacts do
         execute "git checkout #{fetch(:artifact_branch)}"
         %w[ Backend Repository ].each do |dir| 
           within dir do
-            execute :sbt, "assembly"
+            execute "bin/sbt.sh", "assembly"
           end
         end
       ensure
