@@ -66,7 +66,9 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
   
   
   protected def evaluateDecision(input: String): Boolean = {
-    return input.contains("München") // TODO: evaluate
+    // Only get one String and parse it as following: "x TAGE? y" with x count of days and y destination
+    val in = input.toLowerCase()
+    return ((in contains "1 tag") || (in contains "2 tage") || (in contains "3 tage")) && ((in contains "münchen") || (in contains "berlin"))
   }
   
   protected def applyDecision(res: Boolean) = {
