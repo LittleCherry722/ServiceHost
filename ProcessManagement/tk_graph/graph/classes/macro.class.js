@@ -448,7 +448,7 @@ function GCmacro (parent, id, name)
                 gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
 			}
 			
-			if (this.selectedNode != null)
+			if (this.selectedNode != null && gt_nodePositions[this.selectedNode])
 				gt_nodePositions[this.selectedNode].selected = true;
 				
 			
