@@ -71,6 +71,149 @@ var gv_bv_paper = null;
 var gv_cv_paper = null;
 
 /**
+ * Indicates whether interactions like drag/drop of nodes are enabled or disabled
+ *
+ * @type boolean
+ */
+var gv_interactionsEnabled = false;
+
+/**
+ * Sets the manual position offset fo a subject or node and redraws the related graph
+ *
+ * @param {null|{dx: int, dy: int}} offset the position offset or null if the offset should be cleared
+ * @param {int|string} id the id of the subject or node for which the manual position offset should be set
+ * @param {string} type 'node' or 'edgeLabel'
+ */
+function gf_addManualPositionOffset(offset, id, type)
+{
+    var obj = gv_graph.getObjectById(id, type);
+    if(obj instanceof GCnode || obj instanceof GCsubject) {
+        if('getConnectedEdges' in obj) {    // reset manual position offsets for labels of all connected edges
+            var connectedEdges = obj.getConnectedEdges();
+            for(var i = 0; i < connectedEdges.length; i++) {
+                connectedEdges[i].setManualPositionOffsetLabel(null);
+            }
+        }
+        if(offset) {
+            offset.dx += obj.getManualPositionOffset().dx;
+            offset.dy += obj.getManualPositionOffset().dy;
+        }
+        obj.setManualPositionOffset(offset);
+    } else if (obj instanceof  GCedge) {
+        if(offset) {
+            offset.dx += obj.getManualPositionOffsetLabel().dx;
+            offset.dy += obj.getManualPositionOffsetLabel().dy;
+        }
+        obj.setManualPositionOffsetLabel(offset);
+    }
+
+    gf_redraw_graph();
+}
+
+/**
+ * Finds the manual position offset for a node or edge label, depending on the current selected subject (for inner views)
+ * @param {int|string} id id of the object
+ * @param {string} type 'node' or 'edgeLabel'
+ * @return {{dx, dy}|null}
+ */
+gf_getManualPositionOffset = function(id, type) {
+    var obj = gv_graph.getObjectById(id, type);
+    if(obj instanceof GCnode || obj instanceof GCsubject) {
+        return obj.getManualPositionOffset();
+    } else if (obj instanceof  GCedge) {
+        return obj.getManualPositionOffsetLabel();
+    }
+    return null;
+};
+
+/**
+ * Resets the manual position offsets for an internal subject behavior, the subject graph itself, or for all nodes in
+ * the current process
+ *
+ * @param {string} view either 'all', 'subjects', or 'inner'
+ * @param {int} id
+ */
+function gf_resetManualPositionOffsets(view, id)
+{
+    var objectsToReset = [],
+        subjects = gv_graph.getSubjects(),
+        nodes, edges, subjectKey, nodeKey, edgeKey;
+
+    switch(view){
+        case 'inner':
+            if(gv_graph.getBehavior(id)) {
+                nodes = gv_graph.getBehavior(id).getNodes();
+                for (nodeKey in nodes) {
+                    objectsToReset.push(nodes[nodeKey]);
+                }
+                edges = gv_graph.getBehavior(id).getEdges();
+                for (edgeKey in edges) {
+                    objectsToReset.push(edges[edgeKey]);
+                }
+            }
+            break;
+
+        case 'subjects':
+            for(subjectKey in subjects) {
+                objectsToReset.push(subjects[subjectKey])
+            }
+            break;
+
+        case 'all':
+            for(subjectKey in subjects) {
+                objectsToReset.push(subjects[subjectKey])
+                nodes = gv_graph.getBehavior(subjects[subjectKey]).getNodes();
+                for (nodeKey in nodes) {
+                    objectsToReset.push(nodes[nodeKey]);
+                }
+            }
+            break;
+    }
+
+    for (var i = 0; i < objectsToReset.length; i++) {
+        if ('setManualPositionOffset' in objectsToReset[i]) {
+            objectsToReset[i].setManualPositionOffset(null);
+        } else if ('setManualPositionOffsetLabel' in objectsToReset[i]) {
+            objectsToReset[i].setManualPositionOffsetLabel(null);
+        }
+    }
+
+    gf_redraw_graph();
+}
+
+/**
+ * Resets the manual position offsets for all nodes of the currently displayed inner process view
+ */
+function gf_resetManualPositionOffsetsCurrentInner ()
+{
+    gf_resetManualPositionOffsets('inner', gv_graph.selectedSubject);
+}
+
+/**
+ * Redraws the current graph while preserving the current view box settings such as zoom and position
+ */
+function gf_redraw_graph()
+{
+    var viewBoxBeforeCopy = $.extend({}, gv_currentViewBox),
+        graphContainer, scrollTopBefore, scrollLeftBefore;
+    if(null === gv_graph.selectedSubject) {
+        graphContainer = $('#' + gv_elements.graphCVouter);
+        scrollTopBefore = graphContainer.scrollTop();
+        scrollLeftBefore = graphContainer.scrollLeft();
+        gv_graph.draw();
+    } else {
+        graphContainer = $('#'+gv_elements.graphBVouter);
+        scrollTopBefore = graphContainer.scrollTop();
+        scrollLeftBefore = graphContainer.scrollLeft();
+        gv_graph.drawBehavior();
+    }
+    gv_currentViewBox = viewBoxBeforeCopy;
+    gv_paper.setViewBox(gv_currentViewBox.x, gv_currentViewBox.y, gv_currentViewBox.width, gv_currentViewBox.height, false);
+    graphContainer.scrollTop(scrollTopBefore);
+    graphContainer.scrollLeft(scrollLeftBefore);
+}
+
+/**
  * Using this method you can insert a node to the graph with the settings stored in gv_macros.
  * 
  * @param {String} id The id of the macro.

@@ -79,13 +79,13 @@ function GCcommunication ()
 	 * @type String
 	 */
 	this.selectedConversation	= "##all##";
-	
-	/**
-	 * The currenctly selected subject-node in the communication view.
-	 * 
-	 * @type String
-	 */
-	this.selectedNode		= null;
+
+    /**
+     * The currenctly selected subject-node in the communication view.
+     *
+     * @type String
+     */
+    this.selectedNode		= null;
 	
 	/**
 	 * The currently selected subject.
@@ -395,7 +395,7 @@ function GCcommunication ()
 			
 			this.selectedSubject	= null;
 			this.selectedNode		= null;
-			
+
 			this.nodeCounter		= 0;
 			
 			this.messageTypes		= {};
@@ -544,8 +544,8 @@ function GCcommunication ()
 				gt_behav.addNode("send", "create msg", "action", false, false, false);
 				
 				// add edges to start node
-				gt_behav.addEdge("start", "send", "send", null, "exitcondition", false, false);
-				gt_behav.addEdge("send", "start", "cancel", null, "exitcondition", false, false);
+				gt_behav.addEdge("start", "send", "send", null, "exitcondition", false);
+				gt_behav.addEdge("send", "start", "cancel", null, "exitcondition", false);
 				
 				// add sent messages
 				for (var gt_msId in gt_msgS)
@@ -555,8 +555,8 @@ function GCcommunication ()
 					
 					gt_behav.addNode("sM" + gt_msgId, "", "send", false, false, false);
 					
-					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, "exitcondition", false, false);
-					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, "exitcondition", false, false); 
+					gt_behav.addEdge("send", "sM" + gt_msgId, "create msg", null, "exitcondition", false);
+					gt_behav.addEdge("sM" + gt_msgId, "start", gt_msg.message, gt_msg.receiver, "exitcondition", false);
 				}
 			}
 			
@@ -564,7 +564,7 @@ function GCcommunication ()
 			gt_behav.addNode("end", "", "end", false, true, false);
 			
 			// connect start and end
-			gt_behav.addEdge("start", "end", "end process", null, "exitcondition", false, false);
+			gt_behav.addEdge("start", "end", "end process", null, "exitcondition", false);
 			
 			// create nodes for received messages
 			if (gt_msgR.length > 0)
@@ -573,8 +573,8 @@ function GCcommunication ()
 				gt_behav.addNode("rcv", "", "receive", false, false, false);
 				
 				// add edges to start node
-				gt_behav.addEdge("start", "rcv", "receive", null, "exitcondition", false, false);
-				gt_behav.addEdge("rcv", "start", "cancel", null, "exitcondition", false, false);
+				gt_behav.addEdge("start", "rcv", "receive", null, "exitcondition", false);
+				gt_behav.addEdge("rcv", "start", "cancel", null, "exitcondition", false);
 				
 				// add received messages
 				for (var gt_mrId in gt_msgR)
@@ -584,8 +584,8 @@ function GCcommunication ()
 					
 					gt_behav.addNode("actM" + gt_msgId, "reaction msg " + gt_msgId, "action", false, false, false);
 					
-					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, "exitcondition", false, false);
-					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, "exitcondition", false, false); 
+					gt_behav.addEdge("rcv", "actM" + gt_msgId, gt_msg.message, gt_msg.sender, "exitcondition", false);
+					gt_behav.addEdge("actM" + gt_msgId, "start", "", null, "exitcondition", false);
 				}
 			}
 		}
@@ -748,7 +748,7 @@ function GCcommunication ()
 					this.selectedSubject = null;
 				}
 				this.selectedNode = null;
-				
+
 				this.draw();
 			}
 		}
@@ -873,7 +873,7 @@ function GCcommunication ()
 		}
 		
 		var gt_behavior = this.getBehavior(id);
-		
+
 		if (gt_behavior != null)
 		{
 			gf_timeReset();
@@ -1130,7 +1130,7 @@ function GCcommunication ()
 	/**
 	 * Returns the id of the node currently selected depending on the current view.
 	 * 
-	 * @returns {int} The id of the selectedNode of the currently active view or null.
+	 * @returns {int|null} The id of the selectedNode of the currently active view or null.
 	 */
 	this.getSelectedNode = function ()
 	{
@@ -1147,6 +1147,18 @@ function GCcommunication ()
 		}
 		return null;
 	};
+
+    /**
+     * @returns the id of the edge currently selected depending on the current view
+     */
+    this.getSelectedEdge = function ()
+    {
+        if (gf_isset(this.subjects[this.selectedSubject]))
+        {
+            return this.getBehavior(this.selectedSubject).getMacro().selectedEdge;
+        }
+        return null;
+    };
 	
 	/**
 	 * Returns the IDs of all subjects of the graph.
@@ -1312,7 +1324,7 @@ function GCcommunication ()
 	 * @returns {void}
 	 */
 	this.loadFromJSON = function (jsonString)
-	{		
+	{
 		var gt_messages		= {};		// messageText: messageID
 		
 		if (gf_isset(jsonString))
@@ -1452,7 +1464,7 @@ function GCcommunication ()
 						{
 							var gt_node		= gt_macroValues.nodes[gt_nodeId];
 							var gt_nodeType	= gf_isset(gt_node.nodeType) ? gt_node.nodeType : gt_node.type;
-							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, false);
+							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, gt_node.manualPositionOffsetX, gt_node.manualPositionOffsetY, false);
 							// var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 							
 							var gt_createdNode	= gt_macro.getNode(gt_nodeId);
@@ -1510,7 +1522,7 @@ function GCcommunication ()
 								gt_text	= this.addMessageType(gt_text);
 							}
 							
-							var gt_createdEdge	= gt_macro.addEdge("loadedNode" + gt_edge.start, "loadedNode" + gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.optional);
+							var gt_createdEdge	= gt_macro.addEdge("loadedNode" + gt_edge.start, "loadedNode" + gt_edge.end, gt_text, gt_edge.target, gt_edge.type, gt_edge.deactivated, gt_edge.manualPositionOffsetLabelX, gt_edge.manualPositionOffsetLabelY, gt_edge.optional);
 							
 							if (gt_createdEdge != null)
 							{
@@ -1669,6 +1681,8 @@ function GCcommunication ()
 						startSubject: this.subjects[gt_sid].isStartSubject(),
 						url: this.subjects[gt_sid].getUrl(),
 						comment: this.subjects[gt_sid].getComment()
+//                        manualPositionOffsetX: this.subjects[gt_sid].getManualPositionOffset().dx,
+//                        manualPositionOffsetY: this.subjects[gt_sid].getManualPositionOffset().dy
 			};
 			
 			var gt_behav 	= this.subjects[gt_sid].getBehavior();
@@ -1682,7 +1696,7 @@ function GCcommunication ()
 				var gt_edges	= gt_macro.getEdges();
 				var gt_newNodes	= [];
 				var gt_newEdges	= [];
-				
+
 				// transform the behavior's nodes
 				for (var gt_nid in gt_nodes)
 				{				
@@ -1693,6 +1707,8 @@ function GCcommunication ()
 							start:	gt_node.isStart(),
 							end:	gt_node.isEnd(),
 							type:	gt_node.getType(),
+                            manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
+                            manualPositionOffsetY: gt_node.getManualPositionOffset().dy,
 							nodeType:	gt_node.getType(),
 							options:	gt_node.getOptions(),
 							deactivated:	gt_node.isDeactivated(),
@@ -1726,6 +1742,8 @@ function GCcommunication ()
 									end:	gt_edgeEndNode.getId(),
 									text:	gt_edge.getText(true),
 									type:	gt_edge.getType(),
+                                    manualPositionOffsetLabelX: gt_edge.getManualPositionOffsetLabel().dx,
+                                    manualPositionOffsetLabelY: gt_edge.getManualPositionOffsetLabel().dy,
 									edgeType:	gt_edge.getType(),
 									target: gt_relatedSubject == null ? "" : gt_relatedSubject,
 									deactivated:	gt_edge.isDeactivated(),
@@ -2011,4 +2029,27 @@ function GCcommunication ()
 			}
 		}
 	};
+
+    /**
+     * Finds an object by id and type, based on the current selected subject
+     *
+     * @param {int|string} id the id of the subject or node
+     * @param {string} type 'node' or 'edgeLabel'
+     */
+    this.getObjectById = function(id, type) {
+        if(null === this.selectedSubject) {
+            if(type === 'node') {
+                return this.getSubjects()[id];
+            }
+        } else {
+            var behavior = this.getBehavior(this.selectedSubject);
+            if(behavior) {
+                if(type === 'node') {
+                    return behavior.getNode(id);
+                } else if (type === 'edgeLabel') {
+                    return behavior.getEdge(id);
+                }
+            }
+        }
+    }
 }

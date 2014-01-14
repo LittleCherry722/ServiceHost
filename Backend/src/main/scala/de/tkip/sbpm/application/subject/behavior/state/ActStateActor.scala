@@ -26,6 +26,8 @@ import de.tkip.sbpm.application.subject.misc.ExecuteAction
 
 protected case class ActStateActor(data: StateData)
   extends BehaviorStateActor(data) {
+  
+  
 
   protected def stateReceive = {
 

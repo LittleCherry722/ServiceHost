@@ -208,9 +208,9 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 * The y ordinate of the top left corner.
 	 * 
 	 * @type int
-	 */	
+	 */
 	this.y = 0;
-	
+
 	/**
 	 * Activate the label and update its look.
 	 * 
@@ -234,7 +234,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		{
 			graph = graph.toLowerCase();
 			id = this.id;
-			
+
 			// set the event handlers for the communication view (label is a subject)
 			if (graph == "cv")
 			{
@@ -310,7 +310,8 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 				$(this.img.node).css("pointer-events", "none");
 		}
 	};
-	
+
+
 	/**
 	 * Deactivate the label and update its look.
 	 * 
@@ -424,7 +425,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		}
 		
 		return statusDependent;
-	}
+	};
 		
 	/**
 	 * Update the value of the textAlignAttribute depending on the new text of this label.
@@ -534,7 +535,7 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 */
 	this.refreshStyle = function ()
 	{
-		
+
 		if (this.belongsToPath === true)
 			gf_taskCounterCount("label - refresh style");
 		
@@ -674,15 +675,13 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 			{
 				params.width	= width;
 				params.height	= height;
-				
-				params.x		= this.x - Math.round(width / 2);
-				params.y		= this.y - Math.round(height / 2);
 			}
 			
 			if (this.img == null)
-				this.img = gv_paper.image(src, params.x, params.y, params.width, params.height);
+				this.img = gv_paper.image(src, 0, 0, params.width, params.height);
 			else
 				this.img.attr(params);
+            this.updateBoundariesImg();
 		}
 	};
 	
@@ -909,6 +908,9 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 	 */
 	this.updateBoundaries = function ()
 	{
+        if(this.img) {
+            this.updateBoundariesImg();
+        }
 		// TODO: some more options like apply padding and move the text according to the new position
 		
 		var gt_textBBox	= {top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0};
@@ -933,7 +935,6 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		
 		this.updateBoundariesText(gt_textBBox);
 
-		
 		var paddingLeft		= this.readStyle("paddingLeft", "int");
 		var paddingRight	= this.readStyle("paddingRight", "int");
 		var paddingTop		= this.readStyle("paddingTop", "int");
@@ -988,6 +989,16 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		
 		this.updatePathSegments(bbox);
 	};
+
+    /**
+     * Updates the position of the image
+     * @returns {void}
+     */
+    this.updateBoundariesImg = function ()
+    {
+        this.img.attr("x", this.x - Math.round(this.img.attr("width") / 2));
+        this.img.attr("y", this.y - Math.round(this.img.attr("height") / 2));
+    };
 	
 	/**
 	 * Updates the position of the text.
@@ -1052,11 +1063,13 @@ function GClabel (x, y, text, shape, id, belongsToPath, performanceMode)
 		
 		this.pathSegments	= [{x: gt_bbox.left, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.top}, {x: gt_bbox.right, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.bottom}, {x: gt_bbox.left, y: gt_bbox.top}];
 	};
-	
+
 	// update the belongsToPath attribute
 	if (gf_isset(belongsToPath) && belongsToPath === true)
+    {
 		this.belongsToPath = true;
-	
+    }
+
 	if (!gf_isset(performanceMode) || performanceMode != true)
 		performanceMode	= false;
 	

@@ -35,6 +35,8 @@ trait GraphEdgesSchema extends GraphNodesSchema {
     def graphId = column[Int]("graph_id")
     def text = column[String]("text", DbType.name)
     def edgeType = column[String]("type", DbType.stringIdentifier)
+    def manualPositionOffsetLabelX = column[Option[Short]]("manual_position_offset_label_x", DbType.smallint)
+    def manualPositionOffsetLabelY = column[Option[Short]]("manual_position_offset_label_y", DbType.smallint)
     def targetSubjectId = column[Option[String]]("target_subject_id", DbType.stringIdentifier)
     def targetMin = column[Option[Short]]("target_min", DbType.smallint)
     def targetMax = column[Option[Short]]("target_max", DbType.smallint)
@@ -49,7 +51,7 @@ trait GraphEdgesSchema extends GraphNodesSchema {
     def comment = column[Option[String]]("comment", DbType.comment)
     def transportMethod = column[String]("transport_method", DbType.stringIdentifier, O.Default("internal"))
 
-    def * = startNodeId ~ endNodeId ~ macroId ~ subjectId ~ graphId ~ text ~ edgeType ~ targetSubjectId ~ targetMin ~ targetMax ~ targetCreateNew ~ targetVariableId ~ isDisabled ~ isOptional ~ priority ~ manualTimeout ~ variableId ~ correlationId ~ comment ~ transportMethod <> (GraphEdge, GraphEdge.unapply _)
+    def * = startNodeId ~ endNodeId ~ macroId ~ subjectId ~ graphId ~ text ~ edgeType ~ manualPositionOffsetLabelX ~ manualPositionOffsetLabelY ~ targetSubjectId ~ targetMin ~ targetMax ~ targetCreateNew ~ targetVariableId ~ isDisabled ~ isOptional ~ priority ~ manualTimeout ~ variableId ~ correlationId ~ comment ~ transportMethod <> (GraphEdge, GraphEdge.unapply _)
 
     def pk = primaryKey(pkName, (startNodeId, endNodeId, macroId, subjectId, graphId))
 

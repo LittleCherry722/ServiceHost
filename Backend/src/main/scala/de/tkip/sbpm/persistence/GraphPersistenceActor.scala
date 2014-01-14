@@ -28,6 +28,7 @@ private[persistence] class GraphPersistenceActor extends Actor
   with schema.GraphMessagesSchema
   with schema.GraphEdgesSchema
   with schema.GraphNodesSchema
+  with schema.GraphVarMansSchema
   with schema.GraphRoutingsSchema {
 
   // import current slick driver dynamically
@@ -91,7 +92,7 @@ private[persistence] class GraphPersistenceActor extends Actor
   // update entity or throw exception if it does not exist
   protected def save(g: Graph)(implicit session: Session) = {
     // convert domain model graph to db entities
-    val (graph, conversations, messages, routings, subjects, variables, macros, nodes, edges) =
+    val (graph, conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges) =
       convert(g) match {
       // only graph was converted, because it's a new graph (no id exits)
         case Left(model: mapping.Graph) =>
@@ -128,6 +129,8 @@ private[persistence] class GraphPersistenceActor extends Actor
 
     GraphNodes.insertAll(nodes: _*)
 
+    GraphVarMans.insertAll(varMans: _*)
+
     GraphEdges.insertAll(edges: _*)
 
     // only return id if graph was inserted
@@ -144,6 +147,7 @@ private[persistence] class GraphPersistenceActor extends Actor
   private def deleteSubEntities(id: Int)(implicit session: Session) = {
     GraphEdges.where(_.graphId === id).delete
     GraphNodes.where(_.graphId === id).delete
+    GraphVarMans.where(_.graphId === id).delete
     GraphMacros.where(_.graphId === id).delete
     GraphVariables.where(_.graphId === id).delete
     GraphSubjects.where(_.graphId === id).delete
@@ -163,5 +167,6 @@ private[persistence] class GraphPersistenceActor extends Actor
     Query(GraphVariables).where(_.graphId === id).list,
     Query(GraphMacros).where(_.graphId === id).list,
     Query(GraphNodes).where(_.graphId === id).list,
+    Query(GraphVarMans).where(_.graphId === id).list,
     Query(GraphEdges).where(_.graphId === id).list)
 }

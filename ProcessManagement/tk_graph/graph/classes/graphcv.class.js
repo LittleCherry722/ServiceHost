@@ -359,7 +359,7 @@ function GCgraphcv ()
 			gt_cv_path.setSpace1(gt_cv_arrowUspace);
 			gt_cv_path.setFirstLine("v");
 			gt_cv_path.updatePath();
-			
+
 		// check if the path intersects with any other message
 		if (gt_cv_arrowType == "U")
 		{

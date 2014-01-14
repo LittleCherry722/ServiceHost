@@ -11,157 +11,178 @@
  * file, * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 define([
-  "knockout",
-  "model"
-], function( ko, Model ) {
+    "knockout",
+    "model"
+], function (ko, Model) {
 
-  Interface = Model( "Interfaces", { remotePath: "repo" } );
+    Interface = Model("Interfaces", { remotePath: "repo" });
 
-  Interface.attrs({
-    name: "string",
-    creator: "string",
-    description: "string",
-    processId: "integer",
-    subjectId: "integer",
-    graph: {
-			type: "json",
-			lazy: false
+    Interface.attrs({
+        name: "string",
+        creator: "string",
+        description: "string",
+        processId: "integer",
+        subjectId: "integer",
+        graph: {
+            type: "json",
+            lazy: false
+        }
+    });
+
+    Interface.nameAlreadyTaken = function (name) {
+        return !!Interface.all().filter(function (i) {
+            return i.name() == name;
+        }).length;
     }
-  });
 
-  Interface.nameAlreadyTaken = function( name ) {
-    return !! Interface.all().filter(function( i ) {
-      return i.name() == name;
-    }).length;
-  }
-
-  var graph = {
-		"id": "New Interface",
-		"name": "New Interface",
-		"type": "external",
-		"deactivated": false,
-		"startSubject": false,
-		"inputPool": 100,
-		"relatedSubject": "",
-		"relatedProcess": null,
-		"externalType": "interface",
-		"role": "noRole",
-		"comment": "",
-		"variables": {},
-		"variableCounter": 1,
-		"macroCounter": 1,
-		"macros": [{
-			"id": "##main##",
-			"name": "internal behavior",
-			"nodeCounter": 3,
-			"nodes": [{
-				"id": 0,
-				"text": "",
-				"start": true,
-				"end": false,
-				"type": "receive",
-				"deactivated": false,
-				"majorStartNode": true,
-				"options": {
-					"message": "*",
-					"subject": "*",
-					"correlationId": null,
-					"conversation": null,
-					"state": null
-				},
-				"macro": "",
-				"varMan": {
-					"var1": "",
-					"var2": "",
-					"operation": "and",
-					"storevar": ""
-				}
-			}, {
-				"id": 1,
-				"text": "Handle Travel Application",
-				"start": false,
-				"end": false,
-				"type": "action",
-				"deactivated": false,
-				"majorStartNode": false,
-				"options": {
-					"message": "*",
-					"subject": "*",
-					"correlationId": null,
-					"conversation": null,
-					"state": null
-				},
-				"macro": "",
-				"varMan": {
-					"var1": "",
-					"var2": "",
-					"operation": "and",
-					"storevar": ""
-				}
-			}, {
-				"id": 2,
-				"text": "End process",
-				"start": false,
-				"end": true,
-				"type": "end",
-				"deactivated": false,
-				"majorStartNode": false,
-				"options": {
-					"message": "*",
-					"subject": "*",
-					"correlationId": null,
-					"conversation": null,
-					"state": null
-				},
-				"macro": "",
-				"varMan": {
-					"var1": "",
-					"var2": "",
-					"operation": "and",
-					"storevar": ""
-				}
-			}],
-      "edges": [{
-        "start": 0,
-        "end": 1,
-        "text": "m4",
-        "type": "exitcondition",
-        "target": {
-          "id": "Manager",
-          "min": -1,
-          "max": -1,
-          "createNew": false
-        },
+    var graph = {
+        "id": "New Interface",
+        "name": "New Interface",
+        "type": "external",
         "deactivated": false,
-        "optional": false,
-        "priority": 1,
-        "manualTimeout": false,
-        "correlationId": "",
+        "startSubject": false,
+        "inputPool": 100,
+        "relatedSubject": "",
+        "relatedProcess": null,
+        "externalType": "interface",
+        "role": "noRole",
         "comment": "",
-        "transportMethod": ["internal"]
-      }, {
-        "start": 1,
-        "end": 2,
-        "text": "Travel Application filed",
-        "type": "exitcondition",
-        "deactivated": false,
-        "optional": false,
-        "priority": 1,
-        "manualTimeout": false,
-        "correlationId": "",
-        "comment": "",
-        "transportMethod": ["internal"]
-      }]
-		}]
-  }
+        "variables": {},
+        "variableCounter": 1,
+        "macroCounter": 1,
+        "macros": [
+            {
+                "id": "##main##",
+                "name": "internal behavior",
+                "nodeCounter": 3,
+                "nodes": [
+                    {
+                        "id": 0,
+                        "text": "",
+                        "start": true,
+                        "end": false,
+                        "type": "receive",
+                        "manualPositionOffsetX": 0,
+                        "manualPositionOffsetY": 0,
+                        "deactivated": false,
+                        "majorStartNode": true,
+                        "options": {
+                            "message": "*",
+                            "subject": "*",
+                            "correlationId": null,
+                            "conversation": null,
+                            "state": null
+                        },
+                        "macro": "",
+                        "varMan": {
+                            "var1": "",
+                            "var2": "",
+                            "operation": "and",
+                            "storevar": ""
+                        }
+                    },
+                    {
+                        "id": 1,
+                        "text": "Archive Travel Application",
+                        "start": false,
+                        "end": false,
+                        "type": "$archive",
+                        "manualPositionOffsetX": 0,
+                        "manualPositionOffsetY": 0,
+                        "deactivated": false,
+                        "majorStartNode": false,
+                        "conversation": "",
+                        "variable": "",
+                        "options": {
+                            "message": "*",
+                            "subject": "*",
+                            "correlationId": "",
+                            "conversation": "",
+                            "state": null
+                        },
+                        "macro": "",
+                        "varMan": {
+                            "var1": "",
+                            "var2": "",
+                            "operation": "and",
+                            "storevar": ""
+                        }
+                    },
+                    {
+                        "id": 2,
+                        "text": "End process",
+                        "start": false,
+                        "end": true,
+                        "type": "end",
+                        "manualPositionOffsetX": 0,
+                        "manualPositionOffsetY": 0,
+                        "deactivated": false,
+                        "majorStartNode": false,
+                        "options": {
+                            "message": "*",
+                            "subject": "*",
+                            "correlationId": null,
+                            "conversation": null,
+                            "state": null
+                        },
+                        "macro": "",
+                        "varMan": {
+                            "var1": "",
+                            "var2": "",
+                            "operation": "and",
+                            "storevar": ""
+                        }
+                    }
+                ],
+                "edges": [
+                    {
+                        "start": 0,
+                        "end": 1,
+                        "text": "m4",
+                        "type": "exitcondition",
+                        "manualPositionOffsetX": 0,
+                        "manualPositionOffsetY": 0,
+                        "target": {
+                            "id": "Manager",
+                            "min": -1,
+                            "max": -1,
+                            "createNew": false
+                        },
+                        "deactivated": false,
+                        "optional": false,
+                        "priority": 1,
+                        "manualTimeout": false,
+                        "correlationId": "",
+                        "comment": "",
+                        "transportMethod": ["internal"]
+                    },
+                    {
+                        "start": 1,
+                        "end": 2,
+                        "text": "Travel Application filed",
+                        "type": "exitcondition",
+                        "manualPositionOffsetX": 0,
+                        "manualPositionOffsetY": 0,
+                        "deactivated": false,
+                        "optional": false,
+                        "priority": 1,
+                        "manualTimeout": false,
+                        "correlationId": "",
+                        "comment": "",
+                        "transportMethod": ["internal"]
+                    }
+                ]
+            }
+        ]
+    }
 
-  // Interface.fetch = function(obj, callback) {
-  //   callback.success();
-  // }
+    // Interface.fetch = function(obj, callback) {
+    //   callback.success();
+    // }
 
-  // Interface.all = ko.observableArray([
-  //   new Interface({ id: 1, name: "Travel Process", creator: "Arne", graph: graph }),
-  // ]);
+    // Interface.all = ko.observableArray([
+    //   new Interface({ id: 1, name: "Travel Process", creator: "Arne", graph: graph }),
+    // ]);
 
-  return Interface;
+    return Interface;
 });
