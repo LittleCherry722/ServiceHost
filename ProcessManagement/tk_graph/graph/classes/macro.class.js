@@ -459,7 +459,7 @@ function GCmacro (parent, id, name)
                 gt_edgePositions[gt_edgeId]	= new GCrenderEdge(gt_edgeId, this.edges[gt_eid]);
 			}
 				
-			if (this.selectedEdge != null)
+			if (this.selectedEdge != null && gt_edgePositions[this.selectedEdge])
 				gt_edgePositions[this.selectedEdge].selected = true;
 			
 			

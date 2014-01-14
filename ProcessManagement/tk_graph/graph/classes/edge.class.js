@@ -866,7 +866,7 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 				gt_correlation	= " with (" + this.getCorrelationId("name") + ")"
 			
 			// messages
-			if (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive")
+			if (gt_startNode && (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive"))
 			{
 				var gt_text				= this.getMessageType();
 				var gt_relatedSubject	= this.getRelatedSubject("name");
