@@ -21,18 +21,13 @@ import de.tkip.sbpm.application.subject.misc.{ActionData, SubjectToSubjectMessag
 protected case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) {
   private var trueTransition: Transition = null
   private var falseTransition: Transition = null
-    
-  println("####################################################")
-  println("####################################################")
-  
-  println("DecisionStateActor -> Init")
-  
-  println("DecisionStateActor -> exitTransitions: " + exitTransitions.mkString(","))
-  println("DecisionStateActor -> variables: " + variables.mkString(","))
   private val travel_request_string = extractVariable(variables)
-  println("DecisionStateActor -> travel_request_string: " + travel_request_string)
 
   prepareTransitions
+
+  logger.debug("DecisionStateActor initialized: exitTransactions=" + exitTransitions.mkString(",") +
+    ", variables="+variables.mkString(",")+",travel_request_string="+travel_request_string+", trueTransition="+trueTransition+
+    ", falseTransition=" + falseTransition)
 
   try {
     val res: Boolean = evaluateDecision(travel_request_string)
@@ -40,22 +35,19 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
   }
   catch {
     case ex : Throwable => {
-      println("DecisionStateActor EXEPTION!!! " + ex);
+      logger.error("DecisionStateActor exception during evaluation")
     }
   }
 
   
   
-  println("####################################################")
-  println("####################################################")
- 
   protected def extractVariable(variables: scala.collection.mutable.Map[String,de.tkip.sbpm.application.subject.behavior.Variable]): String = {
     var ret = "Variable not found!!"
     for((key,variable) <- variables) {
       for(value <- variable.messages) {
         value match {
-          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; println("extractVariable: found with key '"+key+"': " + value)}
-          case x => {println("extractVariable: it is not '"+key+"' with value: " + x)}
+          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; logger.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
+          case x => {logger.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)}
         }
       }
     }
@@ -67,12 +59,9 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
       transition match {
         case Transition(ExitCond("true",_),_,_,_) => {trueTransition = transition}
         case Transition(ExitCond("false",_),_,_,_) => {falseTransition = transition}
-        case _ => println("DecisionStateActor -> unexpected Transition: " + transition)
+        case _ => logger.error("DecisionStateActor unexpected transition: " + transition)
       }
     }
-
-    println("DecisionStateActor -> trueTransition:" + trueTransition)
-    println("DecisionStateActor -> falseTransition:" + falseTransition)
   }
   
   
@@ -91,6 +80,6 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
   
   protected def stateReceive = {
     // execute an action
-    case _ @ x=> println("DecisionStateActor -> unexpected stateReceive: " + x)
+    case _ @ x=> logger.warning("DecisionStateActor -> unexpected stateReceive: " + x)
   }
 }
