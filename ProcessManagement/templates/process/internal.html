@@ -11,6 +11,7 @@
 			<input type="button" id="InsertReceiveButton" data-bind="tooltip : 'Macro : Press &#34;2&#34;'" onclick="gf_callMacro('newReceiveNode');" value="Insert receive state" />
 			<input type="button" id="InsertActionNodeButton" data-bind="tooltip : 'Macro : Press &#34;3&#34;'" onclick="gf_callMacro('newActionNode');" value="Insert action state" />
 			<br/>
+			<input type="button" id="internalClearManualPositionOffset" value="Reset manual positions" onclick="gf_resetManualPositionOffsetsCurrentInner();" />
 			<input type="button" id="internalClearBehavior" value="Clear behavior" />
 		</div>
 	</fieldset>
@@ -126,7 +127,9 @@
 		<label class="graphsectionheader">Comment:</label>
 		<textarea id="ge_edge_comment" ></textarea>
 
-
+        <div data-bind="if: selectedEdgeHasLabelPositionOffset">
+            <input type="button" data-bind="click: resetManualPositionOffsetEdgeLabel" value="Reset manual position" />
+        </div>
 		<input type="button" id="UpdateEdgeButton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<input type="button" id="DeleteEdgeButton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
 	</fieldset>
@@ -241,6 +244,9 @@
 		<textarea id="ge_node_comment" ></textarea>
 
 
+        <div data-bind="if: selectedNodeHasPositionOffset">
+            <input type="button" data-bind="click: resetManualPositionOffsetNode" value="Reset manual position" />
+        </div>
 		<input type="button" id="UpdateNodeButton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
 		<input type="button" id="ConnectNodeButton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />
 		<input type="button" id="DeleteNodeButton" onclick="gv_graph.deleteNode();" value="Delete state" />

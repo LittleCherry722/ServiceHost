@@ -125,7 +125,13 @@ class SubjectActor(data: SubjectData) extends Actor {
   }
 
   def receive = {
+    
     case sm: SubjectToSubjectMessage => {
+      for{(key, name)<-subject.variablesMap}{
+        for(a <- macroBehaviorActors.values)
+            a ! AddVariable(name,sm)
+      }
+    
       // a message from an other subject can be forwarded into the inputpool
       inputPoolActor.forward(sm)
     }

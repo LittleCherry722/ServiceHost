@@ -17,9 +17,17 @@ define([
 
 	var processInstance = ko.observable();
 
+    var gvGraphSubscription;
+    var gvGraphDummy = ko.observable();     // will notify subscribers when gv_graph changes / properties become available
+
+    // list of [subject id, subject name, boolean is internal subject]
 	var subjects = ko.computed(function() {
-		if ( processInstance() && processInstance().process() ) {
-			return processInstance().process().subjectsArray();
+        gvGraphDummy();
+        if ( processInstance() && processInstance().process() ) {
+			return _.map(processInstance().process().subjectsArray(), function(subject){
+                var subjectId = subject[0].replace(/___/, " ");
+                return [subject[0], subject[1], gv_graph.subjects[subjectId] && !gv_graph.subjects[subjectId].isExternal()];
+            });
 		} else {
 			return []
 		}
@@ -81,6 +89,9 @@ define([
 			unloadSubView();
 			currentSubView( viewModel );
       		viewModel.init.apply( viewModel, [ processInstance(), currentSubject() ] );
+            window.subjects = subjects
+            window.pi = processInstance
+
 		});
 
 		if ( newTab === tabs[0] ) {
@@ -103,6 +114,11 @@ define([
 		viewModel = new ViewModel();
 		processInstance( ProcessInstance.find( processInstanceId ) );
 
+        // notify subscribers that depend on gv_graph properties
+        gvGraphSubscription = $.subscribe(gv_topics.general.conversations, function(){
+            gvGraphDummy.notifySubscribers();
+        });
+
 		if ( !subSite ) {
 			subSite = tabs[0]
 		}
@@ -119,6 +135,7 @@ define([
 	};
 
 	var unload = function() {
+        $.unsubscribe(gvGraphSubscription);
 		unloadSubView();
 		return true;
 	};

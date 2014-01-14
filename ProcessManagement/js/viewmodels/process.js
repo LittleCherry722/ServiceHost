@@ -64,10 +64,8 @@ define([
 
 		this.selectedInterfaceId = ko.computed(function() {
 			if ( self.selectedInterface() ) {
-				console.log("id: " + self.selectedInterface().id());
 				return self.selectedInterface().id();
 			} else {
-				console.log("...");
 				return -1;
 			}
 		});
@@ -208,10 +206,12 @@ define([
 		this.currentMacro   = currentMacro;
 
 		// should certain elements of the right form be visible?
-		this.isEdgeSelected        = isEdgeSelected;
-		this.isNodeSelected        = isNodeSelected;
-		this.isShowRoleWarning     = isShowRoleWarning;
-		this.isShowEdgeInformation = isShowEdgeInformation;
+        this.isEdgeSelected = isEdgeSelected;
+        this.isNodeSelected = isNodeSelected;
+        this.selectedNodeHasPositionOffset = selectedNodeHasPositionOffset;
+        this.selectedEdgeHasLabelPositionOffset = selectedEdgeHasLabelPositionOffset;
+        this.isShowRoleWarning = isShowRoleWarning;
+        this.isShowEdgeInformation = isShowEdgeInformation;
 
 		// Save process methods
 		this.saveCurrentProcess = saveCurrentGraph;
@@ -288,6 +288,11 @@ define([
 			Router.goTo("/processes/"+currentProcess().id()+"/routing");
 		}
 
+        // misc
+
+        this.resetManualPositionOffsetNode = resetManualPositionOffsetNode;
+        this.resetManualPositionOffsetEdgeLabel = resetManualPositionOffsetEdgeLabel;
+
 		// Subscribe to all graph events we need to listen to.
 		subscribeAll()
 	}
@@ -322,17 +327,19 @@ define([
 
 	// Various observables to control whether or not to show certain
 	// form fields in the internal view.
-	var isEdgeSelected        = ko.observable( false );
-	var isNodeSelected        = ko.observable( false );
-	var isShowRoleWarning     = ko.observable( true );
+	var isEdgeSelected = ko.observable( false );
+    var isNodeSelected = ko.observable( false );
+    var selectedNodeHasPositionOffset = ko.observable(false);
+    var selectedEdgeHasLabelPositionOffset = ko.observable(false);
+	var isShowRoleWarning = ko.observable( true );
 	var isShowEdgeInformation = ko.observable( false );
 
 	// ko.observables for similar named attributes of the viewmodel.
 	// Reference it outside the viewmodel so we don't have to declare every
 	// function inside the viewmodel to get a reference to these objects.
-	var availableSubjects      = ko.observableArray([]);
-	var availableConversations = ko.observableArray([]);
-	var availableMacros        = ko.observableArray([]);
+	var availableSubjects = ko.observableArray([]);
+    var availableConversations = ko.observableArray([]);
+    var availableMacros = ko.observableArray([]);
 
 	/***************************************************************************
 	 * Subscriptions to our observables. Used
@@ -434,7 +441,7 @@ define([
 			return;
 		}
 		gf_selectConversation( conversation );
-	})
+	});
 
 	currentMacro.subscribe(function( macro ) {
 		if ( !macro || !gf_getMacros()[ macro ] ) {
@@ -537,6 +544,14 @@ define([
 		}
 	}
 
+    var resetManualPositionOffsetNode = function(){
+        gf_addManualPositionOffset(null, gv_graph.getSelectedNode(), 'node');
+    }
+
+    var resetManualPositionOffsetEdgeLabel = function(){
+        gf_addManualPositionOffset(null, gv_graph.getSelectedEdge(), 'edgeLabel');
+    }
+
 
 	/***************************************************************************
 	 * Setup methods for DOM and tk_graph Listeners
@@ -617,20 +632,19 @@ define([
 		});
 	}
 
-	var initializeSvgChangeListener = function(){
-		var svgInt = setInterval(function(){
-			var svg = $('#processContent svg');
-			if(svg.length > 0){
-				svg.on('DOMSubtreeModified', function(){
-					if(gv_graph.getSubjectNames().length > 0) {
-						$('#process-subject-help').addClass('invisible');
-					} else {
-						$('#process-subject-help').removeClass('invisible');
-					}
-				});
-				clearInterval(svgInt);
-			}
-		}, 100);
+    /**
+     * Checks if there are no subject. In case of that, the help-box will be shown until the user adds a subject
+     */
+	var tryShowSubjectHelpBox = function(){
+        if(gv_graph.getSubjectNames().length == 0) {
+            $('#process-subject-help').removeClass('invisible');
+            var subscription = $.subscribe(gv_topics.general.subjects, function(data){
+                if(data.action === 'add') {
+                    $.unsubscribe(subscription);
+                    $('#process-subject-help').addClass('invisible');
+                }
+            });
+        }
 	}
 
 	var subscriptions = [];
@@ -731,11 +745,28 @@ define([
 
 	var showEdgeFields = function() {
 		setVisibleExclusive( isEdgeSelected );
-	}
-	var showNodeFields = function() {
-		setVisibleExclusive( isNodeSelected );
-	}
 
+        setTimeout(function () {
+            var hasOffset = false,
+                offset = gf_getManualPositionOffset(gv_graph.getSelectedEdge(), 'edgeLabel');
+            if (offset && 'dx' in offset && 'dy' in offset) {
+                hasOffset = offset.dx !== 0 || offset.dy !== 0;
+            }
+            selectedEdgeHasLabelPositionOffset(isEdgeSelected() && hasOffset);
+        }, 60);
+	}
+    var showNodeFields = function() {
+        setVisibleExclusive( isNodeSelected );
+
+        setTimeout(function () {
+            var hasOffset = false,
+                offset = gf_getManualPositionOffset(gv_graph.getSelectedNode(), 'node');
+            if (offset && 'dx' in offset && 'dy' in offset) {
+                hasOffset = offset.dx !== 0 || offset.dy !== 0;
+            }
+            selectedNodeHasPositionOffset(isNodeSelected() && hasOffset);
+        }, 60);
+    }
 
 
 	var updateMenuDropdowns = function() {
@@ -856,6 +887,7 @@ define([
 	var initialize = function( processId, subjectId, callback ) {
 		var viewModel = new ViewModel();
 		window.pView = viewModel;
+        gv_interactionsEnabled = true;
 		App.loadTemplate( "process", viewModel, null, function() {
 
 			// Load all sub templates. They are:
@@ -875,7 +907,7 @@ define([
 					initialized = true;
 					initializeListeners();
 				}
-				initializeSvgChangeListener();
+				tryShowSubjectHelpBox();
 
 				initializeDOM();
 
@@ -896,6 +928,7 @@ define([
 	// Must return true, otherwise the view will not be unloaded.
 	var unload = function() {
 		unsubscribeAll();
+        gv_interactionsEnabled = false;
 		return true;
 	}
 

@@ -128,6 +128,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   def receive = {
+    
     case GetProxyActor => {
       sender ! proxyActor
     }

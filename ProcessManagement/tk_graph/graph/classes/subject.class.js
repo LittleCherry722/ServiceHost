@@ -129,6 +129,13 @@ function GCsubject (id, text, type, inputPool)
 	 * @type String
 	 */
 	this.type		= type;
+
+    /**
+     * The user-defined manual offset for the subject position
+     *
+     * @type {?{dx: int, dy: int}}
+     */
+    this.manualPositionOffset = null;
 	
 	/**
 	 * TODO
@@ -270,7 +277,25 @@ function GCsubject (id, text, type, inputPool)
 	{
 		return this.type.toLowerCase();
 	};
-	
+
+    /**
+     * The user-defined manual offset for the subject position
+     *
+     * @returns {{dx: int, dy: int}}
+     */
+    this.getManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset || {dx: 0, dy: 0};
+    };
+
+    /**
+     * @returns {boolean} true if the the subject has a user-defined offset
+     */
+    this.hasManualPositionOffset = function ()
+    {
+        return this.manualPositionOffset !== null && 'dx' in this.manualPositionOffset && 'dy' in this.manualPositionOffset;
+    };
+
 	/**
 	 * Returns the corresponding url.
 	 * 
@@ -292,7 +317,7 @@ function GCsubject (id, text, type, inputPool)
 	{
 		return !this.isExternal() || this.getExternalType() == "interface";
 	};
-	
+
 	/**
 	 * Returns the deactivate status of this subject.
 	 * 

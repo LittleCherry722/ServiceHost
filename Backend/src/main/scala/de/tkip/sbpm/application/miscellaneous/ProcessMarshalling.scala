@@ -80,7 +80,10 @@ object parseGraph {
       val id = subject.id
       val multi = subjectMap(id).multi
       val external = subjectMap(id).external
-
+      
+      var tempMap:Map[String,String]=Map()
+      subject.variables.foreach {case(key, GraphVariable(k,v)) => tempMap = tempMap + (key -> v)}
+      val varMap=tempMap;
       val macros = subject.macros.map(m => parseMacro(m._1, m._2))
 
       // first parse the nodes then the edges
@@ -90,12 +93,12 @@ object parseGraph {
       // all parsed states are in the states map, convert the creators,
       // create and return the subject
       if (!external)
-        Subject(subject.id, subject.inputPool, macros, multi)
+        Subject(subject.id, subject.inputPool, macros, multi,varMap)
       else {
         // FIXME GraphId != processId
         // TODO check ob vorhanden!
 
-        ExternalSubject(id, subject.inputPool, multi, subject.relatedGraphId, subject.relatedSubjectId, subject.relatedInterfaceId, subject.url)
+        ExternalSubject(id, subject.inputPool, multi, subject.relatedGraphId, subject.relatedSubjectId, subject.relatedInterfaceId, subject.url,varMap)
       }
     }
 

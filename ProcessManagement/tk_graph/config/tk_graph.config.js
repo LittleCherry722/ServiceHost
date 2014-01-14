@@ -70,7 +70,7 @@ var gv_paperSizes	= {
 	bv_width: 5000,		// width of the canvas for the behavioral view
 	bv_height: 6000,	// height of the canvas for the behavioral view
 	cv_width: 2000,		// width of the canvas for the communication view
-	cv_height: 500		// height of the canvas for the communication view
+	cv_height: 642		// height of the canvas for the communication view
 };
 
 /**
@@ -154,15 +154,21 @@ var gv_predefinedActions	= {
 	
 	// the openIP action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to open the input pool for a certain subject and messageType after it has been closed (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
 	openip: {subject: true, message: true, wildcard: true, label: "openIP", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
-	
+
+    // archives a message
+    archive: {subject: false, message: true, wildcard: false, label: "Archive", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false},
+
 	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
 	isipempty: {subject: true, message: true, wildcard: true, label: "isIPempty", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: true, createsubjects: false},
-	
+
+    // decision state
+    decision: {subject: false, message: true, wildcard: false, label: "Decision", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false},
+
 	// the ignore action has one parameter (subject without wildcard)
-	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
+    //	ignore: {subject: true, message: false, wildcard: false, label: "Ignore", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 	
 	// the acknowledge action has one parameter (subject without wildcard)
-	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
+    //	acknowledge: {subject: true, message: false, wildcard: false, label: "Acknowledge", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 	
 	// the Activate State action has one parameter (state) and is used to activate a certain start state within an internal behavior
 	activatestate: {subject: false, message: false, wildcard: false, label: "Activate State", conversation: false, correlationid: false, options: true, state: true, variableman: false, booledge: false, createsubjects: false},
