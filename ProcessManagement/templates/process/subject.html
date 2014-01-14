@@ -30,6 +30,15 @@
             <a class="btn" id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph">Export</a>
         </div>
     </fieldset>
+    <fieldset class="clearfix">
+        <legend>Interface Transformation</legend>
+        <select data-bind="options: availableInterfaces, optionsValue: 'id',
+                           optionsText: 'name', value: transformInterfaceSubject">
+        </select>
+        <div style="margin-bottom: 10px">
+            <a class="btn" id="transformButton" data-bind="click: transformInterface">Transform</a>
+        </div>
+    </fieldset>
     <fieldset class="tooltip-enabled">
         <legend>Subject settings</legend>
 

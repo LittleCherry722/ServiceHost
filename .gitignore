@@ -15,3 +15,6 @@
 Repository/target/*
 Repository/project/target/*
 ProcessManagement/nbproject/*
+
+.ensime
+.ensime_lucene

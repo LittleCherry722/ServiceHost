@@ -38,6 +38,166 @@ define([
 			}
 		});
 
+    //////////////////////////////
+    // Interface Transformation //
+    //////////////////////////////
+
+		this.transformInterfaceSubject = ko.observable("");
+		this.transformInterface = function() {
+      var og  = currentProcess().graphObject(),
+          ng  = JSON.parse(JSON.stringify(og)),
+          ps  = ng.process,
+          sid = self.transformInterfaceSubject(),
+          concatTau = function(n, s, last) {
+            s.macros.forEach(function(m) {
+              // adjust remove outgoing edges
+              m.edges = _(m.edges.map(function(e) {
+                if (e.start === n.id) {
+                  e.start = last;
+                } else if (e.end === n.id) {
+                  return null;
+                }
+                return e;
+              })).compact();
+              // adjust remove node
+
+            });
+          },
+          makeTau = function(node, s) {
+            if (s.id === sid) {
+              return;
+            }
+            node.type = node.nodeType = "tau";
+            node.text = "tau";
+            s.macros.forEach(function(m) {
+              m.edges.forEach(function(e) {
+                if (e.start === node.id) {
+                  e.target = "";
+                }
+              });
+            });
+          },
+          makeTauID = function(nid, s) {
+            var n;
+            s.macros.forEach(function(m) {
+              n = _(m.nodes).findWhere({id: nid});
+            });
+            makeTau(n, s)
+            return n;
+          };
+
+      // Make current subject a normal subj. and all others Interface subjects
+      ps.forEach(function(s) {
+        if (s.id === sid) {
+          s.subjectType = "single";
+          s.externalType = "";
+        } else {
+          s.subjectType = "external";
+          s.externalType = "interface";
+        }
+      });
+
+      // anonymize messages.
+      var messages = []
+      ps.forEach(function (s) {
+        if (s.id == sid) {
+          s.macros.forEach(function(m) {
+            m.edges.forEach(function(e) {
+              if( e.text ) {
+                messages.push(e.text)
+              }
+            })
+          })
+        }
+      })
+      messages = _(messages).uniq()
+      _(ng.messages).each(function(v, k) {
+        if (!_(messages).contains(k)) {
+          console.log("anonymizing meessage: " + k);
+          ng.messages[k] = "Anonymized"
+        }
+      })
+
+      // remove all subjects that are not conncected to our sel. subject
+      ng.process = _(ps.map(function(p) {
+        if (p.id === sid) return p;
+        var hasEdge = false;
+        p.macros.forEach(function(m) {
+          m.edges.forEach(function(e) {
+            if (e.target && e.target.id === sid) {
+              hasEdge = true;
+            }
+          })
+        });
+        return hasEdge? p : null;
+      })).compact();
+
+      // set all send or receive to / from deleted nodes to tau
+      var remainingSubjects = ng.process.map(function(p) { return p.id })
+      ps.forEach(function(s) {
+        s.macros.forEach(function(m) {
+          m.edges.forEach(function(e) {
+            if (e.target && !_(remainingSubjects).contains(e.target.id)) {
+              makeTauID(e.start, s)
+              e.target = "";
+              e.text = "tau";
+            }
+          })
+        });
+      });
+
+      // set all non send / receive nodes and edges to tau
+      ps.forEach(function(s) {
+        s.macros.forEach(function(m) {
+          m.nodes.forEach(function(n) {
+            if (n.type !== "send" && n.type !== "receive") {
+              makeTau(n, s);
+            }
+          })
+        });
+      });
+
+      // Concatenate Tau nodes and edges
+      // ps.forEach(function(s) {
+      //   s.macros.forEach(function(m) {
+      //     var lastTau = null;
+      //     m.nodes = _(m.nodes.map(function(n) {
+      //       if (n.type == "tau") {
+      //         if (lastTau) {
+      //           concatTau(n, s, lastTau)
+      //           return null;
+      //         } else {
+      //           lastTau = n.id;
+      //         }
+      //       } else {
+      //         lastTau = null;
+      //       }
+      //       return n;
+      //     })).compact();
+      //   });
+      // });
+
+      // set all edges not related to our subject to tau
+      ps.forEach(function(s) {
+        if ( s.id === sid) return;
+        s.macros.forEach(function(m) {
+          m.edges.forEach(function(e) {
+            if (! e.target) {
+              e.text = "tau";
+            }
+          })
+        });
+      });
+
+      // console.log(JSON.stringify(ng));
+			currentProcess().graph({definition: ng});
+			loadGraph(currentProcess().graph());
+    }
+
+    //////////////////////////////////
+    // END Interface Transformation //
+    //////////////////////////////////
+
 		window.existingInterfaces = this.existingInterfaces = Interface.all;
 
 		// Needed for saving the business Interface
@@ -107,7 +267,7 @@ define([
 				}).value();
 		});
 
-		window.interfaceReplacementSubject = this.interfaceReplacementSubject = ko.observable("");
+		this.interfaceReplacementSubject = ko.observable("");
 
 		this.loadBusinessInterface = function() {
 			if ( !self.selectedInterface() ) return;

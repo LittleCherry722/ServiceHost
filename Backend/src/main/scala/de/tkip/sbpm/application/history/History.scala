@@ -31,10 +31,10 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 case class Message(id: Int,
                    messageType: String,
                    from: String, // sender subject of message
-                   to: String, // receiver subject of message 
+                   to: String, // receiver subject of message
                    data: String, // link to msg payload
                    files: Option[Seq[MessagePayloadLink]] = None) // link to file attachments
-// represents a link to a message payload which contains a actor ref 
+// represents a link to a message payload which contains a actor ref
 // and a payload id that is needed by that actor to identify payload
 case class MessagePayloadLink(actor: ActorRef, payloadId: String)
 // this message can be sent to message payload providing actors referenced in
