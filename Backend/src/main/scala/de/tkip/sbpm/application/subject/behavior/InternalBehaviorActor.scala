@@ -40,6 +40,7 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
+import scala.concurrent.duration._
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 import org.parboiled.support.Var
