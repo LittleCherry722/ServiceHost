@@ -41,7 +41,6 @@ import de.tkip.sbpm.application.subject.behavior.InputPoolMessagesChanged
 import de.tkip.sbpm.application.subject.behavior.DeleteInputPoolMessages
 import de.tkip.sbpm.model.ChangeDataMode._
 
-
 protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
@@ -80,6 +79,7 @@ protected case class ReceiveStateActor(data: StateData)
       val input = action.actionData
       // get the transition from the map
       val transition = exitTransitionsMap((input.relatedSubject.get, input.text))
+
       // create the Historymessage
       val message =
         HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
@@ -120,6 +120,49 @@ protected case class ReceiveStateActor(data: StateData)
 
       // send information about changed actions to actionchangeactor
       actionChanged(Updated)
+
+      var transition = exitTransitionsMap(fromSubject, messageType)
+      var isAutoReceive = false
+      if (messages.length != 0) {
+        //Check if only one ExitCond
+        if (exitTransitions.length == 1) {
+          isAutoReceive = true
+        } else {
+          var p, t = exitTransitions(0).priority
+          var tr1, tr2 = exitTransitions(0)
+          var count = 0
+          for (et <- exitTransitions) {
+            if (et.priority > p) {
+              p = et.priority
+              tr1 = et
+            }
+            if (messageType.equals(et.messageType)) {
+              tr2 = et
+              count += 1
+            }
+          }
+          //Check if there is a highest priority
+          if (p > t) {
+            transition = exitTransitionsMap(tr1.subjectID, tr1.messageType)
+            isAutoReceive = true
+            //Check if there is a matched message type
+          } else if (count == 1) {
+            transition = exitTransitionsMap(tr2.subjectID, tr2.messageType)
+            isAutoReceive = true
+          }
+        }
+        if (isAutoReceive) {
+          val message =
+            HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
+
+          // TODO check if possible
+          inputPoolActor !
+            DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+
+          // change the state and enter the history entry
+          changeState(transition.successorID, data, message)
+        }
+      }
 
       // try to disable other states, when this state is an observer
       tryDisableNonObserverStates()
