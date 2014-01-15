@@ -15,6 +15,7 @@
 Repository/target/*
 Repository/project/target/*
 ProcessManagement/nbproject/*
+*.cache
 
 .ensime
 .ensime_lucene
