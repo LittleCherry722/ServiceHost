@@ -20,6 +20,8 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import java.util.Date
+import de.tkip.sbpm.application.subject.behavior.Transition
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
 /**
  * For system control tasks
@@ -75,6 +77,8 @@ case class ProcessInstanceData(id: ProcessInstanceID,
                                owner: UserID,
                                actions: Array[AvailableAction])
 
+case class AutoArchive(message: Transition) extends ArchiveMessage
+case class AddVariable(variableName:String , message: SubjectToSubjectMessage)
 case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
 

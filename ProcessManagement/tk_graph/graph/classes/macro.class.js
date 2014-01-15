@@ -129,10 +129,12 @@ function GCmacro (parent, id, name)
 	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
 	 * @param {String} type The edge's type (exitcondition, timeout, errorcondition).
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
+     * @param {int} [manualPositionOffsetLabelX] The x position offset the user manually defined
+     * @param {int} [manualPositionOffsetLabelY] The y position offset the user manually defined
 	 * @param {boolean} [optional] The optional status of the edge. (default: false)
 	 * @returns {GCedge} The created edge or null on errors.  
 	 */
-	this.addEdge = function (start, end, text, relatedSubject, type, deactivated, optional)
+	this.addEdge = function (start, end, text, relatedSubject, type, deactivated, manualPositionOffsetLabelX, manualPositionOffsetLabelY, optional)
 	{
 		// read the startNode from nodeIDs when it is not numeric
 		if (parseInt(start) != start && gf_isset(this.nodeIDs[start]))
@@ -150,7 +152,10 @@ function GCmacro (parent, id, name)
 			// apply the deactivation status to the edge
 			if (deactivated === true)
 				gt_edge.deactivate();
-				
+
+            if (typeof manualPositionOffsetLabelX === "number" && typeof manualPositionOffsetLabelY === "number")
+                gt_edge.setManualPositionOffsetLabel({dx: manualPositionOffsetLabelX, dy: manualPositionOffsetLabelY});
+
 			// apply the status for optional edges
 			gt_edge.setOptional(optional);
 			
@@ -174,10 +179,12 @@ function GCmacro (parent, id, name)
 	 * @param {String} [type] The type of the node. Possible values are "send", "receive", "end", "action" (default: "action")
 	 * @param {boolean} [start] When set to true the node will be handled as a start node. (default: false)
 	 * @param {boolean} [end] When set to true the node will be handled as an end node. (default: false)
+	 * @param {int} [manualPositionOffsetX] The x position offset the user manually defined
+	 * @param {int} [manualPositionOffsetY] The y position offset the user manually defined
 	 * @param {boolean} [deactivated] The deactivation status of the node. (default: false)
 	 * @returns {int} The id that identifies the node in the nodes array.
 	 */
-	this.addNode = function (id, text, type, start, end, deactivated)
+	this.addNode = function (id, text, type, start, end, manualPositionOffsetX, manualPositionOffsetY, deactivated)
 	{
 		// create a new id if none is given
 		if (!gf_isset(id) || id === "")
@@ -205,10 +212,13 @@ function GCmacro (parent, id, name)
 		// pass the end attribute to the node
 		if (gf_isset(end) && end === true)
 			gt_node.setEnd(true);
-			
-		// pass the deactivated attribute to the node
-		if (gf_isset(deactivated) && deactivated === true)
-			gt_node.deactivate();
+
+        if (typeof manualPositionOffsetX === "number" && typeof manualPositionOffsetY === "number")
+            gt_node.setManualPositionOffset({dx: manualPositionOffsetX, dy: manualPositionOffsetY});
+
+        // pass the deactivated attribute to the node
+        if (gf_isset(deactivated) && deactivated === true)
+            gt_node.deactivate();
 		
 		// store the node
 		this.nodes["n" + this.nodeCounter++] = gt_node;
@@ -431,14 +441,14 @@ function GCmacro (parent, id, name)
 			// initialize nodes
 			for (var gt_nid in this.nodes)
 			{
-				var gt_nodeId	= gt_nid.substr(1);
-					gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, this.nodes[gt_nid]);
-					
-					// TODO: Andreas Rueckle
-					// gt_nodePositions[gt_nodeId].setPositionRelative(x, y);
+				var gt_node =   this.nodes[gt_nid],
+                    gt_nodeId	= gt_nid.substr(1);
+
+                gt_nodePositions[gt_nodeId]	= new GCrenderNode(gt_nodeId, gt_node);
+                gt_nodePositions[gt_nodeId].setPositionRelative(gt_node.getManualPositionOffset()['dx'], gt_node.getManualPositionOffset()['dy']);
 			}
 			
-			if (this.selectedNode != null)
+			if (this.selectedNode != null && gt_nodePositions[this.selectedNode])
 				gt_nodePositions[this.selectedNode].selected = true;
 				
 			
@@ -446,10 +456,10 @@ function GCmacro (parent, id, name)
 			for (var gt_eid in this.edges)
 			{
 				var gt_edgeId	= gt_eid.substr(1);
-					gt_edgePositions[gt_edgeId]	= new GCrenderEdge(gt_edgeId, this.edges[gt_eid]);
+                gt_edgePositions[gt_edgeId]	= new GCrenderEdge(gt_edgeId, this.edges[gt_eid]);
 			}
 				
-			if (this.selectedEdge != null)
+			if (this.selectedEdge != null && gt_edgePositions[this.selectedEdge])
 				gt_edgePositions[this.selectedEdge].selected = true;
 			
 			
@@ -460,7 +470,7 @@ function GCmacro (parent, id, name)
 			{
 				gf_timeCalc("macro - draw (preparation)");
 				var ltl	= new LinearTimeLayout();
-					ltl.setRenderObjects(gt_nodePositions, gt_edgePositions);
+                ltl.setRenderObjects(gt_nodePositions, gt_edgePositions);
 			
 				for (var gt_nid in this.nodes)
 				{

@@ -328,6 +328,7 @@ define([
           // instance of our model
           _( data ).each(function( resultJSON ) {
             if ( Model.find(resultJSON.id) ) {
+                // TODO update instance instead
               return;
             }
 

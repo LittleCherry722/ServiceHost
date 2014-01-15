@@ -18,3 +18,7 @@ ProcessManagement/nbproject/*
 
 .ensime
 .ensime_lucene
+
+# intellij project files
+.idea
+*.iml
