@@ -4,7 +4,7 @@
     "conversations": {},
     "messageCounter": 3,
     "messages": {
-      "m1": "Bestellung",
+      "m3": "Bestellung",
       "m2": "Lieferdatum"
     },
     "nodeCounter": 2,
@@ -76,7 +76,7 @@
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m1",
+                "text": "m3",
                 "transportMethod": [
                   "internal"
                 ],
@@ -273,7 +273,7 @@
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m1",
+                "text": "m3",
                 "transportMethod": [
                   "internal"
                 ],

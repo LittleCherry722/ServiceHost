@@ -4,8 +4,8 @@
     "conversations": {},
     "messageCounter": 2,
     "messages": {
-      "m0": "Abholauftrag",
-      "m1": "Lieferdatum"
+      "m1": "Abholauftrag",
+      "m2": "Lieferdatum"
     },
     "nodeCounter": 1,
     "process": [
@@ -35,7 +35,7 @@
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m0",
+                "text": "m1",
                 "transportMethod": [
                   "internal"
                 ],
@@ -58,7 +58,7 @@
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m1",
+                "text": "m2",
                 "transportMethod": [
                   "internal"
                 ],
@@ -186,7 +186,7 @@
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m0",
+                "text": "m1",
                 "transportMethod": [
                   "internal"
                 ],
@@ -209,7 +209,7 @@
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m1",
+                "text": "m2",
                 "transportMethod": [
                   "internal"
                 ],
