@@ -73,8 +73,8 @@ class RepositoryInterfaceActor extends AbstractInterfaceActor with DefaultLoggin
         requestContext =>
           requestContext.complete {
             val response = pipeline(Get(repoLocation + requestContext.unmatchedPath.toString))
-          }
             response
+          }
       } ~
         post {
           requestContext =>
