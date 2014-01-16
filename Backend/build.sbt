@@ -51,3 +51,5 @@ testOptions in Test <+= (target in Test) map {
 }
 
 fork in Test := true
+
+atmosSettings
