@@ -65,10 +65,10 @@ class SubjectActor(data: SubjectData) extends Actor {
   private val subjectName: String = subject.id
   // create the inputpool
   private val inputPoolActor: ActorRef =
-    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor"+UUID.randomUUID().toString())
+    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
   // and the internal behavior
   //  private val internalBehaviorActor =
-  //    context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)))
+  //    context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)),"InternalBehaviorActor____"+UUID.randomUUID().toString())
 
   // this map maps the Macro Names to the corresponding actors
   private val macroBehaviorActors = mutable.Map[String, InternalBehaviorRef]()
@@ -80,7 +80,7 @@ class SubjectActor(data: SubjectData) extends Actor {
     macroIdCounter += 1
     val entry @ (_, macroActor) =
       macroId -> context.actorOf(Props(
-        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)),"InternalBehaviorActor"+UUID.randomUUID().toString())
+        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)),"InternalBehaviorActor____"+UUID.randomUUID().toString())
 
     if (!subject.macros.contains(name)) {
       // TODO was tun?

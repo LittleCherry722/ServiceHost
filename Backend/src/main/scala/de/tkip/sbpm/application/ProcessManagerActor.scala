@@ -73,7 +73,7 @@ class ProcessManagerActor extends Actor {
 
     case cp: CreateProcessInstance => {
       // create the process instance
-      context.actorOf(Props(new ProcessInstanceActor(cp)),"ProcessInstanceActor"+UUID.randomUUID().toString())
+      context.actorOf(Props(new ProcessInstanceActor(cp)),"ProcessInstanceActor____"+UUID.randomUUID().toString())
     }
 
     case pc: ProcessInstanceCreated => {

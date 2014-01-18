@@ -170,7 +170,7 @@ protected case class SendStateActor(data: StateData)
           val sendProxy = context.actorOf(Props(
             new GoogleSendProxyActor(
               processInstanceActor,
-              action.userID.toString)),"GoogleSendProxyActor"+UUID.randomUUID().toString())
+              action.userID.toString)),"GoogleSendProxyActor____"+UUID.randomUUID().toString())
 
           sendProxy !
             SubjectToSubjectMessage(

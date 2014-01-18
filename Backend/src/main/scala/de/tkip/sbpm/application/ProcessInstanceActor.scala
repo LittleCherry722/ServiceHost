@@ -69,14 +69,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self)),"ProcessInstanceProxyManagerActor"+UUID.randomUUID().toString()))
+      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self)),"ProcessInstanceProxyManagerActor____"+UUID.randomUUID().toString()))
 
 
   // this actor handles the blocking for answer to the user
-  private val blockingHandlerActor = context.actorOf(Props[BlockingActor],"BlockingActor"+UUID.randomUUID().toString())
+  private val blockingHandlerActor = context.actorOf(Props[BlockingActor],"BlockingActor____"+UUID.randomUUID().toString())
 
   // this actory is used to exchange the subject ids for external input messages
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)),"ProcessInstanceProxyActor"+UUID.randomUUID().toString())
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)),"ProcessInstanceProxyActor____"+UUID.randomUUID().toString())
 
   override def preStart() {
     logger.debug("subject mapping: {}", request.subjectMapping)

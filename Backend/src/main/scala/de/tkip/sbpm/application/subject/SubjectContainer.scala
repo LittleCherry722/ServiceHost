@@ -87,7 +87,7 @@ class SubjectContainer(
     if (!external) {
       // create subject
       val subjectRef =
-        context.actorOf(Props(new SubjectActor(subjectData)),"SubjectActor"+UUID.randomUUID().toString())
+        context.actorOf(Props(new SubjectActor(subjectData)),"SubjectActor____"+UUID.randomUUID().toString())
       // and store it in the map
       subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID, logger)
 

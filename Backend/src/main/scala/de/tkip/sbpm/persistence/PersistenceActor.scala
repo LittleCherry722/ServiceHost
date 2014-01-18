@@ -28,7 +28,7 @@ import java.util.UUID
  * Redirects table specific actions to sub actors.
  */
 class PersistenceActor extends Actor with ActorLogging {
-  private val processInspectActor = context.actorOf(Props[ProcessInspectActor],"ProcessInspectActor"+UUID.randomUUID().toString())
+  private val processInspectActor = context.actorOf(Props[ProcessInspectActor],"ProcessInspectActor____"+UUID.randomUUID().toString())
   private lazy val changeActor = ActorLocator.changeActor
   
   def receive = {

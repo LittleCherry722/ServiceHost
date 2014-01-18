@@ -134,7 +134,7 @@ class DirectHttpRequestHandler extends Actor {
     case s@ChunkedRequestStart(HttpRequest(_, _, _, _, _)) =>
       require(!chunkHandlers.contains(sender))
       val client = sender
-      val handler = context.actorOf(Props(new FileUploadHandler(client, s)),"FileUploadHandler"+UUID.randomUUID().toString())
+      val handler = context.actorOf(Props(new FileUploadHandler(client, s)),"FileUploadHandler____"+UUID.randomUUID().toString())
       chunkHandlers += (client -> handler)
       handler.tell(s, client)
     case c: MessageChunk =>

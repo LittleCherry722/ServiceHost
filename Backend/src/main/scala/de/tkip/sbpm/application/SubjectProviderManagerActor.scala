@@ -106,7 +106,7 @@ class SubjectProviderManagerActor extends Actor {
   // (overrides the old entry)
   private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
-      context.actorOf(Props(new SubjectProviderActor(userID)),"SubjectProviderActor"+UUID.randomUUID().toString())
+      context.actorOf(Props(new SubjectProviderActor(userID)),"SubjectProviderActor____"+UUID.randomUUID().toString())
     subjectProviderMap += userID -> subjectProvider
     subjectProvider
   }

@@ -106,7 +106,7 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
    * query using PoisonPill message.
    */
   private def forwardToPersistence(query: BaseQuery, from: ActorRef) = {
-    val actor = context.actorOf(Props[ProcessPersistenceActor],"ProcessPersistenceActor"+UUID.randomUUID().toString())
+    val actor = context.actorOf(Props[ProcessPersistenceActor],"ProcessPersistenceActor____"+UUID.randomUUID().toString())
     actor.tell(query, from)
     actor ! PoisonPill
   }

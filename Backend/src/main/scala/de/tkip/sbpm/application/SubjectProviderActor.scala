@@ -136,7 +136,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
                   subjectID == s.subjectID)))
 
     // collect actions and generate answer for the filtered subject list
-    context.actorOf(Props(new SubjectActionsCollector),"SubjectActionsCollector"+UUID.randomUUID().toString()).!(
+    context.actorOf(Props(new SubjectActionsCollector),"SubjectActionsCollector____"+UUID.randomUUID().toString()).!(
       CollectAvailableActions(
         collectSubjects.map(_.ref),
         processInstanceID,
