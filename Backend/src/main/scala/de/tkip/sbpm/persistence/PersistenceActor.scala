@@ -22,6 +22,7 @@ import akka.actor.actorRef2Scala
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm._
 import java.util.UUID
+import akka.event.Logging
 
 /**
  * Handles all DB operations using slick (http://slick.typesafe.com/).
@@ -40,7 +41,10 @@ class PersistenceActor extends Actor with ActorLogging {
     case q: GroupsUsers.Query      => forwardTo[GroupUserPersistenceActor](q)
     case q: Messages.Query         => forwardTo[MessagePersistenceActor](q)
     case q: ProcessInstances.Query => forwardTo[ProcessInstancePersistenceActor](q)
-    case q: Processes.Query        => {processInspectActor forward q
+    case q: Processes.Query        => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + processInspectActor + " " + q.toString)
+      processInspectActor forward q
       println("!!!!!!!!!!!  the query is: "+q)
 //    changeActor forward q
     }
@@ -55,6 +59,8 @@ class PersistenceActor extends Actor with ActorLogging {
    */
   private def forwardTo[A <: Actor: ClassTag](query: BaseQuery) = {
     val actor = context.actorOf(Props[A])
+    val traceLogger = Logging(context.system, this)
+    traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + query.toString)
     actor.forward(query)
     actor ! PoisonPill
   }

@@ -63,7 +63,11 @@ private class GoogleSendProxyActor(
         message.fileInfo = Some(info)
         processInstanceActor.tell(message, origin)
       }
-    case message => processInstanceActor forward message
+    case message => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + message.toString)
+      processInstanceActor forward message
+    }
   }
 }
 
@@ -92,7 +96,7 @@ protected case class SendStateActor(data: StateData)
   var targetUserIDs: Option[Array[UserID]] = None
 
   override def preStart() {
-    if(!sendTarget.toExternal) {
+    if (!sendTarget.toExternal) {
       blockingHandlerActor ! BlockUser(userID)
 
       ActorLocator.contextResolverActor ! (RequestUserID(
@@ -170,7 +174,7 @@ protected case class SendStateActor(data: StateData)
           val sendProxy = context.actorOf(Props(
             new GoogleSendProxyActor(
               processInstanceActor,
-              action.userID.toString)),"GoogleSendProxyActor____"+UUID.randomUUID().toString())
+              action.userID.toString)), "GoogleSendProxyActor____" + UUID.randomUUID().toString())
 
           sendProxy !
             SubjectToSubjectMessage(
@@ -205,7 +209,7 @@ protected case class SendStateActor(data: StateData)
       log.debug("message with id {} stored. remaining: {}", messageID, remainingStored)
 
       if (remainingStored <= 0) {
-        changeState(transition.successorID, data,message)
+        changeState(transition.successorID, data, message)
         blockingHandlerActor ! UnBlockUser(userID)
       }
     }

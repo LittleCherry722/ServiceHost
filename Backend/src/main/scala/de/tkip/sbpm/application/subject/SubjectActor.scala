@@ -65,7 +65,7 @@ class SubjectActor(data: SubjectData) extends Actor {
   private val subjectName: String = subject.id
   // create the inputpool
   private val inputPoolActor: ActorRef =
-    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
+    context.actorOf(Props(new InputPoolActor(data)), "InputPoolActor____" + UUID.randomUUID().toString())
   // and the internal behavior
   //  private val internalBehaviorActor =
   //    context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)),"InternalBehaviorActor____"+UUID.randomUUID().toString())
@@ -80,7 +80,7 @@ class SubjectActor(data: SubjectData) extends Actor {
     macroIdCounter += 1
     val entry @ (_, macroActor) =
       macroId -> context.actorOf(Props(
-        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)),"InternalBehaviorActor____"+UUID.randomUUID().toString())
+        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)), "InternalBehaviorActor____" + UUID.randomUUID().toString())
 
     if (!subject.macros.contains(name)) {
       // TODO was tun?
@@ -125,14 +125,16 @@ class SubjectActor(data: SubjectData) extends Actor {
   }
 
   def receive = {
-    
+
     case sm: SubjectToSubjectMessage => {
-      for{(key, name)<-subject.variablesMap}{
-        for(a <- macroBehaviorActors.values)
-            a ! AddVariable(name,sm)
+      for { (key, name) <- subject.variablesMap } {
+        for (a <- macroBehaviorActors.values)
+          a ! AddVariable(name, sm)
       }
-    
+
       // a message from an other subject can be forwarded into the inputpool
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + sm.toString)
       inputPoolActor.forward(sm)
     }
 
@@ -184,6 +186,8 @@ class SubjectActor(data: SubjectData) extends Actor {
     case action: ExecuteAction => {
       if (macroBehaviorActors.contains(action.macroID)) {
         // route the action to the correct macro
+        val traceLogger = Logging(context.system, this)
+        traceLogger.debug("TRACE: from " + this.self + " to " + macroBehaviorActors(action.macroID) + " " + action.toString)
         macroBehaviorActors(action.macroID) forward action
       } else {
         if (action.isInstanceOf[AnswerAbleMessage]) {

@@ -36,7 +36,7 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
 import de.tkip.sbpm.model.ExternalSubject
 
-case class MappingInfo(subjectId: SubjectID, processId : ProcessID, address: String)
+case class MappingInfo(subjectId: SubjectID, processId: ProcessID, address: String)
 
 /**
  * instantiates SubjectActor's and manages their interactions
@@ -69,14 +69,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self)),"ProcessInstanceProxyManagerActor____"+UUID.randomUUID().toString()))
-
+      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self)), "ProcessInstanceProxyManagerActor____" + UUID.randomUUID().toString()))
 
   // this actor handles the blocking for answer to the user
-  private val blockingHandlerActor = context.actorOf(Props[BlockingActor],"BlockingActor____"+UUID.randomUUID().toString())
+  private val blockingHandlerActor = context.actorOf(Props[BlockingActor], "BlockingActor____" + UUID.randomUUID().toString())
 
   // this actory is used to exchange the subject ids for external input messages
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)),"ProcessInstanceProxyActor____"+UUID.randomUUID().toString())
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)), "ProcessInstanceProxyActor____" + UUID.randomUUID().toString())
 
   override def preStart() {
     logger.debug("subject mapping: {}", request.subjectMapping)
@@ -129,7 +128,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   def receive = {
-    
+
     case GetProxyActor => {
       sender ! proxyActor
     }
@@ -152,6 +151,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case he: history.NewHistoryEntry => {
       he.process = history.NewHistoryProcessData(processName, id, name)
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + he.toString)
       context.parent.forward(he)
     }
 
@@ -170,13 +171,15 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case answer: AnswerMessage => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + answer.toString)
       context.parent.forward(answer)
     }
 
     case message: ReadProcessInstance => {
       createReadProcessInstanceAnswer(message)
     }
-    
+
     case message: GetSubjectMapping => {
       sender ! SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
     }
@@ -220,12 +223,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
-	  val optionalId = if (subject.external){
+    val optionalId = if (subject.external) {
       Some(externalSubjectMapping(subject.asInstanceOf[ExternalSubject]))
     } else {
       None
     }
-    
+
     new SubjectContainer(
       subject,
       processID,
@@ -238,8 +241,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       () => runningSubjectCounter -= 1)
   }
 
-  private def externalSubjectMapping(subject: ExternalSubject) :MappingInfo = {
-    if(request.subjectMapping.contains(subject.id)) {
+  private def externalSubjectMapping(subject: ExternalSubject): MappingInfo = {
+    if (request.subjectMapping.contains(subject.id)) {
       request.subjectMapping(subject.id)
     } else {
       MappingInfo(subject.relatedSubjectId.get, subject.relatedProcessId.get, subject.url.get)
@@ -251,10 +254,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     import scala.collection.mutable.{ Map => MutableMap }
     val subjectMapping = MutableMap[SubjectID, MappingInfo]()
-    for (subject <- graph.subjects.values if subject.external){
+    for (subject <- graph.subjects.values if subject.external) {
       val externalSubject = subject.asInstanceOf[ExternalSubject]
 
-      if(externalSubject.relatedProcessId.exists(_ == processId) && externalSubject.url.exists(_ == url)) {
+      if (externalSubject.relatedProcessId.exists(_ == processId) && externalSubject.url.exists(_ == url)) {
         val connectedSubject = findConnectedSubject(externalSubject.id)
         val ownUrl = SystemProperties.akkaRemoteUrl
 
@@ -270,7 +273,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     subjectMapping
   }
 
-  private def findConnectedSubject(subjectId: SubjectID) :SubjectLike = {
+  private def findConnectedSubject(subjectId: SubjectID): SubjectLike = {
     val subject = persistenceGraph.subjects(subjectId)
     val mainMacro = subject.macros("##main##")
 
@@ -278,7 +281,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     randomSendEdge match {
       case Some(edge) => graph.subjects(edge.target.get.subjectId)
-      case None => throw new IllegalStateException("could not find connected subject for subjectID "+subjectId)
+      case None       => throw new IllegalStateException("could not find connected subject for subjectID " + subjectId)
     }
   }
 }

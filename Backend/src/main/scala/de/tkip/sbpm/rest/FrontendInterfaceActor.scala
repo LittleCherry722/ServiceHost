@@ -252,6 +252,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
    * without authentication.
    */
   private def delegateTo(actor: ActorRef): Route = {
+    
     requestContext => actor ! requestContext
   }
 

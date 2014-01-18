@@ -135,12 +135,17 @@ class ProcessManagerActor extends Actor {
     }
 
     case message: SubjectProviderMessage => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap
+        .getOrElse(message.userID, ActorLocator.subjectProviderManagerActor) + " " + message.toString)
       subjectProviderMap
         .getOrElse(message.userID, ActorLocator.subjectProviderManagerActor)
         .forward(message)
     }
 
     case answer: AnswerMessage => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + answer.sender + " " + answer.toString)
       answer.sender.forward(answer)
     }
 
@@ -177,6 +182,7 @@ class ProcessManagerActor extends Actor {
    */
   private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
     if (processInstanceMap.contains(message.processInstanceID)) {
+      logger.debug("TRACE: from " + this.self + " to " + processInstanceMap(message.processInstanceID).processInstanceActor + " " + message.toString)
       processInstanceMap(message.processInstanceID).processInstanceActor.forward(message)
     } else if (message.isInstanceOf[AnswerAbleMessage]) {
       message.asInstanceOf[AnswerAbleMessage].sender !

@@ -110,6 +110,8 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     case message: AnswerAbleMessage => {
       // just forward all messages from the frontend which are not
       // required in this Actor
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message.toString)
       processManagerActor.forward(message)
     }
 

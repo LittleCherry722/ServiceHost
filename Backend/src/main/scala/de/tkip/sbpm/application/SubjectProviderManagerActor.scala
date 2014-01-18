@@ -31,6 +31,7 @@ class SubjectProviderManagerActor extends Actor {
     collection.mutable.Map[UserID, SubjectProviderRef]()
 
   def receive = {
+
     // create a new subject provider and send the ID to the requester.
     // additionally send it to the subjectprovider who forwards 
     // the message to the processmanager so he can register the new subjectprovider
@@ -56,6 +57,8 @@ class SubjectProviderManagerActor extends Actor {
       } else {
         // TODO dynamisch erstellen?
         createNewSubjectProvider(message.userID)
+        val traceLogger = Logging(context.system, this)
+        traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(message.userID) + " " + message.toString)
         subjectProviderMap(message.userID).forward(withSender(message))
       }
     }
@@ -85,19 +88,20 @@ class SubjectProviderManagerActor extends Actor {
   private def withSender(message: Any) = {
     message match {
       case answerAble: AnswerAbleMessage => answerAble.sender = sender
-      case _ =>
+      case _                             =>
     }
     message
   }
 
   // forward control message to subjectProvider that is mapped to a specific userID
   private def forwardControlMessageToProvider(userID: UserID,
-                                              controlMessage: ControlMessage) {
+    controlMessage: ControlMessage) {
     if (subjectProviderMap.contains(userID)) {
       if (controlMessage.isInstanceOf[AnswerAbleMessage]) {
         controlMessage.asInstanceOf[AnswerAbleMessage].sender = sender
       }
-
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(userID) + " " + controlMessage.toString)
       subjectProviderMap(userID).forward(controlMessage)
     }
   }
@@ -106,7 +110,7 @@ class SubjectProviderManagerActor extends Actor {
   // (overrides the old entry)
   private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
-      context.actorOf(Props(new SubjectProviderActor(userID)),"SubjectProviderActor____"+UUID.randomUUID().toString())
+      context.actorOf(Props(new SubjectProviderActor(userID)), "SubjectProviderActor____" + UUID.randomUUID().toString())
     subjectProviderMap += userID -> subjectProvider
     subjectProvider
   }

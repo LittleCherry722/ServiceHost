@@ -19,7 +19,7 @@ import akka.actor.Props
 import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
-import de.tkip.sbpm.application.{MappingInfo, SubjectCreated, RegisterSingleSubjectInstance}
+import de.tkip.sbpm.application.{ MappingInfo, SubjectCreated, RegisterSingleSubjectInstance }
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
 import de.tkip.sbpm.ActorLocator
@@ -32,6 +32,7 @@ import ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.util.Timeout
+import akka.event.Logging
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -87,7 +88,7 @@ class SubjectContainer(
     if (!external) {
       // create subject
       val subjectRef =
-        context.actorOf(Props(new SubjectActor(subjectData)),"SubjectActor____"+UUID.randomUUID().toString())
+        context.actorOf(Props(new SubjectActor(subjectData)), "SubjectActor____" + UUID.randomUUID().toString())
       // and store it in the map
       subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID, logger)
 
@@ -136,7 +137,7 @@ class SubjectContainer(
     if (target.toVariable) {
       // TODO why not targetUsers = var subjects?
       sendTo(target.varSubjects.map(_._2), message)
-    } else if(target.toExternal && target.toUnknownUsers) {
+    } else if (target.toExternal && target.toUnknownUsers) {
       sendToExternal(message)
     } else {
       sendTo(target.targetUsers, message)
@@ -207,8 +208,10 @@ class SubjectContainer(
 
       ref.onComplete {
         case r =>
-          if (r.isSuccess) r.get.tell(message, from)
-          // TODO exception or logg?
+          if (r.isSuccess) {
+            logger.debug("TRACE: from " + r.get + " to " + from + " " + message.toString)
+            r.get.tell(message, from)
+          } // TODO exception or logg?
           else throw new Exception("Subject Creation failed for " +
             processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + r)
       }
