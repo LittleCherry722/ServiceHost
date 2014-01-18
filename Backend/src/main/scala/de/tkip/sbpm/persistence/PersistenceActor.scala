@@ -14,7 +14,6 @@
 package de.tkip.sbpm.persistence
 
 import scala.reflect.ClassTag
-
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.PoisonPill
@@ -22,13 +21,14 @@ import akka.actor.Props
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm._
+import java.util.UUID
 
 /**
  * Handles all DB operations using slick (http://slick.typesafe.com/).
  * Redirects table specific actions to sub actors.
  */
 class PersistenceActor extends Actor with ActorLogging {
-  private val processInspectActor = context.actorOf(Props[ProcessInspectActor])
+  private val processInspectActor = context.actorOf(Props[ProcessInspectActor],"ProcessInspectActor"+UUID.randomUUID().toString())
   private lazy val changeActor = ActorLocator.changeActor
   
   def receive = {

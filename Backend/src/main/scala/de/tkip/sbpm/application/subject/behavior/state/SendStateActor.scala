@@ -41,6 +41,7 @@ import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.drive.model.{ Permission }
 import de.tkip.sbpm.model.ChangeDataMode._
+import java.util.UUID
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
@@ -169,7 +170,7 @@ protected case class SendStateActor(data: StateData)
           val sendProxy = context.actorOf(Props(
             new GoogleSendProxyActor(
               processInstanceActor,
-              action.userID.toString)))
+              action.userID.toString)),"GoogleSendProxyActor"+UUID.randomUUID().toString())
 
           sendProxy !
             SubjectToSubjectMessage(

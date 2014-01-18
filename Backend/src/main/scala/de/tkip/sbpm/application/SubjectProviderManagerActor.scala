@@ -20,6 +20,7 @@ import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
+import java.util.UUID
 
 class SubjectProviderManagerActor extends Actor {
 
@@ -105,7 +106,7 @@ class SubjectProviderManagerActor extends Actor {
   // (overrides the old entry)
   private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
-      context.actorOf(Props(new SubjectProviderActor(userID)))
+      context.actorOf(Props(new SubjectProviderActor(userID)),"SubjectProviderActor"+UUID.randomUUID().toString())
     subjectProviderMap += userID -> subjectProvider
     subjectProvider
   }

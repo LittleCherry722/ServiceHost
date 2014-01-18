@@ -16,6 +16,7 @@ package de.tkip.sbpm.application
 import java.util.Date
 import scala.concurrent._
 import scala.concurrent.duration._
+import java.util.UUID
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -68,14 +69,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private val processInstanceManger: ActorRef =
     // TODO not over context
     request.manager.getOrElse(context.actorOf(
-      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self))))
+      Props(new ProcessInstanceProxyManagerActor(request.processID, url, self)),"ProcessInstanceProxyManagerActor"+UUID.randomUUID().toString()))
 
 
   // this actor handles the blocking for answer to the user
-  private val blockingHandlerActor = context.actorOf(Props[BlockingActor])
+  private val blockingHandlerActor = context.actorOf(Props[BlockingActor],"BlockingActor"+UUID.randomUUID().toString())
 
   // this actory is used to exchange the subject ids for external input messages
-  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)))
+  private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)),"ProcessInstanceProxyActor"+UUID.randomUUID().toString())
 
   override def preStart() {
     logger.debug("subject mapping: {}", request.subjectMapping)

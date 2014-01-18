@@ -12,7 +12,7 @@
  */
 
 package de.tkip.sbpm.application.subject.behavior
-
+import java.util.UUID
 import scala.collection.mutable
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
@@ -260,54 +260,54 @@ class InternalBehaviorActor(
     // create the actor which matches to the statetype
     state.stateType match {
       case ActStateType => {
-        context.actorOf(Props(new ActStateActor(stateData)))
+        context.actorOf(Props(new ActStateActor(stateData)),"ActStateActor"+UUID.randomUUID().toString())
       }
 
       case SendStateType => {
-        context.actorOf(Props(new SendStateActor(stateData)))
+        context.actorOf(Props(new SendStateActor(stateData)),"SendStateActor"+UUID.randomUUID().toString())
       }
 
       case ReceiveStateType => {
-        context.actorOf(Props(new ReceiveStateActor(stateData)))
+        context.actorOf(Props(new ReceiveStateActor(stateData)),"ReceiveStateActor"+UUID.randomUUID().toString())
       }
 
       case EndStateType => {
-        context.actorOf(Props(new EndStateActor(stateData)))
+        context.actorOf(Props(new EndStateActor(stateData)),"EndStateActor"+UUID.randomUUID().toString())
       }
 
       case CloseIPStateType => {
-        context.actorOf(Props(new CloseIPStateActor(stateData)))
+        context.actorOf(Props(new CloseIPStateActor(stateData)),"CloseIPStateActor"+UUID.randomUUID().toString())
       }
 
       case OpenIPStateType => {
-        context.actorOf(Props(new OpenIPStateActor(stateData)))
+        context.actorOf(Props(new OpenIPStateActor(stateData)),"OpenIPStateActor"+UUID.randomUUID().toString())
       }
 
       case IsIPEmptyStateType => {
-        context.actorOf(Props(new IsIPEmptyStateActor(stateData)))
+        context.actorOf(Props(new IsIPEmptyStateActor(stateData)),"IsIPEmptyStateActor"+UUID.randomUUID().toString())
       }
 
       case ModalSplitStateType => {
-        context.actorOf(Props(new ModalSplitStateActor(stateData)))
+        context.actorOf(Props(new ModalSplitStateActor(stateData)),"ModalSplitStateActor"+UUID.randomUUID().toString())
       }
 
       case ModalJoinStateType => {
-        context.actorOf(Props(new ModalJoinStateActor(stateData)))
+        context.actorOf(Props(new ModalJoinStateActor(stateData)),"ModalJoinStateActor"+UUID.randomUUID().toString())
       }
 
       case MacroStateType => {
-        context.actorOf(Props(new MacroStateActor(stateData)))
+        context.actorOf(Props(new MacroStateActor(stateData)),"MacroStateActor"+UUID.randomUUID().toString())
       }
 
       case ActivateStateType => {
-        context.actorOf(Props(new ActivateStateActor(stateData)))
+        context.actorOf(Props(new ActivateStateActor(stateData)),"ActivateStateActor"+UUID.randomUUID().toString())
       }
 
       case DeactivateStateType => {
-        context.actorOf(Props(new DeactivateStateActor(stateData)))
+        context.actorOf(Props(new DeactivateStateActor(stateData)),"DeactivateStateActor"+UUID.randomUUID().toString())
       }
       case ArchiveStateType => {
-        context.actorOf(Props(new ArchiveStateActor(stateData)))
+        context.actorOf(Props(new ArchiveStateActor(stateData)),"ArchiveStateActor"+UUID.randomUUID().toString())
       }
     }
   }

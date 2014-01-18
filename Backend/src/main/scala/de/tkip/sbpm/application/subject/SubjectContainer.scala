@@ -16,6 +16,7 @@ package de.tkip.sbpm.application.subject
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import akka.actor.ActorContext
 import akka.actor.Props
+import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.{MappingInfo, SubjectCreated, RegisterSingleSubjectInstance}
@@ -86,8 +87,7 @@ class SubjectContainer(
     if (!external) {
       // create subject
       val subjectRef =
-        context.actorOf(Props(new SubjectActor(subjectData)))
-
+        context.actorOf(Props(new SubjectActor(subjectData)),"SubjectActor"+UUID.randomUUID().toString())
       // and store it in the map
       subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID, logger)
 

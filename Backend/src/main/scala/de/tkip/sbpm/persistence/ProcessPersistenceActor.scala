@@ -27,10 +27,9 @@ import de.tkip.sbpm.persistence.query.Graphs
 import akka.actor.PoisonPill
 import de.tkip.sbpm.persistence.query.BaseQuery
 import akka.actor.ActorRef
-
 import scala.concurrent.duration._
-
 import de.tkip.sbpm._
+import java.util.UUID
 
 
 private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
@@ -107,7 +106,7 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
    * query using PoisonPill message.
    */
   private def forwardToPersistence(query: BaseQuery, from: ActorRef) = {
-    val actor = context.actorOf(Props[ProcessPersistenceActor])
+    val actor = context.actorOf(Props[ProcessPersistenceActor],"ProcessPersistenceActor"+UUID.randomUUID().toString())
     actor.tell(query, from)
     actor ! PoisonPill
   }
