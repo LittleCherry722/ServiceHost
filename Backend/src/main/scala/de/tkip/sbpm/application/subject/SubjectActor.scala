@@ -16,6 +16,7 @@ package de.tkip.sbpm.application.subject
 import java.util.Date
 import scala.collection.mutable
 import akka.actor._
+import java.util.UUID
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -64,7 +65,7 @@ class SubjectActor(data: SubjectData) extends Actor {
   private val subjectName: String = subject.id
   // create the inputpool
   private val inputPoolActor: ActorRef =
-    context.actorOf(Props(new InputPoolActor(data)))
+    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor"+UUID.randomUUID().toString())
   // and the internal behavior
   //  private val internalBehaviorActor =
   //    context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)))
@@ -79,7 +80,7 @@ class SubjectActor(data: SubjectData) extends Actor {
     macroIdCounter += 1
     val entry @ (_, macroActor) =
       macroId -> context.actorOf(Props(
-        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)))
+        new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)),"InternalBehaviorActor"+UUID.randomUUID().toString())
 
     if (!subject.macros.contains(name)) {
       // TODO was tun?
