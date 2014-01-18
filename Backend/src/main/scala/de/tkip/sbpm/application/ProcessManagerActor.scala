@@ -18,6 +18,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.persistence._
 import akka.event.Logging
+import java.util.UUID
 import de.tkip.sbpm.ActorLocator
 import akka.actor.Status.Failure
 import de.tkip.sbpm.application.history._
@@ -72,7 +73,7 @@ class ProcessManagerActor extends Actor {
 
     case cp: CreateProcessInstance => {
       // create the process instance
-      context.actorOf(Props(new ProcessInstanceActor(cp)))
+      context.actorOf(Props(new ProcessInstanceActor(cp)),"ProcessInstanceActor____"+UUID.randomUUID().toString())
     }
 
     case pc: ProcessInstanceCreated => {

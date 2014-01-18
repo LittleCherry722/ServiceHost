@@ -17,12 +17,10 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
 import scala.util.{Try, Success, Failure}
-
 import akka.actor.{Actor, ActorLogging}
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-
 import spray.routing.HttpService
 import spray.json.JsonFormat
 import spray.http.StatusCodes
@@ -31,7 +29,6 @@ import spray.io.CommandWrapper
 import spray.http._
 import HttpHeaders._
 import parser.HttpParser
-
 import de.tkip.sbpm.rest.google.{
   GDriveActor,
   GAuthCtrl,
@@ -41,11 +38,10 @@ import de.tkip.sbpm.rest.google.{
 import GDriveActor.{FindFiles, InitCredentials, RetrieveCredentials, UploadFile}
 import GAuthCtrl.{NoCredentialsException}
 import GCalendarActor.{CreateEvent}
-
 import de.tkip.sbpm
 import de.tkip.sbpm.logging.DefaultLogging
-
 import com.google.api.services.calendar.model.Event
+import java.util.UUID
 
 class GResponseActor extends Actor with HttpService with DefaultLogging {
 
@@ -138,7 +134,7 @@ class DirectHttpRequestHandler extends Actor {
     case s@ChunkedRequestStart(HttpRequest(_, _, _, _, _)) =>
       require(!chunkHandlers.contains(sender))
       val client = sender
-      val handler = context.actorOf(Props(new FileUploadHandler(client, s)))
+      val handler = context.actorOf(Props(new FileUploadHandler(client, s)),"FileUploadHandler____"+UUID.randomUUID().toString())
       chunkHandlers += (client -> handler)
       handler.tell(s, client)
     case c: MessageChunk =>
