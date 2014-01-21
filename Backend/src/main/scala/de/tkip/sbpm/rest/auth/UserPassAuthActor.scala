@@ -47,7 +47,11 @@ class UserPassAuthActor extends Actor with DefaultLogging {
     // valid basic auth header given -> check credentials
     case UserPass(user, pass) => checkCredentials(user, pass, sender)
     // invalid header -> fail
-    case _ => sender ! None
+    case _ =>
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + None)
+
+      sender ! None
   }
 
   /**
@@ -56,8 +60,8 @@ class UserPassAuthActor extends Actor with DefaultLogging {
    */
   private def checkCredentials(user: String, pass: String, receiver: ActorRef) = {
     val future = (persistenceActor ? Users.Read.Identity("sbpm", user)).map {
-    // return none if user not found, no password in identity or failure
-    case None => None
+      // return none if user not found, no password in identity or failure
+      case None                              => None
       case Some(UserIdentity(_, _, _, None)) => None
       case Some(identity: UserIdentity) =>
         if (validPass(pass, identity.password.get))
@@ -65,8 +69,8 @@ class UserPassAuthActor extends Actor with DefaultLogging {
         else
           None
       case akka.actor.Status.Failure(e) => {
-          log.error(e, "Error checking user identity.")
-          None
+        log.error(e, "Error checking user identity.")
+        None
       }
     }.pipeTo(receiver)
   }

@@ -100,6 +100,8 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
     correct
   }
 
+  val traceLogger = Logging(context.system, this)
+
   /**
    * Forwards a query to the specified Actor.
    * The actor is automatically stopped after processing the
@@ -110,6 +112,8 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
     val traceLogger = Logging(context.system, this)
     traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + query.toString)
     actor.tell(query, from)
+    traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + PoisonPill)
+
     actor ! PoisonPill
   }
 }
@@ -162,6 +166,9 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
         Processes.where(_.id === id).delete(session)
       }
       println("!!!!!!!!!!! process deleted: " + id)
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + ProcessDelete(id, new java.util.Date()))
+
       changeActor ! ProcessDelete(id, new java.util.Date())
     }
   }
@@ -246,11 +253,15 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     // set current active graph to None (we don't know graph id yet)
     var process = p.copy(activeGraphId = None)
     var resultId = process.id
+
+    val traceLogger = Logging(context.system, this)
     // if id not defined -> save new process
     if (!resultId.isDefined) {
       resultId = Some(insert(process))
       // inject id into process
       process = process.copy(id = resultId)
+
+      traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + ProcessChange(process, "insert", new java.util.Date()))
       changeActor ! ProcessChange(process, "insert", new java.util.Date())
     } else {
       // update the process
@@ -262,6 +273,8 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       //        throw new EntityNotFoundException("Process with id %d does not exist.", process.id.get)
       // result on update is always None
       resultId = None
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + ProcessChange(process, "update", new java.util.Date()))
       changeActor ! ProcessChange(process, "update", new java.util.Date())
     }
     // set process id in graph

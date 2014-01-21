@@ -49,6 +49,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
 
   private lazy val processManagerActor = ActorLocator.processManagerActor
 
+  logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + RegisterSubjectProvider(userID, self))
   processManagerActor ! RegisterSubjectProvider(userID, self)
 
   def receive = {
@@ -63,8 +64,10 @@ class SubjectProviderActor(userID: UserID) extends Actor {
       // - different process instance id
       // - different subject id
       if (get.isInstanceOf[Debug]) {
-        sender !
+        val msg =
           AvailableActionsAnswer(get, DebugActionData.generateActions(get.userID, get.processInstanceID))
+        logger.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
+        sender ! msg
       } else {
         askSubjectsForAvailableActions(
           get.processInstanceID,
@@ -85,6 +88,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     // general matching
     // Route processInstance messages to the process manager
     case message: ProcessInstanceMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message);
       processManagerActor ! message
     }
 
@@ -98,12 +102,14 @@ class SubjectProviderActor(userID: UserID) extends Actor {
               s.subjectID == message.subjectID
         })
       ) {
+        logger.debug("TRACE: from " + this.self + " to " + subject.ref + " " + message);
         subject.ref ! message
       }
     }
 
     case message: AnswerMessage => {
       // send the Answermessages to the SubjectProviderManager
+      logger.debug("TRACE: from " + this.self + " to " + context.parent+ " " + message);
       context.parent ! message // TODO forward oder tell?
     }
 
@@ -138,10 +144,13 @@ class SubjectProviderActor(userID: UserID) extends Actor {
                   subjectID == s.subjectID)))
 
     // collect actions and generate answer for the filtered subject list
-    context.actorOf(Props(new SubjectActionsCollector),"SubjectActionsCollector____"+UUID.randomUUID().toString()).!(
-      CollectAvailableActions(
+    val msg = CollectAvailableActions(
         collectSubjects.map(_.ref),
         processInstanceID,
-        generateAnswer))(returnAdress)
+        generateAnswer)
+    
+    logger.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
+    context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(
+      msg)(returnAdress)
   }
 }

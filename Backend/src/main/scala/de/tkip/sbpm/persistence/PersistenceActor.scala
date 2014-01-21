@@ -62,6 +62,7 @@ class PersistenceActor extends Actor with ActorLogging {
     val traceLogger = Logging(context.system, this)
     traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + query.toString)
     actor.forward(query)
+    traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + PoisonPill)
     actor ! PoisonPill
   }
 
