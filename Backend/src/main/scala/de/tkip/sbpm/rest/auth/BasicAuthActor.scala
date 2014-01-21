@@ -38,13 +38,17 @@ class BasicAuthActor extends Actor with DefaultLogging {
   def receive = {
     // valid basic auth header given -> check credentials
     // with user pass auth actor
-    case BasicHttpCredentials(user, pass) =>{
+    case BasicHttpCredentials(user, pass) => {
       val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + userPassActor + " " + UserPass(user,pass).toString)
+      traceLogger.debug("TRACE: from " + this.self + " to " + userPassActor + " " + UserPass(user, pass).toString)
       userPassActor.forward(UserPass(user, pass))
     }
     // invalid header -> fail
-    case _ => sender ! None
+    case _ =>
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + None)
+
+      sender ! None
   }
 
 }

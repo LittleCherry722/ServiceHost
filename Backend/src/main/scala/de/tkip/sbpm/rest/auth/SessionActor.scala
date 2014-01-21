@@ -19,6 +19,7 @@ import scala.collection.mutable.Map
 import java.util.Date
 import akka.actor.Cancellable
 import scala.concurrent.duration._
+import akka.event.Logging
 
 /**
  * Message for creating a new session, optionally with a user id.
@@ -56,19 +57,25 @@ class SessionActor extends Actor {
   private def newSessionId = UUID.randomUUID
   import context.dispatcher
 
+  val traceLogger = Logging(context.system, this)
+
   def receive = {
     case CreateSession(userId) => {
       updateSession(newSessionId, userId)
     }
 
     case GetSession(sessionId) => {
-      sender ! (sessions.get(sessionId) match {
+
+      val msg = (sessions.get(sessionId) match {
         case s @ Some(Session(_, expires, _)) =>
           // return none for expired session 
           if (expires.before(new Date)) None
           else s
         case None => None
       })
+
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
+      sender ! msg
       cleanup()
     }
 
@@ -79,8 +86,12 @@ class SessionActor extends Actor {
       val session = sessions.get(sessionId)
       if (session.isDefined) {
         sessions -= sessionId
+        traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + true)
+
         sender ! true
       } else {
+        traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + false)
+
         sender ! false
       }
       cleanup()

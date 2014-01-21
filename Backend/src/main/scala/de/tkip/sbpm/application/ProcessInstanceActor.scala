@@ -115,9 +115,16 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         subjectMap(startSubject).createSubject(request.userID)
       }
       // send processinstance created, when the block is closed
+      logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + SendProcessInstanceCreated(request.userID))
+
       blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
     } catch {
       case e: NoSuchElementException => {
+        logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + SendProcessInstanceCreated(request.userID))
+        blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
+        logger.debug("TRACE: from " + this.self + " to " + request.sender + " " +
+          Failure(new Exception("ProcessInstance creation failed, required " +
+            "resource does not exists.")))
         request.sender !
           Failure(new Exception("ProcessInstance creation failed, required " +
             "resource does not exists."))
@@ -130,6 +137,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   def receive = {
 
     case GetProxyActor => {
+      logger.debug("TRACE: from " + this.self + " to " + sender + " " + proxyActor)
       sender ! proxyActor
     }
 
@@ -161,6 +169,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case message: SubjectProviderMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
       context.parent ! message
     }
 
@@ -181,6 +190,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case message: GetSubjectMapping => {
+      logger.debug("TRACE: from " + this.self + " to " + sender + " " + SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap))
       sender ! SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
     }
   }
@@ -191,13 +201,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {
-      context.parent !
-        AskSubjectsForAvailableActions(
-          request.userID,
-          id,
-          AllSubjects,
-          (actions: Array[AvailableAction]) =>
-            ProcessInstanceCreated(request, self, createProcessInstanceData(actions)))
+      val msg = AskSubjectsForAvailableActions(
+        request.userID,
+        id,
+        AllSubjects,
+        (actions: Array[AvailableAction]) =>
+          ProcessInstanceCreated(request, self, createProcessInstanceData(actions)))
+
+      logger.debug("TRACE: from " + this.self + " to " + context.parent + " " + msg)
+
+      context.parent ! msg
+
       sendProcessInstanceCreated = false
     }
   }
@@ -213,13 +227,16 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   private def createReadProcessInstanceAnswer(req: ReadProcessInstance) {
-    context.parent !
-      AskSubjectsForAvailableActions(
-        req.userID,
-        id,
-        AllSubjects,
-        (actions: Array[AvailableAction]) =>
-          ReadProcessInstanceAnswer(req, createProcessInstanceData(actions)))
+    val msg = AskSubjectsForAvailableActions(
+      req.userID,
+      id,
+      AllSubjects,
+      (actions: Array[AvailableAction]) =>
+        ReadProcessInstanceAnswer(req, createProcessInstanceData(actions)))
+
+    logger.debug("TRACE: from " + this.self + " to " + context.parent + " " + msg)
+    context.parent ! msg
+
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {

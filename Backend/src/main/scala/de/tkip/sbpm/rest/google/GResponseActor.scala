@@ -164,6 +164,9 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Ac
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
 
+  val traceLogger = Logging(context.system, this)
+  traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + CommandWrapper(SetRequestTimeout(Duration.Inf)))
+
   client ! CommandWrapper(SetRequestTimeout(Duration.Inf))
 
   val tmpFile = java.io.File.createTempFile("chunked-receiver", ".tmp", new java.io.File("/tmp"))
@@ -182,11 +185,15 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Ac
       (driveActor ? UploadFile("abc", "test.txt", "", "text/plain", "gDriveFileUpload.tmp"))
         .onComplete {
           case Success(gFileJson) =>
+            traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + HttpResponse(status = 200, entity = gFileJson.toString))
             client ! HttpResponse(status = 200, entity = gFileJson.toString)
             tmpFile.delete()
           case Failure(e) =>
+            traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + HttpResponse(status = 200, entity = e.toString))
             client ! HttpResponse(status = 200, entity = e.toString)
         }
+
+      traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + CommandWrapper(SetRequestTimeout(2.seconds)))
 
       client ! CommandWrapper(SetRequestTimeout(2.seconds))
       context.stop(self)

@@ -38,6 +38,7 @@ class SubjectProviderManagerActor extends Actor {
     case csp @ CreateSubjectProvider(userID) =>
       createNewSubjectProvider(userID)
       if (subjectProviderMap.contains(userID)) {
+        logger.debug("TRACE: from " + this.self + " to " + sender + " " + SubjectProviderCreated(csp, userID))
         sender ! SubjectProviderCreated(csp, userID)
       }
 
@@ -46,6 +47,7 @@ class SubjectProviderManagerActor extends Actor {
     // then SubjectProviderMessages
     case answer: AnswerMessage => {
       if (answer.sender != null) {
+        logger.debug("TRACE: from " + this.self + " to " + sender + " " + answer)
         answer.sender ! answer
       }
     }
@@ -53,6 +55,8 @@ class SubjectProviderManagerActor extends Actor {
     // TODO werden noch zu forwards aber zum routing testen erstmal tells
     case message: SubjectProviderMessage => {
       if (subjectProviderMap.contains(message.userID)) {
+        logger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(message.userID) + " " + withSender(message))
+
         subjectProviderMap(message.userID) ! withSender(message)
       } else {
         // TODO dynamisch erstellen?
@@ -65,14 +69,17 @@ class SubjectProviderManagerActor extends Actor {
 
     // TODO muss man zusammenfassen koennen
     case message: AnswerAbleMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message.withSender(sender))
       processManagerActor ! message.withSender(sender)
     }
 
     case message: ControlMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message)
       processManagerActor ! message
     }
 
     case message: SubjectMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message)
       processManagerActor ! message
     }
 
