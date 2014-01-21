@@ -71,8 +71,9 @@ class SubjectContainer(
       }
       // register this subject at the context resolver so other subject dont
       // try to send to wrong instances
-      ActorLocator.contextResolverActor !
-        RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID)
+      val msg = RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID)
+      logger.debug("TRACE: from SubjectContainer "+ " to " + ActorLocator.contextResolverActor + " " + msg.toString)
+      ActorLocator.contextResolverActor ! msg
     }
 
     val subjectData =
@@ -92,9 +93,11 @@ class SubjectContainer(
       // and store it in the map
       subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID, logger)
 
+      val msg = SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
       // inform the subject provider about his new subject
-      context.parent !
-        SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+      logger.debug("TRACE: from SubjectContainer" + " to " + context.parent + " " + msg.toString)
+      context.parent ! msg
+        
 
       reStartSubject(userID)
     } else {
@@ -108,6 +111,7 @@ class SubjectContainer(
           .mapTo[ActorRef]
 
       // TODO we need this unblock!
+      logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
 
       subjects += userID -> SubjectInfo(processInstanceRef, userID, logger)
@@ -171,6 +175,7 @@ class SubjectContainer(
         logger.debug("SEND (target exchanged): {}", message)
 
         // TODO we need this unblock!
+        logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  UnBlockUser(userID).toString)
         blockingHandlerActor ! UnBlockUser(userID)
       }
 
@@ -185,11 +190,14 @@ class SubjectContainer(
 
   private def reStartSubject(userID: UserID) {
     if (subjects.contains(userID)) {
+      logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  BlockUser(userID).toString)
       blockingHandlerActor ! BlockUser(userID)
       increaseSubjectCounter()
       subjects(userID).running = true
       // start the execution
-      subjects(userID) ! StartSubjectExecution()
+      val msg = StartSubjectExecution()
+      logger.debug("TRACE: from SubjectContainer"+ " to " + subjects(userID) + " " +  msg.toString)
+      subjects(userID) ! msg
     } else {
       logger.error("User %i unknown for subject %s, (re)start failed!"
         .format(userID, subject.id))

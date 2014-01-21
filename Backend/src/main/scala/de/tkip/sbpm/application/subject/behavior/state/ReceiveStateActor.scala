@@ -54,13 +54,16 @@ protected case class ReceiveStateActor(data: StateData)
   log.debug("exitTransitionsMap: " + exitTransitionsMap.mkString(","))
 
   // register to subscribe the messages at the inputpool
-  inputPoolActor ! {
+
+  val msg = {
     // convert the transition array into the request array
     for (transition <- exitTransitions if (transition.target.isDefined)) yield {
       // the register-message for the inputpool
       SubscribeIncomingMessages(id, transition.subjectID, transition.messageType)
     }
   }
+  log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
+  inputPoolActor ! msg
 
   protected def stateReceive = {
     // execute an action
@@ -85,13 +88,15 @@ protected case class ReceiveStateActor(data: StateData)
         HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
 
       // TODO check if possible
-      inputPoolActor !
-        DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+      val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+      log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
+      inputPoolActor ! msg
 
       // change the state and enter the history entry
       changeState(transition.successorID, data, message)
 
       // inform the processinstance, that this action is executed
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
       blockingHandlerActor ! ActionExecuted(action)
     }
 
@@ -156,8 +161,9 @@ protected case class ReceiveStateActor(data: StateData)
             HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
 
           // TODO check if possible
-          inputPoolActor !
-            DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+          val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+          log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
+          inputPoolActor ! msg
 
           // change the state and enter the history entry
           changeState(transition.successorID, data, message)
@@ -190,11 +196,13 @@ protected case class ReceiveStateActor(data: StateData)
 
     case InputPoolSubscriptionPerformed => {
       // This state has all inputpool information -> unblock the user
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
     }
 
     case KillState => {
       // inform the inputpool, that this state is not waiting for messages anymore
+      log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + UnSubscribeIncomingMessages(id).toString)
       inputPoolActor ! UnSubscribeIncomingMessages(id)
       suicide()
     }
@@ -205,6 +213,7 @@ protected case class ReceiveStateActor(data: StateData)
   private def tryDisableNonObserverStates() {
     // TODO check if timeout is ready
     if (model.observerState && exitTransitionsMap.exists(_._2.ready)) {
+      log.debug("TRACE: from " + this.self + " to " + subjectActor + " " + DisableNonObserverStates.toString)
       subjectActor ! DisableNonObserverStates
     }
   }
@@ -214,6 +223,7 @@ protected case class ReceiveStateActor(data: StateData)
   private def trySendSubjectStarted() {
     if (sendSubjectReady) {
       // TODO so richtig?F
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
       sendSubjectReady = false
     }
@@ -249,9 +259,11 @@ protected case class ReceiveStateActor(data: StateData)
 
   override protected def changeState(successorID: StateID, prevStateData: StateData, historyMessage: HistoryMessage) {
     // inform the inputpool, that this state is not waiting for messages anymore
+    log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + UnSubscribeIncomingMessages(id).toString)
     inputPoolActor ! UnSubscribeIncomingMessages(id)
 
     if (data.stateModel.observerState) {
+      log.debug("TRACE: from " + this.self + " to " + subjectActor + " " + KillNonObserverStates.toString)
       subjectActor ! KillNonObserverStates
     }
 

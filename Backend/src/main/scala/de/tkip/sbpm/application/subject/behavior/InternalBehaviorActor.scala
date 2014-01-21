@@ -93,6 +93,7 @@ class InternalBehaviorActor(
         (id, state) <- currentStatesMap;
         if (!statesMap(id).observerState)
       ) {
+        log.debug("TRACE: from "+this.self + " to " + state + " " + DisableState.toString)
         state ! DisableState
       }
 
@@ -126,11 +127,13 @@ class InternalBehaviorActor(
       changeState(change.currenState, change.nextState)
       val current: State = statesMap(change.currenState)
       val next: State = statesMap(change.nextState)
-      if (next.stateType == StateType.ArchiveStateType)
-        currentStatesMap(change.nextState) ! new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
+      if (next.stateType == StateType.ArchiveStateType){
+        val msg = new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
+        log.debug("TRACE: from "+this.self + " to " + currentStatesMap(change.nextState) + " " + msg.toString)
+        currentStatesMap(change.nextState) ! msg
+      }
       // create the History Entry and send it to the subject
-      context.parent !
-        NewHistoryTransitionData(
+      val msg = NewHistoryTransitionData(
           NewHistoryState(current.text, current.stateType.toString()),
           current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
           current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
@@ -142,6 +145,8 @@ class InternalBehaviorActor(
             change.history.messageType,
             change.history.data))
           else None)
+      log.debug("TRACE: from "+ this.self + " to " + context.parent + " " + msg.toString)
+      context.parent ! msg
     }
 
     case ea: ExecuteAction => {
@@ -152,13 +157,17 @@ class InternalBehaviorActor(
 
     case terminated: MacroTerminated => {
       if (macroStartState.isDefined) {
+        log.debug("TRACE: from "+ this.self + " to " + data.blockingHandlerActor + " " + BlockUser(userID).toString)
         data.blockingHandlerActor ! BlockUser(userID)
+        log.debug("TRACE: from "+ this.self + " to " + macroStartState.get + " " + terminated.toString)
         macroStartState.get ! terminated
       }
+      log.debug("TRACE: from "+ this.self + " to " + context.parent + " " + terminated.toString)
       context.parent ! terminated
     }
 
     case m: CallMacro => {
+      log.debug("TRACE: from "+ this.self + " to " + context.parent + " " + m.toString)
       context.parent ! m
     }
 
@@ -174,6 +183,7 @@ class InternalBehaviorActor(
 
     // general matching
     case message: SubjectProviderMessage => {
+      log.debug("TRACE: from "+ this.self + " to " + context.parent + " " + message.toString)
       context.parent ! message
     }
     case av: AddVariable => {
@@ -215,6 +225,7 @@ class InternalBehaviorActor(
     if (currentStatesMap contains state) {
       val currentState = currentStatesMap(state)
       // kill the state
+      log.debug("TRACE: from "+ this.self + " to " + currentState+ " " + KillState.toString)
       currentState ! KillState
       currentStatesMap -= state
     } else {
@@ -230,7 +241,9 @@ class InternalBehaviorActor(
         log.debug("State /%s/%s/%s is already running".format(userID, subjectID, state))
         // TODO hier message wegen modaljoin!
         if (statesMap(state).stateType == ModalJoinStateType) {
+          log.debug("TRACE: from "+ this.self + " to " + currentStatesMap(state) + " " + TransitionJoined.toString)
           currentStatesMap(state) ! TransitionJoined
+          log.debug("TRACE: from "+ this.self + " to " + data.blockingHandlerActor + " " + UnBlockUser(userID).toString)
           data.blockingHandlerActor ! UnBlockUser(userID)
         }
       } else {

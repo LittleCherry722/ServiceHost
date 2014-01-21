@@ -15,10 +15,12 @@ protected case class ModalSplitStateActor(data: StateData)
 
   override def preStart() {
     // Block the user while prestart!
+    log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
     blockingHandlerActor ! BlockUser(userID)
     super.preStart()
     // Fire Modal Split in the preStart (Dont wait for some interaction)
     fireModalSplit()
+    log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
     blockingHandlerActor ! UnBlockUser(userID)
   }
 
