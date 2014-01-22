@@ -19,7 +19,7 @@ import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
-import akka.actor.{ActorSystem, Props, actorRef2Scala}
+import akka.actor.{Actor, ActorSystem, Props, actorRef2Scala}
 import akka.util.Timeout
 import akka.pattern._
 import akka.io.IO
@@ -39,6 +39,7 @@ import de.tkip.sbpm.application.change._
 
 import de.tkip.sbpm.logging.LogPersistenceActor
 import de.tkip.sbpm.application.miscellaneous.SystemProperties._
+import de.tkip.sbpm.eventbus.{SbpmEventBusTextMessage, SbpmEventBus, RemotePublishActor}
 
 object Boot extends App {
 
@@ -95,6 +96,17 @@ object Boot extends App {
   // binding the frontendInterfaceActor to a HttpListener
   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = sbpmHostname, port = sbpmPort)
 //   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
+
+  // eventbus
+  val eventBusRemotePublishActor = system.actorOf(Props[RemotePublishActor], eventBusRemotePublishActorName)
+  //TODO REMOVE
+  val tmpSubscriber = system.actorOf(Props(new Actor {
+    def receive = {
+      case SbpmEventBusTextMessage(text) => println("SUBSCRIBER GOT TEXT: " + text)
+    }
+  }))
+  SbpmEventBus.subscribe(tmpSubscriber, "/events")
+  //TODO END-REMOVE
 
   // db init code below
   implicit val timout = Timeout(30 seconds)
