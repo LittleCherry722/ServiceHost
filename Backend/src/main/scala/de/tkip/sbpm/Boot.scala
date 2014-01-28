@@ -105,7 +105,7 @@ object Boot extends App {
       case SbpmEventBusTextMessage(text) => println("SUBSCRIBER GOT TEXT: " + text)
     }
   }))
-  SbpmEventBus.subscribe(tmpSubscriber, "/events")
+  SbpmEventBus.subscribe(tmpSubscriber, "/traffic")
   //TODO END-REMOVE
 
   // db init code below
