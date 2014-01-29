@@ -21,23 +21,20 @@ object MainBoots extends App {
   var s = true
 
   remotePubActor ! "Hello from remote app"
-  remotePubActor ! SbpmEventBusEvent("/traffic/darmstadt/flow", SbpmEventBusTextMessage("Event 10 updated..."))
 
   import system.dispatcher
 
   private def startSbpmEventBusTrafficFlowMessage(): Unit = {
+    Thread.sleep(1000)
     s = true
     f onComplete {
-    case Success(actor) =>
-      //        val cancellable = system.scheduler.schedule(0 milliseconds, 1000 milliseconds){
-      //        actor ! new SbpmEventBusTrafficFlowMessage(Random.nextInt(Integer.MAX_VALUE),Random.nextInt(Integer.MAX_VALUE))
-      //      }
-      while (s) {
-        actor ! new SbpmEventBusTrafficFlowMessage(Random.nextInt(Integer.MAX_VALUE), Random.nextInt(Integer.MAX_VALUE))
-        Thread.sleep(1000)
-      }
-    case Failure(e) => e.printStackTrace()
-  }
+      case Success(actor) =>
+        while (s) {
+          actor ! SbpmEventBusEvent("/traffic/darmstadt/flow", new SbpmEventBusTrafficFlowMessage(Random.nextInt(10), Random.nextInt(90) + 10))
+          Thread.sleep(1000)
+        }
+      case Failure(e) => e.printStackTrace()
+    }
   }
 
   private def stopSbpmEventBusTrafficFlowMessage(): Unit = {
