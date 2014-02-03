@@ -1,0 +1,35 @@
+digraph {
+	graph [ranksep=1.5];
+
+	subgraph cluster_StateActors {
+		//graph [label=StateActors];
+		//ReceiveStateActor;
+		ReceiveStateActor____2428b3b7;
+
+		//SendStateActor;
+		SendStateActor____83001d89;
+
+		//ArchiveStateActor;
+		ArchiveStateActor____14cf367b;
+
+		//BlockingActor;
+		BlockingActor____064d3f35;
+
+		//EndStateActor;
+		EndStateActor____aa9e1dac -> EndStateActor____16fe0625 [color=red,dir=both];
+
+		//GoogleSendProxyActor;
+		GoogleSendProxyActor____992361a1;
+
+		//InternalBehaviorActor;
+		InternalBehaviorActor____4560303f -> InternalBehaviorActor____9b633e45 [color=red,dir=both];
+
+		change;
+	}
+
+	SubjectActor____706cbeef -> SubjectActor____ac9c9813 [color=red,dir=both];
+
+	SubjectActionsCollector____ee48315a -> SubjectActionsCollector____dee1ccc8 [color=red,dir=both];
+	SubjectActionsCollector____dee1ccc8 -> SubjectActionsCollector____aee8ce5c [color=red,dir=both];
+	SubjectActionsCollector____ee48315a -> SubjectActionsCollector____aee8ce5c [color=red,dir=both];
+}
