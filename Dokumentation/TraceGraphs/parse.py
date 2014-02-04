@@ -97,9 +97,11 @@ def flat_actor(a):
         a_ = a_ + "____"  +guid.split("-")[0]
 
 
-    if not "temp" in a_:
-        s = a_.split("/")
-        l = len(s)
+    s = a_.split("/")
+    l = len(s)
+    if "temp" in a_:
+        a_ = "temp_" + s[l-1].split("]")[0]
+    else:
         a_ = s[l-1]
 
     return a_
