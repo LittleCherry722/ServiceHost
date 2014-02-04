@@ -39,9 +39,9 @@ def add_clusters(g, clusters):
 
 
 def add_edges(g, edges, key_suffix, colorpalette):
-    for (a, b, m) in edges:
-        color = get_color(m, colorpalette)
-        g.add_edge(Edge(a, b, key=a+"_"+b+"__"+key_suffix, color=color, fontcolor=color, label=m))
+    for (i, a, b, msg) in edges:
+        color = get_color(msg, colorpalette)
+        g.add_edge(Edge(a, b, key=str(i)+"_"+a+"_"+b+"__"+key_suffix, color=color, fontcolor=color, label=str(i)+") "+msg))
 
 
 
@@ -98,6 +98,8 @@ def read_graph():
 
     data = []
 
+    i = 0
+
     for line in inF:
         line = line.replace("\r", "").replace("\n", "")
 
@@ -111,7 +113,8 @@ def read_graph():
         b = arr[3]
         msg = arr[5]
 
-        data.append((a,b,msg))
+        data.append((i,a,b,msg))
+        i = i + 1
 
     return data
 
@@ -160,18 +163,18 @@ def flat_message(msg):
 
 def flat_actors(data):
     data_flat_actors = []
-    for (a,b,msg) in data:
+    for (i,a,b,msg) in data:
         a_ = flat_actor(a)
         b_ = flat_actor(b)
-        data_flat_actors.append((a_,b_,msg))
+        data_flat_actors.append((i,a_,b_,msg))
 
     return data_flat_actors
 
 def flat_messages(data):
     data_flat_messages = []
-    for (a,b,msg) in data:
+    for (i,a,b,msg) in data:
         msg_ = flat_message(msg)
-        data_flat_messages.append((a,b,msg_))
+        data_flat_messages.append((i,a,b,msg_))
 
     return data_flat_messages
 
