@@ -1,4 +1,4 @@
-import pygraphviz as pgv
+from pydot import *
 import re
 
 
@@ -13,17 +13,17 @@ COLOR_MESSAGES = "blue"
 
 def add_edges(g, edges, key_suffix, color="black"):
     for (a, b, m) in edges:
-        g.add_edge(a, b, key=a+"_"+b+"__"+key_suffix, color=color, fontcolor=color, label=m)
+        g.add_edge(Edge(a, b, key=a+"_"+b+"__"+key_suffix, color=color, fontcolor=color, label=m))
 
 
 
 def build_graph(creation, messages):
-    g = pgv.AGraph(FILE_TEMPLATE,directed=True,strict=False)
+    g = Dot("MyName", ranksep="1.5")
     add_edges(g, creation, "create", COLOR_CREATION)
     add_edges(g, messages, "message", COLOR_MESSAGES)
 
-    g.layout(prog='fdp')
-    g.draw(FILE_OUT)
+    #g.layout(prog='fdp')
+    g.write_dot(FILE_OUT)
 
 
 
