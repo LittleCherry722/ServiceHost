@@ -4,12 +4,28 @@ import re
 
 #FILE_IN = "sample_input.log"
 FILE_IN = "log_travel_request_reduce.log"
-FILE_TEMPLATE = "template.dot"
 FILE_OUT = "generated.dot"
 COLOR_CREATION = "red"
 COLOR_MESSAGES = "blue"
 
 # TODO: we need more colors, eg for each message type
+
+def add_clusters(g, clusters):
+    for k in clusters.keys():
+        s = Subgraph('cluster_%s' % k,label=k)
+
+        subs = []
+        for node in clusters[k]:
+            if type(node) is dict:
+                subs.append(node)
+            else:
+                s.add_node(Node(node))
+
+        for sub in subs:
+            add_clusters(s, sub)
+
+        g.add_subgraph(s)
+
 
 def add_edges(g, edges, key_suffix, color="black"):
     for (a, b, m) in edges:
@@ -17,8 +33,9 @@ def add_edges(g, edges, key_suffix, color="black"):
 
 
 
-def build_graph(creation, messages):
+def build_graph(creation, messages, clusters):
     g = Dot("MyName", ranksep="1.5")
+    add_clusters(g, clusters)
     add_edges(g, creation, "create", COLOR_CREATION)
     add_edges(g, messages, "message", COLOR_MESSAGES)
 
@@ -45,12 +62,17 @@ def test_graph():
 
 
 def render_graph(data):
+    clusters = {
+            "MyCluster": ["ReceiveStateActor____2428b3b7", "SendStateActor____83001d89", "ArchiveStateActor____14cf367b", "BlockingActor____064d3f35", "EndStateActor____aa9e1dac", "EndStateActor____16fe0625", "GoogleSendProxyActor____992361a1", "InternalBehaviorActor____4560303f", "InternalBehaviorActor____9b633e45", "change"],
+            #"foo": ["bar", {"fooz": ["baaz"]}],
+            }
+
     creation = [
         ]
 
     messages = data
 
-    build_graph(creation, messages)
+    build_graph(creation, messages, clusters)
 
 
 
