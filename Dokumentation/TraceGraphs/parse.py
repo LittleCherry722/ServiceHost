@@ -91,6 +91,7 @@ def render_graph(data):
 
 
 def read_graph():
+    braces = re.compile("(\([^\)\(]*\))")
     regex = re.compile("^(TRACE: from )(.*)( to )([^ ]*)( )(.*)$")
 
     inF = open(FILE_IN, 'r')
@@ -99,6 +100,11 @@ def read_graph():
 
     for line in inF:
         line = line.replace("\r", "").replace("\n", "")
+
+        # remove all braces with their contents
+        while braces.search(line) is not None:
+            line = braces.sub("", line)
+
 
         arr = regex.findall(line)[0]
         a = arr[1]
@@ -140,12 +146,17 @@ def flat_actor(a):
     else:
         a_ = s[l-1]
 
-    return a_
+    return a_.strip()
 
 def flat_message(msg):
-    # TODO: regex maybe better
-    msg_ = msg.split("(")[0]
-    return msg_
+    if not "." in msg:
+        return msg.strip()
+
+    msg_ = msg.split(";")[0]
+    s = msg_.split(".")
+    msg_ = s[len(s)-1]
+
+    return msg_.strip()
 
 def flat_actors(data):
     data_flat_actors = []
