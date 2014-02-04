@@ -1,14 +1,23 @@
 from pydot import *
 import re
+import hashlib
 
 
 #FILE_IN = "sample_input.log"
 FILE_IN = "log_travel_request_reduce.log"
 FILE_OUT = "generated.dot"
-COLOR_CREATION = "red"
-COLOR_MESSAGES = "blue"
 
-# TODO: we need more colors, eg for each message type
+def get_color(label, palette):
+    colors = {
+      "node": ["blue3", "darkgreen", "brown"],
+      "create": ["white"],
+      "message": ["mediumpurple4", "seagreen4"],
+    }
+    if palette not in colors:
+        return "black"
+    p = colors[palette]
+    h = int(hashlib.sha1(label).hexdigest(), 16) % len(p)
+    return p[h]
 
 def add_clusters(g, clusters):
     for k in clusters.keys():
@@ -19,7 +28,8 @@ def add_clusters(g, clusters):
             if type(node) is dict:
                 subs.append(node)
             else:
-                s.add_node(Node(node))
+                color = get_color(node, "node")
+                s.add_node(Node(node, color=color, fontcolor=color))
 
         for sub in subs:
             add_clusters(s, sub)
@@ -27,8 +37,9 @@ def add_clusters(g, clusters):
         g.add_subgraph(s)
 
 
-def add_edges(g, edges, key_suffix, color="black"):
+def add_edges(g, edges, key_suffix, colorpalette):
     for (a, b, m) in edges:
+        color = get_color(m, colorpalette)
         g.add_edge(Edge(a, b, key=a+"_"+b+"__"+key_suffix, color=color, fontcolor=color, label=m))
 
 
@@ -36,8 +47,8 @@ def add_edges(g, edges, key_suffix, color="black"):
 def build_graph(creation, messages, clusters):
     g = Dot("MyName", ranksep="1.5")
     add_clusters(g, clusters)
-    add_edges(g, creation, "create", COLOR_CREATION)
-    add_edges(g, messages, "message", COLOR_MESSAGES)
+    add_edges(g, creation, "create", "create")
+    add_edges(g, messages, "message", "message")
 
     #g.layout(prog='fdp')
     g.write_dot(FILE_OUT)
