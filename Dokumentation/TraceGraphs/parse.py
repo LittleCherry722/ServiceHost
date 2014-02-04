@@ -8,10 +8,11 @@ FILE_IN = "log_travel_request_reduce.log"
 FILE_OUT = "generated.dot"
 
 def get_color(label, palette):
+    c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
     colors = {
-      "node": ["blue3", "darkgreen", "brown"],
+      "node": c,
       "create": ["white"],
-      "message": ["mediumpurple4", "seagreen4"],
+      "message": c,
     }
     if palette not in colors:
         return "black"
