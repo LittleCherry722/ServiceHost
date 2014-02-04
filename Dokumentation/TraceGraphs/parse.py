@@ -47,7 +47,9 @@ def add_edges(g, edges, key_suffix, colorpalette):
 def build_graph(creation, messages, clusters):
     g = Dot("MyName", ranksep="1.5")
     add_clusters(g, clusters)
-    add_edges(g, creation, "create", "create")
+    # Turn this to true to include creation-edges. Do not forget to add real colors in get_color(..)
+    if False:
+        add_edges(g, creation, "create", "create")
     add_edges(g, messages, "message", "message")
 
     #g.layout(prog='fdp')
