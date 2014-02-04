@@ -16,6 +16,10 @@ Repository/target/*
 Repository/project/target/*
 ProcessManagement/nbproject/*
 
+ServiceHost/target/*
+ServiceHost/project/target/*
+ServiceHost/nbproject/*
+
 # intellij project files
 .idea
 *.iml
