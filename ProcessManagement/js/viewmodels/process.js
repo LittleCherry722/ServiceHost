@@ -156,9 +156,9 @@ define([
 			this.newBusinessInterface().save({}, {
 				success: function() {
 					Notify.info("Success", "Business Interface '" +
-						this.currentProcess().name() + "' has successfully been made public.");
+						self.currentProcess().name() + "' has successfully been made public.");
 
-					this.newBusinessInterface(new Interface({
+					self.newBusinessInterface(new Interface({
 						name: "",
 						creator: App.currentUser().name()
 					}));
