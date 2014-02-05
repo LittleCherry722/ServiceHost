@@ -107,19 +107,23 @@ def read_graph():
     i = 0
 
     for line in inF:
-        line = line.replace("\r", "").replace("\n", "")
+        try:
+            line = line.replace("\r", "").replace("\n", "")
 
-        # remove all braces with their contents
-        while braces.search(line) is not None:
-            line = braces.sub("", line)
+            # remove all braces with their contents
+            while braces.search(line) is not None:
+                line = braces.sub("", line)
 
 
-        arr = regex.findall(line)[0]
-        a = arr[1]
-        b = arr[3]
-        msg = arr[5]
+            arr = regex.findall(line)[0]
+            a = arr[1]
+            b = arr[3]
+            msg = arr[5]
 
-        data.append((i,a,b,msg))
+            data.append((i,a,b,msg))
+        except Exception as e:
+            print("can not parse line: " + line)
+
         i = i + 1
 
     return data
