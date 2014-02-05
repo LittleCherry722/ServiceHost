@@ -254,7 +254,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
    */
   private def delegateTo(actor: ActorRef): Route = {
     val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + actor)
+    traceLogger.debug("TRACE: from " + this.self + " to " + actor +" RequestContext")
 
     requestContext => actor ! requestContext
   }
