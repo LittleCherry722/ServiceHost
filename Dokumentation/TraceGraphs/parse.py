@@ -1,11 +1,17 @@
 from pydot import *
 import re
 import hashlib
+import sys
 
-
-#FILE_IN = "sample_input.log"
 FILE_IN = "log_travel_request_reduce.log"
 FILE_OUT = "generated.dot"
+
+if len(sys.argv) > 1:
+    FILE_IN = sys.argv[1]
+if len(sys.argv) > 2:
+    FILE_OUT = sys.argv[2]
+if len(sys.argv) > 3:
+    print("unexpected arguments")
 
 def get_color(label, palette):
     c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
