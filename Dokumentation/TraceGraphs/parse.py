@@ -5,12 +5,15 @@ import sys
 
 FILE_IN = "log_travel_request_reduce.log"
 FILE_OUT = "generated.dot"
+SHOW_LINE = True
 
 if len(sys.argv) > 1:
     FILE_IN = sys.argv[1]
 if len(sys.argv) > 2:
     FILE_OUT = sys.argv[2]
 if len(sys.argv) > 3:
+    SHOW_LINE = False
+if len(sys.argv) > 4:
     print("unexpected arguments")
 
 def get_color(label, palette):
@@ -62,7 +65,12 @@ def add_clusters(g, clusters, messages, actors=None):
 def add_edges(g, edges, key_suffix, colorpalette):
     for (i, a, b, msg) in edges:
         color = get_color(msg, colorpalette)
-        g.add_edge(Edge(a, b, color=color, fontcolor=color, label=str(i)+") "+msg))
+        if SHOW_LINE:
+            g.add_edge(Edge(a, b, color=color, fontcolor=color, label=str(i)+") "+msg))
+        else:
+            a_ = a.get_name().replace("-","").replace("$","")
+            b_ = b.get_name().replace("-","").replace("$","")
+            g.add_edge(Edge(a, b, color=color, fontcolor=color, label=msg, key=a_+"_"+b_+"_"+msg))
 
 
 
