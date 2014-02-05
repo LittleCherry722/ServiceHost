@@ -20,7 +20,16 @@ def get_color(label, palette):
     h = int(hashlib.sha1(label).hexdigest(), 16) % len(p)
     return p[h]
 
-def add_clusters(g, clusters, actors):
+def add_clusters(g, clusters, messages, actors=None):
+    if actors is None:
+        actors = set()
+        for (i, a, b, msg) in messages:
+            actors.add(a)
+            actors.add(b)
+        add_to_g = set(actors)
+    else:
+        add_to_g = set()
+
     for k in clusters.keys():
         s = Subgraph('cluster_%s' % k,label=k)
 
@@ -31,26 +40,29 @@ def add_clusters(g, clusters, actors):
             else:
                 for actor in actors:
                     # TODO: should be `beginsWith` or sth like that instead of `in`
-                    if node in actor:
-                        color = get_color(node, "node")
-                        s.add_node(Node(actor, color=color, fontcolor=color))
+                    if node in actor.get_name():
+                        s.add_node(actor)
+                        add_to_g.discard(actor)
 
         for sub in subs:
-            add_clusters(s, sub)
+            add_clusters(s, sub, messages, actors)
 
         g.add_subgraph(s)
+
+    for node in add_to_g:
+        g.add_node(node)
 
 
 def add_edges(g, edges, key_suffix, colorpalette):
     for (i, a, b, msg) in edges:
         color = get_color(msg, colorpalette)
-        g.add_edge(Edge(a, b, key=str(i)+"_"+a+"_"+b+"__"+key_suffix, color=color, fontcolor=color, label=str(i)+") "+msg))
+        g.add_edge(Edge(a, b, color=color, fontcolor=color, label=str(i)+") "+msg))
 
 
 
-def build_graph(creation, messages, clusters, actors):
+def build_graph(creation, messages, clusters):
     g = Dot("MyName", ranksep="1.5")
-    add_clusters(g, clusters, actors)
+    add_clusters(g, clusters, messages)
     # Turn this to true to include creation-edges. Do not forget to add real colors in get_color(..)
     if False:
         add_edges(g, creation, "create", "create")
@@ -106,7 +118,7 @@ def read_graph():
 
     return data
 
-def flat_actor(a):
+def actor_node(a):
     # TODO: regex maybe better
     a_ = a.split("(")[0]
 
@@ -137,7 +149,12 @@ def flat_actor(a):
     else:
         a_ = s[l-1]
 
-    return a_.strip()
+    a_ = a_.strip()
+
+    color = get_color(a_, "node")
+    node = Node(a_, color=color, fontcolor=color)
+
+    return node
 
 def flat_message(msg):
     if not "." in msg:
@@ -149,14 +166,14 @@ def flat_message(msg):
 
     return msg_.strip()
 
-def flat_actors(data):
-    data_flat_actors = []
-    for (i,a,b,msg) in data:
-        a_ = flat_actor(a)
-        b_ = flat_actor(b)
-        data_flat_actors.append((i,a_,b_,msg))
+def make_actor_nodes(messages):
+    messages_ = []
+    for (i,a,b,msg) in messages:
+        a_ = actor_node(a)
+        b_ = actor_node(b)
+        messages_.append((i,a_,b_,msg))
 
-    return data_flat_actors
+    return messages_
 
 def flat_messages(data):
     data_flat_messages = []
@@ -167,14 +184,9 @@ def flat_messages(data):
     return data_flat_messages
 
 if __name__ == '__main__':
-    data = read_graph()
-    actors_flat = flat_actors(data)
-    messages_flat = flat_messages(actors_flat)
-
-    actors = set()
-    for (i, a, b, msg) in actors_flat:
-        actors.add(a)
-        actors.add(b)
+    messages = read_graph()
+    messages = make_actor_nodes(messages)
+    messages = flat_messages(messages)
 
     clusters = {
             "MyCluster": ["ReceiveStateActor", "SendStateActor", "ArchiveStateActor", "BlockingActor", "EndStateActor", "EndStateActor", "GoogleSendProxyActor", "InternalBehaviorActor", "InternalBehaviorActor", "change"],
@@ -184,7 +196,7 @@ if __name__ == '__main__':
     creation = []
 
 
-    build_graph(creation, messages_flat, clusters, actors)
+    build_graph(creation, messages, clusters)
 
 #if __name__ == '__main__':
     #test_graph()
