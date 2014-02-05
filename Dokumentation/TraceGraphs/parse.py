@@ -20,7 +20,7 @@ def get_color(label, palette):
     h = int(hashlib.sha1(label).hexdigest(), 16) % len(p)
     return p[h]
 
-def add_clusters(g, clusters):
+def add_clusters(g, clusters, actors):
     for k in clusters.keys():
         s = Subgraph('cluster_%s' % k,label=k)
 
@@ -29,8 +29,11 @@ def add_clusters(g, clusters):
             if type(node) is dict:
                 subs.append(node)
             else:
-                color = get_color(node, "node")
-                s.add_node(Node(node, color=color, fontcolor=color))
+                for actor in actors:
+                    # TODO: should be `beginsWith` or sth like that instead of `in`
+                    if node in actor:
+                        color = get_color(node, "node")
+                        s.add_node(Node(actor, color=color, fontcolor=color))
 
         for sub in subs:
             add_clusters(s, sub)
@@ -45,9 +48,9 @@ def add_edges(g, edges, key_suffix, colorpalette):
 
 
 
-def build_graph(creation, messages, clusters):
+def build_graph(creation, messages, clusters, actors):
     g = Dot("MyName", ranksep="1.5")
-    add_clusters(g, clusters)
+    add_clusters(g, clusters, actors)
     # Turn this to true to include creation-edges. Do not forget to add real colors in get_color(..)
     if False:
         add_edges(g, creation, "create", "create")
@@ -72,21 +75,6 @@ def test_graph():
         ]
 
     build_graph(creation, messages)
-
-
-
-def render_graph(data):
-    clusters = {
-            "MyCluster": ["ReceiveStateActor____2428b3b7", "SendStateActor____83001d89", "ArchiveStateActor____14cf367b", "BlockingActor____064d3f35", "EndStateActor____aa9e1dac", "EndStateActor____16fe0625", "GoogleSendProxyActor____992361a1", "InternalBehaviorActor____4560303f", "InternalBehaviorActor____9b633e45", "change"],
-            #"foo": ["bar", {"fooz": ["baaz"]}],
-            }
-
-    creation = [
-        ]
-
-    messages = data
-
-    build_graph(creation, messages, clusters)
 
 
 
@@ -183,7 +171,20 @@ if __name__ == '__main__':
     actors_flat = flat_actors(data)
     messages_flat = flat_messages(actors_flat)
 
-    render_graph(messages_flat)
+    actors = set()
+    for (i, a, b, msg) in actors_flat:
+        actors.add(a)
+        actors.add(b)
+
+    clusters = {
+            "MyCluster": ["ReceiveStateActor", "SendStateActor", "ArchiveStateActor", "BlockingActor", "EndStateActor", "EndStateActor", "GoogleSendProxyActor", "InternalBehaviorActor", "InternalBehaviorActor", "change"],
+            #"foo": ["bar", {"fooz": ["baaz"]}],
+            }
+
+    creation = []
+
+
+    build_graph(creation, messages_flat, clusters, actors)
 
 #if __name__ == '__main__':
     #test_graph()
