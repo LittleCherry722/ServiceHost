@@ -128,7 +128,7 @@ def read_graph():
 
     return data
 
-def actor_node(a):
+def get_actor_name(a):
     # TODO: regex maybe better
     a_ = a.split("(")[0]
 
@@ -161,20 +161,27 @@ def actor_node(a):
 
     a_ = a_.strip()
 
+    return a_
+
+def actor_node(a):
+    a_ = get_actor_name(a)
     color = get_color(a_, "node")
     node = Node(a_, color=color, fontcolor=color)
 
     return node
 
 def flat_message(msg):
-    if not "." in msg:
-        return msg.strip()
+    msg_ = get_actor_name(msg)
+
+    if not "." in msg_:
+        return msg_
 
     msg_ = msg.split(";")[0]
     s = msg_.split(".")
     msg_ = s[len(s)-1]
 
-    return msg_.strip()
+
+    return msg_
 
 def make_actor_nodes(messages):
     messages_ = []
