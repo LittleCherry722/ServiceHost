@@ -3,13 +3,13 @@ import AssemblyKeys._
 
 assemblySettings
 
-jarName in assembly := "sbpm.jar" 
+jarName in assembly := "sbpm.jar"
 
-test in assembly := {} 
+test in assembly := {}
 
 mainClass in assembly := Some("de.tkip.sbpm.Boot")
 
-mergeStrategy in assembly := { 
+mergeStrategy in assembly := {
   case "reference.conf" =>
     MergeStrategy.concat
   // case PathList(ps @ _*) if isReadme(ps.last) || isLicenseFile(ps.last) =>
@@ -37,14 +37,14 @@ scalaVersion := "2.10.2"
 
 retrieveManaged := true
 
-EclipseKeys.relativizeLibs := true
+// EclipseKeys.relativizeLibs := true
 
-EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
+// EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16)
 
 // Default = Scala
 //EclipseKeys.projectFlavor := EclipseProjectFlavor.Scala
 
-EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
+// EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 
 testOptions in Test <+= (target in Test) map {
   t => Tests.Argument(TestFrameworks.ScalaTest, "junitxml(directory=\"%s\")" format (t / "test-reports"))
