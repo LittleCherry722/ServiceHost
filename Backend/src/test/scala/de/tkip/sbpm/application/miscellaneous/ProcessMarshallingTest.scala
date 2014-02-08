@@ -61,5 +61,4 @@ class ProcessMarshallingTest extends FunSuite {
     assert(options.conversation === Some(""))
     assert(options.stateId === None)
   }
-
 }

@@ -28,13 +28,16 @@ object RepoActor {
 
   case object Reset
 
+  case class Offer(graph: JsObject)
+  case class Implementation(graph: JsObject)
 }
 
 class RepoActor extends Actor with ActorLogging {
 
   import RepoActor._
 
-  val entries = mutable.Map[Int, JsObject]()
+  val offers = mutable.Map[Address, Offer]()
+  val implementations = mutable.Map[Address, Implementation]()
   var currentId = 1
 
   def receive = {

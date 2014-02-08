@@ -23,3 +23,9 @@ ProcessManagement/nbproject/*
 # intellij project files
 .idea
 *.iml
+
+/pids
+backend_*.jar
+repository.jar
+/target
+sbpm_*.db
