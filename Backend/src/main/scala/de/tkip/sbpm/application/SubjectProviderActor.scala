@@ -24,6 +24,7 @@ import de.tkip.sbpm.application._
 import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
 import de.tkip.sbpm.application.subject.misc.AvailableAction
+import java.util.UUID
 
 protected case class SubjectCreated(userID: UserID,
   processID: ProcessID,
@@ -135,7 +136,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
                   subjectID == s.subjectID)))
 
     // collect actions and generate answer for the filtered subject list
-    context.actorOf(Props(new SubjectActionsCollector)).!(
+    context.actorOf(Props(new SubjectActionsCollector),"SubjectActionsCollector____"+UUID.randomUUID().toString()).!(
       CollectAvailableActions(
         collectSubjects.map(_.ref),
         processInstanceID,

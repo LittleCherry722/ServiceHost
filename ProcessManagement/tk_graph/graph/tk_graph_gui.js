@@ -556,6 +556,8 @@ function gf_guiDisplayEdge (edge, startType)
  */
 function gf_guiDisplayNode (node)
 {
+    if(!node) return;
+
 	var gt_type	= node.isEnd() ? "end" : node.getType();
 	
 	// clear input fields
