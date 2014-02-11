@@ -16,8 +16,8 @@ import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
-import scala.util.{Try, Success, Failure}
-import akka.actor.{Actor, ActorLogging}
+import scala.util.{ Try, Success, Failure }
+import akka.actor.{ Actor, ActorLogging }
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -35,13 +35,14 @@ import de.tkip.sbpm.rest.google.{
   GDriveControl,
   GCalendarActor
 }
-import GDriveActor.{FindFiles, InitCredentials, RetrieveCredentials, UploadFile}
-import GAuthCtrl.{NoCredentialsException}
-import GCalendarActor.{CreateEvent}
+import GDriveActor.{ FindFiles, InitCredentials, RetrieveCredentials, UploadFile }
+import GAuthCtrl.{ NoCredentialsException }
+import GCalendarActor.{ CreateEvent }
 import de.tkip.sbpm
 import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.calendar.model.Event
 import java.util.UUID
+import akka.event.Logging
 
 class GResponseActor extends Actor with HttpService with DefaultLogging {
 
@@ -51,78 +52,82 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
   private lazy val calendarActor = sbpm.ActorLocator.googleCalendarActor
   def actorRefFactory = context
-  
+
   def receive = runRoute {
     post {
       // frontend request for authentication of SBPM app gainst Google account
       pathPrefix("init_auth") {
-        formFields("id") { (userId) => ctx =>
-          log.debug(s"received authentication init post from user: $userId")
-          (driveActor ? RetrieveCredentials(userId))
-            .onComplete {
-              case Success(files) => ctx.complete(StatusCodes.NoContent)
-              case Failure(NoCredentialsException(auth_url)) =>
-                ctx.complete(StatusCodes.OK, auth_url)
-              case Failure(e) => ctx.complete(e)
-            }
-        }
-      } ~
-      path("create_event") {
-        formFields("id", "summary", "location", "year", "month", "day") {
-          (id, s, l, y, m, d) => ctx =>
-          log.debug(s"received get request for google calendar event from user: $id")
-          (calendarActor ? CreateEvent(id, s, l, y.toInt, m.toInt, d.toInt))
-            .mapTo[Event]
-            .onComplete {
-              case Success(calEvent) => ctx.complete(calEvent.toString)
-              case Failure(e) => ctx.complete(e.toString)
-            }
-        }
-      } ~
-      path("file-upload") {
-      formFields('userId.as[String], 'datafile.as[Array[Byte]], 'fname.as[String], 'mimeType.as[String]) {
-        (userId, fileArray, fname, mimeType) => ctx =>
-          val path = "gDriveFileUpload.tmp"
-          val out = new java.io.FileOutputStream(path)
-          out.write(fileArray)
-          out.close()
-          (driveActor ? UploadFile(userId, fname, "", mimeType, path))
-            .onComplete {
-              case Success(gFileJson) => ctx.complete(gFileJson.toString)
-              case Failure(e) => ctx.complete(e)
-            }
-      }
-    }
-    } ~
-    get {
-      // callback endpoint called by Google after an authentication request
-      path("") {
-        parameters("code", "state") { (code, userId) =>
-          respondWithMediaType(`text/html`) { ctx =>
-            log.debug(s"received from google response: name: $userId, code: $code")
-            (driveActor ? InitCredentials(userId, code))
+        formFields("id") { (userId) =>
+          ctx =>
+            log.debug(s"received authentication init post from user: $userId")
+            (driveActor ? RetrieveCredentials(userId))
               .onComplete {
-                case Success(_) =>
-                  ctx.complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body>OK</body></html>")
+                case Success(files) => ctx.complete(StatusCodes.NoContent)
+                case Failure(NoCredentialsException(auth_url)) =>
+                  ctx.complete(StatusCodes.OK, auth_url)
                 case Failure(e) => ctx.complete(e)
               }
-          }
         }
       } ~
-      path("get_files") {
-        parameters("id") { id => ctx =>
-          log.debug(s"received get request for google drive files from user: $id")
-          (driveActor ? FindFiles(id, "", GDriveControl.default_fields))
-            .mapTo[String]
-            .onComplete {
-              case Success(files) => ctx.complete(files)
-              case Failure(NoCredentialsException(auth_url)) =>
-                ctx.complete(StatusCodes.Forbidden, auth_url)
-              case Failure(e) => ctx.complete(e.toString)
-            }
+        path("create_event") {
+          formFields("id", "summary", "location", "year", "month", "day") {
+            (id, s, l, y, m, d) =>
+              ctx =>
+                log.debug(s"received get request for google calendar event from user: $id")
+                (calendarActor ? CreateEvent(id, s, l, y.toInt, m.toInt, d.toInt))
+                  .mapTo[Event]
+                  .onComplete {
+                    case Success(calEvent) => ctx.complete(calEvent.toString)
+                    case Failure(e)        => ctx.complete(e.toString)
+                  }
+          }
+        } ~
+        path("file-upload") {
+          formFields('userId.as[String], 'datafile.as[Array[Byte]], 'fname.as[String], 'mimeType.as[String]) {
+            (userId, fileArray, fname, mimeType) =>
+              ctx =>
+                val path = "gDriveFileUpload.tmp"
+                val out = new java.io.FileOutputStream(path)
+                out.write(fileArray)
+                out.close()
+                (driveActor ? UploadFile(userId, fname, "", mimeType, path))
+                  .onComplete {
+                    case Success(gFileJson) => ctx.complete(gFileJson.toString)
+                    case Failure(e)         => ctx.complete(e)
+                  }
+          }
         }
+    } ~
+      get {
+        // callback endpoint called by Google after an authentication request
+        path("") {
+          parameters("code", "state") { (code, userId) =>
+            respondWithMediaType(`text/html`) { ctx =>
+              log.debug(s"received from google response: name: $userId, code: $code")
+              (driveActor ? InitCredentials(userId, code))
+                .onComplete {
+                  case Success(_) =>
+                    ctx.complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body>OK</body></html>")
+                  case Failure(e) => ctx.complete(e)
+                }
+            }
+          }
+        } ~
+          path("get_files") {
+            parameters("id") { id =>
+              ctx =>
+                log.debug(s"received get request for google drive files from user: $id")
+                (driveActor ? FindFiles(id, "", GDriveControl.default_fields))
+                  .mapTo[String]
+                  .onComplete {
+                    case Success(files) => ctx.complete(files)
+                    case Failure(NoCredentialsException(auth_url)) =>
+                      ctx.complete(StatusCodes.Forbidden, auth_url)
+                    case Failure(e) => ctx.complete(e.toString)
+                  }
+            }
+          }
       }
-    }
   }
 }
 
@@ -131,15 +136,21 @@ class DirectHttpRequestHandler extends Actor {
   var chunkHandlers = Map.empty[ActorRef, ActorRef]
 
   def receive = {
-    case s@ChunkedRequestStart(HttpRequest(_, _, _, _, _)) =>
+    case s @ ChunkedRequestStart(HttpRequest(_, _, _, _, _)) =>
       require(!chunkHandlers.contains(sender))
       val client = sender
-      val handler = context.actorOf(Props(new FileUploadHandler(client, s)),"FileUploadHandler____"+UUID.randomUUID().toString())
+      val handler = context.actorOf(Props(new FileUploadHandler(client, s)), "FileUploadHandler____" + UUID.randomUUID().toString())
       chunkHandlers += (client -> handler)
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + s.toString)
       handler.tell(s, client)
     case c: MessageChunk =>
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + c.toString)
       chunkHandlers(sender).tell(c, sender)
     case e: ChunkedMessageEnd =>
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + e.toString)
       chunkHandlers(sender).tell(e, sender)
       chunkHandlers -= sender
   }
@@ -152,6 +163,9 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Ac
 
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
+
+  val traceLogger = Logging(context.system, this)
+  traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + CommandWrapper(SetRequestTimeout(Duration.Inf)))
 
   client ! CommandWrapper(SetRequestTimeout(Duration.Inf))
 
@@ -171,13 +185,17 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Ac
       (driveActor ? UploadFile("abc", "test.txt", "", "text/plain", "gDriveFileUpload.tmp"))
         .onComplete {
           case Success(gFileJson) =>
+            traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + HttpResponse(status = 200, entity = gFileJson.toString))
             client ! HttpResponse(status = 200, entity = gFileJson.toString)
             tmpFile.delete()
           case Failure(e) =>
+            traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + HttpResponse(status = 200, entity = e.toString))
             client ! HttpResponse(status = 200, entity = e.toString)
         }
 
-      client ! CommandWrapper(SetRequestTimeout(2.seconds))   
+      traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + CommandWrapper(SetRequestTimeout(2.seconds)))
+
+      client ! CommandWrapper(SetRequestTimeout(2.seconds))
       context.stop(self)
   }
 

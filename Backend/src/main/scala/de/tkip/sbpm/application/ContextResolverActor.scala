@@ -65,6 +65,8 @@ class ContextResolverActor extends Actor with DefaultLogging {
       subjectInstanceMap += (processId, processInstanceId, subjectId) -> userId
 
     case ruid: RequestUserID =>
+      logger.debug("TRACE: from " + this.self + " to " + sender + " " + ruid.generateAnswer(evaluateUserID(ruid.subjectInformation)))
+
       sender ! ruid.generateAnswer(evaluateUserID(ruid.subjectInformation))
 
     case ss => logger.error("ContextResolver not yet implemented Message: {}", ss)

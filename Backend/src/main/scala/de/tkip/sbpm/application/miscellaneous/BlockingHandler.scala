@@ -98,6 +98,8 @@ private class UserBlocker(userID: UserID)(implicit val context: ActorContext) {
     if (remainingBlocks < 0) remainingBlocks = 0
     if (remainingBlocks == 0) {
       for (message <- blockedMessages) {
+        val traceLogger = Logging(context.system, context.parent)
+        traceLogger.debug("TRACE: from BlockingHandler" + " to " + context.parent + " " + message.toString)
         context.parent ! message
       }
       blockedMessages.clear()

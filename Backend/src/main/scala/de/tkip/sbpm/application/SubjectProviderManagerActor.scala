@@ -31,12 +31,14 @@ class SubjectProviderManagerActor extends Actor {
     collection.mutable.Map[UserID, SubjectProviderRef]()
 
   def receive = {
+
     // create a new subject provider and send the ID to the requester.
     // additionally send it to the subjectprovider who forwards 
     // the message to the processmanager so he can register the new subjectprovider
     case csp @ CreateSubjectProvider(userID) =>
       createNewSubjectProvider(userID)
       if (subjectProviderMap.contains(userID)) {
+        logger.debug("TRACE: from " + this.self + " to " + sender + " " + SubjectProviderCreated(csp, userID))
         sender ! SubjectProviderCreated(csp, userID)
       }
 
@@ -45,6 +47,7 @@ class SubjectProviderManagerActor extends Actor {
     // then SubjectProviderMessages
     case answer: AnswerMessage => {
       if (answer.sender != null) {
+        logger.debug("TRACE: from " + this.self + " to " + sender + " " + answer)
         answer.sender ! answer
       }
     }
@@ -52,24 +55,31 @@ class SubjectProviderManagerActor extends Actor {
     // TODO werden noch zu forwards aber zum routing testen erstmal tells
     case message: SubjectProviderMessage => {
       if (subjectProviderMap.contains(message.userID)) {
+        logger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(message.userID) + " " + withSender(message))
+
         subjectProviderMap(message.userID) ! withSender(message)
       } else {
         // TODO dynamisch erstellen?
         createNewSubjectProvider(message.userID)
+        val traceLogger = Logging(context.system, this)
+        traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(message.userID) + " " + message.toString)
         subjectProviderMap(message.userID).forward(withSender(message))
       }
     }
 
     // TODO muss man zusammenfassen koennen
     case message: AnswerAbleMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message.withSender(sender))
       processManagerActor ! message.withSender(sender)
     }
 
     case message: ControlMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message)
       processManagerActor ! message
     }
 
     case message: SubjectMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message)
       processManagerActor ! message
     }
 
@@ -85,19 +95,20 @@ class SubjectProviderManagerActor extends Actor {
   private def withSender(message: Any) = {
     message match {
       case answerAble: AnswerAbleMessage => answerAble.sender = sender
-      case _ =>
+      case _                             =>
     }
     message
   }
 
   // forward control message to subjectProvider that is mapped to a specific userID
   private def forwardControlMessageToProvider(userID: UserID,
-                                              controlMessage: ControlMessage) {
+    controlMessage: ControlMessage) {
     if (subjectProviderMap.contains(userID)) {
       if (controlMessage.isInstanceOf[AnswerAbleMessage]) {
         controlMessage.asInstanceOf[AnswerAbleMessage].sender = sender
       }
-
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(userID) + " " + controlMessage.toString)
       subjectProviderMap(userID).forward(controlMessage)
     }
   }
@@ -106,7 +117,7 @@ class SubjectProviderManagerActor extends Actor {
   // (overrides the old entry)
   private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =
-      context.actorOf(Props(new SubjectProviderActor(userID)),"SubjectProviderActor____"+UUID.randomUUID().toString())
+      context.actorOf(Props(new SubjectProviderActor(userID)), "SubjectProviderActor____" + UUID.randomUUID().toString())
     subjectProviderMap += userID -> subjectProvider
     subjectProvider
   }
