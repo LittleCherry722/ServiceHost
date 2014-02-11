@@ -2,19 +2,19 @@ from pydot import *
 import re
 import hashlib
 import sys
+import argparse
 
-FILE_IN = "log_travel_request_reduce.log"
-FILE_OUT = "generated.dot"
-SHOW_LINE = True
+parser = argparse.ArgumentParser(description="Generate Call-Map out of a tracefile")
+parser.add_argument("--trace", default="log_travel_request_reduce.log")
+parser.add_argument("--dot", default="generated.dot")
+parser.add_argument("--hide-line", action="store_true")
+parser.add_argument("--hide-uuid", action="store_true")
 
-if len(sys.argv) > 1:
-    FILE_IN = sys.argv[1]
-if len(sys.argv) > 2:
-    FILE_OUT = sys.argv[2]
-if len(sys.argv) > 3:
-    SHOW_LINE = False
-if len(sys.argv) > 4:
-    print("unexpected arguments")
+args = parser.parse_args()
+FILE_IN = args.trace
+FILE_OUT = args.dot
+SHOW_LINE = not args.hide_line
+SHOW_UUID = not args.hide_uuid
 
 def get_color(label, palette):
     c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
@@ -157,7 +157,8 @@ def get_actor_name(a):
         guid = s[l-1]
         a_ = s[l-2]
         # take first part of guid
-        a_ = a_ + "____"  +guid.split("-")[0]
+        if SHOW_UUID:
+            a_ = a_ + "____"  +guid.split("-")[0]
 
 
     s = a_.split("/")
