@@ -9,12 +9,14 @@ parser.add_argument("--trace", default="log_travel_request_reduce.log")
 parser.add_argument("--dot", default="generated.dot")
 parser.add_argument("--hide-line", action="store_true")
 parser.add_argument("--hide-uuid", action="store_true")
+parser.add_argument("--include-persistance", action="store_true")
 
 args = parser.parse_args()
 FILE_IN = args.trace
 FILE_OUT = args.dot
 SHOW_LINE = not args.hide_line
 SHOW_UUID = not args.hide_uuid
+INCLUDE_PERSISTANCE = args.include_persistance
 
 def get_color(label, palette):
     c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
@@ -106,6 +108,7 @@ def test_graph():
 
 def read_graph():
     braces = re.compile("(\([^\)\(]*\))")
+    persistance = re.compile("persistance")
     regex = re.compile("^(TRACE: from )(.*)( to )([^ ]*)( )(.*)$")
 
     inF = open(FILE_IN, 'r')
@@ -117,6 +120,9 @@ def read_graph():
     for line in inF:
         try:
             line = line.replace("\r", "").replace("\n", "")
+
+            if INCLUDE_PERSISTANCE or persistance.search(line) is None:
+                continue
 
             # remove all braces with their contents
             while braces.search(line) is not None:
