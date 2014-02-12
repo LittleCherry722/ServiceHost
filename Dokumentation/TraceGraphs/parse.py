@@ -8,14 +8,14 @@ parser.add_argument("--trace", default="log_travel_request_reduce.log")
 parser.add_argument("--dot", default="generated.dot")
 parser.add_argument("--hide-line", action="store_true")
 parser.add_argument("--hide-uuid", action="store_true")
-parser.add_argument("--include-persistance", action="store_true")
+parser.add_argument("--include-persistence", action="store_true")
 
 args = parser.parse_args()
 FILE_IN = args.trace
 FILE_OUT = args.dot
 SHOW_LINE = not args.hide_line
 SHOW_UUID = not args.hide_uuid
-INCLUDE_PERSISTANCE = args.include_persistance
+INCLUDE_PERSISTENCE = args.include_persistence
 
 def get_color(label, palette):
     c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
@@ -89,7 +89,7 @@ def build_graph(creation, messages, clusters, filename):
 
 def read_graph(filename):
     braces = re.compile("(\([^\)\(]*\))")
-    persistance = re.compile("persistance")
+    persistence = re.compile("persistence")
     regex = re.compile("^(TRACE: from )(.*)( to )([^ ]*)( )(.*)$")
 
     inF = open(filename, 'r')
@@ -102,7 +102,7 @@ def read_graph(filename):
         try:
             line = line.replace("\r", "").replace("\n", "")
 
-            if INCLUDE_PERSISTANCE or persistance.search(line) is None:
+            if not (persistence.search(line) is None) and not INCLUDE_PERSISTENCE:
                 continue
 
             # remove all braces with their contents
