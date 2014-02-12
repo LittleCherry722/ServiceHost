@@ -321,8 +321,13 @@ class InternalBehaviorActor(
       case DeactivateStateType => {
         context.actorOf(Props(new DeactivateStateActor(stateData)), "DeactivateStateActor____" + UUID.randomUUID().toString())
       }
+
       case ArchiveStateType => {
         context.actorOf(Props(new ArchiveStateActor(stateData)), "ArchiveStateActor____" + UUID.randomUUID().toString())
+      }
+
+      case DecisionStateType => {
+        context.actorOf(Props(new DecisionStateActor(stateData)))
       }
     }
   }
