@@ -9,6 +9,7 @@ parser.add_argument("--dot", default="generated.dot")
 parser.add_argument("--hide-line", action="store_true")
 parser.add_argument("--hide-uuid", action="store_true")
 parser.add_argument("--include-persistence", action="store_true")
+parser.add_argument("--include-temp", action="store_true")
 
 args = parser.parse_args()
 FILE_IN = args.trace
@@ -16,6 +17,7 @@ FILE_OUT = args.dot
 SHOW_LINE = not args.hide_line
 SHOW_UUID = not args.hide_uuid
 INCLUDE_PERSISTENCE = args.include_persistence
+INCLUDE_TEMP = args.include_temp
 
 def get_color(label, palette):
     c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
@@ -90,6 +92,7 @@ def build_graph(creation, messages, clusters, filename):
 def read_graph(filename):
     braces = re.compile("(\([^\)\(]*\))")
     persistence = re.compile("persistence")
+    temp = re.compile("temp")
     regex = re.compile("^(TRACE: from )(.*)( to )([^ ]*)( )(.*)$")
 
     inF = open(filename, 'r')
@@ -103,6 +106,9 @@ def read_graph(filename):
             line = line.replace("\r", "").replace("\n", "")
 
             if not (persistence.search(line) is None) and not INCLUDE_PERSISTENCE:
+                continue
+
+            if not (temp.search(line) is None) and not INCLUDE_TEMP:
                 continue
 
             # remove all braces with their contents
