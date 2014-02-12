@@ -204,7 +204,7 @@ if __name__ == '__main__':
     messages = flat_messages(messages)
 
     clusters = {
-            "MyCluster": ["ActStateActor", "ReceiveStateActor", "SendStateActor", "ArchiveStateActor", "BlockingActor", "EndStateActor", "EndStateActor", "GoogleSendProxyActor", "InternalBehaviorActor", "InternalBehaviorActor", "change"],
+            "StateActors": ["ActStateActor", "ReceiveStateActor", "SendStateActor", "ArchiveStateActor", "BlockingActor", "EndStateActor", "EndStateActor", "GoogleSendProxyActor", "InternalBehaviorActor", "InternalBehaviorActor", "DecisionStateActor", "change"],
             #"foo": ["bar", {"fooz": ["baaz"]}],
             }
 
