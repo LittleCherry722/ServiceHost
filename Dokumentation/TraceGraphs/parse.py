@@ -4,8 +4,8 @@ import hashlib
 import argparse
 
 parser = argparse.ArgumentParser(description="Generate Call-Map out of a tracefile")
-parser.add_argument("--trace", default="log_travel_request_reduce.log")
-parser.add_argument("--dot", default="generated.dot")
+parser.add_argument("--trace", default="../../Backend/log/trace.log")
+parser.add_argument("--dot", default="trace.dot")
 parser.add_argument("--hide-line", action="store_true")
 parser.add_argument("--hide-uuid", action="store_true")
 parser.add_argument("--include-persistence", action="store_true")
