@@ -18,6 +18,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.persistence._
 import akka.event.Logging
+import java.util.UUID
 import de.tkip.sbpm.ActorLocator
 import akka.actor.Status.Failure
 import de.tkip.sbpm.application.history._
@@ -49,34 +50,37 @@ class ProcessManagerActor extends Actor {
   private val subjectProviderMap = collection.mutable.Map[UserID, SubjectProviderRef]()
 
   private lazy val changeActor = ActorLocator.changeActor
-  
-  
+
   def receive = {
-    
+
     case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProviderActor
     }
 
     // execution
     case getAll: GetAllProcessInstances => {
-      sender !
-        AllProcessInstancesAnswer(
-          getAll,
-          processInstanceMap.map(
-            s => ProcessInstanceInfo(s._1, s._2.name, s._2.processID)).toArray.sortBy(_.id))
+      val msg = AllProcessInstancesAnswer(
+        getAll,
+        processInstanceMap.map(
+          s => ProcessInstanceInfo(s._1, s._2.name, s._2.processID)).toArray.sortBy(_.id))
+
+      logger.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
+      sender ! msg
     }
 
     case message: GetNewHistory => {
+      logger.debug("TRACE: from " + this.self + " to " + sender + " " + NewHistoryAnswer(message, history))
       sender ! NewHistoryAnswer(message, history)
     }
 
     case cp: CreateProcessInstance => {
       // create the process instance
-      context.actorOf(Props(new ProcessInstanceActor(cp)))
+      context.actorOf(Props(new ProcessInstanceActor(cp)), "ProcessInstanceActor____" + UUID.randomUUID().toString())
     }
 
     case pc: ProcessInstanceCreated => {
       if (pc.sender != null) {
+        logger.debug("TRACE: from " + this.self + " to " + pc.sender +" "+ pc)
         pc.sender ! pc
       } else {
         logger.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
@@ -85,7 +89,9 @@ class ProcessManagerActor extends Actor {
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
       history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
       val p = ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
-      println("new processInstance has been added: "+p)
+      println("new processInstance has been added: " + p)
+      
+      logger.debug("TRACE: from " + this.self + " to " + changeActor +" "+ ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date()))
       changeActor ! ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date())
     }
 
@@ -100,21 +106,29 @@ class ProcessManagerActor extends Actor {
       // TODO delete the history, in future the history should be in a database,
       // so there is no extra message for it
       history.entries.clear()
-      
+
+      logger.debug("TRACE: from " + this.self + " to " + kill.sender +" "+ ProcessInstancesKilled)
       kill.sender ! ProcessInstancesKilled
     }
 
     case kill @ KillProcessInstance(id) => {
       if (processInstanceMap.contains(id)) {
+        logger.debug("TRACE: from " + this.self + " to " +processInstanceMap(id).processInstanceActor +" "+ PoisonPill)
         processInstanceMap(id).processInstanceActor ! PoisonPill
-        history.entries += createHistoryEntry(None, id, "killed") 
+        history.entries += createHistoryEntry(None, id, "killed")
         processInstanceMap -= id
+        logger.debug("TRACE: from " + this.self + " to " +kill.sender +" "+ KillProcessInstanceAnswer(kill))
         kill.sender ! KillProcessInstanceAnswer(kill)
         logger.debug("Killed process instance " + id)
+        
+        logger.debug("TRACE: from " + this.self + " to " +changeActor +" "+ ProcessInstanceDelete(id, new java.util.Date()))
         changeActor ! ProcessInstanceDelete(id, new java.util.Date())
       } else {
         logger.error("Process Manager - can't kill process instance: " +
           id + ", it does not exists")
+        
+        logger.debug("TRACE: from " + this.self + " to " +kill.sender +" "+ Failure(new IllegalArgumentException(
+          "Invalid Argument: Can't kill a processinstance, which is not running.")))
         kill.sender ! Failure(new IllegalArgumentException(
           "Invalid Argument: Can't kill a processinstance, which is not running."))
       }
@@ -134,19 +148,24 @@ class ProcessManagerActor extends Actor {
     }
 
     case message: SubjectProviderMessage => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap
+        .getOrElse(message.userID, ActorLocator.subjectProviderManagerActor) + " " + message.toString)
       subjectProviderMap
         .getOrElse(message.userID, ActorLocator.subjectProviderManagerActor)
         .forward(message)
     }
 
     case answer: AnswerMessage => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + answer.sender + " " + answer.toString)
       answer.sender.forward(answer)
     }
 
     case entry: NewHistoryEntry => {
       history.entries += entry
     }
-    
+
     case GetHistorySince(t) => {
       Future { getHistoryChange(t) } pipeTo sender
     }
@@ -176,6 +195,7 @@ class ProcessManagerActor extends Actor {
    */
   private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
     if (processInstanceMap.contains(message.processInstanceID)) {
+      logger.debug("TRACE: from " + this.self + " to " + processInstanceMap(message.processInstanceID).processInstanceActor + " " + message.toString)
       processInstanceMap(message.processInstanceID).processInstanceActor.forward(message)
     } else if (message.isInstanceOf[AnswerAbleMessage]) {
       message.asInstanceOf[AnswerAbleMessage].sender !
@@ -185,15 +205,15 @@ class ProcessManagerActor extends Actor {
         " but does not exist, " + message)
     }
   }
-  
+
   private def getHistoryChange(t: Long) = {
     val changes = history.entries.filter(_.timeStamp.getTime() > t * 1000)
     val temp = ArrayBuffer[HistoryRelatedChangeData]()
-    for (i <- 0 until changes.length){
+    for (i <- 0 until changes.length) {
       val entry = changes(i)
       temp += HistoryRelatedChangeData(entry.userId, entry.process, entry.subject, entry.transitionEvent, entry.lifecycleEvent, new java.sql.Timestamp(entry.timeStamp.getTime()))
     }
     Some(HistoryRelatedChange(Some(temp.toArray)))
-  
+
   }
 }

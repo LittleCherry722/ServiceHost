@@ -7,8 +7,9 @@ import de.tkip.sbpm.application.subject.misc.ActionData
 
 protected case class IsIPEmptyStateActor(data: StateData)
   extends BehaviorStateActor(data) {
-
-  inputPoolActor ! IsIPEmpty((stateOptions.subjectId.get, stateOptions.messageType.get))
+  val msg = IsIPEmpty((stateOptions.subjectId.get, stateOptions.messageType.get))
+  log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
+  inputPoolActor ! msg
 
   override protected def stateReceive = {
     case IPEmpty(true) => {

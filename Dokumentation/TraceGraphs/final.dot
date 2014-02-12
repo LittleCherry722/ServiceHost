@@ -1,0 +1,90 @@
+digraph {
+	graph [ranksep=1.5];
+	node [label="\N"];
+	//subgraph cluster_ProcessInstance {
+		//graph [	label=ProcessInstance];
+		subgraph cluster_StateActors {
+			//graph [label=StateActors];
+	ReceiveStateActor ;
+	SendStateActor ;
+	ArchiveStateActor ;
+	BlockingActor ;
+	EndStateActor ;
+
+	GoogleSendProxyActor ;
+		InternalBehaviorActor ;
+	change ;
+		}
+	"SubjectInfo" ;
+	"process-manager" ;
+	"subject-provider-manager" ;
+	SubjectActionsCollector ;
+	SubjectProviderActor ;
+		SubjectActor ;
+	"SubjectContainer" ;
+	"context-resolver" ;
+		InputPoolActor ;
+		ProcessInstanceActor ;
+		SubjectContainer ;
+	/*}
+	subgraph cluster_FrontendInterfaceActor {
+		graph [ label=FrontendInterfaceActor];
+	}*/
+	"Actor[akka://sbpm/temp/$W]" ;
+	
+	
+	ReceiveStateActor -> InputPoolActor [key=ReceiveStateActor_InputPoolActor__message, color=blue, fontcolor=blue, label=SubscribeIncomingMessages];
+	InputPoolActor -> SubscribeIncomingMessages [key=InputPoolActor_SubscribeIncomingMessages__message, color=blue, fontcolor=blue, label=InputPoolMessagesChanged];
+	
+	SubjectActor -> InputPoolActor [key=SubjectActor_InputPoolActor__message, color=purple, fontcolor=purple, label=SubjectToSubjectMessage];
+	SubjectActor -> InternalBehaviorActor [key=SubjectActor_InternalBehaviorActor__message, color=fuchsia, fontcolor=fuchsia, label=PoisonPill];
+	SubjectActor -> SendStateActor [key=SubjectActor_SendStateActor__message, color=purple, fontcolor=purple, label=SubjectToSubjectMessage];
+	SubjectActor -> ProcessInstanceActor [key=SubjectActor_ProcessInstanceActor__message, color=blue, fontcolor=blue, label=SubjectTerminated];
+	ProcessInstanceActor -> "process-manager" [key="ProcessInstanceActor_process-manager__message", color=blue, fontcolor=blue, label=ReadProcessInstanceAnswer];
+	InternalBehaviorActor -> SubjectActor [key=InternalBehaviorActor_SubjectActor__message, color=deeppink, fontcolor=deeppink, label=MacroTerminated];
+	InternalBehaviorActor -> ArchiveStateActor [key=InternalBehaviorActor_ArchiveStateActor__message, color=black, fontcolor=black, label=KillState];
+	InternalBehaviorActor -> SendStateActor [key=InternalBehaviorActor_SendStateActor__message, color=black, fontcolor=black, label=KillState];
+	InternalBehaviorActor -> ReceiveStateActor [key=InternalBehaviorActor_ReceiveStateActor__message, color=black, fontcolor=black, label=KillState];
+	InputPoolActor -> BlockingActor [key=InputPoolActor_BlockingActor__message, color=limegreen, fontcolor=limegreen, label=UnBlockUser];
+	InputPoolActor -> SendStateActor [key=InputPoolActor_SendStateActor__message, color=blue, fontcolor=blue, label=Stored];
+	InputPoolActor -> ReceiveStateActor [key=InputPoolActor_ReceiveStateActor__message, color=blue, fontcolor=blue, label=InputPoolSubscriptionPerformed];
+	SubjectContainer -> BlockingActor [key=SubjectContainer_BlockingActor__message, color=blue, fontcolor=blue, label=BlockUser];
+	SubjectContainer -> "SubjectInfo" [key="SubjectContainer_SubjectInfo__message", color=blue, fontcolor=blue, label=StartSubjectExecution];
+	SubjectContainer -> "process-manager" [key="SubjectContainer_process-manager__message", color=blue, fontcolor=blue, label=SubjectCreated];
+	"subject-provider-manager" -> SubjectProviderActor [key="subject-provider-manager_SubjectProviderActor__message", color=blue, fontcolor=blue, label=AvailableActionsAnswer];
+	"subject-provider-manager" -> "process-manager" [key="subject-provider-manager_process-manager__message", color=blue, fontcolor=blue, label=ReadProcessInstance];
+	SubjectProviderActor -> SubjectActor [key=SubjectProviderActor_SubjectActor__message, color=blue, fontcolor=blue, label=ExecuteAction];
+	SubjectProviderActor -> "subject-provider-manager" [key="SubjectProviderActor_subject-provider-manager__message", color=blue, fontcolor=blue, label=AvailableActionsAnswer];
+	SubjectProviderActor -> SubjectActionsCollector [key=SubjectProviderActor_SubjectActionsCollector__message, color=blue, fontcolor=blue, label=CollectAvailableActions];
+	"process-manager" -> "Actor[akka://sbpm/temp/$W]" [key="process-manager_Actor[akka://sbpm/temp/$W]__message", color=blue, fontcolor=blue, label=ReadProcessInstanceAnswer];
+	"process-manager" -> SubjectProviderActor [key="process-manager_SubjectProviderActor__message", color=blue, fontcolor=blue, label=AskSubjectsForAvailableActions];
+	"process-manager" -> ProcessInstanceActor [key="process-manager_ProcessInstanceActor__message", color=blue, fontcolor=blue, label=ReadProcessInstance];
+	SubjectActionsCollector -> SubjectProviderActor [key=SubjectActionsCollector_SubjectProviderActor__message, color=blue, fontcolor=blue, label=AvailableActionsAnswer];
+	SubjectActionsCollector -> ProcessInstanceActor [key=SubjectActionsCollector_ProcessInstanceActor__message, color=blue, fontcolor=blue, label=ReadProcessInstanceAnswer];
+	SendStateActor -> InternalBehaviorActor [key=SendStateActor_InternalBehaviorActor__message, color=saddlebrown, fontcolor=saddlebrown, label=ChangeState];
+	SendStateActor -> change [key=SendStateActor_change__message, color=orange, fontcolor=orange, label=ActionDelete];
+	SendStateActor -> BlockingActor [key=SendStateActor_BlockingActor__message, color=limegreen, fontcolor=limegreen, label=UnBlockUser];
+	SendStateActor -> GoogleSendProxyActor [key=SendStateActor_GoogleSendProxyActor__message, color=purple, fontcolor=purple, label=SubjectToSubjectMessage];
+	SendStateActor -> SendStateActor [key=SendStateActor_SendStateActor__message, color=fuchsia, fontcolor=fuchsia, label=PoisonPill];
+	ReceiveStateActor -> InputPoolActor [key=ReceiveStateActor_InputPoolActor__message, color=blue, fontcolor=blue, label=UnSubscribeIncomingMessages];
+	ReceiveStateActor -> InternalBehaviorActor [key=ReceiveStateActor_InternalBehaviorActor__message, color=saddlebrown, fontcolor=saddlebrown, label=ChangeState];
+	ReceiveStateActor -> change [key=ReceiveStateActor_change__message, color=orangered, fontcolor=orangered, label=ActionChange];
+	ReceiveStateActor -> BlockingActor [key=ReceiveStateActor_BlockingActor__message, color=limegreen, fontcolor=limegreen, label=UnBlockUser];
+	ReceiveStateActor -> ReceiveStateActor [key=ReceiveStateActor_ReceiveStateActor__message, color=fuchsia, fontcolor=fuchsia, label=PoisonPill];
+	ArchiveStateActor -> InternalBehaviorActor [key=ArchiveStateActor_InternalBehaviorActor__message, color=saddlebrown, fontcolor=saddlebrown, label=ChangeState];
+	ArchiveStateActor -> change [key=ArchiveStateActor_change__message, color=orangered, fontcolor=orangered, label=ActionChange];
+	ArchiveStateActor -> BlockingActor [key=ArchiveStateActor_BlockingActor__message, color=limegreen, fontcolor=limegreen, label=UnBlockUser];
+	GoogleSendProxyActor -> SendStateActor [key=GoogleSendProxyActor_SendStateActor__message, color=purple, fontcolor=purple, label=SubjectToSubjectMessage];
+	"SubjectContainer" -> "context-resolver" [key="SubjectContainer _context-resolver__message", color=blue, fontcolor=blue, label=RegisterSingleSubjectInstance];
+	EndStateActor -> InternalBehaviorActor [key=EndStateActor_InternalBehaviorActor__message, color=deeppink, fontcolor=deeppink, label=MacroTerminated];
+	EndStateActor -> change [key=EndStateActor_change__message, color=orangered, fontcolor=orangered, label=ActionChange];
+	EndStateActor -> BlockingActor [key=EndStateActor_BlockingActor__message, color=limegreen, fontcolor=limegreen, label=UnBlockUser];
+
+
+	// nicht in sample betrachtet:
+
+	WaitingStateSet -> SubscribeIncomingMessages [key="asdf1",color=blue, fontcolor=blue,label="InputPoolMessagesChanged"];
+	SubjectActionsCollector -> ProcessInstanceActor [key="asdf2",color=blue, fontcolor=blue,label="ExecuteActionAnswer"]
+	ProcessInstanceActor -> "process-manager" [key="asdf3",color=blue, fontcolor=blue,label="ExecuteActionAnswer"]
+	"process-manager" -> "Actor[akka://sbpm/temp/$V]" [key="asdf4",color=blue, fontcolor=blue,label="ExecuteActionAnswer"]
+}

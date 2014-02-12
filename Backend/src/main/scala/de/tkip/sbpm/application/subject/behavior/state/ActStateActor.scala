@@ -14,7 +14,6 @@
 package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.Array.canBuildFrom
-
 import akka.actor.Status.Failure
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
@@ -23,24 +22,28 @@ import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
+import akka.event.Logging
 
 protected case class ActStateActor(data: StateData)
   extends BehaviorStateActor(data) {
-  
-  
 
   protected def stateReceive = {
 
     case action: ExecuteAction => {
       val input = action.actionData
       val index = indexOfInput(input.text)
+      val traceLogger = Logging(context.system, this)
       if (index != -1) {
         changeState(exitTransitions(index).successorID, data, null)
+        traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
         blockingHandlerActor ! ActionExecuted(action)
       } else {
-        action.asInstanceOf[AnswerAbleMessage].sender !
-          Failure(new IllegalArgumentException(
+        val receiver = action.asInstanceOf[AnswerAbleMessage].sender
+        val message = Failure(new IllegalArgumentException(
             "Invalid Argument: " + input.text + " is not a valid action."))
+        traceLogger.debug("TRACE: from " + this.self + " to " + receiver + " " + message.toString)
+        receiver ! message
+          
       }
     }
   }
