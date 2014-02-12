@@ -101,12 +101,14 @@ def read_graph(filename):
 
     data = []
 
-    i = 0
-
     for _ in xrange(SKIP_LINES):
         next(inF)
 
+    i = SKIP_LINES
+
     for line in inF:
+        i = i + 1
+
         try:
             line = line.replace("\r", "").replace("\n", "")
 
@@ -129,8 +131,6 @@ def read_graph(filename):
             data.append((i,a,b,msg))
         except Exception as e:
             print("can not parse line: " + line)
-
-        i = i + 1
 
     return data
 
