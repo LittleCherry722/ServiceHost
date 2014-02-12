@@ -74,7 +74,7 @@ def add_edges(g, edges, key_suffix, colorpalette):
 
 
 
-def build_graph(creation, messages, clusters):
+def build_graph(creation, messages, clusters, filename):
     g = Dot("MyName", ranksep="1.5")
     add_clusters(g, clusters, messages)
     # Turn this to true to include creation-edges. Do not forget to add real colors in get_color(..)
@@ -83,16 +83,16 @@ def build_graph(creation, messages, clusters):
     add_edges(g, messages, "message", "message")
 
     #g.layout(prog='fdp')
-    g.write_dot(FILE_OUT)
+    g.write_dot(filename)
 
 
 
-def read_graph():
+def read_graph(filename):
     braces = re.compile("(\([^\)\(]*\))")
     persistance = re.compile("persistance")
     regex = re.compile("^(TRACE: from )(.*)( to )([^ ]*)( )(.*)$")
 
-    inF = open(FILE_IN, 'r')
+    inF = open(filename, 'r')
 
     data = []
 
@@ -197,7 +197,9 @@ def flat_messages(data):
     return data_flat_messages
 
 if __name__ == '__main__':
-    messages = read_graph()
+    print("read tracefile from: " + FILE_IN)
+
+    messages = read_graph(FILE_IN)
     messages = make_actor_nodes(messages)
     messages = flat_messages(messages)
 
@@ -210,4 +212,5 @@ if __name__ == '__main__':
     creation = []
 
 
-    build_graph(creation, messages, clusters)
+    build_graph(creation, messages, clusters, FILE_OUT)
+    print("wrote output to: " + FILE_OUT)
