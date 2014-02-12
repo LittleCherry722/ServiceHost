@@ -1,7 +1,6 @@
 from pydot import *
 import re
 import hashlib
-import sys
 import argparse
 
 parser = argparse.ArgumentParser(description="Generate Call-Map out of a tracefile")
@@ -50,8 +49,7 @@ def add_clusters(g, clusters, messages, actors=None):
                 subs.append(node)
             else:
                 for actor in actors:
-                    # TODO: should be `beginsWith` or sth like that instead of `in`
-                    if node in actor.get_name():
+                    if actor.get_name().startswith(node):
                         s.add_node(actor)
                         add_to_g.discard(actor)
 
@@ -86,23 +84,6 @@ def build_graph(creation, messages, clusters):
 
     #g.layout(prog='fdp')
     g.write_dot(FILE_OUT)
-
-
-
-def test_graph():
-    creation = [
-        ("A", "B", "c1"),
-        ("A", "C", "c2"),
-        ("B", "D", "c3")
-        ]
-
-    messages = [
-        ("A", "B", "a1"),
-        ("A", "C", "a2"),
-        ("C", "D", "c1"),
-        ]
-
-    build_graph(creation, messages)
 
 
 
@@ -225,10 +206,8 @@ if __name__ == '__main__':
             #"foo": ["bar", {"fooz": ["baaz"]}],
             }
 
+    # TODO: extract the creation from the raw actor names
     creation = []
 
 
     build_graph(creation, messages, clusters)
-
-#if __name__ == '__main__':
-    #test_graph()
