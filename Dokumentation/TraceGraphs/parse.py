@@ -4,13 +4,13 @@ import hashlib
 import argparse
 
 parser = argparse.ArgumentParser(description="Generate Call-Map out of a tracefile")
-parser.add_argument("--trace", default="../../Backend/log/trace.log")
-parser.add_argument("--dot", default="trace.dot")
-parser.add_argument("--hide-line", action="store_true")
-parser.add_argument("--hide-uuid", action="store_true")
-parser.add_argument("--include-persistence", action="store_true")
-parser.add_argument("--include-temp", action="store_true")
-parser.add_argument("--skip-lines", default="0")
+parser.add_argument("--trace", default="../../Backend/log/trace.log", help="input file")
+parser.add_argument("--dot", default="trace.dot", help="output file")
+parser.add_argument("--hide-line", action="store_true", help="Aggregate multiple messages between nodes (default: each message is shown with its line in the TRACE file)")
+parser.add_argument("--hide-uuid", action="store_true", help="Aggregate multiple instances of an actor in one node (default: per instance one node)")
+parser.add_argument("--include-persistence", action="store_true", help="Include Actors with `persistence` in their name (default: false)")
+parser.add_argument("--include-temp", action="store_true", help="Include Actors with `temp` in their name (default: false)")
+parser.add_argument("--skip-lines", default="0", help="skip first SKIP_LINES of the TRACE file (default: 0)")
 
 args = parser.parse_args()
 FILE_IN = args.trace
