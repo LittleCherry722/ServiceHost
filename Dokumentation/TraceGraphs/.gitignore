@@ -1,1 +1,3 @@
-generated.*
+*.dot
+*.svg
+*.png

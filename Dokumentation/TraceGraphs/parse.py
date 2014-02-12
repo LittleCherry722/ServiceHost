@@ -1,7 +1,6 @@
 from pydot import *
 import re
 import hashlib
-import sys
 import argparse
 
 parser = argparse.ArgumentParser(description="Generate Call-Map out of a tracefile")
@@ -50,8 +49,7 @@ def add_clusters(g, clusters, messages, actors=None):
                 subs.append(node)
             else:
                 for actor in actors:
-                    # TODO: should be `beginsWith` or sth like that instead of `in`
-                    if node in actor.get_name():
+                    if actor.get_name().startswith(node):
                         s.add_node(actor)
                         add_to_g.discard(actor)
 
@@ -76,7 +74,7 @@ def add_edges(g, edges, key_suffix, colorpalette):
 
 
 
-def build_graph(creation, messages, clusters):
+def build_graph(creation, messages, clusters, filename):
     g = Dot("MyName", ranksep="1.5")
     add_clusters(g, clusters, messages)
     # Turn this to true to include creation-edges. Do not forget to add real colors in get_color(..)
@@ -85,33 +83,16 @@ def build_graph(creation, messages, clusters):
     add_edges(g, messages, "message", "message")
 
     #g.layout(prog='fdp')
-    g.write_dot(FILE_OUT)
+    g.write_dot(filename)
 
 
 
-def test_graph():
-    creation = [
-        ("A", "B", "c1"),
-        ("A", "C", "c2"),
-        ("B", "D", "c3")
-        ]
-
-    messages = [
-        ("A", "B", "a1"),
-        ("A", "C", "a2"),
-        ("C", "D", "c1"),
-        ]
-
-    build_graph(creation, messages)
-
-
-
-def read_graph():
+def read_graph(filename):
     braces = re.compile("(\([^\)\(]*\))")
     persistance = re.compile("persistance")
     regex = re.compile("^(TRACE: from )(.*)( to )([^ ]*)( )(.*)$")
 
-    inF = open(FILE_IN, 'r')
+    inF = open(filename, 'r')
 
     data = []
 
@@ -216,7 +197,9 @@ def flat_messages(data):
     return data_flat_messages
 
 if __name__ == '__main__':
-    messages = read_graph()
+    print("read tracefile from: " + FILE_IN)
+
+    messages = read_graph(FILE_IN)
     messages = make_actor_nodes(messages)
     messages = flat_messages(messages)
 
@@ -225,10 +208,9 @@ if __name__ == '__main__':
             #"foo": ["bar", {"fooz": ["baaz"]}],
             }
 
+    # TODO: extract the creation from the raw actor names
     creation = []
 
 
-    build_graph(creation, messages, clusters)
-
-#if __name__ == '__main__':
-    #test_graph()
+    build_graph(creation, messages, clusters, FILE_OUT)
+    print("wrote output to: " + FILE_OUT)
