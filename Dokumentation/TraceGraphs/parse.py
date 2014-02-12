@@ -10,6 +10,7 @@ parser.add_argument("--hide-line", action="store_true")
 parser.add_argument("--hide-uuid", action="store_true")
 parser.add_argument("--include-persistence", action="store_true")
 parser.add_argument("--include-temp", action="store_true")
+parser.add_argument("--skip-lines", default="0")
 
 args = parser.parse_args()
 FILE_IN = args.trace
@@ -18,6 +19,7 @@ SHOW_LINE = not args.hide_line
 SHOW_UUID = not args.hide_uuid
 INCLUDE_PERSISTENCE = args.include_persistence
 INCLUDE_TEMP = args.include_temp
+SKIP_LINES = int(args.skip_lines)
 
 def get_color(label, palette):
     c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
@@ -100,6 +102,9 @@ def read_graph(filename):
     data = []
 
     i = 0
+
+    for _ in xrange(SKIP_LINES):
+        next(inF)
 
     for line in inF:
         try:
