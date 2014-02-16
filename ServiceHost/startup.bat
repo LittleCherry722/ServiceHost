@@ -1,0 +1,3 @@
+rem and finally run sbpm in silent mode...
+bin\sbt.bat run
+

@@ -1,5 +1,7 @@
 import akka.actor._
 import scalaj.http.Http
+import Messages.RegisterServiceMessage
+import Messages.ExecuteServiceMessage
 
 /*
 
@@ -12,7 +14,7 @@ object main extends App {
   val repoUrl = "http://localhost:8181/repo"
   val system = ActorSystem("sbpm")
 
-  system.actorOf(Props[SomeActor], "subject-provider-manager")
+  system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
   registerInterface()
 
 
@@ -26,7 +28,7 @@ object main extends App {
    * msg from Extern -> Lokal: output
    */
   def registerInterface(): Unit = {
-    val source = scala.io.Source.fromURL(getClass.getResource("interface.json"))
+    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
     val jsonString = source.mkString
     source.close()
 
@@ -44,10 +46,16 @@ object main extends App {
 }
 
 
-class SomeActor extends Actor {
+class ServiceHostActor extends Actor {
   def receive: Actor.Receive = {
+    case register: RegisterServiceMessage=> {
+      //TODO implement 
+    }
+    case execute: ExecuteServiceMessage =>{
+      //TODO implement
+    }
     case something => {
-      println("received something: " + something)
+      println("received something: "+something)
     }
   }
 }
