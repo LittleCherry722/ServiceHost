@@ -37,6 +37,8 @@ object PrimitiveMappings {
     val groupUser = Iso.hlist(GroupUser.apply _, GroupUser.unapply _)
     val message = Iso.hlist(Message.apply _, Message.unapply _)
     val configuration = Iso.hlist(Configuration.apply _, Configuration.unapply _)
+    val history = Iso.hlist(History.apply _, History.unapply _)
+    val historyMessage = Iso.hlist(HistoryMessage.apply _, HistoryMessage.unapply _)
   }
 
   /**
@@ -51,6 +53,8 @@ object PrimitiveMappings {
     val groupUser = Iso.hlist(domainModel.GroupUser.apply _, domainModel.GroupUser.unapply _)
     val message = Iso.hlist(domainModel.Message.apply _, domainModel.Message.unapply _)
     val configuration = Iso.hlist(domainModel.Configuration.apply _, domainModel.Configuration.unapply _)
+    val history = Iso.hlist(domainModel.History.apply _, domainModel.History.unapply _)
+    val historyMessage = Iso.hlist(domainModel.HistoryMessage.apply _, domainModel.HistoryMessage.unapply _)
   }
 
   /**

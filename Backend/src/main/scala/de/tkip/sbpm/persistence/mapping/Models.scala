@@ -167,3 +167,28 @@ case class GraphEdge(startNodeId: Short,
   correlationId: Option[String],
   comment: Option[String],
   transportMethod: String)
+  
+case class History(id: Option[Int],
+  processName: String,
+  processInstanceId: Int,
+  processInstanceName: String,
+  timestamp: java.sql.Timestamp,
+  processStarted: Option[java.sql.Timestamp],
+  processEnds: Option[java.sql.Timestamp],
+  userId: Int,
+  subjectId: String,
+  transitionType: String,
+  transitionText: String,
+  fromStateType: String,
+  fromStateText: String,
+  toStateType: String,
+  toStateText: String,
+  historyMessageId: Option[Int])
+    
+case class HistoryMessage(id: Int,
+  fromUserId: Int,
+  toUserId: Int,
+  fromSubject: String, 
+  toSubject: String, 
+  messageType: String,
+  text: String)

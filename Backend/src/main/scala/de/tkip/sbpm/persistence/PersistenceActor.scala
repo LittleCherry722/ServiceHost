@@ -46,6 +46,8 @@ class PersistenceActor extends Actor with ActorLogging {
     }
     case q: Graphs.Query           => forwardTo[GraphPersistenceActor](q)
     case q: Schema.Query           => forwardTo[SchemaActor](q)
+    case q: Histories.Query        => forwardTo[HistoryPersistenceActor](q)
+    case q: HistoryMessages.Query  => forwardTo[HistoryMessagePersistenceActor](q)
   }
 
   /**

@@ -28,8 +28,13 @@ import akka.pattern.pipe
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.model._
 import de.tkip.sbpm._
-
+import de.tkip.sbpm.persistence.query._
+import akka.pattern.ask
 import java.io._
+import akka.util.Timeout
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.util.Success
 
 protected case class RegisterSubjectProvider(userID: UserID,
   subjectProviderActor: SubjectProviderRef)
@@ -41,6 +46,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
 class ProcessManagerActor extends Actor {
   private case class ProcessInstanceData(processID: ProcessID, processName: String, name: String, processInstanceActor: ProcessInstanceRef)
   implicit val ec = context.dispatcher
+  implicit val timeout = Timeout(4 seconds)
   val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceData]()
@@ -51,6 +57,36 @@ class ProcessManagerActor extends Actor {
 
   private lazy val changeActor = ActorLocator.changeActor
   
+  override def preStart() {
+    try{
+      val getAllHistoryFuture = (ActorLocator.persistenceActor ? Histories.Read.All).mapTo[Seq[History]]
+      val result = Await.result(getAllHistoryFuture, timeout.duration)
+      println("--------------------------------------------------------------------")
+      for(r <- result){
+        if(r.historyMessageId.isEmpty){
+          val entry = NewHistoryEntry(r.timestamp, Some(r.userId), 
+          NewHistoryProcessData(r.processName, r.processInstanceId, r.processInstanceName), 
+          Some(r.subjectId), Some(NewHistoryTransitionData(NewHistoryState(r.fromStateText, r.fromStateType), r.transitionText, 
+          r.transitionType, NewHistoryState(r.toStateText, r.toStateType), None)),None)
+          history.entries += entry
+        }else{
+          val messageId = r.historyMessageId.get
+          val message = (ActorLocator.persistenceActor ? HistoryMessages.Read.ById(messageId)).mapTo[HistoryMessage]
+          val mResult = Await.result(message, timeout.duration)
+          val entry = NewHistoryEntry(r.timestamp, Some(r.userId), 
+          NewHistoryProcessData(r.processName, r.processInstanceId, r.processInstanceName), 
+          Some(r.subjectId), Some(NewHistoryTransitionData(NewHistoryState(r.fromStateText, r.fromStateType), r.transitionText, 
+          r.transitionType, NewHistoryState(r.toStateText, r.toStateType), 
+          Some(NewHistoryMessage(mResult.id, mResult.fromSubject, mResult.toSubject, mResult.messageType, mResult.text)))),None)
+          history.entries += entry
+        }
+      }
+    }catch{
+      case e: NoSuchElementException => {
+        e.printStackTrace()
+      }
+    }
+  }
   
   def receive = {
     
@@ -84,17 +120,34 @@ class ProcessManagerActor extends Actor {
       }
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
-      history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
+      val entry = createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
+      history.entries += entry
       val p = ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
       println("new processInstance has been added: "+p)
       changeActor ! ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date())
+      entry.transitionEvent.isDefined match { 
+        case true =>
+          ActorLocator.persistenceActor ? Histories.Save(History(None, entry.process.processName, entry.process.processInstanceId, 
+          entry.process.processInstanceName, new java.sql.Timestamp(entry.timeStamp.getTime()), None, None, entry.userId.get, entry.subject.get, 
+          entry.transitionEvent.get.transitionType, entry.transitionEvent.get.text, entry.transitionEvent.get.fromState.stateType, 
+          entry.transitionEvent.get.fromState.text, entry.transitionEvent.get.toState.stateType, entry.transitionEvent.get.toState.text, None))
+      
+        case false => 
+          ActorLocator.persistenceActor ? Histories.Save(History(None, entry.process.processName, entry.process.processInstanceId, 
+          entry.process.processInstanceName, new java.sql.Timestamp(entry.timeStamp.getTime()), None, None, entry.userId.get, "", 
+          "", "", "", "", "", "", None))
+      }
     }
 
     case kill: KillAllProcessInstances => {
       logger.debug("Killing all process instances")
       for ((id, _) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
-        history.entries += createHistoryEntry(None, id, "killed")
+        val entry = createHistoryEntry(None, id, "killed")
+        history.entries += entry
+        ActorLocator.persistenceActor ? Histories.Save(History(None, entry.process.processName, entry.process.processInstanceId, 
+          entry.process.processInstanceName, new java.sql.Timestamp(entry.timeStamp.getTime()), None, None, entry.userId.get, "", 
+          "", "", "", "", "", "", None))
         changeActor ! ProcessInstanceDelete(id, new java.util.Date())
       }
       processInstanceMap.clear()
@@ -108,7 +161,11 @@ class ProcessManagerActor extends Actor {
     case kill @ KillProcessInstance(id) => {
       if (processInstanceMap.contains(id)) {
         processInstanceMap(id).processInstanceActor ! PoisonPill
-        history.entries += createHistoryEntry(None, id, "killed") 
+        val entry = createHistoryEntry(None, id, "killed")
+        history.entries += entry
+        ActorLocator.persistenceActor ? Histories.Save(History(None, entry.process.processName, entry.process.processInstanceId, 
+          entry.process.processInstanceName, new java.sql.Timestamp(entry.timeStamp.getTime()), None, None, entry.userId.get, "", 
+          "", "", "", "", "", "", None))
         processInstanceMap -= id
         kill.sender ! KillProcessInstanceAnswer(kill)
         logger.debug("Killed process instance " + id)
@@ -146,6 +203,17 @@ class ProcessManagerActor extends Actor {
 
     case entry: NewHistoryEntry => {
       history.entries += entry
+      var messageId = None: Option[Int]
+      if(!entry.transitionEvent.get.message.isEmpty){
+        messageId = Some(entry.transitionEvent.get.message.get.messageId)
+        ActorLocator.persistenceActor ? HistoryMessages.Save(HistoryMessage(messageId.get, 
+          1, 1, entry.transitionEvent.get.message.get.fromSubject, entry.transitionEvent.get.message.get.toSubject, 
+          entry.transitionEvent.get.message.get.messageType, entry.transitionEvent.get.message.get.text))
+      }
+      ActorLocator.persistenceActor ? Histories.Save(History(None, entry.process.processName, entry.process.processInstanceId, entry.process.processInstanceName, 
+        new java.sql.Timestamp(entry.timeStamp.getTime()), None, None, entry.userId.get, entry.subject.get, 
+        entry.transitionEvent.get.transitionType, entry.transitionEvent.get.text, entry.transitionEvent.get.fromState.stateType, 
+        entry.transitionEvent.get.fromState.text, entry.transitionEvent.get.toState.stateType, entry.transitionEvent.get.toState.text, messageId))   
     }
     
     case GetHistorySince(t) => {

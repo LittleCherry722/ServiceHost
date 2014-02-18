@@ -39,7 +39,9 @@ private[persistence] class SchemaActor extends Actor
   with ProcessActiveGraphsSchema
   with ProcessInstancesSchema
   with ConfigurationsSchema
-  with UserIdentitiesSchema {
+  with UserIdentitiesSchema
+  with HistoryMessagesSchema
+  with HistoriesSchema{
 
   // import current slick driver dynamically
   import driver.simple._
@@ -65,7 +67,9 @@ private[persistence] class SchemaActor extends Actor
     Roles,
     UserIdentities,
     Users,
-    Configurations)
+    Configurations,
+    HistoryMessages,
+    Histories)
 
   // concat all table DDLs to insert at once
   private val ddl = tables.map(_.ddl).reduceLeft(_ ++ _)

@@ -14,10 +14,18 @@
 package de.tkip.sbpm.application.history
 
 import java.util.Date
-import akka.actor.ActorRef
+import de.tkip.sbpm.ActorLocator
+import akka.actor._
+import de.tkip.sbpm.model._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Buffer
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import akka.pattern.ask
+import de.tkip.sbpm.persistence.query._
+import java.sql.Timestamp
+import java.util.Date
+import akka.util.Timeout
+
 
 // represents an entry in the history (a state transition inside a subject)
 //case class Entry(timestamp: Date, // time transition occurred
@@ -28,15 +36,23 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 // describes properties of a state
 //case class State(name: String, stateType: String)
 // message exchanged in a state transition
+
+
 case class Message(id: Int,
                    messageType: String,
                    from: String, // sender subject of message
                    to: String, // receiver subject of message 
                    data: String, // link to msg payload
                    files: Option[Seq[MessagePayloadLink]] = None) // link to file attachments
+
+                   
+                   
+                  
 // represents a link to a message payload which contains a actor ref 
 // and a payload id that is needed by that actor to identify payload
+
 case class MessagePayloadLink(actor: ActorRef, payloadId: String)
+
 // this message can be sent to message payload providing actors referenced in
 // message payload link to retrieve actual payload
 //case class GetMessagePayload(messageId: Int, payloadId: String)
@@ -64,3 +80,5 @@ case class NewHistoryState(text: String, stateType: String)
 case class NewHistoryMessage(messageId: MessageID, fromSubject: SubjectName, toSubject: SubjectName, messageType: MessageType, text: MessageContent)
 case class NewHistoryTransitionData(fromState: NewHistoryState, text: String, transitionType: String, toState: NewHistoryState, message: Option[NewHistoryMessage])
 case class GetHistorySince(timeStamp: Long)
+
+
