@@ -47,6 +47,10 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
         context.actorFor("akka" + protocol + "://sbpm" + targetAddress +
           "/user/" + ActorLocator.subjectProviderManagerActorName)
 
+      log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: path = {}", "akka" + protocol + "://sbpm" + targetAddress +
+                "/user/" + ActorLocator.subjectProviderManagerActorName)
+      log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: targetManager = {}", targetManager)
+
       val processInstanceInfo =
         processInstanceMap
           .getOrElseUpdate(

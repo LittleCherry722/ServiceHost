@@ -11,6 +11,7 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess GroÃŸunternehmen. FÃ
 
 
 object main extends App {
+  println("main started")
   val repoUrl = "http://localhost:8181/repo"
   val system = ActorSystem("sbpm")
 
@@ -28,6 +29,7 @@ object main extends App {
    * msg from Extern -> Lokal: output
    */
   def registerInterface(): Unit = {
+    println("registerInterface")
     val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
     val jsonString = source.mkString
     source.close()
@@ -48,11 +50,13 @@ object main extends App {
 
 class ServiceHostActor extends Actor {
   def receive: Actor.Receive = {
-    case register: RegisterServiceMessage=> {
-      //TODO implement 
+    case register: RegisterServiceMessage => {
+      println("received RegisterServiceMessage: " + register)
+      // TODO implement
     }
-    case execute: ExecuteServiceMessage =>{
-      //TODO implement
+    case execute: ExecuteServiceMessage => {
+      println("received ExecuteServiceMessage: " + execute)
+      // TODO implement
     }
     case something => {
       println("received something: "+something)

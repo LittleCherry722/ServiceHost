@@ -62,6 +62,7 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
+    logger.debug("SubjectContainer.createSubject: " + userID);
     logger.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
     if (single) {
       if (subjects.size > 0) {
@@ -105,6 +106,8 @@ class SubjectContainer(
         (processInstanceManager ?
           GetProcessInstanceProxy(mapping.get.processId, mapping.get.address))
           .mapTo[ActorRef]
+
+      logger.debug("CREATE: processInstanceRef = {}", processInstanceRef)
 
       // TODO we need this unblock!
       blockingHandlerActor ! UnBlockUser(userID)
@@ -202,11 +205,14 @@ class SubjectContainer(
     var running: Boolean = true) {
 
     def tell(message: Any, from: ActorRef) {
-      logger.debug("FORWARD: {} TO {}", message, from)
+      logger.debug("FORWARD: {} TO {} FROM {}", message, ref, from)
       logger.debug("subject creation completed: {}", ref.isCompleted)
 
       ref.onComplete {
         case r =>
+          logger.debug("ref.onComplete: r = {}", r)
+          logger.debug("ref.onComplete: ref = {}", ref)
+          logger.debug("subject creation completed: {}", ref.isCompleted)
           if (r.isSuccess) r.get.tell(message, from)
           // TODO exception or logg?
           else throw new Exception("Subject Creation failed for " +
