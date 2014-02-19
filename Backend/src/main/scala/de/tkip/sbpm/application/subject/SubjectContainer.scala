@@ -49,7 +49,7 @@ class SubjectContainer(
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) {
   import scala.collection.mutable.{ Map => MutableMap }
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(30 seconds)
 
   private val multi = subject.multi
   private val single = !multi

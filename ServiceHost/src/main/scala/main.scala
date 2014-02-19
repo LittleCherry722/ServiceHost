@@ -1,5 +1,5 @@
 import akka.actor._
-import scalaj.http.Http
+import scalaj.http.{Http, HttpOptions}
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
 
@@ -37,6 +37,7 @@ object main extends App {
     val result = Http.postData(repoUrl, jsonString)
       .header("Content-Type", "application/json")
       .header("Charset", "UTF-8")
+      .option(HttpOptions.connTimeout(10000)).option(HttpOptions.readTimeout(30000))
       .responseCode
 
     if (200 == result) {
