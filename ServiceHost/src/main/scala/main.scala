@@ -9,7 +9,6 @@ import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 
-
 /*
 
 Momentan funktioniert es nur so: Starte Instanz von Prozess Großunternehmen. Führe aus bis send. Message kommt hier an.
@@ -59,6 +58,7 @@ object main extends App {
 class ServiceHostActor extends Actor {
   private var userId = 0
   private var processId = 0
+  private var manager: Option[ActorRef] = None
 
   def receive: Actor.Receive = {
     case register: RegisterServiceMessage => {
@@ -75,6 +75,7 @@ class ServiceHostActor extends Actor {
       println("received CreateProcessInstance: " + request)
       userId = request.userID
       processId = request.processID
+      manager = request.manager
       // TODO implement
 
       // fake ProcessInstanceActor:
@@ -102,14 +103,23 @@ class ServiceHostActor extends Actor {
       sender ! Stored(message.messageID)
       println("unblocked sender")
 
-      // TODO store and handle the message
-      val target = Target("Großunternehmen",0,1,false,None,true,true)
-      val messageType = "Message Type"
-      val messageContent = "Message Content"
-      val answer = SubjectToSubjectMessage(0, processId, userId, "Staples", target, messageType, messageContent)
-      //val to_actor = TODO
-      //println("send " + answer + " to " + to_actor)
-      //to_actor ! answer
+      // reply immediate:
+      // TODO: EventBus einbinden
+
+
+      val msgToExternal = false // false: it should not leave sbpm
+      val target = Target("Großunternehmen",0,1,false,None,msgToExternal,true)
+      val messageType = "Lieferdatum"
+      val messageContent = "Die Bestellung \""+message.messageContent+"\" ist morgen fertig."
+      val remoteUserId = 1 // TODO: context resolver einbinden, um UserID zu bestimmen. resolven sollte jedoch in sbpm, nicht beim service host passieren
+      target.insertTargetUsers(Array(remoteUserId))
+      val answer = SubjectToSubjectMessage(0, processId, remoteUserId, "Staples", target, messageType, messageContent)
+      val to_actor = manager.get
+      println("send " + answer + " to " + to_actor)
+      to_actor ! answer
+    }
+    case s: Stored => {
+      println("received Stored: "+s)
     }
     case something => {
       println("received something: "+something)

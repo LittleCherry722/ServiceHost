@@ -66,6 +66,12 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
       answer pipeTo sender
     }
 
+    case message: SubjectToSubjectMessage => {
+      log.debug("got SubjectToSubjectMessage {} from {}", message, sender)
+      log.debug("forward SubjectToSubjectMessage to {}", actor)
+      actor.forward(message)
+    }
+
     case s => {
       log.error("got, but cant use {}", s)
     }
