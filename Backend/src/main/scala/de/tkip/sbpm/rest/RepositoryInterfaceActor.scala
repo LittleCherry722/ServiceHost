@@ -81,7 +81,7 @@ class RepositoryInterfaceActor extends AbstractInterfaceActor with DefaultLoggin
             requestContext.complete {
               val jsWithAddress = attachExternalAddress(requestContext)
 
-              val response = pipeline(Post(repoLocation, jsWithAddress))
+              val response = pipeline(Post(repoLocation + requestContext.unmatchedPath.toString, jsWithAddress))
               response
             }
         }

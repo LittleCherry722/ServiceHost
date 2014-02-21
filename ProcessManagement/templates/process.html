@@ -125,10 +125,13 @@
             <ul class="dropdown-menu save-dropdown">
               <li>
                 <a href="#saveBusinessInterfaceModal" data-toggle="modal">
-                  <i class="icon-cloud-upload icon-large"></i> Save Interface
+                  <i class="icon-cloud-upload icon-large"></i> Create Offer
                 </a>
                 <a href="#loadBusinessInterfaceModal" data-toggle="modal">
-                  <i class="icon-cloud-download icon-large"></i> Load Interface
+                  <i class="icon-cloud-download icon-large"></i> Browse Interface
+                </a>
+                <a href="#'" data-bind="click: saveInterfaceImplementation">
+                  <i class="icon-cloud-download icon-large"></i> Save Implementation
                 </a>
               </li>
             </ul>
@@ -158,21 +161,10 @@
       <div id="saveBusinessInterfaceModal" class="modal hide" tabindex="-1">
         <div class="modal-header">
           <a class="close" href="" type="button" data-dismiss="modal">x</a>
-          <h3>Save Business Interface</h3>
+          <h3>Offer Business Interface for Implementation</h3>
         </div>
         <div id="saveBusinessInterface" class="modal-body">
           <div class="form-horizontal">
-            <div class="control-group">
-              <label class="control-label" for="interfaceName">
-                Choose Interface Subject
-              </label>
-              <div class="controls">
-                <select id="interfaceSubject"
-                       data-bind="options: availableInterfaces, optionsValue: 'id',
-                                  optionsText: 'name', value: interfaceReplacementSubject">
-                </select>
-              </div>
-            </div>
             <div class="control-group" data-bind="css: { error: businessInterfaceNameError }">
               <label class="control-label" for="interfaceName">
                 Interface Name
@@ -209,7 +201,7 @@
            style="margin-left: -425px; width: 850px;">
         <div class="modal-header">
           <a class="close" href="" type="button" data-dismiss="modal">x</a>
-          <h3>Load Business Interface</h3>
+          <h3>Browse Business Interfaces</h3>
         </div>
         <div id="loadBusinessInterface" class="modal-body">
           <div class="interface-select pull-left" data-bind="foreach: existingInterfaces">
@@ -227,9 +219,22 @@
             <p data-bind="text: selectedInterfaceCreator"></p>
             <!-- <h4>Description</h4> -->
             <!-- <p data-bind="text: selectedInterfaceDescription"></p> -->
+            <h4>Available Interfaces</h4>
+            <div data-bind="foreach: selectedInterfaceImplSubjects">
+                <p>
+                    <em data-bind="text: $data.name"></em>:
+                    <span data-bind="text: $data.impCount"></span> agents
+                </p>
+            </div>
+            <h4>Interface to implement</h4>
+            <select data-bind="options: selectedInterfaceImplSubjects, optionsText: 'name',
+                               optionsValue: 'id', optionsCaption: 'Choose one..',
+                               value: interfaceInsertionSubject">
+            </select>
             <h4>Insertion Behavior</h4>
-            <select data-bind="options: availableInterfaces, optionsText: 'name',
-                               optionsValue: 'id', optionsCaption: 'New Interface'">
+            <select data-bind="value: interfaceInsertionStrategy">
+                <option value="new" disabled>New Process</option>
+                <option value="insert" selected>Insert in current Process</option>
             </select>
             <!-- <h4>Preview</h4> -->
             <!-- <img src="/sbpm/images/internal.png" heigh="400" width="400" -->
@@ -240,7 +245,7 @@
           <button class="btn" data-dismiss="modal" data-bind="click: resetInterfaceSelection">Close</button>
           <button class="btn btn-primary" data-dismiss="modal"
                   data-bind="click: loadBusinessInterface, disable: noInterfaceSelected">
-            Insert Business Interface
+            Implement Business Interface
           </button>
         </div>
       </div>

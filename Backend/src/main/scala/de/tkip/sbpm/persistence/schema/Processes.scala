@@ -22,19 +22,27 @@ import de.tkip.sbpm.persistence.mapping._
  */
 trait ProcessesSchema extends Schema {
   // import current slick driver dynamically
+
   import driver.simple._
-  
-   // represents schema if the "processes" table in the database
+
+  implicit val stringToStringList = MappedTypeMapper.base[List[String], String](
+    list => list mkString ",",
+    str => (str split ",").toList
+  )
+
+  // represents schema if the "processes" table in the database
   // using slick's lifted embedding API
   object Processes extends SchemaTable[Process]("processes") {
     def id = autoIncIdCol[Int]
     def name = nameCol
     def isCase = column[Boolean]("case")
+    def isImplementation = column[Boolean]("isImplementation", O.Default(false))
+    def offerId = column[Option[Int]]("offerId")
+    def fixedSubjectId = column[Option[String]]("fixedSubjectId")
+    def interfaceSubjects = column[List[String]]("interfaceSubjects")
     def startAble = column[Boolean]("startAble")
-    
-    def * = id.? ~ name ~ isCase ~ startAble <> (Process, Process.unapply _)
+    def * = id.? ~ name ~ isCase ~ isImplementation ~ offerId ~ fixedSubjectId ~ interfaceSubjects ~ startAble <>(Process, Process.unapply _)
     def autoInc = * returning id
-        
     def uniqueName = unique(name)
   }
 

@@ -2,7 +2,7 @@
   <div data-chardin-intro="This is your Dashboard." data-chardin-position="bottom" class="pull-left" style="min-width: 96%">
     <h3>S-BPM Groupware v1.2</h3>
     <div id="filter" class="btn-group">
-      <select data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>    	
+      <select data-bind="options: availableUsers, optionsText: 'name', optionsValue: 'id', value: selectedUser, optionsCaption: 'Select User'"></select>
       <select data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'name', value: selectedProcess, optionsCaption: 'Select Process'"></select>
       <select data-bind="options: availableStatetypes,  value: selectedStatetype, optionsCaption: 'Select Statetype'"></select>
       <label for="from">From</label>
@@ -12,12 +12,12 @@
     </div>
 
     <div id="notification" style="display: none;">
-      <h1>Notification box</h1>        
+      <h1>Notification box</h1>
       <span>Notification message</span>
       <div id="notification_close" onclick="this.parentNode.style.display = 'none';">x</div>
     </div>
 
-    <hr>    
+    <hr>
 
     <div id="processExecution">
       <ul class="nav nav-tabs">
@@ -32,7 +32,7 @@
         </li>
         <!-- /ko -->
 		<li>
-			<select class="sel" data-placeholder="Start Process" data-bind="options: startableProcesses, optionsText: 'name', optionsValue: 'id'"></select>
+			<select class="sel" data-placeholder="Start Process" data-bind="options: startableProcesses, optionsText: 'name', value: startProcessId, optionsValue: 'id'"></select>
 		</li>
       </ul>
     </div>
@@ -48,9 +48,23 @@
 	</div>
 	<div class="modal-body">
 		<form data-bind="submit: newInstance">
-			<input type="hidden" name="processId" value="" />
-			<input name="instancename" type="text"  style="width:250px;" />
-			<input type="submit" value="Start" />
+      <div data-bind="visible: showForm">
+		   <input type="hidden" name="processId" value="" />
+		   <input name="instancename" type="text"  style="width:250px;" />
+      </div>
+      <div data-bind="visible: offerNotCompleted">
+          <strong>Process can not be started unless every interface is implemented.</strong>
+      </div>
+      <div data-bind="visible: showImplementations">
+          <div data-bind="foreach: startInterfaceSubjects">
+              <label data-bind="text: $data.name">
+              </label>
+              <select data-bind="options: $data.imps, optionsText: 'id', optionsValue: 'id'"></select>
+          </div>
+      </div>
+      <div data-bind="visible: showForm">
+			  <input type="submit" value="Start" />
+      </div>
 		</form>
 	</div>
 </div>

@@ -73,7 +73,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
 
   // this actor handles the blocking for answer to the user
-  private val blockingHandlerActor = context.actorOf(Props[BlockingActor],"BlockingActor____"+UUID.randomUUID().toString())
+  private val blockingHandlerActor = context.actorOf(Props[BlockingActor],"BlockingActor____"+UUID.randomUUID().toString)
 
   // this actory is used to exchange the subject ids for external input messages
   private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)),"ProcessInstanceProxyActor____"+UUID.randomUUID().toString())
@@ -144,7 +144,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       logger.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
     }
 
-    case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to)) => {
+    case sm: SubjectToSubjectMessage if graph.subjects.contains(sm.to) => {
       val to = sm.to
       // Send the message to the container, it will deal with it
       subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to))).send(sm)
@@ -155,7 +155,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       context.parent.forward(he)
     }
 
-    case message: SubjectMessage if (subjectMap.contains(message.subjectID)) => {
+    case message: SubjectMessage if subjectMap.contains(message.subjectID) => {
       subjectMap(message.subjectID).send(message)
     }
 

@@ -9,8 +9,10 @@ define([
 	"async",
 	"models/user",
 	"models/role",
-	"models/interface"
-], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface ) {
+	"models/interfaceImplementation",
+	"models/interfaceOffer",
+  "utilities"
+], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Implementation, Offer, Utilities ) {
 
 	// The main viewmodel. Every observable defined inside can be used by the
 	// view. Lets keep it clean and define functions and other helper variables
@@ -38,174 +40,14 @@ define([
 			}
 		});
 
-    //////////////////////////////
-    // Interface Transformation //
-    //////////////////////////////
-
-		this.transformInterfaceSubject = ko.observable("");
-		this.transformInterface = function() {
-      var og  = currentProcess().graphObject(),
-          ng  = JSON.parse(JSON.stringify(og)),
-          ps  = ng.process,
-          sid = self.transformInterfaceSubject(),
-          concatTau = function(n, s, last) {
-            s.macros.forEach(function(m) {
-              // adjust remove outgoing edges
-              m.edges = _(m.edges.map(function(e) {
-                if (e.start === n.id) {
-                  e.start = last;
-                } else if (e.end === n.id) {
-                  return null;
-                }
-                return e;
-              })).compact();
-              // adjust remove node
-
-            });
-          },
-          makeTau = function(node, s) {
-            if (s.id === sid) {
-              return;
-            }
-            node.type = node.nodeType = "tau";
-            node.text = "tau";
-            s.macros.forEach(function(m) {
-              m.edges.forEach(function(e) {
-                if (e.start === node.id) {
-                  e.target = "";
-                }
-              });
-            });
-          },
-          makeTauID = function(nid, s) {
-            var n;
-            s.macros.forEach(function(m) {
-              n = _(m.nodes).findWhere({id: nid});
-            });
-            makeTau(n, s)
-            return n;
-          };
-
-      // Make current subject a normal subj. and all others Interface subjects
-      ps.forEach(function(s) {
-        if (s.id === sid) {
-          s.subjectType = "single";
-          s.externalType = "";
-        } else {
-          s.subjectType = "external";
-          s.externalType = "interface";
-        }
-      });
-
-      // anonymize messages.
-      var messages = []
-      ps.forEach(function (s) {
-        if (s.id == sid) {
-          s.macros.forEach(function(m) {
-            m.edges.forEach(function(e) {
-              if( e.text ) {
-                messages.push(e.text)
-              }
-            })
-          })
-        }
-      })
-      messages = _(messages).uniq()
-      _(ng.messages).each(function(v, k) {
-        if (!_(messages).contains(k)) {
-          console.log("anonymizing meessage: " + k);
-          ng.messages[k] = "Anonymized"
-        }
-      })
-
-      // remove all subjects that are not conncected to our sel. subject
-      ng.process = _(ps.map(function(p) {
-        if (p.id === sid) return p;
-        var hasEdge = false;
-        p.macros.forEach(function(m) {
-          m.edges.forEach(function(e) {
-            if (e.target && e.target.id === sid) {
-              hasEdge = true;
-            }
-          })
-        });
-        return hasEdge? p : null;
-      })).compact();
-
-      // set all send or receive to / from deleted nodes to tau
-      var remainingSubjects = ng.process.map(function(p) { return p.id })
-      ps.forEach(function(s) {
-        s.macros.forEach(function(m) {
-          m.edges.forEach(function(e) {
-            if (e.target && !_(remainingSubjects).contains(e.target.id)) {
-              makeTauID(e.start, s)
-              e.target = "";
-              e.text = "tau";
-            }
-          })
-        });
-      });
-
-      // set all non send / receive nodes and edges to tau
-      ps.forEach(function(s) {
-        s.macros.forEach(function(m) {
-          m.nodes.forEach(function(n) {
-            if (n.type !== "send" && n.type !== "receive") {
-              makeTau(n, s);
-            }
-          })
-        });
-      });
-
-      // Concatenate Tau nodes and edges
-      // ps.forEach(function(s) {
-      //   s.macros.forEach(function(m) {
-      //     var lastTau = null;
-      //     m.nodes = _(m.nodes.map(function(n) {
-      //       if (n.type == "tau") {
-      //         if (lastTau) {
-      //           concatTau(n, s, lastTau)
-      //           return null;
-      //         } else {
-      //           lastTau = n.id;
-      //         }
-      //       } else {
-      //         lastTau = null;
-      //       }
-      //       return n;
-      //     })).compact();
-      //   });
-      // });
-
-      // set all edges not related to our subject to tau
-      ps.forEach(function(s) {
-        if ( s.id === sid) return;
-        s.macros.forEach(function(m) {
-          m.edges.forEach(function(e) {
-            if (! e.target) {
-              e.text = "tau";
-            }
-          })
-        });
-      });
-
-      // console.log(JSON.stringify(ng));
-			currentProcess().graph({definition: ng});
-			loadGraph(currentProcess().graph());
-    }
-
-    //////////////////////////////////
-    // END Interface Transformation //
-    //////////////////////////////////
-
-		window.existingInterfaces = this.existingInterfaces = Interface.all;
+		window.existingInterfaces = this.existingInterfaces = Offer.all;
 
 		// Needed for saving the business Interface
 		this.newBusinessInterface = newBusinessInterface;
 		this.newBusinessInterface().name("");
 		this.newBusinessInterface().creator(App.currentUser().name());
 
-		this.selectedInterface = ko.observable();
+		this.selectedInterface = window.selectedInterface = ko.observable();
 		this.selectedInterfaceName = ko.computed(function() {
 			if ( self.selectedInterface() ) {
 				return self.selectedInterface().name();
@@ -230,6 +72,14 @@ define([
 			}
 		});
 
+		this.selectedInterfaceImplSubjects = ko.computed(function() {
+			if ( self.selectedInterface() ) {
+				return self.selectedInterface().interfaceSubjects();
+			} else {
+				return [];
+			}
+		});
+
 		this.selectedInterfaceDescription = ko.computed(function() {
 			if ( self.selectedInterface() ) {
 				return self.selectedInterface().description();
@@ -240,7 +90,7 @@ define([
 
 		this.selectBusinessInterface = function() {
 			var id = this.id()
-			self.selectedInterface( Interface.find( id ) );
+			self.selectedInterface( Offer.find( id ) );
 		}
 
 		this.noInterfaceSelected = ko.computed(function() {
@@ -251,42 +101,36 @@ define([
 			self.selectedInterface( null );
 		}
 
-		this.availableInterfaces = ko.computed(function() {
-			if ( currentProcess().isNewRecord ){
-				return [];
-			}
-			return _.chain(currentProcess().graph().definition.process).filter(function(subj) {
-				return subj.type == "external" && subj.externalType == "interface"
-			}).map(function( subj ) {
-					return {
-						id: subj.id,
-						name: subj.name
-					}
-				}).value();
-		});
+		this.interfaceInsertionSubject = ko.observable("");
+		this.interfaceInsertionStrategy = ko.observable("insert");
 
-		this.interfaceReplacementSubject = ko.observable("");
+    this.saveInterfaceImplementation = function() {
+      var i = Implementation.fromProcess(currentProcess());
+			i.save({}, {
+				success: function() {
+					Notify.info("Success", "Business Interface has been registered as an Implementation for " +
+                     i.interfaceOffer().name());
+				},
+				error: function() {
+					// TODO: real error handling
+					console.log("Something bad happened..");
+				}
+			});
+    }
 
 		this.loadBusinessInterface = function() {
 			if ( !self.selectedInterface() ) return;
-
-			var newGraph = JSON.parse(JSON.stringify(currentProcess().graph()));
-
-			if ( self.interfaceReplacementSubject() ) {
-				console.log(newGraph)
-				newGraph.definition.process = _(newGraph.definition.process).map(function( subject ) {
-					if (subject.id == self.interfaceReplacementSubject()) {
-						return self.selectedInterface().graph();
-					} else {
-						return subject;
-					}
-				});
-				console.log(newGraph)
-			} else {
-				newGraph.definition.process.push( self.selectedInterface().graph() )
+      console.log("Implementing business interface")
+      console.log("Insertion Strategy: " + self.interfaceInsertionStrategy())
+			if ( self.interfaceInsertionStrategy() === "insert" ) {
+        var template = self.selectedInterface().getTemplate(self.interfaceInsertionSubject());
+				currentProcess().insertTemplate(template);
+			} else /*conditions...*/ {
+        // TODO: implement...
+        throw("inserting as new process is not yet implemented.");
 			}
 
-			loadGraph( newGraph );
+			loadGraph( currentProcess().graph() );
 		}
 
 		this.newBusinessInterfaceName = newBusinessInterface().name;
@@ -294,7 +138,7 @@ define([
 
 		// Validation errors for saving a process under a different name
 		this.businessInterfaceNameError = ko.computed(function() {
-			if ( Interface.nameAlreadyTaken( newBusinessInterface().name() ) ) {
+			if ( Offer.nameAlreadyTaken( newBusinessInterface().name() ) ) {
 				return "Interface name '" + newBusinessInterface().name() + "' is not available.";
 			} else {
 				return "";
@@ -308,17 +152,15 @@ define([
 		});
 
 		this.saveBusinessInterface = function() {
-      this.newBusinessInterface()
-        .graph(currentProcess().associatedGraph(this.interfaceReplacementSubject()));
+      this.newBusinessInterface().graph(currentProcess().graph());
       this.newBusinessInterface().processId(currentProcess().id())
-      this.newBusinessInterface().subjectId(this.interfaceReplacementSubject())
 
 			this.newBusinessInterface().save({}, {
 				success: function() {
 					Notify.info("Success", "Business Interface '" +
 						self.currentProcess().name() + "' has successfully been made public.");
 
-					self.newBusinessInterface(new Interface({
+					self.newBusinessInterface(new Offer({
 						name: "",
 						creator: App.currentUser().name()
 					}));
@@ -477,7 +319,7 @@ define([
 
 	var newProcessName = ko.observable("");
 
-	var newBusinessInterface = ko.observable(new Interface());
+	var newBusinessInterface = ko.observable(new Offer());
 
 	// Currently selected subject and conversation (in chosen)
 	var currentSubject = ko.observable();
@@ -796,7 +638,7 @@ define([
      * Checks if there are no subject. In case of that, the help-box will be shown until the user adds a subject
      */
 	var tryShowSubjectHelpBox = function(){
-        if(gv_graph.getSubjectNames().length == 0) {
+        if(!gv_graph.getSubjectNames().length) {
             $('#process-subject-help').removeClass('invisible');
             var subscription = $.subscribe(gv_topics.general.subjects, function(data){
                 if(data.action === 'add') {
@@ -849,7 +691,7 @@ define([
 		_( gv_graph.subjects ).each(function( value, key ) {
 
 			// we don't want external subjects in the list of (local) subjects
-			if ( value.isExternal() && !value.externalType == "Interface" ) {
+			if ( value.isExternal() && value.externalType != "Interface" ) {
 				return;
 			}
 

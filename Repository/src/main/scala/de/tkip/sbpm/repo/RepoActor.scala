@@ -19,65 +19,113 @@ import spray.json._
 import DefaultJsonProtocol._
 
 object RepoActor {
+  case object GetAllImplementations
 
-  case class GetEntry(id: Int)
+  case object GetOffers
 
-  case object GetEntries
+  case class GetOffer(id: ID)
 
-  case class CreateEntry(entry: String)
+  case class GetImplementation(id: ID)
+
+  case class GetOfferImplementations(offerId: ID)
+
+  case class AddImplementation(entry: String)
+
+  case class AddOffer(entry: String)
 
   case object Reset
 
-  case class Offer(graph: JsObject)
-  case class Implementation(graph: JsObject)
+  case class Offer(address: Address, id: ID, graph: JsObject)
+  case class Implementation(address: Address,
+                            id: ID,
+                            offerId: ID,
+                            fixedSubjectId: String,
+                            interfaceSubjects: List[String],
+                            graph: JsObject)
+  type Address = String
+  type ID = Int
+
+  object MyJsonProtocol extends DefaultJsonProtocol {
+    implicit val offerFormat = jsonFormat3(Offer)
+    implicit val implementationFormat = jsonFormat6(Implementation)
+  }
 }
 
 class RepoActor extends Actor with ActorLogging {
+  import RepoActor.MyJsonProtocol._
 
   import RepoActor._
 
-  val offers = mutable.Map[Address, Offer]()
-  val implementations = mutable.Map[Address, Implementation]()
+  val offers = mutable.Set[Offer]()
+  val implementations = mutable.Map[ID, mutable.Set[Implementation]]()
   var currentId = 1
 
   def receive = {
-    case GetEntry(id) => {
-      sender ! entries.get(id).map(_.prettyPrint)
+    case GetAllImplementations => {
+      val list = implementations.values.fold(mutable.Set.empty) { (a, b) => a ++ b }.toList
+
+      log.info("entries: {}", list.map{_.graph}.toJson.prettyPrint)
+
+      sender ! list.toJson.prettyPrint
     }
 
-    case GetEntries => {
-      val list = entries.values.toList
+    case GetOfferImplementations(offerId) => {
+      val list = implementations.get(offerId).toList.fold(mutable.Set.empty) { (a, b) => a ++ b }.map{_.graph}.toList
 
       log.info("entries: {}", list.toJson.prettyPrint)
 
       sender ! list.toJson.prettyPrint
     }
 
-    case CreateEntry(entry) => {
-      val id =  nextId
-      val convertedEntry = convertEntry(entry.asJson.asJsObject, id)
+    case GetImplementation(implId) => {
+      val list = implementations.values.fold(mutable.Set.empty) { (a, b) => a ++ b }.toList
+      val filtered = list.find { impl => impl.id == implId }.map{_.graph}
 
-      entries(id) = convertedEntry
-      sender ! Some(convertedEntry.prettyPrint)
+      log.info("entries: {}", filtered.toJson.prettyPrint)
+
+      sender ! filtered.toJson.prettyPrint
+    }
+
+    case AddImplementation(entry) => {
+      val id = nextId
+      val entryJs = entry.asJson.asJsObject
+      val offerId = entryJs.fields("offerId").convertTo[Int]
+      val interfaceSubjects = entryJs.fields("interfaceSubjects").convertTo[List[String]]
+      val fixedSubjectId = entryJs.fields("fixedSubjectId").toString()
+      val ce = convertEntry(entryJs, id)
+      val implementation = Implementation("Address", id, offerId, fixedSubjectId, interfaceSubjects, ce)
+      implementations(offerId) = (implementations.getOrElse(offerId, mutable.Set[Implementation]()) += implementation)
+      sender ! Some(implementation.graph.toJson.prettyPrint)
+    }
+
+    case GetOffers => {
+      sender ! offers.toList.map{_.graph}.toJson.prettyPrint
+    }
+
+    case AddOffer(entry) => {
+      val id = nextId
+      val ce = convertEntry(entry.asJson.asJsObject, id)
+      val offer = Offer("127.0.0.1", id, ce)
+      offers.add(offer)
+      sender ! Some(offer.graph.toJson.prettyPrint)
     }
 
     case Reset => {
       log.info("resetting...")
-      entries.clear()
+      implementations.clear()
+      offers.clear()
     }
   }
 
   private def convertEntry(entry: JsObject, id: Int) = {
     val processId = entry.fields("processId")
-    val url = entry.fields("url")
-    val interfaceId = entry.fields("subjectId")
+    val url = "127.0.0.1".toJson
     val graph = entry.fields("graph").asJsObject
-    val convertedGraph = convertGraph(id, graph, processId, url, interfaceId)
+    val convertedGraph = convertGraph(id, graph, processId, url)
 
     var fields = entry.fields
-    fields -= "processId"
     fields -= "url"
-    fields -= "subjectId"
+    fields -= "id"
     fields += ("id" -> id.toJson)
     fields += ("date" -> System.currentTimeMillis.toJson)
     fields += ("graph" -> convertedGraph)
@@ -85,22 +133,10 @@ class RepoActor extends Actor with ActorLogging {
     entry.copy(fields)
   }
 
-  private def convertGraph(id: Int, graph: JsObject, processId: JsValue, url: JsValue, interfaceId: JsValue) = {
-    val oldId = graph.fields("id")
-    val subjectId = "ext" + id
-
+  private def convertGraph(id: Int, graph: JsObject, processId: JsValue, url: JsValue) = {
     var fields = graph.fields
     fields -= "id"
-    fields += ("id" -> subjectId.toJson)
-    fields += ("relatedSubject" -> oldId)
-    fields += ("relatedSubject" -> oldId)
-    fields += ("relatedInterface" -> interfaceId)
-    fields += ("relatedProcess" -> processId)
-    fields += ("url" -> url)
-
-    fields += ("subjectType" -> "external".toJson)
-    fields += ("externalType" -> "interface".toJson)
-
+    fields += ("id" -> nextId.toJson)
     graph.copy(fields)
   }
 

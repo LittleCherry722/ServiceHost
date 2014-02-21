@@ -71,7 +71,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
             processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
             filtered = if (showProcesses.isEmpty) processes
             else processes filter (showProcesses contains _.id.getOrElse(-1))
-          } yield filtered)
+          }yield filtered)
       } ~
         // READ
         pathPrefix(IntNumber) {
@@ -158,7 +158,11 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
           process.name,
           graphResult,
           process.isCase,
-          process.id)
+          process.id,
+          process.isImplementation,
+          process.offerId,
+          process.fixedSubjectId,
+          process.interfaceSubjects)
     }
 
     onSuccess(roleFuture) {
@@ -194,7 +198,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * Saves the given process without its graph.
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.name, json.isCase)
+    val process = Process(id, json.name, json.isCase, json.isImplementation, json.offerId, json.fixedSubjectId, json.interfaceSubjects)
     val future = (persistanceActor ? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
@@ -204,7 +208,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * Saves the given process with its graph.
    */
   private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.name, json.isCase)
+    val process = Process(id, json.name, json.isCase, json.isImplementation, json.offerId, json.fixedSubjectId, json.interfaceSubjects)
     val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
     val future = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
     val result = future.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))

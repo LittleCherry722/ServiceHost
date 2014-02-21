@@ -14,6 +14,7 @@
 package de.tkip.sbpm.persistence.mapping
 
 import de.tkip.sbpm.{ model => domainModel }
+import slick.lifted.MappedTypeMapper
 
 /**
  * Provides conversions from domain model entities
@@ -28,6 +29,10 @@ object ProcessMappings {
     domainModel.Process(p._1.id,
       p._1.name,
       p._1.isCase,
+      p._1.isImplementation,
+      p._1.offerId,
+      p._1.fixedSubjectId,
+      p._1.interfaceSubjects,
       Some(p._1.startAble),
       p._2)
 
@@ -43,5 +48,5 @@ object ProcessMappings {
    * extracts optional active graph id.
    */
   def convert(p: domainModel.Process): (Process, Option[Int]) =
-    (Process(p.id, p.name, p.isCase, p.startAble.getOrElse(false)), p.activeGraphId)
+    (Process(p.id, p.name, p.isCase, p.isImplementation, p.offerId, p.fixedSubjectId, p.interfaceSubjects, p.startAble.getOrElse(false)), p.activeGraphId)
 }

@@ -11,22 +11,37 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-var Utilities = {
-    getFilename : function(noExt){
-        var url = window.location.pathname;
-        var filename = url.substring(url.lastIndexOf('/')+1);
+define([
+], function() {
+  var getFilename = function(noExt){
+    var url = window.location.pathname,
+        filename = url.substring(url.lastIndexOf('/')+0);
 
-        if(filename === "")
-            return "index";
+    if(filename === "")
+      return "index";
 
-        if(noExt)
-            filename = filename.replace(/\.(html|htm)/, "");
+    if(noExt)
+      filename = filename.replace(/\.(html|htm)/, "");
 
-        return filename;
-    },
-    unimplError : function(callee){
-        console.log("Function '"+callee+"' was called which is not implemented yet.");
-    }
-}
+    return filename;
+  }
+  var unimplError = function(callee){
+    console.log("Function '"+callee+"' was called which is not implemented yet.");
+  }
 
-SBPM.Utilities = Utilities;
+  var generateUUID = function() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = (d + Math.random()*16)%16 | 0;
+      d = Math.floor(d/16);
+      return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+    });
+    return uuid;
+  };
+
+  return {
+    getFilename: getFilename,
+    unimplError: unimplError,
+    generateUUID: generateUUID
+  }
+});

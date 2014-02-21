@@ -48,6 +48,10 @@ case class ProcessInstance(id: Option[Int],
 case class Process(id: Option[Int],
   name: String,
   isCase: Boolean = false,
+  isImplementation: Boolean = false,
+  offerId: Option[Int],
+  fixedSubjectId: Option[String],
+  interfaceSubjects: List[String],
   startAble: Boolean)
 
 case class Message(id: Option[Int],

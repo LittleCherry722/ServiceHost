@@ -14,7 +14,7 @@
 package de.tkip.sbpm.repo
 
 import spray.routing.SimpleRoutingApp
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorSystem, Props, ActorLogging}
 import akka.pattern.ask
 import spray.http.{StatusCodes, HttpResponse}
 import de.tkip.sbpm.repo.RepoActor._
@@ -32,42 +32,70 @@ object Boot extends App with SimpleRoutingApp {
 
   startServer(interface = "localhost", port = 8181) {
     pathPrefix("repo") {
-      get {
-        path(IntNumber) {
-          id =>
-            val future = (repoActor ? GetEntry(id)).mapTo[Option[String]]
-
-            onSuccess(future) {
-              result =>
-                result match {
-                  case Some(s) => complete(s)
-                  case None => complete(HttpResponse(status = StatusCodes.NotFound))
-                }
-            }
-        } ~ path("reset") {
+      path("reset") {
+        (get | put) {
           ctx =>
             repoActor ! Reset
             ctx.complete(HttpResponse(status = StatusCodes.OK))
-        } ~ path("") {
-          complete {
-            (repoActor ? GetEntries).mapTo[String]
+        }
+      } ~ pathPrefix("implementations") {
+        get {
+          path("") {
+            complete {
+              (repoActor ? GetAllImplementations).mapTo[String]
+            }
+          } ~ path(IntNumber) {
+            id =>
+              complete {
+                (repoActor ? GetImplementation(id)).mapTo[String]
+              }
+          }
+        } ~ post {
+          path("") {
+            entity(as[String]) {
+              entry =>
+                val future = (repoActor ? AddImplementation(entry)).mapTo[Option[String]]
+                onSuccess(future) {
+                  case Some(s) => complete(s)
+                  case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
+                }
+            }
           }
         }
-      } ~
-        post {
+      } ~ pathPrefix("offers") {
+        get {
+          path("") {
+            complete {
+              (repoActor ? GetOffers).mapTo[String]
+            }
+          } ~ pathPrefix(IntNumber) {
+            offerId =>
+              path("") {
+                val future = (repoActor ? GetOffer(offerId)).mapTo[Option[String]]
+                onSuccess(future) {
+                  case Some(s) => complete(s)
+                  case None => complete(HttpResponse(status = StatusCodes.NotFound))
+                }
+              } ~ path("implementations") {
+                val future = (repoActor ? GetOfferImplementations(offerId)).mapTo[Option[String]]
+                onSuccess(future) {
+                  case Some(s) => complete(s)
+                  case None => complete(HttpResponse(status = StatusCodes.NotFound))
+                }
+              }
+          }
+        } ~ post {
           entity(as[String]) {
             entry =>
-              val future = (repoActor ? CreateEntry(entry)).mapTo[Option[String]]
+              val future = (repoActor ? AddOffer(entry)).mapTo[Option[String]]
 
               onSuccess(future) {
-                result =>
-                  result match {
-                    case Some(s) => complete(s)
-                    case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
-                  }
+                case Some(s) => complete(s)
+                case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
               }
           }
         }
+      }
     }
   }
 }
