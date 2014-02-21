@@ -56,6 +56,8 @@ import java.util.Date
 import de.tkip.sbpm.model.ActionChange
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.ExecutionContext.Implicits.global
+import de.tkip.sbpm.application.miscellaneous.UnBlockUser
+import de.tkip.sbpm.application.subject.misc.ActionExecuted
 
 /**
  * The data, which is necessary to create any state
@@ -120,6 +122,8 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
     if (!delayUnblockAtStart) {
       internalStatus.subjectStartedSent = true
       // TODO so richtig?
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
     }
 
@@ -153,9 +157,12 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
 
     case action: ExecuteAction if (disabled) => {
       log.error(s"Cannot execute $action, this state is disabled")
-      action.asInstanceOf[AnswerAbleMessage].sender !
-        Failure(new IllegalArgumentException(
-          "Invalid Argument: The state of the action is disabled."))
+      val message = Failure(new IllegalArgumentException(
+        "Invalid Argument: The state of the action is disabled."))
+      val receiver = action.asInstanceOf[AnswerAbleMessage].sender
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + receiver + " " + message.toString)
+      receiver ! message
     }
 
     // filter all invalid action
@@ -165,12 +172,17 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
         action.subjectID != subjectID ||
         action.stateType != stateType.toString()
     } => {
-      action.asInstanceOf[AnswerAbleMessage].sender !
-        Failure(new IllegalArgumentException(
-          "Invalid Argument: The action does not match to the current state."))
+      val message = Failure(new IllegalArgumentException(
+        "Invalid Argument: The action does not match to the current state."))
+      val receiver = action.asInstanceOf[AnswerAbleMessage].sender
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + receiver + " " + message.toString)
+      receiver ! message
     }
 
     case ga: GetAvailableAction => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + createAvailableAction.toString)
       sender ! createAvailableAction
     }
 
@@ -182,6 +194,8 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
       action.actionData.transitionType == timeoutLabel
     }) => {
       executeTimeout()
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + processInstanceActor + " " + ActionExecuted(action).toString)
       processInstanceActor ! ActionExecuted(action)
     }
   }
@@ -198,16 +212,21 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
         case action: ExecuteAction => {
           stateType match {
             case SendStateType if (!action.actionData.messageContent.isDefined) => {
-              message.sender !
-                Failure(new IllegalArgumentException(
-                  "Invalid Argument: messageContent not defined, a sendstate needs a MessageContent"))
+              val failure = Failure(new IllegalArgumentException(
+                "Invalid Argument: messageContent not defined, a sendstate needs a MessageContent"))
+              val traceLogger = Logging(context.system, this)
+              traceLogger.debug("TRACE: from " + this.self + " to " + message.sender + " " + failure.toString)
+              message.sender ! failure
+
             }
           }
 
         }
         case _ => {
-          message.sender !
-            Failure(new Exception("Internal Server Error in " + stateType.toString()))
+          val failure = Failure(new Exception("Internal Server Error in " + stateType.toString()))
+          val traceLogger = Logging(context.system, this)
+          traceLogger.debug("TRACE: from " + this.self + " to " + message.sender + " " + failure.toString)
+          message.sender ! failure
         }
       }
       logger.error("BehaviorStateActor does not support: " + message)
@@ -219,6 +238,8 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
   }
 
   protected def suicide() {
+    val traceLogger = Logging(context.system, this)
+    traceLogger.debug("TRACE: from " + this.self + " to " + self + " " + PoisonPill.toString)
     self ! PoisonPill
   }
 
@@ -248,9 +269,15 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
    * Changes the state and creates a history entry with the history message
    */
   protected def changeState(successorID: StateID, prevStateData: StateData, historyMessage: HistoryMessage) {
-    ActorLocator.changeActor ! ActionDelete(actionID, new Date())
+    val delete =  ActionDelete(actionID, new Date())
+    val traceLogger = Logging(context.system, this)
+    traceLogger.debug("TRACE: from " + this.self + " to " + ActorLocator.changeActor + " " + delete.toString)
+    ActorLocator.changeActor ! delete
+    traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
     blockingHandlerActor ! BlockUser(userID)
-    internalBehaviorActor ! ChangeState(id, successorID, internalStatus, prevStateData, historyMessage)
+    val changeState = ChangeState(id, successorID, internalStatus, prevStateData, historyMessage)
+    traceLogger.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + changeState.toString)
+    internalBehaviorActor ! changeState
   }
 
   private lazy val actionID = ActionIDProvider.nextActionID()
@@ -261,7 +288,10 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
    * it informs the ChangeActor about the new action
    */
   protected def actionChanged(changeMode: ChangeMode = Updated) {
-    ActorLocator.changeActor ! ActionChange(createAvailableAction, changeMode, new Date())
+    val message = ActionChange(createAvailableAction, changeMode, new Date())
+    val traceLogger = Logging(context.system, this)
+    traceLogger.debug("TRACE: from " + this.self + " to " + ActorLocator.changeActor + " " + message.toString)
+    ActorLocator.changeActor ! message
   }
 
   /**

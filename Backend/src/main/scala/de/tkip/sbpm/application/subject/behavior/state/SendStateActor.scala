@@ -63,7 +63,11 @@ private class GoogleSendProxyActor(
         message.fileInfo = Some(info)
         processInstanceActor.tell(message, origin)
       }
-    case message => processInstanceActor forward message
+    case message => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + message.toString)
+      processInstanceActor forward message
+    }
   }
 }
 
@@ -92,12 +96,14 @@ protected case class SendStateActor(data: StateData)
   var targetUserIDs: Option[Array[UserID]] = None
 
   override def preStart() {
-    if(!sendTarget.toExternal) {
+    if (!sendTarget.toExternal) {
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
       blockingHandlerActor ! BlockUser(userID)
-
-      ActorLocator.contextResolverActor ! (RequestUserID(
+      val msg = (RequestUserID(
         SubjectInformation(processID, processInstanceID, sendTarget.subjectID),
         TargetUsers(_)))
+      log.debug("TRACE: from " + this.self + " to " + ActorLocator.contextResolverActor + " " + msg.toString)
+      ActorLocator.contextResolverActor ! msg
     } else {
       targetUserIDs = Some(Array())
     }
@@ -113,6 +119,7 @@ protected case class SendStateActor(data: StateData)
       targetUserIDs = Some(userIDs)
       // send information about changed actions to actionchangeactor
       actionChanged(Updated)
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
 
     case action: ExecuteAction if (action.actionData.messageContent.isDefined) => {
@@ -123,7 +130,7 @@ protected case class SendStateActor(data: StateData)
         messageContent = action.actionData.messageContent
 
         for (transition <- exitTransitions if transition.target.isDefined) {
-
+          log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
           blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
 
           val messageType = transition.messageType
@@ -161,6 +168,7 @@ protected case class SendStateActor(data: StateData)
 
           // block the target users for this message
           for (userID <- blockUsers) {
+            log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
             blockingHandlerActor ! BlockUser(userID)
           }
 
@@ -170,9 +178,8 @@ protected case class SendStateActor(data: StateData)
           val sendProxy = context.actorOf(Props(
             new GoogleSendProxyActor(
               processInstanceActor,
-              action.userID.toString)),"GoogleSendProxyActor____"+UUID.randomUUID().toString())
-
-          sendProxy !
+              action.userID.toString)), "GoogleSendProxyActor____" + UUID.randomUUID().toString())
+          val msg = 
             SubjectToSubjectMessage(
               messageID,
               processID,
@@ -182,9 +189,11 @@ protected case class SendStateActor(data: StateData)
               messageType,
               messageContent.get,
               action.actionData.fileId)
-
+          logger.debug("TRACE: from " + this.self + " to " + sendProxy + " " + msg.toString)
+          sendProxy ! msg
           // send the ActionExecuted to the blocking actor, it will send it 
           // to the process instance, when this user is ready
+          logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
           blockingHandlerActor ! ActionExecuted(action)
         }
       } else {
@@ -205,7 +214,8 @@ protected case class SendStateActor(data: StateData)
       log.debug("message with id {} stored. remaining: {}", messageID, remainingStored)
 
       if (remainingStored <= 0) {
-        changeState(transition.successorID, data,message)
+        changeState(transition.successorID, data, message)
+        log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
         blockingHandlerActor ! UnBlockUser(userID)
       }
     }
@@ -220,7 +230,7 @@ protected case class SendStateActor(data: StateData)
       log.warning("message with id {} was rejected", messageID)
 
       //TODO how to handle the rejected message?
-
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
     }
   }
