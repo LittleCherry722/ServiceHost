@@ -1,8 +1,9 @@
+package de.tkip.servicehost
+
 import akka.actor._
 import scalaj.http.{Http, HttpOptions}
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
-
 import java.util.Date
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
@@ -21,6 +22,10 @@ object main extends App {
   val repoUrl = "http://localhost:8181/repo"
   val system = ActorSystem("sbpm")
 
+  // TODO add other root Actors
+  
+//  system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")  
+//  system.actorOf(Props[ServiceActorManager], "service-actor-manager")
   system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
   registerInterface()
 
@@ -60,6 +65,9 @@ class ServiceHostActor extends Actor {
   private var processId = 0
   private var manager: Option[ActorRef] = None
 
+//  val serviceManager = ActorLocator.serviceActorManager
+  
+  
   def receive: Actor.Receive = {
     case register: RegisterServiceMessage => {
       println("received RegisterServiceMessage: " + register)
@@ -69,7 +77,8 @@ class ServiceHostActor extends Actor {
     case execute: ExecuteServiceMessage => {
       println("received ExecuteServiceMessage: " + execute)
       // TODO implement
-      sender ! Some("some ExecuteServiceMessage answer")
+//      serviceManager forward(execute)
+//      sender ! Some("some ExecuteServiceMessage answer")
     }
     case request: CreateProcessInstance => {
       println("received CreateProcessInstance: " + request)

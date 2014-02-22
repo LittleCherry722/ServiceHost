@@ -1,6 +1,8 @@
+package de.tkip.servicehost
+
 import akka.actor.Actor
-import Messages.CreateXMLReferenceMessage
-import Messages.GetClassReferenceMessage
+import de.tkip.servicehost.Messages._
+import de.tkip.servicehost.serviceactor._
 
 class ReferenceXMLActor extends Actor{
   
@@ -9,7 +11,7 @@ class ReferenceXMLActor extends Actor{
       //TODO implement 
     }
     case getReference: GetClassReferenceMessage =>{
-      //TODO implement
+      sender ! new ClassReferenceMessage(getReference.serviceID, classOf[AddServiceActor])
     }
   }
 

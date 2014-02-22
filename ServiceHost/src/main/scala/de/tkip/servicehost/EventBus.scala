@@ -1,8 +1,9 @@
-package de.tkip.sbpm.eventbus
+package de.tkip.servicehost
 
 import akka.actor.ActorRef
 import akka.event._
 import akka.util.Subclassification
+import akka.actor.actorRef2Scala
 
 case class SbpmEventBusEvent(channel: String, message: Any)
 case class SbpmEventBusTextMessage(text: String)

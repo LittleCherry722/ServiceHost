@@ -1,5 +1,7 @@
+package de.tkip.servicehost
+
 import akka.actor.Actor
-import Messages.DeploymentMessage
+import de.tkip.servicehost.Messages._
 
 class DeploymentActor extends Actor {
 
