@@ -255,6 +255,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputNodeOptSubjectO);
 	gf_guiElementHide(gv_elements.inputNodeOuter);
 	gf_guiElementHide(gv_elements.inputNodeStartOuter);
+	gf_guiElementHide(gv_elements.inputNodeAutoExecuteOuter);
 	gf_guiElementHide(gv_elements.inputNodeVariableO);
 	gf_guiElementHide(gv_elements.inputSubjectRelOuter);
 	gf_guiElementHide(gv_elements.inputEdgeTargetMTypeVO);
@@ -320,6 +321,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputEdgeTimeoutManual, "bool", false);
 	gf_guiElementWrite(gv_elements.inputNodeMajorStart, "bool", false);
 	gf_guiElementWrite(gv_elements.inputNodeStart, "bool", false);
+	gf_guiElementWrite(gv_elements.inputNodeAutoExecute, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectTypeMulti, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectTypeExternal, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", false);
@@ -580,15 +582,19 @@ function gf_guiDisplayNode (node)
 	
 	if (node.parentMacro.id == "##main##")
 		gf_guiElementShow(gv_elements.inputNodeStartOuter);
-	
-	if (node.isStart())
-		gf_guiElementShow(gv_elements.inputNodeMajorStartOuter);
+
+    if (node.isStart())
+        gf_guiElementShow(gv_elements.inputNodeMajorStartOuter);
+
+    if (node.isAutoExecuteSupported())
+        gf_guiElementShow(gv_elements.inputNodeAutoExecuteOuter);
 		
 	// set values
 	gf_guiElementWrite(gv_elements.inputNodeType, "string", gt_type);
 	gf_guiElementWrite(gv_elements.inputNodeText, "string", gf_replaceNewline(node.getText()));
 	gf_guiElementWrite(gv_elements.inputNodeConversation, "string", node.getConversation(), "");
 	gf_guiElementWrite(gv_elements.inputNodeStart, "bool", node.isStart());
+	gf_guiElementWrite(gv_elements.inputNodeAutoExecute, "bool", node.isAutoExecute());
 	gf_guiElementWrite(gv_elements.inputNodeMajorStart, "bool", node.isStart() && node.isMajorStartNode());
 	
 	// comment
@@ -602,19 +608,19 @@ function gf_guiDisplayNode (node)
 			gf_guiLoadDropDownForNode(node.parentBehavior, document.getElementById(gv_elements.inputNodeType).value);
 		};
 	}
-		
-	// add onClick event to start node checkbox
-	if (gf_elementExists(gv_elements.inputNodeStart))
-	{
-		document.getElementById(gv_elements.inputNodeStart).onclick	= function ()
-		{
-			if (gf_guiElementRead(gv_elements.inputNodeStart), "bool")
-				gf_guiElementShow(gv_elements.inputNodeMajorStartOuter);
-			else
-				gf_guiElementHide(gv_elements.inputNodeMajorStartOuter);
-		};
-	}
-	
+
+    // add onClick event to start node checkbox
+    if (gf_elementExists(gv_elements.inputNodeStart))
+    {
+        document.getElementById(gv_elements.inputNodeStart).onclick	= function ()
+        {
+            if (gf_guiElementRead(gv_elements.inputNodeStart, "bool"))
+                gf_guiElementShow(gv_elements.inputNodeMajorStartOuter);
+            else
+                gf_guiElementHide(gv_elements.inputNodeMajorStartOuter);
+        };
+    }
+
 	// add onChange listener to conversation selection
 	if (gf_elementExists(gv_elements.inputNodeConversation))
 	{
@@ -1941,6 +1947,7 @@ function gf_guiReadNode ()
 	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", conversation: "", state: ""}, isMajorStartNode: false, conversation: "", conversationText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, createSubjects: {subject: "", storevar: "", storevarText: "", min: -1, max: -1}, macro: "", macroText: "", comment: ""};
 	
 	var gt_text					= gf_guiElementRead(gv_elements.inputNodeText, "string", "");
+	var gt_autoExecute			= gf_guiElementRead(gv_elements.inputNodeAutoExecute, "bool", false);
 	var gt_isStart				= gf_guiElementRead(gv_elements.inputNodeStart, "bool", false);
 	var gt_type 				= gf_guiElementRead(gv_elements.inputNodeType, "string", "").toLowerCase();
 	var gt_opt_subject 			= gf_guiElementRead(gv_elements.inputNodeOptSubject, "string", "");
@@ -1988,6 +1995,7 @@ function gf_guiReadNode ()
 	gt_options.state			= gt_opt_state;
 	
 	gt_result.text				= gt_text;
+	gt_result.autoExecute		= gt_autoExecute;
 	gt_result.isStart			= gt_isStart;
 	gt_result.type				= gt_type;
 	gt_result.options			= gt_options;

@@ -855,20 +855,20 @@ function GCmacro (parent, id, name)
 		if (this.selectedNode != null && gf_isset(this.nodes["n" + this.selectedNode], values) && (this.id == "##main##" || "n" + this.selectedNode != "n0"))
 		{
 			gt_node = this.nodes["n" + this.selectedNode];
-			
 			var gt_text				= gf_isset(values.text)				? values.text				: "";
+			var gt_isAutoExecute	= gf_isset(values.autoExecute)	    ? values.autoExecute		: false;
 			var gt_isStart			= gf_isset(values.isStart)			? values.isStart			: false;
 			var gt_type				= gf_isset(values.type)				? values.type				: "";
 			var gt_isMajorStartNode	= gf_isset(values.isMajorStartNode)	? values.isMajorStartNode	: false;
-			var gt_conversation			= gf_isset(values.conversation)			? values.conversation			: "";
-			var gt_conversationText		= gf_isset(values.conversationText)		? values.conversationText		: "";
+			var gt_conversation		= gf_isset(values.conversation)		? values.conversation		: "";
+			var gt_conversationText	= gf_isset(values.conversationText)	? values.conversationText	: "";
 			var gt_variable			= gf_isset(values.variable)			? values.variable			: "";
 			var gt_options			= gf_isset(values.options)			? values.options			: {};
 			var gt_varMan			= gf_isset(values.varMan)			? values.varMan				: {};
 			var gt_createSubjects	= gf_isset(values.createSubjects)	? values.createSubjects		: {};
 			var gt_macro			= gf_isset(values.macro)			? values.macro				: "";
 			var gt_comment			= gf_isset(values.comment)			? values.comment			: "";
-			
+
 			// check option entries
 			if (!gf_isset(gt_options.message))
 				gt_options.message	= "*";
@@ -905,6 +905,7 @@ function GCmacro (parent, id, name)
 			gt_node.setType(gt_type);
 			gt_node.setMajorStartNode(gt_isMajorStartNode);
 			gt_node.setStart(gt_isStart);
+			gt_node.setAutoExecute(gt_isAutoExecute);
 			gt_node.setEnd(gt_type == "end");
 			gt_node.setOptions(gt_options);
 			gt_node.setVariable(gt_variable);
