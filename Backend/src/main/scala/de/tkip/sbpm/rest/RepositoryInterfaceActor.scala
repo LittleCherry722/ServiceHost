@@ -91,7 +91,7 @@ class RepositoryInterfaceActor extends AbstractInterfaceActor with DefaultLoggin
   private def attachExternalAddress(requestContext: RequestContext): String = {
     val jsObject: JsObject = requestContext.request.entity.asString.asJson.asJsObject
 
-    val url = SystemProperties.akkaRemoteUrl(context.system.settings.config)
-    jsObject.copy(Map("url" -> (url).toJson) ++ jsObject.fields).toString
+    val port = SystemProperties.akkaRemotePort(context.system.settings.config)
+    jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
   }
 }

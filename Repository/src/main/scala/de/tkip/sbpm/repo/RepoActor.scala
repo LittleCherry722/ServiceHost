@@ -17,6 +17,7 @@ import akka.actor.{ActorLogging, Actor}
 import scala.collection.mutable
 import spray.json._
 import DefaultJsonProtocol._
+import spray.http.HttpIp
 
 object RepoActor {
   case object GetAllImplementations
@@ -29,9 +30,9 @@ object RepoActor {
 
   case class GetOfferImplementations(offerId: ID)
 
-  case class AddImplementation(entry: String)
+  case class AddImplementation(ip: HttpIp, entry: String)
 
-  case class AddOffer(entry: String)
+  case class AddOffer(ip: HttpIp, entry: String)
 
   case object Reset
 
@@ -42,10 +43,11 @@ object RepoActor {
                             fixedSubjectId: String,
                             interfaceSubjects: List[String],
                             graph: JsObject)
-  type Address = String
+  case class Address(ip: String, port: Int)
   type ID = Int
 
   object MyJsonProtocol extends DefaultJsonProtocol {
+    implicit val addressFormat = jsonFormat2(Address)
     implicit val offerFormat = jsonFormat3(Offer)
     implicit val implementationFormat = jsonFormat6(Implementation)
   }
@@ -86,14 +88,14 @@ class RepoActor extends Actor with ActorLogging {
       sender ! filtered.toJson.prettyPrint
     }
 
-    case AddImplementation(entry) => {
+    case AddImplementation(ip, entry) => {
       val id = nextId
       val entryJs = entry.asJson.asJsObject
       val offerId = entryJs.fields("offerId").convertTo[Int]
       val interfaceSubjects = entryJs.fields("interfaceSubjects").convertTo[List[String]]
       val fixedSubjectId = entryJs.fields("fixedSubjectId").toString()
       val ce = convertEntry(entryJs, id)
-      val implementation = Implementation("Address", id, offerId, fixedSubjectId, interfaceSubjects, ce)
+      val implementation = Implementation(getAddress(ip, entryJs), id, offerId, fixedSubjectId, interfaceSubjects, ce)
       implementations(offerId) = (implementations.getOrElse(offerId, mutable.Set[Implementation]()) += implementation)
       sender ! Some(implementation.graph.toJson.prettyPrint)
     }
@@ -102,10 +104,11 @@ class RepoActor extends Actor with ActorLogging {
       sender ! offers.toList.map{_.graph}.toJson.prettyPrint
     }
 
-    case AddOffer(entry) => {
+    case AddOffer(ip, entry) => {
       val id = nextId
-      val ce = convertEntry(entry.asJson.asJsObject, id)
-      val offer = Offer("127.0.0.1", id, ce)
+      val entryJs = entry.asJson.asJsObject
+      val ce = convertEntry(entryJs, id)
+      val offer = Offer(getAddress(ip, entryJs), id, ce)
       offers.add(offer)
       sender ! Some(offer.graph.toJson.prettyPrint)
     }
@@ -117,13 +120,18 @@ class RepoActor extends Actor with ActorLogging {
     }
   }
 
+  private def getAddress(ip: HttpIp, entry: JsObject) = {
+    val port = entry.fields("port")
+    Address(ip.value, port.toString.toInt)
+  }
+
   private def convertEntry(entry: JsObject, id: Int) = {
     val processId = entry.fields("processId")
-    val url = "127.0.0.1".toJson
     val graph = entry.fields("graph").asJsObject
-    val convertedGraph = convertGraph(id, graph, processId, url)
+    val convertedGraph = convertGraph(id, graph, processId)
 
     var fields = entry.fields
+    fields -= "port"
     fields -= "url"
     fields -= "id"
     fields += ("id" -> id.toJson)
@@ -133,7 +141,7 @@ class RepoActor extends Actor with ActorLogging {
     entry.copy(fields)
   }
 
-  private def convertGraph(id: Int, graph: JsObject, processId: JsValue, url: JsValue) = {
+  private def convertGraph(id: Int, graph: JsObject, processId: JsValue) = {
     var fields = graph.fields
     fields -= "id"
     fields += ("id" -> nextId.toJson)
