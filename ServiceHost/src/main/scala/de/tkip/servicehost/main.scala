@@ -24,8 +24,8 @@ object main extends App {
 
   // TODO add other root Actors
   
-//  system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")  
-//  system.actorOf(Props[ServiceActorManager], "service-actor-manager")
+  system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")  
+  system.actorOf(Props[ServiceActorManager], "service-actor-manager")
   system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
   registerInterface()
 
@@ -65,7 +65,7 @@ class ServiceHostActor extends Actor {
   private var processId = 0
   private var manager: Option[ActorRef] = None
 
-//  val serviceManager = ActorLocator.serviceActorManager
+  val serviceManager = ActorLocator.serviceActorManager
   
   
   def receive: Actor.Receive = {
@@ -77,8 +77,8 @@ class ServiceHostActor extends Actor {
     case execute: ExecuteServiceMessage => {
       println("received ExecuteServiceMessage: " + execute)
       // TODO implement
-//      serviceManager forward(execute)
-//      sender ! Some("some ExecuteServiceMessage answer")
+      serviceManager forward(execute)
+      sender ! Some("some ExecuteServiceMessage answer")
     }
     case request: CreateProcessInstance => {
       println("received CreateProcessInstance: " + request)
@@ -106,6 +106,10 @@ class ServiceHostActor extends Actor {
       println("got SubjectToSubjectMessage " + message + " from " + sender)
       // TODO implement
 
+      serviceManager forward message
+      
+      
+      
       // fake InputPoolActor:
 
       // Unlock the sender

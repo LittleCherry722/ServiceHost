@@ -6,12 +6,18 @@ import de.tkip.servicehost.serviceactor._
 
 class ReferenceXMLActor extends Actor{
   
-  def receive = {
+  def receive: Actor.Receive = {
     case createReference: CreateXMLReferenceMessage => {
       //TODO implement 
     }
     case getReference: GetClassReferenceMessage =>{
-      sender ! new ClassReferenceMessage(getReference.serviceID, classOf[AddServiceActor])
+      getReference.serviceID match {
+        case "Staples" =>
+        	sender ! new ClassReferenceMessage(getReference.serviceID, classOf[StaplesServiceActor])
+        case _ =>
+          println(getReference.serviceID)
+      }
+      
     }
   }
 
