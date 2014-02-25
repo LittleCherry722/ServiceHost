@@ -8,3 +8,9 @@ abstract class ServiceActor extends Actor {
 //    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
   
 }
+
+object ServiceAttributes {
+  
+  type ServiceID = String; val AllServices = ""
+  type ServiceActorRef = ActorRef
+}

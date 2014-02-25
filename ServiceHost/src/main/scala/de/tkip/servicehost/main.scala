@@ -61,9 +61,6 @@ object main extends App {
 
 
 class ServiceHostActor extends Actor {
-  private var userId = 0
-  private var processId = 0
-  private var manager: Option[ActorRef] = None
 
   val serviceManager = ActorLocator.serviceActorManager
   
@@ -82,54 +79,18 @@ class ServiceHostActor extends Actor {
     }
     case request: CreateProcessInstance => {
       println("received CreateProcessInstance: " + request)
-      userId = request.userID
-      processId = request.processID
-      manager = request.manager
-      // TODO implement
-
-      // fake ProcessInstanceActor:
-
-      val persistenceGraph = null
-      val processName = ""
-      val startedAt = new Date()
-      val actions = null
-      val processInstanceData = ProcessInstanceData(0, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
-      sender ! ProcessInstanceCreated(request, self, processInstanceData)
+      serviceManager forward request
     }
     case GetProxyActor => {
       println("received GetProxyActor")
       // TODO implement
       // fake ProcessInstanceProxyActor:
-      sender ! self
+      serviceManager forward GetProxyActor
     }
     case message: SubjectToSubjectMessage => {
       println("got SubjectToSubjectMessage " + message + " from " + sender)
       // TODO implement
-
       serviceManager forward message
-      
-      
-      
-      // fake InputPoolActor:
-
-      // Unlock the sender
-      sender ! Stored(message.messageID)
-      println("unblocked sender")
-
-      // reply immediate:
-      // TODO: EventBus einbinden
-
-
-      val msgToExternal = false // false: it should not leave sbpm
-      val target = Target("Großunternehmen",0,1,false,None,msgToExternal,true)
-      val messageType = "Lieferdatum"
-      val messageContent = "Die Bestellung \""+message.messageContent+"\" ist morgen fertig."
-      val remoteUserId = 1 // TODO: context resolver einbinden, um UserID zu bestimmen. resolven sollte jedoch in sbpm, nicht beim service host passieren
-      target.insertTargetUsers(Array(remoteUserId))
-      val answer = SubjectToSubjectMessage(0, processId, remoteUserId, "Staples", target, messageType, messageContent)
-      val to_actor = manager.get
-      println("send " + answer + " to " + to_actor)
-      to_actor ! answer
     }
     case s: Stored => {
       println("received Stored: "+s)
