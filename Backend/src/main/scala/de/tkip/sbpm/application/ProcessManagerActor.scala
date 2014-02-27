@@ -207,7 +207,8 @@ class ProcessManagerActor extends Actor {
   }
 
   private def getHistoryChange(t: Long) = {
-    val changes = history.entries.filter(_.timeStamp.getTime() > t * 1000)
+    val lastUpdate = new java.util.Date().getTime() - t * 1000
+    val changes = history.entries.filter(_.timeStamp.getTime() > lastUpdate)
     val temp = ArrayBuffer[HistoryRelatedChangeData]()
     for (i <- 0 until changes.length) {
       val entry = changes(i)

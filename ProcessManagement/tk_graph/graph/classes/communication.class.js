@@ -1703,6 +1703,7 @@ function GCcommunication ()
 							id:		gt_node.getId(),
 							text:	gt_node.getText(),
 							start:	gt_node.isStart(),
+							autoExecute:	gt_node.isAutoExecute(),
 							end:	gt_node.isEnd(),
 							type:	gt_node.getType(),
                             manualPositionOffsetX: gt_node.getManualPositionOffset().dx,

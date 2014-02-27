@@ -39,7 +39,7 @@ import de.tkip.sbpm.application.change._
 
 import de.tkip.sbpm.logging.LogPersistenceActor
 import de.tkip.sbpm.application.miscellaneous.SystemProperties._
-import de.tkip.sbpm.eventbus.{SbpmEventBusTextMessage, SbpmEventBus, RemotePublishActor}
+import de.tkip.sbpm.eventbus.{SbpmEventBusTextMessage, SbpmEventBusTrafficFlowMessage, SbpmEventBus, RemotePublishActor}
 
 object Boot extends App {
 
@@ -102,10 +102,10 @@ object Boot extends App {
   //TODO REMOVE
   val tmpSubscriber = system.actorOf(Props(new Actor {
     def receive = {
-      case SbpmEventBusTextMessage(text) => println("SUBSCRIBER GOT TEXT: " + text)
+      case SbpmEventBusTrafficFlowMessage(sensorId, count) => println("SUBSCRIBER GOT message, id: " + sensorId + " count: " + count)
     }
   }))
-  SbpmEventBus.subscribe(tmpSubscriber, "/events")
+  SbpmEventBus.subscribe(tmpSubscriber, "/traffic/darmstadt/flow")
   //TODO END-REMOVE
 
   // db init code below
