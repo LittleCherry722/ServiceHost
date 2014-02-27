@@ -40,61 +40,28 @@ object Boot extends App with SimpleRoutingApp {
               repoActor ! Reset
               ctx.complete(HttpResponse(status = StatusCodes.OK))
           }
-        } ~ pathPrefix("implementations") {
+        } ~ pathPrefix("interfaces") {
           get {
             path("") {
               complete {
-                (repoActor ? GetAllImplementations).mapTo[String]
+                (repoActor ? GetAllInterfaces).mapTo[String]
               }
             } ~ path(IntNumber) {
               id =>
                 complete {
-                  (repoActor ? GetImplementation(id)).mapTo[String]
+                  (repoActor ? GetInterface(id)).mapTo[String]
                 }
             }
           } ~ post {
             path("") {
               entity(as[String]) {
                 entry =>
-                  val future = (repoActor ? AddImplementation(ip, entry)).mapTo[Option[String]]
+                  val future = (repoActor ? AddInterface(ip, entry)).mapTo[Option[String]]
                   onSuccess(future) {
                     case Some(s) => complete(s)
                     case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
                   }
               }
-            }
-          }
-        } ~ pathPrefix("offers") {
-          get {
-            path("") {
-              complete {
-                (repoActor ? GetOffers).mapTo[String]
-              }
-            } ~ pathPrefix(IntNumber) {
-              offerId =>
-                path("") {
-                  val future = (repoActor ? GetOffer(offerId)).mapTo[Option[String]]
-                  onSuccess(future) {
-                    case Some(s) => complete(s)
-                    case None => complete(HttpResponse(status = StatusCodes.NotFound))
-                  }
-                } ~ path("implementations") {
-                  val future = (repoActor ? GetOfferImplementations(offerId)).mapTo[Option[String]]
-                  onSuccess(future) {
-                    case Some(s) => complete(s)
-                    case None => complete(HttpResponse(status = StatusCodes.NotFound))
-                  }
-                }
-            }
-          } ~ post {
-            entity(as[String]) {
-              entry =>
-                val future = (repoActor ? AddOffer(ip, entry)).mapTo[Option[String]]
-
-                onSuccess(future) {
-                  case Some(s) => complete(s)
-                  case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
-                }
             }
           }
         }

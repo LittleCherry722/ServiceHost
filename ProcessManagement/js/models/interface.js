@@ -12,102 +12,99 @@
  */
 define([
   "knockout",
-  "model",
-  "underscore",
-  "models/interfaceImplementation"
-], function (ko, Model, _, Implementation) {
+  "model"
+], function (ko, Model) {
 
-  var InterfaceOffer = Model("InterfaceOffer", { remotePath: "repo/offers" });
-  window.InterfaceOffer = InterfaceOffer;
+  var Interface = Model("Interface", { remotePath: "repo/interfaces" });
+  window.Interface = Interface;
 
-  InterfaceOffer.attrs({
-    name: "string",
+  Interface.attrs({
     creator: "string",
+    name: "string",
     description: "string",
-    processId: "integer",
     graph: {
       type: "json",
       lazy: false
     }
   });
 
-  InterfaceOffer.hasMany( "interfaceImplementations" );
-  InterfaceOffer.belongsTo( "process" );
+  Interface.include({
+    Initialize: function() {
+      var self = this;
 
-  InterfaceOffer.nameAlreadyTaken = function (name) {
-    return !!InterfaceOffer.all().filter(function (i) {
-      return i.name() == name;
-    }).length;
-  }
+      this.graphObject = ko.computed({
+        deferEvaluation: true,
+        read: function() {
+          if ( !self.attributesLoaded() ) {
+            self.loadAttributes( { async: false } );
+          } else {
+          }
+          return self.graph().definition;
+        },
+        write: function( graphObject ) {
+          var graph = _.clone( self.graph() );
+          if ( !graph ) {
+            graph = {};
+          }
 
-  InterfaceOffer.fromProcess = function(process, creator, description) {
-    var options = {
-      creator: creator,
-      description: description,
-      name: process.name(),
-      processId: process.id(),
-      graph: process.graph()
-    };
+          if ( typeof graphObject === "string" ) {
+            graph.definition = JSON.parse( graphObject );
+          } else {
+            graph.definition = graphObject;
+          }
 
-    return (new InterfaceOffer(options));
-  }
+          self.graph( graph );
+        }
+      });
 
-	InterfaceOffer.include({
-		initialize: function( data ) {
-			var self = this;
+      this.implementationSubjects = ko.computed({
+        deferEvaluation: true,
+        read: function() {
+          var t,
+              subjects = [];
 
-			this.graphObject = ko.computed({
-				deferEvaluation: true,
-				read: function() {
-					if ( !self.attributesLoaded() ) {
-						self.loadAttributes( { async: false } );
-					} else {
-					}
-					return self.graph().definition;
-				},
-				write: function( graphObject ) {
-					var graph = _.clone( self.graph() );
-					if ( !graph ) {
-						graph = {};
-					}
-
-					if ( typeof graphObject === "string" ) {
-						graph.definition = JSON.parse( graphObject );
-					} else {
-						graph.definition = graphObject;
-					}
-
-					self.graph( graph );
-				}
-			});
-
-      this.interfaceSubjects = ko.computed({
-				deferEvaluation: true,
-				read: function() {
-					var t,
-          subjects = [];
-
-					_( self.graphObject().process ).each(function( s ) {
+          _( self.graphObject().process ).each(function( s ) {
             t = s.subjectType ? s.subjectType : s.type;
             if (t === "external" && s.externalType === "interface") {
               console.log(s.id.replace(/ß/, '\\u00d'));
-              var imps = Implementation.findByFixedSubjectId('"' + s.id.replace(/ß/, '\\u00df') + '"');
+              var imps = Interface.findByFixedSubjectId('"' + s.id.replace(/ß/, '\\u00df') + '"');
               subjects.push({id: s.id, name: s.name, impCount: imps.length, imps: imps});
             }
-					});
+          });
 
-					return subjects;
-				}
+          return subjects;
+        }
       });
+
+      this.filterInterfaceSubjects = function(test) {
+        return ko.computed({
+          deferEvaluation: true,
+          read: function() {
+            var t,
+                subjects = [];
+
+            _( self.graphObject().process ).each(function( s ) {
+              t = s.subjectType ? s.subjectType : s.type;
+              if (t === "external" && s.externalType === "interface" && test(s)) {
+                console.log(s.id.replace(/ß/, '\\u00d'));
+                var imps = Interface.findByFixedSubjectId('"' + s.id.replace(/ß/, '\\u00df') + '"');
+                subjects.push({id: s.id, name: s.name, impCount: imps.length, imps: imps});
+              }
+            });
+
+            return subjects;
+          }
+        });
+      }
 
       this.isImplemented = ko.computed({
-				deferEvaluation: true,
-				read: function() {
+        deferEvaluation: true,
+        read: function() {
           var isubs = self.interfaceSubjects()
-					return isubs.every(function(e) { console.log(e); return e.impCount > 0 });
-				}
+          return isubs.every(function(e) { console.log(e); return e.impCount > 0 });
+        }
       });
-		},
+    },
 
     getTemplate: function(sid) {
       var self = this,
@@ -265,7 +262,24 @@ define([
         interfaceSubjects: interfaceSubjects
       };
     }
-	});
+  });
 
-  return InterfaceOffer;
+  Interface.fromProcess = function(process, creator, description) {
+    var options = {
+      creator: creator,
+      description: description,
+      name: process.name(),
+      graph: process.graph()
+    };
+
+    return (new Interface(options));
+  }
+
+  Interface.nameAlreadyTaken = function (name) {
+    return !!Interface.all().filter(function (i) {
+      return i.name() == name;
+    }).length;
+  }
+
+  return Interface;
 });

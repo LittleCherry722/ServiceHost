@@ -36,15 +36,15 @@ trait GraphSubjectsSchema extends GraphsSchema with RolesSchema {
     def isStartSubject = column[Boolean]("start_subject")
     def inputPool = column[Short]("input_pool", DbType.smallint)
     def relatedSubjectId = column[Option[String]]("related_subject_id")
-    def relatedGraphId = column[Option[Int]]("related_graph_id")
     def relatedInterfaceId = column[Option[String]]("related_interface_id")
+    def isImplementation = column[Option[Boolean]]("is_implementation")
     def externalType = column[Option[String]]("external_type", DbType.stringIdentifier)
     def roleId = column[Option[Int]]("role_id")
     def url = column[Option[String]]("url")
     def comment = column[Option[String]]("comment", DbType.comment)
 
     def * = id ~ graphId ~ name ~ subjectType ~ isDisabled ~ isStartSubject ~ inputPool ~
-      relatedSubjectId ~ relatedGraphId ~ relatedInterfaceId ~ externalType ~ roleId ~ url ~
+      relatedSubjectId  ~ relatedInterfaceId ~ isImplementation ~ externalType ~ roleId ~ url ~
       comment <> (GraphSubject, GraphSubject unapply _)
 
     def pk = primaryKey(pkName, (id, graphId))
@@ -53,8 +53,6 @@ trait GraphSubjectsSchema extends GraphsSchema with RolesSchema {
       foreignKey(fkName("graphs"), graphId, Graphs)(_.id, NoAction, Cascade)
     def role =
       foreignKey(fkName("roles"), roleId, Roles)(_.id)
-    def relatedSubject =
-      foreignKey(fkName("related"), (relatedSubjectId, relatedGraphId), GraphSubjects)(s => (s.id, s.graphId), NoAction, SetNull)
   }
 
 }

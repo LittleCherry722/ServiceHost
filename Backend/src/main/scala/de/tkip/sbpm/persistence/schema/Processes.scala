@@ -34,14 +34,12 @@ trait ProcessesSchema extends Schema {
   // using slick's lifted embedding API
   object Processes extends SchemaTable[Process]("processes") {
     def id = autoIncIdCol[Int]
+    def interfaceId = column[Option[Int]]("interface_id")
+    def publishInterface = column[Boolean]("publish_interface")
     def name = nameCol
     def isCase = column[Boolean]("case")
-    def isImplementation = column[Boolean]("isImplementation", O.Default(false))
-    def offerId = column[Option[Int]]("offerId")
-    def fixedSubjectId = column[Option[String]]("fixedSubjectId")
-    def interfaceSubjects = column[List[String]]("interfaceSubjects")
     def startAble = column[Boolean]("startAble")
-    def * = id.? ~ name ~ isCase ~ isImplementation ~ offerId ~ fixedSubjectId ~ interfaceSubjects ~ startAble <>(Process, Process.unapply _)
+    def * = id.? ~ interfaceId ~ publishInterface ~ name ~ isCase ~ startAble <>(Process, Process.unapply _)
     def autoInc = * returning id
     def uniqueName = unique(name)
   }

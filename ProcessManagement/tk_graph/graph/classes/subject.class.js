@@ -102,6 +102,13 @@ function GCsubject (id, text, type, inputPool)
 	this.relatedSubject		= null;
 
 	/**
+	 * For external subjects: is this subjuect an implementation or offer?
+	 *
+	 * @type String
+	 */
+	this.isImplementation	= false;
+
+	/**
 	 * The ID of the role that is assigned to this subject.
 	 *
 	 * @type String
@@ -243,6 +250,16 @@ function GCsubject (id, text, type, inputPool)
 	this.getRelatedSubject = function ()
 	{
 		return this.relatedSubject;
+	};
+
+	/**
+	 * Returns wether the external subject in an implementation or an offer (only for external subjects).
+	 *
+	 * @returns {boolean} Wether this subject is an interface implementation or offer
+	 */
+	this.getIsImplementation = function ()
+	{
+		return this.isImplementation;
 	};
 
 	/**
@@ -457,6 +474,17 @@ function GCsubject (id, text, type, inputPool)
 		{
 			this.relatedSubject = relatedSubject;
 		}
+	};
+
+	/**
+	 * Updates the ID of the corresponding subject in the related process (only for external subjects).
+	 *
+	 * @param {String} relatedSubject The ID of the corresponding subject in the related process.
+	 * @returns {void}
+	 */
+	this.setIsImplementation = function (isImplementation)
+	{
+		this.isImplementation = !!isImplementation;
 	};
 
 	/**

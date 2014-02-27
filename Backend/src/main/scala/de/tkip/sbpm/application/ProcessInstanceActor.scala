@@ -190,8 +190,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case message: GetSubjectMapping => {
-      logger.debug("TRACE: from " + this.self + " to " + sender + " " + SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap))
-      sender ! SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
+      val mappingResponse = SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
+      logger.debug("TRACE: from " + this.self + " to " + sender + " " + mappingResponse)
+      sender ! mappingResponse
     }
   }
 

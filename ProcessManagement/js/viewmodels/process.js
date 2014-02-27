@@ -9,10 +9,9 @@ define([
 	"async",
 	"models/user",
 	"models/role",
-	"models/interfaceImplementation",
-	"models/interfaceOffer",
+	"models/interface",
   "utilities"
-], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Implementation, Offer, Utilities ) {
+], function( ko, App, Notify, Dialog, Process, _, Router, async, User, Role, Interface, Utilities ) {
 
 	// The main viewmodel. Every observable defined inside can be used by the
 	// view. Lets keep it clean and define functions and other helper variables
@@ -40,7 +39,7 @@ define([
 			}
 		});
 
-		window.existingInterfaces = this.existingInterfaces = Offer.all;
+		window.existingInterfaces = this.existingInterfaces = Interface.all;
 
 		// Needed for saving the business Interface
 		this.newBusinessInterface = newBusinessInterface;
@@ -90,7 +89,7 @@ define([
 
 		this.selectBusinessInterface = function() {
 			var id = this.id()
-			self.selectedInterface( Offer.find( id ) );
+			self.selectedInterface( Interface.find( id ) );
 		}
 
 		this.noInterfaceSelected = ko.computed(function() {
@@ -101,22 +100,14 @@ define([
 			self.selectedInterface( null );
 		}
 
+		this.updatePublishInterface = function() {
+      console.log("dada dada");
+      console.log()
+			self.currentProcess().publishInterface( !self.currentProcess().publishInterface() );
+		}
+
 		this.interfaceInsertionSubject = ko.observable("");
 		this.interfaceInsertionStrategy = ko.observable("insert");
-
-    this.saveInterfaceImplementation = function() {
-      var i = Implementation.fromProcess(currentProcess());
-			i.save({}, {
-				success: function() {
-					Notify.info("Success", "Business Interface has been registered as an Implementation for " +
-                     i.interfaceOffer().name());
-				},
-				error: function() {
-					// TODO: real error handling
-					console.log("Something bad happened..");
-				}
-			});
-    }
 
 		this.loadBusinessInterface = function() {
 			if ( !self.selectedInterface() ) return;
@@ -138,7 +129,7 @@ define([
 
 		// Validation errors for saving a process under a different name
 		this.businessInterfaceNameError = ko.computed(function() {
-			if ( Offer.nameAlreadyTaken( newBusinessInterface().name() ) ) {
+			if ( Interface.nameAlreadyTaken( newBusinessInterface().name() ) ) {
 				return "Interface name '" + newBusinessInterface().name() + "' is not available.";
 			} else {
 				return "";
@@ -150,27 +141,6 @@ define([
 		this.assignedRoleText = ko.computed(function() {
 			return currentProcess().isCase() ? "Assigned User" : "Assigned Role"
 		});
-
-		this.saveBusinessInterface = function() {
-      this.newBusinessInterface().graph(currentProcess().graph());
-      this.newBusinessInterface().processId(currentProcess().id())
-
-			this.newBusinessInterface().save({}, {
-				success: function() {
-					Notify.info("Success", "Business Interface '" +
-						self.currentProcess().name() + "' has successfully been made public.");
-
-					self.newBusinessInterface(new Offer({
-						name: "",
-						creator: App.currentUser().name()
-					}));
-				},
-				error: function() {
-					// TODO: real error handling
-					console.log("Something bad happened..");
-				}
-			});
-		}
 
 		this.rolesOrUsers = ko.computed(function() {
 			if ( currentProcess().isCase() ) {
@@ -319,7 +289,7 @@ define([
 
 	var newProcessName = ko.observable("");
 
-	var newBusinessInterface = ko.observable(new Offer());
+	var newBusinessInterface = ko.observable(new Interface());
 
 	// Currently selected subject and conversation (in chosen)
 	var currentSubject = ko.observable();

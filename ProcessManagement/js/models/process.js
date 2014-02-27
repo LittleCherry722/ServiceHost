@@ -28,15 +28,13 @@ define([
   Process.attrs({
     name: "string",
     isCase: "boolean",
-    isImplementation: "boolean",
-    interfaceSubjects: {
-      type: "json",
-      defaults: []
-    },
-    fixedSubjectId: "string",
     processInstanceId: "integer",
-    offerId: "integer",
     startAble: "boolean",
+    interfaceId: "integer",
+    publishInterface: {
+      type: "boolean",
+      defaults: false
+    },
     graph: {
       type: "json",
       defaults: {
@@ -57,8 +55,7 @@ define([
   Process.enablePolling();
 
   Process.hasMany( "processInstances" );
-  Process.hasMany( "interfaceOffers" )
-  Process.belongsTo( "interfaceOffer", { foreignKey: "offerId" } )
+  Process.belongsTo( "interface" )
 
   Process.include({
     // Initialize is a special method defined as an instance method.  If any
@@ -222,11 +219,6 @@ define([
         nd.messageCounter = parseInt(nd.messageCounter, 10) + parseInt(td.messageCounter, 10);
         nd.messages = _(nd.messages).extend(td.messages);
         self.graph(newGraph);
-        // mark as interface implementation and set subject ids
-        self.isImplementation(true);
-        self.offerId(template.offerId);
-        self.fixedSubjectId(template.fixedSubjectId);
-        self.interfaceSubjects(template.interfaceSubjects);
 
         return self;
       };
@@ -240,6 +232,8 @@ define([
       exists: function() {
         if ( Process.nameAlreadyTaken( this.name() ) ) {
           return "Process already exists! Please choose a different name.";
+        } else {
+          return undefined;
         }
       },
 
@@ -247,6 +241,8 @@ define([
       isNameInvalid: function() {
         if ( this.name().length < 2 ) {
           return "Process name is Invalid. Process name must have at least two characters.";
+        } else {
+          return undefined;
         }
       }
     }

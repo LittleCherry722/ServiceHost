@@ -92,13 +92,11 @@ object JsonProtocol extends DefaultJsonProtocol {
   // TODO name should not be optional
   case class ProcessIdHeader(name: Option[String], processId: Int)
   case class GraphHeader(name: String,
+                         interfaceId: Option[Int],
+                         publishInterface: Boolean,
                          graph: Option[Graph],
                          isCase: Boolean,
-                         id: Option[Int] = None,
-                         isImplementation: Boolean = false,
-                         offerId: Option[Int] = None,
-                         fixedSubjectId: Option[String] = None,
-                         interfaceSubjects: List[String] = List()) {
+                         id: Option[Int] = None) {
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
   }
 
@@ -124,7 +122,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val userPassFormat = jsonFormat2(UserPass)
 
   // DomainModel
-  implicit val domainProcessFormat = jsonFormat9(Process)
+  implicit val domainProcessFormat = jsonFormat7(Process)
   //  implicit val actionFormat = jsonFormat2(Action)
 
   implicit val configFormat = jsonFormat4(Configuration)
@@ -137,7 +135,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val processInstanceDataFormat = jsonFormat9(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
-  implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat8(GraphHeader)
+  implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat6(GraphHeader)
   implicit val createActionIdHeaderFormat = jsonFormat8(ExecuteAction)
 
   implicit val newStateFormat = jsonFormat2(NewHistoryState)
@@ -147,7 +145,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val newHistoryEntryFormat = jsonFormat6(NewHistoryEntry)
   implicit val newHistoryFormat = jsonFormat1(NewHistory)
 
-  implicit val processRelatedChangeDataFormat = jsonFormat9(ProcessRelatedChangeData)
+  implicit val processRelatedChangeDataFormat = jsonFormat6(ProcessRelatedChangeData)
   implicit val processRelatedDeleteDataFormat = jsonFormat1(ProcessRelatedDeleteData)
   implicit val processRelatedChangeFormat = jsonFormat3(ProcessRelatedChange)
   

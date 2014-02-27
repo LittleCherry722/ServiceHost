@@ -44,12 +44,10 @@ case class GroupUser(groupId: Int, userId: Int)
 // Model for Modeling/Execution
 case class ProcessInstance(id: Option[Int], processId: Int, graphId: Int, data: Option[String] = None)
 case class Process(id: Option[Int],
+                   interfaceId: Option[Int],
+                   publishInterface: Boolean,
                    name: String,
                    isCase: Boolean = false,
-                   isImplementation: Boolean = false,
-                   offerId: Option[Int] = None,
-                   fixedSubjectId: Option[String] = None,
-                   interfaceSubjects: List[String] = List(),
                    startAble: Option[Boolean] = None,
                    activeGraphId: Option[Int] = None)
 case class Message(id: Option[Int], fromUser: UserID, toUser: UserID, title: String, isRead: Boolean, content: String, date: java.sql.Timestamp)
@@ -90,12 +88,9 @@ trait MessageChangeData extends ChangeData
 case class MessageChange(message: Message, info: String, date: java.util.Date) extends MessageChangeData
 
 case class ProcessRelatedChangeData(id: Int,
+                                    interfaceId: Option[Int],
                                     name: String,
                                     isCase: Boolean,
-                                    isImplementation: Boolean,
-                                    OfferId: Option[Int],
-                                    fixedSubjectId: Option[String],
-                                    interfaceSubjects: List[String],
                                     startAble: Boolean,
                                     activeGraphId: Option[Int])
 case class ProcessRelatedDeleteData(id: Int)
@@ -180,8 +175,8 @@ case class GraphSubject(id: String,
   isStartSubject: Option[Boolean],
   inputPool: Short,
   relatedSubjectId: Option[String],
-  relatedGraphId: Option[Int],
   relatedInterfaceId: Option[String],
+  isImplementation: Option[Boolean],
   externalType: Option[String],
   role: Option[Role],
   url: Option[String],

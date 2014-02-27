@@ -31,6 +31,7 @@ object ActorLocator {
   val googleBIRActorName = "google-BIR"
   val changeActorName = "change"
   val eventBusRemotePublishActorName = "eventbus-remote-publish"
+  val repositoryPersistenceActorName = "repository-persistence"
 
   def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
 
@@ -46,5 +47,6 @@ object ActorLocator {
   def googleBIRActor(implicit ctx: ActorRefFactory) = actor(googleBIRActorName)
   def changeActor(implicit ctx: ActorRefFactory) = actor(changeActorName)
   def eventBusRemotePublishActor(implicit ctx: ActorRefFactory) = actor(eventBusRemotePublishActorName)
+  def repositoryPersistenceActor(implicit ctx: ActorRefFactory) = actor(repositoryPersistenceActorName)
 }
 

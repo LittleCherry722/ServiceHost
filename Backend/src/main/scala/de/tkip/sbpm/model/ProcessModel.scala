@@ -105,9 +105,10 @@ case class ExternalSubject(
   id: SubjectID,
   inputPool: Int,
   multi: Boolean,
-  relatedProcessId: Option[ProcessID],
   relatedSubjectId: Option[SubjectID],
+  relatedProcessId: Option[Int],
   relatedInterfaceId: Option[SubjectID],
+  isImplementation: Option[Boolean],
   url: Option[String],
   variablesMap:Map[String,String]) extends SubjectLike {
   lazy val external = true

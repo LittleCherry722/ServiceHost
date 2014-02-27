@@ -300,8 +300,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "startSubject" -> s.isStartSubject.toJson,
       "inputPool" -> s.inputPool.toJson,
       "relatedSubject" -> s.relatedSubjectId.toJson,
-      "relatedProcess" -> s.relatedGraphId.toJson,
       "relatedInterface" -> s.relatedInterfaceId.toJson,
+      "isImplementation" -> s.isImplementation.toJson,
       "externalType" -> s.externalType.toJson,
       "role" -> s.role.toJson,
       "url" -> s.url.toJson,
@@ -310,7 +310,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       // extract counter value from variable ids
       "variableCounter" -> counter(s.variables),
       "macros" -> s.macros.values.toJson,
-      // extract counter value from macro ids
+      // extract counter value fro∂m macro ids
       "macroCounter" -> counter(s.macros))
     def read(v: JsValue) = v.asJsObject.convertTo[GraphSubject](jsonFormat(GraphSubject, "id", "name",
       "type",
@@ -318,8 +318,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "startSubject",
       "inputPool",
       "relatedSubject",
-      "relatedProcess",
       "relatedInterface",
+      "isImplementation",
       "externalType",
       "role",
       "url",

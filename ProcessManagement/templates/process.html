@@ -114,28 +114,13 @@
             </ul>
           </div>
 
-          <div class="btn-group" data-chardin-intro="Save or load Business Interfaces"
-               data-chardin-position="bottom" style="margin-left: 0;">
-            <a class="btn dropdown-toggle" data-toggle="dropdown"
-               style="border-left: 1px solid #bbbbbb;">
-              <i class="icon-cloud icon-large"></i>
-              Business Interfaces
-              <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu save-dropdown">
-              <li>
-                <a href="#saveBusinessInterfaceModal" data-toggle="modal">
-                  <i class="icon-cloud-upload icon-large"></i> Create Offer
-                </a>
-                <a href="#loadBusinessInterfaceModal" data-toggle="modal">
-                  <i class="icon-cloud-download icon-large"></i> Browse Interface
-                </a>
-                <a href="#'" data-bind="click: saveInterfaceImplementation">
-                  <i class="icon-cloud-download icon-large"></i> Save Implementation
-                </a>
-              </li>
-            </ul>
-          </div>
+          <a class="btn btn-default" href="#loadBusinessInterfaceModal" data-toggle="modal">
+            <i class="icon-cloud icon-large"></i> Browse Interfaces
+          </a>
+          <button class="btn btn-default" data-bind="css: { active: currentProcess().publishInterface() },
+                  click: updatePublishInterface">
+            <i class="icon-cloud-upload icon-large"></i> Publish
+          </button>
         </div>
       </div>
 

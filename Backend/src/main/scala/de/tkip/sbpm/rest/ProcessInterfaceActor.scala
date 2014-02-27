@@ -21,6 +21,7 @@ import de.tkip.sbpm.model._
 import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.repository._
 import spray.json._
 import scala.concurrent.Future
 import de.tkip.sbpm.persistence.query._
@@ -37,6 +38,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
   private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
 
   private lazy val persistanceActor = ActorLocator.persistenceActor
+  private lazy val repositoryPersistenceActor = ActorLocator.repositoryPersistenceActor
   import context.dispatcher
 
   /**
@@ -101,11 +103,14 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
          */
         // DELETE
         path(IntNumber) {
-          processID =>
+          processID => {
+            // also delete interface
+            sendDeleteInterfaceForProcessId(processID)
             completeWithDelete(
               Processes.Delete.ById(processID),
               "Process could not be deleted. Entitiy with id %d not found.",
               processID)
+          }
         }
       } ~
       put {
@@ -124,6 +129,19 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
         }
       }
   })
+
+  private def sendDeleteInterfaceForProcessId(id: Int) = {
+    val processFuture = (persistenceActor ? Processes.Read.ById(id)).mapTo[Option[Process]]
+    processFuture.onSuccess {
+      case processResult =>
+        if (processResult.isDefined) {
+          val interfaceId = processResult.get.interfaceId
+          if (interfaceId.isDefined) {
+            repositoryPersistenceActor ! DeleteInterface(interfaceId.get)
+          }
+        }
+    }
+  }
 
   /**
    * Reads the process and its connected graph.
@@ -156,13 +174,11 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       graphResult =>
         GraphHeader(
           process.name,
+          process.interfaceId,
+          process.publishInterface,
           graphResult,
           process.isCase,
-          process.id,
-          process.isImplementation,
-          process.offerId,
-          process.fixedSubjectId,
-          process.interfaceSubjects)
+          process.id)
     }
 
     onSuccess(roleFuture) {
@@ -198,7 +214,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * Saves the given process without its graph.
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.name, json.isCase, json.isImplementation, json.offerId, json.fixedSubjectId, json.interfaceSubjects)
+    val process = Process(id, json.interfaceId, json.publishInterface, json.name, json.isCase)
     val future = (persistanceActor ? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
@@ -208,10 +224,14 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * Saves the given process with its graph.
    */
   private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.name, json.isCase, json.isImplementation, json.offerId, json.fixedSubjectId, json.interfaceSubjects)
+    val process = Process(id, json.interfaceId, json.publishInterface, json.name, json.isCase)
     val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
     val future = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
     val result = future.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
+    // Also save interface if publishInterface is true
+    if (json.publishInterface) {
+      repositoryPersistenceActor ! SaveInterface(json)
+    }
     complete(result)
   }
 
