@@ -17,12 +17,12 @@ end
 
 Dir.chdir("Backend") do
   system("bin/sbt.sh assembly")
-  FileUtils.mv 'target/scala-2.10/sbpm.jar', '../backend.jar'
-end
+  FileUtils.mv 'target/scala-2.10/sbpm.jar', 'backend.jar'
 
-FileUtils.cp 'backend.jar', 'backend_8081.jar'
-FileUtils.cp 'backend.jar', 'backend_8082.jar'
-FileUtils.mv 'backend.jar', 'backend_8080.jar'
+  FileUtils.cp 'backend.jar', 'backend_8081.jar'
+  FileUtils.cp 'backend.jar', 'backend_8082.jar'
+  FileUtils.mv 'backend.jar', 'backend_8080.jar'
+end
 
 Dir.chdir("Repository") do
   system("bin/sbt.sh assembly")

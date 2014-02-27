@@ -20,7 +20,6 @@ import spray.http.{HttpIp, StatusCodes, HttpResponse}
 import de.tkip.sbpm.repo.RepoActor._
 import scala.concurrent.duration._
 import akka.util.Timeout
-import java.net.InetAddress
 
 
 object Boot extends App with SimpleRoutingApp {
@@ -32,35 +31,37 @@ object Boot extends App with SimpleRoutingApp {
 
 
   startServer(interface = "localhost", port = 8181) {
-    clientIP { ip =>
-      pathPrefix("repo") {
-        path("reset") {
-          (get | put) {
-            ctx =>
-              repoActor ! Reset
-              ctx.complete(HttpResponse(status = StatusCodes.OK))
-          }
-        } ~ pathPrefix("interfaces") {
-          get {
-            path("") {
-              complete {
-                (repoActor ? GetAllInterfaces).mapTo[String]
-              }
-            } ~ path(IntNumber) {
-              id =>
-                complete {
-                  (repoActor ? GetInterface(id)).mapTo[String]
-                }
+    logRequest("MARK 1") {
+      clientIP { ip =>
+        pathPrefix("repo") {
+          path("reset") {
+            (get | put) {
+              ctx =>
+                repoActor ! Reset
+                ctx.complete(HttpResponse(status = StatusCodes.OK))
             }
-          } ~ post {
-            path("") {
-              entity(as[String]) {
-                entry =>
-                  val future = (repoActor ? AddInterface(ip, entry)).mapTo[Option[String]]
-                  onSuccess(future) {
-                    case Some(s) => complete(s)
-                    case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
+          } ~ pathPrefix("interfaces") {
+            get {
+              path("") {
+                complete {
+                  (repoActor ? GetAllInterfaces).mapTo[String]
+                }
+              } ~ path(IntNumber) {
+                id =>
+                  complete {
+                    (repoActor ? GetInterface(id)).mapTo[String]
                   }
+              }
+            } ~ post {
+              path("") {
+                entity(as[String]) {
+                  entry =>
+                    val future = (repoActor ? AddInterface(ip, entry)).mapTo[Option[String]]
+                    onSuccess(future) {
+                      case Some(s) => complete(s)
+                      case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
+                    }
+                }
               }
             }
           }

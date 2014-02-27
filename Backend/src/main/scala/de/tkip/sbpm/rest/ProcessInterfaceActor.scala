@@ -25,6 +25,7 @@ import de.tkip.sbpm.repository._
 import spray.json._
 import scala.concurrent.Future
 import de.tkip.sbpm.persistence.query._
+import akka.event.Logging
 
 /**
  * This Actor is only used to process REST calls regarding "process"
@@ -34,6 +35,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
   // This array is used to filter for the processes, which are shown in the showcase
   // if this array is empty all processes will be shown
   val showProcesses = Array[Int]()
+  private val logger = Logging(context.system, this)
 
   private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
 
@@ -131,12 +133,16 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
   })
 
   private def sendDeleteInterfaceForProcessId(id: Int) = {
+    logger.debug("[DELETE INTERFACE] starting to get process information")
     val processFuture = (persistenceActor ? Processes.Read.ById(id)).mapTo[Option[Process]]
     processFuture.onSuccess {
       case processResult =>
+        logger.debug("[DELETE INTERFACE] Got process Information")
         if (processResult.isDefined) {
+          logger.debug("[DELETE INTERFACE] Process available")
           val interfaceId = processResult.get.interfaceId
           if (interfaceId.isDefined) {
+            logger.debug("[DELETE INTERFACE] Sending delete interface request")
             repositoryPersistenceActor ! DeleteInterface(interfaceId.get)
           }
         }
@@ -230,7 +236,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
     val result = future.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
     // Also save interface if publishInterface is true
     if (json.publishInterface) {
+      logger.debug("[SAVE INTERFACE] Sending save interface request")
       repositoryPersistenceActor ! SaveInterface(json)
+      logger.debug("[SAVE INTERFACE] Sending save interface request done")
     }
     complete(result)
   }

@@ -9,6 +9,8 @@ test in assembly := {}
 
 mainClass in assembly := Some("de.tkip.sbpm.Boot")
 
+Revolver.settings
+
 mergeStrategy in assembly := {
   case "reference.conf" =>
     MergeStrategy.concat

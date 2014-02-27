@@ -42,6 +42,8 @@ object ProjectBuild extends Build {
         "com.github.t3hnar" % "scala-bcrypt_2.10" % "2.1",
         "com.fasterxml.jackson.core" % "jackson-core" % "2.2.0",
 
+        "org.scalaj" %% "scalaj-http" % "0.3.14",
+
         "com.google.guava" % "guava" % "14.0.1",
         "com.google.code.findbugs" % "jsr305" % "2.0.1",
         "com.google.http-client" % "google-http-client-jackson2" % "1.15.0-rc",

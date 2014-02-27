@@ -17,18 +17,25 @@ import scala.collection.immutable.Map
 import de.tkip.sbpm.application.miscellaneous.SystemProperties
 import de.tkip.sbpm.logging.DefaultLogging
 import akka.actor.{ ActorRef, Actor, Props }
+import akka.util._
+import scala.concurrent.duration._
 import spray.json._
-import DefaultJsonProtocol._
-import de.tkip.sbpm.rest.JsonProtocol.GraphHeader
-import spray.http._
-import spray.client.pipelining._
-import scala.concurrent.Future
+import de.tkip.sbpm.rest.JsonProtocol._
+import scalaj.http.{Http, HttpOptions}
+import scala.concurrent.{ExecutionContext, Future}
+import de.tkip.sbpm.persistence.query.Roles
+import ExecutionContext.Implicits.global
+import de.tkip.sbpm.model.Role
+import de.tkip.sbpm.ActorLocator
+import akka.pattern.ask
+import akka.event.Logging
 
 case class SaveInterface(json: GraphHeader)
 case class DeleteInterface(interfaceId: Int)
 
 class RepositoryPersistenceActor extends Actor with DefaultLogging {
 
+  private val logger = Logging(context.system, this)
   // akka config prefix
   protected val configPath = "sbpm."
 
@@ -37,24 +44,45 @@ class RepositoryPersistenceActor extends Actor with DefaultLogging {
     context.system.settings.config.getString(configPath + key)
 
   private val repoLocation = configString("repo.address")
+  private lazy val persistanceActor = ActorLocator.persistenceActor
 
-  val pipeline: HttpRequest => Future[HttpResponse] = sendReceive
+
+  implicit val timeout = Timeout(1 seconds)
 
   def actorRefFactory = context
 
   def receive = {
-    case SaveInterface(json) => {
-      pipeline(Post(repoLocation + "interfaces", attachExternalAddress(json)))
+    case SaveInterface(gHeader) => {
+      logger.debug("[SAVE INTERFACE] save message received")
+      (persistanceActor ? Roles.Read.All).mapTo[Seq[Role]].onSuccess{
+        case roles => {
+          logger.debug("[SAVE INTERFACE] role mapping received")
+          implicit val roleMap = roles.map(r => (r.name, r)).toMap
+          val jsObject = gHeader.toJson(createGraphHeaderFormat(roleMap)).asJsObject()
+
+          val port = SystemProperties.akkaRemotePort(context.system.settings.config)
+          val interface = jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
+          logger.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
+          val result = Http.postData(repoLocation + "interfaces", interface)
+            .header("Content-Type", "application/json")
+            .header("Charset", "UTF-8")
+            .option(HttpOptions.readTimeout(10000))
+            .responseCode
+          logger.debug("[SAVE INTERFACE] repository says: " + result)
+        }
+      }
     }
     case DeleteInterface(interfaceId) => {
-      pipeline(Delete(repoLocation + "interfaces/" + interfaceId))
+      logger.debug("[DELETE INTERFACE] delete message received")
+      val result = Http(repoLocation + "interfaces/" + interfaceId)
+        .method("DELETE")
+        .header("Content-Type", "application/json")
+        .header("Charset", "UTF-8")
+        .option(HttpOptions.readTimeout(10000))
+        .responseCode
+      logger.debug("[SAVE INTERFACE] repository says: " + result)
     }
-  }
-
-  private def attachExternalAddress(json: GraphHeader): JsObject = {
-    val jsObject = json.toJson.asJsObject
-
-    val port = SystemProperties.akkaRemotePort(context.system.settings.config)
-    jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields)
+    case _ =>
+      logger.debug("[INTERFACE PERSISTENCE ACTOR] invalid message received")
   }
 }

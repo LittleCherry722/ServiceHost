@@ -30,6 +30,7 @@ import de.tkip.sbpm.application._
 import de.tkip.sbpm.persistence.query.Schema
 import de.tkip.sbpm.persistence.testdata.Entities
 import de.tkip.sbpm.persistence.PersistenceActor
+import de.tkip.sbpm.repository.RepositoryPersistenceActor
 import de.tkip.sbpm.rest._
 import de.tkip.sbpm.rest.auth._
 import de.tkip.sbpm.rest.google.{GDriveActor, GCalendarActor}
@@ -73,6 +74,7 @@ object Boot extends App {
   }
 
   val frontendInterfaceActor = system.actorOf(Props[FrontendInterfaceActor], frontendInterfaceActorName)
+  val repositoryPersistenceActor = system.actorOf(Props[RepositoryPersistenceActor], repositoryPersistenceActorName)
   val subjectProviderManagerActor = system.actorOf(Props[SubjectProviderManagerActor], subjectProviderManagerActorName)
   val persistenceActor = system.actorOf(Props[PersistenceActor], persistenceActorName)
 
@@ -82,6 +84,7 @@ object Boot extends App {
     system.actorOf(Props[ProcessManagerActor], processManagerActorName),
     subjectProviderManagerActor,
     frontendInterfaceActor,
+    repositoryPersistenceActor,
     system.actorOf(Props[SessionActor], sessionActorName),
     system.actorOf(Props[BasicAuthActor], basicAuthActorName),
     system.actorOf(Props[OAuth2Actor], oAuth2ActorName),

@@ -62,12 +62,13 @@ class RepoActor extends Actor with ActorLogging {
       val list = interfaces.values.fold(mutable.Set.empty) { (a, b) => a ++ b }.toList
       val filtered = list.find { impl => impl.id == implId }.map{_.graph}
 
-      log.info("entries: {}", filtered.toJson.prettyPrint)
+      log.info("entries for id: {}", filtered.toJson.prettyPrint)
 
       sender ! filtered.toJson.prettyPrint
     }
 
     case AddInterface(ip, entry) => {
+      log.info("adding new interface")
       val entryJs = entry.asJson.asJsObject
       val id = entryJs.fields.getOrElse("interfaceId", nextId.toJson).convertTo[Int]
       val name = entryJs.fields.getOrElse("name", "").toString()
