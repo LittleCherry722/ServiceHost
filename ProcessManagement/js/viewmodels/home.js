@@ -6,7 +6,7 @@ define([
   "models/process",
   "models/actions",
   "models/history",
-  "models/processinstance",
+  "models/processInstance",
   "moment",
   "notify",
   "select2",
