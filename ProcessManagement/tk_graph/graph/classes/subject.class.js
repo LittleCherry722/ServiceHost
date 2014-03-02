@@ -149,7 +149,7 @@ function GCsubject (id, text, type, inputPool)
 	 *
 	 * @type String
 	 */
-	this.url		= null;
+	this.implementations = [];
 
 	/**
 	 * Activates a subject.
@@ -314,13 +314,13 @@ function GCsubject (id, text, type, inputPool)
     };
 
 	/**
-	 * Returns the corresponding url.
+	 * Returns the corresponding implementations.
 	 *
-	 * @returns {String} The corresponding url.
+	 * @returns {String} The corresponding implementations.
 	 */
-	this.getUrl = function ()
+	this.getImplementations = function ()
 	{
-		return this.url;
+		return this.implementations;
 	};
 
 	/**
@@ -545,16 +545,16 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
-	 * Sets the corresponding url.
+	 * Sets the corresponding implementations.
 	 *
-	 * @param {String} url The corresponding url.
+	 * @param {[Integer]} implementations The corresponding implementations.
 	 * @returns {void}
 	 */
-	this.setUrl = function (url)
+	this.setImplementations = function (implementations)
 	{
-		if (gf_isset(url))
+		if (gf_isset(implementations))
 		{
-			this.url	= url;
+			this.implementations	= implementations;
 		}
 	};
 

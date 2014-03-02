@@ -605,7 +605,7 @@ function GCcommunication ()
 		// when the communication view is shown, add a new subject using addSubject()
 		if (this.selectedSubject == null)
 		{
-			this.addSubject("Subj" + ++this.nodeCounter + "-" + Utilities.newUUID(), "new Subject " + this.nodeCounter);
+			this.addSubject("Subj" + ++this.nodeCounter + ":" + Utilities.newUUID(), "new Subject " + this.nodeCounter);
 			this.draw();
 		}
 
@@ -1677,7 +1677,7 @@ function GCcommunication ()
 						externalType: this.subjects[gt_sid].getExternalType(),
 						role: this.subjects[gt_sid].getRole(),
 						startSubject: this.subjects[gt_sid].isStartSubject(),
-						url: this.subjects[gt_sid].getUrl(),
+						implementations: this.subjects[gt_sid].getImplementations(),
 						comment: this.subjects[gt_sid].getComment()
 //                        manualPositionOffsetX: this.subjects[gt_sid].getManualPositionOffset().dx,
 //                        manualPositionOffsetY: this.subjects[gt_sid].getManualPositionOffset().dy

@@ -264,7 +264,7 @@
           "subjectType": "external",
           "deactivated": false,
           "inputPool": 100,
-          "relatedInterface": "Kunde",
+          "relatedInterface": null,
           "url": "@127.0.0.1:2553",
           "relatedProcess": 5,
           "relatedSubject": "Staples",
@@ -379,7 +379,7 @@
           "externalType": "interface",
           "role": "Zulieferer",
           "startSubject": false,
-          "relatedInterface": "Kunde",
+          "relatedInterface": null,
           "url": "@127.0.0.1:2554",
           "comment": "",
           "macros": [{

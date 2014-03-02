@@ -107,7 +107,7 @@ case class ExternalSubject(
   multi: Boolean,
   relatedSubjectId: Option[SubjectID],
   relatedProcessId: Option[Int],
-  relatedInterfaceId: Option[SubjectID],
+  relatedInterfaceId: Option[Int],
   isImplementation: Option[Boolean],
   url: Option[String],
   variablesMap:Map[String,String]) extends SubjectLike {

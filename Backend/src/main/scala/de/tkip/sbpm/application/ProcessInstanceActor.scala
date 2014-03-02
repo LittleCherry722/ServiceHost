@@ -282,7 +282,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         logger.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
 
         val mappingA = (externalSubject.relatedSubjectId.get -> MappingInfo(externalSubject.id, processID, ownUrl))
-        val mappingB = (externalSubject.relatedInterfaceId.get -> MappingInfo(connectedSubject.id, processID, ownUrl))
+        // TODO: Fix This! Key must be a subject ID, related interface references a repository interface ID... -.-
+        val mappingB = (externalSubject.relatedInterfaceId.get.toString -> MappingInfo(connectedSubject.id, processID, ownUrl))
 
         subjectMapping += mappingA
         subjectMapping += mappingB

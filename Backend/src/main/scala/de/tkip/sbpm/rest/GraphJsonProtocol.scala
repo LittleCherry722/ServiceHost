@@ -305,6 +305,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "externalType" -> s.externalType.toJson,
       "role" -> s.role.toJson,
       "url" -> s.url.toJson,
+      "implementations" -> s.implementations.toJson,
       "comment" -> s.comment.toJson,
       "variables" -> s.variables.toJson,
       // extract counter value from variable ids
@@ -323,6 +324,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "externalType",
       "role",
       "url",
+      "implementations",
       "comment",
       "variables",
       "macros"))

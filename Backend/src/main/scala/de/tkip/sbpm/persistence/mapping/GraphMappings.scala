@@ -288,6 +288,7 @@ object GraphMappings {
         case Some(id) => Some(roles(id))
       },
       s.url,
+      None,
       s.comment,
       variables.getOrElse(s.id, Map()),
       // convert macros, nodes and edges of current subject

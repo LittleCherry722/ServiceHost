@@ -153,7 +153,7 @@
         ],
         "name": "Kunde",
         "relatedSubject": "",
-        "relatedInterface": "",
+        "relatedInterface": null,
         "url": "",
         "role": "Staples",
         "type": "external",
