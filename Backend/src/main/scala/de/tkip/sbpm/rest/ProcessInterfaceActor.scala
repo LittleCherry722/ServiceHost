@@ -72,12 +72,14 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       // LIST
       path("") {
         // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-        complete(
-          for {
-            processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
-            filtered = if (showProcesses.isEmpty) processes
-            else processes filter (showProcesses contains _.id.getOrElse(-1))
-          }yield filtered)
+        logger.info("FILTERED PROCESSES:")
+        val ps = for {
+          processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
+          filtered = if (showProcesses.isEmpty) processes
+                     else processes filter (showProcesses contains _.id.getOrElse(-1))
+        }  yield filtered
+        logger.info(ps.toString)
+        complete(ps)
       } ~
         // READ
         pathPrefix(IntNumber) {
@@ -232,13 +234,14 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * Saves the given process with its graph.
    */
   private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
-    val interfaceIdFuture: Future[Option[Int]] = if (json.publishInterface) {
+    val interfaceIdFuture = if (json.publishInterface) {
       logger.debug("[SAVE INTERFACE] Sending save interface request")
       (repositoryPersistenceActor ? SaveInterface(json)).mapTo[Option[Int]]
     } else {
-      future { json.interfaceId }.mapTo[Option[Int]]
+      future { json.interfaceId }
     }
-    val interfaceId = Await.result(interfaceIdFuture, 10 seconds)
+    val interfaceId = Await.result(interfaceIdFuture, 3 seconds)
+    logger.debug("[SAVE INTERFACE] Received interface ID from repoPersAct")
     val process = Process(id, interfaceId, json.publishInterface, json.name, json.isCase)
     val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
     val futureResult = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]

@@ -26,6 +26,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import de.tkip.sbpm.persistence.query.Roles
 import ExecutionContext.Implicits.global
 import de.tkip.sbpm.model.Role
+import scala.concurrent.{Await}
 import de.tkip.sbpm.ActorLocator
 import akka.pattern.ask
 import akka.event.Logging
@@ -54,24 +55,22 @@ class RepositoryPersistenceActor extends Actor with DefaultLogging {
   def receive = {
     case SaveInterface(gHeader) => {
       logger.debug("[SAVE INTERFACE] save message received")
-      (persistanceActor ? Roles.Read.All).mapTo[Seq[Role]].onSuccess{
-        case roles => {
-          logger.debug("[SAVE INTERFACE] role mapping received")
-          implicit val roleMap = roles.map(r => (r.name, r)).toMap
-          val jsObject = gHeader.toJson(createGraphHeaderFormat(roleMap)).asJsObject()
+      val roles = Await.result((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
+      logger.debug("[SAVE INTERFACE] role mapping received")
+      implicit val roleMap = roles.map(r => (r.name, r)).toMap
+      val jsObject = gHeader.toJson(createGraphHeaderFormat(roleMap)).asJsObject()
 
-          val port = SystemProperties.akkaRemotePort(context.system.settings.config)
-          val interface = jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
-          logger.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
-          val result = Http.postData(repoLocation + "interfaces", interface)
-            .header("Content-Type", "application/json")
-            .header("Charset", "UTF-8")
-            .option(HttpOptions.readTimeout(10000))
-            .asString
-          logger.debug("[SAVE INTERFACE] repository says: " + result)
-          sender ! result.toInt
-        }
-      }
+      val port = SystemProperties.akkaRemotePort(context.system.settings.config)
+      val interface = jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
+      logger.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
+      val result = Http.postData(repoLocation + "interfaces", interface)
+        .header("Content-Type", "application/json")
+        .header("Charset", "UTF-8")
+        .option(HttpOptions.readTimeout(10000))
+        .asString
+      logger.debug("[SAVE INTERFACE] repository says: " + result)
+      sender ! Some(result.toInt)
+      logger.debug("[SAVE INTERFACE] sent repository answer to sender.a")
     }
     case DeleteInterface(interfaceId) => {
       logger.debug("[DELETE INTERFACE] delete message received")
