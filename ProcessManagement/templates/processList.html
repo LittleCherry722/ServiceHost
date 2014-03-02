@@ -17,7 +17,7 @@
 		    <input class="data_field" id="to" name="to" type="text" data-bind="value: selectedEnd" /><span class="icon_clear">x</span>
 		</span>
     </div>
-<hr> 
+    <hr>
 	<div id="clickablelist">
 		<table class="table table-middle result processlist">
 			<thead>
@@ -36,14 +36,14 @@
 						<!-- /ko -->
 					</td>
 					<td class="col2">
-						<a data-bind="click:  function() { window.location.href=url();  }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)
+						<a href="#" data-bind="click:  function() { window.location.href=url();  }, text: menuName()"></a> (<span data-bind="text: instanceCount"></span>)
 					</td>
 					<td class="col3">
 						<div class="btn-group">
-							<a class="btn" href="#" data-bind="click: $parent.showProcessNameModal, css: { disabled: !$data.startAble() }">Start new Instance</a>
+							<a href="#" class="btn" href="#" data-bind="click: $parent.showProcessNameModal, css: { disabled: !$data.startAble() }">Start new Instance</a>
 						</div>
 						<div class="btn-group">
-							<a class="btn" data-bind="click:  function() { window.location.href=url();  }">Edit</a>
+							<a href="#" class="btn" data-bind="click:  function() { window.location.href=url();  }">Edit</a>
 						</div>
 						<div class="btn-group">
 							<button class="btn" data-bind="click: $parent.remove">Delete</button>
@@ -60,25 +60,25 @@
 								        <!-- ko if: executable() -->
 								        <img src="images/icons/circle-green-24-ns.png" title="Action required"/>
 								        <!-- /ko -->
-								
+
 								        <!-- ko if: (!executable() && hasActions()) -->
 								        <img src="images/icons/circle-yellow-24-ns.png" title="Waiting for other user"/>
 								        <!-- /ko -->
-								
+
 								        <!-- ko if: !executable() && !hasActions() -->
 								        <img src="images/icons/circle-red-24-ns.png" title="completed"/>
 								        <!-- /ko -->
-								
+
 								      </td>
-								      <td class="col2">						
-										<strong>Name: </strong><a data-bind="attr: { href: url() }"><span data-bind="text: name"></span></a><br />
+								      <td class="col2">
+										<strong>Name: </strong><a href="#" data-bind="attr: { href: url() }"><span data-bind="text: name"></span></a><br />
 										<strong>Start: </strong> <span data-bind="text: moment(startedAt().date).format('LL')"></span>
 								      </td>
 								      <td class="col3">
 						                <strong>Owner: </strong><span data-bind="text: ownerUser().name()"></a><br />
 						            </td>
 						            <td class="col4">
-						                <a href="" data-bind="click: $parents[1].removeInstance"><img src="images/icons/cross.png" title="Delete" width="28" /></a>
+						                <a href="#" href="" data-bind="click: $parents[1].removeInstance"><img src="images/icons/cross.png" title="Delete" width="28" /></a>
 						            </td>
 								</tr>
 							</table>

@@ -72,8 +72,10 @@ define([
 		});
 
 		this.selectedInterfaceImplSubjects = ko.computed(function() {
+      window.selectedInterface = self.selectedInterface();
+      console.log(self.selectedInterface());
 			if ( self.selectedInterface() ) {
-				return self.selectedInterface().interfaceSubjects();
+				return self.selectedInterface().implementedInterfaceSubjects();
 			} else {
 				return [];
 			}
@@ -88,9 +90,9 @@ define([
 		});
 
 		this.selectBusinessInterface = function() {
-			var id = this.id()
+			var id = this.id();
 			self.selectedInterface( Interface.find( id ) );
-		}
+		};
 
 		this.noInterfaceSelected = ko.computed(function() {
 			return !self.selectedInterface();
@@ -98,21 +100,18 @@ define([
 
 		this.resetInterfaceSelection = function() {
 			self.selectedInterface( null );
-		}
+		};
 
 		this.updatePublishInterface = function() {
-      console.log("dada dada");
-      console.log()
 			self.currentProcess().publishInterface( !self.currentProcess().publishInterface() );
-		}
+		};
 
 		this.interfaceInsertionSubject = ko.observable("");
 		this.interfaceInsertionStrategy = ko.observable("insert");
 
 		this.loadBusinessInterface = function() {
+
 			if ( !self.selectedInterface() ) return;
-      console.log("Implementing business interface")
-      console.log("Insertion Strategy: " + self.interfaceInsertionStrategy())
 			if ( self.interfaceInsertionStrategy() === "insert" ) {
         var template = self.selectedInterface().getTemplate(self.interfaceInsertionSubject());
 				currentProcess().insertTemplate(template);

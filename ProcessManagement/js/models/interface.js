@@ -22,6 +22,11 @@ define([
     creator: "string",
     name: "string",
     description: "string",
+    implementations: {
+      type: "json",
+      layz: false,
+      defaults: []
+    },
     graph: {
       type: "json",
       lazy: false
@@ -29,52 +34,8 @@ define([
   });
 
   Interface.include({
-    Initialize: function() {
+    initialize: function( data ) {
       var self = this;
-
-      this.graphObject = ko.computed({
-        deferEvaluation: true,
-        read: function() {
-          if ( !self.attributesLoaded() ) {
-            self.loadAttributes( { async: false } );
-          } else {
-          }
-          return self.graph().definition;
-        },
-        write: function( graphObject ) {
-          var graph = _.clone( self.graph() );
-          if ( !graph ) {
-            graph = {};
-          }
-
-          if ( typeof graphObject === "string" ) {
-            graph.definition = JSON.parse( graphObject );
-          } else {
-            graph.definition = graphObject;
-          }
-
-          self.graph( graph );
-        }
-      });
-
-      this.implementationSubjects = ko.computed({
-        deferEvaluation: true,
-        read: function() {
-          var t,
-              subjects = [];
-
-          _( self.graphObject().process ).each(function( s ) {
-            t = s.subjectType ? s.subjectType : s.type;
-            if (t === "external" && s.externalType === "interface") {
-              console.log(s.id.replace(/ß/, '\\u00d'));
-              var imps = Interface.findByFixedSubjectId('"' + s.id.replace(/ß/, '\\u00df') + '"');
-              subjects.push({id: s.id, name: s.name, impCount: imps.length, imps: imps});
-            }
-          });
-
-          return subjects;
-        }
-      });
 
       this.filterInterfaceSubjects = function(test) {
         return ko.computed({
@@ -83,11 +44,11 @@ define([
             var t,
                 subjects = [];
 
-            _( self.graphObject().process ).each(function( s ) {
+            _( self.graph().process ).each(function( s ) {
               t = s.subjectType ? s.subjectType : s.type;
               if (t === "external" && s.externalType === "interface" && test(s)) {
                 console.log(s.id.replace(/ß/, '\\u00d'));
-                var imps = Interface.findByFixedSubjectId('"' + s.id.replace(/ß/, '\\u00df') + '"');
+                var imps = s.implementations;
                 subjects.push({id: s.id, name: s.name, impCount: imps.length, imps: imps});
               }
             });
@@ -95,13 +56,21 @@ define([
             return subjects;
           }
         });
-      }
+      };
+
+      this.implementedInterfaceSubjects = self.filterInterfaceSubjects(function(s) {
+        return !s.relatedInterfaceSubjects;
+      });
+
+      this.freeInterfaceSubjects = self.filterInterfaceSubjects(function(s) {
+        return s.relatedInterfaceSubjects;
+      });
 
       this.isImplemented = ko.computed({
         deferEvaluation: true,
         read: function() {
-          var isubs = self.interfaceSubjects()
-          return isubs.every(function(e) { console.log(e); return e.impCount > 0 });
+          var isubs = self.interfaceSubjects();
+          return isubs.every(function(e) { return e.impCount > 0; });
         }
       });
     },
@@ -109,7 +78,7 @@ define([
     getTemplate: function(sid) {
       var self = this,
           og   = self.graph(),
-          ng   = JSON.parse(JSON.stringify(og.definition)),
+          ng   = JSON.parse(JSON.stringify(og)),
           ps   = ng.process,
           // concatTau = function(n, s, last) {
           //   s.macros.forEach(function(m) {
@@ -144,7 +113,7 @@ define([
             s.macros.forEach(function(m) {
               n = _(m.nodes).findWhere({id: nid});
             });
-            makeTau(n, s)
+            makeTau(n, s);
             return n;
           };
 
@@ -153,30 +122,37 @@ define([
         if (s.id === sid) {
           s.subjectType = "single";
           s.externalType = "";
+          s.name = s.name + " (me)";
+          s.role = "Please choose role";
+          s.relatedInterface = self.id();
+          s.relatedSubject = sid;
+          s.isImplementation = true;
         } else {
           s.subjectType = "external";
           s.externalType = "interface";
+          s.role = "Please choose role";
         }
+        console.log(s);
       });
 
       // anonymize messages.
-      var messages = []
+      var messages = [];
       ps.forEach(function (s) {
         if (s.id == sid) {
           s.macros.forEach(function(m) {
             m.edges.forEach(function(e) {
               if( e.text ) {
-                messages.push(e.text)
+                messages.push(e.text);
               }
-            })
-          })
+            });
+          });
         }
       });
-      messages = _(messages).uniq()
+      messages = _(messages).uniq();
       _(ng.messages).each(function(v, k) {
         if (!_(messages).contains(k)) {
           console.log("anonymizing meessage: " + k);
-          ng.messages[k] = "Anonymized"
+          ng.messages[k] = "Anonymized";
         }
       });
       ng.messageCounter = messages.length;
@@ -190,22 +166,22 @@ define([
             if (e.target && e.target.id === sid) {
               hasEdge = true;
             }
-          })
+          });
         });
         return hasEdge? p : null;
       })).compact();
 
       // set all send or receive to / from deleted nodes to tau
-      var remainingSubjects = ng.process.map(function(p) { return p.id })
+      var remainingSubjects = ng.process.map(function(p) { return p.id; });
       ps.forEach(function(s) {
         s.macros.forEach(function(m) {
           m.edges.forEach(function(e) {
             if (e.target && !_(remainingSubjects).contains(e.target.id)) {
-              makeTauID(e.start, s)
+              makeTauID(e.start, s);
               e.target = "";
               e.text = "tau";
             }
-          })
+          });
         });
       });
 
@@ -216,7 +192,7 @@ define([
             if (n.type !== "send" && n.type !== "receive") {
               makeTau(n, s);
             }
-          })
+          });
         });
       });
 
@@ -249,17 +225,14 @@ define([
             if (! e.target) {
               e.text = "tau";
             }
-          })
+          });
         });
       });
-      var interfaceSubjects = remainingSubjects.filter(function(id) { return sid !== id });
+      var interfaceSubjects = remainingSubjects.filter(function(id) { return sid !== id; });
 
       return {
         definition: ng,
-        id: og.id,
-        offerId: self.id(),
-        fixedSubjectId: sid,
-        interfaceSubjects: interfaceSubjects
+        id: og.id
       };
     }
   });
@@ -273,13 +246,37 @@ define([
     };
 
     return (new Interface(options));
-  }
+  };
 
   Interface.nameAlreadyTaken = function (name) {
     return !!Interface.all().filter(function (i) {
       return i.name() == name;
     }).length;
-  }
+  };
+
+  // var uuidSubjects = function(oldGraph, oldId, newId) {
+  //   var graph = JSON.parse(JSON.stringify(oldGraph));
+  //   var nameMap = {};
+  //   graph.process.forEach(function(s) {
+  //     var t = s.subjectType ? s.subjectType : s.type;
+  //     if (!(t === "external" && s.externalType === "interface")) {
+  //       var newId = s.id.replace(/:.*/, '') + Utilities.newUUID();
+  //       nameMap[s.id] = newId;
+  //     }
+  //   })
+  //   graph.process.forEach(function(s) {
+  //     if (nameMap[s.id]) {
+  //       s.id = nameMap[s.id];
+  //     }
+  //     (s.macros || []).forEach(function(macro) {
+  //       (s.edges || []).forEach(function(e) {
+  //         if (nameMap[e.target.id]) {
+  //           e.target.id = nameMap[e.target.id];
+  //         }
+  //       });
+  //     })
+  //   });
+  // }
 
   return Interface;
 });

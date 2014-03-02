@@ -30,7 +30,10 @@ define([
     isCase: "boolean",
     processInstanceId: "integer",
     startAble: "boolean",
-    interfaceId: "integer",
+    interfaceId: {
+      type: "integer",
+      defaults: null
+    },
     publishInterface: {
       type: "boolean",
       defaults: false
