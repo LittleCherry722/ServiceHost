@@ -23,10 +23,10 @@ define([
     var pathBuilder = new PathBuilder( Model );
 
     if ( typeof ajaxOptions === "undefined" ) {
-      ajaxOptions = {}
+      ajaxOptions = {};
     }
     if ( typeof ajaxOptions.methods === "undefined" ) {
-      ajaxOptions.methods = {}
+      ajaxOptions.methods = {};
     }
 
     // some general ajax options. These are neede later on when performing the
@@ -44,8 +44,8 @@ define([
     // Setup prototype callback so we do not have to check for their
     // existence every time.
     _( [ "Save", "Create", "Destroy" ] ).each(function( event ) {
-      Model.prototype[ "before" + event ] = function() { return true; }
-      Model.prototype[ "after" + event ] = function()  { return true; }
+      Model.prototype[ "before" + event ] = function() { return true; };
+      Model.prototype[ "after" + event ] = function()  { return true; };
     });
 
 
@@ -64,7 +64,7 @@ define([
       if ( this.beforeSave.call( this ) === false ) {
         callbacks.success.call( this, "" );
         callbacks.complete.call( this, "" );
-        return
+        return;
       }
 
       if( !this.validate() ) {
@@ -88,7 +88,7 @@ define([
         this.afterSave.call( this );
         complete.call( this, textStatus );
         this.hasChanged( false );
-      }
+      };
 
       saveFn.call( this, options, callbacks );
     });
@@ -109,7 +109,7 @@ define([
       // Override all local attributes with attributes supplied by the Server
       _( Model.attrs() ).each(function( attrOptions, attrName ) {
         if ( _( data ).has( attrName ) ) {
-          instance[ attrName ]( attrOptions.fromJSON( data[ attrName ] ));
+          instance[ attrName ]( attrOptions.fromJSON( data[ attrName ], attrName ));
         }
       });
 
@@ -122,7 +122,7 @@ define([
       if ( this.beforeDestroy.call( this ) === false ) {
         callbacks.error.call( this, "Deletion canceled" );
         callbacks.complete.call( this, "" );
-        return
+        return;
       }
 
       var destroyFn, complete;
@@ -138,7 +138,7 @@ define([
       callbacks.complete = function( textStatus ) {
         this.afterDestroy.call( this );
         complete.call( this, textStatus );
-      }
+      };
 
       destroyFn.call( this, options, callbacks);
     });
@@ -181,11 +181,11 @@ define([
 
       // Mark the model as destroyed and remove it from the list of
       // instances.
-      Model.all.remove( this )
+      Model.all.remove( this );
       this.isDestroyed = true;
       callbacks.success.call( this );
       callbacks.complete.call( this );
-    }
+    };
 
     // issues a destroy request for the current model to the server.
     // options are options to be passed to the jquery ajax method.
@@ -206,7 +206,7 @@ define([
           // Mark the model as destroyed and remove it from the list of
           // instances
           model.isDestroyed = true;
-          Model.all.remove( model )
+          Model.all.remove( model );
 
           callbacks.success.call( model, textStatus );
         },
@@ -216,9 +216,9 @@ define([
         complete: function( jqXHR, textStatus ) {
           callbacks.complete.call( model, textStatus );
         }
-      }
+      };
       $.ajax( ajax );
-    }
+    };
 
     // These Methods are never called by the user, so we do not need any of the
     // options, callback sanitization stuff.
@@ -227,7 +227,7 @@ define([
           model = this;
 
       if ( model.beforeCreate.call( this ) === false ) {
-        return
+        return;
       }
 
       model.attributesLoaded( true );
@@ -260,9 +260,9 @@ define([
           model.afterCreate.call( this );
           callbacks.complete.call( model, textStatus );
         }
-      }
+      };
       $.ajax( ajax );
-    }
+    };
 
     var saveExisting = function( options, callbacks ) {
       var ajax, url,
@@ -294,9 +294,9 @@ define([
         complete: function( jqXHR, textStatus ) {
           callbacks.complete.call( model, textStatus );
         }
-      }
+      };
       $.ajax( ajax );
-    }
+    };
 
     // Fetch a list of all model instances from the Server.
     // (At the moment) fetches the entire object.
@@ -345,7 +345,7 @@ define([
             Model.all.push( newInstance );
 
           });
-          if ( _(data).every(function(e) { return e.id }) ) {
+          if ( _(data).every(function(e) { return e.id; }) ) {
             var modelIds, newIds, removedIds;
             modelIds = Model.all().map(function( e ) {
               return e.id();
@@ -355,7 +355,7 @@ define([
             });
             removedIds = _.difference( modelIds, newIds );
             Model.all.remove(function( e ) {
-              return _(removedIds).contains( e.id() )
+              return _(removedIds).contains( e.id() );
             });
           }
           callbacks.success.call( Model, textStatus  );
@@ -370,38 +370,38 @@ define([
       $.ajax( ajax );
     });
 
-  }
+  };
 
   var abstractMethod = function( fn ) {
     return function( options, callbacks ) {
       if ( typeof options === "function" ) {
         callbacks = options;
-        options = {}
+        options = {};
       }
 
       if ( typeof callbacks === "function" ) {
         callbacks = {
           complete: callbacks
-        }
+        };
       } else if ( typeof callbacks !== "object" ) {
-        callbacks = {}
+        callbacks = {};
       }
 
       _( callbacks ).defaults({
         success: function() {},
         error: function() {},
         complete: function() {}
-      })
+      });
 
       if ( !options ) { options = {}; }
 
       _( options ).defaults({
         async: true
-      })
+      });
 
       fn.call( this, options, callbacks );
-    }
-  }
+    };
+  };
 
   var PathBuilder = function( Model ) {
     var regularModelPath, relationModelPath,
@@ -419,7 +419,7 @@ define([
         return false;
       }
       return true;
-    }
+    };
 
     regularModelPath = function( instance ) {
       if ( typeof instance === "undefined" ) {
@@ -427,7 +427,7 @@ define([
       } else {
         return pathPrefix + Model.remotePath + "/" + instance.id();
       }
-    }
+    };
     relationModelPath = function( instance ) {
       if ( typeof instance === "undefined" ) {
         return pathPrefix + _( Model.belongsTo() ).map(function( o ) {
@@ -438,26 +438,26 @@ define([
           return [ o.modelName, instance[ o.foreignKey ]() ];
         }).flatten().value().join("/");
       }
-    }
+    };
 
     this.listPath = function() {
       return isIntermediateModel() ? relationModelPath() : regularModelPath();
-    }
+    };
     this.savePath = this.destroyPath = this.getPath = function( instance ) {
       if ( isIntermediateModel() ) {
         return relationModelPath( instance );
       } else {
         return regularModelPath( instance );
       }
-    }
+    };
     this.createPath = function( instance ) {
       if ( isIntermediateModel() ) {
         return relationModelPath( instance );
       } else {
         return regularModelPath();
       }
-    }
-  }
+    };
+  };
 
   // Everything in this object will be the public API
   return Storage;

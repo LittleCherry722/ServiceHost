@@ -60,7 +60,7 @@ define([
                 _( Result.attrs() ).each(function( attrOptions, attrName ) {
                     this[ attrName + "Reset" ]();
                 }, this);
-            }
+            };
 
             // Initialize an empty error object.
             this.errors = ko.observableArray([]);
@@ -81,10 +81,10 @@ define([
             this.validate = function() {
                 var validator, message, newErrors;
 
-                newErrors = []
+                newErrors = [];
 
                 // lets assume there are no errors;
-                valid = true;
+                var valid = true;
 
                 // loop through every validator and execute it.
                 for ( validator in this.validators ) {
@@ -126,7 +126,7 @@ define([
              */
             this.url = function() {
                 return Router.modelPath(this);
-            }
+            };
 
             /**
              * converts this instance of a model to a JSON string.
@@ -138,25 +138,24 @@ define([
              * @return {Object} the JSON object
              */
             this.toJSON = function() {
-                json = {};
+                var json = {},
+                    isUndefined = function(e) {
+                        return ((typeof e === "undefined") || (typeof e == "number" && isNaN(e)) || e === null);
+                    };
                 _( Result.attrs() ).each(function( attrOptions, attrName ) {
-                    if ( typeof this[ attrName ]() === "undefined" && !attrOptions.noDefaultsOnSave ) {
-                        if ( attrOptions.lazy && attrOptions.defaults ) {
-                            json[ attrName ] = attrOptions.defaults;
-                        } else {
-                            json[ attrName ] = "";
-                        }
+                    if ( isUndefined(this[ attrName ]()) && !attrOptions.noDefaultsOnSave ) {
+                      json[ attrName ] = attrOptions.defaults;
                     } else {
                         json[ attrName ] = this[ attrName ]();
                     }
                 }.bind( this ));
 
                 return json;
-            }
+            };
 
             this.toJSONString = function() {
                 return JSON.stringify( this.toJSON() );
-            }
+            };
 
             // Duplicate the current Object. Does NOT do a deep copy, so obejcts,
             // arrays, etc storede inside this copied object will reflect changes
@@ -175,7 +174,7 @@ define([
                 }.bind( this ));
 
                 return result;
-            }
+            };
 
             _( Result._initializers ).each(function( initializer ) {
                 initializer( this, data );
@@ -189,11 +188,11 @@ define([
             }
 
             this.isBeingInitialized = false;
-        }
+        };
 
 
         if ( typeof ajaxOptions === "undefined" ) {
-            ajaxOptions = {}
+            ajaxOptions = {};
         }
         Result.remotePath = ajaxOptions.remotePath ? ajaxOptions.remotePath : modelName.toLowerCase();
 
@@ -210,7 +209,7 @@ define([
             instances.push( result );
 
             return result;
-        }
+        };
 
         // Get one model instance by id
         Result.find = function( processId ) {
@@ -220,12 +219,12 @@ define([
             });
 
             if ( foundInInstances.length > 0 ) {
-                return foundInInstances[0]
+                return foundInInstances[0];
             }
 
             // we have not found anything :(
             return undefined;
-        }
+        };
 
         Result.all = instances;
 
@@ -239,7 +238,7 @@ define([
             // filter all instances and only return those who are a newRecord.
             unsavedInstances = _( instances() ).filter(function( instance ) {
                 return instance.isNewRecord;
-            })
+            });
 
             // No remove all unsaved instances from the array of model instances.
             instances.removeAll( unsavedInstances );
@@ -248,7 +247,7 @@ define([
             _( instances() ).each(function( group ) {
                 group.reset();
             });
-        }
+        };
 
         // Initialize with an empty set of validators.
         // Validators all have a name for easier identifiaction.
@@ -265,7 +264,7 @@ define([
          */
         Result.extend = function(obj) {
             _(Result).extend(obj);
-        }
+        };
 
         /**
          * Extend the class with instance methods. All methods defined inside the
@@ -276,7 +275,7 @@ define([
          */
         Result.include = function(obj) {
             _(Result.prototype).extend(obj);
-        }
+        };
 
         models.push( Result );
 
@@ -287,7 +286,7 @@ define([
 
         // Return our newly defined object.
         return Result;
-    }
+    };
 
     // Fetch all resources of all models
     Model.fetchAll = function( callback ) {
@@ -298,7 +297,7 @@ define([
                     cb();
                 },
                 success: function() {
-                    cb()
+                    cb();
                 }
             });
         }, function( error, results ) {
@@ -306,15 +305,15 @@ define([
                 callback();
             }
         });
-    }
+    };
 
     Model.startPolling = function( callback ) {
         window.setTimeout( Polling.poll, 2500);
         if ( callback && typeof callback === "function" ) {
             callback();
         }
-    }
+    };
 
     // Everything in this object will be the public API.
-    return Model
+    return Model;
 });
