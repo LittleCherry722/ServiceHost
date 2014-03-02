@@ -67,7 +67,7 @@ class RepoActor extends Actor with ActorLogging {
       val interface = convertEntry(entryJs, ip)
       val id = interface.id
       interfaces(id) = interface
-      sender ! Some(interface.toJson.prettyPrint)
+      sender ! Some(id)
     }
 
     case Reset => {

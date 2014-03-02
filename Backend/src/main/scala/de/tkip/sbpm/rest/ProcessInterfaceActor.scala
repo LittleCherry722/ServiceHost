@@ -18,6 +18,8 @@ import spray.http._
 import spray.routing._
 import akka.pattern.ask
 import de.tkip.sbpm.model._
+import scala.concurrent.{future, Await}
+import scala.concurrent.duration._
 import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
@@ -230,16 +232,18 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * Saves the given process with its graph.
    */
   private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
-    val process = Process(id, json.interfaceId, json.publishInterface, json.name, json.isCase)
-    val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
-    val future = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
-    val result = future.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
-    // Also save interface if publishInterface is true
-    if (json.publishInterface) {
+    val interfaceIdFuture: Future[Option[Int]] = if (json.publishInterface) {
       logger.debug("[SAVE INTERFACE] Sending save interface request")
-      repositoryPersistenceActor ! SaveInterface(json)
-      logger.debug("[SAVE INTERFACE] Sending save interface request done")
+      (repositoryPersistenceActor ? SaveInterface(json)).mapTo[Option[Int]]
+    } else {
+      future { json.interfaceId }.mapTo[Option[Int]]
     }
+    val interfaceId = Await.result(interfaceIdFuture, 10 seconds)
+    val process = Process(id, interfaceId, json.publishInterface, json.name, json.isCase)
+    val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
+    val futureResult = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
+    val result = futureResult.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
+    // Also save interface if publishInterface is true
     complete(result)
   }
 

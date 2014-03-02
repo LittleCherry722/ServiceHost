@@ -67,8 +67,9 @@ class RepositoryPersistenceActor extends Actor with DefaultLogging {
             .header("Content-Type", "application/json")
             .header("Charset", "UTF-8")
             .option(HttpOptions.readTimeout(10000))
-            .responseCode
+            .asString
           logger.debug("[SAVE INTERFACE] repository says: " + result)
+          sender ! result.toInt
         }
       }
     }
