@@ -65,6 +65,7 @@ case class Interface(address: Address,
 
 case class InterfaceImplementation(processId: Int,
                                    interfaceId: Int,
+                                   address: Address,
                                    subjectId: String)
 
 case class Address(ip: String, port: Int)

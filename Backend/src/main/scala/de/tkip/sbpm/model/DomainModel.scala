@@ -147,6 +147,13 @@ case class Configuration(key: String,
   value: Option[String],
   dataType: String)
 
+case class Address(ip: String, port: Int)
+
+case class InterfaceImplementation(processId: Int,
+                                   interfaceId: Int,
+                                   address: Address,
+                                   subjectId: String)
+
 case class Graph(id: Option[Int],
   processId: Option[Int],
   date: java.sql.Timestamp,
@@ -180,7 +187,7 @@ case class GraphSubject(id: String,
   externalType: Option[String],
   role: Option[Role],
   url: Option[String],
-  implementations: Option[List[Int]],
+  implementations: Option[List[InterfaceImplementation]],
   comment: Option[String],
   variables: Map[String, GraphVariable],
   macros: Map[String, GraphMacro])

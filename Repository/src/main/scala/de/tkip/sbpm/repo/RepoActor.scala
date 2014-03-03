@@ -29,10 +29,11 @@ object RepoActor {
 
   case class AddInterface(ip: HttpIp, entry: String)
 
+  case class GetImplementations(subjectId: String)
+
   case object Reset
 
   object MyJsonProtocol extends DefaultJsonProtocol {
-    implicit val addressFormat = jsonFormat2(Address)
     implicit val interfaceFormat = jsonFormat5(Interface)
   }
 }
@@ -51,16 +52,23 @@ class RepoActor extends Actor with ActorLogging {
     case GetAllInterfaces => {
       val list = interfaces.values.toList
 
-      sender ! list.map{addInterfaceImplementations(_)}.toJson.prettyPrint
+      sender ! list.map{addInterfaceImplementations(_)}.toJson.toString
     }
 
     case GetInterface(implId) => {
       val list = interfaces.values.toList
       val filtered = list.find { impl => impl.id == implId }.map{_.graph}
 
-      log.info("entries for id: {}", filtered.toJson.prettyPrint)
+      log.info("entries for id: {}", filtered.toJson.toString)
 
-      sender ! filtered.toJson.prettyPrint
+      sender ! filtered.toJson
+    }
+
+    case GetImplementations(subjectId) => {
+      val implementations = implementationsFor(subjectId).toJson
+      log.info("Gathering list of implementations for: {}: {}", subjectId, implementations.prettyPrint)
+
+      sender ! implementations.toString
     }
 
     case AddInterface(ip, entry) => {
@@ -87,7 +95,7 @@ class RepoActor extends Actor with ActorLogging {
             logger.info("Subject is not an interface subject, aborting. subject types: " + subject.subjectType + ", " + subject.externalType)
             subject
           } else {
-            subject.copy(implementations = implementationsFor(subject))
+            subject.copy(implementations = implementationsFor(subject.id))
           }
         }
       }
@@ -113,9 +121,8 @@ class RepoActor extends Actor with ActorLogging {
                   address = getAddress(ip, entry))
   }
 
-  private def implementationsFor(subject: GraphSubject) : List[InterfaceImplementation] = {
-    logger.info("Subject is interface subject, continuing (subject id: " + subject.id + ")")
-    val someSId = Some(subject.id)
+  private def implementationsFor(subjectId: String) : List[InterfaceImplementation] = {
+    val someSId = Some(subjectId)
     val implementations: List[InterfaceImplementation] = interfaces.values.toList.flatMap(i => {
       i.graph.subjects.values.toList.filter(x => {
         val impl = (x.relatedSubjectId == someSId
@@ -128,13 +135,12 @@ class RepoActor extends Actor with ActorLogging {
       }).map(s => {
         val relatedInterface = if (s.relatedInterfaceId.isDefined) {
           interfaces(s.relatedInterfaceId.get)
-        } else {
-          i
-        }
+        } else i
         InterfaceImplementation(
-          relatedInterface.processId,
-          relatedInterface.id,
-          s.relatedSubjectId.get)
+          processId = relatedInterface.processId,
+          interfaceId = relatedInterface.id,
+          address = i.address,
+          subjectId = s.relatedSubjectId.get)
       })
     })
    implementations

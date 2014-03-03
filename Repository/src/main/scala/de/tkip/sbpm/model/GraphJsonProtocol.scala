@@ -264,7 +264,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
+  implicit val addressFormat = jsonFormat2(Address)
+  implicit val interfaceImplementationFormat = jsonFormat4(InterfaceImplementation)
 
   /**
    * Format for a subject object.

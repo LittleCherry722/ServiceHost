@@ -40,6 +40,15 @@ object Boot extends App with SimpleRoutingApp {
                 repoActor ! Reset
                 ctx.complete(HttpResponse(status = StatusCodes.OK))
             }
+          } ~ pathPrefix("implementations") {
+            get {
+              path(Rest) {
+                subjectId =>
+                  complete {
+                    (repoActor ? GetImplementations(subjectId)).mapTo[String]
+                  }
+              }
+            }
           } ~ pathPrefix("interfaces") {
             get {
               path("") {
