@@ -22,6 +22,7 @@ define([
     creator: "string",
     name: "string",
     description: "string",
+    processId: "integer",
     implementations: {
       type: "json",
       layz: false,
@@ -32,6 +33,8 @@ define([
       lazy: false
     }
   });
+
+  Interface.belongsTo("process");
 
   Interface.include({
     initialize: function( data ) {
@@ -47,7 +50,6 @@ define([
             _( self.graph().process ).each(function( s ) {
               t = s.subjectType ? s.subjectType : s.type;
               if (t === "external" && s.externalType === "interface" && test(s)) {
-                console.log(s.id.replace(/ß/, '\\u00d'));
                 var imps = s.implementations;
                 subjects.push({id: s.id, name: s.name, impCount: imps.length, imps: imps});
               }
@@ -128,11 +130,12 @@ define([
           s.relatedSubject = sid;
           s.isImplementation = true;
         } else {
+          s.relatedInterface = null;
+          s.relatedSubject = s.id;
           s.subjectType = "external";
           s.externalType = "interface";
           s.role = "Please choose role";
         }
-        console.log(s);
       });
 
       // anonymize messages.
@@ -151,7 +154,6 @@ define([
       messages = _(messages).uniq();
       _(ng.messages).each(function(v, k) {
         if (!_(messages).contains(k)) {
-          console.log("anonymizing meessage: " + k);
           ng.messages[k] = "Anonymized";
         }
       });
@@ -218,6 +220,7 @@ define([
 
       // set all edges not related to our subject to tau
 
+      console.log("sid: " + sid);
       ps.forEach(function(s) {
         if ( s.id === sid) return;
         s.macros.forEach(function(m) {

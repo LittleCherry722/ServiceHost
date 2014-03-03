@@ -13,7 +13,7 @@
         "comment": "",
         "deactivated": false,
         "externalType": "external",
-        "id": "Gro\u00dfunternehmen",
+        "id": "Grossunternehmen",
         "startSubject":true,
         "inputPool": 100,
         "macroCounter": 1,
@@ -238,9 +238,7 @@
             ]
           }
         ],
-        "name": "Gro\u00dfunternehmen",
-        "relatedProcess": "",
-        "relatedSubject": "",
+        "name": "Grossunternehmen",
         "role": "Gro\u00dfunternehmen",
         "type": "single",
         "variableCounter": 1,
@@ -268,7 +266,7 @@
                 "start": 0,
                 "target": {
                   "createNew": false,
-                  "id": "Gro\u00dfunternehmen",
+                  "id": "Grossunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -291,7 +289,7 @@
                 "start": 1,
                 "target": {
                   "createNew": false,
-                  "id": "Gro\u00dfunternehmen",
+                  "id": "Grossunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -390,10 +388,6 @@
           }
         ],
         "name": "Staples",
-        "relatedProcess": 2,
-        "relatedSubject": "Staples",
-        "relatedInterface": null,
-        "url": "@127.0.0.1:2553",
         "role": "Staples",
         "type": "external",
         "variableCounter": 1,

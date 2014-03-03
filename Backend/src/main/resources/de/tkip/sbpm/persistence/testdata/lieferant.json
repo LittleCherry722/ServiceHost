@@ -152,7 +152,7 @@
           }
         ],
         "name": "Kunde",
-        "relatedSubject": "",
+        "relatedSubject": null,
         "relatedInterface": null,
         "url": "",
         "role": "Staples",
@@ -346,8 +346,7 @@
           }
         ],
         "name": "Lieferant",
-        "relatedProcess": "",
-        "relatedSubject": "",
+        "relatedSubject": null,
         "role": "Zulieferer",
         "type": "single",
         "variableCounter": 1,

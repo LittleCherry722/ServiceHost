@@ -264,6 +264,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
+  implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
+
   /**
    * Format for a subject object.
    * Counter values are calculated on the fly when converting to JSON

@@ -19,8 +19,10 @@ import spray.json._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.GraphJsonProtocol._
 import spray.http.HttpIp
+import akka.event.Logging
 
 object RepoActor {
+
   case object GetAllInterfaces
 
   case class GetInterface(id: Int)
@@ -31,7 +33,7 @@ object RepoActor {
 
   object MyJsonProtocol extends DefaultJsonProtocol {
     implicit val addressFormat = jsonFormat2(Address)
-    implicit val interfaceFormat = jsonFormat4(Interface)
+    implicit val interfaceFormat = jsonFormat5(Interface)
   }
 }
 
@@ -40,14 +42,14 @@ class RepoActor extends Actor with ActorLogging {
 
   import RepoActor._
 
+  private val logger = Logging(context.system, this)
+
   val interfaces = mutable.Map[Int, Interface]()
   var currentId = 1
 
   def receive = {
     case GetAllInterfaces => {
       val list = interfaces.values.toList
-
-      log.info("entries: {}", list.toJson.prettyPrint)
 
       sender ! list.map{addInterfaceImplementations(_)}.toJson.prettyPrint
     }
@@ -80,31 +82,62 @@ class RepoActor extends Actor with ActorLogging {
     interface.copy(graph = interface.graph.copy(
       subjects = interface.graph.subjects.mapValues{
         subject => {
-          val newImplementations = interfaces.values.toList.filter(interface => {
-            val bList = interface.graph.subjects.values.toList.map(
-              _.relatedInterfaceId == Some(interface.id)
-            )
-            bList.find(!_).getOrElse(false)
-          })
-
-          subject.copy(implementations = newImplementations.map(_.id))
+          logger.info("Searching for implementations for subject " + subject.name + " from " + interface.name)
+          if (!(subject.subjectType == "external" && subject.externalType == Some("interface"))) {
+            logger.info("Subject is not an interface subject, aborting. subject types: " + subject.subjectType + ", " + subject.externalType)
+            subject
+          } else {
+            subject.copy(implementations = implementationsFor(subject))
+          }
         }
       }
     ))
   }
 
-  private def getAddress(ip: HttpIp, entry: JsObject) = {
+  private def getAddress(ip: HttpIp, entry: JsObject) = {0
     val port = entry.fields("port")
     Address(ip.value, port.toString.toInt)
   }
 
   private def convertEntry(entry: JsObject, ip: HttpIp) = {
     var fields = entry.fields
+    val oldId = fields("id").toString.toInt
     val graph = fields("graph").convertTo[Graph]
     val id = fields.getOrElse[JsValue]("interfaceId", nextId.toJson).convertTo[Int]
     val name = fields.getOrElse[JsValue]("name", "".toJson).convertTo[String]
 
-    new Interface(getAddress(ip, entry), id, name, graph)
+    new Interface(id = id,
+                  name = name,
+                  graph = graph,
+                  processId = oldId,
+                  address = getAddress(ip, entry))
+  }
+
+  private def implementationsFor(subject: GraphSubject) : List[InterfaceImplementation] = {
+    logger.info("Subject is interface subject, continuing (subject id: " + subject.id + ")")
+    val someSId = Some(subject.id)
+    val implementations: List[InterfaceImplementation] = interfaces.values.toList.flatMap(i => {
+      i.graph.subjects.values.toList.filter(x => {
+        val impl = (x.relatedSubjectId == someSId
+          && (x.relatedInterfaceId.isDefined && interfaces.contains(x.relatedInterfaceId.get)
+             || x.relatedInterfaceId.isEmpty))
+        if (impl) {
+          logger.info("Subject [" + i.name + "/" + x.name + "] is Implementation! ")
+        }
+        impl
+      }).map(s => {
+        val relatedInterface = if (s.relatedInterfaceId.isDefined) {
+          interfaces(s.relatedInterfaceId.get)
+        } else {
+          i
+        }
+        InterfaceImplementation(
+          relatedInterface.processId,
+          relatedInterface.id,
+          s.relatedSubjectId.get)
+      })
+    })
+   implementations
   }
 
   private def nextId = {

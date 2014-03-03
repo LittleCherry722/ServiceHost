@@ -31,7 +31,7 @@
                 "start": 0,
                 "target": {
                   "createNew": false,
-                  "id": "Gro\u00dfunternehmen",
+                  "id": "Grossunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -88,7 +88,7 @@
                 "start": 3,
                 "target": {
                   "createNew": false,
-                  "id": "Gro\u00dfunternehmen",
+                  "id": "Grossunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
@@ -354,8 +354,6 @@
           }
         ],
         "name": "Staples",
-        "relatedProcess": "",
-        "relatedSubject": "",
         "role": "Staples",
         "type": "single",
         "variableCounter": 1,
@@ -504,10 +502,6 @@
           }
         ],
         "name": "Lieferant",
-        "relatedProcess": 3,
-        "relatedSubject": "Zulieferer",
-        "relatedInterface": null,
-        "url": "@127.0.0.1:2554",
         "role": "Zulieferer",
         "type": "external",
         "variableCounter": 1,
@@ -517,7 +511,7 @@
         "comment": "",
         "deactivated": false,
         "externalType": "interface",
-        "id": "Gro\u00dfunternehmen",
+        "id": "Grossunternehmen",
         "inputPool": 100,
         "macroCounter": 1,
         "macros": [
@@ -656,9 +650,6 @@
           }
         ],
         "name": "Kunde",
-        "relatedSubject": "",
-        "relatedInterface": null,
-        "url": "",
         "role": "Kunde",
         "type": "external",
         "variableCounter": 1,

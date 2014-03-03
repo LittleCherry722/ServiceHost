@@ -436,11 +436,15 @@ define([
 		// Something is not right with lazy attributes... Need to set it twice -.-
 		process.save(null, {
 			success: function( textStatus ) {
+        if (process.publishInterface()) {
+          console.log("Fetching new interfaces");
+          Interface.fetch();
+        }
 				Notify.info("Success", "Process '" + currentProcess().name() + "' has successfully been saved.");
 				Router.setHasUnsavedChanges(false);
 			},
 			error: function( textStatus, error ) {
-				Notify.error("Error", "Process '" + currentProcess().name() + "' could not be saved.");
+				Notify.error("Error", "Process '" + currentProcess().name() + "' could not be saved.\nFehler: " + error);
 			}
 		});
 	}

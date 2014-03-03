@@ -57,11 +57,15 @@ case class Configuration(key: String,
   value: Option[String],
   dataType: String)
 
-
 case class Interface(address: Address,
                      id: Int,
+                     processId: Int,
                      name: String,
                      graph: Graph)
+
+case class InterfaceImplementation(processId: Int,
+                                   interfaceId: Int,
+                                   subjectId: String)
 
 case class Address(ip: String, port: Int)
 
@@ -97,7 +101,7 @@ case class GraphSubject(id: String,
   isImplementation: Option[Boolean],
   externalType: Option[String],
   role: Option[String],
-  implementations: List[Int],
+  implementations: List[InterfaceImplementation],
   comment: Option[String],
   variables: Map[String, GraphVariable],
   macros: Map[String, GraphMacro])

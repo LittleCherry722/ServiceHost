@@ -164,7 +164,7 @@ define([
 
 					// Return if the item already exists in this relation
 					if ( _( results ).contains( item ) ) {
-						return;
+						return results;
 					}
 
 					// Save the record if it has not yet been saved

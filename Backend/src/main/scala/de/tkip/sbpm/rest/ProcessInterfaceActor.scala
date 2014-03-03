@@ -71,15 +71,14 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
        */
       // LIST
       path("") {
-        // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
-        logger.info("FILTERED PROCESSES:")
-        val ps = for {
-          processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
-          filtered = if (showProcesses.isEmpty) processes
-                     else processes filter (showProcesses contains _.id.getOrElse(-1))
-        }  yield filtered
-        logger.info(ps.toString)
-        complete(ps)
+        dynamic {
+          // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück'
+          complete(for {
+            processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
+            filtered = if (showProcesses.isEmpty) processes
+            else processes filter (showProcesses contains _.id.getOrElse(-1))
+          }  yield filtered)
+        }
       } ~
         // READ
         pathPrefix(IntNumber) {
