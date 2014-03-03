@@ -15,8 +15,8 @@ object MainBoots extends App {
   ui.visible = true
   val system = ActorSystem("EventBus")
   val remotePubActor = system.actorSelection("akka.tcp://sbpm@127.0.0.1:2552/user/eventbus-remote-publish")
-  val duration = Duration(1000, MILLISECONDS)
-  val f = remotePubActor.resolveOne(duration)
+  val resolveTimeout = Duration(40000, MILLISECONDS)
+  val f = remotePubActor.resolveOne(resolveTimeout)
   var s = true
 
   remotePubActor ! "Hello from remote app"
