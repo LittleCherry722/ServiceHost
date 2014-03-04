@@ -18,9 +18,9 @@ class $TemplateServiceActor extends ServiceActor {
   
   private implicit val service = this
   
-  private val states = List(
+  private val states: List[State] = List(
       //$EMPTYSTATE$//
-      ReceiveState)
+      )
   
   // start with first state
   private var state: State = getState(0)
@@ -51,7 +51,7 @@ class $TemplateServiceActor extends ServiceActor {
     state.process
   }
   
-  def getState(id: Int): State = {
+  def getState(id: Double): State = {
     for (s <- states) if (s.id == id) return s
     null
   }

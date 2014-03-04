@@ -3,8 +3,8 @@ package de.tkip.servicehost.serviceactor.stubgen
 import scala.collection.immutable.List
 import de.tkip.servicehost.serviceactor.ServiceActor
 import akka.actor.PoisonPill
-
 import de.tkip.sbpm.application.subject.behavior.Transition
+import de.tkip.sbpm.application.subject.misc._
 
 abstract class State {
 

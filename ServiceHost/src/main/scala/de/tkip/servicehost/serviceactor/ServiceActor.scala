@@ -10,32 +10,16 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
 abstract class ServiceActor extends Actor {
   
-//  protected val inputPoolActor: ActorRef =
-//    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
   
-//  def receive: Actor.Receive = {
-//    case message: ExecuteServiceMessage =>
-//      handleExecuteServiceMessage(message, sender)
-//    case request: CreateProcessInstance =>
-//      handleCreateProcessInstance(request, sender)
-//    case message: SubjectToSubjectMessage =>
-//      handleSubjectToSubjectMessage(message, sender)
-//    case GetProxyActor => {
-//      GetProxyActor
-//      handleGetProxyActor(GetProxyActor, sender)
-//    }
-//      
-//    case other =>
-//      handleServiceSpecificMessage(other, sender)
-//  }
-//  
-//  def handleExecuteServiceMessage(message: ExecuteServiceMessage, sender: ActorRef)
-//  def handleCreateProcessInstance(request: CreateProcessInstance, sender: ActorRef)
-//  def handleSubjectToSubjectMessage(message: SubjectToSubjectMessage, sender: ActorRef)
-//  def handleGetProxyActor(proxy: Any, sender: ActorRef)
-//  def handleServiceSpecificMessage(message: Any, sender: ActorRef)
-//  
+  def changeState()
   
+  def getState(id: Double)
+  
+  def storeMsg(message: Any)
+  
+  def getSender(): ActorRef
+ 
+  def terminate()
 }
 
 object ServiceAttributes {
