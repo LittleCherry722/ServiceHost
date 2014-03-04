@@ -11,18 +11,37 @@ import de.tkip.sbpm.application.subject.behavior.Target
 import akka.actor.ActorRef
 import java.util.Date
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
+import de.tkip.servicehost.serviceactor.stubgen.State
 
 class StaplesServiceActor extends ServiceActor {
-	
+
+  def changeState() {
+  }
+
+  def getState(id: Double):State= {
+    val state : State = null
+    return state
+  }
+
+  def storeMsg(message: Any) {
+  }
+
+  def getSender(): ActorRef ={
+    ???
+  }
+
+  def terminate() {
+  }
+
   private var userId = 0
   private var processId = 0
   private var manager: Option[ActorRef] = None
-  
+
   def receive: Actor.Receive = {
-    case ExecuteServiceMessage => 
+    case ExecuteServiceMessage =>
       println("here")
-    case message: SubjectToSubjectMessage => {   
-      
+    case message: SubjectToSubjectMessage => {
+
       // fake InputPoolActor:
 
       // Unlock the sender
@@ -32,9 +51,8 @@ class StaplesServiceActor extends ServiceActor {
       // reply immediate:
       // TODO: EventBus einbinden
 
-
       val msgToExternal = false // false: it should not leave sbpm
-      val target = Target("Großunternehmen",0,1,false,None,msgToExternal,true)
+      val target = Target("Großunternehmen", 0, 1, false, None, msgToExternal, true)
       val messageType = "Lieferdatum"
       val messageContent = "Die Bestellung \"" + message.messageContent + "(" + Integer.valueOf(message.messageContent) * 2 + ")" + "\" ist morgen fertig. "
       val remoteUserId = 1 // TODO: context resolver einbinden, um UserID zu bestimmen. resolven sollte jedoch in sbpm, nicht beim service host passieren
@@ -48,7 +66,7 @@ class StaplesServiceActor extends ServiceActor {
       userId = request.userID
       processId = request.processID
       manager = request.manager
-   
+
       // TODO implement
 
       // fake ProcessInstanceActor:
@@ -69,11 +87,11 @@ class StaplesServiceActor extends ServiceActor {
       // fake ProcessInstanceProxyActor:
       sender ! self
     }
-    
-//    def handleExecuteServiceMessage(message: ExecuteServiceMessage, sender: ActorRef) = {}
-//    def handleCreateProcessInstance(request: CreateProcessInstance, sender: ActorRef) = {}
-//    def handleSubjectToSubjectMessage(message: SubjectToSubjectMessage, sender: ActorRef) = {}
-//    def handleGetProxyActor(proxy: Any, sender: ActorRef) = {}
-//    def handleServiceSpecificMessage(message: Any, sender: ActorRef) = {}
+
+    //    def handleExecuteServiceMessage(message: ExecuteServiceMessage, sender: ActorRef) = {}
+    //    def handleCreateProcessInstance(request: CreateProcessInstance, sender: ActorRef) = {}
+    //    def handleSubjectToSubjectMessage(message: SubjectToSubjectMessage, sender: ActorRef) = {}
+    //    def handleGetProxyActor(proxy: Any, sender: ActorRef) = {}
+    //    def handleServiceSpecificMessage(message: Any, sender: ActorRef) = {}
   }
 }
