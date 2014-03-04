@@ -41,7 +41,8 @@ object main extends App {
    */
   def registerInterface(): Unit = {
     println("registerInterface")
-    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
+//    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
+    val source = scala.io.Source.fromFile("./src/main/resources/service_export_Stapler_service.json")
     val jsonString = source.mkString
     source.close()
 
