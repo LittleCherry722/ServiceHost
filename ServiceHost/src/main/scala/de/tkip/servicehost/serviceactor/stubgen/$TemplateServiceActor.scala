@@ -6,6 +6,7 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.servicehost.Messages._
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.servicehost.serviceactor.stubgen.State
 
 class $TemplateServiceActor extends ServiceActor {
 
