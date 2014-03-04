@@ -4,15 +4,16 @@ import de.tkip.sbpm.rest.GraphJsonProtocol._
 import scala.collection.immutable.Map
 import spray.json._
 import java.io.File
+import akka.actor.Actor
 
-object sss extends App {
-  val r = new StubGeneratorActor
-  val (name, states) = r.extractStates("D:/study/TKIP/ServiceHost/src/main/scala/de/tkip/servicehost/service_export_test_name2.json")
-  r.fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name,states)
-  println()
-}
+//object sss extends App {
+//  val r = new StubGeneratorActor
+//  val (name, states) = r.extractStates("D:/study/TKIP/ServiceHost/src/main/scala/de/tkip/servicehost/service_export_test_name2.json")
+//  r.fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name,states)
+//  println()
+//}
 
-class StubGeneratorActor {
+class StubGeneratorActor extends Actor{
   sealed class State
   case class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: String)
   case class ReceiveState(id: Int, exittype: String, target: String, targetId: Int) extends State
@@ -24,7 +25,10 @@ class StubGeneratorActor {
   //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
 
   def receive = {
-    ???
+    case path:String=>{
+      val (name,states)=extractStates(path)
+      fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name, states)
+    }
   }
   def extractStates(jsonPath: String): (String, List[State]) = {
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString

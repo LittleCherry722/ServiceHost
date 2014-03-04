@@ -25,9 +25,9 @@ abstract class State {
 
   //  var comment, conversation, macro, message, state, subject, text, typeState, variable: String
   //  var deactivated, end, majorStartNode, start: Boolean
-  var id = -1.0 //, correlationId: Double
+  var id = -1 //, correlationId: Double
   //  var varMan: Map[String, String]
-  var targetId = -1.0
+  var targetId = -1
   var exitType: String = "" 
   var target: Target = null
 
@@ -35,7 +35,7 @@ abstract class State {
 
   //  var edge : Transition
 
-  def apply(id: Double, exitType: String, target: Target, targetId: Double) {
+  def apply(id: Int, exitType: String, target: Target, targetId: Int) {
     this.id = id;
     this.targetId = targetId
     this.exitType = exitType

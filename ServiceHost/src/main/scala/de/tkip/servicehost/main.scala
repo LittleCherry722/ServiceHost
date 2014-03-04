@@ -1,7 +1,7 @@
 package de.tkip.servicehost
 
 import akka.actor._
-import scalaj.http.{Http, HttpOptions}
+import scalaj.http.{ Http, HttpOptions }
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
 import java.util.Date
@@ -9,6 +9,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
 
 /*
 
@@ -16,19 +17,26 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess GroÃŸunternehmen. FÃ
 
  */
 
-
 object main extends App {
+
   println("main started")
   val repoUrl = "http://localhost:8181/repo"
+
   val system = ActorSystem("sbpm")
+  if (args.contains("service") && args.length >= 2) {
+    val path = args(args.indexOf("service") + 1)
 
-  // TODO add other root Actors
-  
-  system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")  
-  system.actorOf(Props[ServiceActorManager], "service-actor-manager")
-  system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
-  registerInterface()
-
+    system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+    val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
+    generator ! path
+    system.shutdown
+  } // TODO add other root Actors
+  else {
+    system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+    system.actorOf(Props[ServiceActorManager], "service-actor-manager")
+    system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    registerInterface()
+  }
 
   /**
    * Registers the interface at the interface repository by sending the graph data and some additional information as
@@ -41,7 +49,7 @@ object main extends App {
    */
   def registerInterface(): Unit = {
     println("registerInterface")
-//    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
+    //    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
     val source = scala.io.Source.fromFile("./src/main/resources/service_export_Stapler_service.json")
     val jsonString = source.mkString
     source.close()
@@ -60,12 +68,10 @@ object main extends App {
   }
 }
 
-
 class ServiceHostActor extends Actor {
 
   val serviceManager = ActorLocator.serviceActorManager
-  
-  
+
   def receive: Actor.Receive = {
     case register: RegisterServiceMessage => {
       println("received RegisterServiceMessage: " + register)
@@ -75,7 +81,7 @@ class ServiceHostActor extends Actor {
     case execute: ExecuteServiceMessage => {
       println("received ExecuteServiceMessage: " + execute)
       // TODO implement
-      serviceManager forward(execute)
+      serviceManager forward (execute)
       sender ! Some("some ExecuteServiceMessage answer")
     }
     case request: CreateProcessInstance => {
@@ -94,10 +100,10 @@ class ServiceHostActor extends Actor {
       serviceManager forward message
     }
     case s: Stored => {
-      println("received Stored: "+s)
+      println("received Stored: " + s)
     }
     case something => {
-      println("received something: "+something)
+      println("received something: " + something)
       sender ! Some("some answer")
     }
   }
