@@ -39,6 +39,7 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def nodeType = column[String]("type", DbType.stringIdentifier)
     def manualPositionOffsetX = column[Option[Short]]("manual_position_offset_x", DbType.smallint)
     def manualPositionOffsetY = column[Option[Short]]("manual_position_offset_y", DbType.smallint)
+    def isAutoExecute = column[Option[Boolean]]("autoExecute")
     def isDisabled = column[Boolean]("disabled")
     def isMajorStartNode = column[Boolean]("major_start_node")
     def conversationId = column[Option[String]]("conversation_id", DbType.stringIdentifier)
@@ -50,8 +51,8 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def optionNodeId = column[Option[Short]]("option_node_id", DbType.smallint)
     def executeMacroId = column[Option[String]]("execute_macro_id", DbType.stringIdentifier)
 
-    def * = id ~ macroId ~ subjectId ~ graphId ~ text ~ isStart ~ isEnd ~ nodeType ~ manualPositionOffsetX ~ manualPositionOffsetY ~ isDisabled ~
-      isMajorStartNode ~ conversationId ~ variableId ~ optionMessageId ~ optionSubjectId ~
+    def * = id ~ macroId ~ subjectId ~ graphId ~ text ~ isStart ~ isEnd ~ nodeType ~ manualPositionOffsetX ~ manualPositionOffsetY ~ isAutoExecute ~
+      isDisabled ~ isMajorStartNode ~ conversationId ~ variableId ~ optionMessageId ~ optionSubjectId ~
       optionCorrelationId ~ optionConversationId ~ optionNodeId ~ executeMacroId <> (GraphNode, GraphNode.unapply _)
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
