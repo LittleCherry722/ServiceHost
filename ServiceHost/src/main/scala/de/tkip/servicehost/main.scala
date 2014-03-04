@@ -9,6 +9,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.eventbus._
 
 /*
 
@@ -26,6 +27,7 @@ object main extends App {
   
   system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")  
   system.actorOf(Props[ServiceActorManager], "service-actor-manager")
+  system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
   system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
   registerInterface()
 
@@ -63,8 +65,18 @@ object main extends App {
 class ServiceHostActor extends Actor {
 
   val serviceManager = ActorLocator.serviceActorManager
-  
-  
+
+  //TODO REMOVE
+  val tmpSubscriber = context.actorOf(Props(new Actor {
+    def receive = {
+      case SbpmEventBusTextMessage(text) => println("SUBSCRIBER GOT TEXT: " + text)
+      case msg => println("SUBSCRIBER GOT OTHER: " + msg)
+    }
+  }))
+  SbpmEventBus.subscribe(tmpSubscriber, "/traffic")
+  //TODO END-REMOVE
+
+
   def receive: Actor.Receive = {
     case register: RegisterServiceMessage => {
       println("received RegisterServiceMessage: " + register)
