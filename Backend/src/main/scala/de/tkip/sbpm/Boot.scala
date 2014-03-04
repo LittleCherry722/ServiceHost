@@ -103,6 +103,7 @@ object Boot extends App {
   val tmpSubscriber = system.actorOf(Props(new Actor {
     def receive = {
       case SbpmEventBusTextMessage(text) => println("SUBSCRIBER GOT TEXT: " + text)
+      case msg => println("SUBSCRIBER GOT OTHER: " + msg)
     }
   }))
   SbpmEventBus.subscribe(tmpSubscriber, "/events")
