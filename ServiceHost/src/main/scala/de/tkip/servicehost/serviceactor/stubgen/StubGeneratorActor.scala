@@ -5,6 +5,7 @@ import scala.collection.immutable.Map
 import spray.json._
 import java.io.File
 import akka.actor.Actor
+import scala.reflect.ClassTag
 
 //object sss extends App {
 //  val r = new StubGeneratorActor
@@ -18,7 +19,7 @@ class StubGeneratorActor extends Actor{
   case class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: String)
   case class ReceiveState(id: Int, exittype: String, target: String, targetId: Int) extends State
   case class SendState(id: Int, exittype: String, target: String, targetId: Int) extends State
-  case class ExitState(id: Int, target: Int) extends State
+  case class ExitState(id: Int, exittype:Any, t:Any, target: Int) extends State
 
   //   val simpleGraphSource = Source.fromURL(getClass.getResource("service_export_test_name2.json")).mkString
   //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
@@ -26,11 +27,11 @@ class StubGeneratorActor extends Actor{
 
   def receive = {
     case path:String=>{
-      val (name,states)=extractStates(path)
-      fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name, states)
+      val (name,id,states)=extractStates(path)
+      fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name, id, states)
     }
   }
-  def extractStates(jsonPath: String): (String, List[State]) = {
+  def extractStates(jsonPath: String): (String,String, List[State]) = {
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString
     val json: Option[Any] = JSON.parseFull(json_string)
     val process: Map[String, Any] = json.get.asInstanceOf[Map[String, Any]]
@@ -44,7 +45,7 @@ class StubGeneratorActor extends Actor{
     for (node <- nodes) yield {
       states = states + (node.asInstanceOf[Map[String, Any]]("id").asInstanceOf[Double].toInt -> node)
       if (node("type") == "end")
-        statesList = statesList ::: List(ExitState(node("id").asInstanceOf[Double].toInt, -1))
+        statesList = statesList ::: List(ExitState(node("id").asInstanceOf[Double].toInt, null,null,-1))
     }
     val edges = macro("edges").asInstanceOf[List[Map[String, Any]]]
     for (edge <- edges) yield {
@@ -58,11 +59,12 @@ class StubGeneratorActor extends Actor{
           statesList = statesList ::: List(SendState(start("id").asInstanceOf[Double].toInt, "\""+edge("type").asInstanceOf[String]+"\"", taget, edge("end").asInstanceOf[Double].toInt))
       }
     }
-    (graph("name").asInstanceOf[String], statesList)
+    (graph("name").asInstanceOf[String],graph("id").asInstanceOf[String], statesList)
   }
 
-  def fillInClass(classPath: String, name:String, states: List[State]) {
+  def fillInClass(classPath: String, name:String, id:String, states: List[State]) {
     var classText = scala.io.Source.fromFile(classPath).mkString
+    classText=classText.replace("$SERVICEID", id)
     var text = ""
     for (state <- states) {
       text = text + state + ","
@@ -75,6 +77,9 @@ class StubGeneratorActor extends Actor{
         f=new File(classPath.replace("$Template", name+i))
         i=i+1
       }
+      classText=classText.replace("$TemplateServiceActor", name+(i-1)+"ServiceActor")
+    }else{
+      classText=classText.replace("$TemplateServiceActor", name+"ServiceActor")
     }
     val pw = new java.io.PrintWriter(f.getAbsolutePath())
     pw.print(classText)

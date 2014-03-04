@@ -44,8 +44,8 @@ class $TemplateServiceActor extends ServiceActor {
       print(message)
       tosender = sender
       state match {
-        case rs: ReceiveState => 
-          rs.handle(message)
+        case ReceiveState => 
+          ReceiveState.handle(message)
       }
     }
     case message: ExecuteServiceMessage => {

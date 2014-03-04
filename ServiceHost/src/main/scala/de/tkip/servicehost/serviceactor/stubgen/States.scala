@@ -7,21 +7,21 @@ import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior.state.StateData
 
-class Target(id: Int, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
+class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
   //  def apply(id: Int, min:Int, max:Int, createNew : Boolean, variable: Option[String]){
   val toExternal = true
   val defaultValues = false;
-  val target = new de.tkip.sbpm.application.subject.behavior.Target(String.valueOf(id), min, max, createNew, variable, toExternal, defaultValues)
+  val target = new de.tkip.sbpm.application.subject.behavior.Target(id, min, max, createNew, variable, toExternal, defaultValues)
   //}
 
 }
 object Target {
-  def apply(id: Int, min: Int, max: Int, createNew: Boolean, variable: String) = {
+  def apply(id: String, min: Int, max: Int, createNew: Boolean, variable: String) = {
     new Target(id, min, max, createNew, Option(variable))
   }
 }
 
-abstract class State {
+class State {
 
   //  var comment, conversation, macro, message, state, subject, text, typeState, variable: String
   //  var deactivated, end, majorStartNode, start: Boolean
@@ -35,7 +35,7 @@ abstract class State {
 
   //  var edge : Transition
 
-  def apply(id: Int, exitType: String, target: Target, targetId: Int) {
+  def apply(id: Int, exitType: String, target: Target, targetId: Int) = new State {
     this.id = id;
     this.targetId = targetId
     this.exitType = exitType
@@ -57,12 +57,14 @@ abstract class State {
   //    this.edge = edge
   //    this.sourceNode = sourceNode
   //  }
-  def process()(implicit actor: ServiceActor)
+  def process()(implicit actor: ServiceActor){
+    
+  }
 
 }
 
-case class ReceiveState extends State {
-  def process()(implicit actor: ServiceActor) {
+case object ReceiveState extends State {
+  override def process()(implicit actor: ServiceActor) {
     //TODO
   }
 
@@ -73,7 +75,7 @@ case class ReceiveState extends State {
 }
 
 object SendState extends State {
-  def process()(implicit actor: ServiceActor) {
+  override def process()(implicit actor: ServiceActor) {
     val msg = ""
     send(msg)
   }
@@ -106,7 +108,7 @@ object SendState extends State {
 
 object ExitState extends State {
 
-  def process()(implicit actor: ServiceActor) {
+  override def process()(implicit actor: ServiceActor) {
     actor.terminate()
   }
 }
