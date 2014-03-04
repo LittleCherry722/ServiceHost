@@ -9,6 +9,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import akka.actor.ActorRef
 import akka.actor.Props
 import akka.actor.PoisonPill
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
 class $TemplateServiceActor extends ServiceActor {
 
@@ -27,9 +28,20 @@ class $TemplateServiceActor extends ServiceActor {
   private var message: Any = null
   private var tosender: ActorRef = null
   
+  private val serviceID: String = "$SERVICEID"
+  
+  // Subject default values
+  private var userID = -1
+  private var processID = -1
+  private var subjectID:String = ""
+  private var messageType: String = ""
+  private var target = -1
+  
+  
   def receive: Actor.Receive = {
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
+      print(message)
       tosender = sender
       state match {
         case rs: ReceiveState => 
@@ -47,7 +59,7 @@ class $TemplateServiceActor extends ServiceActor {
   }  
   
   def changeState {
-    //TODO CHANGE STATE
+    state = getState(state.targetId)
     state.process
   }
   
@@ -56,8 +68,15 @@ class $TemplateServiceActor extends ServiceActor {
     null
   }
   
-  def storeMsg(message: Any) {
-    this.message = message
+  def storeMsg(message: Any): Unit = {
+    message match {
+      case message: SubjectToSubjectMessage => {
+        // TODO 
+        this.message = message
+      }
+      case _ =>
+      	this.message = message
+    }    
   }
   
   def getSender(): ActorRef = {
@@ -66,5 +85,17 @@ class $TemplateServiceActor extends ServiceActor {
   
   def terminate() {
     self ! PoisonPill
+  }
+  
+  def getUserID(): Int = {
+    userID
+  }
+  
+  def getProcessID(): Int = {
+    processID
+  }
+  
+  def getSubjectID(): String = {
+    subjectID
   }
 }

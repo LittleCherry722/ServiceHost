@@ -7,19 +7,26 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.servicehost.serviceactor.stubgen.State
 
 abstract class ServiceActor extends Actor {
   
   
   def changeState()
   
-  def getState(id: Double)
+  def getState(id: Double): State
   
-  def storeMsg(message: Any)
+  def storeMsg(message: Any): Unit
   
   def getSender(): ActorRef
  
-  def terminate()
+  def terminate(): Unit
+ 
+  def getUserID(): Int
+  
+  def getProcessID(): Int
+  
+  def getSubjectID(): String
 }
 
 object ServiceAttributes {

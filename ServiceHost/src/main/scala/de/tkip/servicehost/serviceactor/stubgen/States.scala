@@ -28,8 +28,8 @@ abstract class State {
   var id = -1.0 //, correlationId: Double
   //  var varMan: Map[String, String]
   var targetId = -1.0
-  var exitType: String
-  var target: Target
+  var exitType: String = "" 
+  var target: Target = null
 
   //  var sourceNode:  Map[String, Any]
 

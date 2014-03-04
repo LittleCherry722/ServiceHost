@@ -33,7 +33,7 @@ class ServiceActorManager extends Actor{
     }
     case request: CreateProcessInstance => {
       println(request.subjectMapping)
-      serviceActor("Staples") forward request
+      serviceActor("Staples") //forward request
     }
     case GetProxyActor => {
       println("received GetProxyActor")
