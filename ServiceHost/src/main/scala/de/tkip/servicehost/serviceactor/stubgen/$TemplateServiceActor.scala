@@ -6,29 +6,65 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.servicehost.Messages._
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.servicehost.serviceactor.stubgen.State
+import akka.actor.ActorRef
+import akka.actor.Props
+import akka.actor.PoisonPill
 
 class $TemplateServiceActor extends ServiceActor {
 
-  val states = {
-    //$EMPTYSTATE$//
-  }
+  // TODO implement inputpoolActor
+//  private val inputPoolActor: ActorRef = null
+//    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
   
-  var state: State = null
+  private implicit val service = this
+  
+  private val states = List(
+      //$EMPTYSTATE$//
+      ReceiveState)
+  
+  // start with first state
+  private var state: State = getState(0)
+  private var message: Any = null
+  private var tosender: ActorRef = null
   
   def receive: Actor.Receive = {
     case message: SubjectToSubjectMessage => {
-      if (state of ReceiveState) state.process
+      // TODO forward /set variables?
+      tosender = sender
+      state match {
+        case rs: ReceiveState => 
+          rs.handle(message)
+      }
     }
     case message: ExecuteServiceMessage => {
-      case state
-    }
-    case request: CreateProcessInstance => {
-      
+    	tosender = sender
     }
     case GetProxyActor => {
-      
+      sender ! self
     }
+    
+    // TODO implement other messages
   }  
   
+  def changeState {
+    //TODO CHANGE STATE
+    state.process
+  }
+  
+  def getState(id: Int): State = {
+    for (s <- states) if (s.id == id) return s
+    null
+  }
+  
+  def storeMsg(message: Any) {
+    this.message = message
+  }
+  
+  def getSender(): ActorRef = {
+    tosender
+  }
+  
+  def terminate() {
+    self ! PoisonPill
+  }
 }
