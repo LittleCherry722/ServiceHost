@@ -48,6 +48,7 @@ class StaplesServiceActor extends ServiceActor {
       userId = request.userID
       processId = request.processID
       manager = request.manager
+   
       // TODO implement
 
       // fake ProcessInstanceActor:
@@ -68,5 +69,11 @@ class StaplesServiceActor extends ServiceActor {
       // fake ProcessInstanceProxyActor:
       sender ! self
     }
+    
+//    def handleExecuteServiceMessage(message: ExecuteServiceMessage, sender: ActorRef) = {}
+//    def handleCreateProcessInstance(request: CreateProcessInstance, sender: ActorRef) = {}
+//    def handleSubjectToSubjectMessage(message: SubjectToSubjectMessage, sender: ActorRef) = {}
+//    def handleGetProxyActor(proxy: Any, sender: ActorRef) = {}
+//    def handleServiceSpecificMessage(message: Any, sender: ActorRef) = {}
   }
 }
