@@ -10,13 +10,30 @@ import de.tkip.sbpm.application.subject.misc.Stored
 import de.tkip.sbpm.application.subject.behavior.Target
 import akka.actor.ActorRef
 import java.util.Date
+import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
+import de.tkip.sbpm.eventbus.SbpmEventBus
 
 class StaplesServiceActor extends ServiceActor {
 	
   private var userId = 0
   private var processId = 0
   private var manager: Option[ActorRef] = None
+  private val outgoingMessageStorage: ArrayBuffer[SubjectToSubjectMessage] = ArrayBuffer()
+
+  val tmpSubscriber = context.actorOf(Props(new Actor {
+      def receive = {
+        case _ => sendOutgoingMessageStorage
+      }
+    }))
+  SbpmEventBus.subscribe(tmpSubscriber, "/traffic")
+
+  def sendOutgoingMessageStorage = {
+    val to_actor = manager.get
+    println("send " + outgoingMessageStorage.length + " message(s) from storage to: " + to_actor)
+    for {msg <- outgoingMessageStorage} to_actor ! msg
+    outgoingMessageStorage.clear
+  }
   
   def receive: Actor.Receive = {
     case ExecuteServiceMessage => 
@@ -40,9 +57,8 @@ class StaplesServiceActor extends ServiceActor {
       val remoteUserId = 1 // TODO: context resolver einbinden, um UserID zu bestimmen. resolven sollte jedoch in sbpm, nicht beim service host passieren
       target.insertTargetUsers(Array(remoteUserId))
       val answer = SubjectToSubjectMessage(0, processId, remoteUserId, "Staples", target, messageType, messageContent)
-      val to_actor = manager.get
-      println("send " + answer + " to " + to_actor)
-      to_actor ! answer
+      println("add " + answer + " to outgoingMessageStorage")
+      outgoingMessageStorage += answer
     }
     case request: CreateProcessInstance => {
       userId = request.userID
