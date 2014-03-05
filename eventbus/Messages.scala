@@ -1,5 +1,6 @@
 package de.tkip.sbpm.eventbus
 
-case class SbpmEventBusTextMessage(text: String)
-case class SbpmEventBusTrafficFlowMessage(sensorId: Int, count: Int)
+abstract class SbpmEventBusMessage
+case class SbpmEventBusTextMessage(text: String) extends SbpmEventBusMessage
+case class SbpmEventBusTrafficFlowMessage(sensorId: Int, count: Int) extends SbpmEventBusMessage
 case class AskForTrafficJam()

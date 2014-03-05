@@ -12,27 +12,46 @@ import akka.actor.ActorRef
 import java.util.Date
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
-import de.tkip.sbpm.eventbus.SbpmEventBus
+import de.tkip.sbpm.eventbus._
 
 class StaplesServiceActor extends ServiceActor {
 	
   private var userId = 0
   private var processId = 0
   private var manager: Option[ActorRef] = None
-  private val outgoingMessageStorage: ArrayBuffer[SubjectToSubjectMessage] = ArrayBuffer()
+  private val orderMessageBuffer: ArrayBuffer[SubjectToSubjectMessage] = ArrayBuffer()
 
-  val tmpSubscriber = context.actorOf(Props(new Actor {
+  val trafficSubscriber = context.actorOf(Props(new Actor {
       def receive = {
-        case _ => sendOutgoingMessageStorage
+        case msg => handleOrders(msg)
       }
     }))
-  SbpmEventBus.subscribe(tmpSubscriber, "/traffic")
+  SbpmEventBus.subscribe(trafficSubscriber, "/traffic")
 
-  def sendOutgoingMessageStorage = {
-    val to_actor = manager.get
-    println("send " + outgoingMessageStorage.length + " message(s) from storage to: " + to_actor)
-    for {msg <- outgoingMessageStorage} to_actor ! msg
-    outgoingMessageStorage.clear
+  def handleOrders(eventBusMessage: Any): Unit = {
+    println("handle " + orderMessageBuffer.length + " orders from orderMessageBuffer")
+
+    for {orderMessage <- orderMessageBuffer} {
+      val msgToExternal = false // false: it should not leave sbpm
+      val target = Target("Großunternehmen",0,1,false,None,msgToExternal,true)
+      val messageType = "Lieferdatum"
+      val remoteUserId = 1 // TODO: context resolver einbinden, um UserID zu bestimmen. resolven sollte jedoch in sbpm, nicht beim service host passieren
+      target.insertTargetUsers(Array(remoteUserId))
+      val to_actor = manager.get
+
+
+      val messageContent = eventBusMessage match {
+        case SbpmEventBusTrafficFlowMessage(sensorId, count) => "Die Bestellung \"" + orderMessage.messageContent + " (" + Integer.valueOf(orderMessage.messageContent) * 2 + ")" + "\" ist aufgrund der Verkehrslage in " + count + " Tagen fertig."
+        case _ => "Die Bestellung \"" + orderMessage.messageContent + " (" + Integer.valueOf(orderMessage.messageContent) * 2 + ")" + "\" ist morgen fertig."
+      }
+
+      val answer = SubjectToSubjectMessage(0, processId, remoteUserId, "Staples", target, messageType, messageContent)
+      println("sending " + answer)
+
+      to_actor ! answer
+    }
+
+    orderMessageBuffer.clear
   }
   
   def receive: Actor.Receive = {
@@ -40,25 +59,14 @@ class StaplesServiceActor extends ServiceActor {
       println("here")
     case message: SubjectToSubjectMessage => {   
       
-      // fake InputPoolActor:
+      // TODO: use InputPoolActor ?
+
+      // TODO: check if it is a order
+      orderMessageBuffer += message
 
       // Unlock the sender
       sender ! Stored(message.messageID)
       println("unblocked sender")
-
-      // reply immediate:
-      // TODO: EventBus einbinden
-
-
-      val msgToExternal = false // false: it should not leave sbpm
-      val target = Target("Großunternehmen",0,1,false,None,msgToExternal,true)
-      val messageType = "Lieferdatum"
-      val messageContent = "Die Bestellung \"" + message.messageContent + "(" + Integer.valueOf(message.messageContent) * 2 + ")" + "\" ist morgen fertig. "
-      val remoteUserId = 1 // TODO: context resolver einbinden, um UserID zu bestimmen. resolven sollte jedoch in sbpm, nicht beim service host passieren
-      target.insertTargetUsers(Array(remoteUserId))
-      val answer = SubjectToSubjectMessage(0, processId, remoteUserId, "Staples", target, messageType, messageContent)
-      println("add " + answer + " to outgoingMessageStorage")
-      outgoingMessageStorage += answer
     }
     case request: CreateProcessInstance => {
       userId = request.userID
