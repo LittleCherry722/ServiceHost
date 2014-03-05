@@ -72,6 +72,7 @@ case class State(
   id: StateID,
   text: String,
   stateType: StateType,
+  autoExecute: Boolean,
   startState: Boolean,
   observerState: Boolean,
   callMacro: Option[String],

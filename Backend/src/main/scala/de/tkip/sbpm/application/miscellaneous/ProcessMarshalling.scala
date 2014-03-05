@@ -120,7 +120,7 @@ object parseGraph {
 
         // create and add a state creator for this state
         states(node.id) =
-          new StateCreator(mainMacro, node.id, node.text, fromStringtoStateType(node.nodeType), node.isMajorStartNode, node.isStart, node.macroId, options)
+          new StateCreator(mainMacro, node.id, node.text, fromStringtoStateType(node.nodeType), node.isAutoExecute.getOrElse(false), node.isMajorStartNode, node.isStart, node.macroId, options)
       }
     }
 
@@ -208,6 +208,7 @@ object parseGraph {
     val id: StateID,
     val text: String,
     val stateType: StateType,
+    val autoExecute: Boolean,
     val majorStartState: Boolean,
     val startState: Boolean,
     val macro: Option[String],
@@ -227,6 +228,6 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, macro, options, transitions.toArray)
+      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, macro, options, transitions.toArray)
   }
 }

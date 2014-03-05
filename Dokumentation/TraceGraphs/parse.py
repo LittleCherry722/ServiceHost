@@ -5,11 +5,12 @@ import argparse
 
 parser = argparse.ArgumentParser(description="Generate Call-Map out of a tracefile")
 parser.add_argument("--trace", default="../../Backend/log/trace.log", help="input file")
-parser.add_argument("--dot", default="trace.dot", help="output file")
+parser.add_argument("--dot", default="trace_{0}.dot", help="output file template ({0} gets replaced)")
 parser.add_argument("--hide-line", action="store_true", help="Aggregate multiple messages between nodes (default: each message is shown with its line in the TRACE file)")
 parser.add_argument("--hide-uuid", action="store_true", help="Aggregate multiple instances of an actor in one node (default: per instance one node)")
 parser.add_argument("--include-persistence", action="store_true", help="Include Actors with `persistence` in their name (default: false)")
 parser.add_argument("--include-temp", action="store_true", help="Include Actors with `temp` in their name (default: false)")
+parser.add_argument("--aggregate", action="store_true", help="Aggregate all requests (default: false)")
 parser.add_argument("--skip-lines", default="0", help="skip first SKIP_LINES of the TRACE file (default: 0)")
 
 args = parser.parse_args()
@@ -19,10 +20,12 @@ SHOW_LINE = not args.hide_line
 SHOW_UUID = not args.hide_uuid
 INCLUDE_PERSISTENCE = args.include_persistence
 INCLUDE_TEMP = args.include_temp
+AGGREGATE = args.aggregate
 SKIP_LINES = int(args.skip_lines)
 
 def get_color(label, palette):
-    c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
+#    c = ["blue3", "darkgreen", "brown", "olive", "darkmagenta", "darkslateblue", "darkorange", "maroon"]
+    c = ["blue3", "darkgreen", "brown", "darkslateblue", "darkorange", "maroon"]
     colors = {
       "node": c,
       "create": ["white"],
@@ -78,8 +81,8 @@ def add_edges(g, edges, key_suffix, colorpalette):
 
 
 
-def build_graph(creation, messages, clusters, filename):
-    g = Dot("MyName", ranksep="1.5")
+def build_graph(label, creation, messages, clusters, filename):
+    g = Dot(label, label=label, ranksep="1.5")
     add_clusters(g, clusters, messages)
     # Turn this to true to include creation-edges. Do not forget to add real colors in get_color(..)
     if False:
@@ -95,11 +98,13 @@ def read_graph(filename):
     braces = re.compile("(\([^\)\(]*\))")
     persistence = re.compile("persistence")
     temp = re.compile("temp")
-    regex = re.compile("^(TRACE: from )(.*)( to )([^ ]*)( )(.*)$")
+    regex_request = re.compile("^(TRACE: request )(.*)$")
+    regex_from = re.compile("^(TRACE: from )(.*)( to )([^ ]*)( )(.*)$")
 
     inF = open(filename, 'r')
 
-    data = []
+    data = {0: (0, "", [])}
+    current_request = 0
 
     for _ in xrange(SKIP_LINES):
         next(inF)
@@ -112,23 +117,27 @@ def read_graph(filename):
         try:
             line = line.replace("\r", "").replace("\n", "")
 
-            if not (persistence.search(line) is None) and not INCLUDE_PERSISTENCE:
-                continue
+            arr = regex_request.findall(line)
+            if len(arr) > 0 and not AGGREGATE:
+                current_request = i
+                data[current_request] = (i, arr[0][1], [])
 
-            if not (temp.search(line) is None) and not INCLUDE_TEMP:
-                continue
+            arr = regex_from.findall(line)
+            if len(arr) > 0:
+                if not (persistence.search(line) is None) and not INCLUDE_PERSISTENCE:
+                    continue
 
-            # remove all braces with their contents
-            while braces.search(line) is not None:
-                line = braces.sub("", line)
+                if not (temp.search(line) is None) and not INCLUDE_TEMP:
+                    continue
 
+                # remove all braces with their contents
+                while braces.search(line) is not None:
+                    line = braces.sub("", line)
 
-            arr = regex.findall(line)[0]
-            a = arr[1]
-            b = arr[3]
-            msg = arr[5]
-
-            data.append((i,a,b,msg))
+                a = arr[0][1]
+                b = arr[0][3]
+                msg = arr[0][5]
+                data[current_request][2].append((i,a,b,msg))
         except Exception as e:
             print("can not parse line: " + line)
 
@@ -210,18 +219,20 @@ def flat_messages(data):
 if __name__ == '__main__':
     print("read tracefile from: " + FILE_IN)
 
-    messages = read_graph(FILE_IN)
-    messages = make_actor_nodes(messages)
-    messages = flat_messages(messages)
+    for line, request, messages in read_graph(FILE_IN).itervalues():
+        if len(messages) == 0:
+            continue
+        messages = make_actor_nodes(messages)
+        messages = flat_messages(messages)
+        
+        clusters = {
+                "StateActors": ["ActStateActor", "ReceiveStateActor", "SendStateActor", "ArchiveStateActor", "BlockingActor", "EndStateActor", "EndStateActor", "GoogleSendProxyActor", "InternalBehaviorActor", "InternalBehaviorActor", "DecisionStateActor", "change"],
+                #"foo": ["bar", {"fooz": ["baaz"]}],
+                }
 
-    clusters = {
-            "StateActors": ["ActStateActor", "ReceiveStateActor", "SendStateActor", "ArchiveStateActor", "BlockingActor", "EndStateActor", "EndStateActor", "GoogleSendProxyActor", "InternalBehaviorActor", "InternalBehaviorActor", "DecisionStateActor", "change"],
-            #"foo": ["bar", {"fooz": ["baaz"]}],
-            }
+        # TODO: extract the creation from the raw actor names
+        creation = []
 
-    # TODO: extract the creation from the raw actor names
-    creation = []
-
-
-    build_graph(creation, messages, clusters, FILE_OUT)
-    print("wrote output to: " + FILE_OUT)
+        file_out = FILE_OUT.format(line)
+        build_graph("{0} ({1})".format(request, line), creation, messages, clusters, file_out)
+        print("wrote output to: " + file_out)
