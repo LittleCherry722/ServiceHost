@@ -40,29 +40,6 @@ define([
       return Process.find(self.startProcessId());
     });
     this.actionCount = actionCount;
-    this.showImplementations = ko.computed(function() {
-      var p = self.startProcess()
-      if (!p || !p.interfaceOffer()) return false;
-      return p.interfaceOffer().isImplemented();
-    });
-    this.showForm = ko.computed(function() {
-      var p = self.startProcess()
-      if (!p) return false;
-      console.log("is implementation? " + p.isImplementation());
-      if (!p.isImplementation()) return true;
-      console.log("is Implemented? " + p.interfaceOffer().isImplemented());
-      return p.interfaceOffer().isImplemented()
-    });
-    this.offerNotCompleted = ko.computed(function() {
-      var p = self.startProcess()
-      if (!p || !p.interfaceOffer()) return false;
-      return !p.interfaceOffer().isImplemented();
-    });
-    this.startInterfaceSubjects = ko.computed(function() {
-      var p = self.startProcess()
-      if (!p || !p.interfaceOffer()) return [];
-      return p.interfaceOffer().interfaceSubjects();
-    });
 
     this.newInstance = function(formElement) {
       var process = Process.find( $("input[name='processId']").val()),

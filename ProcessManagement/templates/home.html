@@ -48,21 +48,11 @@
 	</div>
 	<div class="modal-body">
 		<form data-bind="submit: newInstance">
-      <div data-bind="visible: showForm">
+      <div>
 		   <input type="hidden" name="processId" value="" />
 		   <input name="instancename" type="text"  style="width:250px;" />
       </div>
-      <div data-bind="visible: offerNotCompleted">
-          <strong>Process can not be started unless every interface is implemented.</strong>
-      </div>
-      <div data-bind="visible: showImplementations">
-          <div data-bind="foreach: startInterfaceSubjects">
-              <label data-bind="text: $data.name">
-              </label>
-              <select data-bind="options: $data.imps, optionsText: 'id', optionsValue: 'id'"></select>
-          </div>
-      </div>
-      <div data-bind="visible: showForm">
+      <div>
 			  <input type="submit" value="Start" />
       </div>
 		</form>
