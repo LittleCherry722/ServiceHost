@@ -28,7 +28,7 @@ class StubGeneratorActor extends Actor{
   def receive = {
     case path:String=>{
       val (name,id,states)=extractStates(path)
-      fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name, id, states)
+      fillInClass("src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name, id, states)
     }
   }
   def extractStates(jsonPath: String): (String,String, List[State]) = {

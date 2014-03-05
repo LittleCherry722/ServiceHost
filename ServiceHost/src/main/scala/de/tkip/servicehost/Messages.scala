@@ -12,9 +12,11 @@ object Messages {
   case class GetClassReferenceMessage(serviceID: String)
   case class ClassReferenceMessage(serviceID: String, classReference: Class[_<: ServiceActor])
   case class ServiceResultMessage(result: Any)
+  case class UpdateProcessData(userID: Int, processID: Int, remoteProcessID: Int, manager: Option[ActorRef])
  
   // Service Messages
   case class AddService(n: Integer, sender: ActorRef)
+
   
   
 }

@@ -74,7 +74,7 @@ class StaplesServiceActor extends ServiceActor {
 
   def changeState() = {}
 
-  def getState(id: Double): State = { ??? }
+  def getState(id: Int): State = { ??? }
 
   def storeMsg(message: Any): Unit = {}
 

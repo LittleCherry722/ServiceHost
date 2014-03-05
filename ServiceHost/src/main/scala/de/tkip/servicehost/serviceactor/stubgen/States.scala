@@ -21,51 +21,30 @@ object Target {
   }
 }
 
-class State {
+abstract class State(val stateType: String, val id: Int, val exitType: String, val target: Target, val targetId: Int) {
 
-  //  var comment, conversation, macro, message, state, subject, text, typeState, variable: String
-  //  var deactivated, end, majorStartNode, start: Boolean
-  var id = -1 //, correlationId: Double
-  //  var varMan: Map[String, String]
-  var targetId = -1
-  var exitType: String = "" 
-  var target: Target = null
-
-  //  var sourceNode:  Map[String, Any]
-
-  //  var edge : Transition
-
-  def apply(id: Int, exitType: String, target: Target, targetId: Int) = new State {
-    this.id = id;
-    this.targetId = targetId
-    this.exitType = exitType
-    this.target = target
-  }
-  //  def apply(id: Double, targetId: Double, args: Any){
-  //    this.id = id;
-  //    this.targetId = targetId
-  //    //TODO: args???
+  //  var id = -1 //, correlationId: Double
+  //  var targetId = -1
+  //  var exitType: String = ""
+  //  var target: Target = null
+  //  var stateType = ""
+  //
+  //  def apply(_state: String, _id: Int, _exitType: String, _target: Target, _targetId: Int) = new State {
+  //    this.id = _id;
+  //    this.targetId = _targetId
+  //    this.exitType = _exitType
+  //    this.target = _target
+  //    this.stateType = _state
   //  }
-  //  def apply(sourceNode: Map[String, Any], edge: Transition, targetId: Double) {
-  //    id = sourceNode("id").asInstanceOf[Int];
-  //    end = sourceNode("end").asInstanceOf[Boolean];
-  //    start = sourceNode("start").asInstanceOf[Boolean];
-  //    majorStartNode = sourceNode("majorStartNode").asInstanceOf[Boolean];
-  //    typeState = sourceNode("type").asInstanceOf[String];
-  //    
-  //    this.targetId = targetId
-  //    this.edge = edge
-  //    this.sourceNode = sourceNode
-  //  }
-  def process()(implicit actor: ServiceActor){
-    
-  }
+
+  def process()(implicit actor: ServiceActor)
 
 }
 
-case object ReceiveState extends State {
-  override def process()(implicit actor: ServiceActor) {
-    //TODO
+case class ReceiveState(override val stateType: String, override val id: Int,override val exitType: String,override val target: Target,override val targetId: Int) extends State(stateType, id, exitType, target, targetId) {
+
+  def process()(implicit actor: ServiceActor) {
+    // do nothing
   }
 
   def handle(msg: Any)(implicit actor: ServiceActor) {
@@ -73,11 +52,11 @@ case object ReceiveState extends State {
     actor.changeState()
   }
 }
-
-object SendState extends State {
-  override def process()(implicit actor: ServiceActor) {
+case class SendState(override val stateType: String, override val id: Int, override val exitType: String, override val target: Target, override val targetId: Int) extends State(stateType, id, exitType, target, targetId) {
+  def process()(implicit actor: ServiceActor) {
     val msg = ""
     send(msg)
+    actor.changeState()
   }
 
   def send(msg: String)(implicit actor: ServiceActor) {
@@ -92,9 +71,8 @@ object SendState extends State {
     val sender = actor.getSender()
 
     val fileInfo = None
-
-    sender !
-      SubjectToSubjectMessage(
+    
+    val message = SubjectToSubjectMessage(
         messageID,
         processID,
         userID,
@@ -103,12 +81,28 @@ object SendState extends State {
         messageType,
         msg,
         fileInfo)
+    
+    println("sending message: " + message)   
+    println(sender)
+    sender ! message
+      
   }
 }
+case class ExitState(override val stateType: String, override val id: Int, override val exitType: String, override val target: Target, override val targetId: Int) extends State(stateType, id, exitType, target, targetId) {
 
-object ExitState extends State {
-
-  override def process()(implicit actor: ServiceActor) {
+  def process()(implicit actor: ServiceActor) {
     actor.terminate()
   }
 }
+
+//case object ReceiveState {
+//  def apply(_state: String, _id: Int, _exitType: String, _target: Target, _targetId: Int) = new ReceiveState(_state, _id, _exitType, _target, _targetId)
+//}
+//
+//object SendState {
+//  override def apply(_state: String, _id: Int, _exitType: String, _target: Target, _targetId: Int) = new SendState(_state, _id, _exitType, _target, _targetId)
+//}
+//
+//object ExitState {
+//  override def apply(_state: String, _id: Int, _exitType: String, _target: Target, _targetId: Int) = new ExitState(_state, _id, _exitType, _target, _targetId)
+//}

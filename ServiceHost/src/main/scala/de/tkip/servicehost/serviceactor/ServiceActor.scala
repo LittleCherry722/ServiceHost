@@ -14,7 +14,7 @@ abstract class ServiceActor extends Actor {
   
   def changeState()
   
-  def getState(id: Double): State
+  def getState(id: Int): State
   
   def storeMsg(message: Any): Unit
   
@@ -32,5 +32,6 @@ abstract class ServiceActor extends Actor {
 object ServiceAttributes {
   
   type ServiceID = String; val AllServices = ""
+  type ProcessID = Int
   type ServiceActorRef = ActorRef
 }

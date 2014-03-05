@@ -5,7 +5,7 @@ import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.serviceactor._
 
 class ReferenceXMLActor extends Actor{
-  val packet = "de.tkip.servicehost.serviceactor"
+  val packet = "de.tkip.servicehost.serviceactor.stubgen"
     //TODO create mapping from XML
   
   def receive: Actor.Receive = {
