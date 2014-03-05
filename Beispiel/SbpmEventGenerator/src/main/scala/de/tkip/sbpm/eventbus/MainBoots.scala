@@ -7,38 +7,43 @@ import scala.concurrent.duration._
 import scala.util.{ Success, Failure }
 import ExecutionContext.Implicits.global
 import scala.util.Random
-import scala.actors.ActorRef
 import scala.swing._
 import event._
 
 object MainBoots extends App {
   val ui = new UI
-  ui.visible = true
-  val system = ActorSystem("default")
+  val system = ActorSystem("EventBus")
   val remotePubActor = system.actorSelection("akka.tcp://sbpm@127.0.0.1:2552/user/eventbus-remote-publish")
-  val duration = Duration(1000, MILLISECONDS)
-  val f = remotePubActor.resolveOne(duration)
-  var s = true
+  val resolveTimeout = Duration(40000, MILLISECONDS)
+  val f = remotePubActor.resolveOne(resolveTimeout)
+  var remoteActor: Option[akka.actor.ActorRef] = None
+  var running = false
+  f onComplete {
+    case Success(actor) =>
+      ui.visible = true
+      remoteActor = Some(actor)
+    case Failure(e) => e.printStackTrace()
+  }
 
   remotePubActor ! "Hello from remote app"
 
   import system.dispatcher
 
   private def startSbpmEventBusTrafficFlowMessage(): Unit = {
-    Thread.sleep(1000)
-    s = true
-    f onComplete {
-      case Success(actor) =>
-        while (s) {
-          actor ! SbpmEventBusEvent("/traffic/darmstadt/flow", new SbpmEventBusTrafficFlowMessage(Random.nextInt(10), Random.nextInt(90) + 10))
-          Thread.sleep(1000)
-        }
-      case Failure(e) => e.printStackTrace()
+    running = true
+    // run the loop in a new thread
+    future {
+      Thread.sleep(1000)
+      while (running) {
+        println("sending SbpmEventBusTrafficFlowMessage")
+        remoteActor.get ! SbpmEventBusEvent("/traffic/darmstadt/flow", new SbpmEventBusTrafficFlowMessage(Random.nextInt(10), Random.nextInt(90) + 10))
+        Thread.sleep(1000)
+      }
     }
   }
 
   private def stopSbpmEventBusTrafficFlowMessage(): Unit = {
-    s = false
+    running = false
   }
 
   class UI extends MainFrame {
