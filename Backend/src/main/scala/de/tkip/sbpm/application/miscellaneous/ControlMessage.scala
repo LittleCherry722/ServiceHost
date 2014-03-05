@@ -60,12 +60,15 @@ sealed trait AnswerControlMessage extends ControlMessage with AnswerMessage
 
 // administration
 case class CreateSubjectProvider(userID: UserID) extends AnswerAbleControlMessage
-case class SubjectProviderCreated(request: CreateSubjectProvider, userID: UserID) extends AnswerControlMessage
+case class SubjectProviderCreated(request: CreateSubjectProvider,
+                                  userID: UserID) extends AnswerControlMessage
 
 // execution
-case class ProcessInstanceInfo(id: ProcessInstanceID, name: String, processId: ProcessID)
+case class ProcessInstanceInfo(id: ProcessInstanceID,
+                               name: String, processId: ProcessID)
 case class GetAllProcessInstances(userID: UserID = AllUser) extends AnswerAbleControlMessage
-case class AllProcessInstancesAnswer(request: GetAllProcessInstances, processInstanceInfo: Array[ProcessInstanceInfo]) extends AnswerControlMessage
+case class AllProcessInstancesAnswer(request: GetAllProcessInstances,
+                                     processInstanceInfo: Array[ProcessInstanceInfo]) extends AnswerControlMessage
 
 case class ProcessInstanceData(id: ProcessInstanceID,
                                name: String,
@@ -79,13 +82,20 @@ case class ProcessInstanceData(id: ProcessInstanceID,
 
 case class AutoArchive(message: Transition) extends ArchiveMessage
 case class AddVariable(variableName:String , message: SubjectToSubjectMessage)
-case class ReadProcessInstance(userID: UserID, processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
-case class ReadProcessInstanceAnswer(request: ReadProcessInstance, answer: ProcessInstanceData) extends AnswerControlMessage
+case class ReadProcessInstance(userID: UserID,
+                               processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
+case class ReadProcessInstanceAnswer(request: ReadProcessInstance,
+                                     answer: ProcessInstanceData) extends AnswerControlMessage
 
 case class GetSubjectMapping (processId: ProcessID, url: String)
 case class SubjectMappingResponse(subjectMapping:  Map[SubjectID, MappingInfo])
 
-case class CreateProcessInstance(userID: UserID, processID: ProcessID, name: String, manager: Option[ActorRef] = None, subjectMapping: scala.collection.Map[SubjectID, MappingInfo]) extends AnswerAbleControlMessage
+case class CreateProcessInstance(userID: UserID,
+                                 processID: ProcessID,
+                                 name: String,
+                                 manager: Option[ActorRef] = None,
+                                 subjectMapping: scala.collection.Map[SubjectID, MappingInfo]) extends AnswerAbleControlMessage
+
 case class ProcessInstanceCreated(request: CreateProcessInstance,
                                   processInstanceActor: ProcessInstanceRef,
                                   answer: ProcessInstanceData) extends AnswerControlMessage {
