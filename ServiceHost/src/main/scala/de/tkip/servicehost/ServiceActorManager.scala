@@ -27,8 +27,7 @@ class ServiceActorManager extends Actor{
   
   def receive = {
     case execute: ExecuteServiceMessage => {
-      // hardcoded example
-      serviceActor(execute.serviceID) ! AddService(1, sender)
+      // TODO
     }
     case classReferenceResponse: ClassReferenceMessage =>{
       //TODO implement

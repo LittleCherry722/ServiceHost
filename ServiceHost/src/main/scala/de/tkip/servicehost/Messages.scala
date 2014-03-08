@@ -15,7 +15,7 @@ object Messages {
   case class UpdateProcessData(userID: Int, processID: Int, remoteProcessID: Int, manager: Option[ActorRef])
  
   // Service Messages
-  case class AddService(n: Integer, sender: ActorRef)
+  case class AddService(id: String, className: String, packagePath: String)
 
   
   

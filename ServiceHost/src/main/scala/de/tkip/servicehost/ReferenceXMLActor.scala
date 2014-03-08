@@ -11,6 +11,7 @@ class ReferenceXMLActor extends Actor{
   def receive: Actor.Receive = {
     case createReference: CreateXMLReferenceMessage => {
       //TODO implement 
+      createXMLReference(createReference.serviceID, createReference.classPath)
     }
     case getReference: GetClassReferenceMessage =>{
       getReference.serviceID match {
@@ -23,6 +24,11 @@ class ReferenceXMLActor extends Actor{
       }
       
     }
+  }
+  
+  def createXMLReference(id: String, classPath: String) {
+    // TODO
+    println(id + " -> " + classPath)
   }
 
 }
