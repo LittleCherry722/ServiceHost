@@ -41,7 +41,7 @@ abstract class State(val stateType: String, val id: Int, val exitType: String, v
 
 }
 
-case class ReceiveState(override val stateType: String, override val id: Int,override val exitType: String,override val target: Target,override val targetId: Int) extends State(stateType, id, exitType, target, targetId) {
+case class ReceiveState(override val id: Int,override val exitType: String,override val target: Target,override val targetId: Int) extends State("receive", id, exitType, target, targetId) {
 
   def process()(implicit actor: ServiceActor) {
     // do nothing
@@ -52,7 +52,7 @@ case class ReceiveState(override val stateType: String, override val id: Int,ove
     actor.changeState()
   }
 }
-case class SendState(override val stateType: String, override val id: Int, override val exitType: String, override val target: Target, override val targetId: Int) extends State(stateType, id, exitType, target, targetId) {
+case class SendState(override val id: Int, override val exitType: String, override val target: Target, override val targetId: Int) extends State("send", id, exitType, target, targetId) {
   def process()(implicit actor: ServiceActor) {
     val msg = ""
     send(msg)
@@ -88,7 +88,7 @@ case class SendState(override val stateType: String, override val id: Int, overr
       
   }
 }
-case class ExitState(override val stateType: String, override val id: Int, override val exitType: String, override val target: Target, override val targetId: Int) extends State(stateType, id, exitType, target, targetId) {
+case class ExitState(override val id: Int, override val exitType: String, override val target: Target, override val targetId: Int) extends State("exit", id, exitType, target, targetId) {
 
   def process()(implicit actor: ServiceActor) {
     actor.terminate()

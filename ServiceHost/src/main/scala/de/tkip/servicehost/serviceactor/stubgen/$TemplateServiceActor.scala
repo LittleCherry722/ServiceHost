@@ -11,6 +11,7 @@ import akka.actor.Props
 import akka.actor.PoisonPill
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import java.util.Date
+import de.tkip.sbpm.application.subject.misc.Stored
 
 class $TemplateServiceActor extends ServiceActor {
 
@@ -82,7 +83,7 @@ class $TemplateServiceActor extends ServiceActor {
   def storeMsg(message: Any): Unit = {
     message match {
       case message: SubjectToSubjectMessage => {
-        // TODO 
+        tosender ! Stored(message.messageID) 
         this.message = message
       }
       case _ =>

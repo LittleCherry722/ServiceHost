@@ -11,6 +11,7 @@ import akka.actor.Props
 import akka.actor.PoisonPill
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import java.util.Date
+import de.tkip.sbpm.application.subject.misc.Stored
 
 class StaplesServiceActor extends ServiceActor {
 
@@ -21,7 +22,7 @@ class StaplesServiceActor extends ServiceActor {
   private implicit val service = this
   
   private val states: List[State] = List(
-      ExitState("exit",2,null,null,-1),ReceiveState("receive",0,"exitcondition",Target("Großunternehmen",-1,-1,false,""),1),SendState("send",1,"exitcondition",Target("Großunternehmen",-1,-1,false,""),2)
+      ExitState(2,null,null,-1),ReceiveState(0,"exitcondition",Target("Großunternehmen",-1,-1,false,""),1),SendState(1,"exitcondition",Target("Großunternehmen",-1,-1,false,""),2)
       )
   
   // start with first state
@@ -86,6 +87,7 @@ class StaplesServiceActor extends ServiceActor {
       case message: SubjectToSubjectMessage => {
         // TODO 
         println("Stored")
+        tosender ! Stored(message.messageID)
         this.message = message
       }
       case _ =>
