@@ -36,10 +36,9 @@ import de.tkip.sbpm.rest.google.{GDriveActor, GCalendarActor}
 import spray.can.Http
 import de.tkip.sbpm.bir._
 import de.tkip.sbpm.application.change._
-
 import de.tkip.sbpm.logging.LogPersistenceActor
 import de.tkip.sbpm.application.miscellaneous.SystemProperties._
-import de.tkip.sbpm.eventbus.{SbpmEventBusTextMessage, SbpmEventBusTrafficFlowMessage, SbpmEventBus, RemotePublishActor}
+import de.tkip.sbpm.eventbus.{SbpmEventBusTextMessage, SbpmEventBusTrafficFlowMessage, SbpmEventBus, RemotePublishActor, Polling, ReplyForTrafficJam}
 
 object Boot extends App {
 
@@ -97,6 +96,13 @@ object Boot extends App {
   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = sbpmHostname, port = sbpmPort)
 //   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
 
+  
+  val callback = (r: Future[Any]) => {
+    val result = Await.result(r, 10 seconds).asInstanceOf[ReplyForTrafficJam]
+    println(result.result + " test test")
+  }  
+  val cancellable = Polling.startPolling("/trafficJams",5, callback)
+  //cancellable.cancel
   // eventbus
   val eventBusRemotePublishActor = system.actorOf(Props[RemotePublishActor], eventBusRemotePublishActorName)
   //TODO REMOVE

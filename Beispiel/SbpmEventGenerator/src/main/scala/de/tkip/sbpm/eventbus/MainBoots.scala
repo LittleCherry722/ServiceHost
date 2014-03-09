@@ -7,19 +7,18 @@ import scala.concurrent.duration._
 import scala.util.{ Success, Failure }
 import ExecutionContext.Implicits.global
 import scala.util.Random
-import scala.actors.ActorRef
 import scala.swing._
 import event._
 
 object MainBoots extends App {
   val ui = new UI
   ui.visible = true
-  val system = ActorSystem("default")
+  val system = ActorSystem("EventBus")
   val remotePubActor = system.actorSelection("akka.tcp://sbpm@127.0.0.1:2552/user/eventbus-remote-publish")
   val duration = Duration(1000, MILLISECONDS)
   val f = remotePubActor.resolveOne(duration)
   var s = true
-
+  
   remotePubActor ! "Hello from remote app"
 
   import system.dispatcher
