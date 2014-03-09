@@ -12,15 +12,6 @@ import event._
 
 object MainBoots extends App {
   val ui = new UI
-<<<<<<< HEAD
-  ui.visible = true
-  val system = ActorSystem("EventBus")
-  val remotePubActor = system.actorSelection("akka.tcp://sbpm@127.0.0.1:2552/user/eventbus-remote-publish")
-  val duration = Duration(1000, MILLISECONDS)
-  val f = remotePubActor.resolveOne(duration)
-  var s = true
-  
-=======
   val system = ActorSystem("EventBus")
   val remotePubActor = system.actorSelection("akka.tcp://sbpm@127.0.0.1:2552/user/eventbus-remote-publish")
   val resolveTimeout = Duration(40000, MILLISECONDS)
@@ -34,7 +25,6 @@ object MainBoots extends App {
     case Failure(e) => e.printStackTrace()
   }
 
->>>>>>> a99a2a4113d06175036c66f7f498139299dc0c85
   remotePubActor ! "Hello from remote app"
 
   import system.dispatcher
