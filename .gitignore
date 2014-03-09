@@ -15,7 +15,17 @@
 Repository/target/*
 Repository/project/target/*
 ProcessManagement/nbproject/*
+*.cache
+
+.ensime
+.ensime_lucene
 
 # intellij project files
 .idea
 *.iml
+
+/pids
+backend_*.jar
+repository.jar
+/target
+sbpm_*.db

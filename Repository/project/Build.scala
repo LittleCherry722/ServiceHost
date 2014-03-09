@@ -26,6 +26,7 @@ object ProjectBuild extends Build {
 
         "io.spray" % "spray-can" % "1.2-20130710",
         "io.spray" % "spray-routing" % "1.2-20130710",
+        "io.spray" % "spray-http" % "1.2-20130710",
         "io.spray" % "spray-testkit" % "1.2-20130710" % "test",
         "io.spray" %% "spray-json" % "1.2.5")))
 }

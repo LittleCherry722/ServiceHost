@@ -15,6 +15,7 @@ package de.tkip.sbpm.rest
 import akka.actor.{ ActorRef, Actor, Props }
 import spray.routing._
 import spray.http._
+import spray.http.Uri._
 import spray.client.pipelining._
 import de.tkip.sbpm.rest.auth.CookieAuthenticator
 import de.tkip.sbpm.rest.auth.SessionDirectives._
@@ -66,6 +67,8 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   protected def configFlag(key: String) =
     context.system.settings.config.getBoolean(configPath + key)
 
+  private val traceLogger = Logging(context.system, this)
+
   private val frontendBaseUrl = configString("frontend.baseUrl")
   private val frontendIndexFile = configString("frontend.indexFile")
   private val frontendBaseDir = configString("frontend.baseDirectory")
@@ -107,7 +110,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   private val messageInterfaceActor = context.actorOf(Props[MessageInterfaceActor], "message-interface")
   private val repositoryInterfaceActor = context.actorOf(Props[RepositoryInterfaceActor], "repository-interface")
 
-  def receive = runRoute({
+  private val receiver = runRoute({
     pathPrefix("BIR") {
       delegateTo(gbirInterfaceActor)
       //      post {
@@ -233,6 +236,21 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
       }
   })
 
+  def logReceive:PartialFunction[Any, Any] = {
+    case request: spray.http.HttpRequest => {
+      val path = request.uri.path
+      if(!path.startsWith(Path.SingleSlash + frontendBaseUrl)){
+        traceLogger.debug("TRACE: request " + request.method + ": " + path)
+      }
+      request
+    }
+    case something => {
+      something
+    }
+  }
+
+  def receive = logReceive andThen receiver
+
   def serveStaticFiles: Route = {
     // root folder -> redirect to frontendBaseUrl
     path("") {
@@ -253,9 +271,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
    * without authentication.
    */
   private def delegateTo(actor: ActorRef): Route = {
-    val traceLogger = Logging(context.system, this)
     traceLogger.debug("TRACE: from " + this.self + " to " + actor +" RequestContext")
-
     requestContext => actor ! requestContext
   }
 
