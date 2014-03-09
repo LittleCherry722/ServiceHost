@@ -4,7 +4,7 @@
 		module="sbpmeventgenerator_2.10"
 		revision="1.0"
 		status="integration"
-		publication="20140128211008"
+		publication="20140225213149"
 	>
 		<description>
 		SbpmEventGenerator
@@ -36,5 +36,6 @@
 		<dependency org="org.scala-lang" name="scala-library" rev="2.10.3" conf="scala-tool->default,optional(default);compile->default(compile)"/>
 		<dependency org="com.typesafe.akka" name="akka-actor_2.10" rev="2.2.3" conf="compile->default(compile)"/>
 		<dependency org="com.typesafe.akka" name="akka-remote_2.10" rev="2.2.3" conf="compile->default(compile)"/>
+		<dependency org="org.scala-lang" name="scala-swing" rev="2.10.3" conf="compile->default(compile)"/>
 	</dependencies>
 </ivy-module>

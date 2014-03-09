@@ -68,7 +68,7 @@ class ProcessManagerActor extends Actor {
       sender ! msg
     }
 
-    case message: GetNewHistory => {
+    case message: GetNewHistory => {     
       logger.debug("TRACE: from " + this.self + " to " + sender + " " + NewHistoryAnswer(message, history))
       sender ! NewHistoryAnswer(message, history)
     }
