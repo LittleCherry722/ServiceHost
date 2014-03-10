@@ -17,9 +17,9 @@ Repository/project/target/*
 ProcessManagement/nbproject/*
 *.cache
 Beispiel/SbpmEventGenerator/target/*
-
-.ensime
-.ensime_lucene
+ServiceHost/target/*
+ServiceHost/project/target/*
+ServiceHost/nbproject/*
 
 # intellij project files
 .idea

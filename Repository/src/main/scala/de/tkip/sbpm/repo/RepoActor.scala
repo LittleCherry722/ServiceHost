@@ -51,6 +51,7 @@ class RepoActor extends Actor with ActorLogging {
     }
 
     case CreateEntry(entry) => {
+      println("CREATE ENTRY\n\n" + entry + "\n\n")
       val id =  nextId
       val convertedEntry = convertEntry(entry.asJson.asJsObject, id)
 

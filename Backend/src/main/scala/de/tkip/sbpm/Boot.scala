@@ -93,24 +93,6 @@ object Boot extends App {
   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = sbpmHostname, port = sbpmPort)
 //   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
 
-  
-  val callback = (r: Future[Any]) => {
-    val result = Await.result(r, 10 seconds).asInstanceOf[ReplyForTrafficJam]
-    println(result.result + " test test")
-  }  
-  val cancellable = Polling.startPolling("/trafficJams",5, callback)
-  //cancellable.cancel
-  // eventbus
-  val eventBusRemotePublishActor = system.actorOf(Props[RemotePublishActor], eventBusRemotePublishActorName)
-  //TODO REMOVE
-  val tmpSubscriber = system.actorOf(Props(new Actor {
-    def receive = {
-      case SbpmEventBusTrafficFlowMessage(sensorId, count) => println("SUBSCRIBER GOT message, id: " + sensorId + " count: " + count)
-    }
-  }))
-  SbpmEventBus.subscribe(tmpSubscriber, "/traffic/darmstadt/flow")
-  //TODO END-REMOVE
-
   // db init code below
   implicit val timout = Timeout(30 seconds)
   implicit val executionContext = system.dispatcher
