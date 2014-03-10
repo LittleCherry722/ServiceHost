@@ -1,0 +1,476 @@
+{
+    "definition": {
+        "process": [
+            {
+                "id": "Subj1",
+                "name": "OpenClose Dummy",
+                "type": "single",
+                "subjectType": "single",
+                "deactivated": false,
+                "inputPool": -1,
+                "relatedInterface": null,
+                "relatedProcess": "",
+                "relatedSubject": "",
+                "externalType": "external",
+                "role": "noRole",
+                "startSubject": true,
+                "url": null,
+                "comment": "",
+                "macros": [
+                    {
+                        "id": "##main##",
+                        "name": "internal behavior",
+                        "nodes": [
+                            {
+                                "id": 0,
+                                "text": "start",
+                                "start": true,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "action",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "action",
+                                "options": {
+                                    "subject": "",
+                                    "message": "",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 1,
+                                "text": "start",
+                                "start": true,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "$closeip",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "$closeip",
+                                "options": {
+                                    "subject": "##all##",
+                                    "message": "##all##",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": true,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 2,
+                                "text": "sender dummy can't send message",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "action",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "action",
+                                "options": {
+                                    "subject": "",
+                                    "message": "",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 3,
+                                "text": "internal action",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "$openip",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "$openip",
+                                "options": {
+                                    "subject": "",
+                                    "message": "m0",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 4,
+                                "text": "sender dummy now should be able to send message",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "action",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "action",
+                                "options": {
+                                    "subject": "",
+                                    "message": "",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 5,
+                                "text": "internal action",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": true,
+                                "type": "end",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "end",
+                                "options": {
+                                    "subject": "",
+                                    "message": "",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            }
+                        ],
+                        "edges": [
+                            {
+                                "start": 0,
+                                "end": 1,
+                                "text": "",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": "",
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": null,
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": ["internal"]
+                            },
+                            {
+                                "start": 1,
+                                "end": 2,
+                                "text": "",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": "",
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": null,
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": ["internal"]
+                            },
+                            {
+                                "start": 2,
+                                "end": 3,
+                                "text": "",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": "",
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": null,
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": ["internal"]
+                            },
+                            {
+                                "start": 3,
+                                "end": 4,
+                                "text": "",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": "",
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": null,
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": ["internal"]
+                            },
+                            {
+                                "start": 4,
+                                "end": 5,
+                                "text": "",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": "",
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": null,
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": ["internal"]
+                            }
+                        ],
+                        "nodeCounter": 10
+                    }
+                ],
+                "macroCounter": 0,
+                "variables": {},
+                "variableCounter": 0
+            },
+            {
+                "id": "Subj2",
+                "name": "DummySender",
+                "type": "single",
+                "subjectType": "single",
+                "deactivated": false,
+                "inputPool": -1,
+                "relatedInterface": null,
+                "relatedProcess": "",
+                "relatedSubject": "",
+                "externalType": "external",
+                "role": "noRole",
+                "startSubject": false,
+                "url": null,
+                "comment": "",
+                "macros": [
+                    {
+                        "id": "##main##",
+                        "name": "internal behavior",
+                        "nodes": [
+                            {
+                                "id": 0,
+                                "text": "",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "send",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "send",
+                                "options": {
+                                    "message": "*",
+                                    "subject": "*",
+                                    "correlationId": "*",
+                                    "conversation": "*",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 1,
+                                "text": "",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": true,
+                                "type": "end",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "end",
+                                "options": {
+                                    "message": "*",
+                                    "subject": "*",
+                                    "correlationId": "*",
+                                    "conversation": "*",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            }
+                        ],
+                        "edges": [
+                            {
+                                "start": 0,
+                                "end": 1,
+                                "text": "m0",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": {
+                                    "id": "Subj1",
+                                    "min": -1,
+                                    "max": -1,
+                                    "createNew": false,
+                                    "variable": ""
+                                },
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": "",
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": ["internal"]
+                            }
+                        ],
+                        "nodeCounter": 3
+                    }
+                ],
+                "macroCounter": 0,
+                "variables": {},
+                "variableCounter": 0
+            }
+        ],
+        "messages": {
+            "m0": "someMessage"
+        },
+        "messageCounter": 1,
+        "nodeCounter": 2,
+        "conversations": {},
+        "conversationCounter": 1
+    },
+    "routings": []
+}
