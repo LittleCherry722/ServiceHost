@@ -135,7 +135,7 @@ define([
         },
 
         getCurrentState: function (subject) {
-            var currentState = 0;
+            var currentState = -1;
             $.each (this.actions(), function (i, value) {
                 if (value['subjectID'] === subject) {
                     currentState = value['stateID'];
