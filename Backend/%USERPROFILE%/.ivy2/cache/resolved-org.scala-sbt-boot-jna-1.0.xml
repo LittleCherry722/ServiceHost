@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0">
+	<info organisation="org.scala-sbt"
+		module="boot-jna"
+		revision="1.0"
+		status="release"
+		publication="20131217212724"
+	/>
+	<configurations>
+		<conf name="default" visibility="public" description=""/>
+	</configurations>
+	<publications>
+	</publications>
+	<dependencies>
+		<dependency org="net.java.dev.jna" name="jna" rev="3.2.3" conf="default->default(compile)"/>
+	</dependencies>
+</ivy-module>

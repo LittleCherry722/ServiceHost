@@ -16,6 +16,7 @@ Repository/target/*
 Repository/project/target/*
 ProcessManagement/nbproject/*
 *.cache
+Beispiel/SbpmEventGenerator/target/*
 
 .ensime
 .ensime_lucene
