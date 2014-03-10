@@ -65,9 +65,8 @@ class RepositoryInterfaceActor extends AbstractInterfaceActor with DefaultLoggin
 
   def routing = runRoute({
     pathPrefix("") {
-      val pipeline: HttpRequest => Future[String] = (
-        sendReceive
-        ~> unmarshal[String])
+      val pipeline: HttpRequest => Future[String] = sendReceive ~> unmarshal[String]
+
       //TODO: forward error codes (such as 404) instead of delivering a 500 response
       get {
         requestContext =>
@@ -81,7 +80,10 @@ class RepositoryInterfaceActor extends AbstractInterfaceActor with DefaultLoggin
             requestContext.complete {
               val jsWithAddress = attachExternalAddress(requestContext)
 
-              val response = pipeline(Post(repoLocation + requestContext.unmatchedPath.toString, jsWithAddress))
+              println("\n\n\n\n\n\n")
+              println(jsWithAddress)
+              println("\n\n\n\n\n\n")
+              val response = pipeline(Post(repoLocation, jsWithAddress))
               response
             }
         }

@@ -175,7 +175,7 @@ class InternalBehaviorActor(
       // Create a Future with the available actions
       val actionFutures =
         Future.sequence(
-          for ((_, c) <- currentStatesMap) yield (c ? getActions).mapTo[AvailableAction])
+          for ((_, c) <- currentStatesMap if(!c.isTerminated)) yield (c ? getActions).mapTo[AvailableAction])
 
       // and pipe the actions back to the sender
       actionFutures pipeTo sender

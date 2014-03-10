@@ -25,7 +25,7 @@ import akka.util.Timeout
 object Boot extends App with SimpleRoutingApp {
 
   implicit val system = ActorSystem("repo")
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(30 seconds)
   implicit val executionContext = system.dispatcher
   val repoActor = system.actorOf(Props[RepoActor])
 
