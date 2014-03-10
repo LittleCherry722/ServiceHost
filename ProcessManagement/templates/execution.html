@@ -1,60 +1,60 @@
 <div class="inner">
 
-	<div id="contentHead">
-		<h3>Process Execution</h3>
-	</div>
+    <div id="contentHead">
+        <h3>Process Execution</h3>
+    </div>
 
-	<ul class="breadcrumb">
-		<li>
-			<a href="#/processList">Processes</a>
-			<span class="divider">/</span>
-		</li>
-		<li>
-			<a data-bind="text: processInstance().process().name(), attr: {
+    <ul class="breadcrumb">
+        <li>
+            <a href="#/processList">Processes</a>
+            <span class="divider">/</span>
+        </li>
+        <li>
+            <a data-bind="text: processInstance().process().name(), attr: {
 				href: processInstance().process().url() }"></a>
-			<span class="divider">/</span>
-		</li>
-		<li data-bind="css: { active: !currentSubject() }">
-			<!-- ko if: !currentSubject() && false -->
-				<span data-bind="text: processInstance().instanceName()" ></span>
-			<!-- /ko -->
-			<!-- ko if: currentSubject() || true -->
-				<a data-bind="text: processInstance().name(), attr: {
+            <span class="divider">/</span>
+        </li>
+        <li data-bind="css: { active: !currentSubject() }">
+            <!-- ko if: !currentSubject() && false -->
+            <span data-bind="text: processInstance().instanceName()" ></span>
+            <!-- /ko -->
+            <!-- ko if: currentSubject() || true -->
+            <a data-bind="text: processInstance().name(), attr: {
 					href: processInstance().url() + 'Overview' }"></a>
-			<!-- /ko -->
-				<span class="divider">/</span>
-		</li>
-		<li data-bind="css: { active: !currentSubject() }">
-			<div class="btn-group" data-chardin-intro="Here you can select a subject to view its internal behavior" data-chardin-position="right">
-				<a class="btn dropdown-toggle" data-toggle="dropdown">
-					<!-- ko ifnot: currentSubject() -->
-						Select Internal behavior
-					<!-- /ko -->
-					<!-- ko if: currentSubject() -->
-						<span data-bind="text: currentSubjectName()"></span>
-					<!-- /ko -->
-					<b class="caret"></b>
-				</a>
-				<ul class="dropdown-menu save-dropdown select-subject-dropdown" data-bind="foreach: subjects">
-					<li data-bind="css: { active: $parent.currentSubject() == $data[0], disabled: false === $data[2] }">
-						<a data-bind="attr: { href: $parent.processInstance().url() +
+            <!-- /ko -->
+            <span class="divider">/</span>
+        </li>
+        <li data-bind="css: { active: !currentSubject() }">
+            <div class="btn-group" data-chardin-intro="Here you can select a subject to view its internal behavior" data-chardin-position="right">
+                <a class="btn dropdown-toggle" data-toggle="dropdown">
+                    <!-- ko ifnot: currentSubject() -->
+                    Select Internal behavior
+                    <!-- /ko -->
+                    <!-- ko if: currentSubject() -->
+                    <span data-bind="text: currentSubjectName()"></span>
+                    <!-- /ko -->
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu save-dropdown select-subject-dropdown" data-bind="foreach: subjects">
+                    <li data-bind="css: { active: $parent.currentSubject() == $data[0], disabled: false === $data[2] }">
+                        <a data-bind="attr: { href: $parent.processInstance().url() +
 							'/' + $parent.currentTab() + '/' + $data[0].replace(/ /, '___') }, text: $data[1]">
-						</a>
-					</li>
-				</ul>
-			</div>
-		</li>
-	</ul>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+    </ul>
 
-	<div id="processExecution">
-		<ul class="nav nav-tabs" data-bind="foreach: tabs">
-			<li data-bind="css: { active: $data === $root.currentTab() }, attr: { 'data-chardin-intro': $parent.tabDescriptions[$data] }">
-				<a data-bind="text: $data, attr: { href: '#/processinstances/' + $parent.processInstance().id() + '/' + $data }"></a>
-			</li>
-		</ul>
-	</div>
-	<div id="executionContent">
-	</div>
+    <div id="processExecution">
+        <ul class="nav nav-tabs" data-bind="foreach: tabs">
+            <li data-bind="css: { active: $data === $root.currentTab() }, attr: { 'data-chardin-intro': $parent.tabDescriptions[$data] }">
+                <a data-bind="text: $data, attr: { href: '#/processinstances/' + $parent.processInstance().id() + '/' + $data }"></a>
+            </li>
+        </ul>
+    </div>
+    <div id="executionContent">
+    </div>
 
 </div>
 
