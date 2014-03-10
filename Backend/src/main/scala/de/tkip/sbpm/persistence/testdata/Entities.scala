@@ -82,7 +82,6 @@ object Entities {
   // process with one active graph loaded from corresponding json file
   val processes = List(
     (Process(None, None, false, "Gro\u00dfunternehmen", false) -> loadJson("grossunternehmen")),
-    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
     (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
     (Process(None, None, false, """Transportdienstleister""", false) -> loadJson("lieferant")),
 
