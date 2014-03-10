@@ -108,7 +108,8 @@ object Boot extends App {
   //TODO REMOVE
   val tmpSubscriber = system.actorOf(Props(new Actor {
     def receive = {
-      case SbpmEventBusTrafficFlowMessage(sensorId, count) => println("SUBSCRIBER GOT message, id: " + sensorId + " count: " + count)
+      case SbpmEventBusTextMessage(text) => println("SUBSCRIBER GOT TEXT: " + text)
+      case msg => println("SUBSCRIBER GOT OTHER: " + msg)
     }
   }))
   SbpmEventBus.subscribe(tmpSubscriber, "/traffic/darmstadt/flow")

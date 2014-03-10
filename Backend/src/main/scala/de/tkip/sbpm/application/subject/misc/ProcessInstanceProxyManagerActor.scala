@@ -26,7 +26,7 @@ case object GetProxyActor
 case class GetProcessInstanceProxy(processId: ProcessID, url: String)
 
 class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor with DefaultLogging {
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(30 seconds)
 
   log.debug("register initial process instance proxy for: {}", url)
 
@@ -47,6 +47,10 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
         context.actorFor("akka" + protocol + "://sbpm" + targetAddress +
           "/user/" + ActorLocator.subjectProviderManagerActorName)
 
+      log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: path = {}", "akka" + protocol + "://sbpm" + targetAddress +
+                "/user/" + ActorLocator.subjectProviderManagerActorName)
+      log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: targetManager = {}", targetManager)
+
       val processInstanceInfo =
         processInstanceMap
           .getOrElseUpdate(
@@ -60,6 +64,12 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
 
       // send the answer to the sender, when its ready
       answer pipeTo sender
+    }
+
+    case message: SubjectToSubjectMessage => {
+      log.debug("got SubjectToSubjectMessage {} from {}", message, sender)
+      log.debug("forward SubjectToSubjectMessage to {}", actor)
+      actor.forward(message)
     }
 
     case s => {
