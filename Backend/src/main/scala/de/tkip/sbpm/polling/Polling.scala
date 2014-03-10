@@ -1,12 +1,11 @@
-package de.tkip.sbpm.eventbus
+package de.tkip.sbpm.polling
 
 import scala.concurrent.duration._
 import com.typesafe.config.ConfigFactory
-import akka.pattern.ask
 import akka.util.Timeout
-import scala.concurrent.Await
 import akka.actor.Cancellable
 import scala.concurrent.Future
+import akka.pattern.ask
 
 object Polling {
   val system = akka.actor.ActorSystem("system", ConfigFactory.load("polling"))
