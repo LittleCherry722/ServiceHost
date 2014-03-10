@@ -34,7 +34,6 @@ import de.tkip.sbpm.bir._
 import de.tkip.sbpm.application.change._
 import de.tkip.sbpm.logging.LogPersistenceActor
 import de.tkip.sbpm.application.miscellaneous.SystemProperties._
-import de.tkip.sbpm.eventbus.{SbpmEventBusTextMessage, SbpmEventBusTrafficFlowMessage, SbpmEventBus, RemotePublishActor}
 import de.tkip.sbpm.polling.{Polling, ReplyForTrafficJam}
 
 object Boot extends App {
