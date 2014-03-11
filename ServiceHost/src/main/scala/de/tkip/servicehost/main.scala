@@ -20,7 +20,7 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess Gro√üunternehmen. F√
 
 object main extends App {
   println("main started")
-  val repoUrl = "http://localhost:8181/repo"
+  val repoUrl = "http://localhost:8181/repo/interfaces"
   val system = ActorSystem("sbpm")
 
   // TODO add other root Actors
