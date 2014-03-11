@@ -7,13 +7,6 @@ import java.io.File
 import akka.actor.Actor
 import scala.reflect.ClassTag
 
-//object sss extends App {
-//  val r = new StubGeneratorActor
-//  val (name, states) = r.extractStates("D:/study/TKIP/ServiceHost/src/main/scala/de/tkip/servicehost/service_export_test_name2.json")
-//  r.fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name,states)
-//  println()
-//}
-
 class StubGeneratorActor extends Actor{
   sealed class State
   case class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: String)
@@ -28,7 +21,7 @@ class StubGeneratorActor extends Actor{
   def receive = {
     case path:String=>{
       val (name,id,states)=extractStates(path)
-      fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name, id, states)
+      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states)
     }
   }
   def extractStates(jsonPath: String): (String,String, List[State]) = {
