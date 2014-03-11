@@ -1,29 +1,37 @@
 {
-  "name": "Extern",
-  "url": "@127.0.0.1:2553",
-  "description": "",
-  "creator": "No user",
-  "subjectId": "Subj1",
-  "id": 0,
+  "id": 1,
+  "interfaceId": 1234,
+  "name": "Test",
+  "port": 2553,
   "graph": {
-    "id": "Extern",
-    "name": "Extern",
-    "type": "single",
-    "deactivated": false,
-    "startSubject": false,
-    "inputPool": -1,
-    "relatedSubject": "Extern",
-    "relatedProcess": 21,
-    "relatedInterface": "Lokal",
-    "externalType": "external",
-    "role": "Zulieferer",
-    "url": "@127.0.0.1:2553",
-    "comment": "",
-    "variables": {
-      
-    },
-    "variableCounter": 1,
-    "macros": [
+    "id": 123456,
+    "processId": 21,
+    "date": 123456789,
+    "routings": [],
+    "definition": {
+      "conversations": {"a": "b"},
+      "messages": {"c": "d"},
+      "process": [{
+        "id": "Extern",
+        "name": "Extern",
+        "type": "external",
+        "deactivated": false,
+        "startSubject": false,
+        "inputPool": -1,
+        "relatedSubject": "Extern",
+        "relatedInterface": 1234,
+        "isImplementation": true,
+        "externalType": "interface",
+        "role": "Zulieferer",
+        "implementations": [{
+          "processId": 21,
+          "interfaceId": 1234,
+          "address": {"ip": "127.0.0.1", "port": 2553},
+          "subjectId": "Extern"
+        }],
+        "comment": "",
+        "variables": {"var1": "var1Name"},
+        "macros": [
       {
         "id": "##main##",
         "name": "internal behavior",
@@ -206,8 +214,8 @@
           }
         ]
       }
-    ],
-    "macroCounter": 1
-  },
-  "processId": 21
+    ]
+      }]
+    }
+  }
 }
