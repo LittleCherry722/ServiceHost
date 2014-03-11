@@ -76,6 +76,7 @@ class RepoActor extends Actor with ActorLogging {
       val entryJs = entry.asJson.asJsObject
       val interface = convertEntry(entryJs, ip)
       val id = interface.id
+      log.info("added new interface: {}", interface)
       interfaces(id) = interface
       sender ! Some(id.toString)
     }
@@ -87,6 +88,7 @@ class RepoActor extends Actor with ActorLogging {
   }
 
   private def addInterfaceImplementations(interface: Interface) = {
+    log.info("addInterfaceImplementations called for interface {}", interface.id)
     interface.copy(graph = interface.graph.copy(
       subjects = interface.graph.subjects.mapValues{
         subject => {
@@ -95,6 +97,7 @@ class RepoActor extends Actor with ActorLogging {
             logger.info("Subject is not an interface subject, aborting. subject types: " + subject.subjectType + ", " + subject.externalType)
             subject
           } else {
+            logger.info("Subject is an interface subject, copy its implementations")
             subject.copy(implementations = implementationsFor(subject.id))
           }
         }
@@ -122,14 +125,19 @@ class RepoActor extends Actor with ActorLogging {
   }
 
   private def implementationsFor(subjectId: String) : List[InterfaceImplementation] = {
+    logger.info("implementationsFor called for subjectId {}", subjectId)
     val someSId = Some(subjectId)
     val implementations: List[InterfaceImplementation] = interfaces.values.toList.flatMap(i => {
       i.graph.subjects.values.toList.filter(x => {
+        logger.info("test if subject {} is implementation", x.id)
         val impl = (x.relatedSubjectId == someSId
           && (x.relatedInterfaceId.isDefined && interfaces.contains(x.relatedInterfaceId.get)
              || x.relatedInterfaceId.isEmpty))
         if (impl) {
           logger.info("Subject [" + i.name + "/" + x.name + "] is Implementation! ")
+        }
+        else {
+          logger.info("Subject is no implementation")
         }
         impl
       }).map(s => {
