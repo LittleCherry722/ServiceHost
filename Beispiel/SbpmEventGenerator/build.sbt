@@ -11,11 +11,6 @@ resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/release
 
 libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.2.3"
 
-<<<<<<< HEAD
-
-libraryDependencies += "com.typesafe.akka" %% "akka-remote" % "2.2.3" 
-=======
 libraryDependencies += "com.typesafe.akka" %% "akka-remote" % "2.2.3"
->>>>>>> a99a2a4113d06175036c66f7f498139299dc0c85
 
 libraryDependencies += "org.scala-lang" % "scala-swing" % "2.10.3"

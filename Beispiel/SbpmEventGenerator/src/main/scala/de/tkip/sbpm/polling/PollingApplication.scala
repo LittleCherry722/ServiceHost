@@ -7,11 +7,4 @@ object PollingApplication extends App{
   val config = system.settings.config
   val receiveActor = "receive"
   val eventBusRemotePublishActor = system.actorOf(Props[ReceiveActor], receiveActor)
-  
-//  val tmpSubscriber = system.actorOf(Props(new Actor {
-//    def receive = {
-//      case PollingEventBusTrafficFlowMessage(sensorId, count) => println("SUBSCRIBER GOT message, id: " + sensorId + " count: " + count)
-//    }
-//  }))
-//  SbpmEventBus.subscribe(tmpSubscriber, "/traffic/darmstadt/flow")
 }
