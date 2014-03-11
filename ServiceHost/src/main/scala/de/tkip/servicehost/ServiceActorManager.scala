@@ -11,19 +11,23 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.servicehost.serviceactor.ServiceAttributes._
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
+import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
+import java.util.Date
+import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 
 class ServiceActorManager extends Actor{
   
-  val referenceXMLActor = ActorLocator.referenceXMLActor
-  implicit val timeout = Timeout(5 seconds)
+  private val referenceXMLActor = ActorLocator.referenceXMLActor
+  private implicit val timeout = Timeout(5 seconds)
+  private var processInstanceCount = 998;
+  private val processServiceMap = collection.mutable.Map[ProcessID, ServiceActorRef]()
   
   private val serviceMap =
     collection.mutable.Map[ServiceID, ServiceActorRef]()
   
   def receive = {
     case execute: ExecuteServiceMessage => {
-      // hardcoded example
-      serviceActor(execute.serviceID) ! AddService(1, sender)
+      // TODO
     }
     case classReferenceResponse: ClassReferenceMessage =>{
       //TODO implement
@@ -33,7 +37,26 @@ class ServiceActorManager extends Actor{
     }
     case request: CreateProcessInstance => {
       println(request.subjectMapping)
-      serviceActor("Staples") //forward request
+      val actorInstance = serviceActor("Staples") //forward request
+      processServiceMap += processInstanceCount -> actorInstance
+      
+      val userID = request.userID
+      val processID = request.processID
+      val manager = request.manager
+
+      // TODO implement
+
+      // fake ProcessInstanceActor:
+
+      val persistenceGraph = null
+      val processName = ""
+      val startedAt = new Date()
+      val actions = null
+      val processInstanceData = ProcessInstanceData(processInstanceCount, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
+      sender ! ProcessInstanceCreated(request, actorInstance, processInstanceData)
+      
+      actorInstance ! UpdateProcessData(userID, processInstanceCount, processID, manager)
+      processInstanceCount += 1
     }
     case GetProxyActor => {
       println("received GetProxyActor")

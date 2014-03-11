@@ -13,7 +13,7 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import java.util.Date
 import de.tkip.sbpm.application.subject.misc.Stored
 
-class $TemplateServiceActor extends ServiceActor {
+class StaplesServiceActor extends ServiceActor {
 
   // TODO implement inputpoolActor
 //  private val inputPoolActor: ActorRef = null
@@ -22,7 +22,7 @@ class $TemplateServiceActor extends ServiceActor {
   private implicit val service = this
   
   private val states: List[State] = List(
-      //$EMPTYSTATE$//
+      ExitState(2,null,null,-1),ReceiveState(0,"exitcondition",Target("Großunternehmen",-1,-1,false,""),1),SendState(1,"exitcondition",Target("Großunternehmen",-1,-1,false,""),2)
       )
   
   // start with first state
@@ -30,7 +30,7 @@ class $TemplateServiceActor extends ServiceActor {
   private var message: Any = null
   private var tosender: ActorRef = null
   
-  private val serviceID: String = "$SERVICEID"
+  private val serviceID: String = "Staples"
   
   // Subject default values
   private var userID = -1
@@ -48,11 +48,12 @@ class $TemplateServiceActor extends ServiceActor {
       print(message)
       tosender = sender
       state match {
-        case rs: ReceiveState => 
-          rs.handle(message)
-        case _=>
-          println(state + " no match")
-      }
+        case receive: ReceiveState =>
+          receive.handle(message)
+        case _ =>
+          println("\n" + state + " no match")
+      } 
+      
     }
     case message: ExecuteServiceMessage => {
     	tosender = sender
@@ -73,6 +74,7 @@ class $TemplateServiceActor extends ServiceActor {
   
   def changeState {
     state = getState(state.targetId)
+    println("changed State to " + state.id)
     state.process
   }
   
@@ -83,7 +85,9 @@ class $TemplateServiceActor extends ServiceActor {
   def storeMsg(message: Any): Unit = {
     message match {
       case message: SubjectToSubjectMessage => {
-        tosender ! Stored(message.messageID) 
+        // TODO 
+        println("Stored")
+        tosender ! Stored(message.messageID)
         this.message = message
       }
       case _ =>

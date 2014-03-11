@@ -5,12 +5,13 @@ import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.serviceactor._
 
 class ReferenceXMLActor extends Actor{
-  val packet = "de.tkip.servicehost.serviceactor"
+  val packet = "de.tkip.servicehost.serviceactor.stubgen"
     //TODO create mapping from XML
   
   def receive: Actor.Receive = {
     case createReference: CreateXMLReferenceMessage => {
       //TODO implement 
+      createXMLReference(createReference.serviceID, createReference.classPath)
     }
     case getReference: GetClassReferenceMessage =>{
       getReference.serviceID match {
@@ -23,6 +24,11 @@ class ReferenceXMLActor extends Actor{
       }
       
     }
+  }
+  
+  def createXMLReference(id: String, classPath: String) {
+    // TODO
+    println(id + " -> " + classPath)
   }
 
 }

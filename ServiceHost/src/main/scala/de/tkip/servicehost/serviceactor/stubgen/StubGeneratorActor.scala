@@ -6,6 +6,17 @@ import spray.json._
 import java.io.File
 import akka.actor.Actor
 import scala.reflect.ClassTag
+import de.tkip.servicehost.ActorLocator
+import de.tkip.servicehost.Messages._
+import akka.actor.Props
+import de.tkip.servicehost.ReferenceXMLActor
+
+//object sss extends App {
+//  val r = new StubGeneratorActor
+//  val (name, states) = r.extractStates("D:/study/TKIP/ServiceHost/src/main/scala/de/tkip/servicehost/service_export_test_name2.json")
+//  r.fillInClass("D:\\study\\TKIP\\ServiceHost\\src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name,states)
+//  println()
+//}
 
 class StubGeneratorActor extends Actor{
   sealed class State
@@ -21,7 +32,7 @@ class StubGeneratorActor extends Actor{
   def receive = {
     case path:String=>{
       val (name,id,states)=extractStates(path)
-      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states)
+      fillInClass("src\\main\\scala\\de\\tkip\\servicehost\\serviceactor\\stubgen\\$TemplateServiceActor.scala", name, id, states)
     }
   }
   def extractStates(jsonPath: String): (String,String, List[State]) = {
@@ -77,6 +88,15 @@ class StubGeneratorActor extends Actor{
     val pw = new java.io.PrintWriter(f.getAbsolutePath())
     pw.print(classText)
     pw.close()
+    val packagePath = f.getParent().replace("\\", "/")
+    registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."))
+  }
+  
+  def registerService(id: String, className: String, packagePath: String) {
+//    val refAc = ActorLocator.referenceXMLActor
+    val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+    
+    refAc ! CreateXMLReferenceMessage(id, packagePath + "." + className)
   }
 }
 
