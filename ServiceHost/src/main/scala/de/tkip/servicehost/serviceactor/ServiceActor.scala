@@ -11,6 +11,8 @@ import de.tkip.servicehost.serviceactor.stubgen.State
 
 abstract class ServiceActor extends Actor {
   
+  var branchCondition: String = null
+  var returnMessageContent: String = ""
   
   def changeState()
   
@@ -18,7 +20,7 @@ abstract class ServiceActor extends Actor {
   
   def storeMsg(message: Any): Unit
   
-  def getSender(): ActorRef
+  def getDestination(): ActorRef
  
   def terminate(): Unit
  
@@ -27,11 +29,22 @@ abstract class ServiceActor extends Actor {
   def getProcessID(): Int
   
   def getSubjectID(): String
+  
+  def getMessage(): String = returnMessageContent
+  
+  def getBranchCondition() = branchCondition
+  
+  def setMessage(message: String) = returnMessageContent = message
+  
 }
 
 object ServiceAttributes {
   
   type ServiceID = String; val AllServices = ""
+  type BranchID = String;
   type ProcessID = Int
+  type ProcessKey = (ServiceID, ProcessID)
   type ServiceActorRef = ActorRef
+  type MessageText = String
+  type MessageType = String
 }
