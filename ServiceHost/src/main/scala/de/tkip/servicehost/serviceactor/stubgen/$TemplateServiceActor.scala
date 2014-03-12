@@ -2,6 +2,7 @@ package de.tkip.servicehost.serviceactor.stubgen
 
 import akka.actor.Actor
 import de.tkip.servicehost.serviceactor.ServiceActor
+import de.tkip.servicehost.serviceactor.ServiceAttributes._
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.servicehost.Messages._
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
@@ -12,6 +13,8 @@ import akka.actor.PoisonPill
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import java.util.Date
 import de.tkip.sbpm.application.subject.misc.Stored
+import de.tkip.servicehost.ActorLocator
+import scala.collection.immutable.Map
 
 class $TemplateServiceActor extends ServiceActor {
 
@@ -25,6 +28,11 @@ class $TemplateServiceActor extends ServiceActor {
       //$EMPTYSTATE$//
       )
   
+  private val messages: Map[MessageType, MessageText] = Map(
+      //$EMPTYMESSAGE$//
+      )
+      
+      
   // start with first state
   private var state: State = getState(0)
   private var message: Any = null
@@ -45,7 +53,7 @@ class $TemplateServiceActor extends ServiceActor {
   def receive: Actor.Receive = {
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
-      print(message)
+      println(message)
       tosender = sender
       state match {
         case rs: ReceiveState => 
@@ -72,8 +80,17 @@ class $TemplateServiceActor extends ServiceActor {
   }  
   
   def changeState {
-    state = getState(state.targetId)
+    if (state.targetIds.size > 1) {
+      if (this.branchCondition != null) {
+    	  state = getState(state.targetIds(this.branchCondition))
+    	  
+      } else println("no branchcodition defined")
+     
+    } else state = getState(state.targetIds.head._2) 
+    
+    println(state.id)
     state.process
+      
   }
   
   def getState(id: Int): State = {
@@ -85,18 +102,24 @@ class $TemplateServiceActor extends ServiceActor {
       case message: SubjectToSubjectMessage => {
         tosender ! Stored(message.messageID) 
         this.message = message
+        if (state.targetIds.size > 1) this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
+        else this.branchCondition = null
       }
       case _ =>
       	this.message = message
     }    
   }
   
-  def getSender(): ActorRef = {
-    tosender
+  def getBranchIDforType(messageType: String): MessageText = {
+    messages(messageType)
+  }
+  
+  def getDestination(): ActorRef = {
+    manager.get
   }
   
   def terminate() {
-    self ! PoisonPill
+	  ActorLocator.serviceActorManager ! KillProcess(serviceID, thisID)
   }
   
   def getUserID(): Int = {
@@ -108,6 +131,7 @@ class $TemplateServiceActor extends ServiceActor {
   }
   
   def getSubjectID(): String = {
-    subjectID
+    serviceID
   }
+    
 }

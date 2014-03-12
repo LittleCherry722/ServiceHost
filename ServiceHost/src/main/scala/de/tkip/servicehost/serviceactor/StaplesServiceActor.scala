@@ -41,6 +41,7 @@ class StaplesServiceActor extends ServiceActor {
       target.insertTargetUsers(Array(remoteUserId))
       val answer = SubjectToSubjectMessage(0, processId, remoteUserId, "Staples", target, messageType, messageContent)
       val to_actor = manager.get
+      println("received " + message + " from " + to_actor)
       println("send " + answer + " to " + to_actor)
       to_actor ! answer
     }
@@ -78,7 +79,7 @@ class StaplesServiceActor extends ServiceActor {
 
   def storeMsg(message: Any): Unit = {}
 
-  def getSender(): ActorRef = { ??? }
+  def getDestination(): ActorRef = { ??? }
 
   def terminate(): Unit = {}
 
@@ -87,4 +88,5 @@ class StaplesServiceActor extends ServiceActor {
   def getProcessID(): Int = { ??? }
 
   def getSubjectID(): String = { ??? }
+  
 }
