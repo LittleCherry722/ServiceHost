@@ -1,10 +1,14 @@
 package de.tkip.servicehost
 
+import java.util.Date
+import spray.json._
+import DefaultJsonProtocol._
+import scala.collection.mutable.ArrayBuffer
+
 import akka.actor._
 import scalaj.http.{Http, HttpOptions}
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
-import java.util.Date
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -43,9 +47,51 @@ object main extends App {
    */
   def registerInterface(): Unit = {
     println("registerInterface")
-    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
-    val jsonString = source.mkString
-    source.close()
+    val processes = ArrayBuffer[JsValue]()
+
+    println("read processes")
+    // TODO: read directory
+    for {file <- Array("./src/main/resources/staples.json")} {
+      println("read process " + file)
+
+      val source = scala.io.Source.fromFile(file)
+      val sourceString: String = source.mkString
+      source.close()
+
+      val sourceJson: JsValue = sourceString.asJson
+      val processGraph: JsValue = sourceJson.asInstanceOf[JsObject].getFields("graph").head
+      processes += processGraph
+    }
+
+    println("read all processes")
+
+    // TODO: direkt JsObjects erzeugen
+    // TODO: werte in application.conf eintragen und hier auslesen
+    val interfaceJson: JsValue = ("""
+    {
+      "id": 1,
+      "interfaceId": 1234,
+      "name": "MyServiceHost",
+      "port": 2553,
+      "graph": {
+        "id": 123456,
+        "processId": 21,
+        "date": 123456789,
+        "routings": [],
+        "definition": {
+          "conversations": {"a": "b"},
+          "messages": {"c": "d"},
+          "process": """ + processes.toArray.toJson.prettyPrint + """
+        }
+      }
+    }
+    """).asJson
+
+    println("generated interfaceJson")
+
+    val jsonString = interfaceJson.prettyPrint // TODO: compactPrint
+
+    println("printed json to str and POST it")
 
     val result = Http.postData(repoUrl, jsonString)
       .header("Content-Type", "application/json")
