@@ -1,6 +1,11 @@
 package de.tkip.servicehost
 
 import akka.actor._
+import akka.pattern.ask
+import scala.concurrent.Await
+import akka.util.Timeout
+import scala.concurrent.duration._
+import scala.concurrent.Future
 import scalaj.http.{ Http, HttpOptions }
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
@@ -29,6 +34,9 @@ object main extends App {
 
     system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
+//    implicit val timeout = Timeout(30 seconds)
+//    val future: Future[Any]= ask(generator, path)
+//    val res = Await.result(future, timeout.duration)
     generator ! path
     system.shutdown
   } // TODO add other root Actors
