@@ -53,3 +53,5 @@ testOptions in Test <+= (target in Test) map {
 fork in Test := true
 
 atmosSettings
+
+unmanagedSourceDirectories in Compile += file("../eventbus")

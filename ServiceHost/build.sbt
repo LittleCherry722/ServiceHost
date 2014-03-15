@@ -13,3 +13,5 @@ libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-remote" % "2.2.3",
     "org.scalaj" %% "scalaj-http" % "0.3.12"
 )
+
+unmanagedSourceDirectories in Compile += file("../eventbus")
