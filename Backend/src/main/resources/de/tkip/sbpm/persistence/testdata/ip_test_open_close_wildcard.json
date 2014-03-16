@@ -62,6 +62,42 @@
                                 "text": "",
                                 "start": false,
                                 "autoExecute": false,
+                                "end": true,
+                                "type": "end",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "end",
+                                "options": {
+                                    "message": "*",
+                                    "subject": "*",
+                                    "correlationId": "*",
+                                    "conversation": "*",
+                                    "state": null
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 2,
+                                "text": "",
+                                "start": false,
+                                "autoExecute": false,
                                 "end": false,
                                 "type": "receive",
                                 "manualPositionOffsetX": 0,
@@ -95,114 +131,6 @@
                             },
                             {
                                 "id": 3,
-                                "text": "internal action",
-                                "start": false,
-                                "autoExecute": false,
-                                "end": false,
-                                "type": "$openip",
-                                "manualPositionOffsetX": 0,
-                                "manualPositionOffsetY": 0,
-                                "nodeType": "$openip",
-                                "options": {
-                                    "message": "m0",
-                                    "subject": "*",
-                                    "correlationId": "",
-                                    "conversation": "",
-                                    "state": null
-                                },
-                                "deactivated": false,
-                                "majorStartNode": false,
-                                "conversation": "",
-                                "variable": "",
-                                "varMan": {
-                                    "var1": "",
-                                    "var2": "",
-                                    "operation": "and",
-                                    "storevar": ""
-                                },
-                                "createSubjects": {
-                                    "subject": null,
-                                    "storevar": "",
-                                    "min": -1,
-                                    "max": -1
-                                },
-                                "macro": "",
-                                "comment": ""
-                            },
-                            {
-                                "id": 4,
-                                "text": "start",
-                                "start": false,
-                                "autoExecute": false,
-                                "end": false,
-                                "type": "$closeip",
-                                "manualPositionOffsetX": 0,
-                                "manualPositionOffsetY": 0,
-                                "nodeType": "$closeip",
-                                "options": {
-                                    "message": "##all##",
-                                    "subject": "##all##",
-                                    "correlationId": "",
-                                    "conversation": "",
-                                    "state": null
-                                },
-                                "deactivated": false,
-                                "majorStartNode": false,
-                                "conversation": "",
-                                "variable": "",
-                                "varMan": {
-                                    "var1": "",
-                                    "var2": "",
-                                    "operation": "and",
-                                    "storevar": ""
-                                },
-                                "createSubjects": {
-                                    "subject": null,
-                                    "storevar": "",
-                                    "min": -1,
-                                    "max": -1
-                                },
-                                "macro": "",
-                                "comment": ""
-                            },
-                            {
-                                "id": 5,
-                                "text": "",
-                                "start": false,
-                                "autoExecute": false,
-                                "end": true,
-                                "type": "end",
-                                "manualPositionOffsetX": 0,
-                                "manualPositionOffsetY": 0,
-                                "nodeType": "end",
-                                "options": {
-                                    "message": "*",
-                                    "subject": "*",
-                                    "correlationId": "*",
-                                    "conversation": "*",
-                                    "state": null
-                                },
-                                "deactivated": false,
-                                "majorStartNode": false,
-                                "conversation": "",
-                                "variable": "",
-                                "varMan": {
-                                    "var1": "",
-                                    "var2": "",
-                                    "operation": "and",
-                                    "storevar": ""
-                                },
-                                "createSubjects": {
-                                    "subject": null,
-                                    "storevar": "",
-                                    "min": -1,
-                                    "max": -1
-                                },
-                                "macro": "",
-                                "comment": ""
-                            },
-                            {
-                                "id": 7,
                                 "text": "sender dummy now should be able to send message",
                                 "start": false,
                                 "autoExecute": false,
@@ -238,7 +166,43 @@
                                 "comment": ""
                             },
                             {
-                                "id": 8,
+                                "id": 4,
+                                "text": "internal action",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "$openip",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "$openip",
+                                "options": {
+                                    "subject": "##all##",
+                                    "message": "m0",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 5,
                                 "text": "sender dummy can't send message",
                                 "start": false,
                                 "autoExecute": false,
@@ -272,12 +236,48 @@
                                 },
                                 "macro": "",
                                 "comment": ""
+                            },
+                            {
+                                "id": 6,
+                                "text": "start",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "$closeip",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "$closeip",
+                                "options": {
+                                    "message": "##all##",
+                                    "subject": "##all##",
+                                    "correlationId": "",
+                                    "conversation": "",
+                                    "state": null
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
                             }
                         ],
                         "edges": [
                             {
                                 "start": 0,
-                                "end": 4,
+                                "end": 6,
                                 "text": "m0",
                                 "type": "exitcondition",
                                 "manualPositionOffsetLabelX": 0,
@@ -300,8 +300,26 @@
                                 "transportMethod": ["internal"]
                             },
                             {
+                                "start": 6,
+                                "end": 5,
+                                "text": "OK",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": "",
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": "",
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": ["internal"]
+                            },
+                            {
                                 "start": 4,
-                                "end": 8,
+                                "end": 3,
                                 "text": "OK",
                                 "type": "exitcondition",
                                 "manualPositionOffsetLabelX": 0,
@@ -319,7 +337,7 @@
                             },
                             {
                                 "start": 3,
-                                "end": 7,
+                                "end": 2,
                                 "text": "OK",
                                 "type": "exitcondition",
                                 "manualPositionOffsetLabelX": 0,
@@ -336,26 +354,8 @@
                                 "transportMethod": ["internal"]
                             },
                             {
-                                "start": 7,
+                                "start": 2,
                                 "end": 1,
-                                "text": "OK",
-                                "type": "exitcondition",
-                                "manualPositionOffsetLabelX": 0,
-                                "manualPositionOffsetLabelY": 0,
-                                "edgeType": "exitcondition",
-                                "target": "",
-                                "deactivated": false,
-                                "optional": false,
-                                "priority": 1,
-                                "manualTimeout": false,
-                                "variable": "",
-                                "correlationId": "",
-                                "comment": "",
-                                "transportMethod": ["internal"]
-                            },
-                            {
-                                "start": 1,
-                                "end": 5,
                                 "text": "m0",
                                 "type": "exitcondition",
                                 "manualPositionOffsetLabelX": 0,
@@ -378,8 +378,8 @@
                                 "transportMethod": ["internal"]
                             },
                             {
-                                "start": 8,
-                                "end": 3,
+                                "start": 5,
+                                "end": 4,
                                 "text": "Re-Open",
                                 "type": "exitcondition",
                                 "manualPositionOffsetLabelX": 0,

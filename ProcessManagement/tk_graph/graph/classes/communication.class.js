@@ -1461,7 +1461,7 @@ function GCcommunication ()
 						{
 							var gt_node		= gt_macroValues.nodes[gt_nodeId];
 							var gt_nodeType	= gf_isset(gt_node.nodeType) ? gt_node.nodeType : gt_node.type;
-							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, gt_node.manualPositionOffsetX, gt_node.manualPositionOffsetY, false);
+							var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_nodeType, gt_node.start, gt_node.end, gt_node.manualPositionOffsetX, gt_node.manualPositionOffsetY, false, gt_node.autoExecute);
 							// var gt_nodeId	= gt_macro.addNode("loadedNode" + gt_node.id, gf_replaceNewline(gt_node.text), gt_node.type, gt_node.start, gt_node.end, gt_node.deactivated);
 
 							var gt_createdNode	= gt_macro.getNode(gt_nodeId);

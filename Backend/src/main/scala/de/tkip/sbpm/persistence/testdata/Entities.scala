@@ -81,11 +81,12 @@ object Entities {
 
   // process with one active graph loaded from corresponding json file
   val processes = List(
-    (Process(None, None, false, "Gro\u00dfunternehmen", false) -> loadJson("grossunternehmen")),
+    (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
+    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
     (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
     (Process(None, None, false, """Transportdienstleister""", false) -> loadJson("lieferant")),
 
-    (Process(None, None, false, "Gro\u00dfunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
+    (Process(None, None, false, "Grossunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
     (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
     (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
 
