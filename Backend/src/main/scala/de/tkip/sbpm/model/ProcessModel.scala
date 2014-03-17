@@ -30,6 +30,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val IsIPEmptyStateString = "$isipempty"
   val ActivateStateString = "$activatestate"
   val DeactivateStateString = "$deactivatestate"
+  val DecisionStateString = "$decision"
   val ModalSplitStateString = "modalsplit"
   val ModalJoinStateString = "modaljoin"
   val ArchiveStateString = "$archive"
@@ -45,6 +46,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val IsIPEmptyStateType = Value(IsIPEmptyStateString)
   val ActivateStateType = Value(ActivateStateString)
   val DeactivateStateType = Value(DeactivateStateString)
+  val DecisionStateType = Value(DecisionStateString)
   val ModalSplitStateType = Value(ModalSplitStateString)
   val ModalJoinStateType = Value(ModalJoinStateString)
   val MacroStateType = Value(MacroStateString)
@@ -70,6 +72,7 @@ case class State(
   id: StateID,
   text: String,
   stateType: StateType,
+  autoExecute: Boolean,
   startState: Boolean,
   observerState: Boolean,
   callMacro: Option[String],

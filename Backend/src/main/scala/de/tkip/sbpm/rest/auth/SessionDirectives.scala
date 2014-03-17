@@ -33,6 +33,7 @@ import akka.actor.ActorSystem
 import de.tkip.sbpm.model.User
 import spray.routing.authentication.UserPass
 import de.tkip.sbpm.persistence.query.Users
+import akka.event.Logging
 
 case class MissingSessionRejection(sessionId: String) extends Rejection
 case object MissingUserRejection extends Rejection
@@ -66,16 +67,16 @@ trait SessionDirectives {
     val sessionFuture = ActorLocator.sessionActor ? GetSession(sessionId)
     Await.result(sessionFuture.mapTo[Option[Session]], timeout.duration)
   }
-  
+
   /**
    * Directive to read the session with the given id.
    */
   def session(id: UUID)(implicit refFactory: ActorRefFactory): Directive[Session :: HNil] = {
-        val session = getSession(id)
-        if (session.isDefined)
-          provide(session.get)
-        else
-          rejectSession(id.toString)
+    val session = getSession(id)
+    if (session.isDefined)
+      provide(session.get)
+    else
+      rejectSession(id.toString)
   }
 
   /**
@@ -142,9 +143,8 @@ trait SessionDirectives {
         setCookie(HttpCookie(defaultRealm + "-userId", session.userId.get.toString, path = Some("/")))
       else
         deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
-  }
- 
-  
+    }
+
   /**
    * Delete current session if it exists.
    */
@@ -153,8 +153,8 @@ trait SessionDirectives {
       if (session.isDefined) {
         ActorLocator.sessionActor ! DeleteSession(session.get.id)
       }
-      deleteCookie(HttpCookie(defaultRealm, "", path = Some("/"))) & 
-      deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
+      deleteCookie(HttpCookie(defaultRealm, "", path = Some("/"))) &
+        deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
     }
   }
 

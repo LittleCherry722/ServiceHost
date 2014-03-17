@@ -82,6 +82,7 @@ object Entities {
   // process with one active graph loaded from corresponding json file
   val processes = List(
     (Process(None, "Gro\u00dfunternehmen", false) -> loadJson("grossunternehmen")),
+    (Process(None, "Service Host", false) -> loadJson("servicehost")),
     (Process(None, """Staples""", false) -> loadJson("staples")),
     (Process(None, """Transportdienstleister""", false) -> loadJson("lieferant")),
 
@@ -92,6 +93,8 @@ object Entities {
     (Process(None, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
     (Process(None, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
     (Process(None, """IP Test""", false) -> loadJson("ip_test")),
+    (Process(None, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
+    (Process(None, """IP Test Open Close Wildcard With Timeout""", false) -> loadJson("ip_test_open_close_wildcard_with_timeout")),
     (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
     (Process(None, """Macro Example""", false) -> loadJson("macro_example")),
     (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),

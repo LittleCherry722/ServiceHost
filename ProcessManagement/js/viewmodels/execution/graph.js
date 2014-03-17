@@ -107,10 +107,12 @@ define([
 		var subject = currentSubject(),
 			currentState = processInstance().getCurrentState(subject),
 			process = processInstance().getCurrentProcess(subject),
-			node = 0;
+			node = undefined;
 
-		if( process === null ) {
-			gf_deselectNodes();
+        console.log("selectCurrentBehaviourState", process, currentState)
+        gf_deselectNodes();
+
+        if( process === null ) {
 			if ( gv_objects_nodes.length > 0 ) {
 				gv_objects_nodes[0].select();
 			}
@@ -124,8 +126,7 @@ define([
 			}
 		} );
 
-		if( gv_objects_nodes[node] ){
-			gf_deselectNodes();
+		if( node !== undefined && gv_objects_nodes[node] ){
 			gv_objects_nodes[node].select();
 		}
 	};

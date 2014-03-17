@@ -31,6 +31,7 @@ import de.tkip.sbpm.persistence.EntityNotFoundException
 import de.tkip.sbpm.persistence.query.BaseQuery
 import de.tkip.sbpm.logging.DefaultLogging
 import scala.reflect.ClassTag
+import akka.event.Logging
 
 /**
  * Inheriting actors have simplified access to persistence actor.
@@ -132,6 +133,9 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * Executes the action without waiting for a result.
    */
   protected def execute(action: BaseQuery) = {
+      val traceLogger = Logging(context.system, this.self)
+      traceLogger.debug("TRACE: from " + this.self + " to " + persistenceActor  + " " + action.toString)
+
     persistenceActor ! action
   }
 

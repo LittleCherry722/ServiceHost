@@ -16,9 +16,10 @@ package de.tkip.sbpm.application.subject
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import akka.actor.ActorContext
 import akka.actor.Props
+import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
-import de.tkip.sbpm.application.{MappingInfo, SubjectCreated, RegisterSingleSubjectInstance}
+import de.tkip.sbpm.application.{ MappingInfo, SubjectCreated, RegisterSingleSubjectInstance }
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
 import de.tkip.sbpm.ActorLocator
@@ -31,6 +32,7 @@ import ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.util.Timeout
+import akka.event.Logging
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -48,7 +50,7 @@ class SubjectContainer(
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) {
   import scala.collection.mutable.{ Map => MutableMap }
 
-  implicit val timeout = Timeout(5 seconds)
+  implicit val timeout = Timeout(30 seconds)
 
   private val multi = subject.multi
   private val single = !multi
@@ -61,6 +63,7 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
+    logger.debug("SubjectContainer.createSubject: " + userID);
     logger.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
     if (single) {
       if (subjects.size > 0) {
@@ -69,8 +72,9 @@ class SubjectContainer(
       }
       // register this subject at the context resolver so other subject dont
       // try to send to wrong instances
-      ActorLocator.contextResolverActor !
-        RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID)
+      val msg = RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID)
+      logger.debug("TRACE: from SubjectContainer "+ " to " + ActorLocator.contextResolverActor + " " + msg.toString)
+      ActorLocator.contextResolverActor ! msg
     }
 
     val subjectData =
@@ -86,14 +90,15 @@ class SubjectContainer(
     if (!external) {
       // create subject
       val subjectRef =
-        context.actorOf(Props(new SubjectActor(subjectData)))
-
+        context.actorOf(Props(new SubjectActor(subjectData)), "SubjectActor____" + UUID.randomUUID().toString())
       // and store it in the map
       subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID, logger)
 
+      val msg = SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
       // inform the subject provider about his new subject
-      context.parent !
-        SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+      logger.debug("TRACE: from SubjectContainer" + " to " + context.parent + " " + msg.toString)
+      context.parent ! msg
+        
 
       reStartSubject(userID)
     } else {
@@ -106,7 +111,10 @@ class SubjectContainer(
           GetProcessInstanceProxy(mapping.get.processId, mapping.get.address))
           .mapTo[ActorRef]
 
+      logger.debug("CREATE: processInstanceRef = {}", processInstanceRef)
+
       // TODO we need this unblock!
+      logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
 
       subjects += userID -> SubjectInfo(processInstanceRef, userID, logger)
@@ -136,7 +144,7 @@ class SubjectContainer(
     if (target.toVariable) {
       // TODO why not targetUsers = var subjects?
       sendTo(target.varSubjects.map(_._2), message)
-    } else if(target.toExternal && target.toUnknownUsers) {
+    } else if (target.toExternal && target.toUnknownUsers) {
       sendToExternal(message)
     } else {
       sendTo(target.targetUsers, message)
@@ -170,6 +178,7 @@ class SubjectContainer(
         logger.debug("SEND (target exchanged): {}", message)
 
         // TODO we need this unblock!
+        logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  UnBlockUser(userID).toString)
         blockingHandlerActor ! UnBlockUser(userID)
       }
 
@@ -184,11 +193,14 @@ class SubjectContainer(
 
   private def reStartSubject(userID: UserID) {
     if (subjects.contains(userID)) {
+      logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  BlockUser(userID).toString)
       blockingHandlerActor ! BlockUser(userID)
       increaseSubjectCounter()
       subjects(userID).running = true
       // start the execution
-      subjects(userID) ! StartSubjectExecution()
+      val msg = StartSubjectExecution()
+      logger.debug("TRACE: from SubjectContainer"+ " to " + subjects(userID) + " " +  msg.toString)
+      subjects(userID) ! msg
     } else {
       logger.error("User %i unknown for subject %s, (re)start failed!"
         .format(userID, subject.id))
@@ -202,11 +214,14 @@ class SubjectContainer(
     var running: Boolean = true) {
 
     def tell(message: Any, from: ActorRef) {
-      logger.debug("FORWARD: {} TO {}", message, from)
+      logger.debug("FORWARD: {} TO {} FROM {}", message, ref, from)
       logger.debug("subject creation completed: {}", ref.isCompleted)
 
       ref.onComplete {
         case r =>
+          logger.debug("ref.onComplete: r = {}", r)
+          logger.debug("ref.onComplete: ref = {}", ref)
+          logger.debug("subject creation completed: {}", ref.isCompleted)
           if (r.isSuccess) r.get.tell(message, from)
           // TODO exception or logg?
           else throw new Exception("Subject Creation failed for " +

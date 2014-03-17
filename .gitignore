@@ -15,7 +15,18 @@
 Repository/target/*
 Repository/project/target/*
 ProcessManagement/nbproject/*
+*.cache
+Beispiel/SbpmEventGenerator/target/*
+ServiceHost/target/*
+ServiceHost/project/target/*
+ServiceHost/nbproject/*
 
 # intellij project files
 .idea
 *.iml
+
+/pids
+backend_*.jar
+repository.jar
+/target
+sbpm_*.db

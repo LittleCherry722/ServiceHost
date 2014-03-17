@@ -101,11 +101,12 @@ class ChangeActor extends Actor {
     val tempInsert = new ArrayBuffer[ProcessRelatedChangeData]()
     val tempUpdate = new ArrayBuffer[ProcessRelatedChangeData]()
     val tempDelete = new ArrayBuffer[ProcessRelatedDeleteData]()
+    val lastUpdate = new java.util.Date().getTime() - t * 1000
     
     for (i <- 0 until processChangeEntries.length) {
       processChangeEntries(i) match {
         case ProcessChange(p, info, date) => {
-          if (date.getTime() > t * 1000) {
+          if (date.getTime() > lastUpdate) {
             if (info == "insert")
               tempInsert += ProcessRelatedChangeData(p.id.get,p.name,p.isCase,p.startAble.get,p.activeGraphId)
             if (info == "update")
@@ -113,7 +114,7 @@ class ChangeActor extends Actor {
           }
         }
         case ProcessDelete(id, date) => {
-          if (date.getTime() > t * 1000) {
+          if (date.getTime() > lastUpdate) {
             tempDelete += ProcessRelatedDeleteData(id)
           }
         }
@@ -130,11 +131,12 @@ class ChangeActor extends Actor {
     val tempInsert = new ArrayBuffer[ProcessInstanceRelatedChangeData]()
     val tempUpdate = new ArrayBuffer[ProcessInstanceRelatedChangeData]()
     val tempDelete = new ArrayBuffer[ProcessInstanceRelatedDeleteData]()
+    val lastUpdate = new java.util.Date().getTime() - t * 1000
     
     for (i <- 0 until processInstanceChangeEntries.length) {
       processInstanceChangeEntries(i) match {
         case ProcessInstanceChange(id, pid, pname, name, info, date) => {
-          if (date.getTime() > t * 1000) {
+          if (date.getTime() > lastUpdate) {
             if (info == "insert")
               tempInsert += ProcessInstanceRelatedChangeData(id,pid,pname,name)
             if (info == "update")
@@ -142,7 +144,7 @@ class ChangeActor extends Actor {
           }
         }
         case ProcessInstanceDelete(id, date) => {
-          if (date.getTime() > t * 1000) {
+          if (date.getTime() > lastUpdate) {
             tempDelete += ProcessInstanceRelatedDeleteData(id)
           }
         }
@@ -157,11 +159,12 @@ class ChangeActor extends Actor {
     val tempInsert = new ArrayBuffer[ActionRelatedChangeData]()
     val tempUpdate = new ArrayBuffer[ActionRelatedChangeData]()
     val tempDelete = new ArrayBuffer[ActionRelatedDeleteData]()
+    val lastUpdate = new java.util.Date().getTime() - t * 1000
     
     for (i <- 0 until actionChangeEntries.length) {
       actionChangeEntries(i) match {
         case ActionChange(a, info, date) => {
-          if (date.getTime() > t * 1000) {
+          if (date.getTime() > lastUpdate) {
             if (info == "insert")
               tempInsert += ActionRelatedChangeData(a.id,a.userID,a.processInstanceID,a.subjectID,a.macroID,a.stateID,a.stateText,a.stateType,a.actionData)
             if (info == "updated")
@@ -169,7 +172,7 @@ class ChangeActor extends Actor {
           }
         }
         case ActionDelete(id, date) => {
-          if (date.getTime() > t * 1000) {
+          if (date.getTime() > lastUpdate) {
             tempDelete += ActionRelatedDeleteData(id)
           }
         }
@@ -184,11 +187,12 @@ class ChangeActor extends Actor {
   private def getMessageData(t: Long, id: Int) = {
    
     val tempInsert = new ArrayBuffer[MessageRelatedChangeData]()
+    val lastUpdate = new java.util.Date().getTime() - t * 1000
     
     for (i <- 0 until messageChangeEntries.length) {
       messageChangeEntries(i) match {
         case MessageChange(m, info, date) => {
-          if (date.getTime() > t * 1000) {
+          if (date.getTime() > lastUpdate) {
             if (info == "insert" && m.fromUser == id)
               tempInsert += MessageRelatedChangeData(m.id, m.fromUser, m.toUser, m.title, m.isRead, m.content, m.date)
           }

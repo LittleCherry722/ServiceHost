@@ -15,17 +15,13 @@ package de.tkip.sbpm
 
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
-
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
-
-import akka.actor.{ActorSystem, Props, actorRef2Scala}
+import akka.actor.{Actor, ActorSystem, Props, actorRef2Scala}
 import akka.util.Timeout
 import akka.pattern._
 import akka.io.IO
-
 import ActorLocator._
-
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.persistence.query.Schema
 import de.tkip.sbpm.persistence.testdata.Entities
@@ -36,9 +32,9 @@ import de.tkip.sbpm.rest.google.{GDriveActor, GCalendarActor}
 import spray.can.Http
 import de.tkip.sbpm.bir._
 import de.tkip.sbpm.application.change._
-
 import de.tkip.sbpm.logging.LogPersistenceActor
 import de.tkip.sbpm.application.miscellaneous.SystemProperties._
+import de.tkip.sbpm.polling.{Polling, ReplyForTrafficJam}
 
 object Boot extends App {
 

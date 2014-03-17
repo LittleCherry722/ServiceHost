@@ -25,7 +25,7 @@ define([
 		// These values do not need to be saved, for they will be loaded from the model.
 		var mapping = {
 			'ignore' : ["groupUser1", "groupUser2"]
-		}
+		};
 		self.routings.subscribe(function( newValue ) {
 			currentProcess().routings(komapping.toJS(self.routings(), mapping));
 			return komapping.toJS(self.routings(), mapping);
@@ -41,7 +41,7 @@ define([
 		self.init = function() {
 			self.load(currentProcess().routings());
 			console.log("RoutingViewModel: initialized.");
-		}
+		};
 
 
 		self.load = function(arrayOfRoutings) {
@@ -54,8 +54,7 @@ define([
 				newRoutings().push( y );
 			}
 			self.routings( newRoutings() );
-
-		}
+		};
 
 		var Routing = function(subject1Value, is1Value, groupUser1Value, groupUser1ListValue, subject2Value, is2Value, groupUser2Value, groupUser2ListValue) {
 			var self = this;
@@ -112,15 +111,15 @@ define([
 				_super.routings.valueHasMutated();
 			});
 
-		}
+		};
 
 		self.addRouting = function() {
 			self.routings.push(new Routing());
-		}
+		};
 
 		self.removeRouting = function(element) {
 			self.routings.remove(element);
-		}
+		};
 	};
 
 	var currentProcess = ko.observable();
@@ -150,14 +149,12 @@ define([
 		console.log(process.routings());
 
 		viewModel.init();
-;
 
 		App.loadTemplate( "process/routing", viewModel, null, function() {
 			console.log("template loaded")
 		});
 
-
-	}
+	};
 
 	// Everything in this object will be the public API
 	return {

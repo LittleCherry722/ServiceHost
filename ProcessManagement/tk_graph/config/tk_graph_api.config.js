@@ -73,6 +73,8 @@ var gv_elements = {
 	inputNodeOptSubjectO:		"ge_node_opt_subjectOuter",
 	inputNodeOuter:				"node",
 	inputNodeStartOuter:		"ge_node_start_node_outer",
+	inputNodeAutoExecute:		"ge_node_auto_execute",
+	inputNodeAutoExecuteOuter:	"ge_node_auto_execute_outer",
 	inputNodeText:				"ge_text",
 	inputNodeType:				"ge_type2",
 	inputNodeVariable:			"ge_node_variable",

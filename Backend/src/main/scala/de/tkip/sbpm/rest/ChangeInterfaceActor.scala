@@ -40,7 +40,7 @@ class ChangeInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
     get {
       // frontend request
       pathPrefix("") {
-        parameter("since") { (time) =>
+        parameter("t") { (time) =>
             complete {
               //          log.debug(s"${getClass.getName} received polling request with timestemp: $time")
               val future = 

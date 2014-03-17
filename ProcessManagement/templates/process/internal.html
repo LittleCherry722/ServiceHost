@@ -137,18 +137,25 @@
 	<fieldset data-bind="if: isNodeSelected">
 		<legend>State settings</legend>
 
-		<div id="ge_node_start_node_outer" style="display:none;">
-			<label class="checkbox">
-				<input type="checkbox" id="ge_type_start" name="ge_type_start" />
-				Startstate
-			</label>
-			<div id="ge_node_major_start_node_outer" style="display:none;">
-				<label class="checkbox">
-					<input type="checkbox" id="ge_node_major_start_node" />
-					Major Startstate
-				</label>
-			</div>
-		</div>
+        <div id="ge_node_start_node_outer" style="display:none;">
+            <label class="checkbox">
+                <input type="checkbox" id="ge_type_start" name="ge_type_start" />
+                Startstate
+            </label>
+            <div id="ge_node_major_start_node_outer" style="display:none;">
+                <label class="checkbox">
+                    <input type="checkbox" id="ge_node_major_start_node" />
+                    Major Startstate
+                </label>
+            </div>
+        </div>
+
+        <div id="ge_node_auto_execute_outer" style="display:none;">
+            <label class="checkbox">
+                <input type="checkbox" id="ge_node_auto_execute" name="ge_node_auto_execute" />
+                Auto-Execute
+            </label>
+        </div>
 
 		<label class="graphsectionheader">Type:</label>
 		<select id="ge_type2"></select>
