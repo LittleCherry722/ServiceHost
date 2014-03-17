@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
@@ -23,7 +23,7 @@ import query.Messages._
 /**
  * Handle all db operation for table "messages".
  */
-private[persistence] class MessagePersistenceActor extends Actor
+private[persistence] class MessagePersistenceActor extends InstrumentedActor
   with DatabaseAccess with schema.MessagesSchema {
   // import current slick driver dynamically
   import driver.simple._
@@ -39,7 +39,7 @@ private[persistence] class MessagePersistenceActor extends Actor
   def toPersistenceModel(u: Message) =
     convert(u, Domain.message, Persistence.message)
 
-  def receive = {
+  def wrappedReceive = {
     // get all messages
     case Read.All => answer { implicit session =>
       Query(Messages).list.map(toDomainModel)

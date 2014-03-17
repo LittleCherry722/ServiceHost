@@ -39,13 +39,14 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.model.UserIdentity
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 import com.github.t3hnar.bcrypt._
 
 /**
  * This Actor is only used to process REST calls regarding "user"
  */
-class UserInterfaceActor extends Actor with PersistenceInterface {
+class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
   private lazy val userPassAuthActor = ActorLocator.userPassAuthActor
   import context.dispatcher
 
@@ -62,7 +63,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
    * http://ajaxpatterns.org/RESTful_Service#RESTful_Principles
    *
    */
-  def receive = runRoute({
+  def wrappedReceive = runRoute({
     get {
       /**
        * get a list of all user
@@ -229,7 +230,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
    * completes with either 201 or 200
    */
   def saveUser(entity: User, id: Option[Int] = None) = {
-    // set param from url to entity id 
+    // set param from url to entity id
     // or delete id to create new entity
     val e = entity.copy(id)
     completeWithSave(Users.Save(e),

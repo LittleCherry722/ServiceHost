@@ -18,6 +18,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.event.Logging
 import akka.actor._
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.pattern.ask
 import scala.concurrent.Future
 import de.tkip.sbpm.application.subject.misc._
@@ -33,11 +34,11 @@ case class CollectAvailableActions(subjects: Iterable[SubjectRef],
 /**
  * This class is responsible to collect the available actions of a set of subjects
  */
-class SubjectActionsCollector extends Actor {
+class SubjectActionsCollector extends InstrumentedActor {
 
   val logger = Logging(context.system, this)
 
-  def receive = {
+  def wrappedReceive = {
     case CollectAvailableActions(subjects, processInstanceID, generateAnswer) => {
       implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
 

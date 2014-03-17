@@ -14,7 +14,9 @@ package de.tkip.sbpm.rest.google
 
 import scala.concurrent.Future
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{ ActorSystem, Props}
+import de.tkip.sbpm.instrumentation.InstrumentedActor
+import akka.pattern._
 import akka.actor.Status.Failure
 import akka.pattern.pipe
 
@@ -31,16 +33,16 @@ object GDriveActor {
   case class RetrieveEmail(userId: String)
   case class UploadFile(userId: String, fileName: String, description: String,
                         mimeType: String, path: String)
-  
+
 }
 
-class GDriveActor extends Actor {
+class GDriveActor extends InstrumentedActor {
   import GDriveActor._
   implicit val ec = context.dispatcher
 
   val driveCtrl = new GDriveControl()
 
-  def receive = {
+  def wrappedReceive = {
     case FindFiles(u,q,f) =>
       Future { driveCtrl.findFiles(u,q,f) } pipeTo sender
     case InitCredentials(u,c) =>
@@ -59,7 +61,7 @@ class GDriveActor extends Actor {
       Future { driveCtrl.userEmail(u) } pipeTo sender
     case UploadFile(u,f,d,m,p) =>
       Future { driveCtrl.insertFile(u,f,d,m,p) } pipeTo sender
-    
+
   }
 
 }

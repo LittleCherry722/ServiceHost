@@ -35,13 +35,14 @@ import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
 import de.tkip.sbpm.model.ExternalSubject
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 case class MappingInfo(subjectId: SubjectID, processId: ProcessID, address: String)
 
 /**
  * instantiates SubjectActor's and manages their interactions
  */
-class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
+class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedActor {
   private val logger = Logging(context.system, this)
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
@@ -62,7 +63,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   // whether the process instance is terminated or not
   private var runningSubjectCounter = 0
   private def isTerminated = runningSubjectCounter == 0
-  // this map stores all Subject(Container) with their IDs 
+  // this map stores all Subject(Container) with their IDs
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
 
   val url = SystemProperties.akkaRemoteUrl
@@ -134,7 +135,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
   }
 
-  def receive = {
+  def wrappedReceive = {
 
     case GetProxyActor => {
       logger.debug("TRACE: from " + this.self + " to " + sender + " " + proxyActor)

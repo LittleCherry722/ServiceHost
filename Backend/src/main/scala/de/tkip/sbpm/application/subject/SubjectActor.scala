@@ -15,6 +15,7 @@ package de.tkip.sbpm.application.subject
 
 import java.util.Date
 import scala.collection.mutable
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
 import java.util.UUID
 import de.tkip.sbpm.application._
@@ -49,7 +50,7 @@ case class SubjectData(
 /**
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
-class SubjectActor(data: SubjectData) extends Actor {
+class SubjectActor(data: SubjectData) extends InstrumentedActor {
   private val logger = Logging(context.system, this)
   implicit val timeout = Timeout(2000)
 
@@ -139,7 +140,7 @@ class SubjectActor(data: SubjectData) extends Actor {
     //    }
   }
 
-  def receive = {
+  def wrappedReceive = {
 
     case sm: SubjectToSubjectMessage => {
       for { (key, name) <- subject.variablesMap } {

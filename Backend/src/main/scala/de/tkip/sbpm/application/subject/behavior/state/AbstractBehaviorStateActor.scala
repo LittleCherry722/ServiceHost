@@ -14,7 +14,7 @@
 package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.Array.canBuildFrom
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.ActorRef
 import akka.actor.FSM
 import akka.actor.Props
@@ -75,7 +75,7 @@ protected case class StateData(
   internalStatus: InternalStatus,
   visitedModalSplit: Stack[(Int, Int)] = new Stack) // (id, number of branches)
 
-// the correct way to kill a state instead of PoisonPill 
+// the correct way to kill a state instead of PoisonPill
 private[subject] case object KillState
 
 // the message to signal, that a timeout has expired
@@ -87,7 +87,7 @@ case object DisableState
 /**
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
-protected abstract class BehaviorStateActor(data: StateData) extends Actor with DefaultLogging {
+protected abstract class BehaviorStateActor(data: StateData) extends InstrumentedActor with DefaultLogging {
 
   // TODO for compatibility
   protected val logger = log //Logging(context.system, this)
@@ -139,7 +139,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Actor with 
 
   // first try the "receive" function of the inheritance state
   // then use the "receive" function of this behavior state
-  final def receive = generalReceive orElse stateReceive orElse errorReceive
+  final def wrappedReceive = generalReceive orElse stateReceive orElse errorReceive
 
   // the inheritance state must implement this function
   protected def stateReceive: Receive

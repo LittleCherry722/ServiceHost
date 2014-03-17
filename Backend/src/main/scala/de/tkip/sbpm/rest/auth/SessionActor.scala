@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.rest.auth
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import java.util.UUID
 import scala.collection.mutable.Map
 import java.util.Date
@@ -50,7 +50,7 @@ case class Session(id: UUID, expires: Date = defaultSessionExpiry, userId: Optio
  * Provides an in-memory session store for associating
  * user ids with sessions (e.g. by using cookies).
  */
-class SessionActor extends Actor {
+class SessionActor extends InstrumentedActor {
   // save session in memory
   private val sessions = Map[UUID, Session]()
   // create new session id
@@ -59,7 +59,7 @@ class SessionActor extends Actor {
 
   val traceLogger = Logging(context.system, this)
 
-  def receive = {
+  def wrappedReceive = {
     case CreateSession(userId) => {
       updateSession(newSessionId, userId)
     }
@@ -68,7 +68,7 @@ class SessionActor extends Actor {
 
       val msg = (sessions.get(sessionId) match {
         case s @ Some(Session(_, expires, _)) =>
-          // return none for expired session 
+          // return none for expired session
           if (expires.before(new Date)) None
           else s
         case None => None

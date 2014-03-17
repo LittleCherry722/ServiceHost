@@ -6,13 +6,14 @@ import de.tkip.sbpm.persistence.schema.{Log, Logs}
 import scala.slick.jdbc.meta.MTable
 import scala.slick.driver.SQLiteDriver.simple._
 import Database.threadLocalSession
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 object LogPersistenceActor {
   case class Insert(log: Log)
   case class Get(n: Int)
 }
 
-class LogPersistenceActor extends Actor with DefaultLogging {
+class LogPersistenceActor extends InstrumentedActor {
   import LogPersistenceActor._
   val db = Database.forURL("jdbc:sqlite::memory:", driver = "org.sqlite.JDBC")
   db withSession {
@@ -20,7 +21,7 @@ class LogPersistenceActor extends Actor with DefaultLogging {
       Logs.ddl.create
   }
 
-  def receive = {
+  def wrappedReceive = {
     case Get(n) => db withSession {
       val log_list: List[Log] = Query(Logs).sortBy(_.timestamp.desc).take(n).list
       sender ! log_list

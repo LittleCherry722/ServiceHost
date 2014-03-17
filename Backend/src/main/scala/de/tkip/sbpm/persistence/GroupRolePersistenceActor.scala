@@ -13,17 +13,17 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
 import query.GroupsRoles._
-  import mapping.PrimitiveMappings._
+import mapping.PrimitiveMappings._
 
 /**
  * Handles all DB operations for table "groups_roles".
  */
-private[persistence] class GroupRolePersistenceActor extends Actor
+private[persistence] class GroupRolePersistenceActor extends InstrumentedActor
   with DatabaseAccess with schema.GroupsRolesSchema {
   // import current slick driver dynamically
   import driver.simple._
@@ -39,7 +39,7 @@ private[persistence] class GroupRolePersistenceActor extends Actor
   def toPersistenceModel(u: GroupRole) =
     convert(u, Domain.groupRole, Persistence.groupRole)
 
-  def receive = {
+  def wrappedReceive = {
     // get all group -> role mappings
     case Read.All => answer { implicit session =>
       Query(GroupsRoles).list.map(toDomainModel)
@@ -80,7 +80,7 @@ private[persistence] class GroupRolePersistenceActor extends Actor
     }
   }
 
-  // delete existing entry with given group and role id 
+  // delete existing entry with given group and role id
   // and insert new record with given values
   private def save(gr: GroupRole)(implicit session: Session) = {
     val res = delete(gr.groupId, gr.roleId)

@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Props
 import scala.slick.lifted
 import scala.slick.lifted.ForeignKeyAction._
@@ -26,7 +26,7 @@ import query.Users._
 /**
  * Handles all database operations for table "users".
  */
-private[persistence] class UserPersistenceActor extends Actor
+private[persistence] class UserPersistenceActor extends InstrumentedActor
   with DatabaseAccess with schema.UserIdentitiesSchema with schema.GroupsUsersSchema
   with schema.GroupsSchema with schema.GroupsRolesSchema with schema.RolesSchema
   with schema.GraphSubjectsSchema with schema.ProcessInstancesSchema {
@@ -44,7 +44,7 @@ private[persistence] class UserPersistenceActor extends Actor
   def toPersistenceModel(u: User) =
     convert(u, Domain.user, Persistence.user)
 
-  def receive = {
+  def wrappedReceive = {
     // get all users
     case Read.All => answerProcessed { implicit session: Session =>
       Query(Users).list
@@ -105,7 +105,7 @@ private[persistence] class UserPersistenceActor extends Actor
       } yield (i, u)
       q.firstOption
     }(t => mapping.UserMappings.convert(t._1, t._2))
-    
+
     case Read.ByIdProvider(id, provider) => answerOptionProcessed { implicit session: Session =>
       //
       val q = for {
@@ -113,7 +113,7 @@ private[persistence] class UserPersistenceActor extends Actor
       } yield (i.eMail, i.userId)
       q.firstOption
     }(t => t._1)
-    
+
     // retrieve identity for provider and userId
     case Read.Identity.ById(provider, userId) => answerOptionProcessed { implicit session: Session =>
       // read identity and corresponding user

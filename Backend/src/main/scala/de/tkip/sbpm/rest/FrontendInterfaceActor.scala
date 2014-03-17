@@ -12,7 +12,9 @@
  */
 package de.tkip.sbpm.rest
 
-import akka.actor.{ ActorRef, Actor, Props }
+import akka.actor.{ ActorRef, Props }
+import de.tkip.sbpm.instrumentation.InstrumentedActor
+import akka.pattern._
 import spray.routing._
 import spray.http._
 import spray.http.Uri._
@@ -49,7 +51,7 @@ object Entity {
   // TODO define more entities if you need them
 }
 
-class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService {
+class FrontendInterfaceActor extends InstrumentedActor with DefaultLogging with HttpService {
 
   def actorRefFactory = context
 
@@ -251,7 +253,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
     }
   }
 
-  def receive = logReceive andThen receiver
+  def wrappedReceive = logReceive andThen receiver
 
   def serveStaticFiles: Route = {
     // root folder -> redirect to frontendBaseUrl

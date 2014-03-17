@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import query.Processes._
 import mapping.ProcessMappings._
 import de.tkip.sbpm.model._
@@ -32,14 +32,14 @@ import de.tkip.sbpm._
 import java.util.UUID
 import akka.event.Logging
 
-private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
+private[persistence] class ProcessInspectActor extends InstrumentedActor with ActorLogging {
   import de.tkip.sbpm.model._
   import akka.pattern.ask
   import akka.util.Timeout
   import scala.concurrent.Future
   import scala.concurrent.ExecutionContext.Implicits.global
   implicit val timeout = Timeout(30 seconds)
-  def receive = {
+  def wrappedReceive = {
     case q @ Save.Entity(ps @ _*) => {
       log.debug("Start checking: " + q)
       // Check for alle process graphs, if they are startAble
@@ -128,7 +128,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
 
   private lazy val changeActor = ActorLocator.changeActor
 
-  override def receive = {
+  override def wrappedReceive = {
     // get all processes
     case Read.All => answerProcessed { implicit session: Session =>
       joinQuery().list
@@ -288,4 +288,3 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     (resultId, gId)
   }
 }
-

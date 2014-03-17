@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.rest.auth
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import spray.http.OAuth2BearerToken
 import akka.event.Logging
 import de.tkip.sbpm.logging.DefaultLogging
@@ -22,10 +22,10 @@ import de.tkip.sbpm.logging.DefaultLogging
  * Provides OAuth2 authentication support.
  * Validates token and returns corresponding user id.
  */
-class OAuth2Actor extends Actor with DefaultLogging {
+class OAuth2Actor extends InstrumentedActor with DefaultLogging {
   val traceLogger = Logging(context.system, this)
 
-  def receive = {
+  def wrappedReceive = {
     // if credentials are oauth token -> verify it and check if
     // a user can be found in the database for it
     case OAuth2BearerToken(token) =>

@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
@@ -23,7 +23,7 @@ import query.Roles._
 /**
  * Handles all database operations for table "roles".
  */
-private[persistence] class RolePersistenceActor extends Actor
+private[persistence] class RolePersistenceActor extends InstrumentedActor
   with DatabaseAccess with schema.RolesSchema {
   // import current slick driver dynamically
   import driver.simple._
@@ -39,7 +39,7 @@ private[persistence] class RolePersistenceActor extends Actor
   def toPersistenceModel(u: Role) =
     convert(u, Domain.role, Persistence.role)
 
-  def receive = {
+  def wrappedReceive = {
     // get all roles ordered by id
     case Read.All => answer { implicit session =>
       Query(Roles).list.map(toDomainModel)

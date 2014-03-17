@@ -1,10 +1,10 @@
 package de.tkip.sbpm.application.subject
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
-class ExternalSubjectActor extends Actor {
+class ExternalSubjectActor extends InstrumentedActor {
   //TODO 1 actor instance zum forwarden
-  def receive = {
+  def wrappedReceive = {
     case _ => ""
   }
 

@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Props
 import scala.slick.lifted
 import scala.slick.lifted.ForeignKeyAction._
@@ -27,7 +27,7 @@ import scala.slick.lifted.DDL
  * Handle create and drop operations for all
  * tables in the database schema.
  */
-private[persistence] class SchemaActor extends Actor
+private[persistence] class SchemaActor extends InstrumentedActor
   with DatabaseAccess
   with GraphEdgesSchema
   with GraphNodesSchema
@@ -70,7 +70,7 @@ private[persistence] class SchemaActor extends Actor
   // concat all table DDLs to insert at once
   private val ddl = tables.map(_.ddl).reduceLeft(_ ++ _)
 
-  def receive = {
+  def wrappedReceive = {
     // create new schema
     case query.Schema.Create => answer { implicit session =>
       create(session)

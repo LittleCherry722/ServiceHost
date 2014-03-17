@@ -15,7 +15,7 @@ package de.tkip.sbpm.application
 
 import scala.collection.mutable
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.actorRef2Scala
 import akka.event.Logging
 import akka.util.Timeout
@@ -48,7 +48,7 @@ case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer:
 /**
  * resolves the context of the subjects
  */
-class ContextResolverActor extends Actor with DefaultLogging {
+class ContextResolverActor extends InstrumentedActor with DefaultLogging {
 
   val logger = Logging(context.system, this)
 
@@ -57,7 +57,7 @@ class ContextResolverActor extends Actor with DefaultLogging {
 
   implicit val timeout = Timeout(1 seconds)
 
-  def receive = {
+  def wrappedReceive = {
     // register SingleSubjectInstance
     // nur enie SSInstance pro PI erlaubt
     // SingleSubjectInstanceInfo(ProcessInstanceId, SubjectId, UserId)

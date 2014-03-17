@@ -14,6 +14,7 @@
 package de.tkip.sbpm.persistence
 
 import scala.reflect.ClassTag
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Actor
 import akka.actor.ActorLogging
 import akka.actor.PoisonPill
@@ -28,11 +29,11 @@ import akka.event.Logging
  * Handles all DB operations using slick (http://slick.typesafe.com/).
  * Redirects table specific actions to sub actors.
  */
-class PersistenceActor extends Actor with ActorLogging {
+class PersistenceActor extends InstrumentedActor with ActorLogging {
   private val processInspectActor = context.actorOf(Props[ProcessInspectActor],"ProcessInspectActor____"+UUID.randomUUID().toString())
   private lazy val changeActor = ActorLocator.changeActor
-  
-  def receive = {
+
+  def wrappedReceive = {
     // redirect all request to responsible sub actors
     case q: Users.Query            => forwardTo[UserPersistenceActor](q)
     case q: Groups.Query           => forwardTo[GroupPersistenceActor](q)

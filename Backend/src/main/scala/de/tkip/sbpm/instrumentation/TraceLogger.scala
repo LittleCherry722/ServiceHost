@@ -9,7 +9,7 @@ import akka.actor.ActorLogging
 trait TraceLogger extends ActorStack with ActorLogging {
   override def receive: Receive = {
     case msg =>
-      log.debug("TRACE: from " + sender + " to " + this.self + " " + msg.toString)
+      log.debug("TRACE NEW: from " + sender + " to " + this.self + " " + msg.toString)
       super.receive(msg)
   }
 }

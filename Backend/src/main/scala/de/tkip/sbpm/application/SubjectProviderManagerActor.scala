@@ -13,6 +13,7 @@
 
 package de.tkip.sbpm.application
 
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
 import miscellaneous._
 import miscellaneous.ProcessAttributes._
@@ -22,7 +23,7 @@ import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
 import java.util.UUID
 
-class SubjectProviderManagerActor extends Actor {
+class SubjectProviderManagerActor extends InstrumentedActor {
 
   val logger = Logging(context.system, this)
 
@@ -30,10 +31,10 @@ class SubjectProviderManagerActor extends Actor {
   private val subjectProviderMap =
     collection.mutable.Map[UserID, SubjectProviderRef]()
 
-  def receive = {
+  def wrappedReceive = {
 
     // create a new subject provider and send the ID to the requester.
-    // additionally send it to the subjectprovider who forwards 
+    // additionally send it to the subjectprovider who forwards
     // the message to the processmanager so he can register the new subjectprovider
     case csp @ CreateSubjectProvider(userID) =>
       createNewSubjectProvider(userID)
@@ -113,7 +114,7 @@ class SubjectProviderManagerActor extends Actor {
     }
   }
 
-  // creates a new subject provider and registers it with the given userID 
+  // creates a new subject provider and registers it with the given userID
   // (overrides the old entry)
   private def createNewSubjectProvider(userID: UserID) = {
     val subjectProvider =

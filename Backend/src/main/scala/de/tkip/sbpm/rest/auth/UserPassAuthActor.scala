@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.rest.auth
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import spray.http.HttpCredentials
 import spray.http.BasicHttpCredentials
 import de.tkip.sbpm.ActorLocator
@@ -39,11 +39,11 @@ import de.tkip.sbpm.logging.DefaultLogging
  * Validates user name and password against the database
  * and returns corresponding user id.
  */
-class UserPassAuthActor extends Actor with DefaultLogging {
+class UserPassAuthActor extends InstrumentedActor with DefaultLogging {
   private lazy val persistenceActor = ActorLocator.persistenceActor
   private implicit val timeout = Timeout(10 seconds)
 
-  def receive = {
+  def wrappedReceive = {
     // valid basic auth header given -> check credentials
     case UserPass(user, pass) => checkCredentials(user, pass, sender)
     // invalid header -> fail

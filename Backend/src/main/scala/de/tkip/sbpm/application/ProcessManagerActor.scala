@@ -28,6 +28,7 @@ import akka.pattern.pipe
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.model._
 import de.tkip.sbpm._
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 import java.io._
 
@@ -38,7 +39,7 @@ protected case class RegisterSubjectProvider(userID: UserID,
  * manages all processes and creates new ProcessInstance's on demand
  * information expert for relations between SubjectProviderActor/ProcessInstanceActor
  */
-class ProcessManagerActor extends Actor {
+class ProcessManagerActor extends InstrumentedActor {
   private case class ProcessInstanceData(processID: ProcessID, processName: String, name: String, processInstanceActor: ProcessInstanceRef)
   implicit val ec = context.dispatcher
   val logger = Logging(context.system, this)
@@ -51,7 +52,7 @@ class ProcessManagerActor extends Actor {
 
   private lazy val changeActor = ActorLocator.changeActor
 
-  def receive = {
+  def wrappedReceive = {
 
     case register: RegisterSubjectProvider => {
       subjectProviderMap += register.userID -> register.subjectProviderActor
@@ -68,7 +69,7 @@ class ProcessManagerActor extends Actor {
       sender ! msg
     }
 
-    case message: GetNewHistory => {     
+    case message: GetNewHistory => {
       logger.debug("TRACE: from " + this.self + " to " + sender + " " + NewHistoryAnswer(message, history))
       sender ! NewHistoryAnswer(message, history)
     }
@@ -90,7 +91,7 @@ class ProcessManagerActor extends Actor {
       history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
       val p = ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
       println("new processInstance has been added: " + p)
-      
+
       logger.debug("TRACE: from " + this.self + " to " + changeActor +" "+ ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date()))
       changeActor ! ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date())
     }
@@ -120,13 +121,13 @@ class ProcessManagerActor extends Actor {
         logger.debug("TRACE: from " + this.self + " to " +kill.sender +" "+ KillProcessInstanceAnswer(kill))
         kill.sender ! KillProcessInstanceAnswer(kill)
         logger.debug("Killed process instance " + id)
-        
+
         logger.debug("TRACE: from " + this.self + " to " +changeActor +" "+ ProcessInstanceDelete(id, new java.util.Date()))
         changeActor ! ProcessInstanceDelete(id, new java.util.Date())
       } else {
         logger.error("Process Manager - can't kill process instance: " +
           id + ", it does not exists")
-        
+
         logger.debug("TRACE: from " + this.self + " to " +kill.sender +" "+ Failure(new IllegalArgumentException(
           "Invalid Argument: Can't kill a processinstance, which is not running.")))
         kill.sender ! Failure(new IllegalArgumentException(
@@ -175,7 +176,7 @@ class ProcessManagerActor extends Actor {
     }
   }
 
-  // to forward a message to the process instance it needs a function to 
+  // to forward a message to the process instance it needs a function to
   // get the processinstance id
   private type ForwardProcessInstanceMessage = { def processInstanceID: ProcessInstanceID }
 

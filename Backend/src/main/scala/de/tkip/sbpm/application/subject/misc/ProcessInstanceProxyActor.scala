@@ -1,9 +1,10 @@
 package de.tkip.sbpm.application.subject.misc
 
-import akka.actor.{ ActorRef, Actor }
+import akka.actor.{ ActorRef }
 import akka.util.Timeout
 import akka.pattern.{ ask, pipe }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import de.tkip.sbpm.model.ProcessGraph
 import de.tkip.sbpm.model.ExternalSubject
 import de.tkip.sbpm.application.{ SubjectInformation, RequestUserID }
@@ -13,7 +14,7 @@ import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import akka.event.Logging
 
-class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, graph: ProcessGraph, createMessage: CreateProcessInstance) extends Actor with DefaultLogging {
+class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, graph: ProcessGraph, createMessage: CreateProcessInstance) extends InstrumentedActor with DefaultLogging {
 
   import context.dispatcher
 
@@ -32,7 +33,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
 
   private case class RandomUsersLoaded(message: SubjectToSubjectMessage, from: ActorRef, userIds: Array[UserID])
 
-  def receive = {
+  def wrappedReceive = {
     case message: SubjectToSubjectMessage => {
       log.debug("got {} from {}", message, sender)
       // Exchange the sending subject id

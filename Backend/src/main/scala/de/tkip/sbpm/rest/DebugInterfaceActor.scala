@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.pattern._
 import scala.language.postfixOps
 import akka.event.Logging
@@ -38,7 +38,7 @@ import de.tkip.sbpm.application.miscellaneous.KillAllProcessInstances
 /**
  * This Actor is only used to process REST calls regarding "debug"
  */
-class DebugInterfaceActor extends Actor with PersistenceInterface {
+class DebugInterfaceActor extends InstrumentedActor with PersistenceInterface {
 
   implicit val executionContext = context.system.dispatcher
 
@@ -57,7 +57,7 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
    * http://ajaxpatterns.org/RESTful_Service#RESTful_Principles
    *
    */
-  def receive = runRoute({
+  def wrappedReceive = runRoute({
     get {
       complete {
         val onFailure: PartialFunction[Throwable, Any] = {

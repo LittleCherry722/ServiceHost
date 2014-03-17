@@ -14,6 +14,7 @@
 package de.tkip.sbpm.application.subject.behavior
 import java.util.UUID
 import scala.collection.mutable
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -63,7 +64,7 @@ class InternalBehaviorActor(
   macroId: String,
   macroStartState: Option[ActorRef],
   data: SubjectData,
-  inputPoolActor: ActorRef) extends Actor with DefaultLogging {
+  inputPoolActor: ActorRef) extends InstrumentedActor with DefaultLogging {
   // extract the data
   implicit val timeout = Timeout(2000)
 
@@ -79,7 +80,7 @@ class InternalBehaviorActor(
   private var internalStatus: InternalStatus = InternalStatus()
   private var modalSplitList: Stack[(Int, Int)] = new Stack // tmp
 
-  def receive = {
+  def wrappedReceive = {
     case state: State => {
       addStateToModel(state)
     }
@@ -114,7 +115,7 @@ class InternalBehaviorActor(
 
     case DeactivateState(id) => {
       // TODO this will cause an error, because receive states still will
-      // subscribe the inputpool messages 
+      // subscribe the inputpool messages
       killState(id)
     }
 

@@ -25,6 +25,7 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import akka.event.Logging
 import com.typesafe.config.ConfigFactory
 import akka.event.LoggingAdapter
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 protected case class SubscribeIncomingMessages(
   stateID: StateID, // the ID of the receive state
@@ -76,7 +77,7 @@ protected case class IsIPEmpty(channelId: ChannelID)
 // message to tell the receive state whether the input pool is empty
 protected case class IPEmpty(empty: Boolean)
 
-class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
+class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogging {
   protected val logger = Logging(context.system, this)
   // extract the information from the data
   val userID = data.userID
@@ -93,7 +94,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
 
   private val closedChannels = new ClosedChannels()
 
-  def receive = {
+  def wrappedReceive = {
 
     //    case TryTransportMessages => {
     //      for ((key, queue) <- this.messageQueueMap) {

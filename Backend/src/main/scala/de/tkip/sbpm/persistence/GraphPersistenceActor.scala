@@ -17,12 +17,12 @@ import query.Graphs._
 import mapping.GraphMappings._
 import scala.slick.lifted
 import de.tkip.sbpm.model._
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 /**
  * Handles all database operations for tables "graphs" and "graph_*".
  */
-private[persistence] class GraphPersistenceActor extends Actor
+private[persistence] class GraphPersistenceActor extends InstrumentedActor
   with DatabaseAccess
   with schema.GraphConversationsSchema
   with schema.GraphMessagesSchema
@@ -34,7 +34,7 @@ private[persistence] class GraphPersistenceActor extends Actor
   // import current slick driver dynamically
   import driver.simple._
 
-  def receive = {
+  def wrappedReceive = {
     // get all graphs
     case Read.All => answerProcessed { implicit session: Session =>
       // load graph, all it sub entities and the roles from db
@@ -82,7 +82,7 @@ private[persistence] class GraphPersistenceActor extends Actor
 
   /**
    * Load all roles that are needed in the graph. Reads the roles out of the
-   * graph subjects or all roles if no graphId is given. 
+   * graph subjects or all roles if no graphId is given.
    */
   private def retrieveRoles(graphId: Option[Int] = None)(implicit session: Session) = (for {
     s <- GraphSubjects if (ConstColumn(false) === graphId.isDefined || s.graphId === graphId.get)

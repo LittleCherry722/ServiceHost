@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import spray.http._
 import spray.routing._
 import akka.pattern.ask
@@ -32,7 +32,7 @@ import akka.event.Logging
 /**
  * This Actor is only used to process REST calls regarding "process"
  */
-class ProcessInterfaceActor extends Actor with PersistenceInterface {
+class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface {
 
   // This array is used to filter for the processes, which are shown in the showcase
   // if this array is empty all processes will be shown
@@ -61,7 +61,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * it makes sense to step away from this general template
    *
    */
-  def receive = runRoute({
+  def wrappedReceive = runRoute({
     get {
       /**
        * get a list of all loadable or loaded processes

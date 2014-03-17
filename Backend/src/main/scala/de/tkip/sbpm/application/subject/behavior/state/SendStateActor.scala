@@ -18,6 +18,7 @@ import scala.Array.canBuildFrom
 import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -45,13 +46,13 @@ import java.util.UUID
 
 private class GoogleSendProxyActor(
   processInstanceActor: ActorRef,
-  userId: String) extends Actor with DefaultLogging {
+  userId: String) extends InstrumentedActor with DefaultLogging {
 
   lazy val driveActor = sbpm.ActorLocator.googleDriveActor
   implicit val ec = context.dispatcher
   implicit val timeout = Timeout(3000)
 
-  def receive = {
+  def wrappedReceive = {
     case message: SubjectToSubjectMessage if message.fileID.isDefined =>
       val f_info = (driveActor ? GetFileInfo(userId, message.fileID.get))
       val f_pub = (driveActor ? PublishFile(userId, message.fileID.get))
@@ -124,8 +125,8 @@ protected case class SendStateActor(data: StateData)
 
     case action: ExecuteAction if (action.actionData.messageContent.isDefined) => {
       if (!messageContent.isDefined) {
-        // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer 
-        // can be blocked until a potentially new subject is created to ensure all available actions will 
+        // send subjectInternalMessage before sending executionAnswer to make sure that the executionAnswer
+        // can be blocked until a potentially new subject is created to ensure all available actions will
         // be returned when asking
         messageContent = action.actionData.messageContent
 
@@ -179,7 +180,7 @@ protected case class SendStateActor(data: StateData)
             new GoogleSendProxyActor(
               processInstanceActor,
               action.userID.toString)), "GoogleSendProxyActor____" + UUID.randomUUID().toString())
-          val msg = 
+          val msg =
             SubjectToSubjectMessage(
               messageID,
               processID,
@@ -191,7 +192,7 @@ protected case class SendStateActor(data: StateData)
               action.actionData.fileId)
           logger.debug("TRACE: from " + this.self + " to " + sendProxy + " " + msg.toString)
           sendProxy ! msg
-          // send the ActionExecuted to the blocking actor, it will send it 
+          // send the ActionExecuted to the blocking actor, it will send it
           // to the process instance, when this user is ready
           logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
           blockingHandlerActor ! ActionExecuted(action)

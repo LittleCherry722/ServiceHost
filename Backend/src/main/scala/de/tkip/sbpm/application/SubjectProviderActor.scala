@@ -13,6 +13,7 @@
 
 package de.tkip.sbpm.application
 
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
 import akka.pattern.ask
 import scala.collection.mutable.ArrayBuffer
@@ -39,7 +40,7 @@ case class AskSubjectsForAvailableActions(userID: UserID,
   generateAnswer: Array[AvailableAction] => Any)
   extends SubjectProviderMessage
 
-class SubjectProviderActor(userID: UserID) extends Actor {
+class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
 
   val logger = Logging(context.system, this)
 
@@ -52,7 +53,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
   logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + RegisterSubjectProvider(userID, self))
   processManagerActor ! RegisterSubjectProvider(userID, self)
 
-  def receive = {
+  def wrappedReceive = {
     case subject: SubjectCreated => {
       subjects += subject
     }
@@ -148,7 +149,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
         collectSubjects.map(_.ref),
         processInstanceID,
         generateAnswer)
-    
+
     logger.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
     context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(
       msg)(returnAdress)

@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
@@ -23,7 +23,7 @@ import query.ProcessInstances._
 /**
  * Handles all database operations for table "process_instances".
  */
-private[persistence] class ProcessInstancePersistenceActor extends Actor
+private[persistence] class ProcessInstancePersistenceActor extends InstrumentedActor
   with DatabaseAccess with schema.ProcessInstancesSchema {
   // import current slick driver dynamically
   import driver.simple._
@@ -39,7 +39,7 @@ private[persistence] class ProcessInstancePersistenceActor extends Actor
   def toPersistenceModel(u: ProcessInstance) =
     convert(u, Domain.processInstance, Persistence.processInstance)
 
-  def receive = {
+  def wrappedReceive = {
     // get all process instances
     case Read.All => answer { implicit session =>
       Query(ProcessInstances).list.map(toDomainModel)

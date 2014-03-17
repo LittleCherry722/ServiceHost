@@ -18,7 +18,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application.ProcessInstanceActor
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.ActorRef
 import akka.actor.ActorContext
 import akka.event.Logging
@@ -29,12 +29,12 @@ case class BlockUser(userID: UserID)
 case class UnBlockUser(userID: UserID)
 case class SendProcessInstanceCreated(userID: UserID)
 
-class BlockingActor extends Actor {
+class BlockingActor extends InstrumentedActor {
   private type HasTargetUser = { def userID: UserID }
   private val userActors = MutableMap[UserID, UserBlocker]()
   private val logger = Logging(context.system, this)
 
-  def receive = {
+  def wrappedReceive = {
     // TODO Combine to 1 message
     case action: ActionExecuted => {
       handleMessage(action.ea.userID, action)

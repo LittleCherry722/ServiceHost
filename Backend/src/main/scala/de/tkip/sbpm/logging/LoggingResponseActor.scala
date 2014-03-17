@@ -19,7 +19,7 @@ import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
 import scala.util.{Try, Success, Failure}
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.ActorLogging
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -27,19 +27,19 @@ import akka.util.Timeout
 import spray.routing.HttpService
 
 import de.tkip.sbpm
-import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.logging.LogPersistenceActor.Get
 import de.tkip.sbpm.persistence.schema.Log
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
-class LoggingResponseActor extends Actor with HttpService with DefaultLogging {
+class LoggingResponseActor extends InstrumentedActor with HttpService {
 
   import context.dispatcher
 
   implicit val timeout = Timeout(15 seconds)
   private val logPersistenceActor = sbpm.ActorLocator.logPersistenceActor
   def actorRefFactory = context
-  
-  def receive = runRoute {
+
+  def wrappedReceive = runRoute {
     get {
       path("get_logs") {
         parameters("n") { n => ctx =>

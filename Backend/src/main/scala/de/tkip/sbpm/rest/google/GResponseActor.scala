@@ -17,7 +17,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
 import scala.util.{ Try, Success, Failure }
-import akka.actor.{ Actor, ActorLogging }
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -29,6 +29,7 @@ import spray.io.CommandWrapper
 import spray.http._
 import HttpHeaders._
 import parser.HttpParser
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import de.tkip.sbpm.rest.google.{
   GDriveActor,
   GAuthCtrl,
@@ -42,9 +43,10 @@ import de.tkip.sbpm
 import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.calendar.model.Event
 import java.util.UUID
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.event.Logging
 
-class GResponseActor extends Actor with HttpService with DefaultLogging {
+class GResponseActor extends InstrumentedActor with HttpService {
 
   import context.dispatcher
 
@@ -53,7 +55,7 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
   private lazy val calendarActor = sbpm.ActorLocator.googleCalendarActor
   def actorRefFactory = context
 
-  def receive = runRoute {
+  def wrappedReceive = runRoute {
     post {
       // frontend request for authentication of SBPM app gainst Google account
       pathPrefix("init_auth") {
@@ -131,11 +133,11 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
   }
 }
 
-class DirectHttpRequestHandler extends Actor {
+class DirectHttpRequestHandler extends InstrumentedActor {
 
   var chunkHandlers = Map.empty[ActorRef, ActorRef]
 
-  def receive = {
+  def wrappedReceive = {
     case s @ ChunkedRequestStart(HttpRequest(_, _, _, _, _)) =>
       require(!chunkHandlers.contains(sender))
       val client = sender
@@ -157,7 +159,7 @@ class DirectHttpRequestHandler extends Actor {
 
 }
 
-class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Actor {
+class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends InstrumentedActor {
   import start.request._
   import context.dispatcher
 
@@ -175,7 +177,7 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Ac
   val Some(HttpHeaders.`Content-Type`(ContentType(multipart: MultipartMediaType, _))) = header[HttpHeaders.`Content-Type`]
   val boundary = multipart.parameters("boundary")
 
-  def receive = {
+  def wrappedReceive = {
     case c: MessageChunk =>
       output.write(c.body)
 

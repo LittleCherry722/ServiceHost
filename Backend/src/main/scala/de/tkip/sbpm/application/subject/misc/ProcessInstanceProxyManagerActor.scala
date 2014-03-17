@@ -1,6 +1,6 @@
 package de.tkip.sbpm.application.subject.misc
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous._
@@ -25,7 +25,7 @@ case object GetProxyActor
 
 case class GetProcessInstanceProxy(processId: ProcessID, url: String)
 
-class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor with DefaultLogging {
+class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends InstrumentedActor with DefaultLogging {
   implicit val timeout = Timeout(30 seconds)
 
   log.debug("register initial process instance proxy for: {}", url)
@@ -36,7 +36,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
       proxy <- (actor ? GetProxyActor).mapTo[ActorRef]
     } yield new ProcessInstanceProxy(actor, proxy)))
 
-  def receive = {
+  def wrappedReceive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
     case GetProcessInstanceProxy(processId, targetAddress) => {
 

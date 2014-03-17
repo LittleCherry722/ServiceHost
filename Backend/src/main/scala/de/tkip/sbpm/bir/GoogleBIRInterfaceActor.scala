@@ -22,7 +22,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
 import scala.util.{ Try, Success, Failure }
-import akka.actor.{ Actor, ActorLogging }
+import akka.actor.{ ActorLogging }
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -31,12 +31,13 @@ import spray.json.JsonFormat
 import spray.http.StatusCodes
 import spray.http.MediaTypes._
 import de.tkip.sbpm.rest.google.GDriveActor._
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import de.tkip.sbpm.bir.GoogleBIRActor._
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.bir.BIRJsonProtocol._
 import akka.event.Logging
 
-class GoogleBIRInterfaceActor extends Actor with HttpService with DefaultLogging {
+class GoogleBIRInterfaceActor extends InstrumentedActor with HttpService with DefaultLogging {
   import context.dispatcher
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = ActorLocator.googleDriveActor
@@ -45,7 +46,7 @@ class GoogleBIRInterfaceActor extends Actor with HttpService with DefaultLogging
 
   val traceLogger = Logging(context.system, this)
 
-  def receive = runRoute {
+  def wrappedReceive = runRoute {
     post {
       // frontend request for creating actor for BIR
       pathPrefix("create_actor") {

@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import de.tkip.sbpm.model._
 import akka.actor.Props
 import scala.slick.lifted
@@ -24,7 +24,7 @@ import mapping.PrimitiveMappings._
 /**
  * Handles all database operations for database table "configuration".
  */
-private[persistence] class ConfigurationPersistenceActor extends Actor
+private[persistence] class ConfigurationPersistenceActor extends InstrumentedActor
   with DatabaseAccess
   with ConfigurationsSchema {
   // import current slick driver dynamically
@@ -41,7 +41,7 @@ private[persistence] class ConfigurationPersistenceActor extends Actor
   private def toPersistenceModel(c: Configuration) =
     convert(c, Domain.configuration, Persistence.configuration)
 
-  def receive = {
+  def wrappedReceive = {
     // get all configs
     case Read.All => answer { implicit session: Session =>
       Query(Configurations).list.map(toDomainModel)

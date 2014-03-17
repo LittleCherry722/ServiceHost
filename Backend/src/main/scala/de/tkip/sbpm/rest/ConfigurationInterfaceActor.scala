@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.event.Logging
 import de.tkip.sbpm.model.Configuration
 import de.tkip.sbpm.persistence.query.Configurations._
@@ -29,7 +29,7 @@ import spray.http.StatusCodes._
 /**
  * This Actor is only used to process REST calls regarding "configuration"
  */
-class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
+class ConfigurationInterfaceActor extends InstrumentedActor with PersistenceInterface {
   /**
    *
    * usually a REST Api should at least implement the following functions:
@@ -42,7 +42,7 @@ class ConfigurationInterfaceActor extends Actor with PersistenceInterface {
    * http://ajaxpatterns.org/RESTful_Service#RESTful_Principles
    *
    */
-  def receive = runRoute({
+  def wrappedReceive = runRoute({
     get {
       /**
        * get a list of all configurations

@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import scala.language.postfixOps
 import akka.event.Logging
 import de.tkip.sbpm.model._
@@ -32,7 +32,7 @@ import de.tkip.sbpm.persistence.query._
 /**
  * This Actor is only used to process REST calls regarding "role"
  */
-class RoleInterfaceActor extends Actor with PersistenceInterface {
+class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
   /**
    *
    * usually a REST Api should at least implement the following functions:
@@ -46,7 +46,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
    * http://ajaxpatterns.org/RESTful_Service#RESTful_Principles
    *
    */
-  def receive = runRoute({
+  def wrappedReceive = runRoute({
     get {
       /**
        * get a list of all role
@@ -172,7 +172,7 @@ class RoleInterfaceActor extends Actor with PersistenceInterface {
    * completes with either 201 or 200
    */
   def save(entity: Role, id: Option[Int] = None) = {
-    // set param from url to entity id 
+    // set param from url to entity id
     // or delete id to create new entity
     val e = entity.copy(id)
     completeWithSave(Roles.Save(e),

@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.rest.auth
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import spray.http.HttpCredentials
 import spray.http.BasicHttpCredentials
 import de.tkip.sbpm.ActorLocator
@@ -32,10 +32,10 @@ import spray.routing.authentication.UserPass
  * Provides support for HTTP basic authentication.
  * Validates user name and password and returns corresponding user id.
  */
-class BasicAuthActor extends Actor with DefaultLogging {
+class BasicAuthActor extends InstrumentedActor with DefaultLogging {
   private lazy val userPassActor = ActorLocator.userPassAuthActor
 
-  def receive = {
+  def wrappedReceive = {
     // valid basic auth header given -> check credentials
     // with user pass auth actor
     case BasicHttpCredentials(user, pass) => {

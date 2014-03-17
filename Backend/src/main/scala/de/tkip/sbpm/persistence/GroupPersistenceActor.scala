@@ -15,15 +15,15 @@ package de.tkip.sbpm.persistence
 
 import mapping.PrimitiveMappings._
 import query.Groups._
-import akka.actor.Actor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 /**
  * Handle all db operation for table "groups".
  */
-private[persistence] class GroupPersistenceActor extends Actor
+private[persistence] class GroupPersistenceActor extends InstrumentedActor
   with DatabaseAccess with schema.GroupsSchema {
   // import current slick driver dynamically
   import driver.simple._
@@ -39,7 +39,7 @@ private[persistence] class GroupPersistenceActor extends Actor
   private def toPersistenceModel(u: Group) =
     convert(u, Domain.group, Persistence.group)
 
-  def receive = {
+  def wrappedReceive = {
     // get all groups
     case Read.All => answer { implicit session =>
       Query(Groups).list.map(toDomainModel)

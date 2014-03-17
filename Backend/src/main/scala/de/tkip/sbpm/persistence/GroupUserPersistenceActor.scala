@@ -13,14 +13,14 @@
 
 package de.tkip.sbpm.persistence
 
-import akka.actor.Actor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Props
 import scala.slick.lifted
 import de.tkip.sbpm.model._
 import query.GroupsUsers._
 import mapping.PrimitiveMappings._
 
-private[persistence] class GroupUserPersistenceActor extends Actor
+private[persistence] class GroupUserPersistenceActor extends InstrumentedActor
   with DatabaseAccess with schema.GroupsUsersSchema {
   // import current slick driver dynamically
   import driver.simple._
@@ -36,7 +36,7 @@ private[persistence] class GroupUserPersistenceActor extends Actor
   private def toPersistenceModel(u: GroupUser) =
     convert(u, Domain.groupUser, Persistence.groupUser)
 
-  def receive = {
+  def wrappedReceive = {
     // get all group -> user mappings
     case Read.All => answer { implicit session =>
       Query(GroupsUsers).list.map(toDomainModel)
@@ -77,7 +77,7 @@ private[persistence] class GroupUserPersistenceActor extends Actor
     }
   }
 
-  // delete existing entry with given group an user id 
+  // delete existing entry with given group an user id
   // and insert new record with given values
   private def save(gu: GroupUser)(implicit session: Session) = {
     val res = delete(gu.groupId, gu.userId)
@@ -89,7 +89,7 @@ private[persistence] class GroupUserPersistenceActor extends Actor
       None
   }
 
-  // delete existing entry with given group an user id 
+  // delete existing entry with given group an user id
   private def delete(groupId: Int, userId: Int)(implicit session: Session) = {
     GroupsUsers.where(e => e.groupId === groupId && (e.userId === userId)).delete
   }

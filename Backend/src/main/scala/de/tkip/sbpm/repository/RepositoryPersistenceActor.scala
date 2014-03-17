@@ -16,7 +16,7 @@ package de.tkip.sbpm.repository
 import scala.collection.immutable.Map
 import de.tkip.sbpm.application.miscellaneous.SystemProperties
 import de.tkip.sbpm.logging.DefaultLogging
-import akka.actor.{ ActorRef, Actor, Props }
+import akka.actor.{ ActorRef, Props }
 import akka.util._
 import scala.concurrent.duration._
 import spray.json._
@@ -24,6 +24,7 @@ import de.tkip.sbpm.rest.JsonProtocol._
 import scalaj.http.{Http, HttpOptions}
 import scala.concurrent.{ExecutionContext, Future}
 import de.tkip.sbpm.persistence.query.Roles
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 import ExecutionContext.Implicits.global
 import de.tkip.sbpm.model.Role
 import scala.concurrent.{Await}
@@ -34,7 +35,7 @@ import akka.event.Logging
 case class SaveInterface(json: GraphHeader)
 case class DeleteInterface(interfaceId: Int)
 
-class RepositoryPersistenceActor extends Actor with DefaultLogging {
+class RepositoryPersistenceActor extends InstrumentedActor {
 
   private val logger = Logging(context.system, this)
   // akka config prefix
@@ -52,7 +53,7 @@ class RepositoryPersistenceActor extends Actor with DefaultLogging {
 
   def actorRefFactory = context
 
-  def receive = {
+  def wrappedReceive = {
     case SaveInterface(gHeader) => {
       logger.debug("[SAVE INTERFACE] save message received")
       val roles = Await.result((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
