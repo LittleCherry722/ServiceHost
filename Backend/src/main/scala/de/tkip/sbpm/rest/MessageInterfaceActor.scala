@@ -74,7 +74,7 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
             entity(as[SendMessageHeader]) { json =>
               complete {
                 val message = Message(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))
-                
+
                 val future = for {
                   all <- (persistence ? Messages.Read.All).mapTo[Seq[Message]]
                   length = all.length
@@ -82,8 +82,12 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
                 val result = Await.result(future, 5 seconds).asInstanceOf[Int]
                 val messageWithID = message.copy(id = Some(result + 1))
 
+                val traceLogger = Logging(context.system, this)
+                traceLogger.debug("TRACE: from " + this.self + " to " + persistence + " " + Messages.Save(message).toString)
+
                 persistence ! Messages.Save(message)
 
+                traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + MessageChange(messageWithID, "insert", new java.util.Date()).toString())
                 changeActor ! MessageChange(messageWithID, "insert", new java.util.Date())
                 StatusCodes.NoContent
               }

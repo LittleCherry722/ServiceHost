@@ -3,13 +3,15 @@ import AssemblyKeys._
 
 assemblySettings
 
-jarName in assembly := "sbpm.jar" 
+jarName in assembly := "sbpm.jar"
 
-test in assembly := {} 
+test in assembly := {}
 
 mainClass in assembly := Some("de.tkip.sbpm.Boot")
 
-mergeStrategy in assembly := { 
+Revolver.settings
+
+mergeStrategy in assembly := {
   case "reference.conf" =>
     MergeStrategy.concat
   // case PathList(ps @ _*) if isReadme(ps.last) || isLicenseFile(ps.last) =>
@@ -51,3 +53,7 @@ testOptions in Test <+= (target in Test) map {
 }
 
 fork in Test := true
+
+atmosSettings
+
+unmanagedSourceDirectories in Compile += file("../eventbus")

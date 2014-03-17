@@ -57,7 +57,10 @@ class SubjectActionsCollector extends Actor {
       logger.debug("Collected: " + actions)
 
       // results ready -> generate answer -> return
-      sender ! generateAnswer(actions.toArray)
+      val traceLogger = Logging(context.system, this)
+      val message= generateAnswer(actions.toArray)
+      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + message.toString)
+      sender ! message
 
       // actions collected -> stop this actor
       context.stop(self)

@@ -30,6 +30,7 @@ object ActorLocator {
   val googleCalendarActorName = "google-calendar"
   val googleBIRActorName = "google-BIR"
   val changeActorName = "change"
+  val eventBusRemotePublishActorName = "eventbus-remote-publish"
 
   def actor(name: String)(implicit ctx: ActorRefFactory) = ctx.actorFor("/user/" + name)
 
@@ -44,5 +45,6 @@ object ActorLocator {
   def googleCalendarActor(implicit ctx: ActorRefFactory) = actor(googleCalendarActorName)
   def googleBIRActor(implicit ctx: ActorRefFactory) = actor(googleBIRActorName)
   def changeActor(implicit ctx: ActorRefFactory) = actor(changeActorName)
+  def eventBusRemotePublishActor(implicit ctx: ActorRefFactory) = actor(eventBusRemotePublishActorName)
 }
 

@@ -124,9 +124,12 @@
             </a>
             <ul class="dropdown-menu save-dropdown">
               <li>
-                <a href="#saveBusinessInterfaceModal" data-toggle="modal">
-                  <i class="icon-cloud-upload icon-large"></i> Save Interface
-                </a>
+                  <a href="#saveBusinessInterfaceModal" data-toggle="modal">
+                      <i class="icon-cloud-upload icon-large"></i> Save Interface
+                  </a>
+                  <a href="#saveServiceModal" data-toggle="modal">
+                      <i class="icon-cloud-upload icon-large"></i> Export for Service Host
+                  </a>
                 <a href="#loadBusinessInterfaceModal" data-toggle="modal">
                   <i class="icon-cloud-download icon-large"></i> Load Interface
                 </a>
@@ -155,54 +158,100 @@
         </div>
       </div>
 
-      <div id="saveBusinessInterfaceModal" class="modal hide" tabindex="-1">
-        <div class="modal-header">
-          <a class="close" href="" type="button" data-dismiss="modal">x</a>
-          <h3>Save Business Interface</h3>
-        </div>
-        <div id="saveBusinessInterface" class="modal-body">
-          <div class="form-horizontal">
-            <div class="control-group">
-              <label class="control-label" for="interfaceName">
-                Choose Interface Subject
-              </label>
-              <div class="controls">
-                <select id="interfaceSubject"
-                       data-bind="options: availableInterfaces, optionsValue: 'id',
-                                  optionsText: 'name', value: interfaceReplacementSubject">
-                </select>
-              </div>
-            </div>
-            <div class="control-group" data-bind="css: { error: businessInterfaceNameError }">
-              <label class="control-label" for="interfaceName">
-                Interface Name
-              </label>
-              <div class="controls">
-                <input id="interfaceName" type="text"
-                       data-bind="value: newBusinessInterfaceName, valueUpdate: 'afterkeydown'" />
-                <div class="errors" data-bind="text: businessInterfaceNameError">
-                </div>
-              </div>
-            </div>
-            <hr />
-            <div class="control-group">
-              <label class="control-label" for="interfaceName">Interface Author</label>
-              <div class="controls">
-                <input id="interfaceName" type="text"
-                       data-bind="value: newBusinessInterfaceAuthor, valueUpdate: 'afterkeydown'" />
-              </div>
-            </div>
+      <div id="saveServiceModal" class="modal hide" tabindex="-1">
+          <div class="modal-header">
+              <a class="close" href="" type="button" data-dismiss="modal">x</a>
+              <h3>Export for Service Host</h3>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn" data-dismiss="modal">Close</button>
-          <button class="btn btn-primary" data-dismiss="modal"
-                  data-bind="click: saveBusinessInterface,
+          <div id="saveService" class="modal-body">
+              <div class="form-horizontal">
+                  <div class="control-group">
+                      <label class="control-label" for="interfaceName">
+                          Choose target Subject
+                      </label>
+                      <div class="controls">
+                          <select id="serviceSubject"
+                                  data-bind="options: availableInterfaces, optionsValue: 'id',
+                                  optionsText: 'name', value: interfaceReplacementSubject">
+                          </select>
+                      </div>
+                  </div>
+                  <div class="control-group">
+                      <label class="control-label" for="serviceName">
+                          Service Name
+                      </label>
+                      <div class="controls">
+                          <input id="serviceName" type="text"
+                                 data-bind="value: serviceName, valueUpdate: 'afterkeydown'" />
+                      </div>
+                  </div>
+                  <hr />
+                  <div class="control-group">
+                      <label class="control-label" for="interfaceName">Service Author</label>
+                      <div class="controls">
+                          <input id="serviceName" type="text"
+                                 data-bind="value: serviceAuthor, valueUpdate: 'afterkeydown'" />
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button class="btn" data-dismiss="modal">Close</button>
+              <button class="btn btn-primary" data-dismiss="modal"
+                      data-bind="click: exportService">
+                  Export
+              </button>
+          </div>
+      </div>
+
+      <div id="saveBusinessInterfaceModal" class="modal hide" tabindex="-1">
+          <div class="modal-header">
+              <a class="close" href="" type="button" data-dismiss="modal">x</a>
+              <h3>Save Business Interface</h3>
+          </div>
+          <div id="saveBusinessInterface" class="modal-body">
+              <div class="form-horizontal">
+                  <div class="control-group">
+                      <label class="control-label" for="interfaceName">
+                          Choose Interface Subject
+                      </label>
+                      <div class="controls">
+                          <select id="interfaceSubject"
+                                  data-bind="options: availableInterfaces, optionsValue: 'id',
+                                  optionsText: 'name', value: serviceSubject">
+                          </select>
+                      </div>
+                  </div>
+                  <div class="control-group" data-bind="css: { error: businessInterfaceNameError }">
+                      <label class="control-label" for="interfaceName">
+                          Interface Name
+                      </label>
+                      <div class="controls">
+                          <input id="interfaceName" type="text"
+                                 data-bind="value: newBusinessInterfaceName, valueUpdate: 'afterkeydown'" />
+                          <div class="errors" data-bind="text: businessInterfaceNameError">
+                          </div>
+                      </div>
+                  </div>
+                  <hr />
+                  <div class="control-group">
+                      <label class="control-label" for="interfaceName">Interface Author</label>
+                      <div class="controls">
+                          <input id="interfaceName" type="text"
+                                 data-bind="value: newBusinessInterfaceAuthor, valueUpdate: 'afterkeydown'" />
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button class="btn" data-dismiss="modal">Close</button>
+              <button class="btn btn-primary" data-dismiss="modal"
+                      data-bind="click: saveBusinessInterface,
                              css: { disabled: businessInterfaceNameError },
                              disable: businessInterfaceNameError">
-            Save Business Interface
-          </button>
-        </div>
+                  Save Business Interface
+              </button>
+          </div>
       </div>
 
       <div id="loadBusinessInterfaceModal" class="modal hide" tabindex="-1"

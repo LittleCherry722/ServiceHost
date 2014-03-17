@@ -1,16 +1,17 @@
 package de.tkip.sbpm.application.subject.misc
 
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{ ActorRef, Actor }
 import akka.util.Timeout
-import akka.pattern.{ask, pipe}
+import akka.pattern.{ ask, pipe }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model.ProcessGraph
 import de.tkip.sbpm.model.ExternalSubject
-import de.tkip.sbpm.application.{SubjectInformation, RequestUserID}
+import de.tkip.sbpm.application.{ SubjectInformation, RequestUserID }
 import de.tkip.sbpm.ActorLocator
 import scala.concurrent.duration._
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import akka.event.Logging
 
 class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, graph: ProcessGraph, createMessage: CreateProcessInstance) extends Actor with DefaultLogging {
 
@@ -38,9 +39,11 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
       message.from =
         subjectIdMap.getOrElse((message.processID, message.from), message.from)
 
-      if(message.target.toUnknownUsers) {
+      if (message.target.toUnknownUsers) {
         loadRandomUsers(message)
       } else {
+        val traceLogger = Logging(context.system, this)
+        traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
         context.parent forward message
       }
     }
@@ -54,6 +57,8 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
     }
 
     case message => {
+      val traceLogger = Logging(context.system, this)
+      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
       context.parent forward message
     }
   }
@@ -61,15 +66,15 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
   private def loadRandomUsers(message: SubjectToSubjectMessage) {
     log.debug("load random users...")
 
-    val request =  RequestUserID(SubjectInformation(processId, id, message.to), userIds => userIds)
+    val request = RequestUserID(SubjectInformation(processId, id, message.to), userIds => userIds)
     val result = (contextResolver ? request).mapTo[Array[UserID]]
     val from = context.sender
     result.map(userIds => RandomUsersLoaded(message, from, userIds)) pipeTo self
   }
 
   // for better testing, use always the first users for now
-  private def selectRandomUsers(message: SubjectToSubjectMessage, userIds: Array[UserID]) :Array[UserID] = {
-    if(userIds.isEmpty) {
+  private def selectRandomUsers(message: SubjectToSubjectMessage, userIds: Array[UserID]): Array[UserID] = {
+    if (userIds.isEmpty) {
       throw new IllegalStateException("no user found")
     }
 

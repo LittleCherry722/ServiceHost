@@ -165,6 +165,9 @@ define([
 
 		//Only one currentSubject possible.
 		actionOfCurrentSubject = ko.computed(function() {
+            if(!$.isArray(availableActions())) {
+                return undefined;
+            }
 			return availableActions().filter(function(action) {
 				return action.subjectID === currentSubject();
 			})[0];
@@ -206,7 +209,7 @@ define([
 		});
 
 		selectUser = ko.computed(function () {
-			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().actionData !== undefined && actionOfCurrentSubject().actionData[0].targetUsersData !== undefined) {
+			if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().actionData !== undefined && actionOfCurrentSubject().actionData.length > 0 && actionOfCurrentSubject().actionData[0].targetUsersData !== undefined) {
 				var targetUsers = actionOfCurrentSubject().actionData[0].targetUsersData.targetUsers;
 				return targetUsers.map(function (u) {
 					for (var i in User.all()) {

@@ -5,7 +5,9 @@ assemblySettings
 
 jarName in assembly := "sbpm.jar" 
 
-test in assembly := {} 
+test in assembly := {}
+
+Revolver.settings
 
 mainClass in assembly := Some("de.tkip.sbpm.repo.Boot")
 

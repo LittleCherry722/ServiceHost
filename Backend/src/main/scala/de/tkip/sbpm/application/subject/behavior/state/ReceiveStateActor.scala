@@ -41,7 +41,6 @@ import de.tkip.sbpm.application.subject.behavior.InputPoolMessagesChanged
 import de.tkip.sbpm.application.subject.behavior.DeleteInputPoolMessages
 import de.tkip.sbpm.model.ChangeDataMode._
 
-
 protected case class ReceiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
@@ -55,13 +54,16 @@ protected case class ReceiveStateActor(data: StateData)
   log.debug("exitTransitionsMap: " + exitTransitionsMap.mkString(","))
 
   // register to subscribe the messages at the inputpool
-  inputPoolActor ! {
+
+  val msg = {
     // convert the transition array into the request array
     for (transition <- exitTransitions if (transition.target.isDefined)) yield {
       // the register-message for the inputpool
       SubscribeIncomingMessages(id, transition.subjectID, transition.messageType)
     }
   }
+  log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
+  inputPoolActor ! msg
 
   protected def stateReceive = {
     // execute an action
@@ -80,18 +82,21 @@ protected case class ReceiveStateActor(data: StateData)
       val input = action.actionData
       // get the transition from the map
       val transition = exitTransitionsMap((input.relatedSubject.get, input.text))
+
       // create the Historymessage
       val message =
         HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
 
       // TODO check if possible
-      inputPoolActor !
-        DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+      val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+      log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
+      inputPoolActor ! msg
 
       // change the state and enter the history entry
       changeState(transition.successorID, data, message)
 
       // inform the processinstance, that this action is executed
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
       blockingHandlerActor ! ActionExecuted(action)
     }
 
@@ -121,6 +126,50 @@ protected case class ReceiveStateActor(data: StateData)
       // send information about changed actions to actionchangeactor
       actionChanged(Updated)
 
+      var transition = exitTransitionsMap(fromSubject, messageType)
+      var isAutoReceive = false
+      if (messages.length != 0 && data.stateModel.autoExecute && false) {
+        //Check if only one ExitCond
+        if (exitTransitions.length == 1) {
+          isAutoReceive = true
+        } else {
+          var p, t = exitTransitions(0).priority
+          var tr1, tr2 = exitTransitions(0)
+          var count = 0
+          for (et <- exitTransitions) {
+            if (et.priority > p) {
+              p = et.priority
+              tr1 = et
+            }
+            if (messageType.equals(et.messageType)) {
+              tr2 = et
+              count += 1
+            }
+          }
+          //Check if there is a highest priority
+          if (p > t) {
+            transition = exitTransitionsMap(tr1.subjectID, tr1.messageType)
+            isAutoReceive = true
+            //Check if there is a matched message type
+          } else if (count == 1) {
+            transition = exitTransitionsMap(tr2.subjectID, tr2.messageType)
+            isAutoReceive = true
+          }
+        }
+        if (isAutoReceive) {
+          val message =
+            HistoryMessage(transition.messageID, transition.messageType, transition.from, subjectID, transition.messageContent.get)
+
+          // TODO check if possible
+          val msg = DeleteInputPoolMessages(transition.from, transition.messageType, transition.receiveMessages)
+          log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
+          inputPoolActor ! msg
+
+          // change the state and enter the history entry
+          changeState(transition.successorID, data, message)
+        }
+      }
+
       // try to disable other states, when this state is an observer
       tryDisableNonObserverStates()
     }
@@ -147,11 +196,13 @@ protected case class ReceiveStateActor(data: StateData)
 
     case InputPoolSubscriptionPerformed => {
       // This state has all inputpool information -> unblock the user
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
     }
 
     case KillState => {
       // inform the inputpool, that this state is not waiting for messages anymore
+      log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + UnSubscribeIncomingMessages(id).toString)
       inputPoolActor ! UnSubscribeIncomingMessages(id)
       suicide()
     }
@@ -162,6 +213,7 @@ protected case class ReceiveStateActor(data: StateData)
   private def tryDisableNonObserverStates() {
     // TODO check if timeout is ready
     if (model.observerState && exitTransitionsMap.exists(_._2.ready)) {
+      log.debug("TRACE: from " + this.self + " to " + subjectActor + " " + DisableNonObserverStates.toString)
       subjectActor ! DisableNonObserverStates
     }
   }
@@ -171,6 +223,7 @@ protected case class ReceiveStateActor(data: StateData)
   private def trySendSubjectStarted() {
     if (sendSubjectReady) {
       // TODO so richtig?F
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
       sendSubjectReady = false
     }
@@ -206,9 +259,11 @@ protected case class ReceiveStateActor(data: StateData)
 
   override protected def changeState(successorID: StateID, prevStateData: StateData, historyMessage: HistoryMessage) {
     // inform the inputpool, that this state is not waiting for messages anymore
+    log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + UnSubscribeIncomingMessages(id).toString)
     inputPoolActor ! UnSubscribeIncomingMessages(id)
 
     if (data.stateModel.observerState) {
+      log.debug("TRACE: from " + this.self + " to " + subjectActor + " " + KillNonObserverStates.toString)
       subjectActor ! KillNonObserverStates
     }
 

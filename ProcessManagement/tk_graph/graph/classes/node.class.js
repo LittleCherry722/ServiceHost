@@ -161,6 +161,12 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
      * @type {?{dx: int, dy: int}}
      */
     this.manualPositionOffset = null;
+
+    /**
+     * Indicates whether the action should be automatically executed or not
+     * @type {boolean}
+     */
+    this.autoExecute = false;
 	
 	/**
 	 * Activates the node.
@@ -547,7 +553,30 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		*/
 		return this.start === true;
 	};
-	
+
+    /**
+     * @returns {boolean} true if the action should be automatically executed
+     */
+    this.isAutoExecute = function ()
+    {
+        return this.autoExecute === true;
+    };
+
+    /**
+     * @param val {boolean}
+     */
+    this.setAutoExecute = function (val)
+    {
+        this.autoExecute = val == true;
+    };
+
+    /**
+     * @returns {boolean} true if the node supports automatic execution
+     */
+    this.isAutoExecuteSupported = function () {
+        return this.type === "receive";
+    };
+
 	/**
 	 * Updates the conversation of the node.
 	 * 

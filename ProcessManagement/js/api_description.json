@@ -464,7 +464,7 @@
 				"url": "/changes",
 				"method": "GET",
 				"parameters": [
-					{ "parameter": "since", "description": "timestamp", "type": "int" }
+					{ "parameter": "t", "description": "Zeitintervall (in Sekunden) für das die Änderungen zurückgegeben werden sollen (\"Änderungen seit <t> Sekunden\"", "type": "int" }
 				],
 				"returnDescription": "Als Antwort liefert das Backend ein JSON-Objekt mit den entsprechenden Objekten. Jeweils zuerst nach Ressourcentyp und anschließend nach der Art der Änderung (inserted, updated, deleted) gruppiert. Es werden jeweils alle geänderten Attribute übertragen. Nur bei gelöschten Objekten genügt offensichtlich die ID.",
 				"returnValues": []
