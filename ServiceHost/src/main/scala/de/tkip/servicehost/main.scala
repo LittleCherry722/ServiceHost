@@ -23,9 +23,13 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess Gro√üunternehmen. F√
 
 
 object main extends App {
-  println("main started")
-  val repoUrl = "http://localhost:8181/repo/interfaces"
   val system = ActorSystem("sbpm")
+  
+  protected def configString(key: String) =
+    system.settings.config.getString(key)
+
+  println("main started")
+  val repoUrl = configString("sbpm.repo.address") + "/interfaces"
 
   // TODO add other root Actors
   
@@ -58,6 +62,12 @@ object main extends App {
       val sourceString: String = source.mkString
       source.close()
 
+      // TODO: set graph.relatedSubject
+      // TODO: set graph.relatedInterface
+      // TODO: set graph.isImplementation
+      // TODO: set graph.implementations
+      // TODO: remove graph.{url, variableCounter, macroCounter}
+      // TODO: what should be done in the frontend, what here?
       val sourceJson: JsValue = sourceString.asJson
       val processGraph: JsValue = sourceJson.asInstanceOf[JsObject].getFields("graph").head
       processes += processGraph
@@ -66,13 +76,19 @@ object main extends App {
     println("read all processes")
 
     // TODO: direkt JsObjects erzeugen
-    // TODO: werte in application.conf eintragen und hier auslesen
+    // TODO: extract conversations and messages from processes
+    // TODO: id is required. what does it mean?
+    // TODO: graph.id is required. what does it mean?
+    // TODO: graph.routings is required. what does it mean?
+    // TODO: only one graph, that has one processId, but multiple processes
+    // TODO: interfaceId can be optional
+    // TODO: graph.date: use current time?
     val interfaceJson: JsValue = ("""
     {
       "id": 1,
-      "interfaceId": 1234,
-      "name": "MyServiceHost",
-      "port": 2553,
+      "interfaceId": """+configString("sbpm.servicehost.interface.id")+""",
+      "name": """"+configString("sbpm.servicehost.interface.name")+"""",
+      "port": """+configString("akka.remote.netty.tcp.port")+""",
       "graph": {
         "id": 123456,
         "processId": 21,
@@ -93,16 +109,20 @@ object main extends App {
 
     println("printed json to str and POST it")
 
-    val result = Http.postData(repoUrl, jsonString)
+    val post = Http.postData(repoUrl, jsonString)
       .header("Content-Type", "application/json")
       .header("Charset", "UTF-8")
       .option(HttpOptions.connTimeout(10000)).option(HttpOptions.readTimeout(30000))
-      .responseCode
+    val result = post.responseCode
 
-    if (200 == result) {
+    if (result == 200) {
       println("Registered interface at local repository")
+
+      // TODO: store id ?
+      var id = post.asString
+      println("id: " + id)
     } else {
-      println("Some error occurred; " + result)
+      println("Some error occurred; HTTP Code: " + result)
     }
   }
 }
