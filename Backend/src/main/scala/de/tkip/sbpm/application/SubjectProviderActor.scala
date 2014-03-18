@@ -17,14 +17,19 @@ import akka.actor._
 import akka.pattern.ask
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.duration._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
+import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.ActorLocator
 import akka.event.Logging
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import java.util.UUID
+import scala.concurrent.ExecutionContext
+import ExecutionContext.Implicits.global
 
 protected case class SubjectCreated(userID: UserID,
   processID: ProcessID,
@@ -130,7 +135,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     subjectID: SubjectID,
     generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
 
-    val collectSubjects: Set[Subject] =
+    val collectSubjects: Iterable[SubjectRef] =
       subjects.filter(
         (s: Subject) =>
           !s.ref.isTerminated &&
@@ -141,16 +146,31 @@ class SubjectProviderActor(userID: UserID) extends Actor {
                 processInstanceID == s.processInstanceID
               else
                 processInstanceID == s.processInstanceID &&
-                  subjectID == s.subjectID)))
+                  subjectID == s.subjectID))).map(_.ref)
+
+    implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
+
+    val actionFutureSeq: Seq[Future[Seq[Seq[AvailableAction]]]] =
+      for (subject <- collectSubjects.filterNot(_.isTerminated).toArray)
+        yield (subject ? GetAvailableAction(processInstanceID)).mapTo[Seq[Seq[AvailableAction]]]
+    val nestedActionFutures = Future.sequence(actionFutureSeq)
+    // flatten the actions
+    val actionFutures =
+      for (outer <- nestedActionFutures)
+        yield for (middle <- outer; inner <- middle; action <- inner) yield action
+
+    // Await the result
+    // TODO can be done smarter, but at the moment this actor has a single run
+    val actions =
+      Await.result(actionFutures, timeout.duration)
+    logger.debug("Collected: " + actions)
+
+    val message= generateAnswer(actions.toArray)
 
     // collect actions and generate answer for the filtered subject list
-    val msg = CollectAvailableActions(
-        collectSubjects.map(_.ref),
-        processInstanceID,
-        generateAnswer)
+    val msg = CollectAvailableActions(message)
     
     logger.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
-    context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(
-      msg)(returnAdress)
+    context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(msg)(returnAdress)
   }
 }
