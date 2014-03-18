@@ -122,7 +122,7 @@
                                 "variable": "",
                                 "options": {
                                     "message": "m0",
-                                    "subject": "*",
+                                    "subject": "##all##",
                                     "correlationId": "",
                                     "conversation": "",
                                     "state": null

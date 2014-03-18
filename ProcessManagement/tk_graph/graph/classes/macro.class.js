@@ -182,9 +182,10 @@ function GCmacro (parent, id, name)
 	 * @param {int} [manualPositionOffsetX] The x position offset the user manually defined
 	 * @param {int} [manualPositionOffsetY] The y position offset the user manually defined
 	 * @param {boolean} [deactivated] The deactivation status of the node. (default: false)
+	 * @param {boolean} [autoExecute] If set to true, the action is automatically executed by the backend
 	 * @returns {int} The id that identifies the node in the nodes array.
 	 */
-	this.addNode = function (id, text, type, start, end, manualPositionOffsetX, manualPositionOffsetY, deactivated)
+	this.addNode = function (id, text, type, start, end, manualPositionOffsetX, manualPositionOffsetY, deactivated, autoExecute)
 	{
 		// create a new id if none is given
 		if (!gf_isset(id) || id === "")
@@ -215,6 +216,9 @@ function GCmacro (parent, id, name)
 
         if (typeof manualPositionOffsetX === "number" && typeof manualPositionOffsetY === "number")
             gt_node.setManualPositionOffset({dx: manualPositionOffsetX, dy: manualPositionOffsetY});
+
+        if (typeof autoExecute === "boolean")
+            gt_node.setAutoExecute(autoExecute);
 
         // pass the deactivated attribute to the node
         if (gf_isset(deactivated) && deactivated === true)
