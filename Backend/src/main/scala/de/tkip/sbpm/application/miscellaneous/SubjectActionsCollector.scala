@@ -26,9 +26,7 @@ import de.tkip.sbpm.application.subject.SubjectActor
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 
-case class CollectAvailableActions(subjects: Iterable[SubjectRef],
-  processInstanceID: ProcessInstanceID,
-  generateAnswer: Array[AvailableAction] => Any)
+case class CollectAvailableActions(message: Any)
 
 /**
  * This class is responsible to collect the available actions of a set of subjects
@@ -38,28 +36,10 @@ class SubjectActionsCollector extends Actor {
   val logger = Logging(context.system, this)
 
   def receive = {
-    case CollectAvailableActions(subjects, processInstanceID, generateAnswer) => {
-      implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
-
-      val actionFutureSeq: Seq[Future[Seq[Seq[AvailableAction]]]] =
-        for (subject <- subjects.filterNot(_.isTerminated).toArray)
-          yield (subject ? GetAvailableAction(processInstanceID)).mapTo[Seq[Seq[AvailableAction]]]
-      val nestedActionFutures = Future.sequence(actionFutureSeq)
-      // flatten the actions
-      val actionFutures =
-        for (outer <- nestedActionFutures)
-          yield for (middle <- outer; inner <- middle; action <- inner) yield action
-
-      // Await the result
-      // TODO can be done smarter, but at the moment this actor has a single run
-      val actions =
-        Await.result(actionFutures, timeout.duration)
-      logger.debug("Collected: " + actions)
-
-      // results ready -> generate answer -> return
+    case CollectAvailableActions(message) => {
       val traceLogger = Logging(context.system, this)
-      val message= generateAnswer(actions.toArray)
       traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + message.toString)
+      logger.error("++++TRACE++++: from " + this.self + " to " + sender + " " + message.toString)
       sender ! message
 
       // actions collected -> stop this actor
