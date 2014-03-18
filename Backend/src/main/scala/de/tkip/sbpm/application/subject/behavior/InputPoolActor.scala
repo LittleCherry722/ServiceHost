@@ -125,7 +125,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       waitingStatesMap.map(_._2.remove(stateID))
     }
 
-    case message: SubjectToSubjectMessage if closedChannels.isChannelClosed((message.from, message.messageType)) => {
+    case message: SubjectToSubjectMessage if closedChannels.isChannelClosedAndNotReOpened((message.from, message.messageType)) => {
       // Unlock the sender
       log.debug("TRACE: from " + this.self + " to " + sender + " " + Rejected(message.messageID).toString)
       sender ! Rejected(message.messageID)
@@ -380,7 +380,7 @@ private[behavior] class ClosedChannels {
 
   def close(channelId: ChannelID) {
     removeOldRules(channelId)
-    rules = Rule(channelId, Close) :: rules
+    rules = Rule(channelId, Close) :: rules  
   }
 
   def open(channelId: ChannelID) {
@@ -388,11 +388,10 @@ private[behavior] class ClosedChannels {
     rules = Rule(channelId, Open) :: rules
   }
 
-  def isChannelClosed(channelId: ChannelID): Boolean = {
-      def channelFilter(rule: Rule) = (rule.channelId._1 == channelId._1 || rule.channelId._1 == AllSubjects) &&
+  def isChannelClosedAndNotReOpened(channelId: ChannelID): Boolean = {
+    def channelFilter(rule: Rule) = (rule.channelId._1 == channelId._1 || rule.channelId._1 == AllSubjects) &&
         (rule.channelId._2 == channelId._2 || rule.channelId._2 == AllMessages)
-
     val rule = rules.find(channelFilter)
-    rule.map(_.ruleType == Close).getOrElse(false)
+    !rule.map(_.ruleType == Open).getOrElse(!rule.map(_.ruleType == Close).getOrElse(false))
   }
 }

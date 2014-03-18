@@ -105,7 +105,7 @@
                                 "nodeType": "$openip",
                                 "options": {
                                     "message": "m0",
-                                    "subject": "*",
+                                    "subject": "Subj2",
                                     "correlationId": "",
                                     "conversation": "",
                                     "state": null
