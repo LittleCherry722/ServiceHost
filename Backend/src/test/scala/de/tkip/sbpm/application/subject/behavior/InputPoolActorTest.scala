@@ -83,28 +83,28 @@ class ClosedChannelsTest extends FunSuite {
   test("no closed channels") {
     val closedChannels = new ClosedChannels
 
-    assert(closedChannels.isChannelClosed(DummyChannel) === false)
+    assert(closedChannels.isChannelClosedAndNotReOpened(DummyChannel) === false)
   }
 
   test("closed channel") {
     val closedChannels = new ClosedChannels
     closedChannels.close((DummyChannel))
 
-    assert(closedChannels.isChannelClosed(DummyChannel) === true)
+    assert(closedChannels.isChannelClosedAndNotReOpened(DummyChannel) === true)
   }
 
   test("closed channel with pseudo type") {
     val closedChannels = new ClosedChannels
     closedChannels.close(((AllSubjects, AllMessages)))
 
-    assert(closedChannels.isChannelClosed(DummyChannel) === true)
+    assert(closedChannels.isChannelClosedAndNotReOpened(DummyChannel) === true)
   }
 
   test("opened channel") {
     val closedChannels = new ClosedChannels
     closedChannels.open((("other", "test")))
 
-    assert(closedChannels.isChannelClosed(DummyChannel) === false)
+    assert(closedChannels.isChannelClosedAndNotReOpened(DummyChannel) === false)
   }
 
   test("reopened channel") {
@@ -112,7 +112,7 @@ class ClosedChannelsTest extends FunSuite {
     closedChannels.close((DummyChannel))
     closedChannels.open(DummyChannel)
 
-    assert(closedChannels.isChannelClosed(DummyChannel) === false)
+    assert(closedChannels.isChannelClosedAndNotReOpened(DummyChannel) === false)
   }
 
   test("reopened channel with pseudo type") {
@@ -120,6 +120,6 @@ class ClosedChannelsTest extends FunSuite {
     closedChannels.close(DummyChannel)
     closedChannels.open((DummyChannel._1, AllMessages))
 
-    assert(closedChannels.isChannelClosed(DummyChannel) === false)
+    assert(closedChannels.isChannelClosedAndNotReOpened(DummyChannel) === false)
   }
 }

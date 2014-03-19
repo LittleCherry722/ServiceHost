@@ -38,7 +38,7 @@ object parseGraph {
   def apply(graph: Graph): ProcessGraph = synchronized {
 
     // create the message map from the graph
-    messageMap = graph.messages.mapValues(_.name)
+    messageMap = graph.messages.mapValues(_.id)
 
     // parse the subjects and return the resulting processgraph
     ProcessGraph(parseSubjects(graph.subjects))

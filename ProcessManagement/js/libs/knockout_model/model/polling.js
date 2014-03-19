@@ -3,7 +3,8 @@ define([
 ], function( _ ) {
     var pollingRescources = [],
         pollingUrl = "/changes",
-        lastUpdate;
+        pollingDisabled = false,
+        lastUpdate, pollingTimeout;
 
     var initialize = function( Resource ) {
         Resource.enablePolling = enablePolling;
@@ -23,6 +24,7 @@ define([
     }
 
     var enablePolling = function( name, priority ) {
+        pollingDisabled = false;
         Resource = this;
         if ( !name ) {
             name = Resource.className.toLowerCase()
@@ -36,6 +38,12 @@ define([
             priority: priority
         });
     }
+
+    var disablePolling = function () {
+        clearTimeout(pollingTimeout);
+        pollingDisabled = true;
+    }
+    window.disablePolling = disablePolling;
 
     var updateHandler = {
         inserted: function(data, resource) {
@@ -68,7 +76,9 @@ define([
             dataType: "json",
             success: update,
             complete: function() {
-                window.setTimeout(poll, waitingTime() * 1000 );
+                if(!pollingDisabled) {
+                    pollingTimeout = window.setTimeout(poll, waitingTime() * 1000 );
+                }
             }
         })
     }
