@@ -15,9 +15,11 @@ import java.util.Date
 import de.tkip.sbpm.application.subject.misc.Stored
 import de.tkip.servicehost.ActorLocator
 import scala.collection.immutable.Map
+import scala.collection.mutable.Queue
+import de.tkip.sbpm.application.subject.misc.Rejected
 
 class $TemplateServiceActor extends ServiceActor {
-
+  private val MAX_SIZE: Int = 20
   // TODO implement inputpoolActor
 //  private val inputPoolActor: ActorRef = null
 //    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
@@ -32,104 +34,135 @@ class $TemplateServiceActor extends ServiceActor {
       //$EMPTYMESSAGE$//
       )
       
-      
   // start with first state
   private var state: State = getState(0)
-  private var message: Any = null
+  private var inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef,Any]]] = scala.collection.mutable.Map()
   private var tosender: ActorRef = null
-  
-  private val serviceID: String = "$SERVICEID"
-  
+
+  private val serviceID: String = "Staples"
+
   // Subject default values
   private var userID = -1
   private var processID = -1
   private var thisID = -1;
-  private var manager: Option[ActorRef] = null 
-  private var subjectID:String = ""
+  private var manager: Option[ActorRef] = null
+  private var subjectID: String = ""
   private var messageType: String = ""
   private var target = -1
-  
-  
+
+  def processMsg() {
+    val key: Tuple2[String, String] = null //TODO find current key
+    val tuple: Tuple2[ActorRef,SubjectToSubjectMessage] =(inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef,SubjectToSubjectMessage]];
+    val message=tuple._2
+    tosender=tuple._1
+    state match {
+      case rs: ReceiveState =>
+        rs.handle(message)
+      case _ =>
+        println(state + " no match")
+    }
+  }
+
   def receive: Actor.Receive = {
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
       println(message)
+      storeMsg(message,sender)
       tosender = sender
+      //      this.msgMap ++= (message.messageType,state.targets())
       state match {
-        case rs: ReceiveState => 
+        case rs: ReceiveState =>
           rs.handle(message)
-        case _=>
+        case _ =>
           println(state + " no match")
       }
     }
     case message: ExecuteServiceMessage => {
-    	tosender = sender
+      tosender = sender
     }
     case GetProxyActor => {
       sender ! self
     }
-    
+
     case update: UpdateProcessData => {
-    	this.userID = update.userID
-    	this.processID = update.remoteProcessID
-    	this.thisID = update.processID
-    	this.manager = update.manager    	
+      this.userID = update.userID
+      this.processID = update.remoteProcessID
+      this.thisID = update.processID
+      this.manager = update.manager
     }
-    
+
     // TODO implement other messages
-  }  
-  
+  }
+
   def changeState {
     if (state.targetIds.size > 1) {
       if (this.branchCondition != null) {
-    	  state = getState(state.targetIds(this.branchCondition))
-    	  
+        state = getState(state.targetIds(this.branchCondition))
+
       } else println("no branchcodition defined")
-     
-    } else state = getState(state.targetIds.head._2) 
-    
+
+    } else state = getState(state.targetIds.head._2)
+
     println(state.id)
+    state match {
+      case rs: ReceiveState =>
+        processMsg()
+      case _ => 
+    }
     state.process
-      
+
   }
-  
+
   def getState(id: Int): State = {
-    states.find (x => x.id == id).getOrElse(null)
+    states.find(x => x.id == id).getOrElse(null)
   }
-  
-  def storeMsg(message: Any): Unit = {
+
+  def storeMsg(message: Any, tosender: ActorRef): Unit = {
     message match {
       case message: SubjectToSubjectMessage => {
-        tosender ! Stored(message.messageID) 
-        this.message = message
+        val targetID = state.targets(messages(message.messageType))
+        val key = (message.messageType.toString(), targetID.toString())
+//        val key = (message.messageType, tosender)
+        if (inputPool.contains(key)) {
+          if (inputPool(key).size < MAX_SIZE) {
+            (inputPool(key)).enqueue(Tuple2(tosender,message))
+            tosender ! Stored(message.messageID)
+          } else {
+            tosender ! Rejected(message.messageID)
+          }
+
+        } else {
+          inputPool(key) = Queue(Tuple2(tosender,message))
+          tosender ! Stored(message.messageID)
+        }
         if (state.targetIds.size > 1) this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
         else this.branchCondition = null
       }
       case _ =>
-      	this.message = message
-    }    
+      //      	this.inputPool = message
+    }
   }
-  
+
   def getBranchIDforType(messageType: String): MessageText = {
     messages(messageType)
   }
-  
+
   def getDestination(): ActorRef = {
     manager.get
   }
-  
+
   def terminate() {
-	  ActorLocator.serviceActorManager ! KillProcess(serviceID, thisID)
+    ActorLocator.serviceActorManager ! KillProcess(serviceID, thisID)
   }
-  
+
   def getUserID(): Int = {
     userID
   }
-  
+
   def getProcessID(): Int = {
     processID
   }
-  
+
   def getSubjectID(): String = {
     serviceID
   }

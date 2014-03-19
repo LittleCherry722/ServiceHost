@@ -134,7 +134,7 @@ class StubGeneratorActor extends Actor {
   def fillInMessages(classText: String, messages:Map[String,String]):String ={
     var text=""
     for((name,msgType) <- messages){
-      text=text+ "\""+name+"\" -> \""+msgType+"\","
+      text=text+ "\""+msgType+"\" -> \""+name+"\","
     }
     classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
   }

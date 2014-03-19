@@ -16,32 +16,24 @@ import de.tkip.sbpm.application.subject.misc.Stored
 import de.tkip.servicehost.ActorLocator
 import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.Rejected
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
-class StaplesServiceActor extends ServiceActor {
+class Staples4ServiceActor extends ServiceActor {
   private val MAX_SIZE: Int = 20
-
   // TODO implement inputpoolActor
-  //  private val inputPoolActor: ActorRef = null
-  //    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
-
+//  private val inputPoolActor: ActorRef = null
+//    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
+  
   private implicit val service = this
-
+  
   private val states: List[State] = List(
-    ExitState(2, null, null, Map("" -> -1)),
-    ReceiveState(0, "exitcondition", Map("m1" -> Target("Großunternehmen", -1, -1, false, ""), "m3" -> Target("Großunternehmen", -1, -1, false, "")), Map("m1" -> 5, "m3" -> 3)),
-    SendState(1, "exitcondition", Map("m2" -> Target("Großunternehmen", -1, -1, false, "")), Map("m2" -> 2)),
-    ActionState5(5, "exitcondition", Map("" -> null), Map("" -> 1)),
-    ActionState3(3, "exitcondition", Map("" -> null), Map("" -> 1)))
-
+      ExitState(3,null,null,null),SendState(2,"exitcondition",Map("m2" -> Target("Großunternehmen",-1,-1,false,"")),Map("m2" -> 3)),ReceiveState(0,"exitcondition",Map("m3" -> Target("Großunternehmen",-1,-1,false,"")),Map("m3" -> 4)),ActionState4(4,"exitcondition",Map("" -> null),Map("" -> 2)),ReceiveState(0,"exitcondition",Map("m1" -> Target("Großunternehmen",-1,-1,false,""), "m3" -> Target("Großunternehmen",-1,-1,false,"")),Map("m1" -> 1, "m3" -> 4)),ActionState1(1,"exitcondition",Map("" -> null),Map("" -> 2))
+      )
+  
   private val messages: Map[MessageType, MessageText] = Map(
-    "Bestellung" -> "m1",
-    "Lieferdatum" -> "m2",
-    "ExpressBestellung" -> "m3")
-
+      "Bestellung" -> "m1","Lieferdatum" -> "m2","ExpressBestellung" -> "m3"
+      )
+      
   // start with first state
   private var state: State = getState(0)
   private var inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef,Any]]] = scala.collection.mutable.Map()
@@ -174,30 +166,23 @@ class StaplesServiceActor extends ServiceActor {
   def getSubjectID(): String = {
     serviceID
   }
-  case class ActionState5(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
+  
+  case class ActionState4(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
 
-    val stateName = "Bestellung erhalten"
-
-    def process()(implicit actor: ServiceActor) {
-      actor.setMessage("Bestellung erhalten. Lieferung in drei Tagen")
-      actor.changeState()
-    }
-
-  }
-
-  case class ActionState3(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
-
-    val stateName = "Expressbestellung erhalten"
+    val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage("Expressbestellung erhalten. Lieferung morgen")
+      actor.setMessage("") //TODO set message
       actor.changeState()
     }
   }
+  case class ActionState1(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
 
+    val stateName = "" //TODO state name
+
+    def process()(implicit actor: ServiceActor) {
+      actor.setMessage("") //TODO set message
+      actor.changeState()
+    }
+  }
 }
-
-
-
-
-

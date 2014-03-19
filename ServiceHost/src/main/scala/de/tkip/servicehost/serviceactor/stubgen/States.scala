@@ -49,7 +49,7 @@ case class ReceiveState(override val id: Int,override val exitType: String,overr
   }
 
   def handle(msg: Any)(implicit actor: ServiceActor) {
-    actor.storeMsg(msg)
+//    actor.storeMsg(msg)
     actor.changeState()
   }
 }
