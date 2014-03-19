@@ -30,11 +30,11 @@ class StubGeneratorActor extends Actor {
 
   def receive = {
     case path: String => {
-      val (name, id, states) = extractStates(path)
-      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states)
+      val (name, id, states, messages) = extractStates(path)
+      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states,messages)
     }
   }
-  def extractStates(jsonPath: String): (String, String, List[State]) = {
+  def extractStates(jsonPath: String): (String, String, List[State],Map[String,String]) = {
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString
     val json: Option[Any] = JSON.parseFull(json_string)
     val process: Map[String, Any] = Map() ++ json.get.asInstanceOf[Map[String, Any]]
@@ -42,6 +42,7 @@ class StubGeneratorActor extends Actor {
     var statesList: List[State] = List()
 
     val graph = process("graph").asInstanceOf[Map[String, Any]]
+    val messages = process.getOrElse("messages", Map[String,String]()).asInstanceOf[Map[String, String]]
     val macros = graph("macros").asInstanceOf[List[Map[String, Any]]]
     val macro = macros(0)
     val nodes = macro("nodes").asInstanceOf[List[Map[String, Any]]]
@@ -79,10 +80,10 @@ class StubGeneratorActor extends Actor {
       state.targetIds = Map() ++ states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], Map[String, String], Map[String, Int]]]._3
       statesList = statesList :+ state
     }
-    (graph("name").asInstanceOf[String], graph("id").asInstanceOf[String], statesList)
+    (graph("name").asInstanceOf[String], graph("id").asInstanceOf[String], statesList,messages)
   }
 
-  def fillInClass(classPath: String, name: String, id: String, states: List[State]) {
+  def fillInClass(classPath: String, name: String, id: String, states: List[State], messages:Map[String,String]) {
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
     var text = ""
@@ -106,27 +107,36 @@ class StubGeneratorActor extends Actor {
     } else {
       classText = classText.replace("$TemplateServiceActor", name + "ServiceActor")
     }
-
+    classText = fillInMessages(classText, messages)
+    var impementation:String=""
     for (state <- states) {
       state match {
         case s: ActionState => {
-          classText = classText + "\n  case class ActionState" + state.id + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State(\"action\", id, exitType, targets, targetIds) {\n"
-          classText = classText + "\n    val stateName = \"\" //TODO state name\n"
-          classText = classText + "\n    def process()(implicit actor: ServiceActor) {"
-          classText = classText + "\n      actor.setMessage(\"\") //TODO set message"
-          classText = classText + "\n      actor.changeState()"
-          classText = classText + "\n    }"
-          classText = classText + "\n  }"
+          impementation = impementation + "\n  case class ActionState" + state.id + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State(\"action\", id, exitType, targets, targetIds) {\n"
+          impementation = impementation + "\n    val stateName = \"\" //TODO state name\n"
+          impementation = impementation + "\n    def process()(implicit actor: ServiceActor) {"
+          impementation = impementation + "\n      actor.setMessage(\"\") //TODO set message"
+          impementation = impementation + "\n      actor.changeState()"
+          impementation = impementation + "\n    }"
+          impementation = impementation + "\n  }"
         }
         case _=>
       }
     }
-
+    classText = classText.replace("//$ACTIONSTATESIMPLEMENTATION$//", impementation)
     val pw = new java.io.PrintWriter(f.getAbsolutePath())
     pw.print(classText)
     pw.close()
     val packagePath = f.getParent().replace("\\", "/")
     registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."))
+  }
+  
+  def fillInMessages(classText: String, messages:Map[String,String]):String ={
+    var text=""
+    for((name,msgType) <- messages){
+      text=text+ "\""+name+"\" -> \""+msgType+"\","
+    }
+    classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
   }
 
   def registerService(id: String, className: String, packagePath: String) {

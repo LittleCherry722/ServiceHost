@@ -8,12 +8,13 @@ import de.tkip.servicehost.Messages._
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.miscellaneous._
 import akka.actor.ActorRef
-import akka.actor.Props
-import akka.actor.PoisonPill
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import java.util.Date
 import de.tkip.sbpm.application.subject.misc.Stored
 import de.tkip.servicehost.ActorLocator
+import akka.actor.actorRef2Scala
+import de.tkip.servicehost.serviceactor.stubgen.ReceiveState
+import de.tkip.servicehost.serviceactor.stubgen.State
+import de.tkip.servicehost.serviceactor.stubgen.Target
 
 class StaplesServiceActor extends ServiceActor {
 
@@ -138,9 +139,7 @@ class StaplesServiceActor extends ServiceActor {
     serviceID
   }
   
-}
-
-case class ActionState5(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
+  case class ActionState5(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
 
   val stateName = "Bestellung erhalten"
   
@@ -160,3 +159,6 @@ case class ActionState3(override val id: Int, override val exitType: String, ove
 	  actor.changeState()
   }
 }
+  
+}
+

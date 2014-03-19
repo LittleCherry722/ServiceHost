@@ -133,5 +133,5 @@ class $TemplateServiceActor extends ServiceActor {
   def getSubjectID(): String = {
     serviceID
   }
-    
+  //$ACTIONSTATESIMPLEMENTATION$//
 }
