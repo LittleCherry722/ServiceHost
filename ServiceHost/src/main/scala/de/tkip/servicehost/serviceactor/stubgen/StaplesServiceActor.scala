@@ -33,9 +33,9 @@ class StaplesServiceActor extends ServiceActor {
       )
       
   private val messages: Map[MessageType, MessageText] = Map(
-	"Bestellung" -> "m1",
-	"Lieferdatum" -> "m2",
-	"Expressbestellung" -> "m3"
+	"m1" -> "Bestellung",
+	"m2" -> "Lieferdatum",
+	"m3" -> "Expressbestellung"
   )
   
   // start with first state
