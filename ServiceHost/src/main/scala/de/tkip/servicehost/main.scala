@@ -39,6 +39,18 @@ object main extends App {
   system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
   registerInterface()
 
+  sys.addShutdownHook {
+    println("Shutting down the system...")
+    // TODO: stop futures / running actors
+    deregisterInterface()
+
+    system.shutdown();
+  }
+
+  def deregisterInterface(): Unit = {
+    println("deregisterInterface")
+    // TODO: delete this interface from repo
+  }
 
   /**
    * Registers the interface at the interface repository by sending the graph data and some additional information as
