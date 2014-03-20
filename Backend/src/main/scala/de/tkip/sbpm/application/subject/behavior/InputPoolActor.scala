@@ -78,7 +78,6 @@ protected case class IsIPEmpty(channelId: ChannelID)
 protected case class IPEmpty(empty: Boolean)
 
 class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogging {
-  protected val logger = Logging(context.system, this)
   // extract the information from the data
   val userID = data.userID
   val messageLimit = data.subject.inputPool
@@ -128,29 +127,25 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
 
     case message: SubjectToSubjectMessage if closedChannels.isChannelClosed((message.from, message.messageType)) => {
       // Unlock the sender
-      log.debug("TRACE: from " + this.self + " to " + sender + " " + Rejected(message.messageID).toString)
-      sender ! Rejected(message.messageID)
+      sender !! Rejected(message.messageID)
 
       log.warning("message rejected: {}", message)
 
       // unblock this user
-      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
     }
 
     case message: SubjectToSubjectMessage => {
-      logger.debug("InputPool received: " + message + " from " + sender)
+      log.debug("InputPool received: " + message + " from " + sender)
       // Unlock the sender
-      log.debug("TRACE: from " + this.self + " to " + sender + " " + Stored(message.messageID).toString)
-      sender ! Stored(message.messageID)
+      sender !! Stored(message.messageID)
       // store the message
       enqueueMessage(message)
-      logger.debug("Inputpool has: " +
+      log.debug("Inputpool has: " +
         getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
       // inform the states about this change
       broadcastChangeFor((message.from, message.messageType))
       // unblock this user
-      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
     }
 
@@ -165,27 +160,23 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
 
     case CloseInputPool(channelId) => {
       closedChannels.close(channelId)
-      log.debug("TRACE: from " + this.self + " to " + sender + " " + InputPoolClosed.toString)
-      sender ! InputPoolClosed
+      sender !! InputPoolClosed
     }
 
     case OpenInputPool(channelId) => {
       closedChannels.open(channelId)
-      log.debug("TRACE: from " + this.self + " to " + sender + " " + InputPoolOpened.toString)
-      sender ! InputPoolOpened
+      sender !! InputPoolOpened
     }
 
     case IsIPEmpty((subjectId, messageType)) => {
       if (subjectId == ProcessAttributes.AllSubjects || messageType == ProcessAttributes.AllMessages) {
         val filtered = filterQueueMap(subjectId, messageType)
         val isEmpty = (filtered.values map (_.isEmpty)).foldLeft(true)(_ && _)
-        log.debug("TRACE: from " + this.self + " to " + sender + " " + IPEmpty(isEmpty).toString)
-        sender ! IPEmpty(isEmpty)
+        sender !! IPEmpty(isEmpty)
       } // single subject, single message type
       else {
         val msg = IPEmpty(messageQueueIsEmpty(subjectId, messageType))
-        log.debug("TRACE: from " + this.self + " to " + sender + " " + msg.toString)
-        sender ! msg
+        sender !! msg
       }
 
     }
@@ -226,14 +217,12 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
     }
 
     // inform the sender, that this subscription has been performed
-    log.debug("TRACE: from " + this.self + " to " + sender + " " + InputPoolSubscriptionPerformed.toString)
-    sender ! InputPoolSubscriptionPerformed
+    sender !! InputPoolSubscriptionPerformed
   }
 
   private def sendChangeTo(state: SubscribeIncomingMessages) {
     val messages = getMessageArray(state.fromSubject, state.messageType)
     val msg = InputPoolMessagesChanged(state.fromSubject, state.messageType, messages)
-    log.debug("TRACE: from " + this.self + " to " + state + " " + msg.toString)
     state ! msg
   }
 
@@ -283,7 +272,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
    * Creates and returns the list, if it does not exists
    */
   private def getWaitingStatesSet(key: (SubjectID, MessageType)) =
-    waitingStatesMap.getOrElseUpdate(key, new WaitingStateSet(logger))
+    waitingStatesMap.getOrElseUpdate(key, new WaitingStateSet(log))
 
   private def getMessageArray(subjectID: SubjectID, messageType: MessageType): Array[SubjectToSubjectMessage] =
     messageQueueMap.getOrElse((subjectID, messageType), Queue[SubjectToSubjectMessage]()).toArray
@@ -337,7 +326,7 @@ class InputPoolActor(data: SubjectData) extends InstrumentedActor with ActorLogg
  * The same state cannot register twice (adding will remove old registration)
  * /Currently only one state will be hold in this list, but will be usefull for modal split
  */
-private class WaitingStateSet(logger: LoggingAdapter) {
+private class WaitingStateSet(log: LoggingAdapter) {
   private val states = MutableSet[SubscribeIncomingMessages]()
 
   def add(state: SubscribeIncomingMessages) {
@@ -349,7 +338,6 @@ private class WaitingStateSet(logger: LoggingAdapter) {
 
   def sendToAll(message: Any) {
     for (state <- states) {
-      logger.debug("TRACE: from WaitingStateSet " + " to " + state + " " + message.toString)
       state ! message
     }
   }

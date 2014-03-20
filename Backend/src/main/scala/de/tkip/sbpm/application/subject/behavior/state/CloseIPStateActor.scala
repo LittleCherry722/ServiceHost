@@ -22,8 +22,6 @@ import akka.event.Logging
 protected case class CloseIPStateActor(data: StateData)
   extends BehaviorStateActor(data) {
   val msg = CloseInputPool((stateOptions.subjectId.get, stateOptions.messageType.get))
-  val traceLogger = Logging(context.system, this)
-  traceLogger.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
   inputPoolActor ! msg
 
   override protected def stateReceive = {

@@ -62,7 +62,7 @@ class GResponseActor extends InstrumentedActor with HttpService {
         formFields("id") { (userId) =>
           ctx =>
             log.debug(s"received authentication init post from user: $userId")
-            (driveActor ? RetrieveCredentials(userId))
+            (driveActor ?? RetrieveCredentials(userId))
               .onComplete {
                 case Success(files) => ctx.complete(StatusCodes.NoContent)
                 case Failure(NoCredentialsException(auth_url)) =>
@@ -76,7 +76,7 @@ class GResponseActor extends InstrumentedActor with HttpService {
             (id, s, l, y, m, d) =>
               ctx =>
                 log.debug(s"received get request for google calendar event from user: $id")
-                (calendarActor ? CreateEvent(id, s, l, y.toInt, m.toInt, d.toInt))
+                (calendarActor ?? CreateEvent(id, s, l, y.toInt, m.toInt, d.toInt))
                   .mapTo[Event]
                   .onComplete {
                     case Success(calEvent) => ctx.complete(calEvent.toString)
@@ -92,7 +92,7 @@ class GResponseActor extends InstrumentedActor with HttpService {
                 val out = new java.io.FileOutputStream(path)
                 out.write(fileArray)
                 out.close()
-                (driveActor ? UploadFile(userId, fname, "", mimeType, path))
+                (driveActor ?? UploadFile(userId, fname, "", mimeType, path))
                   .onComplete {
                     case Success(gFileJson) => ctx.complete(gFileJson.toString)
                     case Failure(e)         => ctx.complete(e)
@@ -106,7 +106,7 @@ class GResponseActor extends InstrumentedActor with HttpService {
           parameters("code", "state") { (code, userId) =>
             respondWithMediaType(`text/html`) { ctx =>
               log.debug(s"received from google response: name: $userId, code: $code")
-              (driveActor ? InitCredentials(userId, code))
+              (driveActor ?? InitCredentials(userId, code))
                 .onComplete {
                   case Success(_) =>
                     ctx.complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body>OK</body></html>")
@@ -119,7 +119,7 @@ class GResponseActor extends InstrumentedActor with HttpService {
             parameters("id") { id =>
               ctx =>
                 log.debug(s"received get request for google drive files from user: $id")
-                (driveActor ? FindFiles(id, "", GDriveControl.default_fields))
+                (driveActor ?? FindFiles(id, "", GDriveControl.default_fields))
                   .mapTo[String]
                   .onComplete {
                     case Success(files) => ctx.complete(files)
@@ -143,16 +143,10 @@ class DirectHttpRequestHandler extends InstrumentedActor {
       val client = sender
       val handler = context.actorOf(Props(new FileUploadHandler(client, s)), "FileUploadHandler____" + UUID.randomUUID().toString())
       chunkHandlers += (client -> handler)
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + s.toString)
       handler.tell(s, client)
     case c: MessageChunk =>
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + c.toString)
       chunkHandlers(sender).tell(c, sender)
     case e: ChunkedMessageEnd =>
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + e.toString)
       chunkHandlers(sender).tell(e, sender)
       chunkHandlers -= sender
   }
@@ -165,9 +159,6 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends In
 
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
-
-  val traceLogger = Logging(context.system, this)
-  traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + CommandWrapper(SetRequestTimeout(Duration.Inf)))
 
   client ! CommandWrapper(SetRequestTimeout(Duration.Inf))
 
@@ -184,18 +175,14 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends In
     case e: ChunkedMessageEnd =>
       output.close()
 
-      (driveActor ? UploadFile("abc", "test.txt", "", "text/plain", "gDriveFileUpload.tmp"))
+      (driveActor ?? UploadFile("abc", "test.txt", "", "text/plain", "gDriveFileUpload.tmp"))
         .onComplete {
           case Success(gFileJson) =>
-            traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + HttpResponse(status = 200, entity = gFileJson.toString))
             client ! HttpResponse(status = 200, entity = gFileJson.toString)
             tmpFile.delete()
           case Failure(e) =>
-            traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + HttpResponse(status = 200, entity = e.toString))
             client ! HttpResponse(status = 200, entity = e.toString)
         }
-
-      traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + CommandWrapper(SetRequestTimeout(2.seconds)))
 
       client ! CommandWrapper(SetRequestTimeout(2.seconds))
       context.stop(self)

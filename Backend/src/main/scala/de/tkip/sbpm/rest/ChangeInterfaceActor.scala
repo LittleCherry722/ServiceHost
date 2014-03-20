@@ -43,16 +43,16 @@ class ChangeInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
         parameter("t") { (time) =>
             complete {
               //          log.debug(s"${getClass.getName} received polling request with timestemp: $time")
-              val future = 
+              val future =
                 for {
-                  history <- (processManagerActor ? GetHistorySince(time.toLong)).mapTo[Option[HistoryRelatedChange]]
-                  process <- (changeActor ? GetProcessChange(time.toLong)).mapTo[Option[ProcessRelatedChange]]
-                  action <- (changeActor ? GetActionChange(time.toLong)).mapTo[Option[ActionRelatedChange]]
-                  processInstance <- (changeActor ? GetProcessInstanceChange(time.toLong)).mapTo[Option[ProcessInstanceRelatedChange]]
-                  message <- (changeActor ? GetMessageChange(time.toLong, userId)).mapTo[Option[MessageRelatedChange]]
-                  result = ChangeRelatedData(process, processInstance, action, history, message)	  
+                  history <- (processManagerActor ?? GetHistorySince(time.toLong)).mapTo[Option[HistoryRelatedChange]]
+                  process <- (changeActor ?? GetProcessChange(time.toLong)).mapTo[Option[ProcessRelatedChange]]
+                  action <- (changeActor ?? GetActionChange(time.toLong)).mapTo[Option[ActionRelatedChange]]
+                  processInstance <- (changeActor ?? GetProcessInstanceChange(time.toLong)).mapTo[Option[ProcessInstanceRelatedChange]]
+                  message <- (changeActor ?? GetMessageChange(time.toLong, userId)).mapTo[Option[MessageRelatedChange]]
+                  result = ChangeRelatedData(process, processInstance, action, history, message)
                 } yield result
-                
+
                 future.map(result => result)
             }
             }

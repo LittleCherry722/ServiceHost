@@ -32,18 +32,15 @@ protected case class ActStateActor(data: StateData)
     case action: ExecuteAction => {
       val input = action.actionData
       val index = indexOfInput(input.text)
-      val traceLogger = Logging(context.system, this)
       if (index != -1) {
         changeState(exitTransitions(index).successorID, data, null)
-        traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
         blockingHandlerActor ! ActionExecuted(action)
       } else {
         val receiver = action.asInstanceOf[AnswerAbleMessage].sender
         val message = Failure(new IllegalArgumentException(
             "Invalid Argument: " + input.text + " is not a valid action."))
-        traceLogger.debug("TRACE: from " + this.self + " to " + receiver + " " + message.toString)
         receiver ! message
-          
+
       }
     }
   }

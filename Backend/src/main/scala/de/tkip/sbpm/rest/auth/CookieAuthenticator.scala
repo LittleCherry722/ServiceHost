@@ -52,6 +52,7 @@ case class AuthenticationRejection(supportedSchemes: Seq[String], realm: String,
  */
 class CookieAuthenticator(implicit val executionContext: ExecutionContext, implicit val actorContext: ActorContext)
   extends ContextAuthenticator[Session] {
+  import de.tkip.sbpm.instrumentation.TraceLogger.ActorRefClassWrapper
   private implicit val timeout = Timeout(10 seconds)
   private lazy val sessionActor = ActorLocator.sessionActor
 
@@ -63,9 +64,9 @@ class CookieAuthenticator(implicit val executionContext: ExecutionContext, impli
     val cookie = ctx.request.cookies.find(_.name == defaultRealm)
     if (cookie.isDefined) {
       try {
-        // check if a session exists for the cookie value 
+        // check if a session exists for the cookie value
         val sessionFuture =
-          sessionActor ? GetSession(UUID.fromString(cookie.get.content))
+          sessionActor ?? GetSession(UUID.fromString(cookie.get.content))
         sessionFuture.flatMap {
           // no session -> new auth required
           case None => checkAuthorizationHeader(ctx)
@@ -119,7 +120,7 @@ class CookieAuthenticator(implicit val executionContext: ExecutionContext, impli
       Future(None)
     else
       // redirect auth request to actor
-      (ActorLocator.actor(authActor.get) ? credentials).mapTo[Option[User]].map { u =>
+      (ActorLocator.actor(authActor.get) ?? credentials).mapTo[Option[User]].map { u =>
         if (u.isDefined) u.get.id
         else None
       }
@@ -132,7 +133,7 @@ class CookieAuthenticator(implicit val executionContext: ExecutionContext, impli
    */
   def saveSession(id: Option[UUID], userId: Option[Int]) = {
     // send request to session actor
-    sessionActor ? {
+    sessionActor ?? {
       if (id.isDefined)
         UpdateSession(id.get, userId)
       else
@@ -140,4 +141,3 @@ class CookieAuthenticator(implicit val executionContext: ExecutionContext, impli
     }
   }.mapTo[Session].map(s => Right { s })
 }
-

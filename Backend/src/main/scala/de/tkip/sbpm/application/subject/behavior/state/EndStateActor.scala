@@ -20,18 +20,16 @@ import de.tkip.sbpm.application.subject.misc.SubjectTerminated
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
 
-protected case class EndStateActor(data: StateData)
-  extends BehaviorStateActor(data) {
+protected case class EndStateActor(data: StateData) extends BehaviorStateActor(data) {
 
   // Inform the processinstance that this subject has terminated
-  logger.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + MacroTerminated(macroID).toString)
   internalBehaviorActor ! MacroTerminated(macroID)
 
   // nothing to receive for this state
   protected def stateReceive = FSM.NullFunction
 
   override def postStop() {
-    logger.debug("End@" + userID + ", " + subjectID + "stops...")
+    log.debug("End@" + userID + ", " + subjectID + "stops...")
   }
 
   override protected def getAvailableAction: Array[ActionData] =

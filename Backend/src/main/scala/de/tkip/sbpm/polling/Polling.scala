@@ -17,9 +17,9 @@ object Polling {
    *   val callback = (r: Future[Any]) => {
    *     val result = Await.result(r, 10 seconds).asInstanceOf[ReplyForTrafficJam]
    *     println(result.result + " test test")
-   *   }  
+   *   }
    *   val cancellable = Polling.startPolling("/trafficJams",5, callback)
-   *   
+   *
    *   stop polling like:
    *   cancellable.cancel
    */
@@ -31,7 +31,7 @@ object Polling {
       case _              => "somethingelse"
     }
     val cancellable = system.scheduler.schedule(0 seconds, timeInterval seconds) {
-      val future = selection ? msg     
+      val future = selection ? msg
       callback(future)
     }
     return cancellable

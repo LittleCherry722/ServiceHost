@@ -24,7 +24,7 @@ class LogPersistenceActor extends InstrumentedActor {
   def wrappedReceive = {
     case Get(n) => db withSession {
       val log_list: List[Log] = Query(Logs).sortBy(_.timestamp.desc).take(n).list
-      sender ! log_list
+      sender !! log_list
     }
     case Insert(log) => db withSession {
       Logs.insert(log)

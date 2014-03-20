@@ -21,7 +21,7 @@ protected case class ModalJoinStateActor(data: StateData)
 
     case TransitionJoined => {
       if (remaining == 0) {
-        logger.error("ModalJoinStateActor got more joins than possible!")
+        log.error("ModalJoinStateActor got more joins than possible!")
       } else {
         remaining -= 1
       }
@@ -29,7 +29,7 @@ protected case class ModalJoinStateActor(data: StateData)
     }
 
     case action: ExecuteAction => {
-      logger.debug(s"Got $action, but cannot execute")
+      log.debug(s"Got $action, but cannot execute")
     }
   }
 

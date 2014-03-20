@@ -47,11 +47,7 @@ class UserPassAuthActor extends InstrumentedActor with DefaultLogging {
     // valid basic auth header given -> check credentials
     case UserPass(user, pass) => checkCredentials(user, pass, sender)
     // invalid header -> fail
-    case _ =>
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + None)
-
-      sender ! None
+    case _ => sender !! None
   }
 
   /**
@@ -59,7 +55,7 @@ class UserPassAuthActor extends InstrumentedActor with DefaultLogging {
    * to the database and sends user back to sender.
    */
   private def checkCredentials(user: String, pass: String, receiver: ActorRef) = {
-    val future = (persistenceActor ? Users.Read.Identity("sbpm", user)).map {
+    val future = (persistenceActor ?? Users.Read.Identity("sbpm", user)).map {
       // return none if user not found, no password in identity or failure
       case None                              => None
       case Some(UserIdentity(_, _, _, None)) => None

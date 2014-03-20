@@ -57,8 +57,6 @@ class SessionActor extends InstrumentedActor {
   private def newSessionId = UUID.randomUUID
   import context.dispatcher
 
-  val traceLogger = Logging(context.system, this)
-
   def wrappedReceive = {
     case CreateSession(userId) => {
       updateSession(newSessionId, userId)
@@ -74,8 +72,7 @@ class SessionActor extends InstrumentedActor {
         case None => None
       })
 
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
-      sender ! msg
+      sender !! msg
       cleanup()
     }
 
@@ -86,13 +83,10 @@ class SessionActor extends InstrumentedActor {
       val session = sessions.get(sessionId)
       if (session.isDefined) {
         sessions -= sessionId
-        traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + true)
 
-        sender ! true
+        sender !! true
       } else {
-        traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + false)
-
-        sender ! false
+        sender !! false
       }
       cleanup()
     }
@@ -114,7 +108,7 @@ class SessionActor extends InstrumentedActor {
   private def updateSession(sessionId: UUID, userId: Option[Int]) = {
     val session = Session(sessionId, userId = userId)
     sessions += (sessionId -> session)
-    sender ! session
+    sender !! session
     cleanup()
   }
 }

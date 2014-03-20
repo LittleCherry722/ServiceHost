@@ -55,35 +55,35 @@ class RepositoryPersistenceActor extends InstrumentedActor {
 
   def wrappedReceive = {
     case SaveInterface(gHeader) => {
-      logger.debug("[SAVE INTERFACE] save message received")
-      val roles = Await.result((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
-      logger.debug("[SAVE INTERFACE] role mapping received")
+      log.debug("[SAVE INTERFACE] save message received")
+      val roles = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
+      log.debug("[SAVE INTERFACE] role mapping received")
       implicit val roleMap = roles.map(r => (r.name, r)).toMap
       val jsObject = gHeader.toJson(createGraphHeaderFormat(roleMap)).asJsObject()
 
       val port = SystemProperties.akkaRemotePort(context.system.settings.config)
       val interface = jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
-      logger.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
+      log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
       val result = Http.postData(repoLocation + "interfaces", interface)
         .header("Content-Type", "application/json")
         .header("Charset", "UTF-8")
         .option(HttpOptions.readTimeout(10000))
         .asString
-      logger.debug("[SAVE INTERFACE] repository says: " + result)
-      sender ! Some(result.toInt)
-      logger.debug("[SAVE INTERFACE] sent repository answer to sender.a")
+      log.debug("[SAVE INTERFACE] repository says: " + result)
+      sender !! Some(result.toInt)
+      log.debug("[SAVE INTERFACE] sent repository answer to sender.a")
     }
     case DeleteInterface(interfaceId) => {
-      logger.debug("[DELETE INTERFACE] delete message received")
+      log.debug("[DELETE INTERFACE] delete message received")
       val result = Http(repoLocation + "interfaces/" + interfaceId)
         .method("DELETE")
         .header("Content-Type", "application/json")
         .header("Charset", "UTF-8")
         .option(HttpOptions.readTimeout(10000))
         .responseCode
-      logger.debug("[SAVE INTERFACE] repository says: " + result)
+      log.debug("[SAVE INTERFACE] repository says: " + result)
     }
     case _ =>
-      logger.debug("[INTERFACE PERSISTENCE ACTOR] invalid message received")
+      log.debug("[INTERFACE PERSISTENCE ACTOR] invalid message received")
   }
 }

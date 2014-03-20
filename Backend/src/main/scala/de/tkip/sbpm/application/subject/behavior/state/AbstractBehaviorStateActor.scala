@@ -88,10 +88,6 @@ case object DisableState
  * models the behavior through linking certain ConcreteBehaviorStates and executing them
  */
 protected abstract class BehaviorStateActor(data: StateData) extends InstrumentedActor with DefaultLogging {
-
-  // TODO for compatibility
-  protected val logger = log //Logging(context.system, this)
-
   protected val blockingHandlerActor = data.subjectData.blockingHandlerActor
   protected val model = data.stateModel
   protected val stateOptions = model.options
@@ -122,8 +118,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
     if (!delayUnblockAtStart) {
       internalStatus.subjectStartedSent = true
       // TODO so richtig?
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
     }
 
@@ -160,8 +154,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
       val message = Failure(new IllegalArgumentException(
         "Invalid Argument: The state of the action is disabled."))
       val receiver = action.asInstanceOf[AnswerAbleMessage].sender
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + receiver + " " + message.toString)
       receiver ! message
     }
 
@@ -175,15 +167,11 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
       val message = Failure(new IllegalArgumentException(
         "Invalid Argument: The action does not match to the current state."))
       val receiver = action.asInstanceOf[AnswerAbleMessage].sender
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + receiver + " " + message.toString)
       receiver ! message
     }
 
     case ga: GetAvailableAction => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + createAvailableAction.toString)
-      sender ! createAvailableAction
+      sender !! createAvailableAction
     }
 
     case TimeoutExpired => {
@@ -194,8 +182,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
       action.actionData.transitionType == timeoutLabel
     }) => {
       executeTimeout()
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + processInstanceActor + " " + ActionExecuted(action).toString)
       processInstanceActor ! ActionExecuted(action)
     }
   }
@@ -214,9 +200,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
             case SendStateType if (!action.actionData.messageContent.isDefined) => {
               val failure = Failure(new IllegalArgumentException(
                 "Invalid Argument: messageContent not defined, a sendstate needs a MessageContent"))
-              val traceLogger = Logging(context.system, this)
-              traceLogger.debug("TRACE: from " + this.self + " to " + message.sender + " " + failure.toString)
-              message.sender ! failure
+              message.sender !! failure
 
             }
           }
@@ -224,22 +208,18 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
         }
         case _ => {
           val failure = Failure(new Exception("Internal Server Error in " + stateType.toString()))
-          val traceLogger = Logging(context.system, this)
-          traceLogger.debug("TRACE: from " + this.self + " to " + message.sender + " " + failure.toString)
-          message.sender ! failure
+          message.sender !! failure
         }
       }
-      logger.error("BehaviorStateActor does not support: " + message)
+      log.error("BehaviorStateActor does not support: " + message)
     }
 
     case s => {
-      logger.error("BehaviorStateActor does not support: " + s)
+      log.error("BehaviorStateActor does not support: " + s)
     }
   }
 
   protected def suicide() {
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + self + " " + PoisonPill.toString)
     self ! PoisonPill
   }
 
@@ -250,7 +230,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
    */
   protected def executeTimeout() {
     if (timeoutTransition.isDefined) {
-      logger.debug("Executing Timeout")
+      log.debug("Executing Timeout")
       changeState(timeoutTransition.get.successorID, data, null)
     }
   }
@@ -270,14 +250,9 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
    */
   protected def changeState(successorID: StateID, prevStateData: StateData, historyMessage: HistoryMessage) {
     val delete =  ActionDelete(actionID, new Date())
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + ActorLocator.changeActor + " " + delete.toString)
     ActorLocator.changeActor ! delete
-    traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
-    blockingHandlerActor ! BlockUser(userID)
-    val changeState = ChangeState(id, successorID, internalStatus, prevStateData, historyMessage)
-    traceLogger.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + changeState.toString)
-    internalBehaviorActor ! changeState
+    blockingHandlerActor     ! BlockUser(userID)
+    internalBehaviorActor    ! ChangeState(id, successorID, internalStatus, prevStateData, historyMessage)
   }
 
   private lazy val actionID = ActionIDProvider.nextActionID()
@@ -289,8 +264,6 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
    */
   protected def actionChanged(changeMode: ChangeMode = Updated) {
     val message = ActionChange(createAvailableAction, changeMode, new Date())
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + ActorLocator.changeActor + " " + message.toString)
     ActorLocator.changeActor ! message
   }
 

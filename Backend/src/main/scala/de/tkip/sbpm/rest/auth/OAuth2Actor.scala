@@ -23,16 +23,12 @@ import de.tkip.sbpm.logging.DefaultLogging
  * Validates token and returns corresponding user id.
  */
 class OAuth2Actor extends InstrumentedActor with DefaultLogging {
-  val traceLogger = Logging(context.system, this)
 
   def wrappedReceive = {
     // if credentials are oauth token -> verify it and check if
     // a user can be found in the database for it
     case OAuth2BearerToken(token) =>
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + None)
-      sender ! None // TODO: Verify token here
-    case _ =>
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + None)
-      sender ! None
+      sender !! None // TODO: Verify token here
+    case _ => sender !! None
   }
 }

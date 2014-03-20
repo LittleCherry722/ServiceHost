@@ -43,12 +43,13 @@ class SubjectContainer(
   processID: ProcessID,
   processInstanceID: ProcessInstanceID,
   processInstanceManager: ActorRef,
-  logger: LoggingAdapter,
+  log: LoggingAdapter,
   blockingHandlerActor: ActorRef,
   mapping: Option[MappingInfo],
   increaseSubjectCounter: () => Unit,
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) {
   import scala.collection.mutable.{ Map => MutableMap }
+  import de.tkip.sbpm.instrumentation.TraceLogger.ActorRefClassWrapper
 
   implicit val timeout = Timeout(30 seconds)
 
@@ -63,18 +64,17 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
-    logger.debug("SubjectContainer.createSubject: " + userID);
-    logger.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
+    log.debug("SubjectContainer.createSubject: " + userID);
+    log.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
     if (single) {
       if (subjects.size > 0) {
-        logger.error("Single subjects cannot be created twice")
+        log.error("Single subjects cannot be created twice")
         return
       }
       // register this subject at the context resolver so other subject dont
       // try to send to wrong instances
       val msg = RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID)
-      logger.debug("TRACE: from SubjectContainer "+ " to " + ActorLocator.contextResolverActor + " " + msg.toString)
-      ActorLocator.contextResolverActor ! msg
+      ActorLocator.contextResolverActor !! msg
     }
 
     val subjectData =
@@ -92,17 +92,16 @@ class SubjectContainer(
       val subjectRef =
         context.actorOf(Props(new SubjectActor(subjectData)), "SubjectActor____" + UUID.randomUUID().toString())
       // and store it in the map
-      subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID, logger)
+      subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID, log)
 
       val msg = SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
       // inform the subject provider about his new subject
-      logger.debug("TRACE: from SubjectContainer" + " to " + context.parent + " " + msg.toString)
-      context.parent ! msg
-        
+      context.parent !! msg
+
 
       reStartSubject(userID)
     } else {
-      logger.debug("CREATE: {}", subjectData.subject)
+      log.debug("CREATE: {}", subjectData.subject)
 
       // process schon vorhanden?
       // TODO mit futures
@@ -111,22 +110,21 @@ class SubjectContainer(
           GetProcessInstanceProxy(mapping.get.processId, mapping.get.address))
           .mapTo[ActorRef]
 
-      logger.debug("CREATE: processInstanceRef = {}", processInstanceRef)
+      log.debug("CREATE: processInstanceRef = {}", processInstanceRef)
 
       // TODO we need this unblock!
-      logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  UnBlockUser(userID).toString)
-      blockingHandlerActor ! UnBlockUser(userID)
+      blockingHandlerActor !! UnBlockUser(userID)
 
-      subjects += userID -> SubjectInfo(processInstanceRef, userID, logger)
+      subjects += userID -> SubjectInfo(processInstanceRef, userID, log)
     }
 
-    logger.debug("Processinstance [" + processInstanceID + "] created Subject " +
+    log.debug("Processinstance [" + processInstanceID + "] created Subject " +
       subject.id + " for user " + userID)
   }
 
   def handleSubjectTerminated(message: SubjectTerminated) {
 
-    logger.debug("Processinstance [" + processInstanceID + "] Subject " + subject.id + "[" +
+    log.debug("Processinstance [" + processInstanceID + "] Subject " + subject.id + "[" +
       message.userID + "] terminated")
 
     // decrease the subject counter
@@ -170,16 +168,15 @@ class SubjectContainer(
         reStartSubject(userID)
       }
 
-      logger.debug("SEND: {}", message)
+      log.debug("SEND: {}", message)
 
       if (external) {
         // exchange the target subject id
         message.target.subjectID = mapping.get.subjectId
-        logger.debug("SEND (target exchanged): {}", message)
+        log.debug("SEND (target exchanged): {}", message)
 
         // TODO we need this unblock!
-        logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  UnBlockUser(userID).toString)
-        blockingHandlerActor ! UnBlockUser(userID)
+        blockingHandlerActor !! UnBlockUser(userID)
       }
 
       //        blockingHandlerActor ! BlockUser(userID)
@@ -193,16 +190,14 @@ class SubjectContainer(
 
   private def reStartSubject(userID: UserID) {
     if (subjects.contains(userID)) {
-      logger.debug("TRACE: from SubjectContainer"+ " to " + blockingHandlerActor + " " +  BlockUser(userID).toString)
-      blockingHandlerActor ! BlockUser(userID)
+      blockingHandlerActor !! BlockUser(userID)
       increaseSubjectCounter()
       subjects(userID).running = true
       // start the execution
       val msg = StartSubjectExecution()
-      logger.debug("TRACE: from SubjectContainer"+ " to " + subjects(userID) + " " +  msg.toString)
       subjects(userID) ! msg
     } else {
-      logger.error("User %i unknown for subject %s, (re)start failed!"
+      log.error("User %i unknown for subject %s, (re)start failed!"
         .format(userID, subject.id))
     }
   }
@@ -210,18 +205,18 @@ class SubjectContainer(
   private case class SubjectInfo(
     ref: Future[SubjectRef],
     userID: UserID,
-    logger: LoggingAdapter,
+    log: LoggingAdapter,
     var running: Boolean = true) {
 
     def tell(message: Any, from: ActorRef) {
-      logger.debug("FORWARD: {} TO {} FROM {}", message, ref, from)
-      logger.debug("subject creation completed: {}", ref.isCompleted)
+      log.debug("FORWARD: {} TO {} FROM {}", message, ref, from)
+      log.debug("subject creation completed: {}", ref.isCompleted)
 
       ref.onComplete {
         case r =>
-          logger.debug("ref.onComplete: r = {}", r)
-          logger.debug("ref.onComplete: ref = {}", ref)
-          logger.debug("subject creation completed: {}", ref.isCompleted)
+          log.debug("ref.onComplete: r = {}", r)
+          log.debug("ref.onComplete: ref = {}", ref)
+          log.debug("subject creation completed: {}", ref.isCompleted)
           if (r.isSuccess) r.get.tell(message, from)
           // TODO exception or logg?
           else throw new Exception("Subject Creation failed for " +

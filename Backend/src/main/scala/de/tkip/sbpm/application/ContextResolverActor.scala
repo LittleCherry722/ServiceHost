@@ -48,9 +48,7 @@ case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer:
 /**
  * resolves the context of the subjects
  */
-class ContextResolverActor extends InstrumentedActor with DefaultLogging {
-
-  val logger = Logging(context.system, this)
+class ContextResolverActor extends InstrumentedActor {
 
   val subjectInstanceMap =
     mutable.Map.empty[(ProcessID, ProcessInstanceID, SubjectID), UserID]
@@ -66,10 +64,9 @@ class ContextResolverActor extends InstrumentedActor with DefaultLogging {
 
     case ruid: RequestUserID =>
       val answer = ruid.generateAnswer(evaluateUserID(ruid.subjectInformation))
-      logger.debug("TRACE: from " + this.self + " to " + sender + " " + answer)
-      sender ! answer
+      sender !! answer
 
-    case ss => logger.error("ContextResolver not yet implemented Message: {}", ss)
+    case ss => log.error("ContextResolver not yet implemented Message: {}", ss)
   }
 
   private def evaluateUserID(subjectInformation: SubjectInformation): Array[UserID] = {
@@ -83,7 +80,7 @@ class ContextResolverActor extends InstrumentedActor with DefaultLogging {
       }
       case SubjectInformation(processId, processInstanceId, subjectId) => {
         log.debug("searching users for {}", subjectInformation)
-        val future = ActorLocator.persistenceActor ? Users.Read.BySubject(subjectId, processInstanceId, processId)
+        val future = ActorLocator.persistenceActor ?? Users.Read.BySubject(subjectId, processInstanceId, processId)
         val users = Await.result(future, timeout.duration).asInstanceOf[Seq[User]]
         log.info("found {}", users)
         users.map(_.id.get).toArray

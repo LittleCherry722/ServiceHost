@@ -60,7 +60,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
       //READ
       path(IntNumber) { processInstanceID =>
         complete {
-          val future = (subjectProviderManager ? ReadProcessInstance(userId, processInstanceID)).mapTo[ReadProcessInstanceAnswer]
+          val future = (subjectProviderManager ?? ReadProcessInstance(userId, processInstanceID)).mapTo[ReadProcessInstanceAnswer]
           future.map(result => result.answer)
         }
       } ~
@@ -68,7 +68,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
         path("action") {
           complete {
             val availableActionsFuture =
-              (subjectProviderManager ? GetAvailableActions(userId))
+              (subjectProviderManager ?? GetAvailableActions(userId))
                 .mapTo[AvailableActionsAnswer]
             availableActionsFuture.map(result => result.availableActions)
           }
@@ -76,14 +76,14 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
         path("history") {
           //you cannot run statements inside the path-block like above, instead, put them into a block inside the complete statement
           complete {
-            val getHistoryFuture = (ActorLocator.processManagerActor ? GetNewHistory()).mapTo[NewHistoryAnswer]
+            val getHistoryFuture = (ActorLocator.processManagerActor ?? GetNewHistory()).mapTo[NewHistoryAnswer]
             getHistoryFuture.map(result => result.history.entries.filter(x => x.userId == Some(userId) || x.userId == None))
           }
         } ~
         //LIST
         path("") {
           complete {
-            val future = (subjectProviderManager ? GetAllProcessInstances(userId)).mapTo[AllProcessInstancesAnswer]
+            val future = (subjectProviderManager ?? GetAllProcessInstances(userId)).mapTo[AllProcessInstancesAnswer]
             future.map(result => result.processInstanceInfo)
           }
         }
@@ -95,7 +95,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           //stop and delete given process instance
           // error gets caught automatically by the exception handler
           complete {
-            val future = (subjectProviderManager ? KillProcessInstance(processInstanceID))
+            val future = (subjectProviderManager ?? KillProcessInstance(processInstanceID))
             future.map(_ => StatusCodes.NoContent)
           }
         }
@@ -107,7 +107,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
             entity(as[ExecuteAction]) { json =>
               //execute next step
               complete {
-                val future = (subjectProviderManager ? mixExecuteActionWithRouting(json)).mapTo[ExecuteActionAnswer]
+                val future = (subjectProviderManager ?? mixExecuteActionWithRouting(json)).mapTo[ExecuteActionAnswer]
                 future.map(result => result.answer)
               }
             }
@@ -121,7 +121,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
             entity(as[ProcessIdHeader]) { json =>
               complete {
                 val name = json.name.getOrElse("Unnamed")// TODO not as an Option
-                val future = (subjectProviderManager ? CreateProcessInstance(userId, json.processId, name, None, Map[SubjectID, MappingInfo]())).mapTo[ProcessInstanceCreated]
+                val future = (subjectProviderManager ?? CreateProcessInstance(userId, json.processId, name, None, Map[SubjectID, MappingInfo]())).mapTo[ProcessInstanceCreated]
                 future.map(result => result.answer)
               }
             }

@@ -11,21 +11,19 @@ protected class ActivateStateActor(data: StateData)
 
   override def preStart() {
     // Block the user while prestart!
-    logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
     blockingHandlerActor ! BlockUser(userID)
     super.preStart()
     // activate the state
     activateState()
     // and change to the next one
     changeState(exitTransitions.head.successorID, data, null)
-    logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
     blockingHandlerActor ! UnBlockUser(userID)
   }
 
   protected def stateReceive = {
 
     case action: ExecuteAction => {
-      logger.debug(s"Got $action, but cannot execute")
+      log.debug(s"Got $action, but cannot execute")
     }
   }
 
@@ -39,7 +37,6 @@ protected class ActivateStateActor(data: StateData)
   private def activateState() {
     log.debug(s"Activate state ${data.stateModel.options.stateId}")
     if (stateOptions.stateId.isDefined) {
-      logger.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + ActivateState(stateOptions.stateId.get).toString)
       internalBehaviorActor ! ActivateState(stateOptions.stateId.get)
     } else {
       log.error("State to activate is not defined")

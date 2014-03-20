@@ -42,6 +42,7 @@ case object MissingUserRejection extends Rejection
  * Provides Spray directive for session handling.
  */
 trait SessionDirectives {
+  import de.tkip.sbpm.instrumentation.TraceLogger.ActorRefClassWrapper
   import BasicDirectives._
   import CookieDirectives._
   import RouteDirectives._
@@ -64,7 +65,7 @@ trait SessionDirectives {
    * Retrieve session, referenced in the cookie from SessionActor.
    */
   private def getSession(sessionId: UUID)(implicit refFactory: ActorRefFactory): Option[Session] = {
-    val sessionFuture = ActorLocator.sessionActor ? GetSession(sessionId)
+    val sessionFuture = ActorLocator.sessionActor ?? GetSession(sessionId)
     Await.result(sessionFuture.mapTo[Option[Session]], timeout.duration)
   }
 
@@ -126,9 +127,9 @@ trait SessionDirectives {
   def saveSession(userId: Option[Int])(implicit refFactory: ActorRefFactory): Directive[Session :: HNil] = {
     optionalSession(refFactory) map {
       case None =>
-        (ActorLocator.sessionActor ? CreateSession(userId)).mapTo[Session]
+        (ActorLocator.sessionActor ?? CreateSession(userId)).mapTo[Session]
       case Some(s) =>
-        (ActorLocator.sessionActor ? UpdateSession(s.id, userId)).mapTo[Session]
+        (ActorLocator.sessionActor ?? UpdateSession(s.id, userId)).mapTo[Session]
     } map {
       Await.result(_, timeout.duration)
     }
@@ -164,7 +165,7 @@ trait SessionDirectives {
    */
   def user(implicit refFactory: ActorRefFactory): Directive[User :: HNil] = {
     userId flatMap { id =>
-      val userFuture = ActorLocator.persistenceActor ? Users.Read.ById(id)
+      val userFuture = ActorLocator.persistenceActor ?? Users.Read.ById(id)
       val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
       if (user.isDefined)
         provide(user.get)
@@ -193,7 +194,7 @@ trait SessionDirectives {
    * Rejects if authentication fails.
    */
   def login(userPass: UserPass)(implicit refFactory: ActorRefFactory): Directive[User :: HNil] = {
-    val authFuture = ActorLocator.userPassAuthActor ? userPass
+    val authFuture = ActorLocator.userPassAuthActor ?? userPass
     val user = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
     if (user.isDefined)
       saveSession(user.get.id) flatMap { s =>

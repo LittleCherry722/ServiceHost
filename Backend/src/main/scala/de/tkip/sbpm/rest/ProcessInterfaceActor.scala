@@ -74,7 +74,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
         dynamic {
           // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück'
           complete(for {
-            processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
+            processes <- (persistanceActor ?? Processes.Read()).mapTo[Seq[Process]]
             filtered = if (showProcesses.isEmpty) processes
             else processes filter (showProcesses contains _.id.getOrElse(-1))
           }  yield filtered)
@@ -136,16 +136,16 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
   })
 
   private def sendDeleteInterfaceForProcessId(id: Int) = {
-    logger.debug("[DELETE INTERFACE] starting to get process information")
-    val processFuture = (persistenceActor ? Processes.Read.ById(id)).mapTo[Option[Process]]
+    log.debug("[DELETE INTERFACE] starting to get process information")
+    val processFuture = (persistenceActor ?? Processes.Read.ById(id)).mapTo[Option[Process]]
     processFuture.onSuccess {
       case processResult =>
-        logger.debug("[DELETE INTERFACE] Got process Information")
+        log.debug("[DELETE INTERFACE] Got process Information")
         if (processResult.isDefined) {
-          logger.debug("[DELETE INTERFACE] Process available")
+          log.debug("[DELETE INTERFACE] Process available")
           val interfaceId = processResult.get.interfaceId
           if (interfaceId.isDefined) {
-            logger.debug("[DELETE INTERFACE] Sending delete interface request")
+            log.debug("[DELETE INTERFACE] Sending delete interface request")
             repositoryPersistenceActor ! DeleteInterface(interfaceId.get)
           }
         }
@@ -157,7 +157,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    *
    */
   private def read(id: Int): Route = {
-    val processFuture = (persistenceActor ? Processes.Read.ById(id)).mapTo[Option[Process]]
+    val processFuture = (persistenceActor ?? Processes.Read.ById(id)).mapTo[Option[Process]]
     onSuccess(processFuture) {
       processResult =>
         if (processResult.isDefined) {
@@ -172,9 +172,9 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * Reads the process and its connected graph.
    */
   private def readProcess(process: Process): Route = {
-    val roleFuture = (persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]
+    val roleFuture = (persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]
     val graphFuture = if (process.activeGraphId.isDefined) {
-      (persistenceActor ? Graphs.Read.ById(process.activeGraphId.get)).mapTo[Option[Graph]]
+      (persistenceActor ?? Graphs.Read.ById(process.activeGraphId.get)).mapTo[Option[Graph]]
     } else {
       Future.successful(None)
     }
@@ -204,7 +204,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    *
    */
   private def save(id: Option[Int], json: GraphHeader): Route = {
-    val processFuture = (persistanceActor ? Processes.Read.ByName(json.name)).mapTo[Option[Process]]
+    val processFuture = (persistanceActor ?? Processes.Read.ByName(json.name)).mapTo[Option[Process]]
     onSuccess(processFuture) {
       processResult =>
         validate(!processResult.isDefined || processResult.get.id == id, "The process names have to be unique.") {
@@ -224,7 +224,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
     val process = Process(id, json.interfaceId, json.publishInterface, json.name, json.isCase)
-    val future = (persistanceActor ? Processes.Save(process)).mapTo[Option[Int]]
+    val future = (persistanceActor ?? Processes.Save(process)).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
   }
@@ -234,16 +234,16 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    */
   private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
     val interfaceIdFuture = if (json.publishInterface) {
-      logger.debug("[SAVE INTERFACE] Sending save interface request")
-      (repositoryPersistenceActor ? SaveInterface(json)).mapTo[Option[Int]]
+      log.debug("[SAVE INTERFACE] Sending save interface request")
+      (repositoryPersistenceActor ?? SaveInterface(json)).mapTo[Option[Int]]
     } else {
       future { json.interfaceId }
     }
     val interfaceId = Await.result(interfaceIdFuture, 3 seconds)
-    logger.debug("[SAVE INTERFACE] Received interface ID from repoPersAct")
+    log.debug("[SAVE INTERFACE] Received interface ID from repoPersAct")
     val process = Process(id, interfaceId, json.publishInterface, json.name, json.isCase)
     val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
-    val futureResult = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
+    val futureResult = (persistanceActor ?? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
     val result = futureResult.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
     // Also save interface if publishInterface is true
     complete(result)
@@ -254,7 +254,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    */
   private def parseGraphHeader(op: GraphHeader => Route): Route = {
     dynamic {
-      onSuccess((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]) {
+      onSuccess((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]) {
         roles =>
           // implicite value for marshalling
           implicit val roleMap = roles.map(r => (r.name, r)).toMap

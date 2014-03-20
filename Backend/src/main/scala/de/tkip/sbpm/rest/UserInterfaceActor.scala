@@ -241,7 +241,7 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
 
   // completes with all providers and emails of an user and the user information
   def getUserWithMail(id: Int) = {
-    val userFuture = (persistenceActor ? Users.Read.ByIdWithIdentities(id)).mapTo[Option[(User, Seq[UserIdentity])]]
+    val userFuture = (persistenceActor ?? Users.Read.ByIdWithIdentities(id)).mapTo[Option[(User, Seq[UserIdentity])]]
     onSuccess(userFuture) {
       user =>
         if (user.isDefined) {
@@ -255,7 +255,7 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
   // completes with all providers and emails of all users and the user information
   def getUsersWithMail() = {
     complete {
-      val usersFuture = (persistenceActor ? Users.Read.AllWithIdentities).mapTo[Map[User, Seq[UserIdentity]]]
+      val usersFuture = (persistenceActor ?? Users.Read.AllWithIdentities).mapTo[Map[User, Seq[UserIdentity]]]
       usersFuture map {
         result =>
           (result.map { user =>
@@ -267,8 +267,8 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
 
   def setPw(id: Int, entity: SetPassword) = {
     //check if the user exists
-    val userFuture = (persistenceActor ? Users.Read.ById(id)).mapTo[Option[User]]
-    val userIdentityFuture = (persistenceActor ? Users.Read.Identity.ById("sbpm", id)).mapTo[Option[UserIdentity]]
+    val userFuture = (persistenceActor ?? Users.Read.ById(id)).mapTo[Option[User]]
+    val userIdentityFuture = (persistenceActor ?? Users.Read.Identity.ById("sbpm", id)).mapTo[Option[UserIdentity]]
 
     val futures = for {
       user <- userFuture;
@@ -279,12 +279,12 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
       case (user, userIdentity) =>
         if (user.isDefined && userIdentity.isDefined) {
           // check if the old password is correct
-          val authFuture = (ActorLocator.userPassAuthActor ? UserPass(userIdentity.get.eMail, entity.oldPassword)).mapTo[Option[User]]
+          val authFuture = (ActorLocator.userPassAuthActor ?? UserPass(userIdentity.get.eMail, entity.oldPassword)).mapTo[Option[User]]
           onSuccess(authFuture) {
             auth =>
               if (auth.isDefined) {
                 // set the new password
-                val future = persistenceActor ? Users.Save.Identity(id, "sbpm", userIdentity.get.eMail, Some(entity.newPassword.bcrypt))
+                val future = persistenceActor ?? Users.Save.Identity(id, "sbpm", userIdentity.get.eMail, Some(entity.newPassword.bcrypt))
                 complete(future.map(_ => StatusCodes.OK))
               } else
                 complete(StatusCodes.Unauthorized)

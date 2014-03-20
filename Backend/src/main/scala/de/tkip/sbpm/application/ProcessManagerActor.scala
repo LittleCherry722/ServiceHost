@@ -42,7 +42,6 @@ protected case class RegisterSubjectProvider(userID: UserID,
 class ProcessManagerActor extends InstrumentedActor {
   private case class ProcessInstanceData(processID: ProcessID, processName: String, name: String, processInstanceActor: ProcessInstanceRef)
   implicit val ec = context.dispatcher
-  val logger = Logging(context.system, this)
   // the process instances aka the processes in the execution
   private val processInstanceMap = collection.mutable.Map[ProcessInstanceID, ProcessInstanceData]()
   private val history = new NewHistory
@@ -65,13 +64,11 @@ class ProcessManagerActor extends InstrumentedActor {
         processInstanceMap.map(
           s => ProcessInstanceInfo(s._1, s._2.name, s._2.processID)).toArray.sortBy(_.id))
 
-      logger.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
-      sender ! msg
+      sender !! msg
     }
 
     case message: GetNewHistory => {
-      logger.debug("TRACE: from " + this.self + " to " + sender + " " + NewHistoryAnswer(message, history))
-      sender ! NewHistoryAnswer(message, history)
+      sender !! NewHistoryAnswer(message, history)
     }
 
     case cp: CreateProcessInstance => {
@@ -81,10 +78,9 @@ class ProcessManagerActor extends InstrumentedActor {
 
     case pc: ProcessInstanceCreated => {
       if (pc.sender != null) {
-        logger.debug("TRACE: from " + this.self + " to " + pc.sender +" "+ pc)
-        pc.sender ! pc
+        pc.sender !! pc
       } else {
-        logger.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
+        log.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
       }
       processInstanceMap +=
         pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
@@ -92,12 +88,11 @@ class ProcessManagerActor extends InstrumentedActor {
       val p = ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
       println("new processInstance has been added: " + p)
 
-      logger.debug("TRACE: from " + this.self + " to " + changeActor +" "+ ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date()))
       changeActor ! ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date())
     }
 
     case kill: KillAllProcessInstances => {
-      logger.debug("Killing all process instances")
+      log.debug("Killing all process instances")
       for ((id, _) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
         history.entries += createHistoryEntry(None, id, "killed")
@@ -108,29 +103,23 @@ class ProcessManagerActor extends InstrumentedActor {
       // so there is no extra message for it
       history.entries.clear()
 
-      logger.debug("TRACE: from " + this.self + " to " + kill.sender +" "+ ProcessInstancesKilled)
-      kill.sender ! ProcessInstancesKilled
+      kill.sender !! ProcessInstancesKilled
     }
 
     case kill @ KillProcessInstance(id) => {
       if (processInstanceMap.contains(id)) {
-        logger.debug("TRACE: from " + this.self + " to " +processInstanceMap(id).processInstanceActor +" "+ PoisonPill)
         processInstanceMap(id).processInstanceActor ! PoisonPill
         history.entries += createHistoryEntry(None, id, "killed")
         processInstanceMap -= id
-        logger.debug("TRACE: from " + this.self + " to " +kill.sender +" "+ KillProcessInstanceAnswer(kill))
-        kill.sender ! KillProcessInstanceAnswer(kill)
-        logger.debug("Killed process instance " + id)
+        kill.sender !! KillProcessInstanceAnswer(kill)
+        log.debug("Killed process instance " + id)
 
-        logger.debug("TRACE: from " + this.self + " to " +changeActor +" "+ ProcessInstanceDelete(id, new java.util.Date()))
         changeActor ! ProcessInstanceDelete(id, new java.util.Date())
       } else {
-        logger.error("Process Manager - can't kill process instance: " +
+        log.error("Process Manager - can't kill process instance: " +
           id + ", it does not exists")
 
-        logger.debug("TRACE: from " + this.self + " to " +kill.sender +" "+ Failure(new IllegalArgumentException(
-          "Invalid Argument: Can't kill a processinstance, which is not running.")))
-        kill.sender ! Failure(new IllegalArgumentException(
+        kill.sender !! Failure(new IllegalArgumentException(
           "Invalid Argument: Can't kill a processinstance, which is not running."))
       }
       // TODO always try to delete it from the database?
@@ -149,17 +138,12 @@ class ProcessManagerActor extends InstrumentedActor {
     }
 
     case message: SubjectProviderMessage => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap
-        .getOrElse(message.userID, ActorLocator.subjectProviderManagerActor) + " " + message.toString)
       subjectProviderMap
         .getOrElse(message.userID, ActorLocator.subjectProviderManagerActor)
         .forward(message)
     }
 
     case answer: AnswerMessage => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + answer.sender + " " + answer.toString)
       answer.sender.forward(answer)
     }
 
@@ -172,7 +156,7 @@ class ProcessManagerActor extends InstrumentedActor {
     }
 
     case message => {
-      logger.error("Not impemented: " + message)
+      log.error("Not impemented: " + message)
     }
   }
 
@@ -196,13 +180,12 @@ class ProcessManagerActor extends InstrumentedActor {
    */
   private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
     if (processInstanceMap.contains(message.processInstanceID)) {
-      logger.debug("TRACE: from " + this.self + " to " + processInstanceMap(message.processInstanceID).processInstanceActor + " " + message.toString)
       processInstanceMap(message.processInstanceID).processInstanceActor.forward(message)
     } else if (message.isInstanceOf[AnswerAbleMessage]) {
-      message.asInstanceOf[AnswerAbleMessage].sender !
+      message.asInstanceOf[AnswerAbleMessage].sender !!
         Failure(new Exception("Target process instance does not exists."))
 
-      logger.error("ProcessManager - message for " + message.processInstanceID +
+      log.error("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)
     }
   }

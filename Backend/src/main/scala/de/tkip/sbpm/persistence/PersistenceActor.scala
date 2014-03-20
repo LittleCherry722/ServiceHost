@@ -43,8 +43,6 @@ class PersistenceActor extends InstrumentedActor with ActorLogging {
     case q: Messages.Query         => forwardTo[MessagePersistenceActor](q)
     case q: ProcessInstances.Query => forwardTo[ProcessInstancePersistenceActor](q)
     case q: Processes.Query        => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + processInspectActor + " " + q.toString)
       processInspectActor forward q
       println("!!!!!!!!!!!  the query is: "+q)
 //    changeActor forward q
@@ -60,10 +58,7 @@ class PersistenceActor extends InstrumentedActor with ActorLogging {
    */
   private def forwardTo[A <: Actor: ClassTag](query: BaseQuery) = {
     val actor = context.actorOf(Props[A])
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + query.toString)
     actor.forward(query)
-    traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + PoisonPill)
     actor ! PoisonPill
   }
 

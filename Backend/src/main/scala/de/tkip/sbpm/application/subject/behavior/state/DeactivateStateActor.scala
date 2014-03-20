@@ -12,22 +12,19 @@ protected class DeactivateStateActor(data: StateData)
 
   override def preStart() {
     // Block the user while prestart!
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
     blockingHandlerActor ! BlockUser(userID)
     super.preStart()
     // deactivate state
     deactivateState()
     // and chante to the next one
     changeState(exitTransitions.head.successorID, data, null)
-    traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
     blockingHandlerActor ! UnBlockUser(userID)
   }
 
   protected def stateReceive = {
 
     case action: ExecuteAction => {
-      logger.debug(s"Got $action, but cannot execute")
+      log.debug(s"Got $action, but cannot execute")
     }
   }
 
@@ -42,8 +39,6 @@ protected class DeactivateStateActor(data: StateData)
     log.debug(s"Deactivate state ${data.stateModel.options.stateId}")
     if (stateOptions.stateId.isDefined) {
       val msg = DeactivateState(stateOptions.stateId.get)
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + msg.toString)
       internalBehaviorActor ! msg
     } else {
       log.error("State to deactivate is not defined")

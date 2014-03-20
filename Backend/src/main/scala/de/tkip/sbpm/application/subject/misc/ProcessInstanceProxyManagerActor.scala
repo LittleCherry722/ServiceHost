@@ -33,7 +33,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
   private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
   private val processInstanceMap: mutable.Map[(ProcessID, String), Future[ProcessInstanceProxy]] =
     mutable.Map((processId, url) -> (for {
-      proxy <- (actor ? GetProxyActor).mapTo[ActorRef]
+      proxy <- (actor ?? GetProxyActor).mapTo[ActorRef]
     } yield new ProcessInstanceProxy(actor, proxy)))
 
   def wrappedReceive = {
@@ -85,7 +85,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     val getMappingMsg = GetSubjectMapping(processId, targetAddress)
 
     val futures = for (processInstanceFuture <- processInstanceMap.values) yield {
-      val resultFuture = processInstanceFuture flatMap {processInstance => processInstance.proxy ? getMappingMsg}
+      val resultFuture = processInstanceFuture flatMap {processInstance => processInstance.proxy ?? getMappingMsg}
       resultFuture.mapTo[SubjectMappingResponse]
     }
 
@@ -99,10 +99,10 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
 
     for {
       // create the processinstance
-      created <- (targetManager ? createMessage).mapTo[ProcessInstanceCreated]
+      created <- (targetManager ?? createMessage).mapTo[ProcessInstanceCreated]
       instanceRef = created.processInstanceActor
       // ask for the proxy actor
-      proxy <- (instanceRef ? GetProxyActor).mapTo[ActorRef]
+      proxy <- (instanceRef ?? GetProxyActor).mapTo[ActorRef]
     } yield new ProcessInstanceProxy(instanceRef, proxy)
   }
 }

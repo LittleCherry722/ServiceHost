@@ -44,7 +44,7 @@ class LoggingResponseActor extends InstrumentedActor with HttpService {
       path("get_logs") {
         parameters("n") { n => ctx =>
           log.debug(s"received get request for recent $n logs")
-          (logPersistenceActor ? Get(n.toInt))
+          (logPersistenceActor ?? Get(n.toInt))
             .mapTo[List[Log]]
             .onComplete {
               case Success(log_list) => ctx.complete(

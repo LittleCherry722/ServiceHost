@@ -43,8 +43,6 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
       if (message.target.toUnknownUsers) {
         loadRandomUsers(message)
       } else {
-        val traceLogger = Logging(context.system, this)
-        traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
         context.parent forward message
       }
     }
@@ -58,8 +56,6 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
     }
 
     case message => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
       context.parent forward message
     }
   }
@@ -68,7 +64,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
     log.debug("load random users...")
 
     val request = RequestUserID(SubjectInformation(processId, id, message.to), userIds => userIds)
-    val result = (contextResolver ? request).mapTo[Array[UserID]]
+    val result = (contextResolver ?? request).mapTo[Array[UserID]]
     val from = context.sender
     result.map(userIds => RandomUsersLoaded(message, from, userIds)) pipeTo self
   }

@@ -33,13 +33,13 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
       path(IntNumber) { messageID =>
         //                  completeWithQuery[Message](Messages.Read.ById(messageID))
         complete {
-          (persistence ? Messages.Read.ById(messageID)).mapTo[Option[Message]]
+          (persistence ?? Messages.Read.ById(messageID)).mapTo[Option[Message]]
         }
       } ~
         path("") {
           complete {
-            val from = (persistence ? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
-            val to = (persistence ? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
+            val from = (persistence ?? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
+            val to = (persistence ?? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
             for {
               f <- from
               t <- to
@@ -48,12 +48,12 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
         } ~
         path("outbox") {
           complete {
-            (persistence ? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
+            (persistence ?? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
           }
         } ~
         path("inbox") {
           complete {
-            (persistence ? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
+            (persistence ?? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
           }
         }
     } ~
@@ -76,18 +76,13 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
                 val message = Message(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))
 
                 val future = for {
-                  all <- (persistence ? Messages.Read.All).mapTo[Seq[Message]]
+                  all <- (persistence ?? Messages.Read.All).mapTo[Seq[Message]]
                   length = all.length
                 } yield length
                 val result = Await.result(future, 5 seconds).asInstanceOf[Int]
                 val messageWithID = message.copy(id = Some(result + 1))
 
-                val traceLogger = Logging(context.system, this)
-                traceLogger.debug("TRACE: from " + this.self + " to " + persistence + " " + Messages.Save(message).toString)
-
                 persistence ! Messages.Save(message)
-
-                traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + MessageChange(messageWithID, "insert", new java.util.Date()).toString())
                 changeActor ! MessageChange(messageWithID, "insert", new java.util.Date())
                 StatusCodes.NoContent
               }

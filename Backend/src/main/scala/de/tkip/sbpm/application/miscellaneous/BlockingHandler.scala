@@ -32,7 +32,6 @@ case class SendProcessInstanceCreated(userID: UserID)
 class BlockingActor extends InstrumentedActor {
   private type HasTargetUser = { def userID: UserID }
   private val userActors = MutableMap[UserID, UserBlocker]()
-  private val logger = Logging(context.system, this)
 
   def wrappedReceive = {
     // TODO Combine to 1 message
@@ -49,7 +48,7 @@ class BlockingActor extends InstrumentedActor {
       handleMessage(userID, message)
     }
     case s => {
-      logger.error("BlockingActor got message " + s)
+      log.error("BlockingActor got message " + s)
     }
   }
 
@@ -98,9 +97,7 @@ private class UserBlocker(userID: UserID)(implicit val context: ActorContext) {
     if (remainingBlocks < 0) remainingBlocks = 0
     if (remainingBlocks == 0) {
       for (message <- blockedMessages) {
-        val traceLogger = Logging(context.system, context.parent)
-        traceLogger.debug("TRACE: from BlockingHandler" + " to " + context.parent + " " + message.toString)
-        context.parent ! message
+        context.parent.tell(message, context.self)
       }
       blockedMessages.clear()
     } else if (remainingBlocks < 0) {
