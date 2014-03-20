@@ -14,6 +14,7 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.eventbus.RemotePublishActor
 import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
 import Messages.CreateXMLReferenceMessage
 
@@ -43,6 +44,7 @@ object main extends App {
   else {
     system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
+    system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
     system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
     registerInterface()
   }
