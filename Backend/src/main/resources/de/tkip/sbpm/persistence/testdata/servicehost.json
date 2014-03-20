@@ -18,13 +18,9 @@
                 "subjectType": "single",
                 "deactivated": false,
                 "inputPool": -1,
-                "relatedInterface": null,
-                "relatedProcess": "",
-                "relatedSubject": "",
                 "externalType": "external",
                 "role": "Kunde",
                 "startSubject": true,
-                "url": null,
                 "comment": "",
                 "macros": [
                     {
@@ -262,13 +258,9 @@
                 "subjectType": "external",
                 "deactivated": false,
                 "inputPool": -1,
-                "relatedInterface": "Intern",
-                "relatedProcess": 21,
-                "relatedSubject": "Extern",
                 "externalType": "interface",
                 "role": "Zulieferer",
                 "startSubject": false,
-                "url": "@127.0.0.1:2553",
                 "comment": "",
                 "macros": [
                     {

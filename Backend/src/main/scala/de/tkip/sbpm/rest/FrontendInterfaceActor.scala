@@ -233,9 +233,9 @@ class FrontendInterfaceActor extends InstrumentedActor with DefaultLogging with 
     case request: spray.http.HttpRequest => {
       val path = request.uri.path
       if(!path.startsWith(Path.SingleSlash + frontendBaseUrl)){
-        log.debug("TRACE: =========================================================================")
-        log.debug("TRACE: request " + request.method + ": " + path)
-        log.debug("TRACE: -------------------------------------------------------------------------")
+//        traceLogger.debug("TRACE: =========================================================================")
+//        traceLogger.debug("TRACE: request " + request.method + ": " + path)
+//        traceLogger.debug("TRACE: -------------------------------------------------------------------------")
       }
       request
     }

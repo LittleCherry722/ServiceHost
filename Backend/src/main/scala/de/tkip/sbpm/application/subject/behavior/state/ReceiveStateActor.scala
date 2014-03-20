@@ -125,7 +125,7 @@ protected case class ReceiveStateActor(data: StateData)
 
       var transition = exitTransitionsMap(fromSubject, messageType)
       var isAutoReceive = false
-      if (messages.length != 0 && data.stateModel.autoExecute && false) {
+      if (messages.length != 0 && data.stateModel.autoExecute) {
         //Check if only one ExitCond
         if (exitTransitions.length == 1) {
           isAutoReceive = true
