@@ -34,6 +34,7 @@ import de.tkip.sbpm.model.User
 import spray.routing.authentication.UserPass
 import de.tkip.sbpm.persistence.query.Users
 import akka.event.Logging
+import de.tkip.sbpm.instrumentation.{ClassTraceLogger, TraceLogger}
 
 case class MissingSessionRejection(sessionId: String) extends Rejection
 case object MissingUserRejection extends Rejection
@@ -41,12 +42,12 @@ case object MissingUserRejection extends Rejection
 /**
  * Provides Spray directive for session handling.
  */
-trait SessionDirectives {
-  import de.tkip.sbpm.instrumentation.TraceLogger.ActorRefClassWrapper
+trait SessionDirectives extends ClassTraceLogger {
   import BasicDirectives._
   import CookieDirectives._
   import RouteDirectives._
   import MiscDirectives._
+
   private implicit val timeout = Timeout(10 seconds)
 
   /**

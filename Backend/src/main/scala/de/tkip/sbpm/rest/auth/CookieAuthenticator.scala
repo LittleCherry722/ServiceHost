@@ -33,6 +33,7 @@ import akka.actor.Props
 import akka.actor.ActorRef
 import akka.actor.Actor
 import spray.routing.Rejection
+import de.tkip.sbpm.instrumentation.ClassTraceLogger
 
 /**
  * Spray rejection if there was a unauthenticated request.
@@ -51,8 +52,7 @@ case class AuthenticationRejection(supportedSchemes: Seq[String], realm: String,
  * (define handling actors in package object).
  */
 class CookieAuthenticator(implicit val executionContext: ExecutionContext, implicit val actorContext: ActorContext)
-  extends ContextAuthenticator[Session] {
-  import de.tkip.sbpm.instrumentation.TraceLogger.ActorRefClassWrapper
+  extends ContextAuthenticator[Session] with ClassTraceLogger {
   private implicit val timeout = Timeout(10 seconds)
   private lazy val sessionActor = ActorLocator.sessionActor
 

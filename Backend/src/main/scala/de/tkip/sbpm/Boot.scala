@@ -36,7 +36,7 @@ import de.tkip.sbpm.application.change._
 import de.tkip.sbpm.logging.LogPersistenceActor
 import de.tkip.sbpm.application.miscellaneous.SystemProperties._
 import de.tkip.sbpm.polling.{Polling, ReplyForTrafficJam}
-import de.tkip.sbpm.instrumentation.InstrumentationActor
+import de.tkip.sbpm.instrumentation.InstrumentationLogger
 
 object Boot extends App {
 
@@ -89,8 +89,7 @@ object Boot extends App {
     system.actorOf(Props[GCalendarActor], googleCalendarActorName),
     system.actorOf(Props[LogPersistenceActor], logPersistenceActorName),
     system.actorOf(Props[GoogleBIRActor], googleBIRActorName),
-    system.actorOf(Props[ChangeActor], changeActorName),
-    system.actorOf(Props[InstrumentationActor], instrumentationActorName)
+    system.actorOf(Props[ChangeActor], changeActorName)
   )
 
   // binding the frontendInterfaceActor to a HttpListener

@@ -30,6 +30,7 @@ import com.mchange.v2.c3p0._
 import com.typesafe.config.Config
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.SystemProperties
+import de.tkip.sbpm.instrumentation.TraceLogger
 
 /**
  * Provides helper methods for connecting to database using slick.
@@ -37,7 +38,7 @@ import de.tkip.sbpm.application.miscellaneous.SystemProperties
  * from akka config (sbpm.db.uri, sbpm.db.jdbcDriver and sbpm.db.slickDriver).
  * Actors who need DB access should mixin this trait.
  */
-private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =>
+private[persistence] trait DatabaseAccess extends TraceLogger with DefaultLogging { self: Actor =>
 
   // akka config to read db settings from
   protected implicit val config = context.system.settings.config
@@ -54,7 +55,7 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
    * Send the result of the given function (executed in one transaction)
    * back to the sender or the exception if one occurs.
    */
-  protected def answer[A](exec: Session => A) = sender ! {
+  protected def answer[A](exec: Session => A) = sender !! {
     withTransaction(exec) match {
       case Success(result) => result
       case Failure(e)      => akka.actor.Status.Failure(e)
@@ -67,7 +68,7 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
    * exec: is executed in a database transaction
    * postProcess: can be used to modify db results after releasing database connection
    */
-  protected def answerProcessed[A, B](exec: Session => A)(postProcess: A => B) = sender ! {
+  protected def answerProcessed[A, B](exec: Session => A)(postProcess: A => B) = sender !! {
     withTransaction(exec) match {
       case Success(preResult) =>
         // db result ok -> execute post process function
@@ -86,7 +87,7 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
    * None is passed through to the sender without executing postProcess function
    * postProcess: can be used to modify db result after releasing database connection
    */
-  protected def answerOptionProcessed[A, B](exec: Session => Option[A])(postProcess: A => B) = sender ! {
+  protected def answerOptionProcessed[A, B](exec: Session => Option[A])(postProcess: A => B) = sender !! {
     withTransaction(exec) match {
       // db returned none -> pass it through
       case Success(None) => None
@@ -146,9 +147,9 @@ private[persistence] object DatabaseAccess {
       // read pool properties from akka config
       ds.setDriverClass(configString("jdbcDriver"))
       ds.setJdbcUrl(url)
-      ds.setMinPoolSize(configInt("minPoolSize"));
-      ds.setAcquireIncrement(configInt("poolAcquireIncrement"));
-      ds.setMaxPoolSize(configInt("maxPoolSize"));
+      ds.setMinPoolSize(configInt("minPoolSize"))
+      ds.setAcquireIncrement(configInt("poolAcquireIncrement"))
+      ds.setMaxPoolSize(configInt("maxPoolSize"))
       // add to data source pool
       dataSources += (url -> ds)
     }

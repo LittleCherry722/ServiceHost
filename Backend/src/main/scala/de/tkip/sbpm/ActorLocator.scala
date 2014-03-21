@@ -30,7 +30,6 @@ object ActorLocator {
   val googleCalendarActorName = "google-calendar"
   val googleBIRActorName = "google-BIR"
   val changeActorName = "change"
-  val instrumentationActorName = "instrumentation"
   val eventBusRemotePublishActorName = "eventbus-remote-publish"
   val repositoryPersistenceActorName = "repository-persistence"
 

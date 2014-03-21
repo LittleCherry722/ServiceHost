@@ -33,6 +33,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import akka.util.Timeout
 import akka.event.Logging
+import de.tkip.sbpm.instrumentation.{ClassTraceLogger, TraceLogger}
 
 /**
  * This class is responsible to hold a subjects, and can represent
@@ -47,11 +48,12 @@ class SubjectContainer(
   blockingHandlerActor: ActorRef,
   mapping: Option[MappingInfo],
   increaseSubjectCounter: () => Unit,
-  decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) {
-  import scala.collection.mutable.{ Map => MutableMap }
-  import de.tkip.sbpm.instrumentation.TraceLogger.ActorRefClassWrapper
+  decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) extends  ClassTraceLogger {
 
-  implicit val timeout = Timeout(30 seconds)
+  import scala.collection.mutable.{ Map => MutableMap }
+
+  private implicit val timeout = Timeout(30 seconds)
+  implicit val traceName = this.getClass.getSimpleName
 
   private val multi = subject.multi
   private val single = !multi
