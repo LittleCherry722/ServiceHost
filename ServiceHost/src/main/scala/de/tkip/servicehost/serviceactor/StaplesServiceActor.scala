@@ -56,8 +56,6 @@ class StaplesServiceActor extends ServiceActor {
   }
 
   def receive: Actor.Receive = {
-    case ExecuteServiceMessage =>
-      println("here")
     case message: SubjectToSubjectMessage => {
 
       // TODO: use InputPoolActor ?
@@ -69,32 +67,18 @@ class StaplesServiceActor extends ServiceActor {
       sender ! Stored(message.messageID)
       println("unblocked sender")
     }
-    case request: CreateProcessInstance => {
-      userId = request.userID
-      processId = request.processID
-      manager = request.manager
-
-      // TODO implement
-
-      // fake ProcessInstanceActor:
-
-      val persistenceGraph = null
-      val processName = ""
-      val startedAt = new Date()
-      val actions = null
-      val processInstanceData = ProcessInstanceData(0, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
-      println("Sender: " + sender)
-      println("Receicer: " + self)
-      sender ! ProcessInstanceCreated(request, self, processInstanceData)
-
-    }
     case GetProxyActor => {
       println("received GetProxyActor")
       // TODO implement
       // fake ProcessInstanceProxyActor:
       sender ! self
     }
-
+    case update: UpdateProcessData => {
+      userId = update.userID
+      processId = update.processID
+      manager = update.manager
+    }
+    case x => println("received unknown: " + x)
   }
 
   def changeState() = {}
