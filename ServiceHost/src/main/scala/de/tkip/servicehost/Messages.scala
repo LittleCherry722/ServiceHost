@@ -8,7 +8,7 @@ object Messages {
   case class RegisterServiceMessage(code: String, subjectJson: String)
   case class ExecuteServiceMessage(processID: String, serviceID: String, payload: Any)
   case class DeploymentMessage(serviceID: String, sourceCode: String)
-  case class CreateXMLReferenceMessage(serviceID: String, classPath: String)
+  case class CreateXMLReferenceMessage(serviceID: String, classPath: String, jsonPath: String)
   case class GetAllClassReferencesMessage()
   case class GetClassReferenceMessage(serviceID: String)
   case class ClassReferenceMessage(serviceID: String, classReference: Class[_<: ServiceActor])
