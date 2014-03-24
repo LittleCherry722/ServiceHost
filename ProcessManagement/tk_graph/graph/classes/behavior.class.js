@@ -141,7 +141,7 @@ function GCbehavior (name)
  	 * @param {String} id The id of the variable (optional, when set an update will be done)
  	 * @returns {String} The id of the inserted or updated variable.
  	 */
- 	this.addVariable = function (text, id)
+ 	this.addVariable = function (text,  id)
  	{
  		if (!gf_isset(id))
 			id = "##createNew##";

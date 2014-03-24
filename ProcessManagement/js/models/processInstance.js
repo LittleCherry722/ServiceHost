@@ -134,14 +134,14 @@ define([
             });
         },
 
-        getCurrentState: function (subject) {
-            var currentState = -1;
+        getCurrentStates: function (subject) {
+            var currentStates = [];
             $.each (this.actions(), function (i, value) {
                 if (value['subjectID'] === subject) {
-                    currentState = value['stateID'];
+                    currentStates.push(value['stateID']);
                 }
             });
-            return currentState;
+            return currentStates;
         },
 
         getCurrentProcess: function (subject) {

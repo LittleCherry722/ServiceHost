@@ -96,6 +96,7 @@ object Entities {
     (Process(None, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
     (Process(None, """IP Test Open Close Wildcard With Timeout""", false) -> loadJson("ip_test_open_close_wildcard_with_timeout")),
     (Process(None, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
+    (Process(None, """Modal Split Guard Example""", false) -> loadJson("modalsplitguard_example")),
     (Process(None, """Macro Example""", false) -> loadJson("macro_example")),
     (Process(None, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
     (Process(None, """Projektleiter""", false) -> loadJson("projektleiter")),
