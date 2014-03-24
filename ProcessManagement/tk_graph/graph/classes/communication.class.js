@@ -1495,6 +1495,16 @@ function GCcommunication ()
 
 						}
 
+            // 2.1 a) fix those state ids to match the new generated id values
+            for(var someId in gt_macro.nodes) {
+              var gcNode = gt_macro.nodes[someId];
+              if(gcNode.getOptions() && 'state' in gcNode.getOptions() && gcNode.getOptions().state) {
+                var oldStateId = gcNode.getOptions().state;
+                var newStateId = gt_macro.nodeIDs["loadedNode" + gcNode.getOptions().state];
+                gcNode.options.state = newStateId;
+              }
+            }
+
 						// 2.2 edges
 						for (var gt_edgeId in gt_macroValues.edges)
 						{
