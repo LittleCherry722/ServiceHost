@@ -19,8 +19,9 @@ import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.eventbus.RemotePublishActor
+import de.tkip.servicehost.ReferenceXMLActor.Reference
 import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
-import Messages.CreateXMLReferenceMessage
+import Messages.{ CreateXMLReferenceMessage, GetAllClassReferencesMessage }
 
 /*
 
@@ -30,6 +31,8 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess GroÃŸunternehmen. FÃ
 
 
 object main extends App {
+  implicit val timeout = Timeout(15 seconds)
+
   val system = ActorSystem("sbpm")
   
   protected def configString(key: String) =
@@ -38,19 +41,18 @@ object main extends App {
   println("main started")
   val repoUrl = configString("sbpm.repo.address") + "/interfaces"
 
+  val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+
   if (args.contains("service") && args.length >= 2) {
     val path = args(args.indexOf("service") + 1)
 
-    system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
-//    implicit val timeout = Timeout(30 seconds)
 //    val future: Future[Any]= ask(generator, path)
 //    val res = Await.result(future, timeout.duration)
     generator ! path
     system.shutdown
   } // TODO add other root Actors
   else {
-    system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
     system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
     system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
@@ -81,6 +83,15 @@ object main extends App {
    */
   def registerInterface(): Unit = {
     println("registerInterface")
+
+    println("ask ReferenceXMLActor for all registered services")
+    val referencesFuture: Future[Any] = referenceXMLActor ? GetAllClassReferencesMessage
+    val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
+
+    for {reference <- references} {
+      println("reference: " + reference)
+    }
+
     val processes = ArrayBuffer[JsValue]()
 
     println("read processes")
