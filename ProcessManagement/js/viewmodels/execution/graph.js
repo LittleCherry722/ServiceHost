@@ -76,7 +76,7 @@ define([
 		reloadGraph();
 	});
 	actions.subscribe(function(actions) {
-		selectCurrentBehaviourState();
+		selectCurrentBehaviourStates();
 	});
 
 	var reloadGraph = function() {
@@ -97,19 +97,18 @@ define([
 	var loadBehaviorView = function( subject ) {
 		gv_graph.selectedSubject = null;
 		gf_clickedCVbehavior();
-		selectCurrentBehaviourState();
+		selectCurrentBehaviourStates();
 	}
 
 	/**
-	 * Selects the node of the current state in the behaviour graph
+	 * Selects the nodes of the current active (executable) states in the behaviour graph
 	 */
-	var selectCurrentBehaviourState = function() {
+	var selectCurrentBehaviourStates = function() {
 		var subject = currentSubject(),
-			currentState = processInstance().getCurrentState(subject),
+			currentStates = processInstance().getCurrentStates(subject),
 			process = processInstance().getCurrentProcess(subject),
-			node = undefined;
+			nodes = [];
 
-        console.log("selectCurrentBehaviourState", process, currentState)
         gf_deselectNodes();
 
         if( process === null ) {
@@ -121,14 +120,16 @@ define([
 
 		// retrieve the current node by the current process and current state
 		$.each( process.macros[0].nodes, function( i, value ) {
-			if ( value.id === currentState ) {
-				node = i;
+			if (-1 !== $.inArray(value.id, currentStates)) {
+				nodes.push(i);
 			}
 		} );
 
-		if( node !== undefined && gv_objects_nodes[node] ){
-			gv_objects_nodes[node].select();
-		}
+        $.each(nodes, function(k, node) {
+            if(gv_objects_nodes[node] ){
+                gv_objects_nodes[node].select();
+            }
+        });
 	};
 
 	/**
