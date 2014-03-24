@@ -10,7 +10,7 @@ import scala.io.Source
 
 object ReferenceXMLActor {
 
-  class Reference(name: String, reference: String) {
+  case class Reference(name: String, reference: String) {
     def toXml = scala.xml.Unparsed("<reference service=\"" + name + "\" path=\"" + reference + "\"/>\n")
   }
 
@@ -64,18 +64,8 @@ class ReferenceXMLActor extends Actor {
   }
   
   def getReferenceMessage(id: String): ClassReferenceMessage = {
-    val src = Source.fromFile(new File(xmlFilePath))
-    val reader = new XMLEventReader(src)
-    reader foreach {
-      case EvElemStart(_, _, attrs, _) =>
-        val list = attrs.asAttrMap.values.toList
-        if (list.contains(id)) {
-          if(list.indexOf(id)==0)
-        	return new ClassReferenceMessage(id, Class.forName(list(1)).asInstanceOf[Class[ServiceActor]])
-          else
-            return new ClassReferenceMessage(id, Class.forName(list(0)).asInstanceOf[Class[ServiceActor]])
-        }
-      case _ =>
+    for {ref <- getAllReferences} {
+      if (ref.name == id) return new ClassReferenceMessage(id, Class.forName(ref.reference).asInstanceOf[Class[ServiceActor]])
     }
     null
   }
