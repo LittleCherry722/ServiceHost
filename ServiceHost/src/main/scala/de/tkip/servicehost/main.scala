@@ -1,10 +1,14 @@
 package de.tkip.servicehost
 
+import java.util.Date
+import spray.json._
+import DefaultJsonProtocol._
+import scala.collection.mutable.ArrayBuffer
+
 import akka.actor._
 import scalaj.http.{Http, HttpOptions}
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
-import java.util.Date
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -19,9 +23,13 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess Gro√üunternehmen. F√
 
 
 object main extends App {
-  println("main started")
-  val repoUrl = "http://localhost:8181/repo/interfaces"
   val system = ActorSystem("sbpm")
+  
+  protected def configString(key: String) =
+    system.settings.config.getString(key)
+
+  println("main started")
+  val repoUrl = configString("sbpm.repo.address") + "/interfaces"
 
   // TODO add other root Actors
   
@@ -31,6 +39,18 @@ object main extends App {
   system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
   registerInterface()
 
+  sys.addShutdownHook {
+    println("Shutting down the system...")
+    // TODO: stop futures / running actors
+    deregisterInterface()
+
+    system.shutdown();
+  }
+
+  def deregisterInterface(): Unit = {
+    println("deregisterInterface")
+    // TODO: delete this interface from repo
+  }
 
   /**
    * Registers the interface at the interface repository by sending the graph data and some additional information as
@@ -43,20 +63,78 @@ object main extends App {
    */
   def registerInterface(): Unit = {
     println("registerInterface")
-    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
-    val jsonString = source.mkString
-    source.close()
+    val processes = ArrayBuffer[JsValue]()
 
-    val result = Http.postData(repoUrl, jsonString)
+    println("read processes")
+    // TODO: read directory
+    for {file <- Array("./src/main/resources/staples.json")} {
+      println("read process " + file)
+
+      val source = scala.io.Source.fromFile(file)
+      val sourceString: String = source.mkString
+      source.close()
+
+      // TODO: set graph.relatedSubject
+      // TODO: set graph.relatedInterface
+      // TODO: set graph.isImplementation
+      // TODO: set graph.implementations
+      // TODO: remove graph.{url, variableCounter, macroCounter}
+      // TODO: what should be done in the frontend, what here?
+      val sourceJson: JsValue = sourceString.asJson
+      val processGraph: JsValue = sourceJson.asInstanceOf[JsObject].getFields("graph").head
+      processes += processGraph
+    }
+
+    println("read all processes")
+
+    // TODO: direkt JsObjects erzeugen
+    // TODO: extract conversations and messages from processes
+    // TODO: id is required. what does it mean?
+    // TODO: graph.id is required. what does it mean?
+    // TODO: graph.routings is required. what does it mean?
+    // TODO: only one graph, that has one processId, but multiple processes
+    // TODO: interfaceId can be optional
+    // TODO: graph.date: use current time?
+    val interfaceJson: JsValue = ("""
+    {
+      "id": 1,
+      "interfaceId": """+configString("sbpm.servicehost.interface.id")+""",
+      "name": """"+configString("sbpm.servicehost.interface.name")+"""",
+      "port": """+configString("akka.remote.netty.tcp.port")+""",
+      "graph": {
+        "id": 123456,
+        "processId": 21,
+        "date": 123456789,
+        "routings": [],
+        "definition": {
+          "conversations": {"a": "b"},
+          "messages": {"c": "d"},
+          "process": """ + processes.toArray.toJson.prettyPrint + """
+        }
+      }
+    }
+    """).asJson
+
+    println("generated interfaceJson")
+
+    val jsonString = interfaceJson.prettyPrint // TODO: compactPrint
+
+    println("printed json to str and POST it")
+
+    val post = Http.postData(repoUrl, jsonString)
       .header("Content-Type", "application/json")
       .header("Charset", "UTF-8")
       .option(HttpOptions.connTimeout(10000)).option(HttpOptions.readTimeout(30000))
-      .responseCode
+    val result = post.responseCode
 
-    if (200 == result) {
+    if (result == 200) {
       println("Registered interface at local repository")
+
+      // TODO: store id ?
+      var id = post.asString
+      println("id: " + id)
     } else {
-      println("Some error occurred; " + result)
+      println("Some error occurred; HTTP Code: " + result)
     }
   }
 }
