@@ -91,7 +91,7 @@ define([
 
         setTimeout(function(){
             var table = $( '#' + action.instanceTableId()),
-                node = 0,
+                nodes = [],
                 graphContainer = $('#graph_bv_outer'),
                 graphModal = $('#graphModal'),
                 processInstance, currentState, process;
@@ -112,20 +112,21 @@ define([
             gv_graph.selectedSubject = action.subjectID();
 
             // select active node
-            currentState = processInstance.getCurrentState( action.subjectID() );
+            currentStates = processInstance.getCurrentStates( action.subjectID() );
             process = processInstance.getCurrentProcess( action.subjectID() );
 
             if( process !== null ) {
                 $.each( process.macros[0].nodes, function( i, value ) {
-                    if ( value.id === currentState ) {
-                        node = i;
+                    if (-1 !== $.inArray(value.id, currentStates)) {
+                        nodes.push(i);
                     }
                 } );
 
-                if( gv_objects_nodes[node] ){
-                    gf_deselectNodes();
-                    gv_objects_nodes[node].select();
-                }
+                $.each(nodes, function(k, node) {
+                    if(gv_objects_nodes[node] ){
+                        gv_objects_nodes[node].select();
+                    }
+                });
             }
         }, 100);
     };
