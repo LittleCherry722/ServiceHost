@@ -6,7 +6,12 @@ import DefaultJsonProtocol._
 import scala.collection.mutable.ArrayBuffer
 
 import akka.actor._
-import scalaj.http.{Http, HttpOptions}
+import akka.pattern.ask
+import scala.concurrent.Await
+import akka.util.Timeout
+import scala.concurrent.duration._
+import scala.concurrent.Future
+import scalaj.http.{ Http, HttpOptions }
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
 import de.tkip.sbpm.application.miscellaneous._
@@ -14,6 +19,8 @@ import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.eventbus.RemotePublishActor
+import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
+import Messages.CreateXMLReferenceMessage
 
 /*
 
@@ -31,20 +38,31 @@ object main extends App {
   println("main started")
   val repoUrl = configString("sbpm.repo.address") + "/interfaces"
 
-  // TODO add other root Actors
-  
-  system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")  
-  system.actorOf(Props[ServiceActorManager], "service-actor-manager")
-  system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
-  system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
-  registerInterface()
+  if (args.contains("service") && args.length >= 2) {
+    val path = args(args.indexOf("service") + 1)
 
-  sys.addShutdownHook {
-    println("Shutting down the system...")
-    // TODO: stop futures / running actors
-    deregisterInterface()
+    system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+    val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
+//    implicit val timeout = Timeout(30 seconds)
+//    val future: Future[Any]= ask(generator, path)
+//    val res = Await.result(future, timeout.duration)
+    generator ! path
+    system.shutdown
+  } // TODO add other root Actors
+  else {
+    system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+    system.actorOf(Props[ServiceActorManager], "service-actor-manager")
+    system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
+    system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    registerInterface()
 
-    system.shutdown();
+    sys.addShutdownHook {
+      println("Shutting down the system...")
+      // TODO: stop futures / running actors
+      deregisterInterface()
+
+      system.shutdown();
+    }
   }
 
   def deregisterInterface(): Unit = {
@@ -139,7 +157,6 @@ object main extends App {
   }
 }
 
-
 class ServiceHostActor extends Actor {
 
   val serviceManager = ActorLocator.serviceActorManager
@@ -153,7 +170,7 @@ class ServiceHostActor extends Actor {
     case execute: ExecuteServiceMessage => {
       println("received ExecuteServiceMessage: " + execute)
       // TODO implement
-      serviceManager forward(execute)
+      serviceManager forward (execute)
       sender ! Some("some ExecuteServiceMessage answer")
     }
     case request: CreateProcessInstance => {
@@ -172,10 +189,10 @@ class ServiceHostActor extends Actor {
       serviceManager forward message
     }
     case s: Stored => {
-      println("received Stored: "+s)
+      println("received Stored: " + s)
     }
     case something => {
-      println("received something: "+something)
+      println("received something: " + something)
       sender ! Some("some answer")
     }
   }

@@ -1,0 +1,203 @@
+package de.tkip.servicehost.serviceactor.stubgen
+
+import akka.actor.Actor
+import de.tkip.servicehost.serviceactor.ServiceActor
+import de.tkip.servicehost.serviceactor.ServiceAttributes._
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.servicehost.Messages._
+import de.tkip.sbpm.application.subject.misc.GetProxyActor
+import de.tkip.sbpm.application.miscellaneous._
+import akka.actor.ActorRef
+import akka.actor.Props
+import akka.actor.PoisonPill
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import java.util.Date
+import de.tkip.sbpm.application.subject.misc.Stored
+import de.tkip.servicehost.ActorLocator
+import scala.collection.immutable.Map
+import scala.collection.mutable.Queue
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.sbpm.application.subject.misc.Rejected
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+
+class StaplesServiceActor extends ServiceActor {
+  private val MAX_SIZE: Int = 20
+
+  // TODO implement inputpoolActor
+  //  private val inputPoolActor: ActorRef = null
+  //    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
+
+  private implicit val service = this
+
+  private val states: List[State] = List(
+    ExitState(2, null, null, Map("" -> -1)),
+    ReceiveState(0, "exitcondition", Map("m1" -> Target("Großunternehmen", -1, -1, false, ""), "m3" -> Target("Großunternehmen", -1, -1, false, "")), Map("m1" -> 5, "m3" -> 3)),
+    SendState(1, "exitcondition", Map("m2" -> Target("Großunternehmen", -1, -1, false, "")), Map("m2" -> 2)),
+    ActionState5(5, "exitcondition", Map("" -> null), Map("" -> 1)),
+    ActionState3(3, "exitcondition", Map("" -> null), Map("" -> 1)))
+
+  private val messages: Map[MessageType, MessageText] = Map(
+    "Bestellung" -> "m1",
+    "Lieferdatum" -> "m2",
+    "ExpressBestellung" -> "m3")
+
+  // start with first state
+  private var state: State = getState(0)
+  private var inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef,Any]]] = scala.collection.mutable.Map()
+  private var tosender: ActorRef = null
+
+  private val serviceID: String = "Staples"
+
+  // Subject default values
+  private var userID = -1
+  private var processID = -1
+  private var thisID = -1;
+  private var manager: Option[ActorRef] = null
+  private var subjectID: String = ""
+  private var messageType: String = ""
+  private var target = -1
+
+  def processMsg() {
+    val key: Tuple2[String, String] = null //TODO find current key
+    val tuple: Tuple2[ActorRef,SubjectToSubjectMessage] =(inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef,SubjectToSubjectMessage]];
+    val message=tuple._2
+    tosender=tuple._1
+    state match {
+      case rs: ReceiveState =>
+        rs.handle(message)
+      case _ =>
+        println(state + " no match")
+    }
+  }
+
+  def receive: Actor.Receive = {
+    case message: SubjectToSubjectMessage => {
+      // TODO forward /set variables?
+      println(message)
+      storeMsg(message,sender)
+      tosender = sender
+      //      this.msgMap ++= (message.messageType,state.targets())
+      state match {
+        case rs: ReceiveState =>
+          rs.handle(message)
+        case _ =>
+          println(state + " no match")
+      }
+    }
+    case message: ExecuteServiceMessage => {
+      tosender = sender
+    }
+    case GetProxyActor => {
+      sender ! self
+    }
+
+    case update: UpdateProcessData => {
+      this.userID = update.userID
+      this.processID = update.remoteProcessID
+      this.thisID = update.processID
+      this.manager = update.manager
+    }
+
+    // TODO implement other messages
+  }
+
+  def changeState {
+    if (state.targetIds.size > 1) {
+      if (this.branchCondition != null) {
+        state = getState(state.targetIds(this.branchCondition))
+
+      } else println("no branchcodition defined")
+
+    } else state = getState(state.targetIds.head._2)
+
+    println(state.id)
+    state match {
+      case rs: ReceiveState =>
+        processMsg()
+      case _ => 
+    }
+    state.process
+
+  }
+
+  def getState(id: Int): State = {
+    states.find(x => x.id == id).getOrElse(null)
+  }
+
+  def storeMsg(message: Any, tosender: ActorRef): Unit = {
+    message match {
+      case message: SubjectToSubjectMessage => {
+        val targetID = state.targets(messages(message.messageType))
+        val key = (message.messageType.toString(), targetID.toString())
+//        val key = (message.messageType, tosender)
+        if (inputPool.contains(key)) {
+          if (inputPool(key).size < MAX_SIZE) {
+            (inputPool(key)).enqueue(Tuple2(tosender,message))
+            tosender ! Stored(message.messageID)
+          } else {
+            tosender ! Rejected(message.messageID)
+          }
+
+        } else {
+          inputPool(key) = Queue(Tuple2(tosender,message))
+          tosender ! Stored(message.messageID)
+        }
+        if (state.targetIds.size > 1) this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
+        else this.branchCondition = null
+      }
+      case _ =>
+      //      	this.inputPool = message
+    }
+  }
+
+  def getBranchIDforType(messageType: String): MessageText = {
+    messages(messageType)
+  }
+
+  def getDestination(): ActorRef = {
+    manager.get
+  }
+
+  def terminate() {
+    ActorLocator.serviceActorManager ! KillProcess(serviceID, thisID)
+  }
+
+  def getUserID(): Int = {
+    userID
+  }
+
+  def getProcessID(): Int = {
+    processID
+  }
+
+  def getSubjectID(): String = {
+    serviceID
+  }
+  case class ActionState5(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
+
+    val stateName = "Bestellung erhalten"
+
+    def process()(implicit actor: ServiceActor) {
+      actor.setMessage("Bestellung erhalten. Lieferung in drei Tagen")
+      actor.changeState()
+    }
+
+  }
+
+  case class ActionState3(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
+
+    val stateName = "Expressbestellung erhalten"
+
+    def process()(implicit actor: ServiceActor) {
+      actor.setMessage("Expressbestellung erhalten. Lieferung morgen")
+      actor.changeState()
+    }
+  }
+
+}
+
+
+
+
+
