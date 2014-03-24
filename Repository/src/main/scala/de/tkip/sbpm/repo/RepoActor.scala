@@ -137,7 +137,7 @@ class RepoActor extends Actor with ActorLogging {
           logger.info("Subject [" + i.name + "/" + x.name + "] is Implementation! ")
         }
         else {
-          logger.info("Subject is no implementation")
+          logger.info("Subject is not an implementation")
         }
         impl
       }).map(s => {
