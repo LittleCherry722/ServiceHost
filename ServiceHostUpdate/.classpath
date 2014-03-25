@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="target/scala-2.10/classes" path="src/main/scala"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/scalaj-http_2.10-0.3.12.jar"/>
+	<classpathentry kind="lib" path="lib/sbpm.jar" sourcepath="/S-BPM Groupware"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/ServiceHost"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

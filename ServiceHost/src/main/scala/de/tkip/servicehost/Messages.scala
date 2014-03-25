@@ -18,5 +18,5 @@ object Messages {
   case class AddService(id: String, className: String, packagePath: String)
 
   
-  
+  case class UpdateRepository 
 }
