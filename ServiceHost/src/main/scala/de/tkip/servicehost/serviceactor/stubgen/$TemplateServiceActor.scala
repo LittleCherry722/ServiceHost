@@ -20,9 +20,6 @@ import de.tkip.sbpm.application.subject.misc.Rejected
 
 class $TemplateServiceActor extends ServiceActor {
   private val MAX_SIZE: Int = 20
-  // TODO implement inputpoolActor
-//  private val inputPoolActor: ActorRef = null
-//    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
   
   private implicit val service = this
   
