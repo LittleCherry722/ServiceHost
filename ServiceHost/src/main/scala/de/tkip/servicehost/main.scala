@@ -29,6 +29,8 @@ object main extends App {
   val repoUrl = "http://localhost:8181/repo"
 
   val system = ActorSystem("sbpm")
+
+  var serviceHost: ActorRef = null
   if (args.contains("service") && args.length >= 2) {
     val path = args(args.indexOf("service") + 1)
 
@@ -43,7 +45,8 @@ object main extends App {
   else {
     system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
-    system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    println(serviceHost.path)
     registerInterface()
   }
 
