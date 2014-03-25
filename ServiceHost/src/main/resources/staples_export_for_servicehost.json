@@ -6,60 +6,71 @@
     "id": "Staples",
     "name": "Staples",
     "type": "external",
+    "subjectType": "external",
     "deactivated": false,
     "startSubject": false,
     "inputPool": 100,
     "relatedSubject": null,
     "relatedInterface": null,
-    "isImplementation": null,
+    "relatedProcess": null,
+    "isImplementation": false,
     "externalType": "interface",
     "role": "Staples",
-    "url": null,
-    "implementations": null,
+    "implementations": [
+
+    ],
     "comment": "",
-    "variables": {},
-    "variableCounter": 1,
     "macros": [
       {
         "id": "##main##",
         "name": "internal behavior",
-        "nodeCounter": 3,
         "nodes": [
           {
             "id": 0,
             "text": "",
             "start": true,
+            "autoExecute": false,
             "end": false,
             "type": "receive",
+            "manualPositionOffsetX": 0,
+            "manualPositionOffsetY": 0,
+            "nodeType": "receive",
+            "options": {
+              "subject": "",
+              "message": "",
+              "conversation": "",
+              "correlationId": "",
+              "state": ""
+            },
             "deactivated": false,
             "majorStartNode": true,
-            "conversation": "",
+            "conversation": "c1",
             "variable": "",
-            "options": {
-              "message": "*",
-              "subject": "*",
-              "correlationId": "",
-              "conversation": "",
-              "state": null
-            },
-            "macro": "",
             "varMan": {
               "var1": "",
               "var2": "",
               "operation": "and",
               "storevar": ""
-            }
+            },
+            "createSubjects": {
+              "subject": null,
+              "storevar": "",
+              "min": -1,
+              "max": -1
+            },
+            "macro": "",
+            "comment": ""
           },
           {
             "id": 1,
             "text": "",
             "start": false,
+            "autoExecute": false,
             "end": false,
             "type": "send",
-            "deactivated": false,
-            "majorStartNode": false,
-            "conversation": "",
-            "variable": "",
+            "manualPositionOffsetX": 0,
+            "manualPositionOffsetY": 0,
+            "nodeType": "send",
             "options": {
               "message": "*",
               "subject": "*",
@@ -67,24 +78,35 @@
               "conversation": "*",
               "state": null
             },
-            "macro": "",
+            "deactivated": false,
+            "majorStartNode": false,
+            "conversation": "",
+            "variable": "",
             "varMan": {
               "var1": "",
               "var2": "",
               "operation": "and",
               "storevar": ""
-            }
+            },
+            "createSubjects": {
+              "subject": null,
+              "storevar": "",
+              "min": -1,
+              "max": -1
+            },
+            "macro": "",
+            "comment": ""
           },
           {
             "id": 2,
             "text": "",
             "start": false,
+            "autoExecute": false,
             "end": true,
             "type": "end",
-            "deactivated": false,
-            "majorStartNode": false,
-            "conversation": "",
-            "variable": "",
+            "manualPositionOffsetX": 0,
+            "manualPositionOffsetY": 0,
+            "nodeType": "end",
             "options": {
               "message": "*",
               "subject": "*",
@@ -92,13 +114,24 @@
               "conversation": "*",
               "state": null
             },
-            "macro": "",
+            "deactivated": false,
+            "majorStartNode": false,
+            "conversation": "",
+            "variable": "",
             "varMan": {
               "var1": "",
               "var2": "",
               "operation": "and",
               "storevar": ""
-            }
+            },
+            "createSubjects": {
+              "subject": null,
+              "storevar": "",
+              "min": -1,
+              "max": -1
+            },
+            "macro": "",
+            "comment": ""
           }
         ],
         "edges": [
@@ -107,6 +140,9 @@
             "end": 1,
             "text": "m3",
             "type": "exitcondition",
+            "manualPositionOffsetLabelX": 0,
+            "manualPositionOffsetLabelY": 0,
+            "edgeType": "exitcondition",
             "target": {
               "id": "Grossunternehmen",
               "min": -1,
@@ -130,6 +166,9 @@
             "end": 2,
             "text": "m2",
             "type": "exitcondition",
+            "manualPositionOffsetLabelX": 0,
+            "manualPositionOffsetLabelY": 0,
+            "edgeType": "exitcondition",
             "target": {
               "id": "Grossunternehmen",
               "min": -1,
@@ -148,9 +187,19 @@
               "internal"
             ]
           }
-        ]
+        ],
+        "nodeCounter": 3
       }
     ],
-    "macroCounter": 1
-  }
+    "macroCounter": 1,
+    "variables": {
+
+    },
+    "variableCounter": 1
+  },
+  "messages": {
+    "m3": "Bestellung",
+    "m2": "Lieferdatum"
+  },
+  "conversations": {}
 }
