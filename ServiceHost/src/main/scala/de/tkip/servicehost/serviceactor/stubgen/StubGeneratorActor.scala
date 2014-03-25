@@ -10,6 +10,9 @@ import de.tkip.servicehost.ActorLocator
 import de.tkip.servicehost.Messages._
 import akka.actor.Props
 import de.tkip.servicehost.ReferenceXMLActor
+import java.nio.file.Files
+import java.io.FileReader
+import java.io.FileWriter
 
 class StubGeneratorActor extends Actor {
   abstract class State {
@@ -24,15 +27,25 @@ class StubGeneratorActor extends Actor {
   case class ExitState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
   case class ActionState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
 
-  //   val simpleGraphSource = Source.fromURL(getClass.getResource("service_export_test_name2.json")).mkString
-  //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
-  //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
-
   def receive = {
     case path: String => {
       val (name, id, states, messages) = extractStates(path)
       fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states,messages)
+      val f:File=new File(path)
+      copyFile(path)
     }
+  }
+  def copyFile(path:String){
+    val inputFile:File = new File(path); 
+    val dir:File=new File("./src/main/resources/service_JSONs")
+    if(!dir.exists())
+      dir.mkdirs()
+    val outputFile = new File(dir+File.separator+inputFile.getName()); 
+
+    val out = new FileWriter(outputFile); 
+    val json_string = scala.io.Source.fromFile(path).getLines.mkString
+    out.write(json_string); 
+    out.close(); 
   }
   def extractStates(jsonPath: String): (String, String, List[State],Map[String,String]) = {
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString

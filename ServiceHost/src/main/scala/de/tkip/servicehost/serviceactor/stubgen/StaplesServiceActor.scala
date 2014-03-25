@@ -24,7 +24,6 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 class StaplesServiceActor extends ServiceActor {
   private val MAX_SIZE: Int = 20
 
-  // TODO implement inputpoolActor
   //  private val inputPoolActor: ActorRef = null
   //    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
 
@@ -57,9 +56,11 @@ class StaplesServiceActor extends ServiceActor {
   private var subjectID: String = ""
   private var messageType: String = ""
   private var target = -1
-
+  
+  private var isWaiting = false;
+  
   def processMsg() {
-    val key: Tuple2[String, String] = null //TODO find current key
+    val key: Tuple2[String, String] = null
     val tuple: Tuple2[ActorRef,SubjectToSubjectMessage] =(inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef,SubjectToSubjectMessage]];
     val message=tuple._2
     tosender=tuple._1
@@ -137,6 +138,7 @@ class StaplesServiceActor extends ServiceActor {
             tosender ! Stored(message.messageID)
           } else {
             tosender ! Rejected(message.messageID)
+            isWaiting = true
           }
 
         } else {

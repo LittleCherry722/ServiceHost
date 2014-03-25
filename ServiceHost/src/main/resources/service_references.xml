@@ -1,4 +1,5 @@
 <references>
         <reference service="Staples" path="de.tkip.servicehost.serviceactor.stubgen.Staples4ServiceActor"/>
+<reference service="Staples" path="de.tkip.servicehost.serviceactor.stubgen.Staples7ServiceActor"/>
 
       </references>
