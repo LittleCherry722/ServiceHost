@@ -7,7 +7,7 @@ import de.tkip.servicehost.serviceactor.ServiceActor
 object Messages {
   case class RegisterServiceMessage(code: String, subjectJson: String)
   case class ExecuteServiceMessage(processID: String, serviceID: String, payload: Any)
-  case class CreateXMLReferenceMessage(serviceID: String, classPath: String)
+  case class CreateXMLReferenceMessage(serviceID: String, classPath: String, jsonPath: String)
   case class GetClassReferenceMessage(serviceID: String)
   case class ClassReferenceMessage(serviceID: String, classReference: Class[_<: ServiceActor])
   case class ServiceResultMessage(result: Any)
