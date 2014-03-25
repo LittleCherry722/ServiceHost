@@ -16,21 +16,31 @@ import de.tkip.sbpm.application.subject.misc.Stored
 import de.tkip.servicehost.ActorLocator
 import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.Rejected
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 
-class $TemplateServiceActor extends ServiceActor {
+class StaplesServiceActor extends ServiceActor {
   private val MAX_SIZE: Int = 20
-  
+
+  //  private val inputPoolActor: ActorRef = null
+  //    context.actorOf(Props(new InputPoolActor(data)),"InputPoolActor____"+UUID.randomUUID().toString())
+
   private implicit val service = this
-  
+
   private val states: List[State] = List(
-      //$EMPTYSTATE$//
-      )
-  
+    ExitState(2, null, null, Map("" -> -1)),
+    ReceiveState(0, "exitcondition", Map("m1" -> Target("Großunternehmen", -1, -1, false, ""), "m3" -> Target("Großunternehmen", -1, -1, false, "")), Map("m1" -> 5, "m3" -> 3)),
+    SendState(1, "exitcondition", Map("m2" -> Target("Großunternehmen", -1, -1, false, "")), Map("m2" -> 2)),
+    ActionState5(5, "exitcondition", Map("" -> null), Map("" -> 1)),
+    ActionState3(3, "exitcondition", Map("" -> null), Map("" -> 1)))
+
   private val messages: Map[MessageType, MessageText] = Map(
-      //$EMPTYMESSAGE$//
-      )
-      
+    "Bestellung" -> "m1",
+    "Lieferdatum" -> "m2",
+    "ExpressBestellung" -> "m3")
+
   // start with first state
   private var state: State = getState(0)
   private var inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef,Any]]] = scala.collection.mutable.Map()
@@ -46,9 +56,11 @@ class $TemplateServiceActor extends ServiceActor {
   private var subjectID: String = ""
   private var messageType: String = ""
   private var target = -1
-
+  
+  private var isWaiting = false;
+  
   def processMsg() {
-    val key: Tuple2[String, String] = null //TODO find current key
+    val key: Tuple2[String, String] = null
     val tuple: Tuple2[ActorRef,SubjectToSubjectMessage] =(inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef,SubjectToSubjectMessage]];
     val message=tuple._2
     tosender=tuple._1
@@ -126,6 +138,7 @@ class $TemplateServiceActor extends ServiceActor {
             tosender ! Stored(message.messageID)
           } else {
             tosender ! Rejected(message.messageID)
+            isWaiting = true
           }
 
         } else {
@@ -163,5 +176,30 @@ class $TemplateServiceActor extends ServiceActor {
   def getSubjectID(): String = {
     serviceID
   }
-  //$ACTIONSTATESIMPLEMENTATION$//
+  case class ActionState5(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
+
+    val stateName = "Bestellung erhalten"
+
+    def process()(implicit actor: ServiceActor) {
+      actor.setMessage("Bestellung erhalten. Lieferung in drei Tagen")
+      actor.changeState()
+    }
+
+  }
+
+  case class ActionState3(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("action", id, exitType, targets, targetIds) {
+
+    val stateName = "Expressbestellung erhalten"
+
+    def process()(implicit actor: ServiceActor) {
+      actor.setMessage("Expressbestellung erhalten. Lieferung morgen")
+      actor.changeState()
+    }
+  }
+
 }
+
+
+
+
+

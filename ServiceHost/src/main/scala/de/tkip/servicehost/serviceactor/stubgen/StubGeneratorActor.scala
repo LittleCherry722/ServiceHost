@@ -10,6 +10,9 @@ import de.tkip.servicehost.ActorLocator
 import de.tkip.servicehost.Messages._
 import akka.actor.Props
 import de.tkip.servicehost.ReferenceXMLActor
+import java.nio.file.Files
+import java.io.FileReader
+import java.io.FileWriter
 
 class StubGeneratorActor extends Actor {
   abstract class State {
@@ -24,16 +27,13 @@ class StubGeneratorActor extends Actor {
   case class ExitState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
   case class ActionState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
 
-  //   val simpleGraphSource = Source.fromURL(getClass.getResource("service_export_test_name2.json")).mkString
-  //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
-  //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
-
   def receive = {
     case path: String => {
       val (name, id, states, messages) = extractStates(path)
-      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states,messages)
+      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states,messages,path)
     }
   }
+  
   def extractStates(jsonPath: String): (String, String, List[State],Map[String,String]) = {
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString
     val json: Option[Any] = JSON.parseFull(json_string)
@@ -83,7 +83,7 @@ class StubGeneratorActor extends Actor {
     (graph("name").asInstanceOf[String], graph("id").asInstanceOf[String], statesList,messages)
   }
 
-  def fillInClass(classPath: String, name: String, id: String, states: List[State], messages:Map[String,String]) {
+  def fillInClass(classPath: String, name: String, id: String, states: List[State], messages:Map[String,String], json:String) {
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
     var text = ""
@@ -128,7 +128,7 @@ class StubGeneratorActor extends Actor {
     pw.print(classText)
     pw.close()
     val packagePath = f.getParent().replace("\\", "/")
-    registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."))
+    registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."),json)
   }
   
   def fillInMessages(classText: String, messages:Map[String,String]):String ={
@@ -139,10 +139,25 @@ class StubGeneratorActor extends Actor {
     classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
   }
 
-  def registerService(id: String, className: String, packagePath: String) {
+  def registerService(id: String, className: String, packagePath: String,json:String) {
+    val servicePath=copyFile(json)
     val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
 
-    refAc ! CreateXMLReferenceMessage(id, packagePath + "." + className)
+    refAc ! CreateXMLReferenceMessage(id, packagePath + "." + className, servicePath)
+  }
+  
+  def copyFile(path:String):String ={
+    val inputFile:File = new File(path); 
+    val dir:File=new File("./src/main/resources/service_JSONs")
+    if(!dir.exists())
+      dir.mkdirs()
+    val outputFile = new File(dir+File.separator+inputFile.getName()); 
+
+    val out = new FileWriter(outputFile); 
+    val json_string = scala.io.Source.fromFile(path).getLines.mkString
+    out.write(json_string); 
+    out.close();
+    outputFile.getPath()
   }
 }
 
