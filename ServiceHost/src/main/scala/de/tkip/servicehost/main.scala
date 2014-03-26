@@ -57,6 +57,8 @@ object main extends App {
   val hostname: String = configString("akka.remote.netty.tcp.hostname")
   val port: Int = configString("akka.remote.netty.tcp.port").toInt
 
+  val registeredInterfaces = scala.collection.mutable.Map[Int, Reference]()
+
   val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
 
   if (args.contains("service") && args.length >= 2) {
@@ -85,7 +87,7 @@ object main extends App {
 
   def deregisterInterfaces(): Unit = {
     println("TODO: deregisterInterfaces")
-    // TODO: delete the interfaces from repo
+    // TODO: delete the interfaces from repo // for ... registeredInterfaces
   }
 
   /**
@@ -190,11 +192,10 @@ object main extends App {
     val result = post.responseCode
 
     if (result == 200) {
-      println("Registered interface for '" + interfaceName + "' at repository")
+      var id: Int = post.asString.toInt
 
-      // TODO: store id for deregistration ?
-      var id = post.asString
-      println("id: " + id)
+      println("Registered interface for '" + interfaceName + "' with id '" + id + "' at repository")
+      registeredInterfaces(id) = reference
     } else {
       println("Some error occurred; HTTP Code: " + result)
     }
