@@ -35,6 +35,14 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess Gro√üunternehmen. F√
 object main extends App {
   import DefaultJsonProtocol._
   
+
+  var currentId = 777
+  private def nextId = {
+    val id = currentId
+    currentId += 1
+    id
+  }
+
   implicit val timeout = Timeout(15 seconds)
 
   val system = ActorSystem("sbpm")
@@ -109,17 +117,19 @@ object main extends App {
       val obj: JsObject = sourceString.asJson.asInstanceOf[JsObject]
 
       val interfaceName: String = obj.getFields("name").head.convertTo[String]
-      val processId: Int = obj.getFields("processId").head.convertTo[Int]
+      val processId: Int = obj.getFields("processId").head.convertTo[Int] // TODO: needs to be included in frontend export
       val graph: GraphSubject = obj.getFields("graph").head.convertTo[GraphSubject]
       val messages: Map[String, GraphMessage] = obj.getFields("messages").head.convertTo[Map[String, GraphMessage]]
       val conversations: Map[String, GraphConversation] = obj.getFields("conversations").head.convertTo[Map[String, GraphConversation]]
 
-      val id: Int = nextId // TODO: what should be used here?
-      val interfaceId: Int = nextId // TODO: what should be used here?
-      val graphId: Int = nextId // TODO: what should be used here?
-      //val processId: Int = 21 // TODO: include processId in frontend export
-      val date: Int = 123456789 // TODO: what should be used here?
       val name: String = graph.name
+      val relatedSubjectId: String = graph.relatedSubjectId.getOrElse(name)
+      val relatedInterfaceId: Int = graph.relatedInterfaceId.getOrElse(nextId)
+
+      val id: Int = processId // TODO: what should be used here?
+      val interfaceId: Int = relatedInterfaceId // TODO: what should be used here?
+      val graphId: Int = nextId // TODO: what should be used here?
+      val date: Int = 123456789 // TODO: what should be used here?
 
 
       val impl = InterfaceImplementation(processId, interfaceId, de.tkip.sbpm.model.Address(hostname, port), name)
@@ -131,8 +141,8 @@ object main extends App {
         graph.isDisabled,
         graph.isStartSubject,
         graph.inputPool,
-        Some(name), // graph.relatedSubjectId
-        graph.relatedInterfaceId,
+        Some(relatedSubjectId), // graph.relatedSubjectId
+        Some(relatedInterfaceId), // graph.relatedSubjectId
         Some(true), // graph.isImplementation
         graph.externalType,
         graph.role,
@@ -165,6 +175,8 @@ object main extends App {
 
       println("generated interface json for '" + interfaceName + "'; POST it to repo")
 
+      //println(jsonString)
+
       val post = Http.postData(repoUrl, jsonString)
         .header("Content-Type", "application/json")
         .header("Charset", "UTF-8")
@@ -185,14 +197,6 @@ object main extends App {
 
     println("finished registerInterfaces")
   }
-
-  var currentId = 1
-  private def nextId = {
-    val id = currentId
-    currentId += 1
-    id
-  }
-
 }
 
 class ServiceHostActor extends Actor {
