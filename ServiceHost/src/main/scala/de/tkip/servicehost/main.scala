@@ -21,12 +21,6 @@ import java.io.File
 import java.io.FileOutputStream
 import de.tkip.servicehost.Messages.UpdateRepository
 
-/*
-
-Momentan funktioniert es nur so: Starte Instanz von Prozess Großunternehmen. Führe aus bis send. Message kommt hier an.
-
- */
-
 object main extends App {
 
   println("main started")
@@ -40,12 +34,9 @@ object main extends App {
 
     system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
-//    implicit val timeout = Timeout(30 seconds)
-//    val future: Future[Any]= ask(generator, path)
-//    val res = Await.result(future, timeout.duration)
     generator ! path
     system.shutdown
-  } // TODO add other root Actors
+  }
   else {
     system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
@@ -91,12 +82,10 @@ class ServiceHostActor extends Actor {
   def receive: Actor.Receive = {
     case register: RegisterServiceMessage => {
       println("received RegisterServiceMessage: " + register)
-      // TODO implement
       sender ! Some("some RegisterServiceMessage answer")
     }
     case execute: ExecuteServiceMessage => {
       println("received ExecuteServiceMessage: " + execute)
-      // TODO implement
       serviceManager forward (execute)
       sender ! Some("some ExecuteServiceMessage answer")
     }
@@ -106,13 +95,10 @@ class ServiceHostActor extends Actor {
     }
     case GetProxyActor => {
       println("received GetProxyActor")
-      // TODO implement
-      // fake ProcessInstanceProxyActor:
       serviceManager forward GetProxyActor
     }
     case message: SubjectToSubjectMessage => {
       println("got SubjectToSubjectMessage " + message + " from " + sender)
-      // TODO implement
       serviceManager forward message
     }
     case s: Stored => {

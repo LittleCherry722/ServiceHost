@@ -27,7 +27,10 @@ class ReferenceXMLActor extends Actor {
   }
 
   def createXMLReference(id: String, classPath: String, jsonPath: String) {
-    val src = Source.fromFile(new File(xmlFilePath))
+    val xmlFile=new File(xmlFilePath)
+    if(!xmlFile.exists())
+      xmlFile.createNewFile()
+    val src = Source.fromFile(xmlFile)
     val reader = new XMLEventReader(src)
     var references: List[Reference] = List()
     reader foreach {

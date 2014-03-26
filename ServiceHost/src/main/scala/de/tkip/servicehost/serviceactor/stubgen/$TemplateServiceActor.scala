@@ -66,7 +66,6 @@ class $TemplateServiceActor extends ServiceActor {
       println(message)
       storeMsg(message,sender)
       tosender = sender
-      //      this.msgMap ++= (message.messageType,state.targets())
       state match {
         case rs: ReceiveState =>
           rs.handle(message)
@@ -87,8 +86,6 @@ class $TemplateServiceActor extends ServiceActor {
       this.thisID = update.processID
       this.manager = update.manager
     }
-
-    // TODO implement other messages
   }
 
   def changeState {
@@ -119,7 +116,6 @@ class $TemplateServiceActor extends ServiceActor {
       case message: SubjectToSubjectMessage => {
         val targetID = state.targets(messages(message.messageType))
         val key = (message.messageType.toString(), targetID.toString())
-//        val key = (message.messageType, tosender)
         if (inputPool.contains(key)) {
           if (inputPool(key).size < MAX_SIZE) {
             (inputPool(key)).enqueue(Tuple2(tosender,message))
@@ -136,7 +132,6 @@ class $TemplateServiceActor extends ServiceActor {
         else this.branchCondition = null
       }
       case _ =>
-      //      	this.inputPool = message
     }
   }
 
