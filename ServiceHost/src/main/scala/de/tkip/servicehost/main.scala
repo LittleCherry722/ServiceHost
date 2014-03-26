@@ -16,6 +16,10 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
 import Messages.CreateXMLReferenceMessage
+import de.tkip.servicehost.Messages.UploadService
+import java.io.File
+import java.io.FileOutputStream
+import de.tkip.servicehost.Messages.UpdateRepository
 
 /*
 
@@ -114,9 +118,33 @@ class ServiceHostActor extends Actor {
     case s: Stored => {
       println("received Stored: " + s)
     }
+    case upload: UploadService => {
+      val jsonPath = "src/main/resources/service_JSONs"
+      val classPath = "target/scala-2.10/classes/de/tkip/servicehost/serviceactor/stubgen"
+      
+      extractFile(upload.serviceClassName, upload.serviceClass, "CLASS")
+      extractFile(upload.serviceJsonName, upload.serviceJson, "JSON")
+      
+      ActorLocator.referenceXMLActor ! CreateXMLReferenceMessage(upload.serviceId, classPath.replaceAll("target/scala-2.10/classes/", "").replaceAll("/", ".")
+          + "." + upload.serviceClassName.replaceAll(".class", ""), jsonPath + "/" + upload.serviceJsonName)
+      main.registerInterface
+    }
+    case update: UpdateRepository => {
+      main.registerInterface
+    }
     case something => {
       println("received something: " + something)
       sender ! Some("some answer")
     }
   }
+  
+  def extractFile(fileName: String, file: Array[Byte], path: String) {
+    val filePath = new File(path + "/" + fileName)
+    if (!filePath.getParentFile().exists()) filePath.getParentFile().mkdirs()
+    
+    val fos = new FileOutputStream(filePath)
+    fos.write(file, 0, file.length)
+    fos.close()
+  }
+  
 }
