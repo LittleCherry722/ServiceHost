@@ -125,7 +125,7 @@ object main extends App {
     val obj: JsObject = sourceString.asJson.asInstanceOf[JsObject]
 
     val interfaceName: String = obj.getFields("name").head.convertTo[String]
-    val processId: Int = obj.getFields("processId").head.convertTo[Int] // TODO: needs to be included in frontend export
+    val processId: Int = obj.getFields("processId").head.convertTo[Int]
     val graph: GraphSubject = obj.getFields("graph").head.convertTo[GraphSubject]
     val messages: Map[String, GraphMessage] = obj.getFields("messages").head.convertTo[Map[String, GraphMessage]]
     val conversations: Map[String, GraphConversation] = obj.getFields("conversations").head.convertTo[Map[String, GraphConversation]]
