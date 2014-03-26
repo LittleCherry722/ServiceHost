@@ -4,6 +4,10 @@ import akka.actor._
 import akka.pattern.ask
 import scala.concurrent.Await
 import akka.util.Timeout
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Await;
+import scala.concurrent.Promise;
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.collection.mutable.Map
@@ -35,7 +39,11 @@ object main extends App {
 
     system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
-    generator ! path
+
+    implicit val timeout = Timeout(10 seconds)
+    val future = generator ? path // enabled by the “ask” import
+//    val result = Await.result(future, timeout.duration)
+
     system.shutdown
   } else {
     system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")

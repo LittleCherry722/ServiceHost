@@ -31,9 +31,9 @@ class $TemplateServiceActor extends ServiceActor {
       //$EMPTYMESSAGE$//
       )
       
-  // start with first state
+   // start with first state
   private var state: State = getState(0)
-  private var inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef,Any]]] = scala.collection.mutable.Map()
+  private var inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef, Any]]] = scala.collection.mutable.Map()
   private var tosender: ActorRef = null
 
   private val serviceID: String = "Staples"
@@ -48,10 +48,21 @@ class $TemplateServiceActor extends ServiceActor {
   private var target = -1
 
   def processMsg() {
-    val key: Tuple2[String, String] = null //TODO find current key
-    val tuple: Tuple2[ActorRef,SubjectToSubjectMessage] =(inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef,SubjectToSubjectMessage]];
-    val message=tuple._2
-    tosender=tuple._1
+
+    var targetID = "";
+      
+      for (msgType <- messages.keySet) {
+        if (messages(msgType) == this.branchCondition) {
+          messageType = msgType;
+
+        }
+      }
+    targetID = state.targets(this.branchCondition).target.subjectID
+
+    val key = (messageType, targetID)
+    val tuple: Tuple2[ActorRef, SubjectToSubjectMessage] = (inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef, SubjectToSubjectMessage]];
+    val message = tuple._2
+    tosender = tuple._1
     state match {
       case rs: ReceiveState =>
         rs.handle(message)
@@ -64,10 +75,12 @@ class $TemplateServiceActor extends ServiceActor {
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
       println(message)
-      storeMsg(message,sender)
+      storeMsg(message, sender)
       tosender = sender
+
       state match {
         case rs: ReceiveState =>
+          processMsg()
           rs.handle(message)
         case _ =>
           println(state + " no match")
@@ -97,12 +110,6 @@ class $TemplateServiceActor extends ServiceActor {
 
     } else state = getState(state.targetIds.head._2)
 
-    println(state.id)
-    state match {
-      case rs: ReceiveState =>
-        processMsg()
-      case _ => 
-    }
     state.process
 
   }
@@ -115,21 +122,23 @@ class $TemplateServiceActor extends ServiceActor {
     message match {
       case message: SubjectToSubjectMessage => {
         val targetID = state.targets(messages(message.messageType))
-        val key = (message.messageType.toString(), targetID.toString())
+        val key = (message.messageType.toString(), targetID.target.subjectID)
         if (inputPool.contains(key)) {
           if (inputPool(key).size < MAX_SIZE) {
-            (inputPool(key)).enqueue(Tuple2(tosender,message))
+            (inputPool(key)).enqueue(Tuple2(tosender, message))
             tosender ! Stored(message.messageID)
           } else {
             tosender ! Rejected(message.messageID)
           }
 
         } else {
-          inputPool(key) = Queue(Tuple2(tosender,message))
+          inputPool(key) = Queue(Tuple2(tosender, message))
           tosender ! Stored(message.messageID)
         }
-        if (state.targetIds.size > 1) this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
-        else this.branchCondition = null
+        if (state.targetIds.size > 1) 
+          this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
+        else 
+          this.branchCondition = state.targetIds.head._1
       }
       case _ =>
     }
