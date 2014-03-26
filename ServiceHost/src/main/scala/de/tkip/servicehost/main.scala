@@ -33,6 +33,8 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess Gro√üunternehmen. F√
 
 
 object main extends App {
+  println("main starting..")
+
   import DefaultJsonProtocol._
   
 
@@ -50,8 +52,10 @@ object main extends App {
   protected def configString(key: String) =
     system.settings.config.getString(key)
 
-  println("main started")
+
   val repoUrl = configString("sbpm.repo.address") + "/interfaces"
+  val hostname: String = configString("akka.remote.netty.tcp.hostname")
+  val port: Int = configString("akka.remote.netty.tcp.port").toInt
 
   val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
 
@@ -96,15 +100,17 @@ object main extends App {
   def registerInterfaces(): Unit = {
     println("registerInterfaces")
     
-    val hostname: String = configString("akka.remote.netty.tcp.hostname")
-    val port: Int = configString("akka.remote.netty.tcp.port").toInt
-
 
     println("ask ReferenceXMLActor for all registered services")
     val referencesFuture: Future[Any] = referenceXMLActor ? GetAllClassReferencesMessage
     val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
-
     for {reference <- references} {
+      registerInterface(reference)
+    }
+    println("finished registerInterfaces")
+  }
+
+  def registerInterface(reference: Reference): Unit = {
       println("read service: " + reference)
 
       val file = reference.jsonpath
@@ -192,11 +198,9 @@ object main extends App {
       } else {
         println("Some error occurred; HTTP Code: " + result)
       }
-
-    }
-
-    println("finished registerInterfaces")
   }
+
+  println("main started")
 }
 
 class ServiceHostActor extends Actor {
