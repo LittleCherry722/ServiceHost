@@ -40,7 +40,7 @@ import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.rest.google.GDriveActor.{ GetFileInfo, PublishFile }
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 import de.tkip.sbpm.logging.DefaultLogging
-import com.google.api.services.drive.model.{ Permission }
+import com.google.api.services.drive.model.Permission
 import de.tkip.sbpm.model.ChangeDataMode._
 import java.util.UUID
 
@@ -97,10 +97,10 @@ protected case class SendStateActor(data: StateData)
   override def preStart() {
     if (!sendTarget.toExternal) {
       blockingHandlerActor ! BlockUser(userID)
-      val msg = (RequestUserID(
+      val msg = RequestUserID(
         SubjectInformation(processID, processInstanceID, sendTarget.subjectID),
-        TargetUsers(_)))
-      ActorLocator.contextResolverActor ! msg
+        TargetUsers(_))
+      ActorLocator.contextResolverActor !! msg
     } else {
       targetUserIDs = Some(Array())
     }
@@ -134,7 +134,7 @@ protected case class SendStateActor(data: StateData)
           unsentMessageIDs(messageID) = transition
 
           log.debug("Send@" + userID + "/" + subjectID + ": Message[" +
-            messageID + "} \"" + messageType + "to " + transition.target +
+            messageID + "] \"" + messageType + " to " + transition.target +
             "\" with content \"" + messageContent.get + "\"")
 
           // This ArrayBuffer stores the user, which should be blocked

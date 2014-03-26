@@ -29,7 +29,7 @@ object RepoActor {
 
   case class AddInterface(ip: HttpIp, entry: String)
 
-  case class GetImplementations(subjectId: String)
+  case class GetImplementations(subjectIds: Seq[String])
 
   case object Reset
 
@@ -64,11 +64,13 @@ class RepoActor extends Actor with ActorLogging {
       sender ! filtered.toJson
     }
 
-    case GetImplementations(subjectId) => {
-      val implementations = implementationsFor(subjectId).toJson
-      log.info("Gathering list of implementations for: {}: {}", subjectId, implementations.prettyPrint)
+    case GetImplementations(subjectIds) => {
+      val implementationsMap = subjectIds.foldLeft(Map[String, Seq[InterfaceImplementation]]()){ (m, s) =>
+        m + (s -> implementationsFor(s))
+      }
+      log.info("Gathering list of implementations for: {}", implementationsMap.toJson.prettyPrint)
 
-      sender ! implementations.toString
+      sender ! implementationsMap.toJson.toString
     }
 
     case AddInterface(ip, entry) => {
@@ -105,7 +107,7 @@ class RepoActor extends Actor with ActorLogging {
     ))
   }
 
-  private def getAddress(ip: HttpIp, entry: JsObject) = {0
+  private def getAddress(ip: HttpIp, entry: JsObject) = {
     val port = entry.fields("port")
     Address(ip.value, port.toString.toInt)
   }

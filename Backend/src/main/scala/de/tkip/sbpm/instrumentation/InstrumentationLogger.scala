@@ -16,10 +16,20 @@ object InstrumentationLogger {
   private val log = LoggerFactory.getLogger("InstrumentationLogger")
 
   private val askMessages = mutable.Map[String,String]()
+  private val classMessages = mutable.Map[Int,String]()
 
   def logMessage(m: LogMessage) = {
     this.synchronized {
-      val from = getName(m.from)
+      val from = getName(m.from, m.message)
+      val to = getName(m.to.toString())
+      log.info("TRACE: from " + from + " to " + to + " " + messageString(m.message))
+    }
+  }
+
+  def logClassMessage(m: LogMessage) = {
+    this.synchronized {
+      classMessages(m.message.hashCode()) = m.from
+      val from = getName(m.from, m.message)
       val to = getName(m.to.toString())
       log.info("TRACE: from " + from + " to " + to + " " + messageString(m.message))
     }
@@ -34,15 +44,17 @@ object InstrumentationLogger {
 
   def logAnswer(m: AnswerMessage) = {
     this.synchronized {
-      val from = getName(m.from)
+      val from = getName(m.from, m.message)
       val to = getName(m.to.toString())
       log.info("TRACE: from " + from + " to " + to + " " + messageString(m.message))
     }
   }
 
-  private def getName(actor: String) = {
+  private def getName(actor: String, msg: Any = 0) = {
     if (actor.contains("temp")) {
       askMessages.getOrElse(actor, actor)
+    } else if (actor.contains("deadLetters")) {
+      classMessages.getOrElse(msg.hashCode(), actor)
     } else {
       actor
     }

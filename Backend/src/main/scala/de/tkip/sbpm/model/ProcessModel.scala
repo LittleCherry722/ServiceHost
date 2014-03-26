@@ -110,8 +110,20 @@ case class ExternalSubject(
   relatedProcessId: Option[Int],
   relatedInterfaceId: Option[Int],
   isImplementation: Option[Boolean],
-  url: Option[String],
   variablesMap:Map[String,String]) extends SubjectLike {
   lazy val external = true
 }
-case class ProcessGraph(subjects: Map[String, SubjectLike])
+
+case class Agent(processId: Int,
+                 interfaceId: Int,
+                 address: AgentAddress,
+                 subjectId: String)
+case class AgentAddress(ip: String, port: Int) {
+  def toUrl = ip + ":" + port
+}
+
+case class ProcessGraph(subjects: Map[String, SubjectLike]) {
+  def externalSubjects = subjects.values.filter { s: SubjectLike =>
+    s.external
+  }
+}

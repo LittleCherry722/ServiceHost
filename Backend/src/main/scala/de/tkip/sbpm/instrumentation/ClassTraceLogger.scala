@@ -17,7 +17,7 @@ trait ClassTraceLogger {
 
   implicit class ActorRefWrapper(val a: ActorRef) {
     def !!(msg: Any) = {
-      InstrumentationLogger.logMessage(LogMessage(msg, klass.getSimpleName, a.toString()))
+      InstrumentationLogger.logClassMessage(LogMessage(msg, klass.getSimpleName, a.toString()))
       a ! msg
     }
     def ??(msg: Any) = a ? {

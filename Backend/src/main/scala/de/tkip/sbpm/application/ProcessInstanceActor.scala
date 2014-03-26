@@ -28,21 +28,29 @@ import de.tkip.sbpm.model.Process
 import de.tkip.sbpm.model.ProcessInstance
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
-import akka.event.Logging
 import scala.collection.mutable.Map
 import akka.actor.Status.Failure
+import scalaj.http.{Http, HttpOptions}
+import spray.json._
+import DefaultJsonProtocol._
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
 import de.tkip.sbpm.model.ExternalSubject
+import de.tkip.sbpm.model.Agent
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 
-case class MappingInfo(subjectId: SubjectID, processId: ProcessID, address: String)
+object ProcessInstanceActor {
+  type MappingInfo = Set[Agent]
+  type AgentsMap = Map[SubjectID, MappingInfo]
+}
 
 /**
  * instantiates SubjectActor's and manages their interactions
  */
 class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedActor {
+  import ProcessInstanceActor.{ MappingInfo, AgentsMap }
+
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
@@ -64,6 +72,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private def isTerminated = runningSubjectCounter == 0
   // this map stores all Subject(Container) with their IDs
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
+  private var agentsMap = request.agentsMap
 
   val url = SystemProperties.akkaRemoteUrl
   private val processInstanceManger: ActorRef =
@@ -78,7 +87,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)), "ProcessInstanceProxyActor____" + UUID.randomUUID().toString())
 
   override def preStart() {
-    log.debug("subject mapping: {}", request.subjectMapping)
+    log.debug("subject mapping: {}", request.agentsMap)
 
     try {
       // TODO schoener machen
@@ -178,8 +187,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       createReadProcessInstanceAnswer(message)
     }
 
-    case message: GetSubjectMapping => {
-      val mappingResponse = SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
+    case message: GetAgentsList => {
+      val mappingResponse = GetAgentsListResponse(createSubjectMapping(message.processId, message.url).toMap)
       sender !! mappingResponse
     }
   }
@@ -226,8 +235,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
-    val optionalId = if (subject.external) {
-      Some(externalSubjectMapping(subject.asInstanceOf[ExternalSubject]))
+    val maybeAgent = if (subject.external) {
+      Some(externalSubjectAgent(subject.asInstanceOf[ExternalSubject]).head)
     } else {
       None
     }
@@ -239,17 +248,38 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       processInstanceManger,
       log,
       blockingHandlerActor,
-      optionalId,
+      maybeAgent,
       () => runningSubjectCounter += 1,
       () => runningSubjectCounter -= 1)
   }
 
-  private def externalSubjectMapping(subject: ExternalSubject): MappingInfo = {
-    if (request.subjectMapping.contains(subject.id)) {
-      request.subjectMapping(subject.id)
-    } else {
-      MappingInfo(subject.relatedSubjectId.get, subject.relatedProcessId.get, subject.url.get)
+  private def externalSubjectAgent(subject: ExternalSubject): Set[Agent] = {
+    // If an agents list for this subject exists, use it.
+    // Otherwise update the list and return agents for this external subject.
+    // May still be an empty set if no agents exist.
+    request.agentsMap.get(subject.id) match {
+      case Some(agentsMap) => agentsMap
+      case None => {
+        updateAgentsMapping()
+        request.agentsMap(subject.id)
+      }
     }
+  }
+
+  private def updateAgentsMapping(): AgentsMap = {
+    // Get the IDs of all external Subjects, then only take those for which we do not have
+    // a agentMap, aka external subjects with unknown agents
+    val externalSubjectIds = graph.externalSubjects.map(_.id).filterNot { sid =>
+      agentsMap.contains(sid)
+    }
+    // Create a string of all external subjects to query the repository with
+    val externalSubjectIdsString = externalSubjectIds.mkString("::")
+    // and ask the repository for agents for all unknown external subjects
+    val newAgentsMap = Http("http://foo.com/search").param("subjects", externalSubjectIdsString)
+      .asString.toJson.convertTo[Map[SubjectID, Set[Agent]]]
+    // Append new agents list from the repository to currently existing List of Agents
+    agentsMap = agentsMap ++ newAgentsMap
+    agentsMap
   }
 
   private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, MappingInfo] = {

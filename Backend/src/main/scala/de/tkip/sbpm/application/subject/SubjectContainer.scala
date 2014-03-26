@@ -19,12 +19,13 @@ import akka.actor.Props
 import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
-import de.tkip.sbpm.application.{ MappingInfo, SubjectCreated, RegisterSingleSubjectInstance }
+import de.tkip.sbpm.application.{ SubjectCreated, RegisterSingleSubjectInstance }
+import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.subject.misc._
-import de.tkip.sbpm.model.SubjectLike
+import de.tkip.sbpm.model.{Agent, SubjectLike}
 import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import scala.concurrent.ExecutionContext
@@ -46,7 +47,7 @@ class SubjectContainer(
   processInstanceManager: ActorRef,
   log: LoggingAdapter,
   blockingHandlerActor: ActorRef,
-  mapping: Option[MappingInfo],
+  agent: Option[Agent],
   increaseSubjectCounter: () => Unit,
   decreaseSubjectCounter: () => Unit)(implicit context: ActorContext) extends  ClassTraceLogger {
 
@@ -103,13 +104,14 @@ class SubjectContainer(
 
       reStartSubject(userID)
     } else {
-      log.debug("CREATE: {}", subjectData.subject)
+      log.debug("CREATE EXTERNAL: {}", subjectData.subject)
 
       // process schon vorhanden?
       // TODO mit futures
+      // TODO make sure the agent is available (Some) and not None
       val processInstanceRef =
         (processInstanceManager ?
-          GetProcessInstanceProxy(mapping.get.processId, mapping.get.address))
+          GetProcessInstanceProxy(agent.get))
           .mapTo[ActorRef]
 
       log.debug("CREATE: processInstanceRef = {}", processInstanceRef)
@@ -174,7 +176,7 @@ class SubjectContainer(
 
       if (external) {
         // exchange the target subject id
-        message.target.subjectID = mapping.get.subjectId
+        message.target.subjectID = agent.get.subjectId
         log.debug("SEND (target exchanged): {}", message)
 
         // TODO we need this unblock!

@@ -20,6 +20,8 @@ import spray.http.{HttpIp, StatusCodes, HttpResponse}
 import de.tkip.sbpm.repo.RepoActor._
 import scala.concurrent.duration._
 import akka.util.Timeout
+import reflect.ClassTag
+
 
 
 object Boot extends App with SimpleRoutingApp {
@@ -42,11 +44,13 @@ object Boot extends App with SimpleRoutingApp {
             }
           } ~ pathPrefix("implementations") {
             get {
-              path(Rest) {
-                subjectId =>
-                  complete {
-                    (repoActor ? GetImplementations(subjectId)).mapTo[String]
-                  }
+              path("") {
+                parameter("subjectIds") {
+                  (subjectIdsString) =>
+                    complete {
+                      (repoActor ? GetImplementations(subjectIdsString.split("::"))).mapTo[String]
+                    }
+                }
               }
             }
           } ~ pathPrefix("interfaces") {
