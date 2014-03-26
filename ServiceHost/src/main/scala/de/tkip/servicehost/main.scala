@@ -111,93 +111,93 @@ object main extends App {
   }
 
   def registerInterface(reference: Reference): Unit = {
-      println("read service: " + reference)
+    println("read service: " + reference)
 
-      val file = reference.jsonpath
-      val source = scala.io.Source.fromFile(file)
-      val sourceString: String = source.mkString
-      source.close()
+    val file = reference.jsonpath
+    val source = scala.io.Source.fromFile(file)
+    val sourceString: String = source.mkString
+    source.close()
 
-      // create objects from json
+    // create objects from json
 
-      val obj: JsObject = sourceString.asJson.asInstanceOf[JsObject]
+    val obj: JsObject = sourceString.asJson.asInstanceOf[JsObject]
 
-      val interfaceName: String = obj.getFields("name").head.convertTo[String]
-      val processId: Int = obj.getFields("processId").head.convertTo[Int] // TODO: needs to be included in frontend export
-      val graph: GraphSubject = obj.getFields("graph").head.convertTo[GraphSubject]
-      val messages: Map[String, GraphMessage] = obj.getFields("messages").head.convertTo[Map[String, GraphMessage]]
-      val conversations: Map[String, GraphConversation] = obj.getFields("conversations").head.convertTo[Map[String, GraphConversation]]
+    val interfaceName: String = obj.getFields("name").head.convertTo[String]
+    val processId: Int = obj.getFields("processId").head.convertTo[Int] // TODO: needs to be included in frontend export
+    val graph: GraphSubject = obj.getFields("graph").head.convertTo[GraphSubject]
+    val messages: Map[String, GraphMessage] = obj.getFields("messages").head.convertTo[Map[String, GraphMessage]]
+    val conversations: Map[String, GraphConversation] = obj.getFields("conversations").head.convertTo[Map[String, GraphConversation]]
 
-      val name: String = graph.name
-      val relatedSubjectId: String = graph.relatedSubjectId.getOrElse(name)
-      val relatedInterfaceId: Int = graph.relatedInterfaceId.getOrElse(nextId)
+    val name: String = graph.name
+    val relatedSubjectId: String = graph.relatedSubjectId.getOrElse(name)
+    val relatedInterfaceId: Int = graph.relatedInterfaceId.getOrElse(nextId)
 
-      val id: Int = processId // TODO: what should be used here?
-      val interfaceId: Int = relatedInterfaceId // TODO: what should be used here?
-      val graphId: Int = nextId // TODO: what should be used here?
-      val date: Int = 123456789 // TODO: what should be used here?
+    val id: Int = processId // TODO: what should be used here?
+    val interfaceId: Int = relatedInterfaceId // TODO: what should be used here?
+    val graphId: Int = nextId // TODO: what should be used here?
+    val date: Int = 123456789 // TODO: what should be used here?
 
 
-      val impl = InterfaceImplementation(processId, interfaceId, de.tkip.sbpm.model.Address(hostname, port), name)
+    val impl = InterfaceImplementation(processId, interfaceId, de.tkip.sbpm.model.Address(hostname, port), name)
 
-      val newGraph = GraphSubject(
-        graph.id,
-        graph.name,
-        graph.subjectType,
-        graph.isDisabled,
-        graph.isStartSubject,
-        graph.inputPool,
-        Some(relatedSubjectId), // graph.relatedSubjectId
-        Some(relatedInterfaceId), // graph.relatedSubjectId
-        Some(true), // graph.isImplementation
-        graph.externalType,
-        graph.role,
-        List(impl), // graph.implementations
-        graph.comment,
-        graph.variables,
-        graph.macros
-      )
+    val newGraph = GraphSubject(
+      graph.id,
+      graph.name,
+      graph.subjectType,
+      graph.isDisabled,
+      graph.isStartSubject,
+      graph.inputPool,
+      Some(relatedSubjectId), // graph.relatedSubjectId
+      Some(relatedInterfaceId), // graph.relatedSubjectId
+      Some(true), // graph.isImplementation
+      graph.externalType,
+      graph.role,
+      List(impl), // graph.implementations
+      graph.comment,
+      graph.variables,
+      graph.macros
+    )
 
-      // TODO: graphJsonFormat is inconsistent, if that is resolved create a Graph instance instead of JsValues
-      val interface = JsObject(
-        "id" -> id.toJson,
-        "interfaceId" -> interfaceId.toJson,
-        "name" -> interfaceName.toJson,
-        "port" -> port.toJson,
-        "graph" -> JsObject(
-          "id" -> graphId.toJson,
-          "processId" -> processId.toJson,
-          "date" -> date.toJson,
-          "routings" -> JsArray(), // TODO: may not leave empty?
-          "definition" -> JsObject(
-            "conversations" -> conversations.toJson,
-            "messages" -> messages.toJson,
-            "process" -> List(newGraph).toJson
-          )
+    // TODO: graphJsonFormat is inconsistent, if that is resolved create a Graph instance instead of JsValues
+    val interface = JsObject(
+      "id" -> id.toJson,
+      "interfaceId" -> interfaceId.toJson,
+      "name" -> interfaceName.toJson,
+      "port" -> port.toJson,
+      "graph" -> JsObject(
+        "id" -> graphId.toJson,
+        "processId" -> processId.toJson,
+        "date" -> date.toJson,
+        "routings" -> JsArray(), // TODO: may not leave empty?
+        "definition" -> JsObject(
+          "conversations" -> conversations.toJson,
+          "messages" -> messages.toJson,
+          "process" -> List(newGraph).toJson
         )
       )
+    )
 
-      val jsonString = interface.prettyPrint // TODO: compactPrint 
+    val jsonString = interface.prettyPrint // TODO: compactPrint 
 
-      println("generated interface json for '" + interfaceName + "'; POST it to repo")
+    println("generated interface json for '" + interfaceName + "'; POST it to repo")
 
-      //println(jsonString)
+    //println(jsonString)
 
-      val post = Http.postData(repoUrl, jsonString)
-        .header("Content-Type", "application/json")
-        .header("Charset", "UTF-8")
-        .option(HttpOptions.connTimeout(10000)).option(HttpOptions.readTimeout(30000))
-      val result = post.responseCode
+    val post = Http.postData(repoUrl, jsonString)
+      .header("Content-Type", "application/json")
+      .header("Charset", "UTF-8")
+      .option(HttpOptions.connTimeout(10000)).option(HttpOptions.readTimeout(30000))
+    val result = post.responseCode
 
-      if (result == 200) {
-        println("Registered interface for '" + interfaceName + "' at repository")
+    if (result == 200) {
+      println("Registered interface for '" + interfaceName + "' at repository")
 
-        // TODO: store id for deregistration ?
-        var id = post.asString
-        println("id: " + id)
-      } else {
-        println("Some error occurred; HTTP Code: " + result)
-      }
+      // TODO: store id for deregistration ?
+      var id = post.asString
+      println("id: " + id)
+    } else {
+      println("Some error occurred; HTTP Code: " + result)
+    }
   }
 
   println("main started")
