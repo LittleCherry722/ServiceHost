@@ -1,5 +1,3 @@
 <references>
 
-<reference service="Staples" path="de.tkip.servicehost.serviceactor.stubgen.StaplesServiceActor" json=".\src\main\resources\service_JSONs\service_export_staples.json"/>
-
       </references>

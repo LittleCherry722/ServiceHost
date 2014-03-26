@@ -3,7 +3,6 @@ package de.tkip.serviceupdate
 import akka.actor._
 import akka.remote._
 import de.tkip.servicehost.Messages._
-import de.tkip.servicehost.ServiceHostActor
 import de.tkip.serviceupdate.Messages.UploadServiceToHost
 import java.io.File
 
@@ -37,6 +36,7 @@ object boot extends App {
       port = args(0).split(":")(1)
       serviceId = args(1)
       className = args(2)
+      if (!className.endsWith(".class")) className = className + ".class" 
       jsonName = args(3)      
       
       updateActor ! UploadServiceToHost(host, port, serviceId, className, jsonName)
@@ -46,20 +46,10 @@ object boot extends App {
 	  println("If [serviceID serviceClass serviceJSON] are defined the specified service will be uploaded to the targethost."
 	      + " Otherwise only an UpdateRepository-Message is sent to the host")
     }
-      
   } else {
 	  println("No target defined.")
 	  println("Usage: hostname:port [serviceID serviceClass serviceJSON]")
 	  println("If [serviceID serviceClass serviceJSON] are defined the specified service will be uploaded to the targethost."
 	      + " Otherwise only an UpdateRepository-Message is sent to the host")
   }
-  
-  
-//  val serviceHostURI = AddressFromURIString("akka.tcp://sbpm@localhost:2553")
-//  val serviceHost = system.actorOf(Props[ServiceHostActor].withDeploy(Deploy(scope = RemoteScope(serviceHostURI))))
-//  val serviceHost = system.actorFor("akka.tcp://sbpm@127.0.0.1:2553/user/subject-provider-manager")
-//  val serviceHost = system.actorSelection("akka.tcp://sbpm@localhost:2553/user/subject-provider-manager")
-  
-//  val serviceHost = system.actorOf(Props[ServiceHostActor], "serviceHost")
-  
 }

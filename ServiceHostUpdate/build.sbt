@@ -14,4 +14,3 @@ libraryDependencies ++= Seq(
     "org.scalaj" %% "scalaj-http" % "0.3.12"
 )
 
-unmanagedSourceDirectories in Compile += file("../ServiceHost/src/main/scala")
