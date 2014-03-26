@@ -61,7 +61,7 @@ class RepoActor extends Actor with ActorLogging {
 
       log.info("entries for id: {}", filtered.toJson.toString)
 
-      sender ! filtered.toJson
+      sender ! filtered.toJson.toString
     }
 
     case GetImplementations(subjectId) => {
@@ -105,7 +105,7 @@ class RepoActor extends Actor with ActorLogging {
     ))
   }
 
-  private def getAddress(ip: HttpIp, entry: JsObject) = {0
+  private def getAddress(ip: HttpIp, entry: JsObject) = {
     val port = entry.fields("port")
     Address(ip.value, port.toString.toInt)
   }

@@ -85,7 +85,7 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit object interfaceFormat extends RootJsonFormat[Interface] {
     def write(a: Interface) = JsObject(
       "id" -> JsNumber(a.id),
-      "processIdd" -> JsNumber(a.processId),
+      "processId" -> JsNumber(a.processId),
       "name" -> JsString(a.name),
       "graph" -> a.graph.toJson
     )
