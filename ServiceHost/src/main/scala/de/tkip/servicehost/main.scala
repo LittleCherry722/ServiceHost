@@ -2,8 +2,8 @@ package de.tkip.servicehost
 
 import java.util.Date
 import spray.json._
-import DefaultJsonProtocol._
 import scala.collection.mutable.ArrayBuffer
+import scala.util.parsing.json.JSON
 
 import akka.actor._
 import akka.pattern.ask
@@ -14,6 +14,8 @@ import scala.concurrent.Future
 import scalaj.http.{ Http, HttpOptions }
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.model.GraphJsonProtocol._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -31,6 +33,8 @@ Momentan funktioniert es nur so: Starte Instanz von Prozess GroÃŸunternehmen. FÃ
 
 
 object main extends App {
+  import DefaultJsonProtocol._
+  
   implicit val timeout = Timeout(15 seconds)
 
   val system = ActorSystem("sbpm")
@@ -56,20 +60,20 @@ object main extends App {
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
     system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
     system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
-    registerInterface()
+    registerInterfaces()
 
     sys.addShutdownHook {
       println("Shutting down the system...")
       // TODO: stop futures / running actors
-      deregisterInterface()
+      deregisterInterfaces()
 
       system.shutdown();
     }
   }
 
-  def deregisterInterface(): Unit = {
-    println("deregisterInterface")
-    // TODO: delete this interface from repo
+  def deregisterInterfaces(): Unit = {
+    println("TODO: deregisterInterfaces")
+    // TODO: delete the interfaces from repo
   }
 
   /**
@@ -81,91 +85,114 @@ object main extends App {
    * msg from Lokal -> Extern: input
    * msg from Extern -> Lokal: output
    */
-  def registerInterface(): Unit = {
-    println("registerInterface")
+  def registerInterfaces(): Unit = {
+    println("registerInterfaces")
+    
+    val hostname: String = configString("akka.remote.netty.tcp.hostname")
+    val port: Int = configString("akka.remote.netty.tcp.port").toInt
+
 
     println("ask ReferenceXMLActor for all registered services")
     val referencesFuture: Future[Any] = referenceXMLActor ? GetAllClassReferencesMessage
     val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
 
     for {reference <- references} {
-      println("reference: " + reference)
-    }
+      println("read service: " + reference)
 
-    val processes = ArrayBuffer[JsValue]()
-
-    println("read processes")
-    // TODO: read directory
-    for {file <- Array("./src/main/resources/staples.json")} {
-      println("read process " + file)
-
+      val file = reference.jsonpath
       val source = scala.io.Source.fromFile(file)
       val sourceString: String = source.mkString
       source.close()
 
-      // TODO: set graph.relatedSubject
-      // TODO: set graph.relatedInterface
-      // TODO: set graph.isImplementation
-      // TODO: set graph.implementations
-      // TODO: remove graph.{url, variableCounter, macroCounter}
-      // TODO: what should be done in the frontend, what here?
-      val sourceJson: JsValue = sourceString.asJson
-      val processGraph: JsValue = sourceJson.asInstanceOf[JsObject].getFields("graph").head
-      processes += processGraph
-    }
+      // create objects from json
 
-    println("read all processes")
+      val obj: JsObject = sourceString.asJson.asInstanceOf[JsObject]
 
-    // TODO: direkt JsObjects erzeugen
-    // TODO: extract conversations and messages from processes
-    // TODO: id is required. what does it mean?
-    // TODO: graph.id is required. what does it mean?
-    // TODO: graph.routings is required. what does it mean?
-    // TODO: only one graph, that has one processId, but multiple processes
-    // TODO: interfaceId can be optional
-    // TODO: graph.date: use current time?
-    val interfaceJson: JsValue = ("""
-    {
-      "id": 1,
-      "interfaceId": """+configString("sbpm.servicehost.interface.id")+""",
-      "name": """"+configString("sbpm.servicehost.interface.name")+"""",
-      "port": """+configString("akka.remote.netty.tcp.port")+""",
-      "graph": {
-        "id": 123456,
-        "processId": 21,
-        "date": 123456789,
-        "routings": [],
-        "definition": {
-          "conversations": {"a": "b"},
-          "messages": {"c": "d"},
-          "process": """ + processes.toArray.toJson.prettyPrint + """
-        }
+      val interfaceName: String = obj.getFields("name").head.convertTo[String]
+      val processId: Int = obj.getFields("processId").head.convertTo[Int]
+      val graph: GraphSubject = obj.getFields("graph").head.convertTo[GraphSubject]
+      val messages: Map[String, GraphMessage] = obj.getFields("messages").head.convertTo[Map[String, GraphMessage]]
+      val conversations: Map[String, GraphConversation] = obj.getFields("conversations").head.convertTo[Map[String, GraphConversation]]
+
+      val id: Int = nextId // TODO: what should be used here?
+      val interfaceId: Int = nextId // TODO: what should be used here?
+      val graphId: Int = nextId // TODO: what should be used here?
+      //val processId: Int = 21 // TODO: include processId in frontend export
+      val date: Int = 123456789 // TODO: what should be used here?
+      val name: String = graph.name
+
+
+      val impl = InterfaceImplementation(processId, interfaceId, de.tkip.sbpm.model.Address(hostname, port), name)
+
+      val newGraph = GraphSubject(
+        graph.id,
+        graph.name,
+        graph.subjectType,
+        graph.isDisabled,
+        graph.isStartSubject,
+        graph.inputPool,
+        Some(name), // graph.relatedSubjectId
+        graph.relatedInterfaceId,
+        Some(true), // graph.isImplementation
+        graph.externalType,
+        graph.role,
+        List(impl), // graph.implementations
+        graph.comment,
+        graph.variables,
+        graph.macros
+      )
+
+      // TODO: graphJsonFormat is inconsistent, if that is resolved create a Graph instance instead of JsValues
+      val interface = JsObject(
+        "id" -> id.toJson,
+        "interfaceId" -> interfaceId.toJson,
+        "name" -> interfaceName.toJson,
+        "port" -> port.toJson,
+        "graph" -> JsObject(
+          "id" -> graphId.toJson,
+          "processId" -> processId.toJson,
+          "date" -> date.toJson,
+          "routings" -> JsArray(), // TODO: may not leave empty?
+          "definition" -> JsObject(
+            "conversations" -> conversations.toJson,
+            "messages" -> messages.toJson,
+            "process" -> List(newGraph).toJson
+          )
+        )
+      )
+
+      val jsonString = interface.prettyPrint // TODO: compactPrint 
+
+      println("generated interface json for '" + interfaceName + "'; POST it to repo")
+
+      val post = Http.postData(repoUrl, jsonString)
+        .header("Content-Type", "application/json")
+        .header("Charset", "UTF-8")
+        .option(HttpOptions.connTimeout(10000)).option(HttpOptions.readTimeout(30000))
+      val result = post.responseCode
+
+      if (result == 200) {
+        println("Registered interface for '" + interfaceName + "' at repository")
+
+        // TODO: store id for deregistration ?
+        var id = post.asString
+        println("id: " + id)
+      } else {
+        println("Some error occurred; HTTP Code: " + result)
       }
+
     }
-    """).asJson
 
-    println("generated interfaceJson")
-
-    val jsonString = interfaceJson.prettyPrint // TODO: compactPrint
-
-    println("printed json to str and POST it")
-
-    val post = Http.postData(repoUrl, jsonString)
-      .header("Content-Type", "application/json")
-      .header("Charset", "UTF-8")
-      .option(HttpOptions.connTimeout(10000)).option(HttpOptions.readTimeout(30000))
-    val result = post.responseCode
-
-    if (result == 200) {
-      println("Registered interface at local repository")
-
-      // TODO: store id ?
-      var id = post.asString
-      println("id: " + id)
-    } else {
-      println("Some error occurred; HTTP Code: " + result)
-    }
+    println("finished registerInterfaces")
   }
+
+  var currentId = 1
+  private def nextId = {
+    val id = currentId
+    currentId += 1
+    id
+  }
+
 }
 
 class ServiceHostActor extends Actor {
