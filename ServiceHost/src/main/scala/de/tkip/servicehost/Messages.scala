@@ -18,9 +18,9 @@ object Messages {
 
   
   case class UpdateRepository(host: String, port: String)
-  case class UploadService(serviceId: String, serviceClassName: String, serviceClass: ServiceClass, serviceJsonName: String, serviceJson: ServiceJson)
+  case class UploadService(serviceId: String, serviceClassName: String, serviceClasses: ServiceClasses, serviceJsonName: String, serviceJson: ServiceJson)
   
-  type ServiceClass = Array[Byte]
+  type ServiceClasses = scala.collection.mutable.Map[String,Array[Byte]]
   type ServiceJson = Array[Byte]
 }
 
