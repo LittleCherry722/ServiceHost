@@ -10,8 +10,8 @@ import scala.io.Source
 
 object ReferenceXMLActor {
 
-  case class Reference(name: String, reference: String, jsonpath: String) {
-    def toXml = scala.xml.Unparsed("<reference service=\"" + name + "\" path=\"" + reference + "\" jsonpath=\"" + jsonpath + "\"/>\n")
+  case class Reference(name: String, reference: String, json: String) {
+    def toXml = scala.xml.Unparsed("<reference service=\"" + name + "\" path=\"" + reference + "\" json=\"" + json + "\"/>\n")
   }
 
 }
@@ -42,7 +42,7 @@ class ReferenceXMLActor extends Actor {
       case EvElemStart(_, _, attrs, _) =>
         val map = attrs.asAttrMap
         if(map.contains("path"))
-          references = references ::: List(Reference(map("service"), map("path"), map("jsonpath")))
+          references = references ::: List(Reference(map("service"), map("path"), map("json")))
       case _ =>
     }
     references

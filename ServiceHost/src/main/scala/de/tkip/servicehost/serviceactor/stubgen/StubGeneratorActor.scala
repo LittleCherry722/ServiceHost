@@ -29,9 +29,9 @@ class StubGeneratorActor extends Actor {
   //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
 
   def receive = {
-    case jsonPath: String => {
-      val (name, id, states, messages) = extractStates(jsonPath)
-      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states, messages, jsonPath)
+    case path: String => {
+      val (name, id, states, messages) = extractStates(path)
+      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states, messages, path)
     }
   }
 
@@ -84,7 +84,7 @@ class StubGeneratorActor extends Actor {
     (graph("name").asInstanceOf[String], graph("id").asInstanceOf[String], statesList,messages)
   }
 
-  def fillInClass(classPath: String, name: String, id: String, states: List[State], messages: Map[String,String], jsonPath: String) {
+  def fillInClass(classPath: String, name: String, id: String, states: List[State], messages: Map[String,String], json: String) {
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
     var text = ""
@@ -129,7 +129,7 @@ class StubGeneratorActor extends Actor {
     pw.print(classText)
     pw.close()
     val packagePath = f.getParent().replace("\\", "/")
-    registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."), jsonPath)
+    registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."), json)
   }
   
   def fillInMessages(classText: String, messages:Map[String,String]):String ={
@@ -140,10 +140,10 @@ class StubGeneratorActor extends Actor {
     classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
   }
 
-  def registerService(id: String, className: String, packagePath: String, jsonPath: String) {
+  def registerService(id: String, className: String, packagePath: String, json: String) {
     val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
 
-    refAc ! CreateXMLReferenceMessage(id, packagePath + "." + className, jsonPath)
+    refAc ! CreateXMLReferenceMessage(id, packagePath + "." + className, json)
   }
 }
 
