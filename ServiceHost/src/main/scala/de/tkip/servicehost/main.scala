@@ -4,8 +4,13 @@ import akka.actor._
 import akka.pattern.ask
 import scala.concurrent.Await
 import akka.util.Timeout
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Await;
+import scala.concurrent.Promise;
 import scala.concurrent.duration._
 import scala.concurrent.Future
+import scala.collection.mutable.Map
 import scalaj.http.{ Http, HttpOptions }
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
@@ -18,12 +23,10 @@ import de.tkip.sbpm.eventbus.RemotePublishActor
 import de.tkip.servicehost.ReferenceXMLActor.Reference
 import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
 import Messages.{ CreateXMLReferenceMessage, GetAllClassReferencesMessage }
-
-/*
-
-Momentan funktioniert es nur so: Starte Instanz von Prozess Großunternehmen. Führe aus bis send. Message kommt hier an.
-
- */
+import de.tkip.servicehost.Messages.UploadService
+import java.io.File
+import java.io.FileOutputStream
+import de.tkip.servicehost.Messages.UpdateRepository
 
 object main extends App {
   implicit val timeout = Timeout(15 seconds)
@@ -34,20 +37,22 @@ object main extends App {
   val system = ActorSystem("sbpm")
 
   val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+  var serviceHost: ActorRef = null
 
   if (args.contains("service") && args.length >= 2) {
     val path = args(args.indexOf("service") + 1)
 
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
-//    val future: Future[Any]= ask(generator, path)
-//    val res = Await.result(future, timeout.duration)
-    generator ! path
+
+    val future = generator ? path // enabled by the “ask” import
+//    val result = Await.result(future, timeout.duration)
+
     system.shutdown
-  } // TODO add other root Actors
-  else {
+  } else {
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
     system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
-    system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    println(serviceHost.path)
     registerInterface()
   }
 
@@ -90,43 +95,3 @@ object main extends App {
   }
 }
 
-class ServiceHostActor extends Actor {
-
-  val serviceManager = ActorLocator.serviceActorManager
-
-  def receive: Actor.Receive = {
-    case register: RegisterServiceMessage => {
-      println("received RegisterServiceMessage: " + register)
-      // TODO implement
-      sender ! Some("some RegisterServiceMessage answer")
-    }
-    case execute: ExecuteServiceMessage => {
-      println("received ExecuteServiceMessage: " + execute)
-      // TODO implement
-      serviceManager forward (execute)
-      sender ! Some("some ExecuteServiceMessage answer")
-    }
-    case request: CreateProcessInstance => {
-      println("received CreateProcessInstance: " + request)
-      serviceManager forward request
-    }
-    case GetProxyActor => {
-      println("received GetProxyActor")
-      // TODO implement
-      // fake ProcessInstanceProxyActor:
-      serviceManager forward GetProxyActor
-    }
-    case message: SubjectToSubjectMessage => {
-      println("got SubjectToSubjectMessage " + message + " from " + sender)
-      // TODO implement
-      serviceManager forward message
-    }
-    case s: Stored => {
-      println("received Stored: " + s)
-    }
-    case something => {
-      println("received something: " + something)
-      sender ! Some("some answer")
-    }
-  }
-}

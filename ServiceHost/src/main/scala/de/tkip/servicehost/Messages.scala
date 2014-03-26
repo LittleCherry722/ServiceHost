@@ -7,7 +7,6 @@ import de.tkip.servicehost.serviceactor.ServiceActor
 object Messages {
   case class RegisterServiceMessage(code: String, subjectJson: String)
   case class ExecuteServiceMessage(processID: String, serviceID: String, payload: Any)
-  case class DeploymentMessage(serviceID: String, sourceCode: String)
   case class CreateXMLReferenceMessage(serviceID: String, classPath: String, jsonPath: String)
   case class GetAllClassReferencesMessage()
   case class GetClassReferenceMessage(serviceID: String)
@@ -19,5 +18,10 @@ object Messages {
   case class AddService(id: String, className: String, packagePath: String)
 
   
+  case class UpdateRepository(host: String, port: String)
+  case class UploadService(serviceId: String, serviceClassName: String, serviceClasses: ServiceClasses, serviceJsonName: String, serviceJson: ServiceJson)
   
+  type ServiceClasses = scala.collection.mutable.Map[String,Array[Byte]]
+  type ServiceJson = Array[Byte]
 }
+

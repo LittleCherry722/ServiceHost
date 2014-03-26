@@ -10,6 +10,9 @@ import de.tkip.servicehost.ActorLocator
 import de.tkip.servicehost.Messages._
 import akka.actor.Props
 import de.tkip.servicehost.ReferenceXMLActor
+import java.nio.file.Files
+import java.io.FileReader
+import java.io.FileWriter
 
 class StubGeneratorActor extends Actor {
   abstract class State {
@@ -24,23 +27,19 @@ class StubGeneratorActor extends Actor {
   case class ExitState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
   case class ActionState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
 
-  //   val simpleGraphSource = Source.fromURL(getClass.getResource("service_export_test_name2.json")).mkString
-  //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
-  //  val domainGraph = json_string.asJson.convertTo[Graph](graphJsonFormat)
-
   def receive = {
     case path: String => {
       val (name, id, states, messages) = extractStates(path)
       fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states, messages, path)
     }
   }
-
-  def extractStates(jsonPath: String): (String, String, List[State],Map[String,String]) = {
+  
+  def extractStates(jsonPath: String): (String, String, Map[Int,State],Map[String,String]) = {
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString
     val json: Option[Any] = JSON.parseFull(json_string)
     val process: Map[String, Any] = Map() ++ json.get.asInstanceOf[Map[String, Any]]
     var states: Map[Int, Any] = Map()
-    var statesList: List[State] = List()
+    var statesList: Map[Int,State] = Map()
 
     val graph = process("graph").asInstanceOf[Map[String, Any]]
     val messages = process.getOrElse("messages", Map[String,String]()).asInstanceOf[Map[String, String]]
@@ -50,7 +49,7 @@ class StubGeneratorActor extends Actor {
     for (node <- nodes) yield {
       states = states + (node.asInstanceOf[Map[String, Any]]("id").asInstanceOf[Double].toInt -> (node, scala.collection.mutable.Map(), scala.collection.mutable.Map()))
       if (node("type") == "end")
-        statesList = statesList ::: List(ExitState(node("id").asInstanceOf[Double].toInt, null, null, null))
+        statesList = statesList ++ Map(node("id").asInstanceOf[Double].toInt -> ExitState(node("id").asInstanceOf[Double].toInt, null, null, null))
     }
     val edges = macro("edges").asInstanceOf[List[Map[String, Any]]]
     for (edge <- edges) yield {
@@ -60,12 +59,24 @@ class StubGeneratorActor extends Actor {
         t = edge("target").asInstanceOf[Map[String, Any]]
       var state: State = null
       start("type") match {
-        case "receive" =>
-          state = ReceiveState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
-        case "send" =>
-          state = SendState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
-        case "action" =>
-          state = ActionState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
+        case "receive" =>{
+          if(statesList.contains(start("id").asInstanceOf[Double].toInt))
+            state = statesList(start("id").asInstanceOf[Double].toInt)
+          else 
+            state = ReceiveState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
+        }
+        case "send" =>{
+          if(statesList.contains(start("id").asInstanceOf[Double].toInt))
+            state = statesList(start("id").asInstanceOf[Double].toInt)
+          else 
+            state = SendState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
+        }
+        case "action" =>{
+           if(statesList.contains(start("id").asInstanceOf[Double].toInt))
+            state = statesList(start("id").asInstanceOf[Double].toInt)
+           else
+            state = ActionState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
+        }
       }
       var target: String = null
       state match {
@@ -79,16 +90,16 @@ class StubGeneratorActor extends Actor {
       states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], Map[String, String], scala.collection.mutable.Map[String, Int]]]._3("\"" + text + "\"") = endId
       state.targets = Map() ++ states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], Map[String, String], Map[String, Int]]]._2
       state.targetIds = Map() ++ states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], Map[String, String], Map[String, Int]]]._3
-      statesList = statesList :+ state
+      statesList = statesList ++ Map(state.id -> state)
     }
     (graph("name").asInstanceOf[String], graph("id").asInstanceOf[String], statesList,messages)
   }
 
-  def fillInClass(classPath: String, name: String, id: String, states: List[State], messages: Map[String,String], json: String) {
+  def fillInClass(classPath: String, name: String, id: String, states: Map[Int,State], messages: Map[String,String], json: String) {
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
     var text = ""
-    for (state <- states) {
+    for (state <- states.values) {
       state match {
         case s: ActionState => {
           text = text + (s.toString().replaceFirst("\\(", s.id + "(") + ",")
@@ -110,7 +121,7 @@ class StubGeneratorActor extends Actor {
     }
     classText = fillInMessages(classText, messages)
     var impementation:String=""
-    for (state <- states) {
+    for (state <- states.values) {
       state match {
         case s: ActionState => {
           impementation = impementation + "\n  case class ActionState" + state.id + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State(\"action\", id, exitType, targets, targetIds) {\n"
@@ -141,9 +152,24 @@ class StubGeneratorActor extends Actor {
   }
 
   def registerService(id: String, className: String, packagePath: String, json: String) {
+    val servicePath=copyFile(json)
     val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
 
-    refAc ! CreateXMLReferenceMessage(id, packagePath + "." + className, json)
+    refAc ! CreateXMLReferenceMessage(id, packagePath + "." + className, servicePath)
+  }
+  
+  def copyFile(path:String):String ={
+    val inputFile:File = new File(path); 
+    val dir:File=new File("./src/main/resources/service_JSONs")
+    if(!dir.exists())
+      dir.mkdirs()
+    val outputFile = new File(dir+File.separator+inputFile.getName()); 
+
+    val out = new FileWriter(outputFile); 
+    val json_string = scala.io.Source.fromFile(path).getLines.mkString
+    out.write(json_string); 
+    out.close();
+    outputFile.getPath()
   }
 }
 

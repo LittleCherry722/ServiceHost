@@ -87,6 +87,8 @@ class StaplesServiceActor extends ServiceActor {
 
   def storeMsg(message: Any, tosender: ActorRef): Unit = {}
 
+  def processMsg(): Unit = { println("processMsg") }
+
   def getDestination(): ActorRef = { ??? }
 
   def terminate(): Unit = {}
