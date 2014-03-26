@@ -399,6 +399,7 @@ private[behavior] class ClosedChannels {
   def reopen(channelId: ChannelID, blockedSendStatesMap: MutableMap[ChannelID, ActorRef]){     
     if(blockedSendStatesMap.contains(channelId)){
       blockedSendStatesMap.get(channelId).get ! Reopen
+      blockedSendStatesMap.remove(channelId)
     }
   }
 
