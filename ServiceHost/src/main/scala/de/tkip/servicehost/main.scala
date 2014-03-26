@@ -6,6 +6,7 @@ import scala.concurrent.Await
 import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.concurrent.Future
+import scala.collection.mutable.Map
 import scalaj.http.{ Http, HttpOptions }
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
@@ -36,8 +37,7 @@ object main extends App {
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
     generator ! path
     system.shutdown
-  }
-  else {
+  } else {
     system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
     serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
@@ -107,15 +107,15 @@ class ServiceHostActor extends Actor {
     case upload: UploadService => {
       val jsonPath = "src/main/resources/service_JSONs"
       val classPath = "target/scala-2.10/classes/de/tkip/servicehost/serviceactor/stubgen"
-      
-      extractFile(upload.serviceClassName, upload.serviceClass, "CLASS")
-      extractFile(upload.serviceJsonName, upload.serviceJson, "JSON")
-      
+      println(upload.serviceClasses)
+      extractFile(upload.serviceClasses, "CLASS")
+      extractFile(Map(upload.serviceJsonName->upload.serviceJson), "JSON")
+
       ActorLocator.referenceXMLActor ! CreateXMLReferenceMessage(upload.serviceId, classPath.replaceAll("target/scala-2.10/classes/", "").replaceAll("/", ".")
-          + "." + upload.serviceClassName.replaceAll(".class", ""), jsonPath + "/" + upload.serviceJsonName)
+        + "." + upload.serviceClassName.replaceAll(".class", ""), jsonPath + "/" + upload.serviceJsonName)
       main.registerInterface
     }
-    case update: UpdateRepository => {
+    case UpdateRepository => {
       main.registerInterface
     }
     case something => {
@@ -123,14 +123,15 @@ class ServiceHostActor extends Actor {
       sender ! Some("some answer")
     }
   }
-  
-  def extractFile(fileName: String, file: Array[Byte], path: String) {
-    val filePath = new File(path + "/" + fileName)
-    if (!filePath.getParentFile().exists()) filePath.getParentFile().mkdirs()
-    
-    val fos = new FileOutputStream(filePath)
-    fos.write(file, 0, file.length)
-    fos.close()
+
+  def extractFile(files: Map[String, Array[Byte]], path: String) {
+    for (file <- files.keys) {
+      val filePath = new File(path + "/" + file)
+      if (!filePath.getParentFile().exists()) filePath.getParentFile().mkdirs()
+      val fos = new FileOutputStream(filePath)
+      fos.write(files(file), 0, files(file).length)
+      fos.close()
+    }
   }
-  
+
 }
