@@ -36,18 +36,18 @@ class ReferenceXMLActor extends Actor {
   }
 
   def getAllReferences(): List[Reference] = {
-    val xmlFile=new File(xmlFilePath)
-    if(!xmlFile.exists())
-      xmlFile.createNewFile()
-    val src = Source.fromFile(xmlFile)
-    val reader = new XMLEventReader(src)
     var references: List[Reference] = List()
-    reader foreach {
-      case EvElemStart(_, _, attrs, _) =>
-        val map = attrs.asAttrMap
-        if(map.contains("path"))
-          references = references ::: List(Reference(map("service"), map("path"), map("json")))
-      case _ =>
+    val xmlFile = new File(xmlFilePath)
+    if(xmlFile.exists()) {
+      val src = Source.fromFile(xmlFile)
+      val reader = new XMLEventReader(src)
+      reader foreach {
+        case EvElemStart(_, _, attrs, _) =>
+          val map = attrs.asAttrMap
+          if(map.contains("path"))
+            references = references ::: List(Reference(map("service"), map("path"), map("json")))
+        case _ =>
+      }
     }
     references
   }
