@@ -24,7 +24,8 @@ class ReferenceXMLActor extends Actor {
 
   def receive: Actor.Receive = {
     case createReference: CreateXMLReferenceMessage => {
-      createXMLReference(createReference.serviceID, createReference.classPath, createReference.jsonPath)
+      val ref: Reference = createXMLReference(createReference.serviceID, createReference.classPath, createReference.jsonPath)
+      sender ! ref
     }
     case GetAllClassReferencesMessage => {
       sender ! getAllReferences
@@ -51,7 +52,7 @@ class ReferenceXMLActor extends Actor {
     references
   }
 
-  def createXMLReference(id: String, classPath: String, jsonPath: String) {
+  def createXMLReference(id: String, classPath: String, jsonPath: String): Reference = {
     val ref = new Reference(id, classPath, jsonPath)
 
     println("adding " + ref + " to " + xmlFilePath)
@@ -64,6 +65,8 @@ class ReferenceXMLActor extends Actor {
       </references>
 
     scala.xml.XML.save(xmlFilePath, xmlContent)
+
+    ref
   }
   
   def getReferenceMessage(id: String): ClassReferenceMessage = {

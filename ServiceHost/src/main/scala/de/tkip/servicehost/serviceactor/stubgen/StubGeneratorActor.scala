@@ -14,7 +14,17 @@ import java.nio.file.Files
 import java.io.FileReader
 import java.io.FileWriter
 
+import akka.pattern.ask
+import akka.pattern.pipe
+import akka.util.Timeout
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+//import scala.concurrent.ExecutionContext;
+
 class StubGeneratorActor extends Actor {
+  implicit val timeout = Timeout(15 seconds)
+
   abstract class State {
     def id: Int
     def exittype: String
@@ -29,8 +39,10 @@ class StubGeneratorActor extends Actor {
 
   def receive = {
     case path: String => {
+      println("StubGeneratorActor received path " + path)
       val (name, id, states, messages) = extractStates(path)
-      fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states, messages, path)
+      val future = fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states, messages, path)
+      future pipeTo sender // pipe pattern: wait for completion and send the result
     }
   }
   
@@ -95,7 +107,7 @@ class StubGeneratorActor extends Actor {
     (graph("name").asInstanceOf[String], graph("id").asInstanceOf[String], statesList,messages)
   }
 
-  def fillInClass(classPath: String, name: String, id: String, states: Map[Int,State], messages: Map[String,String], json: String) {
+  def fillInClass(classPath: String, name: String, id: String, states: Map[Int,State], messages: Map[String,String], json: String): Future[Any] = {
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
     var text = ""
@@ -151,11 +163,11 @@ class StubGeneratorActor extends Actor {
     classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
   }
 
-  def registerService(id: String, className: String, packagePath: String, json: String) {
+  def registerService(id: String, className: String, packagePath: String, json: String): Future[Any] = {
     val servicePath=copyFile(json)
     val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
 
-    refAc ! CreateXMLReferenceMessage(id, packagePath + "." + className, servicePath)
+    refAc ? CreateXMLReferenceMessage(id, packagePath + "." + className, servicePath)
   }
   
   def copyFile(path:String):String ={

@@ -27,6 +27,10 @@ import de.tkip.servicehost.Messages.UploadService
 import java.io.File
 import java.io.FileOutputStream
 import de.tkip.servicehost.Messages.UpdateRepository
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+import scala.util.{Success, Failure}
 
 object main extends App {
   implicit val timeout = Timeout(15 seconds)
@@ -44,10 +48,18 @@ object main extends App {
 
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
 
-    val future = generator ? path // enabled by the “ask” import
-//    val result = Await.result(future, timeout.duration)
-
-    system.shutdown
+    val future = generator ? path // ask pattern: response will be stored in future
+    future onComplete {
+      case Success(res) => {
+          val ref = res.asInstanceOf[Reference]
+          println("generation completed, json file copied to: " + ref.json)
+          system.shutdown
+        }
+      case Failure(e) => {
+          e.printStackTrace()
+          system.shutdown
+        }
+    }
   } else {
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
     system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
