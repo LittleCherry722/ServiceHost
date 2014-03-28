@@ -178,7 +178,8 @@ define([
                 version: 1,
                 name: self.serviceName(),
                 author: self.serviceAuthor(),
-                graph: currentProcess().graphForSubject(self.serviceSubject())
+                graph: currentProcess().graphForSubject(self.serviceSubject()),
+                messages: currentProcess().graphObject().messages
             };
             var exportString = JSON.stringify(service);
             var blob = new Blob([exportString], {type: "application/json;charset=" + document.characterSet} );

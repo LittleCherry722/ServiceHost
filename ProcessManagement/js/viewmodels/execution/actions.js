@@ -26,6 +26,8 @@ define([
 
 		});
         this.getStateTitle = getStateTitle;
+        this.getSubjectName = getSubjectName;
+        this.getMessageName = getMessageName;
 		this.googleDriveData = ko.observable();
 		this.selectUser = selectUser;
 		this.selectedUsers = selectedUsers;
@@ -85,10 +87,28 @@ define([
         } else {
             var text = arg.stateType;
             if('actionData' in arg && $.isArray(arg.actionData) && arg.actionData.length > 0) {
-                text += ": " + arg.actionData[0].text + " - " + arg.actionData[0].relatedSubject;
+                var separator = " - ";
+                if(arg.stateType === "send") {
+                    separator = " to ";
+                } else if (arg.stateType === "receive") {
+                    separator = " from ";
+                }
+                text += ": " + getMessageName(arg.actionData[0].text) + separator + getSubjectName(arg.actionData[0].relatedSubject);
             }
             return text;
         }
+    };
+
+    var getSubjectName = function(subjectId) {
+        return _.find(processInstance().process().subjectsArray(), function(s) {
+            return s[0] == subjectId;
+        })[1];
+    };
+
+    var getMessageName = function(messageId) {
+        return _.find(_.pairs(processInstance().process().graph().definition.messages), function(s) {
+            return s[0] == messageId;
+        })[1];
     };
 
 	var action = function(action) {

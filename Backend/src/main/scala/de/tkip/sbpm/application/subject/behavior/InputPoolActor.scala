@@ -76,6 +76,9 @@ protected case class IsIPEmpty(channelId: ChannelID)
 // message to tell the receive state whether the input pool is empty
 protected case class IPEmpty(empty: Boolean)
 
+// message to tell the blocked send state that the state is reopened
+protected case object Reopen
+
 class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   protected val logger = Logging(context.system, this)
   // extract the information from the data
@@ -90,7 +93,10 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
   private val waitingStatesMap =
     //  MutableMap[ChannelID, WaitingStateList]()
     MutableMap[ChannelID, WaitingStateSet]()
-
+  //this map stores the send states which are blocked
+  private val blockedSendStatesMap : MutableMap[ChannelID, ActorRef] = 
+    MutableMap[ChannelID, ActorRef]()
+    
   private val closedChannels = new ClosedChannels()
 
   def receive = {
@@ -129,9 +135,10 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
       // Unlock the sender
       log.debug("TRACE: from " + this.self + " to " + sender + " " + Rejected(message.messageID).toString)
       sender ! Rejected(message.messageID)
-
+      val channelID = new ChannelID(message.from, message.messageType)
+      blockedSendStatesMap(channelID) = sender
+      
       log.warning("message rejected: {}", message)
-
       // unblock this user
       log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
@@ -170,6 +177,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
 
     case OpenInputPool(channelId) => {
       closedChannels.open(channelId)
+      closedChannels.reopen(channelId, blockedSendStatesMap)
       log.debug("TRACE: from " + this.self + " to " + sender + " " + InputPoolOpened.toString)
       sender ! InputPoolOpened
     }
@@ -337,7 +345,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
  * /Currently only one state will be hold in this list, but will be usefull for modal split
  */
 private class WaitingStateSet(logger: LoggingAdapter) {
-  private val states = MutableSet[SubscribeIncomingMessages]()
+  val states = MutableSet[SubscribeIncomingMessages]()
 
   def add(state: SubscribeIncomingMessages) {
     // a state can not register twice
@@ -387,11 +395,19 @@ private[behavior] class ClosedChannels {
     removeOldRules(channelId)
     rules = Rule(channelId, Open) :: rules
   }
+  
+  def reopen(channelId: ChannelID, blockedSendStatesMap: MutableMap[ChannelID, ActorRef]){     
+    if(blockedSendStatesMap.contains(channelId)){
+      blockedSendStatesMap.get(channelId).get ! Reopen
+      blockedSendStatesMap.remove(channelId)
+    }
+  }
 
   def isChannelClosedAndNotReOpened(channelId: ChannelID): Boolean = {
     def channelFilter(rule: Rule) = (rule.channelId._1 == channelId._1 || rule.channelId._1 == AllSubjects) &&
         (rule.channelId._2 == channelId._2 || rule.channelId._2 == AllMessages)
     val rule = rules.find(channelFilter)
+    
     !rule.map(_.ruleType == Open).getOrElse(!rule.map(_.ruleType == Close).getOrElse(false))
   }
 }
