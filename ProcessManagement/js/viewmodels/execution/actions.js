@@ -272,10 +272,6 @@ define([
 			//deferEvaluation : false,
 			read : function() {
 				if (actionOfCurrentSubject() !== undefined && actionOfCurrentSubject().actionData !== undefined) {
-                    console.log("action data", actionOfCurrentSubject())
-                    console.log("current subject", currentSubject())
-                    console.log("current process instance", processInstance().process())
-                    window._proc_ = processInstance().process()
 					return actionOfCurrentSubject().actionData;
 				} else {
 					return [];
