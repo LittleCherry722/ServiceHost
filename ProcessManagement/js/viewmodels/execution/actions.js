@@ -100,15 +100,25 @@ define([
     };
 
     var getSubjectName = function(subjectId) {
-        return _.find(processInstance().process().subjectsArray(), function(s) {
+        var subject = _.find(processInstance().process().subjectsArray(), function(s) {
             return s[0] == subjectId;
-        })[1];
+        });
+        if(subject) {
+            return subject[1];
+        } else {
+            return "";
+        }
     };
 
     var getMessageName = function(messageId) {
-        return _.find(_.pairs(processInstance().process().graph().definition.messages), function(s) {
+        var message = _.find(_.pairs(processInstance().process().graph().definition.messages), function(s) {
             return s[0] == messageId;
-        })[1];
+        });
+        if(message) {
+            return message[1];
+        } else {
+            return "";
+        }
     };
 
 	var action = function(action) {
