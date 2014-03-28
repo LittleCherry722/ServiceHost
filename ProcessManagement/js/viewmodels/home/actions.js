@@ -21,6 +21,9 @@ define([
         this.selectedEnd = selectedEnd;
         this.showGraph = showGraph;
         this.hasActions = hasActions;
+        this.getSubjectName = getSubjectName;
+        this.getMessageName = getMessageName;
+        this.getActionText = getActionText;
 
         this.googleDriveData = ko.observable();
         this.refreshGoogleDriveData = function() {
@@ -39,12 +42,53 @@ define([
             });
         };
         this.selectFile = function() {
-            //console.log("call");
             $('#googleDriveModal').modal('hide');
             parent.currentSelectedFile( this );
         };
 
     };
+
+    var getSubjectName = function(subjectId, processInstance) {
+        var subject = _.find(processInstance.process().subjectsArray(), function(s) {
+            return s[0] == subjectId;
+        });
+        if(subject) {
+            return subject[1];
+        } else {
+            return "";
+        }
+    };
+
+    var getMessageName = function(messageId, processInstance) {
+        var message = _.find(_.pairs(processInstance.process().graph().definition.messages), function(s) {
+            return s[0] == messageId;
+        });
+        if(message) {
+            return message[1];
+        } else {
+            return "";
+        }
+    };
+
+    var getActionText= function(action) {
+        if(action.stateText()) {
+            return action.stateText();
+        } else {
+            var text = action.stateType();
+            var processInstance = ProcessInstance.find(action.processInstanceID());
+            if('actionData' in action && $.isArray(action.actionData()) && action.actionData().length > 0) {
+                var separator = " - ";
+                if(action.stateType() === "send") {
+                    separator = " to ";
+                } else if (action.stateType() === "receive") {
+                    separator = " from ";
+                }
+                text += ": " + getMessageName(action.actionData()[0].text, processInstance) + separator + getSubjectName(action.actionData()[0].relatedSubject, processInstance);
+            }
+            return text;
+        }
+    };
+
 
     /* Filter Start */
     var selectedUser = ko.observable();
@@ -91,7 +135,7 @@ define([
 
         setTimeout(function(){
             var table = $( '#' + action.instanceTableId()),
-                node = 0,
+                nodes = [],
                 graphContainer = $('#graph_bv_outer'),
                 graphModal = $('#graphModal'),
                 processInstance, currentState, process;
@@ -112,20 +156,21 @@ define([
             gv_graph.selectedSubject = action.subjectID();
 
             // select active node
-            currentState = processInstance.getCurrentState( action.subjectID() );
+            currentStates = processInstance.getCurrentStates( action.subjectID() );
             process = processInstance.getCurrentProcess( action.subjectID() );
 
             if( process !== null ) {
                 $.each( process.macros[0].nodes, function( i, value ) {
-                    if ( value.id === currentState ) {
-                        node = i;
+                    if (-1 !== $.inArray(value.id, currentStates)) {
+                        nodes.push(i);
                     }
                 } );
 
-                if( gv_objects_nodes[node] ){
-                    gf_deselectNodes();
-                    gv_objects_nodes[node].select();
-                }
+                $.each(nodes, function(k, node) {
+                    if(gv_objects_nodes[node] ){
+                        gv_objects_nodes[node].select();
+                    }
+                });
             }
         }, 100);
     };

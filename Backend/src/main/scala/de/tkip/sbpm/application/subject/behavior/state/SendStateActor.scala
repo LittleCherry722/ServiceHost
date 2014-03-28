@@ -230,8 +230,15 @@ protected case class SendStateActor(data: StateData)
       log.warning("message with id {} was rejected", messageID)
 
       //TODO how to handle the rejected message?
+      
       log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
       blockingHandlerActor ! UnBlockUser(userID)
+    }
+      
+    case Reopen => {
+      messageContent = None
+      remainingStored = 0
+      actionChanged(Updated)
     }
   }
 

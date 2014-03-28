@@ -1,7 +1,17 @@
 package de.tkip.servicehost
 
 import akka.actor._
-import scalaj.http.{Http, HttpOptions}
+import akka.pattern.ask
+import scala.concurrent.Await
+import akka.util.Timeout
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Await;
+import scala.concurrent.Promise;
+import scala.concurrent.duration._
+import scala.concurrent.Future
+import scala.collection.mutable.Map
+import scalaj.http.{ Http, HttpOptions }
 import Messages.RegisterServiceMessage
 import Messages.ExecuteServiceMessage
 import java.util.Date
@@ -10,27 +20,53 @@ import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.eventbus.RemotePublishActor
-
-/*
-
-Momentan funktioniert es nur so: Starte Instanz von Prozess Großunternehmen. Führe aus bis send. Message kommt hier an.
-
- */
-
+import de.tkip.servicehost.ReferenceXMLActor.Reference
+import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
+import Messages.{ CreateXMLReferenceMessage, GetAllClassReferencesMessage }
+import de.tkip.servicehost.Messages.UploadService
+import java.io.File
+import java.io.FileOutputStream
+import de.tkip.servicehost.Messages.UpdateRepository
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+import scala.util.{Success, Failure}
 
 object main extends App {
+  implicit val timeout = Timeout(15 seconds)
+
   println("main started")
   val repoUrl = "http://localhost:8181/repo"
+
   val system = ActorSystem("sbpm")
 
-  // TODO add other root Actors
-  
-  system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")  
-  system.actorOf(Props[ServiceActorManager], "service-actor-manager")
-  system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
-  system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
-  registerInterface()
+  val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+  var serviceHost: ActorRef = null
 
+  if (args.contains("service") && args.length >= 2) {
+    val path = args(args.indexOf("service") + 1)
+
+    val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
+
+    val future = generator ? path // ask pattern: response will be stored in future
+    future onComplete {
+      case Success(res) => {
+          val ref = res.asInstanceOf[Reference]
+          println("generation completed, json file copied to: " + ref.json)
+          system.shutdown
+        }
+      case Failure(e) => {
+          e.printStackTrace()
+          system.shutdown
+        }
+    }
+  } else {
+    system.actorOf(Props[ServiceActorManager], "service-actor-manager")
+    system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
+    serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    println(serviceHost.path)
+    registerInterface()
+  }
 
   /**
    * Registers the interface at the interface repository by sending the graph data and some additional information as
@@ -43,7 +79,17 @@ object main extends App {
    */
   def registerInterface(): Unit = {
     println("registerInterface")
-    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
+
+    println("ask ReferenceXMLActor for all registered services")
+    val referencesFuture: Future[Any] = referenceXMLActor ? GetAllClassReferencesMessage
+    val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
+
+    for {reference <- references} {
+      println("reference: " + reference)
+    }
+
+    //    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
+    val source = scala.io.Source.fromFile("./src/main/resources/service_export_Stapler_service.json")
     val jsonString = source.mkString
     source.close()
 
@@ -61,44 +107,3 @@ object main extends App {
   }
 }
 
-
-class ServiceHostActor extends Actor {
-
-  val serviceManager = ActorLocator.serviceActorManager
-
-  def receive: Actor.Receive = {
-    case register: RegisterServiceMessage => {
-      println("received RegisterServiceMessage: " + register)
-      // TODO implement
-      sender ! Some("some RegisterServiceMessage answer")
-    }
-    case execute: ExecuteServiceMessage => {
-      println("received ExecuteServiceMessage: " + execute)
-      // TODO implement
-      serviceManager forward(execute)
-      sender ! Some("some ExecuteServiceMessage answer")
-    }
-    case request: CreateProcessInstance => {
-      println("received CreateProcessInstance: " + request)
-      serviceManager forward request
-    }
-    case GetProxyActor => {
-      println("received GetProxyActor")
-      // TODO implement
-      // fake ProcessInstanceProxyActor:
-      serviceManager forward GetProxyActor
-    }
-    case message: SubjectToSubjectMessage => {
-      println("got SubjectToSubjectMessage " + message + " from " + sender)
-      // TODO implement
-      serviceManager forward message
-    }
-    case s: Stored => {
-      println("received Stored: "+s)
-    }
-    case something => {
-      println("received something: "+something)
-      sender ! Some("some answer")
-    }
-  }
-}

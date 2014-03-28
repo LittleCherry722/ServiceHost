@@ -240,9 +240,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
     case request: spray.http.HttpRequest => {
       val path = request.uri.path
       if(!path.startsWith(Path.SingleSlash + frontendBaseUrl)){
-        traceLogger.debug("TRACE: =========================================================================")
-        traceLogger.debug("TRACE: request " + request.method + ": " + path)
-        traceLogger.debug("TRACE: -------------------------------------------------------------------------")
+//        traceLogger.debug("TRACE: =========================================================================")
+//        traceLogger.debug("TRACE: request " + request.method + ": " + path)
+//        traceLogger.debug("TRACE: -------------------------------------------------------------------------")
       }
       request
     }
