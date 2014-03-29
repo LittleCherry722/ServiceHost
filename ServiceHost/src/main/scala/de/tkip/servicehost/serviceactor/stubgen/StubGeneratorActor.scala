@@ -61,7 +61,7 @@ class StubGeneratorActor extends Actor {
     for (node <- nodes) yield {
       states = states + (node.asInstanceOf[Map[String, Any]]("id").asInstanceOf[Double].toInt -> (node, scala.collection.mutable.Map(), scala.collection.mutable.Map()))
       if (node("type") == "end")
-        statesList = statesList ++ Map(node("id").asInstanceOf[Double].toInt -> ExitState(node("id").asInstanceOf[Double].toInt, null, null, null))
+        statesList = statesList ++ Map(node("id").asInstanceOf[Double].toInt -> ExitState(node("id").asInstanceOf[Double].toInt, null, Map(), Map()))
     }
     val edges = macro("edges").asInstanceOf[List[Map[String, Any]]]
     for (edge <- edges) yield {

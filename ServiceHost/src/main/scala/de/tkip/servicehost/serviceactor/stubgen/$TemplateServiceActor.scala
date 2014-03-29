@@ -102,16 +102,21 @@ class $TemplateServiceActor extends ServiceActor {
   }
 
   def changeState {
-    if (state.targetIds.size > 1) {
-      if (this.branchCondition != null) {
-        state = getState(state.targetIds(this.branchCondition))
+    state match {
+      case s: ExitState => {
 
-      } else println("no branchcodition defined")
+      }
+      case _ => {
+        if (state.targetIds.size > 1) {
+          if (this.branchCondition != null) {
+            state = getState(state.targetIds(this.branchCondition))
 
-    } else state = getState(state.targetIds.head._2)
+          } else println("no branchcodition defined")
 
-    state.process
-
+        } else state = getState(state.targetIds.head._2)
+         state.process
+      }
+    }
   }
 
   def getState(id: Int): State = {
