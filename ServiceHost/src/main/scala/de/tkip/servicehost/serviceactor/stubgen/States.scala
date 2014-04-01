@@ -43,8 +43,10 @@ abstract class State(val stateType: String, val id: Int, val exitType: String, v
 }
 
 case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target],override val targetIds: Map[BranchID, Int]) extends State("receive", id, exitType, targets, targetIds) {
-
+  
+  
   def process()(implicit actor: ServiceActor) {
+    actor.processMsg()
     // do nothing
   }
 

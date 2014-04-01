@@ -71,9 +71,8 @@ define([
 		currentSubject( subjectId );
 	};
 
-
 	currentSubject.subscribe(function( subject ) {
-		if ( currentSubView() ) {
+		if ( currentSubView() && 'setSubject' in currentSubView()) {
 			currentSubView().setSubject( subject );
 		}
 	});

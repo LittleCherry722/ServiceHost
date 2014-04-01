@@ -1455,7 +1455,6 @@ function GCcommunication ()
 							gt_behav.macros[gt_macroValues.id] = new GCmacro(gt_behav, gt_macroValues.id, gt_macroValues.name);
 
 						var gt_macro	= gt_behav.macros[gt_macroValues.id];
-
 						// 2.1 nodes
 						for (var gt_nodeId in gt_macroValues.nodes)
 						{
@@ -1493,6 +1492,16 @@ function GCcommunication ()
 									gt_createdNode.setComment(gt_node.comment);
 							}
 
+						}
+
+						// 2.1 a) fix those state ids to match the new generated id values
+						for(var someId in gt_macro.nodes) {
+							var gcNode = gt_macro.nodes[someId];
+							if(gcNode.getOptions() && 'state' in gcNode.getOptions() && gcNode.getOptions().state) {
+								var oldStateId = gcNode.getOptions().state;
+								var newStateId = gt_macro.nodeIDs["loadedNode" + gcNode.getOptions().state];
+								gcNode.options.state = newStateId;
+							}
 						}
 
 						// 2.2 edges

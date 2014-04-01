@@ -13,6 +13,8 @@ abstract class ServiceActor extends Actor {
   
   var branchCondition: String = null
   var returnMessageContent: String = ""
+    
+  def processMsg():Unit
   
   def changeState()
   

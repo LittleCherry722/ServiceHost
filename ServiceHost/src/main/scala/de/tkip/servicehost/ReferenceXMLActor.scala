@@ -10,8 +10,8 @@ import scala.io.Source
 
 object ReferenceXMLActor {
 
-  case class Reference(name: String, reference: String, jsonpath: String) {
-    def toXml = scala.xml.Unparsed("<reference service=\"" + name + "\" path=\"" + reference + "\" jsonpath=\"" + jsonpath + "\"/>\n")
+  case class Reference(name: String, reference: String, json: String) {
+    def toXml = scala.xml.Unparsed("<reference service=\"" + name + "\" path=\"" + reference + "\" json=\"" + json + "\"/>\n")
   }
 
 }
@@ -24,7 +24,8 @@ class ReferenceXMLActor extends Actor {
 
   def receive: Actor.Receive = {
     case createReference: CreateXMLReferenceMessage => {
-      createXMLReference(createReference.serviceID, createReference.classPath, createReference.jsonPath)
+      val ref: Reference = createXMLReference(createReference.serviceID, createReference.classPath, createReference.jsonPath)
+      sender ! ref
     }
     case GetAllClassReferencesMessage => {
       sender ! getAllReferences
@@ -35,20 +36,23 @@ class ReferenceXMLActor extends Actor {
   }
 
   def getAllReferences(): List[Reference] = {
-    val src = Source.fromFile(new File(xmlFilePath))
-    val reader = new XMLEventReader(src)
     var references: List[Reference] = List()
-    reader foreach {
-      case EvElemStart(_, _, attrs, _) =>
-        val map = attrs.asAttrMap
-        if(map.contains("path"))
-          references = references ::: List(Reference(map("service"), map("path"), map("jsonpath")))
-      case _ =>
+    val xmlFile = new File(xmlFilePath)
+    if(xmlFile.exists()) {
+      val src = Source.fromFile(xmlFile)
+      val reader = new XMLEventReader(src)
+      reader foreach {
+        case EvElemStart(_, _, attrs, _) =>
+          val map = attrs.asAttrMap
+          if(map.contains("path"))
+            references = references ::: List(Reference(map("service"), map("path"), map("json")))
+        case _ =>
+      }
     }
     references
   }
 
-  def createXMLReference(id: String, classPath: String, jsonPath: String) {
+  def createXMLReference(id: String, classPath: String, jsonPath: String): Reference = {
     val ref = new Reference(id, classPath, jsonPath)
 
     println("adding " + ref + " to " + xmlFilePath)
@@ -61,6 +65,8 @@ class ReferenceXMLActor extends Actor {
       </references>
 
     scala.xml.XML.save(xmlFilePath, xmlContent)
+
+    ref
   }
   
   def getReferenceMessage(id: String): ClassReferenceMessage = {

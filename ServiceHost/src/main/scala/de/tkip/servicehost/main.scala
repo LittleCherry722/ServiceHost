@@ -1,5 +1,7 @@
 package de.tkip.servicehost
 
+import java.io.File
+import java.io.FileOutputStream
 import java.util.Date
 import spray.json._
 import scala.collection.mutable.ArrayBuffer
@@ -7,13 +9,13 @@ import scala.util.parsing.json.JSON
 
 import akka.actor._
 import akka.pattern.ask
-import scala.concurrent.Await
 import akka.util.Timeout
+import scala.concurrent._
 import scala.concurrent.duration._
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global;
+import scala.util.{Success, Failure}
 import scalaj.http.{ Http, HttpOptions }
-import Messages.RegisterServiceMessage
-import Messages.ExecuteServiceMessage
+
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.GraphJsonProtocol._
 import de.tkip.sbpm.application.miscellaneous._
@@ -23,14 +25,8 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.eventbus.RemotePublishActor
 import de.tkip.servicehost.ReferenceXMLActor.Reference
 import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
-import Messages.{ CreateXMLReferenceMessage, GetAllClassReferencesMessage }
-
-/*
-
-Momentan funktioniert es nur so: Starte Instanz von Prozess Großunternehmen. Führe aus bis send. Message kommt hier an.
-
- */
-
+import Messages._
+import de.tkip.servicehost.Messages._
 
 object main extends App {
   println("main starting..")
@@ -60,20 +56,30 @@ object main extends App {
   val registeredInterfaces = scala.collection.mutable.Map[Int, Reference]()
 
   val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+  var serviceHost: ActorRef = null
 
   if (args.contains("service") && args.length >= 2) {
     val path = args(args.indexOf("service") + 1)
 
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
-//    val future: Future[Any]= ask(generator, path)
-//    val res = Await.result(future, timeout.duration)
-    generator ! path
-    system.shutdown
-  } // TODO add other root Actors
-  else {
+
+    val future = generator ? path // ask pattern: response will be stored in future
+    future onComplete {
+      case Success(res) => {
+          val ref = res.asInstanceOf[Reference]
+          println("generation completed, json file copied to: " + ref.json)
+          system.shutdown
+        }
+      case Failure(e) => {
+          e.printStackTrace()
+          system.shutdown
+        }
+    }
+  } else {
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
     system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
-    system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    println(serviceHost.path)
     registerInterfaces()
 
     sys.addShutdownHook {
@@ -101,7 +107,6 @@ object main extends App {
    */
   def registerInterfaces(): Unit = {
     println("registerInterfaces")
-    
 
     println("ask ReferenceXMLActor for all registered services")
     val referencesFuture: Future[Any] = referenceXMLActor ? GetAllClassReferencesMessage
@@ -115,7 +120,7 @@ object main extends App {
   def registerInterface(reference: Reference): Unit = {
     println("read service: " + reference)
 
-    val file = reference.jsonpath
+    val file = reference.json
     val source = scala.io.Source.fromFile(file)
     val sourceString: String = source.mkString
     source.close()
@@ -204,43 +209,3 @@ object main extends App {
   println("main started")
 }
 
-class ServiceHostActor extends Actor {
-
-  val serviceManager = ActorLocator.serviceActorManager
-
-  def receive: Actor.Receive = {
-    case register: RegisterServiceMessage => {
-      println("received RegisterServiceMessage: " + register)
-      // TODO implement
-      sender ! Some("some RegisterServiceMessage answer")
-    }
-    case execute: ExecuteServiceMessage => {
-      println("received ExecuteServiceMessage: " + execute)
-      // TODO implement
-      serviceManager forward (execute)
-      sender ! Some("some ExecuteServiceMessage answer")
-    }
-    case request: CreateProcessInstance => {
-      println("received CreateProcessInstance: " + request)
-      serviceManager forward request
-    }
-    case GetProxyActor => {
-      println("received GetProxyActor")
-      // TODO implement
-      // fake ProcessInstanceProxyActor:
-      serviceManager forward GetProxyActor
-    }
-    case message: SubjectToSubjectMessage => {
-      println("got SubjectToSubjectMessage " + message + " from " + sender)
-      // TODO implement
-      serviceManager forward message
-    }
-    case s: Stored => {
-      println("received Stored: " + s)
-    }
-    case something => {
-      println("received something: " + something)
-      sender ! Some("some answer")
-    }
-  }
-}

@@ -25,9 +25,14 @@ define([
 		this.executable = ko.computed(function() {
 
 		});
+        this.getStateTitle = getStateTitle;
+        this.getSubjectName = getSubjectName;
+        this.getMessageName = getMessageName;
 		this.googleDriveData = ko.observable();
 		this.selectUser = selectUser;
 		this.selectedUsers = selectedUsers;
+		this.executableStates = executableStates;
+		this.selectedState = selectedState;
 		this.selectUsersMin = selectUsersMin;
 		this.selectUsersMax = selectUsersMax;
 		this.selectUsersText = selectUsersText;
@@ -57,11 +62,13 @@ define([
 
 	var currentSelectedFile = ko.observable({});
 
-	var processInstance = ko.observable(),
-		messageText     = ko.observable(),
-		currentSubject  = ko.observable(),
-		serverDone      = ko.observable(true),
-		selectedUsers   = ko.observableArray(),
+	var processInstance  = ko.observable(),
+		messageText      = ko.observable(),
+		currentSubject   = ko.observable(),
+		serverDone       = ko.observable(true),
+		selectedUsers    = ko.observableArray(),
+		executableStates = ko.observableArray(),
+		selectedState    = ko.observable(),
 		actionOfCurrentSubject,
 		availableActions,
 		actionData,
@@ -72,6 +79,47 @@ define([
 		selectUsersMin,
 		selectUsersMax,
 		selectUsersText;
+
+
+    var getStateTitle = function(arg){
+        if(arg.stateText){
+            return arg.stateText;
+        } else {
+            var text = arg.stateType;
+            if('actionData' in arg && $.isArray(arg.actionData) && arg.actionData.length > 0) {
+                var separator = " - ";
+                if(arg.stateType === "send") {
+                    separator = " to ";
+                } else if (arg.stateType === "receive") {
+                    separator = " from ";
+                }
+                text += ": " + getMessageName(arg.actionData[0].text) + separator + getSubjectName(arg.actionData[0].relatedSubject);
+            }
+            return text;
+        }
+    };
+
+    var getSubjectName = function(subjectId) {
+        var subject = _.find(processInstance().process().subjectsArray(), function(s) {
+            return s[0] == subjectId;
+        });
+        if(subject) {
+            return subject[1];
+        } else {
+            return "";
+        }
+    };
+
+    var getMessageName = function(messageId) {
+        var message = _.find(_.pairs(processInstance().process().graph().definition.messages), function(s) {
+            return s[0] == messageId;
+        });
+        if(message) {
+            return message[1];
+        } else {
+            return "";
+        }
+    };
 
 	var action = function(action) {
 		serverDone(false);
@@ -110,7 +158,11 @@ define([
 		serverDone( false );
 		data = actionOfCurrentSubject();
 
-		deArray = data.actionData[ 0 ];
+        if(_.isArray(data.actionData)) {
+            deArray = data.actionData[ 0 ];
+        } else {
+            deArray = data.actionData;
+        }
 		if( messageText() ) {
 			deArray.messageContent = messageText();
 		} else {
@@ -163,14 +215,43 @@ define([
 		availableActions = instance.actions;
 		currentSubject = subjectId;
 
+        executableStates = ko.computed(function () {
+            var _availableActions = availableActions(),
+                _currentSubject = currentSubject(),
+                executableStates = processInstance().getCurrentStates(_currentSubject);
+
+            var _executableStates = _.map(executableStates, function(stateID){
+                return _.find(_availableActions, function(action){
+                    return action.stateID == stateID && action.subjectID == _currentSubject;
+                })
+            });
+            return _.filter(_executableStates, function (s) {
+                if(typeof s === 'object' && 'stateType' in s){
+                    return s.stateType != 'modalsplit' && s.stateType != 'modaljoin';
+                }
+                return false;
+            })
+        });
+
+        executableStates.subscribe(function(){
+            if(executableStates().length > 0) {
+                selectedState(executableStates()[0].id);
+            } else {
+                selectedState(undefined);
+            }
+        });
+
 		//Only one currentSubject possible.
 		actionOfCurrentSubject = ko.computed(function() {
-            if(!$.isArray(availableActions())) {
+            var _selectedState = selectedState(),
+                _executableStates = executableStates();
+
+            if(_executableStates.length == 0 || _selectedState == undefined) {
                 return undefined;
             }
-			return availableActions().filter(function(action) {
-				return action.subjectID === currentSubject();
-			})[0];
+            return _.find(_executableStates, function(state){
+                return state.id == _selectedState;
+            });
 		});
 
 		isTypeOf = ko.computed(function() {

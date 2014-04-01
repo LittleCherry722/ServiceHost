@@ -99,6 +99,7 @@ object Entities {
     (Process(None, None, false, """Modal Split Guard Example""", false) -> loadJson("modalsplitguard_example")),
     (Process(None, None, false, """Macro Example""", false) -> loadJson("macro_example")),
     (Process(None, None, false, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
+    (Process(None, None, false, """Nested Modal Split Guard Example""", false) -> loadJson("nested_modal_split_guard_example")),
     (Process(None, None, false, """Projektleiter""", false) -> loadJson("projektleiter")),
     (Process(None, None, false, """Projekt Team""", false) -> loadJson("projekt_team")),
     (Process(None, None, false, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),

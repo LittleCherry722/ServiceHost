@@ -1992,8 +1992,8 @@ function gf_guiReadNode ()
 	gt_options.message			= gt_opt_message;
 	gt_options.conversation		= gt_opt_conversation;
 	gt_options.correlationId	= gt_opt_correlationId;
-	gt_options.state			= gt_opt_state;
-	
+	gt_options.state			= gt_opt_state ? parseInt(gt_opt_state) : undefined;
+
 	gt_result.text				= gt_text;
 	gt_result.autoExecute		= gt_autoExecute;
 	gt_result.isStart			= gt_isStart;
