@@ -168,7 +168,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     val message= generateAnswer(actions.toArray)
 
     // collect actions and generate answer for the filtered subject list
-    val msg = CollectAvailableActions(message)
+    //val msg = CollectAvailableActions(message)
     
     //logger.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
     //context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(msg)(returnAdress)
