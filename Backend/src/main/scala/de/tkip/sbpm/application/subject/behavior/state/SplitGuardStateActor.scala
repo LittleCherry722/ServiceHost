@@ -1,36 +1,22 @@
-/*
- * S-BPM Groupware v1.2
- *
- * http://www.tk.informatik.tu-darmstadt.de/
- *
- * Copyright 2013 Telecooperation Group @ TU Darmstadt
- * Contact: Stephan.Borgert@cs.tu-darmstadt.de
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
 package de.tkip.sbpm.application.subject.behavior.state
 
-import scala.Array.canBuildFrom
-import akka.actor.Status.Failure
-import akka.actor.actorRef2Scala
-import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
-import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
-import de.tkip.sbpm.application.subject.behavior.Transition
-import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
-import akka.event.Logging
+import de.tkip.sbpm.application.subject.misc.ActionExecuted
+import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
+import de.tkip.sbpm.application.subject.misc.ActionData
+import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.behavior.ExitCond
+import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
+import akka.actor.Status.Failure
+import akka.event.Logging
 
-protected case class ActStateActor(data: StateData)
+protected case class SplitGuardStateActor(data: StateData)
   extends BehaviorStateActor(data) {
   
-  protected def stateReceive = {
+    protected def stateReceive = {
 
     case action: ExecuteAction => {
+      println("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG")
       val input = action.actionData
       val index = indexOfInput(input.text)
       val traceLogger = Logging(context.system, this)
@@ -46,6 +32,10 @@ protected case class ActStateActor(data: StateData)
         receiver ! message
           
       }
+    }
+    case somethingelse => {
+      println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+      println("somethingelse: " + somethingelse)
     }
   }
 

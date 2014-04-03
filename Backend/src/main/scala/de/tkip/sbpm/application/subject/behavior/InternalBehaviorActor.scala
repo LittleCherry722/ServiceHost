@@ -310,6 +310,10 @@ class InternalBehaviorActor(
         context.actorOf(Props(new ModalJoinStateActor(stateData)), "ModalJoinStateActor____" + UUID.randomUUID().toString())
       }
 
+      case SplitGuardStateType => {
+        context.actorOf(Props(new SplitGuardStateActor(stateData)), "SplitGuardStateActor____" + UUID.randomUUID().toString())
+      }
+      
       case MacroStateType => {
         context.actorOf(Props(new MacroStateActor(stateData)), "MacroStateActor____" + UUID.randomUUID().toString())
       }
