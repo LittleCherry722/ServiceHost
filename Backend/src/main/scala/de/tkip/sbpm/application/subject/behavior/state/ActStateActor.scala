@@ -23,7 +23,6 @@ import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import akka.event.Logging
-import de.tkip.sbpm.application.subject.behavior.ExitCond
 
 protected case class ActStateActor(data: StateData)
   extends BehaviorStateActor(data) {
