@@ -33,6 +33,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val DecisionStateString = "$decision"
   val ModalSplitStateString = "modalsplit"
   val ModalJoinStateString = "modaljoin"
+  val SplitGuardStateString = "$splitguard"
   val ArchiveStateString = "$archive"
   val MacroStateString = "macro"
 
@@ -49,6 +50,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val DecisionStateType = Value(DecisionStateString)
   val ModalSplitStateType = Value(ModalSplitStateString)
   val ModalJoinStateType = Value(ModalJoinStateString)
+  val SplitGuardStateType = Value(SplitGuardStateString)
   val MacroStateType = Value(MacroStateString)
   val ArchiveStateType = Value(ArchiveStateString)
 

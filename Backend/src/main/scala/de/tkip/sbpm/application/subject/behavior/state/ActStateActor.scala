@@ -26,7 +26,7 @@ import akka.event.Logging
 
 protected case class ActStateActor(data: StateData)
   extends BehaviorStateActor(data) {
-
+  
   protected def stateReceive = {
 
     case action: ExecuteAction => {

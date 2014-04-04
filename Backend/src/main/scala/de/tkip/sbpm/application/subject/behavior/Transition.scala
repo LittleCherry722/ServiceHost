@@ -18,7 +18,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 sealed trait TransitionType
 case class ExitCond(messageType: MessageType, target: Option[Target] = None) extends TransitionType {
   def actionType = messageType
-
+  
   def subjectID = if (target.isDefined) target.get.subjectID else "None"
 }
 case class TimeoutCond(manual: Boolean, duration: Int) extends TransitionType
