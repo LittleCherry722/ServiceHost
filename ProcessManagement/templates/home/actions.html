@@ -107,7 +107,7 @@
                     </div>
                 </div>
 
-                <div data-bind="visible: stateType()==='action', foreach: data">
+                <div data-bind="visible: (stateType()==='action' || stateType()==='$splitguard'), foreach: data">
                     <input class="btn" type="button"
                            data-bind="value: $data.text ? $data.text : $parent.stateText(), click: $parent.action.bind($parent, $data), visible: $data.executeAble"/>
                 </div>

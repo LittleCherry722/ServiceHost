@@ -15,7 +15,7 @@
 	<span>This subject has no further tasks in this process!</span>	
 </div>	
 
-<div data-bind="visible: isTypeOf()==='action',foreach: actionData" data-chardin-intro="You can execute the current action clicking this button">
+<div data-bind="visible: (isTypeOf()==='action' || isTypeOf()==='$splitguard'),foreach: actionData" data-chardin-intro="You can execute the current action clicking this button">
 	<div>
 		<input class="btn" type="button" data-bind="value: $data.text,click: $parent.action, enable: $parent.serverDone,enable: $data.executeAble"/>
 	</div>
