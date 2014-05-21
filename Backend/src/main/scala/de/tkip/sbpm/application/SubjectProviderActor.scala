@@ -90,13 +90,6 @@ class SubjectProviderActor(userID: UserID) extends Actor {
         generateAnswer)(sender)
     }
 
-    // general matching
-    // Route processInstance messages to the process manager
-    case message: ProcessInstanceMessage => {
-      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message);
-      processManagerActor ! message
-    }
-
     // send subject messages direct to the subject
     case message: SubjectMessage => {
       // TODO muss performanter gehen weils nur ein subject ist
@@ -110,6 +103,13 @@ class SubjectProviderActor(userID: UserID) extends Actor {
         logger.debug("TRACE: from " + this.self + " to " + subject.ref + " " + message);
         subject.ref ! message
       }
+    }
+
+    // general matching
+    // Route processInstance messages to the process manager
+    case message: ProcessInstanceMessage => {
+      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message);
+      processManagerActor ! message
     }
 
     case message: AnswerMessage => {
