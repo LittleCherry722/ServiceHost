@@ -11,7 +11,7 @@ object ProjectBuild extends Build {
       name := "S-BPM Groupware",
       organization := "TU Darmstadt Telecooperation Group",
       version := "1.2",
-      scalaVersion := "2.10.2",
+      scalaVersion := "2.10.4",
       resolvers ++= Seq(
         "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         "spray repo" at "http://repo.spray.io",
@@ -20,7 +20,7 @@ object ProjectBuild extends Build {
         "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"
       ),
       libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect" % "2.10.2",
+        "org.scala-lang" % "scala-reflect" % "2.10.4",
         "org.scalatest" %% "scalatest" % "2.0.M5b" % "test",
         "com.typesafe.akka" %% "akka-actor" % "2.2.0",
         "com.typesafe.akka" %% "akka-testkit" % "2.2.0" % "test",
