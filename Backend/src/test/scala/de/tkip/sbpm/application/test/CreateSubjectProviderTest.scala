@@ -7,7 +7,7 @@ import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
 
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.scalatest.{BeforeAndAfterAll, FunSuiteLike}
 
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.SubjectProviderManagerActor
@@ -16,7 +16,7 @@ import de.tkip.sbpm.application.miscellaneous.SubjectProviderCreated
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 import akka.testkit.TestKit
 
-class CreateSubjectProviderTest extends TestKit(ActorSystem("TestSystem")) with FunSuite with BeforeAndAfterAll {
+class CreateSubjectProviderTest extends TestKit(ActorSystem("TestSystem")) with FunSuiteLike with BeforeAndAfterAll {
   implicit val timeout = Timeout(5 seconds)
   val subjectProviderManager = system.actorOf(Props[SubjectProviderManagerActor], ActorLocator.subjectProviderManagerActorName)
 

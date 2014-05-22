@@ -21,7 +21,7 @@ object ProjectBuild extends Build {
       ),
       libraryDependencies ++= Seq(
         "org.scala-lang" % "scala-reflect" % "2.10.4",
-        "org.scalatest" %% "scalatest" % "2.0.M5b" % "test",
+        "org.scalatest" %% "scalatest" % "2.1.6" % "test",
         "com.typesafe.akka" %% "akka-actor" % "2.2.0",
         "com.typesafe.akka" %% "akka-testkit" % "2.2.0" % "test",
         "com.typesafe.akka" %% "akka-remote" % "2.2.0",
