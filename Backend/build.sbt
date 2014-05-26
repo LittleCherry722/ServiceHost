@@ -54,4 +54,4 @@ testOptions in Test <+= (target in Test) map {
 
 fork in Test := true
 
-unmanagedSourceDirectories in Compile += file("../eventbus")
+unmanagedSourceDirectories in Compile += baseDirectory.value / ".." / "eventbus"
