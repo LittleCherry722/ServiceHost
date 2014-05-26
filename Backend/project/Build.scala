@@ -48,10 +48,8 @@ object ProjectBuild extends Build {
         "com.google.api-client" % "google-api-client-java6" % "1.16.0-rc",
         "com.google.apis"       % "google-api-services-oauth2" % "v2-rev38-1.15.0-rc",
         "com.google.apis"       % "google-api-services-drive" % "v2-rev77-1.15.0-rc",
-        "com.google.apis"       % "google-api-services-calendar" % "v3-rev55-1.16.0-rc",
+        "com.google.apis"       % "google-api-services-calendar" % "v3-rev55-1.16.0-rc"
         // "com.google.oauth-client" % "google-oauth-client-java6" % "1.15.0-rc"
-
-        "com.typesafe.atmos" % "trace-akka-2.2.1_2.10" % "1.3.0"
       )
     )
   )
