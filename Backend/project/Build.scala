@@ -22,13 +22,13 @@ object ProjectBuild extends Build {
       libraryDependencies ++= Seq(
         "org.scala-lang" % "scala-reflect" % "2.10.4",
         "org.scalatest" %% "scalatest" % "2.1.6" % "test",
-        "com.typesafe.akka" %% "akka-actor" % "2.2.0",
-        "com.typesafe.akka" %% "akka-testkit" % "2.2.0" % "test",
-        "com.typesafe.akka" %% "akka-remote" % "2.2.0",
+        "com.typesafe.akka" %% "akka-actor" % "2.2.4",
+        "com.typesafe.akka" %% "akka-testkit" % "2.2.4" % "test",
+        "com.typesafe.akka" %% "akka-remote" % "2.2.4",
         "com.typesafe.slick" %% "slick" % "1.0.1",
         "com.typesafe.slick" %% "slick-testkit" % "1.0.1" % "test",
 
-        "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.0",
+        "com.typesafe.akka" % "akka-slf4j_2.10" % "2.2.4",
         "ch.qos.logback" % "logback-classic" % "1.0.7",
 
         "org.xerial" % "sqlite-jdbc" % "3.7.2",
