@@ -12,23 +12,19 @@
  */
 package de.tkip.sbpm.rest
 
-import akka.actor.{ ActorRef, Actor, Props }
-import spray.routing._
-import spray.http._
-import spray.http.Uri._
-import spray.client.pipelining._
-import de.tkip.sbpm.rest.auth.CookieAuthenticator
-import de.tkip.sbpm.rest.auth.SessionDirectives._
+import akka.actor.{ Actor, ActorRef, Props }
+import akka.event.Logging
+import de.tkip.sbpm.bir._
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.logging.LoggingResponseActor
-import spray.json._
-import spray.httpx.SprayJsonSupport._
-import de.tkip.sbpm.bir._
-import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.rest._
-import scala.concurrent.Future
-import DefaultJsonProtocol._
-import akka.event.Logging
+import de.tkip.sbpm.rest.auth.CookieAuthenticator
+import de.tkip.sbpm.rest.auth.SessionDirectives._
+import spray.client.pipelining._
+import spray.http._
+import spray.http.Uri._
+import spray.json.DefaultJsonProtocol._
+import spray.routing._
 
 object Entity {
   val PROCESS = "process"

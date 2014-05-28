@@ -13,27 +13,16 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
-import akka.pattern._
-import scala.language.postfixOps
-import akka.event.Logging
-import de.tkip.sbpm.model._
-import de.tkip.sbpm.persistence.query._
-import de.tkip.sbpm.rest.JsonProtocol._
-import spray.httpx.SprayJsonSupport._
-import spray.json._
-import spray.routing.Directive.pimpApply
-import spray.routing.HttpService
-import spray.routing.directives.CompletionMagnet._
-import spray.routing.directives.FieldDefMagnet.apply
-import spray.http.StatusCodes._
-import spray.http.{ StatusCodes, StatusCode, HttpHeader, HttpHeaders }
 import scala.concurrent.Future
-import akka.actor.Props
-import de.tkip.sbpm.persistence.PersistenceActor
+import scala.language.postfixOps
+
+import akka.actor.Actor
+import akka.pattern.ask
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.persistence.testdata.Entities
 import de.tkip.sbpm.application.miscellaneous.KillAllProcessInstances
+import de.tkip.sbpm.persistence.query._
+import de.tkip.sbpm.persistence.testdata.Entities
+import spray.http.StatusCodes
 
 /**
  * This Actor is only used to process REST calls regarding "debug"

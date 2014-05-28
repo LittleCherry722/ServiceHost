@@ -13,20 +13,17 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor.Actor
-import de.tkip.sbpm._
-import de.tkip.sbpm.application.history._
-import spray.routing.HttpService
-import de.tkip.sbpm.logging.DefaultLogging
-import de.tkip.sbpm.rest.JsonProtocol._
-import de.tkip.sbpm.rest.SprayJsonSupport._
-import akka.util.Timeout
 import scala.concurrent.duration._
-import de.tkip.sbpm.application.change._
-import spray.json._
-import de.tkip.sbpm.model._
+
 import akka.pattern.ask
-import scala.util.{ Success, Failure }
+import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.change._
+import de.tkip.sbpm.application.history._
+import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.rest.JsonProtocol._
+import spray.httpx.SprayJsonSupport._
 
 class ChangeInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
 

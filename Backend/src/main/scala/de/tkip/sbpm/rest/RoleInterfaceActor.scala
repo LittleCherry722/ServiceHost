@@ -24,8 +24,8 @@ import spray.json.pimpAny
 import spray.json.pimpString
 import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
-import spray.routing.directives.CompletionMagnet._
-import spray.routing.directives.FieldDefMagnet.apply
+//import spray.routing.directives.CompletionMagnet._
+//import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
 import de.tkip.sbpm.persistence.query._
 

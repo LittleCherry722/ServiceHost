@@ -13,26 +13,23 @@
 
 package de.tkip.sbpm.rest.auth
 
-import akka.actor.Actor
-import spray.http.HttpCredentials
-import spray.http.BasicHttpCredentials
-import de.tkip.sbpm.ActorLocator
-import akka.pattern._
-import de.tkip.sbpm.persistence._
-import akka.util.Timeout
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-import de.tkip.sbpm.model.User
-import akka.event.Logging
-import akka.actor.ActorRef
-import spray.routing.authentication.UserPass
-import de.tkip.sbpm.model.UserIdentity
-import scala.util.{ Try, Success, Failure }
+import scala.concurrent.duration._
 
-import com.github.t3hnar.bcrypt._
-import scala.concurrent.Await
-import de.tkip.sbpm.persistence.query.Users
+import com.github.t3hnar.bcrypt.Password
+
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.actorRef2Scala
+import akka.event.Logging
+import akka.pattern.ask
+import akka.pattern.pipe
+import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.logging.DefaultLogging
+import de.tkip.sbpm.model.UserIdentity
+import de.tkip.sbpm.persistence.query.Users
+import spray.routing.authentication.UserPass
 
 /**
  * Provides support for form/json based or basic authentication.

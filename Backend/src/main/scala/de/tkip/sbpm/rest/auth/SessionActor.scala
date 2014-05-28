@@ -13,12 +13,12 @@
 
 package de.tkip.sbpm.rest.auth
 
-import akka.actor.Actor
-import java.util.UUID
-import scala.collection.mutable.Map
 import java.util.Date
-import akka.actor.Cancellable
-import scala.concurrent.duration._
+import java.util.UUID
+
+import scala.collection.mutable.Map
+
+import akka.actor.Actor
 import akka.event.Logging
 
 /**

@@ -13,26 +13,24 @@
 
 package de.tkip.sbpm.rest.auth
 
-import scala.concurrent.ExecutionContext
-import spray.routing.RequestContext
-import spray.http._
-import spray.util._
-import spray.http.HttpHeaders._
-import spray.routing.authentication._
-import scala.concurrent.Future
-import spray.routing.AuthenticationFailedRejection
-import de.tkip.sbpm.model.User
 import java.util.UUID
-import akka.actor.ActorContext
-import de.tkip.sbpm.ActorLocator
-import akka.pattern._
-import akka.util.Timeout
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.concurrent.Await
-import akka.actor.Props
-import akka.actor.ActorRef
-import akka.actor.Actor
+
+import akka.actor.ActorContext
+import akka.pattern.ask
+import akka.util.Timeout
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.model.User
+import spray.http.HttpCredentials
+import spray.http.HttpHeaders.Authorization
+import spray.routing.AuthenticationFailedRejection
 import spray.routing.Rejection
+import spray.routing.RequestContext
+import spray.routing.authentication._
+import spray.util._
 
 /**
  * Spray rejection if there was a unauthenticated request.

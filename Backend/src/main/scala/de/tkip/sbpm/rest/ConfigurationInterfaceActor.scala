@@ -14,17 +14,11 @@
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
-import akka.event.Logging
 import de.tkip.sbpm.model.Configuration
 import de.tkip.sbpm.persistence.query.Configurations._
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.httpx.SprayJsonSupport._
-import spray.json._
 import spray.routing.Directive.pimpApply
-import spray.routing.HttpService
-import spray.routing.directives.CompletionMagnet._
-import spray.routing.directives.ContentTypeResolver._
-import spray.http.StatusCodes._
 
 /**
  * This Actor is only used to process REST calls regarding "configuration"

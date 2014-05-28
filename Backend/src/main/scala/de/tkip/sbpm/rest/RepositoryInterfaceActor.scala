@@ -43,7 +43,6 @@ import de.tkip.sbpm.rest.auth.SessionDirectives._
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.logging.LoggingResponseActor
 import spray.json._
-import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.bir._
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.rest._

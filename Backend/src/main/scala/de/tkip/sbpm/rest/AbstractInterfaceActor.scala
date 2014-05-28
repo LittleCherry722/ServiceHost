@@ -1,7 +1,8 @@
 package de.tkip.sbpm.rest
 
 import akka.actor.Actor
-import spray.routing._
+import spray.routing.HttpService
+import spray.routing.RequestContext
 
 /**
  * This Actor preprocesses the request, by reading the cookie informationen,
