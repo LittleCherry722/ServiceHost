@@ -21,24 +21,25 @@ import akka.actor.Props
 import scala.slick.lifted
 import akka.pattern._
 import scala.concurrent._
-import akka.actor.ActorLogging
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.persistence.query.Graphs
 import akka.actor.PoisonPill
 import de.tkip.sbpm.persistence.query.BaseQuery
+import de.tkip.sbpm.logging.DefaultLogging
 import akka.actor.ActorRef
 import scala.concurrent.duration._
 import de.tkip.sbpm._
 import java.util.UUID
-import akka.event.Logging
 
-private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
+private[persistence] class ProcessInspectActor extends Actor with DefaultLogging {
   import de.tkip.sbpm.model._
   import akka.pattern.ask
   import akka.util.Timeout
   import scala.concurrent.Future
   import scala.concurrent.ExecutionContext.Implicits.global
+
   implicit val timeout = Timeout(30 seconds)
+
   def receive = {
     case q @ Save.Entity(ps @ _*) => {
       log.debug("Start checking: " + q)
@@ -100,8 +101,6 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
     correct
   }
 
-  val traceLogger = Logging(context.system, this)
-
   /**
    * Forwards a query to the specified Actor.
    * The actor is automatically stopped after processing the
@@ -109,11 +108,11 @@ private[persistence] class ProcessInspectActor extends Actor with ActorLogging {
    */
   private def forwardToPersistence(query: BaseQuery, from: ActorRef) = {
     val actor = context.actorOf(Props[ProcessPersistenceActor], "ProcessPersistenceActor____" + UUID.randomUUID().toString())
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + query.toString)
-    actor.tell(query, from)
-    traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + PoisonPill)
 
+    log.debug("TRACE: from " + this.self + " to " + actor + " " + query)
+    actor.tell(query, from)
+
+    log.debug("TRACE: from " + this.self + " to " + actor + " " + PoisonPill)
     actor ! PoisonPill
   }
 }
@@ -165,11 +164,12 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       answer { session =>
         Processes.where(_.id === id).delete(session)
       }
-      println("!!!!!!!!!!! process deleted: " + id)
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + ProcessDelete(id, new java.util.Date()))
 
-      changeActor ! ProcessDelete(id, new java.util.Date())
+      println("!!!!!!!!!!! process deleted: " + id)
+
+      val deleteMsg = ProcessDelete(id, new java.util.Date())
+      log.debug("TRACE: from " + this.self + " to " + changeActor + " " + deleteMsg)
+      changeActor ! deleteMsg
     }
   }
 
@@ -254,15 +254,15 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     var process = p.copy(activeGraphId = None)
     var resultId = process.id
 
-    val traceLogger = Logging(context.system, this)
     // if id not defined -> save new process
     if (!resultId.isDefined) {
       resultId = Some(insert(process))
       // inject id into process
       process = process.copy(id = resultId)
 
-      traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + ProcessChange(process, "insert", new java.util.Date()))
-      changeActor ! ProcessChange(process, "insert", new java.util.Date())
+      val insertMsg = ProcessChange(process, "insert", new java.util.Date())
+      log.debug("TRACE: from " + this.self + " to " + changeActor + " " + insertMsg)
+      changeActor ! insertMsg
     } else {
       // update the process
       val res = Processes.where(_.id === process.id).update(convert(process)._1)
@@ -273,9 +273,9 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       //        throw new EntityNotFoundException("Process with id %d does not exist.", process.id.get)
       // result on update is always None
       resultId = None
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + ProcessChange(process, "update", new java.util.Date()))
-      changeActor ! ProcessChange(process, "update", new java.util.Date())
+      val updateMsg = ProcessChange(process, "update", new java.util.Date())
+      log.debug("TRACE: from " + this.self + " to " + changeActor + " " + updateMsg)
+      changeActor ! updateMsg
     }
     // set process id in graph
     graph = graph.copy(processId = process.id)

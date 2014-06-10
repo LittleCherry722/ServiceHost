@@ -15,12 +15,12 @@ package de.tkip.sbpm.persistence
 
 import scala.reflect.ClassTag
 import akka.actor.Actor
-import akka.actor.ActorLogging
 import akka.actor.PoisonPill
 import akka.actor.Props
 import akka.actor.actorRef2Scala
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm._
+import de.tkip.sbpm.logging.DefaultLogging
 import java.util.UUID
 import akka.event.Logging
 
@@ -28,7 +28,7 @@ import akka.event.Logging
  * Handles all DB operations using slick (http://slick.typesafe.com/).
  * Redirects table specific actions to sub actors.
  */
-class PersistenceActor extends Actor with ActorLogging {
+class PersistenceActor extends Actor with DefaultLogging {
   private val processInspectActor = context.actorOf(Props[ProcessInspectActor],"ProcessInspectActor____"+UUID.randomUUID().toString())
   private lazy val changeActor = ActorLocator.changeActor
   
@@ -42,8 +42,7 @@ class PersistenceActor extends Actor with ActorLogging {
     case q: Messages.Query         => forwardTo[MessagePersistenceActor](q)
     case q: ProcessInstances.Query => forwardTo[ProcessInstancePersistenceActor](q)
     case q: Processes.Query        => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + processInspectActor + " " + q.toString)
+      log.debug("TRACE: from " + this.self + " to " + processInspectActor + " " + q)
       processInspectActor forward q
       println("!!!!!!!!!!!  the query is: "+q)
 //    changeActor forward q
@@ -59,10 +58,11 @@ class PersistenceActor extends Actor with ActorLogging {
    */
   private def forwardTo[A <: Actor: ClassTag](query: BaseQuery) = {
     val actor = context.actorOf(Props[A])
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + query.toString)
+
+    log.debug("TRACE: from " + this.self + " to " + actor + " " + query)
     actor.forward(query)
-    traceLogger.debug("TRACE: from " + this.self + " to " + actor + " " + PoisonPill)
+
+    log.debug("TRACE: from " + this.self + " to " + actor + " " + PoisonPill)
     actor ! PoisonPill
   }
 

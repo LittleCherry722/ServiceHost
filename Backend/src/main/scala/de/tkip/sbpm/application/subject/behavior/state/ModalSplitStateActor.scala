@@ -27,7 +27,7 @@ protected case class ModalSplitStateActor(data: StateData)
   protected def stateReceive = {
 
     case action: ExecuteAction => {
-      logger.debug(s"Got $action, but cannot execute")
+      log.debug(s"Got $action, but cannot execute")
     }
   }
 

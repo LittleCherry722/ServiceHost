@@ -7,7 +7,6 @@ import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.behavior.{ Transition, ExitCond, AskForJoinStateID }
 import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes._
 import akka.actor.Status.Failure
-import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
@@ -27,25 +26,23 @@ protected case class SplitGuardStateActor(data: StateData)
       val input = action.actionData
       if (input.text.equals(joinText)) {
         if (joinStateId != -1) {
-          val traceLogger = Logging(context.system, this)
           changeState(joinStateId, data, null)
-          traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
+          log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action))
           blockingHandlerActor ! ActionExecuted(action)
         }else{
           log.error("Modal Join State is not found")
         }
       } else {
         val index = indexOfInput(input.text)
-        val traceLogger = Logging(context.system, this)
         if (index != -1) {
           changeState(exitTransitions(index).successorID, data, null)
-          traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
+          log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action))
           blockingHandlerActor ! ActionExecuted(action)
         } else {
           val receiver = action.asInstanceOf[AnswerAbleMessage].sender
           val message = Failure(new IllegalArgumentException(
             "Invalid Argument: " + input.text + " is not a valid action."))
-          traceLogger.debug("TRACE: from " + this.self + " to " + receiver + " " + message.toString)
+          log.debug("TRACE: from " + this.self + " to " + receiver + " " + message)
           receiver ! message
         }
       }

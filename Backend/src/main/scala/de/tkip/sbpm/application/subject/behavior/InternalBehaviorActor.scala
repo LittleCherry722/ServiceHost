@@ -167,8 +167,7 @@ class InternalBehaviorActor(
     }
 
     case ea: ExecuteAction => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + currentStatesMap(ea.stateID) + " " + ea.toString)
+      log.debug("TRACE: from " + this.self + " to " + currentStatesMap(ea.stateID) + " " + ea)
       currentStatesMap(ea.stateID).forward(ea)
     }
 
@@ -250,6 +249,7 @@ class InternalBehaviorActor(
   }
 
   private val currentStatesMap: mutable.Map[StateID, BehaviorStateRef] = mutable.Map()
+
   private def changeState(from: StateID, to: StateID) = {
     // kill the currentState
     killState(from)

@@ -47,11 +47,10 @@ class UserPassAuthActor extends Actor with DefaultLogging {
     // valid basic auth header given -> check credentials
     case UserPass(user, pass) => checkCredentials(user, pass, sender)
     // invalid header -> fail
-    case _ =>
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + None)
-
+    case _ => {
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + None)
       sender ! None
+    }
   }
 
   /**

@@ -28,7 +28,6 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.rest._
 import scala.concurrent.Future
 import DefaultJsonProtocol._
-import akka.event.Logging
 
 object Entity {
   val PROCESS = "process"
@@ -66,8 +65,6 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
   // read bool from akka config
   protected def configFlag(key: String) =
     context.system.settings.config.getBoolean(configPath + key)
-
-  private val traceLogger = Logging(context.system, this)
 
   private val frontendBaseUrl = configString("frontend.baseUrl")
   private val frontendIndexFile = configString("frontend.indexFile")
@@ -240,9 +237,9 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
     case request: spray.http.HttpRequest => {
       val path = request.uri.path
       if(!path.startsWith(Path.SingleSlash + frontendBaseUrl)){
-//        traceLogger.debug("TRACE: =========================================================================")
-//        traceLogger.debug("TRACE: request " + request.method + ": " + path)
-//        traceLogger.debug("TRACE: -------------------------------------------------------------------------")
+//        log.debug("TRACE: =========================================================================")
+//        log.debug("TRACE: request " + request.method + ": " + path)
+//        log.debug("TRACE: -------------------------------------------------------------------------")
       }
       request
     }
@@ -273,7 +270,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
    * without authentication.
    */
   private def delegateTo(actor: ActorRef): Route = {
-    traceLogger.debug("TRACE: from " + this.self + " to " + actor +" RequestContext")
+    log.debug("TRACE: from " + this.self + " to " + actor +" RequestContext")
     requestContext => actor ! requestContext
   }
 

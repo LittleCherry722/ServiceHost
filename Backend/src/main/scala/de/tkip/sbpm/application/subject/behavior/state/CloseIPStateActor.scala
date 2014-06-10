@@ -17,13 +17,11 @@ import akka.actor.actorRef2Scala
 import de.tkip.sbpm.application.subject.behavior.CloseInputPool
 import de.tkip.sbpm.application.subject.behavior.InputPoolClosed
 import de.tkip.sbpm.application.subject.misc.ActionData
-import akka.event.Logging
 
 protected case class CloseIPStateActor(data: StateData)
   extends BehaviorStateActor(data) {
   val msg = CloseInputPool((stateOptions.subjectId.get, stateOptions.messageType.get))
-  val traceLogger = Logging(context.system, this)
-  traceLogger.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg.toString)
+  log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + msg)
   inputPoolActor ! msg
 
   override protected def stateReceive = {

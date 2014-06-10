@@ -16,7 +16,6 @@ package de.tkip.sbpm.rest
 import scala.collection.Seq
 import spray.httpx.marshalling.Marshaller
 import spray.http.Uri
-import de.tkip.sbpm.logging.DefaultLogging
 import spray.httpx.encoding.Decoder
 import scala.util.matching.Regex
 import scala.collection.immutable.Map
@@ -26,7 +25,6 @@ import spray.routing.ExceptionHandler
 import akka.actor.ActorRefFactory
 import spray.util.LoggingContext
 import scala.reflect.ClassTag
-import akka.event.LoggingAdapter
 import spray.http._
 import scala.concurrent._
 import spray.client.pipelining._
@@ -40,7 +38,6 @@ import spray.http._
 import spray.client.pipelining._
 import de.tkip.sbpm.rest.auth.CookieAuthenticator
 import de.tkip.sbpm.rest.auth.SessionDirectives._
-import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.logging.LoggingResponseActor
 import spray.json._
 import spray.httpx.SprayJsonSupport._
@@ -50,7 +47,7 @@ import de.tkip.sbpm.rest._
 import scala.concurrent.Future
 import DefaultJsonProtocol._
 
-class RepositoryInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
+class RepositoryInterfaceActor extends AbstractInterfaceActor {
 
   // akka config prefix
   protected val configPath = "sbpm."

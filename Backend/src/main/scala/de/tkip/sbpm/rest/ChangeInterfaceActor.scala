@@ -28,7 +28,7 @@ import de.tkip.sbpm.model._
 import akka.pattern.ask
 import scala.util.{ Success, Failure }
 
-class ChangeInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
+class ChangeInterfaceActor extends AbstractInterfaceActor {
 
   import context.dispatcher
   implicit val timeout = Timeout(15 seconds)

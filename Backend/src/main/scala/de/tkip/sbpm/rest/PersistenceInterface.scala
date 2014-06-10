@@ -133,9 +133,7 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * Executes the action without waiting for a result.
    */
   protected def execute(action: BaseQuery) = {
-      val traceLogger = Logging(context.system, this.self)
-      traceLogger.debug("TRACE: from " + this.self + " to " + persistenceActor  + " " + action.toString)
-
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + action)
     persistenceActor ! action
   }
 

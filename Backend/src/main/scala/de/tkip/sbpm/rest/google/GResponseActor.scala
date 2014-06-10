@@ -17,7 +17,6 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
 import scala.util.{ Try, Success, Failure }
-import akka.actor.{ Actor, ActorLogging }
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -42,7 +41,6 @@ import de.tkip.sbpm
 import de.tkip.sbpm.logging.DefaultLogging
 import com.google.api.services.calendar.model.Event
 import java.util.UUID
-import akka.event.Logging
 
 class GResponseActor extends Actor with HttpService with DefaultLogging {
 
@@ -131,7 +129,7 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
   }
 }
 
-class DirectHttpRequestHandler extends Actor {
+class DirectHttpRequestHandler extends Actor with DefaultLogging {
 
   var chunkHandlers = Map.empty[ActorRef, ActorRef]
 
@@ -141,33 +139,29 @@ class DirectHttpRequestHandler extends Actor {
       val client = sender
       val handler = context.actorOf(Props(new FileUploadHandler(client, s)), "FileUploadHandler____" + UUID.randomUUID().toString())
       chunkHandlers += (client -> handler)
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + s.toString)
+      log.debug("TRACE: from " + this.self + " to " + handler + " " + s)
       handler.tell(s, client)
     case c: MessageChunk =>
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + c.toString)
+      log.debug("TRACE: from " + this.self + " to " + chunkHandlers(sender) + " " + c)
       chunkHandlers(sender).tell(c, sender)
     case e: ChunkedMessageEnd =>
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + e.toString)
+      log.debug("TRACE: from " + this.self + " to " + chunkHandlers(sender) + " " + e)
       chunkHandlers(sender).tell(e, sender)
       chunkHandlers -= sender
   }
 
 }
 
-class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Actor {
+class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Actor with DefaultLogging {
   import start.request._
   import context.dispatcher
 
   implicit val timeout = Timeout(15 seconds)
   private lazy val driveActor = sbpm.ActorLocator.googleDriveActor
 
-  val traceLogger = Logging(context.system, this)
-  traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + CommandWrapper(SetRequestTimeout(Duration.Inf)))
-
-  client ! CommandWrapper(SetRequestTimeout(Duration.Inf))
+  val timeoutMsg = CommandWrapper(SetRequestTimeout(Duration.Inf))
+  log.debug("TRACE: from " + this.self + " to " + client + " " + timeoutMsg)
+  client ! timeoutMsg
 
   val tmpFile = java.io.File.createTempFile("chunked-receiver", ".tmp", new java.io.File("/tmp"))
   tmpFile.deleteOnExit()
@@ -184,18 +178,24 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Ac
 
       (driveActor ? UploadFile("abc", "test.txt", "", "text/plain", "gDriveFileUpload.tmp"))
         .onComplete {
-          case Success(gFileJson) =>
-            traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + HttpResponse(status = 200, entity = gFileJson.toString))
-            client ! HttpResponse(status = 200, entity = gFileJson.toString)
+          case Success(gFileJson) => {
+            val response = HttpResponse(status = 200, entity = gFileJson.toString)
+            log.debug("TRACE: from " + this.self + " to " + client + " " + response)
+            client ! response
             tmpFile.delete()
-          case Failure(e) =>
-            traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + HttpResponse(status = 200, entity = e.toString))
-            client ! HttpResponse(status = 200, entity = e.toString)
+          }
+          case Failure(e) => {
+            val response = HttpResponse(status = 200, entity = e.toString)
+            log.debug("TRACE: from " + this.self + " to " + client + " " + response)
+            client ! response
+          }
         }
 
-      traceLogger.debug("TRACE: from " + this.self + " to " + client + " " + CommandWrapper(SetRequestTimeout(2.seconds)))
 
-      client ! CommandWrapper(SetRequestTimeout(2.seconds))
+      val timeoutMsg = CommandWrapper(SetRequestTimeout(2.seconds))
+      log.debug("TRACE: from " + this.self + " to " + client + " " + timeoutMsg)
+      client ! timeoutMsg
+
       context.stop(self)
   }
 

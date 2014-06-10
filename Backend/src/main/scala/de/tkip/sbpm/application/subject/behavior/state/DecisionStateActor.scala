@@ -25,7 +25,7 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
 
   prepareTransitions
 
-  logger.debug("DecisionStateActor initialized: exitTransactions=" + exitTransitions.mkString(",") +
+  log.debug("DecisionStateActor initialized: exitTransactions=" + exitTransitions.mkString(",") +
     ", variables="+variables.mkString(",")+",travel_request_string="+travel_request_string+", trueTransition="+trueTransition+
     ", falseTransition=" + falseTransition)
 
@@ -35,7 +35,7 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
   }
   catch {
     case ex : Throwable => {
-      logger.error("DecisionStateActor exception during evaluation")
+      log.error("DecisionStateActor exception during evaluation")
     }
   }
 
@@ -46,8 +46,8 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
     for((key,variable) <- variables) {
       for(value <- variable.messages) {
         value match {
-          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; logger.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
-          case x => {logger.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)}
+          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
+          case x => {log.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)}
         }
       }
     }
@@ -59,7 +59,7 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
       transition match {
         case Transition(ExitCond("true",_),_,_,_) => {trueTransition = transition}
         case Transition(ExitCond("false",_),_,_,_) => {falseTransition = transition}
-        case _ => logger.error("DecisionStateActor unexpected transition: " + transition)
+        case _ => log.error("DecisionStateActor unexpected transition: " + transition)
       }
     }
   }
@@ -82,6 +82,6 @@ protected case class DecisionStateActor(data: StateData) extends BehaviorStateAc
   
   protected def stateReceive = {
     // execute an action
-    case _ @ x=> logger.warning("DecisionStateActor -> unexpected stateReceive: " + x)
+    case _ @ x=> log.warning("DecisionStateActor -> unexpected stateReceive: " + x)
   }
 }

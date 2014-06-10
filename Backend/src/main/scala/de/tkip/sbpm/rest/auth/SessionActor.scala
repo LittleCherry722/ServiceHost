@@ -19,7 +19,7 @@ import scala.collection.mutable.Map
 import java.util.Date
 import akka.actor.Cancellable
 import scala.concurrent.duration._
-import akka.event.Logging
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * Message for creating a new session, optionally with a user id.
@@ -50,14 +50,12 @@ case class Session(id: UUID, expires: Date = defaultSessionExpiry, userId: Optio
  * Provides an in-memory session store for associating
  * user ids with sessions (e.g. by using cookies).
  */
-class SessionActor extends Actor {
+class SessionActor extends Actor with DefaultLogging {
   // save session in memory
   private val sessions = Map[UUID, Session]()
   // create new session id
   private def newSessionId = UUID.randomUUID
   import context.dispatcher
-
-  val traceLogger = Logging(context.system, this)
 
   def receive = {
     case CreateSession(userId) => {
@@ -74,7 +72,7 @@ class SessionActor extends Actor {
         case None => None
       })
 
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
       sender ! msg
       cleanup()
     }
@@ -86,12 +84,11 @@ class SessionActor extends Actor {
       val session = sessions.get(sessionId)
       if (session.isDefined) {
         sessions -= sessionId
-        traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + true)
 
+        log.debug("TRACE: from " + this.self + " to " + sender + " " + true)
         sender ! true
       } else {
-        traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + false)
-
+        log.debug("TRACE: from " + this.self + " to " + sender + " " + false)
         sender ! false
       }
       cleanup()

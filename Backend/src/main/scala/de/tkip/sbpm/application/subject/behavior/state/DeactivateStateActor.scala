@@ -5,29 +5,27 @@ import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.behavior.DeactivateState
-import akka.event.Logging
 
 protected class DeactivateStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   override def preStart() {
     // Block the user while prestart!
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
+    log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID))
     blockingHandlerActor ! BlockUser(userID)
     super.preStart()
     // deactivate state
     deactivateState()
     // and chante to the next one
     changeState(exitTransitions.head.successorID, data, null)
-    traceLogger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
+    log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID))
     blockingHandlerActor ! UnBlockUser(userID)
   }
 
   protected def stateReceive = {
 
     case action: ExecuteAction => {
-      logger.debug(s"Got $action, but cannot execute")
+      log.debug(s"Got $action, but cannot execute")
     }
   }
 
@@ -42,8 +40,7 @@ protected class DeactivateStateActor(data: StateData)
     log.debug(s"Deactivate state ${data.stateModel.options.stateId}")
     if (stateOptions.stateId.isDefined) {
       val msg = DeactivateState(stateOptions.stateId.get)
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + msg.toString)
+      log.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + msg)
       internalBehaviorActor ! msg
     } else {
       log.error("State to deactivate is not defined")

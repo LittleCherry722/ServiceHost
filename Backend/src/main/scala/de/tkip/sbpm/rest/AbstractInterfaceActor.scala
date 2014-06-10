@@ -2,12 +2,13 @@ package de.tkip.sbpm.rest
 
 import akka.actor.Actor
 import spray.routing._
+import de.tkip.sbpm.logging.DefaultLogging
 
 /**
  * This Actor preprocesses the request, by reading the cookie informationen,
  * so the child actors have better access to it
  */
-abstract class AbstractInterfaceActor extends Actor with HttpService {
+abstract class AbstractInterfaceActor extends Actor with HttpService with DefaultLogging{
 
   // TODO userId von subklassen nicht ueberrschreibbar machen!
   private var _userId: Int = 1

@@ -13,6 +13,7 @@
 
 package de.tkip.sbpm.application.miscellaneous
 
+import akka.event.LoggingAdapter
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{ Map => MutableMap }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -35,7 +36,7 @@ object parseGraph {
   // This map matches the short versions and real versions of the message types
   private var messageMap: Map[String, String] = null
 
-  def apply(graph: Graph): ProcessGraph = synchronized {
+  def apply(graph: Graph)(implicit log: LoggingAdapter): ProcessGraph = synchronized {
 
     // create the message map from the graph
     messageMap = graph.messages.mapValues(_.id)
@@ -50,7 +51,7 @@ object parseGraph {
     // this map will be filled during the preparse
     private val subjectMap = MutableMap[SubjectID, PreSubjectInfo]()
 
-    def apply(subjects: Map[String, GraphSubject]): Map[String, SubjectLike] = {
+    def apply(subjects: Map[String, GraphSubject])(implicit log: LoggingAdapter): Map[String, SubjectLike] = {
       // first preparse the subjects, to extract information
       // e.g. which subject is a multisubject
       subjects.values.foreach(preParseSubject(_))
@@ -69,7 +70,7 @@ object parseGraph {
     // the Statesmap
     private var states: MutableMap[StateID, StateCreator] = null
 
-    def parseSubject(subject: GraphSubject): SubjectLike = {
+    def parseSubject(subject: GraphSubject)(implicit log: LoggingAdapter): SubjectLike = {
       // reset the statesmap
       states = MutableMap[StateID, StateCreator]()
 
@@ -102,7 +103,7 @@ object parseGraph {
       }
     }
 
-    private def parseMacro(macroId: String, macro: GraphMacro): (String, ProcessMacro) = synchronized {
+    private def parseMacro(macroId: String, macro: GraphMacro)(implicit log: LoggingAdapter): (String, ProcessMacro) = synchronized {
       states = MutableMap[StateID, StateCreator]()
 
       val mainMacro = macroId == "##main##"
@@ -132,7 +133,7 @@ object parseGraph {
       StateOptions(messageId, subjectId, nodeOptions.correlationId, nodeOptions.conversationId, stateId)
     }
 
-    private def parseEdges(edges: Iterable[GraphEdge]) {
+    private def parseEdges(edges: Iterable[GraphEdge])(implicit log: LoggingAdapter) {
       import Integer.parseInt
       for (edge <- edges) {
         // match the edgetype and create the corresponding transition
@@ -191,8 +192,7 @@ object parseGraph {
           }
 
           case s => {
-            // TODO error loggen
-            System.err.println("Cant parse edgetype: " + s)
+            log.error("Cant parse edgetype: " + s)
           }
         }
       }

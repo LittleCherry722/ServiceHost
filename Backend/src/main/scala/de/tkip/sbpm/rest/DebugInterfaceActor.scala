@@ -42,8 +42,6 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
 
   implicit val executionContext = context.system.dispatcher
 
-  val logging = context.system.log
-
   /**
    *
    * usually a REST Api should at least implement the following functions:
@@ -61,7 +59,7 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
     get {
       complete {
         val onFailure: PartialFunction[Throwable, Any] = {
-          case e => logging.error(e, e.getMessage)
+          case e => log.error(e, e.getMessage)
         }
 
         var dbFuture = Future[Any]()

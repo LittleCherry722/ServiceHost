@@ -24,14 +24,14 @@ protected case class EndStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   // Inform the processinstance that this subject has terminated
-  logger.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + MacroTerminated(macroID).toString)
+  log.debug("TRACE: from " + this.self + " to " + internalBehaviorActor + " " + MacroTerminated(macroID))
   internalBehaviorActor ! MacroTerminated(macroID)
 
   // nothing to receive for this state
   protected def stateReceive = FSM.NullFunction
 
   override def postStop() {
-    logger.debug("End@" + userID + ", " + subjectID + "stops...")
+    log.debug("End@" + userID + ", " + subjectID + "stops...")
   }
 
   override protected def getAvailableAction: Array[ActionData] =

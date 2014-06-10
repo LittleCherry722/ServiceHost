@@ -19,12 +19,11 @@ import miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.logging.DefaultLogging
 import akka.event.Logging
 import java.util.UUID
 
-class SubjectProviderManagerActor extends Actor {
-
-  val logger = Logging(context.system, this)
+class SubjectProviderManagerActor extends Actor with DefaultLogging {
 
   private lazy val processManagerActor = ActorLocator.processManagerActor
   private val subjectProviderMap =
@@ -38,7 +37,7 @@ class SubjectProviderManagerActor extends Actor {
     case csp @ CreateSubjectProvider(userID) =>
       createNewSubjectProvider(userID)
       if (subjectProviderMap.contains(userID)) {
-        logger.debug("TRACE: from " + this.self + " to " + sender + " " + SubjectProviderCreated(csp, userID))
+        log.debug("TRACE: from " + this.self + " to " + sender + " " + SubjectProviderCreated(csp, userID))
         sender ! SubjectProviderCreated(csp, userID)
       }
 
@@ -47,7 +46,7 @@ class SubjectProviderManagerActor extends Actor {
     // then SubjectProviderMessages
     case answer: AnswerMessage => {
       if (answer.sender != null) {
-        logger.debug("TRACE: from " + this.self + " to " + sender + " " + answer)
+        log.debug("TRACE: from " + this.self + " to " + sender + " " + answer)
         answer.sender ! answer
       }
     }
@@ -55,36 +54,35 @@ class SubjectProviderManagerActor extends Actor {
     // TODO werden noch zu forwards aber zum routing testen erstmal tells
     case message: SubjectProviderMessage => {
       if (subjectProviderMap.contains(message.userID)) {
-        logger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(message.userID) + " " + withSender(message))
+        log.debug("TRACE: from " + this.self + " to " + subjectProviderMap(message.userID) + " " + withSender(message))
 
         subjectProviderMap(message.userID) ! withSender(message)
       } else {
         // TODO dynamisch erstellen?
         createNewSubjectProvider(message.userID)
-        val traceLogger = Logging(context.system, this)
-        traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(message.userID) + " " + message.toString)
+        log.debug("TRACE: from " + this.self + " to " + subjectProviderMap(message.userID) + " " + message)
         subjectProviderMap(message.userID).forward(withSender(message))
       }
     }
 
     // TODO muss man zusammenfassen koennen
     case message: AnswerAbleMessage => {
-      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message.withSender(sender))
+      log.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message.withSender(sender))
       processManagerActor ! message.withSender(sender)
     }
 
     case message: ControlMessage => {
-      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message)
+      log.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message)
       processManagerActor ! message
     }
 
     case message: SubjectMessage => {
-      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message)
+      log.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message)
       processManagerActor ! message
     }
 
     case s => {
-      println("SubjectProviderManger not yet implemented: " + s)
+      log.error("SubjectProviderManger not yet implemented: " + s)
     }
   }
 
@@ -107,8 +105,7 @@ class SubjectProviderManagerActor extends Actor {
       if (controlMessage.isInstanceOf[AnswerAbleMessage]) {
         controlMessage.asInstanceOf[AnswerAbleMessage].sender = sender
       }
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + subjectProviderMap(userID) + " " + controlMessage.toString)
+      log.debug("TRACE: from " + this.self + " to " + subjectProviderMap(userID) + " " + controlMessage)
       subjectProviderMap(userID).forward(controlMessage)
     }
   }
