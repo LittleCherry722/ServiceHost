@@ -23,6 +23,7 @@ class LogPersistenceActor extends Actor with DefaultLogging {
   def receive = {
     case Get(n) => db withSession {
       val log_list: List[Log] = Query(Logs).sortBy(_.timestamp.desc).take(n).list
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + log_list)
       sender ! log_list
     }
     case Insert(log) => db withSession {

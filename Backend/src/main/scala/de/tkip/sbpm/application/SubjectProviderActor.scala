@@ -151,7 +151,11 @@ class SubjectProviderActor(userID: UserID) extends Actor with DefaultLogging {
 
     val actionFutureSeq: Seq[Future[Seq[Seq[AvailableAction]]]] =
       for (subject <- collectSubjects.filterNot(_.isTerminated).toArray)
-        yield (subject ? GetAvailableAction(processInstanceID)).mapTo[Seq[Seq[AvailableAction]]]
+        yield ({
+          val msg = GetAvailableAction(processInstanceID)
+          log.debug("TRACE: from " + this.self + " to " + subject + " " + msg)
+          subject ? msg
+        }).mapTo[Seq[Seq[AvailableAction]]]
     val nestedActionFutures = Future.sequence(actionFutureSeq)
     // flatten the actions
     val actionFutures =

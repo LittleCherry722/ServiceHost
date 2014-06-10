@@ -210,7 +210,11 @@ class SubjectActor(data: SubjectData) extends Actor with DefaultLogging {
       // Create a Future with the available actions
       val actionFutures =
         Future.sequence(
-          for ((_, c) <- macroBehaviorActors) yield (c ? gaa).mapTo[Seq[AvailableAction]])
+          for ((_, c) <- macroBehaviorActors) yield {
+            log.debug("TRACE: from " + this.self + " to " + c + " " + gaa)
+            (c ? gaa).mapTo[Seq[AvailableAction]]
+          }
+        )
 
       // and pipe the actions back to the sender
       actionFutures pipeTo sender

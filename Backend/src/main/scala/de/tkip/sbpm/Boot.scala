@@ -110,11 +110,21 @@ object Boot extends App {
   }
 
   if (dropAction) {
-    dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Drop }
+    dbFuture = dbFuture flatMap {
+      case _ => {
+        log.debug("TRACE: from Boot to " + persistenceActor + " " + Schema.Drop)
+        persistenceActor ? Schema.Drop
+      }
+    }
     dbFuture.onFailure(onFailure)
   }
   if (createAction) {
-    dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Create }
+    dbFuture = dbFuture flatMap {
+      case _ => {
+        log.debug("TRACE: from Boot to " + persistenceActor + " " + Schema.Create)
+        persistenceActor ? Schema.Create
+      }
+    }
     dbFuture.onFailure(onFailure)
   }
   if (debugAction) {

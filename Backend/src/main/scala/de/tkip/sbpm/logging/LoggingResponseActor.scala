@@ -36,12 +36,13 @@ class LoggingResponseActor extends Actor with HttpService with DefaultLogging {
   implicit val timeout = Timeout(15 seconds)
   private val logPersistenceActor = sbpm.ActorLocator.logPersistenceActor
   def actorRefFactory = context
-  
+
   def receive = runRoute {
     get {
       path("get_logs") {
-        parameters("n") { n => ctx =>
+        parameters("n") { n => ctx => {
           log.debug(s"received get request for recent $n logs")
+          log.debug("TRACE: from " + this.self + " to " + logPersistenceActor + " " + Get(n.toInt));
           (logPersistenceActor ? Get(n.toInt))
             .mapTo[List[Log]]
             .onComplete {
@@ -50,6 +51,7 @@ class LoggingResponseActor extends Actor with HttpService with DefaultLogging {
               )
               case Failure(e) => ctx.complete(e.toString)
             }
+          }
         }
       }
     }

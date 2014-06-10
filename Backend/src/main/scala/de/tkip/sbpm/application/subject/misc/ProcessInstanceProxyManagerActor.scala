@@ -28,13 +28,20 @@ case class GetProcessInstanceProxy(processId: ProcessID, url: String)
 class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends Actor with DefaultLogging {
   implicit val timeout = Timeout(30 seconds)
 
-  log.debug("register initial process instance proxy for: {}", url)
-
   private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
+
+  log.debug("register initial process instance proxy for: {}", url)
   private val processInstanceMap: mutable.Map[(ProcessID, String), Future[ProcessInstanceProxy]] =
-    mutable.Map((processId, url) -> (for {
-      proxy <- (actor ? GetProxyActor).mapTo[ActorRef]
-    } yield new ProcessInstanceProxy(actor, proxy)))
+    mutable.Map(
+      (processId, url) -> (
+          for {
+            proxy <- {
+              log.debug("TRACE: from " + this.self + " to " + actor + " " + GetProxyActor)
+              (actor ? GetProxyActor)
+            }.mapTo[ActorRef]
+          } yield new ProcessInstanceProxy(actor, proxy)
+        )
+    )
 
   def receive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
@@ -69,6 +76,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     case message: SubjectToSubjectMessage => {
       log.debug("got SubjectToSubjectMessage {} from {}", message, sender)
       log.debug("forward SubjectToSubjectMessage to {}", actor)
+      log.debug("TRACE: from " + this.self + " to " + actor + " " + message)
       actor.forward(message)
     }
 
@@ -85,7 +93,12 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     val getMappingMsg = GetSubjectMapping(processId, targetAddress)
 
     val futures = for (processInstanceFuture <- processInstanceMap.values) yield {
-      val resultFuture = processInstanceFuture flatMap {processInstance => processInstance.proxy ? getMappingMsg}
+      val resultFuture = processInstanceFuture flatMap {
+        processInstance => {
+          log.debug("TRACE: from " + this.self + " to " + processInstance.proxy + " " + getMappingMsg)
+          processInstance.proxy ? getMappingMsg
+        }
+      }
       resultFuture.mapTo[SubjectMappingResponse]
     }
 
@@ -97,12 +110,19 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     // create the message which is used to create a process instance
     val createMessage = CreateProcessInstance(ExternalUser, processId, newProcessInstanceName, Some(self), mapping)
 
+    // create the processinstance
+    log.debug("TRACE: from " + this.self + " to " + targetManager + " " + createMessage)
+    val createdFuture = (targetManager ? createMessage).mapTo[ProcessInstanceCreated]
+    val created = Await.result(createdFuture, timeout.duration)
+
+    val instanceRef = created.processInstanceActor
+
+    // ask for the proxy actor
+    log.debug("TRACE: from " + this.self + " to " + instanceRef + " " + GetProxyActor)
+    val proxyFuture = (instanceRef ? GetProxyActor).mapTo[ActorRef]
+
     for {
-      // create the processinstance
-      created <- (targetManager ? createMessage).mapTo[ProcessInstanceCreated]
-      instanceRef = created.processInstanceActor
-      // ask for the proxy actor
-      proxy <- (instanceRef ? GetProxyActor).mapTo[ActorRef]
+      proxy <- proxyFuture
     } yield new ProcessInstanceProxy(instanceRef, proxy)
   }
 }

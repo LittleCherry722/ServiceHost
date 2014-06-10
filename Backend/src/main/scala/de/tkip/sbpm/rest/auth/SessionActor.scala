@@ -111,6 +111,8 @@ class SessionActor extends Actor with DefaultLogging {
   private def updateSession(sessionId: UUID, userId: Option[Int]) = {
     val session = Session(sessionId, userId = userId)
     sessions += (sessionId -> session)
+
+    log.debug("TRACE: from " + this.self + " to " + sender + " " + session)
     sender ! session
     cleanup()
   }

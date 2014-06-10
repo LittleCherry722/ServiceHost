@@ -56,8 +56,9 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
       // frontend request for authentication of SBPM app gainst Google account
       pathPrefix("init_auth") {
         formFields("id") { (userId) =>
-          ctx =>
+          ctx => {
             log.debug(s"received authentication init post from user: $userId")
+            log.debug("TRACE: from " + this.self + " to " + driveActor + " " + RetrieveCredentials(userId))
             (driveActor ? RetrieveCredentials(userId))
               .onComplete {
                 case Success(files) => ctx.complete(StatusCodes.NoContent)
@@ -65,34 +66,42 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
                   ctx.complete(StatusCodes.OK, auth_url)
                 case Failure(e) => ctx.complete(e)
               }
+          }
         }
       } ~
         path("create_event") {
           formFields("id", "summary", "location", "year", "month", "day") {
             (id, s, l, y, m, d) =>
-              ctx =>
+              ctx => {
                 log.debug(s"received get request for google calendar event from user: $id")
-                (calendarActor ? CreateEvent(id, s, l, y.toInt, m.toInt, d.toInt))
+                val createMsg = CreateEvent(id, s, l, y.toInt, m.toInt, d.toInt)
+                log.debug("TRACE: from " + this.self + " to " + calendarActor + " " + createMsg)
+                (calendarActor ? createMsg)
                   .mapTo[Event]
                   .onComplete {
                     case Success(calEvent) => ctx.complete(calEvent.toString)
                     case Failure(e)        => ctx.complete(e.toString)
                   }
+              }
           }
         } ~
         path("file-upload") {
           formFields('userId.as[String], 'datafile.as[Array[Byte]], 'fname.as[String], 'mimeType.as[String]) {
             (userId, fileArray, fname, mimeType) =>
-              ctx =>
+              ctx => {
                 val path = "gDriveFileUpload.tmp"
                 val out = new java.io.FileOutputStream(path)
                 out.write(fileArray)
                 out.close()
-                (driveActor ? UploadFile(userId, fname, "", mimeType, path))
+
+                val uploadMsg = UploadFile(userId, fname, "", mimeType, path)
+                log.debug("TRACE: from " + this.self + " to " + driveActor + " " + uploadMsg)
+                (driveActor ? uploadMsg)
                   .onComplete {
                     case Success(gFileJson) => ctx.complete(gFileJson.toString)
                     case Failure(e)         => ctx.complete(e)
                   }
+              }
           }
         }
     } ~
@@ -100,22 +109,26 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
         // callback endpoint called by Google after an authentication request
         path("") {
           parameters("code", "state") { (code, userId) =>
-            respondWithMediaType(`text/html`) { ctx =>
+            respondWithMediaType(`text/html`) { ctx => {
               log.debug(s"received from google response: name: $userId, code: $code")
-              (driveActor ? InitCredentials(userId, code))
+              val initMsg = InitCredentials(userId, code)
+              log.debug("TRACE: from " + this.self + " to " + driveActor + " " + initMsg)
+              (driveActor ? initMsg)
                 .onComplete {
                   case Success(_) =>
                     ctx.complete("<!DOCTYPE html>\n<html><head><script>window.close();</script></head><body>OK</body></html>")
                   case Failure(e) => ctx.complete(e)
                 }
-            }
+            } }
           }
         } ~
           path("get_files") {
             parameters("id") { id =>
-              ctx =>
+              ctx => {
                 log.debug(s"received get request for google drive files from user: $id")
-                (driveActor ? FindFiles(id, "", GDriveControl.default_fields))
+                val findMsg = FindFiles(id, "", GDriveControl.default_fields)
+                log.debug("TRACE: from " + this.self + " to " + driveActor + " " + findMsg)
+                (driveActor ? findMsg)
                   .mapTo[String]
                   .onComplete {
                     case Success(files) => ctx.complete(files)
@@ -123,6 +136,7 @@ class GResponseActor extends Actor with HttpService with DefaultLogging {
                       ctx.complete(StatusCodes.Forbidden, auth_url)
                     case Failure(e) => ctx.complete(e.toString)
                   }
+              }
             }
           }
       }
@@ -176,7 +190,9 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends Ac
     case e: ChunkedMessageEnd =>
       output.close()
 
-      (driveActor ? UploadFile("abc", "test.txt", "", "text/plain", "gDriveFileUpload.tmp"))
+      val uploadMsg = UploadFile("abc", "test.txt", "", "text/plain", "gDriveFileUpload.tmp")
+      log.debug("TRACE: from " + this.self + " to " + driveActor + " " + uploadMsg)
+      (driveActor ? uploadMsg)
         .onComplete {
           case Success(gFileJson) => {
             val response = HttpResponse(status = 200, entity = gFileJson.toString)

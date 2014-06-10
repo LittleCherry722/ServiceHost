@@ -76,7 +76,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          * Return currently logged in user.
          */
         path("current") {
-          user(actorRefFactory) { user =>
+          user(actorRefFactory, log) { user =>
             complete(user)
           }
         } ~
@@ -154,7 +154,7 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
          */
         path("login") {
           (formFields('user, 'pass).as(UserPass) | entity(as[UserPass])) { userPass =>
-            login(userPass)(context) { user =>
+            login(userPass)(context, log) { user =>
               complete(user)
             }
           }
@@ -239,7 +239,9 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
   // completes with all providers and emails of an user and the user information
   def getUserWithMail(id: Int) = {
-    val userFuture = (persistenceActor ? Users.Read.ByIdWithIdentities(id)).mapTo[Option[(User, Seq[UserIdentity])]]
+    val msg = Users.Read.ByIdWithIdentities(id)
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+    val userFuture = (persistenceActor ? msg).mapTo[Option[(User, Seq[UserIdentity])]]
     onSuccess(userFuture) {
       user =>
         if (user.isDefined) {
@@ -253,7 +255,9 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
   // completes with all providers and emails of all users and the user information
   def getUsersWithMail() = {
     complete {
-      val usersFuture = (persistenceActor ? Users.Read.AllWithIdentities).mapTo[Map[User, Seq[UserIdentity]]]
+      val msg = Users.Read.AllWithIdentities
+      log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+      val usersFuture = (persistenceActor ? msg).mapTo[Map[User, Seq[UserIdentity]]]
       usersFuture map {
         result =>
           (result.map { user =>
@@ -265,8 +269,13 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
 
   def setPw(id: Int, entity: SetPassword) = {
     //check if the user exists
-    val userFuture = (persistenceActor ? Users.Read.ById(id)).mapTo[Option[User]]
-    val userIdentityFuture = (persistenceActor ? Users.Read.Identity.ById("sbpm", id)).mapTo[Option[UserIdentity]]
+    val userMsg = Users.Read.ById(id)
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + userMsg)
+    val userFuture = (persistenceActor ? userMsg).mapTo[Option[User]]
+
+    val userIdentityMsg = Users.Read.Identity.ById("sbpm", id)
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + userIdentityMsg)
+    val userIdentityFuture = (persistenceActor ? userIdentityMsg).mapTo[Option[UserIdentity]]
 
     val futures = for {
       user <- userFuture;
@@ -277,12 +286,17 @@ class UserInterfaceActor extends Actor with PersistenceInterface {
       case (user, userIdentity) =>
         if (user.isDefined && userIdentity.isDefined) {
           // check if the old password is correct
-          val authFuture = (ActorLocator.userPassAuthActor ? UserPass(userIdentity.get.eMail, entity.oldPassword)).mapTo[Option[User]]
+          val userPassAuthActor = ActorLocator.userPassAuthActor
+          val userPassMsg = UserPass(userIdentity.get.eMail, entity.oldPassword)
+          log.debug("TRACE: from " + this.self + " to " + userPassAuthActor + " " + userPassMsg)
+          val authFuture = (userPassAuthActor ? userPassMsg).mapTo[Option[User]]
           onSuccess(authFuture) {
             auth =>
               if (auth.isDefined) {
                 // set the new password
-                val future = persistenceActor ? Users.Save.Identity(id, "sbpm", userIdentity.get.eMail, Some(entity.newPassword.bcrypt))
+                val identitySaveMsg = Users.Save.Identity(id, "sbpm", userIdentity.get.eMail, Some(entity.newPassword.bcrypt))
+                log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + identitySaveMsg)
+                val future = persistenceActor ? identitySaveMsg
                 complete(future.map(_ => StatusCodes.OK))
               } else
                 complete(StatusCodes.Unauthorized)

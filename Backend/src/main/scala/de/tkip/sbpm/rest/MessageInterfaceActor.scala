@@ -33,13 +33,22 @@ class MessageInterfaceActor extends AbstractInterfaceActor {
       path(IntNumber) { messageID =>
         //                  completeWithQuery[Message](Messages.Read.ById(messageID))
         complete {
-          (persistence ? Messages.Read.ById(messageID)).mapTo[Option[Message]]
+          val msg = Messages.Read.ById(messageID)
+          log.debug("TRACE: from " + this.self + " to " + persistence +" " + msg)
+          (persistence ? msg).mapTo[Option[Message]]
         }
       } ~
         path("") {
           complete {
-            val from = (persistence ? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
-            val to = (persistence ? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
+            val fromMsg = Messages.Read.WithSource(userId)
+            val toMsg = Messages.Read.WithTarget(userId)
+
+            log.debug("TRACE: from " + this.self + " to " + persistence +" " + fromMsg)
+            log.debug("TRACE: from " + this.self + " to " + persistence +" " + toMsg)
+
+            val from = (persistence ? fromMsg).mapTo[Seq[Message]]
+            val to = (persistence ? toMsg).mapTo[Seq[Message]]
+
             for {
               f <- from
               t <- to
@@ -48,12 +57,16 @@ class MessageInterfaceActor extends AbstractInterfaceActor {
         } ~
         path("outbox") {
           complete {
-            (persistence ? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
+            val msg = Messages.Read.WithSource(userId)
+            log.debug("TRACE: from " + this.self + " to " + persistence +" " + msg)
+            (persistence ? msg).mapTo[Seq[Message]]
           }
         } ~
         path("inbox") {
           complete {
-            (persistence ? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
+            val msg = Messages.Read.WithTarget(userId)
+            log.debug("TRACE: from " + this.self + " to " + persistence +" " + msg)
+            (persistence ? msg).mapTo[Seq[Message]]
           }
         }
     } ~

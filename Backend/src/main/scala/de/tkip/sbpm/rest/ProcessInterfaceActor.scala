@@ -36,8 +36,8 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
 
   private lazy val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
 
-  private lazy val persistanceActor = ActorLocator.persistenceActor
   import context.dispatcher
+
 
   /**
    *
@@ -66,9 +66,11 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
       // LIST
       path("") {
         // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück
+        val msg = Processes.Read()
+        log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
         complete(
           for {
-            processes <- (persistanceActor ? Processes.Read()).mapTo[Seq[Process]]
+            processes <- (persistenceActor ? msg).mapTo[Seq[Process]]
             filtered = if (showProcesses.isEmpty) processes
             else processes filter (showProcesses contains _.id.getOrElse(-1))
           } yield filtered)
@@ -130,6 +132,7 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    *
    */
   private def read(id: Int): Route = {
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + Processes.Read.ById(id))
     val processFuture = (persistenceActor ? Processes.Read.ById(id)).mapTo[Option[Process]]
     onSuccess(processFuture) {
       processResult =>
@@ -145,9 +148,12 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    * Reads the process and its connected graph.
    */
   private def readProcess(process: Process): Route = {
-    val roleFuture = (persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + Processes.Read.All)
+    val roleFuture = (persistenceActor ? Roles.Read.All).mapTo[Seq[Role]]
     val graphFuture = if (process.activeGraphId.isDefined) {
-      (persistenceActor ? Graphs.Read.ById(process.activeGraphId.get)).mapTo[Option[Graph]]
+      val msg = Graphs.Read.ById(process.activeGraphId.get)
+      log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+      (persistenceActor ? msg).mapTo[Option[Graph]]
     } else {
       Future.successful(None)
     }
@@ -175,7 +181,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    *
    */
   private def save(id: Option[Int], json: GraphHeader): Route = {
-    val processFuture = (persistanceActor ? Processes.Read.ByName(json.name)).mapTo[Option[Process]]
+    val msg = Processes.Read.ByName(json.name)
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+    val processFuture = (persistenceActor ? msg).mapTo[Option[Process]]
     onSuccess(processFuture) {
       processResult =>
         validate(!processResult.isDefined || processResult.get.id == id, "The process names have to be unique.") {
@@ -195,7 +203,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    */
   private def saveWithoutGraph(id: Option[Int], json: GraphHeader): Route = {
     val process = Process(id, json.name, json.isCase)
-    val future = (persistanceActor ? Processes.Save(process)).mapTo[Option[Int]]
+    val msg = Processes.Save(process)
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+    val future = (persistenceActor ? msg).mapTo[Option[Int]]
     val result = future.map(resultId => JsObject("id" -> resultId.getOrElse(id.getOrElse(-1)).toJson))
     complete(result)
   }
@@ -206,7 +216,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
   private def saveWithGraph(id: Option[Int], json: GraphHeader): Route = {
     val process = Process(id, json.name, json.isCase)
     val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
-    val future = (persistanceActor ? Processes.Save.WithGraph(process, graph)).mapTo[(Option[Int], Option[Int])]
+    val msg = Processes.Save.WithGraph(process, graph)
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+    val future = (persistenceActor ? msg).mapTo[(Option[Int], Option[Int])]
     val result = future.map(result => JsObject("id" -> result._1.getOrElse(id.getOrElse(-1)).toJson, "graphId" -> result._2.toJson))
     complete(result)
   }
@@ -216,7 +228,9 @@ class ProcessInterfaceActor extends Actor with PersistenceInterface {
    */
   private def parseGraphHeader(op: GraphHeader => Route): Route = {
     dynamic {
-      onSuccess((persistanceActor ? Roles.Read.All).mapTo[Seq[Role]]) {
+      val msg = Roles.Read.All
+      log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+      onSuccess((persistenceActor ? msg).mapTo[Seq[Role]]) {
         roles =>
           // implicite value for marshalling
           implicit val roleMap = roles.map(r => (r.name, r)).toMap
