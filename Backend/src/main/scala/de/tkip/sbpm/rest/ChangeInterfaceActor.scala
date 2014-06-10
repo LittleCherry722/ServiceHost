@@ -39,19 +39,38 @@ class ChangeInterfaceActor extends AbstractInterfaceActor {
         parameter("t") { (time) =>
             complete {
               //          log.debug(s"${getClass.getName} received polling request with timestemp: $time")
+              val historyMsg = GetHistorySince(time.toLong)
+              val processMsg = GetProcessChange(time.toLong)
+              val actionMsg = GetActionChange(time.toLong)
+              val processInstanceMsg = GetProcessInstanceChange(time.toLong)
+              val messageMsg = GetMessageChange(time.toLong, userId)
+
+              log.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + historyMsg)
+              log.debug("TRACE: from " + this.self + " to " + changeActor + " " + processMsg)
+              log.debug("TRACE: from " + this.self + " to " + changeActor + " " + actionMsg)
+              log.debug("TRACE: from " + this.self + " to " + changeActor + " " + processInstanceMsg)
+              log.debug("TRACE: from " + this.self + " to " + changeActor + " " + messageMsg)
+
+              val historyFuture = (processManagerActor ? historyMsg).mapTo[Option[HistoryRelatedChange]]
+              val processFuture = (changeActor ? processMsg).mapTo[Option[ProcessRelatedChange]]
+              val actionFuture = (changeActor ? actionMsg).mapTo[Option[ActionRelatedChange]]
+              val processInstanceFuture = (changeActor ? processInstanceMsg).mapTo[Option[ProcessInstanceRelatedChange]]
+              val messageFuture = (changeActor ? messageMsg).mapTo[Option[MessageRelatedChange]]
+
               val future = 
                 for {
-                  history <- (processManagerActor ? GetHistorySince(time.toLong)).mapTo[Option[HistoryRelatedChange]]
-                  process <- (changeActor ? GetProcessChange(time.toLong)).mapTo[Option[ProcessRelatedChange]]
-                  action <- (changeActor ? GetActionChange(time.toLong)).mapTo[Option[ActionRelatedChange]]
-                  processInstance <- (changeActor ? GetProcessInstanceChange(time.toLong)).mapTo[Option[ProcessInstanceRelatedChange]]
-                  message <- (changeActor ? GetMessageChange(time.toLong, userId)).mapTo[Option[MessageRelatedChange]]
+                  history <- historyFuture
+                  process <- processFuture
+                  action <- actionFuture
+                  processInstance <- processInstanceFuture
+                  message <- messageFuture
+
                   result = ChangeRelatedData(process, processInstance, action, history, message)	  
                 } yield result
-                
-                future.map(result => result)
+
+              future.map(result => result)
             }
-            }
+        }
       }
     }
   }

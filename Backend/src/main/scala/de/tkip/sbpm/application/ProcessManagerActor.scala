@@ -101,7 +101,10 @@ class ProcessManagerActor extends Actor with DefaultLogging {
       for ((id, _) <- processInstanceMap) {
         context.stop(processInstanceMap(id).processInstanceActor)
         history.entries += createHistoryEntry(None, id, "killed")
-        changeActor ! ProcessInstanceDelete(id, new java.util.Date())
+
+        val deletedMsg = ProcessInstanceDelete(id, new java.util.Date())
+        log.debug("TRACE: from " + this.self + " to " + changeActor + " " + deletedMsg)
+        changeActor ! deletedMsg
       }
       processInstanceMap.clear()
       // TODO delete the history, in future the history should be in a database,
@@ -189,8 +192,10 @@ class ProcessManagerActor extends Actor with DefaultLogging {
       log.debug("TRACE: from " + this.self + " to " + actor + " " + message)
       actor.forward(message)
     } else if (message.isInstanceOf[AnswerAbleMessage]) {
-      message.asInstanceOf[AnswerAbleMessage].sender !
-        Failure(new Exception("Target process instance does not exists."))
+      val actor = message.asInstanceOf[AnswerAbleMessage].sender
+      val failureMsg = Failure(new Exception("Target process instance does not exists."))
+      log.debug("TRACE: from " + this.self + " to " + actor + " " + failureMsg)
+      actor ! failureMsg
 
       log.error("ProcessManager - message for " + message.processInstanceID +
         " but does not exist, " + message)

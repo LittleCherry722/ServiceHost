@@ -54,7 +54,12 @@ class UserPassAuthActor extends Actor with DefaultLogging {
    * to the database and sends user back to sender.
    */
   private def checkCredentials(user: String, pass: String, receiver: ActorRef) = {
-    val future = (persistenceActor ? Users.Read.Identity("sbpm", user)).map {
+    val msg = Users.Read.Identity("sbpm", user)
+
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+    val identityFuture = (persistenceActor ? msg)
+
+    val future = identityFuture.map {
       // return none if user not found, no password in identity or failure
       case None                              => None
       case Some(UserIdentity(_, _, _, None)) => None
@@ -67,7 +72,9 @@ class UserPassAuthActor extends Actor with DefaultLogging {
         log.error(e, "Error checking user identity.")
         None
       }
-    }.pipeTo(receiver)
+    }
+
+    future.pipeTo(receiver)
   }
 
   /**

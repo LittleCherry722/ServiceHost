@@ -191,7 +191,11 @@ class InternalBehaviorActor(
       // Create a Future with the available actions
       val actionFutures =
         Future.sequence(
-          for ((_, c) <- currentStatesMap if (!c.isTerminated)) yield (c ? getActions).mapTo[AvailableAction])
+          for ((_, c) <- currentStatesMap if (!c.isTerminated)) yield {
+            log.debug("TRACE: from " + this.self + " to " + c + " " + getActions)
+            (c ? getActions).mapTo[AvailableAction]
+          }
+        )
 
       // and pipe the actions back to the sender
       actionFutures pipeTo sender
@@ -217,18 +221,25 @@ class InternalBehaviorActor(
       var notFind = true
       var current = joinstate.id
       stateBuffer += current
+
       while (!stateBuffer.isEmpty && notFind) {
         for (t <- statesMap(current).transitions; if !visited.contains(t.successorID)) {
           visited += t.successorID
           stateBuffer += t.successorID
+
           if (statesMap(t.successorID).stateType.toString().equals("modaljoin")) {
-            sender ! statesMap(t.successorID).id
+            val id = statesMap(t.successorID).id
+            log.debug("TRACE: from " + this.self + " to " + sender + " " + id)
+            sender ! id
             notFind = true
           }
         }
+
         stateBuffer -= current
         if(!stateBuffer.isEmpty) current = stateBuffer.head
       }
+
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + -1)
       sender ! -1
     }
 

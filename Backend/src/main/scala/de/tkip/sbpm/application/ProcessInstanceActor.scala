@@ -80,31 +80,40 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor with De
     log.debug("subject mapping: {}", request.subjectMapping)
 
     try {
-      // TODO schoener machen
-      val dataBaseAccessFuture = for {
-        // get the process
-        processFuture <- (ActorLocator.persistenceActor ?
-          Processes.Read.ById(processID)).mapTo[Option[Process]]
-        // save this process instance in the persistence
-        processInstanceIDFuture <- (ActorLocator.persistenceActor ?
-          ProcessInstances.Save(ProcessInstance(None, processID, processFuture.get.activeGraphId.get, None)))
-          .mapTo[Option[Int]]
+      val persistenceActor = ActorLocator.persistenceActor
 
-        // get the corresponding graph
-        graphFuture <- (ActorLocator.persistenceActor ?
-          Graphs.Read.ById(processFuture.get.activeGraphId.get)).mapTo[Option[Graph]]
-      } yield (processInstanceIDFuture.get, processFuture.get.name, graphFuture.get)
+      // get the process
+      val processMsg = Processes.Read.ById(processID)
+      log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + processMsg)
+      val processFuture = (persistenceActor ? processMsg).mapTo[Option[Process]]
+      val process = Await.result(processFuture, timeout.duration);
+
+      // save this process instance in the persistence
+      val processInstanceIDMsg = ProcessInstances.Save(ProcessInstance(None, processID, process.get.activeGraphId.get, None))
+      log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + processInstanceIDMsg)
+      val processInstanceIDFuture = (persistenceActor ? processInstanceIDMsg).mapTo[Option[Int]]
+
+      // get the corresponding graph
+      val graphMsg = Graphs.Read.ById(process.get.activeGraphId.get)
+      log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + graphMsg)
+      val graphFuture = (persistenceActor ? graphMsg).mapTo[Option[Graph]]
+
+      // create combined futures
+      val dataBaseAccessFuture = for {
+        processInstanceID <- processInstanceIDFuture
+        graph <- graphFuture
+      } yield (processInstanceID, graph)
+
       // evaluate the Future
-      val (idTemp, processNameTemp, graphTemp) =
-        Await.result(dataBaseAccessFuture, timeout.duration)
-      id = idTemp
-      processName = processNameTemp
-      persistenceGraph = graphTemp
+      val (idTemp, persistenceGraphTemp) = Await.result(dataBaseAccessFuture, timeout.duration)
+      id = idTemp.get
+      processName = process.get.name
+      persistenceGraph = persistenceGraphTemp.get
 
       // parse the start-subjects into an Array
-      val startSubjects: Iterable[SubjectID] = graphTemp.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
+      val startSubjects: Iterable[SubjectID] = persistenceGraph.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
       // parse the graph into the internal structure
-      graph = parseGraph(graphTemp)
+      graph = parseGraph(persistenceGraph)
 
       // TODO modify to the right version
       for (startSubject <- startSubjects) {
@@ -216,13 +225,15 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor with De
   }
 
   private def createExecuteActionAnswer(req: ExecuteAction) {
-    context.parent !
-      AskSubjectsForAvailableActions(
+    val msg = AskSubjectsForAvailableActions(
         req.userID,
         id,
         AllSubjects,
         (actions: Array[AvailableAction]) =>
           ExecuteActionAnswer(req, createProcessInstanceData(actions)))
+
+    log.debug("TRACE: from " + this.self + " to " + context.parent + " " + msg)
+    context.parent ! msg
   }
 
   private def createReadProcessInstanceAnswer(req: ReadProcessInstance) {

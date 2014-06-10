@@ -62,8 +62,10 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * Sends a message to the persistence actor and waits
    * for the result of type A.
    */
-  protected def request[A](action: BaseQuery)(implicit tag: ClassTag[A]): Future[A] =
+  protected def request[A](action: BaseQuery)(implicit tag: ClassTag[A]): Future[A] = {
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + action)
     (persistenceActor ? action).mapTo[A]
+  }
 
   /**
    * Completes the request with the result of a query to the

@@ -53,11 +53,13 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
    * Send the result of the given function (executed in one transaction)
    * back to the sender or the exception if one occurs.
    */
-  protected def answer[A](exec: Session => A) = sender ! {
-    withTransaction(exec) match {
+  protected def answer[A](exec: Session => A) = {
+    val msg = withTransaction(exec) match {
       case Success(result) => result
       case Failure(e)      => akka.actor.Status.Failure(e)
     }
+    log.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
+    sender ! msg
   }
 
   /**
@@ -66,8 +68,8 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
    * exec: is executed in a database transaction
    * postProcess: can be used to modify db results after releasing database connection
    */
-  protected def answerProcessed[A, B](exec: Session => A)(postProcess: A => B) = sender ! {
-    withTransaction(exec) match {
+  protected def answerProcessed[A, B](exec: Session => A)(postProcess: A => B) = {
+    val msg = withTransaction(exec) match {
       case Success(preResult) =>
         // db result ok -> execute post process function
         Try(postProcess(preResult)) match {
@@ -76,6 +78,8 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
         }
       case Failure(e) => akka.actor.Status.Failure(e)
     }
+    log.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
+    sender ! msg
   }
 
   /**
@@ -85,8 +89,8 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
    * None is passed through to the sender without executing postProcess function
    * postProcess: can be used to modify db result after releasing database connection
    */
-  protected def answerOptionProcessed[A, B](exec: Session => Option[A])(postProcess: A => B) = sender ! {
-    withTransaction(exec) match {
+  protected def answerOptionProcessed[A, B](exec: Session => Option[A])(postProcess: A => B) = {
+    val msg = withTransaction(exec) match {
       // db returned none -> pass it through
       case Success(None) => None
       // db result ok -> execute post process function
@@ -97,6 +101,8 @@ private[persistence] trait DatabaseAccess extends DefaultLogging { self: Actor =
         }
       case Failure(e) => akka.actor.Status.Failure(e)
     }
+    log.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
+    sender ! msg
   }
 
   /**

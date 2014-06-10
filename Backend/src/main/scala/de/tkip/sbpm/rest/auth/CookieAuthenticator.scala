@@ -20,6 +20,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 import akka.actor.ActorContext
+import akka.event.LoggingAdapter
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
@@ -48,7 +49,7 @@ case class AuthenticationRejection(supportedSchemes: Seq[String], realm: String,
  * credentials. Multiple authentication schemes can be supported
  * (define handling actors in package object).
  */
-class CookieAuthenticator(implicit val executionContext: ExecutionContext, implicit val actorContext: ActorContext)
+class CookieAuthenticator(implicit val executionContext: ExecutionContext, implicit val actorContext: ActorContext, implicit val log: LoggingAdapter)
   extends ContextAuthenticator[Session] {
   private implicit val timeout = Timeout(10 seconds)
   private lazy val sessionActor = ActorLocator.sessionActor
@@ -62,8 +63,9 @@ class CookieAuthenticator(implicit val executionContext: ExecutionContext, impli
     if (cookie.isDefined) {
       try {
         // check if a session exists for the cookie value 
-        val sessionFuture =
-          sessionActor ? GetSession(UUID.fromString(cookie.get.content))
+        val getSession = GetSession(UUID.fromString(cookie.get.content))
+        log.debug("TRACE: from CookieAuthenticator to " + sessionActor + " " + getSession)
+        val sessionFuture = sessionActor ? getSession
         sessionFuture.flatMap {
           // no session -> new auth required
           case None => checkAuthorizationHeader(ctx)
@@ -112,15 +114,19 @@ class CookieAuthenticator(implicit val executionContext: ExecutionContext, impli
     val scheme = credentials.value.takeWhile(_ != ' ')
     // get handling actor for scheme
     val authActor = defaultSchemes.get(scheme)
-    if (!authActor.isDefined)
+    if (!authActor.isDefined) {
       // no matching actor found -> fail
       Future(None)
-    else
+    }
+    else {
+      val actor = ActorLocator.actor(authActor.get)
       // redirect auth request to actor
-      (ActorLocator.actor(authActor.get) ? credentials).mapTo[Option[User]].map { u =>
+      log.debug("TRACE: from CookieAuthenticator to " + actor + " " + credentials)
+      (actor ? credentials).mapTo[Option[User]].map { u =>
         if (u.isDefined) u.get.id
         else None
       }
+    }
   }
 
   /**
@@ -130,12 +136,15 @@ class CookieAuthenticator(implicit val executionContext: ExecutionContext, impli
    */
   def saveSession(id: Option[UUID], userId: Option[Int]) = {
     // send request to session actor
-    sessionActor ? {
+    val msg = {
       if (id.isDefined)
         UpdateSession(id.get, userId)
       else
         CreateSession(userId)
     }
+
+    log.debug("TRACE: from CookieAuthenticator to " + sessionActor + " " + msg)
+    sessionActor ? msg
   }.mapTo[Session].map(s => Right { s })
 }
 

@@ -74,14 +74,14 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
     case auth.AuthenticationRejection(schemes, realm, sessionId) :: _ => {
       respondWithHeader(HttpHeaders.`WWW-Authenticate`(schemes.map(HttpChallenge(_, realm)))) {
         if (sessionId.isDefined) {
-          session(sessionId.get)(context) {
+          session(sessionId.get)(context, log) {
             session =>
-              setSessionCookie(session)(context) {
+              setSessionCookie(session)(context, log) {
                 complete(StatusCodes.Unauthorized)
               }
           }
         } else {
-          deleteSession(actorRefFactory) {
+          deleteSession(actorRefFactory, log) {
             complete(StatusCodes.Unauthorized)
           }
         }
@@ -280,7 +280,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
       authenticate(new CookieAuthenticator) {
         session =>
           // auth successful -> set session cookie
-          setSessionCookie(session)(context) {
+          setSessionCookie(session)(context, log) {
             op
           }
       }

@@ -37,8 +37,9 @@ protected case class SubscribeIncomingMessages(
     if (stateActor == null) stateActor = sender
   }
 
-  def !(message: Any) {
+  def !(message: Any)(implicit log: LoggingAdapter) {
     if (stateActor != null) {
+      log.debug("TRACE: from " + this + " to " + stateActor + " " + message)
       stateActor ! message
     }
   }

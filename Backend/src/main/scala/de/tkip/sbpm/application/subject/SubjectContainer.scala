@@ -106,10 +106,9 @@ class SubjectContainer(
 
       // process schon vorhanden?
       // TODO mit futures
-      val processInstanceRef =
-        (processInstanceManager ?
-          GetProcessInstanceProxy(mapping.get.processId, mapping.get.address))
-          .mapTo[ActorRef]
+      val getProxyMsg = GetProcessInstanceProxy(mapping.get.processId, mapping.get.address)
+      log.debug("TRACE: from SubjectContainer to " + processInstanceManager + " " +  getProxyMsg)
+      val processInstanceRef = (processInstanceManager ? getProxyMsg).mapTo[ActorRef]
 
       log.debug("CREATE: processInstanceRef = {}", processInstanceRef)
 
@@ -153,6 +152,7 @@ class SubjectContainer(
 
   def send(message: SubjectMessage) {
     if (subjects.contains(message.userID)) {
+      log.debug("TRACE: from SubjectContainer to " + subjects(message.userID) + " " + message)
       subjects(message.userID).tell(message, context.sender)
     }
   }
@@ -184,6 +184,7 @@ class SubjectContainer(
       }
 
       //        blockingHandlerActor ! BlockUser(userID)
+      log.debug("TRACE: from SubjectContainer to " + subjects(userID) + " " + message)
       subjects(userID).tell(message, context.sender)
     }
   }
@@ -226,7 +227,10 @@ class SubjectContainer(
           log.debug("ref.onComplete: r = {}", r)
           log.debug("ref.onComplete: ref = {}", ref)
           log.debug("subject creation completed: {}", ref.isCompleted)
-          if (r.isSuccess) r.get.tell(message, from)
+          if (r.isSuccess) {
+            log.debug("TRACE: from " + this + " to " + r.get + " " + message)
+            r.get.tell(message, from)
+          }
           // TODO exception or logg?
           else throw new Exception("Subject Creation failed for " +
             processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + r)

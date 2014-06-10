@@ -53,6 +53,7 @@ class ContextResolverActor extends Actor with DefaultLogging {
     mutable.Map.empty[(ProcessID, ProcessInstanceID, SubjectID), UserID]
 
   implicit val timeout = Timeout(1 seconds)
+  lazy val persistenceActor = ActorLocator.persistenceActor
 
   def receive = {
     // register SingleSubjectInstance
@@ -80,7 +81,11 @@ class ContextResolverActor extends Actor with DefaultLogging {
       }
       case SubjectInformation(processId, processInstanceId, subjectId) => {
         log.debug("searching users for {}", subjectInformation)
-        val future = ActorLocator.persistenceActor ? Users.Read.BySubject(subjectId, processInstanceId, processId)
+
+        val readMsg = Users.Read.BySubject(subjectId, processInstanceId, processId)
+        log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + readMsg)
+        val future = persistenceActor ? readMsg
+
         val users = Await.result(future, timeout.duration).asInstanceOf[Seq[User]]
         log.info("found {}", users)
         users.map(_.id.get).toArray

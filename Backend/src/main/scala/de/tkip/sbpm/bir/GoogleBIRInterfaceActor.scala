@@ -48,6 +48,7 @@ class GoogleBIRInterfaceActor extends Actor with HttpService with DefaultLogging
         formFields("id") { (userId) =>
           ctx =>
             log.debug(s"${getClass.getName} received create actor post from user: $userId")
+            log.debug("TRACE: from " + this.self + " to " + driveActor + " " + RetrieveEmail(userId))
             (driveActor ? RetrieveEmail(userId))
               .onComplete {
                 case Success(email) => {

@@ -53,7 +53,13 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
 
         var dbFuture = Future[Any]()
 
-        dbFuture = dbFuture flatMap { case _ => persistenceActor ? Schema.Recreate }
+        dbFuture = dbFuture flatMap {
+          case _ => {
+            val msg = Schema.Recreate
+            log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + msg)
+            persistenceActor ? msg
+          }
+        }
         dbFuture.onFailure(onFailure)
         dbFuture.onSuccess { case s => log.debug("Successfully recreated Database Schema") }
 
@@ -61,7 +67,10 @@ class DebugInterfaceActor extends Actor with PersistenceInterface {
         dbFuture.onFailure(onFailure)
         dbFuture.onSuccess { case s => log.debug("Successfully Inserted Testdata") }
 
-        val killPiFuture = ActorLocator.subjectProviderManagerActor ? KillAllProcessInstances()
+        val subjectProviderManagerActor = ActorLocator.subjectProviderManagerActor
+        val msg = KillAllProcessInstances()
+        log.debug("TRACE: from " + this.self + " to " + subjectProviderManagerActor + " " + msg)
+        val killPiFuture = subjectProviderManagerActor ? msg
         killPiFuture.onFailure(onFailure)
         killPiFuture.onSuccess { case s => log.debug("Successfully killed all Process Instances") }
 

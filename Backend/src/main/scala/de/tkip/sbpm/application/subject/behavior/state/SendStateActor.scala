@@ -51,9 +51,16 @@ private class GoogleSendProxyActor(
   implicit val timeout = Timeout(3000)
 
   def receive = {
-    case message: SubjectToSubjectMessage if message.fileID.isDefined =>
-      val f_info = (driveActor ? GetFileInfo(userId, message.fileID.get))
-      val f_pub = (driveActor ? PublishFile(userId, message.fileID.get))
+    case message: SubjectToSubjectMessage if message.fileID.isDefined => {
+      val getInfoMsg = GetFileInfo(userId, message.fileID.get)
+      val publishMsg = PublishFile(userId, message.fileID.get)
+
+      log.debug("TRACE: from " + this.self + " to " + driveActor + " " + getInfoMsg)
+      log.debug("TRACE: from " + this.self + " to " + driveActor + " " + publishMsg)
+
+      val f_info = (driveActor ? getInfoMsg)
+      val f_pub = (driveActor ? publishMsg)
+
       val origin = context.sender
 
       for {
@@ -61,10 +68,12 @@ private class GoogleSendProxyActor(
         pub <- f_pub.mapTo[Permission]
       } {
         message.fileInfo = Some(info)
+        log.debug("TRACE: from " + this.self + " to " + processInstanceActor + " " + message)
         processInstanceActor.tell(message, origin)
       }
+    }
     case message => {
-      log.debug("TRACE: from " + this.self + " to " + sender + " " + message)
+      log.debug("TRACE: from " + this.self + " to " + processInstanceActor + " " + message)
       processInstanceActor forward message
     }
   }

@@ -19,6 +19,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import akka.actor.ActorRefFactory
+import akka.event.LoggingAdapter
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
@@ -57,15 +58,18 @@ trait SessionDirectives {
   /**
    * Retrieve session, referenced in the cookie from SessionActor.
    */
-  private def getSession(sessionId: UUID)(implicit refFactory: ActorRefFactory): Option[Session] = {
-    val sessionFuture = ActorLocator.sessionActor ? GetSession(sessionId)
+  private def getSession(sessionId: UUID)(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Option[Session] = {
+    val sessionActor = ActorLocator.sessionActor
+    val msg = GetSession(sessionId)
+    log.debug("TRACE: from SessionDirectives to " + sessionActor + " " + msg)
+    val sessionFuture = sessionActor ? msg
     Await.result(sessionFuture.mapTo[Option[Session]], timeout.duration)
   }
 
   /**
    * Directive to read the session with the given id.
    */
-  def session(id: UUID)(implicit refFactory: ActorRefFactory): Directive[Session :: HNil] = {
+  def session(id: UUID)(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive[Session :: HNil] = {
     val session = getSession(id)
     if (session.isDefined)
       provide(session.get)
@@ -77,7 +81,7 @@ trait SessionDirectives {
    * Directive to read the session.
    * Requires a valid session cookie.
    */
-  def session(implicit refFactory: ActorRefFactory): Directive[Session :: HNil] = {
+  def session(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive[Session :: HNil] = {
     cookie(defaultRealm) flatMap { implicit cookie =>
       try {
         val sessionId = UUID.fromString(cookie.content)
@@ -98,7 +102,7 @@ trait SessionDirectives {
    * In case session could not be found or an invalid session cookie,
    * Nothing is returned.
    */
-  def optionalSession(implicit refFactory: ActorRefFactory): Directive[Option[Session] :: HNil] = {
+  def optionalSession(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive[Option[Session] :: HNil] = {
     optionalCookie(defaultRealm) flatMap {
       case None => provide(None)
       case Some(cookie) =>
@@ -117,12 +121,20 @@ trait SessionDirectives {
    * The session is created if no valid could be found.
    * Returnes the current session.
    */
-  def saveSession(userId: Option[Int])(implicit refFactory: ActorRefFactory): Directive[Session :: HNil] = {
-    optionalSession(refFactory) map {
-      case None =>
-        (ActorLocator.sessionActor ? CreateSession(userId)).mapTo[Session]
-      case Some(s) =>
-        (ActorLocator.sessionActor ? UpdateSession(s.id, userId)).mapTo[Session]
+  def saveSession(userId: Option[Int])(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive[Session :: HNil] = {
+    lazy val sessionActor = ActorLocator.sessionActor
+
+    optionalSession map {
+      case None => {
+        val msg = CreateSession(userId)
+        log.debug("TRACE: from SessionDirectives to " + sessionActor + " " + msg)
+        (sessionActor ? msg).mapTo[Session]
+      }
+      case Some(s) => {
+        val msg = UpdateSession(s.id, userId)
+        log.debug("TRACE: from SessionDirectives to " + sessionActor + " " + msg)
+        (sessionActor ? msg).mapTo[Session]
+      }
     } map {
       Await.result(_, timeout.duration)
     }
@@ -131,7 +143,7 @@ trait SessionDirectives {
   /**
    * Sets a session cookie with given session id.
    */
-  def setSessionCookie(session: Session)(implicit refFactory: ActorRefFactory): Directive0 =
+  def setSessionCookie(session: Session)(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive0 =
     setCookie(HttpCookie(defaultRealm, session.id.toString, path = Some("/"))) & {
       if (session.userId.isDefined)
         setCookie(HttpCookie(defaultRealm + "-userId", session.userId.get.toString, path = Some("/")))
@@ -142,10 +154,13 @@ trait SessionDirectives {
   /**
    * Delete current session if it exists.
    */
-  def deleteSession(implicit refFactory: ActorRefFactory): Directive0 = {
+  def deleteSession(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive0 = {
     optionalSession flatMap { session =>
       if (session.isDefined) {
-        ActorLocator.sessionActor ! DeleteSession(session.get.id)
+        val sessionActor = ActorLocator.sessionActor
+        val msg = DeleteSession(session.get.id)
+        log.debug("TRACE: from SessionDirectives to " + sessionActor + " " + msg)
+        sessionActor ! msg
       }
       deleteCookie(HttpCookie(defaultRealm, "", path = Some("/"))) &
         deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
@@ -156,9 +171,12 @@ trait SessionDirectives {
    * Directive to get user currently logged in.
    * Rejects if either session or user could not be found.
    */
-  def user(implicit refFactory: ActorRefFactory): Directive[User :: HNil] = {
+  def user(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive[User :: HNil] = {
     userId flatMap { id =>
-      val userFuture = ActorLocator.persistenceActor ? Users.Read.ById(id)
+      val persistenceActor = ActorLocator.persistenceActor
+      val msg = Users.Read.ById(id)
+      log.debug("TRACE: from SessionDirectives to " + persistenceActor + " " + msg)
+      val userFuture = persistenceActor ? msg
       val user = Await.result(userFuture.mapTo[Option[User]], timeout.duration)
       if (user.isDefined)
         provide(user.get)
@@ -173,7 +191,7 @@ trait SessionDirectives {
    * For performance reasons there's not lookup in the database
    * if user really exists.
    */
-  def userId(implicit refFactory: ActorRefFactory): Directive[Int :: HNil] = {
+  def userId(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive[Int :: HNil] = {
     session flatMap { sess =>
       if (sess.userId.isDefined)
         provide(sess.userId.get)
@@ -186,8 +204,10 @@ trait SessionDirectives {
    * Directive for user login using username and password.
    * Rejects if authentication fails.
    */
-  def login(userPass: UserPass)(implicit refFactory: ActorRefFactory): Directive[User :: HNil] = {
-    val authFuture = ActorLocator.userPassAuthActor ? userPass
+  def login(userPass: UserPass)(implicit refFactory: ActorRefFactory, log: LoggingAdapter): Directive[User :: HNil] = {
+    val userPassAuthActor = ActorLocator.userPassAuthActor
+    log.debug("TRACE: from SessionDirectives to " + userPassAuthActor + " " + userPass)
+    val authFuture = userPassAuthActor ? userPass
     val user = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
     if (user.isDefined)
       saveSession(user.get.id) flatMap { s =>

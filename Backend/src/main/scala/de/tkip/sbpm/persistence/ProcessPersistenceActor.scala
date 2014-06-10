@@ -39,6 +39,7 @@ private[persistence] class ProcessInspectActor extends Actor with DefaultLogging
   import scala.concurrent.ExecutionContext.Implicits.global
 
   implicit val timeout = Timeout(30 seconds)
+  private lazy val persistenceActor = ActorLocator.persistenceActor
 
   def receive = {
     case q @ Save.Entity(ps @ _*) => {
@@ -47,8 +48,12 @@ private[persistence] class ProcessInspectActor extends Actor with DefaultLogging
       val newProcesses =
         ps map { p =>
           if (p.activeGraphId.isDefined) {
+            val readMsg = Graphs.Read.ById(p.activeGraphId.get)
+            log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + readMsg)
+            val gFuture = (persistenceActor ? readMsg).mapTo[Option[Graph]]
+
             for {
-              g <- (ActorLocator.persistenceActor ? Graphs.Read.ById(p.activeGraphId.get)).mapTo[Option[Graph]]
+              g <- gFuture
               newProcess = checkAndExchangeStartAble(p, g.get)
             } yield newProcess
           } else Future(p)

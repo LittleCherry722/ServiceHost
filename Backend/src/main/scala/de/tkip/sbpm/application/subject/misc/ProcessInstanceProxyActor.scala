@@ -52,6 +52,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
       val selectedUsers = selectRandomUsers(message, userIds)
       log.debug("selected users: {}", userIds.mkString(","))
       message.target.insertTargetUsers(selectedUsers)
+      log.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
       context.parent.tell(message, from)
     }
 
@@ -65,6 +66,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
     log.debug("load random users...")
 
     val request = RequestUserID(SubjectInformation(processId, id, message.to), userIds => userIds)
+    log.debug("TRACE: from " + this.self + " to " + contextResolver + " " + request)
     val result = (contextResolver ? request).mapTo[Array[UserID]]
     val from = context.sender
     result.map(userIds => RandomUsersLoaded(message, from, userIds)) pipeTo self
