@@ -51,7 +51,7 @@ protected case class ArchiveStateActor(data: StateData)
       val date=format.format(new Date);
       val f = new File(archivePath+"archive"+"_"+date+".log")
      
-      println(f.getAbsolutePath())
+      log.info(f.getAbsolutePath())
       val writer = new PrintWriter(f)
       writer.write(msg)
       writer.close()

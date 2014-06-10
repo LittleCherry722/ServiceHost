@@ -22,7 +22,7 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import akka.event.Logging
+import de.tkip.sbpm.logging.DefaultLogging
 import com.typesafe.config.ConfigFactory
 import akka.event.LoggingAdapter
 
@@ -79,8 +79,7 @@ protected case class IPEmpty(empty: Boolean)
 // message to tell the blocked send state that the state is reopened
 protected case object Reopen
 
-class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
-  protected val logger = Logging(context.system, this)
+class InputPoolActor(data: SubjectData) extends Actor with DefaultLogging {
   // extract the information from the data
   val userID = data.userID
   val messageLimit = data.subject.inputPool
@@ -145,13 +144,13 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
     }
 
     case message: SubjectToSubjectMessage => {
-      logger.debug("InputPool received: " + message + " from " + sender)
+      log.debug("InputPool received: " + message + " from " + sender)
       // Unlock the sender
       log.debug("TRACE: from " + this.self + " to " + sender + " " + Stored(message.messageID).toString)
       sender ! Stored(message.messageID)
       // store the message
       enqueueMessage(message)
-      logger.debug("Inputpool has: " +
+      log.debug("Inputpool has: " +
         getMessageArray(message.from, message.messageType).mkString("{", ", ", "}"))
       // inform the states about this change
       broadcastChangeFor((message.from, message.messageType))
@@ -290,7 +289,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
    * Creates and returns the list, if it does not exists
    */
   private def getWaitingStatesSet(key: (SubjectID, MessageType)) =
-    waitingStatesMap.getOrElseUpdate(key, new WaitingStateSet(logger))
+    waitingStatesMap.getOrElseUpdate(key, new WaitingStateSet())
 
   private def getMessageArray(subjectID: SubjectID, messageType: MessageType): Array[SubjectToSubjectMessage] =
     messageQueueMap.getOrElse((subjectID, messageType), Queue[SubjectToSubjectMessage]()).toArray
@@ -344,7 +343,7 @@ class InputPoolActor(data: SubjectData) extends Actor with ActorLogging {
  * The same state cannot register twice (adding will remove old registration)
  * /Currently only one state will be hold in this list, but will be usefull for modal split
  */
-private class WaitingStateSet(logger: LoggingAdapter) {
+private class WaitingStateSet(implicit log: LoggingAdapter) {
   val states = MutableSet[SubscribeIncomingMessages]()
 
   def add(state: SubscribeIncomingMessages) {
@@ -356,7 +355,7 @@ private class WaitingStateSet(logger: LoggingAdapter) {
 
   def sendToAll(message: Any) {
     for (state <- states) {
-      logger.debug("TRACE: from WaitingStateSet " + " to " + state + " " + message.toString)
+      log.debug("TRACE: from WaitingStateSet " + " to " + state + " " + message)
       state ! message
     }
   }

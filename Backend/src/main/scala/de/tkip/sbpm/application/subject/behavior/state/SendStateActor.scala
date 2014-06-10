@@ -21,7 +21,6 @@ import scala.concurrent.duration._
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
-import akka.event.Logging
 
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -56,6 +55,7 @@ private class GoogleSendProxyActor(
       val f_info = (driveActor ? GetFileInfo(userId, message.fileID.get))
       val f_pub = (driveActor ? PublishFile(userId, message.fileID.get))
       val origin = context.sender
+
       for {
         info <- f_info.mapTo[GDriveFileInfo]
         pub <- f_pub.mapTo[Permission]
@@ -64,15 +64,14 @@ private class GoogleSendProxyActor(
         processInstanceActor.tell(message, origin)
       }
     case message => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + message.toString)
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + message)
       processInstanceActor forward message
     }
   }
 }
 
 protected case class SendStateActor(data: StateData)
-  extends BehaviorStateActor(data) with ActorLogging {
+  extends BehaviorStateActor(data) {
 
   import scala.collection.mutable.{ Map => MutableMap }
 
@@ -138,7 +137,7 @@ protected case class SendStateActor(data: StateData)
           val messageID = nextMessageID
           unsentMessageIDs(messageID) = transition
 
-          logger.debug("Send@" + userID + "/" + subjectID + ": Message[" +
+          log.debug("Send@" + userID + "/" + subjectID + ": Message[" +
             messageID + "} \"" + messageType + "to " + transition.target +
             "\" with content \"" + messageContent.get + "\"")
 
@@ -168,7 +167,7 @@ protected case class SendStateActor(data: StateData)
 
           // block the target users for this message
           for (userID <- blockUsers) {
-            log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID).toString)
+            log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + BlockUser(userID))
             blockingHandlerActor ! BlockUser(userID)
           }
 
@@ -189,15 +188,15 @@ protected case class SendStateActor(data: StateData)
               messageType,
               messageContent.get,
               action.actionData.fileId)
-          logger.debug("TRACE: from " + this.self + " to " + sendProxy + " " + msg.toString)
+          log.debug("TRACE: from " + this.self + " to " + sendProxy + " " + msg)
           sendProxy ! msg
           // send the ActionExecuted to the blocking actor, it will send it 
           // to the process instance, when this user is ready
-          logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action).toString)
+          log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + ActionExecuted(action))
           blockingHandlerActor ! ActionExecuted(action)
         }
       } else {
-        logger.error("Second send-message action request received")
+        log.error("Second send-message action request received")
       }
     }
 

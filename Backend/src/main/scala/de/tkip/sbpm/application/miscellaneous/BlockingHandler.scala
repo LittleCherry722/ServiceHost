@@ -18,21 +18,21 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application.ProcessInstanceActor
+import de.tkip.sbpm.application.subject.misc.ActionExecuted
+import de.tkip.sbpm.logging.DefaultLogging
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.ActorContext
-import akka.event.Logging
 import akka.actor.IllegalActorStateException
-import de.tkip.sbpm.application.subject.misc.ActionExecuted
+import akka.event.LoggingAdapter
 
 case class BlockUser(userID: UserID)
 case class UnBlockUser(userID: UserID)
 case class SendProcessInstanceCreated(userID: UserID)
 
-class BlockingActor extends Actor {
+class BlockingActor extends Actor with DefaultLogging {
   private type HasTargetUser = { def userID: UserID }
   private val userActors = MutableMap[UserID, UserBlocker]()
-  private val logger = Logging(context.system, this)
 
   def receive = {
     // TODO Combine to 1 message
@@ -49,7 +49,7 @@ class BlockingActor extends Actor {
       handleMessage(userID, message)
     }
     case s => {
-      logger.error("BlockingActor got message " + s)
+      log.error("BlockingActor got message " + s)
     }
   }
 
@@ -59,7 +59,7 @@ class BlockingActor extends Actor {
   }
 }
 
-private class UserBlocker(userID: UserID)(implicit val context: ActorContext) {
+private class UserBlocker(userID: UserID)(implicit val context: ActorContext, log: LoggingAdapter) {
   private var remainingBlocks = 0
   private val blockedMessages: ArrayBuffer[Any] =
     ArrayBuffer[Any]()
@@ -91,15 +91,14 @@ private class UserBlocker(userID: UserID)(implicit val context: ActorContext) {
    * the message pool
    */
   private def trySendBlockedMessages() {
-    System.err.println(userID + "/ BLOCKS: " + remainingBlocks);
-    System.err.println("MESSAGES: " + blockedMessages.mkString(", "));
+    log.error(userID + "/ BLOCKS: " + remainingBlocks);
+    log.error("MESSAGES: " + blockedMessages.mkString(", "));
 
     // FIXME this should not happen, but we ignore it (for the test case, fix it later!)
     if (remainingBlocks < 0) remainingBlocks = 0
     if (remainingBlocks == 0) {
       for (message <- blockedMessages) {
-        val traceLogger = Logging(context.system, context.parent)
-        traceLogger.debug("TRACE: from BlockingHandler" + " to " + context.parent + " " + message.toString)
+        log.debug("TRACE: from BlockingHandler" + " to " + context.parent + " " + message)
         context.parent ! message
       }
       blockedMessages.clear()

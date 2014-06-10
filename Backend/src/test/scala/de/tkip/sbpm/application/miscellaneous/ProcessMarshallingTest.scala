@@ -1,5 +1,6 @@
 package de.tkip.sbpm.application.miscellaneous
 
+import akka.event.{ LoggingAdapter, NoLogging }
 import scala.io.Source
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.json._
@@ -8,6 +9,9 @@ import org.scalatest.FunSuite
 import ProcessAttributes._
 
 class ProcessMarshallingTest extends FunSuite {
+
+  // TODO: NoLogging doesn't sound good.. But setting up a ActorSystem just for the logging is also not a good way
+  implicit val log: LoggingAdapter = NoLogging
 
   val simpleGraphSource = Source.fromURL(getClass.getResource("simple-graph.json")).mkString
   val domainGraph = simpleGraphSource.asJson.convertTo[Graph](graphJsonFormat)

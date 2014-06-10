@@ -22,10 +22,10 @@ import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
-import akka.event.Logging
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.misc.Stored
+import de.tkip.sbpm.logging.DefaultLogging
 import akka.pattern.ask
 import akka.pattern.pipe
 import scala.concurrent.Future
@@ -49,8 +49,7 @@ case class SubjectData(
 /**
  * contains and manages an InputPoolActor(Mailbox) and an InternalBehaviourActor
  */
-class SubjectActor(data: SubjectData) extends Actor {
-  private val logger = Logging(context.system, this)
+class SubjectActor(data: SubjectData) extends Actor with DefaultLogging {
   implicit val timeout = Timeout(2000)
 
   // extract the information out of the input
@@ -75,7 +74,7 @@ class SubjectActor(data: SubjectData) extends Actor {
   private var macroIdCounter = 0
 
   private def insertMacro(callActor: Option[ActorRef], name: String) {
-    logger.debug(s"Starting macro $name")
+    log.debug(s"Starting macro $name")
     val macroId = name + s"@$macroIdCounter"
     macroIdCounter += 1
     val entry @ (_, macroActor) =
@@ -84,43 +83,41 @@ class SubjectActor(data: SubjectData) extends Actor {
 
     if (!subject.macros.contains(name)) {
       // TODO was tun?
-      logger.error(s"Trying to call macro $name, but it is not available.")
+      log.error(s"Trying to call macro $name, but it is not available.")
     } else {
       val macroStates = subject.macros(name).states
       for (state <- macroStates) {
-        val traceLogger = Logging(context.system, this)
-        traceLogger.debug("TRACE: from " + this.self + " to " + macroActor + " " + state.toString())
+        log.debug("TRACE: from " + this.self + " to " + macroActor + " " + state)
         macroActor ! state
       }
     }
 
     macroBehaviorActors += entry
 
-    logger.debug(s"Started macro $name with id $macroId")
+    log.debug(s"Started macro $name with id $macroId")
 
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + macroActor + " " + StartMacroExecution.toString)
+    log.debug("TRACE: from " + this.self + " to " + macroActor + " " + StartMacroExecution)
     macroActor ! StartMacroExecution
   }
 
   private def killMacro(macroId: String) {
     val behaviorActor = macroBehaviorActors(macroId)
 
-    val traceLogger = Logging(context.system, this)
-    traceLogger.debug("TRACE: from " + this.self + " to " + behaviorActor + " " + PoisonPill.toString)
+    log.debug("TRACE: from " + this.self + " to " + behaviorActor + " " + PoisonPill)
     behaviorActor ! PoisonPill
     macroBehaviorActors -= macroId
   }
 
   private def killAll() {
-    val traceLogger = Logging(context.system, this)
-      def doLog(actorRef: InternalBehaviorRef): Unit = {
-        traceLogger.debug("TRACE: from " + this.self + " to " + actorRef + " " + PoisonPill.toString)
-        actorRef ! PoisonPill
-      }
+    def doLog(actorRef: InternalBehaviorRef): Unit = {
+      log.debug("TRACE: from " + this.self + " to " + actorRef + " " + PoisonPill)
+      actorRef ! PoisonPill
+    }
+
     for ((a, b) <- macroBehaviorActors) {
       doLog(b)
     }
+
     //    macroBehaviorActors map (_._2 ! PoisonPill)
     macroBehaviorActors.clear()
   }
@@ -144,15 +141,14 @@ class SubjectActor(data: SubjectData) extends Actor {
     case sm: SubjectToSubjectMessage => {
       for { (key, name) <- subject.variablesMap } {
         for (a <- macroBehaviorActors.values) {
-          val traceLogger = Logging(context.system, this)
-          traceLogger.debug("TRACE: from " + this.self + " to " + a + " " + AddVariable(name, sm).toString)
-          a ! AddVariable(name, sm)
+          val msg = AddVariable(name, sm)
+          log.debug("TRACE: from " + this.self + " to " + a + " " + msg)
+          a ! msg
         }
       }
 
       // a message from an other subject can be forwarded into the inputpool
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + sm.toString)
+      log.debug("TRACE: from " + this.self + " to " + inputPoolActor + " " + sm)
       inputPoolActor.forward(sm)
     }
 
@@ -161,30 +157,29 @@ class SubjectActor(data: SubjectData) extends Actor {
     }
 
     case s @ KillNonObserverStates => {
-      val traceLogger = Logging(context.system, this)
-        def doLog(actorRef: InternalBehaviorRef): Unit = {
-          traceLogger.debug("TRACE: from " + this.self + " to " + actorRef + " " + s.toString)
-          actorRef ! s
-        }
+      def doLog(actorRef: InternalBehaviorRef): Unit = {
+        log.debug("TRACE: from " + this.self + " to " + actorRef + " " + s)
+        actorRef ! s
+      }
+
       for ((a, b) <- macroBehaviorActors) {
         doLog(b)
       }
       //      macroBehaviorActors.map(_._2 ! s)
     }
     case s @ DisableNonObserverStates => {
-      val traceLogger = Logging(context.system, this)
-        def doLog(actorRef: InternalBehaviorRef): Unit = {
-          traceLogger.debug("TRACE: from " + this.self + " to " + actorRef + " " + s.toString)
-          actorRef ! s
-        }
+      def doLog(actorRef: InternalBehaviorRef): Unit = {
+        log.debug("TRACE: from " + this.self + " to " + actorRef + " " + s)
+        actorRef ! s
+      }
+
       for ((a, b) <- macroBehaviorActors) {
         doLog(b)
       }
       //      macroBehaviorActors.map(_._2 ! s)
     } case transition: history.NewHistoryTransitionData => {
-      val traceLogger = Logging(context.system, this)
       val message = history.NewHistoryEntry(new Date(), Some(userID), null, Some(subjectID), Some(transition), None)
-      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
+      log.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
       // forward history entries from internal behavior up to instance actor
       context.parent ! message
     }
@@ -192,14 +187,13 @@ class SubjectActor(data: SubjectData) extends Actor {
     case MacroTerminated(macroId) => {
       // TODO if its the mainmacro, kill everything
       if (macroId.contains(subject.mainMacroName)) {
-        logger.debug("Subject Terminated")
+        log.debug("Subject Terminated")
         killAll()
         val message = SubjectTerminated(userID, subjectID)
-        val traceLogger = Logging(context.system, this)
-        traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
+        log.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
         context.parent ! message
       } else {
-        logger.debug(s"Macro terminated $macroId")
+        log.debug(s"Macro terminated $macroId")
         killMacro(macroId)
       }
     }
@@ -225,16 +219,14 @@ class SubjectActor(data: SubjectData) extends Actor {
     case action: ExecuteAction => {
       if (macroBehaviorActors.contains(action.macroID)) {
         // route the action to the correct macro
-        val traceLogger = Logging(context.system, this)
-        traceLogger.debug("TRACE: from " + this.self + " to " + macroBehaviorActors(action.macroID) + " " + action.toString)
+        log.debug("TRACE: from " + this.self + " to " + macroBehaviorActors(action.macroID) + " " + action)
         macroBehaviorActors(action.macroID) forward action
       } else {
         if (action.isInstanceOf[AnswerAbleMessage]) {
           val message = Failure(new IllegalArgumentException(
             "Invalid Argument: The macro does not exist"))
           val to = action.asInstanceOf[AnswerAbleMessage].sender
-          val traceLogger = Logging(context.system, this)
-          traceLogger.debug("TRACE: from " + this.self + " to " + to + " " + message.toString)
+          log.debug("TRACE: from " + this.self + " to " + to + " " + message)
 
           to ! message
         }
@@ -243,13 +235,12 @@ class SubjectActor(data: SubjectData) extends Actor {
 
     case message: SubjectProviderMessage => {
       // a message to the subject provider will be send over the process instance
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
+      log.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
       context.parent ! message
     }
 
     case s => {
-      logger.error("SubjectActor " + userID + " does not support: " + s)
+      log.error("SubjectActor " + userID + " does not support: " + s)
     }
   }
 }

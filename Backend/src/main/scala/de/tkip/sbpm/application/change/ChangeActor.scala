@@ -16,6 +16,7 @@ package de.tkip.sbpm.application.change
 import akka.actor.Actor
 import de.tkip.sbpm.persistence.query.Processes._
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.logging.DefaultLogging
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import akka.pattern.pipe
@@ -28,7 +29,7 @@ case class GetProcessInstanceChange(timeStamp: Long)
 
 case class GetMessageChange(timeStamp: Long, userID: Int)
 
-class ChangeActor extends Actor {
+class ChangeActor extends Actor with DefaultLogging {
 
   val processChangeEntries = new ArrayBuffer[ProcessChangeData]()
   
@@ -43,7 +44,7 @@ class ChangeActor extends Actor {
   def receive = {
 
     case q: ProcessChangeData => {
-      println("add process change data : " + q.toString())
+      log.info("add process change data : " + q.toString())
       addProcessChangeData(q)
     }
 
@@ -52,12 +53,12 @@ class ChangeActor extends Actor {
     }
     
     case q: ActionChangeData => {
-      println("add action change data : " + q.toString())
+      log.info("add action change data : " + q.toString())
       addActionChangeData(q)
     }
     
     case q: ProcessInstanceChangeData => {
-      println("add processInstance change data: "+ q.toString())
+      log.info("add processInstance change data: "+ q.toString())
       addProcessInstanceChangeData(q)
     }
     
@@ -70,7 +71,7 @@ class ChangeActor extends Actor {
     }
     
     case q: MessageChangeData => {
-      println("add message change data: "+ q.toString())
+      log.info("add message change data: "+ q.toString())
       addMessageChangeData(q)
     }
     

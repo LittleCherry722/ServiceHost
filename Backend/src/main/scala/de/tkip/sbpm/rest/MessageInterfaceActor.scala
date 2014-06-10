@@ -3,18 +3,16 @@ package de.tkip.sbpm.rest
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.JsonProtocol._
 import spray.http.StatusCodes
 import spray.httpx.SprayJsonSupport._
 
-class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
+class MessageInterfaceActor extends AbstractInterfaceActor {
   import context.dispatcher
   implicit val timeout = Timeout(5 seconds)
 
@@ -71,20 +69,23 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
               complete {
                 val message = Message(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))
 
+                val readAllMsg = Messages.Read.All
+                log.debug("TRACE: from " + this.self + " to " + persistence +" " + readAllMsg)
                 val future = for {
-                  all <- (persistence ? Messages.Read.All).mapTo[Seq[Message]]
+                  all <- (persistence ? readAllMsg).mapTo[Seq[Message]]
                   length = all.length
                 } yield length
                 val result = Await.result(future, 5 seconds).asInstanceOf[Int]
                 val messageWithID = message.copy(id = Some(result + 1))
 
-                val traceLogger = Logging(context.system, this)
-                traceLogger.debug("TRACE: from " + this.self + " to " + persistence + " " + Messages.Save(message).toString)
+                val saveMsg = Messages.Save(message)
+                log.debug("TRACE: from " + this.self + " to " + persistence + " " + saveMsg)
+                persistence ! saveMsg
 
-                persistence ! Messages.Save(message)
+                val changeMsg = MessageChange(messageWithID, "insert", new java.util.Date())
+                log.debug("TRACE: from " + this.self + " to " + changeActor + " " + changeMsg)
+                changeActor ! changeMsg
 
-                traceLogger.debug("TRACE: from " + this.self + " to " + changeActor + " " + MessageChange(messageWithID, "insert", new java.util.Date()).toString())
-                changeActor ! MessageChange(messageWithID, "insert", new java.util.Date())
                 StatusCodes.NoContent
               }
             }

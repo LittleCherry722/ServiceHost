@@ -17,7 +17,6 @@ import scala.concurrent.Future
 import auth.SessionDirectives._
 import scala.concurrent.duration._
 import akka.actor._
-import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._

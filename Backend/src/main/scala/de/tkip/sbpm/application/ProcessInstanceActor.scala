@@ -28,21 +28,20 @@ import de.tkip.sbpm.model.Process
 import de.tkip.sbpm.model.ProcessInstance
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
-import akka.event.Logging
 import scala.collection.mutable.Map
 import akka.actor.Status.Failure
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.model.SubjectLike
 import de.tkip.sbpm.model.ExternalSubject
+import de.tkip.sbpm.logging.DefaultLogging
 
 case class MappingInfo(subjectId: SubjectID, processId: ProcessID, address: String)
 
 /**
  * instantiates SubjectActor's and manages their interactions
  */
-class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
-  private val logger = Logging(context.system, this)
+class ProcessInstanceActor(request: CreateProcessInstance) extends Actor with DefaultLogging {
   // This case class is to add Subjects to this ProcessInstance
   private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
@@ -78,7 +77,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)), "ProcessInstanceProxyActor____" + UUID.randomUUID().toString())
 
   override def preStart() {
-    logger.debug("subject mapping: {}", request.subjectMapping)
+    log.debug("subject mapping: {}", request.subjectMapping)
 
     try {
       // TODO schoener machen
@@ -114,20 +113,21 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         // the container shall contain a subject -> create
         subjectMap(startSubject).createSubject(request.userID)
       }
-      // send processinstance created, when the block is closed
-      logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + SendProcessInstanceCreated(request.userID))
 
-      blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
+      // send processinstance created, when the block is closed
+      val createdMsg = SendProcessInstanceCreated(request.userID)
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + createdMsg)
+
+      blockingHandlerActor ! createdMsg
     } catch {
       case e: NoSuchElementException => {
-        logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + SendProcessInstanceCreated(request.userID))
-        blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
-        logger.debug("TRACE: from " + this.self + " to " + request.sender + " " +
-          Failure(new Exception("ProcessInstance creation failed, required " +
-            "resource does not exists.")))
-        request.sender !
-          Failure(new Exception("ProcessInstance creation failed, required " +
-            "resource does not exists."))
+        val createdMsg = SendProcessInstanceCreated(request.userID)
+        log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + createdMsg)
+        blockingHandlerActor ! createdMsg
+
+        val failureMsg = Failure(new Exception("ProcessInstance creation failed, required resource does not exists."))
+        log.debug("TRACE: from " + this.self + " to " + request.sender + " " + failureMsg)
+        request.sender ! failureMsg
       }
 
       // TODO processInstanceManger ! Register....
@@ -137,7 +137,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   def receive = {
 
     case GetProxyActor => {
-      logger.debug("TRACE: from " + this.self + " to " + sender + " " + proxyActor)
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + proxyActor)
       sender ! proxyActor
     }
 
@@ -148,7 +148,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     case st: SubjectTerminated => {
       subjectMap(st.subjectID).handleSubjectTerminated(st)
 
-      logger.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
+      log.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
     }
 
     case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to)) => {
@@ -159,8 +159,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
 
     case he: history.NewHistoryEntry => {
       he.process = history.NewHistoryProcessData(processName, id, name)
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + he.toString)
+      log.debug("TRACE: from " + this.self + " to " + context.parent + " " + he)
       context.parent.forward(he)
     }
 
@@ -169,19 +168,18 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case message: SubjectProviderMessage => {
-      logger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
+      log.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
       context.parent ! message
     }
 
     // send forward if no subject has to be created else wait
     case message: ActionExecuted => {
-      System.err.println("Executed " + message)
+      log.info("Executed " + message)
       createExecuteActionAnswer(message.ea)
     }
 
     case answer: AnswerMessage => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + answer.toString)
+      log.debug("TRACE: from " + this.self + " to " + context.parent + " " + answer.toString)
       context.parent.forward(answer)
     }
 
@@ -190,8 +188,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
     }
 
     case message: GetSubjectMapping => {
-      logger.debug("TRACE: from " + this.self + " to " + sender + " " + SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap))
-      sender ! SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
+      val response = SubjectMappingResponse(createSubjectMapping(message.processId, message.url).toMap)
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + response)
+      sender ! response
     }
   }
 
@@ -208,7 +207,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         (actions: Array[AvailableAction]) =>
           ProcessInstanceCreated(request, self, createProcessInstanceData(actions)))
 
-      logger.debug("TRACE: from " + this.self + " to " + context.parent + " " + msg)
+      log.debug("TRACE: from " + this.self + " to " + context.parent + " " + msg)
 
       context.parent ! msg
 
@@ -234,9 +233,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       (actions: Array[AvailableAction]) =>
         ReadProcessInstanceAnswer(req, createProcessInstanceData(actions)))
 
-    logger.debug("TRACE: from " + this.self + " to " + context.parent + " " + msg)
+    log.debug("TRACE: from " + this.self + " to " + context.parent + " " + msg)
     context.parent ! msg
-
   }
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
@@ -251,7 +249,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
       processID,
       id,
       processInstanceManger,
-      logger,
+      log,
       blockingHandlerActor,
       optionalId,
       () => runningSubjectCounter += 1,
@@ -267,7 +265,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
   }
 
   private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, MappingInfo] = {
-    logger.debug("create subject mapping for {}@{}", processId, url)
+    log.debug("create subject mapping for {}@{}", processId, url)
 
     import scala.collection.mutable.{ Map => MutableMap }
     val subjectMapping = MutableMap[SubjectID, MappingInfo]()
@@ -278,7 +276,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends Actor {
         val connectedSubject = findConnectedSubject(externalSubject.id)
         val ownUrl = SystemProperties.akkaRemoteUrl
 
-        logger.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
+        log.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
 
         val mappingA = (externalSubject.relatedSubjectId.get -> MappingInfo(externalSubject.id, processID, ownUrl))
         val mappingB = (externalSubject.relatedInterfaceId.get -> MappingInfo(connectedSubject.id, processID, ownUrl))

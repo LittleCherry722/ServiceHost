@@ -40,12 +40,12 @@ object Boot extends App {
 
   implicit val system = ActorSystem("sbpm")
   implicit val config = system.settings.config
-  val logging = system.log
+  val log = system.log
 
-  logging.info("System Configuration: SBPM[{}:{}], AKKA[{}:{}]", sbpmHostname, sbpmPort, akkaRemoteHostname, akkaRemotePort)
+  log.info("System Configuration: SBPM[{}:{}], AKKA[{}:{}]", sbpmHostname, sbpmPort, akkaRemoteHostname, akkaRemotePort)
 
   sys.addShutdownHook {
-    logging.debug("Shutting down the system...")
+    log.debug("Shutting down the system...")
     val stopFutures = Future.sequence(rootActors.map(gracefulStop(_, 5 seconds)))
     Await.result(stopFutures, 6 seconds)
     system.shutdown();
@@ -106,7 +106,7 @@ object Boot extends App {
   var dbFuture = Future[Any]()
 
   val onFailure: PartialFunction[Throwable, Any] = {
-    case e => logging.error(e, e.getMessage)
+    case e => log.error(e, e.getMessage)
   }
 
   if (dropAction) {

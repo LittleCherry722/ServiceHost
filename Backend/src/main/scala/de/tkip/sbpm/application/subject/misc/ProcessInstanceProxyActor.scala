@@ -42,8 +42,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
       if (message.target.toUnknownUsers) {
         loadRandomUsers(message)
       } else {
-        val traceLogger = Logging(context.system, this)
-        traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
+        log.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
         context.parent forward message
       }
     }
@@ -57,8 +56,7 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
     }
 
     case message => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + context.parent + " " + message.toString)
+      log.debug("TRACE: from " + this.self + " to " + context.parent + " " + message)
       context.parent forward message
     }
   }

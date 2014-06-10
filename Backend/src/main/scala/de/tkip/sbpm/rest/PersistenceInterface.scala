@@ -19,7 +19,6 @@ import scala.language.postfixOps
 import scala.reflect.ClassTag
 
 import akka.actor.Actor
-import akka.event.Logging
 import akka.pattern.ask
 import akka.util.Timeout
 import de.tkip.sbpm.ActorLocator
@@ -134,9 +133,7 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * Executes the action without waiting for a result.
    */
   protected def execute(action: BaseQuery) = {
-      val traceLogger = Logging(context.system, this.self)
-      traceLogger.debug("TRACE: from " + this.self + " to " + persistenceActor  + " " + action.toString)
-
+    log.debug("TRACE: from " + this.self + " to " + persistenceActor + " " + action)
     persistenceActor ! action
   }
 

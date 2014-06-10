@@ -102,7 +102,7 @@ protected case class ReceiveStateActor(data: StateData)
 
     case InputPoolMessagesChanged(fromSubject, messageType, messages) if (exitTransitionsMap.contains((fromSubject, messageType))) => {
 
-      logger.debug("Receive@" + userID + "/" + subjectID + ": " +
+      log.debug("Receive@" + userID + "/" + subjectID + ": " +
         messages.size + ". Messages \"" +
         messageType + "\" from \"" + fromSubject +
         "\" with content \"" + messages.map(_.messageContent).mkString("[", ", ", "]") + "\"")
@@ -114,12 +114,12 @@ protected case class ReceiveStateActor(data: StateData)
       if (t.storeToVar && varID.isDefined) {
         // FIXME variablen in dem context
         //        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
-        //        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
+        //        log.error(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
       }
 
       //      val ack = SubjectToSubjectMessageReceived(sm)
       //
-      //      logger.debug("sending {} to {}", ack, sender)
+      //      log.debug("sending {} to {}", ack, sender)
       //      sender ! ack
       //      sender ! SubjectToSubjectMessageReceived(sm)
 
@@ -175,7 +175,7 @@ protected case class ReceiveStateActor(data: StateData)
     }
 
     //    case sm: SubjectToSubjectMessage if (exitTransitionsMap.contains((sm.from, sm.messageType))) => {
-    //      logger.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
+    //      log.debug("Receive@" + userID + "/" + subjectID + ": Message \"" +
     //        sm.messageType + "\" from \"" + sm.from +
     //        "\" with content \"" + sm.messageContent + "\"")
     //
@@ -185,7 +185,7 @@ protected case class ReceiveStateActor(data: StateData)
     //      val varID = t.storeVar
     //      if (t.storeToVar && varID.isDefined) {
     //        variables.getOrElseUpdate(varID.get, Variable(varID.get)).addMessage(sm)
-    //        System.err.println(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
+    //        log.error(variables.mkString("VARIABLES: {\n", "\n", "}")) //TODO
     //      }
     //
     //      //      sender ! SubjectToSubjectMessageReceived(sm)
@@ -312,7 +312,7 @@ protected case class ReceiveStateActor(data: StateData)
     private def addMessage(message: SubjectToSubjectMessage) {
       // validate
       if (!(message.messageType == messageType && message.from == from)) {
-        logger.error("Transportmessage is invalid to transition: " + message +
+        log.error("Transportmessage is invalid to transition: " + message +
           ", " + this)
         return
       }

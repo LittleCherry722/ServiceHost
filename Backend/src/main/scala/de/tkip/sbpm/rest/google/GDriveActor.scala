@@ -18,6 +18,7 @@ import akka.actor.{Actor, ActorSystem, Props}
 import akka.actor.Status.Failure
 import akka.pattern.pipe
 
+import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.rest.google.{GDriveControl, GAuthCtrl}
 
 object GDriveActor {
@@ -34,7 +35,7 @@ object GDriveActor {
   
 }
 
-class GDriveActor extends Actor {
+class GDriveActor extends Actor with DefaultLogging {
   import GDriveActor._
   implicit val ec = context.dispatcher
 

@@ -25,6 +25,7 @@ import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject._
 import de.tkip.sbpm.application._
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.logging.DefaultLogging
 import akka.event.Logging
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import java.util.UUID
@@ -44,18 +45,17 @@ case class AskSubjectsForAvailableActions(userID: UserID,
   generateAnswer: Array[AvailableAction] => Any)
   extends SubjectProviderMessage
 
-class SubjectProviderActor(userID: UserID) extends Actor {
-
-  val logger = Logging(context.system, this)
+class SubjectProviderActor(userID: UserID) extends Actor with DefaultLogging {
 
   private type Subject = SubjectCreated
 
   private var subjects = Set[Subject]()
 
-  private lazy val processManagerActor = ActorLocator.processManagerActor
+  private val processManagerActor = ActorLocator.processManagerActor
 
-  logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + RegisterSubjectProvider(userID, self))
-  processManagerActor ! RegisterSubjectProvider(userID, self)
+  val registerMsg = RegisterSubjectProvider(userID, self)
+  log.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + registerMsg)
+  processManagerActor ! registerMsg
 
   def receive = {
     case subject: SubjectCreated => {
@@ -71,7 +71,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
       if (get.isInstanceOf[Debug]) {
         val msg =
           AvailableActionsAnswer(get, DebugActionData.generateActions(get.userID, get.processInstanceID))
-        logger.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
+        log.debug("TRACE: from " + this.self + " to " + sender + " " + msg)
         sender ! msg
       } else {
         askSubjectsForAvailableActions(
@@ -100,7 +100,7 @@ class SubjectProviderActor(userID: UserID) extends Actor {
               s.subjectID == message.subjectID
         })
       ) {
-        logger.debug("TRACE: from " + this.self + " to " + subject.ref + " " + message);
+        log.debug("TRACE: from " + this.self + " to " + subject.ref + " " + message);
         subject.ref ! message
       }
     }
@@ -108,26 +108,25 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     // general matching
     // Route processInstance messages to the process manager
     case message: ProcessInstanceMessage => {
-      logger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message);
+      log.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message);
       processManagerActor ! message
     }
 
     case message: AnswerMessage => {
       // send the Answermessages to the SubjectProviderManager
-      logger.debug("TRACE: from " + this.self + " to " + context.parent+ " " + message);
+      log.debug("TRACE: from " + this.self + " to " + context.parent+ " " + message);
       context.parent ! message // TODO forward oder tell?
     }
 
     case message: AnswerAbleMessage => {
       // just forward all messages from the frontend which are not
       // required in this Actor
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message.toString)
+      log.debug("TRACE: from " + this.self + " to " + processManagerActor + " " + message.toString)
       processManagerActor.forward(message)
     }
 
     case s => {
-      logger.error("SubjectProvider not yet implemented: " + s)
+      log.error("SubjectProvider not yet implemented: " + s)
     }
   }
 
@@ -163,16 +162,16 @@ class SubjectProviderActor(userID: UserID) extends Actor {
     // TODO can be done smarter, but at the moment this actor has a single run
     val actions =
       Await.result(actionFutures, timeout.duration)
-    logger.debug("Collected: " + actions)
+    log.debug("Collected: " + actions)
 
-    val message= generateAnswer(actions.toArray)
+    val message = generateAnswer(actions.toArray)
 
     // collect actions and generate answer for the filtered subject list
     //val msg = CollectAvailableActions(message)
     
-    //logger.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
+    //log.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
     //context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(msg)(returnAdress)
-    logger.debug("TRACE: from " + this.self + " to " + this.self + " " + message.toString)
+    log.debug("TRACE: from " + this.self + " to " + this.self + " " + message.toString)
     self.!(message)(returnAdress)
   }
 }

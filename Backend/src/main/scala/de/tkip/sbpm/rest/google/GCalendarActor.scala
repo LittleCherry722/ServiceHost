@@ -5,6 +5,8 @@ import scala.concurrent.Future
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.pattern.pipe
 
+import de.tkip.sbpm.logging.DefaultLogging
+
 import GCalendarCtrl._
 
 object GCalendarActor {
@@ -12,7 +14,7 @@ object GCalendarActor {
                          year: Int, month: Int, day: Int)
 }
 
-class GCalendarActor extends Actor {
+class GCalendarActor extends Actor with DefaultLogging {
   import GCalendarActor._
 
   implicit val ec = context.dispatcher

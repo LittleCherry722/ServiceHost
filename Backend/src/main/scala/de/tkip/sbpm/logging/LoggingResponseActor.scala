@@ -19,7 +19,6 @@ import scala.concurrent.duration._
 import scala.util.parsing.json.JSONObject
 import scala.util.{Try, Success, Failure}
 
-import akka.actor.{Actor, ActorLogging}
 import akka.actor._
 import akka.pattern.ask
 import akka.util.Timeout
@@ -27,7 +26,6 @@ import akka.util.Timeout
 import spray.routing.HttpService
 
 import de.tkip.sbpm
-import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.logging.LogPersistenceActor.Get
 import de.tkip.sbpm.persistence.schema.Log
 

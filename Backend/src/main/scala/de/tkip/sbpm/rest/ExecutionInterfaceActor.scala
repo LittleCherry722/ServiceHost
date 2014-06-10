@@ -32,11 +32,11 @@ import spray.util.LoggingContext
 /**
  * This Actor is only used to process REST calls regarding "execution"
  */
-class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
+class ExecutionInterfaceActor extends AbstractInterfaceActor {
   import context.dispatcher
   implicit val timeout = Timeout(30 seconds)
 
-  implicit def exceptionHandler(implicit log: LoggingContext) =
+  implicit def exceptionHandler =
     ExceptionHandler {
       case e: IllegalArgumentException => ctx => {
         ctx.complete(StatusCodes.BadRequest, e.getMessage)

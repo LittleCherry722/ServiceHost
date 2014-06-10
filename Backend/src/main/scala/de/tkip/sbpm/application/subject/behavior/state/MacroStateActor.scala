@@ -16,7 +16,7 @@ protected class MacroStateActor(data: StateData) extends BehaviorStateActor(data
       log.debug("TRACE: from " + this.self + " to " + context.parent + " " + msg.toString)
       context.parent ! msg
     } else {
-      logger.error("No MacroName is not defined")
+      log.error("No MacroName is not defined")
     }
     log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
     blockingHandlerActor ! UnBlockUser(userID)
@@ -24,8 +24,8 @@ protected class MacroStateActor(data: StateData) extends BehaviorStateActor(data
 
   def stateReceive = {
     case terminated: MacroTerminated => {
-      logger.debug("MacroState done")
-      logger.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID).toString)
+      log.debug("MacroState done")
+      log.debug("TRACE: from " + this.self + " to " + blockingHandlerActor + " " + UnBlockUser(userID))
       blockingHandlerActor ! UnBlockUser(userID)
       // if the macro is terminated, this state is done
       changeState(exitTransitions.head.successorID, data, null)

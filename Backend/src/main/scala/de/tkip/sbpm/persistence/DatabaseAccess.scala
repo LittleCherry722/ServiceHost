@@ -23,7 +23,6 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 import akka.actor.Actor
-import akka.actor.ActorLogging
 import akka.actor.actorRef2Scala
 import akka.util.Timeout
 import com.mchange.v2.c3p0._

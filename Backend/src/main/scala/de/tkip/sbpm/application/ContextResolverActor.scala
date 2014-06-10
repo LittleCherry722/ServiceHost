@@ -17,7 +17,6 @@ import scala.collection.mutable
 
 import akka.actor.Actor
 import akka.actor.actorRef2Scala
-import akka.event.Logging
 import akka.util.Timeout
 import akka.pattern._
 
@@ -50,8 +49,6 @@ case class RequestUserID(subjectInformation: SubjectInformation, generateAnswer:
  */
 class ContextResolverActor extends Actor with DefaultLogging {
 
-  val logger = Logging(context.system, this)
-
   val subjectInstanceMap =
     mutable.Map.empty[(ProcessID, ProcessInstanceID, SubjectID), UserID]
 
@@ -66,10 +63,10 @@ class ContextResolverActor extends Actor with DefaultLogging {
 
     case ruid: RequestUserID =>
       val answer = ruid.generateAnswer(evaluateUserID(ruid.subjectInformation))
-      logger.debug("TRACE: from " + this.self + " to " + sender + " " + answer)
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + answer)
       sender ! answer
 
-    case ss => logger.error("ContextResolver not yet implemented Message: {}", ss)
+    case ss => log.error("ContextResolver not yet implemented Message: {}", ss)
   }
 
   private def evaluateUserID(subjectInformation: SubjectInformation): Array[UserID] = {

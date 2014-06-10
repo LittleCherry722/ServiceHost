@@ -14,7 +14,6 @@
 package de.tkip.sbpm.rest.auth
 
 import akka.actor.Actor
-import akka.event.Logging
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.logging.DefaultLogging
 import spray.http.BasicHttpCredentials
@@ -31,15 +30,13 @@ class BasicAuthActor extends Actor with DefaultLogging {
     // valid basic auth header given -> check credentials
     // with user pass auth actor
     case BasicHttpCredentials(user, pass) => {
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + userPassActor + " " + UserPass(user, pass).toString)
-      userPassActor.forward(UserPass(user, pass))
+      val userPass = UserPass(user, pass)
+      log.debug("TRACE: from " + this.self + " to " + userPassActor + " " + userPass)
+      userPassActor.forward(userPass)
     }
     // invalid header -> fail
     case _ =>
-      val traceLogger = Logging(context.system, this)
-      traceLogger.debug("TRACE: from " + this.self + " to " + sender + " " + None)
-
+      log.debug("TRACE: from " + this.self + " to " + sender + " " + None)
       sender ! None
   }
 
