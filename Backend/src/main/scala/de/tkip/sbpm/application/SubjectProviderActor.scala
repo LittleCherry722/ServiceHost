@@ -165,14 +165,9 @@ class SubjectProviderActor(userID: UserID) extends Actor {
       Await.result(actionFutures, timeout.duration)
     logger.debug("Collected: " + actions)
 
-    val message = generateAnswer(actions.toArray)
+    val answer = generateAnswer(actions.toArray)
 
-    // collect actions and generate answer for the filtered subject list
-    //val msg = CollectAvailableActions(message)
-    
-    //logger.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
-    //context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(msg)(returnAdress)
-    logger.debug("TRACE: from " + this.self + " to " + returnAdress + " " + message)
-    returnAdress ! message
+    logger.debug("TRACE: from " + this.self + " to " + returnAdress + " " + answer)
+    returnAdress ! answer
   }
 }
