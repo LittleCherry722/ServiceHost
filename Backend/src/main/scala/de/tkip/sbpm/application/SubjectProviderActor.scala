@@ -175,7 +175,7 @@ class SubjectProviderActor(userID: UserID) extends Actor with DefaultLogging {
     
     //log.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
     //context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(msg)(returnAdress)
-    log.debug("TRACE: from " + this.self + " to " + this.self + " " + message.toString)
-    self.!(message)(returnAdress)
+    log.debug("TRACE: from " + this.self + " to " + returnAdress + " " + message)
+    returnAdress ! message
   }
 }
