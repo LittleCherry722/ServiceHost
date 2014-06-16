@@ -5,6 +5,8 @@ import scala.io.Source
 import java.io.IOException
 import java.util.{Arrays, List}
 
+import akka.event.LoggingAdapter
+
 import com.google.api.client.googleapis.auth.oauth2.{
   GoogleAuthorizationCodeFlow,
   GoogleTokenResponse,
@@ -115,16 +117,16 @@ object GDriveControl {
       .execute()
   }
 
-  def printFile(service: Drive, fileId: String) {
+  def printFile(service: Drive, fileId: String)(implicit log: LoggingAdapter) {
     val file: File = service.files().get(fileId).execute()
-    println("Title: " + file.getTitle())
-    println("Description: " + file.getDescription())
-    println("MIME type: " + file.getMimeType())
+    log.info("Title: " + file.getTitle())
+    log.info("Description: " + file.getDescription())
+    log.info("MIME type: " + file.getMimeType())
   }
 
 }
 
-class GDriveControl {
+class GDriveControl (implicit log: LoggingAdapter) {
   import GDriveControl._
   import scala.collection.mutable
 
@@ -136,7 +138,7 @@ class GDriveControl {
    */
   def driveOf(userId: String): Drive = {
     if (! driveMap.contains(userId)) {
-      println(s"no ID in map for $userId: $driveMap")
+      log.info(s"no ID in map for $userId: $driveMap")
       val d = buildService(GAuthCtrl.getCredentials(userId))
       driveMap(userId) = d
     }
