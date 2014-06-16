@@ -3,6 +3,8 @@ package de.tkip.sbpm.rest.google
 import java.io.IOException
 import java.util.{GregorianCalendar, Date, TimeZone, Arrays, List}
 
+import akka.event.LoggingAdapter
+
 import com.google.api.client.googleapis.auth.oauth2.{
   GoogleAuthorizationCodeFlow,
   GoogleTokenResponse,
@@ -64,7 +66,7 @@ object GCalendarCtrl {
 
 }
 
-class GCalendarCtrl {
+class GCalendarCtrl (implicit log: LoggingAdapter) {
   import GCalendarCtrl._
   import scala.collection.mutable
 
@@ -76,7 +78,7 @@ class GCalendarCtrl {
    */
   def calendarOf(userId: String): Calendar = {
     if (! calendarMap.contains(userId)) {
-      println(s"no ID in map for $userId: $calendarMap")
+      log.info(s"no ID in map for $userId: $calendarMap")
       val d = buildService(GAuthCtrl.getCredentials(userId))
       calendarMap(userId) = d
     }
