@@ -232,7 +232,7 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
       }
   })
 
-  def logReceive:PartialFunction[Any, Any] = {
+  def logReceive(x: Any): Unit = x match {
     case request: spray.http.HttpRequest => {
       val path = request.uri.path
       if(!path.startsWith(Path.SingleSlash + frontendBaseUrl)){
@@ -240,14 +240,19 @@ class FrontendInterfaceActor extends Actor with DefaultLogging with HttpService 
 //        traceLogger.debug("TRACE: request " + request.method + ": " + path)
 //        traceLogger.debug("TRACE: -------------------------------------------------------------------------")
       }
-      request
     }
-    case something => {
-      something
-    }
+    case _ =>
   }
 
-  def receive = logReceive andThen receiver
+  def receive = {
+    case something => try {
+      logReceive(something)
+      receiver(something)
+    }
+    catch {
+      case e: Exception => log.error(e, "error running route");
+    }
+  }
 
   def serveStaticFiles: Route = {
     // root folder -> redirect to frontendBaseUrl
