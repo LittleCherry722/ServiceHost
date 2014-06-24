@@ -49,7 +49,7 @@ class BlockingActor extends Actor with DefaultLogging {
       handleMessage(userID, message)
     }
     case s => {
-      log.error("BlockingActor got message " + s)
+      log.error("BlockingActor got message but did not handle: " + s)
     }
   }
 
@@ -91,14 +91,14 @@ private class UserBlocker(userID: UserID)(implicit val context: ActorContext, lo
    * the message pool
    */
   private def trySendBlockedMessages() {
-    log.error(userID + "/ BLOCKS: " + remainingBlocks);
-    log.error("MESSAGES: " + blockedMessages.mkString(", "));
+    log.info(userID + "/ BLOCKS: " + remainingBlocks);
+    log.info("MESSAGES: " + blockedMessages.mkString(", "));
 
     // FIXME this should not happen, but we ignore it (for the test case, fix it later!)
     if (remainingBlocks < 0) remainingBlocks = 0
     if (remainingBlocks == 0) {
       for (message <- blockedMessages) {
-        log.debug("TRACE: from BlockingHandler" + " to " + context.parent + " " + message)
+        log.debug("TRACE: from UserBlocker to " + context.parent + " " + message)
         context.parent ! message
       }
       blockedMessages.clear()
