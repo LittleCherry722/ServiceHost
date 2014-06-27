@@ -102,16 +102,16 @@ object parseGraph {
       }
     }
 
-    private def parseMacro(macroId: String, macro: GraphMacro): (String, ProcessMacro) = synchronized {
+    private def parseMacro(macroId: String, graphMacro: GraphMacro): (String, ProcessMacro) = synchronized {
       states = MutableMap[StateID, StateCreator]()
 
       val mainMacro = macroId == "##main##"
 
       // first parse the nodes then the edges
-      parseNodes(mainMacro, macro.nodes.values)
-      parseEdges(macro.edges)
+      parseNodes(mainMacro, graphMacro.nodes.values)
+      parseEdges(graphMacro.edges)
 
-      macroId -> ProcessMacro(macro.name, states.map(_._2.createState).toArray)
+      macroId -> ProcessMacro(graphMacro.name, states.map(_._2.createState).toArray)
     }
 
     private def parseNodes(mainMacro: Boolean, nodes: Iterable[GraphNode]) {
@@ -211,7 +211,7 @@ object parseGraph {
     val autoExecute: Boolean,
     val majorStartState: Boolean,
     val startState: Boolean,
-    val macro: Option[String],
+    val graphMacro: Option[String],
     val options: StateOptions) {
 
     // store all transitions in this Buffer
@@ -228,6 +228,6 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, macro, options, transitions.toArray)
+      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, graphMacro, options, transitions.toArray)
   }
 }

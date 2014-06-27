@@ -115,11 +115,10 @@ case class ExternalSubject(
 }
 
 case class Agent(processId: Int,
-                 interfaceId: Int,
                  address: AgentAddress,
                  subjectId: String)
 case class AgentAddress(ip: String, port: Int) {
-  def toUrl = ip + ":" + port
+  def toUrl = "@" + ip + ":" + port
 }
 
 case class ProcessGraph(subjects: Map[String, SubjectLike]) {

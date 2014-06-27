@@ -29,7 +29,7 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.MappingInfo
+import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
 
 /**
  * This Actor is only used to process REST calls regarding "execution"

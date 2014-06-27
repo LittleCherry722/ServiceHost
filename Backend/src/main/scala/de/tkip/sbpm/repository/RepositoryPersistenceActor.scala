@@ -13,7 +13,7 @@
 
 package de.tkip.sbpm.repository
 
-import scala.collection.immutable.Map
+import scala.collection.immutable.{ Map, Set }
 import de.tkip.sbpm.application.miscellaneous.SystemProperties
 import de.tkip.sbpm.logging.DefaultLogging
 import akka.actor.{ ActorRef, Props }
@@ -26,16 +26,24 @@ import scala.concurrent.{ExecutionContext, Future}
 import de.tkip.sbpm.persistence.query.Roles
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import ExecutionContext.Implicits.global
-import de.tkip.sbpm.model.Role
+import de.tkip.sbpm.model.{AgentAddress, ExternalSubject, Role, Agent}
 import scala.concurrent.{Await}
 import de.tkip.sbpm.ActorLocator
 import akka.pattern.ask
 import akka.event.Logging
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
+import de.tkip.sbpm.application.ProcessInstanceActor.AgentsMap
 
-case class SaveInterface(json: GraphHeader)
-case class DeleteInterface(interfaceId: Int)
+object RepositoryPersistenceActor {
+  case class SaveInterface(json: GraphHeader)
+  case class DeleteInterface(interfaceId: Int)
+  case class GetAgentsMapMessage(agentIds: Iterable[SubjectID])
+  case class AgentsMappingResponse(agentsMap: AgentsMap)
+}
 
 class RepositoryPersistenceActor extends InstrumentedActor {
+  import RepositoryPersistenceActor._
+  import de.tkip.sbpm.repository.RepositoryJsonProtocol._
 
   private val logger = Logging(context.system, this)
   // akka config prefix
@@ -82,6 +90,19 @@ class RepositoryPersistenceActor extends InstrumentedActor {
         .option(HttpOptions.readTimeout(10000))
         .responseCode
       log.debug("[SAVE INTERFACE] repository says: " + result)
+    }
+    case GetAgentsMapMessage(externalSubjectIds) => {
+      // Create a string of all external subjects to query the repository with
+      val externalSubjectIdsString = externalSubjectIds.mkString("::")
+      // and ask the repository for agents for all unknown external subjects
+      val newAgentsString = Http(repoLocation + "implementations")
+        .param("subjectIds", externalSubjectIdsString)
+        .asString
+      log.info("received new agents mapping for subjectIds: {}", externalSubjectIds)
+      log.info("String response: {}", newAgentsString)
+      val newAgentsMap = newAgentsString.asJson.convertTo[Map[String, Set[Agent]]]
+      log.info("JSON parsed mapping: {}", newAgentsMap)
+      sender !! AgentsMappingResponse(newAgentsMap)
     }
     case _ =>
       log.debug("[INTERFACE PERSISTENCE ACTOR] invalid message received")

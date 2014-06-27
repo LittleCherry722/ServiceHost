@@ -25,7 +25,7 @@ import java.util.UUID
 
 class SubjectProviderManagerActor extends InstrumentedActor {
 
-  val logger = Logging(context.system, this)
+  implicit val config = context.system.settings.config
 
   private lazy val processManagerActor = ActorLocator.processManagerActor
   private val subjectProviderMap =
@@ -60,6 +60,14 @@ class SubjectProviderManagerActor extends InstrumentedActor {
         createNewSubjectProvider(message.userID)
         subjectProviderMap(message.userID).forward(withSender(message))
       }
+    }
+
+    case message: CreateProcessInstance => {
+      val filteredAgentsMap = message.agentsMap.filter(!_._2.exists(_.address.toUrl == SystemProperties.akkaRemoteUrl))
+      val filteredRequest = message.copy(agentsMap = filteredAgentsMap)
+      log.info("CREATE PROCESS INSTANCE received. Agents map filtered from {} to {}", message.agentsMap, filteredAgentsMap)
+      processManagerActor ! filteredRequest.withSender(sender)
+
     }
 
     // TODO muss man zusammenfassen koennen

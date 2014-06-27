@@ -67,8 +67,8 @@ class SubjectContainer(
    */
   // TODO ueberarbeiten
   def createSubject(userID: UserID) {
-    log.debug("SubjectContainer.createSubject: " + userID);
-    log.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID));
+    log.debug("SubjectContainer.createSubject: " + userID)
+    log.debug("Created: " + RegisterSingleSubjectInstance(processID, processInstanceID, subject.id, userID))
     if (single) {
       if (subjects.size > 0) {
         log.error("Single subjects cannot be created twice")
@@ -110,7 +110,7 @@ class SubjectContainer(
       // TODO mit futures
       // TODO make sure the agent is available (Some) and not None
       val processInstanceRef =
-        (processInstanceManager ?
+        (processInstanceManager ??
           GetProcessInstanceProxy(agent.get))
           .mapTo[ActorRef]
 
@@ -166,9 +166,12 @@ class SubjectContainer(
     message: SubjectToSubjectMessage) {
 
     for (userID <- targetSubjects) {
+      log.info("Sending message to user: ", userID)
       if (!subjects.contains(userID)) {
+        log.info("Subject Container creating new subject for user ID: {}", userID)
         createSubject(userID)
       } else if (!subjects(userID).running) {
+        log.info("Subject Container restarting subject for user ID: :{}", userID)
         reStartSubject(userID)
       }
 
@@ -176,8 +179,8 @@ class SubjectContainer(
 
       if (external) {
         // exchange the target subject id
-        message.target.subjectID = agent.get.subjectId
-        log.debug("SEND (target exchanged): {}", message)
+        val newMessage = message.copy(target = message.target.copy(subjectID = agent.get.subjectId))
+        log.debug("SEND (target exchanged): {}", newMessage)
 
         // TODO we need this unblock!
         blockingHandlerActor !! UnBlockUser(userID)
@@ -189,6 +192,7 @@ class SubjectContainer(
   }
 
   def sendToExternal(message: SubjectToSubjectMessage) {
+    log.info("Sending message to external subject: {}", message)
     sendTo(Array(ExternalUser), message)
   }
 
@@ -221,10 +225,14 @@ class SubjectContainer(
           log.debug("ref.onComplete: r = {}", r)
           log.debug("ref.onComplete: ref = {}", ref)
           log.debug("subject creation completed: {}", ref.isCompleted)
-          if (r.isSuccess) r.get.tell(message, from)
+          if (r.isSuccess) {
+            log.info("sending: {} to external subject: {}", message, r.get)
+            r.get.tell(message, from)
           // TODO exception or logg?
-          else throw new Exception("Subject Creation failed for " +
-            processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + r)
+          } else {
+            throw new Exception("Subject Creation failed for " +
+              processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + r)
+          }
       }
     }
 

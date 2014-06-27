@@ -64,7 +64,6 @@ case class Interface(address: Address,
                      graph: Graph)
 
 case class InterfaceImplementation(processId: Int,
-                                   interfaceId: Int,
                                    address: Address,
                                    subjectId: String)
 

@@ -49,9 +49,9 @@ object Entities {
 
   val roles = List(
     Role(None, "Gro\u00dfunternehmen", true),
+    Role(None, """Staples""", true),
     Role(None, """Kunde""", true),
     Role(None, """Verarbeitung""", true),
-    Role(None, """Staples""", true),
     Role(None, """Zulieferer""", true),
 
     Role(None, """default""", true),
@@ -68,44 +68,46 @@ object Entities {
     (User(None, """Superuser""", true, 8, "test@gmail.com"), ("sbpm", "superuser@sbpm.com", "s1234".bcrypt)),
     (User(None, "Gro\u00dfunternehmen Mitarbeiter", true, 8), ("sbpm", "unternehmer@sbpm.com", "u1234".bcrypt)),
     (User(None, """Staples Mitarbeiter""", true, 8), ("sbpm", "staples@sbpm.com", "s1234".bcrypt)),
-    (User(None, """TSP Mitarbeiter""", true, 8), ("sbpm", "tsp@sbpm.com", "t1234".bcrypt)),
-
-    (User(None, """Google App Engine""", true, 8), ("sbpm", "google@sbpm.com", "g1234".bcrypt)),
-    (User(None, """Beyer""", true, 8), ("sbpm", "beyer@sbpm.com", "b1234".bcrypt)),
-    (User(None, """Link""", true, 8), ("sbpm", "link@sbpm.com", "l1234".bcrypt)),
-    (User(None, """Woehnl""", true, 8), ("sbpm", "woehnl@sbpm.com", "w1234".bcrypt)),
-    (User(None, """Borgert""", true, 8), ("sbpm", "borgert@sbpm.com", "b1234".bcrypt)),
-    (User(None, """Roeder""", true, 8), ("sbpm", "roeder@sbpm.com", "r1234".bcrypt)),
-    (User(None, """Hartwig""", true, 8), ("sbpm", "hartwig@sbpm.com", "h1234".bcrypt)),
-    (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
+    (User(None, """TSP Mitarbeiter""", true, 8), ("sbpm", "tsp@sbpm.com", "t1234".bcrypt)))
+//
+//    (User(None, """Google App Engine""", true, 8), ("sbpm", "google@sbpm.com", "g1234".bcrypt)),
+//    (User(None, """Beyer""", true, 8), ("sbpm", "beyer@sbpm.com", "b1234".bcrypt)),
+//    (User(None, """Link""", true, 8), ("sbpm", "link@sbpm.com", "l1234".bcrypt)),
+//    (User(None, """Woehnl""", true, 8), ("sbpm", "woehnl@sbpm.com", "w1234".bcrypt)),
+//    (User(None, """Borgert""", true, 8), ("sbpm", "borgert@sbpm.com", "b1234".bcrypt)),
+//    (User(None, """Roeder""", true, 8), ("sbpm", "roeder@sbpm.com", "r1234".bcrypt)),
+//    (User(None, """Hartwig""", true, 8), ("sbpm", "hartwig@sbpm.com", "h1234".bcrypt)),
+//    (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
 
   // process with one active graph loaded from corresponding json file
   val processes = List(
     (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
-    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
-    (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
-    (Process(None, None, false, """Transportdienstleister""", false) -> loadJson("lieferant")),
-
-    (Process(None, None, false, "Grossunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
-    (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
-    (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
-
+//    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
+    //    (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
+    // (Process(None, None, false, """Staples Test""", false) -> loadJson("staples-test")),
+//    (Process(None, None, false, """Transportdienstleister""", false) -> loadJson("lieferant")),
+//
+//    (Process(None, None, false, "Grossunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
+//    (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
+//    (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
+//
     (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
-    (Process(None, None, false, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
-    (Process(None, None, false, """IP Test""", false) -> loadJson("ip_test")),
-    (Process(None, None, false, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
-    (Process(None, None, false, """IP Test Open Close Wildcard With Timeout""", false) -> loadJson("ip_test_open_close_wildcard_with_timeout")),
-    (Process(None, None, false, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
-    (Process(None, None, false, """Modal Split Guard Example""", false) -> loadJson("modalsplitguard_example")),
-    (Process(None, None, false, """Macro Example""", false) -> loadJson("macro_example")),
-    (Process(None, None, false, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
-    (Process(None, None, false, """Projektleiter""", false) -> loadJson("projektleiter")),
-    (Process(None, None, false, """Projekt Team""", false) -> loadJson("projekt_team")),
-    (Process(None, None, false, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),
-    (Process(None, None, false, """Fortgeschritten Lieferung""", false) -> loadJson("fortgeschritten_lieferung")),
-    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
-    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
-    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")))
+//    (Process(None, None, false, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
+//    (Process(None, None, false, """IP Test""", false) -> loadJson("ip_test")),
+//    (Process(None, None, false, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
+//    (Process(None, None, false, """IP Test Open Close Wildcard With Timeout""", false) -> loadJson("ip_test_open_close_wildcard_with_timeout")),
+//    (Process(None, None, false, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
+//    (Process(None, None, false, """Modal Split Guard Example""", false) -> loadJson("modalsplitguard_example")),
+//    (Process(None, None, false, """Macro Example""", false) -> loadJson("macro_example")),
+//    (Process(None, None, false, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
+//    (Process(None, None, false, """Projektleiter""", false) -> loadJson("projektleiter")),
+//    (Process(None, None, false, """Projekt Team""", false) -> loadJson("projekt_team")),
+//    (Process(None, None, false, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),
+//    (Process(None, None, false, """Fortgeschritten Lieferung""", false) -> loadJson("fortgeschritten_lieferung")),
+//    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
+//    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
+//    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")))
+    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")))
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list
@@ -139,14 +141,14 @@ object Entities {
     (1, 2),
     (2, 3),
 
-    // other matchings
-    (4, 0),
-    (4, 3),
-    (5, 0),
-    (6, 0),
-    (7, 0),
-    (8, 0),
-    (9, 0)
+//    // other matchings
+//    (4, 0),
+//    (4, 3),
+//    (5, 0),
+//    (6, 0),
+    (7, 0)
+//    (8, 0),
+//    (9, 0)
   )
 
   implicit val timeout = akka.util.Timeout(100 seconds)

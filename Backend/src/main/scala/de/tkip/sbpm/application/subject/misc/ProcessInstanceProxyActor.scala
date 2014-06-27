@@ -18,16 +18,6 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
 
   import context.dispatcher
 
-  private val subjectIdMapFromGraph = (graph.subjects collect {
-    case (subjectId, external: ExternalSubject) if external.relatedProcessId.isDefined && external.relatedSubjectId.isDefined =>
-      (external.relatedProcessId.get, external.relatedSubjectId.get) -> subjectId
-  } toMap)
-
-  private val subjectIdMapFromMapping = createMessage.subjectMapping.mapValues(mappingInfo => (mappingInfo.processId, mappingInfo.subjectId)).map(_.swap)
-
-  // this map maps the external subjects of this process to the related subject id
-  private val subjectIdMap: Map[(ProcessID, SubjectID), SubjectID] = subjectIdMapFromGraph ++ subjectIdMapFromMapping
-
   private lazy val contextResolver = ActorLocator.contextResolverActor
   implicit val timeout = Timeout(4 seconds)
 
@@ -36,14 +26,13 @@ class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, gra
   def wrappedReceive = {
     case message: SubjectToSubjectMessage => {
       log.debug("got {} from {}", message, sender)
-      // Exchange the sending subject id
-      message.from =
-        subjectIdMap.getOrElse((message.processID, message.from), message.from)
-
+      val localizedMessage = message.copy(target = message.target.copy(toExternal = false))
+      log.debug("localized message: {}", localizedMessage)
       if (message.target.toUnknownUsers) {
-        loadRandomUsers(message)
+        loadRandomUsers(localizedMessage)
       } else {
-        context.parent forward message
+        log.debug("Just forwarding message {} to {}", localizedMessage, context.parent)
+        context.parent forward localizedMessage
       }
     }
 

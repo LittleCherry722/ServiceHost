@@ -38,8 +38,8 @@ sealed trait MessageObject
 protected case class SubjectToSubjectMessage(
   messageID: MessageID,
   processID: ProcessID,
-  var userID: UserID, // TODO why is this a var?
-  var from: SubjectID,
+  userID: UserID,
+  from: SubjectID,
   target: Target,
   messageType: MessageType,
   messageContent: MessageContent,

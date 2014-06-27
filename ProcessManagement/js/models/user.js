@@ -23,7 +23,7 @@ define([
 	//
 	// For example: Getting a list of all processes, savin a process,
 	// validating the current process etc.
-	var User = Model( "User" );
+	var User = window.User = Model( "User" );
 
 	User.attrs({
 		name: "string",

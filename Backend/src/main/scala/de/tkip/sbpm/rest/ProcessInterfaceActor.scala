@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
-import de.tkip.sbpm.repository._
+import de.tkip.sbpm.repository.RepositoryPersistenceActor.{DeleteInterface, SaveInterface}
 import spray.json._
 import scala.concurrent.Future
 import de.tkip.sbpm.persistence.query._

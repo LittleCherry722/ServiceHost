@@ -122,15 +122,18 @@ define([
       // Make current subject a normal subj. and all others Interface subjects
       ps.forEach(function(s) {
         if (s.id === sid) {
-          s.subjectType = "single";
+          s.subjectType = "Single";
+          s.startSubject = false;
           s.externalType = "";
           s.name = s.name + " (me)";
           s.role = "Please choose role";
           s.relatedInterface = self.id();
           s.relatedSubject = sid;
           s.isImplementation = true;
+          s.isImplementation = true;
         } else {
           s.relatedInterface = null;
+          s.startSubject = false;
           s.relatedSubject = s.id;
           s.subjectType = "external";
           s.externalType = "interface";

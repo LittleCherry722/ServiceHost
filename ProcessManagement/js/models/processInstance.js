@@ -13,8 +13,9 @@
 define([
     "knockout",
     "model",
-    "underscore"
-], function( ko, Model, _ ) {
+    "underscore",
+    "models/user"
+], function( ko, Model, _, User ) {
 
     // Our main model that will be returned at the end of the function.
     //
@@ -22,7 +23,7 @@ define([
     //
     // For example: Getting a list of all processes, saving a process,
     // validating the current process etc.
-    ProcessInstance = Model( "ProcessInstance" );
+    var ProcessInstance = window.ProcessInstance = Model( "ProcessInstance" );
 
     ProcessInstance.belongsTo( "process" );
 
@@ -123,13 +124,13 @@ define([
             this.ownerUser = ko.computed({
                 deferEvaluation: true,
                 read: function() {
-                    var u = null;
-                    _.each(User.all(), function(element) {
-                        if (element.id() == self.owner()) {
-                            u = element;
-                        }
+                  if (self.owner() === "-2") {
+                    return new User({ name: "External User" })
+                  } else {
+                    return _.find(User.all(), function(element) {
+                      return (element.id() == self.owner())
                     });
-                    return u;
+                  }
                 }
             });
         },

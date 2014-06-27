@@ -28,21 +28,22 @@ import de.tkip.sbpm.model.Process
 import de.tkip.sbpm.model.ProcessInstance
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
-import scala.collection.mutable.Map
+import scala.collection.immutable
 import akka.actor.Status.Failure
 import scalaj.http.{Http, HttpOptions}
-import spray.json._
-import DefaultJsonProtocol._
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.application.subject.misc._
-import de.tkip.sbpm.model.SubjectLike
-import de.tkip.sbpm.model.ExternalSubject
-import de.tkip.sbpm.model.Agent
+import de.tkip.sbpm.model.{SubjectLike, ExternalSubject, Subject, Agent, AgentAddress}
 import de.tkip.sbpm.instrumentation.InstrumentedActor
+import spray.json._
+import DefaultJsonProtocol._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
+import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.repository.RepositoryPersistenceActor.{AgentsMappingResponse, GetAgentsMapMessage}
 
 object ProcessInstanceActor {
-  type MappingInfo = Set[Agent]
-  type AgentsMap = Map[SubjectID, MappingInfo]
+  type MappingInfo = immutable.Set[Agent]
+  type AgentsMap = immutable.Map[SubjectID, MappingInfo]
 }
 
 /**
@@ -58,6 +59,8 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   implicit val timeout = Timeout(4 seconds)
   implicit val config = context.system.settings.config
 
+  private lazy val repositoryPersistenceActor = ActorLocator.repositoryPersistenceActor
+
   // this fields are set in the preStart, dont change them afterwards!!!
   private var id: ProcessInstanceID = _
   private val name = request.name
@@ -72,6 +75,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private def isTerminated = runningSubjectCounter == 0
   // this map stores all Subject(Container) with their IDs
   private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
+  // dirty hack to discard every subject that is internal for this PE.
+  // TODO Should much rather compare the Graph and subject URLs,
+  // as one PE could, in theory, implement its own interface.
   private var agentsMap = request.agentsMap
 
   val url = SystemProperties.akkaRemoteUrl
@@ -87,9 +93,9 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private lazy val proxyActor = context.actorOf(Props(new ProcessInstanceProxyActor(id, request.processID, graph, request)), "ProcessInstanceProxyActor____" + UUID.randomUUID().toString())
 
   override def preStart() {
-    log.debug("subject mapping: {}", request.agentsMap)
+    log.debug("subject mapping: {}", agentsMap)
 
-    try {
+//    try {
       // TODO schoener machen
       val dataBaseAccessFuture = for {
         // get the process
@@ -117,7 +123,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       graph = parseGraph(graphTemp)
 
       // TODO modify to the right version
+      log.error("All startSubjects: {}", startSubjects)
+      log.error("All subjects in this graph: {}", graph)
       for (startSubject <- startSubjects) {
+        log.error("StartSubject: {}", startSubject)
         // Create the subjectContainer
         subjectMap(startSubject) = createSubjectContainer(graph.subjects(startSubject))
         // the container shall contain a subject -> create
@@ -126,16 +135,16 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       // send processinstance created, when the block is closed
 
       blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
-    } catch {
-      case e: NoSuchElementException => {
-        blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
-        request.sender !
-          Failure(new Exception("ProcessInstance creation failed, required " +
-            "resource does not exists."))
-      }
+//    } catch {
+//      case e: NoSuchElementException => {
+//        blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
+//        request.sender !
+//          Failure(new Exception("ProcessInstance creation failed, required " +
+//            "resource does not exists."))
+//      }
 
       // TODO processInstanceManger ! Register....
-    }
+//    }
   }
 
   def wrappedReceive = {
@@ -157,7 +166,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     case sm: SubjectToSubjectMessage if graph.subjects.contains(sm.to) => {
       val to = sm.to
       // Send the message to the container, it will deal with it
-      subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to))).send(sm)
+      log.info("Subject to Subject Message received. Updating subject map and forwarding message. Subject mapping now: {}", subjectMap)
+      subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to)))
+      log.info("Subject Mapping after update: {}", subjectMap)
+      subjectMap(to).send(sm)
     }
 
     case he: history.NewHistoryEntry => {
@@ -236,12 +248,14 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
 
   private def createSubjectContainer(subject: SubjectLike): SubjectContainer = {
     val maybeAgent = if (subject.external) {
-      Some(externalSubjectAgent(subject.asInstanceOf[ExternalSubject]).head)
+      val externalSubject = externalSubjectAgent(subject.asInstanceOf[ExternalSubject]).head
+      log.info("Creating new external subject container for subject: {} - {}", subject.id, externalSubject)
+      Some(externalSubject)
     } else {
       None
     }
 
-    new SubjectContainer(
+    val subjectContainer = new SubjectContainer(
       subject,
       processID,
       id,
@@ -251,17 +265,25 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       maybeAgent,
       () => runningSubjectCounter += 1,
       () => runningSubjectCounter -= 1)
+    log.info("New subject Container created: {}", subjectContainer)
+    subjectContainer
   }
 
   private def externalSubjectAgent(subject: ExternalSubject): Set[Agent] = {
     // If an agents list for this subject exists, use it.
     // Otherwise update the list and return agents for this external subject.
     // May still be an empty set if no agents exist.
-    request.agentsMap.get(subject.id) match {
-      case Some(agentsMap) => agentsMap
+    agentsMap.get(subject.id) match {
+      case Some(newAgentsMap) => newAgentsMap
       case None => {
         updateAgentsMapping()
-        request.agentsMap(subject.id)
+        agentsMap.get(subject.id) match {
+          case Some(newAgentsMap) => newAgentsMap
+          case None => {
+            log.error("Agent {} not available! Current Mapping: {}", subject.id, agentsMap)
+            throw new Exception(s"Agent ${subject.id} not availabie. Mapping available: $agentsMap")
+          }
+        }
       }
     }
   }
@@ -272,50 +294,41 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     val externalSubjectIds = graph.externalSubjects.map(_.id).filterNot { sid =>
       agentsMap.contains(sid)
     }
-    // Create a string of all external subjects to query the repository with
-    val externalSubjectIdsString = externalSubjectIds.mkString("::")
-    // and ask the repository for agents for all unknown external subjects
-    val newAgentsMap = Http("http://foo.com/search").param("subjects", externalSubjectIdsString)
-      .asString.toJson.convertTo[Map[SubjectID, Set[Agent]]]
+
+    val getAgentsMapMessage = GetAgentsMapMessage(externalSubjectIds)
+    val newAgentsMapFuture = (repositoryPersistenceActor ?? getAgentsMapMessage).mapTo[AgentsMappingResponse]
+    val newAgentsMap = Await.result(newAgentsMapFuture, timeout.duration)
     // Append new agents list from the repository to currently existing List of Agents
-    agentsMap = agentsMap ++ newAgentsMap
-    agentsMap
+    log.info("Updating agents Mapping. Current Mapping: {}", agentsMap)
+    log.info("current graph: " + persistenceGraph.toJson)
+    log.info("Added Mapping: {}", newAgentsMap.agentsMap)
+    this.agentsMap = agentsMap ++ newAgentsMap.agentsMap
+    log.info("New Mapping: {}", agentsMap)
+    this.agentsMap
   }
 
   private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, MappingInfo] = {
     log.debug("create subject mapping for {}@{}", processId, url)
 
     import scala.collection.mutable.{ Map => MutableMap }
-    val subjectMapping = MutableMap[SubjectID, MappingInfo]()
-    for (subject <- graph.subjects.values if subject.external) {
-      val externalSubject = subject.asInstanceOf[ExternalSubject]
-
-      if (externalSubject.relatedProcessId.exists(_ == processId) && externalSubject.url.exists(_ == url)) {
-        val connectedSubject = findConnectedSubject(externalSubject.id)
-        val ownUrl = SystemProperties.akkaRemoteUrl
-
-        log.debug("found connect subject {} for subject {}", connectedSubject.id, externalSubject.id)
-
-        val mappingA = (externalSubject.relatedSubjectId.get -> MappingInfo(externalSubject.id, processID, ownUrl))
-        // TODO: Fix This! Key must be a subject ID, related interface references a repository interface ID... -.-
-        val mappingB = (externalSubject.relatedInterfaceId.get.toString -> MappingInfo(connectedSubject.id, processID, ownUrl))
-
-        subjectMapping += mappingA
-        subjectMapping += mappingB
-      }
+    // Own address is just the akka port map
+    val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname
+      , port = SystemProperties.akkaRemotePort)
+    // to the current agents map, add every subject from the current process that communitcates with
+    // an interface with our own agents information.
+    // This is important because every PE we communicate with
+    // a) Should be able to identify the initial PE the message was sent from, especially
+    //    if it the message flow is like this: OwnPE -> A -> B -> OwnPE
+    // b) Should also get mapping information we got previously from other PEs
+    getInterfacePartnerSubjects.foldLeft(agentsMap) { (mapping: AgentsMap, subject: SubjectLike) =>
+      val agent = Agent(processId = processId
+        , address = ownAddress
+        , subjectId = subject.id)
+      mapping + (subject.id -> Set(agent))
     }
-    subjectMapping
   }
 
-  private def findConnectedSubject(subjectId: SubjectID): SubjectLike = {
-    val subject = persistenceGraph.subjects(subjectId)
-    val mainMacro = subject.macros("##main##")
-
-    val randomSendEdge = mainMacro.edges.find(_.target.isDefined)
-
-    randomSendEdge match {
-      case Some(edge) => graph.subjects(edge.target.get.subjectId)
-      case None       => throw new IllegalStateException("could not find connected subject for subjectID " + subjectId)
-    }
+  private def getInterfacePartnerSubjects: Seq[SubjectLike] = {
+    graph.subjects.map(_._2).filter(!_.external).toSeq
   }
 }

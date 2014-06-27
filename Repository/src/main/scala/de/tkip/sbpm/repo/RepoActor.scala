@@ -86,6 +86,7 @@ class RepoActor extends Actor with ActorLogging {
     case Reset => {
       log.info("resetting...")
       interfaces.clear()
+      currentId = 1
     }
   }
 
@@ -113,7 +114,7 @@ class RepoActor extends Actor with ActorLogging {
   }
 
   private def convertEntry(entry: JsObject, ip: HttpIp) = {
-    var fields = entry.fields
+    val fields = entry.fields
     val oldId = fields("id").toString.toInt
     val graph = fields("graph").convertTo[Graph]
     val id = fields.getOrElse[JsValue]("interfaceId", nextId.toJson).convertTo[Int]
@@ -129,32 +130,24 @@ class RepoActor extends Actor with ActorLogging {
   private def implementationsFor(subjectId: String) : List[InterfaceImplementation] = {
     logger.info("implementationsFor called for subjectId {}", subjectId)
     val someSId = Some(subjectId)
-    val implementations: List[InterfaceImplementation] = interfaces.values.toList.flatMap(i => {
-      i.graph.subjects.values.toList.filter(x => {
-        logger.info("test if subject {} is implementation", x.id)
-        val impl = (x.relatedSubjectId == someSId
-          && (x.relatedInterfaceId.isDefined && interfaces.contains(x.relatedInterfaceId.get)
-             || x.relatedInterfaceId.isEmpty))
-        if (impl) {
-          logger.info("Subject [" + i.name + "/" + x.name + "] is Implementation! ")
+    val implementations: Iterable[InterfaceImplementation] = interfaces.values.flatMap(i => {
+      i.graph.subjects.values.toList.map(s => {
+        logger.info("test if subject {} is implementation", s.id)
+        if (s.id == subjectId && s.subjectType == "single") {
+          val impl = InterfaceImplementation(
+            processId = i.processId,
+            address = i.address,
+            subjectId = s.id)
+          Some(impl)
         }
         else {
-          logger.info("Subject is not an implementation")
+          None
         }
-        impl
-      }).map(s => {
-        val relatedInterface = if (s.relatedInterfaceId.isDefined) {
-          interfaces(s.relatedInterfaceId.get)
-        } else i
-        InterfaceImplementation(
-          processId = relatedInterface.processId,
-          interfaceId = relatedInterface.id,
-          address = i.address,
-          subjectId = s.relatedSubjectId.get)
-      })
+      }).flatten
     })
-   implementations
+   implementations.toList
   }
+
 
   private def nextId = {
     val id = currentId
