@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of GraphConversations.
@@ -27,16 +27,16 @@ trait GraphConversationsSchema extends GraphsSchema {
 
   // represents schema if the "graph_conversations" table in the database
   // using slick's lifted embedding API
-  object GraphConversations extends SchemaTable[GraphConversation]("graph_conversations") {
+  class GraphConversations(tag: Tag) extends SchemaTable[GraphConversation](tag, "graph_conversations") {
     def id = stringIdCol
     def graphId = column[Int]("graph_id")
     def name = nameCol
-    def * = id ~ graphId ~ name <> (GraphConversation, GraphConversation.unapply _)
+    def * = (id, graphId, name) <> (GraphConversation.tupled, GraphConversation.unapply)
 
     def pk = primaryKey(pkName, (id, graphId))
 
-    def graph =
-      foreignKey(fkName("graphs"), graphId, Graphs)(_.id, NoAction, Cascade)
+    def graph = foreignKey(fkName("graphs"), graphId, graphs)(_.id, NoAction, Cascade)
   }
 
+  val graphConversations = TableQuery[GraphConversations]
 }

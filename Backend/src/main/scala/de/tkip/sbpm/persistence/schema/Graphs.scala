@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of Graphs.
@@ -27,16 +27,19 @@ trait GraphsSchema extends ProcessesSchema {
   
   // represents schema if the "graphs" table in the database
   // using slick's lifted embedding API
-  object Graphs extends SchemaTable[Graph]("graphs") {
+  class Graphs(tag: Tag) extends SchemaTable[Graph](tag, "graphs") {
     def id = autoIncIdCol[Int]
     def processId = column[Int]("process_id")
     def date = column[java.sql.Timestamp]("date")
     
-    def * = id.? ~ processId ~ date <> (Graph, Graph.unapply _)
-    def autoInc = * returning id
-    
+    def * = (id.?, processId, date) <> (Graph.tupled, Graph.unapply)
+    // def autoInc = * returning id
+
     def process =
-      foreignKey(fkName("processes"), processId, Processes)(_.id, NoAction, Cascade)
+      foreignKey(fkName("processes"), processId, processes)(_.id, NoAction, Cascade)
   }
 
+  object graphs extends TableQuery(new Graphs(_)) {
+    def autoInc = graphs returning graphs.map(_.id)
+  }
 }

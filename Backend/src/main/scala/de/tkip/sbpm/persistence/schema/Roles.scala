@@ -26,15 +26,16 @@ trait RolesSchema extends Schema {
   
   // represents schema if the "roles" table in the database
   // using slick's lifted embedding API
-  object Roles extends SchemaTable[Role]("roles") {
+  class Roles(tag: Tag) extends SchemaTable[Role](tag, "roles") {
     def id = autoIncIdCol[Int]
     def name = nameCol
     def isActive = activeCol
     
-    def * = id.? ~ name ~ isActive <> (Role, Role.unapply _)
-    def autoInc = * returning id
+    def * = (id.?, name, isActive) <> (Role.tupled, Role.unapply)
+    // def autoInc = * returning id
     
     def uniqueName = unique(name)
   }
 
+  val roles = TableQuery[Roles]
 }

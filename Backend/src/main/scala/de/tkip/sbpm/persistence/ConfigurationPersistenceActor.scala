@@ -43,7 +43,7 @@ private[persistence] class ConfigurationPersistenceActor extends InstrumentedAct
 
   def wrappedReceive = {
     // get all configs
-    case Read.All => answer { implicit session: Session =>
+    case Read.All => answer {implicit session: Session =>
       Query(Configurations).list.map(toDomainModel)
     }
     // get config with given key as option (None if not found)

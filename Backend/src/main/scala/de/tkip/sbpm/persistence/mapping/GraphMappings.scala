@@ -82,7 +82,7 @@ object GraphMappings {
    * Returns macros, nodes and edges.
    */
   private def extractMacros(ms: Iterable[domainModel.GraphMacro], subjectId: String, graphId: Int): (Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge]) = ms.map { m =>
-    val macro = GraphMacro(m.id, subjectId, graphId, m.name)
+    val graphMacro = GraphMacro(m.id, subjectId, graphId, m.name)
     val (nodes, varMans) = extractNodes(m.nodes.values, m.id, subjectId, graphId).unzip[GraphNode, GraphVarMan]
     val edges = extractEdges(m.edges, m.id, subjectId, graphId)
     (macro, nodes, varMans, edges)

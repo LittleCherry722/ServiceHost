@@ -14,14 +14,15 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of GraphVarMans.
  */
 trait GraphVarMansSchema extends GraphNodesSchema {
+  import driver.simple._
 
-  object GraphVarMans extends SchemaTable[GraphVarMan]("graph_var_mans") {
+  class GraphVarMans(tag: Tag) extends SchemaTable[GraphVarMan](tag, "graph_var_mans") {
     def id = column[Short]("id", DbType.smallint)
     def macroId = column[String]("macro_id", DbType.stringIdentifier)
     def subjectId = column[String]("subject_id", DbType.stringIdentifier)
@@ -31,18 +32,20 @@ trait GraphVarMansSchema extends GraphNodesSchema {
     def varManOperation = column[Option[String]]("var_man_operation", DbType.stringIdentifier)
     def varManStoreVarId = column[Option[String]]("var_man_store_var_id", DbType.stringIdentifier)
 
-    def * = id ~ macroId ~ subjectId ~ graphId ~ varManVar1Id ~ varManVar2Id ~ varManOperation ~ varManStoreVarId <> (GraphVarMan, GraphVarMan.unapply _)
+    def * = (id, macroId, subjectId, graphId, varManVar1Id, varManVar2Id, varManOperation
+      , varManStoreVarId) <> (GraphVarMan.tupled, GraphVarMan.unapply)
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
 
 //    def graphNode =
 //      foreignKey(fkName("graph_node"), (id, subjectId, macroId, graphId), GraphNode)(n => (n.id, n.subjectId, n.macroId, n.graphId))
     def varManVar1 =
-      foreignKey(fkName("graph_variables_var_man1"), (varManVar1Id.get, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
+      foreignKey(fkName("graph_variables_var_man1"), (varManVar1Id.get, subjectId, graphId), graphVariables)(v => (v.id, v.subjectId, v.graphId))
     def varManVar2 =
-      foreignKey(fkName("graph_variables_var_man2"), (varManVar2Id.get, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
+      foreignKey(fkName("graph_variables_var_man2"), (varManVar2Id.get, subjectId, graphId), graphVariables)(v => (v.id, v.subjectId, v.graphId))
     def varManStore =
-      foreignKey(fkName("graph_variables_var_man"), (varManStoreVarId.get, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
+      foreignKey(fkName("graph_variables_var_man"), (varManStoreVarId.get, subjectId, graphId), graphVariables)(v => (v.id, v.subjectId, v.graphId))
   }
 
+  val graphVarMans = TableQuery[GraphVarMans]
 }

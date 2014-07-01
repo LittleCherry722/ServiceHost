@@ -25,23 +25,24 @@ trait ProcessesSchema extends Schema {
 
   import driver.simple._
 
-  implicit val stringToStringList = MappedTypeMapper.base[List[String], String](
+  implicit val stringToStringList = MappedColumnType.base[List[String], String](
     list => list mkString ",",
     str => (str split ",").toList
   )
 
   // represents schema if the "processes" table in the database
   // using slick's lifted embedding API
-  object Processes extends SchemaTable[Process]("processes") {
+  class Processes(tag: Tag) extends SchemaTable[Process](tag, "processes") {
     def id = autoIncIdCol[Int]
     def interfaceId = column[Option[Int]]("interface_id")
     def publishInterface = column[Boolean]("publish_interface")
     def name = nameCol
     def isCase = column[Boolean]("case")
     def startAble = column[Boolean]("startAble")
-    def * = id.? ~ interfaceId ~ publishInterface ~ name ~ isCase ~ startAble <> (Process, Process.unapply _)
-    def autoInc = * returning id
+    def * = (id.?, interfaceId, publishInterface, name, isCase, startAble) <> (Process.tupled, Process.unapply)
+    // def autoInc = * returning id
     def uniqueName = unique(name)
   }
 
+  val processes = TableQuery[Processes]
 }

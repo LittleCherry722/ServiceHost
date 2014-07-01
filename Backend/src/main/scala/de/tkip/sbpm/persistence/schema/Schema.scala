@@ -13,12 +13,9 @@
 
 package de.tkip.sbpm.persistence.schema
 
-import scala.slick.driver.ExtendedProfile
-import scala.reflect.runtime.universe
-import scala.slick.session.Database
-import scala.slick.lifted.Shape
-import scala.slick.lifted.Column
-import scala.slick.lifted.TypeMapper
+import scala.slick.driver.{SQLiteDriver, JdbcProfile}
+import scala.slick.driver.SQLiteDriver.simple.{Table, Tag}
+// import scala.slick.session.Database
 
 /**
  * Base trait for all schema definition traits.
@@ -27,7 +24,6 @@ import scala.slick.lifted.TypeMapper
  * according to configuration.
  */
 private[persistence] trait Schema {
-  import Schema._
 
   // sub classes should provide akka config
   protected implicit def config: com.typesafe.config.Config
@@ -39,14 +35,7 @@ private[persistence] trait Schema {
   private def configString(key: String) =
     config.getString(configPath + key)
 
-  /**
-   * Provides the driver profile specified in akka config
-   * sub classes can import current slick driver dynamically.
-   * Import driver.simple._ to get access
-   * to driver specific classes and methods.
-   */
-  protected val driver: ExtendedProfile =
-    loadDriver(configString("slickDriver"))
+  protected val driver = SQLiteDriver
 
   /**
    * Abstract base class for the table definition.
@@ -54,54 +43,55 @@ private[persistence] trait Schema {
    * Provides methods to define commonly used
    * constraints and provides default column types.
    */
-  protected abstract class SchemaTable[T](tableName: String) extends driver.simple.Table[T](tableName) {
+  protected abstract class SchemaTable[T](tag: Tag, tableName: String) extends Table[T](tag, tableName) {
+    import scala.slick.driver.SQLiteDriver.simple._
 
     /**
      * Defines an unique index on the given columns.
      */
-    protected def unique[C](cols: Column[C])(implicit shape: Shape[C, _, _]) =
+    protected def unique[C](cols: Column[C])(implicit shape: Shape[_, C, _, _]) =
       index("unq_idx_%s_%s".format(tableName, cols.toString), cols, unique = true)
 
     /**
      * Defines an index on the given columns.
      */
-    protected def idx[C](cols: Column[C])(implicit shape: Shape[C, _, _]) =
+    protected def idx[C](cols: Column[C])(implicit shape: Shape[_, C, _, _]) =
       index("idx_%s_%s".format(tableName, cols.toString), cols)
 
     /**
      * Defines am "id" column as auto increment primary key.
      */
-    protected def autoIncIdCol[C](implicit typeMapper: TypeMapper[C]) =
+    protected def autoIncIdCol[C](implicit typeMapper: ColumnType[C]) =
       column("id", O.PrimaryKey, O.AutoInc)
 
     /**
      * Defines an "id" column as string primary key.
      */
-    protected def stringIdCol(implicit typeMapper: TypeMapper[String]) =
+    protected def stringIdCol(implicit typeMapper: ColumnType[String]) =
       column("id", DbType.stringIdentifier)
       
       /**
      * Defines an "id" column as uuid string primary key.
      */
-    protected def stringUuidCol(implicit typeMapper: TypeMapper[String]) =
+    protected def stringUuidCol(implicit typeMapper: ColumnType[String]) =
       column("id", DbType.uuid)
 
     /**
      * Defines a "name" string column.
      */
-    protected def nameCol(implicit typeMapper: TypeMapper[String]) =
+    protected def nameCol(implicit typeMapper: ColumnType[String]) =
       column("name", DbType.name)
 
     /**
      * Defines a "active" boolean column.
      */
-    protected def activeCol(implicit typeMapper: TypeMapper[Boolean]) =
+    protected def activeCol(implicit typeMapper: ColumnType[Boolean]) =
       column("active", O.Default(true))
 
     /**
      * Defines a "gdriveId" string column.
      */
-    protected def gdriveIdCol(implicit typeMapper: TypeMapper[String]) =
+    protected def gdriveIdCol(implicit typeMapper: ColumnType[String]) =
       column("gdrive_id", DbType.eMail)
 
     /**
@@ -152,43 +142,5 @@ private[persistence] trait Schema {
         varchar(36)
 
     }
-  }
-}
-
-/**
- * Companion object for Schema trait,
- * providing static methods used across JVM.
- * Contains the logic to dynamically load the slick driver
- * currently defined in the application config file.
- */
-private[schema] object Schema {
-  /* store for currently loaded drivers by class name
-  * objects cannot be loaded multiple times using reflection
-  * and should therefore be stored if first loaded
-  */
-  private var loadedDrivers: Map[String, ExtendedProfile] = Map()
-  // the scala reflection mirror for the current class loader
-  private val reflection = universe.runtimeMirror(getClass.getClassLoader)
-
-  /**
-   * Load the slick driver object with the given class name using reflection.
-   * If driver was loaded before the cached object instance is returned.
-   * Executed synchronized to avoid race conditions.
-   */
-  def loadDriver(name: String): ExtendedProfile = this.synchronized {
-    // try to use cached object, if not existent the object is
-    // loaded using reflection
-    loadedDrivers.getOrElse(name, reflectDriver(name))
-  }
-
-  // load driver by class name using reflection
-  private def reflectDriver(name: String) = {
-    // get object symbol
-    val driverModule = reflection.staticModule(name)
-    // get instance from object symbol
-    val driver = reflection.reflectModule(driverModule).instance.asInstanceOf[ExtendedProfile]
-    // save to cache
-    loadedDrivers = loadedDrivers + (name -> driver)
-    driver
   }
 }

@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of ProcessInstances.
@@ -27,19 +27,20 @@ trait ProcessInstancesSchema extends ProcessesSchema with GraphsSchema {
 
   // represents schema if the "process_instances" table in the database
   // using slick's lifted embedding API
-  object ProcessInstances extends SchemaTable[ProcessInstance]("process_instances") {
+  class ProcessInstances(tag: Tag) extends SchemaTable[ProcessInstance](tag, "process_instances") {
     def id = autoIncIdCol[Int]
     def processId = column[Int]("process_id")
     def graphId = column[Int]("graph_id")
     def data = column[Option[String]]("data", DbType.blob)
 
-    def * = id.? ~ processId ~ graphId ~ data <> (ProcessInstance, ProcessInstance.unapply _)
-    def autoInc = * returning id
+    def * = (id.?, processId, graphId, data) <> (ProcessInstance.tupled, ProcessInstance.unapply)
+    // def autoInc = * returning id
 
     def process =
-      foreignKey(fkName("processes"), processId, Processes)(_.id, NoAction, Cascade)
+      foreignKey(fkName("processes"), processId, processes)(_.id, NoAction, Cascade)
     def graph =
-      foreignKey(fkName("graphs"), graphId, Graphs)(_.id, NoAction, Cascade)
+      foreignKey(fkName("graphs"), graphId, graphs)(_.id, NoAction, Cascade)
   }
 
+  val processInstances = TableQuery[ProcessInstances]
 }

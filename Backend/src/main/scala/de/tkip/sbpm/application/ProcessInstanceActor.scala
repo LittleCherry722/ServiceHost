@@ -123,10 +123,10 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       graph = parseGraph(graphTemp)
 
       // TODO modify to the right version
-      log.error("All startSubjects: {}", startSubjects)
-      log.error("All subjects in this graph: {}", graph)
+      log.debug("All startSubjects: {}", startSubjects)
+      log.debug("All subjects in this graph: {}", graph)
       for (startSubject <- startSubjects) {
-        log.error("StartSubject: {}", startSubject)
+        log.debug("StartSubject: {}", startSubject)
         // Create the subjectContainer
         subjectMap(startSubject) = createSubjectContainer(graph.subjects(startSubject))
         // the container shall contain a subject -> create

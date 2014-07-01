@@ -27,13 +27,13 @@ trait UserIdentitiesSchema extends UsersSchema {
 
   // represents schema if the "user_identities" table in the database
   // using slick's lifted embedding API
-  object UserIdentities extends SchemaTable[UserIdentity]("user_identities") {
+  class UserIdentities(tag: Tag) extends SchemaTable[UserIdentity](tag, "user_identities") {
     def userId = column[Int]("user_id")
     def provider = column[String]("provider", DbType.stringIdentifier)
     def eMail = column[String]("e_mail", DbType.eMail)
     def password = column[Option[String]]("password", DbType.bcrypt)
     
-    def * = userId ~ provider ~ eMail ~ password <> (UserIdentity, UserIdentity.unapply _)
+    def * = (userId, provider, eMail, password) <> (UserIdentity.tupled, UserIdentity.unapply)
 
     def pk = primaryKey(pkName, (userId, provider))
 
@@ -41,7 +41,8 @@ trait UserIdentitiesSchema extends UsersSchema {
       index("unq_" + tableName + "_provider_e_mail", (provider, eMail), unique = true)
 
     def user =
-      foreignKey(fkName("users"), userId, Users)(_.id, NoAction, Cascade)
+      foreignKey(fkName("users"), userId, users)(_.id, NoAction, Cascade)
   }
 
+  val userIdenties = TableQuery[UserIdentities]
 }

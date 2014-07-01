@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of GraphMacros.
@@ -27,17 +27,18 @@ trait GraphMacrosSchema extends GraphSubjectsSchema {
   
    // represents schema if the "graph_macros" table in the database
   // using slick's lifted embedding API
-  object GraphMacros extends SchemaTable[GraphMacro]("graph_macros") {
+  class GraphMacros(tag: Tag) extends SchemaTable[GraphMacro](tag, "graph_macros") {
     def id = stringIdCol
     def subjectId = column[String]("subject_id", DbType.stringIdentifier)
     def graphId = column[Int]("graph_id")
     def name = nameCol
-    def * = id ~ subjectId ~ graphId ~ name <> (GraphMacro, GraphMacro.unapply _)
+    def * = (id, subjectId, graphId, name) <> (GraphMacro.tupled, GraphMacro.unapply)
 
     def pk = primaryKey(pkName, (id, subjectId, graphId))
 
     def subject =
-      foreignKey(fkName("subjects"), (subjectId, graphId), GraphSubjects)(s => (s.id, s.graphId), NoAction, Cascade)
+      foreignKey(fkName("subjects"), (subjectId, graphId), graphSubjects)(s => (s.id, s.graphId), NoAction, Cascade)
   }
 
+  val graphMacros = TableQuery[GraphMacros]
 }

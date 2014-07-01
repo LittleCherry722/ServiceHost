@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of Messages.
@@ -27,7 +27,7 @@ trait MessagesSchema extends ProcessInstancesSchema with UsersSchema {
 
   // represents schema if the "messages" table in the database
   // using slick's lifted embedding API
-  object Messages extends SchemaTable[Message]("messages") {
+  class Messages(tag: Tag) extends SchemaTable[Message](tag, "messages") {
     def id = autoIncIdCol[Int]
     def fromUserId = column[Int]("from_user_id")
     def toUserId = column[Int]("to_user_id")
@@ -36,14 +36,15 @@ trait MessagesSchema extends ProcessInstancesSchema with UsersSchema {
     def data = column[String]("data", DbType.blob)
     def date = column[java.sql.Timestamp]("date")
 
-    def * = id.? ~ fromUserId ~ toUserId ~ title ~
-      isRead ~ data ~ date <> (Message, Message.unapply _)
-    def autoInc = * returning id
+    def * = (id.?, fromUserId, toUserId, title
+      , isRead, data, date) <> (Message.tupled, Message.unapply)
+    // def autoInc = * returning id
 
     def fromUser =
-      foreignKey(fkName("users_from"), fromUserId, Users)(_.id)
+      foreignKey(fkName("users_from"), fromUserId, users)(_.id)
     def toUser =
-      foreignKey(fkName("users_to"), toUserId, Users)(_.id)
+      foreignKey(fkName("users_to"), toUserId, users)(_.id)
   }
 
+  val messages = TableQuery[Messages]
 }

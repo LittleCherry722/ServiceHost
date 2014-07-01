@@ -26,18 +26,19 @@ trait UsersSchema extends Schema {
 
   // represents schema if the "users" table in the database
   // using slick's lifted embedding API
-  object Users extends SchemaTable[User]("users") {
+  class Users(tag: Tag) extends SchemaTable[User](tag, "users") {
     def id = autoIncIdCol[Int]
     def name = nameCol
     def isActive = activeCol
     def inputPoolSize = column[Int]("input_pool_size", DbType.smallint, O.Default(8))
     def gdriveId = gdriveIdCol
 
-    def * = id.? ~ name ~ isActive ~ inputPoolSize ~ gdriveId <> (User, User.unapply _)
+    def * = (id.?, name, isActive, inputPoolSize, gdriveId) <> (User.tupled, User.unapply)
     
-    def autoInc = * returning id
+    //def autoInc = * returning id
 
     def uniqueName = unique(name)
   }
 
+  val users = TableQuery[Users]
 }

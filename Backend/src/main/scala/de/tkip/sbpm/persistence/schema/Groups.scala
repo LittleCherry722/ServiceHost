@@ -26,15 +26,16 @@ trait GroupsSchema extends Schema {
   
   // represents schema if the "groups" table in the database
   // using slick's lifted embedding API
-  object Groups extends SchemaTable[Group]("groups") {
+  class Groups(tag: Tag) extends SchemaTable[Group](tag, "groups") {
     def id = autoIncIdCol[Int]
     def name = nameCol
     def isActive = activeCol
     
-    def * = id.? ~ name ~ isActive <> (Group, Group.unapply _)
-    def autoInc = * returning id
+    def * = (id.?, name, isActive) <> (Group.tupled, Group.unapply)
+    // def autoInc = * returning id
     
     def uniqueName = unique(name)
   }
 
+  val groups = TableQuery[Groups]
 }

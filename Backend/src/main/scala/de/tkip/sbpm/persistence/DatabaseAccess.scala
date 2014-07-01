@@ -14,11 +14,6 @@
 package de.tkip.sbpm.persistence
 
 import scala.concurrent.duration.DurationInt
-import scala.reflect.runtime.universe
-import scala.slick.driver.ExtendedProfile
-import scala.slick.lifted.DDL
-import scala.slick.session.Database
-import scala.slick.session.Session
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -31,6 +26,7 @@ import com.typesafe.config.Config
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.SystemProperties
 import de.tkip.sbpm.instrumentation.TraceLogger
+import scala.slick.driver.JdbcDriver.simple._
 
 /**
  * Provides helper methods for connecting to database using slick.

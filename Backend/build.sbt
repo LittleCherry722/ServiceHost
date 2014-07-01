@@ -33,7 +33,7 @@ mergeStrategy in assembly := {
   case _ => MergeStrategy.first
 }
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.11.1"
 
 // Parameters for Eclipse
 
@@ -54,6 +54,6 @@ testOptions in Test <+= (target in Test) map {
 
 fork in Test := true
 
-atmosSettings
+// atmosSettings
 
 unmanagedSourceDirectories in Compile += file("../eventbus")
