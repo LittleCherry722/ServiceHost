@@ -19,7 +19,7 @@ import de.tkip.sbpm.application.subject.behavior.InputPoolClosed
 import de.tkip.sbpm.application.subject.misc.ActionData
 import akka.event.Logging
 
-protected case class CloseIPStateActor(data: StateData)
+case class CloseIPStateActor(data: StateData)
   extends BehaviorStateActor(data) {
   val msg = CloseInputPool((stateOptions.subjectId.get, stateOptions.messageType.get))
   inputPoolActor ! msg

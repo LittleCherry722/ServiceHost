@@ -82,7 +82,7 @@ case class ProcessInstanceData(id: ProcessInstanceID,
                                actions: Array[AvailableAction])
 
 case class AutoArchive(message: Transition) extends ArchiveMessage
-case class AddVariable(variableName:String , message: SubjectToSubjectMessage)
+case class AddVariable(variableName: String , message: SubjectToSubjectMessage)
 case class ReadProcessInstance(userID: UserID,
                                processInstanceID: ProcessInstanceID) extends AnswerAbleControlMessage with ProcessInstanceMessage
 case class ReadProcessInstanceAnswer(request: ReadProcessInstance,
@@ -119,5 +119,5 @@ case class AvailableActionsAnswer(request: GetAvailableActions, availableActions
 //case class ProcessInstanceAnswer(request: GetProcessInstance, graphs: Array[ProcessGraph]) extends AnswerAbleControlMessage;
 
 // new history
-case class GetNewHistory extends AnswerAbleControlMessage
+case class GetNewHistory() extends AnswerAbleControlMessage
 case class NewHistoryAnswer(request: GetNewHistory, history: NewHistory) extends AnswerControlMessage

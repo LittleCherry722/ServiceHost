@@ -85,7 +85,7 @@ object GraphMappings {
     val graphMacro = GraphMacro(m.id, subjectId, graphId, m.name)
     val (nodes, varMans) = extractNodes(m.nodes.values, m.id, subjectId, graphId).unzip[GraphNode, GraphVarMan]
     val edges = extractEdges(m.edges, m.id, subjectId, graphId)
-    (macro, nodes, varMans, edges)
+    (graphMacro, nodes, varMans, edges)
   }.foldLeft((List[GraphMacro](), List[GraphNode](), List[GraphVarMan](), List[GraphEdge]())) { (agg, t) =>
     (agg._1 :+ t._1, agg._2 ++ t._2, agg._3 ++ t._3, agg._4 ++ t._4)
   }

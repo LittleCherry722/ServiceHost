@@ -13,9 +13,14 @@
 
 package de.tkip.sbpm.persistence.schema
 
-import scala.slick.driver.{SQLiteDriver, JdbcProfile}
+import scala.slick.ast.TypedType
+import scala.slick.driver.SQLiteDriver
 import scala.slick.driver.SQLiteDriver.simple.{Table, Tag}
 // import scala.slick.session.Database
+
+object Schema {
+  val driver = SQLiteDriver
+}
 
 /**
  * Base trait for all schema definition traits.
@@ -61,37 +66,37 @@ private[persistence] trait Schema {
     /**
      * Defines am "id" column as auto increment primary key.
      */
-    protected def autoIncIdCol[C](implicit typeMapper: ColumnType[C]) =
+    protected def autoIncIdCol[C](implicit typeMapper: TypedType[C]) =
       column("id", O.PrimaryKey, O.AutoInc)
 
     /**
      * Defines an "id" column as string primary key.
      */
-    protected def stringIdCol(implicit typeMapper: ColumnType[String]) =
+    protected def stringIdCol(implicit typeMapper: TypedType[String]) =
       column("id", DbType.stringIdentifier)
       
       /**
      * Defines an "id" column as uuid string primary key.
      */
-    protected def stringUuidCol(implicit typeMapper: ColumnType[String]) =
+    protected def stringUuidCol(implicit typeMapper: TypedType[String]) =
       column("id", DbType.uuid)
 
     /**
      * Defines a "name" string column.
      */
-    protected def nameCol(implicit typeMapper: ColumnType[String]) =
+    protected def nameCol(implicit typeMapper: TypedType[String]) =
       column("name", DbType.name)
 
     /**
      * Defines a "active" boolean column.
      */
-    protected def activeCol(implicit typeMapper: ColumnType[Boolean]) =
+    protected def activeCol(implicit typeMapper: TypedType[Boolean]) =
       column("active", O.Default(true))
 
     /**
      * Defines a "gdriveId" string column.
      */
-    protected def gdriveIdCol(implicit typeMapper: ColumnType[String]) =
+    protected def gdriveIdCol(implicit typeMapper: TypedType[String]) =
       column("gdrive_id", DbType.eMail)
 
     /**

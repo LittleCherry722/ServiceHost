@@ -62,7 +62,7 @@ import de.tkip.sbpm.application.subject.misc.ActionExecuted
 /**
  * The data, which is necessary to create any state
  */
-protected case class StateData(
+case class StateData(
   subjectData: SubjectData,
   stateModel: State,
   userID: UserID,

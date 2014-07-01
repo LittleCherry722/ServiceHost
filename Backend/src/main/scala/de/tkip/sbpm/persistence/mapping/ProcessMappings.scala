@@ -14,7 +14,6 @@
 package de.tkip.sbpm.persistence.mapping
 
 import de.tkip.sbpm.{ model => domainModel }
-import slick.lifted.MappedTypeMapper
 
 /**
  * Provides conversions from domain model entities

@@ -42,19 +42,19 @@ private[persistence] class GroupRolePersistenceActor extends InstrumentedActor
   def wrappedReceive = {
     // get all group -> role mappings
     case Read.All => answer { implicit session =>
-      Query(GroupsRoles).list.map(toDomainModel)
+      groupsRoles.list.map(toDomainModel)
     }
     // get all group -> role mappings for a role
     case Read.ByRoleId(roleId) => answer { implicit session =>
-      Query(GroupsRoles).where(_.roleId === roleId).list.map(toDomainModel)
+      groupsRoles.filter(_.roleId === roleId).list.map(toDomainModel)
     }
     // get all group -> role mappings for a group
     case Read.ByGroupId(groupId) => answer { implicit session =>
-      Query(GroupsRoles).where(_.groupId === groupId).sortBy(_.roleId).list.map(toDomainModel)
+      groupsRoles.filter(_.groupId === groupId).sortBy(_.roleId).list.map(toDomainModel)
     }
     // get group -> role mapping
     case Read.ById(groupId, roleId) => answer { implicit session =>
-      toDomainModel(Query(GroupsRoles).where(e => e.groupId === groupId && (e.roleId === roleId)).firstOption)
+      toDomainModel(groupsRoles.filter(e => e.groupId === groupId && (e.roleId === roleId)).firstOption)
     }
     // save group -> role mappings
     case Save.Entity(grs @ _*) => answer { implicit session =>
@@ -72,11 +72,11 @@ private[persistence] class GroupRolePersistenceActor extends InstrumentedActor
     }
     // delete all mappings for a role
     case Delete.ByRoleId(roleId) => answer { implicit session =>
-      GroupsRoles.where(_.roleId === roleId).delete
+      groupsRoles.filter(_.roleId === roleId).delete
     }
     // delete all mappings for a group
     case Delete.ByGroupId(groupId) => answer { implicit session =>
-      GroupsRoles.where(_.groupId === groupId).delete
+      groupsRoles.filter(_.groupId === groupId).delete
     }
   }
 
@@ -84,7 +84,7 @@ private[persistence] class GroupRolePersistenceActor extends InstrumentedActor
   // and insert new record with given values
   private def save(gr: GroupRole)(implicit session: Session) = {
     val res = delete(gr.groupId, gr.roleId)
-    GroupsRoles.insert(toPersistenceModel(gr))
+    groupsRoles.insert(toPersistenceModel(gr))
     // return id if entity was newly created
     if (res == 0)
       Some((gr.groupId, gr.roleId))
@@ -94,7 +94,7 @@ private[persistence] class GroupRolePersistenceActor extends InstrumentedActor
 
   // delete existing entry with given group and role id
   private def delete(groupId: Int, roleId: Int)(implicit session: Session) = {
-    GroupsRoles.where(e => e.groupId === groupId && (e.roleId === roleId)).delete
+    groupsRoles.filter(e => e.groupId === groupId && (e.roleId === roleId)).delete
   }
 
 }

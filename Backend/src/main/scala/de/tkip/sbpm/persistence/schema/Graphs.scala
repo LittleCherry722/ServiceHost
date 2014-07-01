@@ -39,7 +39,5 @@ trait GraphsSchema extends ProcessesSchema {
       foreignKey(fkName("processes"), processId, processes)(_.id, NoAction, Cascade)
   }
 
-  object graphs extends TableQuery(new Graphs(_)) {
-    def autoInc = graphs returning graphs.map(_.id)
-  }
+  val graphs = TableQuery[Graphs]
 }

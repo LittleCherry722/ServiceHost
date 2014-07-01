@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of UserIdentities.
@@ -44,5 +44,5 @@ trait UserIdentitiesSchema extends UsersSchema {
       foreignKey(fkName("users"), userId, users)(_.id, NoAction, Cascade)
   }
 
-  val userIdenties = TableQuery[UserIdentities]
+  val userIdentities = TableQuery[UserIdentities]
 }

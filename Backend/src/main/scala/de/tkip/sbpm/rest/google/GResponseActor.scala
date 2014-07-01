@@ -15,7 +15,6 @@ package de.tkip.sbpm.rest
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.parsing.json.JSONObject
 import scala.util.{ Try, Success, Failure }
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor._
@@ -47,7 +46,6 @@ import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.event.Logging
 
 class GResponseActor extends InstrumentedActor with HttpService {
-
   import context.dispatcher
 
   implicit val timeout = Timeout(15 seconds)
@@ -72,7 +70,7 @@ class GResponseActor extends InstrumentedActor with HttpService {
         }
       } ~
         path("create_event") {
-          formFields("id", "summary", "location", "year", "month", "day") {
+          formField("id", "summary", "location", "year", "month", "day") {
             (id, s, l, y, m, d) =>
               ctx =>
                 log.debug(s"received get request for google calendar event from user: $id")

@@ -13,6 +13,9 @@
 
 package de.tkip.sbpm.rest.auth
 
+import de.tkip.sbpm.rest.auth._
+import spray.routing.AuthenticationFailedRejection.CredentialsRejected
+
 import scala.concurrent.ExecutionContext
 import spray.routing.RequestContext
 import spray.http._
@@ -94,9 +97,10 @@ class CookieAuthenticator(implicit val executionContext: ExecutionContext, impli
   def checkAuthorizationHeader(ctx: RequestContext, sessionId: Option[UUID] = None): Future[Authentication[Session]] = {
     val authHeader = ctx.request.headers.findByType[`Authorization`]
     if (authHeader.isDefined) {
+      val challenge = `WWW-Authenticate`(HttpChallenge("Basic", defaultRealm))
       authenticate(authHeader.get.credentials) flatMap {
         // could not authenticate -> reject request with 401
-        case None => Future(Left { AuthenticationFailedRejection(defaultRealm) })
+        case None => Future(Left { AuthenticationFailedRejection(CredentialsRejected, List(challenge)) })
         // auth successful -> save user id to session
         case id => saveSession(sessionId, id)
       }

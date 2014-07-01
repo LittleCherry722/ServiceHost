@@ -42,22 +42,22 @@ private[persistence] class GroupPersistenceActor extends InstrumentedActor
   def wrappedReceive = {
     // get all groups
     case Read.All => answer { implicit session =>
-      Query(Groups).list.map(toDomainModel)
+      groups.list.map(toDomainModel)
     }
     // get group with given id
     case Read.ById(id) => answer { implicit session =>
-      toDomainModel(Query(Groups).where(_.id === id).firstOption)
+      toDomainModel(groups.filter(_.id === id).firstOption)
     }
     // get group with given name
     case Read.ByName(name) => answer { implicit session =>
-      toDomainModel(Query(Groups).where(_.name === name).firstOption)
+      toDomainModel(groups.filter(_.name === name).firstOption)
     }
     // create or update given groups
     case Save.Entity(gs @ _*) => answer { implicit session =>
       // process all groups
       gs.map {
         // insert if id is None
-        case g @ Group(None, _, _) => Some(Groups.autoInc.insert(toPersistenceModel(g)))
+        case g @ Group(None, _, _) => Some((groups returning groups.map(_.id)) += toPersistenceModel(g))
         // otherwise update existing
         case g @ Group(id, _, _)   => update(id, g)
       } match {
@@ -69,13 +69,13 @@ private[persistence] class GroupPersistenceActor extends InstrumentedActor
     }
     // delete group with given id
     case Delete.ById(id) => answer { implicit session =>
-      Groups.where(_.id === id).delete(session)
+      groups.filter(_.id === id).delete(session)
     }
   }
 
   // update entity or throw exception if it does not exist
   private def update(id: Option[Int], g: Group)(implicit session: Session) = {
-    val res = Groups.where(_.id === id).update(toPersistenceModel(g))
+    val res = groups.filter(_.id === id).update(toPersistenceModel(g))
     if (res == 0)
       throw new EntityNotFoundException("Group with id %d does not exist.", id.get)
     None

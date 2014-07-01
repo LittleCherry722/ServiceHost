@@ -42,22 +42,22 @@ private[persistence] class RolePersistenceActor extends InstrumentedActor
   def wrappedReceive = {
     // get all roles ordered by id
     case Read.All => answer { implicit session =>
-      Query(Roles).list.map(toDomainModel)
+      roles.list.map(toDomainModel)
     }
     // get role with given id
     case Read.ById(id) => answer { implicit session =>
-      toDomainModel(Query(Roles).where(_.id === id).firstOption)
+      toDomainModel(roles.filter(_.id === id).firstOption)
     }
     // get role with given name
     case Read.ByName(name) => answer { implicit session =>
-      toDomainModel(Query(Roles).where(_.name === name).firstOption)
+      toDomainModel(roles.filter(_.name === name).firstOption)
     }
     // save roles
     case Save.Entity(rs @ _*) => answer { implicit session =>
       // process all roles
       rs.map {
         // insert if id is None
-        case r @ Role(None, _, _) => Some(Roles.autoInc.insert(toPersistenceModel(r)))
+        case r @ Role(None, _, _) => Some((roles returning roles.map(_.id)) += toPersistenceModel(r))
         // otherwise update existing
         case r @ Role(id, _, _)   => update(id, r)
       } match {
@@ -69,13 +69,13 @@ private[persistence] class RolePersistenceActor extends InstrumentedActor
     }
     // delete role with given id
     case Delete.ById(id) => answer { implicit session =>
-      Roles.where(_.id === id).delete(session)
+      roles.filter(_.id === id).delete(session)
     }
   }
 
   // update entity or throw exception if it does not exist
   private def update(id: Option[Int], r: Role) = answer { implicit session =>
-    val res = Roles.where(_.id === id).update(toPersistenceModel(r))
+    val res = roles.filter(_.id === id).update(toPersistenceModel(r))
     if (res == 0)
       throw new EntityNotFoundException("Role with id %d does not exist.", id.get)
     None

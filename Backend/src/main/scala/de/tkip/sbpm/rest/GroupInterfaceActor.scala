@@ -21,12 +21,10 @@ import akka.event.Logging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.JsonProtocol._
-
 import spray.httpx.SprayJsonSupport._
 import spray.json._
 import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
-import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.{HttpHeader, HttpHeaders}
 import spray.http.StatusCodes._

@@ -18,7 +18,7 @@ import de.tkip.sbpm.application.subject.behavior.{Transition, ExitCond, ErrorCon
 import de.tkip.sbpm.application.subject.misc.{ActionData, SubjectToSubjectMessage}
 
 
-protected case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) {
+case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) {
   private var trueTransition: Transition = null
   private var falseTransition: Transition = null
   private val travel_request_string = extractVariable(variables)

@@ -39,8 +39,8 @@ trait GraphRoutingsSchema extends GroupsSchema with UsersSchema with GraphSubjec
     def implicationGroupId = column[Option[Int]]("implication_group_id")
     def implicationUserId = column[Option[Int]]("implication_user_id")
 
-    def * = (id, graphId, conditionSubjectId, conditionOperator, conditionGroupId,
-      , conditionUserId, implicationSubjectId, implicationOperator, implicationGroupId,
+    def * = (id, graphId, conditionSubjectId, conditionOperator, conditionGroupId
+      , conditionUserId, implicationSubjectId, implicationOperator, implicationGroupId
       , implicationUserId) <> (GraphRouting.tupled, GraphRouting.unapply)
 
     def pk = primaryKey(pkName, (id, graphId))

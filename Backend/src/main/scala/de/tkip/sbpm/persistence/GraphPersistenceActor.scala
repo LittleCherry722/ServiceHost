@@ -104,13 +104,13 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
       // only graph was converted, because it's a new graph (no id exits)
         case Left(model: mapping.Graph) =>
           // insert graph to get it's id
-          val id = graphs.autoInc.insert(model)
+          val id = (graphs returning graphs.map(_.id)) += model
           // then convert model again with known graph id
           convert(g.copy(Some(id))).right.get
         case Right(models) =>
           // id of graph was given -> update existing
           // first check if graph really exists
-          val q = graphs.filter(_.id === models._1.id.get)
+          val q = graphs.filter(_.id === models._1.id)
           if (!q.firstOption.isDefined)
             throw new EntityNotFoundException("Graph with id %d does not exist.", models._1.id.get)
           // update graph
