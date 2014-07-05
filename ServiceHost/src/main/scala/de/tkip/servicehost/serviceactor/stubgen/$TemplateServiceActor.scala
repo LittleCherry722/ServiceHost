@@ -48,15 +48,13 @@ class $TemplateServiceActor extends ServiceActor {
   def processMsg() {
     log.debug("processMsg")
 
-    var targetID = "";
-      
       for (msgType <- messages.keySet) {
         if (messages(msgType) == this.branchCondition) {
           messageType = msgType;
 
         }
       }
-    targetID = state.targets(this.branchCondition).target.subjectID
+    val targetID = state.targets(this.branchCondition).target.subjectID
 
     val key = (messageType, targetID)
     val tuple: Tuple2[ActorRef, SubjectToSubjectMessage] = (inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef, SubjectToSubjectMessage]];
