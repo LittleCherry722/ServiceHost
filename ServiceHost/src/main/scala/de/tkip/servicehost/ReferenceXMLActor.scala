@@ -3,6 +3,7 @@ package de.tkip.servicehost
 import akka.actor.Actor
 import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.serviceactor._
+import de.tkip.sbpm.logging.DefaultLogging
 import java.io.File
 import scala.xml.pull.XMLEventReader
 import scala.xml.pull.EvElemStart
@@ -16,7 +17,7 @@ object ReferenceXMLActor {
 
 }
 
-class ReferenceXMLActor extends Actor {
+class ReferenceXMLActor extends Actor with DefaultLogging {
   import ReferenceXMLActor.Reference
 
   private val xmlFilePath = "./src/main/resources/service_references.xml"
@@ -55,7 +56,7 @@ class ReferenceXMLActor extends Actor {
   def createXMLReference(id: String, classPath: String, jsonPath: String): Reference = {
     val ref = new Reference(id, classPath, jsonPath)
 
-    println("adding " + ref + " to " + xmlFilePath)
+    log.info("adding " + ref + " to " + xmlFilePath)
 
     val references = getAllReferences :+ ref
 
