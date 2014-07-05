@@ -79,7 +79,6 @@ class $TemplateServiceActor extends ServiceActor {
       state match {
         case rs: ReceiveState =>
           processMsg()
-          rs.handle(message)
         case _ =>
           log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
@@ -112,7 +111,9 @@ class $TemplateServiceActor extends ServiceActor {
           } else log.warning("no branchcodition defined")
 
         } else state = getState(state.targetIds.head._2)
-         state.process
+
+        // TODO: state könnte null sein, oder auch der alte..
+        state.process
       }
     }
     log.debug("changeState: new state: " + state)
