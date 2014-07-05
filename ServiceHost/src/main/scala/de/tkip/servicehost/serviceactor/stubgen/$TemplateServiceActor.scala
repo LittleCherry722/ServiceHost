@@ -48,6 +48,7 @@ class $TemplateServiceActor extends ServiceActor {
   private var target = -1
 
   def processMsg() {
+    log.debug("processMsg")
 
     var targetID = "";
       
@@ -63,6 +64,9 @@ class $TemplateServiceActor extends ServiceActor {
     val tuple: Tuple2[ActorRef, SubjectToSubjectMessage] = (inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef, SubjectToSubjectMessage]];
     val message = tuple._2
     tosender = tuple._1
+
+    log.debug("processMsg: message = " + message)
+
     state match {
       case rs: ReceiveState =>
         rs.handle(message)
@@ -102,9 +106,10 @@ class $TemplateServiceActor extends ServiceActor {
   }
 
   def changeState {
+    log.debug("changeState: old state: " + state)
     state match {
       case s: ExitState => {
-
+        log.warning("already in ExitState, can not change state")
       }
       case _ => {
         if (state.targetIds.size > 1) {
@@ -117,6 +122,7 @@ class $TemplateServiceActor extends ServiceActor {
          state.process
       }
     }
+    log.debug("changeState: new state: " + state)
   }
 
   def getState(id: Int): State = {
@@ -124,6 +130,7 @@ class $TemplateServiceActor extends ServiceActor {
   }
 
   def storeMsg(message: Any, tosender: ActorRef): Unit = {
+    log.debug("storeMsg: " + message + " from " + tosender)
     message match {
       case message: SubjectToSubjectMessage => {
         val targetID = state.targets(messages(message.messageType))
@@ -131,13 +138,16 @@ class $TemplateServiceActor extends ServiceActor {
         if (inputPool.contains(key)) {
           if (inputPool(key).size < MAX_SIZE) {
             (inputPool(key)).enqueue(Tuple2(tosender, message))
+            log.debug("storeMsg: Stored")
             tosender ! Stored(message.messageID)
           } else {
+            log.debug("storeMsg: Rejected")
             tosender ! Rejected(message.messageID)
           }
 
         } else {
           inputPool(key) = Queue(Tuple2(tosender, message))
+          log.debug("storeMsg: Stored")
           tosender ! Stored(message.messageID)
         }
         if (state.targetIds.size > 1) 
@@ -145,7 +155,7 @@ class $TemplateServiceActor extends ServiceActor {
         else 
           this.branchCondition = state.targetIds.head._1
       }
-      case _ =>
+      case message => log.warning("unable to store message: " + message)
     }
   }
 
