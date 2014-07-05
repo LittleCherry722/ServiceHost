@@ -34,9 +34,7 @@ class $TemplateServiceActor extends ServiceActor {
       
   // start with first state
   private var state: State = getState(0)
-  private var inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef, Any]]] = scala.collection.mutable.Map()
-  private var tosender: ActorRef = null
-
+  private val inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef, Any]]] = scala.collection.mutable.Map()
 
   // Subject default values
   private var userID = -1
@@ -63,7 +61,6 @@ class $TemplateServiceActor extends ServiceActor {
     val key = (messageType, targetID)
     val tuple: Tuple2[ActorRef, SubjectToSubjectMessage] = (inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef, SubjectToSubjectMessage]];
     val message = tuple._2
-    tosender = tuple._1
 
     log.debug("processMsg: message = " + message)
 
@@ -80,7 +77,6 @@ class $TemplateServiceActor extends ServiceActor {
       // TODO forward /set variables?
       log.debug("receive message: " + message)
       storeMsg(message, sender)
-      tosender = sender
 
       state match {
         case rs: ReceiveState =>
@@ -91,7 +87,6 @@ class $TemplateServiceActor extends ServiceActor {
       }
     }
     case message: ExecuteServiceMessage => {
-      tosender = sender
     }
     case GetProxyActor => {
       sender ! self
@@ -129,8 +124,8 @@ class $TemplateServiceActor extends ServiceActor {
     states.find(x => x.id == id).getOrElse(null)
   }
 
-  def storeMsg(message: Any, tosender: ActorRef): Unit = {
-    log.debug("storeMsg: " + message + " from " + tosender)
+  def storeMsg(message: Any, sender: ActorRef): Unit = {
+    log.debug("storeMsg: " + message + " from " + sender)
     message match {
       case message: SubjectToSubjectMessage => {
         val targetID = state.targets(messages(message.messageType))
@@ -138,17 +133,17 @@ class $TemplateServiceActor extends ServiceActor {
 
         if (inputPool.contains(key)) {
           if (inputPool(key).size < INPUT_POOL_SIZE) {
-            (inputPool(key)).enqueue(Tuple2(tosender, message))
+            (inputPool(key)).enqueue(Tuple2(sender, message))
             log.debug("storeMsg: Stored")
-            tosender ! Stored(message.messageID)
+            sender ! Stored(message.messageID)
           } else {
             log.debug("storeMsg: Rejected")
-            tosender ! Rejected(message.messageID)
+            sender ! Rejected(message.messageID)
           }
         } else {
-          inputPool(key) = Queue(Tuple2(tosender, message))
+          inputPool(key) = Queue(Tuple2(sender, message))
           log.debug("storeMsg: Stored")
-          tosender ! Stored(message.messageID)
+          sender ! Stored(message.messageID)
         }
 
         if (state.targetIds.size > 1) 
