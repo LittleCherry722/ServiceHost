@@ -14,8 +14,9 @@ import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
 import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
+import de.tkip.sbpm.logging.DefaultLogging
 
-class ServiceActorManager extends Actor{
+class ServiceActorManager extends Actor with DefaultLogging {
   
   private val referenceXMLActor = ActorLocator.referenceXMLActor
   private implicit val timeout = Timeout(5 seconds)
@@ -37,7 +38,7 @@ class ServiceActorManager extends Actor{
       serviceActor((message.target.subjectID,0)) forward message
     }
     case request: CreateProcessInstance => {
-      println(request.subjectMapping)
+      log.debug(request.subjectMapping.toString)
 //      val actorInstance = serviceActor("Staples") //forward request
       
       val future: Future[Any] = ask(referenceXMLActor, GetClassReferenceMessage("Staples"))
@@ -75,7 +76,7 @@ class ServiceActorManager extends Actor{
       processInstanceCount += 1
     }
     case GetProxyActor => {
-      println("received GetProxyActor")
+      log.info("received GetProxyActor")
       // TODO implement
       // fake ProcessInstanceProxyActor:
       serviceActor(("Staples",0)) forward GetProxyActor

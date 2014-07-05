@@ -1,6 +1,7 @@
 package de.tkip.servicehost.serviceactor.stubgen
 import scala.util.parsing.json.JSON
 import de.tkip.sbpm.rest.GraphJsonProtocol._
+import de.tkip.sbpm.logging.DefaultLogging
 import scala.collection.immutable.Map
 import spray.json._
 import java.io.File
@@ -22,7 +23,7 @@ import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 //import scala.concurrent.ExecutionContext;
 
-class StubGeneratorActor extends Actor {
+class StubGeneratorActor extends Actor with DefaultLogging {
   implicit val timeout = Timeout(15 seconds)
 
   abstract class State {
@@ -39,7 +40,7 @@ class StubGeneratorActor extends Actor {
 
   def receive = {
     case path: String => {
-      println("StubGeneratorActor received path " + path)
+      log.info("received path " + path)
       val (name, id, states, messages) = extractStates(path)
       val future = fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states, messages, path)
       future pipeTo sender // pipe pattern: wait for completion and send the result

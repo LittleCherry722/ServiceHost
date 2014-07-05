@@ -33,12 +33,14 @@ import ExecutionContext.Implicits.global
 import scala.util.{Success, Failure}
 
 object main extends App {
+  val system = ActorSystem("sbpm")
+  val log = system.log
+
+  log.info("main starting..")
+
   implicit val timeout = Timeout(15 seconds)
 
-  println("main started")
   val repoUrl = "http://localhost:8181/repo"
-
-  val system = ActorSystem("sbpm")
 
   val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
   var serviceHost: ActorRef = null
@@ -52,11 +54,13 @@ object main extends App {
     future onComplete {
       case Success(res) => {
           val ref = res.asInstanceOf[Reference]
-          println("generation completed, json file copied to: " + ref.json)
+          log.info("generation completed, json file copied to: " + ref.json)
+          log.info("shutting down akka system..")
           system.shutdown
         }
       case Failure(e) => {
           e.printStackTrace()
+          log.info("shutting down akka system..")
           system.shutdown
         }
     }
@@ -64,7 +68,7 @@ object main extends App {
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
     system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
     serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
-    println(serviceHost.path)
+    log.info("serviceHost path: " + serviceHost.path)
     registerInterface()
   }
 
@@ -78,14 +82,14 @@ object main extends App {
    * msg from Extern -> Lokal: output
    */
   def registerInterface(): Unit = {
-    println("registerInterface")
+    log.debug("registerInterface")
 
-    println("ask ReferenceXMLActor for all registered services")
+    log.debug("ask ReferenceXMLActor for all registered services")
     val referencesFuture: Future[Any] = referenceXMLActor ? GetAllClassReferencesMessage
     val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
 
     for {reference <- references} {
-      println("reference: " + reference)
+      log.debug("reference: " + reference)
     }
 
     //    val source = scala.io.Source.fromFile("./src/main/resources/interface.json")
@@ -100,10 +104,11 @@ object main extends App {
       .responseCode
 
     if (200 == result) {
-      println("Registered interface at local repository")
+      log.info("Registered interface at local repository")
     } else {
-      println("Some error occurred; " + result)
+      log.error("Some error occurred; " + result)
     }
   }
-}
 
+  log.info("main started")
+}

@@ -7,9 +7,10 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
+import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.servicehost.serviceactor.stubgen.State
 
-abstract class ServiceActor extends Actor {
+abstract class ServiceActor extends Actor with DefaultLogging {
   
   var branchCondition: String = null
   var returnMessageContent: String = ""

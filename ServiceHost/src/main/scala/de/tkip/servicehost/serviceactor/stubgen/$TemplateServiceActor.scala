@@ -67,14 +67,14 @@ class $TemplateServiceActor extends ServiceActor {
       case rs: ReceiveState =>
         rs.handle(message)
       case _ =>
-        println(state + " no match")
+        log.warning("unable to handle message, need to be in ReceiveState. Current state is: " + state)
     }
   }
 
   def receive: Actor.Receive = {
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
-      println(message)
+      log.debug("receive message: " + message)
       storeMsg(message, sender)
       tosender = sender
 
@@ -83,7 +83,7 @@ class $TemplateServiceActor extends ServiceActor {
           processMsg()
           rs.handle(message)
         case _ =>
-          println(state + " no match")
+          log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
     }
     case message: ExecuteServiceMessage => {
@@ -111,7 +111,7 @@ class $TemplateServiceActor extends ServiceActor {
           if (this.branchCondition != null) {
             state = getState(state.targetIds(this.branchCondition))
 
-          } else println("no branchcodition defined")
+          } else log.warning("no branchcodition defined")
 
         } else state = getState(state.targetIds.head._2)
          state.process
