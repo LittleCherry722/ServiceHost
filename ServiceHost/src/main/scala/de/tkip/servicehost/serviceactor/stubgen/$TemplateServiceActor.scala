@@ -42,11 +42,11 @@ class $TemplateServiceActor extends ServiceActor {
   private var thisID = -1;
   private var manager: Option[ActorRef] = null
   private var subjectID: String = ""
-  private var messageType: String = ""
   private var target = -1
 
   def processMsg() {
     log.debug("processMsg")
+    var messageType: String = ""
 
       for (msgType <- messages.keySet) {
         if (messages(msgType) == this.branchCondition) {
