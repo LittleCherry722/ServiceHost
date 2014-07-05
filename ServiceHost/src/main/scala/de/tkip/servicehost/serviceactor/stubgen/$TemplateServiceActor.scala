@@ -19,9 +19,10 @@ import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc.Rejected
 
 class $TemplateServiceActor extends ServiceActor {
-  private val MAX_SIZE: Int = 20
+  private val INPUT_POOL_SIZE: Int = 20
   
   private implicit val service = this
+  private val serviceID: String = "Staples"
   
   private val states: List[State] = List(
       //$EMPTYSTATE$//
@@ -31,12 +32,11 @@ class $TemplateServiceActor extends ServiceActor {
       //$EMPTYMESSAGE$//
       )
       
-   // start with first state
+  // start with first state
   private var state: State = getState(0)
   private var inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef, Any]]] = scala.collection.mutable.Map()
   private var tosender: ActorRef = null
 
-  private val serviceID: String = "Staples"
 
   // Subject default values
   private var userID = -1
@@ -135,8 +135,9 @@ class $TemplateServiceActor extends ServiceActor {
       case message: SubjectToSubjectMessage => {
         val targetID = state.targets(messages(message.messageType))
         val key = (message.messageType.toString(), targetID.target.subjectID)
+
         if (inputPool.contains(key)) {
-          if (inputPool(key).size < MAX_SIZE) {
+          if (inputPool(key).size < INPUT_POOL_SIZE) {
             (inputPool(key)).enqueue(Tuple2(tosender, message))
             log.debug("storeMsg: Stored")
             tosender ! Stored(message.messageID)
@@ -144,12 +145,12 @@ class $TemplateServiceActor extends ServiceActor {
             log.debug("storeMsg: Rejected")
             tosender ! Rejected(message.messageID)
           }
-
         } else {
           inputPool(key) = Queue(Tuple2(tosender, message))
           log.debug("storeMsg: Stored")
           tosender ! Stored(message.messageID)
         }
+
         if (state.targetIds.size > 1) 
           this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
         else 
