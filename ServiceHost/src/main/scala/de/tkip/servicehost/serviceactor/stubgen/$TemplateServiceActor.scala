@@ -46,17 +46,13 @@ class $TemplateServiceActor extends ServiceActor {
 
   def processMsg() {
     log.debug("processMsg")
-    var messageType: String = ""
 
-      for (msgType <- messages.keySet) {
-        if (messages(msgType) == this.branchCondition) {
-          messageType = msgType;
+    val messageType = this.branchCondition
 
-        }
-      }
     val targetID = state.targets(this.branchCondition).target.subjectID
 
     val key = (messageType, targetID)
+    // TODO: prüfen, ob es eine passende message im pool gibt?
     val tuple: Tuple2[ActorRef, SubjectToSubjectMessage] = (inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef, SubjectToSubjectMessage]];
     val message = tuple._2
 
@@ -127,7 +123,7 @@ class $TemplateServiceActor extends ServiceActor {
     log.debug("storeMsg: " + message + " from " + sender)
     message match {
       case message: SubjectToSubjectMessage => {
-        val targetID = state.targets(messages(message.messageType))
+        val targetID = state.targets(message.messageType)
         val key = (message.messageType.toString(), targetID.target.subjectID)
 
         if (inputPool.contains(key)) {
