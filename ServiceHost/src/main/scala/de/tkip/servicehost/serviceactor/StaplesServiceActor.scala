@@ -35,7 +35,7 @@ class StaplesServiceActor extends ServiceActor {
     for {orderMessage <- orderMessageBuffer} {
       val msgToExternal = false // false: it should not leave sbpm
       val target = Target("Großunternehmen", 0, 1, false, None, msgToExternal, true)
-      val messageType = "Lieferdatum"
+      val messageType = "m2"
       val remoteUserId = 1 // TODO: context resolver einbinden, um UserID zu bestimmen. resolven sollte jedoch in sbpm, nicht beim service host passieren
       target.insertTargetUsers(Array(remoteUserId))
       val to_actor = manager.get

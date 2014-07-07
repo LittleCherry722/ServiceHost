@@ -85,7 +85,7 @@ case class SendState(override val id: Int, override val exitType: String, overri
         subjectID,
         target,
 //        messageType,
-        "Lieferdatum",
+        "m2",
         msg,
         fileInfo)
     
