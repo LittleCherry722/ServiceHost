@@ -78,16 +78,16 @@ class ProcessManagerActor extends InstrumentedActor {
 
     case pc: ProcessInstanceCreated => {
       if (pc.sender != null) {
+        // sender == remote ProcessInstanceProxyManagerActor
         pc.sender !! pc
       } else {
         log.error("Processinstance created: " + pc.processInstanceID + " but sender is unknown")
       }
-      processInstanceMap +=
-        pc.processInstanceID -> ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
-      history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
       val p = ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
-      println("new processInstance has been added: " + p)
-
+      processInstanceMap +=
+        pc.processInstanceID -> p
+      history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
+      log.info("new processInstance has been added: " + p)
       changeActor ! ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date())
     }
 

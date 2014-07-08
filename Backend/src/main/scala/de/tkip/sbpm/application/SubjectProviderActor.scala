@@ -129,7 +129,7 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
     subjectID: SubjectID,
     generateAnswer: Array[AvailableAction] => Any)(returnAdress: ActorRef = self) {
 
-    val collectSubjects: Iterable[SubjectRef] =
+    val collectedSubjects: Iterable[SubjectRef] =
       subjects.filter(
         (s: Subject) =>
           !s.ref.isTerminated &&
@@ -142,29 +142,33 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
                 processInstanceID == s.processInstanceID &&
                   subjectID == s.subjectID))).map(_.ref)
 
-    implicit val timeout = akka.util.Timeout(3 seconds) // TODO how long the timeout?
+    logger.debug("subjects: " + collectedSubjects)
+
+    implicit val timeout = akka.util.Timeout(5 seconds) // TODO how long the timeout?
 
     val actionFutureSeq: Seq[Future[Seq[Seq[AvailableAction]]]] =
-      for (subject <- collectSubjects.filterNot(_.isTerminated).toArray)
+      for (subject <- collectedSubjects.filterNot(_.isTerminated).toArray)
         yield (subject ? GetAvailableAction(processInstanceID)).mapTo[Seq[Seq[AvailableAction]]]
     val nestedActionFutures = Future.sequence(actionFutureSeq)
     // flatten the actions
-    val actionFutures =
-      for (outer <- nestedActionFutures)
-        yield for (middle <- outer; inner <- middle; action <- inner) yield action
+    val actionFutures = for (outer <- nestedActionFutures)
+        yield for {
+          middle <- outer
+          inner <- middle
+          action <- inner
+        } yield action
 
     // Await the result
     // TODO can be done smarter, but at the moment this actor has a single run
-    val actions =
-      Await.result(actionFutures, timeout.duration)
+    val actions =  Await.result(actionFutures, timeout.duration)
     logger.debug("Collected: " + actions)
 
-    val message= generateAnswer(actions.toArray)
+    val message = generateAnswer(actions.toArray)
 
     // collect actions and generate answer for the filtered subject list
 
     val msg = CollectAvailableActions(message)
     
-    context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(msg)(returnAdress)
+    context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString).!(msg)(returnAdress)
   }
 }

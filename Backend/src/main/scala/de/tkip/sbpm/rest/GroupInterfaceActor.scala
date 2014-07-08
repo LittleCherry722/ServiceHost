@@ -21,12 +21,10 @@ import akka.event.Logging
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.JsonProtocol._
-
 import spray.httpx.SprayJsonSupport._
 import spray.json._
 import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
-import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.{HttpHeader, HttpHeaders}
 import spray.http.StatusCodes._
@@ -56,7 +54,7 @@ class GroupInterfaceActor extends InstrumentedActor with PersistenceInterface {
        * e.g. GET http://localhost:8080/group
        * result: JSON array of entities
        */
-      path("") {
+      pathEnd {
         completeWithQuery[Seq[Group]](Groups.Read())
       } ~
         /**
@@ -84,7 +82,7 @@ class GroupInterfaceActor extends InstrumentedActor with PersistenceInterface {
            * e.g. GET http://localhost:8080/group/2
            * result: 404 Not Found or entity as JSON
            */
-          path("") {
+          pathEnd {
             completeWithQuery[Group](Groups.Read.ById(id),
               "Group with id %d not found.", id)
           } ~
@@ -118,7 +116,7 @@ class GroupInterfaceActor extends InstrumentedActor with PersistenceInterface {
          * result: 204 No Content
          */
         pathPrefix(IntNumber) { id =>
-          path("") {
+          pathEnd {
             completeWithDelete(Groups.Delete.ById(id),
               "Group could not be deleted. Entity with id %d not found.",
               id)
@@ -157,7 +155,7 @@ class GroupInterfaceActor extends InstrumentedActor with PersistenceInterface {
          * 			Location: /group/8
          * 			{ "id": 8, "name": "abc", "isActive": true }
          */
-        path("") {
+        pathEnd {
           entity(as[Group]) { group =>
             save(group)
           }
@@ -195,7 +193,7 @@ class GroupInterfaceActor extends InstrumentedActor with PersistenceInterface {
              * result: 	200 OK
              * 			{ "id": 2, "name": "abc", "isActive": true }
              */
-            path("") {
+            pathEnd {
               entity(as[Group]) { group =>
                 save(group, Some(id))
               }
@@ -209,14 +207,15 @@ class GroupInterfaceActor extends InstrumentedActor with PersistenceInterface {
    * id = None -> new entity
    * completes with either 201 or 200
    */
-  def save(entity: Group, id: Option[Int] = None) = {
+  def save(group: Group, id: Option[Int] = None) = {
     // set param from url to entity id
     // or delete id to create new entity
-    val e = entity.copy(id)
-    completeWithSave(Groups.Save(e),
-      e,
+    val g = group.copy(id)
+    completeWithSave(Groups.Save(g),
+      g,
       pathForEntity(Entity.GROUP, "%d"),
-      (e: Group, i: Int) => { e.copy(Some(i)) })
+      (g: Group, i: Int) => { g.copy(Some(i)) },
+      (i: Int) => Array(i))
   }
 
   /**
@@ -224,7 +223,7 @@ class GroupInterfaceActor extends InstrumentedActor with PersistenceInterface {
    * completes with either 201 or 200
    */
   def saveUser(groupUser: GroupUser) =
-    completeWithSave[GroupUser, (Int, Int)](
+    completeWithSave[GroupUser, (Int, Int), Int](
       GroupsUsers.Save(groupUser),
       groupUser,
       pathForEntity(Entity.GROUP, "%d") + pathForEntity(Entity.USER, "%d"),
@@ -236,7 +235,7 @@ class GroupInterfaceActor extends InstrumentedActor with PersistenceInterface {
    * completes with either 201 or 200
    */
   def saveRole(groupRole: GroupRole) =
-    completeWithSave[GroupRole, (Int, Int)](
+    completeWithSave[GroupRole, (Int, Int), Int](
       GroupsRoles.Save(groupRole),
       groupRole,
       pathForEntity(Entity.GROUP, "%d") + pathForEntity(Entity.ROLE, "%d"),

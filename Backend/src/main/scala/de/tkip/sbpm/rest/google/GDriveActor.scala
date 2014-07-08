@@ -14,13 +14,8 @@ package de.tkip.sbpm.rest.google
 
 import scala.concurrent.Future
 
-import akka.actor.{ ActorSystem, Props}
 import de.tkip.sbpm.instrumentation.InstrumentedActor
-import akka.pattern._
-import akka.actor.Status.Failure
 import akka.pattern.pipe
-
-import de.tkip.sbpm.rest.google.{GDriveControl, GAuthCtrl}
 
 object GDriveActor {
   case class FindFiles(userId: String, query: String, fields: String)

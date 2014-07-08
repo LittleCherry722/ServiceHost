@@ -22,7 +22,6 @@ import spray.httpx.SprayJsonSupport._
 import spray.json._
 import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
-import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.ContentTypeResolver._
 import spray.http.StatusCodes._
 
@@ -50,7 +49,7 @@ class ConfigurationInterfaceActor extends InstrumentedActor with PersistenceInte
        * e.g. GET http://localhost:8080/configuration
        * result: JSON array of entities
        */
-      path("") {
+      pathEnd {
         completeWithQuery[Seq[Configuration]](Read.All)
       } ~
         /**
@@ -59,7 +58,7 @@ class ConfigurationInterfaceActor extends InstrumentedActor with PersistenceInte
          * e.g. GET http://localhost:8080/configuration/sbpm.debug
          * result: 404 Not Found or JSON of entity
          */
-        path(PathElement) { key =>
+        path(Segment) { key =>
           completeWithQuery[Configuration](Read.ByKey(key), "Configuration with key '%s' not found.", key)
         }
     } ~
@@ -70,7 +69,7 @@ class ConfigurationInterfaceActor extends InstrumentedActor with PersistenceInte
          * e.g. DELETE http://localhost:8080/configuration/sbpm.debug
          * result: 202 Accepted -> content deleted asynchronously
          */
-        path(PathElement) { key =>
+        path(Segment) { key =>
         	completeWithDelete(Delete.ByKey(key), "Configuration could not be deleted. Entity with key '%s' not found.", key)
         }
       } ~
@@ -82,9 +81,12 @@ class ConfigurationInterfaceActor extends InstrumentedActor with PersistenceInte
          * payload:	{ "key": "sbpm.debug", "label": "Enable debug mode.", "value": "true", "dataType": "Boolean" }
          * result: 202 Accepted -> content saved asynchronously
          */
-        path("") {
+        pathEnd {
           entity(as[Configuration]) { configuration =>
-            completeWithSave[Configuration, String](Save(configuration), configuration, pathForEntity(Entity.CONFIGURATION, "%s"))
+            completeWithSave[Configuration, String, String](Save(configuration),
+              configuration,
+              pathForEntity(Entity.CONFIGURATION, "%s"),
+              idFormatArgs = (s: String) => Array(s))
           }
         }
       }

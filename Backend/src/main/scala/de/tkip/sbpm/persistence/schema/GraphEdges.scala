@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of GraphEdges.
@@ -27,7 +27,7 @@ trait GraphEdgesSchema extends GraphNodesSchema {
 
   // represents schema if the "graph_edges" table in the database
   // using slick's lifted embedding API
-  object GraphEdges extends SchemaTable[GraphEdge]("graph_edges") {
+  class GraphEdges(tag: Tag) extends SchemaTable[GraphEdge](tag, "graph_edges") {
     def startNodeId = column[Short]("id", DbType.smallint)
     def endNodeId = column[Short]("end_node_id", DbType.smallint)
     def macroId = column[String]("macro_id", DbType.stringIdentifier)
@@ -51,15 +51,20 @@ trait GraphEdgesSchema extends GraphNodesSchema {
     def comment = column[Option[String]]("comment", DbType.comment)
     def transportMethod = column[String]("transport_method", DbType.stringIdentifier, O.Default("internal"))
 
-    def * = startNodeId ~ endNodeId ~ macroId ~ subjectId ~ graphId ~ text ~ edgeType ~ manualPositionOffsetLabelX ~ manualPositionOffsetLabelY ~ targetSubjectId ~ targetMin ~ targetMax ~ targetCreateNew ~ targetVariableId ~ isDisabled ~ isOptional ~ priority ~ manualTimeout ~ variableId ~ correlationId ~ comment ~ transportMethod <> (GraphEdge, GraphEdge.unapply _)
+    def * = (startNodeId, endNodeId, macroId, subjectId, graphId, text
+      , edgeType, manualPositionOffsetLabelX, manualPositionOffsetLabelY
+      , targetSubjectId, targetMin, targetMax, targetCreateNew, targetVariableId
+      , isDisabled, isOptional, priority, manualTimeout, variableId
+      , correlationId, comment, transportMethod) <> (GraphEdge.tupled, GraphEdge.unapply)
 
     def pk = primaryKey(pkName, (startNodeId, endNodeId, macroId, subjectId, graphId))
 
-    def startNode = foreignKey(fkName("graph_nodes_start"), (startNodeId, macroId, subjectId, graphId), GraphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId), NoAction, Cascade)
-    def endNode = foreignKey(fkName("graph_nodes_end"), (startNodeId, macroId, subjectId, graphId), GraphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId), NoAction, Cascade)
-    def targetSubject = foreignKey(fkName("graph_subjects_target"), (targetSubjectId, graphId), GraphSubjects)(s => (s.id, s.graphId))
-    def variable = foreignKey(fkName("graph_variables"), (variableId, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
-    def targetVariable = foreignKey(fkName("graph_variables_target"), (targetVariableId, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
+    def startNode = foreignKey(fkName("graph_nodes_start"), (startNodeId, macroId, subjectId, graphId), graphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId), NoAction, Cascade)
+    def endNode = foreignKey(fkName("graph_nodes_end"), (startNodeId, macroId, subjectId, graphId), graphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId), NoAction, Cascade)
+    def targetSubject = foreignKey(fkName("graph_subjects_target"), (targetSubjectId, graphId), graphSubjects)(s => (s.id, s.graphId))
+    def variable = foreignKey(fkName("graph_variables"), (variableId, subjectId, graphId), graphVariables)(v => (v.id, v.subjectId, v.graphId))
+    def targetVariable = foreignKey(fkName("graph_variables_target"), (targetVariableId, subjectId, graphId), graphVariables)(v => (v.id, v.subjectId, v.graphId))
   }
 
+  val graphEdges = TableQuery[GraphEdges]
 }

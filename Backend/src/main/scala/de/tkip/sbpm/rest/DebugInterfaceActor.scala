@@ -24,7 +24,6 @@ import spray.httpx.SprayJsonSupport._
 import spray.json._
 import spray.routing.Directive.pimpApply
 import spray.routing.HttpService
-import spray.routing.directives.CompletionMagnet._
 import spray.routing.directives.FieldDefMagnet.apply
 import spray.http.StatusCodes._
 import spray.http.{ StatusCodes, StatusCode, HttpHeader, HttpHeaders }

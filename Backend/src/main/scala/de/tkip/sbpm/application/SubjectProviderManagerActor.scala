@@ -53,7 +53,6 @@ class SubjectProviderManagerActor extends InstrumentedActor {
     // TODO werden noch zu forwards aber zum routing testen erstmal tells
     case message: SubjectProviderMessage => {
       if (subjectProviderMap.contains(message.userID)) {
-
         subjectProviderMap(message.userID) ! withSender(message)
       } else {
         // TODO dynamisch erstellen?

@@ -39,19 +39,19 @@ private[persistence] class GroupUserPersistenceActor extends InstrumentedActor
   def wrappedReceive = {
     // get all group -> user mappings
     case Read.All => answer { implicit session =>
-      Query(GroupsUsers).list.map(toDomainModel)
+      groupsUsers.list.map(toDomainModel)
     }
     // get all group -> user mappings for a user
     case Read.ByUserId(userId) => answer { implicit session =>
-      Query(GroupsUsers).where(_.userId === userId).list.map(toDomainModel)
+      groupsUsers.filter(_.userId === userId).list.map(toDomainModel)
     }
     // get all group -> user mappings for a group
     case Read.ByGroupId(groupId) => answer { implicit session =>
-      Query(GroupsUsers).where(_.groupId === groupId).list.map(toDomainModel)
+      groupsUsers.filter(_.groupId === groupId).list.map(toDomainModel)
     }
     // get group -> user mapping
     case Read.ById(groupId, userId) => answer { implicit session =>
-      toDomainModel(Query(GroupsUsers).where(e => e.groupId === groupId && (e.userId === userId)).firstOption)
+      toDomainModel(groupsUsers.filter(e => e.groupId === groupId && (e.userId === userId)).firstOption)
     }
     // save group -> user mappings
     case Save.Entity(gus @ _*) => answer { implicit session =>
@@ -69,11 +69,11 @@ private[persistence] class GroupUserPersistenceActor extends InstrumentedActor
     }
     // delete all mappings for a user
     case Delete.ByUserId(userId) => answer { implicit session =>
-      GroupsUsers.where(_.userId === userId).delete
+      groupsUsers.filter(_.userId === userId).delete
     }
     // delete all mappings for a group
     case Delete.ByGroupId(groupId) => answer { implicit session =>
-      GroupsUsers.where(_.groupId === groupId).delete
+      groupsUsers.filter(_.groupId === groupId).delete
     }
   }
 
@@ -81,7 +81,7 @@ private[persistence] class GroupUserPersistenceActor extends InstrumentedActor
   // and insert new record with given values
   private def save(gu: GroupUser)(implicit session: Session) = {
     val res = delete(gu.groupId, gu.userId)
-    GroupsUsers.insert(toPersistenceModel(gu))
+    groupsUsers.insert(toPersistenceModel(gu))
     // return id if it was an insert
     if (res == 0)
       Some((gu.groupId, gu.userId))
@@ -91,7 +91,7 @@ private[persistence] class GroupUserPersistenceActor extends InstrumentedActor
 
   // delete existing entry with given group an user id
   private def delete(groupId: Int, userId: Int)(implicit session: Session) = {
-    GroupsUsers.where(e => e.groupId === groupId && (e.userId === userId)).delete
+    groupsUsers.filter(e => e.groupId === groupId && (e.userId === userId)).delete
   }
 
 }

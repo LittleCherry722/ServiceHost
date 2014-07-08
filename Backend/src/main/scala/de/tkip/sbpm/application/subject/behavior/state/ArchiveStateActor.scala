@@ -34,7 +34,7 @@ import java.util.Date
 import de.tkip.sbpm.model.Subject
 import de.tkip.sbpm.model.Subject
 
-protected case class ArchiveStateActor(data: StateData)
+case class ArchiveStateActor(data: StateData)
   extends BehaviorStateActor(data) {
   private final val archivePath = "./log/"
     

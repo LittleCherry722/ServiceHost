@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of GraphNodes.
@@ -28,7 +28,7 @@ trait GraphNodesSchema extends GraphMacrosSchema
 
   // represents schema if the "graph_nodes" table in the database
   // using slick's lifted embedding API
-  object GraphNodes extends SchemaTable[GraphNode]("graph_nodes") {
+  class GraphNodes(tag: Tag) extends SchemaTable[GraphNode](tag, "graph_nodes") {
     def id = column[Short]("id", DbType.smallint)
     def macroId = column[String]("macro_id", DbType.stringIdentifier)
     def subjectId = column[String]("subject_id", DbType.stringIdentifier)
@@ -51,30 +51,33 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def optionNodeId = column[Option[Short]]("option_node_id", DbType.smallint)
     def executeMacroId = column[Option[String]]("execute_macro_id", DbType.stringIdentifier)
 
-    def * = id ~ macroId ~ subjectId ~ graphId ~ text ~ isStart ~ isEnd ~ nodeType ~ manualPositionOffsetX ~ manualPositionOffsetY ~ isAutoExecute ~
-      isDisabled ~ isMajorStartNode ~ conversationId ~ variableId ~ optionMessageId ~ optionSubjectId ~
-      optionCorrelationId ~ optionConversationId ~ optionNodeId ~ executeMacroId <> (GraphNode, GraphNode.unapply _)
+    def * = (id, macroId, subjectId, graphId, text, isStart, isEnd, nodeType
+      , manualPositionOffsetX, manualPositionOffsetY, isAutoExecute
+      , isDisabled, isMajorStartNode, conversationId, variableId, optionMessageId
+      , optionSubjectId, optionCorrelationId, optionConversationId, optionNodeId
+      , executeMacroId) <> (GraphNode.tupled, GraphNode.unapply)
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
 
     def nodeMacro =
-      foreignKey(fkName("graph_macros"), (macroId, subjectId, graphId), GraphMacros)(m => (m.id, m.subjectId, m.graphId), NoAction, Cascade)
+      foreignKey(fkName("graph_macros"), (macroId, subjectId, graphId), graphMacros)(m => (m.id, m.subjectId, m.graphId), NoAction, Cascade)
     def conversation =
-      foreignKey(fkName("graph_conversations"), (conversationId, graphId), GraphConversations)(c => (c.id, c.graphId))
+      foreignKey(fkName("graph_conversations"), (conversationId, graphId), graphConversations)(c => (c.id, c.graphId))
     def variable =
-      foreignKey(fkName("graph_variables"), (variableId, subjectId, graphId), GraphVariables)(v => (v.id, v.subjectId, v.graphId))
+      foreignKey(fkName("graph_variables"), (variableId, subjectId, graphId), graphVariables)(v => (v.id, v.subjectId, v.graphId))
     def optionMessage =
-      foreignKey(fkName("graph_messages_opt"), (optionMessageId, graphId), GraphMessages)(m => (m.id, m.graphId))
+      foreignKey(fkName("graph_messages_opt"), (optionMessageId, graphId), graphMessages)(m => (m.id, m.graphId))
     def optionSubject =
-      foreignKey(fkName("graph_subjects_opt"), (optionSubjectId, graphId), GraphSubjects)(s => (s.id, s.graphId))
+      foreignKey(fkName("graph_subjects_opt"), (optionSubjectId, graphId), graphSubjects)(s => (s.id, s.graphId))
     def optionConversation =
-      foreignKey(fkName("graph_conversations_opt"), (optionConversationId, graphId), GraphConversations)(c => (c.id, c.graphId))
+      foreignKey(fkName("graph_conversations_opt"), (optionConversationId, graphId), graphConversations)(c => (c.id, c.graphId))
     def optionNode =
-      foreignKey(fkName("opt_node"), (optionNodeId, macroId, subjectId, graphId), GraphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId))
+      foreignKey(fkName("opt_node"), (optionNodeId, macroId, subjectId, graphId), graphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId))
     def executeMacro =
-      foreignKey(fkName("graph_macros_exec"), (executeMacroId, subjectId, graphId), GraphMacros)(m => (m.id, m.subjectId, m.graphId))
+      foreignKey(fkName("graph_macros_exec"), (executeMacroId, subjectId, graphId), graphMacros)(m => (m.id, m.subjectId, m.graphId))
 //    def varMan =
 //      foreignKey(fkName("graph_var_man"), (id, subjectId, macroId, graphId), GraphVarMan)(vm => (vm.id, vm.subjectId, vm.macroId, vm.graphId))
   }
 
+  val graphNodes = TableQuery[GraphNodes]
 }

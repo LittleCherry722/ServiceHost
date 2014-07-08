@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of GroupsUsers.
@@ -27,18 +27,19 @@ trait GroupsUsersSchema extends GroupsSchema with UsersSchema {
 
   // represents schema if the "groups_users" table in the database
   // using slick's lifted embedding API
-  object GroupsUsers extends SchemaTable[GroupUser]("groups_users") {
+  class GroupsUsers(tag: Tag) extends SchemaTable[GroupUser](tag, "groups_users") {
     def groupId = column[Int]("group_id")
     def userId = column[Int]("user_id")
 
-    def * = groupId ~ userId <> (GroupUser, GroupUser.unapply _)
+    def * = (groupId, userId) <> (GroupUser.tupled, GroupUser.unapply)
 
     def pk = primaryKey(pkName, (groupId, userId))
 
     def group =
-      foreignKey(fkName("groups"), groupId, Groups)(_.id, NoAction, Cascade)
+      foreignKey(fkName("groups"), groupId, groups)(_.id, NoAction, Cascade)
     def role =
-      foreignKey(fkName("users"), userId, Users)(_.id, NoAction, Cascade)
+      foreignKey(fkName("users"), userId, users)(_.id, NoAction, Cascade)
   }
 
+  val groupsUsers = TableQuery[GroupsUsers]
 }

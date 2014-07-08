@@ -42,24 +42,24 @@ private[persistence] class MessagePersistenceActor extends InstrumentedActor
   def wrappedReceive = {
     // get all messages
     case Read.All => answer { implicit session =>
-      Query(Messages).list.map(toDomainModel)
+      messages.list.map(toDomainModel)
     }
 
     case Read.WithTarget(userID) => answer { implicit session =>
-      Query(Messages).where(_.toUserId === userID).list.map(toDomainModel)
+      messages.filter(_.toUserId === userID).list.map(toDomainModel)
     }
     case Read.WithSource(userID) => answer { implicit session =>
-      Query(Messages).where(_.fromUserId === userID).list.map(toDomainModel)
+      messages.filter(_.fromUserId === userID).list.map(toDomainModel)
     }
     // get message with given id
     case Read.ById(id) => answer { implicit session =>
-      toDomainModel(Query(Messages).where(_.id === id).firstOption)
+      toDomainModel(messages.filter(_.id === id).firstOption)
     }
     // create or update message
     case Save.Entity(ms @ _*) => answer { implicit session =>
       ms.map {
         // insert if id is None
-        case m @ Message(None, _, _, _, _, _, _) => Some(Messages.autoInc.insert(toPersistenceModel(m)))
+        case m @ Message(None, _, _, _, _, _, _) => Some((messages returning messages.map(_.id)) += toPersistenceModel(m))
         // otherwise update
         case m @ Message(id, _, _, _, _, _, _)   => update(id, m)
       } match {
@@ -71,13 +71,13 @@ private[persistence] class MessagePersistenceActor extends InstrumentedActor
     }
     // delete message with given id
     case Delete.ById(id) => answer { implicit session =>
-      Messages.where(_.id === id).delete
+      messages.filter(_.id === id).delete
     }
   }
 
   // update entity or throw exception if it does not exist
   def update(id: Option[Int], m: Message) = answer { implicit session =>
-    val res = Messages.where(_.id === id).update(toPersistenceModel(m))
+    val res = messages.filter(_.id === id).update(toPersistenceModel(m))
     if (res == 0)
       throw new EntityNotFoundException("Message with id %d does not exist.", id.get)
     None

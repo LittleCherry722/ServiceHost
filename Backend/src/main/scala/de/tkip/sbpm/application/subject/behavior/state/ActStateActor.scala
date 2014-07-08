@@ -24,7 +24,7 @@ import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import akka.event.Logging
 
-protected case class ActStateActor(data: StateData)
+case class ActStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   protected def stateReceive = {

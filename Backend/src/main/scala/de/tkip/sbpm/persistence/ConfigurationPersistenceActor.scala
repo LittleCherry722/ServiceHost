@@ -43,12 +43,12 @@ private[persistence] class ConfigurationPersistenceActor extends InstrumentedAct
 
   def wrappedReceive = {
     // get all configs
-    case Read.All => answer { implicit session: Session =>
-      Query(Configurations).list.map(toDomainModel)
+    case Read.All => answer {implicit session: Session =>
+      configurations.list.map(toDomainModel)
     }
     // get config with given key as option (None if not found)
     case Read.ByKey(key) => answer { implicit session: Session =>
-      toDomainModel(Query(Configurations).where(_.key === key).firstOption)
+      toDomainModel(configurations.filter(_.key === key).firstOption)
     }
     // save config entry
     case Save.Entity(c: Configuration) => answer { implicit session: Session =>
@@ -64,7 +64,7 @@ private[persistence] class ConfigurationPersistenceActor extends InstrumentedAct
   private def save(config: Configuration)(implicit session: Session) = {
     // delete old entry
     val exists = delete(config.key)
-    Configurations.insert(toPersistenceModel(config))
+    configurations += toPersistenceModel(config)
     // return None of entry already existed otherwise its key
     if (exists == 0)
       Some(config.key)
@@ -74,6 +74,6 @@ private[persistence] class ConfigurationPersistenceActor extends InstrumentedAct
 
   // delete config entry with given key
   private def delete(key: String)(implicit session: Session) = {
-    Configurations.where(_.key === key).delete
+    configurations.filter(_.key === key).delete
   }
 }

@@ -129,11 +129,11 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     }(_.map(convert))
     // get process with given id
     case Read.ById(id) => answerOptionProcessed { implicit session: Session =>
-      joinQuery(Query(Processes).where(_.id === id)).firstOption
+      joinQuery(processes.filter(_.id === id)).firstOption
     }(convert)
     // get process with given name
     case Read.ByName(name) => answerOptionProcessed { implicit session: Session =>
-      joinQuery(Query(Processes).where(_.name === name)).firstOption
+      joinQuery(processes.filter(_.name === name)).firstOption
     }(convert)
     // create or update processes
     case Save.Entity(ps @ _*) => answer { implicit session =>
@@ -157,7 +157,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     // delete process with given id
     case Delete.ById(id) => {
       answer { session =>
-        Processes.where(_.id === id).delete(session)
+        processes.filter(_.id === id).delete(session)
       }
       println("!!!!!!!!!!! process deleted: " + id)
       changeActor ! ProcessDelete(id, new java.util.Date())
@@ -168,9 +168,9 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
    * Return a query for joining process table with process active graph table.
    * A base query for the process table can be given (default all entities).
    */
-  private def joinQuery(baseQuery: driver.simple.Query[Processes.type, mapping.Process] = Query(Processes)) = for {
+  private def joinQuery(baseQuery: Query[Processes, mapping.Process, Seq] = processes) = for {
     // left join because active graph may not exist
-    (p, pag) <- baseQuery.leftJoin(Query(ProcessActiveGraphs)).on(_.id === _.processId)
+    (p, pag) <- baseQuery.leftJoin(processActiveGraphs).on(_.id === _.processId)
   } yield (p, pag.graphId.?)
 
   /**
@@ -179,11 +179,11 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
   private def insert(p: Process)(implicit session: Session) = {
     // extract process and active graph id from domain model
     val entities = convert(p)
-    val id = Processes.autoInc.insert(entities._1)
+    val id = (processes returning processes.map(_.id)) += entities._1
     log.debug("Save Process: " + p)
     // create active graph entry if it's id is defined
     if (entities._2.isDefined)
-      ProcessActiveGraphs.insert(mapping.ProcessActiveGraph(id, entities._2.get))
+      processActiveGraphs.insert(mapping.ProcessActiveGraph(id, entities._2.get))
     id
   }
 
@@ -193,10 +193,10 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
   private def insertForDelete(id: Int)(implicit session: Session) = {
     val date = new java.util.Date()
     val time = new java.sql.Timestamp(date.getTime())
-    val gid = Graphs.autoInc.insert(mapping.Graph(Some(16), id, time))
+    val gid = (graphs returning graphs.map(_.id)) += mapping.Graph(Some(16), id, time)
     println("gid is: " + gid + " and id is: " + id)
     println("time is: " + time.getTime())
-    val res = Graphs.insert(mapping.Graph(Some(gid), id, time))
+    val res = graphs += mapping.Graph(Some(gid), id, time)
   }
 
   /**
@@ -205,7 +205,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
   private def update(id: Option[Int], p: Process)(implicit session: Session) = {
     // extract process and active graph id from domain model
     val entities = convert(p)
-    val res = Processes.where(_.id === id).update(entities._1)
+    val res = processes.filter(_.id === id).update(entities._1)
 
     if (res == 0)
       throw new EntityNotFoundException("Process with id %d does not exist.", id.get)
@@ -225,10 +225,10 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
    * inserts a new one if graphId is not None.
    */
   private def updateActiveGraph(processId: Option[Int], graphId: Option[Int])(implicit session: Session) = {
-    ProcessActiveGraphs.where(_.processId === processId).delete
+    processActiveGraphs.filter(_.processId === processId).delete
 
     if (graphId.isDefined)
-      ProcessActiveGraphs.insert(mapping.ProcessActiveGraph(processId.get, graphId.get))
+      processActiveGraphs += mapping.ProcessActiveGraph(processId.get, graphId.get)
   }
 
   /**
@@ -254,7 +254,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
       changeActor ! ProcessChange(process, "insert", new java.util.Date())
     } else {
       // update the process
-      val res = Processes.where(_.id === process.id).update(convert(process)._1)
+      val res = processes.filter(_.id === process.id).update(convert(process)._1)
       if (res == 0)
         throw new EntityNotFoundException("Process with id %d does not exist.", process.id.get)
       // check if process exists if we should update it

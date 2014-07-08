@@ -35,7 +35,7 @@ case class StartSubjectExecution() extends SubjectBehaviorRequest
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
 sealed trait MessageObject
 // message from subject to subject
-protected case class SubjectToSubjectMessage(
+case class SubjectToSubjectMessage(
   messageID: MessageID,
   processID: ProcessID,
   userID: UserID,
@@ -54,9 +54,9 @@ protected case class SubjectToSubjectMessage(
 //protected case class SubjectToSubjectMessageReceived(message: SubjectToSubjectMessage) extends MessageObject
 
 // acknowledge, that a message is stored in the input pool
-protected case class Stored(messageID: MessageID) extends MessageObject
+case class Stored(messageID: MessageID) extends MessageObject
 // acknowledge, that the message was rejected by the input pool
-protected case class Rejected(messageID: MessageID) extends MessageObject
+case class Rejected(messageID: MessageID) extends MessageObject
 
 // TODO richtig einordnern
 case class SubjectTerminated(userID: UserID, subjectID: SubjectID)

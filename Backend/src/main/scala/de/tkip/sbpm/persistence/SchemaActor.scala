@@ -16,12 +16,11 @@ package de.tkip.sbpm.persistence
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import akka.actor.Props
 import scala.slick.lifted
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 import de.tkip.sbpm.model.User
 import de.tkip.sbpm.model.UserIdentity
 import akka.event.Logging
 import de.tkip.sbpm.persistence.schema._
-import scala.slick.lifted.DDL
 
 /**
  * Handle create and drop operations for all
@@ -45,27 +44,27 @@ private[persistence] class SchemaActor extends InstrumentedActor
   import driver.simple._
 
   private val tables = List(
-    GraphConversations,
-    GraphEdges,
-    GraphMacros,
-    GraphMessages,
-    GraphNodes,
-    GraphVarMans,
-    GraphRoutings,
-    Graphs,
-    GraphSubjects,
-    GraphVariables,
-    Groups,
-    GroupsRoles,
-    GroupsUsers,
-    Messages,
-    Processes,
-    ProcessActiveGraphs,
-    ProcessInstances,
-    Roles,
-    UserIdentities,
-    Users,
-    Configurations)
+    graphConversations,
+    graphEdges,
+    graphMacros,
+    graphMessages,
+    graphNodes,
+    graphVarMans,
+    graphRoutings,
+    graphs,
+    graphSubjects,
+    graphVariables,
+    groups,
+    groupsRoles,
+    groupsUsers,
+    messages,
+    processes,
+    processActiveGraphs,
+    processInstances,
+    roles,
+    userIdentities,
+    users,
+    configurations)
 
   // concat all table DDLs to insert at once
   private val ddl = tables.map(_.ddl).reduceLeft(_ ++ _)

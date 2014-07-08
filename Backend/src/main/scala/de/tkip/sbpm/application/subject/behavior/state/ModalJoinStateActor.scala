@@ -10,7 +10,7 @@ import akka.actor.Status.Failure
 
 case object TransitionJoined
 
-protected case class ModalJoinStateActor(data: StateData)
+case class ModalJoinStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   // TODO how to calculate that?

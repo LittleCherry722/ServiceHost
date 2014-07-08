@@ -14,7 +14,7 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.lifted.ForeignKeyAction._
+import scala.slick.model.ForeignKeyAction._
 
 /**
  * Defines the database schema of GraphSubjects.
@@ -27,7 +27,7 @@ trait GraphSubjectsSchema extends GraphsSchema with RolesSchema {
 
   // represents schema if the "graph_subjects" table in the database
   // using slick's lifted embedding API
-  object GraphSubjects extends SchemaTable[GraphSubject]("graph_subjects") {
+  class GraphSubjects(tag: Tag) extends SchemaTable[GraphSubject](tag, "graph_subjects") {
     def id = stringIdCol
     def graphId = column[Int]("graph_id")
     def name = nameCol
@@ -43,16 +43,15 @@ trait GraphSubjectsSchema extends GraphsSchema with RolesSchema {
     def url = column[Option[String]]("url")
     def comment = column[Option[String]]("comment", DbType.comment)
 
-    def * = id ~ graphId ~ name ~ subjectType ~ isDisabled ~ isStartSubject ~ inputPool ~
-      relatedSubjectId  ~ relatedInterfaceId ~ isImplementation ~ externalType ~ roleId ~ url ~
-      comment <> (GraphSubject, GraphSubject unapply _)
+    def * = (id, graphId, name, subjectType, isDisabled, isStartSubject, inputPool
+      , relatedSubjectId , relatedInterfaceId, isImplementation, externalType, roleId, url
+      , comment) <> (GraphSubject.tupled, GraphSubject unapply)
 
     def pk = primaryKey(pkName, (id, graphId))
 
-    def graph =
-      foreignKey(fkName("graphs"), graphId, Graphs)(_.id, NoAction, Cascade)
-    def role =
-      foreignKey(fkName("roles"), roleId, Roles)(_.id)
+    def graph = foreignKey(fkName("graphs"), graphId, graphs)(_.id, NoAction, Cascade)
+    def role = foreignKey(fkName("roles"), roleId, roles)(_.id)
   }
 
+  val graphSubjects = TableQuery[GraphSubjects]
 }

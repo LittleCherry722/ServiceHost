@@ -70,7 +70,7 @@ private class GoogleSendProxyActor(
   }
 }
 
-protected case class SendStateActor(data: StateData)
+case class SendStateActor(data: StateData)
   extends BehaviorStateActor(data) with ActorLogging {
 
   import scala.collection.mutable.{ Map => MutableMap }

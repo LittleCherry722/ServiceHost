@@ -92,7 +92,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
 
     val getMappingMsg = GetAgentsList(processId, targetAddress)
 
-    val processInstanceFuture = processInstanceMap.get((processId, url)).get
+    val processInstanceFuture = processInstanceMap((processId, url))
     val mappingFuture = for {
       pi <- processInstanceFuture
       response <- (pi.proxy ?? getMappingMsg).mapTo[GetAgentsListResponse]

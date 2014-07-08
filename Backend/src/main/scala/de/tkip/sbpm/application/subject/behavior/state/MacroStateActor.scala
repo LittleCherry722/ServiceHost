@@ -5,7 +5,7 @@ import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import de.tkip.sbpm.application.subject.CallMacro
 
-protected class MacroStateActor(data: StateData) extends BehaviorStateActor(data) {
+class MacroStateActor(data: StateData) extends BehaviorStateActor(data) {
 
   override def preStart {
     blockingHandlerActor ! BlockUser(userID)
