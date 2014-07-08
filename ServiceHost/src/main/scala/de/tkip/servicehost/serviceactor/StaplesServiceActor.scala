@@ -12,10 +12,11 @@ import akka.actor.ActorRef
 import java.util.Date
 import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
+import de.tkip.servicehost.serviceactor.stubgen.State
 import de.tkip.sbpm.eventbus._
 
 class StaplesServiceActor extends ServiceActor {
-	
+
   private var userId = 0
   private var processId = 0
   private var manager: Option[ActorRef] = None
@@ -33,7 +34,7 @@ class StaplesServiceActor extends ServiceActor {
 
     for {orderMessage <- orderMessageBuffer} {
       val msgToExternal = false // false: it should not leave sbpm
-      val target = Target("Großunternehmen",0,1,false,None,msgToExternal,true)
+      val target = Target("Großunternehmen", 0, 1, false, None, msgToExternal, true)
       val messageType = "Lieferdatum"
       val remoteUserId = 1 // TODO: context resolver einbinden, um UserID zu bestimmen. resolven sollte jedoch in sbpm, nicht beim service host passieren
       target.insertTargetUsers(Array(remoteUserId))
@@ -53,12 +54,10 @@ class StaplesServiceActor extends ServiceActor {
 
     orderMessageBuffer.clear
   }
-  
+
   def receive: Actor.Receive = {
-    case ExecuteServiceMessage => 
-      println("here")
-    case message: SubjectToSubjectMessage => {   
-      
+    case message: SubjectToSubjectMessage => {
+
       // TODO: use InputPoolActor ?
 
       // TODO: check if it is a order
@@ -68,29 +67,36 @@ class StaplesServiceActor extends ServiceActor {
       sender ! Stored(message.messageID)
       println("unblocked sender")
     }
-    case request: CreateProcessInstance => {
-      userId = request.userID
-      processId = request.processID
-      manager = request.manager
-      // TODO implement
-
-      // fake ProcessInstanceActor:
-
-      val persistenceGraph = null
-      val processName = ""
-      val startedAt = new Date()
-      val actions = null
-      val processInstanceData = ProcessInstanceData(0, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
-      println("Sender: " + sender)
-      println("Receicer: " + self)
-      sender ! ProcessInstanceCreated(request, self, processInstanceData)
-
-    }
     case GetProxyActor => {
       println("received GetProxyActor")
       // TODO implement
       // fake ProcessInstanceProxyActor:
       sender ! self
     }
+    case update: UpdateProcessData => {
+      userId = update.userID
+      processId = update.processID
+      manager = update.manager
+    }
+    case x => println("received unknown: " + x)
   }
+
+  def changeState() = {}
+
+  def getState(id: Int): State = { ??? }
+
+  def storeMsg(message: Any, tosender: ActorRef): Unit = {}
+
+  def processMsg(): Unit = { println("processMsg") }
+
+  def getDestination(): ActorRef = { ??? }
+
+  def terminate(): Unit = {}
+
+  def getUserID(): Int = { ??? }
+
+  def getProcessID(): Int = { ??? }
+
+  def getSubjectID(): String = { ??? }
+  
 }

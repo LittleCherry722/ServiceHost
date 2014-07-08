@@ -61,7 +61,7 @@ class RepoActor extends Actor with ActorLogging {
 
       log.info("entries for id: {}", filtered.toJson.toString)
 
-      sender ! filtered.toJson
+      sender ! filtered.toJson.toString
     }
 
     case GetImplementations(subjectIds) => {

@@ -91,7 +91,7 @@ object Entities {
 //    (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
 //    (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
 //
-    (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
+//    (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
 //    (Process(None, None, false, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
 //    (Process(None, None, false, """IP Test""", false) -> loadJson("ip_test")),
 //    (Process(None, None, false, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
@@ -100,14 +100,16 @@ object Entities {
 //    (Process(None, None, false, """Modal Split Guard Example""", false) -> loadJson("modalsplitguard_example")),
 //    (Process(None, None, false, """Macro Example""", false) -> loadJson("macro_example")),
 //    (Process(None, None, false, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
+//    (Process(None, None, false, """Nested Modal Split Guard Example""", false) -> loadJson("nested_modal_split_guard_example")),
 //    (Process(None, None, false, """Projektleiter""", false) -> loadJson("projektleiter")),
 //    (Process(None, None, false, """Projekt Team""", false) -> loadJson("projekt_team")),
 //    (Process(None, None, false, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),
 //    (Process(None, None, false, """Fortgeschritten Lieferung""", false) -> loadJson("fortgeschritten_lieferung")),
 //    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
 //    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
-//    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")))
+//    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")))
+
 
   // group -> role mappings
   // _1 = index in groups list, _2 = index in roles list

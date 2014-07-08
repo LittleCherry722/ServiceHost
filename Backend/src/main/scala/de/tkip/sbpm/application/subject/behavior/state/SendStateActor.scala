@@ -223,6 +223,12 @@ case class SendStateActor(data: StateData)
       //TODO how to handle the rejected message?
       blockingHandlerActor ! UnBlockUser(userID)
     }
+      
+    case Reopen => {
+      messageContent = None
+      remainingStored = 0
+      actionChanged(Updated)
+    }
   }
 
   // TODO only send targetUserData when its not trivial

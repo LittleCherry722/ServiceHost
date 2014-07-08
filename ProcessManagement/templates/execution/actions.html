@@ -11,7 +11,6 @@
 
 <span data-bind="text: stateName()"></span>
 <span data-bind="text: stateText(), visible: isTypeOf() !== 'end'"></span>
-
 <div data-bind="visible: isTypeOf()==='end'">
 	<span>This subject has no further tasks in this process!</span>	
 </div>	
@@ -25,9 +24,9 @@
 <div data-bind="visible: isTypeOf()==='send',foreach: actionData" data-chardin-intro="Here you can send a message to the another subject.">
 	<div>
         <strong>Send:</strong>
-        <span data-bind="html: $data.text"></span>
+        <span data-bind="html: $parent.getMessageName($data.text)"></span>
         <span>to </span><br />
-        <span data-bind="text: $data.relatedSubject"></span>
+        <span data-bind="text: $parent.getSubjectName($data.relatedSubject)"></span>
         <br /><br />
         <strong data-bind="text: $parent.selectUsersText">User:</strong>
 
@@ -58,7 +57,7 @@
 	<div>
 		<strong>Receive from</strong>
 
-		<strong data-bind="html: $data.relatedSubject"></strong>: <br/>
+		<strong data-bind="html: $parent.getSubjectName($data.relatedSubject)"></strong>: <br/>
 		<span  style="border: 1px solid #bbb;line-height:30px; padding:5px;" data-bind="html: $data.messageContent, visible: $data.messageContent"></span>
 		<br />
 		<br />

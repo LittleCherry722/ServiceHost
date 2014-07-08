@@ -1,55 +1,99 @@
 package de.tkip.servicehost
 
+import java.io.File
+import java.io.FileOutputStream
 import java.util.Date
 import spray.json._
-import DefaultJsonProtocol._
 import scala.collection.mutable.ArrayBuffer
+import scala.util.parsing.json.JSON
 
 import akka.actor._
-import scalaj.http.{Http, HttpOptions}
-import Messages.RegisterServiceMessage
-import Messages.ExecuteServiceMessage
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global;
+import scala.util.{Success, Failure}
+import scalaj.http.{ Http, HttpOptions }
+
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.model.GraphJsonProtocol._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.eventbus.RemotePublishActor
-
-/*
-
-Momentan funktioniert es nur so: Starte Instanz von Prozess Großunternehmen. Führe aus bis send. Message kommt hier an.
-
- */
-
+import de.tkip.servicehost.ReferenceXMLActor.Reference
+import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
+import Messages._
+import de.tkip.servicehost.Messages._
 
 object main extends App {
+  println("main starting..")
+
+  import DefaultJsonProtocol._
+  
+
+  var currentId = 777
+  private def nextId = {
+    val id = currentId
+    currentId += 1
+    id
+  }
+
+  implicit val timeout = Timeout(15 seconds)
+
   val system = ActorSystem("sbpm")
   
   protected def configString(key: String) =
     system.settings.config.getString(key)
 
-  println("main started")
+
   val repoUrl = configString("sbpm.repo.address") + "/interfaces"
+  val hostname: String = configString("akka.remote.netty.tcp.hostname")
+  val port: Int = configString("akka.remote.netty.tcp.port").toInt
 
-  // TODO add other root Actors
-  
-  system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")  
-  system.actorOf(Props[ServiceActorManager], "service-actor-manager")
-  system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
-  system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
-  registerInterface()
+  val registeredInterfaces = scala.collection.mutable.Map[Int, Reference]()
 
-  sys.addShutdownHook {
-    println("Shutting down the system...")
-    // TODO: stop futures / running actors
-    deregisterInterface()
+  val referenceXMLActor = system.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+  var serviceHost: ActorRef = null
 
-    system.shutdown();
+  if (args.contains("service") && args.length >= 2) {
+    val path = args(args.indexOf("service") + 1)
+
+    val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
+
+    val future = generator ? path // ask pattern: response will be stored in future
+    future onComplete {
+      case Success(res) => {
+          val ref = res.asInstanceOf[Reference]
+          println("generation completed, json file copied to: " + ref.json)
+          system.shutdown
+        }
+      case Failure(e) => {
+          e.printStackTrace()
+          system.shutdown
+        }
+    }
+  } else {
+    system.actorOf(Props[ServiceActorManager], "service-actor-manager")
+    system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
+    serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
+    println(serviceHost.path)
+    registerInterfaces()
+
+    sys.addShutdownHook {
+      println("Shutting down the system...")
+      // TODO: stop futures / running actors
+      deregisterInterfaces()
+
+      system.shutdown();
+    }
   }
 
-  def deregisterInterface(): Unit = {
-    println("deregisterInterface")
-    // TODO: delete this interface from repo
+  def deregisterInterfaces(): Unit = {
+    println("TODO: deregisterInterfaces")
+    // TODO: delete the interfaces from repo // for ... registeredInterfaces
   }
 
   /**
@@ -61,65 +105,90 @@ object main extends App {
    * msg from Lokal -> Extern: input
    * msg from Extern -> Lokal: output
    */
-  def registerInterface(): Unit = {
-    println("registerInterface")
-    val processes = ArrayBuffer[JsValue]()
+  def registerInterfaces(): Unit = {
+    println("registerInterfaces")
 
-    println("read processes")
-    // TODO: read directory
-    for {file <- Array("./src/main/resources/staples.json")} {
-      println("read process " + file)
-
-      val source = scala.io.Source.fromFile(file)
-      val sourceString: String = source.mkString
-      source.close()
-
-      // TODO: set graph.relatedSubject
-      // TODO: set graph.relatedInterface
-      // TODO: set graph.isImplementation
-      // TODO: set graph.implementations
-      // TODO: remove graph.{url, variableCounter, macroCounter}
-      // TODO: what should be done in the frontend, what here?
-      val sourceJson: JsValue = sourceString.asJson
-      val processGraph: JsValue = sourceJson.asInstanceOf[JsObject].getFields("graph").head
-      processes += processGraph
+    println("ask ReferenceXMLActor for all registered services")
+    val referencesFuture: Future[Any] = referenceXMLActor ? GetAllClassReferencesMessage
+    val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
+    for {reference <- references} {
+      registerInterface(reference)
     }
+    println("finished registerInterfaces")
+  }
 
-    println("read all processes")
+  def registerInterface(reference: Reference): Unit = {
+    println("read service: " + reference)
 
-    // TODO: direkt JsObjects erzeugen
-    // TODO: extract conversations and messages from processes
-    // TODO: id is required. what does it mean?
-    // TODO: graph.id is required. what does it mean?
-    // TODO: graph.routings is required. what does it mean?
-    // TODO: only one graph, that has one processId, but multiple processes
-    // TODO: interfaceId can be optional
-    // TODO: graph.date: use current time?
-    val interfaceJson: JsValue = ("""
-    {
-      "id": 1,
-      "interfaceId": """+configString("sbpm.servicehost.interface.id")+""",
-      "name": """"+configString("sbpm.servicehost.interface.name")+"""",
-      "port": """+configString("akka.remote.netty.tcp.port")+""",
-      "graph": {
-        "id": 123456,
-        "processId": 21,
-        "date": 123456789,
-        "routings": [],
-        "definition": {
-          "conversations": {"a": "b"},
-          "messages": {"c": "d"},
-          "process": """ + processes.toArray.toJson.prettyPrint + """
-        }
-      }
-    }
-    """).asJson
+    val file = reference.json
+    val source = scala.io.Source.fromFile(file)
+    val sourceString: String = source.mkString
+    source.close()
 
-    println("generated interfaceJson")
+    // create objects from json
 
-    val jsonString = interfaceJson.prettyPrint // TODO: compactPrint
+    val obj: JsObject = sourceString.asJson.asInstanceOf[JsObject]
 
-    println("printed json to str and POST it")
+    val interfaceName: String = obj.getFields("name").head.convertTo[String]
+    val processId: Int = obj.getFields("processId").head.convertTo[Int]
+    val graph: GraphSubject = obj.getFields("graph").head.convertTo[GraphSubject]
+    val messages: Map[String, GraphMessage] = obj.getFields("messages").head.convertTo[Map[String, GraphMessage]]
+    val conversations: Map[String, GraphConversation] = obj.getFields("conversations").head.convertTo[Map[String, GraphConversation]]
+
+    val name: String = graph.name
+    val relatedSubjectId: String = graph.relatedSubjectId.getOrElse(name)
+    val relatedInterfaceId: Int = graph.relatedInterfaceId.getOrElse(nextId)
+
+    val id: Int = processId // TODO: what should be used here?
+    val interfaceId: Int = relatedInterfaceId // TODO: what should be used here?
+    val graphId: Int = nextId // TODO: what should be used here?
+    val date: Int = 123456789 // TODO: what should be used here?
+
+
+    val impl = InterfaceImplementation(processId, interfaceId, de.tkip.sbpm.model.Address(hostname, port), name)
+
+    val newGraph = GraphSubject(
+      graph.id,
+      graph.name,
+      graph.subjectType,
+      graph.isDisabled,
+      graph.isStartSubject,
+      graph.inputPool,
+      Some(relatedSubjectId), // graph.relatedSubjectId
+      Some(relatedInterfaceId), // graph.relatedSubjectId
+      Some(true), // graph.isImplementation
+      graph.externalType,
+      graph.role,
+      List(impl), // graph.implementations
+      graph.comment,
+      graph.variables,
+      graph.macros
+    )
+
+    // TODO: graphJsonFormat is inconsistent, if that is resolved create a Graph instance instead of JsValues
+    val interface = JsObject(
+      "id" -> id.toJson,
+      "interfaceId" -> interfaceId.toJson,
+      "name" -> interfaceName.toJson,
+      "port" -> port.toJson,
+      "graph" -> JsObject(
+        "id" -> graphId.toJson,
+        "processId" -> processId.toJson,
+        "date" -> date.toJson,
+        "routings" -> JsArray(), // TODO: may not leave empty?
+        "definition" -> JsObject(
+          "conversations" -> conversations.toJson,
+          "messages" -> messages.toJson,
+          "process" -> List(newGraph).toJson
+        )
+      )
+    )
+
+    val jsonString = interface.prettyPrint // TODO: compactPrint 
+
+    println("generated interface json for '" + interfaceName + "'; POST it to repo")
+
+    //println(jsonString)
 
     val post = Http.postData(repoUrl, jsonString)
       .header("Content-Type", "application/json")
@@ -128,55 +197,15 @@ object main extends App {
     val result = post.responseCode
 
     if (result == 200) {
-      println("Registered interface at local repository")
+      var id: Int = post.asString.toInt
 
-      // TODO: store id ?
-      var id = post.asString
-      println("id: " + id)
+      println("Registered interface for '" + interfaceName + "' with id '" + id + "' at repository")
+      registeredInterfaces(id) = reference
     } else {
       println("Some error occurred; HTTP Code: " + result)
     }
   }
+
+  println("main started")
 }
 
-
-class ServiceHostActor extends Actor {
-
-  val serviceManager = ActorLocator.serviceActorManager
-
-  def receive: Actor.Receive = {
-    case register: RegisterServiceMessage => {
-      println("received RegisterServiceMessage: " + register)
-      // TODO implement
-      sender ! Some("some RegisterServiceMessage answer")
-    }
-    case execute: ExecuteServiceMessage => {
-      println("received ExecuteServiceMessage: " + execute)
-      // TODO implement
-      serviceManager forward(execute)
-      sender ! Some("some ExecuteServiceMessage answer")
-    }
-    case request: CreateProcessInstance => {
-      println("received CreateProcessInstance: " + request)
-      serviceManager forward request
-    }
-    case GetProxyActor => {
-      println("received GetProxyActor")
-      // TODO implement
-      // fake ProcessInstanceProxyActor:
-      serviceManager forward GetProxyActor
-    }
-    case message: SubjectToSubjectMessage => {
-      println("got SubjectToSubjectMessage " + message + " from " + sender)
-      // TODO implement
-      serviceManager forward message
-    }
-    case s: Stored => {
-      println("received Stored: "+s)
-    }
-    case something => {
-      println("received something: "+something)
-      sender ! Some("some answer")
-    }
-  }
-}
