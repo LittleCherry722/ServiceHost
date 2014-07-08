@@ -13,6 +13,8 @@
 
 package de.tkip.sbpm.rest.auth
 
+import spray.http.HttpHeaders.`WWW-Authenticate`
+import spray.routing.AuthenticationFailedRejection.CredentialsRejected
 import spray.routing.directives._
 import spray.routing.Directive
 import de.tkip.sbpm.ActorLocator
@@ -106,7 +108,7 @@ trait SessionDirectives extends ClassTraceLogger {
    * In case session could not be found or an invalid session cookie,
    * Nothing is returned.
    */
-  def optionalSession(implicit refFactory: ActorRefFactory): Directive[Option[Session] :: HNil] = {
+  def optionalSession(implicit refFactory: ActorRefFactory): Directive1[Option[Session]] = {
     optionalCookie(defaultRealm) flatMap {
       case None => provide(None)
       case Some(cookie) =>
@@ -125,7 +127,7 @@ trait SessionDirectives extends ClassTraceLogger {
    * The session is created if no valid could be found.
    * Returnes the current session.
    */
-  def saveSession(userId: Option[Int])(implicit refFactory: ActorRefFactory): Directive[Session :: HNil] = {
+  def saveSession(userId: Option[Int])(implicit refFactory: ActorRefFactory): Directive1[Session] = {
     optionalSession(refFactory) map {
       case None =>
         (ActorLocator.sessionActor ?? CreateSession(userId)).mapTo[Session]
@@ -139,13 +141,15 @@ trait SessionDirectives extends ClassTraceLogger {
   /**
    * Sets a session cookie with given session id.
    */
-  def setSessionCookie(session: Session)(implicit refFactory: ActorRefFactory): Directive0 =
+  def setSessionCookie(session: Session)(implicit refFactory: ActorRefFactory): Directive0 = {
     setCookie(HttpCookie(defaultRealm, session.id.toString, path = Some("/"))) & {
       if (session.userId.isDefined)
         setCookie(HttpCookie(defaultRealm + "-userId", session.userId.get.toString, path = Some("/")))
       else
         deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
     }
+  }
+
 
   /**
    * Delete current session if it exists.
@@ -194,15 +198,19 @@ trait SessionDirectives extends ClassTraceLogger {
    * Directive for user login using username and password.
    * Rejects if authentication fails.
    */
-  def login(userPass: UserPass)(implicit refFactory: ActorRefFactory): Directive[User :: HNil] = {
+  def login(userPass: UserPass)(implicit refFactory: ActorRefFactory): Directive1[User] = {
     val authFuture = ActorLocator.userPassAuthActor ?? userPass
-    val user = Await.result(authFuture.mapTo[Option[User]], timeout.duration)
-    if (user.isDefined)
-      saveSession(user.get.id) flatMap { s =>
-        setSessionCookie(s) & provide(user.get)
+    Await.result(authFuture.mapTo[Option[User]], timeout.duration) match {
+      case None => {
+        val challenge = `WWW-Authenticate`(HttpChallenge("Basic", defaultRealm))
+        reject(AuthenticationFailedRejection(CredentialsRejected, List(challenge)))
       }
-    else
-      reject(AuthenticationFailedRejection(defaultRealm))
+      case Some(user) => {
+        saveSession(user.id) flatMap { s =>
+          setSessionCookie(s) & provide(user)
+        }
+      }
+    }
   }
 
 }

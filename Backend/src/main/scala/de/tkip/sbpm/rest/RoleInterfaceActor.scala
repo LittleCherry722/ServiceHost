@@ -53,7 +53,7 @@ class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
        * e.g. GET http://localhost:8080/role
        * result: JSON array with entities
        */
-      path("") {
+      pathEnd {
         completeWithQuery[Seq[Role]](Roles.Read())
       } ~
         /**
@@ -72,7 +72,7 @@ class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
            * e.g. GET http://localhost:8080/role/2
            * result: 404 Not Found or entity as JSON
            */
-          path("") {
+          pathEnd {
             completeWithQuery[Role](Roles.Read.ById(id), "Role with id %d not found.", id)
           } ~
             /**
@@ -82,7 +82,7 @@ class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
              * result: JSON array of entities
              */
             pathPrefix(Entity.GROUP) {
-              path("") {
+              pathEnd {
                 completeWithQuery[Seq[GroupRole]](GroupsRoles.Read.ByGroupId(id))
               } ~
                 /**
@@ -105,7 +105,7 @@ class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
            * e.g. DELETE http://localhost:8080/role/12
            * result: 204 No Content
            */
-          path("") {
+          pathEnd {
             completeWithDelete(Roles.Delete.ById(id), "Role could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
@@ -129,7 +129,7 @@ class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
          * 			Location: /role/8
          * 			{ "id": 8, "name": "abc", "isActive": true }
          */
-        path("") {
+        pathEnd {
           entity(as[Role]) { role =>
             save(role)
           }
@@ -145,7 +145,7 @@ class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
            * result: 	200 OK
            * 			{ "id": 2, "name": "abc", "isActive": true }
            */
-          path("") {
+          pathEnd {
             entity(as[Role]) { role =>
               save(role, Some(id))
             }
@@ -177,7 +177,8 @@ class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
     completeWithSave(Roles.Save(e),
       e,
       pathForEntity(Entity.ROLE, "%d"),
-      (e: Role, i: Int) => { e.copy(Some(i))})
+      (e: Role, i: Int) => { e.copy(Some(i))},
+      (i: Int) => Array(i))
   }
 
   /**
@@ -185,7 +186,7 @@ class RoleInterfaceActor extends InstrumentedActor with PersistenceInterface {
    * completes with either 201 or 200
    */
   def saveGroup(groupRole: GroupRole) =
-    completeWithSave[GroupRole, (Int, Int)](
+    completeWithSave[GroupRole, (Int, Int), Int](
       GroupsRoles.Save(groupRole),
       groupRole,
       pathForEntity(Entity.ROLE, "%d") + pathForEntity(Entity.GROUP, "%d"),

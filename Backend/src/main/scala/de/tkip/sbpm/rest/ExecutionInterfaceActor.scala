@@ -81,7 +81,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           }
         } ~
         //LIST
-        path("") {
+        pathEnd {
           complete {
             val future = (subjectProviderManager ?? GetAllProcessInstances(userId)).mapTo[AllProcessInstancesAnswer]
             future.map(result => result.processInstanceInfo)
@@ -103,7 +103,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
       put {
         //UPDATE
         pathPrefix(IntNumber) { processInstanceID =>
-          path("") {
+          pathEnd {
             entity(as[ExecuteAction]) { json =>
               //execute next step
               complete {
@@ -117,7 +117,7 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
       post {
         //CREATE
         pathPrefix("") {
-          path("") {
+          pathEnd {
             entity(as[ProcessIdHeader]) { json =>
               complete {
                 val name = json.name.getOrElse("Unnamed")// TODO not as an Option

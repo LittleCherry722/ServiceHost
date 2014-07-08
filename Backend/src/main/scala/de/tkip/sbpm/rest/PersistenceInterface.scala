@@ -98,11 +98,11 @@ trait PersistenceInterface extends HttpService with DefaultLogging {
    * Location path is used as base for created resource in Location header.
    * idSetter function is used to inject generated id into entity.
    */
-  protected def completeWithSave[A, B](action: BaseQuery,
+  protected def completeWithSave[A, B, C](action: BaseQuery,
                                        entity: A,
                                        locationPath: String,
                                        idSetter: (A, B) => A = (a: A, b: B) => a,
-                                       idFormatArgs: (B) => Array[Any] = (b: B) => Array[Any](b))
+                                       idFormatArgs: (B) => Array[C])
                                       (implicit marshaller: Marshaller[A]) = {
     onSuccess(request[Option[B]](action)) {
       id =>

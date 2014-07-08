@@ -37,6 +37,7 @@ import de.tkip.sbpm.logging.LogPersistenceActor
 import de.tkip.sbpm.application.miscellaneous.SystemProperties._
 import de.tkip.sbpm.polling.{Polling, ReplyForTrafficJam}
 import de.tkip.sbpm.instrumentation.InstrumentationLogger
+import de.tkip.sbpm.logging.SlickAppender
 
 object Boot extends App {
 
@@ -102,9 +103,9 @@ object Boot extends App {
 
   // check startup actions defined in config
   val startupAction = system.settings.config.getString("sbpm.db.startupAction")
-  val dropAction = startupAction matches "^recreate(-debug)?$"
-  val createAction = startupAction matches "^(re)?create(-debug)?$"
-  val debugAction = startupAction matches "^(re)?create-debug$"
+  val dropAction = (startupAction matches "^recreate(-debug)?$") && false
+  val createAction = (startupAction matches "^(re)?create(-debug)?$") && false
+  val debugAction = (startupAction matches "^(re)?create-debug$") && false
 
   // execute all required db operations async and sequentially
   var dbFuture = Future[Any]()

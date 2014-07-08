@@ -22,9 +22,9 @@ _ProcessInstanceProxyManagerActor::2552_ #receive(GetProcessInstanceProxy(agent)
   proxyRef => *???*
 
 
-=======================================================2553================================================================
+=http://i.imgur.com/oSEFAiW.jp======================================================2553================================================================
 _SubjectProviderManagerActor_ #receive(CreateProcessInstance) : CreateProcessInstance => ProcessManagerActor
-  _ProcessManageActor_ #receive(CreateProcessInstance)
+  _ProcessManagerActor_ #receive(CreateProcessInstance)
     /Create ProcessInstanceActor(CreateProcessInstanceMessage)/
       _ProcessInstanceActor)_ #preStart
         /Read Graph from DB/
@@ -47,7 +47,7 @@ _ProcessInstanceActor_ #receive(SendProcessInstanceCreated(UserId[-2]))
       processInstanceData = ProcessInstanceData(id, name, graph, false, startTime, userId, actions)
       msg = AskSubjectsForAvailabeActions(userId, id, AllSubjects, ...)
       /msg <: SubjectProviderMessage/
-      msg => ProcessManageActor
+      msg => ProcessManagerActor
         _ProcesssManageActor_ #receive(AskSubjectsForAvailabeActions) : msg => SubjectProviderManageActor
           _SubjectProviderManagerActor_ #receive(AskSubjectsForAvailabeActions) : msg => subjectProviderActor
             _SubjectProviderActor_ #receive(AskSubjectsForAvailabeActions) : askSubjectsForAvailableActions(pid, sid, generateAnswerFunction)
@@ -62,8 +62,8 @@ _ProcessInstanceActor_ #receive(SendProcessInstanceCreated(UserId[-2]))
                   _SubjectActionsCollectorActor_ : createdMessage => ProcessInstanceActor
 ---------------------------------------------------------------------------------------------------------------------------
 _ProcessInstanceActor_ #receive(ProcessInstanceCreated(CreateProcessInstance(..)))
-  msg => ProcessManageActor
-    _ProcessManageActor_ #receive(ProcessInstanceCreated(...)
+  msg => ProcessManagerActor
+    _ProcessManagerActor_ #receive(ProcessInstanceCreated(...)
       msg => ProcessInstanceProxyManagerActor::2552
       processInstanceMap += (id -> ProcessInstanceData)
       /create history entry/

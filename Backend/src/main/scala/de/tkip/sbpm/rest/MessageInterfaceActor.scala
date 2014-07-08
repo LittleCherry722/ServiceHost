@@ -36,7 +36,7 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
           (persistence ?? Messages.Read.ById(messageID)).mapTo[Option[Message]]
         }
       } ~
-        path("") {
+        pathEnd {
           complete {
             val from = (persistence ?? Messages.Read.WithSource(userId)).mapTo[Seq[Message]]
             val to = (persistence ?? Messages.Read.WithTarget(userId)).mapTo[Seq[Message]]
@@ -70,7 +70,7 @@ class MessageInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
       post {
         //CREATE
         pathPrefix("") {
-          path("") {
+          pathEnd {
             entity(as[SendMessageHeader]) { json =>
               complete {
                 val message = Message(None, userId, json.toUser, json.title, false, json.content, new java.sql.Timestamp(System.currentTimeMillis()))

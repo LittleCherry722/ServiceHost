@@ -21,7 +21,7 @@ object ProjectBuild extends Build {
         "google-api-services" at "http://google-api-client-libraries.appspot.com/mavenrepo"
       ),
       libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect" % "2.11.1",
+        // "org.scala-lang" %% "scala-reflect" % "2.11.1",
         "org.scalatest" %% "scalatest" % "2.1.3" % "test",
         "com.typesafe.akka" %% "akka-actor" % "2.3.4",
         "com.typesafe.akka" %% "akka-testkit" % "2.3.4" % "test",
@@ -29,12 +29,12 @@ object ProjectBuild extends Build {
         "com.typesafe.slick" %% "slick" % "2.1.0-M2",
         "com.typesafe.slick" %% "slick-testkit" % "2.1.0-M2" % "test",
 
-        "com.typesafe.akka" %% "akka-slf4j" % "2.3.2",
+        "com.typesafe.akka" %% "akka-slf4j" % "2.3.4",
         "ch.qos.logback" % "logback-classic" % "1.1.2",
 
-        // "org.xerial" %% "sqlite-jdbc" % "3.7.2",
+        "org.xerial" % "sqlite-jdbc" % "3.7.2",
         "com.mchange" % "c3p0" % "0.9.5-pre8",
-        "io.spray" % "spray-testkit" % "1.2.1" % "test",
+        "io.spray" % "spray-testkit" % "1.3.1" % "test",
         "io.spray" % "spray-can" % "1.3.1",
         "io.spray" % "spray-routing" % "1.3.1",
         "io.spray" % "spray-testkit" % "1.3.1" % "test",

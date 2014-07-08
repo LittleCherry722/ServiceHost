@@ -67,37 +67,37 @@ private[persistence] trait Schema {
      * Defines am "id" column as auto increment primary key.
      */
     protected def autoIncIdCol[C](implicit typeMapper: TypedType[C]) =
-      column("id", O.PrimaryKey, O.AutoInc)
+      column[C]("id", O.PrimaryKey, O.AutoInc)
 
     /**
      * Defines an "id" column as string primary key.
      */
     protected def stringIdCol(implicit typeMapper: TypedType[String]) =
-      column("id", DbType.stringIdentifier)
+      column[String]("id", DbType.stringIdentifier)
       
       /**
      * Defines an "id" column as uuid string primary key.
      */
     protected def stringUuidCol(implicit typeMapper: TypedType[String]) =
-      column("id", DbType.uuid)
+      column[String]("id", DbType.uuid)
 
     /**
      * Defines a "name" string column.
      */
     protected def nameCol(implicit typeMapper: TypedType[String]) =
-      column("name", DbType.name)
+      column[String]("name", DbType.name)
 
     /**
      * Defines a "active" boolean column.
      */
     protected def activeCol(implicit typeMapper: TypedType[Boolean]) =
-      column("active", O.Default(true))
+      column[Boolean]("active", O.Default(true))
 
     /**
      * Defines a "gdriveId" string column.
      */
     protected def gdriveIdCol(implicit typeMapper: TypedType[String]) =
-      column("gdrive_id", DbType.eMail)
+      column[String]("gdrive_id", DbType.eMail)
 
     /**
      * Provides the default primary key name: "pk_tableName"

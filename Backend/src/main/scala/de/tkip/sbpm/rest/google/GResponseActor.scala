@@ -100,7 +100,7 @@ class GResponseActor extends InstrumentedActor with HttpService {
     } ~
       get {
         // callback endpoint called by Google after an authentication request
-        path("") {
+        pathEnd {
           parameters("code", "state") { (code, userId) =>
             respondWithMediaType(`text/html`) { ctx =>
               log.debug(s"received from google response: name: $userId, code: $code")
@@ -168,7 +168,7 @@ class FileUploadHandler(client: ActorRef, start: ChunkedRequestStart) extends In
 
   def wrappedReceive = {
     case c: MessageChunk =>
-      output.write(c.body)
+      output.write(c.data.toByteArray)
 
     case e: ChunkedMessageEnd =>
       output.close()

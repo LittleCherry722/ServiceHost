@@ -71,7 +71,7 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
        * e.g. GET http://localhost:8080/user
        * result: JSON array of entities
        */
-      path("") {
+      pathEnd {
         getUsersWithMail()
       } ~
         /**
@@ -98,7 +98,7 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
            * e.g. GET http://localhost:8080/user/8
            * result: 404 Not Found or entity as JSON
            */
-          path("") {
+          pathEnd {
             getUserWithMail(id)
           } ~
             /**
@@ -108,7 +108,7 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
              * result: JSON array of entities
              */
             pathPrefix(Entity.GROUP) {
-              path("") {
+              pathEnd {
                 completeWithQuery[Seq[GroupUser]](GroupsUsers.Read.ByUserId(id))
               } ~
                 /**
@@ -131,7 +131,7 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
            * e.g. DELETE http://localhost:8080/user/12
            * result: 204 No Content
            */
-          path("") {
+          pathEnd {
             completeWithDelete(Users.Delete.ById(id), "User could not be deleted. Entity with id %d not found.", id)
           } ~
             /**
@@ -178,12 +178,12 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
            * 			Location: /user/8
            * 			{ "id": 8, "name": "abc", "isActive": true, "inputPoolSize": 8 }
            */
-          path("") {
+          pathEnd {
             entity(as[User]) { user =>
               saveUser(user)
             }
           } ~
-          path("") {
+          pathEnd {
             entity(as[SetPassword]) { password =>
               complete(StatusCodes.OK)
             }
@@ -210,12 +210,12 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
              * 	result: 200 OK
              * 		{ "id": 2, "name":"test", "isActive": true, "inputPoolSize": 6 }
              */
-            path("") {
+            pathEnd {
               entity(as[SetPassword]) { setPassword =>
                 setPw(id, setPassword)
               }
             } ~
-            path("") {
+            pathEnd {
               entity(as[UserUpdate]) { userUpdate =>
                 saveUser(new User(Some(id), userUpdate.name, userUpdate.isActive, userUpdate.inputPoolSize), Some(id))
               }
@@ -236,7 +236,8 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
     completeWithSave(Users.Save(e),
       e,
       pathForEntity(Entity.USER, "%d"),
-      (e: User, i: Int) => { e.copy(Some(i)) })
+      (e: User, i: Int) => { e.copy(Some(i)) },
+      (i: Int) => Array(i))
   }
 
   // completes with all providers and emails of an user and the user information
@@ -300,7 +301,7 @@ class UserInterfaceActor extends InstrumentedActor with PersistenceInterface {
    * completes with either 201 or 200
    */
   def saveGroup(groupUser: GroupUser) =
-    completeWithSave[GroupUser, (Int, Int)](
+    completeWithSave[GroupUser, (Int, Int), Int](
       GroupsUsers.Save(groupUser),
       groupUser,
       pathForEntity(Entity.USER, "%d") + pathForEntity(Entity.GROUP, "%d"),

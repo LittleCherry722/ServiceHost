@@ -74,8 +74,7 @@ class FrontendInterfaceActor extends InstrumentedActor with DefaultLogging with 
     case auth.AuthenticationRejection(schemes, realm, sessionId) :: _ => {
       respondWithHeader(HttpHeaders.`WWW-Authenticate`(schemes.map(HttpChallenge(_, realm)))) {
         if (sessionId.isDefined) {
-          session(sessionId.get)(context) {
-            session =>
+          session(sessionId.get)(context) { session =>
               setSessionCookie(session)(context) {
                 complete(StatusCodes.Unauthorized)
               }
@@ -229,44 +228,38 @@ class FrontendInterfaceActor extends InstrumentedActor with DefaultLogging with 
       }
   })
 
-  def logReceive:PartialFunction[Any, Any] = {
-    case request: spray.http.HttpRequest => {
-      val path = request.uri.path
-      if(!path.startsWith(Path.SingleSlash + frontendBaseUrl)){
-//        traceLogger.debug("TRACE: =========================================================================")
-//        traceLogger.debug("TRACE: request " + request.method + ": " + path)
-//        traceLogger.debug("TRACE: -------------------------------------------------------------------------")
-      }
-      request
-    }
-    case something => {
-      something
-    }
-  }
-
-  def wrappedReceive = logReceive andThen receiver
+  def wrappedReceive = receiver
 
   def serveStaticFiles: Route = {
     // root folder -> redirect to frontendBaseUrl
-    path("") {
-      redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
+    pathEnd {
+      dynamic {
+        log.error("Received GET to base")
+        redirect("/" + frontendBaseUrl + "/", StatusCodes.MovedPermanently)
+      }
     } ~
-      // get index
-      path(frontendBaseUrl) {
-        getFromFile(frontendBaseDir + frontendIndexFile)
-      } ~
       // server other static content from dir
       pathPrefix(frontendBaseUrl) {
-        getFromDirectory(frontendBaseDir)
+        pathPrefix(Rest) {
+          case "" =>
+            val file = new java.io.File(frontendBaseDir + frontendIndexFile)
+            getFromFile(file)
+          case str =>
+            val path = new java.io.File(frontendBaseDir + str).getAbsolutePath
+            getFromFile(path)
+        }
       }
   }
+
+
 
   /**
    * Delegates the current request to the specified *InterfaceActor
    * without authentication.
    */
-  private def delegateTo(actor: ActorRef): Route = {
-    requestContext => actor ! requestContext
+  private def delegateTo(actor: ActorRef): Route = { requestContext =>
+    log.debug(s"Delegating to $actor")
+    actor ! requestContext
   }
 
   /**
@@ -276,12 +269,11 @@ class FrontendInterfaceActor extends InstrumentedActor with DefaultLogging with 
   private def authenticated(op: => Route) = {
     if (authenticationEnabled) {
       // authenticate using session cookie or Authorization header
-      authenticate(new CookieAuthenticator) {
-        session =>
-          // auth successful -> set session cookie
-          setSessionCookie(session)(context) {
-            op
-          }
+      authenticate(new CookieAuthenticator) { session =>
+        // auth successful -> set session cookie
+        setSessionCookie(session)(context) {
+          op
+        }
       }
     } else {
       op

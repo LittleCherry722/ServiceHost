@@ -61,7 +61,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
    * it makes sense to step away from this general template
    *
    */
-  def wrappedReceive = runRoute({
+  val route = runRoute({
     get {
       /**
        * get a list of all loadable or loaded processes
@@ -70,8 +70,9 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
        * e.g. GET http://localhost:8080/process
        */
       // LIST
-      path("") {
+      pathEnd {
         dynamic {
+          log.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
           // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück'
           complete(for {
             processes <- (persistanceActor ?? Processes.Read()).mapTo[Seq[Process]]
@@ -93,7 +94,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
          * e.g. POST http://localhost:8080/process?graph=GraphAsJSON&subjects=SubjectsAsJSON
          */
         // CREATE
-        path("") {
+        pathEnd {
           parseGraphHeader {
             json =>
               save(None, json)
@@ -134,6 +135,14 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
         }
       }
   })
+
+  override def wrappedReceive = {
+    case ctx : RequestContext => {
+      log.debug(s"received requestContext: $ctx")
+      route(ctx)
+    }
+    case msg => log.error(s"Unhandled message: $msg")
+  }
 
   private def sendDeleteInterfaceForProcessId(id: Int) = {
     log.debug("[DELETE INTERFACE] starting to get process information")

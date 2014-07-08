@@ -56,4 +56,4 @@ fork in Test := true
 
 // atmosSettings
 
-unmanagedSourceDirectories in Compile += file("../eventbus")
+unmanagedSourceDirectories in Compile += baseDirectory.value / ".." / "eventbus"
