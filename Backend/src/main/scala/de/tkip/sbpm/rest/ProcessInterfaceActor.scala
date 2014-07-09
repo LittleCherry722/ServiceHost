@@ -72,7 +72,6 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
       // LIST
       pathEnd {
         dynamic {
-          log.debug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
           // Anfrage an den Persisence Actor liefert eine Liste von Graphen zurück'
           complete(for {
             processes <- (persistanceActor ?? Processes.Read()).mapTo[Seq[Process]]

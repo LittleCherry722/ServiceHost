@@ -142,12 +142,14 @@ trait SessionDirectives extends ClassTraceLogger {
    * Sets a session cookie with given session id.
    */
   def setSessionCookie(session: Session)(implicit refFactory: ActorRefFactory): Directive0 = {
-    setCookie(HttpCookie(defaultRealm, session.id.toString, path = Some("/"))) & {
+    val cookie: Directive0 = setCookie(HttpCookie(defaultRealm, session.id.toString, path = Some("/")))
+    def setOrDelete : Directive0 = {
       if (session.userId.isDefined)
         setCookie(HttpCookie(defaultRealm + "-userId", session.userId.get.toString, path = Some("/")))
       else
         deleteCookie(HttpCookie(defaultRealm + "-userId", "", path = Some("/")))
     }
+    cookie & setOrDelete
   }
 
 

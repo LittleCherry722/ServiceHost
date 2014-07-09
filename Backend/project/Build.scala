@@ -11,7 +11,7 @@ object ProjectBuild extends Build {
       name := "S-BPM Groupware",
       organization := "TU Darmstadt Telecooperation Group",
       version := "1.2",
-      scalaVersion := "2.10.4",
+      scalaVersion := "2.11.1",
       javaOptions += "-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005",
       resolvers ++= Seq(
         "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
@@ -22,7 +22,7 @@ object ProjectBuild extends Build {
       ),
       libraryDependencies ++= Seq(
         // "org.scala-lang" %% "scala-reflect" % "2.11.1",
-        "org.scalatest" %% "scalatest" % "2.1.3" % "test",
+        "org.scalatest" %% "scalatest" % "2.2.0" % "test",
         "com.typesafe.akka" %% "akka-actor" % "2.3.4",
         "com.typesafe.akka" %% "akka-testkit" % "2.3.4" % "test",
         "com.typesafe.akka" %% "akka-remote" % "2.3.4",
@@ -34,13 +34,13 @@ object ProjectBuild extends Build {
 
         "org.xerial" % "sqlite-jdbc" % "3.7.2",
         "com.mchange" % "c3p0" % "0.9.5-pre8",
-        "io.spray" % "spray-testkit" % "1.3.1" % "test",
-        "io.spray" % "spray-can" % "1.3.1",
-        "io.spray" % "spray-routing" % "1.3.1",
-        "io.spray" % "spray-testkit" % "1.3.1" % "test",
-        "io.spray" % "spray-client" % "1.3.1",
+        "io.spray" %% "spray-testkit" % "1.3.1" % "test",
+        "io.spray" %% "spray-can" % "1.3.1",
+        "io.spray" %% "spray-routing" % "1.3.1",
+        "io.spray" %% "spray-testkit" % "1.3.1" % "test",
+        "io.spray" %% "spray-client" % "1.3.1",
         "net.virtual-void" %%  "json-lenses" % "0.5.4",
-        "com.github.t3hnar" % "scala-bcrypt_2.10" % "2.4",
+        "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.4",
         "com.fasterxml.jackson.core" % "jackson-core" % "2.2.0",
 
         "org.scalaj" %% "scalaj-http" % "0.3.15",
