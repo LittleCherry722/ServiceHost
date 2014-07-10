@@ -14,7 +14,7 @@ import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import akka.event.Logging
 
-class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, graph: ProcessGraph, createMessage: CreateProcessInstance) extends InstrumentedActor with DefaultLogging {
+class ProcessInstanceProxyActor(id: ProcessInstanceID, processId: ProcessID, graph: ProcessGraph, createMessage: CreateProcessInstance) extends InstrumentedActor {
 
   import context.dispatcher
 

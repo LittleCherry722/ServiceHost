@@ -166,7 +166,7 @@ class SubjectContainer(
     message: SubjectToSubjectMessage) {
 
     for (userID <- targetSubjects) {
-      log.info("Sending message to user: ", userID)
+      log.info("Sending message to user: {}", userID)
       if (!subjects.contains(userID)) {
         log.info("Subject Container creating new subject for user ID: {}", userID)
         createSubject(userID)
@@ -228,8 +228,8 @@ class SubjectContainer(
           if (r.isSuccess) {
             log.info("sending: {} to external subject: {}", message, r.get)
             r.get.tell(message, from)
-          // TODO exception or logg?
           } else {
+            // TODO exception or log?
             throw new Exception("Subject Creation failed for " +
               processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + r)
           }

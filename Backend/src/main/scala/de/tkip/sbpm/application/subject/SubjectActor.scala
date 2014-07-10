@@ -134,6 +134,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     case sm: SubjectToSubjectMessage => {
       for { (key, name) <- subject.variablesMap } {
         for (a <- macroBehaviorActors.values) {
+          log.info(s"send addVariable '$name' to '$a'")
           a ! AddVariable(name, sm)
         }
       }

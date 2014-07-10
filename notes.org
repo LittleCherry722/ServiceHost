@@ -70,3 +70,5 @@ _ProcessInstanceActor_ #receive(ProcessInstanceCreated(CreateProcessInstance(..)
       ProcessInstanceChange(instanceId, pid, pname, name, "insert", timestamp) => changeActor
         _ChangeActor_ #receive(data@ProcessInstanceChangeData) : addProcessInstanceChangeData(data)
           _ChangeActor_ #addProcessInstanceChangeData(data) : processInstanceChangeEntries += p
+---------------------------------------------------------------------------------------------------------------------------
+_ProcessInstanceProxyActor_ #receive(SubjectToSubjectMessage)
