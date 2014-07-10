@@ -360,6 +360,10 @@ class InternalBehaviorActor(
       case DecisionStateType => {
         context.actorOf(Props(new DecisionStateActor(stateData)), "DecisionStateActor____" + UUID.randomUUID().toString())
       }
+
+      case BlackboxStateType => {
+        context.actorOf(Props(new BlackboxStateActor(stateData)), "BlackboxStateActor____" + UUID.randomUUID().toString())
+      }
     }
   }
 }
