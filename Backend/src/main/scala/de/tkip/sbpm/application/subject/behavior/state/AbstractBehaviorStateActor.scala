@@ -15,6 +15,7 @@ package de.tkip.sbpm.application.subject.behavior.state
 
 import scala.Array.canBuildFrom
 import de.tkip.sbpm.instrumentation.InstrumentedActor
+import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.FSM
 import akka.actor.Props

@@ -26,6 +26,12 @@ import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import de.tkip.sbpm.application.subject.misc.ActionIDProvider
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.model.StateType._
+import de.tkip.sbpm.application.subject.behavior._
+import de.tkip.sbpm.application.subject.CallMacroStates
+import de.tkip.sbpm.application.subject.misc.MacroTerminated
+import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import akka.event.Logging
 
 case class BlackboxStateActor(data: StateData)
@@ -33,15 +39,26 @@ case class BlackboxStateActor(data: StateData)
 
   // TODO: mehrere exits?
   var internalState = "a"
-  val internalStates = Array("exit", "a", "b")
+  val internalStates = Array("exit", "callmacro", "a", "b")
 
-  protected def stateReceive = Actor.emptyBehavior
+  val actionIDs = Map("a" -> ActionIDProvider.nextActionID, "b" -> ActionIDProvider.nextActionID, "callmacro" -> ActionIDProvider.nextActionID)
+
+  protected def stateReceive = {
+    case mt: MacroTerminated => {
+      log.info("Macro terminated: " + mt.macroID)
+
+      internalState = "a"
+
+      blockingHandlerActor ! UnBlockUser(userID)
+
+      actionChanged()
+    }
+  }
 
   override protected def interceptReceive: Receive = {
     case action: ExecuteAction if (
       action.stateType == "action"
     )=> {
-      
       val nextInternalState = action.actionData.text
 
       if (nextInternalState.equals("exit")) {
@@ -50,6 +67,29 @@ case class BlackboxStateActor(data: StateData)
       }
       else if (internalStates.contains(nextInternalState)) {
         internalState = nextInternalState
+
+        if (internalState == "callmacro") {
+          //                      TransType(messagetype,    target), SuccessorID, priority
+          val t_s1_1 = Transition(ExitCond("Gehe zum Ende", None),   42,          1)
+          val t_s1_2 = Transition(ExitCond("1338",          None),   1338,        1)
+          val t_s1 = Array(t_s1_1, t_s1_2)
+
+          val t_s2: Array[Transition] = Array()
+
+          val t_s3_1 = Transition(ExitCond("Nochmal",       None),   1337,        1)
+          val t_s3 = Array(t_s3_1)
+
+          //             id    text      type          autoexe start  observ callmacro options     (msgtype, subjid, corrid, conversat, StateID
+          val s1 = State(1337, "Anfang", ActStateType, false,  true,  false, None,     StateOptions(None,    None,   None,   None,      Some(1337)), t_s1)
+          val s2 = State(42,   "Ende",   EndStateType, false,  false, false, None,     StateOptions(None,    None,   None,   None,      Some(42)),   t_s2)
+          val s3 = State(1338, "Mitte",  ActStateType, false,  false, false, None,     StateOptions(None,    None,   None,   None,      Some(1338)), t_s3)
+          val states = Array(s1, s2, s3)
+
+          // TODO: BlockUser ?
+          context.parent ! CallMacroStates(this.self, "test", states)
+          // TODO: UnBlockUser ?
+        }
+
         blockingHandlerActor ! ActionExecuted(action)
       } else {
         val receiver = action.asInstanceOf[AnswerAbleMessage].sender
@@ -61,7 +101,12 @@ case class BlackboxStateActor(data: StateData)
   }
 
   override protected def getAvailableAction: Array[ActionData] = {
-    internalStates.filter((s: String) => !s.equals(internalState)).map((s: String) => ActionData(s, true, exitCondLabel))
+    if (internalState == "callmacro") {
+      Array()
+    }
+    else {
+      internalStates.filter((s: String) => !s.equals(internalState)).map((s: String) => ActionData(s, true, exitCondLabel))
+    }
   }
 
 
