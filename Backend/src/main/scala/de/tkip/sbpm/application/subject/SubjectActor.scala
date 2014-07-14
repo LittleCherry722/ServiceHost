@@ -38,6 +38,7 @@ import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
 import akka.actor.Status.Failure
 
 case class CallMacro(callActor: ActorRef, name: String)
+case class CallMacroStates(callActor: ActorRef, name: String, macroStates: Array[State])
 
 case class SubjectData(
   userID: UserID,
@@ -75,7 +76,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
   private val macroBehaviorActors = mutable.Map[String, InternalBehaviorRef]()
   private var macroIdCounter = 0
 
-  private def insertMacro(callActor: Option[ActorRef], name: String) {
+  private def insertMacro(callActor: Option[ActorRef], name: String, macroStates: Array[State]) {
     log.debug(s"Starting macro $name")
     val macroId = name + s"@$macroIdCounter"
     macroIdCounter += 1
@@ -83,14 +84,9 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
       macroId -> context.actorOf(Props(
         new InternalBehaviorActor(macroId, callActor, data, inputPoolActor)), "InternalBehaviorActor____" + UUID.randomUUID().toString())
 
-    if (!subject.macros.contains(name)) {
-      // TODO was tun?
-      log.error(s"Trying to call macro $name, but it is not available.")
-    } else {
-      val macroStates = subject.macros(name).states
-      for (state <- macroStates) {
-        macroActor ! state
-      }
+    // TODO: send all states at once?
+    for (state <- macroStates) {
+      macroActor ! state
     }
 
     macroBehaviorActors += entry
@@ -117,7 +113,7 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
 
   private def restart() {
     killAll()
-    insertMacro(None, subject.mainMacroName)
+    insertMacro(None, subject.mainMacroName, subject.mainMacro.states)
   }
 
   override def preStart() {
@@ -153,12 +149,15 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
       }
       //      macroBehaviorActors.map(_._2 ! s)
     }
+
     case s @ DisableNonObserverStates => {
       for ((a, actorRef) <- macroBehaviorActors) {
         actorRef ! s
       }
       //      macroBehaviorActors.map(_._2 ! s)
-    } case transition: history.NewHistoryTransitionData => {
+    }
+
+    case transition: history.NewHistoryTransitionData => {
       val message = history.NewHistoryEntry(new Date(), Some(userID), null, Some(subjectID), Some(transition), None)
       // forward history entries from internal behavior up to instance actor
       context.parent ! message
@@ -182,7 +181,19 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     }
 
     case CallMacro(callActor, name) => {
-      insertMacro(Some(callActor), name)
+      val macroStates: Array[State] = if (!subject.macros.contains(name)) {
+          // TODO was tun?
+          log.error(s"Trying to call macro $name, but it is not available.")
+          Array()
+        } else {
+          subject.macros(name).states
+        }
+
+      insertMacro(Some(callActor), name, macroStates)
+    }
+
+    case CallMacroStates(callActor, name, macroStates) => {
+      insertMacro(Some(callActor), name, macroStates)
     }
 
     case gaa: GetAvailableAction => {

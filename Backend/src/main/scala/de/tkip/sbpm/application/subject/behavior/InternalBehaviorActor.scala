@@ -40,7 +40,7 @@ import akka.pattern.pipe
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
-import de.tkip.sbpm.application.subject.CallMacro
+import de.tkip.sbpm.application.subject.{ CallMacro, CallMacroStates }
 import scala.collection.mutable.Stack
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 import org.parboiled.support.Var
@@ -176,6 +176,10 @@ class InternalBehaviorActor(
     }
 
     case m: CallMacro => {
+      context.parent ! m
+    }
+
+    case m: CallMacroStates => {
       context.parent ! m
     }
 
