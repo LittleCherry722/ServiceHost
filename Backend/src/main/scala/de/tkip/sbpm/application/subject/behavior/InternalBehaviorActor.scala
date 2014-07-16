@@ -15,6 +15,7 @@ package de.tkip.sbpm.application.subject.behavior
 import java.util.UUID
 import scala.collection.mutable
 import de.tkip.sbpm.instrumentation.InstrumentedActor
+import scala.collection.mutable.ArrayBuffer
 import akka.actor._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -42,12 +43,12 @@ import ExecutionContext.Implicits.global
 import de.tkip.sbpm.application.subject.CallMacro
 import scala.collection.mutable.Stack
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
-import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 import org.parboiled.support.Var
 
 case object StartMacroExecution
 case class ActivateState(id: StateID)
 case class DeactivateState(id: StateID)
+case class AskForJoinStateID(id: StateID)
 
 // TODO this is for history + statechange
 case class ChangeState(
@@ -127,23 +128,38 @@ class InternalBehaviorActor(
       changeState(change.currenState, change.nextState)
       val current: State = statesMap(change.currenState)
       val next: State = statesMap(change.nextState)
-      if (next.stateType == StateType.ArchiveStateType){
+      if (next.stateType == StateType.ArchiveStateType) {
         val msg = new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
         currentStatesMap(change.nextState) ! msg
       }
       // create the History Entry and send it to the subject
-      val msg = NewHistoryTransitionData(
-          NewHistoryState(current.text, current.stateType.toString()),
-          current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
-          current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
-          NewHistoryState(next.text, next.stateType.toString()),
-          if (change.history != null) Some(NewHistoryMessage(
-            change.history.id,
-            change.history.from,
-            change.history.to,
-            change.history.messageType,
-            change.history.data))
-          else None)
+        val msg = current.stateType.toString() match {
+          case "$splitguard" =>
+            NewHistoryTransitionData(
+              NewHistoryState(current.text, current.stateType.toString()),
+              "nein", "nein",
+              NewHistoryState(next.text, next.stateType.toString()),
+              if (change.history != null) Some(NewHistoryMessage(
+                change.history.id,
+                change.history.from,
+                change.history.to,
+                change.history.messageType,
+                change.history.data))
+              else None)
+          case _ => 
+            NewHistoryTransitionData(
+              NewHistoryState(current.text, current.stateType.toString()),
+              current.transitions.filter(_.successorID == next.id)(0).messageType.toString(),
+              current.transitions.filter(_.successorID == next.id)(0).myType.getClass().getSimpleName(),
+              NewHistoryState(next.text, next.stateType.toString()),
+              if (change.history != null) Some(NewHistoryMessage(
+                change.history.id,
+                change.history.from,
+                change.history.to,
+                change.history.messageType,
+                change.history.data))
+              else None)    
+        }
       context.parent ! msg
     }
 
@@ -167,8 +183,7 @@ class InternalBehaviorActor(
       // Create a Future with the available actions
       val actionFutures =
         Future.sequence(
-          for ((_, c) <- currentStatesMap if(!c.isTerminated)) yield (c ?? getActions).mapTo[AvailableAction])
-
+          for ((_, c) <- currentStatesMap if (!c.isTerminated)) yield (c ?? getActions).mapTo[AvailableAction])
       // and pipe the actions back to the sender
       actionFutures pipeTo sender
     }
@@ -184,6 +199,27 @@ class InternalBehaviorActor(
       }
       internalStatus.variables(av.variableName).addMessage(av.message)
 
+    }
+
+    case joinstate: AskForJoinStateID => {
+      val stateBuffer = ArrayBuffer[Int]()
+      val visited = ArrayBuffer[Int]()
+      var notFind = true
+      var current = joinstate.id
+      stateBuffer += current
+      while (!stateBuffer.isEmpty && notFind) {
+        for (t <- statesMap(current).transitions; if !visited.contains(t.successorID)) {
+          visited += t.successorID
+          stateBuffer += t.successorID
+          if (statesMap(t.successorID).stateType.toString().equals("modaljoin")) {
+            sender ! statesMap(t.successorID).id
+            notFind = true
+          }
+        }
+        stateBuffer -= current
+        if(!stateBuffer.isEmpty) current = stateBuffer.head
+      }
+      sender ! -1
     }
 
     case n => {
@@ -296,6 +332,10 @@ class InternalBehaviorActor(
 
       case ModalJoinStateType => {
         context.actorOf(Props(new ModalJoinStateActor(stateData)), "ModalJoinStateActor____" + UUID.randomUUID().toString())
+      }
+
+      case SplitGuardStateType => {
+        context.actorOf(Props(new SplitGuardStateActor(stateData)), "SplitGuardStateActor____" + UUID.randomUUID().toString())
       }
 
       case MacroStateType => {

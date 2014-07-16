@@ -11,7 +11,7 @@ define([
 
     var ViewModel = function() {
         var self = this;
-        this.actions = actionsList;
+        window.actions = this.actions = actionsList;
         this.processes = Process.all;
         // Filter
         this.selectedUser = selectedUser;

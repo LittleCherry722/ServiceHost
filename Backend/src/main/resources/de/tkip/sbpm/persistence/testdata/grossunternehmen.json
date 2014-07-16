@@ -4,7 +4,7 @@
     "conversations": {},
     "messageCounter": 3,
     "messages": {
-      "m3": "Bestellung",
+      "m1": "Bestellung",
       "m2": "Lieferdatum"
     },
     "nodeCounter": 2,
@@ -13,7 +13,7 @@
         "comment": "",
         "deactivated": false,
         "externalType": "external",
-        "id": "Grossunternehmen",
+        "id": "Gro\u00dfunternehmen",
         "startSubject":true,
         "inputPool": 100,
         "macroCounter": 1,
@@ -76,7 +76,7 @@
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m3",
+                "text": "m1",
                 "transportMethod": [
                   "internal"
                 ],
@@ -238,7 +238,9 @@
             ]
           }
         ],
-        "name": "Grossunternehmen",
+        "name": "Gro\u00dfunternehmen",
+        "relatedProcess": "",
+        "relatedSubject": "",
         "role": "Gro\u00dfunternehmen",
         "type": "single",
         "variableCounter": 1,
@@ -266,12 +268,12 @@
                 "start": 0,
                 "target": {
                   "createNew": false,
-                  "id": "Grossunternehmen",
+                  "id": "Gro\u00dfunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""
                 },
-                "text": "m3",
+                "text": "m1",
                 "transportMethod": [
                   "internal"
                 ],
@@ -289,7 +291,7 @@
                 "start": 1,
                 "target": {
                   "createNew": false,
-                  "id": "Grossunternehmen",
+                  "id": "Gro\u00dfunternehmen",
                   "max": -1,
                   "min": -1,
                   "variable": ""

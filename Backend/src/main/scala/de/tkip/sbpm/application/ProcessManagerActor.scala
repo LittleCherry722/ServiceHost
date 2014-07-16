@@ -59,6 +59,7 @@ class ProcessManagerActor extends InstrumentedActor {
 
     // execution
     case getAll: GetAllProcessInstances => {
+      log.info(s"all process instances in manager: $processInstanceMap")
       val msg = AllProcessInstancesAnswer(
         getAll,
         processInstanceMap.map(
@@ -86,6 +87,7 @@ class ProcessManagerActor extends InstrumentedActor {
       val p = ProcessInstanceData(pc.request.processID, pc.answer.processName, pc.request.name, pc.processInstanceActor)
       processInstanceMap +=
         pc.processInstanceID -> p
+
       history.entries += createHistoryEntry(Some(pc.request.userID), pc.processInstanceID, "created")
       log.info("new processInstance has been added: " + p)
       changeActor ! ProcessInstanceChange(pc.processInstanceID, p.processID, p.processName, p.name, "insert", new java.util.Date())
