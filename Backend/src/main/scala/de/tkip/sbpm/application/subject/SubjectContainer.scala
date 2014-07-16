@@ -95,7 +95,7 @@ class SubjectContainer(
       val subjectRef =
         context.actorOf(Props(new SubjectActor(subjectData)), "SubjectActor____" + UUID.randomUUID().toString())
       // and store it in the map
-      subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID, log)
+      subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID)
 
       val msg = SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
       // inform the subject provider about his new subject
@@ -119,7 +119,7 @@ class SubjectContainer(
       // TODO we need this unblock!
       blockingHandlerActor !! UnBlockUser(userID)
 
-      subjects += userID -> SubjectInfo(processInstanceRef, userID, log)
+      subjects += userID -> SubjectInfo(processInstanceRef, userID)
     }
 
     log.debug("Processinstance [" + processInstanceID + "] created Subject " +
@@ -162,9 +162,7 @@ class SubjectContainer(
   /**
    * Forwards the message to the array of subjects
    */
-  private def sendTo(targetSubjects: Array[UserID],
-    message: SubjectToSubjectMessage) {
-
+  private def sendTo(targetSubjects: Array[UserID], message: SubjectToSubjectMessage) {
     for (userID <- targetSubjects) {
       log.info("Sending message to user: {}", userID)
       if (!subjects.contains(userID)) {
@@ -177,17 +175,19 @@ class SubjectContainer(
 
       log.debug("SEND: {}", message)
 
-      if (external) {
+      val newMessage = if (external) {
         // exchange the target subject id
         val newMessage = message.copy(target = message.target.copy(subjectID = agent.get.subjectId))
         log.debug("SEND (target exchanged): {}", newMessage)
-
-        // TODO we need this unblock!
+        // TODO we need this unblock! Why?
         blockingHandlerActor !! UnBlockUser(userID)
+        newMessage
+      } else {
+        message
       }
+      // blockingHandlerActor !! BlockUser(userID)
+      subjects(userID).tell(newMessage, context.sender)
 
-      //        blockingHandlerActor ! BlockUser(userID)
-      subjects(userID).tell(message, context.sender)
     }
   }
 
@@ -213,8 +213,7 @@ class SubjectContainer(
   private case class SubjectInfo(
     ref: Future[SubjectRef],
     userID: UserID,
-    log: LoggingAdapter,
-    var running: Boolean = true) {
+    var running: Boolean = true) extends ClassTraceLogger {
 
     def tell(message: Any, from: ActorRef) {
       log.debug("FORWARD: {} TO {} FROM {}", message, ref, from)
@@ -226,7 +225,7 @@ class SubjectContainer(
           log.debug("ref.onComplete: ref = {}", ref)
           log.debug("subject creation completed: {}", ref.isCompleted)
           if (r.isSuccess) {
-            log.info("sending: {} to external subject: {}", message, r.get)
+            log.info("sending: {} to subject: {}", message, r.get)
             r.get.tell(message, from)
           } else {
             // TODO exception or log?

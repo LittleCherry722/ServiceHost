@@ -80,6 +80,7 @@ case class State(
   callMacro: Option[String],
   options: StateOptions,
   transitions: Array[Transition])
+
 case class StateOptions(
   messageType: Option[MessageType],
   subjectId: Option[SubjectID],

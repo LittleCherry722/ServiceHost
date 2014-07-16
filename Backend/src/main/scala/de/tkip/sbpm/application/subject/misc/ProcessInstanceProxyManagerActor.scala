@@ -111,7 +111,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
       proxy <- (instanceRef ?? GetProxyActor).mapTo[ActorRef]
     } yield (new ProcessInstanceProxy(instanceRef, proxy), created)
     instanceProxy.onComplete {
-      case Success(proxy) => log.info("PROCESS INSTANCE PROXY MANAGE: Remote Process Instance Successfully created: {}", proxy)
+      case Success(proxy) => log.info("PROCESS INSTANCE PROXY MANAGER: Remote Process Instance Successfully created: {}", proxy)
       case Failure(e) => log.error("PROCESS INSTANCE PROXY MANAGER: Error during Remote Process Instance Creation: ", e.getMessage)
     }
     instanceProxy.map(_._1)
