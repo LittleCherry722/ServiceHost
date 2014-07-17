@@ -103,9 +103,9 @@ object Boot extends App {
 
   // check startup actions defined in config
   val startupAction = system.settings.config.getString("sbpm.db.startupAction")
-  val dropAction = (startupAction matches "^recreate(-debug)?$") && false
-  val createAction = (startupAction matches "^(re)?create(-debug)?$") && false
-  val debugAction = (startupAction matches "^(re)?create-debug$") && false
+  val dropAction = startupAction matches "^recreate(-debug)?$"
+  val createAction = startupAction matches "^(re)?create(-debug)?$"
+  val debugAction = startupAction matches "^(re)?create-debug$"
 
   // execute all required db operations async and sequentially
   var dbFuture = Future[Any]()
