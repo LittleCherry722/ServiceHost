@@ -42,7 +42,7 @@ class ServiceActorManager extends Actor{
       
       val future: Future[Any] = ask(referenceXMLActor, GetClassReferenceMessage("Staples"))
       val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
-      val actorInstance = this.context.actorOf(new Props(classRef.classReference), "Staples")
+      val actorInstance = this.context.actorOf(Props.create(classRef.classReference), "Staples")
       
       // add to serviceMap supposed to be like:
       //processServiceMap += ("Staples", processInstanceCount) -> actorInstance
