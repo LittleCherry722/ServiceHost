@@ -2,7 +2,7 @@ name := "Sbpm Service Host"
 
 version := "1.0"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 resolvers ++= Seq(
     "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
@@ -10,11 +10,11 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-    "com.typesafe.akka" %% "akka-actor" % "2.2.3",
-    "com.typesafe.akka" %% "akka-remote" % "2.2.3",
-    "com.typesafe.akka" %% "akka-slf4j" % "2.2.3",
-    "org.scalaj" %% "scalaj-http" % "0.3.12",
-    "io.spray" %% "spray-json" % "1.2.5"
+    "com.typesafe.akka" %% "akka-actor" % "2.2.4",
+    "com.typesafe.akka" %% "akka-remote" % "2.2.4",
+    "com.typesafe.akka" %% "akka-slf4j" % "2.2.4",
+    "org.scalaj" %% "scalaj-http" % "0.3.15",
+    "io.spray" %% "spray-json" % "1.2.6"
 )
 
-unmanagedSourceDirectories in Compile += file("../eventbus")
+unmanagedSourceDirectories in Compile += baseDirectory.value / ".." / "eventbus"
