@@ -37,7 +37,7 @@ class ServiceActorManager extends Actor{
       serviceActor((message.target.subjectID,0)) forward message
     }
     case request: CreateProcessInstance => {
-      println(request.subjectMapping)
+      println("got CreateProcessInstance: " + request)
 //      val actorInstance = serviceActor("Staples") //forward request
       
       val future: Future[Any] = ask(referenceXMLActor, GetClassReferenceMessage("Staples"))

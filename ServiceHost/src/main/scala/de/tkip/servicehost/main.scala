@@ -17,7 +17,7 @@ import scala.util.{Success, Failure}
 import scalaj.http.{ Http, HttpOptions }
 
 import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.GraphJsonProtocol._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -159,7 +159,8 @@ object main extends App {
       Some(true), // graph.isImplementation
       graph.externalType,
       graph.role,
-      List(impl), // graph.implementations
+      None, // graph.url // TODO: repository does not parse url!
+      Some(List(impl)), // graph.implementations
       graph.comment,
       graph.variables,
       graph.macros
