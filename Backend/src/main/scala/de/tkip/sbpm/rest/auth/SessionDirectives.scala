@@ -13,29 +13,30 @@
 
 package de.tkip.sbpm.rest.auth
 
-import spray.http.HttpHeaders.`WWW-Authenticate`
-import spray.routing.AuthenticationFailedRejection.CredentialsRejected
-import spray.routing.directives._
-import spray.routing.Directive
-import de.tkip.sbpm.ActorLocator
-import akka.actor.ActorContext
-import akka.pattern._
 import java.util.UUID
-import akka.util.Timeout
-import scala.concurrent.duration._
+
 import scala.concurrent.Await
-import shapeless._
-import spray.routing._
-import spray.http.HttpCookie
-import spray.util._
-import shapeless._
-import spray.http._
+import scala.concurrent.duration._
+
 import akka.actor.ActorRefFactory
-import akka.actor.ActorSystem
-import de.tkip.sbpm.model.User
+import akka.pattern.ask
+import akka.util.Timeout
+
+import shapeless._
+
+import spray.http._
+import spray.http.HttpHeaders._
+import spray.routing._
 import spray.routing.authentication.UserPass
+import spray.routing.AuthenticationFailedRejection.CredentialsRejected
+import spray.routing.directives.BasicDirectives._
+import spray.routing.directives.CookieDirectives._
+import spray.routing.directives.RouteDirectives._
+import spray.routing.directives.MiscDirectives._
+
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.model.User
 import de.tkip.sbpm.persistence.query.Users
-import akka.event.Logging
 import de.tkip.sbpm.instrumentation.{ClassTraceLogger, TraceLogger}
 
 case class MissingSessionRejection(sessionId: String) extends Rejection
@@ -45,10 +46,6 @@ case object MissingUserRejection extends Rejection
  * Provides Spray directive for session handling.
  */
 trait SessionDirectives extends ClassTraceLogger {
-  import BasicDirectives._
-  import CookieDirectives._
-  import RouteDirectives._
-  import MiscDirectives._
 
   private implicit val timeout = Timeout(10 seconds)
 

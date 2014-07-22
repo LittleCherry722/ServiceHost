@@ -13,25 +13,28 @@
 
 package de.tkip.sbpm.rest
 
-import scala.language.postfixOps
-import akka.actor.Actor
-import akka.util.Timeout
 import scala.concurrent.Future
-import akka.pattern._
 import scala.concurrent.duration._
-import spray.routing.HttpService
+import scala.language.postfixOps
+import scala.reflect.ClassTag
+
+import akka.actor.Actor
+import akka.event.Logging
+import akka.pattern.ask
+import akka.util.Timeout
+
 import spray.http.HttpHeaders
 import spray.http.StatusCodes
-import spray.routing.StandardRoute
 import spray.httpx.marshalling.Marshaller
-import spray.util.LoggingContext
 import spray.routing.ExceptionHandler
+import spray.routing.HttpService
+import spray.routing.StandardRoute
+import spray.util.LoggingContext
+
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.persistence.EntityNotFoundException
 import de.tkip.sbpm.persistence.query.BaseQuery
-import de.tkip.sbpm.logging.DefaultLogging
-import scala.reflect.ClassTag
-import akka.event.Logging
 import de.tkip.sbpm.instrumentation.TraceLogger
 
 /**

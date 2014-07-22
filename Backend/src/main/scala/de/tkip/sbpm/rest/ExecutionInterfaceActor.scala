@@ -14,22 +14,22 @@
 package de.tkip.sbpm.rest
 
 import scala.concurrent.duration._
-import akka.event.Logging
+
 import akka.pattern.ask
 import akka.util.Timeout
-import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.miscellaneous._
-import de.tkip.sbpm.rest.JsonProtocol._
-import de.tkip.sbpm.rest.SprayJsonSupport._
+
 import spray.http.StatusCodes
-import spray.routing._
+import spray.httpx.SprayJsonSupport._
+import spray.routing.ExceptionHandler
 import spray.util.LoggingContext
-import scala.concurrent.ExecutionContext
-import de.tkip.sbpm.application.history._
+
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
+import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.logging.DefaultLogging
-import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
-import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
+import de.tkip.sbpm.rest.JsonProtocol._
 
 /**
  * This Actor is only used to process REST calls regarding "execution"

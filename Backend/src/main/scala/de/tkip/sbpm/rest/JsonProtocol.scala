@@ -13,26 +13,18 @@
 
 package de.tkip.sbpm.rest
 
-import akka.actor._
 import java.sql.Timestamp
-import de.tkip.sbpm.model._
-import spray.json.DefaultJsonProtocol
-import spray.json.DeserializationException
-import spray.json.JsNumber
-import spray.json.JsObject
-import spray.json.JsValue
-import spray.json.RootJsonFormat
-import spray.json._
 import java.util.Date
-import de.tkip.sbpm.application.miscellaneous.AvailableActionsAnswer
-import de.tkip.sbpm.application.miscellaneous.GetAvailableActions
+
+import GraphJsonProtocol.graphJsonFormat
+import akka.actor.ActorRef
+import de.tkip.sbpm.application.history._
+import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
-import de.tkip.sbpm.application.miscellaneous.ProcessInstanceInfo
+import de.tkip.sbpm.model._
+import spray.json._
 import spray.routing.authentication.UserPass
-import GraphJsonProtocol.graphJsonFormat
-import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
-import de.tkip.sbpm.application.history._
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values

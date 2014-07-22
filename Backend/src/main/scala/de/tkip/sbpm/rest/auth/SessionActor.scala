@@ -13,13 +13,14 @@
 
 package de.tkip.sbpm.rest.auth
 
-import de.tkip.sbpm.instrumentation.InstrumentedActor
-import java.util.UUID
-import scala.collection.mutable.Map
 import java.util.Date
-import akka.actor.Cancellable
-import scala.concurrent.duration._
+import java.util.UUID
+
+import scala.collection.mutable.Map
+
 import akka.event.Logging
+
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 /**
  * Message for creating a new session, optionally with a user id.

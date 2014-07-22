@@ -13,29 +13,29 @@
 
 package de.tkip.sbpm.rest.auth
 
-import de.tkip.sbpm.rest.auth._
-import spray.routing.AuthenticationFailedRejection.CredentialsRejected
+
+import java.util.UUID
 
 import scala.concurrent.ExecutionContext
-import spray.routing.RequestContext
-import spray.http._
-import spray.util._
-import spray.http.HttpHeaders._
-import spray.routing.authentication._
 import scala.concurrent.Future
-import spray.routing.AuthenticationFailedRejection
-import de.tkip.sbpm.model.User
-import java.util.UUID
-import akka.actor.ActorContext
-import de.tkip.sbpm.ActorLocator
-import akka.pattern._
-import akka.util.Timeout
 import scala.concurrent.duration._
-import scala.concurrent.Await
-import akka.actor.Props
-import akka.actor.ActorRef
-import akka.actor.Actor
+
+import akka.actor.ActorContext
+import akka.pattern.ask
+import akka.util.Timeout
+
+import spray.http._
+import spray.http.HttpHeaders._
+import spray.routing.AuthenticationFailedRejection
+import spray.routing.AuthenticationFailedRejection.CredentialsRejected
 import spray.routing.Rejection
+import spray.routing.RequestContext
+import spray.routing.authentication._
+import spray.util._
+
+import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.model.User
+import de.tkip.sbpm.rest.auth._
 import de.tkip.sbpm.instrumentation.ClassTraceLogger
 
 /**

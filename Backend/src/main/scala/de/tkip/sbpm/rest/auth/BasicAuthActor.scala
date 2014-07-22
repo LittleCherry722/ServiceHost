@@ -14,18 +14,10 @@
 package de.tkip.sbpm.rest.auth
 
 import de.tkip.sbpm.instrumentation.InstrumentedActor
-import spray.http.HttpCredentials
-import spray.http.BasicHttpCredentials
-import de.tkip.sbpm.ActorLocator
-import akka.pattern._
-import akka.util.Timeout
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
-import de.tkip.sbpm.model.User
 import akka.event.Logging
-import akka.actor.ActorRef
-import spray.routing.authentication.UserPass
+import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.logging.DefaultLogging
+import spray.http.BasicHttpCredentials
 import spray.routing.authentication.UserPass
 
 /**
