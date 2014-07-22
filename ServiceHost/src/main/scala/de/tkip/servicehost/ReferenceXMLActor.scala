@@ -1,12 +1,15 @@
 package de.tkip.servicehost
 
-import akka.actor.Actor
-import de.tkip.servicehost.Messages._
-import de.tkip.servicehost.serviceactor._
 import java.io.File
+
+import akka.actor.Actor
+import scala.io.Source
 import scala.xml.pull.XMLEventReader
 import scala.xml.pull.EvElemStart
-import scala.io.Source
+
+import de.tkip.servicehost.Messages._
+import de.tkip.servicehost.serviceactor._
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 object ReferenceXMLActor {
 
@@ -16,22 +19,22 @@ object ReferenceXMLActor {
 
 }
 
-class ReferenceXMLActor extends Actor {
+class ReferenceXMLActor extends InstrumentedActor {
   import ReferenceXMLActor.Reference
 
   private val xmlFilePath = "./src/main/resources/service_references.xml"
   val packet = "de.tkip.servicehost.serviceactor.stubgen"
 
-  def receive: Actor.Receive = {
+  def wrappedReceive = {
     case createReference: CreateXMLReferenceMessage => {
       val ref: Reference = createXMLReference(createReference.serviceID, createReference.classPath, createReference.jsonPath)
-      sender ! ref
+      sender !! ref
     }
     case GetAllClassReferencesMessage => {
-      sender ! getAllReferences
+      sender !! getAllReferences
     }
     case getReference: GetClassReferenceMessage => {
-      sender ! getReferenceMessage(getReference.serviceID)
+      sender !! getReferenceMessage(getReference.serviceID)
     }
   }
 

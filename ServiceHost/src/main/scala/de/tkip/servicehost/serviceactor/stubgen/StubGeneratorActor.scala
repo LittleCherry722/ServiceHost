@@ -25,8 +25,9 @@ import de.tkip.sbpm.rest.GraphJsonProtocol._
 import de.tkip.servicehost.ActorLocator
 import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.ReferenceXMLActor
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
-class StubGeneratorActor extends Actor {
+class StubGeneratorActor extends InstrumentedActor {
   implicit val timeout = Timeout(15 seconds)
 
   lazy val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
@@ -47,7 +48,7 @@ class StubGeneratorActor extends Actor {
   case class ServiceExport(version: Int, name: String, author: String, graph: GraphSubject, messages: Map[String, GraphMessage], conversations: Map[String, GraphConversation], processId: Int)
   implicit val serviceExportFormat = jsonFormat7(ServiceExport)
 
-  def receive = {
+  def wrappedReceive = {
     case path: String => {
       println("StubGeneratorActor received path " + path)
       val (name, id, states, messages) = extractStates(path)
@@ -169,7 +170,7 @@ class StubGeneratorActor extends Actor {
   def registerService(id: String, className: String, packagePath: String, jsonPath: String): Future[Any] = {
     val servicePath = copyFile(jsonPath)
 
-    refAc ? CreateXMLReferenceMessage(id, packagePath + "." + className, servicePath)
+    refAc ?? CreateXMLReferenceMessage(id, packagePath + "." + className, servicePath)
   }
   
   def copyFile(path: String): String = {

@@ -1,19 +1,23 @@
 package de.tkip.servicehost.serviceactor
 
+import java.util.Date
+
+import scala.collection.mutable.ArrayBuffer
+
 import akka.actor.Actor
-import de.tkip.servicehost.Messages._
-import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
-import de.tkip.servicehost.serviceactor._
+import akka.actor.ActorRef
 import akka.actor.Props
+
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.subject.misc.Stored
 import de.tkip.sbpm.application.subject.behavior.Target
-import akka.actor.ActorRef
-import java.util.Date
-import scala.collection.mutable.ArrayBuffer
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
-import de.tkip.servicehost.serviceactor.stubgen.State
 import de.tkip.sbpm.eventbus._
+import de.tkip.sbpm.instrumentation.InstrumentedActor
+import de.tkip.servicehost.serviceactor._
+import de.tkip.servicehost.serviceactor.stubgen.State
+import de.tkip.servicehost.Messages._
 
 class StaplesServiceActor extends ServiceActor {
 
@@ -49,13 +53,13 @@ class StaplesServiceActor extends ServiceActor {
       val answer = SubjectToSubjectMessage(0, processId, remoteUserId, "Staples", target, messageType, messageContent)
       println("sending " + answer)
 
-      to_actor ! answer
+      to_actor !! answer
     }
 
     orderMessageBuffer.clear
   }
 
-  def receive: Actor.Receive = {
+  def wrappedReceive = {
     case message: SubjectToSubjectMessage => {
 
       // TODO: use InputPoolActor ?
@@ -64,14 +68,14 @@ class StaplesServiceActor extends ServiceActor {
       orderMessageBuffer += message
 
       // Unlock the sender
-      sender ! Stored(message.messageID)
+      sender !! Stored(message.messageID)
       println("unblocked sender")
     }
     case GetProxyActor => {
       println("received GetProxyActor")
       // TODO implement
       // fake ProcessInstanceProxyActor:
-      sender ! self
+      sender !! self
     }
     case update: UpdateProcessData => {
       userId = update.userID

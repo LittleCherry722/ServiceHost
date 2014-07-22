@@ -1,11 +1,14 @@
 package de.tkip.servicehost.serviceactor.stubgen
 
 import scala.collection.immutable.List
-import de.tkip.servicehost.serviceactor.ServiceActor
+
 import akka.actor.PoisonPill
+
 import de.tkip.sbpm.application.subject.behavior.Transition
-import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.behavior.state.StateData
+import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.instrumentation.ClassTraceLogger
+import de.tkip.servicehost.serviceactor.ServiceActor
 import de.tkip.servicehost.serviceactor.ServiceAttributes._
 
 class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
@@ -22,7 +25,7 @@ object Target {
   }
 }
 
-abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int]) {
+abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int]) extends ClassTraceLogger {
 
   //  var id = -1 //, correlationId: Double
   //  var targetId = -1
@@ -90,7 +93,7 @@ case class SendState(override val id: Int, override val exitType: String, overri
     
     println("sending message: " + message)   
     println(sender)
-    sender ! message
+    sender !! message
       
   }
   

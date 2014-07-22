@@ -1,34 +1,38 @@
 package de.tkip.servicehost
 
-import akka.actor.Actor
-import akka.pattern.ask
-import akka.util.Timeout
+import java.io.File
+import java.io.FileOutputStream
+
+import scala.collection.mutable.Map
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Success, Failure}
+
+import akka.actor.Actor
+import akka.pattern.ask
+import akka.util.Timeout
+
 import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.ReferenceXMLActor.Reference
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.Stored
-import java.io.File
-import java.io.FileOutputStream
-import scala.collection.mutable.Map
+import de.tkip.sbpm.instrumentation.InstrumentedActor
 
-class ServiceHostActor extends Actor {
+class ServiceHostActor extends InstrumentedActor {
 
   val serviceManager = ActorLocator.serviceActorManager
 
-  def receive: Actor.Receive = {
+  def wrappedReceive = {
     case register: RegisterServiceMessage => {
       println("received RegisterServiceMessage: " + register)
-      sender ! Some("some RegisterServiceMessage answer")
+      sender !! Some("some RegisterServiceMessage answer")
     }
     case execute: ExecuteServiceMessage => {
       println("received ExecuteServiceMessage: " + execute)
       serviceManager forward (execute)
-      sender ! Some("some ExecuteServiceMessage answer")
+      sender !! Some("some ExecuteServiceMessage answer")
     }
     case request: CreateProcessInstance => {
       println("received CreateProcessInstance: " + request)
@@ -53,7 +57,7 @@ class ServiceHostActor extends Actor {
       extractFile(Map(upload.serviceJsonName->upload.serviceJson), jsonPath)
 
       implicit val timeout = Timeout(15 seconds)
-      val future = ActorLocator.referenceXMLActor ? CreateXMLReferenceMessage(upload.serviceId, classPath.replaceAll("target/scala-2.10/classes/", "").replaceAll("/", ".")
+      val future = ActorLocator.referenceXMLActor ?? CreateXMLReferenceMessage(upload.serviceId, classPath.replaceAll("target/scala-2.10/classes/", "").replaceAll("/", ".")
         + "." + upload.serviceClassName.replaceAll(".class", ""), jsonPath + "/" + upload.serviceJsonName)
       
       future onComplete {
@@ -71,7 +75,7 @@ class ServiceHostActor extends Actor {
     }
     case something => {
       println("received something: " + something)
-      sender ! Some("some answer")
+      sender !! Some("some answer")
     }
   }
 

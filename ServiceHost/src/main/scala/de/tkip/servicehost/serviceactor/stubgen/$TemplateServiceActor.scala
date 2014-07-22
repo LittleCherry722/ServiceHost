@@ -71,7 +71,7 @@ class $TemplateServiceActor extends ServiceActor {
     }
   }
 
-  def receive: Actor.Receive = {
+  def wrappedReceive = {
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
       println(message)
@@ -90,7 +90,7 @@ class $TemplateServiceActor extends ServiceActor {
       tosender = sender
     }
     case GetProxyActor => {
-      sender ! self
+      sender !! self
     }
 
     case update: UpdateProcessData => {
@@ -131,14 +131,14 @@ class $TemplateServiceActor extends ServiceActor {
         if (inputPool.contains(key)) {
           if (inputPool(key).size < MAX_SIZE) {
             (inputPool(key)).enqueue(Tuple2(tosender, message))
-            tosender ! Stored(message.messageID)
+            tosender !! Stored(message.messageID)
           } else {
-            tosender ! Rejected(message.messageID)
+            tosender !! Rejected(message.messageID)
           }
 
         } else {
           inputPool(key) = Queue(Tuple2(tosender, message))
-          tosender ! Stored(message.messageID)
+          tosender !! Stored(message.messageID)
         }
         if (state.targetIds.size > 1) 
           this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
@@ -158,7 +158,7 @@ class $TemplateServiceActor extends ServiceActor {
   }
 
   def terminate() {
-    ActorLocator.serviceActorManager ! KillProcess(serviceID, thisID)
+    ActorLocator.serviceActorManager !! KillProcess(serviceID, thisID)
   }
 
   def getUserID(): Int = {

@@ -22,12 +22,13 @@ import de.tkip.sbpm.application.subject.behavior._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.eventbus.RemotePublishActor
+import de.tkip.sbpm.instrumentation.ClassTraceLogger
 import de.tkip.servicehost.ReferenceXMLActor.Reference
 import de.tkip.servicehost.serviceactor.stubgen.StubGeneratorActor
 import Messages._
 import de.tkip.servicehost.Messages._
 
-object main extends App {
+object main extends App with ClassTraceLogger {
   println("main starting..")
 
   import DefaultJsonProtocol._
@@ -62,7 +63,7 @@ object main extends App {
 
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
 
-    val future = generator ? path // ask pattern: response will be stored in future
+    val future = generator ?? path // ask pattern: response will be stored in future
     future onComplete {
       case Success(res) => {
           val ref = res.asInstanceOf[Reference]
@@ -108,7 +109,7 @@ object main extends App {
     println("registerInterfaces")
 
     println("ask ReferenceXMLActor for all registered services")
-    val referencesFuture: Future[Any] = referenceXMLActor ? GetAllClassReferencesMessage
+    val referencesFuture: Future[Any] = referenceXMLActor ?? GetAllClassReferencesMessage
     val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
     for {reference <- references} {
       registerInterface(reference)

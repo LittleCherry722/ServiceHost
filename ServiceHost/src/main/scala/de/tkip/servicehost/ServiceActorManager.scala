@@ -1,21 +1,25 @@
 package de.tkip.servicehost
 
-import akka.actor._
-import Messages._
+import java.util.Date
+
 import scala.concurrent.Await
-import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.concurrent.Future
-import akka.pattern.ask
+
+import akka.actor._
+import akka.util.Timeout
+
+import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
-import de.tkip.servicehost.serviceactor.ServiceAttributes._
-import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
-import java.util.Date
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
+import de.tkip.sbpm.instrumentation.InstrumentedActor
+import de.tkip.servicehost.serviceactor.ServiceAttributes._
 
-class ServiceActorManager extends Actor{
+import Messages._
+
+class ServiceActorManager extends InstrumentedActor {
   
   private val referenceXMLActor = ActorLocator.referenceXMLActor
   private implicit val timeout = Timeout(5 seconds)
@@ -25,7 +29,7 @@ class ServiceActorManager extends Actor{
   private val serviceMap =
     collection.mutable.Map[ServiceID, ServiceActorRef]()
   
-  def receive = {
+  def wrappedReceive = {
     case execute: ExecuteServiceMessage => {
       // TODO
     }
@@ -40,7 +44,7 @@ class ServiceActorManager extends Actor{
       println("got CreateProcessInstance: " + request)
 //      val actorInstance = serviceActor("Staples") //forward request
       
-      val future: Future[Any] = ask(referenceXMLActor, GetClassReferenceMessage("Staples"))
+      val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage("Staples")
       val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
       val actorInstance = this.context.actorOf(Props.create(classRef.classReference), "Staples")
       
@@ -67,10 +71,10 @@ class ServiceActorManager extends Actor{
       //val processInstanceData = ProcessInstanceData(processInstanceCount, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
       val processInstanceData = ProcessInstanceData(0, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
       
-      sender ! ProcessInstanceCreated(request, actorInstance, processInstanceData)
+      sender !! ProcessInstanceCreated(request, actorInstance, processInstanceData)
       
 //      actorInstance ! UpdateProcessData(userID, processInstanceCount, processID, manager)
-      actorInstance ! UpdateProcessData(userID, 0, processID, manager)
+      actorInstance !! UpdateProcessData(userID, 0, processID, manager)
       
       processInstanceCount += 1
     }
@@ -82,7 +86,7 @@ class ServiceActorManager extends Actor{
     }
     
     case process: KillProcess => {
-      processServiceMap((process.serviceID, process.processID)) ! PoisonPill
+      processServiceMap((process.serviceID, process.processID)) !! PoisonPill
       processServiceMap.remove((process.serviceID, process.processID))
     }
     
@@ -90,7 +94,7 @@ class ServiceActorManager extends Actor{
   
   def serviceActor(key: ProcessKey): akka.actor.ActorRef = {
 //    serviceMap.getOrElse(serviceID, {
-//      val future: Future[Any] = ask(referenceXMLActor, GetClassReferenceMessage(serviceID))
+//      val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage(serviceID)
 //      val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
 //      val actor = this.context.actorOf(new Props(classRef.classReference), serviceID)
 //      serviceMap += serviceID -> actor
@@ -100,7 +104,7 @@ class ServiceActorManager extends Actor{
     processServiceMap(key)
 //    
 //    processServiceMap.getOrElse(key, {
-//      val future: Future[Any] = ask(referenceXMLActor, GetClassReferenceMessage(serviceID))
+//      val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage(serviceID)
 //      val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
 //      val actor = this.context.actorOf(new Props(classRef.classReference), serviceID)
 //      serviceMap += key -> actor
