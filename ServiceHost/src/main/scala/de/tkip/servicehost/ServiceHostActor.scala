@@ -26,33 +26,33 @@ class ServiceHostActor extends InstrumentedActor {
 
   def wrappedReceive = {
     case register: RegisterServiceMessage => {
-      println("received RegisterServiceMessage: " + register)
+      log.debug("received RegisterServiceMessage: " + register)
       sender !! Some("some RegisterServiceMessage answer")
     }
     case execute: ExecuteServiceMessage => {
-      println("received ExecuteServiceMessage: " + execute)
+      log.debug("received ExecuteServiceMessage: " + execute)
       serviceManager forward (execute)
       sender !! Some("some ExecuteServiceMessage answer")
     }
     case request: CreateProcessInstance => {
-      println("received CreateProcessInstance: " + request)
+      log.debug("received CreateProcessInstance: " + request)
       serviceManager forward request
     }
     case GetProxyActor => {
-      println("received GetProxyActor")
+      log.debug("received GetProxyActor")
       serviceManager forward GetProxyActor
     }
     case message: SubjectToSubjectMessage => {
-      println("got SubjectToSubjectMessage " + message + " from " + sender)
+      log.debug("got SubjectToSubjectMessage " + message + " from " + sender)
       serviceManager forward message
     }
     case s: Stored => {
-      println("received Stored: " + s)
+      log.debug("received Stored: " + s)
     }
     case upload: UploadService => {
       val jsonPath = "src/main/resources/service_JSONs"
       val classPath = "target/scala-2.10/classes/de/tkip/servicehost/serviceactor/stubgen"
-      println(upload.serviceClasses)
+      log.debug(upload.serviceClasses.toString)
       extractFile(upload.serviceClasses, classPath)
       extractFile(Map(upload.serviceJsonName->upload.serviceJson), jsonPath)
 
@@ -74,7 +74,7 @@ class ServiceHostActor extends InstrumentedActor {
       main.registerInterfaces
     }
     case something => {
-      println("received something: " + something)
+      log.warning("received something: " + something)
       sender !! Some("some answer")
     }
   }

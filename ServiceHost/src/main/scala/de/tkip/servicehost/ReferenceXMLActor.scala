@@ -58,7 +58,7 @@ class ReferenceXMLActor extends InstrumentedActor {
   def createXMLReference(id: String, classPath: String, jsonPath: String): Reference = {
     val ref = new Reference(id, classPath, jsonPath)
 
-    println("adding " + ref + " to " + xmlFilePath)
+    log.info("adding " + ref + " to " + xmlFilePath)
 
     val references = getAllReferences :+ ref
 

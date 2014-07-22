@@ -160,16 +160,12 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
 
     // Await the result
     // TODO can be done smarter, but at the moment this actor has a single run
-    val actions =  Await.result(actionFutures, timeout.duration)
+    val actions = Await.result(actionFutures, timeout.duration)
     logger.debug("Collected: " + actions)
 
-    val message = generateAnswer(actions.toArray)
+    val answer = generateAnswer(actions.toArray)
 
-    // collect actions and generate answer for the filtered subject list
-    //val msg = CollectAvailableActions(message)
-    
-    //logger.debug("TRACE: from " + this.self + " to " + "SubjectActionsCollector "+ msg)
-    //context.actorOf(Props(new SubjectActionsCollector), "SubjectActionsCollector____" + UUID.randomUUID().toString()).!(msg)(returnAdress)
-    returnAdress ! message
+    logger.debug("TRACE: from " + this.self + " to " + returnAdress + " " + answer)
+    returnAdress ! answer
   }
 }

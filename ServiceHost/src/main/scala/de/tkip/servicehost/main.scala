@@ -29,7 +29,10 @@ import Messages._
 import de.tkip.servicehost.Messages._
 
 object main extends App with ClassTraceLogger {
-  println("main starting..")
+  val system = ActorSystem("sbpm")
+  val log = system.log
+
+  log.info("main starting..")
 
   import DefaultJsonProtocol._
   
@@ -43,7 +46,6 @@ object main extends App with ClassTraceLogger {
 
   implicit val timeout = Timeout(15 seconds)
 
-  val system = ActorSystem("sbpm")
   
   protected def configString(key: String) =
     system.settings.config.getString(key)
@@ -67,11 +69,13 @@ object main extends App with ClassTraceLogger {
     future onComplete {
       case Success(res) => {
           val ref = res.asInstanceOf[Reference]
-          println("generation completed, json file copied to: " + ref.json)
+          log.info("generation completed, json file copied to: " + ref.json)
+          log.info("shutting down akka system..")
           system.shutdown
         }
       case Failure(e) => {
           e.printStackTrace()
+          log.info("shutting down akka system..")
           system.shutdown
         }
     }
@@ -79,11 +83,11 @@ object main extends App with ClassTraceLogger {
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
     system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
     serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
-    println(serviceHost.path)
+    log.info("serviceHost path: " + serviceHost.path)
     registerInterfaces()
 
     sys.addShutdownHook {
-      println("Shutting down the system...")
+      log.info("Shutting down the system...")
       // TODO: stop futures / running actors
       deregisterInterfaces()
 
@@ -92,7 +96,7 @@ object main extends App with ClassTraceLogger {
   }
 
   def deregisterInterfaces(): Unit = {
-    println("TODO: deregisterInterfaces")
+    log.warning("TODO: deregisterInterfaces")
     // TODO: delete the interfaces from repo // for ... registeredInterfaces
   }
 
@@ -106,19 +110,19 @@ object main extends App with ClassTraceLogger {
    * msg from Extern -> Lokal: output
    */
   def registerInterfaces(): Unit = {
-    println("registerInterfaces")
+    log.debug("registerInterfaces")
 
-    println("ask ReferenceXMLActor for all registered services")
+    log.debug("ask ReferenceXMLActor for all registered services")
     val referencesFuture: Future[Any] = referenceXMLActor ?? GetAllClassReferencesMessage
     val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
     for {reference <- references} {
       registerInterface(reference)
     }
-    println("finished registerInterfaces")
+    log.info("finished registerInterfaces")
   }
 
   def registerInterface(reference: Reference): Unit = {
-    println("read service: " + reference)
+    log.debug("read service: " + reference)
 
     val file = reference.json
     val source = scala.io.Source.fromFile(file)
@@ -187,7 +191,7 @@ object main extends App with ClassTraceLogger {
 
     val jsonString = interface.prettyPrint // TODO: compactPrint 
 
-    println("generated interface json for '" + interfaceName + "'; POST it to repo")
+    log.debug("generated interface json for '" + interfaceName + "'; POST it to repo")
 
     //println(jsonString)
 
@@ -200,13 +204,13 @@ object main extends App with ClassTraceLogger {
     if (result == 200) {
       var id: Int = post.asString.toInt
 
-      println("Registered interface for '" + interfaceName + "' with id '" + id + "' at repository")
+      log.info("Registered interface for '" + interfaceName + "' with id '" + id + "' at repository")
       registeredInterfaces(id) = reference
     } else {
-      println("Some error occurred; HTTP Code: " + result)
+      log.warning("Some error occurred; HTTP Code: " + result)
     }
   }
 
-  println("main started")
+  log.info("main started")
 }
 

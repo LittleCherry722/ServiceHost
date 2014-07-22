@@ -3,6 +3,7 @@ package de.tkip.servicehost.serviceactor.stubgen
 import scala.collection.immutable.List
 
 import akka.actor.PoisonPill
+import akka.event.LoggingAdapter
 
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.behavior.state.StateData
@@ -25,7 +26,7 @@ object Target {
   }
 }
 
-abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int]) extends ClassTraceLogger {
+abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int])(implicit log: LoggingAdapter) extends ClassTraceLogger {
 
   //  var id = -1 //, correlationId: Double
   //  var targetId = -1
@@ -45,7 +46,7 @@ abstract class State(val stateType: String, val id: Int, val exitType: String, v
 
 }
 
-case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target],override val targetIds: Map[BranchID, Int]) extends State("receive", id, exitType, targets, targetIds) {
+case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int])(implicit log: LoggingAdapter) extends State("receive", id, exitType, targets, targetIds) {
   
   
   def process()(implicit actor: ServiceActor) {
@@ -58,7 +59,7 @@ case class ReceiveState(override val id: Int,override val exitType: String,overr
     actor.changeState()
   }
 }
-case class SendState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("send", id, exitType, targets, targetIds) {
+case class SendState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int])(implicit log: LoggingAdapter) extends State("send", id, exitType, targets, targetIds) {
   def process()(implicit actor: ServiceActor) {
     val msg = actor.getMessage()
     send(msg)
@@ -91,10 +92,8 @@ case class SendState(override val id: Int, override val exitType: String, overri
         msg,
         fileInfo)
     
-    println("sending message: " + message)   
-    println(sender)
+    log.debug("sending message: " + message + " to " + sender)
     sender !! message
-      
   }
   
   def getTarget(branchCondition: String): de.tkip.sbpm.application.subject.behavior.Target = {
@@ -103,7 +102,7 @@ case class SendState(override val id: Int, override val exitType: String, overri
     } else targets.head._2.target
   }
 }
-case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("exit", id, exitType, targets, targetIds) {
+case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int])(implicit log: LoggingAdapter) extends State("exit", id, exitType, targets, targetIds) {
 
   def process()(implicit actor: ServiceActor) {
     actor.terminate()

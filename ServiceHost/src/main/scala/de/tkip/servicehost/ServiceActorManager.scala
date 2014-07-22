@@ -41,7 +41,7 @@ class ServiceActorManager extends InstrumentedActor {
       serviceActor((message.target.subjectID,0)) forward message
     }
     case request: CreateProcessInstance => {
-      println("got CreateProcessInstance: " + request)
+      log.debug("got CreateProcessInstance: " + request)
 //      val actorInstance = serviceActor("Staples") //forward request
       
       val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage("Staples")
@@ -79,7 +79,7 @@ class ServiceActorManager extends InstrumentedActor {
       processInstanceCount += 1
     }
     case GetProxyActor => {
-      println("received GetProxyActor")
+      log.info("received GetProxyActor")
       // TODO implement
       // fake ProcessInstanceProxyActor:
       serviceActor(("Staples",0)) forward GetProxyActor

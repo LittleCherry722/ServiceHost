@@ -34,7 +34,7 @@ class StaplesServiceActor extends ServiceActor {
   SbpmEventBus.subscribe(trafficSubscriber, "/traffic")
 
   def handleOrders(eventBusMessage: Any): Unit = {
-    println("handle " + orderMessageBuffer.length + " orders from orderMessageBuffer")
+    log.debug("handle " + orderMessageBuffer.length + " orders from orderMessageBuffer")
 
     for {orderMessage <- orderMessageBuffer} {
       val msgToExternal = false // false: it should not leave sbpm
@@ -51,7 +51,7 @@ class StaplesServiceActor extends ServiceActor {
       }
 
       val answer = SubjectToSubjectMessage(0, processId, remoteUserId, "Staples", target, messageType, messageContent)
-      println("sending " + answer)
+      log.debug("sending " + answer)
 
       to_actor !! answer
     }
@@ -69,7 +69,7 @@ class StaplesServiceActor extends ServiceActor {
 
       // Unlock the sender
       sender !! Stored(message.messageID)
-      println("unblocked sender")
+      log.debug("unblocked sender")
     }
     case GetProxyActor => {
       println("received GetProxyActor")
@@ -82,7 +82,7 @@ class StaplesServiceActor extends ServiceActor {
       processId = update.processID
       manager = update.manager
     }
-    case x => println("received unknown: " + x)
+    case x => log.warning("received unknown: " + x)
   }
 
   def changeState() = {}

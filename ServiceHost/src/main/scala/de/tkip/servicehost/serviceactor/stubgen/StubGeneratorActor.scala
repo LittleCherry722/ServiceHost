@@ -50,7 +50,7 @@ class StubGeneratorActor extends InstrumentedActor {
 
   def wrappedReceive = {
     case path: String => {
-      println("StubGeneratorActor received path " + path)
+      log.info("StubGeneratorActor received path " + path)
       val (name, id, states, messages) = extractStates(path)
       val future = fillInClass("./src/main/scala/de/tkip/servicehost/serviceactor/stubgen/$TemplateServiceActor.scala", name, id, states, messages, path)
       future pipeTo sender // pipe pattern: wait for completion and send the result
@@ -188,6 +188,3 @@ class StubGeneratorActor extends InstrumentedActor {
     outputFile.getPath()
   }
 }
-
-
-
