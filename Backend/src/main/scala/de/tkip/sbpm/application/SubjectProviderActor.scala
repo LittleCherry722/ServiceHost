@@ -89,12 +89,6 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
         generateAnswer)(sender)
     }
 
-    // general matching
-    // Route processInstance messages to the process manager
-    case message: ProcessInstanceMessage => {
-      processManagerActor ! message
-    }
-
     // send subject messages direct to the subject
     case message: SubjectMessage => {
       // TODO muss performanter gehen weils nur ein subject ist
@@ -107,6 +101,12 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
       ) {
         subject.ref ! message
       }
+    }
+
+    // general matching
+    // Route processInstance messages to the process manager
+    case message: ProcessInstanceMessage => {
+      processManagerActor ! message
     }
 
     case message: AnswerMessage => {

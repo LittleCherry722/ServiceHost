@@ -130,12 +130,8 @@ class ProcessManagerActor extends InstrumentedActor {
 
     // general matching
 
-    // TODO muesste man auch zusammenfassenkoennen
+    // SubjectMessage extends trait ProcessInstanceMessage
     case message: ProcessInstanceMessage => {
-      forwardMessageToProcessInstance(message)
-    }
-
-    case message: SubjectMessage => {
       forwardMessageToProcessInstance(message)
     }
 
@@ -162,10 +158,6 @@ class ProcessManagerActor extends InstrumentedActor {
     }
   }
 
-  // to forward a message to the process instance it needs a function to
-  // get the processinstance id
-  private type ForwardProcessInstanceMessage = { def processInstanceID: ProcessInstanceID }
-
   private def createHistoryEntry(userId: Option[UserID],
     processInstanceId: ProcessInstanceID,
     event: String): NewHistoryEntry =
@@ -180,7 +172,7 @@ class ProcessManagerActor extends InstrumentedActor {
   /**
    * Forwards a message to a processinstance
    */
-  private def forwardMessageToProcessInstance(message: ForwardProcessInstanceMessage) {
+  private def forwardMessageToProcessInstance(message: ProcessInstanceMessage) {
     if (processInstanceMap.contains(message.processInstanceID)) {
       processInstanceMap(message.processInstanceID).processInstanceActor.forward(message)
     } else if (message.isInstanceOf[AnswerAbleMessage]) {

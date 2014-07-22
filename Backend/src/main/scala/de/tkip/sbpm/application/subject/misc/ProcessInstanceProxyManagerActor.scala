@@ -5,6 +5,7 @@ import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.miscellaneous._
 import akka.actor.ActorRef
+import akka.actor.ActorSelection
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.pattern.ask
@@ -44,10 +45,10 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
 
       val address = agent.address.toUrl
       val path = "akka.tcp" + "://sbpm" + address + "/user/" + ActorLocator.subjectProviderManagerActorName
-      val agentManager = context.actorFor(path)
+      val agentManagerSelection = context.actorSelection(path)
 
       log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: path = {}", path)
-      log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: targetManager = {}", agentManager)
+      log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: targetManagerSelection = {}", agentManagerSelection)
 
 
       val agentProcessId = agent.processId
@@ -60,7 +61,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
           }
           case None => {
             log.info("PROCESS INSTANCE PROXY MANAGER: Did not find mapping for {}", (agentProcessId, address))
-            val processInstanceInfo = createProcessInstanceEntry(agentProcessId, address, agentManager)
+            val processInstanceInfo = createProcessInstanceEntry(agentProcessId, address, agentManagerSelection)
             (processInstanceMap + ((agentProcessId, address) -> processInstanceInfo), processInstanceInfo)
           }
         }
@@ -85,7 +86,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
   }
 
   private def createProcessInstanceEntry(targetProcessId: ProcessID, targetAddress: String,
-    targetManager: ProcessManagerRef): Future[ProcessInstanceProxy] = {
+    targetManagerSelection: ActorSelection): Future[ProcessInstanceProxy] = {
     // TODO name?
     log.info("Creating new unnamed Process Instance")
     val newProcessInstanceName = "Unnamed"
@@ -105,7 +106,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
 
     val instanceProxy = for {
       // createma the processinstance
-      created <- (targetManager ?? createMessage).mapTo[ProcessInstanceCreated]
+      created <- (targetManagerSelection ?? createMessage).mapTo[ProcessInstanceCreated]
       instanceRef = created.processInstanceActor
       // ask for the proxy actor
       proxy <- (instanceRef ?? GetProxyActor).mapTo[ActorRef]
