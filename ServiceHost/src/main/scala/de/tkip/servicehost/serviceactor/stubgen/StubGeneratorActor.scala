@@ -1,41 +1,51 @@
 package de.tkip.servicehost.serviceactor.stubgen
-import scala.util.parsing.json.JSON
-import de.tkip.sbpm.rest.GraphJsonProtocol._
-import scala.collection.immutable.Map
-import spray.json._
-import java.io.File
-import akka.actor.Actor
-import scala.reflect.ClassTag
-import de.tkip.servicehost.ActorLocator
-import de.tkip.servicehost.Messages._
-import akka.actor.Props
-import de.tkip.servicehost.ReferenceXMLActor
+
 import java.nio.file.Files
+import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 
-import akka.pattern.ask
-import akka.pattern.pipe
-import akka.util.Timeout
+import scala.reflect.ClassTag
+import scala.collection.immutable.Map
+import scala.collection.mutable.{ Map => MutableMap }
 import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
-//import scala.concurrent.ExecutionContext;
+
+import akka.actor.Actor
+import akka.actor.Props
+import akka.pattern.ask
+import akka.pattern.pipe
+import akka.util.Timeout
+
+import spray.json._
+
+import de.tkip.sbpm.model._
+import de.tkip.sbpm.rest.GraphJsonProtocol._
+import de.tkip.servicehost.ActorLocator
+import de.tkip.servicehost.Messages._
+import de.tkip.servicehost.ReferenceXMLActor
 
 class StubGeneratorActor extends Actor {
   implicit val timeout = Timeout(15 seconds)
 
+  lazy val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+
+  case class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: String)
+
   abstract class State {
     def id: Int
-    def exittype: String
-    var targets: Map[String, String]
-    var targetIds: Map[String, Int]
+    var exittype: String
+    def targets: MutableMap[String, String]
+    def targetIds: MutableMap[String, Int]
   }
-  case class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: String)
-  case class ReceiveState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
-  case class SendState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
-  case class ExitState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
-  case class ActionState(id: Int, exittype: String, var targets: Map[String, String], var targetIds: Map[String, Int]) extends State
+  case class ReceiveState(id: Int, var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap()) extends State
+  case class SendState(id: Int,    var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap()) extends State
+  case class ExitState(id: Int,    var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap()) extends State
+  case class ActionState(id: Int,  var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap()) extends State
+
+  case class ServiceExport(version: Int, name: String, author: String, graph: GraphSubject, messages: Map[String, GraphMessage], conversations: Map[String, GraphConversation], processId: Int)
+  implicit val serviceExportFormat = jsonFormat7(ServiceExport)
 
   def receive = {
     case path: String => {
@@ -46,68 +56,61 @@ class StubGeneratorActor extends Actor {
     }
   }
   
-  def extractStates(jsonPath: String): (String, String, Map[Int,State],Map[String,String]) = {
+  def extractStates(jsonPath: String): (String, String, Map[Int,State], Map[String,String]) = {
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString
-    val json: Option[Any] = JSON.parseFull(json_string)
-    val process: Map[String, Any] = Map() ++ json.get.asInstanceOf[Map[String, Any]]
-    var states: Map[Int, Any] = Map()
-    var statesList: Map[Int,State] = Map()
+    val serviceExport: ServiceExport = json_string.parseJson.convertTo[ServiceExport]
 
-    val graph = process("graph").asInstanceOf[Map[String, Any]]
-    val messages = process.getOrElse("messages", Map[String,String]()).asInstanceOf[Map[String, String]]
-    val macros = graph("macros").asInstanceOf[List[Map[String, Any]]]
-    val macro = macros(0)
-    val nodes = macro("nodes").asInstanceOf[List[Map[String, Any]]]
-    for (node <- nodes) yield {
-      states = states + (node.asInstanceOf[Map[String, Any]]("id").asInstanceOf[Double].toInt -> (node, scala.collection.mutable.Map(), scala.collection.mutable.Map()))
-      if (node("type") == "end")
-        statesList = statesList ++ Map(node("id").asInstanceOf[Double].toInt -> ExitState(node("id").asInstanceOf[Double].toInt, null, Map(), Map()))
-    }
-    val edges = macro("edges").asInstanceOf[List[Map[String, Any]]]
-    for (edge <- edges) yield {
-      val start: Map[String, Any] = states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], Map[String, String], Map[String, Int]]]._1
-      var t: Map[String, Any] = Map()
-      if (edge.contains("target") && !(edge("target") == ""))
-        t = edge("target").asInstanceOf[Map[String, Any]]
-      var state: State = null
-      start("type") match {
-        case "receive" =>{
-          if(statesList.contains(start("id").asInstanceOf[Double].toInt))
-            state = statesList(start("id").asInstanceOf[Double].toInt)
-          else 
-            state = ReceiveState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
-        }
-        case "send" =>{
-          if(statesList.contains(start("id").asInstanceOf[Double].toInt))
-            state = statesList(start("id").asInstanceOf[Double].toInt)
-          else 
-            state = SendState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
-        }
-        case "action" =>{
-           if(statesList.contains(start("id").asInstanceOf[Double].toInt))
-            state = statesList(start("id").asInstanceOf[Double].toInt)
-           else
-            state = ActionState(start("id").asInstanceOf[Double].toInt, "\"" + edge("type").asInstanceOf[String] + "\"", null, null)
-        }
+    val messages: Map[String, String] = serviceExport.messages.map({ case (x, m) => (m.id, m.name) }) // will be returned
+
+    val graph: GraphSubject = serviceExport.graph
+
+    val graphId: String = graph.id // will be returned
+    val graphName: String = graph.name // will be returned
+
+    val nodes: Map[Short, GraphNode] = graph.macros.values.head.nodes // just take the first macro..
+    val edges: Seq[GraphEdge] = graph.macros.values.head.edges // just take the first macro..
+
+    // will be returned
+    val statesList: Map[Int, State] = for ((id, node) <- nodes) yield {
+      node.nodeType match {
+        case StateType.ReceiveStateString => (id.toInt -> ReceiveState(id.toInt))
+        case StateType.SendStateString    => (id.toInt -> SendState(id.toInt))
+        case StateType.ActStateString     => (id.toInt -> ActionState(id.toInt))
+        case StateType.EndStateString     => (id.toInt -> ExitState(id.toInt))
+        case _ => (id.toInt -> null)
       }
-      var target: String = null
-      state match {
-        case s: ActionState =>
-        case s: ExitState =>
-        case _ => target = "Target(\"" + t("id").asInstanceOf[String] + "\"," + t("min").asInstanceOf[Double].toInt + "," + t("max").asInstanceOf[Double].toInt + "," + t("createNew").asInstanceOf[Boolean] + "," + "\"" + t.getOrElse("variable", "").asInstanceOf[String] + "\")"
-      }
-      val text = edge("text")
-      val endId = edge("end").asInstanceOf[Double].toInt
-      states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], scala.collection.mutable.Map[String, String], Map[String, Int]]]._2("\"" + text + "\"") = target
-      states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], Map[String, String], scala.collection.mutable.Map[String, Int]]]._3("\"" + text + "\"") = endId
-      state.targets = Map() ++ states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], Map[String, String], Map[String, Int]]]._2
-      state.targetIds = Map() ++ states(edge("start").asInstanceOf[Double].toInt).asInstanceOf[Tuple3[Map[String, Any], Map[String, String], Map[String, Int]]]._3
-      statesList = statesList ++ Map(state.id -> state)
     }
-    (graph("name").asInstanceOf[String], graph("id").asInstanceOf[String], statesList,messages)
+
+    for (edge <- edges) {
+      val startNodeId: Int = edge.startNodeId.toInt
+      val state: State = statesList(startNodeId)
+
+      // set exit type of its starting node
+      // quotes needs to be escaped, as the case class is printed into source code
+      state.exittype = "\"" + edge.edgeType + "\""
+
+      if (edge.target.isDefined) {
+        val t = edge.target.get
+
+        val target: String = state match {
+          case (ReceiveState(_,_,_,_) | SendState(_,_,_,_)) => "Target(\"" + t.subjectId + "\"," + t.min + "," + t.max + "," + t.createNew + "," + "\"" + t.variableId.getOrElse("") + "\")"
+          case _ => null
+        }
+
+        // quotes needs to be escaped, as the case class is printed into source code
+        val text = "\"" + edge.text + "\""
+        val endId = edge.endNodeId.toInt
+
+        // add this edge to its starting node
+        state.targets += (text -> target)
+        state.targetIds += (text -> endId)
+      }
+    }
+
+    (graphName, graphId, statesList, messages)
   }
 
-  def fillInClass(classPath: String, name: String, id: String, states: Map[Int,State], messages: Map[String,String], json: String): Future[Any] = {
+  def fillInClass(classPath: String, name: String, id: String, states: Map[Int, State], messages: Map[String, String], jsonPath: String): Future[Any] = {
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
     var text = ""
@@ -152,7 +155,7 @@ class StubGeneratorActor extends Actor {
     pw.print(classText)
     pw.close()
     val packagePath = f.getParent().replace("\\", "/")
-    registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."), json)
+    registerService(id, f.getName().replaceAll(".scala", ""), packagePath.substring(packagePath.indexOf("/de/") + 1, packagePath.length()).replaceAll("/", "."), jsonPath)
   }
   
   def fillInMessages(classText: String, messages:Map[String,String]):String ={
@@ -163,23 +166,23 @@ class StubGeneratorActor extends Actor {
     classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
   }
 
-  def registerService(id: String, className: String, packagePath: String, json: String): Future[Any] = {
-    val servicePath=copyFile(json)
-    val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
+  def registerService(id: String, className: String, packagePath: String, jsonPath: String): Future[Any] = {
+    val servicePath = copyFile(jsonPath)
 
     refAc ? CreateXMLReferenceMessage(id, packagePath + "." + className, servicePath)
   }
   
-  def copyFile(path:String):String ={
-    val inputFile:File = new File(path); 
-    val dir:File=new File("./src/main/resources/service_JSONs")
-    if(!dir.exists())
-      dir.mkdirs()
-    val outputFile = new File(dir+File.separator+inputFile.getName()); 
+  def copyFile(path: String): String = {
+    val outputDir: File = new File("./src/main/resources/service_JSONs")
+    if(!outputDir.exists())
+      outputDir.mkdirs()
 
-    val out = new FileWriter(outputFile); 
+    val inputFile: File = new File(path);
+    val outputFile = new File(outputDir + File.separator + inputFile.getName());
+
+    val out = new FileWriter(outputFile);
     val json_string = scala.io.Source.fromFile(path).getLines.mkString
-    out.write(json_string); 
+    out.write(json_string);
     out.close();
     outputFile.getPath()
   }
