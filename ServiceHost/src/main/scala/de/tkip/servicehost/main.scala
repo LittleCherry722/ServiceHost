@@ -5,7 +5,6 @@ import java.io.FileOutputStream
 import java.util.Date
 import spray.json._
 import scala.collection.mutable.ArrayBuffer
-import scala.util.parsing.json.JSON
 
 import akka.actor._
 import akka.pattern.ask
