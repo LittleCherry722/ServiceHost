@@ -40,13 +40,13 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
   def wrappedReceive = {
     // TODO exchange GetSubjectAddr -> GetProcessInstanceAddr
     case GetProcessInstanceProxy(agent) => {
-      val address = agent.address.toUrl
-      val agentManager =
-        context.actorFor("akka.tcp" + "://sbpm" + address +
-          "/user/" + ActorLocator.subjectProviderManagerActorName)
+      log.info("GetProcessInstanceProxy for agent " + agent)
 
-      log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: path = {}", "akka.tcp" + "://sbpm" + address +
-                "/user/" + ActorLocator.subjectProviderManagerActorName)
+      val address = agent.address.toUrl
+      val path = "akka.tcp" + "://sbpm" + address + "/user/" + ActorLocator.subjectProviderManagerActorName
+      val agentManager = context.actorFor(path)
+
+      log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: path = {}", path)
       log.debug("ProcessInstanceProxyManagerActor.GetProcessInstanceProxy: targetManager = {}", agentManager)
 
 
