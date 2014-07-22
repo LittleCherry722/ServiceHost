@@ -13,6 +13,8 @@ libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-actor" % "2.3.4",
     "com.typesafe.akka" %% "akka-remote" % "2.3.4",
     "com.typesafe.akka" %% "akka-slf4j" % "2.3.4",
+    "ch.qos.logback" % "logback-classic" % "1.1.2",
+    "com.typesafe.slick" %% "slick" % "2.1.0-M2",
     "org.scalaj" %% "scalaj-http" % "0.3.15",
     "io.spray" %% "spray-json" % "1.2.6"
 )
