@@ -54,8 +54,6 @@ testOptions in Test <+= (target in Test) map {
 
 fork in Test := true
 
-// atmosSettings
-
 unmanagedSourceDirectories in Compile += baseDirectory.value / ".." / "eventbus"
 
 mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.equals("logback.xml")) }

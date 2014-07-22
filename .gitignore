@@ -3,6 +3,10 @@
 .tern-port
 *.class
 *.log
+*.*~
+*.backup
+*.orig
+*.swo
 *.swp
 .scala_dependencies
 *.git

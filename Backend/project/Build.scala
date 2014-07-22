@@ -45,16 +45,14 @@ object ProjectBuild extends Build {
 
         "org.scalaj" %% "scalaj-http" % "0.3.15",
 
-        "com.google.guava" % "guava" % "14.0.1",
-        "com.google.code.findbugs" % "jsr305" % "2.0.1",
+        //"com.google.guava" % "guava" % "14.0.1",
+        //"com.google.code.findbugs" % "jsr305" % "2.0.1",
         "com.google.http-client" % "google-http-client-jackson2" % "1.15.0-rc",
         "com.google.api-client" % "google-api-client-java6" % "1.16.0-rc",
         "com.google.apis"       % "google-api-services-oauth2" % "v2-rev38-1.15.0-rc",
         "com.google.apis"       % "google-api-services-drive" % "v2-rev77-1.15.0-rc",
         "com.google.apis"       % "google-api-services-calendar" % "v3-rev55-1.16.0-rc"
         // "com.google.oauth-client" % "google-oauth-client-java6" % "1.15.0-rc"
-
-        // "com.typesafe.atmos" %% "trace-akka-2.2.1" % "1.3.0"
       )
     )
   )
