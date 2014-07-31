@@ -52,10 +52,17 @@ import de.tkip.sbpm.application.subject.misc.MacroTerminated
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import akka.event.Logging
 
+object BlackboxStateActor {
+  private var current = 0
+  private def blackboxInstance = {current += 1; current}
+}
+
 case class BlackboxStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   val mySubjectID: SubjectID = data.subjectData.subject.id
+
+  val blackboxInstance = BlackboxStateActor.blackboxInstance
 
   private lazy val persistanceActor = ActorLocator.persistenceActor
 
@@ -156,7 +163,7 @@ case class BlackboxStateActor(data: StateData)
   }
 
   def callMacro(m: Array[State]): Unit = {
-    val macroName = "foo@blackbox"
+    val macroName = blackboxInstance + "@blackbox"
     log.info("=============================")
     log.info("=============================")
     log.info("callMacro: " + macroName + " => " + m.mkString(", "))
