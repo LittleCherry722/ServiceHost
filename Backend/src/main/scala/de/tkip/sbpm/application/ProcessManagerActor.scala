@@ -154,7 +154,7 @@ class ProcessManagerActor extends InstrumentedActor {
     }
 
     case message => {
-      log.error("Not impemented: " + message)
+      log.error("Not implemented: " + message)
     }
   }
 
