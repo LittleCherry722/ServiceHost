@@ -65,7 +65,7 @@ class InternalBehaviorActor(
   macroId: String,
   macroStartState: Option[ActorRef],
   data: SubjectData,
-  inputPoolActor: ActorRef) extends InstrumentedActor with DefaultLogging {
+  inputPoolActor: ActorRef) extends InstrumentedActor {
   // extract the data
   implicit val timeout = Timeout(2000)
 
@@ -95,7 +95,7 @@ class InternalBehaviorActor(
         (id, state) <- currentStatesMap;
         if (!statesMap(id).observerState)
       ) {
-        state ! DisableState
+        state !! DisableState
       }
 
     }
@@ -130,7 +130,7 @@ class InternalBehaviorActor(
       val next: State = statesMap(change.nextState)
       if (next.stateType == StateType.ArchiveStateType) {
         val msg = new AutoArchive(current.transitions.filter(_.successorID == next.id)(0))
-        currentStatesMap(change.nextState) ! msg
+        currentStatesMap(change.nextState) !! msg
       }
       // create the History Entry and send it to the subject
         val msg = current.stateType.toString() match {
@@ -160,7 +160,7 @@ class InternalBehaviorActor(
                 change.history.data))
               else None)    
         }
-      context.parent ! msg
+      context.parent !! msg
     }
 
     case ea: ExecuteAction => {
@@ -169,14 +169,14 @@ class InternalBehaviorActor(
 
     case terminated: MacroTerminated => {
       if (macroStartState.isDefined) {
-        data.blockingHandlerActor ! BlockUser(userID)
-        macroStartState.get ! terminated
+        data.blockingHandlerActor !! BlockUser(userID)
+        macroStartState.get !! terminated
       }
-      context.parent ! terminated
+      context.parent !! terminated
     }
 
     case m: CallMacro => {
-      context.parent ! m
+      context.parent !! m
     }
 
     case getActions: GetAvailableAction => {
@@ -190,7 +190,7 @@ class InternalBehaviorActor(
 
     // general matching
     case message: SubjectProviderMessage => {
-      context.parent ! message
+      context.parent !! message
     }
     case av: AddVariable => {
 
@@ -212,7 +212,7 @@ class InternalBehaviorActor(
           visited += t.successorID
           stateBuffer += t.successorID
           if (statesMap(t.successorID).stateType.toString().equals("modaljoin")) {
-            sender ! statesMap(t.successorID).id
+            sender !! statesMap(t.successorID).id
             notFind = true
           }
         }
@@ -252,7 +252,7 @@ class InternalBehaviorActor(
     if (currentStatesMap contains state) {
       val currentState = currentStatesMap(state)
       // kill the state
-      currentState ! KillState
+      currentState !! KillState
       currentStatesMap -= state
     } else {
       log.debug("Kill State for a State, which does not exits")
@@ -267,8 +267,8 @@ class InternalBehaviorActor(
         log.debug("State /%s/%s/%s is already running".format(userID, subjectID, state))
         // TODO hier message wegen modaljoin!
         if (statesMap(state).stateType == ModalJoinStateType) {
-          currentStatesMap(state) ! TransitionJoined
-          data.blockingHandlerActor ! UnBlockUser(userID)
+          currentStatesMap(state) !! TransitionJoined
+          data.blockingHandlerActor !! UnBlockUser(userID)
         }
       } else {
         currentStatesMap += state -> parseState(statesMap(state))
