@@ -231,6 +231,7 @@ class InternalBehaviorActor(
    * Adds a state to the internal model
    */
   private def addStateToModel(state: State) {
+    log.debug("addStateToModel: " + state)
     if (state.startState) {
       log.debug("Set startstate: " + state)
       startState = state.id
@@ -241,6 +242,7 @@ class InternalBehaviorActor(
   private val currentStatesMap: mutable.Map[StateID, BehaviorStateRef] = mutable.Map()
   private def changeState(from: StateID, to: StateID) = {
     // kill the currentState
+    log.debug("kill the current state")
     killState(from)
 
     // TODO damit umgehen, wenn target ein ModalJoin State ist
@@ -271,6 +273,7 @@ class InternalBehaviorActor(
           data.blockingHandlerActor ! UnBlockUser(userID)
         }
       } else {
+        log.debug("get statesMap, parse it and add result to currentStateMap")
         currentStatesMap += state -> parseState(statesMap(state))
       }
     } else {
