@@ -52,8 +52,6 @@ object ProcessInstanceActor {
 class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedActor {
   import ProcessInstanceActor.{ MappingInfo, AgentsMap }
 
-  // This case class is to add Subjects to this ProcessInstance
-  private case class AddSubject(userID: UserID, subjectID: SubjectID)
 
   import context.dispatcher
   implicit val timeout = Timeout(4 seconds)
