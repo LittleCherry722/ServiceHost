@@ -47,6 +47,7 @@ import de.tkip.sbpm.application.subject.misc.ActionIDProvider
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.subject.behavior._
+import de.tkip.sbpm.application.ProcessInstanceActor.{MappingInfo, AgentsMap, RegisterSubjects}
 import de.tkip.sbpm.application.subject.CallMacroStates
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
@@ -110,6 +111,25 @@ case class BlackboxStateActor(data: StateData)
 
   val plaintextGraph: String = loadPlaintextGraph
 
+  private def extractOwnSubjectAndCallMainMacro(subjects: Map[SubjectID, SubjectLike]): Unit = {
+    // TODO: check if own subject exists
+    val subject: Subject = subjects(mySubjectID).asInstanceOf[Subject]
+
+    val m: Array[State] = subject.mainMacro.states
+
+    Thread.sleep(1000)
+
+    log.info("=============================")
+    log.info("=============================")
+    log.info("==== currentMacro loaded ====")
+    log.info("=============================")
+    log.info("=============================")
+
+    Thread.sleep(1000)
+
+    callMacro(m)
+  }
+
   rolesFuture onComplete {
     case Success(res) => {
       log.info("rolesFuture Success")
@@ -122,22 +142,20 @@ case class BlackboxStateActor(data: StateData)
 
       val processGraph: ProcessGraph = marshallGraph(plaintextGraph)
 
-      // TODO: check if subject exists
-      val subject: Subject = processGraph.subjects(mySubjectID).asInstanceOf[Subject]
+      val subjects: Map[SubjectID, SubjectLike] = processGraph.subjects
 
-      val m: Array[State] = subject.mainMacro.states
+      // register all used subjects except the own
+      val s = subjects.filterNot(_._1 == mySubjectID)
+      val a: AgentsMap = Map("Subj2:32746d8f-6a25-4d73-b5c7-7d9c42fb94d7" -> Set(Agent(29, AgentAddress("127.0.0.1", 2551), "Subj2:32746d8f-6a25-4d73-b5c7-7d9c42fb94d7"))) // TODO: hardcoded
 
-      Thread.sleep(1000)
+      val msg = RegisterSubjects(s, a)
 
-      log.info("=============================")
-      log.info("=============================")
-      log.info("==== currentMacro loaded ====")
-      log.info("=============================")
-      log.info("=============================")
+      // TODO: include subject information in callmacro
+      context.parent ! msg
 
-      Thread.sleep(1000)
+      log.info("registered subjects")
 
-      callMacro(m)
+      extractOwnSubjectAndCallMainMacro(subjects)
     }
     case Failure(e) => {
       e.printStackTrace()
@@ -159,6 +177,7 @@ case class BlackboxStateActor(data: StateData)
 
   def exit(): Unit = {
     log.info("exit")
+
     changeState(exitTransitions(0).successorID, data, null)
   }
 

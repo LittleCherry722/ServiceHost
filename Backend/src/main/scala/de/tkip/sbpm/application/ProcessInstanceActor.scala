@@ -29,6 +29,7 @@ import de.tkip.sbpm.model.ProcessInstance
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject._
 import scala.collection.immutable
+import scala.collection.mutable.{ Map => MutableMap }
 import akka.actor.Status.Failure
 import scalaj.http.{Http, HttpOptions}
 import de.tkip.sbpm.persistence.query._
@@ -44,14 +45,16 @@ import de.tkip.sbpm.repository.RepositoryPersistenceActor.{AgentsMappingResponse
 object ProcessInstanceActor {
   type MappingInfo = immutable.Set[Agent]
   type AgentsMap = immutable.Map[SubjectID, MappingInfo]
+
+  // This case class adds dynamically Subjects and Agents to this ProcessInstance
+  case class RegisterSubjects(subjects: Map[SubjectID, SubjectLike], agentsMapping: AgentsMap)
 }
 
 /**
  * instantiates SubjectActor's and manages their interactions
  */
 class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedActor {
-  import ProcessInstanceActor.{ MappingInfo, AgentsMap }
-
+  import ProcessInstanceActor._
 
   import context.dispatcher
   implicit val timeout = Timeout(4 seconds)
@@ -67,16 +70,17 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private var processName: String = _
   private var persistenceGraph: Graph = _
   private var graph: ProcessGraph = _
+  private val additionalSubjects = MutableMap[SubjectID, SubjectLike]() // TODO: read all subjects from graph to avoid two subject maps
 
   // whether the process instance is terminated or not
   private var runningSubjectCounter = 0
   private def isTerminated = runningSubjectCounter == 0
   // this map stores all Subject(Container) with their IDs
-  private val subjectMap = collection.mutable.Map[SubjectID, SubjectContainer]()
+  private val subjectMap = MutableMap[SubjectID, SubjectContainer]()
   // dirty hack to discard every subject that is internal for this PE.
   // TODO Should much rather compare the Graph and subject URLs,
   // as one PE could, in theory, implement its own interface.
-  private var agentsMap = request.agentsMap
+  private var agentsMap = request.agentsMap // TODO: Mutable ?
 
   val url = SystemProperties.akkaRemoteUrl
   private val processInstanceManger: ActorRef =
@@ -166,11 +170,13 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       log.debug("process instance [" + id + "]: subject terminated " + st.subjectID)
     }
 
-    case sm: SubjectToSubjectMessage if graph.subjects.contains(sm.to) => {
+    case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to) || additionalSubjects.contains(sm.to)) => {
       val to = sm.to
       // Send the message to the container, it will deal with it
       log.info("Subject to Subject Message received. Updating subject map and forwarding message. Subject mapping now: {}", subjectMap)
-      subjectMap.getOrElseUpdate(to, createSubjectContainer(graph.subjects(to)))
+      val subj: SubjectLike = if (graph.subjects.contains(sm.to)) { graph.subjects(to) } else { additionalSubjects(to) }
+      // TODO: remove from graphSubject!
+      subjectMap.getOrElseUpdate(to, createSubjectContainer(subj))
       log.info("Subject Mapping after update: {}", subjectMap)
       subjectMap(to).send(sm)
     }
@@ -203,14 +209,28 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     }
 
     case message: GetAgentsList => {
+      log.info("GetAgentsList: " + message)
       val mappingResponse = GetAgentsListResponse(createSubjectMapping(message.processId, message.url).toMap)
       sender !! mappingResponse
     }
+
+    case rs: RegisterSubjects => {
+      registerAdditionalSubjects(rs.subjects)
+
+      addAgentsMapping(rs.agentsMapping)
+    }
+
+    case x => log.warning("ProcessInstanceActor did not handle: " + x)
+  }
+
+  private def registerAdditionalSubjects(subjects: Map[SubjectID, SubjectLike]): Unit = {
+    additionalSubjects ++= subjects
   }
 
   private var sendProcessInstanceCreated = true
   private def createProcessInstanceData(actions: Array[AvailableAction]) =
     ProcessInstanceData(id, name, processID, processName, persistenceGraph, false, startTime, request.userID, actions)
+
   private def trySendProcessInstanceCreated() {
 
     if (sendProcessInstanceCreated) {
@@ -273,6 +293,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   }
 
   private def externalSubjectAgent(subject: ExternalSubject): Set[Agent] = {
+    log.info("externalSubjectAgent: " + subject)
     // If an agents list for this subject exists, use it.
     // Otherwise update the list and return agents for this external subject.
     // May still be an empty set if no agents exist.
@@ -291,7 +312,18 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     }
   }
 
+  private def addAgentsMapping(mapping: AgentsMap): Unit = {
+    val mutableAgentsMap: MutableMap[SubjectID, Set[Agent]] = MutableMap() ++ this.agentsMap
+
+    for ((subject, agents) <- mapping) {
+      mutableAgentsMap(subject) = agentsMap.getOrElse(subject, Set()) ++ agents
+    }
+
+    this.agentsMap = mutableAgentsMap.toMap
+  }
+
   private def updateAgentsMapping(): AgentsMap = {
+    log.info("updateAgentsMapping")
     // Get the IDs of all external Subjects, then only take those for which we do not have
     // a agentMap, aka external subjects with unknown agents
     val externalSubjectIds = graph.externalSubjects.map(_.id).filterNot { sid =>
@@ -313,7 +345,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   private def createSubjectMapping(processId: ProcessID, url: String): Map[SubjectID, MappingInfo] = {
     log.debug("create subject mapping for {}@{}", processId, url)
 
-    import scala.collection.mutable.{ Map => MutableMap }
     // Own address is just the akka port map
     val ownAddress = AgentAddress(ip = SystemProperties.akkaRemoteHostname
       , port = SystemProperties.akkaRemotePort)
@@ -332,6 +363,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   }
 
   private def getInterfacePartnerSubjects: Seq[SubjectLike] = {
+    // TODO: additionalSubjects ?
     graph.subjects.map(_._2).filter(!_.external).toSeq
   }
 }

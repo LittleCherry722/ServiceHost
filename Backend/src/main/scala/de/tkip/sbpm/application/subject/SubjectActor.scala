@@ -35,6 +35,7 @@ import ExecutionContext.Implicits.global
 import akka.util.Timeout
 import de.tkip.sbpm.application.subject.misc.DisableNonObserverStates
 import de.tkip.sbpm.application.subject.misc.KillNonObserverStates
+import de.tkip.sbpm.application.ProcessInstanceActor.RegisterSubjects
 import akka.actor.Status.Failure
 
 case class CallMacro(callActor: ActorRef, name: String)
@@ -223,6 +224,10 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     case message: SubjectProviderMessage => {
       // a message to the subject provider will be send over the process instance
       context.parent ! message
+    }
+
+    case m: RegisterSubjects => {
+      context.parent forward m
     }
 
     case s => {
