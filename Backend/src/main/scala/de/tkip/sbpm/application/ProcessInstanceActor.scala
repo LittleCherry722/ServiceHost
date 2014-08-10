@@ -96,31 +96,35 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     log.debug("subject mapping: {}", agentsMap)
 
 //    try {
-      // TODO schoener machen
-      val dataBaseAccessFuture = for {
-        // get the process
-        processFuture <- (ActorLocator.persistenceActor ?
-          Processes.Read.ById(processID)).mapTo[Option[Process]]
-        // save this process instance in the persistence
-        processInstanceIDFuture <- (ActorLocator.persistenceActor ?
-          ProcessInstances.Save(ProcessInstance(None, processID, processFuture.get.activeGraphId.get, None)))
-          .mapTo[Option[Int]]
+      val persistenceActor = ActorLocator.persistenceActor
 
-        // get the corresponding graph
-        graphFuture <- (ActorLocator.persistenceActor ?
-          Graphs.Read.ById(processFuture.get.activeGraphId.get)).mapTo[Option[Graph]]
-      } yield (processInstanceIDFuture.get, processFuture.get.name, graphFuture.get)
+      // get the process
+      val processFuture = (persistenceActor ?? Processes.Read.ById(processID)).mapTo[Option[Process]]
+
+      val process = Await.result(processFuture, timeout.duration);
+
+      // save this process instance in the persistence
+      val processInstanceIDFuture = (persistenceActor ?? ProcessInstances.Save(ProcessInstance(None, processID, process.get.activeGraphId.get, None))).mapTo[Option[Int]]
+
+      // get the corresponding graph
+      val graphFuture = (persistenceActor ?? Graphs.Read.ById(process.get.activeGraphId.get)).mapTo[Option[Graph]]
+
+      // create combined futures
+      val dataBaseAccessFuture = for {
+        processInstanceID <- processInstanceIDFuture
+        graph <- graphFuture
+      } yield (processInstanceID, graph)
+
       // evaluate the Future
-      val (idTemp, processNameTemp, graphTemp) =
-        Await.result(dataBaseAccessFuture, timeout.duration)
-      id = idTemp
-      processName = processNameTemp
-      persistenceGraph = graphTemp
+      val (idTemp, persistenceGraphTemp) = Await.result(dataBaseAccessFuture, timeout.duration)
+      id = idTemp.get
+      processName = process.get.name
+      persistenceGraph = persistenceGraphTemp.get
 
       // parse the start-subjects into an Array
-      val startSubjects: Iterable[SubjectID] = graphTemp.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
+      val startSubjects: Iterable[SubjectID] = persistenceGraph.subjects.filter(_._2.isStartSubject.getOrElse(false)).keys
       // parse the graph into the internal structure
-      graph = parseGraph(graphTemp)
+      graph = parseGraph(persistenceGraph)
 
       // TODO modify to the right version
       log.debug("All startSubjects: {}", startSubjects)
@@ -132,6 +136,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
         // the container shall contain a subject -> create
         subjectMap(startSubject).createSubject(request.userID)
       }
+
       // send processinstance created, when the block is closed
 
       blockingHandlerActor ! SendProcessInstanceCreated(request.userID)
@@ -187,7 +192,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
 
     // send forward if no subject has to be created else wait
     case message: ActionExecuted => {
-      System.err.println("Executed " + message)
+      log.info("Executed " + message)
       createExecuteActionAnswer(message.ea)
     }
 
