@@ -49,13 +49,14 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def optionCorrelationId = column[Option[String]]("option_correlation_id", DbType.stringIdentifier)
     def optionConversationId = column[Option[String]]("option_conversation_id", DbType.stringIdentifier)
     def optionNodeId = column[Option[Short]]("option_node_id", DbType.smallint)
+    def chooseAgentSubject = column[Option[String]]("choose_agent_subject", DbType.stringIdentifier)
     def executeMacroId = column[Option[String]]("execute_macro_id", DbType.stringIdentifier)
 
     def * = (id, macroId, subjectId, graphId, text, isStart, isEnd, nodeType
       , manualPositionOffsetX, manualPositionOffsetY, isAutoExecute
       , isDisabled, isMajorStartNode, conversationId, variableId, optionMessageId
       , optionSubjectId, optionCorrelationId, optionConversationId, optionNodeId
-      , executeMacroId) <> (GraphNode.tupled, GraphNode.unapply)
+      , chooseAgentSubject, executeMacroId) <> (GraphNode.tupled, GraphNode.unapply)
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
 

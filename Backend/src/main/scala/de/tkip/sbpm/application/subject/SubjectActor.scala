@@ -187,12 +187,10 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
 
     case gaa: GetAvailableAction => {
       // Create a Future with the available actions
-      val actionFutures =
-        Future.sequence(
-          for ((_, c) <- macroBehaviorActors) yield (c ?? gaa).mapTo[Seq[AvailableAction]])
-
+      val actionsFuture = Future.sequence(for ((_, c) <- macroBehaviorActors) yield (c ?? gaa).mapTo[Seq[AvailableAction]])
+//      val actionFutures : Future[Iterable[Seq[AvailableAction]]] = Future.sequence(actionsWithAgents)
       // and pipe the actions back to the sender
-      actionFutures pipeTo sender
+      actionsFuture pipeTo sender
     }
 
     case action: ExecuteAction => {

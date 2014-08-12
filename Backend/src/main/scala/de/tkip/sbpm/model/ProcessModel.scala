@@ -31,6 +31,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val ActivateStateString = "$activatestate"
   val DeactivateStateString = "$deactivatestate"
   val DecisionStateString = "$decision"
+  val ChooseAgentStateString = "$chooseagent"
   val ModalSplitStateString = "modalsplit"
   val ModalJoinStateString = "modaljoin"
   val SplitGuardStateString = "$splitguard"
@@ -55,6 +56,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val MacroStateType = Value(MacroStateString)
   val TauStateType = Value(TauStateString)
   val ArchiveStateType = Value(ArchiveStateString)
+  val ChooseAgentStateType = Value(ChooseAgentStateString)
 
   // for marshalling and unmarshalling:
   def fromStringtoStateType(stateType: String): StateType = try {
@@ -81,7 +83,8 @@ case class State(
   observerState: Boolean,
   callMacro: Option[String],
   options: StateOptions,
-  transitions: Array[Transition])
+  transitions: Array[Transition],
+  chooseAgentSubject: Option[String])
 
 case class StateOptions(
   messageType: Option[MessageType],

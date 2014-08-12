@@ -69,6 +69,8 @@ object Boot extends App with SimpleRoutingApp {
               path("") {
                 entity(as[String]) {
                   entry =>
+                    println("received new interface:")
+                    println(entry)
                     val future = (repoActor ? AddInterface(ip, entry)).mapTo[Option[String]]
                     onSuccess(future) {
                       case Some(s) => complete(s)

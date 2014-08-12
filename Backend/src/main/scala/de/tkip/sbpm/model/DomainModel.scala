@@ -212,6 +212,7 @@ case class GraphNode(id: Short,
   conversationId: Option[String],
   variableId: Option[String],
   options: GraphNodeOptions,
+  chooseAgentSubject: Option[String],
   macroId: Option[String],
   varMan: Option[GraphVarMan])
 

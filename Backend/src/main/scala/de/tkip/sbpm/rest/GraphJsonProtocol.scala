@@ -156,6 +156,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     "conversation",
     "variable",
     "options",
+    "chooseAgentSubject",
     "macro",
     "varMan")
 

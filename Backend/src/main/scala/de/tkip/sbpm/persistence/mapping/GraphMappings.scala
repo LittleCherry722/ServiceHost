@@ -118,6 +118,7 @@ object GraphMappings {
         n.options.correlationId,
         n.options.conversationId,
         n.options.nodeId,
+        n.chooseAgentSubject,
         n.macroId)
       ,
       GraphVarMan(n.id,
@@ -366,6 +367,7 @@ object GraphMappings {
         n.optionCorrelationId,
         n.optionConversationId,
         n.optionNodeId),
+      n.chooseAgentSubject,
       n.executeMacroId,
       graphVarMan))
   }

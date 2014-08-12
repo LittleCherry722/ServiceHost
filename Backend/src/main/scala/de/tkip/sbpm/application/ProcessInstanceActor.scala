@@ -177,6 +177,12 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       context.parent.forward(he)
     }
 
+    case GetAgentsListForSubject(subjectId) => sender !! updateAgentsMapping().getOrElse(subjectId, Set.empty)
+
+    case SetAgentForSubject(subjectId, agent) => {
+      this.agentsMap = this.agentsMap ++ Map(subjectId -> Set(agent))
+    }
+
     case message: SubjectMessage if subjectMap.contains(message.subjectID) => {
       subjectMap(message.subjectID).send(message)
     }
