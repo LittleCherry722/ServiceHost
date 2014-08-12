@@ -134,10 +134,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
 
   // first try the "receive" function of the inheritance state
   // then use the "receive" function of this behavior state
-  final def wrappedReceive = interceptReceive orElse generalReceive orElse stateReceive orElse errorReceive
-
-  // allow the inheritance state to intercept messages before generalReceive, e.g. to receive invalid actions
-  protected def interceptReceive: Receive = Actor.emptyBehavior
+  final def wrappedReceive = generalReceive orElse stateReceive orElse errorReceive
 
   // the inheritance state must implement this function
   protected def stateReceive: Receive
