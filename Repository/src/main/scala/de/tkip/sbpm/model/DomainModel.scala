@@ -63,6 +63,12 @@ case class Interface(address: Address,
                      name: String,
                      graph: Graph)
 
+case class IntermediateInterface(id: Int,
+                                 port: Int,
+                                 interfaceId: Option[Int],
+                                 name: String,
+                                 graph: Graph)
+
 case class InterfaceImplementation(processId: Int,
                                    address: Address,
                                    subjectId: String)

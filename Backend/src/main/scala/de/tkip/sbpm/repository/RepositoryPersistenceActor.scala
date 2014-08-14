@@ -93,6 +93,7 @@ class RepositoryPersistenceActor extends InstrumentedActor {
         .option(HttpOptions.readTimeout(10000))
         .responseCode
       log.debug("[SAVE INTERFACE] repository says: " + result)
+      sender !! (None)
     }
     case GetAgentsMapMessage(externalSubjectIds) => {
       // Create a string of all external subjects to query the repository with

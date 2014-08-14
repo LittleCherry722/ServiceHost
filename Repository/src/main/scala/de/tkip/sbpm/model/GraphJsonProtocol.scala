@@ -14,6 +14,7 @@
 package de.tkip.sbpm.model
 
 import de.tkip.sbpm.model._
+import spray.httpx.SprayJsonSupport
 import spray.json._
 import scala.collection.immutable.Map
 import java.util.UUID
@@ -22,7 +23,7 @@ import java.util.UUID
  * Provides conversion from Graph domain model
  * to JSON and vice versa.
  */
-object GraphJsonProtocol extends DefaultJsonProtocol {
+object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
   /**
    * Override default option format because null values in

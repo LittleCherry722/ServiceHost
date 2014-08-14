@@ -14,45 +14,40 @@
 package de.tkip.sbpm.repo
 
 import akka.actor.{ActorLogging, Actor}
+import spray.httpx.SprayJsonSupport
 import scala.collection.mutable
 import spray.json._
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.GraphJsonProtocol._
-import spray.http.HttpIp
 import akka.event.Logging
 
-object RepoActor {
-
+object InterfaceActor {
   case object GetAllInterfaces
-
   case class GetInterface(id: Int)
-
-  case class AddInterface(ip: HttpIp, entry: String)
-
+  case class AddInterface(interface: Interface)
+  case class DeleteInterface(interfaceId: Int)
   case class GetImplementations(subjectIds: Seq[String])
-
   case object Reset
 
-  object MyJsonProtocol extends DefaultJsonProtocol {
-    implicit val interfaceFormat = jsonFormat5(Interface)
+  object MyJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
+    implicit val InterfaceFormat = jsonFormat5(Interface)
+    implicit val IntermediateInterfaceFormat = jsonFormat5(IntermediateInterface)
+
   }
 }
 
-class RepoActor extends Actor with ActorLogging {
-  import RepoActor.MyJsonProtocol._
-
-  import RepoActor._
+class InterfaceActor extends Actor with ActorLogging {
+  import InterfaceActor._
+  import MyJsonProtocol._
 
   private val logger = Logging(context.system, this)
-
-  val interfaces = mutable.Map[Int, Interface]()
-  var currentId = 1
+  private val interfaces = mutable.Map[Int, Interface]()
 
   def receive = {
     case GetAllInterfaces => {
       val list = interfaces.values.toList
 
-      sender ! list.map{addInterfaceImplementations(_)}.toJson.toString
+      sender ! list.map(addInterfaceImplementations).toJson.toString
     }
 
     case GetInterface(implId) => {
@@ -64,6 +59,10 @@ class RepoActor extends Actor with ActorLogging {
       sender ! filtered.toJson.toString
     }
 
+    case DeleteInterface(interfaceId) => {
+      interfaces.remove(interfaceId)
+    }
+
     case GetImplementations(subjectIds) => {
       val implementationsMap = subjectIds.foldLeft(Map[String, Seq[InterfaceImplementation]]()){ (m, s) =>
         m + (s -> implementationsFor(s))
@@ -73,10 +72,8 @@ class RepoActor extends Actor with ActorLogging {
       sender ! implementationsMap.toJson.toString
     }
 
-    case AddInterface(ip, entry) => {
+    case AddInterface(interface) => {
       log.info("adding new interface")
-      val entryJs = entry.asJson.asJsObject
-      val interface = convertEntry(entryJs, ip)
       val id = interface.id
       log.info("added new interface: {}", interface)
       interfaces(id) = interface
@@ -86,11 +83,10 @@ class RepoActor extends Actor with ActorLogging {
     case Reset => {
       log.info("resetting...")
       interfaces.clear()
-      currentId = 1
     }
   }
 
-  private def addInterfaceImplementations(interface: Interface) = {
+  private def addInterfaceImplementations(interface: Interface) : Interface = {
     log.info("addInterfaceImplementations called for interface {}", interface.id)
     interface.copy(graph = interface.graph.copy(
       subjects = interface.graph.subjects.mapValues{
@@ -106,25 +102,6 @@ class RepoActor extends Actor with ActorLogging {
         }
       }
     ))
-  }
-
-  private def getAddress(ip: HttpIp, entry: JsObject) = {
-    val port = entry.fields("port")
-    Address(ip.value, port.toString.toInt)
-  }
-
-  private def convertEntry(entry: JsObject, ip: HttpIp) = {
-    val fields = entry.fields
-    val oldId = fields("id").toString.toInt
-    val graph = fields("graph").convertTo[Graph]
-    val id = fields.getOrElse[JsValue]("interfaceId", nextId.toJson).convertTo[Int]
-    val name = fields.getOrElse[JsValue]("name", "".toJson).convertTo[String]
-
-    new Interface(id = id,
-                  name = name,
-                  graph = graph,
-                  processId = oldId,
-                  address = getAddress(ip, entry))
   }
 
   private def implementationsFor(subjectId: String) : List[InterfaceImplementation] = {
@@ -146,12 +123,5 @@ class RepoActor extends Actor with ActorLogging {
       }).flatten
     })
    implementations.toList
-  }
-
-
-  private def nextId = {
-    val id = currentId
-    currentId += 1
-    id
   }
 }

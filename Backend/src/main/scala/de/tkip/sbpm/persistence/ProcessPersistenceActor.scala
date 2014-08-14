@@ -246,7 +246,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
     var resultId = process.id
 
     // if id not defined -> save new process
-    if (!resultId.isDefined) {
+    if (resultId.isEmpty) {
       resultId = Some(insert(process))
       // inject id into process
       process = process.copy(id = resultId)

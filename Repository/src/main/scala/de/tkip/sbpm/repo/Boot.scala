@@ -13,23 +13,26 @@
 
 package de.tkip.sbpm.repo
 
+import de.tkip.sbpm.model.{IntermediateInterface, Interface}
 import spray.routing.SimpleRoutingApp
-import akka.actor.{ActorSystem, Props, ActorLogging}
+import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
-import spray.http.{HttpIp, StatusCodes, HttpResponse}
-import de.tkip.sbpm.repo.RepoActor._
+import spray.http.{StatusCodes, HttpResponse}
+import de.tkip.sbpm.repo.InterfaceActor._
+import de.tkip.sbpm.repo.IntermediateInterfaceActor.ConvertToInterface
 import scala.concurrent.duration._
 import akka.util.Timeout
-import reflect.ClassTag
 
 
 
 object Boot extends App with SimpleRoutingApp {
+  import de.tkip.sbpm.repo.InterfaceActor.MyJsonProtocol._
 
   implicit val system = ActorSystem("repo")
   implicit val timeout = Timeout(30 seconds)
   implicit val executionContext = system.dispatcher
-  val repoActor = system.actorOf(Props[RepoActor])
+  val interfaceActor = system.actorOf(Props[InterfaceActor])
+  val intermediateInterfaceActor = system.actorOf(Props[IntermediateInterfaceActor])
 
 
   startServer(interface = "localhost", port = 8181) {
@@ -39,7 +42,7 @@ object Boot extends App with SimpleRoutingApp {
           path("reset") {
             (get | put) {
               ctx =>
-                repoActor ! Reset
+                interfaceActor ! Reset
                 ctx.complete(HttpResponse(status = StatusCodes.OK))
             }
           } ~ pathPrefix("implementations") {
@@ -48,7 +51,7 @@ object Boot extends App with SimpleRoutingApp {
                 parameter("subjectIds") {
                   (subjectIdsString) =>
                     complete {
-                      (repoActor ? GetImplementations(subjectIdsString.split("::"))).mapTo[String]
+                      (interfaceActor ? GetImplementations(subjectIdsString.split("::"))).mapTo[String]
                     }
                 }
               }
@@ -57,26 +60,31 @@ object Boot extends App with SimpleRoutingApp {
             get {
               path("") {
                 complete {
-                  (repoActor ? GetAllInterfaces).mapTo[String]
+                  (interfaceActor ? GetAllInterfaces).mapTo[String]
                 }
               } ~ path(IntNumber) {
                 id =>
                   complete {
-                    (repoActor ? GetInterface(id)).mapTo[String]
+                    (interfaceActor ? GetInterface(id)).mapTo[String]
                   }
               }
             } ~ post {
               path("") {
-                entity(as[String]) {
-                  entry =>
-                    println("received new interface:")
-                    println(entry)
-                    val future = (repoActor ? AddInterface(ip, entry)).mapTo[Option[String]]
-                    onSuccess(future) {
-                      case Some(s) => complete(s)
-                      case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
-                    }
+                entity(as[IntermediateInterface]) { iInterface =>
+                  val future = for {
+                    interface <- (intermediateInterfaceActor ? ConvertToInterface(iInterface, ip)).mapTo[Interface]
+                    response <- (interfaceActor ? AddInterface(interface)).mapTo[Option[String]]
+                  } yield response
+                  onSuccess(future) {
+                    case Some(s) => complete(s)
+                    case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
+                  }
                 }
+              }
+            } ~ delete {
+              path(IntNumber) { interfaceId =>
+                interfaceActor ! DeleteInterface(interfaceId)
+                complete(StatusCodes.OK)
               }
             }
           }
