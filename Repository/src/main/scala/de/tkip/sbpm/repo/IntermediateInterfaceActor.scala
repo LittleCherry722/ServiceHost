@@ -26,7 +26,6 @@ object IntermediateInterfaceActor {
 class IntermediateInterfaceActor extends Actor with ActorLogging {
   import IntermediateInterfaceActor._
 
-  private val logger = Logging(context.system, this)
   private val idGenerator = new Random
 
   def receive = {

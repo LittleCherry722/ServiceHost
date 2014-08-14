@@ -13,7 +13,9 @@
 
 package de.tkip.sbpm.repo
 
-import de.tkip.sbpm.model.{IntermediateInterface, Interface}
+import akka.event.Logging
+import de.tkip.sbpm.model._
+import spray.httpx.SprayJsonSupport._
 import spray.routing.SimpleRoutingApp
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
@@ -22,6 +24,8 @@ import de.tkip.sbpm.repo.InterfaceActor._
 import de.tkip.sbpm.repo.IntermediateInterfaceActor.ConvertToInterface
 import scala.concurrent.duration._
 import akka.util.Timeout
+import de.tkip.sbpm.model.GraphJsonProtocol._
+import reflect.ClassTag
 
 
 
@@ -33,7 +37,6 @@ object Boot extends App with SimpleRoutingApp {
   implicit val executionContext = system.dispatcher
   val interfaceActor = system.actorOf(Props[InterfaceActor])
   val intermediateInterfaceActor = system.actorOf(Props[IntermediateInterfaceActor])
-
 
   startServer(interface = "localhost", port = 8181) {
     logRequest("MARK 1") {
@@ -51,7 +54,7 @@ object Boot extends App with SimpleRoutingApp {
                 parameter("subjectIds") {
                   (subjectIdsString) =>
                     complete {
-                      (interfaceActor ? GetImplementations(subjectIdsString.split("::"))).mapTo[String]
+                      (interfaceActor ? GetImplementations(subjectIdsString.split("::"))).mapTo[Map[String, Seq[InterfaceImplementation]]]
                     }
                 }
               }
@@ -60,12 +63,12 @@ object Boot extends App with SimpleRoutingApp {
             get {
               path("") {
                 complete {
-                  (interfaceActor ? GetAllInterfaces).mapTo[String]
+                  (interfaceActor ? GetAllInterfaces).mapTo[List[Interface]]
                 }
               } ~ path(IntNumber) {
                 id =>
                   complete {
-                    (interfaceActor ? GetInterface(id)).mapTo[String]
+                    (interfaceActor ? GetInterface(id)).mapTo[Option[Graph]]
                   }
               }
             } ~ post {
@@ -83,6 +86,7 @@ object Boot extends App with SimpleRoutingApp {
               }
             } ~ delete {
               path(IntNumber) { interfaceId =>
+                println("received delete!")
                 interfaceActor ! DeleteInterface(interfaceId)
                 complete(StatusCodes.OK)
               }

@@ -47,16 +47,16 @@ class InterfaceActor extends Actor with ActorLogging {
     case GetAllInterfaces => {
       val list = interfaces.values.toList
 
-      sender ! list.map(addInterfaceImplementations).toJson.toString
+      sender ! list.map(addInterfaceImplementations)
     }
 
     case GetInterface(implId) => {
       val list = interfaces.values.toList
       val filtered = list.find { impl => impl.id == implId }.map{_.graph}
 
-      log.info("entries for id: {}", filtered.toJson.toString)
+      log.info("entries for id: {}", filtered.toJson)
 
-      sender ! filtered.toJson.toString
+      sender ! filtered
     }
 
     case DeleteInterface(interfaceId) => {
@@ -69,7 +69,7 @@ class InterfaceActor extends Actor with ActorLogging {
       }
       log.info("Gathering list of implementations for: {}", implementationsMap.toJson.prettyPrint)
 
-      sender ! implementationsMap.toJson.toString
+      sender ! implementationsMap
     }
 
     case AddInterface(interface) => {
