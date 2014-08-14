@@ -14,13 +14,13 @@
 package de.tkip.sbpm.repo
 
 import akka.actor.{ActorLogging, Actor}
-import spray.http.HttpIp
+import spray.http.RemoteAddress
 import scala.util.Random
 import de.tkip.sbpm.model._
 import akka.event.Logging
 
 object IntermediateInterfaceActor {
-  case class ConvertToInterface(interface: IntermediateInterface, ip: HttpIp)
+  case class ConvertToInterface(interface: IntermediateInterface, ip: RemoteAddress)
 }
 
 class IntermediateInterfaceActor extends Actor with ActorLogging {

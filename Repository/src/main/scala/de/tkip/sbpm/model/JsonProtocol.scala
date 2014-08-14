@@ -15,18 +15,9 @@ package de.tkip.sbpm.model
 
 import akka.actor._
 import java.sql.Timestamp
-import de.tkip.sbpm.model._
-import spray.json.DefaultJsonProtocol
-import spray.json.DeserializationException
-import spray.json.JsNumber
-import spray.json.JsObject
-import spray.json.JsValue
-import spray.json.RootJsonFormat
 import spray.json._
 import java.util.Date
-import spray.routing.authentication.UserPass
 import GraphJsonProtocol.graphJsonFormat
-import de.tkip.sbpm.model.ProcessAttributes._
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -51,7 +42,7 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   implicit object DateFormat extends RootJsonFormat[Date] {
     def write(obj: Date) = {
-      JsObject("date" -> JsNumber(obj.getTime()))
+      JsObject("date" -> JsNumber(obj.getTime))
     }
     def read(json: JsValue) = {
       json.asJsObject().getFields("date") match {
@@ -61,7 +52,6 @@ object JsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  //  TODO so richtig durchgereicht
   implicit object RefFormat extends RootJsonFormat[ActorRef] {
     def write(obj: ActorRef) = obj.toJson
     def read(json: JsValue) = json.convertTo[ActorRef]
@@ -97,16 +87,5 @@ object JsonProtocol extends DefaultJsonProtocol {
       "graph"))
   }
 
-  // administration
-  implicit val userFormat = jsonFormat5(User)
-  implicit val userUpdate = jsonFormat3(UserUpdate)
-  implicit val providerMail = jsonFormat2(ProviderMail)
-  implicit val userWithMail = jsonFormat5(UserWithMail)
-  implicit val userIdentityFormat = jsonFormat4(UserIdentity)
-  implicit val roleFormat = jsonFormat3(Role)
-  implicit val groupFormat = jsonFormat3(Group)
-  implicit val groupUserFormat = jsonFormat2(GroupUser)
-  implicit val groupRoleFormat = jsonFormat2(GroupRole)
-  implicit val password = jsonFormat2(SetPassword)
 
 }
