@@ -97,6 +97,7 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       // and ask the repository for agents for all unknown external subjects
       val newAgentsString = Http(repoLocation + "implementations")
         .param("subjectIds", externalSubjectIdsString)
+        .option(HttpOptions.readTimeout(10000))
         .asString
       log.info("received new agents mapping for subjectIds: {}", externalSubjectIds)
       log.info("String response: {}", newAgentsString)
