@@ -247,7 +247,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     } else {
       future { json.interfaceId }
     }
-    val interfaceId = Await.result(interfaceIdFuture, 3 seconds)
+    val interfaceId = Await.result(interfaceIdFuture, 10 seconds)
     log.debug("[SAVE INTERFACE] Received interface ID from repoPersAct")
     val process = Process(id, interfaceId, json.publishInterface, json.name, json.isCase)
     val graph = json.graph.get.copy(date = new java.sql.Timestamp(System.currentTimeMillis()), id = None, processId = None)
