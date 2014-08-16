@@ -36,7 +36,7 @@ class ChangeInterfaceActor extends AbstractInterfaceActor with DefaultLogging {
   def routing = runRoute {
     get {
       // frontend request
-      pathPrefix("") {
+      pathEnd {
         parameter("t") { (time) =>
             complete {
               //          log.debug(s"${getClass.getName} received polling request with timestemp: $time")

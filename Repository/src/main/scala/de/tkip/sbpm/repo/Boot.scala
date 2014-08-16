@@ -50,7 +50,7 @@ object Boot extends App with SimpleRoutingApp {
             }
           } ~ pathPrefix("implementations") {
             get {
-              path("") {
+              pathEnd {
                 parameter("subjectIds") {
                   (subjectIdsString) =>
                     complete {
@@ -61,7 +61,7 @@ object Boot extends App with SimpleRoutingApp {
             }
           } ~ pathPrefix("interfaces") {
             get {
-              path("") {
+              pathEnd {
                 complete {
                   (interfaceActor ? GetAllInterfaces).mapTo[List[Interface]]
                 }
@@ -72,7 +72,7 @@ object Boot extends App with SimpleRoutingApp {
                   }
               }
             } ~ post {
-              path("") {
+              pathEnd {
                 entity(as[IntermediateInterface]) { iInterface =>
                   val future = for {
                     interface <- (intermediateInterfaceActor ? ConvertToInterface(iInterface, ip)).mapTo[Interface]
