@@ -1897,7 +1897,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 			gf_guiLoadDropDownSubjects(gv_elements.inputNodeOptSubject, null, gt_predefAction.wildcard);
 			gf_guiLoadDropDownCorrelationIds(behavior, gv_elements.inputNodeOptCorrelationId, false, gt_predefAction.wildcard);
 			gf_guiLoadDropDownConversations(gv_elements.inputNodeOptConversation, false, gt_predefAction.wildcard);
-			Gf_guiLoadDropDownStates(behavior, gv_elements.inputNodeOptState);
+			gf_guiLoadDropDownStates(behavior, gv_elements.inputNodeOptState);
 		}
 	}
 	else if (nodeType == "action")
