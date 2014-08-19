@@ -92,12 +92,12 @@ class InterfaceActor extends Actor with ActorLogging {
       subjects = interface.graph.subjects.mapValues{
         subject => {
           logger.info("Searching for implementations for subject " + subject.name + " from " + interface.name)
-          if (!(subject.subjectType == "external" && subject.externalType == Some("interface"))) {
-            logger.info("Subject is not an interface subject, aborting. subject types: " + subject.subjectType + ", " + subject.externalType)
-            subject
-          } else {
-            logger.info("Subject is an interface subject, copy its implementations")
+          if (subject.subjectType == "single") {
+            logger.info("Subject is an single subject, copy its implementations")
             subject.copy(implementations = implementationsFor(subject.id))
+          } else {
+            logger.info("Subject is not an single subject, aborting. subject types: " + subject.subjectType + ", " + subject.externalType)
+            subject
           }
         }
       }
