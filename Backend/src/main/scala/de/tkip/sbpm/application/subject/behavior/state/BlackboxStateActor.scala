@@ -80,6 +80,7 @@ case class BlackboxStateActor(data: StateData)
     (persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]
   }
 
+  // TODO: move to Repo Actor?
   def loadPlaintextGraph: String = {
     log.info("loadPlaintextGraph: starting..")
     val url: String = extractUrl
@@ -89,21 +90,62 @@ case class BlackboxStateActor(data: StateData)
 
     log.info("loadPlaintextGraph: done")
 
-    "{\"routings\": [], \"definition\": " + plaintextGraph + "}" // TODO: hardcoded
+    plaintextGraph
   }
 
+  // TODO: move to Repo Actor?
   def marshallGraph(plaintextGraph: String)(implicit roles: Map[String, Role]): ProcessGraph = {
     log.info("marshallGraph: starting..")
 
-    val graph: Graph = plaintextGraph.parseJson.convertTo[Graph]
+    val interface: Interface = plaintextGraph.parseJson.convertTo[Interface]
+    val graph: Graph = interface.graph
 
-    log.info("marshallGraph: converted to Graph, marshall it...")
+    log.info("marshallGraph: converted to Graph, reverse external information...")
 
-    val processGraph: ProcessGraph = de.tkip.sbpm.application.miscellaneous.parseGraph(graph)
+    log.info("marshallGraph: graph = " + graph)
+
+    val reversedGraph: Graph = reverseExternalSubjects(graph)
+
+    log.info("marshallGraph: reversedGraph = " + reversedGraph)
+
+    log.info("marshallGraph: reversed external information, marshall it...")
+
+    val processGraph: ProcessGraph = de.tkip.sbpm.application.miscellaneous.parseGraph(reversedGraph)
 
     log.info("marshallGraph: done")
 
     processGraph
+  }
+
+  // TODO: how is this done in frontend when implementing an interface?
+  // TODO: move to Repo Actor?
+  def reverseExternalSubjects(graph: Graph): Graph = {
+    graph.copy(subjects = graph.subjects.map(
+      e => (e._1, {
+          val subject = e._2
+
+          if (subject.subjectType == "external") {
+            if (subject.externalType == Some("blackbox")) {
+              log.info("reverseExternalSubjects: found blackbox, switch it to single subject")
+              subject.copy(
+                subjectType = "single",
+                externalType = None
+              )
+            }
+            else {
+              log.error("reverseExternalSubjects: found external subject that is no blackbox - currently unsupported!")
+              subject
+            }
+          }
+          else {
+            log.info("reverseExternalSubjects: found non-external subject, switch it to an external interface")
+            subject.copy(
+              subjectType = "external",
+              externalType = Some("interface")
+            )
+          }
+        })
+    ))
   }
 
   // TODO: eigene Methode
@@ -117,7 +159,6 @@ case class BlackboxStateActor(data: StateData)
 
     val m: Array[State] = subject.mainMacro.states
 
-    Thread.sleep(1000)
 
     log.info("=============================")
     log.info("=============================")
@@ -125,7 +166,6 @@ case class BlackboxStateActor(data: StateData)
     log.info("=============================")
     log.info("=============================")
 
-    Thread.sleep(1000)
 
     callMacro(m)
   }
@@ -134,7 +174,6 @@ case class BlackboxStateActor(data: StateData)
     case Success(res) => {
       log.info("rolesFuture Success")
 
-      Thread.sleep(1000)
 
       val rolesSeq: Seq[Role] = res.asInstanceOf[Seq[Role]]
 
