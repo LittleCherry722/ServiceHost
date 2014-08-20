@@ -146,7 +146,7 @@ case class BlackboxStateActor(data: StateData)
 
       // register all used subjects except the own
       val s = subjects.filterNot(_._1 == mySubjectID)
-      val a: AgentsMap = Map("Subj2:32746d8f-6a25-4d73-b5c7-7d9c42fb94d7" -> Set(Agent(29, AgentAddress("127.0.0.1", 2551), "Subj2:32746d8f-6a25-4d73-b5c7-7d9c42fb94d7"))) // TODO: hardcoded
+      val a: AgentsMap = Map("Subj2:32746d8f-6a25-4d73-b5c7-7d9c42fb94d7" -> Set(Agent(5, AgentAddress("127.0.0.1", 2551), "Subj2:32746d8f-6a25-4d73-b5c7-7d9c42fb94d7"))) // TODO: hardcoded
 
       val msg = RegisterSubjects(s, a)
 
