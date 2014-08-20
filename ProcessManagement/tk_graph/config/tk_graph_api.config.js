@@ -154,6 +154,12 @@ var gv_elements = {
 	inputNodeMacroNewOuter:		"ge_node_macro_new_outer",
 	inputNodeMacroNew:			"ge_node_macro_new",
 
+	// blackbox
+	inputNodeBlackboxnameOuter:	"ge_node_blackboxname_outer",
+	inputNodeBlackboxname:		"ge_node_blackboxname",
+	inputNodeBlackboxnameNewOuter:	"ge_node_blackboxname_new_outer",
+	inputNodeBlackboxnameNew:	"ge_node_blackboxname_new",
+
 	// comment fields
 	inputNodeComment:			"ge_node_comment",
 	inputEdgeComment:			"ge_edge_comment",
@@ -252,7 +258,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 *
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, createSubjects, macro, macroText, comment
+		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, createSubjects, macro, macroText, blackboxname, blackboxnameText, comment
 		 */
 		readNode:			"",
 

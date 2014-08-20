@@ -45,6 +45,12 @@ define([
 		});
 	});
 
+        window.existingBlackboxes = this.existingBlackboxes = ko.computed(function(){
+		return ko.utils.arrayFilter(Interface.all(), function(x){
+			return x.interfaceType() == "blackboxcontent";
+		});
+	});
+
         // Needed for saving the business Interface
         this.newBusinessInterface = newBusinessInterface;
         this.newBusinessInterface().name("");

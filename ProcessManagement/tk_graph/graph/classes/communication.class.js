@@ -1498,6 +1498,9 @@ function GCcommunication ()
 								if (gf_isset(gt_node.macro))
 									gt_createdNode.setMacro(gt_node.macro);
 
+								if (gf_isset(gt_node.blackboxname))
+									gt_createdNode.setBlackboxname(gt_node.blackboxname);
+
 								if (gf_isset(gt_node.comment))
 									gt_createdNode.setComment(gt_node.comment);
 							}
@@ -1736,6 +1739,7 @@ function GCcommunication ()
 							createSubjects:     gt_node.getCreateSubjects("all"),
 							chooseAgentSubject: gt_node.getChooseAgentSubject(),
 							macro:              gt_node.getMacro(),
+							blackboxname:       gt_node.getBlackboxname(),
 							comment:            gt_node.getComment(),
 							manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
 							manualPositionOffsetY: gt_node.getManualPositionOffset().dy
