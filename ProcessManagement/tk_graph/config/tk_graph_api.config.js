@@ -95,9 +95,10 @@ var gv_elements = {
 	inputSubjectTypeExternal:	"ge_cv_type_external",
 
 	// subject external types
-	inputSubjectExtExternal:			"ge_cv_external_external",
-	inputSubjectExtInterface:			"ge_cv_external_interface",
+	inputSubjectExtExternal:		"ge_cv_external_external",
+	inputSubjectExtInterface:		"ge_cv_external_interface",
 	inputSubjectExtInstantInterface:	"ge_cv_external_instantInterface",
+	inputSubjectExtBlackbox:		"ge_cv_external_blackbox",
 
 	// edge multi target
 	inputEdgeTargetMTypeA:		"ge_edge_target_multi_type_all",
@@ -358,6 +359,15 @@ var gv_functions	= {
 		 * @returns {void}
 		 */
 		subjectDblClickedInstantInterface:		"",
+
+		/**
+		 * called when an blackbox (external subject) is double-clicked
+		 *
+		 * @see tk_graph.js :: gf_paperDblClickNodeC()
+		 * @param {String} ID The id of the double-clicked subject.
+		 * @returns {void}
+		 */
+		subjectDblClickedBlackbox:		"",
 
 		/**
 		 * called when an interface (external subject) is double-clicked

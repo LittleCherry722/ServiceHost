@@ -60,7 +60,7 @@ function GCsubject (id, text, type, inputPool)
 
 	/**
 	 * The type of an external subject.
-	 * Either "external", "interface" or "instantinterface".
+	 * Either "external", "interface", "instantinterface" or "blackbox".
 	 *
 	 * @type String
 	 */
@@ -194,7 +194,7 @@ function GCsubject (id, text, type, inputPool)
 	/**
 	 * Returns the type of an external subject.
 	 *
-	 * @returns {String} The type of an external subject. Possible values are "external", "interface", "instantinterface"
+	 * @returns {String} The type of an external subject. Possible values are "external", "interface", "instantinterface", "blackbox"
 	 */
 	this.getExternalType = function ()
 	{
@@ -390,7 +390,7 @@ function GCsubject (id, text, type, inputPool)
 	 * The externalType attribute is only used for external subjects.
 	 * Using this method the externalType will be updated
 	 *
-	 * @param {String} externalType The new externalType; possible values: external, interface, instantinterface
+	 * @param {String} externalType The new externalType; possible values: external, interface, instantinterface, blackbox
 	 * @returns {void}
 	 */
 	this.setExternalType = function (externalType)
@@ -399,7 +399,7 @@ function GCsubject (id, text, type, inputPool)
 		{
 			externalType = externalType.toLowerCase();
 
-			if (externalType == "external" || externalType == "interface" || externalType == "instantinterface")
+			if (externalType == "external" || externalType == "interface" || externalType == "instantinterface" || externalType == "blackbox")
 				this.externalType	= externalType;
 		}
 	};
@@ -586,6 +586,9 @@ function GCsubject (id, text, type, inputPool)
 
 			if (this.getExternalType() == "instantinterface")
 				gt_external = "IIF";
+
+			if (this.getExternalType() == "blackbox")
+				gt_external = "BB";
 
 			gt_text += " (" + gt_external + ")";
 		}

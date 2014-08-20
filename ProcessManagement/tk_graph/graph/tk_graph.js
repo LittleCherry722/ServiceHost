@@ -1152,6 +1152,13 @@ function gf_paperDblClickNodeC (id)
 			gf_callFunc("events.subjectDblClickedInstantInterface", "gf_paperClickNodeC", id);
 		}
 		
+		// external subject: blackbox
+		else if (gt_type == "blackbox")
+		{
+			// call the gf_clickedCVnode method
+			gf_callFunc("events.subjectDblClickedBlackbox", "gf_paperClickNodeCAndToggle", id);
+		}
+
 		// external subject: interface
 		else if (gt_type == "interface")
 		{

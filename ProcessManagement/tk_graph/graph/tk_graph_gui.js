@@ -329,6 +329,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtInterface, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", false);
+	gf_guiElementWrite(gv_elements.inputSubjectExtBlackbox, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectStartSubject, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeA, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeV, "bool", false);
@@ -774,6 +775,7 @@ function gf_guiDisplaySubject (subject)
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", subject.getExternalType() == "external");
 	gf_guiElementWrite(gv_elements.inputSubjectExtInterface, "bool", subject.getExternalType() == "interface");
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", subject.getExternalType() == "instantinterface");
+	gf_guiElementWrite(gv_elements.inputSubjectExtBlackbox, "bool", subject.getExternalType() == "blackbox");
 
 	// add onClick event to external subject type
 	if (gf_elementExists(gv_elements.inputSubjectTypeExternal))
@@ -2119,7 +2121,10 @@ function gf_guiReadSubject ()
 	if (gf_guiElementRead(gv_elements.inputSubjectExtInstantInterface, "bool", false)	=== true)
 		gt_externalType	= "instantinterface";
 
-	if (gf_guiElementRead(gv_elements.inputSubjectExtInterface, "bool", false)			=== true)
+	if (gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool", false)		=== true)
+		gt_externalType	= "blackbox";
+
+	if (gf_guiElementRead(gv_elements.inputSubjectExtInterface, "bool", false)		=== true)
 		gt_externalType	= "interface";
 
 	gt_result.text				= gt_text;
