@@ -137,6 +137,7 @@ case class GraphNode(id: Short,
   optionCorrelationId: Option[String],
   optionConversationId: Option[String],
   optionNodeId: Option[Short],
+  chooseAgentSubject: Option[String],
   executeMacroId: Option[String])
 
 case class GraphVarMan(id: Short,

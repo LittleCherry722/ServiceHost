@@ -13,37 +13,6 @@
 
 package de.tkip.sbpm.model
 
-import spray.json.{
-  DefaultJsonProtocol,
-  JsObject,
-  RootJsonFormat,
-  JsValue,
-  DeserializationException,
-  JsNumber
-}
-
-// Model for Administration
-case class User(id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, gdriveId: String = "")
-
-case class ProviderMail(provider: String, mail: String)
-
-case class UserWithMail(var id: Option[Int], name: String, isActive: Boolean = true, inputPoolSize: Int = 8, providerMail: Seq[ProviderMail])
-
-case class UserIdentity(user: User, provider: String, eMail: String, password: Option[String])
-
-case class Role(id: Option[Int], name: String, isActive: Boolean = true)
-
-case class Group(id: Option[Int], name: String, isActive: Boolean = true)
-
-case class SetPassword(oldPassword: String, newPassword: String)
-
-case class UserUpdate(name: String, isActive: Boolean = true, inputPoolSize: Int = 8)
-
-// Model for DB Relations 
-case class GroupRole(groupId: Int, roleId: Int)
-
-case class GroupUser(groupId: Int, userId: Int)
-
 case class Process(id: Option[Int],
                    interfaceId: Option[Int],
                    publishInterface: Boolean,
@@ -63,6 +32,12 @@ case class Interface(address: Address,
                      name: String,
                      graph: Graph)
 
+case class IntermediateInterface(id: Int,
+                                 port: Int,
+                                 interfaceId: Option[Int],
+                                 name: String,
+                                 graph: Graph)
+
 case class InterfaceImplementation(processId: Int,
                                    address: Address,
                                    subjectId: String)
@@ -74,21 +49,11 @@ case class Graph(id: Option[Int],
   date: java.sql.Timestamp,
   conversations: Map[String, GraphConversation],
   messages: Map[String, GraphMessage],
-  subjects: Map[String, GraphSubject],
-  routings: Seq[GraphRouting])
+  subjects: Map[String, GraphSubject])
 
 case class GraphConversation(id: String, name: String)
 
 case class GraphMessage(id: String, name: String)
-
-case class GraphRouting(id: String,
-  condition: GraphRoutingExpression,
-  implication: GraphRoutingExpression)
-
-case class GraphRoutingExpression(subjectId: String,
-  operator: Boolean = true,
-  groupId: Option[Int],
-  userId: Option[Int])
 
 case class GraphSubject(id: String,
   name: String,
@@ -120,11 +85,13 @@ case class GraphNode(id: Short,
   nodeType: String,
   manualPositionOffsetX: Option[Short],
   manualPositionOffsetY: Option[Short],
+  isAutoExecute: Option[Boolean],
   isDisabled: Boolean,
   isMajorStartNode: Boolean,
   conversationId: Option[String],
   variableId: Option[String],
   options: GraphNodeOptions,
+  chooseAgentSubject: Option[String],
   macroId: Option[String],
   varMan: Option[GraphVarMan])
 

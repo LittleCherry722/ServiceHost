@@ -70,7 +70,7 @@ define([
         }
     };
 
-    var getActionText= function(action) {
+    var getActionText = function(action) {
         if(action.stateText()) {
             return action.stateText();
         } else {

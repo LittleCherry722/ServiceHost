@@ -1486,6 +1486,12 @@ function GCcommunication ()
 								if (gf_isset(gt_node.createSubjects))
 									gt_createdNode.setCreateSubjects(gt_node.createSubjects);
 
+								if (gf_isset(gt_node.chooseAgentSubject))
+									gt_createdNode.setChooseAgentSubject(gt_node.chooseAgentSubject);
+
+								if (gf_isset(gt_node.chooseAgentSubject))
+									gt_createdNode.setChooseAgentSubject(gt_node.chooseAgentSubject);
+
 								if (gf_isset(gt_node.macro))
 									gt_createdNode.setMacro(gt_node.macro);
 
@@ -1699,9 +1705,9 @@ function GCcommunication ()
 
 			for (var gt_mid in gt_macros)
 			{
-				var gt_macro	= gt_macros[gt_mid];
-				var gt_nodes	= gt_macro.getNodes();
-				var gt_edges	= gt_macro.getEdges();
+				var gt_macro    = gt_macros[gt_mid];
+				var gt_nodes    = gt_macro.getNodes();
+				var gt_edges    = gt_macro.getEdges();
 				var gt_newNodes	= [];
 				var gt_newEdges	= [];
 
@@ -1710,24 +1716,25 @@ function GCcommunication ()
 				{
 					var gt_node = gt_nodes[gt_nid];
 					gt_newNodes[gt_newNodes.length] = {
-							id:		gt_node.getId(),
-							text:	gt_node.getText(),
-							start:	gt_node.isStart(),
-							autoExecute:	gt_node.isAutoExecute(),
-							end:	gt_node.isEnd(),
-							type:	gt_node.getType(),
-                            manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
-                            manualPositionOffsetY: gt_node.getManualPositionOffset().dy,
-							nodeType:	gt_node.getType(),
-							options:	gt_node.getOptions(),
-							deactivated:	gt_node.isDeactivated(),
-							majorStartNode:	gt_node.isMajorStartNode(),
-							conversation:		gt_node.getConversation(),
-							variable:		gt_node.getVariable(),
-							varMan:			gt_node.getVarMan("all"),
-							createSubjects: gt_node.getCreateSubjects("all"),
-							macro:			gt_node.getMacro(),
-							comment:		gt_node.getComment()
+							id:                 gt_node.getId(),
+							text:               gt_node.getText(),
+							start:              gt_node.isStart(),
+							autoExecute:        gt_node.isAutoExecute(),
+							end:                gt_node.isEnd(),
+							type:               gt_node.getType(),
+							nodeType:           gt_node.getType(),
+							options:            gt_node.getOptions(),
+							deactivated:        gt_node.isDeactivated(),
+							majorStartNode:     gt_node.isMajorStartNode(),
+							conversation:       gt_node.getConversation(),
+							variable:           gt_node.getVariable(),
+							varMan:             gt_node.getVarMan("all"),
+							createSubjects:     gt_node.getCreateSubjects("all"),
+							chooseAgentSubject: gt_node.getChooseAgentSubject(),
+							macro:              gt_node.getMacro(),
+							comment:            gt_node.getComment(),
+							manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
+							manualPositionOffsetY: gt_node.getManualPositionOffset().dy
 					};
 				}
 
@@ -1747,48 +1754,48 @@ function GCcommunication ()
 						if (gt_edgeStartNode != null && gt_edgeEndNode != null)
 						{
 							gt_newEdges[gt_newEdges.length] = {
-									start:	gt_edgeStartNode.getId(),
-									end:	gt_edgeEndNode.getId(),
-									text:	gt_edge.getText(true),
-									type:	gt_edge.getType(),
-                                    manualPositionOffsetLabelX: gt_edge.getManualPositionOffsetLabel().dx,
-                                    manualPositionOffsetLabelY: gt_edge.getManualPositionOffsetLabel().dy,
-									edgeType:	gt_edge.getType(),
-									target: gt_relatedSubject == null ? "" : gt_relatedSubject,
-									deactivated:	gt_edge.isDeactivated(),
-									optional:		gt_edge.isOptional(),
-									priority:		gt_edge.getPriority(),
-									manualTimeout:	gt_edge.isManualTimeout(),
-									variable:		gt_edge.getVariable(),
-									correlationId:	gt_edge.getCorrelationId(),
-									comment:		gt_edge.getComment(),
-									transportMethod:	gt_edge.getTransportMethod()
+									start:           gt_edgeStartNode.getId(),
+									end:             gt_edgeEndNode.getId(),
+									text:            gt_edge.getText(true),
+									type:            gt_edge.getType(),
+									edgeType:        gt_edge.getType(),
+									target:          gt_relatedSubject == null ? "" : gt_relatedSubject,
+									deactivated:     gt_edge.isDeactivated(),
+									optional:        gt_edge.isOptional(),
+									priority:        gt_edge.getPriority(),
+									manualTimeout:   gt_edge.isManualTimeout(),
+									variable:        gt_edge.getVariable(),
+									correlationId:   gt_edge.getCorrelationId(),
+									comment:         gt_edge.getComment(),
+									transportMethod: gt_edge.getTransportMethod(),
+                  manualPositionOffsetLabelX: gt_edge.getManualPositionOffsetLabel().dx,
+                  manualPositionOffsetLabelY: gt_edge.getManualPositionOffsetLabel().dy
 							};
 						}
 					}
 				}
 
 				gt_newMacros[gt_newMacros.length] = {
-						id:				gt_macro.id,
-						name:			gt_macro.name,
-						nodes:			gt_newNodes,
-						edges:			gt_newEdges,
-						nodeCounter:	gt_macro.nodeCounter
+						id:          gt_macro.id,
+						name:        gt_macro.name,
+						nodes:       gt_newNodes,
+						edges:       gt_newEdges,
+						nodeCounter: gt_macro.nodeCounter
 				};
 			}
 
-			gt_array[gt_arrayIndex].macros			= gt_newMacros;
-			gt_array[gt_arrayIndex].macroCounter	= gt_behav.macroCounter;
-			gt_array[gt_arrayIndex].variables		= gt_behav.variables;
+			gt_array[gt_arrayIndex].macros          = gt_newMacros;
+			gt_array[gt_arrayIndex].macroCounter    = gt_behav.macroCounter;
+			gt_array[gt_arrayIndex].variables       = gt_behav.variables;
 			gt_array[gt_arrayIndex].variableCounter	= gt_behav.variableCounter;
 		}
 
-		gt_processData.process			= gt_array;
-		gt_processData.messages			= this.messageTypes;
-		gt_processData.messageCounter	= this.messageTypeCounter;
-		gt_processData.nodeCounter		= this.nodeCounter;
-		gt_processData.conversations			= this.conversations;
-		gt_processData.conversationCounter	= this.conversationCounter;
+		gt_processData.process             = gt_array;
+		gt_processData.messages            = this.messageTypes;
+		gt_processData.messageCounter      = this.messageTypeCounter;
+		gt_processData.nodeCounter         = this.nodeCounter;
+		gt_processData.conversations       = this.conversations;
+		gt_processData.conversationCounter = this.conversationCounter;
 
 		return gt_processData;
 	};

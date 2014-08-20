@@ -21,10 +21,14 @@ import scala.slick.model.ForeignKeyAction._
  * If you want to query GraphNodes database table mix this trait
  * into the actor performing the queries.
  */
-trait GraphNodesSchema extends GraphMacrosSchema
-  with GraphVariablesSchema with GraphConversationsSchema with GraphMessagesSchema {
+object GraphNodesSchema extends Schema {
   // import current slick driver dynamically
   import driver.simple._
+  import GraphMacrosSchema.graphMacros
+  import GraphConversationsSchema.graphConversations
+  import GraphVariablesSchema.graphVariables
+  import GraphMessagesSchema.graphMessages
+  import GraphSubjectsSchema.graphSubjects
 
   // represents schema if the "graph_nodes" table in the database
   // using slick's lifted embedding API

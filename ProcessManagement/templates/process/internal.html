@@ -226,15 +226,15 @@
 			</div>
 
 		</div>
-		
+
 		<div id="ge_node_create_subjects_outer" style="display:none;">
 			<label class="graphsectionheader">Multi-Subject:</label>
 			<select id="ge_node_create_subjects_subject"></select>
 			<br>
-			
+
 			Min: <input type="text" id="ge_node_create_subjects_min" style="width:30px;">
 			Max: <input type="text" id="ge_node_create_subjects_max" style="width:30px;">
-			
+
 			<label class="graphsectionheader">Store to:</label>
 			<select id="ge_node_create_subjects_variable"></select>
 			<div id="ge_node_create_subjects_cvar_outer" style="display:none;">
@@ -242,21 +242,26 @@
 				<input type="text" id="ge_node_create_subjects_cvar_text" />
 			</div>
 		</div>
-					<div id="ge_edge_target_multi_minmax_outer" style="display:none;">
-						Min: <input type="text" id="ge_edge_target_multi_min" style="width:30px;">
-						Max: <input type="text" id="ge_edge_target_multi_max" style="width:30px;">
-					</div>
+
+		<div id="ge_node_choose_agent_outer" style="display:none;">
+			<label class="graphsectionheader">Choose agent subject:</label>
+			<select id="ge_node_choose_agent_subject"></select>
+		</div>
+
+		<div id="ge_edge_target_multi_minmax_outer" style="display:none;">
+			Min: <input type="text" id="ge_edge_target_multi_min" style="width:30px;">
+			Max: <input type="text" id="ge_edge_target_multi_max" style="width:30px;">
+		</div>
 
 		<label class="graphsectionheader">Comment:</label>
 		<textarea id="ge_node_comment" ></textarea>
 
 
-        <div data-bind="if: selectedNodeHasPositionOffset">
-            <input type="button" data-bind="click: resetManualPositionOffsetNode" value="Reset manual position" />
-        </div>
+    <div data-bind="if: selectedNodeHasPositionOffset">
+      <input type="button" data-bind="click: resetManualPositionOffsetNode" value="Reset manual position" />
+    </div>
 		<input type="button" id="UpdateNodeButton" data-bind="tooltip : 'Macro : Press &#34;A&#34;'" onclick="gv_graph.updateNode();" value="Update state" />
 		<input type="button" id="ConnectNodeButton" data-bind="tooltip : 'Macro : Press &#34;C&#34;'" onclick="gv_graph.connectNodes();" value="Connect state" />
 		<input type="button" id="DeleteNodeButton" onclick="gv_graph.deleteNode();" value="Delete state" />
 	</fieldset>
 </div>
-

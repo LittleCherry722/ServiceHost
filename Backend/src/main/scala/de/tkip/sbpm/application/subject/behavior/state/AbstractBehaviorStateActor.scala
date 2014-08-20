@@ -150,7 +150,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
       }
     }
 
-    case action: ExecuteAction if (disabled) => {
+    case action: ExecuteAction if disabled => {
       log.error(s"Cannot execute $action, this state is disabled")
       val message = Failure(new IllegalArgumentException(
         "Invalid Argument: The state of the action is disabled."))
@@ -163,7 +163,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
       action.userID != userID ||
         action.processInstanceID != processInstanceID ||
         action.subjectID != subjectID ||
-        action.stateType != stateType.toString()
+        action.stateType != stateType.toString
     } => {
       val message = Failure(new IllegalArgumentException(
         "Invalid Argument: The action does not match to the current state."))
@@ -171,17 +171,13 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
       receiver ! message
     }
 
-    case ga: GetAvailableAction => {
-      sender !! createAvailableAction
-    }
+    case ga: GetAvailableAction => sender !! createAvailableAction
 
-    case TimeoutExpired => {
-      executeTimeout()
-    }
+    case TimeoutExpired => executeTimeout()
 
-    case action: ExecuteAction if ({
+    case action: ExecuteAction if {
       action.actionData.transitionType == timeoutLabel
-    }) => {
+    } => {
       executeTimeout()
       processInstanceActor ! ActionExecuted(action)
     }
@@ -190,9 +186,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
   import de.tkip.sbpm.model.StateType._
   private def errorReceive: Receive = {
 
-    case KillState => {
-      suicide()
-    }
+    case KillState => suicide()
 
     case message: AnswerAbleMessage => {
       message match {
@@ -215,9 +209,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
       log.error("BehaviorStateActor does not support: " + message)
     }
 
-    case s => {
-      log.error("BehaviorStateActor does not support: " + s)
-    }
+    case s => log.error("BehaviorStateActor does not support: " + s)
   }
 
   protected def suicide() {

@@ -82,33 +82,34 @@ object Entities {
   // process with one active graph loaded from corresponding json file
   val processes = List(
     (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
-    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
-    (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
-    (Process(None, None, false, """Staples Test""", false) -> loadJson("staples-test")),
-    (Process(None, None, false, """Transportdienstleister""", false) -> loadJson("lieferant")),
-
-    (Process(None, None, false, "Grossunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
-    (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
-    (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
-
-    (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
-    (Process(None, None, false, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
-    (Process(None, None, false, """IP Test""", false) -> loadJson("ip_test")),
-    (Process(None, None, false, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
-    (Process(None, None, false, """IP Test Open Close Wildcard With Timeout""", false) -> loadJson("ip_test_open_close_wildcard_with_timeout")),
-    (Process(None, None, false, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
-    (Process(None, None, false, """Modal Split Guard Example""", false) -> loadJson("modalsplitguard_example")),
-    (Process(None, None, false, """Macro Example""", false) -> loadJson("macro_example")),
-    (Process(None, None, false, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
-    (Process(None, None, false, """Nested Modal Split Guard Example""", false) -> loadJson("nested_modal_split_guard_example")),
-    (Process(None, None, false, """Projektleiter""", false) -> loadJson("projektleiter")),
-    (Process(None, None, false, """Projekt Team""", false) -> loadJson("projekt_team")),
-    (Process(None, None, false, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),
-    (Process(None, None, false, """Fortgeschritten Lieferung""", false) -> loadJson("fortgeschritten_lieferung")),
-    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
-    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
-    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
-    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")))
+//    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
+//    (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
+//    (Process(None, None, false, """Staples Test""", false) -> loadJson("staples-test")),
+//    (Process(None, None, false, """Transportdienstleister""", false) -> loadJson("lieferant")),
+//
+//    (Process(None, None, false, "Grossunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
+//    (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
+//    (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
+//
+//    (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
+//    (Process(None, None, false, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
+//    (Process(None, None, false, """IP Test""", false) -> loadJson("ip_test")),
+//    (Process(None, None, false, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
+//    (Process(None, None, false, """IP Test Open Close Wildcard With Timeout""", false) -> loadJson("ip_test_open_close_wildcard_with_timeout")),
+//    (Process(None, None, false, """Modal Split Example""", false) -> loadJson("modalsplit_example")),
+//    (Process(None, None, false, """Modal Split Guard Example""", false) -> loadJson("modalsplitguard_example")),
+//    (Process(None, None, false, """Macro Example""", false) -> loadJson("macro_example")),
+//    (Process(None, None, false, """Nested Modal Split Example""", false) -> loadJson("nested_modal_split_example")),
+//    (Process(None, None, false, """Nested Modal Split Guard Example""", false) -> loadJson("nested_modal_split_guard_example")),
+//    (Process(None, None, false, """Projektleiter""", false) -> loadJson("projektleiter")),
+//    (Process(None, None, false, """Projekt Team""", false) -> loadJson("projekt_team")),
+//    (Process(None, None, false, """Fortgeschritten Bestellung""", false) -> loadJson("fortgeschritten_bestellung")),
+//    (Process(None, None, false, """Fortgeschritten Lieferung""", false) -> loadJson("fortgeschritten_lieferung")),
+//    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
+//    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
+//    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
+    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
+    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")))
 
 
   // group -> role mappings
@@ -146,6 +147,11 @@ object Entities {
 //    // other matchings
     (4, 0),
     (4, 3),
+    (0, 0),
+    (1, 0),
+    (2, 0),
+    (3, 0),
+    (4, 0),
     (5, 0),
     (6, 0),
     (7, 0),

@@ -13,16 +13,15 @@
 
 package de.tkip.sbpm.model
 
-import de.tkip.sbpm.model._
+import spray.httpx.SprayJsonSupport
 import spray.json._
 import scala.collection.immutable.Map
-import java.util.UUID
 
 /**
  * Provides conversion from Graph domain model
  * to JSON and vice versa.
  */
-object GraphJsonProtocol extends DefaultJsonProtocol {
+object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
   /**
    * Override default option format because null values in
@@ -121,18 +120,21 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
   /**
    * Format of a node object.
    */
-  implicit val nodeFormat = jsonFormat(GraphNode, "id",
+  implicit val nodeFormat = jsonFormat(GraphNode,
+    "id",
     "text",
     "start",
     "end",
     "type",
     "manualPositionOffsetX",
     "manualPositionOffsetY",
+    "autoExecute",
     "deactivated",
     "majorStartNode",
     "conversation",
     "variable",
     "options",
+    "chooseAgentSubject",
     "macro",
     "varMan")
 
@@ -145,7 +147,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     def read(v: JsValue) = v match {
       case a: JsArray => a.elements.map { v =>
         val n = v.convertTo[GraphNode]
-        (n.id -> n)
+        n.id -> n
       }.toMap
       case _ => throw new DeserializationException("Array expected.")
     }
@@ -191,65 +193,6 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
   }
 
   /**
-   * Format for a routing entry.
-   */
-  implicit object RoutingFormat extends RootJsonFormat[GraphRouting] {
-    def write(r: GraphRouting) = JsObject(
-      "id" -> r.id.toJson,
-      "subject1Value" -> r.condition.subjectId.toJson,
-      "is1Value" -> {
-        if (r.condition.operator)
-          "is"
-        else
-          "is not"
-      }.toJson,
-      "groupUser1Value" -> {
-        if (r.condition.groupId.isDefined)
-          "in group"
-        else
-          "user"
-      }.toJson,
-      "groupUser1ListValue" -> r.condition.groupId.getOrElse(r.condition.userId.getOrElse(-1)).toJson,
-      "subject2Value" -> r.implication.subjectId.toJson,
-      "is2Value" ->  {
-        if (r.implication.operator)
-          "is"
-        else
-          "is not"
-      }.toJson,
-      "groupUser2Value" -> {
-        if (r.implication.groupId.isDefined)
-          "in group"
-        else
-          "user"
-      }.toJson,
-      "groupUser2ListValue" -> r.implication.groupId.getOrElse(r.implication.userId.getOrElse(-1)).toJson)
-    def read(v: JsValue) = v.asJsObject.getFields("id", "subject1Value", "is1Value", "groupUser1Value", "groupUser1ListValue", "subject2Value", "is2Value", "groupUser2Value", "groupUser2ListValue") match {
-      case Seq(JsString(subject1Value), JsString(is1Value), JsString(groupUser1Value), JsNumber(groupUser1ListValue), JsString(subject2Value), JsString(is2Value), JsString(groupUser2Value), JsNumber(groupUser2ListValue)) =>
-        GraphRouting(UUID.randomUUID().toString(),
-          GraphRoutingExpression(subject1Value,
-            is1Value.equals("is"),
-            if (groupUser1Value.equals("in group")) Some(groupUser1ListValue.toInt) else None,
-            if (!groupUser1Value.equals("in group")) Some(groupUser1ListValue.toInt) else None),
-          GraphRoutingExpression(subject2Value,
-            is2Value.equals("is"),
-            if (groupUser2Value.equals("in group")) Some(groupUser2ListValue.toInt) else None,
-            if (!groupUser2Value.equals("in group")) Some(groupUser2ListValue.toInt) else None))
-      case Seq(JsString(id), JsString(subject1Value), JsString(is1Value), JsString(groupUser1Value), JsNumber(groupUser1ListValue), JsString(subject2Value), JsString(is2Value), JsString(groupUser2Value), JsNumber(groupUser2ListValue)) =>
-        GraphRouting(id,
-          GraphRoutingExpression(subject1Value,
-            is1Value.equals("is"),
-            if (groupUser1Value.equals("in group")) Some(groupUser1ListValue.toInt) else None,
-            if (!groupUser1Value.equals("in group")) Some(groupUser1ListValue.toInt) else None),
-          GraphRoutingExpression(subject2Value,
-            is2Value.equals("is"),
-            if (groupUser2Value.equals("in group")) Some(groupUser2ListValue.toInt) else None,
-            if (!groupUser2Value.equals("in group")) Some(groupUser2ListValue.toInt) else None))
-      case x => throw new DeserializationException("""Graph routing with "subject1Value", "is1Value", "groupUser1Value", "groupUser1ListValue", "subject2Value", "is2Value", "groupUser2Value", "groupUser2ListValue" expected, but found """ + x)
-    }
-  }
-
-  /**
    * Convert macros map (domain model) to macro array (JSON) and vice versa.
    */
   implicit object macrosFormat extends RootJsonFormat[Map[String, GraphMacro]] {
@@ -258,7 +201,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     def read(v: JsValue) = v match {
       case a: JsArray => a.elements.map { e =>
         val m = e.convertTo[GraphMacro]
-        (m.id -> m)
+        m.id -> m
       }.toMap
       case _ => throw new DeserializationException("Array expected.")
     }
@@ -338,16 +281,14 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
             date.convertTo[java.sql.Timestamp],
             definition.fields("conversations").convertTo[Map[String, GraphConversation]],
             definition.fields("messages").convertTo[Map[String, GraphMessage]],
-            definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
-            routings.convertTo[Seq[GraphRouting]])
+            definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
         case Seq(definition: JsObject,
           routings: JsArray) => Graph(None,
           None,
           new java.sql.Timestamp(System.currentTimeMillis()),
           definition.fields("conversations").convertTo[Map[String, GraphConversation]],
           definition.fields("messages").convertTo[Map[String, GraphMessage]],
-          definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
-          routings.convertTo[Seq[GraphRouting]])
+          definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
         case x => throw new DeserializationException("Graph expected, but found: " + x)
       }
   }
@@ -364,7 +305,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
    * The counter value is max(numericIdSuffix) + 1.
    */
   private def counter(ids: Iterable[String]): JsNumber =
-    JsNumber(ids.map(extractCounterValue).foldLeft(0)(Math.max(_, _)) + 1)
+    JsNumber(ids.map(extractCounterValue).foldLeft(0)(Math.max) + 1)
 
   /**
    * Extracts the current id counter value from a collection of numeric ids.
@@ -401,6 +342,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       case JsString("*") => None
       case JsString("")  => None
       case JsString(s)   => Some(s)
+      case _             => None
     }
   }
 }

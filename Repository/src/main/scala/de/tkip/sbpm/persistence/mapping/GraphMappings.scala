@@ -15,8 +15,6 @@ package de.tkip.sbpm.persistence.mapping
 
 import de.tkip.sbpm.{ model => domainModel }
 import shapeless._
-import Traversables._
-import Tuples._
 
 /**
  * Methods to convert domain model objects (defined in sbmp.model package)
@@ -30,7 +28,7 @@ object GraphMappings {
    * If id of graph is None only graph itself is converted
    * id must be known for converting sub entities.
    */
-  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
+  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
     val graph = Graph(g.id, g.processId.get, g.date)
     if (!g.id.isDefined) {
       Left(graph)
@@ -38,8 +36,7 @@ object GraphMappings {
       val (subjects, variables, macros, nodes, varMans, edges) = extractSubjects(g.subjects.values, g.id.get)
       val conversations = extractConversations(g.conversations.values, g.id.get)
       val messages = extractMessages(g.messages.values, g.id.get)
-      val routings = extractRoutings(g.routings, g.id.get)
-      Right((graph, conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges))
+      Right((graph, conversations, messages, subjects, variables, macros, nodes, varMans, edges))
     }
   }
 
@@ -59,8 +56,7 @@ object GraphMappings {
       s.relatedInterfaceId,
       s.isImplementation,
       s.externalType,
-      if (s.role.isDefined) s.role.get.id else None,
-      s.url,
+      s.role,
       s.comment)
     val variables = extractVariables(s.variables.values, s.id, graphId)
     val (macros, nodes, varMans, edges) = extractMacros(s.macros.values, s.id, graphId)
@@ -130,7 +126,7 @@ object GraphMappings {
         varManOperation,
         varManStoreVarId
       )
-    )
+      )
   }.toSeq
 
   /**
@@ -198,45 +194,18 @@ object GraphMappings {
   }.toSeq
 
   /**
-   * Convert routing object trees to flat relational entities.
-   */
-  private def extractRoutings(rs: Iterable[domainModel.GraphRouting], graphId: Int): Seq[GraphRouting] = rs.map { r =>
-    GraphRouting(
-      r.id,
-      graphId,
-      r.condition.subjectId,
-      r.condition.operator,
-      r.condition.groupId,
-      r.condition.userId,
-      r.implication.subjectId,
-      r.implication.operator,
-      r.implication.groupId,
-      r.implication.userId)
-  }.toSeq
-
-  /**
    * Convert all database entities of a graph to a single
    * object tree of domain model objects. 
    */
-  def convert(graph: Graph, subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphRouting], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge]), roles: Seq[Role]): domainModel.Graph = {
-    val (conversations, messages, routings, subjects, variables, macros, nodes, varMans, edges) = subModels
+  def convert(graph: Graph, subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])): domainModel.Graph = {
+    val (conversations, messages, subjects, variables, macros, nodes, varMans, edges) = subModels
     domainModel.Graph(
       graph.id,
       Some(graph.processId),
       graph.date,
       conversations.map(convert).toMap,
       messages.map(convert).toMap,
-      // inject subject object trees
-      convert(subjects, variables, macros, nodes, varMans, edges, roles.map(convert).toMap),
-      routings.map(convert))
-  }
-
-  /**
-   * Convert role to id -> entity mapping.
-   */
-  def convert(r: Role): (Int, domainModel.Role) = {
-    import PrimitiveMappings._
-    (r.id.get -> PrimitiveMappings.convert(r, Persistence.role, Domain.role))
+      convert(subjects, variables, macros, nodes, varMans, edges))
   }
 
   /**
@@ -245,69 +214,53 @@ object GraphMappings {
   def convert(c: GraphConversation): (String, domainModel.GraphConversation) =
     (c.id -> domainModel.GraphConversation(c.id, c.name))
 
-    /**
+  /**
    * Convert message to id -> entity mapping.
    */
   def convert(m: GraphMessage): (String, domainModel.GraphMessage) =
     (m.id -> domainModel.GraphMessage(m.id, m.name))
 
-    /**
-     * Convert routing entity to domain model object.
-     */
-  def convert(r: GraphRouting): domainModel.GraphRouting = {
-    val expr = domainModel.GraphRoutingExpression.apply _
-    domainModel.GraphRouting(
-      r.id,
-      expr(r.conditionSubjectId, r.conditionOperator, r.conditionGroupId, r.conditionUserId),
-      expr(r.implicationSubjectId, r.implicationOperator, r.implicationGroupId, r.implicationUserId))
-  }
-
   /**
    * Convert subjects with sub entities to domain model
    * object trees.
    */
-  def convert(ss: Seq[GraphSubject], vs: Seq[GraphVariable], ms: Seq[GraphMacro], ns: Seq[GraphNode], vm: Seq[GraphVarMan], es: Seq[GraphEdge], roles: Map[Int, domainModel.Role]): Map[String, domainModel.GraphSubject] = ss.map { s =>
+  def convert(ss: Seq[GraphSubject], vs: Seq[GraphVariable], ms: Seq[GraphMacro], ns: Seq[GraphNode], vm: Seq[GraphVarMan], es: Seq[GraphEdge]): Map[String, domainModel.GraphSubject] = ss.map { s =>
     // group variables, macros, nodes and edges by subject
     val variables = vs.groupBy(_.subjectId).mapValues(_.map(convert).toMap)
     val macros = ms.groupBy(_.subjectId)
     val nodes = ns.groupBy(_.subjectId)
     val varMans = vm.groupBy(_.subjectId)
     val edges = es.groupBy(_.subjectId)
-    
+
     (s.id -> domainModel.GraphSubject(
-      s.id,
-      s.name,
-      s.subjectType,
-      s.isDisabled,
-      Some(s.isStartSubject),
-      s.inputPool,
-      s.relatedSubjectId,
-      s.relatedInterfaceId,
-      s.isImplementation,
-      s.externalType,
-      s.roleId match {
-        case None     => None
-        case Some(id) => Some(roles(id))
-      },
-      s.url,
-      None,
-      s.comment,
-      variables.getOrElse(s.id, Map()),
-      // convert macros, nodes and edges of current subject
-      convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List()))))
+      id = s.id,
+      name = s.name,
+      subjectType = s.subjectType,
+      isDisabled = s.isDisabled,
+      isStartSubject = Some(s.isStartSubject),
+      inputPool = s.inputPool,
+      relatedSubjectId = s.relatedSubjectId,
+      relatedInterfaceId = s.relatedInterfaceId,
+      isImplementation = s.isImplementation,
+      externalType = s.externalType,
+      role = s.role,
+      implementations = List.empty,
+      comment = s.comment,
+      variables = variables.getOrElse(s.id, Map()),
+      macros = convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List()))))
   }.toMap
 
-   /**
+  /**
    * Convert variable to id -> entity mapping.
    */
   def convert(v: GraphVariable): (String, domainModel.GraphVariable) =
     (v.id -> domainModel.GraphVariable(v.id, v.name))
 
-    /**
-     * Convert macros, nodes and edges to domain model
-     * object trees.
-     * Returns id -> entity map.
-     */
+  /**
+   * Convert macros, nodes and edges to domain model
+   * object trees.
+   * Returns id -> entity map.
+   */
   def convert(ms: Seq[GraphMacro], ns: Seq[GraphNode], vm: Seq[GraphVarMan], es: Seq[GraphEdge]): Map[String, domainModel.GraphMacro] = {
     // group nodes and edges by it's macros
     val nodes = ns.groupBy(_.macroId).mapValues(_.map(x => {
@@ -316,7 +269,7 @@ object GraphMappings {
       convert(x, varMan)
     }).toMap)
     val edges = es.groupBy(_.macroId).mapValues(_.map(convert))
-    
+
     ms.map { m =>
       (m.id -> domainModel.GraphMacro(
         m.id,

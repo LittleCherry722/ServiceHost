@@ -311,63 +311,66 @@ class InternalBehaviorActor(
     // create the actor which matches to the statetype
     state.stateType match {
       case ActStateType => {
-        context.actorOf(Props(new ActStateActor(stateData)), "ActStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new ActStateActor(stateData)), "ActStateActor____" + UUID.randomUUID().toString)
       }
 
       case SendStateType => {
-        context.actorOf(Props(new SendStateActor(stateData)), "SendStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new SendStateActor(stateData)), "SendStateActor____" + UUID.randomUUID().toString)
       }
 
       case ReceiveStateType => {
-        context.actorOf(Props(new ReceiveStateActor(stateData)), "ReceiveStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new ReceiveStateActor(stateData)), "ReceiveStateActor____" + UUID.randomUUID().toString)
       }
 
-      case EndStateType => {
-        context.actorOf(Props(new EndStateActor(stateData)), "EndStateActor____" + UUID.randomUUID().toString())
-      }
+      case EndStateType =>
+        context.actorOf(Props(new EndStateActor(stateData)), "EndStateActor____" + UUID.randomUUID().toString)
 
       case CloseIPStateType => {
-        context.actorOf(Props(new CloseIPStateActor(stateData)), "CloseIPStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new CloseIPStateActor(stateData)), "CloseIPStateActor____" + UUID.randomUUID().toString)
       }
 
       case OpenIPStateType => {
-        context.actorOf(Props(new OpenIPStateActor(stateData)), "OpenIPStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new OpenIPStateActor(stateData)), "OpenIPStateActor____" + UUID.randomUUID().toString)
       }
 
       case IsIPEmptyStateType => {
-        context.actorOf(Props(new IsIPEmptyStateActor(stateData)), "IsIPEmptyStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new IsIPEmptyStateActor(stateData)), "IsIPEmptyStateActor____" + UUID.randomUUID().toString)
       }
 
       case ModalSplitStateType => {
-        context.actorOf(Props(new ModalSplitStateActor(stateData)), "ModalSplitStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new ModalSplitStateActor(stateData)), "ModalSplitStateActor____" + UUID.randomUUID().toString)
       }
 
       case ModalJoinStateType => {
-        context.actorOf(Props(new ModalJoinStateActor(stateData)), "ModalJoinStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new ModalJoinStateActor(stateData)), "ModalJoinStateActor____" + UUID.randomUUID().toString)
       }
 
       case SplitGuardStateType => {
-        context.actorOf(Props(new SplitGuardStateActor(stateData)), "SplitGuardStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new SplitGuardStateActor(stateData)), "SplitGuardStateActor____" + UUID.randomUUID().toString)
       }
 
       case MacroStateType => {
-        context.actorOf(Props(new MacroStateActor(stateData)), "MacroStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new MacroStateActor(stateData)), "MacroStateActor____" + UUID.randomUUID().toString)
       }
 
       case ActivateStateType => {
-        context.actorOf(Props(new ActivateStateActor(stateData)), "ActivateStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new ActivateStateActor(stateData)), "ActivateStateActor____" + UUID.randomUUID().toString)
       }
 
       case DeactivateStateType => {
-        context.actorOf(Props(new DeactivateStateActor(stateData)), "DeactivateStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new DeactivateStateActor(stateData)), "DeactivateStateActor____" + UUID.randomUUID().toString)
       }
 
       case ArchiveStateType => {
-        context.actorOf(Props(new ArchiveStateActor(stateData)), "ArchiveStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new ArchiveStateActor(stateData)), "ArchiveStateActor____" + UUID.randomUUID().toString)
+      }
+
+      case ChooseAgentStateType => {
+        context.actorOf(Props(new ChooseAgentStateActor(stateData)), "ChooseAgentStateActor____" + UUID.randomUUID().toString)
       }
 
       case DecisionStateType => {
-        context.actorOf(Props(new DecisionStateActor(stateData)), "DecisionStateActor____" + UUID.randomUUID().toString())
+        context.actorOf(Props(new DecisionStateActor(stateData)), "DecisionStateActor____" + UUID.randomUUID().toString)
       }
 
       case BlackboxStateType => {

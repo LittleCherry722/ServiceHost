@@ -126,7 +126,7 @@ define([
           s.startSubject = false;
           s.externalType = "";
           s.name = s.name + " (me)";
-          s.role = "Please choose role";
+          // s.role = "Please choose role";
           s.relatedInterface = self.id();
           s.relatedSubject = sid;
           s.isImplementation = true;
@@ -137,7 +137,7 @@ define([
           s.relatedSubject = s.id;
           s.subjectType = "external";
           s.externalType = "interface";
-          s.role = "Please choose role";
+          // s.role = "Please choose role";
         }
       });
 

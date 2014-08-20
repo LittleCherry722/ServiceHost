@@ -20,7 +20,7 @@ import akka.actor.{ ActorRef, Props }
 import akka.util._
 import scala.concurrent.duration._
 import spray.json._
-import de.tkip.sbpm.rest.JsonProtocol._
+import de.tkip.sbpm.rest.JsonProtocol.{GraphHeader, createGraphHeaderFormat}
 import scalaj.http.{Http, HttpOptions}
 import scala.concurrent.{ExecutionContext, Future}
 import de.tkip.sbpm.persistence.query.Roles
@@ -72,24 +72,28 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       val port = SystemProperties.akkaRemotePort(context.system.settings.config)
       val interface = jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
       log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
+      log.info("[SAVE INTERFACE] saved interface: " + interface)
       val result = Http.postData(repoLocation + "interfaces", interface)
-        .header("Content-Type", "application/json")
+        .charset("UTF-8")
+        .header("Content-Type", "application/json; charset=UTF-8")
         .header("Charset", "UTF-8")
         .option(HttpOptions.readTimeout(10000))
         .asString
       log.debug("[SAVE INTERFACE] repository says: " + result)
       sender !! Some(result.toInt)
-      log.debug("[SAVE INTERFACE] sent repository answer to sender.a")
+      log.debug("[SAVE INTERFACE] sent repository answer to sender.")
     }
     case DeleteInterface(interfaceId) => {
       log.debug("[DELETE INTERFACE] delete message received")
       val result = Http(repoLocation + "interfaces/" + interfaceId)
         .method("DELETE")
-        .header("Content-Type", "application/json")
+        .charset("UTF-8")
+        .header("Content-Type", "application/json; charset=UTF-8")
         .header("Charset", "UTF-8")
         .option(HttpOptions.readTimeout(10000))
         .responseCode
       log.debug("[SAVE INTERFACE] repository says: " + result)
+      sender !! (None)
     }
     case GetAgentsMapMessage(externalSubjectIds) => {
       // Create a string of all external subjects to query the repository with
