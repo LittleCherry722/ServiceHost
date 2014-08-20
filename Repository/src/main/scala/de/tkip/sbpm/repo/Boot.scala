@@ -59,6 +59,14 @@ object Boot extends App with SimpleRoutingApp {
                 }
               }
             }
+          } ~ pathPrefix("blackbox") {
+            get {
+              path(Segment / Segment) {
+                (subjectId, subjectName) => complete {
+                  (interfaceActor ? GetBlackbox(subjectId, subjectName)).mapTo[Option[Interface]] // TODO: list or single one?
+                }
+              }
+            }
           } ~ pathPrefix("interfaces") {
             get {
               pathEnd {

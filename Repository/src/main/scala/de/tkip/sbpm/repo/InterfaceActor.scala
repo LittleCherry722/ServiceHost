@@ -27,6 +27,7 @@ object InterfaceActor {
   case class AddInterface(interface: Interface)
   case class DeleteInterface(interfaceId: Int)
   case class GetImplementations(subjectIds: Seq[String])
+  case class GetBlackbox(subjectId: String, subjectName: String)
   case object Reset
 
   object MyJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
@@ -47,7 +48,10 @@ class InterfaceActor extends Actor with ActorLogging {
     case GetAllInterfaces => {
       val list = interfaces.values.toList
 
-      sender ! list.map(addInterfaceImplementations)
+      // exclude all interfaces which contain a blackbox subject
+      val filtered = list.filterNot(impl => (impl.graph.subjects.values.exists(subj => (subj.subjectType == "external" && subj.externalType == Some("blackbox")))))
+
+      sender ! filtered.map(addInterfaceImplementations)
     }
 
     case GetInterface(implId) => {
@@ -70,6 +74,16 @@ class InterfaceActor extends Actor with ActorLogging {
       log.info("Gathering list of implementations for: {}", implementationsMap.toJson.prettyPrint)
 
       sender ! implementationsMap
+    }
+
+    case GetBlackbox(subjectId, subjectName) => {
+      log.info("GetBlackbox: " + subjectId + "/" + subjectName)
+
+      val list = interfaces.values.toList
+
+      val filtered = list.filter(impl => (impl.graph.subjects.values.exists(subj => (subj.subjectType == "external" && subj.externalType == Some("blackbox") && subj.id == subjectId && subj.name == subjectName))))
+
+      sender ! filtered.map(addInterfaceImplementations).headOption // TODO: list or single one?
     }
 
     case AddInterface(interface) => {
