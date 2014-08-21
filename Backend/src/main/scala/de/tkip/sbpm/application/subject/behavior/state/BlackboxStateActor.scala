@@ -67,17 +67,19 @@ case class BlackboxStateActor(data: StateData)
 
   private lazy val persistanceActor = ActorLocator.persistenceActor
 
+  def loadRoles: Future[Seq[Role]] = {
+    log.info("loadRoles: asking..")
+    (persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]
+  }
+
+  val rolesFuture: Future[Seq[Role]] = loadRoles
+
   protected def extractUrl: String = {
     // TODO: prüfen, ob es eine valide url ist?
     val msg: SubjectToSubjectMessage = variables("$blackboxurl").messages.last
     val url: String = msg.messageContent
     log.info("extractUrl: " + url)
     url
-  }
-
-  def loadRoles: Future[Seq[Role]] = {
-    log.info("loadRoles: asking..")
-    (persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]
   }
 
   // TODO: move to Repo Actor?
@@ -93,28 +95,44 @@ case class BlackboxStateActor(data: StateData)
     plaintextGraph
   }
 
-  // TODO: move to Repo Actor?
-  def marshallGraph(plaintextGraph: String)(implicit roles: Map[String, Role]): ProcessGraph = {
-    log.info("marshallGraph: starting..")
+  val plaintextGraph: String = loadPlaintextGraph
 
-    val interface: Interface = plaintextGraph.parseJson.convertTo[Interface]
-    val graph: Graph = interface.graph
+  rolesFuture onComplete {
+    case Success(res) => {
+      log.info("rolesFuture Success")
 
-    log.info("marshallGraph: converted to Graph, reverse external information...")
 
-    log.info("marshallGraph: graph = " + graph)
+      val rolesSeq: Seq[Role] = res.asInstanceOf[Seq[Role]]
 
-    val reversedGraph: Graph = reverseExternalSubjects(graph)
+      implicit val roles: Map[String, Role] = rolesSeq.map(r => (r.name, r)).toMap
 
-    log.info("marshallGraph: reversedGraph = " + reversedGraph)
+      val interface: Interface = plaintextGraph.parseJson.convertTo[Interface]
+      val reversedGraph: Graph = reverseExternalSubjects(interface.graph)
+      val processGraph: ProcessGraph = de.tkip.sbpm.application.miscellaneous.parseGraph(reversedGraph)
 
-    log.info("marshallGraph: reversed external information, marshall it...")
+      // TODO: check if own subject exists
+      val subject: Subject = processGraph.subjects(mySubjectID).asInstanceOf[Subject]
+      val mainMacro: Array[State] = subject.mainMacro.states
 
-    val processGraph: ProcessGraph = de.tkip.sbpm.application.miscellaneous.parseGraph(reversedGraph)
+      // register all used subjects except the own
+      val externalSubjects: Map[SubjectID, SubjectLike] = processGraph.subjects.filterNot(_._1 == mySubjectID)
+      val externalGraphSubjects: Map[SubjectID, GraphSubject] = reversedGraph.subjects.filterNot(_._1 == mySubjectID)
 
-    log.info("marshallGraph: done")
+      val agents: Map[SubjectID, Set[Agent]] = externalGraphSubjects.values.map(
+        subj => {
+          val impl: InterfaceImplementation = subj.implementations.get.head // TODO: check existence / how to choose?
+          val agent = Agent(impl.processId, AgentAddress(impl.address.ip, impl.address.port), impl.subjectId)
+          (subj.id, Set(agent))
+        }).toMap
 
-    processGraph
+      callMacro(mainMacro, externalSubjects, agents)
+    }
+    case Failure(e) => {
+      e.printStackTrace()
+      log.error("error loading roles", e)
+      // TODO: weitere Fehlerbehandlung
+      exit()
+    }
   }
 
   // TODO: how is this done in frontend when implementing an interface?
@@ -148,60 +166,28 @@ case class BlackboxStateActor(data: StateData)
     ))
   }
 
-  // TODO: eigene Methode
-  val rolesFuture: Future[Seq[Role]] = loadRoles
-
-  val plaintextGraph: String = loadPlaintextGraph
-
-  private def extractOwnSubjectAndCallMainMacro(subjects: Map[SubjectID, SubjectLike]): Unit = {
-    // TODO: check if own subject exists
-    val subject: Subject = subjects(mySubjectID).asInstanceOf[Subject]
-
-    val m: Array[State] = subject.mainMacro.states
-
-
+  def callMacro(mainMacro: Array[State], externalSubjects: Map[SubjectID, SubjectLike], agents: Map[SubjectID, Set[Agent]]): Unit = {
+    val macroName = blackboxInstance + "@blackbox"
     log.info("=============================")
     log.info("=============================")
-    log.info("==== currentMacro loaded ====")
+    log.info("callMacro: " + macroName + " => " + mainMacro.mkString(", "))
     log.info("=============================")
     log.info("=============================")
 
+    val msg = RegisterSubjects(externalSubjects, agents)
 
-    callMacro(m)
+    // TODO: include subject information in callmacro
+    context.parent ! msg
+
+    log.info("registered subjects")
+
+    // TODO: BlockUser ?
+    context.parent ! CallMacroStates(this.self, macroName, mainMacro)
+    // TODO: UnBlockUser ?
   }
 
-  rolesFuture onComplete {
-    case Success(res) => {
-      log.info("rolesFuture Success")
-
-
-      val rolesSeq: Seq[Role] = res.asInstanceOf[Seq[Role]]
-
-      implicit val roles: Map[String, Role] = rolesSeq.map(r => (r.name, r)).toMap
-
-      val processGraph: ProcessGraph = marshallGraph(plaintextGraph)
-
-      val subjects: Map[SubjectID, SubjectLike] = processGraph.subjects
-
-      // register all used subjects except the own
-      val s = subjects.filterNot(_._1 == mySubjectID)
-      val a: AgentsMap = Map("Subj2:32746d8f-6a25-4d73-b5c7-7d9c42fb94d7" -> Set(Agent(5, AgentAddress("127.0.0.1", 2551), "Subj2:32746d8f-6a25-4d73-b5c7-7d9c42fb94d7"))) // TODO: hardcoded
-
-      val msg = RegisterSubjects(s, a)
-
-      // TODO: include subject information in callmacro
-      context.parent ! msg
-
-      log.info("registered subjects")
-
-      extractOwnSubjectAndCallMainMacro(subjects)
-    }
-    case Failure(e) => {
-      e.printStackTrace()
-      log.error("error loading roles", e)
-      // TODO: weitere Fehlerbehandlung
-      exit()
-    }
+  override protected def getAvailableAction: Array[ActionData] = {
+    Array()
   }
 
   protected def stateReceive = {
@@ -219,22 +205,4 @@ case class BlackboxStateActor(data: StateData)
 
     changeState(exitTransitions(0).successorID, data, null)
   }
-
-  def callMacro(m: Array[State]): Unit = {
-    val macroName = blackboxInstance + "@blackbox"
-    log.info("=============================")
-    log.info("=============================")
-    log.info("callMacro: " + macroName + " => " + m.mkString(", "))
-    log.info("=============================")
-    log.info("=============================")
-
-    // TODO: BlockUser ?
-    context.parent ! CallMacroStates(this.self, macroName, m)
-    // TODO: UnBlockUser ?
-  }
-
-  override protected def getAvailableAction: Array[ActionData] = {
-    Array()
-  }
-
 }
