@@ -13,6 +13,17 @@
 
 package de.tkip.sbpm.model
 
+object InterfaceType extends Enumeration {
+  type InterfaceType = Value
+
+  val BlackboxcontentTypeString = "blackboxcontent"
+  val InterfaceTypeString = "interface"
+
+  val BlackboxcontentInterfaceType = Value(BlackboxcontentTypeString)
+  val InterfaceInterfaceType = Value(InterfaceTypeString)
+}
+import InterfaceType.InterfaceType
+
 case class Process(id: Option[Int],
                    interfaceId: Option[Int],
                    publishInterface: Boolean,
@@ -26,13 +37,15 @@ case class Configuration(key: String,
   value: Option[String],
   dataType: String)
 
-case class Interface(address: Address,
+case class Interface(interfaceType: InterfaceType,
+                     address: Address,
                      id: Int,
                      processId: Int,
                      name: String,
                      graph: Graph)
 
-case class IntermediateInterface(id: Int,
+case class IntermediateInterface(interfaceType: InterfaceType,
+                                 id: Int,
                                  port: Int,
                                  interfaceId: Option[Int],
                                  name: String,

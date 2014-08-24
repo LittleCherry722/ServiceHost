@@ -69,8 +69,12 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       implicit val roleMap = roles.map(r => (r.name, r)).toMap
       val jsObject = gHeader.toJson(createGraphHeaderFormat(roleMap)).asJsObject()
 
+      val containsBlackbox = if (gHeader.graph.isDefined) {
+          gHeader.graph.get.subjects.values.exists(subj => (subj.subjectType == "external" && subj.externalType == Some("blackbox")))
+        } else false
+      val interfaceType = if (containsBlackbox) "blackboxcontent" else "interface"
       val port = SystemProperties.akkaRemotePort(context.system.settings.config)
-      val interface = jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
+      val interface = jsObject.copy(Map("interfaceType" -> JsString(interfaceType), "port" -> port.toJson) ++ jsObject.fields).toString()
       log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
       log.info("[SAVE INTERFACE] saved interface: " + interface)
       val result = Http.postData(repoLocation + "interfaces", interface)

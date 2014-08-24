@@ -18,6 +18,7 @@ import spray.httpx.SprayJsonSupport
 import scala.collection.mutable
 import spray.json._
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.model.InterfaceType._
 import de.tkip.sbpm.model.GraphJsonProtocol._
 import akka.event.Logging
 
@@ -31,8 +32,18 @@ object InterfaceActor {
   case object Reset
 
   object MyJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
-    implicit val InterfaceFormat = jsonFormat5(Interface)
-    implicit val IntermediateInterfaceFormat = jsonFormat5(IntermediateInterface)
+    implicit object interfaceTypeFormat extends RootJsonFormat[InterfaceType] {
+      def write(obj: InterfaceType) = JsString(obj.toString)
+      def read(v: JsValue) = v match {
+        case JsString(str) => try {
+          InterfaceType.withName(str)
+        }
+        case _ => deserializationError("String expected")
+      }
+    }
+
+    implicit val InterfaceFormat = jsonFormat6(Interface)
+    implicit val IntermediateInterfaceFormat = jsonFormat6(IntermediateInterface)
 
   }
 }
@@ -48,8 +59,7 @@ class InterfaceActor extends Actor with ActorLogging {
     case GetAllInterfaces => {
       val list = interfaces.values.toList
 
-      // exclude all interfaces which contain a blackbox subject
-      val filtered = list.filterNot(impl => (impl.graph.subjects.values.exists(subj => (subj.subjectType == "external" && subj.externalType == Some("blackbox")))))
+      val filtered = list.filter(impl => (impl.interfaceType == InterfaceInterfaceType))
 
       sender ! filtered.map(addInterfaceImplementations)
     }
@@ -81,7 +91,7 @@ class InterfaceActor extends Actor with ActorLogging {
 
       val list = interfaces.values.toList
 
-      val filtered = list.filter(impl => (impl.graph.subjects.values.exists(subj => (subj.subjectType == "external" && subj.externalType == Some("blackbox") && subj.id == subjectId && subj.name == subjectName))))
+      val filtered = list.filter(impl => (impl.interfaceType == BlackboxcontentInterfaceType && impl.graph.subjects.values.exists(subj => (subj.id == subjectId && subj.name == subjectName))))
 
       sender ! filtered.map(addInterfaceImplementations).headOption // TODO: list or single one?
     }

@@ -18,6 +18,7 @@ import java.sql.Timestamp
 import spray.json._
 import java.util.Date
 import GraphJsonProtocol.graphJsonFormat
+import de.tkip.sbpm.repo.InterfaceActor.MyJsonProtocol.interfaceTypeFormat
 
 /**
  * supplies the marshalling/unmarshalling process with the needed information about how to cast values
@@ -74,12 +75,14 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val addressFormat = jsonFormat2(Address)
   implicit object interfaceFormat extends RootJsonFormat[Interface] {
     def write(a: Interface) = JsObject(
+      "interfaceType" -> a.interfaceType.toJson,
       "id" -> JsNumber(a.id),
       "processId" -> JsNumber(a.processId),
       "name" -> JsString(a.name),
       "graph" -> a.graph.toJson
     )
     def read(v: JsValue) = v.asJsObject.convertTo[Interface](jsonFormat(Interface,
+      "interfaceType",
       "address",
       "id",
       "processId",
