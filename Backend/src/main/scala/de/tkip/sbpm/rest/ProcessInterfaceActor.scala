@@ -268,7 +268,7 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
         publishInterface = process.publishInterface,
         graph = Some(graph.copy(id = graphId, processId = processId)),
         isCase = process.isCase,
-        id = process.id)
+        id = processId)
     } yield savedProcess
     onSuccess((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]) {
       roles =>
