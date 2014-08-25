@@ -36,3 +36,15 @@
   Prozessbeschreibung ohne gewisse details die das BIR nicht braucht.
 - Beim implementieren werden kommunikationspartner des zu implementierenden
   Subjektes als interfaces geladen und ein mapping
+
+
+* Wichtig
+- Testen, wie interface komposition funktioniert.
+- Subjekt ID änderbar machen im Frontend
+- Rekursiven Datentyp einbauen
+- Variablen anschauen, eventuall variablen und channel zusammenlegen mit
+  extra state zum "entpacken" der channel
+- Interfaces / implementierungsehr gut en anpassbar mit weiteren Kommunikationen zu
+  anderen interfaces? Mapping zum interface / Implementierung ggf. Message
+  spezifisch machen?
+- Dokument weiter ausarbeiten

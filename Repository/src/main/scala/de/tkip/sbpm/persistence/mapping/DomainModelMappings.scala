@@ -20,7 +20,7 @@ import shapeless._
  * Methods to convert domain model objects (defined in sbmp.model package)
  * to database entities (defined in Models.scala).
  */
-object GraphMappings {
+object DomainModelMappings {
 
   /**
    * Convert the graph domain model to db entities.
@@ -29,7 +29,7 @@ object GraphMappings {
    * id must be known for converting sub entities.
    */
   def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
-    val graph = Graph(g.id, g.processId.get, g.date)
+    val graph = Graph(g.id, g.interfaceId.get)
     if (!g.id.isDefined) {
       Left(graph)
     } else {
@@ -201,8 +201,7 @@ object GraphMappings {
     val (conversations, messages, subjects, variables, macros, nodes, varMans, edges) = subModels
     domainModel.Graph(
       graph.id,
-      Some(graph.processId),
-      graph.date,
+      Some(graph.interfaceId),
       conversations.map(convert).toMap,
       messages.map(convert).toMap,
       convert(subjects, variables, macros, nodes, varMans, edges))

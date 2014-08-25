@@ -24,20 +24,20 @@ import scala.slick.model.ForeignKeyAction.{Cascade, NoAction}
 object GraphSchema extends Schema {
   // import current slick driver dynamically
   import driver.simple._
-  import ProcessesSchema.processes
+  import InterfaceSchema.interfaces
 
   // represents schema if the "graphs" table in the database
   // using slick's lifted embedding API
   class Graphs(tag: Tag) extends SchemaTable[Graph](tag, "graphs") {
     def id = autoIncIdCol[Int]
-    def processId = column[Int]("process_id")
+    def interfaceId = column[Int]("interface_id")
     def date = column[java.sql.Timestamp]("date")
 
-    def * = (id.?, processId, date) <> (Graph.tupled, Graph.unapply)
+    def * = (id.?, interfaceId) <> (Graph.tupled, Graph.unapply)
     // def autoInc = * returning id
 
-    def process =
-      foreignKey(fkName("processes"), processId, processes)(_.id, NoAction, Cascade)
+    def interface =
+      foreignKey(fkName("interfaces"), interfaceId, interfaces)(_.id, NoAction, Cascade)
   }
 
   val graphs = TableQuery[Graphs]
