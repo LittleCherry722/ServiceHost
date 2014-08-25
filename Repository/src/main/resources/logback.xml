@@ -10,7 +10,8 @@
     </appender>
     <logger name="akka" level="INFO"/>
     <logger name="scala.slick" level="INFO"/>
-    <root level="DEBUG">
+
+    <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

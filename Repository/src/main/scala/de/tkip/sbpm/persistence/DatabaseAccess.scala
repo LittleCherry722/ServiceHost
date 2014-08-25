@@ -5,7 +5,6 @@ import com.mchange.v2.c3p0.DataSources
 import com.typesafe.config.{ ConfigFactory, Config }
 import de.tkip.sbpm.model.Interface
 import scala.slick.driver.JdbcDriver.simple._
-import akka.event.Logging
 
 object DatabaseAccess {
   import schema.Schema.driver.simple._
@@ -104,6 +103,8 @@ object DatabaseAccess {
     for (s <- cmds) {
       try {
         session.withPreparedStatement(s)(_.execute)
+      } catch {
+        case e: Throwable => println(e.getMessage)
       }
     }
 }
