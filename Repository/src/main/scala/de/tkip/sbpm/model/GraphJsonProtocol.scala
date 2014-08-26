@@ -136,6 +136,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
     "options",
     "chooseAgentSubject",
     "macro",
+    "blackboxname",
     "varMan")
 
   /**

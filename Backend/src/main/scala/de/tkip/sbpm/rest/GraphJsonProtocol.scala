@@ -158,6 +158,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     "options",
     "chooseAgentSubject",
     "macro",
+    "blackboxname",
     "varMan")
 
   /**

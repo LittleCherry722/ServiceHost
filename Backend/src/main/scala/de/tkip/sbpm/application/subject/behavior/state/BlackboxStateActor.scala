@@ -62,6 +62,9 @@ case class BlackboxStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
   val mySubjectID: SubjectID = data.subjectData.subject.id
+  val myMacroName: String = data.stateModel.blackboxname.get
+
+  val url = "http://localhost:8181/repo/blackbox/" + mySubjectID + "/" + myMacroName
 
   val blackboxInstance = BlackboxStateActor.blackboxInstance
 
@@ -74,18 +77,9 @@ case class BlackboxStateActor(data: StateData)
 
   val rolesFuture: Future[Seq[Role]] = loadRoles
 
-  protected def extractUrl: String = {
-    // TODO: prüfen, ob es eine valide url ist?
-    val msg: SubjectToSubjectMessage = variables("$blackboxurl").messages.last
-    val url: String = msg.messageContent
-    log.info("extractUrl: " + url)
-    url
-  }
-
   // TODO: move to Repo Actor?
-  def loadPlaintextGraph: String = {
+  def loadPlaintextGraph(url: String): String = {
     log.info("loadPlaintextGraph: starting..")
-    val url: String = extractUrl
 
     // TODO: Fehlerbehandlung?
     log.info("loadPlaintextGraph: fetch url: " + url)
@@ -96,7 +90,7 @@ case class BlackboxStateActor(data: StateData)
     plaintextGraph
   }
 
-  val plaintextGraph: String = loadPlaintextGraph
+  val plaintextGraph: String = loadPlaintextGraph(url)
 
   rolesFuture onComplete {
     case Success(res) => {

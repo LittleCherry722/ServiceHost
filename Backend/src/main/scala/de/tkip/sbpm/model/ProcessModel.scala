@@ -84,6 +84,7 @@ case class State(
   startState: Boolean,
   observerState: Boolean,
   callMacro: Option[String],
+  blackboxname: Option[String],
   options: StateOptions,
   transitions: Array[Transition],
   chooseAgentSubject: Option[String])

@@ -221,6 +221,7 @@ case class GraphNode(id: Short,
   options: GraphNodeOptions,
   chooseAgentSubject: Option[String],
   macroId: Option[String],
+  blackboxname: Option[String],
   varMan: Option[GraphVarMan])
 
 case class GraphNodeOptions(messageId: Option[String] = None,
