@@ -37,6 +37,7 @@ object GraphVarMansSchema extends Schema {
       , varManStoreVarId) <> (GraphVarMan.tupled, GraphVarMan.unapply)
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
+    def idx = index(s"${tableName}_idx_graph_id", graphId)
 
 //    def graphNode =
 //      foreignKey(fkName("graph_node"), (id, subjectId, macroId, graphId), GraphNode)(n => (n.id, n.subjectId, n.macroId, n.graphId))

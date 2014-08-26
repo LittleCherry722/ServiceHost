@@ -119,7 +119,8 @@ object GraphMappings {
         n.options.conversationId,
         n.options.nodeId,
         n.chooseAgentSubject,
-        n.macroId)
+        n.macroId,
+        false)
       ,
       GraphVarMan(n.id,
         macroId,

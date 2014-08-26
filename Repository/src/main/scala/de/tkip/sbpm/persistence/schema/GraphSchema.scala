@@ -36,6 +36,8 @@ object GraphSchema extends Schema {
     def * = (id.?, interfaceId) <> (Graph.tupled, Graph.unapply)
     // def autoInc = * returning id
 
+    def idx = index(s"${tableName}_idx_interface_id", interfaceId)
+
     def interface =
       foreignKey(fkName("interfaces"), interfaceId, interfaces)(_.id, NoAction, Cascade)
   }

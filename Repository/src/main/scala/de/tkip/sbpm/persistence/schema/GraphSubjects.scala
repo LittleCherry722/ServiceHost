@@ -48,6 +48,7 @@ object GraphSubjectsSchema extends Schema {
       , comment) <> (GraphSubject.tupled, GraphSubject unapply)
 
     def pk = primaryKey(pkName, (id, graphId))
+    def idx = index(s"${tableName}_idx_graph_id", graphId)
   }
 
   val graphSubjects = TableQuery[GraphSubjects]

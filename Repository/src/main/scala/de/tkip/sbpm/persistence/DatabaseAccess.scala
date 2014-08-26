@@ -2,8 +2,7 @@ package de.tkip.sbpm.persistence
 
 import com.mchange.v2.c3p0.ComboPooledDataSource
 import com.mchange.v2.c3p0.DataSources
-import com.typesafe.config.{ ConfigFactory, Config }
-import de.tkip.sbpm.model.Interface
+import com.typesafe.config.{ ConfigFactory }
 import scala.slick.driver.JdbcDriver.simple._
 
 object DatabaseAccess {
@@ -19,7 +18,7 @@ object DatabaseAccess {
   import schema.GraphVariablesSchema
   import schema.GraphVarMansSchema
   import schema.ProcessEngineAddressSchema
-  import DatabaseConnection.{database => db}
+  import DatabaseConnection.database
 
   val interfaces = InterfaceSchema.interfaces
   val graphConversations = GraphConversationsSchema.graphConversations
@@ -32,6 +31,7 @@ object DatabaseAccess {
   val graphVariables = GraphVariablesSchema.graphVariables
   val graphVarMans = GraphVarMansSchema.graphVarMans
   val addresses = ProcessEngineAddressSchema.addresses
+  val db = database
 
   private val tables = List(
     graphConversations,
@@ -45,40 +45,6 @@ object DatabaseAccess {
     graphVariables)
 
   private val ddl = tables.map(_.ddl).reduceLeft(_ ++ _)
-
-  private val fullGraphs = graphs
-    .join(graphConversations).on(_.id === _.graphId)
-    .join(graphMessages).on(_._1.id === _.graphId)
-    .join(graphSubjects).on(_._1._1.id === _.graphId)
-    .join(graphVariables).on(_._1._1._1.id === _.graphId)
-    .join(graphMacros).on(_._1._1._1._1.id === _.graphId)
-    .join(graphNodes).on(_._1._1._1._1._1.id === _.graphId)
-    .join(graphVarMans).on(_._1._1._1._1._1._1.id === _.graphId)
-
-  def loadInterfaces(): Interface = {
-    val interfaceGraphs = interfaces.join(fullGraphs)
-      .on(_.graphId === _._1._1._1._1._1._1._1.id)
-      .join(addresses).on(_._1.addressId === _.id)
-
-    db.withSession { implicit session =>
-      val res = interfaceGraphs.list
-    }
-
-    return null
-  }
-
-  def loadInterface(id: Int): Interface = {
-    val interface = interfaces.filter(_.id === id).take(1)
-    val interfaceGraphs = interface.join(fullGraphs)
-      .on(_.graphId === _._1._1._1._1._1._1._1.id)
-      .join(addresses).on(_._1.addressId === _.id)
-
-    db.withSession { implicit session =>
-      val res = interfaceGraphs.first
-    }
-
-    return null
-  }
 
   def createDatabase() : Unit = {
     db.withSession { session =>
@@ -109,7 +75,7 @@ object DatabaseAccess {
     }
 }
 
-private[persistence] object DatabaseConnection {
+private object DatabaseConnection {
   // store for created connection pools
   // key is jdbc uri
 

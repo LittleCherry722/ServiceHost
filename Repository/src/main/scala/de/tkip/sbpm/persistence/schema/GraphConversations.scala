@@ -35,6 +35,8 @@ object GraphConversationsSchema extends Schema {
     def * = (id, graphId, name) <> (GraphConversation.tupled, GraphConversation.unapply)
 
     def pk = primaryKey(pkName, (id, graphId))
+    def idx = index(s"${tableName}_idx_graph_id", graphId)
+
 
     def graph = foreignKey(fkName("graphs"), graphId, graphs)(_.id, NoAction, Cascade)
   }

@@ -54,6 +54,7 @@ object GraphEdgesSchema extends Schema {
     def comment = column[Option[String]]("comment", DbType.comment)
     def transportMethod = column[String]("transport_method", DbType.stringIdentifier, O.Default("internal"))
 
+
     def * = (startNodeId, endNodeId, macroId, subjectId, graphId, text
       , edgeType, manualPositionOffsetLabelX, manualPositionOffsetLabelY
       , targetSubjectId, targetMin, targetMax, targetCreateNew, targetVariableId
@@ -61,6 +62,7 @@ object GraphEdgesSchema extends Schema {
       , correlationId, comment, transportMethod) <> (GraphEdge.tupled, GraphEdge.unapply)
 
     def pk = primaryKey(pkName, (startNodeId, endNodeId, macroId, subjectId, graphId))
+    def idx = index(s"${tableName}_idx_graph_id", graphId)
 
     def startNode = foreignKey(fkName("graph_nodes_start"), (startNodeId, macroId, subjectId, graphId), graphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId), NoAction, Cascade)
     def endNode = foreignKey(fkName("graph_nodes_end"), (startNodeId, macroId, subjectId, graphId), graphNodes)(n => (n.id, n.macroId, n.subjectId, n.graphId), NoAction, Cascade)

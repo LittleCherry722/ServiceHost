@@ -14,7 +14,8 @@
 package de.tkip.sbpm.persistence.schema
 
 import de.tkip.sbpm.persistence.mapping._
-import scala.slick.model.ForeignKeyAction._
+
+import scala.slick.model.ForeignKeyAction.{NoAction, Cascade}
 
 /**
  * Defines the database schema of GraphNodes.
@@ -25,6 +26,9 @@ trait GraphNodesSchema extends GraphMacrosSchema
   with GraphVariablesSchema with GraphConversationsSchema with GraphMessagesSchema {
   // import current slick driver dynamically
   import driver.simple._
+
+  import scala.slick.collection.heterogenous._
+  import syntax._
 
   // represents schema if the "graph_nodes" table in the database
   // using slick's lifted embedding API
@@ -51,12 +55,70 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def optionNodeId = column[Option[Short]]("option_node_id", DbType.smallint)
     def chooseAgentSubject = column[Option[String]]("choose_agent_subject", DbType.stringIdentifier)
     def executeMacroId = column[Option[String]]("execute_macro_id", DbType.stringIdentifier)
+    def newField = column[Boolean]("new_field")
 
-    def * = (id, macroId, subjectId, graphId, text, isStart, isEnd, nodeType
-      , manualPositionOffsetX, manualPositionOffsetY, isAutoExecute
-      , isDisabled, isMajorStartNode, conversationId, variableId, optionMessageId
-      , optionSubjectId, optionCorrelationId, optionConversationId, optionNodeId
-      , chooseAgentSubject, executeMacroId) <> (GraphNode.tupled, GraphNode.unapply)
+//    private def iso[L <: HList, M <: HList]
+//                  (l: L)
+//                  (implicit iso: Generic.Aux[GraphNode, M], eq: L =:= M): GraphNode = iso.from(l)
+
+    def * = (id.? :: macroId :: subjectId :: graphId :: text :: isStart :: isEnd :: nodeType ::
+      manualPositionOffsetX :: manualPositionOffsetY :: isAutoExecute ::
+      isDisabled :: isMajorStartNode :: conversationId  :: variableId :: optionMessageId  ::
+      optionSubjectId :: optionCorrelationId  :: optionConversationId  :: optionNodeId  ::
+      chooseAgentSubject  :: executeMacroId  :: newField :: HNil).shaped <>
+      ({
+        case x => GraphNode(
+          id = x(0).get,
+          macroId = x(1),
+          subjectId = x(2),
+          graphId = x(3),
+          text = x(4),
+          isStart = x(5),
+          isEnd = x(6),
+          nodeType = x(7),
+          manualPositionOffsetX = x(8),
+          manualPositionOffsetY = x(9),
+          isAutoExecute = x(10),
+          isDisabled = x(11),
+          isMajorStartNode = x(12),
+          conversationId = x(13),
+          variableId = x(14),
+          optionMessageId = x(15),
+          optionSubjectId = x(16),
+          optionCorrelationId = x(17),
+          optionConversationId= x(18),
+          optionNodeId = x(19),
+          chooseAgentSubject = x(20),
+          executeMacroId = x(21),
+          newField = x(22))
+      },(
+        {x:GraphNode =>
+          Option((
+            Some(x.id) ::
+            x.macroId ::
+            x.subjectId ::
+            x.graphId ::
+            x.text ::
+            x.isStart ::
+            x.isEnd ::
+            x.nodeType ::
+            x.manualPositionOffsetX ::
+            x.manualPositionOffsetY ::
+            x.isAutoExecute ::
+            x.isDisabled ::
+            x.isMajorStartNode ::
+            x.conversationId ::
+            x.variableId ::
+            x.optionMessageId ::
+            x.optionSubjectId ::
+            x.optionCorrelationId ::
+            x.optionConversationId ::
+            x.optionNodeId ::
+            x.chooseAgentSubject ::
+            x.executeMacroId ::
+            x.newField ::
+            HNil))
+      }))
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
 
