@@ -193,6 +193,22 @@ object DomainModelMappings {
     GraphMessage(c.id, graphId, c.name)
   }.toSeq
 
+  def convert(interface: Interface, address: ProcessEngineAddress,
+              subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])
+             ) : domainModel.Interface = {
+    domainModel.Interface(
+      id = interface.id,
+      processId = interface.processId,
+      name = interface.name,
+      address = domainModel.Address(
+        id = address.id,
+        ip = address.ip,
+        port = address.port
+      ),
+      graph = convert(Graph(id = Some(interface.graphId), interfaceId = interface.id.get), subModels)
+    )
+  }
+
   /**
    * Convert all database entities of a graph to a single
    * object tree of domain model objects. 
@@ -211,13 +227,19 @@ object DomainModelMappings {
    * Convert  to id -> entity mapping.
    */
   def convert(c: GraphConversation): (String, domainModel.GraphConversation) =
-    (c.id -> domainModel.GraphConversation(c.id, c.name))
+    c.id -> domainModel.GraphConversation(c.id, c.name)
+
+  /**
+   * Convert  to id -> entity mapping.
+   */
+  def convert(a: ProcessEngineAddress): domainModel.Address =
+    domainModel.Address(id = a.id, ip = a.ip, port = a.port)
 
   /**
    * Convert message to id -> entity mapping.
    */
   def convert(m: GraphMessage): (String, domainModel.GraphMessage) =
-    (m.id -> domainModel.GraphMessage(m.id, m.name))
+    m.id -> domainModel.GraphMessage(m.id, m.name)
 
   /**
    * Convert subjects with sub entities to domain model
@@ -231,7 +253,7 @@ object DomainModelMappings {
     val varMans = vm.groupBy(_.subjectId)
     val edges = es.groupBy(_.subjectId)
 
-    (s.id -> domainModel.GraphSubject(
+    s.id -> domainModel.GraphSubject(
       id = s.id,
       name = s.name,
       subjectType = s.subjectType,
@@ -246,14 +268,14 @@ object DomainModelMappings {
       implementations = List.empty,
       comment = s.comment,
       variables = variables.getOrElse(s.id, Map()),
-      macros = convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List()))))
+      macros = convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List())))
   }.toMap
 
   /**
    * Convert variable to id -> entity mapping.
    */
   def convert(v: GraphVariable): (String, domainModel.GraphVariable) =
-    (v.id -> domainModel.GraphVariable(v.id, v.name))
+    v.id -> domainModel.GraphVariable(v.id, v.name)
 
   /**
    * Convert macros, nodes and edges to domain model
@@ -270,11 +292,11 @@ object DomainModelMappings {
     val edges = es.groupBy(_.macroId).mapValues(_.map(convert))
 
     ms.map { m =>
-      (m.id -> domainModel.GraphMacro(
+      m.id -> domainModel.GraphMacro(
         m.id,
         m.name,
         nodes.getOrElse(m.id, Map()),
-        edges.getOrElse(m.id, List())))
+        edges.getOrElse(m.id, List()))
     }.toMap
   }
 

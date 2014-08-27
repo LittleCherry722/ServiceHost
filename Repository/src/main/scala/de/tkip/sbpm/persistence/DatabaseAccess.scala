@@ -32,8 +32,11 @@ object DatabaseAccess {
   val graphVarMans = GraphVarMansSchema.graphVarMans
   val addresses = ProcessEngineAddressSchema.addresses
   val db = database
+  val driver = schema.Schema.driver
 
   private val tables = List(
+    interfaces,
+    addresses,
     graphConversations,
     graphEdges,
     graphMacros,

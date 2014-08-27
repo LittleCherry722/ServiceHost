@@ -207,7 +207,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
     }
   }
 
-  implicit val addressFormat = jsonFormat2(Address)
+  implicit val addressFormat = jsonFormat3(Address)
   implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
 
   /**
@@ -267,27 +267,26 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
         "messageCounter" -> counter(g.messages),
         "nodeCounter" -> counter(g.subjects))
     def read(v: JsValue) = v.asJsObject.getFields("id",
-      "interfaceId",
+      "processId",
       "definition",
       "routings") match {
         case Seq(id: JsValue,
-          interfaceId: JsValue,
-          date: JsValue,
+          processId: JsValue,
           definition: JsObject,
           routings: JsArray) =>
           Graph(
             id            = id.convertTo[Option[Int]],
-            interfaceId   = interfaceId.convertTo[Option[Int]],
+            interfaceId   = processId.convertTo[Option[Int]],
             conversations = definition.fields("conversations").convertTo[Map[String, GraphConversation]],
             messages      = definition.fields("messages").convertTo[Map[String, GraphMessage]],
-            subjects      = definition.fields("interface").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
+            subjects      = definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
         case Seq(definition: JsObject,
           routings: JsArray) => Graph(
           id            = None,
           interfaceId   = None,
           conversations = definition.fields("conversations").convertTo[Map[String, GraphConversation]],
           messages      = definition.fields("messages").convertTo[Map[String, GraphMessage]],
-          subjects      = definition.fields("interface").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
+          subjects      = definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
         case x => throw new DeserializationException("Graph expected, but found: " + x)
       }
   }

@@ -31,10 +31,10 @@ class IntermediateInterfaceActor extends Actor with ActorLogging {
   def receive = {
     case ConvertToInterface(iInterface, ip) => {
       val interface = Interface(
-        id        = iInterface.interfaceId.getOrElse(nextId),
+        id        = None,
         name      = iInterface.name,
         graph     = iInterface.graph,
-        address   = Address(ip.value, iInterface.port),
+        address   = Address(None, ip.value, iInterface.port),
         processId = iInterface.id)
       sender ! interface
     }

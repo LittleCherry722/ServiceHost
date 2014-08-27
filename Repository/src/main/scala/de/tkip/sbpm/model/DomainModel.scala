@@ -19,7 +19,7 @@ case class Configuration(key: String,
   dataType: String)
 
 case class Interface(address: Address,
-                     id: Int,
+                     id: Option[Int],
                      processId: Int,
                      name: String,
                      graph: Graph)
@@ -34,7 +34,7 @@ case class InterfaceImplementation(processId: Int,
                                    address: Address,
                                    subjectId: String)
 
-case class Address(ip: String, port: Int)
+case class Address(id: Option[Int], ip: String, port: Int)
 
 case class Graph(id: Option[Int],
   interfaceId: Option[Int],
@@ -57,7 +57,7 @@ case class GraphSubject(id: String,
   isImplementation: Option[Boolean],
   externalType: Option[String],
   role: Option[String],
-  implementations: List[InterfaceImplementation],
+  implementations: Seq[InterfaceImplementation],
   comment: Option[String],
   variables: Map[String, GraphVariable],
   macros: Map[String, GraphMacro])

@@ -66,7 +66,7 @@ object Boot extends App with SimpleRoutingApp {
             get {
               pathEnd {
                 complete {
-                  (interfaceActor ? GetAllInterfaces).mapTo[List[Interface]]
+                  (interfaceActor ? GetAllInterfaces).mapTo[Seq[Interface]]
                 }
               } ~ path(IntNumber) {
                 id =>
@@ -82,7 +82,7 @@ object Boot extends App with SimpleRoutingApp {
                     response <- (interfaceActor ? AddInterface(interface)).mapTo[Option[String]]
                   } yield response
                   onSuccess(future) {
-                    case Some(s) => complete(s)
+                    case Some(s) => println(s"got back id after adding: $s"); complete(s)
                     case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
                   }
                 }
