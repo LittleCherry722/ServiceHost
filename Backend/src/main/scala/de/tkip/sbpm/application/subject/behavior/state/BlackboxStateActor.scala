@@ -88,6 +88,7 @@ case class BlackboxStateActor(data: StateData)
     val url: String = extractUrl
 
     // TODO: Fehlerbehandlung?
+    log.info("loadPlaintextGraph: fetch url: " + url)
     val plaintextGraph: String = Http(url).asString
 
     log.info("loadPlaintextGraph: done")

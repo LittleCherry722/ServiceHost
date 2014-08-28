@@ -62,8 +62,8 @@ object Boot extends App with SimpleRoutingApp {
           } ~ pathPrefix("blackbox") {
             get {
               path(Segment / Segment) {
-                (subjectId, subjectName) => complete {
-                  (interfaceActor ? GetBlackbox(subjectId, subjectName)).mapTo[Option[Interface]] // TODO: list or single one?
+                (subjectId, blackboxname) => complete {
+                  (interfaceActor ? GetBlackbox(subjectId, blackboxname)).mapTo[Option[Interface]] // TODO: list or single one?
                 }
               }
             }
