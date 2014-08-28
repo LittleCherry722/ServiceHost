@@ -37,7 +37,6 @@ case class InterfaceImplementation(processId: Int,
 case class Address(id: Option[Int], ip: String, port: Int)
 
 case class Graph(id: Option[Int],
-  interfaceId: Option[Int],
   conversations: Map[String, GraphConversation],
   messages: Map[String, GraphMessage],
   subjects: Map[String, GraphSubject])

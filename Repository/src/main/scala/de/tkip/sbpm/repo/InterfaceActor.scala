@@ -53,7 +53,7 @@ class InterfaceActor extends Actor with ActorLogging {
 
     case GetInterface(interfaceId) => {
       log.info(s"Get interface with id: $interfaceId")
-      sender ! Query.loadInterface(interfaceId)
+      sender ! Query.loadInterface(interfaceId).map(addInterfaceImplementations)
     }
 
     case DeleteInterface(interfaceId) => {
@@ -70,7 +70,7 @@ class InterfaceActor extends Actor with ActorLogging {
     }
 
     case AddInterface(interface) => {
-      log.info(s"Adding new interface: $interface")
+      log.info(s"Adding new interface")
       val interfaceId = Query.saveInterface(interface)
       log.info(s"Interface adding completed. id: $interfaceId")
       sender ! Some(interfaceId.toString)

@@ -275,15 +275,13 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
           definition: JsObject,
           routings: JsArray) =>
           Graph(
-            id            = id.convertTo[Option[Int]],
-            interfaceId   = processId.convertTo[Option[Int]],
+            id            = None,
             conversations = definition.fields("conversations").convertTo[Map[String, GraphConversation]],
             messages      = definition.fields("messages").convertTo[Map[String, GraphMessage]],
             subjects      = definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
         case Seq(definition: JsObject,
           routings: JsArray) => Graph(
           id            = None,
-          interfaceId   = None,
           conversations = definition.fields("conversations").convertTo[Map[String, GraphConversation]],
           messages      = definition.fields("messages").convertTo[Map[String, GraphMessage]],
           subjects      = definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)

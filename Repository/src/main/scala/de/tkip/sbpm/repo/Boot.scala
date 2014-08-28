@@ -71,7 +71,7 @@ object Boot extends App with SimpleRoutingApp {
               } ~ path(IntNumber) {
                 id =>
                   complete {
-                    (interfaceActor ? GetInterface(id)).mapTo[Option[Graph]]
+                    (interfaceActor ? GetInterface(id)).mapTo[Option[Interface]]
                   }
               }
             } ~ post {
@@ -82,14 +82,13 @@ object Boot extends App with SimpleRoutingApp {
                     response <- (interfaceActor ? AddInterface(interface)).mapTo[Option[String]]
                   } yield response
                   onSuccess(future) {
-                    case Some(s) => println(s"got back id after adding: $s"); complete(s)
+                    case Some(s) => complete(s)
                     case None => complete(HttpResponse(status = StatusCodes.InternalServerError))
                   }
                 }
               }
             } ~ delete {
               path(IntNumber) { interfaceId =>
-                println("received delete!")
                 interfaceActor ! DeleteInterface(interfaceId)
                 complete(StatusCodes.OK)
               }

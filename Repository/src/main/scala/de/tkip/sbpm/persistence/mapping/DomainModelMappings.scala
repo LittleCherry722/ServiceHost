@@ -29,7 +29,7 @@ object DomainModelMappings {
    * id must be known for converting sub entities.
    */
   def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
-    val graph = Graph(g.id, g.interfaceId.get)
+    val graph = Graph(g.id)
     if (!g.id.isDefined) {
       Left(graph)
     } else {
@@ -205,7 +205,7 @@ object DomainModelMappings {
         ip = address.ip,
         port = address.port
       ),
-      graph = convert(Graph(id = Some(interface.graphId), interfaceId = interface.id.get), subModels)
+      graph = convert(Graph(id = Some(interface.graphId)), subModels)
     )
   }
 
@@ -217,7 +217,6 @@ object DomainModelMappings {
     val (conversations, messages, subjects, variables, macros, nodes, varMans, edges) = subModels
     domainModel.Graph(
       graph.id,
-      Some(graph.interfaceId),
       conversations.map(convert).toMap,
       messages.map(convert).toMap,
       convert(subjects, variables, macros, nodes, varMans, edges))

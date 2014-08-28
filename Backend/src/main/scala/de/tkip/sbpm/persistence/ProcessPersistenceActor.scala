@@ -69,11 +69,12 @@ private[persistence] class ProcessInspectActor extends InstrumentedActor with Ac
     case q @ Save.WithGraph(p, g) => {
       // check the graph and update the process
       // forward the updated Processes to the ProcessPersistenceActor
+      val from = sender
       val newQuery =
         Future(Save.WithGraph(checkAndExchangeStartAble(p, g), g))
       newQuery onSuccess {
         case q =>
-          forwardToPersistence(q, sender)
+          forwardToPersistence(q, from)
       }
       newQuery onFailure {
         case s =>

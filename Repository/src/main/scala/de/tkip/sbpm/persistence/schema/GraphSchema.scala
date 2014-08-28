@@ -30,16 +30,10 @@ object GraphSchema extends Schema {
   // using slick's lifted embedding API
   class Graphs(tag: Tag) extends SchemaTable[Graph](tag, "graphs") {
     def id = autoIncIdCol[Int]
-    def interfaceId = column[Int]("interface_id")
-    def date = column[java.sql.Timestamp]("date")
+    def name = column[Option[String]]("name")
 
-    def * = (id.?, interfaceId) <> (Graph.tupled, Graph.unapply)
+    def * = (id.?, name) <> (Graph.tupled, Graph.unapply)
     // def autoInc = * returning id
-
-    def idx = index(s"${tableName}_idx_interface_id", interfaceId)
-
-    def interface =
-      foreignKey(fkName("interfaces"), interfaceId, interfaces)(_.id, NoAction, Cascade)
   }
 
   val graphs = TableQuery[Graphs]

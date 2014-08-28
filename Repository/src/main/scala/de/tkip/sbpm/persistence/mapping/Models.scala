@@ -20,7 +20,7 @@ package de.tkip.sbpm.persistence.mapping
  */
 
 case class Graph(id: Option[Int],
-                 interfaceId: Int)
+                 name: Option[String] = None)
 
 case class GraphConversation(id: String,
                              graphId: Int,

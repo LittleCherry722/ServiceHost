@@ -16,10 +16,9 @@ object InterfaceQuery {
     db.withSession { implicit session =>
       session.withTransaction {
         is = interfaces.buildColl[Seq].map { i =>
-          val dbInterface = interfaceForId(i.id.get).run.head
           val subEntities = retrieveSubEntities(i.graphId)
-          val dbAddress = processEngineAddressForId(dbInterface.addressId).run.head
-          convert(dbInterface, dbAddress, subEntities)
+          val dbAddress = processEngineAddressForId(i.addressId).run.head
+          convert(i, dbAddress, subEntities)
         }
       }
     }
@@ -27,13 +26,21 @@ object InterfaceQuery {
   }
 
   def loadInterface(id: Int): Option[M.Interface] = {
-    var interface : Option[M.Interface] = null
+    var interface : Option[M.Interface] = None
     db.withSession { implicit session =>
       session.withTransaction {
         interfaceForId(id).run.headOption match {
           case Some(dbInterface) =>
             val subEntities = retrieveSubEntities(dbInterface.graphId)
             val dbAddress = processEngineAddressForId(dbInterface.addressId).run.head
+            println(s"conversations: ${subEntities._1}")
+            println(s"messages: ${subEntities._2}")
+            println(s"subjects: ${subEntities._3}")
+            println(s"variables: ${subEntities._4}")
+            println(s"macros: ${subEntities._5}")
+            println(s"nodes: ${subEntities._6}")
+            println(s"varmans: ${subEntities._7}")
+            println(s"edges: ${subEntities._8}")
             interface = Some(convert(dbInterface, dbAddress, subEntities))
           case None => interface = None
         }
@@ -60,7 +67,7 @@ object InterfaceQuery {
         return interfaceForId(interfaceId).run.headOption match {
           case None => false
           case Some(interface) =>
-            graphs.filter(_.interfaceId === interfaceId).delete
+            graphs.filter(_.id === interface.graphId).delete
             deleteSubEntities(interface.graphId)
             interfaces.filter(_.id === interfaceId).delete
             true
@@ -71,6 +78,7 @@ object InterfaceQuery {
 
   // update entity or throw exception if it does not exist
   def saveInterface(i: M.Interface) : Int = {
+    var returnInterfaceId : Int = 0
     val g = i.graph
     db.withSession { implicit session =>
       session.withTransaction {
@@ -82,10 +90,9 @@ object InterfaceQuery {
             case Left(model: D.Graph) =>
               println("graph has no id, inserting new")
               // insert graph to get it's id
-              val id = (graphs returning graphs.map(_.id)) += model
-              graphId = id
+              graphId = (graphs returning graphs.map(_.id)) += model
               // then convert model again with known graph id
-              convert(g.copy(Some(id))).right.get
+              convert(g.copy(Some(graphId))).right.get
             case Right(models) =>
               println("graph has id, updating")
               graphId = g.id.get
@@ -99,44 +106,51 @@ object InterfaceQuery {
           }
 
         val a = i.address
-        val dbAddress = D.ProcessEngineAddress(id = a.id, ip = a.ip, port = a.port)
-        val addressId = dbAddress.id match {
-          case None     => (addresses returning addresses.map(_.id)) += dbAddress
-          case Some(id) =>
-            val address = addresses.filter(_.id === id)
-            address.update(dbAddress)
+        val dbAddress = processEngineAddressForIpPort(a.ip, a.port).run.headOption match {
+          case Some(address) => address
+          case None => (addresses returning addresses.map(_.id) into ((user,id) => user.copy(id=Some(id)))) += D.ProcessEngineAddress(id = None, ip = a.ip, port = a.port)
         }
 
-
-        // delete all dependent entities of graph and
-        // insert them with new values again
-        deleteSubEntities(graph.id.get)
-        println(s"deleted sub entities for graphId $graph.id.get")
-
-        graphConversations.insertAll(conversations: _*)
-        graphMessages.insertAll(messages: _*)
-        graphVariables.insertAll(variables: _*)
-        graphMacros.insertAll(macros: _*)
-        graphNodes.insertAll(nodes: _*)
-        graphVarMans.insertAll(varMans: _*)
-        graphEdges.insertAll(edges: _*)
-        println("inserted new sub enties")
-
-
+        val addressId = dbAddress.id.get
         val dbInterface = D.Interface(
           id = i.id, name = i.name,
           addressId = addressId,
           graphId = graphId,
           processId = i.processId
         )
+        deleteSubEntities(graph.id.get)
 
-        return dbInterface.id match {
+        // delete all dependent entities of graph and
+        // insert them with new values again
+
+        println(s"deleted sub entities for graphId ${graph.id.get}")
+
+        graphConversations.insertAll(conversations: _*)
+        graphMessages.insertAll(messages: _*)
+        graphVariables.insertAll(variables: _*)
+        graphSubjects.insertAll(subjects: _*)
+        graphMacros.insertAll(macros: _*)
+        graphNodes.insertAll(nodes: _*)
+        graphVarMans.insertAll(varMans: _*)
+        graphEdges.insertAll(edges: _*)
+        println("inserted new sub enties")
+        println(s"graphConversations: $conversations")
+        println(s"messages: $messages")
+        println(s"macros: $macros")
+        println(s"nodes: $nodes")
+        println(s"varMans: $varMans")
+        println(s"edges: $edges")
+        println(s"subjects: $subjects")
+
+
+
+        returnInterfaceId = dbInterface.id match {
           case None     => (interfaces returning interfaces.map(_.id)) += dbInterface
           case Some(id) =>
-            val interface = interfaces.filter(_.id === id)
-            interface.update(dbInterface)
+            (interfaces.filter(_.id === id) returning interfaces.map(_.id)).insertOrUpdate(dbInterface).head
         }
       }
+      returnInterfaceId
     }
 
     // only return id if graph was inserted
@@ -171,12 +185,9 @@ object InterfaceQuery {
       )
   }
 
-  private val interfaceForId = Compiled { id: Column[Int] => {
-    (for {
-      interface <- interfaces if interface.id == id
-    } yield interface).take(1)
-  } }
+  private val interfaceForId = Compiled { id: Column[Int] => interfaces.filter(_.id === id).take(1) }
   private val processEngineAddressForId = Compiled{ id: Column[Int] => addresses.filter(_.id === id).take(1) }
+  private val processEngineAddressForIpPort = Compiled{ (ip: Column[String], port: Column[Int]) => addresses.filter(_.ip === ip).filter(_.port === port).take(1) }
   private val graphConversiationsForGraphId = Compiled{ id: Column[Int] => graphConversations.filter(_.graphId === id) }
   private val graphMessagesForGraphId = Compiled{ id: Column[Int] => graphMessages.filter(_.graphId === id) }
   private val graphSubjectsForGraphId = Compiled{ id: Column[Int] => graphSubjects.filter(_.graphId === id) }
