@@ -395,7 +395,7 @@ function gf_guiDisplayEdge (edge, startType)
 	{
 		if (edge.getType() == "timeout")
 			gf_guiElementShow(gv_elements.inputEdgeTypeTimeoutO);
-		else if (edge.getType() == "errorcondition")
+		else if (edge.getType() == "cancelcondition")
 			gf_guiElementShow(gv_elements.inputEdgeTypeExceptO);
 		else
 			gf_guiElementShow(gv_elements.inputEdgeTypeCondO);
@@ -404,7 +404,7 @@ function gf_guiDisplayEdge (edge, startType)
 	// select type
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanFalse, "bool", edge.getType() == "boolfalse");
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanTrue, "bool", edge.getType() == "booltrue");
-	gf_guiElementWrite(gv_elements.inputEdgeTypeException, "bool", edge.getType() == "errorcondition");
+	gf_guiElementWrite(gv_elements.inputEdgeTypeException, "bool", edge.getType() == "cancelcondition");
 	gf_guiElementWrite(gv_elements.inputEdgeTypeCondition, "bool", edge.getType() == "exitcondition");
 	gf_guiElementWrite(gv_elements.inputEdgeTypeTimeout, "bool", edge.getType() == "timeout");
 
@@ -412,7 +412,7 @@ function gf_guiDisplayEdge (edge, startType)
 	gf_guiElementEnable(gv_elements.inputEdgeTypeBooleanFalse, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "boolfalse", edge.getType(), "update").allowed);
 	gf_guiElementEnable(gv_elements.inputEdgeTypeBooleanTrue, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "booltrue", edge.getType(), "update").allowed);
 	gf_guiElementEnable(gv_elements.inputEdgeTypeCondition, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "exitcondition", edge.getType(), "update").allowed);
-	gf_guiElementEnable(gv_elements.inputEdgeTypeException, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "errorcondition", edge.getType(), "update").allowed);
+	gf_guiElementEnable(gv_elements.inputEdgeTypeException, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "cancelcondition", edge.getType(), "update").allowed);
 	gf_guiElementEnable(gv_elements.inputEdgeTypeTimeout, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "timeout", edge.getType(), "update").allowed);
 
 	// add events for edge types
@@ -1981,7 +1981,7 @@ function gf_guiReadEdge ()
 		gt_type	= "timeout";
 
 	if (gf_guiElementRead(gv_elements.inputEdgeTypeException, "bool", false))
-		gt_type	= "errorcondition";
+		gt_type	= "cancelcondition";
 
 	if (gf_guiElementRead(gv_elements.inputEdgeTypeBooleanFalse, "bool", false))
 		gt_type	= "boolfalse";

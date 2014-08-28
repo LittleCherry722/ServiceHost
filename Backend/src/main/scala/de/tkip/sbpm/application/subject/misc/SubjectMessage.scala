@@ -29,7 +29,7 @@ import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
 
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 
-// switch state messages 
+// switch state messages
 case class StartSubjectExecution() extends SubjectBehaviorRequest
 
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
@@ -88,7 +88,7 @@ case class TargetUser(min: Int, max: Int, external: Boolean, targetUsers: Array[
 case class ActionData(
   text: String, // = messagetype
   var executeAble: Boolean, // VAR?!
-  transitionType: String, // exitcondition or timeout
+  transitionType: String, // cancelcondition or timeout
   targetUsersData: Option[TargetUser] = None, // target user of a send message
   relatedSubject: Option[String] = None, // the related subject of a send-/receive state
   messageContent: Option[String] = None, // for the send state: the message

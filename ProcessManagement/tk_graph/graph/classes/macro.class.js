@@ -127,7 +127,7 @@ function GCmacro (parent, id, name)
 	 * @param {int} end The id of the end node.
 	 * @param {String} text The label of this edge. When this edge's start node is either a send or receive node this can also be a message type.
 	 * @param {String} relatedSubject This is only set for edges whose start node is either a send or a receive node. It refers to the subject a message is sent to / received from.
-	 * @param {String} type The edge's type (exitcondition, timeout, errorcondition).
+	 * @param {String} type The edge's type (exitcondition, timeout, cancelcondition).
 	 * @param {boolean} [deactivated] The deactivation status of the edge. (default: false)
      * @param {int} [manualPositionOffsetLabelX] The x position offset the user manually defined
      * @param {int} [manualPositionOffsetLabelY] The y position offset the user manually defined
@@ -282,7 +282,7 @@ function GCmacro (parent, id, name)
 	 *
 	 * @param {String} start The id of the start node.
 	 * @param {String} end The id of the end node.
-	 * @param {String} type The type of the edge (timeout, exitcondition, errorcondition).
+	 * @param {String} type The type of the edge (timeout, exitcondition, cancelcondition).
 	 * @returns {void}
 	 */
 	this.createEdge = function (start, end, type)
@@ -837,7 +837,7 @@ function GCmacro (parent, id, name)
 				gt_edge.setTimer(gt_timeout);
 			}
 
-			if (gt_type == "errorcondition")
+			if (gt_type == "cancelcondition")
 			{
 				gt_edge.setException(gt_exception);
 			}

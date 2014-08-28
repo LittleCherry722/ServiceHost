@@ -25,7 +25,7 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "exitcondition",
+                "edgeType": "cancelcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -44,14 +44,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "exitcondition",
+                "type": "cancelcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "exitcondition",
+                "edgeType": "cancelcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -64,14 +64,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "exitcondition",
+                "type": "cancelcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "exitcondition",
+                "edgeType": "cancelcondition",
                 "end": 3,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -90,14 +90,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "exitcondition",
+                "type": "cancelcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "exitcondition",
+                "edgeType": "cancelcondition",
                 "end": 0,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -110,7 +110,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "exitcondition",
+                "type": "cancelcondition",
                 "variable": ""
               }
             ],
@@ -333,7 +333,7 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "exitcondition",
+                "edgeType": "cancelcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -352,14 +352,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "exitcondition",
+                "type": "cancelcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "exitcondition",
+                "edgeType": "cancelcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -372,14 +372,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "exitcondition",
+                "type": "cancelcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "exitcondition",
+                "edgeType": "cancelcondition",
                 "end": 3,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -398,7 +398,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "exitcondition",
+                "type": "cancelcondition",
                 "variable": ""
               }
             ],
