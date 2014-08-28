@@ -24,6 +24,7 @@ var gv_elements = {
 
 	graphBVouter:				"graph_bv_outer",
 	graphCVouter:				"graph_cv_outer",
+
 	inputEdgeCorrelationId:		"ge_edge_correlationid",
 	inputEdgeCorrelationIdO:	"ge_edge_correlationid_outer",
 	inputEdgeExceptionText:		"ge_edge_exception_text",
@@ -54,6 +55,7 @@ var gv_elements = {
 	inputEdgeTypeCondO:			"ge_edge_typeCOuter",
 	inputEdgeTypeExceptO:		"ge_edge_typeEOuter",
 	inputEdgeTypeTimeoutO:		"ge_edge_typeTOuter",
+
 	inputNodeConversation:			"ge_node_conversation",
 	inputNodeConversationNew:		"ge_node_conversation_new",
 	inputNodeConversationNewOuter:	"ge_node_conversation_new_outer",
@@ -79,6 +81,7 @@ var gv_elements = {
 	inputNodeType:				"ge_type2",
 	inputNodeVariable:			"ge_node_variable",
 	inputNodeVariableO:			"ge_node_variable_outer",
+
 	inputSubjectInputPool:		"ge_cv_inputPool",
 	inputSubjectRelOuter:		"ge_cv_relatedOuter",
 	inputSubjectRelProcess:		"ge_cv_relatedProcess",
@@ -99,6 +102,9 @@ var gv_elements = {
 	inputSubjectExtInterface:		"ge_cv_external_interface",
 	inputSubjectExtInstantInterface:	"ge_cv_external_instantInterface",
 	inputSubjectExtBlackbox:		"ge_cv_external_blackbox",
+
+	inputSubjectBlackboxname:		"ge_cv_blackboxname",
+	inputSubjectBlackboxnameO:		"ge_cv_blackboxname_outer",
 
 	// edge multi target
 	inputEdgeTargetMTypeA:		"ge_edge_target_multi_type_all",

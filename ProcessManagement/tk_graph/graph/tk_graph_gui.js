@@ -298,6 +298,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputNodeVariable, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectComment, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectInputPool, "string", "");
+	gf_guiElementWrite(gv_elements.inputSubjectBlackboxname, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelProcess, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", "");
@@ -754,16 +755,31 @@ function gf_guiDisplaySubject (subject)
 	// clear input fields
 	gf_guiClearInputFields();
 
-	// show elements
-	if (subject.isExternal())
-		gf_guiElementShow(gv_elements.inputSubjectRelOuter);
-	else
-		gf_guiElementHide(gv_elements.inputSubjectRelOuter);
+	var updateExternal = function ()
+	{
+		if (gf_guiElementRead(gv_elements.inputSubjectTypeExternal, "bool"))
+		{
+			gf_guiElementShow(gv_elements.inputSubjectRelOuter);
+
+			console.log("show inputSubjectRelOuter", gv_elements.inputSubjectExtBlackbox, gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool"))
+
+			if (gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool"))
+				gf_guiElementShow(gv_elements.inputSubjectBlackboxnameO);
+			else
+				gf_guiElementHide(gv_elements.inputSubjectBlackboxnameO);
+		}
+		else
+		{
+			gf_guiElementHide(gv_elements.inputSubjectRelOuter);
+			gf_guiElementHide(gv_elements.inputSubjectBlackboxO);
+		}
+	};
 
 	// set values
 	gf_guiElementWrite(gv_elements.inputSubjectText, "string", gf_replaceNewline(subject.getText()));
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", subject.getRole(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectInputPool, "string", subject.getInputPool(), "-1");
+	gf_guiElementWrite(gv_elements.inputSubjectBlackboxname, "string", subject.getBlackboxname(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelProcess, "string", subject.getRelatedProcess(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", subject.getRelatedSubject(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectComment, "string", subject.getComment());
@@ -777,17 +793,15 @@ function gf_guiDisplaySubject (subject)
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", subject.getExternalType() == "instantinterface");
 	gf_guiElementWrite(gv_elements.inputSubjectExtBlackbox, "bool", subject.getExternalType() == "blackbox");
 
+	updateExternal();
+
 	// add onClick event to external subject type
-	if (gf_elementExists(gv_elements.inputSubjectTypeExternal))
-	{
-		document.getElementById(gv_elements.inputSubjectTypeExternal).onclick = function ()
-		{
-			if (gf_guiElementRead(gv_elements.inputSubjectTypeExternal, "bool"))
-				gf_guiElementShow(gv_elements.inputSubjectRelOuter);
-			else
-				gf_guiElementHide(gv_elements.inputSubjectRelOuter);
-		};
-	}
+	document.getElementById(gv_elements.inputSubjectTypeExternal).onclick = updateExternal;
+
+	document.getElementById(gv_elements.inputSubjectExtExternal).onclick = updateExternal;
+	document.getElementById(gv_elements.inputSubjectExtInterface).onclick = updateExternal;
+	document.getElementById(gv_elements.inputSubjectExtInstantInterface).onclick = updateExternal;
+	document.getElementById(gv_elements.inputSubjectExtBlackbox).onclick = updateExternal;
 }
 
 /**
@@ -2092,11 +2106,11 @@ function gf_guiReadNode ()
  * Read the values for the selected subject from the input fields.
  *
  * @see GCcommunication::updateSubject()
- * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment, startSubject
+ * @returns {Object} Indizes: text, role, type, inputPool, blackboxname, relatedProcess, relatedSubject, externalType, comment, startSubject
  */
 function gf_guiReadSubject ()
 {
-	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: "", startSubject: false};
+	var gt_result	= {text: "", role: "", type: "", inputPool: "", blackboxname: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: "", startSubject: false};
 
 	var gt_text			= gf_guiElementRead(gv_elements.inputSubjectText, "string", "");
 	var gt_role			= gf_guiElementRead(gv_elements.inputSubjectRole, "string", "");
@@ -2108,6 +2122,7 @@ function gf_guiReadSubject ()
 
 	var gt_type	= "";
 	var gt_externalType	= "external";
+	var gt_blackboxname	= "";
 
 	if (gf_guiElementRead(gv_elements.inputSubjectTypeMulti, "bool", false)		=== true)
 		gt_type += "multi";
@@ -2122,7 +2137,10 @@ function gf_guiReadSubject ()
 		gt_externalType	= "instantinterface";
 
 	if (gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool", false)		=== true)
+	{
 		gt_externalType	= "blackbox";
+		gt_blackboxname	= gf_guiElementRead(gv_elements.inputSubjectBlackboxname, "string", "");
+	}
 
 	if (gf_guiElementRead(gv_elements.inputSubjectExtInterface, "bool", false)		=== true)
 		gt_externalType	= "interface";
@@ -2131,6 +2149,7 @@ function gf_guiReadSubject ()
 	gt_result.role				= gt_role;
 	gt_result.type				= gt_type;
 	gt_result.inputPool			= gt_inputPool;
+	gt_result.blackboxname		= gt_blackboxname;
 	gt_result.relatedProcess	= gt_relProcess;
 	gt_result.relatedSubject	= gt_relSubject;
 	gt_result.externalType		= gt_externalType;

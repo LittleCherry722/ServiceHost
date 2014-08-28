@@ -18,7 +18,7 @@
  * @class represents a Subject in the communication view
  * @param {String} id The id of the subject.
  * @param {String} text The label of the subject.
- * @param {String} type The type of the subject. Possible values: "sungle", "multi", "external", "multiexternal" (default: "single")
+ * @param {String} type The type of the subject. Possible values: "single", "multi", "external", "multiexternal" (default: "single")
  * @param {int} inputPool The size of the input pool (-1 for infinite)
  * @returns {void}
  */
@@ -86,6 +86,13 @@ function GCsubject (id, text, type, inputPool)
 	 * @type String
 	 */
 	this.relatedInterface	= null;
+
+	/**
+	 * For blackbox subjects: the referenced blackboxname.
+	 *
+	 * @type String
+	 */
+	this.blackboxname		= null;
 
 	/**
 	 * For external subjects: the referenced process.
@@ -233,6 +240,16 @@ function GCsubject (id, text, type, inputPool)
 	};
 
 	/**
+	 * Returns the name of the blackbox (only for blackbox subjects).
+	 *
+	 * @returns {String} The name of the blackbox.
+	 */
+	this.getBlackboxname = function ()
+	{
+		return this.blackboxname;
+	};
+
+	/**
 	 * Returns the ID of the related process (only for external subjects).
 	 *
 	 * @returns {String} The ID of the related process.
@@ -332,7 +349,7 @@ function GCsubject (id, text, type, inputPool)
 	 */
 	this.hasInternalBehavior = function ()
 	{
-		return !this.isExternal() || this.getExternalType() == "interface";
+		return !this.isExternal() || this.getExternalType() == "interface" || this.getExternalType() == "blackbox";
 	};
 
 	/**
@@ -431,6 +448,20 @@ function GCsubject (id, text, type, inputPool)
 			var gt_val	= parseInt(inputPool);
 
 			this.inputPool = isNaN(gt_val) || gt_val < 0 ? -1 : gt_val;
+		}
+	};
+
+	/**
+	 * Sets the blackbox name.
+	 *
+	 * @param {String} blackboxname The name of the blackbox.
+	 * @returns {void}
+	 */
+	this.setBlackboxname = function (blackboxname)
+	{
+		if (gf_isset(blackboxname))
+		{
+			this.blackboxname	= blackboxname;
 		}
 	};
 
@@ -588,7 +619,7 @@ function GCsubject (id, text, type, inputPool)
 				gt_external = "IIF";
 
 			if (this.getExternalType() == "blackbox")
-				gt_external = "BB";
+				gt_external = "BB " + this.getBlackboxname();
 
 			gt_text += " (" + gt_external + ")";
 		}
