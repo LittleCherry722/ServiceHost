@@ -245,6 +245,7 @@ define([
   });
 
   Interface.fromProcess = function(process, creator, description) {
+    // TODO: interfaceType ??
     var options = {
       creator: creator,
       description: description,

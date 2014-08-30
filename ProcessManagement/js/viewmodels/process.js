@@ -117,7 +117,7 @@ define([
                 return [];
             }
             return _.chain(currentProcess().graph().definition.process).filter(function(subj) {
-                return subj.type == "external" && subj.externalType == "interface"
+                return subj.type == "external" && subj.externalType == "interface" // TODO: externalType == "blackbox" ?
             }).map(function( subj ) {
                     return {
                         id: subj.id,
@@ -401,7 +401,7 @@ define([
 
             subject = subject.replace(/___/, " ");
             var gv_subject = gv_graph.subjects[subject]
-            if ( gv_subject && ( !gv_subject.isExternal() || gv_subject.externalType == "interface" )) {
+            if ( gv_subject && ( !gv_subject.isExternal() || gv_subject.externalType == "interface" )) { // TODO: externalType == "blackbox" ?
                 if ( !Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {
                     // let the graph know we want to go to the internal view of a subject.
                     gv_graph.selectedSubject = null;
@@ -708,7 +708,7 @@ define([
         _( gv_graph.subjects ).each(function( value, key ) {
 
             // we don't want external subjects in the list of (local) subjects
-            if ( value.isExternal() && value.externalType != "Interface" ) {
+            if ( value.isExternal() && value.externalType != "Interface" ) { // TODO: externalType == "blackbox" ?
                 return;
             }
 
