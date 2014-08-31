@@ -19,6 +19,7 @@ define([
   window.Interface = Interface;
 
   Interface.attrs({
+    interfaceType: "string",
     creator: "string",
     name: "string",
     description: "string",

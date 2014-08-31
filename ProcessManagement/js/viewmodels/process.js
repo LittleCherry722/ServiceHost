@@ -39,7 +39,11 @@ define([
             }
         });
 
-        window.existingInterfaces = this.existingInterfaces = Interface.all;
+        window.existingInterfaces = this.existingInterfaces = ko.computed(function() {
+		return ko.utils.arrayFilter(Interface.all(), function(interf) {
+			return interf.interfaceType() == "interface";
+		});
+	});
 
         // Needed for saving the business Interface
         this.newBusinessInterface = newBusinessInterface;

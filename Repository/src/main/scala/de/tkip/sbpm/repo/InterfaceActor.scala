@@ -59,9 +59,7 @@ class InterfaceActor extends Actor with ActorLogging {
     case GetAllInterfaces => {
       val list = interfaces.values.toList
 
-      val filtered = list.filter(impl => (impl.interfaceType == InterfaceInterfaceType))
-
-      sender ! filtered.map(addInterfaceImplementations)
+      sender ! list.map(addInterfaceImplementations)
     }
 
     case GetInterface(implId) => {
