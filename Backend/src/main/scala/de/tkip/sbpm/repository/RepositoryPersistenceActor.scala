@@ -72,7 +72,6 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       val port = SystemProperties.akkaRemotePort(context.system.settings.config)
       val interface = jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
       log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
-      log.info("[SAVE INTERFACE] saved interface: " + interface)
       val result = Http.postData(repoLocation + "interfaces", interface)
         .charset("UTF-8")
         .header("Content-Type", "application/json; charset=UTF-8")

@@ -302,6 +302,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectText, "string", "");
+	gf_guiElementWrite(gv_elements.inputSubjectId, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMVariable, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMVarText, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeVarManOperation, "string", "");
@@ -761,6 +762,7 @@ function gf_guiDisplaySubject (subject)
 
 	// set values
 	gf_guiElementWrite(gv_elements.inputSubjectText, "string", gf_replaceNewline(subject.getText()));
+	gf_guiElementWrite(gv_elements.inputSubjectId, "string", gf_replaceNewline(subject.id));
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", subject.getRole(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectInputPool, "string", subject.getInputPool(), "-1");
 	gf_guiElementWrite(gv_elements.inputSubjectRelProcess, "string", subject.getRelatedProcess(), "");
@@ -2122,15 +2124,15 @@ function gf_guiReadSubject ()
 	if (gf_guiElementRead(gv_elements.inputSubjectExtInterface, "bool", false)			=== true)
 		gt_externalType	= "interface";
 
-	gt_result.text				= gt_text;
-	gt_result.role				= gt_role;
-	gt_result.type				= gt_type;
-	gt_result.inputPool			= gt_inputPool;
-	gt_result.relatedProcess	= gt_relProcess;
-	gt_result.relatedSubject	= gt_relSubject;
-	gt_result.externalType		= gt_externalType;
-	gt_result.comment			= gt_comment;
-	gt_result.startSubject		= gt_startSubject;
+	gt_result.text           = gt_text;
+	gt_result.role           = gt_role;
+	gt_result.type           = gt_type;
+	gt_result.inputPool      = gt_inputPool;
+	gt_result.relatedProcess = gt_relProcess;
+	gt_result.relatedSubject = gt_relSubject;
+	gt_result.externalType	 = gt_externalType;
+	gt_result.comment        = gt_comment;
+	gt_result.startSubject	 = gt_startSubject;
 
 	return gt_result;
 }

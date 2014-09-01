@@ -513,6 +513,7 @@ define([
             process.name( name );
         }
 
+        process.interfaceId(undefined);
         process.save(function() {
             Router.goTo( process );
         });
@@ -698,7 +699,7 @@ define([
         _( gv_graph.subjects ).each(function( value, key ) {
 
             // we don't want external subjects in the list of (local) subjects
-            if ( value.isExternal() && value.externalType != "Interface" ) {
+            if ( value.isExternal() && !(value.externalType == "interface" || value.externalType == "blackbox") ) {
                 return;
             }
 

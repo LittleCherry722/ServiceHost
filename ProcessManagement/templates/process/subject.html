@@ -41,6 +41,9 @@
             <label class="graphsectionheader">Subject Name:</label>
             <input type="text" id="ge_cv_text" title="Name of a role instance"/>
 
+            <label class="graphsectionheader">Subject Id:</label>
+            <input type="text" id="ge_cv_subject_id" disabled title="Id of the subject. Only change if you know what you are doing"/>
+
             <label class="graphsectionheader" data-bind="text: assignedRoleText">Assigned-Role:</label>
             <select id="ge_cv_id" title="Assign a specific role to a subject"
                     data-bind="options: rolesOrUsers, optionsValue: 'name', optionsText: 'name'">
