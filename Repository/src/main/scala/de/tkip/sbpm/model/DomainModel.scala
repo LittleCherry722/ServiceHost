@@ -24,7 +24,7 @@ case class Interface(address: Address,
                      name: String,
                      graph: Graph)
 
-case class IntermediateInterface(id: Int,
+case class IntermediateInterface(processId: Int,
                                  port: Int,
                                  interfaceId: Option[Int],
                                  name: String,

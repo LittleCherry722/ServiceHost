@@ -88,7 +88,7 @@ case class TargetUser(min: Int, max: Int, external: Boolean, targetUsers: Array[
 case class ActionData(
   text: String, // = messagetype
   var executeAble: Boolean, // VAR?!
-  transitionType: String, // cancelcondition or timeout
+  transitionType: String, // exitcondition or timeout
   targetUsersData: Option[TargetUser] = None, // target user of a send message
   relatedSubject: Option[String] = None, // the related subject of a send-/receive state
   messageContent: Option[String] = None, // for the send state: the message

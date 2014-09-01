@@ -68,6 +68,9 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       implicit val roleMap = roles.map(r => (r.name, r)).toMap
       val interface = gHeader.toInterfaceHeader().toJson.toString()
       log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
+      log.debug("-------------------------------------------------------------")
+      log.debug(interface)
+      log.debug("-------------------------------------------------------------")
       val result = Http.postData(repoLocation + "interfaces", interface)
         .charset("UTF-8")
         .header("Content-Type", "application/json; charset=UTF-8")

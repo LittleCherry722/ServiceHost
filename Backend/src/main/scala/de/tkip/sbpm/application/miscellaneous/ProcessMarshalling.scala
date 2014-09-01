@@ -22,7 +22,7 @@ import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.application.subject.behavior._
 
 object MarshallingAttributes {
-  val exitCondLabel = "cancelcondition"
+  val exitCondLabel = "exitcondition"
   val timeoutLabel = "timeout"
 }
 
@@ -139,7 +139,7 @@ object parseGraph {
       for (edge <- edges) {
         // match the edgetype and create the corresponding transition
         edge.edgeType match {
-          case "cancelcondition" => {
+          case "exitcondition" => {
             // parse the target
             val target = edge.target match {
               case Some(t) => {
