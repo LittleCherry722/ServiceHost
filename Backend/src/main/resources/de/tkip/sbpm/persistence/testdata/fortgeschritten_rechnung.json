@@ -49,7 +49,7 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "end": 2,
                                 "manualTimeout": false,
                                 "optional": false,
@@ -60,14 +60,14 @@
                                 "transportMethod": [
                                     "internal"
                                 ],
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "variable": ""
                             },
                             {
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
@@ -84,14 +84,14 @@
                                 "transportMethod": [
                                     "internal"
                                 ],
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "variable": ""
                             },
                             {
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "end": 3,
                                 "manualTimeout": false,
                                 "optional": false,
@@ -108,7 +108,7 @@
                                 "transportMethod": [
                                     "internal"
                                 ],
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "variable": ""
                             }
                         ],
@@ -275,7 +275,7 @@
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "end": 1,
                                 "manualTimeout": false,
                                 "optional": false,
@@ -292,14 +292,14 @@
                                 "transportMethod": [
                                     "internal"
                                 ],
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "variable": ""
                             },
                             {
                                 "comment": "",
                                 "correlationId": "",
                                 "deactivated": false,
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "end": 2,
                                 "manualTimeout": false,
                                 "optional": false,
@@ -310,7 +310,7 @@
                                 "transportMethod": [
                                     "internal"
                                 ],
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "variable": ""
                             }
                         ],

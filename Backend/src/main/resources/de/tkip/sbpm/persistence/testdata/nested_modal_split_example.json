@@ -429,7 +429,7 @@
                                 "comment": "",
                                 "end": 4,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -440,14 +440,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": null,
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 8,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "Hole Rad",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -458,7 +458,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -471,7 +471,7 @@
                                     "id": "Subj2",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m1",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -482,7 +482,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -495,7 +495,7 @@
                                     "id": "Subj3",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m3",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -506,7 +506,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -519,7 +519,7 @@
                                     "id": "Subj2",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m2",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -530,14 +530,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 9,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -548,14 +548,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": null,
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 7,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "Hole Karosserie",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -566,14 +566,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 10,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "Hole Fenster",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -584,7 +584,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -597,7 +597,7 @@
                                     "id": "Subj5",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m5",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -608,7 +608,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -621,7 +621,7 @@
                                     "id": "Subj5",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m6",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -632,14 +632,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 13,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "Intakt",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -650,14 +650,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 14,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "Defekt",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -668,14 +668,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 13,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -686,14 +686,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": null,
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 6,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -704,7 +704,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": null,
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -717,7 +717,7 @@
                                     "id": "Subj3",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m4",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -728,14 +728,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 5,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -746,14 +746,14 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": null,
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
                                 "comment": "",
                                 "end": 16,
                                 "target": "",
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -764,7 +764,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": null,
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             }
                         ],
@@ -886,7 +886,7 @@
                                     "id": "Subj1",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m1",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -897,7 +897,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -910,7 +910,7 @@
                                     "id": "Subj1",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m2",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -921,7 +921,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             }
                         ],
@@ -1043,7 +1043,7 @@
                                     "id": "Subj1",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m3",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -1054,7 +1054,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -1067,7 +1067,7 @@
                                     "id": "Subj1",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m4",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -1078,7 +1078,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             }
                         ],
@@ -1200,7 +1200,7 @@
                                     "id": "Subj1",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m5",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -1211,7 +1211,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -1224,7 +1224,7 @@
                                     "id": "Subj1",
                                     "min": -1
                                 },
-                                "edgeType": "cancelcondition",
+                                "edgeType": "exitcondition",
                                 "text": "m6",
                                 "manualTimeout": false,
                                 "transportMethod": [
@@ -1235,7 +1235,7 @@
                                 "optional": false,
                                 "deactivated": false,
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             }
                         ],

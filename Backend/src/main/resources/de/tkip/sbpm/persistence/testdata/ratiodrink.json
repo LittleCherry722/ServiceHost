@@ -37,7 +37,7 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -56,14 +56,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 4,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -76,14 +76,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 5,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -96,14 +96,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 6,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -116,14 +116,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -142,14 +142,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -168,14 +168,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 3,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -188,7 +188,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               }
             ],
@@ -485,7 +485,7 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 8,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -498,14 +498,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 7,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -524,14 +524,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 6,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -550,14 +550,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -576,14 +576,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 4,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -596,14 +596,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 3,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -616,14 +616,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -642,14 +642,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -668,14 +668,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 5,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -688,14 +688,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 6,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -708,7 +708,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               }
             ],
@@ -1079,7 +1079,7 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 15,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1098,14 +1098,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 7,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1118,14 +1118,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 6,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1138,14 +1138,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 9,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1164,14 +1164,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 19,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1190,14 +1190,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 11,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1210,14 +1210,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 12,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1230,14 +1230,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 16,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1250,14 +1250,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 5,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1270,14 +1270,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 4,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1290,14 +1290,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 8,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1310,14 +1310,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 3,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1330,14 +1330,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1350,14 +1350,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 18,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1376,14 +1376,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 2,
                 "manualPositionOffsetLabelY": 0,
@@ -1402,14 +1402,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 14,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1428,14 +1428,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1454,14 +1454,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 10,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1480,14 +1480,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1506,14 +1506,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 17,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1532,14 +1532,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 9,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1558,14 +1558,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 13,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -1578,7 +1578,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               }
             ],
@@ -2356,7 +2356,7 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 4,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2375,14 +2375,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 7,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2401,14 +2401,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 6,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2421,14 +2421,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 5,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2441,14 +2441,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2467,14 +2467,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 3,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2487,14 +2487,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2507,14 +2507,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2533,7 +2533,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               }
             ],
@@ -2867,7 +2867,7 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 3,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2886,14 +2886,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 4,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2906,14 +2906,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2932,14 +2932,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -2958,7 +2958,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               }
             ],
@@ -3181,7 +3181,7 @@
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 2,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -3200,14 +3200,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 4,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -3226,14 +3226,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 5,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -3246,14 +3246,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 6,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -3272,14 +3272,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 1,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -3292,14 +3292,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 3,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -3312,14 +3312,14 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
                 "comment": "",
                 "correlationId": "",
                 "deactivated": false,
-                "edgeType": "cancelcondition",
+                "edgeType": "exitcondition",
                 "end": 6,
                 "manualPositionOffsetLabelX": 0,
                 "manualPositionOffsetLabelY": 0,
@@ -3338,7 +3338,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               }
             ],

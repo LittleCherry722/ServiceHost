@@ -31,7 +31,7 @@
 								"transportMethod" : [
 									"internal"
 								],
-								"type" : "cancelcondition",
+								"type" : "exitcondition",
 								"variable" : ""
 							}, {
 								"comment" : "",
@@ -53,7 +53,7 @@
 								"transportMethod" : [
 									"internal"
 								],
-								"type" : "cancelcondition",
+								"type" : "exitcondition",
 								"variable" : ""
 							}, {
 								"comment" : "",
@@ -75,7 +75,7 @@
 								"transportMethod" : [
 									"internal"
 								],
-								"type" : "cancelcondition",
+								"type" : "exitcondition",
 								"variable" : ""
 							}, {
 								"comment" : "",
@@ -91,7 +91,7 @@
 								"transportMethod" : [
 									"internal"
 								],
-								"type" : "cancelcondition",
+								"type" : "exitcondition",
 								"variable" : ""
 							}
 						],
@@ -263,7 +263,7 @@
 								"transportMethod" : [
 									"internal"
 								],
-								"type" : "cancelcondition",
+								"type" : "exitcondition",
 								"variable" : ""
 							}, {
 								"comment" : "",
@@ -285,7 +285,7 @@
 								"transportMethod" : [
 									"internal"
 								],
-								"type" : "cancelcondition",
+								"type" : "exitcondition",
 								"variable" : ""
 							}
 						],

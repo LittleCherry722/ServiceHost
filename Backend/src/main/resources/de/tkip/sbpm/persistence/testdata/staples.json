@@ -40,7 +40,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
@@ -57,7 +57,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
@@ -74,7 +74,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
@@ -97,7 +97,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
@@ -120,7 +120,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
@@ -143,7 +143,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
@@ -160,7 +160,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": null
               }
             ],
@@ -389,7 +389,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
@@ -412,7 +412,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               }
             ],
@@ -537,7 +537,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               },
               {
@@ -560,7 +560,7 @@
                 "transportMethod": [
                   "internal"
                 ],
-                "type": "cancelcondition",
+                "type": "exitcondition",
                 "variable": ""
               }
             ],

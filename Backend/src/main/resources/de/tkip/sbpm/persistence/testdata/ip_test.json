@@ -165,7 +165,7 @@
                                 "optional": false,
                                 "text": "m0",
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -188,7 +188,7 @@
                                 "optional": false,
                                 "text": "m1",
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -211,7 +211,7 @@
                                 "optional": false,
                                 "text": "m3",
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -234,7 +234,7 @@
                                 "optional": false,
                                 "text": "m2",
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             }
                         ],
@@ -465,7 +465,7 @@
                                 "optional": false,
                                 "text": "m0",
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -482,7 +482,7 @@
                                 "optional": false,
                                 "text": "",
                                 "variable": null,
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -505,7 +505,7 @@
                                 "optional": false,
                                 "text": "m1",
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -528,7 +528,7 @@
                                 "optional": false,
                                 "text": "m3",
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -545,7 +545,7 @@
                                 "optional": false,
                                 "text": "",
                                 "variable": null,
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             },
                             {
@@ -568,7 +568,7 @@
                                 "optional": false,
                                 "text": "m2",
                                 "variable": "",
-                                "type": "cancelcondition",
+                                "type": "exitcondition",
                                 "correlationId": ""
                             }
                         ],
