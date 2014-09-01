@@ -288,7 +288,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val addressFormat = jsonFormat2(Address)
+  implicit val addressFormat = jsonFormat2(AgentAddress)
   implicit val interfaceImplementationFormat = jsonFormat4(InterfaceImplementation)
 
   /**
