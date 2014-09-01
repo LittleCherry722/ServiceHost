@@ -20,7 +20,7 @@ import akka.actor.{ ActorRef, Props }
 import akka.util._
 import scala.concurrent.duration._
 import spray.json._
-import de.tkip.sbpm.rest.JsonProtocol.{GraphHeader, createGraphHeaderFormat}
+import de.tkip.sbpm.rest.JsonProtocol.{GraphHeader, createInterfaceHeaderFormat}
 import scalaj.http.{Http, HttpOptions}
 import scala.concurrent.{ExecutionContext, Future}
 import de.tkip.sbpm.persistence.query.Roles
@@ -65,12 +65,8 @@ class RepositoryPersistenceActor extends InstrumentedActor {
     case SaveInterface(gHeader) => {
       log.debug("[SAVE INTERFACE] save message received")
       val roles = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
-      log.debug("[SAVE INTERFACE] role mapping received")
       implicit val roleMap = roles.map(r => (r.name, r)).toMap
-      val jsObject = gHeader.toJson(createGraphHeaderFormat(roleMap)).asJsObject()
-
-      val port = SystemProperties.akkaRemotePort(context.system.settings.config)
-      val interface = jsObject.copy(Map("port" -> port.toJson) ++ jsObject.fields).toString()
+      val interface = gHeader.toInterfaceHeader().toJson.toString()
       log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
       val result = Http.postData(repoLocation + "interfaces", interface)
         .charset("UTF-8")
@@ -80,7 +76,6 @@ class RepositoryPersistenceActor extends InstrumentedActor {
         .asString
       log.debug("[SAVE INTERFACE] repository says: " + result)
       sender !! Some(result.toInt)
-      log.debug("[SAVE INTERFACE] sent repository answer to sender.")
     }
 
     case DeleteInterface(interfaceId) => {
