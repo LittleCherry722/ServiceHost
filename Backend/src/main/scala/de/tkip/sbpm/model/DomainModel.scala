@@ -150,7 +150,6 @@ case class Configuration(key: String,
 case class Address(ip: String, port: Int)
 
 case class InterfaceImplementation(processId: Int,
-                                   interfaceId: Int,
                                    address: Address,
                                    subjectId: String)
 
