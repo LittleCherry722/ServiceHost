@@ -113,7 +113,9 @@ object InterfaceQuery {
 
         val addressId = dbAddress.id.get
         val dbInterface = D.Interface(
-          id = i.id, name = i.name,
+          interfaceType = i.interfaceType.toString,
+          id = i.id,
+          name = i.name,
           addressId = addressId,
           graphId = graphId,
           processId = i.processId
@@ -186,6 +188,7 @@ object InterfaceQuery {
   }
 
   private val interfaceForId = Compiled { id: Column[Int] => interfaces.filter(_.id === id).take(1) }
+  private val interfacesForType = Compiled { interfaceType: Column[String] => interfaces.filter(_.interfaceType === interfaceType) }
   private val processEngineAddressForId = Compiled{ id: Column[Int] => addresses.filter(_.id === id).take(1) }
   private val processEngineAddressForIpPort = Compiled{ (ip: Column[String], port: Column[Int]) => addresses.filter(_.ip === ip).filter(_.port === port).take(1) }
   private val graphConversiationsForGraphId = Compiled{ id: Column[Int] => graphConversations.filter(_.graphId === id) }

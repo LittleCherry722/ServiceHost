@@ -149,8 +149,9 @@ case class Configuration(key: String,
 
 case class Address(ip: String, port: Int)
 
-case class Interface(address: Address,
-                     id: Int,
+case class Interface(// TODO: interfaceType
+                     address: Address,
+                     id: Option[Int],
                      processId: Int,
                      name: String,
                      graph: Graph)

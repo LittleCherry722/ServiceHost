@@ -199,6 +199,7 @@ object DomainModelMappings {
               subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])
              ) : domainModel.Interface = {
     domainModel.Interface(
+      interfaceType = domainModel.InterfaceType.withName(interface.interfaceType),
       id = interface.id,
       processId = interface.processId,
       name = interface.name,
@@ -345,7 +346,7 @@ object DomainModelMappings {
         n.optionNodeId),
       n.chooseAgentSubject,
       n.executeMacroId,
-      Some("FOOOO"),
+      n.blackboxname,
       graphVarMan))
   }
 

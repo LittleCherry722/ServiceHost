@@ -28,7 +28,8 @@ case class GraphConversation(id: String,
 
 case class ProcessEngineAddress(id: Option[Int], ip: String, port: Int)
 
-case class Interface(id: Option[Int],
+case class Interface(interfaceType: String,
+                     id: Option[Int],
                      addressId: Int,
                      processId: Int,
                      graphId: Int,

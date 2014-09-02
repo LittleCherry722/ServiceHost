@@ -401,7 +401,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
 
   implicit def interfaceFormat(implicit roles: Map[String, Role] = Map()) = new RootJsonFormat[Interface] {
     def write(a: Interface) = JsObject(
-      "id" -> JsNumber(a.id),
+      "id" -> a.id.toJson,
       "processId" -> JsNumber(a.processId),
       "name" -> JsString(a.name),
       "graph" -> a.graph.toJson
@@ -410,7 +410,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       case Seq(address: JsValue, id: JsValue, processId: JsValue, name: JsValue, graph: JsObject) =>
         Interface(
           address.convertTo[Address],
-          id.convertTo[Int],
+          id.convertTo[Option[Int]],
           processId.convertTo[Int],
           name.convertTo[String],
           graph.convertTo[Graph]

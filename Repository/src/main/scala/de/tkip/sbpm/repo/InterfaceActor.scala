@@ -84,9 +84,10 @@ class InterfaceActor extends Actor with ActorLogging {
     case GetBlackbox(subjectId, blackboxname) => {
       log.info("GetBlackbox: " + subjectId + "/" + blackboxname)
 
-      val list = interfaces.values.toList
+      val listFuture: Seq[Interface] = Query.loadInterfaces()
 
-      val filtered = list.filter(impl => (impl.interfaceType == BlackboxcontentInterfaceType && impl.graph.subjects.values.exists(subj => (subj.id == subjectId && subj.blackboxname == Some(blackboxname)))))
+      // TODO: move filter to Query
+      val filtered = listFuture.filter(impl => (impl.interfaceType == BlackboxcontentInterfaceType && impl.graph.subjects.values.exists(subj => (subj.id == subjectId && subj.blackboxname == Some(blackboxname)))))
 
       sender ! filtered.map(addInterfaceImplementations).headOption // TODO: list or single one?
     }
