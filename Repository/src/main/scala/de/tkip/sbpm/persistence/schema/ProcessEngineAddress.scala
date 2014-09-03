@@ -13,28 +13,26 @@
 
 package de.tkip.sbpm.persistence.schema
 
-import de.tkip.sbpm.persistence.mapping.Graph
-import scala.slick.model.ForeignKeyAction.{Cascade, NoAction}
+import de.tkip.sbpm.persistence.mapping._
 
 /**
- * Defines the database schema of GraphConversations.
- * If you want to query GraphConversations database table mix this trait
+ * Defines the database schema of Processes.
+ * If you want to query Processes database table mix this trait
  * into the actor performing the queries.
  */
-object GraphSchema extends Schema {
+object ProcessEngineAddressSchema extends Schema {
   // import current slick driver dynamically
+
   import driver.simple._
-  import InterfaceSchema.interfaces
 
-  // represents schema if the "graphs" table in the database
+  // represents schema if the "processes" table in the database
   // using slick's lifted embedding API
-  class Graphs(tag: Tag) extends SchemaTable[Graph](tag, "graphs") {
+  class ProcessEngineAddresses(tag: Tag) extends SchemaTable[ProcessEngineAddress](tag, "addresses") {
     def id = autoIncIdCol[Int]
-    def name = column[Option[String]]("name")
-
-    def * = (id.?, name) <> (Graph.tupled, Graph.unapply)
-    // def autoInc = * returning id
+    def ip = column[String]("ip_address")
+    def port = column[Int]("port")
+    def * = (id.?, ip, port) <> (ProcessEngineAddress.tupled, ProcessEngineAddress.unapply)
   }
 
-  val graphs = TableQuery[Graphs]
+  val addresses = TableQuery[ProcessEngineAddresses]
 }

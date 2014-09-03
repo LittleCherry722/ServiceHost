@@ -22,7 +22,12 @@ object ProjectBuild extends Build {
         "org.scalatest" %% "scalatest" % "2.2.0" % "test",
         "com.typesafe.akka" %% "akka-actor" % "2.3.4",
         "com.typesafe.akka" %% "akka-testkit" % "2.3.4" % "test",
+        "com.typesafe.akka" %% "akka-slf4j" % "2.3.4",
+        "ch.qos.logback" % "logback-classic" % "1.1.2",
         "com.typesafe.slick" %% "slick" % "2.1.0-M2",
+
+        "org.xerial" % "sqlite-jdbc" % "3.7.2",
+        "com.mchange" % "c3p0" % "0.9.5-pre8",
 
         "io.spray" %% "spray-testkit" % "1.3.1" % "test",
         "io.spray" %% "spray-can" % "1.3.1",

@@ -14,6 +14,7 @@
 package de.tkip.sbpm.repo
 
 import akka.actor.{ActorLogging, Actor}
+import de.tkip.sbpm.persistence.DatabaseAccess
 import spray.httpx.SprayJsonSupport
 import scala.collection.mutable
 import spray.json._
@@ -21,6 +22,7 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.InterfaceType._
 import de.tkip.sbpm.model.GraphJsonProtocol._
 import akka.event.Logging
+import de.tkip.sbpm.persistence.query.{InterfaceQuery => Query}
 
 object InterfaceActor {
   case object GetAllInterfaces
@@ -57,30 +59,25 @@ class InterfaceActor extends Actor with ActorLogging {
 
   def receive = {
     case GetAllInterfaces => {
-      val list = interfaces.values.toList
-
-      sender ! list.map(addInterfaceImplementations)
+      log.info("Get all interfaces")
+      sender ! Query.loadInterfaces().map(addInterfaceImplementations)
     }
 
-    case GetInterface(implId) => {
-      val list = interfaces.values.toList
-      val filtered = list.find { impl => impl.id == implId }.map{_.graph}
-
-      log.info("entries for id: {}", filtered.toJson)
-
-      sender ! filtered
+    case GetInterface(interfaceId) => {
+      log.info(s"Get interface with id: $interfaceId")
+      sender ! Query.loadInterface(interfaceId).map(addInterfaceImplementations)
     }
 
     case DeleteInterface(interfaceId) => {
-      interfaces.remove(interfaceId)
+      log.info(s"Delete interface with id: $interfaceId")
+      Query.deleteInterfaceById(interfaceId)
     }
 
     case GetImplementations(subjectIds) => {
+      log.info(s"Gathering list of implementations for subjects: $subjectIds")
       val implementationsMap = subjectIds.foldLeft(Map[String, Seq[InterfaceImplementation]]()){ (m, s) =>
         m + (s -> implementationsFor(s))
       }
-      log.info("Gathering list of implementations for: {}", implementationsMap.toJson.prettyPrint)
-
       sender ! implementationsMap
     }
 
@@ -95,16 +92,15 @@ class InterfaceActor extends Actor with ActorLogging {
     }
 
     case AddInterface(interface) => {
-      log.info("adding new interface")
-      val id = interface.id
-      log.info("added new interface: {}", interface)
-      interfaces(id) = interface
-      sender ! Some(id.toString)
+      log.info(s"Adding new interface")
+      val interfaceId = Query.saveInterface(interface)
+      log.info(s"Interface adding completed. id: $interfaceId")
+      sender ! Some(interfaceId.toString)
     }
 
     case Reset => {
       log.info("resetting...")
-      interfaces.clear()
+      DatabaseAccess.recreateDatabase()
     }
   }
 
@@ -126,24 +122,8 @@ class InterfaceActor extends Actor with ActorLogging {
     ))
   }
 
-  private def implementationsFor(subjectId: String) : List[InterfaceImplementation] = {
+  private def implementationsFor(subjectId: String) : Seq[InterfaceImplementation] = {
     logger.info("implementationsFor called for subjectId {}", subjectId)
-    val someSId = Some(subjectId)
-    val implementations: Iterable[InterfaceImplementation] = interfaces.values.flatMap(i => {
-      i.graph.subjects.values.toList.map(s => {
-        logger.info("test if subject {} is implementation", s.id)
-        if (s.id == subjectId && s.subjectType == "single") {
-          val impl = InterfaceImplementation(
-            processId = i.processId,
-            address = i.address,
-            subjectId = s.id)
-          Some(impl)
-        }
-        else {
-          None
-        }
-      }).flatten
-    })
-   implementations.toList
+    Query.findImplementations(subjectId)
   }
 }

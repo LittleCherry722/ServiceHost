@@ -72,11 +72,11 @@ object JsonProtocol extends DefaultJsonProtocol {
   }
 
 
-  implicit val addressFormat = jsonFormat2(Address)
+  implicit val addressFormat = jsonFormat3(de.tkip.sbpm.model.Address)
   implicit object interfaceFormat extends RootJsonFormat[Interface] {
     def write(a: Interface) = JsObject(
       "interfaceType" -> a.interfaceType.toJson,
-      "id" -> JsNumber(a.id),
+      "id" -> a.id.toJson,
       "processId" -> JsNumber(a.processId),
       "name" -> JsString(a.name),
       "graph" -> a.graph.toJson

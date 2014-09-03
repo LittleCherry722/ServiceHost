@@ -20,29 +20,23 @@ import de.tkip.sbpm.persistence.mapping._
  * If you want to query Processes database table mix this trait
  * into the actor performing the queries.
  */
-object ProcessesSchema extends Schema {
+object InterfaceSchema extends Schema {
   // import current slick driver dynamically
 
   import driver.simple._
 
-  implicit val stringToStringList = MappedColumnType.base[List[String], String](
-    list => list mkString ",",
-    str => (str split ",").toList
-  )
-
   // represents schema if the "processes" table in the database
   // using slick's lifted embedding API
-  class Processes(tag: Tag) extends SchemaTable[Process](tag, "processes") {
+  class Interfaces(tag: Tag) extends SchemaTable[Interface](tag, "interfaces") {
     def id = autoIncIdCol[Int]
-    def interfaceId = column[Option[Int]]("interface_id")
-    def publishInterface = column[Boolean]("publish_interface")
+    def addressId = column[Int]("address_id")
+    def processId = column[Int]("process_id")
+    def graphId = column[Int]("graph_id")
     def name = nameCol
-    def isCase = column[Boolean]("case")
-    def startAble = column[Boolean]("startAble")
-    def * = (id.?, interfaceId, publishInterface, name, isCase, startAble) <> (Process.tupled, Process.unapply)
+    def * = (id.?, addressId, processId, graphId, name) <> (Interface.tupled, Interface.unapply)
     // def autoInc = * returning id
     def uniqueName = unique(name)
   }
 
-  val processes = TableQuery[Processes]
+  val interfaces = TableQuery[Interfaces]
 }

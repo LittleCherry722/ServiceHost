@@ -87,6 +87,7 @@ class RepositoryPersistenceActor extends InstrumentedActor {
       sender !! Some(result.toInt)
       log.debug("[SAVE INTERFACE] sent repository answer to sender.")
     }
+
     case DeleteInterface(interfaceId) => {
       log.debug("[DELETE INTERFACE] delete message received")
       val result = Http(repoLocation + "interfaces/" + interfaceId)

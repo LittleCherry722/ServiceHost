@@ -34,3 +34,4 @@ backend_*.jar
 repository.jar
 /target
 sbpm_*.db
+repo.db

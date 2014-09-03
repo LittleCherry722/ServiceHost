@@ -26,6 +26,7 @@ import scala.concurrent.duration._
 import akka.util.Timeout
 import de.tkip.sbpm.model.GraphJsonProtocol._
 import reflect.ClassTag
+import de.tkip.sbpm.persistence.DatabaseAccess
 
 
 
@@ -37,6 +38,8 @@ object Boot extends App with SimpleRoutingApp {
   implicit val executionContext = system.dispatcher
   val interfaceActor = system.actorOf(Props[InterfaceActor])
   val intermediateInterfaceActor = system.actorOf(Props[IntermediateInterfaceActor])
+
+  DatabaseAccess.recreateDatabase()
 
   startServer(interface = "localhost", port = 8181) {
     logRequest("MARK 1") {
@@ -71,12 +74,12 @@ object Boot extends App with SimpleRoutingApp {
             get {
               pathEnd {
                 complete {
-                  (interfaceActor ? GetAllInterfaces).mapTo[List[Interface]]
+                  (interfaceActor ? GetAllInterfaces).mapTo[Seq[Interface]]
                 }
               } ~ path(IntNumber) {
                 id =>
                   complete {
-                    (interfaceActor ? GetInterface(id)).mapTo[Option[Graph]]
+                    (interfaceActor ? GetInterface(id)).mapTo[Option[Interface]]
                   }
               }
             } ~ post {
@@ -94,7 +97,6 @@ object Boot extends App with SimpleRoutingApp {
               }
             } ~ delete {
               path(IntNumber) { interfaceId =>
-                println("received delete!")
                 interfaceActor ! DeleteInterface(interfaceId)
                 complete(StatusCodes.OK)
               }

@@ -38,6 +38,7 @@ object GraphVariablesSchema extends Schema {
     def * = (id, subjectId, graphId, name) <> (GraphVariable.tupled, GraphVariable.unapply)
 
     def pk = primaryKey(pkName, (id, subjectId, graphId))
+    def idx = index(s"${tableName}_idx_graph_id", graphId)
 
     def subject =
       foreignKey(fkName("subjects"), (subjectId, graphId), graphSubjects)(s => (s.id, s.graphId), NoAction, Cascade)

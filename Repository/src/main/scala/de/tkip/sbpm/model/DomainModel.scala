@@ -24,14 +24,6 @@ object InterfaceType extends Enumeration {
 }
 import InterfaceType.InterfaceType
 
-case class Process(id: Option[Int],
-                   interfaceId: Option[Int],
-                   publishInterface: Boolean,
-                   name: String,
-                   isCase: Boolean = false,
-                   startAble: Option[Boolean] = None,
-                   activeGraphId: Option[Int] = None)
-
 case class Configuration(key: String,
   label: Option[String],
   value: Option[String],
@@ -39,7 +31,7 @@ case class Configuration(key: String,
 
 case class Interface(interfaceType: InterfaceType,
                      address: Address,
-                     id: Int,
+                     id: Option[Int],
                      processId: Int,
                      name: String,
                      graph: Graph)
@@ -55,11 +47,9 @@ case class InterfaceImplementation(processId: Int,
                                    address: Address,
                                    subjectId: String)
 
-case class Address(ip: String, port: Int)
+case class Address(id: Option[Int], ip: String, port: Int)
 
 case class Graph(id: Option[Int],
-  processId: Option[Int],
-  date: java.sql.Timestamp,
   conversations: Map[String, GraphConversation],
   messages: Map[String, GraphMessage],
   subjects: Map[String, GraphSubject])
@@ -80,7 +70,7 @@ case class GraphSubject(id: String,
   isImplementation: Option[Boolean],
   externalType: Option[String],
   role: Option[String],
-  implementations: List[InterfaceImplementation],
+  implementations: Seq[InterfaceImplementation],
   comment: Option[String],
   variables: Map[String, GraphVariable],
   macros: Map[String, GraphMacro])

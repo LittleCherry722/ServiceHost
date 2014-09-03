@@ -121,6 +121,7 @@ object GraphNodesSchema extends Schema {
       }))
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
+    def idx = index(s"${tableName}_idx_graph_id", graphId)
 
     def nodeMacro =
       foreignKey(fkName("graph_macros"), (macroId, subjectId, graphId), graphMacros)(m => (m.id, m.subjectId, m.graphId), NoAction, Cascade)

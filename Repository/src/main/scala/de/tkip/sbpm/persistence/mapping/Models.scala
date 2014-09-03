@@ -20,26 +20,19 @@ package de.tkip.sbpm.persistence.mapping
  */
 
 case class Graph(id: Option[Int],
-                 processId: Int,
-                 date: java.sql.Timestamp)
+                 name: Option[String] = None)
 
 case class GraphConversation(id: String,
                              graphId: Int,
                              name: String)
 
-case class ProcessInstance(id: Option[Int],
-                           processId: Int,
-                           graphId: Int,
-                           data: Option[String] = None)
+case class ProcessEngineAddress(id: Option[Int], ip: String, port: Int)
 
-case class Process(id: Option[Int],
-                   interfaceId: Option[Int],
-                   publishInterface: Boolean,
-                   name: String,
-                   isCase: Boolean = false,
-                   startAble: Boolean)
-
-case class ProcessActiveGraph(processId: Int, graphId: Int)
+case class Interface(id: Option[Int],
+                     addressId: Int,
+                     processId: Int,
+                     graphId: Int,
+                     name: String)
 
 case class GraphMessage(id: String,
                         graphId: Int,

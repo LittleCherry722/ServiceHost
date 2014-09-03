@@ -208,7 +208,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
     }
   }
 
-  implicit val addressFormat = jsonFormat2(Address)
+  implicit val addressFormat = jsonFormat3(Address)
   implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
 
   /**
@@ -271,27 +271,23 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
         "nodeCounter" -> counter(g.subjects))
     def read(v: JsValue) = v.asJsObject.getFields("id",
       "processId",
-      "date",
       "definition",
       "routings") match {
         case Seq(id: JsValue,
           processId: JsValue,
-          date: JsValue,
           definition: JsObject,
           routings: JsArray) =>
-          Graph(id.convertTo[Option[Int]],
-            processId.convertTo[Option[Int]],
-            date.convertTo[java.sql.Timestamp],
-            definition.fields("conversations").convertTo[Map[String, GraphConversation]],
-            definition.fields("messages").convertTo[Map[String, GraphMessage]],
-            definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
+          Graph(
+            id            = None,
+            conversations = definition.fields("conversations").convertTo[Map[String, GraphConversation]],
+            messages      = definition.fields("messages").convertTo[Map[String, GraphMessage]],
+            subjects      = definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
         case Seq(definition: JsObject,
-          routings: JsArray) => Graph(None,
-          None,
-          new java.sql.Timestamp(System.currentTimeMillis()),
-          definition.fields("conversations").convertTo[Map[String, GraphConversation]],
-          definition.fields("messages").convertTo[Map[String, GraphMessage]],
-          definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
+          routings: JsArray) => Graph(
+          id            = None,
+          conversations = definition.fields("conversations").convertTo[Map[String, GraphConversation]],
+          messages      = definition.fields("messages").convertTo[Map[String, GraphMessage]],
+          subjects      = definition.fields("process").convertTo[Seq[GraphSubject]].map(s => s.id -> s).toMap)
         case x => throw new DeserializationException("Graph expected, but found: " + x)
       }
   }
