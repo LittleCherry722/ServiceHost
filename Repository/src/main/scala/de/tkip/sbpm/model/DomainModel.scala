@@ -37,7 +37,7 @@ case class Interface(interfaceType: InterfaceType,
                      graph: Graph)
 
 case class IntermediateInterface(interfaceType: InterfaceType,
-                                 id: Int,
+                                 processId: Int,
                                  port: Int,
                                  interfaceId: Option[Int],
                                  name: String,

@@ -197,8 +197,8 @@ object InterfaceQuery {
   private val graphSubjectsForSubjectId = Compiled{ id: Column[String] =>
     for {
       subject <- graphSubjects.filter(_.id === id).filter(_.subjectType === "single")
-      interface <- interfaces if interface.graphId == subject.graphId
-      address <- addresses if address.id == interface.addressId
+      interface <- interfaces if interface.graphId === subject.graphId
+      address <- addresses if address.id === interface.addressId
     } yield (interface.processId, address.ip, address.port)
   }
   private val graphVariablesForGraphId = Compiled{ id: Column[Int] => graphVariables.filter(_.graphId === id) }
