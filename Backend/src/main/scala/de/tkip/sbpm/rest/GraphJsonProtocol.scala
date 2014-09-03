@@ -289,7 +289,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val addressFormat = jsonFormat2(Address)
+  implicit val addressFormat = jsonFormat2(AgentAddress)
   implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
 
   /**
@@ -409,7 +409,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     def read(v: JsValue) = v.asJsObject.getFields("address", "id", "processId", "name", "graph") match {
       case Seq(address: JsValue, id: JsValue, processId: JsValue, name: JsValue, graph: JsObject) =>
         Interface(
-          address.convertTo[Address],
+          address.convertTo[AgentAddress],
           id.convertTo[Option[Int]],
           processId.convertTo[Int],
           name.convertTo[String],

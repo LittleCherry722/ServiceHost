@@ -147,18 +147,15 @@ case class Configuration(key: String,
   value: Option[String],
   dataType: String)
 
-case class Address(ip: String, port: Int)
-
 case class Interface(// TODO: interfaceType
-                     address: Address,
+                     address: AgentAddress,
                      id: Option[Int],
                      processId: Int,
                      name: String,
                      graph: Graph)
 
-
 case class InterfaceImplementation(processId: Int,
-                                   address: Address,
+                                   address: AgentAddress,
                                    subjectId: String)
 
 case class Graph(id: Option[Int],

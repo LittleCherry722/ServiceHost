@@ -89,6 +89,7 @@ var gv_elements = {
 	inputSubjectRole:			"ge_cv_id",
 	inputSubjectStartSubject:	"ge_cv_startSubject",
 	inputSubjectText:			"ge_cv_text",
+	inputSubjectId:			"ge_cv_subject_id",
 
 	// select elements
 	inputNodeStart:		"ge_type_start",

@@ -305,6 +305,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectText, "string", "");
+	gf_guiElementWrite(gv_elements.inputSubjectId, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMVariable, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMVarText, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeVarManOperation, "string", "");
@@ -401,7 +402,7 @@ function gf_guiDisplayEdge (edge, startType)
 	{
 		if (edge.getType() == "timeout")
 			gf_guiElementShow(gv_elements.inputEdgeTypeTimeoutO);
-		else if (edge.getType() == "errorcondition")
+		else if (edge.getType() == "cancelcondition")
 			gf_guiElementShow(gv_elements.inputEdgeTypeExceptO);
 		else
 			gf_guiElementShow(gv_elements.inputEdgeTypeCondO);
@@ -410,7 +411,7 @@ function gf_guiDisplayEdge (edge, startType)
 	// select type
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanFalse, "bool", edge.getType() == "boolfalse");
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanTrue, "bool", edge.getType() == "booltrue");
-	gf_guiElementWrite(gv_elements.inputEdgeTypeException, "bool", edge.getType() == "errorcondition");
+	gf_guiElementWrite(gv_elements.inputEdgeTypeException, "bool", edge.getType() == "cancelcondition");
 	gf_guiElementWrite(gv_elements.inputEdgeTypeCondition, "bool", edge.getType() == "exitcondition");
 	gf_guiElementWrite(gv_elements.inputEdgeTypeTimeout, "bool", edge.getType() == "timeout");
 
@@ -418,7 +419,7 @@ function gf_guiDisplayEdge (edge, startType)
 	gf_guiElementEnable(gv_elements.inputEdgeTypeBooleanFalse, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "boolfalse", edge.getType(), "update").allowed);
 	gf_guiElementEnable(gv_elements.inputEdgeTypeBooleanTrue, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "booltrue", edge.getType(), "update").allowed);
 	gf_guiElementEnable(gv_elements.inputEdgeTypeCondition, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "exitcondition", edge.getType(), "update").allowed);
-	gf_guiElementEnable(gv_elements.inputEdgeTypeException, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "errorcondition", edge.getType(), "update").allowed);
+	gf_guiElementEnable(gv_elements.inputEdgeTypeException, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "cancelcondition", edge.getType(), "update").allowed);
 	gf_guiElementEnable(gv_elements.inputEdgeTypeTimeout, "disabled", gf_checkCardinality(edge.parentMacro, edge.getStart(), edge.getEnd(), "timeout", edge.getType(), "update").allowed);
 
 	// add events for edge types
@@ -824,6 +825,7 @@ function gf_guiDisplaySubject (subject)
 
 	// set values
 	gf_guiElementWrite(gv_elements.inputSubjectText, "string", gf_replaceNewline(subject.getText()));
+	gf_guiElementWrite(gv_elements.inputSubjectId, "string", gf_replaceNewline(subject.id));
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", subject.getRole(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectInputPool, "string", subject.getInputPool(), "-1");
 	gf_guiElementWrite(gv_elements.inputSubjectBlackboxname, "string", subject.getBlackboxname(), "");
@@ -2129,7 +2131,7 @@ function gf_guiReadEdge ()
 		gt_type	= "timeout";
 
 	if (gf_guiElementRead(gv_elements.inputEdgeTypeException, "bool", false))
-		gt_type	= "errorcondition";
+		gt_type	= "cancelcondition";
 
 	if (gf_guiElementRead(gv_elements.inputEdgeTypeBooleanFalse, "bool", false))
 		gt_type	= "boolfalse";
@@ -2284,16 +2286,16 @@ function gf_guiReadSubject ()
 	if (gf_guiElementRead(gv_elements.inputSubjectExtInterface, "bool", false)		=== true)
 		gt_externalType	= "interface";
 
-	gt_result.text				= gt_text;
-	gt_result.role				= gt_role;
-	gt_result.type				= gt_type;
-	gt_result.inputPool			= gt_inputPool;
-	gt_result.blackboxname		= gt_blackboxname;
-	gt_result.relatedProcess	= gt_relProcess;
-	gt_result.relatedSubject	= gt_relSubject;
-	gt_result.externalType		= gt_externalType;
-	gt_result.comment			= gt_comment;
-	gt_result.startSubject		= gt_startSubject;
+	gt_result.text           = gt_text;
+	gt_result.role           = gt_role;
+	gt_result.type           = gt_type;
+	gt_result.inputPool      = gt_inputPool;
+	gt_result.blackboxname   = gt_blackboxname;
+	gt_result.relatedProcess = gt_relProcess;
+	gt_result.relatedSubject = gt_relSubject;
+	gt_result.externalType	 = gt_externalType;
+	gt_result.comment        = gt_comment;
+	gt_result.startSubject	 = gt_startSubject;
 
 	return gt_result;
 }

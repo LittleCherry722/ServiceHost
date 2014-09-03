@@ -80,7 +80,7 @@ object parseGraph {
       val id = subject.id
       val multi = subjectMap(id).multi
       val external = subjectMap(id).external
-      
+
       var tempMap:Map[String,String]=Map()
       subject.variables.foreach {case(key, GraphVariable(k,v)) => tempMap = tempMap + (key -> v)}
       val varMap=tempMap;

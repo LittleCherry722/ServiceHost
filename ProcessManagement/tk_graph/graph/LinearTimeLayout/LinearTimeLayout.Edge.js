@@ -33,13 +33,13 @@ LinearTimeLayout.prototype.Edge	= function (id, source, target, edgeData)
 	this.outEdgesOldID	= null;
 	this.reversed		= false;
 	this.selected		= false;
-		
+
 	/**
 	 * @type {int}
 	 */
 	this.source			= 0;
 	this.style			= null;
-		
+
 	/**
 	 * @type {int}
 	 */
@@ -47,11 +47,11 @@ LinearTimeLayout.prototype.Edge	= function (id, source, target, edgeData)
 	this.text			= id;
 	this.virtual		= false;	// virtual edge?
 	this.width			= 0;
-	
+
 	this.init(source, target, edgeData);
 };
-	
-	
+
+
 /*
  * Edge Methods
  */
@@ -70,14 +70,14 @@ LinearTimeLayout.prototype.Edge.prototype.calculateHeight = function ()
 		{
 			/*
 			var split	= this.text.split(/<br>|<br \/>|<br\/>|\\r\\n|\\r|\\n|\n/gi);
-			
+
 			// estimation: number of lines * (fontSize + someSpace)
 			this.height	= Math.ceil(split.length * (this.style.fontSize + 3));
 			*/
-			
+
 			this.height	= gf_estimateTextHeight(this.text, this.style);
 		}
-		
+
 		// TODO: add borders, padding, minHeight, ... to height
 	}
 };
@@ -105,7 +105,7 @@ LinearTimeLayout.prototype.Edge.prototype.calculateWidth = function ()
 			*/
 			this.width	= gf_estimateTextWidth(this.text, this.style);
 		}
-		
+
 		// TODO: add borders, padding, minWidth, ... to width
 	}
 };
@@ -125,8 +125,8 @@ LinearTimeLayout.prototype.Edge.prototype.init	= function (source, target, edgeD
 
 	this.source		= source;
 	this.target		= target;
-	
-	
+
+
 	// set GCEdge
 	if (edgeData == "virtual")
 	{
@@ -139,7 +139,7 @@ LinearTimeLayout.prototype.Edge.prototype.init	= function (source, target, edgeD
 	else
 	{
 		this.edgeData	= edgeData;
-		
+
 		// load style: preload complete style set for node and store the compiled style here to pass it for width-calc, height-calc and actual drawing
 		this.style		= gv_bv_arrow.style;
 		if (gf_isset(edgeData.getType))
@@ -148,39 +148,39 @@ LinearTimeLayout.prototype.Edge.prototype.init	= function (source, target, edgeD
 			{
 				this.style	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleTimeout);
 			}
-			if (edgeData.getType() == "errorcondition")
+			if (edgeData.getType() == "cancelcondition")
 			{
 				this.style	= gf_mergeStyles(gv_bv_arrow.style, gv_bv_arrow.styleException);
 			}
 		}
-		
+
 		if (gf_isset(edgeData.isDeactivated) && edgeData.isDeactivated())
 			this.deactivated	= true;
-			
+
 		if (gf_isset(edgeData.isOptional) && edgeData.isOptional())
 			this.optional		= true;
-		
+
 		if (gf_isset(edgeData.selected) && edgeData.selected === true)
 			this.selected		= true;
-			
+
 		if (gf_isset(edgeData.textToString))
 		{
 			this.text			= edgeData.textToString();
 			this.orgId			= this.id.substr(1);
 		}
 	}
-	
+
 	// calculate height / width
 	this.calculateHeight();
 	this.calculateWidth();
 };
-	
+
 LinearTimeLayout.prototype.Edge.prototype.reverse = function ()
 {
 	var temp	= this.source;
 	this.source	= this.target;
 	this.target	= temp;
-	
+
 	// set reversed flag
 	this.reversed	= !this.reversed;
 };

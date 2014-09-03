@@ -29,7 +29,7 @@ import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
 
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 
-// switch state messages 
+// switch state messages
 case class StartSubjectExecution() extends SubjectBehaviorRequest
 
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
