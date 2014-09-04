@@ -50,21 +50,24 @@ object InterfaceQuery {
   }
 
   def findImplementations(subjectId: String): Seq[InterfaceImplementation] = {
+    var returnSubjects = Seq[InterfaceImplementation]()
     db.withSession { implicit session =>
       val subjects = graphSubjectsForSubjectId(subjectId).run
-      return subjects.map { s =>
+      returnSubjects = subjects.map { s =>
         InterfaceImplementation(
           processId = s._1,
           address = Address(id = None, ip = s._2, port = s._3),
           subjectId = subjectId)
       }
     }
+    returnSubjects
   }
 
   def deleteInterfaceById(interfaceId: Int) : Boolean = {
+    var deleteSuccess = false
     db.withSession { implicit session =>
       session.withTransaction {
-        return interfaceForId(interfaceId).run.headOption match {
+        deleteSuccess = interfaceForId(interfaceId).run.headOption match {
           case None => false
           case Some(interface) =>
             graphs.filter(_.id === interface.graphId).delete
@@ -74,6 +77,7 @@ object InterfaceQuery {
         }
       }
     }
+    return deleteSuccess
   }
 
   // update entity or throw exception if it does not exist
