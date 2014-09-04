@@ -142,12 +142,19 @@ object InterfaceQuery {
         println(s"edges: $edges")
         println(s"subjects: $subjects")
 
-
-
         returnInterfaceId = dbInterface.id match {
           case None     => (interfaces returning interfaces.map(_.id)) += dbInterface
-          case Some(id) =>
-            (interfaces.filter(_.id === id) returning interfaces.map(_.id)).insertOrUpdate(dbInterface).head
+          case Some(id) => {
+            interfaceForId(id).run.headOption match {
+              case Some(oldInterface) =>
+                deleteSubEntities(oldInterface.graphId)
+                interfaces.filter(_.id === id).map{i => (i.name, i.addressId, i.graphId, i.processId)}.update(
+                  (dbInterface.name, dbInterface.addressId, dbInterface.graphId, dbInterface.processId)
+                )
+                id
+              case None => (interfaces returning interfaces.map(_.id)) += dbInterface
+            }
+          }
         }
       }
       returnInterfaceId

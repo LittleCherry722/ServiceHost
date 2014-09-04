@@ -32,7 +32,7 @@ object InterfaceSchema extends Schema {
     def addressId = column[Int]("address_id")
     def processId = column[Int]("process_id")
     def graphId = column[Int]("graph_id")
-    def name = nameCol
+    def name = column[String]("name")
     def * = (id.?, addressId, processId, graphId, name) <> (Interface.tupled, Interface.unapply)
     // def autoInc = * returning id
     def uniqueName = unique(name)
