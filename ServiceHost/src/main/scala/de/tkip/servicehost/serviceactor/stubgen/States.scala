@@ -26,7 +26,7 @@ object Target {
   }
 }
 
-abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int])(implicit log: LoggingAdapter) extends ClassTraceLogger {
+abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int]) extends ClassTraceLogger {
 
   //  var id = -1 //, correlationId: Double
   //  var targetId = -1
@@ -46,7 +46,7 @@ abstract class State(val stateType: String, val id: Int, val exitType: String, v
 
 }
 
-case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int])(implicit log: LoggingAdapter) extends State("receive", id, exitType, targets, targetIds) {
+case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int])extends State("receive", id, exitType, targets, targetIds) {
   
   
   def process()(implicit actor: ServiceActor) {
@@ -59,7 +59,7 @@ case class ReceiveState(override val id: Int,override val exitType: String,overr
     actor.changeState()
   }
 }
-case class SendState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int])(implicit log: LoggingAdapter) extends State("send", id, exitType, targets, targetIds) {
+case class SendState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("send", id, exitType, targets, targetIds) {
   def process()(implicit actor: ServiceActor) {
     val msg = actor.getMessage()
     send(msg)
@@ -69,30 +69,26 @@ case class SendState(override val id: Int, override val exitType: String, overri
   def send(msg: String)(implicit actor: ServiceActor) {
 
     val messageID = 100 //TODO change if needed
-
-    val messageType = exitType
-
+    val messageType = targetIds.head._1 
     val userID = actor.getUserID()
     val processID = actor.getProcessID()
     val subjectID = actor.getSubjectID()
     val sender = actor.getDestination()
-
     val fileInfo = None
     val target = getTarget(actor.getBranchCondition)
     target.insertTargetUsers(Array(1))
-    
+
     val message = SubjectToSubjectMessage(
         messageID,
         processID,
         1,
         subjectID,
         target,
-//        messageType,
-        "m2",
+        messageType,      //messageType,
         msg,
         fileInfo)
     
-    log.debug("sending message: " + message + " to " + sender)
+    //log.debug("sending message: " + message + " to " + sender)
     sender !! message
   }
   
@@ -102,7 +98,7 @@ case class SendState(override val id: Int, override val exitType: String, overri
     } else targets.head._2.target
   }
 }
-case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int])(implicit log: LoggingAdapter) extends State("exit", id, exitType, targets, targetIds) {
+case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("exit", id, exitType, targets, targetIds) {
 
   def process()(implicit actor: ServiceActor) {
     actor.terminate()

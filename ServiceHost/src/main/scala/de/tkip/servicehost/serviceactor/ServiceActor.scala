@@ -13,7 +13,7 @@ import de.tkip.servicehost.serviceactor.stubgen.State
 abstract class ServiceActor extends InstrumentedActor {
   
   var branchCondition: String = null
-  var returnMessageContent: String = ""
+  var returnMessageContent: String = "received message"
     
   def processMsg():Unit
   

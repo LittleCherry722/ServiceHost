@@ -1,0 +1,398 @@
+{
+    "definition": {
+        "messages": {
+            "m0": "input",
+            "m1": "output"
+        },
+        "messageCounter": 2,
+        "nodeCounter": 2,
+        "conversations": {},
+        "conversationCounter": 1,
+        "process": [
+            {
+                "id": "Customer",
+                "name": "Customer",
+                "type": "single",
+                "subjectType": "single",
+                "deactivated": false,
+                "inputPool": 100,
+                "relatedInterface": null,
+                "relatedProcess": null,
+                "relatedSubject": "",
+                "isImplementation": false,
+                "externalType": "external",
+                "role": "Kunde",
+                "startSubject": true,
+                "implementations": [],
+                "comment": "",
+                "macros": [
+                    {
+                        "id": "##main##",
+                        "name": "internal behavior",
+                        "nodes": [
+                            {
+                                "id": 0,
+                                "text": "",
+                                "start": true,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "send",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "send",
+                                "options": {
+                                    "subject": "",
+                                    "message": "",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": true,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 1,
+                                "text": "",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "receive",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "receive",
+                                "options": {
+                                    "message": "*",
+                                    "subject": "*",
+                                    "correlationId": "*",
+                                    "conversation": "*",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 2,
+                                "text": "",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": true,
+                                "type": "end",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "end",
+                                "options": {
+                                    "message": "*",
+                                    "subject": "*",
+                                    "correlationId": "*",
+                                    "conversation": "*",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            }
+                        ],
+                        "edges": [
+                            {
+                                "start": 1,
+                                "end": 2,
+                                "text": "m1",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": {
+                                    "id": "Company",
+                                    "min": -1,
+                                    "max": -1,
+                                    "createNew": false,
+                                    "variable": ""
+                                },
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": "",
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": [
+                                    "internal"
+                                ]
+                            },
+                            {
+                                "start": 0,
+                                "end": 1,
+                                "text": "m0",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": {
+                                    "id": "Company",
+                                    "min": -1,
+                                    "max": -1,
+                                    "createNew": false,
+                                    "variable": ""
+                                },
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": "",
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": [
+                                    "internal"
+                                ]
+                            }
+                        ],
+                        "nodeCounter": 6
+                    }
+                ],
+                "macroCounter": 0,
+                "variables": {},
+                "variableCounter": 0
+            },
+            {
+                "id": "Company",
+                "name": "Company",
+                "type": "external",
+                "subjectType": "external",
+                "deactivated": false,
+                "inputPool": 100,
+	"url": "@127.0.0.1:2553",
+                "relatedInterface": null,
+                "relatedProcess": null,
+                "relatedSubject": "",
+                "isImplementation": false,
+                "externalType": "interface",
+                "role": "Zulieferer",
+                "startSubject": false,
+                "implementations": [],
+                "comment": "",
+                "macros": [
+                    {
+                        "id": "##main##",
+                        "name": "internal behavior",
+                        "nodes": [
+                            {
+                                "id": 0,
+                                "text": "new",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "receive",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "receive",
+                                "options": {
+                                    "subject": "",
+                                    "message": "",
+                                    "conversation": "",
+                                    "correlationId": "",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 1,
+                                "text": "",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": false,
+                                "type": "send",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "send",
+                                "options": {
+                                    "message": "*",
+                                    "subject": "*",
+                                    "correlationId": "*",
+                                    "conversation": "*",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            },
+                            {
+                                "id": 2,
+                                "text": "",
+                                "start": false,
+                                "autoExecute": false,
+                                "end": true,
+                                "type": "end",
+                                "manualPositionOffsetX": 0,
+                                "manualPositionOffsetY": 0,
+                                "nodeType": "end",
+                                "options": {
+                                    "message": "*",
+                                    "subject": "*",
+                                    "correlationId": "*",
+                                    "conversation": "*",
+                                    "state": ""
+                                },
+                                "deactivated": false,
+                                "majorStartNode": false,
+                                "conversation": "",
+                                "variable": "",
+                                "varMan": {
+                                    "var1": "",
+                                    "var2": "",
+                                    "operation": "and",
+                                    "storevar": ""
+                                },
+                                "createSubjects": {
+                                    "subject": null,
+                                    "storevar": "",
+                                    "min": -1,
+                                    "max": -1
+                                },
+                                "macro": "",
+                                "comment": ""
+                            }
+                        ],
+                        "edges": [
+                            {
+                                "start": 0,
+                                "end": 1,
+                                "text": "m0",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": {
+                                    "id": "Customer",
+                                    "min": -1,
+                                    "max": -1,
+                                    "createNew": false,
+                                    "variable": ""
+                                },
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": "",
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": [
+                                    "internal"
+                                ]
+                            },
+                            {
+                                "start": 1,
+                                "end": 2,
+                                "text": "m1",
+                                "type": "exitcondition",
+                                "manualPositionOffsetLabelX": 0,
+                                "manualPositionOffsetLabelY": 0,
+                                "edgeType": "exitcondition",
+                                "target": {
+                                    "id": "Customer",
+                                    "min": -1,
+                                    "max": -1,
+                                    "createNew": false,
+                                    "variable": ""
+                                },
+                                "deactivated": false,
+                                "optional": false,
+                                "priority": 1,
+                                "manualTimeout": false,
+                                "variable": "",
+                                "correlationId": "",
+                                "comment": "",
+                                "transportMethod": [
+                                    "internal"
+                                ]
+                            }
+                        ],
+                        "nodeCounter": 3
+                    }
+                ],
+                "macroCounter": 0,
+                "variables": {},
+                "variableCounter": 0
+            }
+        ]
+    },
+    "routings": []
+}

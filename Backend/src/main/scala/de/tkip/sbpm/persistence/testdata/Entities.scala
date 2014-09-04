@@ -108,7 +108,10 @@ object Entities {
     (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
     (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
     (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
-    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")))
+    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
+    (Process(None, None, false, """Service Host Test""", false) -> loadJson("service_host_test")),
+    (Process(None, None, false, """Service Test""", false) -> loadJson("service_test"))
+   )
 
 
   // group -> role mappings

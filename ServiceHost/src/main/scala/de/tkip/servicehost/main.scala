@@ -50,7 +50,6 @@ object main extends App with ClassTraceLogger {
   protected def configString(key: String) =
     system.settings.config.getString(key)
 
-
   val repoUrl = configString("sbpm.repo.address") + "/interfaces"
   val hostname: String = configString("akka.remote.netty.tcp.hostname")
   val port: Int = configString("akka.remote.netty.tcp.port").toInt
@@ -81,7 +80,7 @@ object main extends App with ClassTraceLogger {
     }
   } else {
     system.actorOf(Props[ServiceActorManager], "service-actor-manager")
-    system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
+    //system.actorOf(Props[RemotePublishActor], "eventbus-remote-publish")
     serviceHost = system.actorOf(Props[ServiceHostActor], "subject-provider-manager")
     log.info("serviceHost path: " + serviceHost.path)
     registerInterfaces()
@@ -116,6 +115,7 @@ object main extends App with ClassTraceLogger {
     val referencesFuture: Future[Any] = referenceXMLActor ?? GetAllClassReferencesMessage
     val references = Await.result(referencesFuture, timeout.duration).asInstanceOf[List[Reference]]
     for {reference <- references} {
+      println(reference.toString)
       registerInterface(reference)
     }
     log.info("finished registerInterfaces")
@@ -192,7 +192,6 @@ object main extends App with ClassTraceLogger {
     val jsonString = interface.prettyPrint // TODO: compactPrint 
 
     log.debug("generated interface json for '" + interfaceName + "'; POST it to repo")
-
     //println(jsonString)
 
     val post = Http.postData(repoUrl, jsonString)
@@ -203,7 +202,6 @@ object main extends App with ClassTraceLogger {
 
     if (result == 200) {
       var id: Int = post.asString.toInt
-
       log.info("Registered interface for '" + interfaceName + "' with id '" + id + "' at repository")
       registeredInterfaces(id) = reference
     } else {

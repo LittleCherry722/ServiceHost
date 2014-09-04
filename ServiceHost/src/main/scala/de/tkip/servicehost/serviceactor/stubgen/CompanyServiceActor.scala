@@ -18,19 +18,18 @@ import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc.Rejected
 
-class $TemplateServiceActor extends ServiceActor {
+class CompanyServiceActor extends ServiceActor {
   private val INPUT_POOL_SIZE: Int = 20
   
   private implicit val service = this
-  private val serviceID: String = "$SERVICEID"
-  
+  private val serviceID: String = "Company"
   
   private val states: List[State] = List(
-      //$EMPTYSTATE$//
+      ReceiveState(0,"exitcondition",Map("m0" -> Target("Customer",-1,-1,false,"")),Map("m0" -> 1)),SendState(1,"exitcondition",Map("m1" -> Target("Customer",-1,-1,false,"")),Map("m1" -> 2)),ExitState(2,null,Map(),Map())
       )
   
   private val messages: Map[MessageType, MessageText] = Map(
-      //$EMPTYMESSAGE$//
+      "input" -> "m0","output" -> "m1"
       )
       
   // start with first state
@@ -174,5 +173,5 @@ class $TemplateServiceActor extends ServiceActor {
   def getSubjectID(): String = {
     serviceID
   }
-  //$ACTIONSTATESIMPLEMENTATION$//
+  
 }

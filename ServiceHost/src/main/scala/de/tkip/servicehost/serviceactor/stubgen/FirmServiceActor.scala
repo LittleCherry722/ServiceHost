@@ -18,19 +18,19 @@ import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc.Rejected
 
-class $TemplateServiceActor extends ServiceActor {
+class FirmServiceActor extends ServiceActor {
   private val INPUT_POOL_SIZE: Int = 20
   
   private implicit val service = this
-  private val serviceID: String = "$SERVICEID"
+  private val serviceID: String = "Firm"
   
   
   private val states: List[State] = List(
-      //$EMPTYSTATE$//
+      ReceiveState(0,"exitcondition",Map("m0" -> Target("User",-1,-1,false,"")),Map("m0" -> 1)),SendState(1,"exitcondition",Map("m1" -> Target("User",-1,-1,false,"")),Map("m1" -> 2)),ExitState(2,null,Map(),Map())
       )
   
   private val messages: Map[MessageType, MessageText] = Map(
-      //$EMPTYMESSAGE$//
+      "input" -> "m0","output" -> "m1"
       )
       
   // start with first state
@@ -107,7 +107,8 @@ class $TemplateServiceActor extends ServiceActor {
 
           } else log.warning("no branchcodition defined")
 
-        } else state = getState(state.targetIds.head._2)
+        } else 
+          state = getState(state.targetIds.head._2)
 
         // TODO: state könnte null sein, oder auch der alte..
         state.process
@@ -138,14 +139,15 @@ class $TemplateServiceActor extends ServiceActor {
           }
         } else {
           inputPool(key) = Queue(Tuple2(sender, message))
-          log.debug("storeMsg: Stored")
+          log.debug("storeMsg: Stored")         
           sender !! Stored(message.messageID)
         }
 
-        if (state.targetIds.size > 1) 
-          this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
-        else 
-          this.branchCondition = state.targetIds.head._1
+        if (state.targetIds.size > 1){
+        	this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
+        } 
+
+        else  this.branchCondition = state.targetIds.head._1
       }
       case message => log.warning("unable to store message: " + message)
     }
@@ -174,5 +176,5 @@ class $TemplateServiceActor extends ServiceActor {
   def getSubjectID(): String = {
     serviceID
   }
-  //$ACTIONSTATESIMPLEMENTATION$//
+  
 }
