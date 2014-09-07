@@ -118,6 +118,8 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	/**
 	 * The id of the subject that is the sender or a receiver of the currently selected message.
 	 * - id: the id of the relatedSubject
+	 * - exchangeOriginId: the id of the relatedSubject
+	 * - exchangeTargetId: the id of the relatedSubject
 	 * - min: the min number of messages to receive / send (-1 = infinite)
 	 * - max: the min number of messages to receive / send (-1 = infinite)
 	 * - createNew: a boolean value that is currently not used
@@ -125,7 +127,15 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	 *
 	 * @type Object
 	 */
-	this.relatedSubject	= {id: null, min: -1, max: -1, createNew: false, variable: null};
+	this.relatedSubject	= {
+    id: null,
+    exchangeOriginId: null,
+    exchangeTargetId: null,
+    min: -1,
+    max: -1,
+    createNew: false,
+    variable: null
+  };
 
 	/**
 	 * The id of the start node of this edge.
@@ -669,14 +679,20 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 					{
 						if (gf_isset(relatedSubject.id))
 						{
-							if (relatedSubject.id != "")
-								this.relatedSubject.id	= relatedSubject.id;
+							if (relatedSubject.id)
+								this.relatedSubject.id = relatedSubject.id;
+
+							if (relatedSubject.exchangeOriginId)
+								this.relatedSubject.exchangeOriginId = relatedSubject.exchangeOriginId;
+
+							if (relatedSubject.exchangeTargetId)
+								this.relatedSubject.exchangeTargetId = relatedSubject.exchangeTargetId;
 
 							if (gf_isset(relatedSubject.min))
-								this.relatedSubject.min	= parseInt(relatedSubject.min, 10);
+								this.relatedSubject.min = parseInt(relatedSubject.min, 10);
 
 							if (gf_isset(relatedSubject.max))
-								this.relatedSubject.max	= parseInt(relatedSubject.max, 10);
+								this.relatedSubject.max = parseInt(relatedSubject.max, 10);
 
 							if (gf_isset(relatedSubject.createNew))
 								this.relatedSubject.createNew	= relatedSubject.createNew === true;

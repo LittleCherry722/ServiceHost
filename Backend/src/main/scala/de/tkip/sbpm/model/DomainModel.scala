@@ -256,6 +256,8 @@ case class GraphEdge(startNodeId: Short,
   transportMethod: Seq[String])
 
 case class GraphEdgeTarget(subjectId: String,
+  exchangeTargetId: Option[String],
+  exchangeOriginId: Option[String],
   min: Short = -1,
   max: Short = -1,
   createNew: Boolean,
