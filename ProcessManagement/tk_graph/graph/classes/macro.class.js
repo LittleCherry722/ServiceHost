@@ -872,6 +872,7 @@ function GCmacro (parent, id, name)
 			var gt_createSubjects     = gf_isset(values.createSubjects)     ? values.createSubjects     : {};
 			var gt_chooseAgentSubject = gf_isset(values.chooseAgentSubject) ? values.chooseAgentSubject : "";
 			var gt_macro              = gf_isset(values.macro)              ? values.macro              : "";
+			var gt_blackboxname       = gf_isset(values.blackboxname)       ? values.blackboxname       : "";
 			var gt_comment            = gf_isset(values.comment)            ? values.comment            : "";
 
 			// check option entries
@@ -926,6 +927,14 @@ function GCmacro (parent, id, name)
 
 			if (gt_macro != "")
 				gt_node.setMacro(gt_macro);
+
+
+			// blackboxname
+
+			if (gt_blackboxname == "##createNew##" && gf_isset(values.blackboxnameText))
+				gt_blackboxname = values.blackboxnameText;
+
+			gt_node.setBlackboxname(gt_blackboxname);
 
 			if (!gv_noRedraw)
 				this.draw();

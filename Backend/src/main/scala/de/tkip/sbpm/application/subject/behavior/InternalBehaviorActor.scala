@@ -29,6 +29,7 @@ import de.tkip.sbpm.application.history.NewHistoryState
 import de.tkip.sbpm.application.history.NewHistoryTransitionData
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.SubjectData
+import de.tkip.sbpm.application.ProcessInstanceActor.RegisterSubjects
 import de.tkip.sbpm.logging.DefaultLogging
 import de.tkip.sbpm.application.history.{
   Message => HistoryMessage
@@ -40,7 +41,7 @@ import akka.pattern.pipe
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
-import de.tkip.sbpm.application.subject.CallMacro
+import de.tkip.sbpm.application.subject.{ CallMacro, CallMacroStates }
 import scala.collection.mutable.Stack
 import de.tkip.sbpm.application.subject.behavior.state.ArchiveStateActor
 import org.parboiled.support.Var
@@ -65,7 +66,7 @@ class InternalBehaviorActor(
   macroId: String,
   macroStartState: Option[ActorRef],
   data: SubjectData,
-  inputPoolActor: ActorRef) extends InstrumentedActor with DefaultLogging {
+  inputPoolActor: ActorRef) extends InstrumentedActor {
   // extract the data
   implicit val timeout = Timeout(2000)
 
@@ -179,6 +180,14 @@ class InternalBehaviorActor(
       context.parent ! m
     }
 
+    case m: CallMacroStates => {
+      context.parent ! m
+    }
+
+    case m: RegisterSubjects => {
+      context.parent forward m
+    }
+
     case getActions: GetAvailableAction => {
       // Create a Future with the available actions
       val actionFutures =
@@ -231,6 +240,7 @@ class InternalBehaviorActor(
    * Adds a state to the internal model
    */
   private def addStateToModel(state: State) {
+    log.debug("addStateToModel: " + state)
     if (state.startState) {
       log.debug("Set startstate: " + state)
       startState = state.id
@@ -241,6 +251,7 @@ class InternalBehaviorActor(
   private val currentStatesMap: mutable.Map[StateID, BehaviorStateRef] = mutable.Map()
   private def changeState(from: StateID, to: StateID) = {
     // kill the currentState
+    log.debug("kill the current state")
     killState(from)
 
     // TODO damit umgehen, wenn target ein ModalJoin State ist
@@ -271,6 +282,7 @@ class InternalBehaviorActor(
           data.blockingHandlerActor ! UnBlockUser(userID)
         }
       } else {
+        log.debug("get statesMap, parse it and add result to currentStateMap")
         currentStatesMap += state -> parseState(statesMap(state))
       }
     } else {
@@ -359,6 +371,10 @@ class InternalBehaviorActor(
 
       case DecisionStateType => {
         context.actorOf(Props(new DecisionStateActor(stateData)), "DecisionStateActor____" + UUID.randomUUID().toString)
+      }
+
+      case BlackboxStateType => {
+        context.actorOf(Props(new BlackboxStateActor(stateData)), "BlackboxStateActor____" + UUID.randomUUID().toString())
       }
     }
   }

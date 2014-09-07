@@ -136,6 +136,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
     "options",
     "chooseAgentSubject",
     "macro",
+    "blackboxname",
     "varMan")
 
   /**
@@ -223,6 +224,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
       "deactivated" -> s.isDisabled.toJson,
       "startSubject" -> s.isStartSubject.toJson,
       "inputPool" -> s.inputPool.toJson,
+      "blackboxname" -> s.blackboxname.toJson,
       "relatedSubject" -> s.relatedSubjectId.toJson,
       "relatedInterface" -> s.relatedInterfaceId.toJson,
       "isImplementation" -> s.isImplementation.toJson,
@@ -241,6 +243,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
       "deactivated",
       "startSubject",
       "inputPool",
+      "blackboxname",
       "relatedSubject",
       "relatedInterface",
       "isImplementation",

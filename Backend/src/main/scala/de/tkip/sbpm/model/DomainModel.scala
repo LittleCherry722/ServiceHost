@@ -148,8 +148,14 @@ case class Configuration(key: String,
   value: Option[String],
   dataType: String)
 
+case class Interface(// TODO: interfaceType
+                     address: AgentAddress,
+                     id: Option[Int],
+                     processId: Int,
+                     name: String,
+                     graph: Graph)
+
 case class InterfaceImplementation(processId: Int,
-                                   interfaceId: Int,
                                    address: AgentAddress,
                                    subjectId: String)
 
@@ -180,6 +186,7 @@ case class GraphSubject(id: String,
   isDisabled: Boolean,
   isStartSubject: Option[Boolean],
   inputPool: Short,
+  blackboxname: Option[String],
   relatedSubjectId: Option[String],
   relatedInterfaceId: Option[Int],
   isImplementation: Option[Boolean],
@@ -213,6 +220,7 @@ case class GraphNode(id: Short,
   options: GraphNodeOptions,
   chooseAgentSubject: Option[String],
   macroId: Option[String],
+  blackboxname: Option[String],
   varMan: Option[GraphVarMan])
 
 case class GraphNodeOptions(messageId: Option[String] = None,

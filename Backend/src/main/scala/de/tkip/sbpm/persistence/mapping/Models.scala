@@ -99,6 +99,7 @@ case class GraphSubject(id: String,
   isDisabled: Boolean,
   isStartSubject: Boolean,
   inputPool: Short,
+  blackboxname: Option[String],
   relatedSubjectId: Option[String],
   relatedInterfaceId: Option[Int],
   isImplementation: Option[Boolean],
@@ -138,7 +139,8 @@ case class GraphNode(id: Short,
   optionConversationId: Option[String],
   optionNodeId: Option[Short],
   chooseAgentSubject: Option[String],
-  executeMacroId: Option[String])
+  executeMacroId: Option[String],
+  blackboxname: Option[String])
 
 case class GraphVarMan(id: Short,
    macroId: String,

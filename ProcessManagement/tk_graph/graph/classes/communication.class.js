@@ -1400,6 +1400,9 @@ function GCcommunication ()
 					if (gf_isset(gt_subject.startSubject))
 						this.subjects[gt_subject.id].setStartSubject(gt_subject.startSubject);
 
+					if (gf_isset(gt_subject.blackboxname))
+						this.subjects[gt_subject.id].setBlackboxname(gt_subject.blackboxname);
+
 					if (gf_isset(gt_subject.relatedInterface))
 						this.subjects[gt_subject.id].setRelatedInterface(gt_subject.relatedInterface);
 
@@ -1494,6 +1497,9 @@ function GCcommunication ()
 
 								if (gf_isset(gt_node.macro))
 									gt_createdNode.setMacro(gt_node.macro);
+
+								if (gf_isset(gt_node.blackboxname))
+									gt_createdNode.setBlackboxname(gt_node.blackboxname);
 
 								if (gf_isset(gt_node.comment))
 									gt_createdNode.setComment(gt_node.comment);
@@ -1686,6 +1692,7 @@ function GCcommunication ()
 						subjectType: this.subjects[gt_sid].getType(),
 						deactivated: this.subjects[gt_sid].isDeactivated(),
 						inputPool: this.subjects[gt_sid].getInputPool(),
+						blackboxname: this.subjects[gt_sid].getBlackboxname(),
 						relatedInterface: this.subjects[gt_sid].getRelatedInterface(),
 						relatedProcess: this.subjects[gt_sid].getRelatedProcess(),
 						relatedSubject: this.subjects[gt_sid].getRelatedSubject(),
@@ -1732,6 +1739,7 @@ function GCcommunication ()
 							createSubjects:     gt_node.getCreateSubjects("all"),
 							chooseAgentSubject: gt_node.getChooseAgentSubject(),
 							macro:              gt_node.getMacro(),
+							blackboxname:       gt_node.getBlackboxname(),
 							comment:            gt_node.getComment(),
 							manualPositionOffsetX: gt_node.getManualPositionOffset().dx,
 							manualPositionOffsetY: gt_node.getManualPositionOffset().dy
@@ -2001,6 +2009,7 @@ function GCcommunication ()
 				var gt_role             = gf_isset(gt_values.role)             ? gt_values.role:             "";
 				var gt_type             = gf_isset(gt_values.type)             ? gt_values.type:             "";
 				var gt_inputPool        = gf_isset(gt_values.inputPool)        ? gt_values.inputPool:        "";
+				var gt_blackboxname     = gf_isset(gt_values.blackboxname)     ? gt_values.blackboxname:     "";
 				var gt_relatedProcess   = gf_isset(gt_values.relatedProcess)   ? gt_values.relatedProcess:   "";
 				var gt_relatedSubject   = gf_isset(gt_values.relatedSubject)   ? gt_values.relatedSubject:   "";
 				var gt_isImplementation	= gf_isset(gt_values.isImplementation) ? gt_values.isImplementation: false;
@@ -2016,6 +2025,7 @@ function GCcommunication ()
 					gt_subject.setText(gt_text);
 					gt_subject.setType(gt_type);
 					gt_subject.setInputPool(gt_inputPool);
+					gt_subject.setBlackboxname(gt_blackboxname);
 					gt_subject.setRelatedProcess(gt_relatedProcess);
 					gt_subject.setRelatedSubject(gt_relatedSubject);
 					gt_subject.setIsImplementation(gt_isImplementation);

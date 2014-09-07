@@ -24,6 +24,7 @@ var gv_elements = {
 
 	graphBVouter:				"graph_bv_outer",
 	graphCVouter:				"graph_cv_outer",
+
 	inputEdgeCorrelationId:		"ge_edge_correlationid",
 	inputEdgeCorrelationIdO:	"ge_edge_correlationid_outer",
 	inputEdgeExceptionText:		"ge_edge_exception_text",
@@ -54,6 +55,7 @@ var gv_elements = {
 	inputEdgeTypeCondO:			"ge_edge_typeCOuter",
 	inputEdgeTypeExceptO:		"ge_edge_typeEOuter",
 	inputEdgeTypeTimeoutO:		"ge_edge_typeTOuter",
+
 	inputNodeConversation:			"ge_node_conversation",
 	inputNodeConversationNew:		"ge_node_conversation_new",
 	inputNodeConversationNewOuter:	"ge_node_conversation_new_outer",
@@ -79,6 +81,7 @@ var gv_elements = {
 	inputNodeType:				"ge_type2",
 	inputNodeVariable:			"ge_node_variable",
 	inputNodeVariableO:			"ge_node_variable_outer",
+
 	inputSubjectInputPool:		"ge_cv_inputPool",
 	inputSubjectRelOuter:		"ge_cv_relatedOuter",
 	inputSubjectRelProcess:		"ge_cv_relatedProcess",
@@ -96,9 +99,13 @@ var gv_elements = {
 	inputSubjectTypeExternal:	"ge_cv_type_external",
 
 	// subject external types
-	inputSubjectExtExternal:			"ge_cv_external_external",
-	inputSubjectExtInterface:			"ge_cv_external_interface",
+	inputSubjectExtExternal:		"ge_cv_external_external",
+	inputSubjectExtInterface:		"ge_cv_external_interface",
 	inputSubjectExtInstantInterface:	"ge_cv_external_instantInterface",
+	inputSubjectExtBlackbox:		"ge_cv_external_blackbox",
+
+	inputSubjectBlackboxname:		"ge_cv_blackboxname",
+	inputSubjectBlackboxnameO:		"ge_cv_blackboxname_outer",
 
 	// edge multi target
 	inputEdgeTargetMTypeA:		"ge_edge_target_multi_type_all",
@@ -147,6 +154,12 @@ var gv_elements = {
 	inputNodeMacro:				"ge_node_macro",
 	inputNodeMacroNewOuter:		"ge_node_macro_new_outer",
 	inputNodeMacroNew:			"ge_node_macro_new",
+
+	// blackbox
+	inputNodeBlackboxnameOuter:	"ge_node_blackboxname_outer",
+	inputNodeBlackboxname:		"ge_node_blackboxname",
+	inputNodeBlackboxnameNewOuter:	"ge_node_blackboxname_new_outer",
+	inputNodeBlackboxnameNew:	"ge_node_blackboxname_new",
 
 	// comment fields
 	inputNodeComment:			"ge_node_comment",
@@ -246,7 +259,7 @@ var gv_functions	= {
 		 * read input fields (node) and returns an object with the values
 		 *
 		 * @see GCcommunication::updateNode(), gf_guiReadNode()
-		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, createSubjects, macro, macroText, comment
+		 * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, createSubjects, macro, macroText, blackboxname, blackboxnameText, comment
 		 */
 		readNode:			"",
 
@@ -359,6 +372,15 @@ var gv_functions	= {
 		 * @returns {void}
 		 */
 		subjectDblClickedInstantInterface:		"",
+
+		/**
+		 * called when an blackbox (external subject) is double-clicked
+		 *
+		 * @see tk_graph.js :: gf_paperDblClickNodeC()
+		 * @param {String} ID The id of the double-clicked subject.
+		 * @returns {void}
+		 */
+		subjectDblClickedBlackbox:		"",
 
 		/**
 		 * called when an interface (external subject) is double-clicked

@@ -39,7 +39,17 @@ define([
             }
         });
 
-        window.existingInterfaces = this.existingInterfaces = Interface.all;
+        window.existingInterfaces = this.existingInterfaces = ko.computed(function() {
+		return ko.utils.arrayFilter(Interface.all(), function(interf) {
+			return interf.interfaceType() == "interface";
+		});
+	});
+
+        window.existingBlackboxes = this.existingBlackboxes = ko.computed(function(){
+		return ko.utils.arrayFilter(Interface.all(), function(x){
+			return x.interfaceType() == "blackboxcontent";
+		});
+	});
 
         // Needed for saving the business Interface
         this.newBusinessInterface = newBusinessInterface;
@@ -107,7 +117,7 @@ define([
                 return [];
             }
             return _.chain(currentProcess().graph().definition.process).filter(function(subj) {
-                return subj.type == "external" && subj.externalType == "interface"
+                return subj.type == "external" && subj.externalType == "interface" // TODO: externalType == "blackbox" ?
             }).map(function( subj ) {
                     return {
                         id: subj.id,
@@ -391,7 +401,7 @@ define([
 
             subject = subject.replace(/___/, " ");
             var gv_subject = gv_graph.subjects[subject]
-            if ( gv_subject && ( !gv_subject.isExternal() || gv_subject.externalType == "interface" )) {
+            if ( gv_subject && ( !gv_subject.isExternal() || gv_subject.externalType == "interface" )) { // TODO: externalType == "blackbox" ?
                 if ( !Router.goTo([ Router.modelPath( currentProcess() ), subject ]) ) {
                     // let the graph know we want to go to the internal view of a subject.
                     gv_graph.selectedSubject = null;

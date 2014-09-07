@@ -19,6 +19,7 @@ import spray.httpx.SprayJsonSupport
 import scala.collection.mutable
 import spray.json._
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.model.InterfaceType._
 import de.tkip.sbpm.model.GraphJsonProtocol._
 import akka.event.Logging
 import de.tkip.sbpm.persistence.query.{InterfaceQuery => Query}
@@ -29,11 +30,22 @@ object InterfaceActor {
   case class AddInterface(interface: Interface)
   case class DeleteInterface(interfaceId: Int)
   case class GetImplementations(subjectIds: Seq[String])
+  case class GetBlackbox(subjectId: String, blackboxname: String)
   case object Reset
 
   object MyJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
-    implicit val InterfaceFormat = jsonFormat5(Interface)
-    implicit val IntermediateInterfaceFormat = jsonFormat5(IntermediateInterface)
+    implicit object interfaceTypeFormat extends RootJsonFormat[InterfaceType] {
+      def write(obj: InterfaceType) = JsString(obj.toString)
+      def read(v: JsValue) = v match {
+        case JsString(str) => try {
+          InterfaceType.withName(str)
+        }
+        case _ => deserializationError("String expected")
+      }
+    }
+
+    implicit val InterfaceFormat = jsonFormat6(Interface)
+    implicit val IntermediateInterfaceFormat = jsonFormat6(IntermediateInterface)
 
   }
 }
@@ -69,6 +81,17 @@ class InterfaceActor extends Actor with ActorLogging {
       sender ! implementationsMap
     }
 
+    case GetBlackbox(subjectId, blackboxname) => {
+      log.info("GetBlackbox: " + subjectId + "/" + blackboxname)
+
+      val listFuture: Seq[Interface] = Query.loadInterfaces()
+
+      // TODO: move filter to Query
+      val filtered = listFuture.filter(impl => (impl.interfaceType == BlackboxcontentInterfaceType && impl.graph.subjects.values.exists(subj => (subj.id == subjectId && subj.blackboxname == Some(blackboxname)))))
+
+      sender ! filtered.map(addInterfaceImplementations).headOption // TODO: list or single one?
+    }
+
     case AddInterface(interface) => {
       log.info(s"Adding new interface")
       val interfaceId = Query.saveInterface(interface)
@@ -88,12 +111,12 @@ class InterfaceActor extends Actor with ActorLogging {
       subjects = interface.graph.subjects.mapValues{
         subject => {
           logger.info("Searching for implementations for subject " + subject.name + " from " + interface.name)
-          if (!(subject.subjectType == "external" && subject.externalType == Some("interface"))) {
-            logger.info("Subject is not an interface subject, aborting. subject types: " + subject.subjectType + ", " + subject.externalType)
-            subject
-          } else {
-            logger.info("Subject is an interface subject, copy its implementations")
+          if (subject.subjectType == "single") {
+            logger.info("Subject is an single subject, copy its implementations")
             subject.copy(implementations = implementationsFor(subject.id))
+          } else {
+            logger.info("Subject is not an single subject, aborting. subject types: " + subject.subjectType + ", " + subject.externalType)
+            subject
           }
         }
       }

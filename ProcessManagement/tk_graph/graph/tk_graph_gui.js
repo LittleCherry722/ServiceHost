@@ -266,6 +266,8 @@ function gf_guiClearInputFields ()
 	gf_guiElementHide(gv_elements.inputNodeVarManVarStoreNO);
 	gf_guiElementHide(gv_elements.inputNodeMacroOuter);
 	gf_guiElementHide(gv_elements.inputNodeMacroNewOuter);
+	gf_guiElementHide(gv_elements.inputNodeBlackboxnameOuter);
+	gf_guiElementHide(gv_elements.inputNodeBlackboxnameNewOuter);
 	gf_guiElementHide(gv_elements.inputNodeCSubjectsO);
 	gf_guiElementHide(gv_elements.inputNodeCSubjectsCVarO);
 	gf_guiElementHide(gv_elements.inputNodeChooseAgent);
@@ -298,6 +300,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputNodeVariable, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectComment, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectInputPool, "string", "");
+	gf_guiElementWrite(gv_elements.inputSubjectBlackboxname, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelProcess, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", "");
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", "");
@@ -312,6 +315,8 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputNodeVarManVarStoreN, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeMacro, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeMacroNew, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeBlackboxname, "string", "");
+	gf_guiElementWrite(gv_elements.inputNodeBlackboxnameNew, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeCSubjectsCVarT, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeCSubjectsSubject, "string", "");
 	gf_guiElementWrite(gv_elements.inputNodeCSubjectsVar, "string", "");
@@ -330,6 +335,7 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtInterface, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", false);
+	gf_guiElementWrite(gv_elements.inputSubjectExtBlackbox, "bool", false);
 	gf_guiElementWrite(gv_elements.inputSubjectStartSubject, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeA, "bool", false);
 	gf_guiElementWrite(gv_elements.inputEdgeTargetMTypeV, "bool", false);
@@ -691,6 +697,18 @@ function gf_guiDisplayNode (node)
 		};
 	}
 
+	// add onChange listener to blackboxname Drop Down
+	if (gf_elementExists(gv_elements.inputNodeBlackboxname))
+	{
+		document.getElementById(gv_elements.inputNodeBlackboxname).onchange = function ()
+		{
+			if (gf_guiElementRead(gv_elements.inputNodeBlackboxname, "string") == "##createNew##")
+				gf_guiElementShow(gv_elements.inputNodeBlackboxnameNewOuter);
+			else
+				gf_guiElementHide(gv_elements.inputNodeBlackboxnameNewOuter);
+		};
+	}
+
 	// additional settings for internal actions, macros and predefined actions
 	if (gt_type.substr(0, 1) == "$" || gt_type == "action" || gt_type == "macro")
 	{
@@ -740,6 +758,37 @@ function gf_guiDisplayNode (node)
 
 		// macro
 		gf_guiElementWrite(gv_elements.inputNodeMacro, "string", node.getMacro());
+
+		// blackbox
+		var blackboxname = node.getBlackboxname();
+
+		var blackboxnameImplemented = false;
+
+		existingBlackboxes().forEach(function(impl)
+		{
+			impl.graph().process.forEach(function(subject)
+			{
+				if (subject.type == "external" && subject.externalType == "blackbox")
+				{
+					if (subject.id == gv_graph.selectedSubject && subject.blackboxname == blackboxname)
+					{
+						blackboxnameImplemented = true;
+					}
+				}
+			});
+		});
+
+		if (blackboxnameImplemented)
+		{
+			gf_guiElementWrite(gv_elements.inputNodeBlackboxname, "string", blackboxname, "");
+			gf_guiElementHide(gv_elements.inputNodeBlackboxnameNewOuter);
+		}
+		else
+		{
+			gf_guiElementWrite(gv_elements.inputNodeBlackboxname, "string", "##createNew##", "");
+			gf_guiElementWrite(gv_elements.inputNodeBlackboxnameNew, "string", blackboxname, "");
+			gf_guiElementShow(gv_elements.inputNodeBlackboxnameNewOuter);
+		}
 	}
 }
 
@@ -755,17 +804,32 @@ function gf_guiDisplaySubject (subject)
 	// clear input fields
 	gf_guiClearInputFields();
 
-	// show elements
-	if (subject.isExternal())
-		gf_guiElementShow(gv_elements.inputSubjectRelOuter);
-	else
-		gf_guiElementHide(gv_elements.inputSubjectRelOuter);
+	var updateExternal = function ()
+	{
+		if (gf_guiElementRead(gv_elements.inputSubjectTypeExternal, "bool"))
+		{
+			gf_guiElementShow(gv_elements.inputSubjectRelOuter);
+
+			console.log("show inputSubjectRelOuter", gv_elements.inputSubjectExtBlackbox, gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool"))
+
+			if (gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool"))
+				gf_guiElementShow(gv_elements.inputSubjectBlackboxnameO);
+			else
+				gf_guiElementHide(gv_elements.inputSubjectBlackboxnameO);
+		}
+		else
+		{
+			gf_guiElementHide(gv_elements.inputSubjectRelOuter);
+			gf_guiElementHide(gv_elements.inputSubjectBlackboxO);
+		}
+	};
 
 	// set values
 	gf_guiElementWrite(gv_elements.inputSubjectText, "string", gf_replaceNewline(subject.getText()));
 	gf_guiElementWrite(gv_elements.inputSubjectId, "string", gf_replaceNewline(subject.id));
 	gf_guiElementWrite(gv_elements.inputSubjectRole, "string", subject.getRole(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectInputPool, "string", subject.getInputPool(), "-1");
+	gf_guiElementWrite(gv_elements.inputSubjectBlackboxname, "string", subject.getBlackboxname(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelProcess, "string", subject.getRelatedProcess(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectRelSubject, "string", subject.getRelatedSubject(), "");
 	gf_guiElementWrite(gv_elements.inputSubjectComment, "string", subject.getComment());
@@ -777,18 +841,17 @@ function gf_guiDisplaySubject (subject)
 	gf_guiElementWrite(gv_elements.inputSubjectExtExternal, "bool", subject.getExternalType() == "external");
 	gf_guiElementWrite(gv_elements.inputSubjectExtInterface, "bool", subject.getExternalType() == "interface");
 	gf_guiElementWrite(gv_elements.inputSubjectExtInstantInterface, "bool", subject.getExternalType() == "instantinterface");
+	gf_guiElementWrite(gv_elements.inputSubjectExtBlackbox, "bool", subject.getExternalType() == "blackbox");
+
+	updateExternal();
 
 	// add onClick event to external subject type
-	if (gf_elementExists(gv_elements.inputSubjectTypeExternal))
-	{
-		document.getElementById(gv_elements.inputSubjectTypeExternal).onclick = function ()
-		{
-			if (gf_guiElementRead(gv_elements.inputSubjectTypeExternal, "bool"))
-				gf_guiElementShow(gv_elements.inputSubjectRelOuter);
-			else
-				gf_guiElementHide(gv_elements.inputSubjectRelOuter);
-		};
-	}
+	document.getElementById(gv_elements.inputSubjectTypeExternal).onclick = updateExternal;
+
+	document.getElementById(gv_elements.inputSubjectExtExternal).onclick = updateExternal;
+	document.getElementById(gv_elements.inputSubjectExtInterface).onclick = updateExternal;
+	document.getElementById(gv_elements.inputSubjectExtInstantInterface).onclick = updateExternal;
+	document.getElementById(gv_elements.inputSubjectExtBlackbox).onclick = updateExternal;
 }
 
 /**
@@ -1088,6 +1151,85 @@ function gf_guiLoadDropDownMacros (behavior, elementMacro, newMacro)
 			gt_option.id		= elementMacro + "_00000.new";
 			gt_select.add(gt_option);
 		}
+	}
+}
+
+/**
+ * This method is used to fill a select field with all available blackbox implementations.
+ *
+ * @param {String} elementSubject The ID of the select element that holds the available subjects.
+ * @returns {void}
+ */
+function gf_guiLoadDropDownBlackboxImplementations (elementBlackboxname, selectedSubject)
+{
+	// load blackbox implementations
+	if (elementBlackboxname != null && gf_elementExists(elementBlackboxname))
+	{
+		var gt_select		= document.getElementById(elementBlackboxname).options;
+		gt_select.length	= 0;
+
+		var gt_option;
+
+		// read the blackbox implementations that can be used
+		var gt_implArray = [];
+
+		existingBlackboxes().forEach(function (impl)
+		{
+			impl.graph().process.forEach(function (subject)
+			{
+				if (subject.type == "external" && subject.externalType == "blackbox")
+				{
+					if (subject.id == selectedSubject)
+					{
+						gt_implArray.push(subject.blackboxname);
+					}
+				}
+			});
+		});
+
+		// sort the blackboxnames
+		gt_implArray.sort();
+
+		if (gt_implArray.length > 0)
+		{
+			gt_option			= document.createElement("option");
+			gt_option.text		= "choose implemented blackbox";
+			gt_option.value		= "";
+			gt_option.id		= elementBlackboxname + "_00000.0";
+			gt_select.add(gt_option);
+
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementBlackboxname + "_00000.1";
+			gt_select.add(gt_option);
+
+			// add the blackboxnames as options to the select field
+			for (var key in gt_implArray)
+			{
+				var gt_impl		= gt_implArray[key];
+				var gt_implName		= gt_impl; // + "_name";
+				var gt_implID		= gt_impl; // + "_id";
+	
+				gt_option		= document.createElement("option");
+				gt_option.text	= gt_implName;
+				gt_option.value = gt_implID;
+				gt_option.id	= elementBlackboxname + "_" + gt_implID;
+				gt_select.add(gt_option);
+			}
+
+			gt_option			= document.createElement("option");
+			gt_option.text		= "----------------------------";
+			gt_option.value		= "";
+			gt_option.id		= elementBlackboxname + "_00000.42";
+			gt_select.add(gt_option);
+		}
+
+		gt_option			= document.createElement("option");
+		gt_option.text		= "use a new blackbox";
+		gt_option.value		= "##createNew##";
+		gt_option.id		= elementBlackboxname + "_00000.new";
+		gt_select.add(gt_option);
 	}
 }
 
@@ -1828,6 +1970,7 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 	gf_guiElementHide(gv_elements.inputNodeVariableO);
 	gf_guiElementHide(gv_elements.inputNodeVarManOuter);
 	gf_guiElementHide(gv_elements.inputNodeMacroOuter);
+	gf_guiElementHide(gv_elements.inputNodeBlackboxnameOuter);
 
 	if (nodeType == "$variableman")
 	{
@@ -1851,6 +1994,11 @@ function gf_guiLoadDropDownForNode (behavior, nodeType)
 	{
 		gf_guiElementShow(gv_elements.inputNodeChooseAgent);
 		gf_guiLoadDropDownInterfaceSubjects(gv_elements.inputNodeChooseAgentSubject, gv_graph.selectedSubject);
+	}
+	else if (nodeType == "$blackbox")
+	{
+		gf_guiElementShow(gv_elements.inputNodeBlackboxnameOuter);
+		gf_guiLoadDropDownBlackboxImplementations(gv_elements.inputNodeBlackboxname, gv_graph.selectedSubject);
 	}
 	else if (nodeType.substr(0, 1) == "$")
 	{
@@ -2014,11 +2162,11 @@ function gf_guiReadEdge ()
  * Read the values for the selected node from the input fields.
  *
  * @see GCcommunication::updateNode()
- * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, createSubjects, macro, macroText, comment
+ * @returns {Object} Indizes: text, isStart, type, options, isMajorStartNode, conversation, conversationText, variable, varMan, createSubjects, macro, macroText, blackboxname, blackboxnameText, comment
  */
 function gf_guiReadNode ()
 {
-	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", conversation: "", state: ""}, isMajorStartNode: false, conversation: "", conversationText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, createSubjects: {subject: "", storevar: "", storevarText: "", min: -1, max: -1}, macro: "", macroText: "", comment: ""};
+	var gt_result	= {text: "", isStart: false, type: "", options: {subject: "", message: "", correlationId: "", conversation: "", state: ""}, isMajorStartNode: false, conversation: "", conversationText: "", variable: "", varMan: {var1: "", var2: "", storevar: "", operation: "", storevarText: ""}, createSubjects: {subject: "", storevar: "", storevarText: "", min: -1, max: -1}, macro: "", macroText: "", blackboxname: "", blackboxnameText: "", comment: ""};
 
   var gt_text              = gf_guiElementRead(gv_elements.inputNodeText, "string", "");
   var gt_autoExecute       = gf_guiElementRead(gv_elements.inputNodeAutoExecute, "bool", false);
@@ -2062,6 +2210,11 @@ function gf_guiReadNode ()
 	var gt_macro		= gf_guiElementRead(gv_elements.inputNodeMacro, "string", "");
 	var gt_macroText	= gf_guiElementRead(gv_elements.inputNodeMacroNew, "string", "");
 
+	var gt_blackboxname	= gf_guiElementRead(gv_elements.inputNodeBlackboxname, "string", "");
+	var gt_blackboxnameText	= gf_guiElementRead(gv_elements.inputNodeBlackboxnameNew, "string", "");
+
+	console.log("gf_guiReadNode: gt_blackboxname = " + gt_blackboxname);
+
 	var gt_options		= {};
 
 	gt_options.subject       = gt_opt_subject;
@@ -2084,6 +2237,8 @@ function gf_guiReadNode ()
 	gt_result.chooseAgentSubject = gt_chooseAgentSubject;
 	gt_result.macro              = gt_macro;
 	gt_result.macroText          = gt_macroText;
+	gt_result.blackboxname       = gt_blackboxname;
+	gt_result.blackboxnameText   = gt_blackboxnameText;
 	gt_result.comment            = gt_comment;
 
 	return gt_result;
@@ -2093,11 +2248,11 @@ function gf_guiReadNode ()
  * Read the values for the selected subject from the input fields.
  *
  * @see GCcommunication::updateSubject()
- * @returns {Object} Indizes: text, role, type, inputPool, relatedProcess, relatedSubject, externalType, comment, startSubject
+ * @returns {Object} Indizes: text, role, type, inputPool, blackboxname, relatedProcess, relatedSubject, externalType, comment, startSubject
  */
 function gf_guiReadSubject ()
 {
-	var gt_result	= {text: "", role: "", type: "", inputPool: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: "", startSubject: false};
+	var gt_result	= {text: "", role: "", type: "", inputPool: "", blackboxname: "", relatedProcess: "", relatedSubject: "", externalType: "", comment: "", startSubject: false};
 
 	var gt_text			= gf_guiElementRead(gv_elements.inputSubjectText, "string", "");
 	var gt_role			= gf_guiElementRead(gv_elements.inputSubjectRole, "string", "");
@@ -2109,6 +2264,7 @@ function gf_guiReadSubject ()
 
 	var gt_type	= "";
 	var gt_externalType	= "external";
+	var gt_blackboxname	= "";
 
 	if (gf_guiElementRead(gv_elements.inputSubjectTypeMulti, "bool", false)		=== true)
 		gt_type += "multi";
@@ -2122,13 +2278,20 @@ function gf_guiReadSubject ()
 	if (gf_guiElementRead(gv_elements.inputSubjectExtInstantInterface, "bool", false)	=== true)
 		gt_externalType	= "instantinterface";
 
-	if (gf_guiElementRead(gv_elements.inputSubjectExtInterface, "bool", false)			=== true)
+	if (gf_guiElementRead(gv_elements.inputSubjectExtBlackbox, "bool", false)		=== true)
+	{
+		gt_externalType	= "blackbox";
+		gt_blackboxname	= gf_guiElementRead(gv_elements.inputSubjectBlackboxname, "string", "");
+	}
+
+	if (gf_guiElementRead(gv_elements.inputSubjectExtInterface, "bool", false)		=== true)
 		gt_externalType	= "interface";
 
 	gt_result.text           = gt_text;
 	gt_result.role           = gt_role;
 	gt_result.type           = gt_type;
 	gt_result.inputPool      = gt_inputPool;
+	gt_result.blackboxname   = gt_blackboxname;
 	gt_result.relatedProcess = gt_relProcess;
 	gt_result.relatedSubject = gt_relSubject;
 	gt_result.externalType	 = gt_externalType;

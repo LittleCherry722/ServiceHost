@@ -106,7 +106,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       case JsString("noRole")                       => None
       case JsString("")                             => None
       case JsNull                                   => None
-      case _                                        => throw new DeserializationException("Existing role name or null expected. Unknown role: " + v)
+      case _                                        => throw new DeserializationException("Existing role name or null expected. Unknown role: " + v + " Known roles: " + roles)
     }
   }
 
@@ -159,6 +159,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     "options",
     "chooseAgentSubject",
     "macro",
+    "blackboxname",
     "varMan")
 
   /**
@@ -290,7 +291,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
   }
 
   implicit val addressFormat = jsonFormat2(AgentAddress)
-  implicit val interfaceImplementationFormat = jsonFormat4(InterfaceImplementation)
+  implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
 
   /**
    * Format for a subject object.
@@ -305,6 +306,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "deactivated" -> s.isDisabled.toJson,
       "startSubject" -> s.isStartSubject.toJson,
       "inputPool" -> s.inputPool.toJson,
+      "blackboxname" -> s.blackboxname.toJson,
       "relatedSubject" -> s.relatedSubjectId.toJson,
       "relatedInterface" -> s.relatedInterfaceId.toJson,
       "isImplementation" -> s.isImplementation.toJson,
@@ -324,6 +326,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "deactivated",
       "startSubject",
       "inputPool",
+      "blackboxname",
       "relatedSubject",
       "relatedInterface",
       "isImplementation",
@@ -380,8 +383,41 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
           definition.fields("messages").convertTo[Map[String, GraphMessage]],
           definition.fields("process").convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
           routings.convertTo[Seq[GraphRouting]])
-        case x => throw new DeserializationException("Graph expected, but found: " + x)
+        case x => v.asJsObject.getFields("process",
+          "conversations",
+          "messages") match {
+            case Seq(process: JsArray,
+              conversations: JsObject,
+              messages: JsObject) => Graph(None,
+                None,
+                new java.sql.Timestamp(System.currentTimeMillis()),
+                conversations.convertTo[Map[String, GraphConversation]],
+                messages.convertTo[Map[String, GraphMessage]],
+                process.convertTo[Seq[GraphSubject]].map(s => (s.id -> s)).toMap,
+                Seq())
+            case y => throw new DeserializationException("Graph expected, but found: " + y)
+        }
       }
+  }
+
+  implicit def interfaceFormat(implicit roles: Map[String, Role] = Map()) = new RootJsonFormat[Interface] {
+    def write(a: Interface) = JsObject(
+      "id" -> a.id.toJson,
+      "processId" -> JsNumber(a.processId),
+      "name" -> JsString(a.name),
+      "graph" -> a.graph.toJson
+    )
+    def read(v: JsValue) = v.asJsObject.getFields("address", "id", "processId", "name", "graph") match {
+      case Seq(address: JsValue, id: JsValue, processId: JsValue, name: JsValue, graph: JsObject) =>
+        Interface(
+          address.convertTo[AgentAddress],
+          id.convertTo[Option[Int]],
+          processId.convertTo[Int],
+          name.convertTo[String],
+          graph.convertTo[Graph]
+        )
+      case x => throw new DeserializationException("Interface expected, but found: " + x)
+    }
   }
 
   /**

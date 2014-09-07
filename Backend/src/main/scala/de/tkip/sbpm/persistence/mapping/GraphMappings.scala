@@ -55,6 +55,7 @@ object GraphMappings {
       s.isDisabled,
       s.isStartSubject.getOrElse(false),
       s.inputPool,
+      s.blackboxname,
       s.relatedSubjectId,
       s.relatedInterfaceId,
       s.isImplementation,
@@ -119,7 +120,8 @@ object GraphMappings {
         n.options.conversationId,
         n.options.nodeId,
         n.chooseAgentSubject,
-        n.macroId)
+        n.macroId,
+        n.blackboxname)
       ,
       GraphVarMan(n.id,
         macroId,
@@ -281,6 +283,7 @@ object GraphMappings {
       s.isDisabled,
       Some(s.isStartSubject),
       s.inputPool,
+      s.blackboxname,
       s.relatedSubjectId,
       s.relatedInterfaceId,
       s.isImplementation,
@@ -369,6 +372,7 @@ object GraphMappings {
         n.optionNodeId),
       n.chooseAgentSubject,
       n.executeMacroId,
+      n.blackboxname,
       graphVarMan))
   }
 

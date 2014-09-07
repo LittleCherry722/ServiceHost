@@ -19,6 +19,7 @@ define([
   window.Interface = Interface;
 
   Interface.attrs({
+    interfaceType: "string",
     creator: "string",
     name: "string",
     description: "string",
@@ -244,6 +245,7 @@ define([
   });
 
   Interface.fromProcess = function(process, creator, description) {
+    // TODO: interfaceType ??
     var options = {
       creator: creator,
       description: description,

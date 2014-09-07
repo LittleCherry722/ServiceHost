@@ -121,7 +121,7 @@ object parseGraph {
         // create and add a state creator for this state
         states(node.id) =
           new StateCreator(mainMacro, node.id, node.text, fromStringtoStateType(node.nodeType)
-            , node.isAutoExecute.getOrElse(false), node.isMajorStartNode, node.isStart, node.macroId
+            , node.isAutoExecute.getOrElse(false), node.isMajorStartNode, node.isStart, node.macroId, node.blackboxname
             , options, node.chooseAgentSubject)
       }
     }
@@ -214,6 +214,7 @@ object parseGraph {
     val majorStartState: Boolean,
     val startState: Boolean,
     val graphMacro: Option[String],
+    val blackboxname: Option[String],
     val options: StateOptions,
     val chooseAgentSubject: Option[String]) {
 
@@ -231,6 +232,6 @@ object parseGraph {
      * Creates and returns the state for this state creator
      */
     def createState: State =
-      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, graphMacro, options, transitions.toArray, chooseAgentSubject)
+      State(id, text, stateType, autoExecute, majorStartState, !majorStartState && mainMacro && startState && stateType == ReceiveStateType, graphMacro, blackboxname, options, transitions.toArray, chooseAgentSubject)
   }
 }

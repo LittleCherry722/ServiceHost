@@ -90,6 +90,13 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	this.macro	= "";
 
 	/**
+	 * The name of a blackbox that is associated with this node.
+	 *
+	 * @type String
+	 */
+	this.blackboxname	= "";
+
+	/**
 	 * Flag to indicate whether a start node is the major startNode of the internal behavior.
 	 *
 	 * @type boolean
@@ -311,7 +318,17 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	 */
 	this.getMacro = function ()
 	{
-		return this.macro == null || this.getType() != "macro" ? "" : this.macro;
+		return this.macro == null || (this.getType() != "macro") ? "" : this.macro;
+	};
+
+	/**
+	 * Returns the name of the blackbox associated with this node or an empty String when the node is no blackbox node.
+	 *
+	 * @returns {String} The name of the blackbox associated with this node.
+	 */
+	this.getBlackboxname = function ()
+	{
+		return this.blackboxname == null || (this.getType() != "$blackbox") ? "" : this.blackboxname;
 	};
 
 	/**
@@ -708,6 +725,21 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 		{
 			this.macro = macro;
 		}
+
+	};
+
+	/**
+	 * Updates the blackbox associated with this node.
+	 *
+	 * @param {String} blackboxname The name of the blackbox.
+	 * @returns {void};
+	 */
+	this.setBlackboxname = function (blackboxname)
+	{
+		if (gf_isset(blackboxname) && this.getType() == "$blackbox")
+		{
+			this.blackboxname = blackboxname;
+		}
 	};
 
 	/**
@@ -883,6 +915,12 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 				gt_macroName	= gf_isset(this.parentBehavior.macros[gt_macroName]) ? this.parentBehavior.macros[gt_macroName].name : gt_macroName;
 
 			text = "Macro: " + gt_macroName;
+		}
+		else if (type == "$blackbox")
+		{
+			var gt_blackboxname	= this.getBlackboxname() != "" ? this.getBlackboxname() : "";
+
+			text = "Blackbox: " + gt_blackboxname;
 		}
 		else if (type == "$variableman")
 		{

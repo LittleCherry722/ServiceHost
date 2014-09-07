@@ -28,7 +28,8 @@ case class GraphConversation(id: String,
 
 case class ProcessEngineAddress(id: Option[Int], ip: String, port: Int)
 
-case class Interface(id: Option[Int],
+case class Interface(interfaceType: String,
+                     id: Option[Int],
                      addressId: Int,
                      processId: Int,
                      graphId: Int,
@@ -45,6 +46,7 @@ case class GraphSubject(id: String,
                         isDisabled: Boolean,
                         isStartSubject: Boolean,
                         inputPool: Short,
+                        blackboxname: Option[String],
                         relatedSubjectId: Option[String],
                         relatedInterfaceId: Option[Int],
                         isImplementation: Option[Boolean],
@@ -83,7 +85,8 @@ case class GraphNode(id: Short,
                      optionConversationId: Option[String],
                      optionNodeId: Option[Short],
                      chooseAgentSubject: Option[String],
-                     executeMacroId: Option[String])
+                     executeMacroId: Option[String],
+                     blackboxname: Option[String])
 
 case class GraphVarMan(id: Short,
                        macroId: String,

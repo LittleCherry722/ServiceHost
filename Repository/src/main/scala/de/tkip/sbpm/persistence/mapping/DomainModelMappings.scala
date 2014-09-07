@@ -52,6 +52,7 @@ object DomainModelMappings {
       s.isDisabled,
       s.isStartSubject.getOrElse(false),
       s.inputPool,
+      s.blackboxname,
       s.relatedSubjectId,
       s.relatedInterfaceId,
       s.isImplementation,
@@ -115,7 +116,8 @@ object DomainModelMappings {
         n.options.conversationId,
         n.options.nodeId,
         n.chooseAgentSubject,
-        n.macroId)
+        n.macroId,
+        n.blackboxname)
       ,
       GraphVarMan(n.id,
         macroId,
@@ -197,6 +199,7 @@ object DomainModelMappings {
               subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])
              ) : domainModel.Interface = {
     domainModel.Interface(
+      interfaceType = domainModel.InterfaceType.withName(interface.interfaceType),
       id = interface.id,
       processId = interface.processId,
       name = interface.name,
@@ -259,6 +262,7 @@ object DomainModelMappings {
       isDisabled = s.isDisabled,
       isStartSubject = Some(s.isStartSubject),
       inputPool = s.inputPool,
+      blackboxname = s.blackboxname,
       relatedSubjectId = s.relatedSubjectId,
       relatedInterfaceId = s.relatedInterfaceId,
       isImplementation = s.isImplementation,
@@ -342,6 +346,7 @@ object DomainModelMappings {
         n.optionNodeId),
       n.chooseAgentSubject,
       n.executeMacroId,
+      n.blackboxname,
       graphVarMan))
   }
 

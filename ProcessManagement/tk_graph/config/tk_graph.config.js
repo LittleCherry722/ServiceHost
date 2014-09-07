@@ -169,6 +169,9 @@ var gv_predefinedActions	= {
 	// decision state
 	decision: {chooseagent: false, subject: false, message: true, wildcard: false, label: "Decision", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: false, createsubjects: false},
 
+    // blackbox state
+    blackbox: {subject: false, message: false, wildcard: false, label: "Blackbox", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
+
 	// the ignore action has one parameter (subject without wildcard)
 	//	ignore: {chooseagent: false, subject: true, message: false, wildcard: false, label: "Ignore", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: false, createsubjects: false},
 

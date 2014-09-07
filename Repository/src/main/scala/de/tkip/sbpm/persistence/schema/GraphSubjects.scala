@@ -35,6 +35,7 @@ object GraphSubjectsSchema extends Schema {
     def isDisabled = column[Boolean]("disabled")
     def isStartSubject = column[Boolean]("start_subject")
     def inputPool = column[Short]("input_pool", DbType.smallint)
+    def blackboxname = column[Option[String]]("blackboxname")
     def relatedSubjectId = column[Option[String]]("related_subject_id")
     def relatedInterfaceId = column[Option[Int]]("related_interface_id")
     def isImplementation = column[Option[Boolean]]("is_implementation")
@@ -44,7 +45,7 @@ object GraphSubjectsSchema extends Schema {
     def comment = column[Option[String]]("comment", DbType.comment)
 
     def * = (id, graphId, name, subjectType, isDisabled, isStartSubject, inputPool
-      , relatedSubjectId , relatedInterfaceId, isImplementation, externalType, role
+      , blackboxname, relatedSubjectId , relatedInterfaceId, isImplementation, externalType, role
       , comment) <> (GraphSubject.tupled, GraphSubject unapply)
 
     def pk = primaryKey(pkName, (id, graphId))

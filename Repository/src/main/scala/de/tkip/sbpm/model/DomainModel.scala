@@ -13,18 +13,31 @@
 
 package de.tkip.sbpm.model
 
+object InterfaceType extends Enumeration {
+  type InterfaceType = Value
+
+  val BlackboxcontentTypeString = "blackboxcontent"
+  val InterfaceTypeString = "interface"
+
+  val BlackboxcontentInterfaceType = Value(BlackboxcontentTypeString)
+  val InterfaceInterfaceType = Value(InterfaceTypeString)
+}
+import InterfaceType.InterfaceType
+
 case class Configuration(key: String,
   label: Option[String],
   value: Option[String],
   dataType: String)
 
-case class Interface(address: Address,
+case class Interface(interfaceType: InterfaceType,
+                     address: Address,
                      id: Option[Int],
                      processId: Int,
                      name: String,
                      graph: Graph)
 
-case class IntermediateInterface(processId: Int,
+case class IntermediateInterface(interfaceType: InterfaceType,
+                                 processId: Int,
                                  port: Int,
                                  interfaceId: Option[Int],
                                  name: String,
@@ -51,6 +64,7 @@ case class GraphSubject(id: String,
   isDisabled: Boolean,
   isStartSubject: Option[Boolean],
   inputPool: Short,
+  blackboxname: Option[String],
   relatedSubjectId: Option[String],
   relatedInterfaceId: Option[Int],
   isImplementation: Option[Boolean],
@@ -83,6 +97,7 @@ case class GraphNode(id: Short,
   options: GraphNodeOptions,
   chooseAgentSubject: Option[String],
   macroId: Option[String],
+  blackboxname: Option[String],
   varMan: Option[GraphVarMan])
 
 case class GraphNodeOptions(messageId: Option[String] = None,

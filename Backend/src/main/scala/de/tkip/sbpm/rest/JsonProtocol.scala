@@ -93,12 +93,19 @@ object JsonProtocol extends DefaultJsonProtocol {
     require(name.length() >= 3, "The name hast to contain 3 or more letters!")
     def toInterfaceHeader() (implicit context : ActorContext) : Option[InterfaceHeader] = {
       val port = SystemProperties.akkaRemotePort(context.system.settings.config)
-      toInterfaceHeader(port)
+
+      val containsBlackbox = if (graph.isDefined) {
+         graph.get.subjects.values.exists(subj => (subj.subjectType == "external" && subj.externalType == Some("blackbox")))
+      } else false
+      val interfaceType = if (containsBlackbox) "blackboxcontent" else "interface"
+
+      toInterfaceHeader(port, interfaceType)
     }
 
-    def toInterfaceHeader(port: Int) = {
+    def toInterfaceHeader(port: Int, interfaceType: String) = { // TODO: value
       id.map { pId =>
         InterfaceHeader(
+          interfaceType = interfaceType,
           name = name,
           interfaceId = interfaceId,
           graph = graph,
@@ -109,7 +116,8 @@ object JsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  case class InterfaceHeader(name: String,
+  case class InterfaceHeader(interfaceType: String,
+                             name: String,
                              interfaceId: Option[Int],
                              graph: Option[Graph],
                              port: Int,
@@ -155,7 +163,7 @@ object JsonProtocol extends DefaultJsonProtocol {
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
   implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat6(GraphHeader)
-  implicit def createInterfaceHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat6(InterfaceHeader)
+  implicit def createInterfaceHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat7(InterfaceHeader)
   implicit val createActionIdHeaderFormat = jsonFormat8(ExecuteAction)
 
   implicit val newStateFormat = jsonFormat2(NewHistoryState)
