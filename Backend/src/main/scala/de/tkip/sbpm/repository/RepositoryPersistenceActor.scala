@@ -26,19 +26,18 @@ import scala.concurrent.{ExecutionContext, Future}
 import de.tkip.sbpm.persistence.query.Roles
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import ExecutionContext.Implicits.global
-import de.tkip.sbpm.model.{AgentAddress, ExternalSubject, Role, Agent}
+import de.tkip.sbpm.model.Role
 import scala.concurrent.{Await}
 import de.tkip.sbpm.ActorLocator
-import akka.pattern.ask
 import akka.event.Logging
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
-import de.tkip.sbpm.application.ProcessInstanceActor.AgentsMap
+import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 
 object RepositoryPersistenceActor {
   case class SaveInterface(json: GraphHeader)
   case class DeleteInterface(interfaceId: Int)
   case class GetAgentsMapMessage(agentIds: Iterable[SubjectID])
-  case class AgentsMappingResponse(agentsMap: AgentsMap)
+  case class AgentsMappingResponse(possibleAgents: Map[String, Set[Agent]])
 }
 
 class RepositoryPersistenceActor extends InstrumentedActor {

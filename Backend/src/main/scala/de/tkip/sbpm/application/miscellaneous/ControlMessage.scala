@@ -15,8 +15,7 @@ package de.tkip.sbpm.application.miscellaneous
 
 import ProcessAttributes._
 import akka.actor._
-import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, MappingInfo }
-import de.tkip.sbpm.model.Agent
+import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, Agent }
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction

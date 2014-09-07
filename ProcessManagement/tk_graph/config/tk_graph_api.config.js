@@ -106,10 +106,10 @@ var gv_elements = {
 	inputEdgeTargetMTypeN:		"ge_edge_target_multi_type_new",
 	inputEdgeTargetMTypeNO:		"ge_edge_target_multi_type_new_outer",
 	inputEdgeTargetMTypeV:		"ge_edge_target_multi_type_var",
-	inputEdgeTargetMTypeVO:		"ge_edge_target_multi_type_var_outer",
-	inputEdgeTargetMVariable:	"ge_edge_target_multi_variable",
-	inputEdgeTargetMVarText:	"ge_edge_target_multi_variable_text",
-	inputEdgeTargetMVarTextO:	"ge_edge_target_multi_variable_text_outer",
+	inputEdgeTargetMTypeVO:		"ge_edge_target_type_var_outer",
+	inputEdgeTargetMVariable:	"ge_edge_target_variable",
+	inputEdgeTargetMVarText:	"ge_edge_target_variable_text",
+	inputEdgeTargetMVarTextO:	"ge_edge_target_variable_text_outer",
 
 	// edge types
 	inputEdgeTypeBooleanFalse:	"ge_edge_type_boolean_false",

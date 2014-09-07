@@ -25,6 +25,7 @@ import spray.json.{
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.history._
+import de.tkip.sbpm.application.ProcessInstanceActor.AgentAddress
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 
 // Model for Administration

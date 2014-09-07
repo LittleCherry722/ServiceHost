@@ -122,13 +122,6 @@ case class ExternalSubject(
   lazy val external = true
 }
 
-case class Agent(processId: Int,
-                 address: AgentAddress,
-                 subjectId: String)
-case class AgentAddress(ip: String, port: Int) {
-  def toUrl = "@" + ip + ":" + port
-}
-
 case class ProcessGraph(subjects: Map[String, SubjectLike]) {
   def externalSubjects = subjects.values.filter { s: SubjectLike =>
     s.external

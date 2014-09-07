@@ -78,16 +78,21 @@
 				<select id="ge_edge_transportMethod" class="chosen" multiple="multiple" rows="4"></select>
 
 				<div id="ge_edge_target_multi_outer" style="display:none;">
-					<input type="radio" id="ge_edge_target_multi_type_all" name="ge_edge_target_multi_type">
-					<label  class="graphsectionheader">All known subjects</label>
-					<input type="radio" id="ge_edge_target_multi_type_var" name="ge_edge_target_multi_type">
-					<label  class="graphsectionheader">load from Variable</label>
-					<div id="ge_edge_target_multi_type_var_outer" style="display:none;">
-						<select id="ge_edge_target_multi_variable" ></select>
-						<div id="ge_edge_target_multi_variable_text_outer" style="display:none;">
-							<label  class="graphsectionheader">new Variable:</label>
-							<input type="text" id="ge_edge_target_multi_variable_text"  />
-						</div>
+				  <label class="graphsectionheader">Send to:</label>
+					<label class="radio">
+					  <input type="radio" id="ge_edge_target_multi_type_all" name="ge_edge_target_multi_type">
+            To Subject(s)
+          </label>
+					<label class="radio">
+					  <input type="radio" id="ge_edge_target_multi_type_var" name="ge_edge_target_multi_type">
+            To Variable
+          </label>
+				</div>
+				<div id="ge_edge_target_type_var_outer" style="display:none;">
+					<select id="ge_edge_target_variable" ></select>
+					<div id="ge_edge_target_variable_text_outer" style="display:none;">
+						<label  class="graphsectionheader">new Variable:</label>
+						<input type="text" id="ge_edge_target_variable_text"  />
 					</div>
 				</div>
 

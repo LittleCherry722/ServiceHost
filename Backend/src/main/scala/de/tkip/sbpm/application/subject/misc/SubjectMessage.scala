@@ -24,8 +24,8 @@ import de.tkip.sbpm.application.miscellaneous.{
   SubjectMessage,
   ProcessInstanceData
 }
-import de.tkip.sbpm.model.{Agent, Graph}
-import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
+import de.tkip.sbpm.model.Graph
+import de.tkip.sbpm.application.ProcessInstanceActor.Agent
 
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 
@@ -71,7 +71,6 @@ sealed trait SubjectBehaviorRequest
 case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
-case class GetAgentsListForSubject(subjectId: SubjectID)
 case class SetAgentForSubject(subjectId: SubjectID, agent: Agent)
 
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren

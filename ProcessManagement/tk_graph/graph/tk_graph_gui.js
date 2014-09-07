@@ -463,8 +463,9 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiElementShow(gv_elements.inputEdgeCorrelationIdO);
 			gf_guiElementShow(gv_elements.inputEdgeTargetO);
 
-			if (edge.getRelatedSubject("multi"))
-				gf_guiElementShow(gv_elements.inputEdgeTargetMOuter);
+			// if (edge.getRelatedSubject("multi"))
+			if (startType == "send")
+			  gf_guiElementShow(gv_elements.inputEdgeTargetMOuter);
 
 			if (gt_isVariable)
 				gf_guiElementShow(gv_elements.inputEdgeTargetMTypeVO);

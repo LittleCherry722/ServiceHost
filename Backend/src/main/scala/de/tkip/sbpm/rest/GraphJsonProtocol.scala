@@ -14,6 +14,7 @@
 package de.tkip.sbpm.rest
 
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 import spray.json._
 import scala.collection.immutable.Map
 import java.util.UUID

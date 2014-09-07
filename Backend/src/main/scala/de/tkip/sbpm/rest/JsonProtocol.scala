@@ -22,6 +22,7 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 import de.tkip.sbpm.model._
 import spray.json._
 import spray.routing.authentication.UserPass
