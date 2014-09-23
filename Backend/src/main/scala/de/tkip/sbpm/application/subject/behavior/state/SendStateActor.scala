@@ -114,11 +114,15 @@ case class SendStateActor(data: StateData)
 
     if (data.stateModel.text.startsWith("VAR:")) {
       val varname = data.stateModel.text.substring(4)
-      val x = variables(varname)
-      val y = x.messages(0).messageContent
-      messageContent = Some(y)
+      log.info("SENDSTATE try to send {}", varname)
+      val x: Option[Variable] = getVariable(varname)
+      if (x.isDefined) {
+        val y: String = x.get.messages(x.get.messages.length-1).messageContent
+        messageContent = Some(y)
 
-      sendMessage(sendTransition)
+        sendMessage(sendTransition)
+        log.info("SENDSTATE done")
+      } else { log.info("SENDSTATE undefined!") }
     }
     else if (targetUserIDs.isDefined && targetUserIDs.get.length > 0) {
       actionChanged(Updated)
@@ -206,7 +210,7 @@ case class SendStateActor(data: StateData)
 
     val target = transition.target.get
     if (target.toVariable) {
-      target.insertVariable(variables(target.variable.get))
+      target.insertVariable(getVariable(target.variable.get).get)
       for ((_, userID) <- target.varSubjects) { blockUsers += userID }
     } else if (targetUserIDs.isDefined) {
       val userIDs = targetUserIDs.get

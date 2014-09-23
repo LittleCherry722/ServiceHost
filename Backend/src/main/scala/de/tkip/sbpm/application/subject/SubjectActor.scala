@@ -25,6 +25,7 @@ import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import akka.event.Logging
 import de.tkip.sbpm.application.subject.behavior._
+import de.tkip.sbpm.application.subject.behavior.Variable
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.application.subject.misc.Stored
 import akka.pattern.ask
@@ -40,6 +41,8 @@ import akka.actor.Status.Failure
 
 case class CallMacro(callActor: ActorRef, name: String)
 case class CallMacroStates(callActor: ActorRef, name: String, macroStates: Array[State])
+
+case class GetVariable(id: String)
 
 case class SubjectData(
   userID: UserID,
@@ -72,6 +75,9 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
   // and the internal behavior
   //  private val internalBehaviorActor =
   //    context.actorOf(Props(new InternalBehaviorActor(data, inputPoolActor)),"InternalBehaviorActor____"+UUID.randomUUID().toString())
+
+  // This map stores all active variables
+  val variables = mutable.Map[String, Variable]()
 
   // this map maps the Macro Names to the corresponding actors
   private val macroBehaviorActors = mutable.Map[String, InternalBehaviorRef]()
@@ -129,11 +135,15 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
   def wrappedReceive = {
 
     case sm: SubjectToSubjectMessage => {
+      // TODO: I guess this should be done in receive state. and should definitely not write all messages to all variables
       for { (key, name) <- subject.variablesMap } {
-        for (a <- macroBehaviorActors.values) {
-          log.info(s"send addVariable '$name' to '$a'")
-          a ! AddVariable(name, sm)
+        log.info(s"add sm to Variable '$name'")
+
+        if (!variables.contains(name)) {
+          variables.put(name, new Variable(name))
         }
+
+        variables(name).addMessage(sm)
       }
 
       // a message from an other subject can be forwarded into the inputpool
@@ -227,6 +237,8 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     case m: RegisterSubjects => {
       context.parent forward m
     }
+
+    case GetVariable(id) => sender !! variables.get(id)
 
     case s => {
       log.error("SubjectActor " + userID + " does not support: " + s)

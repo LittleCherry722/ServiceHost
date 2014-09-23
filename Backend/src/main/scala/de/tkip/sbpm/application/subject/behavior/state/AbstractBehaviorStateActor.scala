@@ -22,6 +22,9 @@ import akka.actor.Props
 import akka.actor.Status.Failure
 import akka.actor.actorRef2Scala
 import akka.event.Logging
+import scala.concurrent._
+import scala.concurrent.duration._
+import akka.util.Timeout
 import de.tkip.sbpm.application.history.{ Message => HistoryMessage }
 import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
 import de.tkip.sbpm.application.miscellaneous.BlockUser
@@ -32,10 +35,10 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
-import de.tkip.sbpm.application.subject.SubjectData
+import de.tkip.sbpm.application.subject.{ SubjectData, GetVariable }
 import de.tkip.sbpm.application.subject.behavior.ChangeState
-import de.tkip.sbpm.application.subject.behavior.InternalStatus
 import de.tkip.sbpm.application.subject.behavior.TimeoutCond
+import de.tkip.sbpm.application.subject.behavior.Variable
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.AvailableAction
@@ -73,7 +76,6 @@ case class StateData(
   subjectActor: SubjectRef,
   processInstanceActor: ProcessInstanceRef,
   inputPoolActor: ActorRef,
-  internalStatus: InternalStatus,
   visitedModalSplit: Stack[(Int, Int)] = new Stack) // (id, number of branches)
 
 // the correct way to kill a state instead of PoisonPill
@@ -104,20 +106,23 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
   protected val transitions = model.transitions
   protected val internalBehaviorActor = data.internalBehaviorActor
   protected val subjectActor = data.subjectActor
+  //protected val variables = subjectActor.variables
   protected val processInstanceActor = data.processInstanceActor
   protected val inputPoolActor = data.inputPoolActor
-  protected val internalStatus = data.internalStatus
-  protected val variables = internalStatus.variables
   protected val timeoutTransition = transitions.find(_.isTimeout)
   protected val exitTransitions = transitions.filter(_.isExitCond)
 
   private var disabled = false
 
+  protected def getVariable(id: String): Option[Variable] = {
+    val f: Future[Option[Variable]] = (subjectActor ?? GetVariable(id)).mapTo[Option[Variable]]
+    Await.result(f, 2 seconds)
+  }
+
   override def preStart() {
 
     // if it is needed, send a SubjectStarted message
     if (!delayUnblockAtStart) {
-      internalStatus.subjectStartedSent = true
       // TODO so richtig?
       blockingHandlerActor ! UnBlockUser(userID)
     }
@@ -245,7 +250,7 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
     val delete =  ActionDelete(actionID, new Date())
     ActorLocator.changeActor ! delete
     blockingHandlerActor     ! BlockUser(userID)
-    internalBehaviorActor    ! ChangeState(id, successorID, internalStatus, prevStateData, historyMessage)
+    internalBehaviorActor    ! ChangeState(id, successorID, prevStateData, historyMessage)
   }
 
   private lazy val actionID = ActionIDProvider.nextActionID()

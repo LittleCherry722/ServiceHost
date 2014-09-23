@@ -55,7 +55,6 @@ case class AskForJoinStateID(id: StateID)
 case class ChangeState(
   currenState: StateID,
   nextState: StateID,
-  internalStatus: InternalStatus,
   prevStateData: StateData,
   history: HistoryMessage)
 
@@ -79,7 +78,6 @@ class InternalBehaviorActor(
   private val statesMap = collection.mutable.Map[StateID, State]()
   private var startState: StateID = _
   //  private var currentState: BehaviorStateRef = null
-  private var internalStatus: InternalStatus = InternalStatus()
   private var modalSplitList: Stack[(Int, Int)] = new Stack // tmp
 
   def wrappedReceive = {
@@ -122,7 +120,6 @@ class InternalBehaviorActor(
 
     case change: ChangeState => {
       // update the internal status
-      internalStatus = change.internalStatus
       modalSplitList = change.prevStateData.visitedModalSplit
       // TODO check if current state is correct?
       // change the state
@@ -200,14 +197,6 @@ class InternalBehaviorActor(
     // general matching
     case message: SubjectProviderMessage => {
       context.parent ! message
-    }
-    case av: AddVariable => {
-
-      if (!internalStatus.variables.contains(av.variableName)) {
-        internalStatus.variables.put(av.variableName, new Variable(av.variableName))
-      }
-      internalStatus.variables(av.variableName).addMessage(av.message)
-
     }
 
     case joinstate: AskForJoinStateID => {
@@ -305,7 +294,6 @@ class InternalBehaviorActor(
       context.parent,
       processInstanceActor,
       inputPoolActor,
-      internalStatus,
       modalSplitList)
 
     // create the actor which matches to the statetype

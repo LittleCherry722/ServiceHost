@@ -46,7 +46,7 @@ case class ArchiveStateActor(data: StateData)
   protected def stateReceive = {
      case autoArchive : AutoArchive =>{
        //TODO do not address hardcoded... iterate over all and write them
-      val msg =  data.internalStatus.variables.get("archiveMsg").get.messages(0).messageContent
+      val msg =  getVariable("archiveMsg").get.messages(0).messageContent
       val format=new SimpleDateFormat("yyyy_MM_dd HH_mm_ss")
       val date=format.format(new Date);
       val f = new File(archivePath+"archive"+"_"+date+".log")

@@ -21,13 +21,15 @@ import de.tkip.sbpm.application.subject.misc.{ActionData, SubjectToSubjectMessag
 case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) {
   private var trueTransition: Transition = null
   private var falseTransition: Transition = null
-  private val travel_request_string = extractVariable(variables)
+  private val travel_request_string = "test" // extractVariable(variables)
 
   prepareTransitions
 
+  /*
   log.debug("DecisionStateActor initialized: exitTransactions=" + exitTransitions.mkString(",") +
     ", variables="+variables.mkString(",")+",travel_request_string="+travel_request_string+", trueTransition="+trueTransition+
     ", falseTransition=" + falseTransition)
+  */
 
   try {
     val res: Boolean = evaluateDecision(travel_request_string)
