@@ -39,6 +39,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val MacroStateString = "macro"
   val TauStateString = "tau"
   val BlackboxStateString = "$blackbox"
+  val VasecStateString = "$vasec"
 
   // the internal enums
   val ActStateType = Value(ActStateString)
@@ -59,6 +60,7 @@ object StateType extends Enumeration { // TODO just use a string?
   val ArchiveStateType = Value(ArchiveStateString)
   val ChooseAgentStateType = Value(ChooseAgentStateString)
   val BlackboxStateType = Value(BlackboxStateString)
+  val VasecStateType = Value(VasecStateString)
 
   // for marshalling and unmarshalling:
   def fromStringtoStateType(stateType: String): StateType = try {

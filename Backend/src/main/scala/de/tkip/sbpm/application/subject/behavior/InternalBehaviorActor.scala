@@ -364,6 +364,10 @@ class InternalBehaviorActor(
       case BlackboxStateType => {
         context.actorOf(Props(new BlackboxStateActor(stateData)), "BlackboxStateActor____" + UUID.randomUUID().toString())
       }
+
+      case VasecStateType => {
+        context.actorOf(Props(new VasecStateActor(stateData)), "VasecStateActor____" + UUID.randomUUID().toString())
+      }
     }
   }
 }

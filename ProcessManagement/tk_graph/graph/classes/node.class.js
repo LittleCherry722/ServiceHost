@@ -922,6 +922,10 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 
 			text = "Blackbox: " + gt_blackboxname;
 		}
+		else if (type == "$vasec")
+		{
+			text = " " + text + " ";
+		}
 		else if (type == "$variableman")
 		{
 			if (text.replace(/\ /gi, "") == "")
