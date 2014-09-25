@@ -922,7 +922,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 
 			text = "Blackbox: " + gt_blackboxname;
 		}
-		else if (type == "$vasec")
+		else if (type == "$vasec" || type == "$decision")
 		{
 			text = " " + text + " ";
 		}

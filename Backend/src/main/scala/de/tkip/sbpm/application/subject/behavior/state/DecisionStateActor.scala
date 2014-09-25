@@ -21,18 +21,20 @@ import de.tkip.sbpm.application.subject.misc.{ActionData, SubjectToSubjectMessag
 case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) {
   private var trueTransition: Transition = null
   private var falseTransition: Transition = null
-  private val travel_request_string = "test" // extractVariable(variables)
+
+  val args: Array[String] = data.stateModel.text.split(":")
+
+  private val condition = args(0)
+  private val variable = getVariable(args(1))
 
   prepareTransitions
 
-  /*
   log.debug("DecisionStateActor initialized: exitTransactions=" + exitTransitions.mkString(",") +
-    ", variables="+variables.mkString(",")+",travel_request_string="+travel_request_string+", trueTransition="+trueTransition+
+    ", condition="+condition+", variable="+variable+", trueTransition="+trueTransition+
     ", falseTransition=" + falseTransition)
-  */
 
   try {
-    val res: Boolean = evaluateDecision(travel_request_string)
+    val res: Boolean = evaluateDecision(condition, variable, args)
     applyDecision(res)
   }
   catch {
@@ -41,20 +43,6 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
     }
   }
 
-
-
-  protected def extractVariable(variables: scala.collection.mutable.Map[String,de.tkip.sbpm.application.subject.behavior.Variable]): String = {
-    var ret = "Variable not found!!"
-    for((key,variable) <- variables) {
-      for(value <- variable.messages) {
-        value match {
-          case SubjectToSubjectMessage(_,_,_,_,_,"Travel Application",msg,_,_) => {ret = msg; log.debug("DecisionStateActor extractVariable: found with key '"+key+"': " + value)}
-          case x => {log.debug("DecisionStateActor extractVariable: it is not '"+key+"' with value: " + x)}
-        }
-      }
-    }
-    ret
-  }
 
   protected def prepareTransitions = {
     for(transition <- exitTransitions) {
@@ -67,10 +55,18 @@ case class DecisionStateActor(data: StateData) extends BehaviorStateActor(data) 
   }
 
 
-  protected def evaluateDecision(input: String): Boolean = {
-    // Only get one String and parse it as following: "x TAGE? y" with x count of days and y destination
-    val in = input.toLowerCase()
-    return ((in contains "1 tag") || (in contains "2 tage") || (in contains "3 tage")) && ((in contains "münchen") || (in contains "berlin"))
+  protected def evaluateDecision(condition: String, variable: Option[Variable], args: Array[String]): Boolean = {
+    val value: String = variable.get.messages(variable.get.messages.length-1).messageContent
+
+    if (condition == "EMPTY") {
+      (value == "")
+    }
+    else if (condition == "EQUALS") {
+      (value == args(2))
+    }
+    else {
+      false
+    }
   }
 
   protected def applyDecision(res: Boolean) = {
