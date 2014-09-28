@@ -97,10 +97,17 @@ case class SendStateActor(data: StateData)
   override def preStart() {
     if (!sendTarget.toExternal) {
       blockingHandlerActor ! BlockUser(userID)
+
       val msg = RequestUserID(
         SubjectInformation(processID, processInstanceID, sendTarget.subjectID),
         TargetUsers(_))
-      ActorLocator.contextResolverActor !! msg
+      val future: Future[TargetUsers] = (ActorLocator.contextResolverActor ?? msg).mapTo[TargetUsers]
+      val targetUsers = Await.result(future, timeout.duration).asInstanceOf[TargetUsers]
+
+      targetUserIDs = Some(targetUsers.users)
+      log.info("received TargetUsers. targetUserIDs: " + targetUserIDs.mkString(", "))
+
+      blockingHandlerActor ! UnBlockUser(userID)
     } else {
       targetUserIDs = Some(Array())
     }
@@ -113,6 +120,9 @@ case class SendStateActor(data: StateData)
 
       sendMessage(sendTransition)
     }
+    else if (targetUserIDs.isDefined && targetUserIDs.get.length > 0) {
+      actionChanged(Updated)
+    }
 
     super.preStart()
   }
@@ -120,12 +130,6 @@ case class SendStateActor(data: StateData)
   private case class TargetUsers(users: Array[UserID])
 
   protected def stateReceive = {
-
-    case TargetUsers(userIDs) if (!targetUserIDs.isDefined) =>
-      targetUserIDs = Some(userIDs)
-      // send information about changed actions to actionchangeactor
-      actionChanged(Updated)
-      blockingHandlerActor ! UnBlockUser(userID)
 
     case action: ExecuteAction if (action.actionData.messageContent.isDefined) => {
       if (!messageContent.isDefined) {
