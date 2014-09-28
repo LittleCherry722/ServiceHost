@@ -136,16 +136,16 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
   def wrappedReceive = {
 
     case sm: SubjectToSubjectMessage => {
-      // TODO: I guess this should be done in receive state. and should definitely not write all messages to all variables
-      for { (key, name) <- subject.variablesMap } {
-        log.info(s"add sm to Variable '$name'")
+      // TODO: I guess this should be done in receive state. and should definitely not store all messages
+      val name: String = sm.messageType
 
-        if (!variables.contains(name)) {
-          variables.put(name, new Variable(name))
-        }
+      log.info(s"add sm to Variable '$name'")
 
-        variables(name).addMessage(sm)
+      if (!variables.contains(name)) {
+        variables.put(name, new Variable(name))
       }
+
+      variables(name).addMessage(sm)
 
       // a message from an other subject can be forwarded into the inputpool
       inputPoolActor.forward(sm)
