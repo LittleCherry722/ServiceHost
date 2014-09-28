@@ -105,6 +105,15 @@ case class SendStateActor(data: StateData)
       targetUserIDs = Some(Array())
     }
 
+    if (data.stateModel.text.startsWith("VAR:")) {
+      val varname = data.stateModel.text.substring(4)
+      val x = variables(varname)
+      val y = x.messages(0).messageContent
+      messageContent = Some(y)
+
+      sendMessage(sendTransition)
+    }
+
     super.preStart()
   }
 
