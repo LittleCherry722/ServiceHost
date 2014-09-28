@@ -144,11 +144,14 @@ class SubjectContainer(
     val target = message.target
 
     if (target.toVariable) {
+      log.info("sendTo variable")
       // TODO why not targetUsers = var subjects?
       sendTo(target.varSubjects.map(_._2), message)
     } else if (target.toExternal && target.toUnknownUsers) {
+      log.info("sendToExternal")
       sendToExternal(message)
     } else {
+      log.info("sendTo: {}", target.targetUsers)
       sendTo(target.targetUsers, message)
     }
   }
@@ -157,12 +160,19 @@ class SubjectContainer(
     if (subjects.contains(message.userID)) {
       subjects(message.userID).tell(message, context.sender)
     }
+    else {
+      log.error("Subject Container received SubjectMessage for an unknown Subject: " + message.userID)
+    }
   }
 
   /**
    * Forwards the message to the array of subjects
    */
   private def sendTo(targetSubjects: Array[UserID], message: SubjectToSubjectMessage) {
+    if (targetSubjects.length == 0) {
+      log.error("Subject Container: sendTo called for empty targetSubjects!")
+    }
+
     for (userID <- targetSubjects) {
       log.info("Sending message to user: {}", userID)
       if (!subjects.contains(userID)) {

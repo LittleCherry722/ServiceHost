@@ -173,7 +173,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     case sm: SubjectToSubjectMessage if (graph.subjects.contains(sm.to) || additionalSubjects.contains(sm.to)) => {
       val to = sm.to
       // Send the message to the container, it will deal with it
-      log.info("Subject to Subject Message received. Updating subject map and forwarding message. Subject mapping now: {}", subjectMap)
+      log.info("Subject to Subject Message received. Updating subject map and forwarding message. Subject mapping now: {}. Target Users: {}", subjectMap, sm.target.targetUsers)
       val subj: SubjectLike = if (graph.subjects.contains(sm.to)) { graph.subjects(to) } else { additionalSubjects(to) }
       // TODO: remove from graphSubject!
       subjectMap.getOrElseUpdate(to, createSubjectContainer(subj))

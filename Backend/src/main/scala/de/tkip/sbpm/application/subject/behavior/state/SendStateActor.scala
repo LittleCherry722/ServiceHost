@@ -214,15 +214,19 @@ case class SendStateActor(data: StateData)
         // TODO validate?!
         target.insertTargetUsers(targetUserData.targetUsers)
       } else {
-        // TODO error?
+        log.error("targetUsersDataOption undefined; targetUserIDs defined, but min="+target.min+"; max="+target.max+"; length="+userIDs.length)
       }
 
       blockUsers ++= target.targetUsers
+    }
+    else {
+     log.error("neither toVariable nor targetUserIDs defined")
     }
 
     // block the target users for this message
     for (userID <- blockUsers) {
       blockingHandlerActor ! BlockUser(userID)
+      log.info("blocking user {}", userID);
     }
 
     remainingStored += target.min
@@ -242,6 +246,9 @@ case class SendStateActor(data: StateData)
         messageType,
         messageContent.get,
         fileId)
+
+    log.info("target: {}", target)
+
     sendProxy ! msg
   }
 

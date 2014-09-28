@@ -85,6 +85,7 @@ class ContextResolverActor extends InstrumentedActor {
         log.info("found {}", users)
         users.map(_.id.get).toArray
       }
+      case si => {log.error("ContextResolver unable to find userIDs for: {}", si); Array()}
     }
   }
 }
