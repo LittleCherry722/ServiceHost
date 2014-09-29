@@ -43,6 +43,7 @@ case class CallMacro(callActor: ActorRef, name: String)
 case class CallMacroStates(callActor: ActorRef, name: String, macroStates: Array[State])
 
 case class GetVariable(id: String)
+case class RemoveVariable(id: String)
 
 case class SubjectData(
   userID: UserID,
@@ -239,6 +240,8 @@ class SubjectActor(data: SubjectData) extends InstrumentedActor {
     }
 
     case GetVariable(id) => sender !! variables.get(id)
+
+    case RemoveVariable(id) => sender !! variables.remove(id)
 
     case s => {
       log.error("SubjectActor " + userID + " does not support: " + s)

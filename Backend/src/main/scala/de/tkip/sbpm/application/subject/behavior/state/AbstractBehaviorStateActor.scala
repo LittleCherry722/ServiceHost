@@ -35,15 +35,17 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.StateID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.UserID
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
-import de.tkip.sbpm.application.subject.{ SubjectData, GetVariable }
+import de.tkip.sbpm.application.subject.{ SubjectData, GetVariable, RemoveVariable }
 import de.tkip.sbpm.application.subject.behavior.ChangeState
 import de.tkip.sbpm.application.subject.behavior.TimeoutCond
 import de.tkip.sbpm.application.subject.behavior.Variable
+import de.tkip.sbpm.application.subject.behavior.Target
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.application.subject.misc.ActionExecuted
 import de.tkip.sbpm.application.subject.misc.AvailableAction
 import de.tkip.sbpm.application.subject.misc.ExecuteAction
 import de.tkip.sbpm.application.subject.misc.GetAvailableAction
+import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.model.State
 import de.tkip.sbpm.model.StateType.SendStateType
 import scala.collection.mutable.Stack
@@ -117,6 +119,33 @@ protected abstract class BehaviorStateActor(data: StateData) extends Instrumente
   protected def getVariable(id: String): Option[Variable] = {
     val f: Future[Option[Variable]] = (subjectActor ?? GetVariable(id)).mapTo[Option[Variable]]
     Await.result(f, 2 seconds)
+  }
+
+  protected def removeVariable(id: String): Option[Variable] = {
+    val f: Future[Option[Variable]] = (subjectActor ?? RemoveVariable(id)).mapTo[Option[Variable]]
+    Await.result(f, 2 seconds)
+  }
+
+  protected def addVariable(id: String, value: String): Unit = {
+    val future = subjectActor ?? SubjectToSubjectMessage(
+      1337,
+      1338,
+      1339,
+      "1340",
+      Target(
+        "1340",
+        1,
+        1,
+        false, // TODO we dont need create new
+        None,
+        false,
+        true),
+      id,
+      value,
+      None)
+
+    // wait for Stored or Rejected
+    Await.result(future, 2 seconds)
   }
 
   override def preStart() {
