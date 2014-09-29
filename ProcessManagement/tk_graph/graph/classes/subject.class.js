@@ -81,6 +81,13 @@ function GCsubject (id, text, type, inputPool)
 	this.inputPool	= -1;
 
 	/**
+	 * The subjectIds of merged subjects
+	 *
+	 * @type Object
+	 */
+  this.mergedSubjects = [{id: id, name: text}];
+
+	/**
 	 * TODO
 	 *
 	 * @type String
@@ -237,6 +244,16 @@ function GCsubject (id, text, type, inputPool)
 	this.getRelatedInterface = function ()
 	{
 		return this.relatedInterface;
+	};
+
+	/**
+	 * Returns the related interface.
+	 *
+	 * @returns {[String]} The related Interface
+	 */
+	this.getMergedSubjects = function ()
+	{
+		return this.mergedSubjects;
 	};
 
 	/**
@@ -462,6 +479,20 @@ function GCsubject (id, text, type, inputPool)
 		if (gf_isset(blackboxname))
 		{
 			this.blackboxname	= blackboxname;
+		}
+	};
+
+	/**
+	 * Sets the list of merged subjects name.
+	 *
+	 * @param {[String]} mergedSubjects The name of the blackbox.
+	 * @returns {void}
+	 */
+	this.setMergedSubjects = function (mergedSubjects)
+	{
+		if (gf_isset(mergedSubjects))
+		{
+			this.mergedSubjects	= mergedSubjects;
 		}
 	};
 

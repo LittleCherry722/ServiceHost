@@ -282,6 +282,8 @@ function gf_guiClearInputFields ()
 	gf_guiElementWrite(gv_elements.inputEdgeStoreVariable, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeStoreVariableN, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTarget, "string", "");
+	gf_guiElementWrite(gv_elements.inputEdgeExchangeTarget, "string", "");
+	gf_guiElementWrite(gv_elements.inputEdgeExchangeOrigin, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetNewName, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeTargetNewRole, "string", "");
 	gf_guiElementWrite(gv_elements.inputEdgeText, "string", "");
@@ -461,6 +463,16 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiLoadDropDownCorrelationIds(edge.parentBehavior, gv_elements.inputEdgeCorrelationId, true, false);
 			gf_guiLoadDropDownMessageTypes(gv_elements.inputEdgeMessage, true, false);
 			gf_guiLoadDropDownSubjects(gv_elements.inputEdgeTarget, gv_graph.selectedSubject, false, true);
+
+			if(gf_guiLoadDropDownMergedSubjects(gv_elements.inputEdgeExchangeTarget, edge.getRelatedSubject())) {
+			  gf_guiElementShow(gv_elements.inputEdgeExchangeTargetO);
+      }
+			if (gf_guiLoadDropDownMergedSubjects(gv_elements.inputEdgeExchangeOrigin, gv_graph.selectedSubject)) {
+        if (startType === "send") {
+			    gf_guiElementShow(gv_elements.inputEdgeExchangeOriginO);
+        }
+      }
+      
 			gf_guiLoadDropDownTransportMethods(gv_elements.inputEdgeTransportMethod, edge.getTransportMethod());
 			gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
 			gf_guiLoadDropDownNewSubject(gv_elements.inputEdgeTargetNewRole, gv_elements.inputSubjectRole);
@@ -479,6 +491,8 @@ function gf_guiDisplayEdge (edge, startType)
 			// set values
 			gf_guiElementWrite(gv_elements.inputEdgeCorrelationId, "string", edge.getCorrelationId(), "");
 			gf_guiElementWrite(gv_elements.inputEdgeTarget, "string", edge.getRelatedSubject(), "");
+			gf_guiElementWrite(gv_elements.inputEdgeExchangeTarget, "string", edge.getRelatedSubject("exchangeTarget"), "");
+			gf_guiElementWrite(gv_elements.inputEdgeExchangeOrigin, "string", edge.getRelatedSubject("exchangeOrigin"), "");
 			gf_guiElementWrite(gv_elements.inputEdgeMessage, "string", edge.getText());
 			gf_guiElementWrite(gv_elements.inputEdgeTargetMVariable, "string", edge.getRelatedSubject("variable"), "");
 			// gf_guiElementWrite(gv_elements.inputEdgeTransportMethod, "string", edge.getTransportMethod(), "");
@@ -1210,7 +1224,7 @@ function gf_guiLoadDropDownBlackboxImplementations (elementBlackboxname, selecte
 				var gt_impl		= gt_implArray[key];
 				var gt_implName		= gt_impl; // + "_name";
 				var gt_implID		= gt_impl; // + "_id";
-	
+
 				gt_option		= document.createElement("option");
 				gt_option.text	= gt_implName;
 				gt_option.value = gt_implID;
@@ -1700,33 +1714,90 @@ function gf_guiLoadDropDownSubjects (elementSubject, excludeSubject, wildcard, c
 		// add the subjects as options to the select field
 		for (var gt_sid in gt_subjectArray)
 		{
-			var gt_subjArray	= gt_subjectArray[gt_sid].split("##;##");
-			var gt_subjID		= gt_subjArray[1];
+			var gt_subjArray = gt_subjectArray[gt_sid].split("##;##");
+			var gt_subjID    = gt_subjArray[1];
 
-			gt_option		= document.createElement("option");
+			gt_option       = document.createElement("option");
 			gt_option.text	= gf_replaceNewline(gt_subjArray[0], " ");
 			gt_option.value = gt_subjID;
-			gt_option.id	= elementSubject + "_" + gt_subjID;
+			gt_option.id    = elementSubject + "_" + gt_subjID;
 			gt_select.add(gt_option);
 		}
 
 		// options for creating a new subject
 		if (createNew === true)
 		{
-			gt_option			= document.createElement("option");
-			gt_option.text		= "----------------------------";
-			gt_option.value		= "";
+			gt_option       = document.createElement("option");
+			gt_option.text	= "----------------------------";
+			gt_option.value	= "";
 			gt_option.id		= elementSubject + "_00000.4221";
 			gt_select.add(gt_option);
 
-			gt_option			= document.createElement("option");
-			gt_option.text		= "create new " + gv_graph.getProcessText("subject");
-			gt_option.value		= "##createNew##";
+			gt_option       = document.createElement("option");
+			gt_option.text	= "create new " + gv_graph.getProcessText("subject");
+			gt_option.value	= "##createNew##";
 			gt_option.id		= elementSubject + "_00000.createNew";
 			gt_select.add(gt_option);
 		}
 	}
 }
+
+
+
+/**
+ * This method is used to fill a select field with all available merged subjects.
+ *
+ * @param {String} elementSubject The ID of the select element that holds the available subjects.
+ * @returns {Bool} Whether the loaded list of merged subjects is greater than 1
+ */
+function gf_guiLoadDropDownMergedSubjects (elementSubject, targetSubject)
+{
+	// load subjects
+	if (elementSubject && gf_elementExists(elementSubject))
+	{
+		var gt_select      = document.getElementById(elementSubject).options;
+			gt_select.length = 0;
+
+		var gt_option			= document.createElement("option");
+			gt_option.text	= "please select";
+			gt_option.value	= "";
+			gt_option.id		= elementSubject + "_00000.0";
+			gt_select.add(gt_option);
+
+			gt_option       = document.createElement("option");
+			gt_option.text	= "----------------------------";
+			gt_option.value	= "";
+			gt_option.id		= elementSubject + "_00000.1";
+			gt_select.add(gt_option);
+
+		// read the subjects that can be related
+		var gt_subjectArray = [];
+
+		for (var gt_sid in gv_graph.subjects)
+		{
+			if (gt_sid === targetSubject)
+			{
+        gv_graph.subjects[gt_sid].getMergedSubjects().forEach(function(mergedSubject) {
+				  gt_subjectArray.push(mergedSubject);
+        });
+			}
+		}
+
+		// sort the subjects
+		gt_subjectArray.sort().forEach(function(mergedSubject) {
+			gt_option       = document.createElement("option");
+			gt_option.text	= mergedSubject.name + " (" + mergedSubject.id + ")";
+			gt_option.value = mergedSubject.id;
+			gt_select.add(gt_option);
+    });
+
+    return gt_subjectArray.length > 1;
+	} else {
+    return false;
+  }
+}
+
+
 
 /**
  * This method is used to fill a select field with all available node types.

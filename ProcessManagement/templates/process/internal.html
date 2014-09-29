@@ -64,8 +64,18 @@
 
 			<div id="ge_edge_target_outer" style="display:none;">
 				<label class="graphsectionheader">Related Subject:</label>
-
 				<select id="ge_edge_target" ></select>
+      
+		    <div id="ge_edge_exchange_target_outer" style="display:none;">
+		    	<label class="graphsectionheader">Exchange Foreign ID:</label>
+		    	<select id="ge_edge_exchange_target" ></select>
+        </div>
+        
+		    <div id="ge_edge_exchange_origin_outer" style="display:none;">
+		    	<label class="graphsectionheader">Exchange own ID:</label>
+		    	<select id="ge_edge_exchange_origin" ></select>
+        </div>
+        
 				<div id="ge_edge_target_new_outer" style="display:none;">
 					<label class="graphsectionheader">Name:</label>
 					<input type="text" id="ge_edge_target_new_name"  />
@@ -137,6 +147,8 @@
         </div>
 		<input type="button" id="UpdateEdgeButton" data-bind="tooltip : 'Macro : Press &#34;U&#34;'" onclick="gv_graph.updateEdge();" value="Update transition" />
 		<input type="button" id="DeleteEdgeButton" data-bind="tooltip : 'Macro : Press &#34;D&#34;'" onclick="gv_graph.deleteEdge();" value="Remove transition" />
+		<input type="button" id="SetStartNodeButton" onclick="gv_graph.updateEdgeStartNode();" value="Set Start Node" />
+		<input type="button" id="SetEndNodeButton" onclick="gv_graph.updateEdgeEndNode();" value="Set Destination Node" />
 	</fieldset>
 
 	<fieldset data-bind="if: isNodeSelected">

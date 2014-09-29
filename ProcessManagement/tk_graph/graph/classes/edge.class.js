@@ -265,7 +265,7 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			if (this.correlationId == "##cid##")
 				return "cID";
 			else if (this.correlationId == "##nid##")
-				return "nID"
+				return "nID";
 			else if (this.correlationId != null && gf_isset(gt_variables[this.correlationId]))
 				return gt_variables[this.correlationId];
 		}
@@ -342,7 +342,7 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	 * Returns the related subject.
 	 *
 	 * @see GCedge.relatedSubject
-	 * @param {String} attribute Either "all", "id", "name", "min", "max", "createNew", "variable".
+	 * @param {String} attribute Either "all", "id", "name", "min", "max", "createNew", "variable", exchangeTarget, exchangeOrigin.
 	 * @returns {String|Object|int} The id of the related subject, its name, the min- or max- number of messages or the whole object depending on "attribute".
 	 */
 	this.getRelatedSubject = function (attribute)
@@ -382,6 +382,14 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			else if (attribute == "multi" && gt_isNull)
 			{
 				relatedSubject	= false;
+			}
+			else if (attribute == "exchangetarget")
+			{
+				relatedSubject	= relatedSubject.exchangeTargetId;
+			}
+			else if (attribute == "exchangeorigin")
+			{
+				relatedSubject	= relatedSubject.exchangeOriginId;
 			}
 			else if (attribute == "min")
 			{
