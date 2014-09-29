@@ -120,7 +120,17 @@ case class SendStateActor(data: StateData)
         val y: String = x.get.messages(x.get.messages.length-1).messageContent
         messageContent = Some(y)
 
-        sendMessage(sendTransition)
+        val target = sendTransition.target.get
+        val userIDs = targetUserIDs.get
+        var targetUserIDsOption: Option[TargetUsers] = None
+
+        if (userIDs.length > target.max) {
+          // Context Resolver returned more userIDs than we are able to send to. We need to select some User(s)
+          // TODO: this just selects just the first user(s), and doesn't work for length < min
+          targetUserIDsOption = Some(TargetUsers(userIDs.take(target.max)))
+        }
+
+        sendMessage(sendTransition, targetUserIDsOption)
         log.info("SENDSTATE done")
       } else { log.info("SENDSTATE undefined!") }
     }
@@ -143,7 +153,8 @@ case class SendStateActor(data: StateData)
         messageContent = action.actionData.messageContent
 
         for (transition <- exitTransitions if transition.target.isDefined) {
-          sendMessage(transition, action.actionData.targetUsersData, action.actionData.fileId)
+          val targetUserIDs: Option[TargetUsers] = if (action.actionData.targetUsersData.isDefined) { Some(TargetUsers(action.actionData.targetUsersData.get.targetUsers)) } else { None }
+          sendMessage(transition, targetUserIDs, action.actionData.fileId)
 
           // send the ActionExecuted to the blocking actor, it will send it
           // to the process instance, when this user is ready
@@ -192,7 +203,7 @@ case class SendStateActor(data: StateData)
     }
   }
 
-  protected def sendMessage(transition: Transition, targetUsersDataOption: Option[TargetUser] = None, fileId: Option[String] = None): Unit = {
+  private def sendMessage(transition: Transition, targetUserIDsOption: Option[TargetUsers] = None, fileId: Option[String] = None): Unit = {
     blockingHandlerActor ! BlockUser(userID) // TODO handle several targetusers
 
     val messageType = transition.messageType
@@ -215,12 +226,11 @@ case class SendStateActor(data: StateData)
     } else if (targetUserIDs.isDefined) {
       val userIDs = targetUserIDs.get
 
-      if (userIDs.length == target.min == target.max) {
+      if (target.min <= userIDs.length && userIDs.length <= target.max) {
         target.insertTargetUsers(userIDs)
-      } else if (targetUsersDataOption.isDefined) {
-        val targetUserData = targetUsersDataOption.get
+      } else if (targetUserIDsOption.isDefined) {
         // TODO validate?!
-        target.insertTargetUsers(targetUserData.targetUsers)
+        target.insertTargetUsers(targetUserIDsOption.get.users)
       } else {
         log.error("targetUsersDataOption undefined; targetUserIDs defined, but min="+target.min+"; max="+target.max+"; length="+userIDs.length)
       }
