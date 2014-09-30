@@ -8,3 +8,4 @@
 /lib_managed
 project/target
 *.db
+/bin

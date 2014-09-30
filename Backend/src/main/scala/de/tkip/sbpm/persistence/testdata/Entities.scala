@@ -83,8 +83,6 @@ object Entities {
   val processes = List(
     (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
     (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
-    (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
-    (Process(None, None, false, """Staples Test""", false) -> loadJson("staples-test")),
     (Process(None, None, false, """Transportdienstleister""", false) -> loadJson("lieferant")),
 
     (Process(None, None, false, "Grossunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
@@ -110,7 +108,10 @@ object Entities {
     (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
     (Process(None, None, false, """Service Host Test""", false) -> loadJson("service_host_test")),
-    (Process(None, None, false, """Service Test""", false) -> loadJson("service_test"))
+    (Process(None, None, false, """Service Host Two""", false) -> loadJson("service_host_two")),
+    (Process(None, None, false, """ServiceToService Test""", false) -> loadJson("ServiceToService")),
+    (Process(None, None, false, """Service Host Three""", false) -> loadJson("service_host_three")),
+    (Process(None, None, false, """Service Host Four""", false) -> loadJson("service_host_four"))
    )
 
 

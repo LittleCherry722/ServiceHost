@@ -26,7 +26,7 @@ object Target {
   }
 }
 
-abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int]) extends ClassTraceLogger {
+abstract class State(val stateType: String, val id: Int, val exitType: String, val targets: Map[BranchID, Target], val targetIds: Map[BranchID, Int], val text: String) extends ClassTraceLogger {
 
   //  var id = -1 //, correlationId: Double
   //  var targetId = -1
@@ -42,28 +42,28 @@ abstract class State(val stateType: String, val id: Int, val exitType: String, v
   //    this.stateType = _state
   //  }
 
-  def process()(implicit actor: ServiceActor)
+  def process()(implicit actor: ServiceActor)  //buuuuug
 
 }
 
-case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int])extends State("receive", id, exitType, targets, targetIds) {
+case class ReceiveState(override val id: Int,override val exitType: String,override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String)extends State("receive", id, exitType, targets, targetIds, text) {
   
   
-  def process()(implicit actor: ServiceActor) {
+  def process()(implicit actor: ServiceActor) {	
     actor.processMsg()
     // do nothing
   }
 
   def handle(msg: Any)(implicit actor: ServiceActor) {
 //    actor.storeMsg(msg)
-    actor.changeState()
+    actor.changeState()  			///////////////////////////////////////////////////
   }
 }
-case class SendState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("send", id, exitType, targets, targetIds) {
-  def process()(implicit actor: ServiceActor) {
+case class SendState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("send", id, exitType, targets, targetIds, text) {
+  def process()(implicit actor: ServiceActor) {			
     val msg = actor.getMessage()
     send(msg)
-    actor.changeState()
+    actor.changeState()				
   }
 
   def send(msg: String)(implicit actor: ServiceActor) {
@@ -98,9 +98,9 @@ case class SendState(override val id: Int, override val exitType: String, overri
     } else targets.head._2.target
   }
 }
-case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int]) extends State("exit", id, exitType, targets, targetIds) {
+case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("exit", id, exitType, targets, targetIds, text) {
 
-  def process()(implicit actor: ServiceActor) {
+  def process()(implicit actor: ServiceActor) {		
     actor.terminate()
   }
 }

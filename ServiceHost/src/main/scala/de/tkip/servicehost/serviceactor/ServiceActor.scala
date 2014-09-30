@@ -17,7 +17,7 @@ abstract class ServiceActor extends InstrumentedActor {
     
   def processMsg():Unit
   
-  def changeState()
+  def changeState() 
   
   def getState(id: Int): State
   
@@ -38,6 +38,7 @@ abstract class ServiceActor extends InstrumentedActor {
   def getBranchCondition() = branchCondition
   
   def setMessage(message: String) = returnMessageContent = message
+  
   
 }
 
