@@ -158,7 +158,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
    * Format for edge's target object.
    */
   implicit val edgeTargetFormat = jsonFormat(GraphEdgeTarget,
-    "id", "min", "max", "createNew", "variable")
+    "id", "exchangeOriginId", "exchangeTargetId", "min", "max", "createNew", "variable")
 
   /**
    * Format of an edge object.

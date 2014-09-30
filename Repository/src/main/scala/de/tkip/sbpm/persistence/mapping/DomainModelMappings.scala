@@ -151,18 +151,20 @@ object DomainModelMappings {
    * Disassembles object trees of given edges into relational entities.
    */
   private def extractEdges(es: Iterable[domainModel.GraphEdge], macroId: String, subjectId: String, graphId: Int): Seq[GraphEdge] = es.map { e =>
-    val (targetSubjectId, targetMin, targetMax, targetCreateNew, targetVariableId) =
+    val (targetSubjectId, exchangeOriginId, exchangeTargetId, targetMin, targetMax, targetCreateNew, targetVariableId) =
       extractTarget(e.target)
     GraphEdge(e.startNodeId,
       e.endNodeId,
       macroId,
       subjectId,
+      exchangeOriginId,
       graphId,
       e.text,
       e.edgeType,
       e.manualPositionOffsetLabelX,
       e.manualPositionOffsetLabelY,
       targetSubjectId,
+      exchangeTargetId,
       targetMin,
       targetMax,
       targetCreateNew,
@@ -181,11 +183,13 @@ object DomainModelMappings {
    * Convert Target object for edge into single Option values,
    * because they are saved directly in edges table.
    */
-  private def extractTarget(et: Option[domainModel.GraphEdgeTarget]): (Option[String], Option[Short], Option[Short], Option[Boolean], Option[String]) =
-    if (et.isDefined)
-      (Some(et.get.subjectId), Some(et.get.min), Some(et.get.max), Some(et.get.createNew), et.get.variableId)
-    else
-      (None, None, None, None, None)
+  private def extractTarget(et: Option[domainModel.GraphEdgeTarget]): (Option[String], Option[String], Option[String], Option[Short], Option[Short], Option[Boolean], Option[String]) =
+    if (et.isDefined) {
+      val etg = et.get
+      (Some(et.get.subjectId), etg.exchangeOriginId, etg.exchangeTargetId, Some(etg.min), Some(etg.max), Some(etg.createNew), etg.variableId)
+    } else {
+      (None, None, None, None, None, None, None)
+    }
 
   /**
    * Convert conversation objects to relational entities.
@@ -390,6 +394,8 @@ object DomainModelMappings {
       if (targetList.forall(_.isDefined))
         Some(domainModel.GraphEdgeTarget(
           e.targetSubjectId.get,
+          e.originalSubjectId,
+          e.exchangeTargetId,
           e.targetMin.get,
           e.targetMax.get,
           e.targetCreateNew.get,

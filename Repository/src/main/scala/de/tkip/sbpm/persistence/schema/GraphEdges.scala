@@ -27,6 +27,8 @@ object GraphEdgesSchema extends Schema {
   import GraphNodesSchema.graphNodes
   import GraphSubjectsSchema.graphSubjects
   import GraphVariablesSchema.graphVariables
+  import scala.slick.collection.heterogenous._
+  import syntax._
 
   // represents schema if the "graph_edges" table in the database
   // using slick's lifted embedding API
@@ -35,12 +37,14 @@ object GraphEdgesSchema extends Schema {
     def endNodeId = column[Short]("end_node_id", DbType.smallint)
     def macroId = column[String]("macro_id", DbType.stringIdentifier)
     def subjectId = column[String]("subject_id", DbType.stringIdentifier)
+    def originalSubjectId = column[Option[String]]("original_subject_id", DbType.stringIdentifier)
     def graphId = column[Int]("graph_id")
     def text = column[String]("text", DbType.name)
     def edgeType = column[String]("type", DbType.stringIdentifier)
     def manualPositionOffsetLabelX = column[Option[Short]]("manual_position_offset_label_x", DbType.smallint)
     def manualPositionOffsetLabelY = column[Option[Short]]("manual_position_offset_label_y", DbType.smallint)
     def targetSubjectId = column[Option[String]]("target_subject_id", DbType.stringIdentifier)
+    def targetExchangeSubjectId = column[Option[String]]("target_exchange_subject_id", DbType.stringIdentifier)
     def targetMin = column[Option[Short]]("target_min", DbType.smallint)
     def targetMax = column[Option[Short]]("target_max", DbType.smallint)
     def targetCreateNew = column[Option[Boolean]]("target_create_new")
@@ -55,11 +59,67 @@ object GraphEdgesSchema extends Schema {
     def transportMethod = column[String]("transport_method", DbType.stringIdentifier, O.Default("internal"))
 
 
-    def * = (startNodeId, endNodeId, macroId, subjectId, graphId, text
-      , edgeType, manualPositionOffsetLabelX, manualPositionOffsetLabelY
-      , targetSubjectId, targetMin, targetMax, targetCreateNew, targetVariableId
-      , isDisabled, isOptional, priority, manualTimeout, variableId
-      , correlationId, comment, transportMethod) <> (GraphEdge.tupled, GraphEdge.unapply)
+    def * = (startNodeId :: endNodeId :: macroId :: subjectId
+      :: originalSubjectId :: graphId :: text :: edgeType
+      :: manualPositionOffsetLabelX :: manualPositionOffsetLabelY
+      :: targetSubjectId :: targetExchangeSubjectId :: targetMin :: targetMax
+      :: targetCreateNew :: targetVariableId :: isDisabled :: isOptional
+      :: priority :: manualTimeout :: variableId :: correlationId :: comment
+      :: transportMethod :: HNil).shaped <> ({
+      case x => GraphEdge(
+        startNodeId                = x(0),
+        endNodeId                  = x(1),
+        macroId                    = x(2),
+        subjectId                  = x(3),
+        originalSubjectId          = x(4),
+        graphId                    = x(5),
+        text                       = x(6),
+        edgeType                   = x(7),
+        manualPositionOffsetLabelX = x(8),
+        manualPositionOffsetLabelY = x(9),
+        targetSubjectId            = x(10),
+        exchangeTargetId    = x(11),
+        targetMin                  = x(12),
+        targetMax                  = x(13),
+        targetCreateNew            = x(14),
+        targetVariableId           = x(15),
+        isDisabled                 = x(16),
+        isOptional                 = x(17),
+        priority                   = x(18),
+        manualTimeout              = x(19),
+        variableId                 = x(20),
+        correlationId              = x(21),
+        comment                    = x(22),
+        transportMethod            = x(23))
+    },(
+      {x:GraphEdge =>
+        Option((
+          x.startNodeId ::
+            x.endNodeId ::
+            x.macroId ::
+            x.subjectId ::
+            x.originalSubjectId ::
+            x.graphId ::
+            x.text ::
+            x.edgeType ::
+            x.manualPositionOffsetLabelX ::
+            x.manualPositionOffsetLabelY ::
+            x.targetSubjectId ::
+            x.exchangeTargetId ::
+            x.targetMin ::
+            x.targetMax ::
+            x.targetCreateNew ::
+            x.targetVariableId ::
+            x.isDisabled ::
+            x.isOptional ::
+            x.priority ::
+            x.manualTimeout ::
+            x.variableId ::
+            x.correlationId ::
+            x.comment ::
+            x.transportMethod ::
+            HNil))
+      }))
 
     def pk = primaryKey(pkName, (startNodeId, endNodeId, macroId, subjectId, graphId))
     def idx = index(s"${tableName}_idx_graph_id", graphId)
