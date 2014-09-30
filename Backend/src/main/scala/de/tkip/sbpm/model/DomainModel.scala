@@ -180,9 +180,12 @@ case class GraphRoutingExpression(subjectId: String,
   groupId: Option[Int],
   userId: Option[Int])
 
+case class MergedSubject(id: String, name: String)
+
 case class GraphSubject(id: String,
   name: String,
   subjectType: String,
+  mergedSubjects: Option[List[MergedSubject]],
   isDisabled: Boolean,
   isStartSubject: Option[Boolean],
   inputPool: Short,
@@ -256,8 +259,8 @@ case class GraphEdge(startNodeId: Short,
   transportMethod: Seq[String])
 
 case class GraphEdgeTarget(subjectId: String,
-  exchangeTargetId: Option[String],
   exchangeOriginId: Option[String],
+  exchangeTargetId: Option[String],
   min: Short = -1,
   max: Short = -1,
   createNew: Boolean,

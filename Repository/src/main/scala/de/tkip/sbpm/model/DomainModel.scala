@@ -58,9 +58,12 @@ case class GraphConversation(id: String, name: String)
 
 case class GraphMessage(id: String, name: String)
 
+case class MergedSubject(id: String, name: String)
+
 case class GraphSubject(id: String,
   name: String,
   subjectType: String,
+  mergedSubjects: Option[Seq[MergedSubject]],
   isDisabled: Boolean,
   isStartSubject: Option[Boolean],
   inputPool: Short,

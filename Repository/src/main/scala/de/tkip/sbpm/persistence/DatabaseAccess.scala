@@ -16,6 +16,7 @@ object DatabaseAccess {
   import schema.GraphSchema
   import schema.GraphSubjectsSchema
   import schema.GraphVariablesSchema
+  import schema.GraphMergedSubjectsSchema
   import schema.GraphVarMansSchema
   import schema.ProcessEngineAddressSchema
   import DatabaseConnection.database
@@ -28,6 +29,7 @@ object DatabaseAccess {
   val graphNodes = GraphNodesSchema.graphNodes
   val graphs = GraphSchema.graphs
   val graphSubjects = GraphSubjectsSchema.graphSubjects
+  val graphMergedSubjects = GraphMergedSubjectsSchema.graphMergedSubjects
   val graphVariables = GraphVariablesSchema.graphVariables
   val graphVarMans = GraphVarMansSchema.graphVarMans
   val addresses = ProcessEngineAddressSchema.addresses
@@ -45,7 +47,8 @@ object DatabaseAccess {
     graphVarMans,
     graphs,
     graphSubjects,
-    graphVariables)
+    graphVariables,
+    graphMergedSubjects)
 
   private val ddl = tables.map(_.ddl).reduceLeft(_ ++ _)
 

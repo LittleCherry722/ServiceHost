@@ -4,7 +4,7 @@ import de.tkip.sbpm.model.{Address, InterfaceImplementation}
 import de.tkip.sbpm.{model => M}
 import de.tkip.sbpm.persistence.{mapping => D}
 import de.tkip.sbpm.persistence.DatabaseAccess._
-import de.tkip.sbpm.persistence.mapping.DomainModelMappings.convert
+import de.tkip.sbpm.persistence.mapping.DomainModelMappings.{convert, convertInterface}
 import driver.simple._
 
 /**
@@ -18,7 +18,7 @@ object InterfaceQuery {
         is = interfaces.buildColl[Seq].map { i =>
           val subEntities = retrieveSubEntities(i.graphId)
           val dbAddress = processEngineAddressForId(i.addressId).run.head
-          convert(i, dbAddress, subEntities)
+          convertInterface(i, dbAddress, subEntities)
         }
       }
     }
@@ -41,7 +41,7 @@ object InterfaceQuery {
             println(s"nodes: ${subEntities._6}")
             println(s"varmans: ${subEntities._7}")
             println(s"edges: ${subEntities._8}")
-            interface = Some(convert(dbInterface, dbAddress, subEntities))
+            interface = Some(convertInterface(dbInterface, dbAddress, subEntities))
           case None => interface = None
         }
       }
@@ -88,7 +88,7 @@ object InterfaceQuery {
       session.withTransaction {
         var graphId : Int = 0
         // convert domain model graph to db entities
-        val (graph, conversations, messages, subjects, variables, macros, nodes, varMans, edges) =
+        val (graph, mergedSubjects, conversations, messages, subjects, variables, macros, nodes, varMans, edges) =
           convert(g) match {
             // only graph was converted, because it's a new graph (no id exits)
             case Left(model: D.Graph) =>
@@ -131,6 +131,7 @@ object InterfaceQuery {
 
         println(s"deleted sub entities for graphId ${graph.id.get}")
 
+        graphMergedSubjects.insertAll(mergedSubjects: _*)
         graphConversations.insertAll(conversations: _*)
         graphMessages.insertAll(messages: _*)
         graphVariables.insertAll(variables: _*)
@@ -139,14 +140,6 @@ object InterfaceQuery {
         graphNodes.insertAll(nodes: _*)
         graphVarMans.insertAll(varMans: _*)
         graphEdges.insertAll(edges: _*)
-        println("inserted new sub enties")
-        println(s"graphConversations: $conversations")
-        println(s"messages: $messages")
-        println(s"macros: $macros")
-        println(s"nodes: $nodes")
-        println(s"varMans: $varMans")
-        println(s"edges: $edges")
-        println(s"subjects: $subjects")
 
         returnInterfaceId = dbInterface.id match {
           case None     => (interfaces returning interfaces.map(_.id)) += dbInterface
@@ -183,10 +176,12 @@ object InterfaceQuery {
     graphSubjects.filter(_.graphId === graphId).delete
     graphMessages.filter(_.graphId === graphId).delete
     graphConversations.filter(_.graphId === graphId).delete
+    graphMergedSubjects.filter(_.graphId === graphId).delete
   }
 
   private def retrieveSubEntities(id: Int)(implicit session: Session) = {
     (
+      graphMergedSubjectsForGraphId(id).run,
       graphConversiationsForGraphId(id).run,
       graphMessagesForGraphId(id).run,
       graphSubjectsForGraphId(id).run,
@@ -213,6 +208,7 @@ object InterfaceQuery {
     } yield (interface.processId, address.ip, address.port)
   }
   private val graphVariablesForGraphId = Compiled{ id: Column[Int] => graphVariables.filter(_.graphId === id) }
+  private val graphMergedSubjectsForGraphId = Compiled{ id: Column[Int] => graphMergedSubjects.filter(_.graphId === id) }
   private val graphMacrosForGraphId = Compiled{ id: Column[Int] => graphMacros.filter(_.graphId === id) }
   private val graphNodesForGraphId = Compiled{ id: Column[Int] => graphNodes.filter(_.graphId === id) }
   private val graphVarMansForGraphId = Compiled{ id: Column[Int] => graphVarMans.filter(_.graphId === id) }

@@ -293,6 +293,9 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
   implicit val addressFormat = jsonFormat2(AgentAddress)
   implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
 
+  implicit val mergedSubjectsFormat = jsonFormat2(MergedSubject)
+
+
   /**
    * Format for a subject object.
    * Counter values are calculated on the fly when converting to JSON
@@ -303,6 +306,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "id" -> s.id.toJson,
       "name" -> s.name.toJson,
       "type" -> s.subjectType.toJson,
+      "mergedSubjects" -> s.mergedSubjects.toJson,
       "deactivated" -> s.isDisabled.toJson,
       "startSubject" -> s.isStartSubject.toJson,
       "inputPool" -> s.inputPool.toJson,
@@ -321,8 +325,11 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       "macros" -> s.macros.values.toJson,
       // extract counter value fro∂m macro ids
       "macroCounter" -> counter(s.macros))
-    def read(v: JsValue) = v.asJsObject.convertTo[GraphSubject](jsonFormat(GraphSubject, "id", "name",
+    def read(v: JsValue) = v.asJsObject.convertTo[GraphSubject](jsonFormat(GraphSubject,
+      "id",
+      "name",
       "type",
+      "mergedSubjects",
       "deactivated",
       "startSubject",
       "inputPool",
