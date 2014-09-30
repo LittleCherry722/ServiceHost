@@ -18,6 +18,8 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.collection.mutable.{Map => MutableMap}
 
+import scala.util.Sorting
+
 // TODO: sortieren / aufräumen
 import de.tkip.sbpm.application.subject.misc.{ActionData, SubjectToSubjectMessage}
 import akka.actor.Actor
@@ -53,18 +55,41 @@ import de.tkip.sbpm.application.subject.misc.MacroTerminated
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import akka.event.Logging
 
+trait VPoint {
+  def x: Int
+  def y: Int
+}
+
+case class VSinglePoint(x: Int, y: Int) extends VPoint
+case class VStartEnd(start: VSinglePoint, end: VSinglePoint)
+case class VRoute(points: Seq[VSinglePoint])
+case class VRoutes(routes: Seq[VRoute])
+
+case class VGreenPoint(x: Int, y: Int) extends VPoint
+case class VRedPoint(x: Int, y: Int, r: Int) extends VPoint
+
+case class VBluePoint(x: Int, y: Int) extends VPoint
+case class VBlueGroup(num: Int, points: Seq[VBluePoint])
+
+object VasecJsonProtocol extends DefaultJsonProtocol {
+  implicit def vPointToVSinglePointConversion(p: VPoint): VSinglePoint = VSinglePoint(p.x, p.y)
+  implicit def vPointToVGreenPointConversion(p: VPoint): VGreenPoint = VGreenPoint(p.x, p.y)
+  
+  implicit val vSinglePointFormat = jsonFormat2(VSinglePoint)
+  implicit val vStartEndFormat = jsonFormat2(VStartEnd)
+  implicit val vRouteFormat = jsonFormat1(VRoute)
+
+  implicit val vGreenPointFormat = jsonFormat2(VGreenPoint)
+  implicit val vRedPointFormat = jsonFormat3(VRedPoint)
+  implicit val vBluePointFormat = jsonFormat2(VBluePoint)
+  implicit val vBlueGroupFormat = jsonFormat2(VBlueGroup)
+}
+
 case class VasecStateActor(data: StateData)
   extends BehaviorStateActor(data) {
 
-  def splt(p: String): (Int, Int) = {
-    val a = p.split("\\(")(1).split("\\)")(0).split(",")
-    (a(0).toInt, a(1).toInt)
-  }
-  def cmp(x: String, y: String): Boolean = {
-    val a = splt(x)
-    val b = splt(y)
-    (a._1 < b._1 || (a._1 == b._1 && a._2 < b._2))
-  }
+  import VasecJsonProtocol._
+
   def rnd(a: Int, b: Int, off: Int = 0): Int = {
     if (a > b) log.error("rnd: invalid input")
     a + scala.util.Random.nextInt(b-a+2*off) - off
@@ -79,40 +104,61 @@ case class VasecStateActor(data: StateData)
     val typ = args(4)
 
     val v1: Option[Variable] = getVariable(startziel)
-    log.error("SORT.v1: {}", v1)
-    val a: Array[String] = v1.get.messages(v1.get.messages.length-1).messageContent.split(";")
-    val (start, ziel) = (splt(a(0)),splt(a(1)))
+    val startEnd: VStartEnd = v1.get.messages(v1.get.messages.length-1).messageContent.parseJson.convertTo[VStartEnd]
 
-    val data = scala.collection.mutable.ArrayBuffer[String]()
+    val data = scala.collection.mutable.ArrayBuffer[VPoint]()
 
     for (i <- 1 to num) {
-      val x = rnd(start._1, ziel._1, 10)
-      val y = rnd(start._2, ziel._2, 10)
+      val x = rnd(startEnd.start.x, startEnd.end.x, 10)
+      val y = rnd(startEnd.start.y, startEnd.end.y, 10)
 
-      data += "("+x+","+y+")"
+      if (typ == "green") {
+        data += VGreenPoint(x, y)
+      }
+      else if (typ == "red") {
+        val r = rnd(1, 10)
+        data += VRedPoint(x, y, r)
+      }
+      else if (typ == "blue") {
+        data += VBluePoint(x, y)
+      }
     }
 
-    val data_str = if (typ == "blue") {
-      "[1|" + data.mkString(";") + "]"
-    } else {
-      data.mkString(";")
+    if (typ == "green") {
+      addVariable(out, data.toList.asInstanceOf[List[VGreenPoint]].toJson.compactPrint)
     }
+    else if (typ == "red") {
+      addVariable(out, data.toList.asInstanceOf[List[VRedPoint]].toJson.compactPrint)
+    }
+    else if (typ == "blue") {
+      val group = VBlueGroup(1, data.toList.asInstanceOf[List[VBluePoint]])
+      addVariable(out, Array(group).toJson.compactPrint)
+    }
+  }
+  else if (args(0) == "CLEAR") {
+    val name = args(1)
 
-    addVariable(out, data_str)
+    removeVariable(name)
   }
   else if (args(0) == "JOIN") {
-    val name = args(1)
-    val sep = args(2)
+    val from1 = args(1)
+    val from2 = args(2)
+    val to = args(3)
 
-    val v: Option[Variable] = removeVariable(name)
+    val v1: Option[Variable] = getVariable(from1)
+    val v2: Option[Variable] = getVariable(from2)
 
-    val data = scala.collection.mutable.ArrayBuffer[String]()
+    var data = Vector[JsValue]()
 
-    for (m <- v.get.messages) {
-      data += m.messageContent
+    if (v1.isDefined) for (m <- v1.get.messages) {
+      data = data ++ m.messageContent.parseJson.asInstanceOf[JsArray].elements
     }
 
-    addVariable(name, data.mkString(sep))
+    if (v2.isDefined) for (m <- v2.get.messages) {
+      data = data ++ m.messageContent.parseJson.asInstanceOf[JsArray].elements
+    }
+
+    addVariable(to, JsArray(data.toList).compactPrint)
   }
   else if (args(0) == "SELECT") {
     val from = args(1)
@@ -121,37 +167,58 @@ case class VasecStateActor(data: StateData)
     val v: Option[Variable] = removeVariable(from)
     log.error("SELECT.v: {}", v)
 
-    val data = scala.collection.mutable.ArrayBuffer[String]()
+    val data = scala.collection.mutable.ArrayBuffer[VBlueGroup]()
 
     for (m <- v.get.messages) {
-      data ++= m.messageContent.split("~")
+      data ++= m.messageContent.parseJson.convertTo[Array[VBlueGroup]]
     }
 
     val first = data.remove(0)
     log.error("MOVE.FIRST: {}", first)
-    val x = first.split("\\[")(1).split("\\]")(0).split("\\|")(1).split(";")(0)
+    val x: VBluePoint = first.points(0)
+    val xgreen: VGreenPoint = x
 
-    addVariable(from, data.mkString("~"))
-    addVariable(to, x)
+    addVariable(from, data.toList.toJson.compactPrint)
+    addVariable(to, Array(xgreen).toJson.compactPrint)
   }
-  else if (args(0) == "SORT") {
+  else if (args(0) == "GENROUTE") {
     val startziel = args(1)
     val from = args(2)
     val to = args(3)
 
     val v1: Option[Variable] = getVariable(startziel)
-    log.error("SORT.v1: {}", v1)
-    val a: Array[String] = v1.get.messages(v1.get.messages.length-1).messageContent.split(";")
-    val (start, ziel) = (a(0),a(1))
+    log.error("GENROUTE.v1: {}", v1)
+    val startEnd: VStartEnd = v1.get.messages(v1.get.messages.length-1).messageContent.parseJson.convertTo[VStartEnd]
 
     val v2: Option[Variable] = getVariable(from)
-    log.error("SORT.v2: {}", v2)
-    val points: Array[String] = v2.get.messages(v2.get.messages.length-1).messageContent.split(";")
+    log.error("GENROUTE.v2: {}", v2)
+    def convert(l: Array[VGreenPoint]): Array[VSinglePoint] = l map { a => a: VSinglePoint }
+    val points: Array[VSinglePoint] = convert(v2.get.messages(v2.get.messages.length-1).messageContent.parseJson.convertTo[Array[VGreenPoint]])
+
+    def compare(a: VPoint, b: VPoint): Int = {
+      import scala.math.Ordered.orderingToOrdered
+      (a.x, a.y) compare (b.x, b.y)
+    }
+    val sorted: Array[VSinglePoint] = points.sortWith((a, b) => (compare(a, b) < 0))
+
+    val route: VRoute = VRoute(Array(startEnd.start) ++ sorted ++ Array(startEnd.end))
+
+    addVariable(to, Array(route).toJson.compactPrint)
+  }
+  else if (args(0) == "INTERSECTS") {
+    val route = args(1)
+    val red = args(2)
+    val to = args(3)
+
+    var intersects = false
 
 
-    val sorted: Array[String] = points.sortWith(cmp)
-
-    addVariable(to, start + ";" + sorted.mkString(";") + ";" + ziel)
+    if (intersects) {
+      addVariable(to, "TRUE")
+    }
+    else {
+      addVariable(to, "FALSE")
+    }
   }
   else {
     log.error("NOT IMPLEMENTED. args(0): {}" + args(0))
