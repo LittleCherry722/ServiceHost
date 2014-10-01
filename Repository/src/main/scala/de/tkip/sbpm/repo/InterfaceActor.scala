@@ -102,6 +102,7 @@ class InterfaceActor extends Actor with ActorLogging {
     case Reset => {
       log.info("resetting...")
       DatabaseAccess.recreateDatabase()
+      log.info("successfully resetted")
     }
   }
 
