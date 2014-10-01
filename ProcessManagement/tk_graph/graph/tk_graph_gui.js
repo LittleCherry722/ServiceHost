@@ -446,6 +446,7 @@ function gf_guiDisplayEdge (edge, startType)
 
 		// load variables
 		gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeStoreVariable, true, false);
+		gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
 
 		gf_guiElementShow(gv_elements.inputEdgeStoreOuter);
 		gf_guiElementWrite(gv_elements.inputEdgeStoreVariable, "string", edge.getVariable(), "");
@@ -474,7 +475,6 @@ function gf_guiDisplayEdge (edge, startType)
       }
       
 			gf_guiLoadDropDownTransportMethods(gv_elements.inputEdgeTransportMethod, edge.getTransportMethod());
-			gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
 			gf_guiLoadDropDownNewSubject(gv_elements.inputEdgeTargetNewRole, gv_elements.inputSubjectRole);
 
 			// show elements
