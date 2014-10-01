@@ -108,6 +108,13 @@ object Entities {
 //    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
 //    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
 //    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
+
+  // variables processes
+//    (Process(None, None, false, """Variables local simple""", false) -> loadJson("variables_simple_local.json")),
+//    (Process(None, None, false, """Variables local to subjects""", false) -> loadJson("variables_to_subjects_local.json")),
+//    (Process(None, None, false, """Variables local to variables""", false) -> loadJson("variables_to_variables_local.json")),
+//    (Process(None, None, false, """Variables local to variables and extraction""", false) -> loadJson("variables_to_variables_extraction_local.json")),
+
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
     (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")))
 
