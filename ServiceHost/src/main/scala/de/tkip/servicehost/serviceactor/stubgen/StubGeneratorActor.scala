@@ -23,8 +23,17 @@ import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.ReferenceXMLActor
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 
+
+case class ServiceExport(version: Int, name: String, author: String, graph: GraphSubject, messages: Map[String, GraphMessage], conversations: Map[String, GraphConversation], processId: Int)
+
+object StubGeneratorActor {
+  implicit val serviceExportFormat = jsonFormat7(ServiceExport)
+}
+
 class StubGeneratorActor extends InstrumentedActor {
   implicit val timeout = Timeout(15 seconds)
+
+  import StubGeneratorActor.serviceExportFormat
 
   lazy val refAc = this.context.actorOf(Props[ReferenceXMLActor], "reference-xml-actor")
 
@@ -42,8 +51,6 @@ class StubGeneratorActor extends InstrumentedActor {
   case class ExitState(id: Int, var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap(), var text: String = null) extends State
   case class ActionState(id: Int, var exittype: String = null, targets: MutableMap[String, String] = MutableMap(), targetIds: MutableMap[String, Int] = MutableMap(), var text: String = null) extends State
 
-  case class ServiceExport(version: Int, name: String, author: String, graph: GraphSubject, messages: Map[String, GraphMessage], conversations: Map[String, GraphConversation], processId: Int)
-  implicit val serviceExportFormat = jsonFormat7(ServiceExport)
   val edgeMap = scala.collection.mutable.Map[Int, List[String]]() // each node and its edges
   val actionStateNumber = scala.collection.mutable.Map[String, List[Int]]()
 

@@ -103,6 +103,8 @@ object JsonProtocol extends DefaultJsonProtocol {
     }
 
     def toInterfaceHeader(port: Int, interfaceType: String) = { // TODO: value
+      if (!id.isDefined) System.err.println("id is None") // TODO: log!
+
       id.map { pId =>
         InterfaceHeader(
           interfaceType = interfaceType,
