@@ -22,9 +22,6 @@ import de.tkip.servicehost.ActorLocator
 import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.ReferenceXMLActor
 import de.tkip.sbpm.instrumentation.InstrumentedActor
-import shapeless.ToInt
-import sun.org.mozilla.javascript.internal.ast.Yield
-import scala.xml.Elem
 
 class StubGeneratorActor extends InstrumentedActor {
   implicit val timeout = Timeout(15 seconds)
