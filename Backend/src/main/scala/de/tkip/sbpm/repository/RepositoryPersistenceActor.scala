@@ -34,7 +34,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
 import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 
 object RepositoryPersistenceActor {
-  case class SaveInterface(json: GraphHeader)
+  case class SaveInterface(json: GraphHeader, roles: Option[Map[String, Role]] = None)
   case class DeleteInterface(interfaceId: Int)
   case class GetAgentsMapMessage(agentIds: Iterable[SubjectID])
   case class AgentsMappingResponse(possibleAgents: Map[String, Set[Agent]])
@@ -61,10 +61,17 @@ class RepositoryPersistenceActor extends InstrumentedActor {
   def actorRefFactory = context
 
   def wrappedReceive = {
-    case SaveInterface(gHeader) => {
+    case SaveInterface(gHeader, roles) => {
       log.debug("[SAVE INTERFACE] save message received")
-      val roles = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
-      implicit val roleMap = roles.map(r => (r.name, r)).toMap
+
+      implicit val roleMap = if (roles.isDefined) {
+                               roles.get
+                             }
+                             else {
+                               val rolesFuture = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
+                               rolesFuture.map(r => (r.name, r)).toMap
+                             }
+
       val interface = gHeader.toInterfaceHeader().toJson.toString()
       log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
       log.debug("-------------------------------------------------------------")
