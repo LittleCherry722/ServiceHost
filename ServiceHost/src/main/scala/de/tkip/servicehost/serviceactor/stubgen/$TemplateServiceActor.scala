@@ -22,7 +22,8 @@ class $TemplateServiceActor extends ServiceActor {
   private val INPUT_POOL_SIZE: Int = 20
   
   private implicit val service = this
-  private val serviceID: String = "Staples"
+  private val serviceID: String = "$SERVICEID"
+  
   
   private val states: List[State] = List(
       //$EMPTYSTATE$//
@@ -43,6 +44,7 @@ class $TemplateServiceActor extends ServiceActor {
   private var manager: Option[ActorRef] = null
   private var subjectID: String = ""
   private var target = -1
+  private var messageContent: String = "" // will be used in getResult
 
   def processMsg() {
     log.debug("processMsg")
@@ -71,6 +73,7 @@ class $TemplateServiceActor extends ServiceActor {
       // TODO forward /set variables?
       log.debug("receive message: " + message)
       storeMsg(message, sender)
+      messageContent = message.messageContent 
 
       state match {
         case rs: ReceiveState =>
@@ -78,6 +81,7 @@ class $TemplateServiceActor extends ServiceActor {
         case _ =>
           log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
+      
     }
     case message: ExecuteServiceMessage => {
     }
@@ -93,7 +97,7 @@ class $TemplateServiceActor extends ServiceActor {
     }
   }
 
-  def changeState {
+  def changeState() {						
     log.debug("changeState: old state: " + state)
     state match {
       case s: ExitState => {
@@ -109,7 +113,7 @@ class $TemplateServiceActor extends ServiceActor {
         } else state = getState(state.targetIds.head._2)
 
         // TODO: state könnte null sein, oder auch der alte..
-        state.process
+        state.process()
       }
     }
     log.debug("changeState: new state: " + state)
@@ -173,5 +177,10 @@ class $TemplateServiceActor extends ServiceActor {
   def getSubjectID(): String = {
     serviceID
   }
+  
+  def getResult(msg: String): String = {   // handle the messageContent
+    msg
+  }
+ 
   //$ACTIONSTATESIMPLEMENTATION$//
 }
