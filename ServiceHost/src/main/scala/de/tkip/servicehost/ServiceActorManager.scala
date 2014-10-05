@@ -45,11 +45,9 @@ class ServiceActorManager extends InstrumentedActor {
       log.debug("got CreateProcessInstance: " + request)
       
       processID = request.processID 
-      for (agentSet <- request.agentsMap.values) { // through IP get subjectID
-        for (agent <- agentSet) {
-          if(agent.address.toUrl.equals("@" + main.hostname + ":" + main.port )){
-            subjectID = agent.subjectId 
-          }
+      for (agent <- request.agentsMap.values) { // through IP get subjectID
+        if(agent.address.toUrl.equals("@" + main.hostname + ":" + main.port )){
+          subjectID = agent.subjectId
         }
       }
 
