@@ -151,7 +151,8 @@ object main extends App with ClassTraceLogger {
     val graphSubject: GraphSubject = serviceExport.graph.copy(
       role = None,
       subjectType = "single",
-      isImplementation = Some(true)
+      isImplementation = Some(true),
+      implementations = Some(List())
     )
 
     val subjects: Map[String, GraphSubject] = Map(graphSubject.id -> graphSubject)
