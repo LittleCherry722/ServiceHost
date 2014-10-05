@@ -585,9 +585,12 @@ function GCsubject (id, text, type, inputPool)
 		if (gf_isset(text))
 		{
 			this.text = text;
-      this.mergedSubjects.filter(function(sub) {
-        return sub.id === this.id;
-      })[0].name = text;
+			var mergedSubject = this.mergedSubjects.filter(function(sub) {
+				return sub.id === this.id;
+			}, this);
+			if (mergedSubject && mergedSubject[0]){
+				mergedSubject[0].name = text;
+			}
 		}
 	};
 

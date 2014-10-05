@@ -80,8 +80,8 @@ object Entities {
     (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
 
   // process with one active graph loaded from corresponding json file
-  val processes = List(
-    (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
+  val processes = List[(Process, String)](
+//    (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
 //    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
 //    (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
 //    (Process(None, None, false, """Staples Test""", false) -> loadJson("staples-test")),
@@ -109,14 +109,14 @@ object Entities {
 //    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
 //    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
 
-  // variables processes
-//    (Process(None, None, false, """Variables local simple""", false) -> loadJson("variables_simple_local.json")),
-//    (Process(None, None, false, """Variables local to subjects""", false) -> loadJson("variables_to_subjects_local.json")),
-//    (Process(None, None, false, """Variables local to variables""", false) -> loadJson("variables_to_variables_local.json")),
-//    (Process(None, None, false, """Variables local to variables and extraction""", false) -> loadJson("variables_to_variables_extraction_local.json")),
+//  variables processes
+    (Process(None, None, false, """Variables local to subjects""", false) -> loadJson("variables_to_subjects")),
+    (Process(None, None, false, """Variables local to variables""", false) -> loadJson("variables_to_variables")),
+    (Process(None, None, false, """Variables local to variables and extraction""", false) -> loadJson("variables_to_variables_extraction"))
 
-    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
-    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")))
+//    (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
+//    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink"))
+)
 
 
   // group -> role mappings

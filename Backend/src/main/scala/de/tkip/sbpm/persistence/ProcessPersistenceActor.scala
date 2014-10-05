@@ -145,7 +145,7 @@ private class ProcessPersistenceActor extends GraphPersistenceActor
         case p @ Process(id, _, _, _, _, _, _)   => update(id, p)
       } match {
         // only one process was given, return it's id
-        case ids if (ids.size == 1) => ids.head
+//        case ids if (ids.size == 1) => ids.head
         // more processes were given return all ids
         case ids                    => ids
       }
