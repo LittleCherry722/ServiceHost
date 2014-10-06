@@ -133,6 +133,8 @@ object main extends App with ClassTraceLogger {
   }
 
   def registerInterface(reference: Reference): Unit = {
+    implicit val mapper: RoleMapper = RoleMapper.noneMapper
+
     log.debug("read service: " + reference)
 
     val file = reference.json
@@ -145,7 +147,6 @@ object main extends App with ClassTraceLogger {
     val processId: Int = nextId //1337 //obj.getFields("processId").head.convertTo[Int] // TODO: what should be used here?
     val date: java.sql.Timestamp = new java.sql.Timestamp(System.currentTimeMillis()) // TODO: what should be used here?
     val routings: Seq[GraphRouting] = List() // TODO: what should be used here?
-
 
     val serviceExport: ServiceExport = sourceString.parseJson.convertTo[ServiceExport]
     val graphSubject: GraphSubject = serviceExport.graph.copy(
@@ -179,7 +180,7 @@ object main extends App with ClassTraceLogger {
       Some(processId)
     )
 
-    val interfaceIdFuture: Future[Option[Int]] = (repositoryPersistenceActor ?? SaveInterface(gHeader, Some(Map()))).mapTo[Option[Int]]
+    val interfaceIdFuture: Future[Option[Int]] = (repositoryPersistenceActor ?? SaveInterface(gHeader, Some(mapper))).mapTo[Option[Int]]
 
     val interfaceId: Option[Int] = Await.result(interfaceIdFuture, timeout.duration)
 

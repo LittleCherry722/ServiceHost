@@ -14,6 +14,7 @@
 package de.tkip.sbpm.rest
 
 import de.tkip.sbpm.model._
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
 import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 import spray.json._
 import scala.collection.immutable.Map
@@ -94,7 +95,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
    * and role id because in graph JSON roles are identified by name
    * not by id.
    */
-  implicit def optionRoleFormat(implicit roles: Map[String, Role] = Map()) = new JsonFormat[Option[Role]] {
+  implicit def optionRoleFormat(implicit roles: RoleMapper = RoleMapper.emptyMapper) = new JsonFormat[Option[Role]] {
     def write(o: Option[Role]) = o match {
       case None    => JsString("noRole")
       // write only role name to JSON
@@ -102,11 +103,11 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
     }
     def read(v: JsValue) = v match {
       // convert role name back to role object if role is known 
-      case JsString(name) if (roles.contains(name)) => Some(roles(name))
+      case JsString(name) if (roles.hasRole(name))  => roles.getRole(name)
       case JsString("noRole")                       => None
       case JsString("")                             => None
       case JsNull                                   => None
-      case _                                        => throw new DeserializationException("Existing role name or null expected. Unknown role: " + v + " Known roles: " + roles)
+      case _                                        => throw new DeserializationException("Existing role name or null expected. Unknown role: " + v + ". RoleMapper: " + roles)
     }
   }
 
@@ -301,7 +302,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
    * Counter values are calculated on the fly when converting to JSON
    * and ignored while converting from JSON to domain model.
    */
-  implicit def subjectFormat(implicit roles: Map[String, Role] = Map()) = new RootJsonFormat[GraphSubject] {
+  implicit def subjectFormat(implicit roles: RoleMapper = RoleMapper.emptyMapper) = new RootJsonFormat[GraphSubject] {
     def write(s: GraphSubject) = JsObject(
       "id" -> s.id.toJson,
       "name" -> s.name.toJson,
@@ -352,7 +353,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
    * and role id because in graph JSON roles are identified by name
    * not by id.
    */
-  implicit def graphJsonFormat(implicit roles: Map[String, Role] = Map()) = new RootJsonFormat[Graph] {
+  implicit def graphJsonFormat(implicit roles: RoleMapper = RoleMapper.emptyMapper) = new RootJsonFormat[Graph] {
     def write(g: Graph) = JsObject(
       "id" -> g.id.toJson,
       "processId" -> g.processId.toJson,
@@ -407,7 +408,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol {
       }
   }
 
-  implicit def interfaceFormat(implicit roles: Map[String, Role] = Map()) = new RootJsonFormat[Interface] {
+  implicit def interfaceFormat(implicit roles: RoleMapper = RoleMapper.emptyMapper) = new RootJsonFormat[Interface] {
     def write(a: Interface) = JsObject(
       "id" -> a.id.toJson,
       "processId" -> JsNumber(a.processId),

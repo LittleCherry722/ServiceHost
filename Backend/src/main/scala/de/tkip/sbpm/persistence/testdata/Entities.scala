@@ -21,6 +21,7 @@ import scala.concurrent.Future
 
 import com.github.t3hnar.bcrypt._
 import scala.concurrent.ExecutionContext
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.json.JsonParser
@@ -242,7 +243,7 @@ object Entities {
         // parse graph jsons and insert graphs
         g <- (persistenceActor ? Graphs.Save(processes.indices.map { i =>
           // use slicks' json parser to convert graph from string to domain model
-          JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(rls)).copy(processId = p(i))
+          JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(RoleMapper.createRoleMapper(rls))).copy(processId = p(i))
         }: _*)).mapTo[Seq[Option[Int]]]
         // update processes' active graph property with graph ids of
         // recently inserted graphs

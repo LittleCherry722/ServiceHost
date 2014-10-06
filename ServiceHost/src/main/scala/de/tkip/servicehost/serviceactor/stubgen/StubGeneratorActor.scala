@@ -16,6 +16,7 @@ import akka.pattern.ask
 import akka.pattern.pipe
 import akka.util.Timeout
 import spray.json._
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import de.tkip.servicehost.ActorLocator
@@ -27,7 +28,7 @@ import de.tkip.sbpm.instrumentation.InstrumentedActor
 case class ServiceExport(version: Int, name: String, author: String, graph: GraphSubject, messages: Map[String, GraphMessage], conversations: Map[String, GraphConversation], processId: Int)
 
 object StubGeneratorActor {
-  implicit val serviceExportFormat = jsonFormat7(ServiceExport)
+  implicit def serviceExportFormat(implicit roles: RoleMapper) = jsonFormat7(ServiceExport)
 }
 
 class StubGeneratorActor extends InstrumentedActor {
@@ -64,6 +65,8 @@ class StubGeneratorActor extends InstrumentedActor {
   }
 
   def extractStates(jsonPath: String): (String, String, Map[Int, State], Map[String, String]) = {
+    implicit val mapper: RoleMapper = RoleMapper.noneMapper
+
     val json_string = scala.io.Source.fromFile(jsonPath).getLines.mkString
     val serviceExport: ServiceExport = json_string.parseJson.convertTo[ServiceExport]
 
