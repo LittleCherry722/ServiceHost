@@ -21,7 +21,7 @@
                 "externalType": "external",
                 "role": "Großunternehmen",
                 "url": null,
-                "implementations": [],
+                "implementations": null,
                 "comment": "",
                 "variables": {},
                 "variableCounter": 1,
@@ -236,7 +236,7 @@
                 "externalType": "interface",
                 "role": "Großunternehmen",
                 "url": null,
-                "implementations": [],
+                "implementations": null,
                 "comment": "",
                 "variables": {
                     "v1": "Message 1 var"
