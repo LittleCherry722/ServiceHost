@@ -68,7 +68,7 @@ private[persistence] class GraphPersistenceActor extends InstrumentedActor
       // save all graphs
       gs.map(save) match {
         // only one graph was given, return it's id
-        case ids if (ids.size == 1) => ids.head
+//        case ids if (ids.size == 1) => ids.head
         // more graphs were given return all ids
         case ids                    => ids
       }

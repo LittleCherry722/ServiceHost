@@ -37,7 +37,7 @@ function GCmacro (parent, id, name)
 	 * @type boolean
 	 */
 	this.setStartEdgeMode	= false;
-	
+
 	/**
 	 * When setEndEdgeMode is set to true and a node is selected, its target (end) node will be set to the node that is clicked on next, given that it is not the current start node.
 	 *
@@ -131,14 +131,14 @@ function GCmacro (parent, id, name)
 	 * @type int
 	 */
 	this.startNode		= null;
-	
+
 	/**
 	 * The edge (key of edges array) of the edge that is currently selected for being assigned a new start Node.
 	 *
 	 * @type int
 	 */
 	this.startEdge		= null;
-	
+
 	/**
 	 * The edge (key of edges array) of the edge that is currently selected for being assigned a new end Node.
 	 *
@@ -305,7 +305,7 @@ function GCmacro (parent, id, name)
 			this.startNode		= this.selectedNode;
 		}
 	};
-	
+
 	/**
 	 * When setStartEdge() is called setStartEdgeMode is toggled.
 	 * When setStartEdgeMode is set to true the setStartEdgeMode is changed to false.
@@ -821,8 +821,7 @@ function GCmacro (parent, id, name)
 			else if (this.setEndEdgeMode === true && this.endEdge)
 			{
 				// no edges must create loops and start node type must be identical
-				if (this.endEdge.start != intId && this.endEdge.end != intId
-					 && this.endEdge.type == this.getEdge(intId).type)
+				if (this.endEdge.start != intId && this.endEdge.end != intId)
 				{
 					this.endEdge.setEnd(intId);
 					this.setEndEdge();

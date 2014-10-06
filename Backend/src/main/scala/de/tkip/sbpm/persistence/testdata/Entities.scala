@@ -80,8 +80,8 @@ object Entities {
     (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
 
   // process with one active graph loaded from corresponding json file
-  val processes = List(
-    (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
+  val processes = List[(Process, String)](
+//    (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
 //    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
 //    (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
 //    (Process(None, None, false, """Staples Test""", false) -> loadJson("staples-test")),
@@ -113,6 +113,13 @@ object Entities {
     (Process(None, None, false, """ServiceToService Test""", false) -> loadJson("ServiceToService")),
     (Process(None, None, false, """Service Host Three""", false) -> loadJson("service_host_three")),
 //    (Process(None, None, false, """Service Host Four""", false) -> loadJson("service_host_four")),
+
+//  variables processes
+    (Process(None, None, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),
+    (Process(None, None, false, """Variables to subjects external""", false) -> loadJson("variables_to_subjects_external")),
+    (Process(None, None, false, """Variables to variables external""", false) -> loadJson("variables_to_variables")),
+    (Process(None, None, false, """Variables to variables and extraction external""", false) -> loadJson("variables_to_variables_extraction")),
+
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
     (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink"))
    )
