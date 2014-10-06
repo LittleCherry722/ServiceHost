@@ -171,15 +171,17 @@ define([
         this.serviceAuthor = ko.observable("");
         this.serviceSubject = ko.observable("");
         this.exportService = function () {
+            var process = currentProcess().duplicate();
+            process.interfaceId(undefined);
+
             var service = {
                 version: 1,
                 name: self.serviceName(),
                 author: self.serviceAuthor(),
-                graph: currentProcess().graphForSubject(self.serviceSubject()),
-                messages: currentProcess().graphObject().messages,
-                conversations: currentProcess().graphObject().conversations,
-                processId: currentProcess().id()
+                subjectId: self.serviceSubject(),
+                process: process
             };
+
             var exportString = JSON.stringify(service);
             var blob = new Blob([exportString], {type: "application/json;charset=" + document.characterSet} );
             window.saveAs( blob, "service_export_" + this.serviceName() + '.json' );
