@@ -17,21 +17,15 @@ object RoleMapper {
     mapper
   }
 
-  //def emptyMapper: RoleMapper = {
-    object emptyMapper extends RoleMapper {
-      override def toString = "emptyMapper"
-      def hasRole(name: String): Boolean = false
-      def getRole(name: String): Option[Role] = None
-    }
-    //mapper
-  //}
+  object emptyMapper extends RoleMapper {
+    override def toString = "emptyMapper"
+    def hasRole(name: String): Boolean = false
+    def getRole(name: String): Option[Role] = None
+  }
 
-  //def noneMapper: RoleMapper = {
-    object noneMapper extends RoleMapper {
-      override def toString = "noneMapper"
-      def hasRole(name: String): Boolean = true
-      def getRole(name: String): Option[Role] = None
-    }
-    //mapper
-  //}
+  object noneMapper extends RoleMapper {
+    override def toString = "noneMapper"
+    def hasRole(name: String): Boolean = true
+    def getRole(name: String): Option[Role] = None
+  }
 }
