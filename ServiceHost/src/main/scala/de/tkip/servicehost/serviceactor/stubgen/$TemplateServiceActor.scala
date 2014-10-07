@@ -2,11 +2,11 @@ package de.tkip.servicehost.serviceactor.stubgen
 
 import akka.actor.Actor
 import de.tkip.servicehost.serviceactor.ServiceActor
-import de.tkip.servicehost.serviceactor.ServiceAttributes._
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.servicehost.Messages._
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.miscellaneous._
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import akka.actor.ActorRef
 import akka.actor.Props
 import akka.actor.PoisonPill
@@ -14,15 +14,17 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import java.util.Date
 import de.tkip.sbpm.application.subject.misc.Stored
 import de.tkip.servicehost.ActorLocator
+import de.tkip.servicehost.ServiceAttributes._
 import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc.Rejected
 
 class $TemplateServiceActor extends ServiceActor {
-  private val INPUT_POOL_SIZE: Int = 20
+  override protected val INPUT_POOL_SIZE: Int = 20
   
   private implicit val service = this
-  private val serviceID: String = "$SERVICEID"
+  override protected val serviceID: ServiceID = "$SERVICEID"
+  override protected val subjectID: SubjectID = "$SERVICEID"
   
   
   private val states: List[State] = List(
@@ -38,11 +40,6 @@ class $TemplateServiceActor extends ServiceActor {
   private val inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef, Any]]] = scala.collection.mutable.Map()
 
   // Subject default values
-  private var userID = -1
-  private var processID = -1
-  private var thisID = -1;
-  private var manager: Option[ActorRef] = null
-  private var subjectID: String = ""
   private var target = -1
   private var messageContent: String = "" // will be used in getResult
 
@@ -68,7 +65,7 @@ class $TemplateServiceActor extends ServiceActor {
     }
   }
 
-  def wrappedReceive = {
+  def stateReceive = {
     case message: SubjectToSubjectMessage => {
       // TODO forward /set variables?
       log.debug("receive message: " + message)
@@ -82,18 +79,6 @@ class $TemplateServiceActor extends ServiceActor {
           log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
       
-    }
-    case message: ExecuteServiceMessage => {
-    }
-    case GetProxyActor => {
-      sender !! self
-    }
-
-    case update: UpdateProcessData => {
-      this.userID = update.userID
-      this.processID = update.remoteProcessID
-      this.thisID = update.processID
-      this.manager = update.manager
     }
   }
 
@@ -163,14 +148,10 @@ class $TemplateServiceActor extends ServiceActor {
   }
 
   def terminate() {
-    ActorLocator.serviceActorManager !! KillProcess(serviceID, thisID)
+    ActorLocator.serviceActorManager !! KillProcess(serviceID, processInstanceID)
   }
 
-  def getUserID(): Int = {
-    userID
-  }
-
-  def getProcessID(): Int = {
+  def getProcessID(): ProcessID = {
     processID
   }
 

@@ -9,8 +9,8 @@ import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.behavior.state.StateData
 import de.tkip.sbpm.application.subject.misc._
 import de.tkip.sbpm.instrumentation.ClassTraceLogger
+import de.tkip.servicehost.ServiceAttributes._
 import de.tkip.servicehost.serviceactor.ServiceActor
-import de.tkip.servicehost.serviceactor.ServiceAttributes._
 
 class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
   //  def apply(id: Int, min:Int, max:Int, createNew : Boolean, variable: Option[String]){
@@ -68,9 +68,10 @@ case class SendState(override val id: Int, override val exitType: String, overri
 
   def send(msg: String)(implicit actor: ServiceActor) {
 
+    // TODO: processInstanceID
     val messageID = 100 //TODO change if needed
     val messageType = targetIds.head._1 
-    val userID = actor.getUserID()
+    val userID = 1
     val processID = actor.getProcessID()
     val subjectID = actor.getSubjectID()
     val sender = actor.getDestination()
