@@ -101,6 +101,12 @@ var gv_nodeTypes	= {
 	// an empty node to merge two paths together
 	merge: {shape: "circle", text: "", label: "merge"},
 
+	// a tau node for arbitrary internal actions etc.
+	$chooseagent: {shape: "circle", text: "CA", label: "chooseAgent"},
+
+	// a tau node for arbitrary internal actions etc.
+	tau: {shape: "circle", text: "T", label: "tau"},
+
 	// macro nodes contain a macro which will be loaded on dbl-click
 	macro: {shape: "roundedrectangle", text: null, label: "macro"}
 };
@@ -112,6 +118,8 @@ var gv_nodeTypes	= {
  */
 var gv_nodeTypeImg	= {
 	emptyNodeImg: "clearNode.png",
+	CA: "choose_agent.png",
+	T: "tau.png",
 	S: "send.png",
 	R: "receive.png",
 	MS: "modalsplit_small.png",
@@ -162,6 +170,9 @@ var gv_predefinedActions	= {
 
 	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
 	isipempty: {subject: false, message: true, wildcard: true, label: "isIPempty", conversation: true, correlationid: false, options: true, state: false, variableman: false, booledge: true, createsubjects: false},
+
+	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
+	tau: {chooseagent: false, subject: false, message: false, wildcard: false, label: "", conversation: false, correlationid: false, options: false, state: false, variableman: false, booledge: true, createsubjects: false},
 
 	// the isIPempty action has two to four parameters (messageType, Subject, correlationId, conversation) and is used to read the state of the input pool for a certain subject and messageType (also all subjects / all messageTypes / all correlationIds (default) / all conversations (default) are allowed)
 	chooseagent: {chooseagent: true, subject: false, message: false, wildcard: false, label: "Choose Agent", conversation: false, correlationid: false, options: true, state: false, variableman: false, booledge: true, createsubjects: false},
