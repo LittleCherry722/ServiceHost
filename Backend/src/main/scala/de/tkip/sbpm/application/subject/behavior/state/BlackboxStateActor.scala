@@ -33,13 +33,13 @@ import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
 
+import de.tkip.sbpm.application.miscellaneous.{ RoleMapper, UnBlockUser }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
 import de.tkip.sbpm.application.subject.misc.ActionData
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.application.ProcessInstanceActor.{RegisterSubjects, AgentAddress, Agent}
 import de.tkip.sbpm.application.subject.CallMacroStates
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
-import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import akka.event.Logging
 
 object BlackboxStateActor {
@@ -88,7 +88,9 @@ case class BlackboxStateActor(data: StateData)
 
       val rolesSeq: Seq[Role] = res.asInstanceOf[Seq[Role]]
 
-      implicit val roles: Map[String, Role] = rolesSeq.map(r => (r.name, r)).toMap
+      val roles: Map[String, Role] = rolesSeq.map(r => (r.name, r)).toMap
+
+      implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roles)
 
       val interface: Interface = plaintextGraph.parseJson.convertTo[Interface]
       val reversedGraph: Graph = reverseExternalSubjects(interface.graph)

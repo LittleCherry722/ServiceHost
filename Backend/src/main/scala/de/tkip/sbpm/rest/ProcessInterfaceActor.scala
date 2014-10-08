@@ -22,6 +22,7 @@ import scala.concurrent.{future, Await}
 import scala.concurrent.duration._
 import spray.httpx.SprayJsonSupport._
 import de.tkip.sbpm.ActorLocator
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
 import de.tkip.sbpm.rest.JsonProtocol._
 import de.tkip.sbpm.repository.RepositoryPersistenceActor.{DeleteInterface, SaveInterface}
 import spray.json._
@@ -201,7 +202,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     onSuccess(roleFuture) {
       roles =>
         // implicite value for marshalling
-        implicit val roleMap = roles.map(r => (r.name, r)).toMap
+        val roleMap = roles.map(r => (r.name, r)).toMap
+        implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
         complete(result)
     }
   }
@@ -273,7 +275,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
     onSuccess((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]) {
       roles =>
         // implicite value for marshalling
-        implicit val roleMap = roles.map(r => (r.name, r)).toMap
+        val roleMap = roles.map(r => (r.name, r)).toMap
+        implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
         complete(result)
     }
   }
@@ -286,7 +289,8 @@ class ProcessInterfaceActor extends InstrumentedActor with PersistenceInterface 
       onSuccess((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]]) {
         roles =>
           // implicite value for marshalling
-          implicit val roleMap = roles.map(r => (r.name, r)).toMap
+          val roleMap = roles.map(r => (r.name, r)).toMap
+          implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roleMap)
 
           entity(as[GraphHeader]) {
             json =>

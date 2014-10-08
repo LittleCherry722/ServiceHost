@@ -70,7 +70,7 @@ object main extends App with ClassTraceLogger {
 
     val generator = system.actorOf(Props[StubGeneratorActor], "stub-generator-actor")
 
-    val future = generator ?? path // ask pattern: response will be stored in future
+    val future = generator ?? GenerateService(path) // ask pattern: response will be stored in future
     future onComplete {
       case Success(res) => {
           val ref = res.asInstanceOf[Reference]
@@ -133,6 +133,10 @@ object main extends App with ClassTraceLogger {
   }
 
   def registerInterface(reference: Reference): Unit = {
+    implicit val mapper: RoleMapper = RoleMapper.noneMapper
+
+    val subjectId = reference.subjectId
+
     log.debug("read service: " + reference)
 
     val file = reference.json
@@ -142,50 +146,26 @@ object main extends App with ClassTraceLogger {
 
     // create objects from json
 
-    val processId: Int = nextId //1337 //obj.getFields("processId").head.convertTo[Int] // TODO: what should be used here?
-    val date: java.sql.Timestamp = new java.sql.Timestamp(System.currentTimeMillis()) // TODO: what should be used here?
-    val routings: Seq[GraphRouting] = List() // TODO: what should be used here?
+    val processId: Int = nextId // TODO: the registration of a service should generate processIds, which then are used as a mapping to the implementation. currently the ServiceHost can only offer one implementation for one subjectId
+
+    val export_tmp: ServiceExport = sourceString.parseJson.convertTo[ServiceExport]
+    if (subjectId != export_tmp.subjectId) log.error("reference subjectId != json subjectId")
+    val graph_tmp: Graph = export_tmp.process.graph.get
+
+    val subjects_new: Map[String, GraphSubject] = graph_tmp.subjects.map({ case (id, subj) => (id, subj.copy(implementations = Some(List())))})
+
+    val graph_new = graph_tmp.copy(subjects = subjects_new)
+
+    val export = export_tmp.copy(process = export_tmp.process.copy(graph = Some(graph_new), id = Some(processId)))
 
 
-    val serviceExport: ServiceExport = sourceString.parseJson.convertTo[ServiceExport]
-    val graphSubject: GraphSubject = serviceExport.graph.copy(
-      role = None,
-      subjectType = "single",
-      isImplementation = Some(true),
-      implementations = Some(List())
-    )
-
-    val subjects: Map[String, GraphSubject] = Map(graphSubject.id -> graphSubject)
-
-
-    val graph = Graph(
-      None,
-      Some(serviceExport.processId),
-      date,
-      serviceExport.conversations,
-      serviceExport.messages,
-      subjects,
-      routings
-    )
-
-
-
-    val gHeader = GraphHeader(
-      serviceExport.name,
-      None,
-      true, // TODO??
-      Some(graph),
-      false, // TODO??
-      Some(processId)
-    )
-
-    val interfaceIdFuture: Future[Option[Int]] = (repositoryPersistenceActor ?? SaveInterface(gHeader, Some(Map()))).mapTo[Option[Int]]
+    val interfaceIdFuture: Future[Option[Int]] = (repositoryPersistenceActor ?? SaveInterface(export.process, Some(mapper))).mapTo[Option[Int]]
 
     val interfaceId: Option[Int] = Await.result(interfaceIdFuture, timeout.duration)
 
     if (interfaceId.isDefined) {
       var id: Int = interfaceId.get
-      log.info("Registered interface for '" + serviceExport.name + "'; got interfaceId '" + interfaceId + "' from repository")
+      log.info("Registered interface for '" + export.name + "'; got interfaceId '" + interfaceId + "' from repository")
       registeredInterfaces(id) = reference
     } else {
       log.warning("Some error occurred")

@@ -14,7 +14,7 @@
 package de.tkip.sbpm.repository
 
 import scala.collection.immutable.{ Map, Set }
-import de.tkip.sbpm.application.miscellaneous.SystemProperties
+import de.tkip.sbpm.application.miscellaneous.{ RoleMapper, SystemProperties }
 import de.tkip.sbpm.logging.DefaultLogging
 import akka.actor.{ ActorRef, Props }
 import akka.util._
@@ -34,7 +34,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
 import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 
 object RepositoryPersistenceActor {
-  case class SaveInterface(json: GraphHeader, roles: Option[Map[String, Role]] = None)
+  case class SaveInterface(json: GraphHeader, roles: Option[RoleMapper] = None)
   case class DeleteInterface(interfaceId: Int)
   case class GetAgentsMapMessage(agentIds: Iterable[SubjectID])
   case class AgentsMappingResponse(possibleAgents: Map[String, Set[Agent]])
@@ -64,12 +64,13 @@ class RepositoryPersistenceActor extends InstrumentedActor {
     case SaveInterface(gHeader, roles) => {
       log.debug("[SAVE INTERFACE] save message received")
 
-      implicit val roleMap = if (roles.isDefined) {
+      implicit val roleMap: RoleMapper = if (roles.isDefined) {
                                roles.get
                              }
                              else {
                                val rolesFuture = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
-                               rolesFuture.map(r => (r.name, r)).toMap
+                               val rm = rolesFuture.map(r => (r.name, r)).toMap
+                               RoleMapper.createRoleMapper(rm)
                              }
 
       val interface = gHeader.toInterfaceHeader().toJson.toString()

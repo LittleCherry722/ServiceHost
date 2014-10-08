@@ -11,9 +11,10 @@ import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceData
 import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.instrumentation.InstrumentedActor
-import de.tkip.servicehost.serviceactor.ServiceAttributes._
-import Messages._
+import de.tkip.servicehost.ServiceAttributes._
+import de.tkip.servicehost.Messages._
 import akka.remote.Remoting
 import sun.security.util.HostnameChecker
 
@@ -21,11 +22,14 @@ class ServiceActorManager extends InstrumentedActor {
 
   private val referenceXMLActor = ActorLocator.referenceXMLActor
   private implicit val timeout = Timeout(5 seconds)
-  private var processInstanceCount = 998;
   private val processServiceMap = collection.mutable.Map[ProcessKey, ServiceActorRef]()
-  var subjectID: String = ""
-  var processID: Int = 0
-  var processInstanceID : Int = 0
+
+  var currentProcessInstanceID = 1
+  private def nextProcessInstanceID: ProcessInstanceID = {
+    val id = currentProcessInstanceID
+    currentProcessInstanceID += 1
+    id
+  }
 
   private val serviceMap =
     collection.mutable.Map[ServiceID, ServiceActorRef]()
@@ -43,60 +47,46 @@ class ServiceActorManager extends InstrumentedActor {
     }
     case request: CreateProcessInstance => {
       log.debug("got CreateProcessInstance: " + request)
-      
-      processID = request.processID 
+
+      val processInstanceID: ProcessInstanceID = nextProcessInstanceID
+
+      // TODO: what of both is request.processID ?
+      val processID: ProcessID = request.processID
+      val remoteProcessID: ProcessID = request.processID
+
+      var subjectID: SubjectID = null
       for (agent <- request.agentsMap.values) { // through IP get subjectID
         if(agent.address.toUrl.equals("@" + main.hostname + ":" + main.port )){
           subjectID = agent.subjectId
         }
       }
+      val serviceID: ServiceID = subjectID // TODO !!!
 
-      //      val actorInstance = serviceActor("Staples") //forward request
-
+      // TODO: load reference via processID, and retrieve subjectID from it
       val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage(subjectID)
       val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
-      val actorInstance = this.context.actorOf(Props.create(classRef.classReference), subjectID )
+      val actorInstance = this.context.actorOf(Props.create(classRef.classReference), serviceID + "_" + processInstanceID )
 
-      // add to serviceMap supposed to be like:
-      //processServiceMap += ("Staples", processInstanceCount) -> actorInstance
-      //
-      // for now: hardcoded processID:
-      //processServiceMap += ("Staples", 0) -> actorInstance
-      processServiceMap += (subjectID , processID) -> actorInstance
+      // TODO: map via processID
+      processServiceMap += (serviceID, processInstanceID) -> actorInstance
       
-      val userID = request.userID
       val manager = request.manager
-
-      // TODO implement
-
-      // fake ProcessInstanceActor:
 
       val persistenceGraph = null
       val processName = ""
       val startedAt = new Date()
       val actions = null
       
-      //val processInstanceData = ProcessInstanceData(0, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
-      val processInstanceData = ProcessInstanceData(processInstanceID , request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
-      processInstanceID  = processInstanceID + 1
+      val processInstanceData = ProcessInstanceData(processInstanceID, request.name, request.processID, processName, persistenceGraph, false, startedAt, request.userID, actions)
       sender !! ProcessInstanceCreated(request, actorInstance, processInstanceData)
 
-      //      actorInstance ! UpdateProcessData(userID, processInstanceCount, processID, manager)
-      actorInstance !! UpdateProcessData(userID, processID, processID, manager)
-
-      processInstanceCount += 1
-    }
-    case GetProxyActor => {
-      log.info("received GetProxyActor")
-      // TODO implement
-      // fake ProcessInstanceProxyActor:
-      //serviceActor(("Staples",0)) forward GetProxyActor
-      serviceActor((subjectID , processID )) forward GetProxyActor
+      actorInstance !! UpdateProcessData(processInstanceID, remoteProcessID, manager)
     }
 
     case process: KillProcess => {
-      processServiceMap((process.serviceID, process.processID)) !! PoisonPill
-      processServiceMap.remove((process.serviceID, process.processID))
+      log.info("processServiceMap: " + processServiceMap)
+      processServiceMap((process.serviceID, process.processInstanceID)) !! PoisonPill
+      processServiceMap.remove((process.serviceID, process.processInstanceID))
     }
 
   }
