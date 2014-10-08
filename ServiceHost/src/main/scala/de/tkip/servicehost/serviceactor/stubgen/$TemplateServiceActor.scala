@@ -37,7 +37,7 @@ class $TemplateServiceActor extends ServiceActor {
       
   // start with first state
   private var state: State = getState(0)
-  private val inputPool: scala.collection.mutable.Map[Tuple2[String, String], Queue[Tuple2[ActorRef, Any]]] = scala.collection.mutable.Map()
+  private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
 
   // Subject default values
   private var target = -1
@@ -46,22 +46,34 @@ class $TemplateServiceActor extends ServiceActor {
   def processMsg() {
     log.debug("processMsg")
 
-    val messageType = this.branchCondition
-
-    val targetID = state.targets(this.branchCondition).target.subjectID
-
-    val key = (messageType, targetID)
-    // TODO: prüfen, ob es eine passende message im pool gibt?
-    val tuple: Tuple2[ActorRef, SubjectToSubjectMessage] = (inputPool(key).dequeue).asInstanceOf[Tuple2[ActorRef, SubjectToSubjectMessage]];
-    val message = tuple._2
-
-    log.debug("processMsg: message = " + message)
-
     state match {
-      case rs: ReceiveState =>
-        rs.handle(message)
+      case rs: ReceiveState => {
+        var message: SubjectToSubjectMessage = null
+
+        for ((branch, target) <- state.targets) {
+          val messageType: MessageType = branch
+          val fromSubjectID: SubjectID = target.target.subjectID
+          val key = (messageType, fromSubjectID)
+          log.debug("processMsg: key = " + key)
+
+          if (inputPool.contains(key) && inputPool(key).length > 0) {
+            message = inputPool(key).dequeue;
+          }
+        }
+
+        log.debug("processMsg: message = " + message)
+
+        if (message != null) {
+          this.messageContent = message.messageContent
+
+          this.branchCondition = message.messageType
+
+          rs.handle(message) // calls changeState
+        }
+        else log.info("ReceiveState could not find any matching message. ReceiveState will wait until it arrivies")
+      }
       case _ =>
-        log.warning("unable to handle message, need to be in ReceiveState. Current state is: " + state)
+        log.info("unable to handle message now, needs to be in ReceiveState. Current state is: " + state)
     }
   }
 
@@ -70,7 +82,6 @@ class $TemplateServiceActor extends ServiceActor {
       // TODO forward /set variables?
       log.debug("receive message: " + message)
       storeMsg(message, sender)
-      messageContent = message.messageContent 
 
       state match {
         case rs: ReceiveState =>
@@ -78,11 +89,10 @@ class $TemplateServiceActor extends ServiceActor {
         case _ =>
           log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
-      
     }
   }
 
-  def changeState() {						
+  def changeState() {
     log.debug("changeState: old state: " + state)
     state match {
       case s: ExitState => {
@@ -112,12 +122,12 @@ class $TemplateServiceActor extends ServiceActor {
     log.debug("storeMsg: " + message + " from " + sender)
     message match {
       case message: SubjectToSubjectMessage => {
-        val targetID = state.targets(message.messageType)
-        val key = (message.messageType.toString(), targetID.target.subjectID)
+        val key = (message.messageType, message.from)
+        log.debug("storeMsg: key = " + key)
 
         if (inputPool.contains(key)) {
           if (inputPool(key).size < INPUT_POOL_SIZE) {
-            (inputPool(key)).enqueue(Tuple2(sender, message))
+            (inputPool(key)).enqueue(message)
             log.debug("storeMsg: Stored")
             sender !! Stored(message.messageID)
           } else {
@@ -125,15 +135,10 @@ class $TemplateServiceActor extends ServiceActor {
             sender !! Rejected(message.messageID)
           }
         } else {
-          inputPool(key) = Queue(Tuple2(sender, message))
+          inputPool(key) = Queue(message)
           log.debug("storeMsg: Stored")
           sender !! Stored(message.messageID)
         }
-
-        if (state.targetIds.size > 1) 
-          this.branchCondition = getBranchIDforType(message.messageType).asInstanceOf[String]
-        else 
-          this.branchCondition = state.targetIds.head._1
       }
       case message => log.warning("unable to store message: " + message)
     }

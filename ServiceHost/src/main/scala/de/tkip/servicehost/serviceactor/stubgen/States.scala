@@ -5,6 +5,7 @@ import scala.collection.immutable.List
 import akka.actor.PoisonPill
 import akka.event.LoggingAdapter
 
+import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.behavior.state.StateData
 import de.tkip.sbpm.application.subject.misc._
@@ -12,11 +13,11 @@ import de.tkip.sbpm.instrumentation.ClassTraceLogger
 import de.tkip.servicehost.ServiceAttributes._
 import de.tkip.servicehost.serviceactor.ServiceActor
 
-class Target(id: String, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
+class Target(subjectID: SubjectID, min: Int, max: Int, createNew: Boolean, variable: Option[String]) {
   //  def apply(id: Int, min:Int, max:Int, createNew : Boolean, variable: Option[String]){
   val toExternal = false
   val defaultValues = true;
-  val target = new de.tkip.sbpm.application.subject.behavior.Target(id, 0, 1, createNew, variable, toExternal, defaultValues)
+  val target = new de.tkip.sbpm.application.subject.behavior.Target(subjectID, 0, 1, createNew, variable, toExternal, defaultValues)
   //}
 
 }
