@@ -887,7 +887,17 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			if (gt_correlation == null || gt_correlation == "")
 				gt_correlation	= "";
 			else
-				gt_correlation	= " with (" + this.getCorrelationId("name") + ")"
+				gt_correlation	= " with (" + this.getCorrelationId("name") + ")";
+
+			// messages
+			if (gt_startNode && gt_startNode.getType() == "$chooseagent")
+			{
+        if (this.getVariable()) {
+          return "Agent channel saved in:\n" + this.getVariable("name");
+        } else {
+          return "Please select variable\nto save agent channel to";
+        }
+			}
 
 			// messages
 			if (gt_startNode && (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive"))

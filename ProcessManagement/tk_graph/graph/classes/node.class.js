@@ -660,7 +660,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	{
 		if (this.getType() == "$chooseagent" && gf_isset(subject))
 		{
-      this.chooseAgentSubject = subject
+      this.chooseAgentSubject = subject;
 		}
 	};
 

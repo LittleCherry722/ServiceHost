@@ -351,6 +351,27 @@ function gf_guiClearInputFields ()
 	gf_guiElementEnable(gv_elements.inputEdgeText, "readonly");
 }
 
+function gf_showVariableSelect(edge) {
+		// add event for variable select
+		if (gf_elementExists(gv_elements.inputEdgeStoreVariable))
+		{
+			  document.getElementById(gv_elements.inputEdgeStoreVariable).onchange = function ()
+			  {
+				    if (gf_guiElementRead(gv_elements.inputEdgeStoreVariable, "string") == "##createNew##")
+					      gf_guiElementShow(gv_elements.inputEdgeStoreVariableNO);
+				    else
+					      gf_guiElementHide(gv_elements.inputEdgeStoreVariableNO);
+			  };
+		}
+
+		// load variables
+		gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeStoreVariable, true, false);
+		gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
+
+		gf_guiElementShow(gv_elements.inputEdgeStoreOuter);
+		gf_guiElementWrite(gv_elements.inputEdgeStoreVariable, "string", edge.getVariable(), "");
+}
+
 /**
  * Load the information of the selected edge into the input fields.
  *
@@ -410,6 +431,10 @@ function gf_guiDisplayEdge (edge, startType)
 			gf_guiElementShow(gv_elements.inputEdgeTypeCondO);
 	}
 
+  if (startType == "$chooseagent") {
+    gf_showVariableSelect(edge);
+  }
+
 	// select type
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanFalse, "bool", edge.getType() == "boolfalse");
 	gf_guiElementWrite(gv_elements.inputEdgeTypeBooleanTrue, "bool", edge.getType() == "booltrue");
@@ -432,25 +457,7 @@ function gf_guiDisplayEdge (edge, startType)
 	// handle fields that are only available for startNodes == send | receive | action
 	if (startType == "send" || startType == "receive" || startType == "action")
 	{
-		// add event for variable select
-		if (gf_elementExists(gv_elements.inputEdgeStoreVariable))
-		{
-			document.getElementById(gv_elements.inputEdgeStoreVariable).onchange = function ()
-			{
-				if (gf_guiElementRead(gv_elements.inputEdgeStoreVariable, "string") == "##createNew##")
-					gf_guiElementShow(gv_elements.inputEdgeStoreVariableNO);
-				else
-					gf_guiElementHide(gv_elements.inputEdgeStoreVariableNO);
-			};
-		}
-
-		// load variables
-		gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeStoreVariable, true, false);
-		gf_guiLoadDropDownVariables(edge.parentBehavior, gv_elements.inputEdgeTargetMVariable, false, false);
-
-		gf_guiElementShow(gv_elements.inputEdgeStoreOuter);
-		gf_guiElementWrite(gv_elements.inputEdgeStoreVariable, "string", edge.getVariable(), "");
-
+    gf_showVariableSelect(edge);
 
 		// fields that are only available for startNode == send | receive
 		if (startType == "send" || startType == "receive")
@@ -458,7 +465,7 @@ function gf_guiDisplayEdge (edge, startType)
 
 			var gt_isAll		= true;
 			var gt_createNew	= false;
-			var gt_isVariable	= edge.getRelatedSubject("variable") != null && edge.getRelatedSubject("variable") != "";
+			var gt_isVariable	= edge.getRelatedSubject("variable") && edge.getRelatedSubject("variable");
 
 			// load drop down fields
 			gf_guiLoadDropDownCorrelationIds(edge.parentBehavior, gv_elements.inputEdgeCorrelationId, true, false);
@@ -473,7 +480,7 @@ function gf_guiDisplayEdge (edge, startType)
 			    gf_guiElementShow(gv_elements.inputEdgeExchangeOriginO);
         }
       }
-      
+
 			gf_guiLoadDropDownTransportMethods(gv_elements.inputEdgeTransportMethod, edge.getTransportMethod());
 			gf_guiLoadDropDownNewSubject(gv_elements.inputEdgeTargetNewRole, gv_elements.inputSubjectRole);
 
