@@ -228,7 +228,7 @@
 					"edges" : [{
 							"start" : 1,
 							"end" : 2,
-							"text" : "m2",
+							"text" : "m3",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -250,7 +250,7 @@
 						}, {
 							"start" : 2,
 							"end" : 6,
-							"text" : "m3",
+							"text" : "m6",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -301,7 +301,7 @@
 						}, {
 							"start" : 0,
 							"end" : 1,
-							"text" : "m1",
+							"text" : "m5",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -583,7 +583,7 @@
 					"edges" : [{
 							"start" : 0,
 							"end" : 6,
-							"text" : "m2",
+							"text" : "m3",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -620,7 +620,7 @@
 						}, {
 							"start" : 2,
 							"end" : 3,
-							"text" : "m3",
+							"text" : "m6",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -642,7 +642,7 @@
 						}, {
 							"start" : 4,
 							"end" : 5,
-							"text" : "m1",
+							"text" : "m5",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -701,9 +701,9 @@
 	"conversations" : {},
 	"conversationCounter" : 1,
 	"messages" : {
-		"m1" : "start_end",
-		"m2" : "green",
-		"m3" : "route"
+		"m5" : "start_end",
+		"m3" : "green",
+		"m6" : "route"
 	},
 	"messageCounter" : 3,
 	"nodeCounter" : 5434

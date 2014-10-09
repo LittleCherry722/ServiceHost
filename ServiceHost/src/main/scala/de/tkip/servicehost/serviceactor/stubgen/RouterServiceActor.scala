@@ -31,13 +31,13 @@ class RouterServiceActor extends ServiceActor {
   
   
   override protected def states: List[State] = List(
-      ReceiveState(0,"exitcondition",Map("m2" -> Target("Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",-1,-1,false,"")),Map("m2" -> 6),"Router: receive green points"),
+      ReceiveState(0,"exitcondition",Map("m3" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m3" -> 6),"Router: receive green points"),
       storestart_end(5,"exitcondition",Map(),Map("5" -> 0),"store start_end"),
       generateroute(1,"exitcondition",Map(),Map("1" -> 2),"generate route"),
       storegreenpoints(6,"exitcondition",Map(),Map("6" -> 1),"store green points"),
-      SendState(2,"exitcondition",Map("m3" -> Target("Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",-1,-1,false,"")),Map("m3" -> 3),"send route"),
+      SendState(2,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 3),"send route"),
       ExitState(3,null,Map(),Map(),null),
-      ReceiveState(4,"exitcondition",Map("m1" -> Target("Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",-1,-1,false,"")),Map("m1" -> 5),"Router: receive start_end")
+      ReceiveState(4,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 5),"Router: receive start_end")
       )
 
   // start with first state
@@ -48,7 +48,7 @@ class RouterServiceActor extends ServiceActor {
 
   
   private val messages: Map[MessageType, MessageText] = Map(
-      "start_end" -> "m1","green" -> "m2","route" -> "m3"
+      "start_end" -> "m5","green" -> "m3","route" -> "m6"
       )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
