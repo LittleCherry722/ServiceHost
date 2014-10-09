@@ -66,8 +66,8 @@ define([
         }
     };
 
-    var poll = function() {
-        return false;
+    var poll = function(force) {
+        if (!force) return false;
         var data = {
             t: getTime() - lastUpdate
         };
@@ -83,6 +83,7 @@ define([
             }
         });
     };
+    window.pollChanges = poll;
 
     var update = function( pollingData ) {
         var changesReceived = false;
