@@ -103,7 +103,7 @@ case class SendState(override val id: Int, override val exitType: String, overri
 case class ExitState(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("exit", id, exitType, targets, targetIds, text) {
 
   def process()(implicit actor: ServiceActor) {		
-    actor.terminate()
+    actor.reset()
   }
 }
 //

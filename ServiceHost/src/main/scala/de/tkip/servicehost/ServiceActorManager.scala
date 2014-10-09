@@ -31,9 +31,6 @@ class ServiceActorManager extends InstrumentedActor {
     id
   }
 
-  private val serviceMap =
-    collection.mutable.Map[ServiceID, ServiceActorRef]()
-
   def wrappedReceive = {
     case execute: ExecuteServiceMessage => {
       // TODO
@@ -42,8 +39,7 @@ class ServiceActorManager extends InstrumentedActor {
       //TODO implement
     }
     case message: SubjectToSubjectMessage => {
-      //      serviceActor((message.target.subjectID,message.processID)) forward message
-      serviceActor((message.target.subjectID, 0)) forward message
+      processServiceMap((message.target.subjectID, 0)) forward message
     }
     case request: CreateProcessInstance => {
       log.debug("got CreateProcessInstance: " + request)
@@ -83,39 +79,7 @@ class ServiceActorManager extends InstrumentedActor {
       actorInstance !! UpdateProcessData(processInstanceID, remoteProcessID, manager)
     }
 
-    case process: KillProcess => {
-      log.info("processServiceMap: " + processServiceMap)
-      processServiceMap((process.serviceID, process.processInstanceID)) !! PoisonPill
-      processServiceMap.remove((process.serviceID, process.processInstanceID))
-    }
-
-  }
-
-  def serviceActor(key: ProcessKey): akka.actor.ActorRef = {
-    //    serviceMap.getOrElse(serviceID, {
-    //      val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage(serviceID)
-    //      val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
-    //      val actor = this.context.actorOf(new Props(classRef.classReference), serviceID)
-    //      serviceMap += serviceID -> actor
-    //      actor
-    //    })
-
-    processServiceMap(key)
-    //    
-    //    processServiceMap.getOrElse(key, {
-    //      val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage(serviceID)
-    //      val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
-    //      val actor = this.context.actorOf(new Props(classRef.classReference), serviceID)
-    //      serviceMap += key -> actor
-    //      actor
-    //    })
-  }
-
-  def killService(serviceID: String) = {
-    if (serviceMap.contains(serviceID)) {
-      context.stop(serviceMap(serviceID))
-      serviceMap -= serviceID
-    }
+    case x => log.warning("not implemented: " + x)
 
   }
 

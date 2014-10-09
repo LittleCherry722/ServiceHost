@@ -22,26 +22,35 @@ import de.tkip.sbpm.application.subject.misc.Rejected
 class $TemplateServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
   
-  private implicit val service = this
   override protected val serviceID: ServiceID = "$SERVICEID"
   override protected val subjectID: SubjectID = "$SERVICEID"
   
   
-  private val states: List[State] = List(
+  override protected def states: List[State] = List(
       //$EMPTYSTATE$//
       )
+
+  // start with first state
+  // TODO: that is not always the start state!
+  def getStartState(): State = {
+    getState(0)
+  }
+
   
   private val messages: Map[MessageType, MessageText] = Map(
       //$EMPTYMESSAGE$//
       )
-      
-  // start with first state
-  private var state: State = getState(0)
+
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
 
   // Subject default values
   private var target = -1
   private var messageContent: String = "" // will be used in getResult
+
+  override def reset = {
+    // TODO: reset custom properties
+    super.reset
+  }
 
   def processMsg() {
     log.debug("processMsg")
@@ -163,10 +172,10 @@ class $TemplateServiceActor extends ServiceActor {
   def getSubjectID(): String = {
     serviceID
   }
-  
+
   def getResult(msg: String): String = {   // handle the messageContent
     msg
   }
- 
+
   //$ACTIONSTATESIMPLEMENTATION$//
 }
