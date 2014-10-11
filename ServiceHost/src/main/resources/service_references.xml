@@ -1,4 +1,5 @@
 <references>
         <reference processid="1" subjectid="Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1" path="de.tkip.servicehost.serviceactor.stubgen.RouterServiceActor" json="./src/main/resources/service_JSONs/RouterServiceActor.json"/>
+<reference processid="2" subjectid="Subj2:1ca1b32f-af47-4951-882a-19c9766b38dd" path="de.tkip.servicehost.serviceactor.stubgen.TankstelleServiceActor" json="./src/main/resources/service_JSONs/TankstelleServiceActor.json"/>
 
       </references>
