@@ -146,7 +146,7 @@ object main extends App with ClassTraceLogger {
 
     // create objects from json
 
-    val processId: Int = nextId // TODO: the registration of a service should generate processIds, which then are used as a mapping to the implementation. currently the ServiceHost can only offer one implementation for one subjectId
+    val processId: Int = reference.processId
 
     val export_tmp: ServiceExport = sourceString.parseJson.convertTo[ServiceExport]
     if (subjectId != export_tmp.subjectId) log.error("reference subjectId != json subjectId")

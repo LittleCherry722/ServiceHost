@@ -50,18 +50,14 @@ class ServiceActorManager extends InstrumentedActor {
       val processID: ProcessID = request.processID
       val remoteProcessID: ProcessID = request.processID
 
-      var subjectID: SubjectID = null
-      for (agent <- request.agentsMap.values) { // through IP get subjectID
-        if(agent.address.toUrl.equals("@" + main.hostname + ":" + main.port )){
-          subjectID = agent.subjectId
-        }
-      }
+
+      val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage(processID)
+      val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
+
+      var subjectID: SubjectID = classRef.subjectId
       val serviceID: ServiceID = subjectID // TODO !!!
 
-      // TODO: load reference via processID, and retrieve subjectID from it
-      val future: Future[Any] = referenceXMLActor ?? GetClassReferenceMessage(subjectID)
-      val classRef: ClassReferenceMessage = Await.result(future, timeout.duration).asInstanceOf[ClassReferenceMessage]
-      val actorInstance = this.context.actorOf(Props.create(classRef.classReference), serviceID + "_" + processInstanceID )
+      val actorInstance = this.context.actorOf(Props.create(classRef.classReference), serviceID + "_" + processID + "_" + processInstanceID )
 
       // TODO: map via processID
       processServiceMap += (serviceID, processInstanceID) -> actorInstance
