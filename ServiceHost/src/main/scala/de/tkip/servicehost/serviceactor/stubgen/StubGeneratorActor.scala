@@ -6,7 +6,7 @@ import java.io.FileReader
 import java.io.FileWriter
 import scala.reflect.ClassTag
 import scala.collection.immutable.Map
-import scala.collection.mutable.{ Map => MutableMap }
+import scala.collection.mutable.{ Map => MutableMap, ArrayBuffer }
 import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
@@ -117,7 +117,7 @@ class StubGeneratorActor extends InstrumentedActor {
     val statesList: Map[Int, State] = for ((id, node) <- nodes) yield {
       node.nodeType match {
         case StateType.ReceiveStateString => (id.toInt -> ReceiveState(id.toInt))
-        case StateType.SendStateString 	  => (id.toInt -> SendState(id.toInt))
+        case StateType.SendStateString    => (id.toInt -> SendState(id.toInt))
         case StateType.ActStateString     => (id.toInt -> ActionState(id.toInt))
         case StateType.EndStateString     => (id.toInt -> ExitState(id.toInt))
         case _                            => (id.toInt -> null)
@@ -183,18 +183,16 @@ class StubGeneratorActor extends InstrumentedActor {
   def fillInClass(classPath: String, name: String, id: String, states: Map[Int, State], messages: Map[String, String]): File = {
     var classText = scala.io.Source.fromFile(classPath).mkString
     classText = classText.replace("$SERVICEID", id)
-    var text = ""
+    var texts: ArrayBuffer[String] = ArrayBuffer()
     for (state <- states.values) {
       state match {
         case s: ActionState => {
-          //println(s.toString().replaceFirst("\\(", s.id + "(") + ",")		//deeebug
-          //          text = text + (s.toString().replaceFirst("\\(", s.id + "(") + ",")                
-          text = text + (s.toString.replaceFirst("ActionState", s.text.replaceAll("\"", "").replaceAll(" ", ""))) + ","
+          texts += s.toString.replaceFirst("ActionState", s.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll(":", "_"))
         }
-        case _ => text = text + state + ","
+        case _ => texts += state.toString
       }
     }
-    classText = classText.replace("//$EMPTYSTATE$//", text.subSequence(0, text.length - 1))
+    classText = classText.replace("//$EMPTYSTATE$//", texts.mkString(",\n      "))
     var f = new File(classPath.replace("$Template", name))
     if (f.exists()) {
       var i = 2
@@ -211,35 +209,32 @@ class StubGeneratorActor extends InstrumentedActor {
     for (state <- states.values) {
       state match {
         case s: ActionState => {
-          impementation = impementation + "\n  case class " + state.text.replaceAll("\"", "").replaceAll(" ", "") + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State(\"action\", id, exitType, targets, targetIds, text) {\n"
+          impementation = impementation + "\n\n  case class " + state.text.replaceAll("\"", "").replaceAll(" ", "").replaceAll(":", "_") + "(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State(\"action\", id, exitType, targets, targetIds, text) {\n"
           impementation = impementation + "\n    val stateName = \"\" //TODO state name\n"
           impementation = impementation + "\n    def process()(implicit actor: ServiceActor) {"
 
           if (edgeMap(s.id).length > 1) {
-            impementation = impementation + "\n		messageContent match {"
+            impementation = impementation + "\n      messageContent match {"
             for (i <- 0 until edgeMap(s.id).length) {
-              impementation = impementation + "\n			case _ if (true) => actor.setMessage(" + edgeMap(s.id)(i) + "(messageContent))"
-
+              impementation = impementation + "\n        case _ if (true) => actor.setMessage(" + edgeMap(s.id)(i) + "(messageContent))"
             }
-            impementation = impementation + "\n	}"
-          }else{
-        	impementation = impementation + "\n		actor.setMessage(\"\") //TODO set message"
+            impementation = impementation + "\n      }"
+          } else {
+            impementation = impementation + "\n      actor.setMessage(\"\") //TODO set message"
           }
 
-          
-          impementation = impementation + "\n		actor.changeState()\n"
+          impementation = impementation + "\n      actor.changeState()\n"
           for ((startNode, edge) <- edgeMap) {
             if (edgeMap(startNode).length > 1) {
               for (i <- 0 until edgeMap(startNode).length) { //create function.
-
-                impementation = impementation + "\n	def " + edgeMap(startNode)(i) + "(msg: String): String = {\n"
-                impementation = impementation + "		msg"
-                impementation = impementation + "\n	}"
+                impementation = impementation + "\n      def " + edgeMap(startNode)(i) + "(msg: String): String = {\n"
+                impementation = impementation + "        msg"
+                impementation = impementation + "\n      }"
               }
             }
           }
 
-          impementation = impementation + "\n    	}"
+          impementation = impementation + "\n    }"
           impementation = impementation + "\n  }"
         }
         case _ =>
@@ -255,11 +250,11 @@ class StubGeneratorActor extends InstrumentedActor {
   }
 
   def fillInMessages(classText: String, messages: Map[String, String]): String = {
-    var text = ""
+    val texts: ArrayBuffer[String] = ArrayBuffer()
     for ((name, msgType) <- messages) {
-      text = text + "\"" + msgType + "\" -> \"" + name + "\","
+      texts += "\"" + msgType + "\" -> \"" + name + "\""
     }
-    classText.replace("//$EMPTYMESSAGE$//", text.subSequence(0, text.length - 1))
+    classText.replace("//$EMPTYMESSAGE$//", texts.mkString(",\n      "))
   }
 
   def saveServiceExport(export: ServiceExport, className: String): String = {

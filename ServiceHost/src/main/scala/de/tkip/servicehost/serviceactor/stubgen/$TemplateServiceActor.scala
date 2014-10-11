@@ -28,7 +28,7 @@ class $TemplateServiceActor extends ServiceActor {
   
   override protected def states: List[State] = List(
       //$EMPTYSTATE$//
-      )
+    )
 
   // start with first state
   // TODO: that is not always the start state!
@@ -39,7 +39,7 @@ class $TemplateServiceActor extends ServiceActor {
   
   private val messages: Map[MessageType, MessageText] = Map(
       //$EMPTYMESSAGE$//
-      )
+    )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
 
