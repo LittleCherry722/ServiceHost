@@ -217,22 +217,36 @@ class RouterServiceActor extends ServiceActor {
 
     val stateName = "generateroute" //TODO state name
 
+    def compare(a: VPoint, b: VPoint): Int = {
+      import scala.math.Ordered.orderingToOrdered
+      (a.x, a.y) compare (b.x, b.y)
+    }
+
+    def distance(a: VPoint, b: VPoint): Double = {
+      val aa = math.abs(a.x - b.x)
+      val bb = math.abs(a.y - b.y)
+      math.sqrt(aa*aa + bb*bb)
+    }
+
+    def distance(points: Array[VSinglePoint]): Double = {
+      points.sliding(2).foldLeft(0.0) {
+        (sum, pair) => sum + distance(pair(0), pair(1))
+      }
+    }
+
     def process()(implicit actor: ServiceActor) {
       // currently just sorting the points. TODO: generate a real route
       def convert(l: Array[VGreenPoint]): Array[VSinglePoint] = l map { a => a: VSinglePoint }
-
-      def compare(a: VPoint, b: VPoint): Int = {
-        import scala.math.Ordered.orderingToOrdered
-        (a.x, a.y) compare (b.x, b.y)
-      }
 
       val points: Array[VSinglePoint] = convert(green)
 
       val sorted: Array[VSinglePoint] = points.sortWith((a, b) => (compare(a, b) < 0))
 
-      val metric = 1.23
+      val allPoints: Array[VSinglePoint] = Array(start_end.start) ++ sorted ++ Array(start_end.end)
 
-      val route: VRoute = VRoute(Array(start_end.start) ++ sorted ++ Array(start_end.end), metric)
+      val metric = distance(allPoints)
+
+      val route: VRoute = VRoute(allPoints, metric)
 
       actor.setMessage(Array(route).toJson.compactPrint)
 
