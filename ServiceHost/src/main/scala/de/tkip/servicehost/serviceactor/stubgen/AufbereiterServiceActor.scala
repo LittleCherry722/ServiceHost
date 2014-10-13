@@ -35,7 +35,7 @@ class AufbereiterServiceActor extends ServiceActor {
       ReceiveState(5,"exitcondition",Map("m7" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m7" -> 17),"Aufbereiter: receive Red-Points"),
       SendState(10,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 3),"VAR:m6"),
       EQUALS_m4(14,"exitcondition",Map(),Map("true" -> 6, "false" -> 1),"EQUALS:m4:[]"),
-      storeblue(20,"exitcondition",Map(),Map("20" -> 0),"store blue"),
+      storeblue(20,"exitcondition",Map(),Map("20" -> 1),"store blue"),
       CLEAR_greentmp(1,"exitcondition",Map(),Map("1" -> 11),"CLEAR:greentmp"),
       Blah(6,"exitcondition",Map(),Map("6" -> 10),"new"),
       ReceiveState(9,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 7),"Aufbereiter: receive startziel"),
@@ -377,7 +377,9 @@ class AufbereiterServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      greentmp = blue.remove(0).toArray
+      if (blue.length > 0) {
+        greentmp = blue.remove(0).toArray
+      }
       actor.changeState()
     }
   }

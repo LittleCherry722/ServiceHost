@@ -203,7 +203,7 @@ class TankstelleServiceActor extends ServiceActor {
     a + scala.util.Random.nextInt(Math.ceil(b-a+2.0*off).toInt) - off + scala.util.Random.nextInt(100)/100.0
   }
 
-  def generate(typ: String, num: Int): String = {
+  def generate(typ: String, num: Int): List[VPoint] = {
     val data = scala.collection.mutable.ArrayBuffer[VPoint]()
 
     for (i <- 1 to num) {
@@ -222,20 +222,7 @@ class TankstelleServiceActor extends ServiceActor {
       }
     }
 
-    var out: String = ""
-    
-    if (typ == "green") {
-      out = data.toList.asInstanceOf[List[VGreenPoint]].toJson.compactPrint
-    }
-    else if (typ == "red") {
-      out = data.toList.asInstanceOf[List[VRedPoint]].toJson.compactPrint
-    }
-    else if (typ == "blue") {
-      val group = VBlueGroup(1, data.toList.asInstanceOf[List[VBluePoint]])
-      out = Array(group).toJson.compactPrint
-    }
-
-    out
+    data.toList
   }
   
 
@@ -254,7 +241,7 @@ class TankstelleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage(generate("green", 2))
+      actor.setMessage(generate("green", 1).asInstanceOf[List[VGreenPoint]].toJson.compactPrint)
       actor.changeState()
     }
   }
@@ -264,9 +251,8 @@ class TankstelleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage(generate("red", 1))
+      actor.setMessage(generate("red", 1).asInstanceOf[List[VRedPoint]].toJson.compactPrint)
       actor.changeState()
-
     }
   }
 
@@ -275,9 +261,14 @@ class TankstelleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage(generate("blue", 2))
-      actor.changeState()
+      val b1 = generate("blue", 2)
+      val b2 = generate("blue", 2)
+      val group1 = VBlueGroup(1, b1.asInstanceOf[List[VBluePoint]])
+      val group2 = VBlueGroup(1, b2.asInstanceOf[List[VBluePoint]])
+      val bg = Array(group1, group2)
 
+      actor.setMessage(bg.toJson.compactPrint)
+      actor.changeState()
     }
   }
 }
