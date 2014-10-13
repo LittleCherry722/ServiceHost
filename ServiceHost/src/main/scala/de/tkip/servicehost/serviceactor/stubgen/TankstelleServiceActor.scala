@@ -241,7 +241,9 @@ class TankstelleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage(generate("green", 1).asInstanceOf[List[VGreenPoint]].toJson.compactPrint)
+      //val g = generate("green", 1).asInstanceOf[List[VGreenPoint]]
+      val g = List(VGreenPoint(5.0, 5.0))
+      actor.setMessage(g.toJson.compactPrint)
       actor.changeState()
     }
   }
@@ -251,7 +253,9 @@ class TankstelleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage(generate("red", 1).asInstanceOf[List[VRedPoint]].toJson.compactPrint)
+      //val r = generate("red", 1).asInstanceOf[List[VRedPoint]]
+      val r = List(VRedPoint(7.5, 2.5, 2.0))
+      actor.setMessage(r.toJson.compactPrint)
       actor.changeState()
     }
   }
@@ -261,8 +265,10 @@ class TankstelleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      val b1 = generate("blue", 2)
-      val b2 = generate("blue", 2)
+      //val b1 = generate("blue", 2)
+      //val b2 = generate("blue", 2)
+      val b1 = List(VBluePoint(2.0, 9.0), VBluePoint(3.0, 3.0))
+      val b2 = List(VBluePoint(7.5, 9.0), VBluePoint(9.5, 0.5))
       val group1 = VBlueGroup(1, b1.asInstanceOf[List[VBluePoint]])
       val group2 = VBlueGroup(1, b2.asInstanceOf[List[VBluePoint]])
       val bg = Array(group1, group2)
