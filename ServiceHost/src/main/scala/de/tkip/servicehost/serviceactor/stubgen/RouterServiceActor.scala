@@ -234,19 +234,68 @@ class RouterServiceActor extends ServiceActor {
       }
     }
 
+    def getMin(from: VPoint, a: VPoint, b: VPoint): VPoint = {
+      val da = distance(from, a)
+      val db = distance(from, b)
+
+      if (da < db) {
+        a
+      }
+      else {
+        b
+      }
+    }
+
+    def tsp(start: VSinglePoint, end: VSinglePoint, points: Array[VSinglePoint]): Array[VSinglePoint] = {
+      val remaining = points.toBuffer
+      val forwards = scala.collection.mutable.ArrayBuffer[VSinglePoint]()
+      val backwards = scala.collection.mutable.ArrayBuffer[VSinglePoint]()
+
+      forwards += start
+      backwards += end
+
+      while (remaining.length > 0) {
+        val curF = forwards.last
+        val curB = backwards.last
+
+        def opF(a: VPoint, b: VPoint): VPoint = {
+          getMin(curF, a, b)
+        }
+
+        def opB(a: VPoint, b: VPoint): VPoint = {
+          getMin(curB, a, b)
+        }
+
+        val nextF = remaining.reduce(opF)
+        val nextB = remaining.reduce(opB)
+
+        val dF = distance(curF, nextF)
+        val dB = distance(curB, nextB)
+
+        if (dF < dB) {
+          remaining.remove(remaining.indexOf(nextF))
+          forwards += nextF
+        }
+        else {
+          remaining.remove(remaining.indexOf(nextB))
+          backwards += nextB
+        }
+      }
+
+      (forwards ++ backwards.reverse).toArray
+    }
+
     def process()(implicit actor: ServiceActor) {
       // currently just sorting the points. TODO: generate a real route
       def convert(l: Array[VGreenPoint]): Array[VSinglePoint] = l map { a => a: VSinglePoint }
 
       val points: Array[VSinglePoint] = convert(green)
 
-      val sorted: Array[VSinglePoint] = points.sortWith((a, b) => (compare(a, b) < 0))
+      val sorted: Array[VSinglePoint] = tsp(start_end.start, start_end.end, points)
 
-      val allPoints: Array[VSinglePoint] = Array(start_end.start) ++ sorted ++ Array(start_end.end)
+      val metric = distance(sorted)
 
-      val metric = distance(allPoints)
-
-      val route: VRoute = VRoute(allPoints, metric)
+      val route: VRoute = VRoute(sorted, metric)
 
       actor.setMessage(Array(route).toJson.compactPrint)
 
