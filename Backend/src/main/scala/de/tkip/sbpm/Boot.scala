@@ -96,13 +96,15 @@ object Boot extends App {
   // binding the frontendInterfaceActor to a HttpListener
   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = sbpmHostname, port = sbpmPort)
 //   IO(Http) ! Http.Bind(frontendInterfaceActor, interface = "localhost", port = sys.env.getOrElse("SBPM_PORT", "8080").toInt)
-
+  println("1")
   // db init code below
   implicit val timout = Timeout(30 seconds)
   implicit val executionContext = system.dispatcher
 
   // check startup actions defined in config
   val startupAction = system.settings.config.getString("sbpm.db.startupAction")
+  println("2")
+  println(startupAction)
   val dropAction = startupAction matches "^recreate(-debug)?$"
   val createAction = startupAction matches "^(re)?create(-debug)?$"
   val debugAction = startupAction matches "^(re)?create-debug$"
@@ -125,6 +127,7 @@ object Boot extends App {
   if (debugAction) {
     dbFuture = dbFuture flatMap { case _ => Entities.insert(persistenceActor) }
     dbFuture.onFailure(onFailure)
+
   }
 
   dbFuture.onFailure(onFailure)

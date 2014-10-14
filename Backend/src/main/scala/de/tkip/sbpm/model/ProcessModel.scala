@@ -31,12 +31,14 @@ object StateType extends Enumeration { // TODO just use a string?
   val ActivateStateString = "$activatestate"
   val DeactivateStateString = "$deactivatestate"
   val DecisionStateString = "$decision"
+  val ChooseAgentStateString = "$chooseagent"
   val ModalSplitStateString = "modalsplit"
   val ModalJoinStateString = "modaljoin"
   val SplitGuardStateString = "$splitguard"
   val ArchiveStateString = "$archive"
   val MacroStateString = "macro"
   val TauStateString = "tau"
+  val BlackboxStateString = "$blackbox"
 
   // the internal enums
   val ActStateType = Value(ActStateString)
@@ -55,6 +57,8 @@ object StateType extends Enumeration { // TODO just use a string?
   val MacroStateType = Value(MacroStateString)
   val TauStateType = Value(TauStateString)
   val ArchiveStateType = Value(ArchiveStateString)
+  val ChooseAgentStateType = Value(ChooseAgentStateString)
+  val BlackboxStateType = Value(BlackboxStateString)
 
   // for marshalling and unmarshalling:
   def fromStringtoStateType(stateType: String): StateType = try {
@@ -80,8 +84,10 @@ case class State(
   startState: Boolean,
   observerState: Boolean,
   callMacro: Option[String],
+  blackboxname: Option[String],
   options: StateOptions,
-  transitions: Array[Transition])
+  transitions: Array[Transition],
+  chooseAgentSubject: Option[String])
 
 case class StateOptions(
   messageType: Option[MessageType],
@@ -117,13 +123,6 @@ case class ExternalSubject(
   isImplementation: Option[Boolean],
   variablesMap:Map[String,String]) extends SubjectLike {
   lazy val external = true
-}
-
-case class Agent(processId: Int,
-                 address: AgentAddress,
-                 subjectId: String)
-case class AgentAddress(ip: String, port: Int) {
-  def toUrl = "@" + ip + ":" + port
 }
 
 case class ProcessGraph(subjects: Map[String, SubjectLike]) {

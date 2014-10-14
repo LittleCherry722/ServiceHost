@@ -26,6 +26,9 @@ trait GraphNodesSchema extends GraphMacrosSchema
   // import current slick driver dynamically
   import driver.simple._
 
+  import scala.slick.collection.heterogenous._
+  import syntax._
+
   // represents schema if the "graph_nodes" table in the database
   // using slick's lifted embedding API
   class GraphNodes(tag: Tag) extends SchemaTable[GraphNode](tag, "graph_nodes") {
@@ -49,13 +52,69 @@ trait GraphNodesSchema extends GraphMacrosSchema
     def optionCorrelationId = column[Option[String]]("option_correlation_id", DbType.stringIdentifier)
     def optionConversationId = column[Option[String]]("option_conversation_id", DbType.stringIdentifier)
     def optionNodeId = column[Option[Short]]("option_node_id", DbType.smallint)
+    def chooseAgentSubject = column[Option[String]]("choose_agent_subject", DbType.stringIdentifier)
     def executeMacroId = column[Option[String]]("execute_macro_id", DbType.stringIdentifier)
+    def blackboxname = column[Option[String]]("blackboxname", DbType.stringIdentifier)
 
-    def * = (id, macroId, subjectId, graphId, text, isStart, isEnd, nodeType
-      , manualPositionOffsetX, manualPositionOffsetY, isAutoExecute
-      , isDisabled, isMajorStartNode, conversationId, variableId, optionMessageId
-      , optionSubjectId, optionCorrelationId, optionConversationId, optionNodeId
-      , executeMacroId) <> (GraphNode.tupled, GraphNode.unapply)
+
+    def * = (id.? :: macroId :: subjectId :: graphId :: text :: isStart :: isEnd :: nodeType ::
+      manualPositionOffsetX :: manualPositionOffsetY :: isAutoExecute ::
+      isDisabled :: isMajorStartNode :: conversationId  :: variableId :: optionMessageId  ::
+      optionSubjectId :: optionCorrelationId  :: optionConversationId  :: optionNodeId  ::
+      chooseAgentSubject  :: executeMacroId  :: blackboxname :: HNil).shaped <>
+      ({
+        case x => GraphNode(
+          id = x(0).get,
+          macroId = x(1),
+          subjectId = x(2),
+          graphId = x(3),
+          text = x(4),
+          isStart = x(5),
+          isEnd = x(6),
+          nodeType = x(7),
+          manualPositionOffsetX = x(8),
+          manualPositionOffsetY = x(9),
+          isAutoExecute = x(10),
+          isDisabled = x(11),
+          isMajorStartNode = x(12),
+          conversationId = x(13),
+          variableId = x(14),
+          optionMessageId = x(15),
+          optionSubjectId = x(16),
+          optionCorrelationId = x(17),
+          optionConversationId= x(18),
+          optionNodeId = x(19),
+          chooseAgentSubject = x(20),
+          executeMacroId = x(21),
+          blackboxname = x(22))
+      },(
+        {x:GraphNode =>
+          Option((
+            Some(x.id) ::
+            x.macroId ::
+            x.subjectId ::
+            x.graphId ::
+            x.text ::
+            x.isStart ::
+            x.isEnd ::
+            x.nodeType ::
+            x.manualPositionOffsetX ::
+            x.manualPositionOffsetY ::
+            x.isAutoExecute ::
+            x.isDisabled ::
+            x.isMajorStartNode ::
+            x.conversationId ::
+            x.variableId ::
+            x.optionMessageId ::
+            x.optionSubjectId ::
+            x.optionCorrelationId ::
+            x.optionConversationId ::
+            x.optionNodeId ::
+            x.chooseAgentSubject ::
+            x.executeMacroId ::
+            x.blackboxname ::
+            HNil))
+      }))
 
     def pk = primaryKey(pkName, (id, macroId, subjectId, graphId))
 

@@ -13,8 +13,8 @@ import de.tkip.sbpm.instrumentation.InstrumentedActor
 
 object ReferenceXMLActor {
 
-  case class Reference(name: String, reference: String, json: String) {
-    def toXml = scala.xml.Unparsed("<reference service=\"" + name + "\" path=\"" + reference + "\" json=\"" + json + "\"/>\n")
+  case class Reference(subjectId: String, reference: String, json: String) {
+    def toXml = scala.xml.Unparsed("<reference subjectid=\"" + subjectId + "\" path=\"" + reference + "\" json=\"" + json + "\"/>\n")
   }
 
 }
@@ -27,14 +27,15 @@ class ReferenceXMLActor extends InstrumentedActor {
 
   def wrappedReceive = {
     case createReference: CreateXMLReferenceMessage => {
-      val ref: Reference = createXMLReference(createReference.serviceID, createReference.classPath, createReference.jsonPath)
+      val ref: Reference = createXMLReference(createReference.subjectId, createReference.classPath, createReference.jsonPath)
       sender !! ref
     }
     case GetAllClassReferencesMessage => {
       sender !! getAllReferences
     }
     case getReference: GetClassReferenceMessage => {
-      sender !! getReferenceMessage(getReference.serviceID)
+      println("########################" + getReference.subjectId )
+      sender !! getReferenceMessage(getReference.subjectId)
     }
   }
 
@@ -48,15 +49,15 @@ class ReferenceXMLActor extends InstrumentedActor {
         case EvElemStart(_, _, attrs, _) =>
           val map = attrs.asAttrMap
           if(map.contains("path"))
-            references = references ::: List(Reference(map("service"), map("path"), map("json")))
+            references = references ::: List(Reference(map("subjectid"), map("path"), map("json")))
         case _ =>
       }
     }
     references
   }
 
-  def createXMLReference(id: String, classPath: String, jsonPath: String): Reference = {
-    val ref = new Reference(id, classPath, jsonPath)
+  def createXMLReference(subjectId: String, classPath: String, jsonPath: String): Reference = {
+    val ref = new Reference(subjectId, classPath, jsonPath)
 
     log.info("adding " + ref + " to " + xmlFilePath)
 
@@ -72,9 +73,9 @@ class ReferenceXMLActor extends InstrumentedActor {
     ref
   }
   
-  def getReferenceMessage(id: String): ClassReferenceMessage = {
+  def getReferenceMessage(subjectId: String): ClassReferenceMessage = {
     for {ref <- getAllReferences} {
-      if (ref.name == id) return new ClassReferenceMessage(id, Class.forName(ref.reference).asInstanceOf[Class[ServiceActor]])
+      if (ref.subjectId == subjectId) return new ClassReferenceMessage(subjectId, Class.forName(ref.reference).asInstanceOf[Class[ServiceActor]])
     }
     null
   }

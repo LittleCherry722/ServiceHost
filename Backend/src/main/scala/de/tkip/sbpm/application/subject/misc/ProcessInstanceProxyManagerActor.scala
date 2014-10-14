@@ -1,5 +1,7 @@
 package de.tkip.sbpm.application.subject.misc
 
+import java.util.UUID
+
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -19,20 +21,21 @@ import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.Some
 import de.tkip.sbpm.application.miscellaneous.GetAgentsList
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
-import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, MappingInfo }
-import de.tkip.sbpm.model.Agent
+import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, Agent }
 import scala.util.{Success, Failure}
+import scala.collection.mutable.{ Map => MutableMap }
 
 case object GetProxyActor
 
 case class GetProcessInstanceProxy(agent: Agent)
-
-class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor: ProcessInstanceRef) extends InstrumentedActor with DefaultLogging {
+case class GetProcessInstanceIdentical(processInstanceId: ProcessInstanceID)
+class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, processInstanceId: ProcessInstanceID, actor: ProcessInstanceRef) extends InstrumentedActor with DefaultLogging {
   implicit val timeout = Timeout(30 seconds)
 
   log.debug("register initial process instance proxy for: {}", url)
 
   private class ProcessInstanceProxy(val instance: ProcessInstanceRef, val proxy: ActorRef)
+  private val processInstanceIDMap = MutableMap[ProcessInstanceID, String]()
   private var processInstanceMap: Map[(ProcessID, String), Future[ProcessInstanceProxy]] =
     Map((processId, url) -> (for {
       proxy <- (actor ?? GetProxyActor).mapTo[ActorRef]
@@ -61,7 +64,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
           }
           case None => {
             log.info("PROCESS INSTANCE PROXY MANAGER: Did not find mapping for {}", (agentProcessId, address))
-            val processInstanceInfo = createProcessInstanceEntry(agentProcessId, address, agentManagerSelection)
+            val processInstanceInfo = createProcessInstanceEntry(agentProcessId, List().::(agent.subjectId), address, agentManagerSelection)
             (processInstanceMap + ((agentProcessId, address) -> processInstanceInfo), processInstanceInfo)
           }
         }
@@ -85,7 +88,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     }
   }
 
-  private def createProcessInstanceEntry(targetProcessId: ProcessID, targetAddress: String,
+  private def createProcessInstanceEntry(targetProcessId: ProcessID, targetSubjectIDs: List[SubjectID], targetAddress: String,
     targetManagerSelection: ActorSelection): Future[ProcessInstanceProxy] = {
     // TODO name?
     log.info("Creating new unnamed Process Instance")
@@ -102,7 +105,15 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     log.info("PROCESS INSTANCE PROXY MANAGER: Received Mapping info! {}", mapping)
 
     // create the message which is used to create a process instance
-    val createMessage = CreateProcessInstance(ExternalUser, targetProcessId, newProcessInstanceName, Some(self), mapping)
+    val createMessage = CreateServiceInstance(
+      userID = ExternalUser,
+      processID = targetProcessId,
+      name = newProcessInstanceName,
+      target = targetSubjectIDs,
+      processInstanceidentical = targetProcessId + "_" + UUID.randomUUID().toString(),
+      agentsMap = Some(mapping))
+
+    processInstanceIDMap += processInstanceId -> createMessage.processInstanceidentical
 
     val instanceProxy = for {
       // createma the processinstance
@@ -115,6 +126,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
       case Success(proxy) => log.info("PROCESS INSTANCE PROXY MANAGER: Remote Process Instance Successfully created: {}", proxy)
       case Failure(e) => log.error("PROCESS INSTANCE PROXY MANAGER: Error during Remote Process Instance Creation: ", e.getMessage)
     }
+    instanceProxy.map(_._1).map(_.proxy)
     instanceProxy.map(_._1)
   }
 }

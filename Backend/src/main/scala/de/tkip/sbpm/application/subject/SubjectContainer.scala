@@ -20,12 +20,12 @@ import java.util.UUID
 import akka.pattern.ask
 import de.tkip.sbpm.application.miscellaneous.SubjectMessage
 import de.tkip.sbpm.application.{ SubjectCreated, RegisterSingleSubjectInstance }
-import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
+import de.tkip.sbpm.application.ProcessInstanceActor.{Agent}
 import akka.event.LoggingAdapter
 import akka.actor.ActorRef
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.application.subject.misc._
-import de.tkip.sbpm.model.{Agent, SubjectLike}
+import de.tkip.sbpm.model.{SubjectLike}
 import de.tkip.sbpm.application.miscellaneous.BlockUser
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import scala.concurrent.ExecutionContext
@@ -61,6 +61,7 @@ class SubjectContainer(
   private val external = subject.external
 
   private val subjects = MutableMap[UserID, SubjectInfo]()
+  private val serviceMessageIdentical = MutableMap[ProcessInstanceID, String]()
 
   /**
    * Adds a Subject to this multisubject
@@ -90,20 +91,7 @@ class SubjectContainer(
         subject)
 
     // TODO hier external einfuegen
-    if (!external) {
-      // create subject
-      val subjectRef =
-        context.actorOf(Props(new SubjectActor(subjectData)), "SubjectActor____" + UUID.randomUUID().toString())
-      // and store it in the map
-      subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID)
-
-      val msg = SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
-      // inform the subject provider about his new subject
-      context.parent !! msg
-
-
-      reStartSubject(userID)
-    } else {
+    if (external) {
       log.debug("CREATE EXTERNAL: {}", subjectData.subject)
 
       // process schon vorhanden?
@@ -114,12 +102,41 @@ class SubjectContainer(
           GetProcessInstanceProxy(agent.get))
           .mapTo[ActorRef]
 
+      val processInstanceIdenticalFuture = (processInstanceManager ??
+        GetProcessInstanceIdentical(processInstanceID)).mapTo[String]
+
+      processInstanceIdenticalFuture onComplete {
+        case id =>
+          if(id.isSuccess){
+            serviceMessageIdentical += processInstanceID -> id.get
+          }else {
+            // TODO exception or log?
+            throw new Exception("Get ProcessInstanceIdentical failed for " +
+              processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + id)
+          }
+      }
+
+
+
+
       log.debug("CREATE: processInstanceRef = {}", processInstanceRef)
 
       // TODO we need this unblock!
       blockingHandlerActor !! UnBlockUser(userID)
 
       subjects += userID -> SubjectInfo(processInstanceRef, userID)
+    } else {
+      // create subject
+      val subjectRef =
+        context.actorOf(Props(new SubjectActor(subjectData)), "SubjectActor____" + UUID.randomUUID().toString())
+      // and store it in the map
+      subjects += userID -> SubjectInfo(Future.successful(subjectRef), userID)
+
+      val msg = SubjectCreated(userID, processID, processInstanceID, subject.id, subjectRef)
+      // inform the subject provider about his new subject
+      context.parent !! msg
+
+      reStartSubject(userID)
     }
 
     log.debug("Processinstance [" + processInstanceID + "] created Subject " +
@@ -178,10 +195,13 @@ class SubjectContainer(
       val newMessage = if (external) {
         // exchange the target subject id
         val newMessage = message.copy(target = message.target.copy(subjectID = agent.get.subjectId))
+          .copy(processInstanceidentical = Some(serviceMessageIdentical(processInstanceID)))
         log.debug("SEND (target exchanged): {}", newMessage)
         // TODO we need this unblock! Why?
         blockingHandlerActor !! UnBlockUser(userID)
         newMessage
+        println("----------------------------------------------test new message type--------")
+        println(newMessage)
       } else {
         message
       }

@@ -11,7 +11,7 @@ class MacroStateActor(data: StateData) extends BehaviorStateActor(data) {
     blockingHandlerActor ! BlockUser(userID)
     super.preStart()
     if (data.stateModel.callMacro.isDefined) {
-      val msg =  CallMacro(self, data.stateModel.callMacro.get)
+      val msg = CallMacro(self, data.stateModel.callMacro.get)
       context.parent ! msg
     } else {
       log.error("No MacroName is not defined")

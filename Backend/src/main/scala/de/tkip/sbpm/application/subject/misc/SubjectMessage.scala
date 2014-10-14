@@ -24,12 +24,12 @@ import de.tkip.sbpm.application.miscellaneous.{
   SubjectMessage,
   ProcessInstanceData
 }
-import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.model.Graph
+import de.tkip.sbpm.application.ProcessInstanceActor.Agent
 
 import de.tkip.sbpm.rest.google.GDriveControl.GDriveFileInfo
 
-// switch state messages 
+// switch state messages
 case class StartSubjectExecution() extends SubjectBehaviorRequest
 
 // internal subject messages TODO besserer trait name, braucht man den trait ueberhaupt?
@@ -44,7 +44,8 @@ case class SubjectToSubjectMessage(
   messageType: MessageType,
   messageContent: MessageContent,
   fileID: Option[String] = None,
-  var fileInfo: Option[GDriveFileInfo] = None) extends MessageObject {
+  var fileInfo: Option[GDriveFileInfo] = None,
+  var processInstanceidentical: Option[String] = None) extends MessageObject {
 
   def to = target.subjectID
 
@@ -71,6 +72,8 @@ sealed trait SubjectBehaviorRequest
 case class GetAvailableAction(processInstanceID: ProcessInstanceID)
   extends SubjectBehaviorRequest // TODO eigentlich auch subject message
 
+case class SetAgentForSubject(subjectId: SubjectID, agent: Agent)
+
 // TODO vllt in controlmessage verschieben, d sie jetzt direkt mit dem FE interagieren
 case class MessageData(
   messageID: MessageID,
@@ -84,12 +87,14 @@ case class TargetUser(min: Int, max: Int, external: Boolean, targetUsers: Array[
 
 case class ActionData(
   text: String, // = messagetype
-  var executeAble: Boolean,
+  var executeAble: Boolean, // VAR?!
   transitionType: String, // exitcondition or timeout
   targetUsersData: Option[TargetUser] = None, // target user of a send message
   relatedSubject: Option[String] = None, // the related subject of a send-/receive state
   messageContent: Option[String] = None, // for the send state: the message
   fileId: Option[String] = None, // for the send state: google drive id
+  selectedAgent: Option[Agent] = None,
+  possibleAgents: Option[Seq[Agent]] = None,
   messages: Option[Array[MessageData]] = None) // for the receive state
 
 // Answer to the GetAvailable Action request

@@ -33,7 +33,6 @@ mergeStrategy in assembly := {
   case _ => MergeStrategy.first
 }
 
-scalaVersion := "2.11.1"
 
 // Parameters for Eclipse
 
