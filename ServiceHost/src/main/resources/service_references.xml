@@ -2,5 +2,6 @@
         <reference processid="1" subjectid="Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1" path="de.tkip.servicehost.serviceactor.stubgen.RouterServiceActor" json="./src/main/resources/service_JSONs/RouterServiceActor.json"/>
 <reference processid="2" subjectid="Subj2:1ca1b32f-af47-4951-882a-19c9766b38dd" path="de.tkip.servicehost.serviceactor.stubgen.TankstelleServiceActor" json="./src/main/resources/service_JSONs/TankstelleServiceActor.json"/>
 <reference processid="3" subjectid="Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433" path="de.tkip.servicehost.serviceactor.stubgen.AufbereiterServiceActor" json="./src/main/resources/service_JSONs/AufbereiterServiceActor.json"/>
+<reference processid="4" subjectid="Subj2:ff9bacbf-bb0c-4316-9cd5-5328e1246557" path="de.tkip.servicehost.serviceactor.stubgen.ImageLoaderServiceActor" json="./src/main/resources/service_JSONs/ImageLoaderServiceActor.json"/>
 
       </references>
