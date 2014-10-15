@@ -46,8 +46,6 @@ abstract class ServiceActor extends InstrumentedActor {
   
   def getDestination(): ActorRef
  
-  def terminate(): Unit
- 
   def getProcessID(): ProcessID
   
   def getSubjectID(): String
