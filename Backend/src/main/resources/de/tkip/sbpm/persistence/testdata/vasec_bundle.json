@@ -52,7 +52,7 @@
 								"state" : null
 							},
 							"macro" : "",
-							"blackboxname" : "vasec_tankstelle",
+							"blackboxname" : "vasec_gasstation",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
