@@ -49,7 +49,7 @@ import de.tkip.sbpm.application.subject.misc.ActionIDProvider
 import de.tkip.sbpm.model._
 import de.tkip.sbpm.model.StateType._
 import de.tkip.sbpm.application.subject.behavior._
-import de.tkip.sbpm.application.ProcessInstanceActor.{MappingInfo, AgentsMap, RegisterSubjects}
+import de.tkip.sbpm.application.ProcessInstanceActor.{AgentsMap, RegisterSubjects}
 import de.tkip.sbpm.application.subject.CallMacroStates
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
