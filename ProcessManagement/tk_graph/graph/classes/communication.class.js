@@ -1399,6 +1399,9 @@ function GCcommunication ()
 
 					if (gf_isset(gt_subject.startSubject))
 						this.subjects[gt_subject.id].setStartSubject(gt_subject.startSubject);
+            
+					if (gf_isset(gt_subject.mergedSubjects))
+						this.subjects[gt_subject.id].setMergedSubjects(gt_subject.mergedSubjects);
 
 					if (gf_isset(gt_subject.blackboxname))
 						this.subjects[gt_subject.id].setBlackboxname(gt_subject.blackboxname);
@@ -1690,6 +1693,7 @@ function GCcommunication ()
 						name: this.subjects[gt_sid].getText(),
 						type: this.subjects[gt_sid].getType(),
 						subjectType: this.subjects[gt_sid].getType(),
+						mergedSubjects: this.subjects[gt_sid].getMergedSubjects(),
 						deactivated: this.subjects[gt_sid].isDeactivated(),
 						inputPool: this.subjects[gt_sid].getInputPool(),
 						blackboxname: this.subjects[gt_sid].getBlackboxname(),
@@ -1985,6 +1989,22 @@ function GCcommunication ()
 			}
 		}
 	};
+
+  this.updateEdgeStartNode = function()
+  {
+		if (this.selectedSubject && gf_isset(this.subjects[this.selectedSubject]))
+		{
+			this.getBehavior(this.selectedSubject).setStartEdge();
+		}
+  };
+
+  this.updateEdgeEndNode = function()
+  {
+		if (this.selectedSubject && gf_isset(this.subjects[this.selectedSubject]))
+		{
+			this.getBehavior(this.selectedSubject).setEndEdge();
+		}
+  };
 
 	/**
 	 * When selectedSubject is set the input fields are read and the information is passed to the GCbehavior.updateNode() method of the current behavior.

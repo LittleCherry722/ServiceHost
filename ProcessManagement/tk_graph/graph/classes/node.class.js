@@ -59,7 +59,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	 *
 	 * @type Object
 	 */
-	this.chooseAgentSubject = null
+	this.chooseAgentSubject = null;
 
 	/**
 	 * This attribute states whether the node is deactivated.
@@ -660,7 +660,7 @@ function GCnode (parentMacro, parentBehavior, id, text, type)
 	{
 		if (this.getType() == "$chooseagent" && gf_isset(subject))
 		{
-      this.chooseAgentSubject = subject
+      this.chooseAgentSubject = subject;
 		}
 	};
 

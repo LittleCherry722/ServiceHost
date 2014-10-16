@@ -13,6 +13,8 @@
 
 package de.tkip.sbpm.persistence.mapping
 
+import de.tkip.sbpm.model.MergedSubject
+import de.tkip.sbpm.persistence.schema.GraphMergedSubjectsSchema.GraphMergedSubjects
 import de.tkip.sbpm.{ model => domainModel }
 import shapeless._
 
@@ -28,15 +30,15 @@ object DomainModelMappings {
    * If id of graph is None only graph itself is converted
    * id must be known for converting sub entities.
    */
-  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
+  def convert(g: domainModel.Graph): Either[Graph, (Graph, Seq[GraphMergedSubject], Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])] = {
     val graph = Graph(g.id)
     if (!g.id.isDefined) {
       Left(graph)
     } else {
-      val (subjects, variables, macros, nodes, varMans, edges) = extractSubjects(g.subjects.values, g.id.get)
+      val (subjects, mergedSubjects, variables, macros, nodes, varMans, edges) = extractSubjects(g.subjects.values, g.id.get)
       val conversations = extractConversations(g.conversations.values, g.id.get)
       val messages = extractMessages(g.messages.values, g.id.get)
-      Right((graph, conversations, messages, subjects, variables, macros, nodes, varMans, edges))
+        Right((graph, mergedSubjects, conversations, messages, subjects, variables, macros, nodes, varMans, edges))
     }
   }
 
@@ -44,7 +46,8 @@ object DomainModelMappings {
    * Disassembles object trees of given subjects into relational entities.
    * Returns subjects, variables, macros, nodes and edges.
    */
-  private def extractSubjects(ss: Iterable[domainModel.GraphSubject], graphId: Int): (Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge]) = ss.map { s =>
+  private def extractSubjects(ss: Iterable[domainModel.GraphSubject],
+                              graphId: Int): (Seq[GraphSubject], Seq[GraphMergedSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge]) = ss.map { s =>
     val subject = GraphSubject(s.id,
       graphId,
       s.name,
@@ -59,12 +62,15 @@ object DomainModelMappings {
       s.externalType,
       s.role,
       s.comment)
+    val mergedSubjects = s.mergedSubjects.map(_.toSeq).getOrElse(Seq()).map { ms : MergedSubject =>
+      GraphMergedSubject(id = ms.id, subjectId = s.id, graphId = graphId, name = ms.name)
+    }
     val variables = extractVariables(s.variables.values, s.id, graphId)
     val (macros, nodes, varMans, edges) = extractMacros(s.macros.values, s.id, graphId)
-    (subject, variables, macros, nodes, varMans, edges)
-  }.foldLeft((List[GraphSubject](), List[GraphVariable](), List[GraphMacro](), List[GraphNode](), List[GraphVarMan](), List[GraphEdge]())) { (agg, t) =>
+    (subject, mergedSubjects, variables, macros, nodes, varMans, edges)
+  }.foldLeft((List[GraphSubject](), List[GraphMergedSubject](), List[GraphVariable](), List[GraphMacro](), List[GraphNode](), List[GraphVarMan](), List[GraphEdge]())) { (agg, t) =>
     // aggregate all entities for all subjects into flat lists
-    (agg._1 :+ t._1, agg._2 ++ t._2, agg._3 ++ t._3, agg._4 ++ t._4, agg._5 ++ t._5, agg._6 ++ t._6)
+    (agg._1 :+ t._1, agg._2 ++ t._2, agg._3 ++ t._3, agg._4 ++ t._4, agg._5 ++ t._5, agg._6 ++ t._6, agg._7 ++ t._7)
   }
 
   /**
@@ -145,18 +151,20 @@ object DomainModelMappings {
    * Disassembles object trees of given edges into relational entities.
    */
   private def extractEdges(es: Iterable[domainModel.GraphEdge], macroId: String, subjectId: String, graphId: Int): Seq[GraphEdge] = es.map { e =>
-    val (targetSubjectId, targetMin, targetMax, targetCreateNew, targetVariableId) =
+    val (targetSubjectId, exchangeOriginId, exchangeTargetId, targetMin, targetMax, targetCreateNew, targetVariableId) =
       extractTarget(e.target)
     GraphEdge(e.startNodeId,
       e.endNodeId,
       macroId,
       subjectId,
+      exchangeOriginId,
       graphId,
       e.text,
       e.edgeType,
       e.manualPositionOffsetLabelX,
       e.manualPositionOffsetLabelY,
       targetSubjectId,
+      exchangeTargetId,
       targetMin,
       targetMax,
       targetCreateNew,
@@ -175,11 +183,13 @@ object DomainModelMappings {
    * Convert Target object for edge into single Option values,
    * because they are saved directly in edges table.
    */
-  private def extractTarget(et: Option[domainModel.GraphEdgeTarget]): (Option[String], Option[Short], Option[Short], Option[Boolean], Option[String]) =
-    if (et.isDefined)
-      (Some(et.get.subjectId), Some(et.get.min), Some(et.get.max), Some(et.get.createNew), et.get.variableId)
-    else
-      (None, None, None, None, None)
+  private def extractTarget(et: Option[domainModel.GraphEdgeTarget]): (Option[String], Option[String], Option[String], Option[Short], Option[Short], Option[Boolean], Option[String]) =
+    if (et.isDefined) {
+      val etg = et.get
+      (Some(et.get.subjectId), etg.exchangeOriginId, etg.exchangeTargetId, Some(etg.min), Some(etg.max), Some(etg.createNew), etg.variableId)
+    } else {
+      (None, None, None, None, None, None, None)
+    }
 
   /**
    * Convert conversation objects to relational entities.
@@ -195,9 +205,14 @@ object DomainModelMappings {
     GraphMessage(c.id, graphId, c.name)
   }.toSeq
 
-  def convert(interface: Interface, address: ProcessEngineAddress,
-              subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])
-             ) : domainModel.Interface = {
+  def convertInterface(interface: Interface,
+                       address: ProcessEngineAddress,
+                       subModels: (Seq[GraphMergedSubject],
+                                   Seq[GraphConversation], Seq[GraphMessage],
+                                   Seq[GraphSubject], Seq[GraphVariable],
+                                   Seq[GraphMacro], Seq[GraphNode],
+                                   Seq[GraphVarMan], Seq[GraphEdge])
+                       ) : domainModel.Interface = {
     domainModel.Interface(
       interfaceType = domainModel.InterfaceType.withName(interface.interfaceType),
       id = interface.id,
@@ -208,7 +223,7 @@ object DomainModelMappings {
         ip = address.ip,
         port = address.port
       ),
-      graph = convert(Graph(id = Some(interface.graphId)), subModels)
+      graph = convertGraph(Graph(id = Some(interface.graphId)), subModels)
     )
   }
 
@@ -216,13 +231,19 @@ object DomainModelMappings {
    * Convert all database entities of a graph to a single
    * object tree of domain model objects. 
    */
-  def convert(graph: Graph, subModels: (Seq[GraphConversation], Seq[GraphMessage], Seq[GraphSubject], Seq[GraphVariable], Seq[GraphMacro], Seq[GraphNode], Seq[GraphVarMan], Seq[GraphEdge])): domainModel.Graph = {
-    val (conversations, messages, subjects, variables, macros, nodes, varMans, edges) = subModels
+  def convertGraph(graph: Graph,
+              subModels: (Seq[GraphMergedSubject],
+                          Seq[GraphConversation], Seq[GraphMessage],
+                          Seq[GraphSubject], Seq[GraphVariable],
+                          Seq[GraphMacro], Seq[GraphNode],
+                          Seq[GraphVarMan], Seq[GraphEdge])
+              ): domainModel.Graph = {
+    val (mergedSubjects, conversations, messages, subjects, variables, macros, nodes, varMans, edges) = subModels
     domainModel.Graph(
       graph.id,
       conversations.map(convert).toMap,
       messages.map(convert).toMap,
-      convert(subjects, variables, macros, nodes, varMans, edges))
+      convertSubjects(subjects, mergedSubjects, variables, macros, nodes, varMans, edges))
   }
 
   /**
@@ -247,18 +268,26 @@ object DomainModelMappings {
    * Convert subjects with sub entities to domain model
    * object trees.
    */
-  def convert(ss: Seq[GraphSubject], vs: Seq[GraphVariable], ms: Seq[GraphMacro], ns: Seq[GraphNode], vm: Seq[GraphVarMan], es: Seq[GraphEdge]): Map[String, domainModel.GraphSubject] = ss.map { s =>
+  def convertSubjects(ss: Seq[GraphSubject],
+                      mergedSubjects: Seq[GraphMergedSubject],
+                      vs: Seq[GraphVariable],
+                      ms: Seq[GraphMacro],
+                      ns: Seq[GraphNode],
+                      vm: Seq[GraphVarMan],
+                      es: Seq[GraphEdge]) : Map[String, domainModel.GraphSubject] = ss.map { s =>
     // group variables, macros, nodes and edges by subject
     val variables = vs.groupBy(_.subjectId).mapValues(_.map(convert).toMap)
     val macros = ms.groupBy(_.subjectId)
     val nodes = ns.groupBy(_.subjectId)
     val varMans = vm.groupBy(_.subjectId)
     val edges = es.groupBy(_.subjectId)
+    val convertedMergedSubjects = Some(mergedSubjects.filter(_.subjectId == s.id).map{sub : GraphMergedSubject => convertMS(sub)})
 
     s.id -> domainModel.GraphSubject(
       id = s.id,
       name = s.name,
       subjectType = s.subjectType,
+      mergedSubjects = convertedMergedSubjects,
       isDisabled = s.isDisabled,
       isStartSubject = Some(s.isStartSubject),
       inputPool = s.inputPool,
@@ -273,6 +302,10 @@ object DomainModelMappings {
       variables = variables.getOrElse(s.id, Map()),
       macros = convert(macros.getOrElse(s.id, List()), nodes.getOrElse(s.id, List()), varMans.getOrElse(s.id, List()), edges.getOrElse(s.id, List())))
   }.toMap
+
+  def convertMS(ms: GraphMergedSubject) : MergedSubject = {
+    MergedSubject(id = ms.id, name = ms.name)
+  }
 
   /**
    * Convert variable to id -> entity mapping.
@@ -361,6 +394,8 @@ object DomainModelMappings {
       if (targetList.forall(_.isDefined))
         Some(domainModel.GraphEdgeTarget(
           e.targetSubjectId.get,
+          e.originalSubjectId,
+          e.exchangeTargetId,
           e.targetMin.get,
           e.targetMax.get,
           e.targetCreateNew.get,

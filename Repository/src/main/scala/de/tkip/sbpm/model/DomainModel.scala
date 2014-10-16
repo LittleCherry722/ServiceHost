@@ -22,12 +22,13 @@ object InterfaceType extends Enumeration {
   val BlackboxcontentInterfaceType = Value(BlackboxcontentTypeString)
   val InterfaceInterfaceType = Value(InterfaceTypeString)
 }
+
 import InterfaceType.InterfaceType
 
 case class Configuration(key: String,
-  label: Option[String],
-  value: Option[String],
-  dataType: String)
+                         label: Option[String],
+                         value: Option[String],
+                         dataType: String)
 
 case class Interface(interfaceType: InterfaceType,
                      address: Address,
@@ -50,61 +51,64 @@ case class InterfaceImplementation(processId: Int,
 case class Address(id: Option[Int], ip: String, port: Int)
 
 case class Graph(id: Option[Int],
-  conversations: Map[String, GraphConversation],
-  messages: Map[String, GraphMessage],
-  subjects: Map[String, GraphSubject])
+                 conversations: Map[String, GraphConversation],
+                 messages: Map[String, GraphMessage],
+                 subjects: Map[String, GraphSubject])
 
 case class GraphConversation(id: String, name: String)
 
 case class GraphMessage(id: String, name: String)
 
+case class MergedSubject(id: String, name: String)
+
 case class GraphSubject(id: String,
-  name: String,
-  subjectType: String,
-  isDisabled: Boolean,
-  isStartSubject: Option[Boolean],
-  inputPool: Short,
-  blackboxname: Option[String],
-  relatedSubjectId: Option[String],
-  relatedInterfaceId: Option[Int],
-  isImplementation: Option[Boolean],
-  externalType: Option[String],
-  role: Option[String],
-  implementations: Seq[InterfaceImplementation],
-  comment: Option[String],
-  variables: Map[String, GraphVariable],
-  macros: Map[String, GraphMacro])
+                        name: String,
+                        subjectType: String,
+                        mergedSubjects: Option[Seq[MergedSubject]],
+                        isDisabled: Boolean,
+                        isStartSubject: Option[Boolean],
+                        inputPool: Short,
+                        blackboxname: Option[String],
+                        relatedSubjectId: Option[String],
+                        relatedInterfaceId: Option[Int],
+                        isImplementation: Option[Boolean],
+                        externalType: Option[String],
+                        role: Option[String],
+                        implementations: Seq[InterfaceImplementation],
+                        comment: Option[String],
+                        variables: Map[String, GraphVariable],
+                        macros: Map[String, GraphMacro])
 
 case class GraphVariable(id: String, name: String)
 
 case class GraphMacro(id: String,
-  name: String,
-  nodes: Map[Short, GraphNode],
-  edges: Seq[GraphEdge])
+                      name: String,
+                      nodes: Map[Short, GraphNode],
+                      edges: Seq[GraphEdge])
 
 case class GraphNode(id: Short,
-  text: String,
-  isStart: Boolean,
-  isEnd: Boolean,
-  nodeType: String,
-  manualPositionOffsetX: Option[Short],
-  manualPositionOffsetY: Option[Short],
-  isAutoExecute: Option[Boolean],
-  isDisabled: Boolean,
-  isMajorStartNode: Boolean,
-  conversationId: Option[String],
-  variableId: Option[String],
-  options: GraphNodeOptions,
-  chooseAgentSubject: Option[String],
-  macroId: Option[String],
-  blackboxname: Option[String],
-  varMan: Option[GraphVarMan])
+                     text: String,
+                     isStart: Boolean,
+                     isEnd: Boolean,
+                     nodeType: String,
+                     manualPositionOffsetX: Option[Short],
+                     manualPositionOffsetY: Option[Short],
+                     isAutoExecute: Option[Boolean],
+                     isDisabled: Boolean,
+                     isMajorStartNode: Boolean,
+                     conversationId: Option[String],
+                     variableId: Option[String],
+                     options: GraphNodeOptions,
+                     chooseAgentSubject: Option[String],
+                     macroId: Option[String],
+                     blackboxname: Option[String],
+                     varMan: Option[GraphVarMan])
 
 case class GraphNodeOptions(messageId: Option[String] = None,
-  subjectId: Option[String] = None,
-  correlationId: Option[String] = None,
-  conversationId: Option[String] = None,
-  nodeId: Option[Short] = None)
+                            subjectId: Option[String] = None,
+                            correlationId: Option[String] = None,
+                            conversationId: Option[String] = None,
+                            nodeId: Option[Short] = None)
 
 object GraphNodeOptions {
   val AllMessages = "##all##"
@@ -112,28 +116,30 @@ object GraphNodeOptions {
 }
 
 case class GraphVarMan(var1Id: String,
-  var2Id: String,
-  operation: String,
-  storeVarId: String)
+                       var2Id: String,
+                       operation: String,
+                       storeVarId: String)
 
 case class GraphEdge(startNodeId: Short,
-  endNodeId: Short,
-  text: String,
-  edgeType: String,
-  manualPositionOffsetLabelX: Option[Short],
-  manualPositionOffsetLabelY: Option[Short],
-  target: Option[GraphEdgeTarget],
-  isDisabled: Boolean,
-  isOptional: Boolean,
-  priority: Byte,
-  manualTimeout: Boolean,
-  variableId: Option[String],
-  correlationId: Option[String],
-  comment: Option[String],
-  transportMethod: Seq[String])
+                     endNodeId: Short,
+                     text: String,
+                     edgeType: String,
+                     manualPositionOffsetLabelX: Option[Short],
+                     manualPositionOffsetLabelY: Option[Short],
+                     target: Option[GraphEdgeTarget],
+                     isDisabled: Boolean,
+                     isOptional: Boolean,
+                     priority: Byte,
+                     manualTimeout: Boolean,
+                     variableId: Option[String],
+                     correlationId: Option[String],
+                     comment: Option[String],
+                     transportMethod: Seq[String])
 
 case class GraphEdgeTarget(subjectId: String,
-  min: Short = -1,
-  max: Short = -1,
-  createNew: Boolean,
-  variableId: Option[String])
+                           exchangeOriginId: Option[String],
+                           exchangeTargetId: Option[String],
+                           min: Short = -1,
+                           max: Short = -1,
+                           createNew: Boolean,
+                           variableId: Option[String])

@@ -118,6 +118,8 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	/**
 	 * The id of the subject that is the sender or a receiver of the currently selected message.
 	 * - id: the id of the relatedSubject
+	 * - exchangeOriginId: the id of the relatedSubject
+	 * - exchangeTargetId: the id of the relatedSubject
 	 * - min: the min number of messages to receive / send (-1 = infinite)
 	 * - max: the min number of messages to receive / send (-1 = infinite)
 	 * - createNew: a boolean value that is currently not used
@@ -125,7 +127,15 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	 *
 	 * @type Object
 	 */
-	this.relatedSubject	= {id: null, min: -1, max: -1, createNew: false, variable: null};
+	this.relatedSubject	= {
+    id: null,
+    exchangeOriginId: null,
+    exchangeTargetId: null,
+    min: -1,
+    max: -1,
+    createNew: false,
+    variable: null
+  };
 
 	/**
 	 * The id of the start node of this edge.
@@ -255,7 +265,7 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			if (this.correlationId == "##cid##")
 				return "cID";
 			else if (this.correlationId == "##nid##")
-				return "nID"
+				return "nID";
 			else if (this.correlationId != null && gf_isset(gt_variables[this.correlationId]))
 				return gt_variables[this.correlationId];
 		}
@@ -332,7 +342,7 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 	 * Returns the related subject.
 	 *
 	 * @see GCedge.relatedSubject
-	 * @param {String} attribute Either "all", "id", "name", "min", "max", "createNew", "variable".
+	 * @param {String} attribute Either "all", "id", "name", "min", "max", "createNew", "variable", exchangeTarget, exchangeOrigin.
 	 * @returns {String|Object|int} The id of the related subject, its name, the min- or max- number of messages or the whole object depending on "attribute".
 	 */
 	this.getRelatedSubject = function (attribute)
@@ -372,6 +382,14 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			else if (attribute == "multi" && gt_isNull)
 			{
 				relatedSubject	= false;
+			}
+			else if (attribute == "exchangetarget")
+			{
+				relatedSubject	= relatedSubject.exchangeTargetId;
+			}
+			else if (attribute == "exchangeorigin")
+			{
+				relatedSubject	= relatedSubject.exchangeOriginId;
 			}
 			else if (attribute == "min")
 			{
@@ -669,14 +687,20 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 					{
 						if (gf_isset(relatedSubject.id))
 						{
-							if (relatedSubject.id != "")
-								this.relatedSubject.id	= relatedSubject.id;
+							if (relatedSubject.id)
+								this.relatedSubject.id = relatedSubject.id;
+
+							if (relatedSubject.exchangeOriginId)
+								this.relatedSubject.exchangeOriginId = relatedSubject.exchangeOriginId;
+
+							if (relatedSubject.exchangeTargetId)
+								this.relatedSubject.exchangeTargetId = relatedSubject.exchangeTargetId;
 
 							if (gf_isset(relatedSubject.min))
-								this.relatedSubject.min	= parseInt(relatedSubject.min, 10);
+								this.relatedSubject.min = parseInt(relatedSubject.min, 10);
 
 							if (gf_isset(relatedSubject.max))
-								this.relatedSubject.max	= parseInt(relatedSubject.max, 10);
+								this.relatedSubject.max = parseInt(relatedSubject.max, 10);
 
 							if (gf_isset(relatedSubject.createNew))
 								this.relatedSubject.createNew	= relatedSubject.createNew === true;
@@ -863,7 +887,17 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			if (gt_correlation == null || gt_correlation == "")
 				gt_correlation	= "";
 			else
-				gt_correlation	= " with (" + this.getCorrelationId("name") + ")"
+				gt_correlation	= " with (" + this.getCorrelationId("name") + ")";
+
+			// messages
+			if (gt_startNode && gt_startNode.getType() == "$chooseagent")
+			{
+        if (this.getVariable()) {
+          return "Agent channel saved in:\n" + this.getVariable("name");
+        } else {
+          return "Please select variable\nto save agent channel to";
+        }
+			}
 
 			// messages
 			if (gt_startNode && (gt_startNode.getType() == "send" || gt_startNode.getType() == "receive"))

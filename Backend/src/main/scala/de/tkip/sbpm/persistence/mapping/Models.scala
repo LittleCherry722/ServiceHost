@@ -108,6 +108,8 @@ case class GraphSubject(id: String,
   url: Option[String],
   comment: Option[String])
 
+case class GraphMergedSubject(id: String, subjectId: String, graphId: Int, name: String)
+
 case class GraphVariable(id: String,
   subjectId: String,
   graphId: Int,
@@ -155,12 +157,14 @@ case class GraphEdge(startNodeId: Short,
   endNodeId: Short,
   macroId: String,
   subjectId: String,
+  originalSubjectId: Option[String],
   graphId: Int,
   text: String,
   edgeType: String,
   manualPositionOffsetLabelX: Option[Short],
   manualPositionOffsetLabelY: Option[Short],
   targetSubjectId: Option[String],
+  exchangeTargetId: Option[String],
   targetMin: Option[Short],
   targetMax: Option[Short],
   targetCreateNew: Option[Boolean],

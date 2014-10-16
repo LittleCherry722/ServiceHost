@@ -22,6 +22,7 @@ import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
+import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 import de.tkip.sbpm.model._
 import spray.json._
 import spray.routing.authentication.UserPass
@@ -102,6 +103,8 @@ object JsonProtocol extends DefaultJsonProtocol {
     }
 
     def toInterfaceHeader(port: Int, interfaceType: String) = { // TODO: value
+      if (!id.isDefined) System.err.println("id is None") // TODO: log!
+
       id.map { pId =>
         InterfaceHeader(
           interfaceType = interfaceType,
@@ -161,8 +164,8 @@ object JsonProtocol extends DefaultJsonProtocol {
   implicit val processInstanceDataFormat = jsonFormat9(ProcessInstanceData)
 
   implicit val createProcessIdFormat = jsonFormat2(ProcessIdHeader)
-  implicit def createGraphHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat6(GraphHeader)
-  implicit def createInterfaceHeaderFormat(implicit roles: Map[String, Role]) = jsonFormat7(InterfaceHeader)
+  implicit def createGraphHeaderFormat(implicit roles: RoleMapper) = jsonFormat6(GraphHeader)
+  implicit def createInterfaceHeaderFormat(implicit roles: RoleMapper) = jsonFormat7(InterfaceHeader)
   implicit val createActionIdHeaderFormat = jsonFormat8(ExecuteAction)
 
   implicit val newStateFormat = jsonFormat2(NewHistoryState)

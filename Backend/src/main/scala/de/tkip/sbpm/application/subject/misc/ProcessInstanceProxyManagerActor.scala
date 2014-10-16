@@ -19,8 +19,7 @@ import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.Some
 import de.tkip.sbpm.application.miscellaneous.GetAgentsList
 import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
-import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, MappingInfo }
-import de.tkip.sbpm.model.Agent
+import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, Agent }
 import scala.util.{Success, Failure}
 
 case object GetProxyActor
@@ -102,7 +101,12 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, actor:
     log.info("PROCESS INSTANCE PROXY MANAGER: Received Mapping info! {}", mapping)
 
     // create the message which is used to create a process instance
-    val createMessage = CreateProcessInstance(ExternalUser, targetProcessId, newProcessInstanceName, Some(self), mapping)
+    val createMessage = CreateProcessInstance(
+      userID = ExternalUser,
+      processID = targetProcessId,
+      name = newProcessInstanceName,
+      manager = Some(self),
+      agentsMap = mapping)
 
     val instanceProxy = for {
       // createma the processinstance

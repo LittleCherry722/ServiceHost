@@ -30,6 +30,7 @@
             <a class="btn" id="exportGraphButton" href="#exportModal" data-bind="click: exportGraph">Export</a>
         </div>
     </fieldset>
+
     <fieldset class="tooltip-enabled">
         <legend>Subject settings</legend>
 
@@ -103,8 +104,8 @@
             <select id="ge_cv_relatedProcess"
                     data-bind="options: availableProcesses, optionsText: 'name', optionsValue: 'id', optionsCaption: 'Select a process...'"></select>
 
-            <label class="graphsectionheader">Related Subject:</label>
-            <input type="text" id="ge_cv_relatedSubject"/>
+            <label class="graphsectionheader" style="display: none;">Related Subject:</label>
+            <input type="text" id="ge_cv_relatedSubject" style="display: none;"/>
         </div>
 
         <div id="subjectType" data-chardin-intro="Can be used for remarks regarding the currently selected subject."
@@ -124,6 +125,15 @@
                    onclick="gv_graph.deleteNode();" value="Delete subject"/>
             <input type="button" id="DeactivateSubjectButton" title="Macro : Press &#34;I&#34;"
                    onclick="gf_deactivateNode();" value="De-/Activate subject"/>
+        </div>
+
+        <div id="mergeSubjects" data-bind="visible: selectedSubjectType() == 'single'">
+            <label class="graphsectionheader">Merge Subject with</label>
+            <select id="mergeSubjectsSelect" title="Assign a specific role to a subject"
+                    data-bind="options: mergeSubjects, value: mergeSubject, optionsValue: 'subjectId', optionsText: 'subjectText'">
+            </select>
+            <input type="button" id="mergeSubjectsButton"
+                   data-bind="click: mergeSubjectHandler" value="Merge Subjects"/>
         </div>
         <br/>
 

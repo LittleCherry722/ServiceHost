@@ -19,7 +19,6 @@ import scala.concurrent.duration._
 import scala.collection.mutable.{Map => MutableMap}
 
 // TODO: sortieren / aufräumen
-import de.tkip.sbpm.application.subject.misc.{ActionData, SubjectToSubjectMessage}
 import akka.actor.Actor
 import spray.json._
 import DefaultJsonProtocol._
@@ -34,23 +33,13 @@ import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.ActorLocator
 import de.tkip.sbpm.rest.JsonProtocol._
 
-import de.tkip.sbpm.application.miscellaneous.AnswerAbleMessage
-import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.exitCondLabel
-import de.tkip.sbpm.application.miscellaneous.MarshallingAttributes.timeoutLabel
+import de.tkip.sbpm.application.miscellaneous.{ RoleMapper, UnBlockUser }
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
-import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.misc.ActionData
-import de.tkip.sbpm.application.subject.misc.ActionExecuted
-import de.tkip.sbpm.application.subject.misc.AvailableAction
-import de.tkip.sbpm.application.subject.misc.ExecuteAction
-import de.tkip.sbpm.application.subject.misc.ActionIDProvider
 import de.tkip.sbpm.model._
-import de.tkip.sbpm.model.StateType._
-import de.tkip.sbpm.application.subject.behavior._
-import de.tkip.sbpm.application.ProcessInstanceActor.{MappingInfo, AgentsMap, RegisterSubjects}
+import de.tkip.sbpm.application.ProcessInstanceActor.{RegisterSubjects, AgentAddress, Agent}
 import de.tkip.sbpm.application.subject.CallMacroStates
 import de.tkip.sbpm.application.subject.misc.MacroTerminated
-import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import akka.event.Logging
 
 object BlackboxStateActor {
@@ -99,7 +88,9 @@ case class BlackboxStateActor(data: StateData)
 
       val rolesSeq: Seq[Role] = res.asInstanceOf[Seq[Role]]
 
-      implicit val roles: Map[String, Role] = rolesSeq.map(r => (r.name, r)).toMap
+      val roles: Map[String, Role] = rolesSeq.map(r => (r.name, r)).toMap
+
+      implicit val roleMapper: RoleMapper = RoleMapper.createRoleMapper(roles)
 
       val interface: Interface = plaintextGraph.parseJson.convertTo[Interface]
       val reversedGraph: Graph = reverseExternalSubjects(interface.graph)
@@ -113,11 +104,11 @@ case class BlackboxStateActor(data: StateData)
       val externalSubjects: Map[SubjectID, SubjectLike] = processGraph.subjects.filterNot(_._1 == mySubjectID)
       val externalGraphSubjects: Map[SubjectID, GraphSubject] = reversedGraph.subjects.filterNot(_._1 == mySubjectID)
 
-      val agents: Map[SubjectID, Set[Agent]] = externalGraphSubjects.values.map(
+      val agents: Map[SubjectID, Agent] = externalGraphSubjects.values.map(
         subj => {
           val impl: InterfaceImplementation = subj.implementations.get.head // TODO: check existence / how to choose?
           val agent = Agent(impl.processId, AgentAddress(impl.address.ip, impl.address.port), impl.subjectId)
-          (subj.id, Set(agent))
+          (subj.id, agent)
         }).toMap
 
       callMacro(mainMacro, externalSubjects, agents)
@@ -161,7 +152,7 @@ case class BlackboxStateActor(data: StateData)
     ))
   }
 
-  def callMacro(mainMacro: Array[State], externalSubjects: Map[SubjectID, SubjectLike], agents: Map[SubjectID, Set[Agent]]): Unit = {
+  def callMacro(mainMacro: Array[State], externalSubjects: Map[SubjectID, SubjectLike], agents: Map[SubjectID, Agent]): Unit = {
     val macroName = blackboxInstance + "@blackbox"
     log.info("=============================")
     log.info("=============================")

@@ -36,6 +36,7 @@ class ServiceHostActor extends InstrumentedActor {
     }
     case request: CreateProcessInstance => {
       log.debug("received CreateProcessInstance: " + request)
+      println("received CreateProcessInstance: " + request)
       serviceManager forward request
     }
     case GetProxyActor => {

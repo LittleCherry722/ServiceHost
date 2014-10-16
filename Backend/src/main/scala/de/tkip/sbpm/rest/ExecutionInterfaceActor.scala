@@ -24,7 +24,6 @@ import spray.routing.ExceptionHandler
 import spray.util.LoggingContext
 
 import de.tkip.sbpm.ActorLocator
-import de.tkip.sbpm.application.ProcessInstanceActor.MappingInfo
 import de.tkip.sbpm.application.miscellaneous._
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.misc._
@@ -123,7 +122,13 @@ class ExecutionInterfaceActor extends AbstractInterfaceActor with DefaultLogging
           entity(as[ProcessIdHeader]) { json =>
             complete {
               val name = json.name.getOrElse("Unnamed")// TODO not as an Option
-              val future = (subjectProviderManager ?? CreateProcessInstance(userId, json.processId, name, None, Map[SubjectID, MappingInfo]())).mapTo[ProcessInstanceCreated]
+              val msg = CreateProcessInstance(
+                  userID = userId,
+                  processID = json.processId,
+                  name = name,
+                  manager = None,
+                  agentsMap = Map.empty)
+              val future = (subjectProviderManager ?? msg).mapTo[ProcessInstanceCreated]
               future.map(result => result.answer)
             }
           }

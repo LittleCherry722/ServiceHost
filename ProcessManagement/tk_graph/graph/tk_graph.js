@@ -347,7 +347,7 @@ function gf_checkCardinality (macro, start, end, desiredType, currentType, actio
 					}
 
 					// send, receive, action, create subjects, split guard
-					else if (gt_startNodeType == "send" || gt_startNodeType == "receive" || gt_startNodeType == "action" || gt_startNodeType == "$createsubjects" || gt_startNodeType == "$splitguard" || gt_startNodeType == "$decision")
+					else if (gt_startNodeType == "send" || gt_startNodeType == "receive" || gt_startNodeType == "action" || gt_startNodeType == "$createsubjects" || gt_startNodeType == "$splitguard" || gt_startNodeType == "$decision" || gt_startNodeType == "tau")
 					{
 						var allowedC	= false;
 						var allowedE	= false;

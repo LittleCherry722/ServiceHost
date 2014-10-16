@@ -21,6 +21,7 @@ import scala.concurrent.Future
 
 import com.github.t3hnar.bcrypt._
 import scala.concurrent.ExecutionContext
+import de.tkip.sbpm.application.miscellaneous.RoleMapper
 import de.tkip.sbpm.persistence.query._
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.json.JsonParser
@@ -80,8 +81,8 @@ object Entities {
     (User(None, """Stein""", true, 8), ("sbpm", "stein@sbpm.com", "s1234".bcrypt)))
 
   // process with one active graph loaded from corresponding json file
-  val processes = List(
-    (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
+  val processes = List[(Process, String)](
+//    (Process(None, None, false, "Grossunternehmen", false) -> loadJson("grossunternehmen")),
 //    (Process(None, None, false, "Service Host", false) -> loadJson("servicehost")),
 //    (Process(None, None, false, """Staples""", false) -> loadJson("staples")),
 //    (Process(None, None, false, """Staples Test""", false) -> loadJson("staples-test")),
@@ -108,8 +109,22 @@ object Entities {
 //    (Process(None, None, false, """Fortgeschritten Rechnung""", false) -> loadJson("fortgeschritten_rechnung")),
 //    (Process(None, None, false, """Simple Observer Example""", false) -> loadJson("simple_observer_example")),
 //    (Process(None, None, false, """Shared IP Test""", false) -> loadJson("shared_ip_test")),
+    (Process(None, None, false, """Service Host Test""", false) -> loadJson("service_host_test")),
+    (Process(None, None, false, """Service Host Two""", false) -> loadJson("service_host_two")),
+    (Process(None, None, false, """ServiceToService Test""", false) -> loadJson("ServiceToService")),
+    (Process(None, None, false, """Service Host Three""", false) -> loadJson("service_host_three")),
+//    (Process(None, None, false, """Service Host Four""", false) -> loadJson("service_host_four")),
+    (Process(None, None, false, """VASEC Router Stub""", false) -> loadJson("vasec_router_stub")),
+
+//  variables processes
+    (Process(None, None, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),
+    (Process(None, None, false, """Variables to subjects external""", false) -> loadJson("variables_to_subjects_external")),
+    (Process(None, None, false, """Variables to variables external""", false) -> loadJson("variables_to_variables")),
+    (Process(None, None, false, """Variables to variables and extraction external""", false) -> loadJson("variables_to_variables_extraction")),
+
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
-    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")))
+    (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink"))
+   )
 
 
   // group -> role mappings
@@ -229,7 +244,7 @@ object Entities {
         // parse graph jsons and insert graphs
         g <- (persistenceActor ? Graphs.Save(processes.indices.map { i =>
           // use slicks' json parser to convert graph from string to domain model
-          JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(rls)).copy(processId = p(i))
+          JsonParser(processes(i)._2).asJsObject.convertTo[Graph](graphJsonFormat(RoleMapper.createRoleMapper(rls))).copy(processId = p(i))
         }: _*)).mapTo[Seq[Option[Int]]]
         // update processes' active graph property with graph ids of
         // recently inserted graphs

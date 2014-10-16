@@ -158,7 +158,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
    * Format for edge's target object.
    */
   implicit val edgeTargetFormat = jsonFormat(GraphEdgeTarget,
-    "id", "min", "max", "createNew", "variable")
+    "id", "exchangeOriginId", "exchangeTargetId", "min", "max", "createNew", "variable")
 
   /**
    * Format of an edge object.
@@ -211,6 +211,8 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val addressFormat = jsonFormat3(Address)
   implicit val interfaceImplementationFormat = jsonFormat3(InterfaceImplementation)
 
+  implicit val mergedSubjectsFormat = jsonFormat2(MergedSubject)
+
   /**
    * Format for a subject object.
    * Counter values are calculated on the fly when converting to JSON
@@ -221,6 +223,7 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
       "id" -> s.id.toJson,
       "name" -> s.name.toJson,
       "type" -> s.subjectType.toJson,
+      "mergedSubjects" -> s.mergedSubjects.toJson,
       "deactivated" -> s.isDisabled.toJson,
       "startSubject" -> s.isStartSubject.toJson,
       "inputPool" -> s.inputPool.toJson,
@@ -238,8 +241,11 @@ object GraphJsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
       "macros" -> s.macros.values.toJson,
       // extract counter value fro∂m macro ids
       "macroCounter" -> counter(s.macros))
-    def read(v: JsValue) = v.asJsObject.convertTo[GraphSubject](jsonFormat(GraphSubject, "id", "name",
+    def read(v: JsValue) = v.asJsObject.convertTo[GraphSubject](jsonFormat(GraphSubject,
+      "id",
+      "name",
       "type",
+      "mergedSubjects",
       "deactivated",
       "startSubject",
       "inputPool",

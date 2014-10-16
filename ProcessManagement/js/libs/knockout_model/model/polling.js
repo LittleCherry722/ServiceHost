@@ -8,11 +8,11 @@ define([
 
     var initialize = function( Resource ) {
         Resource.enablePolling = enablePolling;
-    }
+    };
 
     var getTime = function () {
         return Math.floor((new Date().getTime()) / 1000);
-    }
+    };
 
     var waitingTime = function() {
         var now = getTime();
@@ -21,7 +21,7 @@ define([
         if (s <  5*60) return 10;
         if (s < 30*60) return 30;
         return 3*60;
-    }
+    };
 
     var enablePolling = function( name, priority ) {
         pollingDisabled = false;
@@ -37,12 +37,12 @@ define([
             name: name,
             priority: priority
         });
-    }
+    };
 
     var disablePolling = function () {
         clearTimeout(pollingTimeout);
         pollingDisabled = true;
-    }
+    };
     window.disablePolling = disablePolling;
 
     var updateHandler = {
@@ -62,11 +62,12 @@ define([
         deleted: function(data, resource) {
             resource.all.remove(function( instance ) {
                 return instance.id() === data.id;
-            })
+            });
         }
-    }
+    };
 
     var poll = function() {
+        return false;
         var data = {
             t: getTime() - lastUpdate
         };
@@ -80,8 +81,8 @@ define([
                     pollingTimeout = window.setTimeout(poll, waitingTime() * 1000 );
                 }
             }
-        })
-    }
+        });
+    };
 
     var update = function( pollingData ) {
         var changesReceived = false;
@@ -92,20 +93,20 @@ define([
                 _(pollingData[resourceObj.name][actionName]).each(function( item ) {
                     changesReceived = true;
                     action(item, resourceObj.resource);
-                })
+                });
             });
         });
 
         if (changesReceived) {
-            lastUpdate = getTime()
+            lastUpdate = getTime();
         }
 
 
 //    var prefix = changesReceived ? "Some " : "No "
 //    console.log(prefix + "Changes Received. Next poll in " + waitingTime() + " seconds.");
-    }
+    };
 
-    lastUpdate = getTime()
+    lastUpdate = getTime();
     initialize.poll = poll;
 
     return initialize;

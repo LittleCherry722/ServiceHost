@@ -14,7 +14,7 @@
 package de.tkip.sbpm.repository
 
 import scala.collection.immutable.{ Map, Set }
-import de.tkip.sbpm.application.miscellaneous.SystemProperties
+import de.tkip.sbpm.application.miscellaneous.{ RoleMapper, SystemProperties }
 import de.tkip.sbpm.logging.DefaultLogging
 import akka.actor.{ ActorRef, Props }
 import akka.util._
@@ -26,19 +26,18 @@ import scala.concurrent.{ExecutionContext, Future}
 import de.tkip.sbpm.persistence.query.Roles
 import de.tkip.sbpm.instrumentation.InstrumentedActor
 import ExecutionContext.Implicits.global
-import de.tkip.sbpm.model.{AgentAddress, ExternalSubject, Role, Agent}
+import de.tkip.sbpm.model.Role
 import scala.concurrent.{Await}
 import de.tkip.sbpm.ActorLocator
-import akka.pattern.ask
 import akka.event.Logging
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes.SubjectID
-import de.tkip.sbpm.application.ProcessInstanceActor.AgentsMap
+import de.tkip.sbpm.application.ProcessInstanceActor.{Agent, AgentAddress}
 
 object RepositoryPersistenceActor {
-  case class SaveInterface(json: GraphHeader)
+  case class SaveInterface(json: GraphHeader, roles: Option[RoleMapper] = None)
   case class DeleteInterface(interfaceId: Int)
   case class GetAgentsMapMessage(agentIds: Iterable[SubjectID])
-  case class AgentsMappingResponse(agentsMap: AgentsMap)
+  case class AgentsMappingResponse(possibleAgents: Map[String, Set[Agent]])
 }
 
 class RepositoryPersistenceActor extends InstrumentedActor {
@@ -62,10 +61,18 @@ class RepositoryPersistenceActor extends InstrumentedActor {
   def actorRefFactory = context
 
   def wrappedReceive = {
-    case SaveInterface(gHeader) => {
+    case SaveInterface(gHeader, roles) => {
       log.debug("[SAVE INTERFACE] save message received")
-      val roles = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
-      implicit val roleMap = roles.map(r => (r.name, r)).toMap
+
+      implicit val roleMap: RoleMapper = if (roles.isDefined) {
+                               roles.get
+                             }
+                             else {
+                               val rolesFuture = Await.result((persistanceActor ?? Roles.Read.All).mapTo[Seq[Role]], 2 seconds)
+                               val rm = rolesFuture.map(r => (r.name, r)).toMap
+                               RoleMapper.createRoleMapper(rm)
+                             }
+
       val interface = gHeader.toInterfaceHeader().toJson.toString()
       log.debug("[SAVE INTERFACE] sending message to repository... " + repoLocation + "interfaces")
       log.debug("-------------------------------------------------------------")
