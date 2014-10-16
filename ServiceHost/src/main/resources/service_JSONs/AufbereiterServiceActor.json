@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "name": "Aufbereiter",
+  "name": "Preparer",
   "author": "André Wolski",
   "subjectId": "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
   "process": {
-    "name": "VASEC Demo ServiceHost Aufbereiter-Proxy",
+    "name": "VASEC Preparer",
     "publishInterface": false,
     "graph": {
       "id": 80,
@@ -212,7 +212,7 @@
               }
             }, {
               "id": 3,
-              "text": "Orchestrator: receive Route",
+              "text": "Orchestrator: receive Routes",
               "start": false,
               "end": false,
               "type": "receive",
@@ -410,11 +410,11 @@
           "macroCounter": 1
         }, {
           "id": "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-          "name": "Aufbereiter",
+          "name": "Preparer",
           "type": "single",
           "mergedSubjects": [{
             "id": "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-            "name": "Aufbereiter"
+            "name": "Preparer"
           }],
           "deactivated": false,
           "startSubject": false,
@@ -438,7 +438,7 @@
             "nodeCounter": 21,
             "nodes": [{
               "id": 0,
-              "text": "JOIN:m3:greentmp:greentmp",
+              "text": "JOIN:m3:currentblue:currentblue",
               "start": false,
               "end": false,
               "type": "$vasec",
@@ -466,7 +466,7 @@
               }
             }, {
               "id": 5,
-              "text": "Aufbereiter: receive Red-Points",
+              "text": "Preparer: receive Red Points",
               "start": false,
               "end": false,
               "type": "receive",
@@ -550,7 +550,7 @@
               }
             }, {
               "id": 20,
-              "text": "store blue",
+              "text": "store Blue Points",
               "start": false,
               "end": false,
               "type": "action",
@@ -578,7 +578,7 @@
               }
             }, {
               "id": 1,
-              "text": "CLEAR:greentmp",
+              "text": "CLEAR:currentblue",
               "start": false,
               "end": false,
               "type": "$vasec",
@@ -632,7 +632,7 @@
               }
             }, {
               "id": 9,
-              "text": "Aufbereiter: receive startziel",
+              "text": "Preparer: receive StartEnd",
               "start": true,
               "end": false,
               "type": "receive",
@@ -660,7 +660,7 @@
               }
             }, {
               "id": 13,
-              "text": "store route",
+              "text": "store Routes",
               "start": false,
               "end": false,
               "type": "action",
@@ -688,7 +688,7 @@
               }
             }, {
               "id": 2,
-              "text": "Aufbereiter: receive Route",
+              "text": "Preparer: receive Routes",
               "start": false,
               "end": false,
               "type": "receive",
@@ -716,7 +716,7 @@
               }
             }, {
               "id": 17,
-              "text": "store red",
+              "text": "store Red Points",
               "start": false,
               "end": false,
               "type": "action",
@@ -772,7 +772,7 @@
               }
             }, {
               "id": 7,
-              "text": "store start_end",
+              "text": "store StartEnd",
               "start": false,
               "end": false,
               "type": "action",
@@ -828,7 +828,7 @@
               }
             }, {
               "id": 18,
-              "text": "Aufbereiter: receive green",
+              "text": "Preparer: receive Green Points",
               "start": false,
               "end": false,
               "type": "receive",
@@ -856,7 +856,7 @@
               }
             }, {
               "id": 16,
-              "text": "store green",
+              "text": "Store Green Points",
               "start": false,
               "end": false,
               "type": "action",
@@ -884,7 +884,7 @@
               }
             }, {
               "id": 11,
-              "text": "SELECT:m4:greentmp",
+              "text": "SELECT:m4:currentblue",
               "start": false,
               "end": false,
               "type": "$vasec",
@@ -968,7 +968,7 @@
               }
             }, {
               "id": 4,
-              "text": "VAR:greentmp",
+              "text": "VAR:currentblue",
               "start": false,
               "end": false,
               "type": "send",
@@ -996,7 +996,7 @@
               }
             }, {
               "id": 15,
-              "text": "Aufbereiter: receive Blue-Points",
+              "text": "Preparer: receive Blue Points",
               "start": false,
               "end": false,
               "type": "receive",
@@ -1416,7 +1416,7 @@
             "nodeCounter": 5,
             "nodes": [{
               "id": 0,
-              "text": "Router: receive Green-Points",
+              "text": "Router: receive Green Points",
               "start": false,
               "end": false,
               "type": "receive",
@@ -1528,7 +1528,7 @@
               }
             }, {
               "id": 4,
-              "text": "Router: receive startziel",
+              "text": "Router: receive StartEnd",
               "start": true,
               "end": false,
               "type": "receive",
@@ -1641,11 +1641,11 @@
           "macroCounter": 1
         }, {
           "id": "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-          "name": "Aufbereiter-Proxy",
+          "name": "Preparer-Proxy",
           "type": "external",
           "mergedSubjects": [{
             "id": "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-            "name": "Aufbereiter-Proxy"
+            "name": "Preparer-Proxy"
           }],
           "deactivated": false,
           "startSubject": false,
@@ -2520,14 +2520,15 @@
         },
         "conversationCounter": 1,
         "messages": {
-          "m7": "red",
-          "m2": "m2 (pong)",
-          "m4": "m4 (blue)",
-          "m8": "m8 (greentmp)",
-          "m1": "m1 (ping)",
-          "m6": "m6 (route)",
-          "m3": "m3 (green)",
-          "m5": "m5 (startziel)"
+          "m1": "m1",
+          "m2": "m2",
+          "m3": "Green Points",
+          "m4": "Blue Points",
+          "m5": "StartEnd",
+          "m6": "Routes",
+          "m7": "Red Points",
+          "m8": "Current Blue Points",
+          "m9": "Point Type"
         },
         "messageCounter": 9,
         "nodeCounter": 5434

@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "name": "VASECRouter",
+  "name": "Router",
   "author": "André Wolski",
   "subjectId": "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
   "process": {
-    "name": "VASEC Demo ServiceHost",
+    "name": "VASEC Router",
     "publishInterface": false,
     "graph": {
       "id": 5,
@@ -13,11 +13,11 @@
       "definition": {
         "process": [{
           "id": "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-          "name": "Aufbereiter",
+          "name": "Preparer",
           "type": "external",
           "mergedSubjects": [{
             "id": "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-            "name": "Aufbereiter"
+            "name": "Preparer"
           }],
           "deactivated": false,
           "startSubject": true,
@@ -153,7 +153,7 @@
               }
             }, {
               "id": 2,
-              "text": "Aufbereiter: receive Route",
+              "text": "Preparer: receive Routes",
               "start": false,
               "end": false,
               "type": "receive",
@@ -395,7 +395,7 @@
             "nodeCounter": 7,
             "nodes": [{
               "id": 0,
-              "text": "Router: receive green points",
+              "text": "Router: receive Green Points",
               "start": false,
               "end": false,
               "type": "receive",
@@ -423,7 +423,7 @@
               }
             }, {
               "id": 5,
-              "text": "store start_end",
+              "text": "store StartEnd",
               "start": false,
               "end": false,
               "type": "action",
@@ -479,7 +479,7 @@
               }
             }, {
               "id": 6,
-              "text": "store green points",
+              "text": "store Green Points",
               "start": false,
               "end": false,
               "type": "action",
@@ -563,7 +563,7 @@
               }
             }, {
               "id": 4,
-              "text": "Router: receive start_end",
+              "text": "Router: receive StartEnd",
               "start": true,
               "end": false,
               "type": "receive",
@@ -710,11 +710,17 @@
         },
         "conversationCounter": 1,
         "messages": {
-          "m5": "start_end",
-          "m3": "green",
-          "m6": "route"
+          "m1": "m1",
+          "m2": "m2",
+          "m3": "Green Points",
+          "m4": "Blue Points",
+          "m5": "StartEnd",
+          "m6": "Routes",
+          "m7": "Red Points",
+          "m8": "Current Blue Points",
+          "m9": "Point Type"
         },
-        "messageCounter": 4,
+        "messageCounter": 9,
         "nodeCounter": 5434
       },
       "routings": []

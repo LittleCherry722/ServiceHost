@@ -34,7 +34,7 @@ class ImageLoaderServiceActor extends ServiceActor {
   override protected def states: List[State] = List(
       ExitState(0,null,Map(),Map(),null),
       SendState(5,"exitcondition",Map("m3" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m3" -> 0),""),
-      ReceiveState(1,"exitcondition",Map("m8" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m8" -> 3),""),
+      ReceiveState(1,"exitcondition",Map("m9" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m9" -> 3),""),
       SendState(2,"exitcondition",Map("m7" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m7" -> 0),""),
       loaddataandpreparesend(3,"exitcondition",Map(),Map("green" -> 5, "red" -> 2, "blue" -> 4),"load data and prepare send"),
       SendState(4,"exitcondition",Map("m4" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m4" -> 0),"")

@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "name": "Tankstelle",
+  "name": "Gas Station",
   "author": "André Wolski",
   "subjectId": "Subj2:1ca1b32f-af47-4951-882a-19c9766b38dd",
   "process": {
-    "name": "VASEC Tankstelle SH",
+    "name": "VASEC Bundle Gas Station",
     "publishInterface": false,
     "graph": {
       "id": 50,
@@ -22,7 +22,7 @@
           "deactivated": false,
           "startSubject": true,
           "inputPool": 100,
-          "blackboxname": "vasec_tankstelle",
+          "blackboxname": "vasec_gasstation",
           "relatedSubject": "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
           "relatedInterface": null,
           "isImplementation": false,
@@ -44,7 +44,7 @@
             "nodeCounter": 5,
             "nodes": [{
               "id": 0,
-              "text": "Orchestrator in Tankstellen-Blackbox: receive Blue-Points",
+              "text": "Orchestrator within Gas Station Blackbox: receive Blue Points",
               "start": false,
               "end": false,
               "type": "receive",
@@ -72,7 +72,7 @@
               }
             }, {
               "id": 1,
-              "text": "Orchestrator in Tankstellen-Blackbox: receive Green-Points",
+              "text": "Orchestrator within Gas Station Blackbox: receive Green Points",
               "start": false,
               "end": false,
               "type": "receive",
@@ -100,7 +100,7 @@
               }
             }, {
               "id": 2,
-              "text": "Orchestrator in Tankstellen-Blackbox: receive Red-Points",
+              "text": "Orchestrator within Gas Station Blackbox: receive Red Points",
               "start": false,
               "end": false,
               "type": "receive",
@@ -128,7 +128,7 @@
               }
             }, {
               "id": 3,
-              "text": "Orchestrator in Tankstellen-Blackbox: send startziel",
+              "text": "Orchestrator within Gas Station Blackbox: send StartEnd",
               "start": true,
               "end": false,
               "type": "send",
@@ -276,11 +276,11 @@
           "macroCounter": 1
         }, {
           "id": "Subj2:1ca1b32f-af47-4951-882a-19c9766b38dd",
-          "name": "Tankstelle",
+          "name": "Gas Station",
           "type": "single",
           "mergedSubjects": [{
             "id": "Subj2:1ca1b32f-af47-4951-882a-19c9766b38dd",
-            "name": "Tankstelle"
+            "name": "Gas Station"
           }],
           "deactivated": false,
           "startSubject": false,
@@ -304,7 +304,7 @@
             "nodeCounter": 9,
             "nodes": [{
               "id": 0,
-              "text": "Tankstellen in Tankstellen-Blackbox: receive startziel",
+              "text": "Gas Station Service: receive StartEnd",
               "start": true,
               "end": false,
               "type": "receive",
@@ -416,7 +416,7 @@
               }
             }, {
               "id": 2,
-              "text": "store start_end",
+              "text": "store StartEnd",
               "start": false,
               "end": false,
               "type": "action",
@@ -708,15 +708,17 @@
         },
         "conversationCounter": 1,
         "messages": {
-          "m7": "m7 (red)",
-          "m2": "m2 (pong)",
-          "m4": "m4 (blue)",
-          "m1": "m1 (ping)",
-          "m6": "m6 (route)",
-          "m3": "m3 (green)",
-          "m5": "m5 (startziel)"
+          "m1": "m1",
+          "m2": "m2",
+          "m3": "Green Points",
+          "m4": "Blue Points",
+          "m5": "StartEnd",
+          "m6": "Routes",
+          "m7": "Red Points",
+          "m8": "Current Blue Points",
+          "m9": "Point Type"
         },
-        "messageCounter": 8,
+        "messageCounter": 9,
         "nodeCounter": 1
       },
       "routings": []
