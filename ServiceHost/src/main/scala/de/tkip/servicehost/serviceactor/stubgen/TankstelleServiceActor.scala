@@ -198,9 +198,9 @@ class TankstelleServiceActor extends ServiceActor {
     msg
   }
 
-  def rnd(a: Int, b: Int, off: Int = 0): Int = {
+  def rnd(a: Double, b: Double, off: Double = 0.0): Double = {
     if (a > b) log.error("rnd: invalid input")
-    a + scala.util.Random.nextInt(b-a+2*off) - off
+    a + scala.util.Random.nextInt(Math.ceil(b-a+2.0*off).toInt) - off + scala.util.Random.nextInt(100)/100.0
   }
 
   def generate(typ: String, num: Int): String = {

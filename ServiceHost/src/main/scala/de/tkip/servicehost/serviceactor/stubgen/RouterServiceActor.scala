@@ -230,7 +230,9 @@ class RouterServiceActor extends ServiceActor {
 
       val sorted: Array[VSinglePoint] = points.sortWith((a, b) => (compare(a, b) < 0))
 
-      val route: VRoute = VRoute(Array(start_end.start) ++ sorted ++ Array(start_end.end))
+      val metric = 1.23
+
+      val route: VRoute = VRoute(Array(start_end.start) ++ sorted ++ Array(start_end.end), metric)
 
       actor.setMessage(Array(route).toJson.compactPrint)
 

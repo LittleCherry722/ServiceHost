@@ -121,6 +121,7 @@ class StubGeneratorActor extends InstrumentedActor {
         case StateType.ActStateString     => (id.toInt -> ActionState(id.toInt))
         case StateType.EndStateString     => (id.toInt -> ExitState(id.toInt))
         case StateType.VasecStateString   => (id.toInt -> ActionState(id.toInt))
+        case StateType.DecisionStateString=> (id.toInt -> ActionState(id.toInt))
         case x                            => { log.error("unknown StateType: {}", x); (id.toInt -> null) }
       }
     }
