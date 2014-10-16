@@ -144,7 +144,7 @@ class SubjectProviderActor(userID: UserID) extends InstrumentedActor {
 
     logger.debug("subjects: " + collectedSubjects)
 
-    implicit val timeout = akka.util.Timeout(5 seconds) // TODO how long the timeout?
+    implicit val timeout = akka.util.Timeout(30 seconds) // TODO how long the timeout?
 
     val actionFutureSeq: Seq[Future[Seq[Seq[AvailableAction]]]] =
       for (subject <- collectedSubjects.filterNot(_.isTerminated).toArray)
