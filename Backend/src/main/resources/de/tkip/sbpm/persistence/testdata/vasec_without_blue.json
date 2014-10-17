@@ -3,35 +3,47 @@
 			"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
 			"name" : "Orchestrator",
 			"type" : "single",
-			"subjectType" : "single",
 			"mergedSubjects" : [{
 					"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
 					"name" : "Orchestrator"
 				}
 			],
 			"deactivated" : false,
+			"startSubject" : true,
 			"inputPool" : 100,
 			"blackboxname" : "",
-			"relatedInterface" : null,
-			"relatedProcess" : null,
 			"relatedSubject" : "",
+			"relatedInterface" : null,
 			"isImplementation" : false,
 			"externalType" : "external",
 			"role" : "default",
-			"startSubject" : true,
+			"url" : null,
 			"implementations" : [],
 			"comment" : "",
+			"variables" : {
+				"v1" : "BAR",
+				"v2" : "m2",
+				"v3" : "m3",
+				"v4" : "m4"
+			},
+			"variableCounter" : 5,
 			"macros" : [{
 					"id" : "##main##",
 					"name" : "internal behavior",
+					"nodeCounter" : 11,
 					"nodes" : [{
 							"id" : 0,
 							"text" : "VAR:m7",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -39,36 +51,83 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
+							}
+						}, {
+							"id" : 5,
+							"text" : "BB",
+							"start" : false,
+							"end" : false,
+							"type" : "$blackbox",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
 							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
+							"macro" : "",
+							"blackboxname" : "vasec_bundle",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 10,
+							"text" : "JOIN::m4:m4",
+							"start" : false,
+							"end" : false,
+							"type" : "$vasec",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
 							},
-							"chooseAgentSubject" : null,
 							"macro" : "",
 							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
 						}, {
 							"id" : 1,
-							"text" : "Choose Route",
+							"text" : "end",
 							"start" : false,
+							"end" : true,
+							"type" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
 							"autoExecute" : false,
-							"end" : false,
-							"type" : "action",
-							"nodeType" : "action",
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -76,110 +135,55 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
-							"id" : 2,
-							"text" : "VAR:m3",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "send",
-							"nodeType" : "send",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 3,
+							"id" : 6,
 							"text" : "Orchestrator: Start und Ziel eingeben",
 							"start" : true,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
 							"deactivated" : false,
 							"majorStartNode" : true,
 							"conversation" : "",
 							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
-							"id" : 4,
-							"text" : "VAR:m4",
+							"id" : 9,
+							"text" : "JOIN::m7:m7",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
-							"type" : "send",
-							"nodeType" : "send",
+							"type" : "$vasec",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -187,73 +191,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
-							"id" : 5,
-							"text" : "end",
+							"id" : 2,
+							"text" : "Choose Route",
 							"start" : false,
-							"autoExecute" : false,
-							"end" : true,
-							"type" : "end",
-							"nodeType" : "end",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 6,
-							"text" : "Orchestrator: receive Routes",
-							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -261,36 +219,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 7,
-							"text" : "BB",
+							"text" : "VAR:m4",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
-							"type" : "$blackbox",
-							"nodeType" : "$blackbox",
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -298,40 +247,109 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "vasec_bundle",
-							"comment" : "",
+							}
+						}, {
+							"id" : 3,
+							"text" : "Orchestrator: receive Routes",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
 							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 8,
+							"text" : "JOIN::m3:m3",
+							"start" : false,
+							"end" : false,
+							"type" : "$vasec",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 4,
+							"text" : "VAR:m3",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
 						}
 					],
 					"edges" : [{
-							"start" : 2,
-							"end" : 0,
+							"start" : 4,
+							"end" : 9,
 							"text" : "m3",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -344,19 +362,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 6,
-							"end" : 1,
+							"start" : 3,
+							"end" : 2,
 							"text" : "m6",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -369,19 +384,16 @@
 							"variable" : "v3",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 3,
-							"end" : 7,
+							"start" : 6,
+							"end" : 5,
 							"text" : "m5",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -394,36 +406,30 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 7,
-							"end" : 2,
+							"start" : 5,
+							"end" : 8,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
 							"manualTimeout" : false,
-							"variable" : null,
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
 							"start" : 0,
-							"end" : 4,
+							"end" : 10,
 							"text" : "m7",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -436,19 +442,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 4,
-							"end" : 6,
+							"start" : 7,
+							"end" : 3,
 							"text" : "m4",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -461,72 +464,108 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 1,
-							"end" : 5,
+							"start" : 2,
+							"end" : 1,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
 							"manualTimeout" : false,
-							"variable" : null,
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 8,
+							"end" : 4,
+							"text" : "",
+							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 9,
+							"end" : 0,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 10,
+							"end" : 7,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
 						}
-					],
-					"nodeCounter" : 8
+					]
 				}
 			],
-			"macroCounter" : 1,
-			"variables" : {
-				"v1" : "BAR",
-				"v2" : "m2",
-				"v3" : "m3",
-				"v4" : "m4"
-			},
-			"variableCounter" : 5
+			"macroCounter" : 1
 		}, {
 			"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
 			"name" : "Preparer",
 			"type" : "external",
-			"subjectType" : "external",
 			"mergedSubjects" : [{
 					"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
 					"name" : "Preparer"
 				}
 			],
 			"deactivated" : false,
+			"startSubject" : false,
 			"inputPool" : 100,
 			"blackboxname" : "",
-			"relatedInterface" : null,
-			"relatedProcess" : null,
 			"relatedSubject" : "",
+			"relatedInterface" : null,
 			"isImplementation" : false,
 			"externalType" : "interface",
 			"role" : "default",
-			"startSubject" : false,
+			"url" : null,
 			"implementations" : [],
 			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
 			"macros" : [{
 					"id" : "##main##",
 					"name" : "internal behavior",
+					"nodeCounter" : 19,
 					"nodes" : [{
 							"id" : 0,
 							"text" : "Preparer: receive Red Points",
 							"start" : false,
-							"autoExecute" : true,
 							"end" : false,
 							"type" : "receive",
-							"nodeType" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -534,332 +573,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 1,
-							"text" : "alternative Destination Point combination available?",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "$decision",
-							"nodeType" : "$decision",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 2,
-							"text" : "load StartEnd",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "action",
-							"nodeType" : "action",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 3,
-							"text" : "store red",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "action",
-							"nodeType" : "action",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 4,
-							"text" : "VAR:m6",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "send",
-							"nodeType" : "send",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 5,
-							"text" : "Preparer: receive Orange Points",
-							"start" : false,
-							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 6,
 							"text" : "VAR:m8",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
 							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 7,
-							"text" : "Preparer: receive Green Points",
-							"start" : false,
-							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 8,
-							"text" : "Preparer: receive StartEnd",
-							"start" : true,
-							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : true,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 9,
-							"text" : "prepare Destination Point combinations",
-							"start" : false,
+							"manualPositionOffsetY" : 0,
 							"autoExecute" : false,
-							"end" : false,
-							"type" : "action",
-							"nodeType" : "action",
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -867,110 +601,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 10,
-							"text" : "Select next Destination Points",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "action",
-							"nodeType" : "action",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 11,
-							"text" : "store Orange Points",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "action",
-							"nodeType" : "action",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 12,
 							"text" : "",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : true,
 							"type" : "end",
-							"nodeType" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -978,147 +629,27 @@
 								"conversation" : "*",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 13,
-							"text" : "Preparer: receive Routes",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 14,
-							"text" : "store StartEnd",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "action",
-							"nodeType" : "action",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 15,
-							"text" : "Remove Routes intersecting Red Points",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "action",
-							"nodeType" : "action",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 16,
 							"text" : "store Green Point Groups",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "action",
-							"nodeType" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -1126,36 +657,83 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
+							}
+						}, {
+							"id" : 1,
+							"text" : "Preparer: receive Orange Points",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
 							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
 							"macro" : "",
 							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
 						}, {
-							"id" : 17,
+							"id" : 6,
+							"text" : "prepare Destination Point combinations",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 9,
 							"text" : "VAR:m5",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -1163,36 +741,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
-							"id" : 18,
+							"id" : 13,
 							"text" : "store Routes",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "action",
-							"nodeType" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -1200,40 +769,333 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
+							}
+						}, {
+							"id" : 2,
+							"text" : "Select next Destination Points",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
 							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
 							"macro" : "",
 							"blackboxname" : "",
-							"comment" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 17,
+							"text" : "VAR:m6",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
 							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 12,
+							"text" : "store red",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 7,
+							"text" : "Preparer: receive Routes",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 3,
+							"text" : "store StartEnd",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 18,
+							"text" : "Remove Routes intersecting Red Points",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 16,
+							"text" : "Preparer: receive StartEnd",
+							"start" : true,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 11,
+							"text" : "Preparer: receive Green Points",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 8,
+							"text" : "load StartEnd",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 4,
+							"text" : "alternative Destination Point combination available?",
+							"start" : false,
+							"end" : false,
+							"type" : "$decision",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 15,
+							"text" : "store Orange Points",
+							"start" : false,
+							"end" : false,
+							"type" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
 						}
 					],
 					"edges" : [{
 							"start" : 0,
-							"end" : 3,
+							"end" : 12,
 							"text" : "m7",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -1246,19 +1108,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 4,
-							"end" : 12,
+							"start" : 17,
+							"end" : 10,
 							"text" : "m6",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -1271,217 +1130,189 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 5,
+							"end" : 8,
+							"text" : "m8",
+							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 11,
+							"end" : 14,
+							"text" : "m3",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 9,
+							"end" : 7,
+							"text" : "m5",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 16,
+							"end" : 3,
+							"text" : "m5",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 1,
+							"end" : 15,
+							"text" : "m4",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 18,
+							"end" : 4,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 7,
+							"end" : 13,
+							"text" : "m6",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 4,
+							"end" : 17,
+							"text" : "no",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
 						}, {
 							"start" : 6,
 							"end" : 2,
-							"text" : "m8",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 7,
-							"end" : 16,
-							"text" : "m3",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 17,
-							"end" : 13,
-							"text" : "m5",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 8,
-							"end" : 14,
-							"text" : "m5",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 5,
-							"end" : 11,
-							"text" : "m4",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 15,
-							"end" : 1,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
 							"manualTimeout" : false,
-							"variable" : null,
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 13,
-							"end" : 18,
-							"text" : "m6",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 1,
-							"end" : 4,
-							"text" : "no",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 9,
-							"end" : 10,
-							"text" : "",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : null,
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 1,
-							"end" : 10,
+							"start" : 4,
+							"end" : 2,
 							"text" : "yes",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
@@ -1489,169 +1320,150 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 14,
-							"end" : 7,
+							"start" : 3,
+							"end" : 11,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
 							"manualTimeout" : false,
-							"variable" : null,
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 16,
+							"start" : 14,
 							"end" : 0,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
 							"manualTimeout" : false,
-							"variable" : null,
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 3,
-							"end" : 5,
+							"start" : 12,
+							"end" : 1,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
 							"manualTimeout" : false,
-							"variable" : null,
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 11,
-							"end" : 9,
-							"text" : "",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : null,
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 2,
-							"end" : 17,
-							"text" : "",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : null,
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 18,
-							"end" : 15,
-							"text" : "",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : null,
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 10,
+							"start" : 15,
 							"end" : 6,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
 							"manualTimeout" : false,
-							"variable" : null,
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 8,
+							"end" : 9,
+							"text" : "",
+							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 13,
+							"end" : 18,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 2,
+							"end" : 5,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
 						}
-					],
-					"nodeCounter" : 19
+					]
 				}
 			],
-			"macroCounter" : 1,
-			"variables" : {},
-			"variableCounter" : 1
+			"macroCounter" : 1
 		}, {
 			"id" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
 			"name" : "Router",
 			"type" : "external",
-			"subjectType" : "external",
 			"mergedSubjects" : [{
 					"id" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
 					"name" : "Router"
 				}
 			],
 			"deactivated" : false,
+			"startSubject" : false,
 			"inputPool" : 100,
 			"blackboxname" : "",
-			"relatedInterface" : null,
-			"relatedProcess" : null,
 			"relatedSubject" : "",
+			"relatedInterface" : null,
 			"isImplementation" : false,
 			"externalType" : "interface",
 			"role" : "default",
-			"startSubject" : false,
+			"url" : null,
 			"implementations" : [],
 			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
 			"macros" : [{
 					"id" : "##main##",
 					"name" : "internal behavior",
+					"nodeCounter" : 5,
 					"nodes" : [{
 							"id" : 0,
 							"text" : "Router: receive Destination Points",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "receive",
-							"nodeType" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -1659,36 +1471,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 1,
 							"text" : "Calculate Routes",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "action",
-							"nodeType" : "action",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -1696,36 +1499,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 2,
 							"text" : "VAR:m6",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -1733,36 +1527,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 3,
 							"text" : "",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : true,
 							"type" : "end",
-							"nodeType" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -1770,36 +1555,27 @@
 								"conversation" : "*",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 4,
 							"text" : "Router: receive StartEnd",
 							"start" : true,
-							"autoExecute" : true,
 							"end" : false,
 							"type" : "receive",
-							"nodeType" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -1807,28 +1583,14 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : true,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}
 					],
 					"edges" : [{
@@ -1836,11 +1598,10 @@
 							"end" : 1,
 							"text" : "m8",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -1853,16 +1614,14 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
 							"start" : 1,
 							"end" : 2,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
@@ -1870,19 +1629,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
 							"start" : 2,
 							"end" : 3,
 							"text" : "m6",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -1895,19 +1651,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
 							"start" : 4,
 							"end" : 0,
 							"text" : "m5",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -1920,124 +1673,52 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}
-					],
-					"nodeCounter" : 5
+					]
 				}
 			],
-			"macroCounter" : 1,
-			"variables" : {},
-			"variableCounter" : 1
+			"macroCounter" : 1
 		}, {
 			"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
 			"name" : "Preparer-Proxy",
 			"type" : "single",
-			"subjectType" : "single",
 			"mergedSubjects" : [{
 					"id" : "Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",
 					"name" : "Preparer-Proxy"
 				}
 			],
 			"deactivated" : false,
+			"startSubject" : false,
 			"inputPool" : 100,
 			"blackboxname" : "",
-			"relatedInterface" : null,
-			"relatedProcess" : null,
 			"relatedSubject" : "",
+			"relatedInterface" : null,
 			"isImplementation" : false,
 			"externalType" : "external",
 			"role" : "default",
-			"startSubject" : false,
+			"url" : null,
 			"implementations" : [],
 			"comment" : "",
+			"variables" : {},
+			"variableCounter" : 1,
 			"macros" : [{
 					"id" : "##main##",
 					"name" : "internal behavior",
+					"nodeCounter" : 18,
 					"nodes" : [{
 							"id" : 0,
 							"text" : "",
 							"start" : false,
-							"autoExecute" : true,
 							"end" : false,
 							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
 							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 1,
-							"text" : "VAR:m5",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "send",
-							"nodeType" : "send",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 2,
-							"text" : "",
-							"start" : false,
+							"manualPositionOffsetY" : 0,
 							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -2045,184 +1726,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 3,
-							"text" : "",
-							"start" : false,
-							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 4,
-							"text" : "ENTSCHEIDUNG",
-							"start" : false,
-							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 5,
-							"text" : "VAR:m4",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "send",
-							"nodeType" : "send",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 6,
 							"text" : "VAR:m5",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
 							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 7,
-							"text" : "VAR:m6",
-							"start" : false,
+							"manualPositionOffsetY" : 0,
 							"autoExecute" : false,
-							"end" : false,
-							"type" : "send",
-							"nodeType" : "send",
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -2230,110 +1754,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 8,
-							"text" : "VAR:m7",
-							"start" : false,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "send",
-							"nodeType" : "send",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 9,
-							"text" : "",
-							"start" : false,
-							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
 							"id" : 10,
-							"text" : "VAR:m3",
+							"text" : "VAR:m6",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -2341,36 +1782,27 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
-							"id" : 11,
+							"id" : 14,
 							"text" : "",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : true,
 							"type" : "end",
-							"nodeType" : "end",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -2378,36 +1810,27 @@
 								"conversation" : "*",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							}
 						}, {
-							"id" : 12,
-							"text" : "VAR:m6",
+							"id" : 1,
+							"text" : "VAR:m4",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -2415,184 +1838,112 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
+							}
+						}, {
+							"id" : 6,
+							"text" : "",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
 							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
 							"macro" : "",
 							"blackboxname" : "",
-							"comment" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 9,
+							"text" : "VAR:m8",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
 							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
 						}, {
 							"id" : 13,
-							"text" : "Choose Router",
-							"start" : true,
-							"autoExecute" : false,
-							"end" : false,
-							"type" : "$chooseagent",
-							"nodeType" : "$chooseagent",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : true,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 14,
-							"text" : "",
-							"start" : false,
-							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 15,
-							"text" : "",
-							"start" : false,
-							"autoExecute" : true,
-							"end" : false,
-							"type" : "receive",
-							"nodeType" : "receive",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
-							"macro" : "",
-							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
-						}, {
-							"id" : 16,
 							"text" : "Choose Preparer",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "$chooseagent",
-							"nodeType" : "$chooseagent",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
 								"correlationId" : "",
 								"conversation" : "",
 								"state" : null
-							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
 							},
 							"chooseAgentSubject" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
 							"macro" : "",
 							"blackboxname" : "",
-							"comment" : "",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
 						}, {
-							"id" : 17,
-							"text" : "VAR:m8",
+							"id" : 2,
+							"text" : "VAR:m3",
 							"start" : false,
-							"autoExecute" : false,
 							"end" : false,
 							"type" : "send",
-							"nodeType" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
@@ -2600,40 +1951,278 @@
 								"conversation" : "",
 								"state" : null
 							},
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
+							"macro" : "",
+							"blackboxname" : "",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
 								"operation" : "and",
 								"storevar" : ""
+							}
+						}, {
+							"id" : 17,
+							"text" : "",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
 							},
-							"createSubjects" : {
-								"subject" : null,
-								"storevar" : "",
-								"min" : -1,
-								"max" : -1
-							},
-							"chooseAgentSubject" : null,
 							"macro" : "",
 							"blackboxname" : "",
-							"comment" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 12,
+							"text" : "",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
 							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 7,
+							"text" : "Choose Router",
+							"start" : true,
+							"end" : false,
+							"type" : "$chooseagent",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : true,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"chooseAgentSubject" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 3,
+							"text" : "",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 16,
+							"text" : "ENTSCHEIDUNG",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 11,
+							"text" : "VAR:m6",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 8,
+							"text" : "",
+							"start" : false,
+							"end" : false,
+							"type" : "receive",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : true,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 4,
+							"text" : "VAR:m5",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
+						}, {
+							"id" : 15,
+							"text" : "VAR:m7",
+							"start" : false,
+							"end" : false,
+							"type" : "send",
+							"manualPositionOffsetX" : 0,
+							"manualPositionOffsetY" : 0,
+							"autoExecute" : false,
+							"deactivated" : false,
+							"majorStartNode" : false,
+							"conversation" : "",
+							"variable" : "",
+							"options" : {
+								"message" : "*",
+								"subject" : "*",
+								"correlationId" : "",
+								"conversation" : "",
+								"state" : null
+							},
+							"macro" : "",
+							"blackboxname" : "",
+							"varMan" : {
+								"var1" : "",
+								"var2" : "",
+								"operation" : "and",
+								"storevar" : ""
+							}
 						}
 					],
 					"edges" : [{
-							"start" : 2,
-							"end" : 1,
+							"start" : 8,
+							"end" : 4,
 							"text" : "m5",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -2646,19 +2235,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 1,
-							"end" : 15,
+							"start" : 4,
+							"end" : 17,
 							"text" : "m5",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -2671,19 +2257,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 15,
-							"end" : 10,
+							"start" : 17,
+							"end" : 2,
 							"text" : "m3",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -2696,19 +2279,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 10,
+							"start" : 2,
 							"end" : 0,
 							"text" : "m3",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -2721,19 +2301,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
 							"start" : 0,
-							"end" : 8,
+							"end" : 15,
 							"text" : "m7",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -2746,169 +2323,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 8,
-							"end" : 14,
-							"text" : "m7",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 14,
-							"end" : 5,
-							"text" : "m4",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 5,
-							"end" : 4,
-							"text" : "m4",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 4,
-							"end" : 12,
-							"text" : "m6",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 12,
-							"end" : 11,
-							"text" : "m6",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 4,
-							"end" : 6,
-							"text" : "m5",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 6,
+							"start" : 15,
 							"end" : 3,
-							"text" : "m5",
+							"text" : "m7",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
-								"id" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
+								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -2921,19 +2345,16 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
 							"start" : 3,
-							"end" : 17,
-							"text" : "m8",
+							"end" : 1,
+							"text" : "m4",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
-								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
+								"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -2946,69 +2367,126 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}, {
-							"start" : 17,
+							"start" : 1,
+							"end" : 16,
+							"text" : "m4",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 16,
+							"end" : 10,
+							"text" : "m6",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 10,
+							"end" : 14,
+							"text" : "m6",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 16,
+							"end" : 5,
+							"text" : "m5",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 5,
+							"end" : 12,
+							"text" : "m5",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 12,
 							"end" : 9,
 							"text" : "m8",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
 							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 9,
-							"end" : 7,
-							"text" : "m6",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : {
-								"id" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
-								"min" : -1,
-								"max" : -1,
-								"createNew" : false,
-								"variable" : ""
-							},
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 7,
-							"end" : 4,
-							"text" : "m6",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
+							"manualPositionOffsetLabelY" : 0,
 							"target" : {
 								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
-								"exchangeOriginId" : null,
-								"exchangeTargetId" : null,
 								"min" : -1,
 								"max" : -1,
 								"createNew" : false,
@@ -3021,53 +2499,110 @@
 							"variable" : "",
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 9,
+							"end" : 6,
+							"text" : "m8",
+							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 6,
+							"end" : 11,
+							"text" : "m6",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj5435:5c7aaa4d-343e-4a5c-bdc2-e43162bd10a1",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 11,
+							"end" : 16,
+							"text" : "m6",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"target" : {
+								"id" : "Subj2:c60d4f03-2110-4eeb-9db4-19db79ed5433",
+								"min" : -1,
+								"max" : -1,
+								"createNew" : false,
+								"variable" : ""
+							},
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"variable" : "",
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
+						}, {
+							"start" : 7,
+							"end" : 13,
+							"text" : "",
+							"type" : "exitcondition",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
+							"deactivated" : false,
+							"optional" : false,
+							"priority" : 1,
+							"manualTimeout" : false,
+							"correlationId" : "",
+							"comment" : "",
+							"transportMethod" : ["internal"]
 						}, {
 							"start" : 13,
-							"end" : 16,
+							"end" : 8,
 							"text" : "",
 							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
+							"manualPositionOffsetLabelX" : 0,
+							"manualPositionOffsetLabelY" : 0,
 							"deactivated" : false,
 							"optional" : false,
 							"priority" : 1,
 							"manualTimeout" : false,
-							"variable" : null,
 							"correlationId" : "",
 							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
-						}, {
-							"start" : 16,
-							"end" : 2,
-							"text" : "",
-							"type" : "exitcondition",
-							"edgeType" : "exitcondition",
-							"target" : "",
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : null,
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"],
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0
+							"transportMethod" : ["internal"]
 						}
-					],
-					"nodeCounter" : 18
+					]
 				}
 			],
-			"macroCounter" : 1,
-			"variables" : {},
-			"variableCounter" : 1
+			"macroCounter" : 1
 		}
 	],
+	"conversations" : {},
+	"conversationCounter" : 1,
 	"messages" : {
 		"m7" : "Red Points",
 		"m2" : "m2",
@@ -3080,7 +2615,5 @@
 		"m5" : "StartEnd"
 	},
 	"messageCounter" : 10,
-	"nodeCounter" : 5434,
-	"conversations" : {},
-	"conversationCounter" : 1
+	"nodeCounter" : 5434
 }
