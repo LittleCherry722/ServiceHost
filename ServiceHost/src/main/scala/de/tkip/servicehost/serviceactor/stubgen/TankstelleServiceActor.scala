@@ -231,7 +231,13 @@ class TankstelleServiceActor extends ServiceActor {
     val stateName = "storestart_end"
 
     def process()(implicit actor: ServiceActor) {
-      start_end = messageContent.parseJson.convertTo[VStartEnd]
+      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("startend is empty")
+        start_end = VStartEnd(VSinglePoint(0.0, 0.0), VSinglePoint(1.0, 1.0))
+      }
+      else
+        start_end = messageContent.parseJson.convertTo[VStartEnd]
+
       actor.changeState()
     }
   }

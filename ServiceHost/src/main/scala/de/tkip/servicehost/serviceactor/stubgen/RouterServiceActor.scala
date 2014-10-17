@@ -198,7 +198,13 @@ class RouterServiceActor extends ServiceActor {
     val stateName = "storestart_end" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      start_end = messageContent.parseJson.convertTo[VStartEnd]
+      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("startend is empty")
+        start_end = VStartEnd(VSinglePoint(0.0, 0.0), VSinglePoint(1.0, 1.0))
+      }
+      else
+        start_end = messageContent.parseJson.convertTo[VStartEnd]
+
       actor.changeState()
     }
   }
@@ -208,7 +214,13 @@ class RouterServiceActor extends ServiceActor {
     val stateName = "storegreenpoints" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      green = messageContent.parseJson.convertTo[Array[VGreenPoint]]
+      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("green is empty")
+        green = Array()
+      }
+      else
+        green = messageContent.parseJson.convertTo[Array[VGreenPoint]]
+
       actor.changeState()
     }
   }

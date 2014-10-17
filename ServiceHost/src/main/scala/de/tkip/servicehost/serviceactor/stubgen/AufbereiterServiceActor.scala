@@ -250,7 +250,13 @@ class AufbereiterServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      start_end = messageContent.parseJson.convertTo[VStartEnd]
+      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("startend is empty")
+        start_end = VStartEnd(VSinglePoint(0.0, 0.0), VSinglePoint(1.0, 1.0))
+      }
+      else
+        start_end = messageContent.parseJson.convertTo[VStartEnd]
+
       actor.changeState()
     }
   }
@@ -260,7 +266,13 @@ class AufbereiterServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      green = messageContent.parseJson.convertTo[Array[VGreenPoint]]
+      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("green is empty")
+        green = Array()
+      }
+      else
+        green = messageContent.parseJson.convertTo[Array[VGreenPoint]]
+
       actor.changeState()
     }
   }
@@ -270,7 +282,13 @@ class AufbereiterServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      red = messageContent.parseJson.convertTo[Array[VRedPoint]]
+      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("red is empty")
+        red = Array()
+      }
+      else
+        red = messageContent.parseJson.convertTo[Array[VRedPoint]]
+
       actor.changeState()
     }
   }
@@ -287,7 +305,13 @@ class AufbereiterServiceActor extends ServiceActor {
     def convert(l: Seq[VBluePoint]): Seq[VGreenPoint] = l map { a => a: VGreenPoint }
 
     def process()(implicit actor: ServiceActor) {
-      val groups = messageContent.parseJson.convertTo[Array[VBlueGroup]]
+      val groups: Array[VBlueGroup] =
+        if (Array("", "[]", "[empty message]").contains(messageContent)) {
+          log.warning("blue is empty")
+          Array()
+        }
+        else
+          messageContent.parseJson.convertTo[Array[VBlueGroup]]
 
       val lists: List[List[VGreenPoint]] = groups.foldLeft(List[List[VGreenPoint]]()) {
         (l: List[List[VGreenPoint]], group: VBlueGroup) => {
@@ -308,7 +332,13 @@ class AufbereiterServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      routetmp = messageContent.parseJson.convertTo[Array[VRoute]]
+      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("route is empty")
+        routetmp = Array()
+      }
+      else
+        routetmp = messageContent.parseJson.convertTo[Array[VRoute]]
+
       actor.changeState()
     }
   }
