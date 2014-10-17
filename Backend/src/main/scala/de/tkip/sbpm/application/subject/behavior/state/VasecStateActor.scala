@@ -115,28 +115,10 @@ case class VasecStateActor(data: StateData)
       data = data ++ m.messageContent.parseJson.asInstanceOf[JsArray].elements
     }
 
+    if (to == from1) removeVariable(from1)
+    if (to == from2) removeVariable(from2)
+
     addVariable(to, JsArray(data.toList).compactPrint)
-  }
-  else if (args(0) == "SELECT") {
-    val from = args(1)
-    val to = args(2)
-
-    val v: Option[Variable] = removeVariable(from)
-    log.error("SELECT.v: {}", v)
-
-    val data = scala.collection.mutable.ArrayBuffer[VBlueGroup]()
-
-    for (m <- v.get.messages) {
-      data ++= m.messageContent.parseJson.convertTo[Array[VBlueGroup]]
-    }
-
-    val first = data.remove(0)
-    log.error("MOVE.FIRST: {}", first)
-    val x: VBluePoint = first.points(0)
-    val xgreen: VGreenPoint = x
-
-    addVariable(from, data.toList.toJson.compactPrint)
-    addVariable(to, Array(xgreen).toJson.compactPrint)
   }
   else {
     log.error("NOT IMPLEMENTED. args(0): {}" + args(0))
