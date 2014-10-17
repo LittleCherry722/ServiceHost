@@ -119,20 +119,24 @@ case class SendStateActor(data: StateData)
       if (x.isDefined) {
         val y: String = x.get.messages(x.get.messages.length-1).messageContent
         messageContent = Some(y)
+      }
+      else {
+        messageContent = Some("[empty message]")
+        log.info("SENDSTATE undefined!")
+      }
 
-        val target = sendTransition.target.get
-        val userIDs = targetUserIDs.get
-        var targetUserIDsOption: Option[TargetUsers] = None
+      val target = sendTransition.target.get
+      val userIDs = targetUserIDs.get
+      var targetUserIDsOption: Option[TargetUsers] = None
 
-        if (userIDs.length > target.max) {
-          // Context Resolver returned more userIDs than we are able to send to. We need to select some User(s)
-          // TODO: this just selects just the first user(s), and doesn't work for length < min
-          targetUserIDsOption = Some(TargetUsers(userIDs.take(target.max)))
-        }
+      if (userIDs.length > target.max) {
+        // Context Resolver returned more userIDs than we are able to send to. We need to select some User(s)
+        // TODO: this just selects just the first user(s), and doesn't work for length < min
+        targetUserIDsOption = Some(TargetUsers(userIDs.take(target.max)))
+      }
 
-        sendMessage(sendTransition, targetUserIDsOption)
-        log.info("SENDSTATE done")
-      } else { log.info("SENDSTATE undefined!") }
+      sendMessage(sendTransition, targetUserIDsOption)
+      log.info("SENDSTATE done")
     }
     else if (targetUserIDs.isDefined && targetUserIDs.get.length > 0) {
       actionChanged(Updated)
