@@ -7,9 +7,9 @@
     "name": "VASEC Bundle Image Loader",
     "publishInterface": false,
     "graph": {
-      "id": 110,
+      "id": 13,
       "processId": null,
-      "date": 1413357775400,
+      "date": 1413628772209,
       "definition": {
         "process": [{
           "id": "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
@@ -548,7 +548,7 @@
             }, {
               "start": 3,
               "end": 4,
-              "text": "blue",
+              "text": "orange",
               "type": "exitcondition",
               "manualPositionOffsetLabelX": 0,
               "manualPositionOffsetLabelY": 0,
@@ -613,22 +613,22 @@
         },
         "conversationCounter": 1,
         "messages": {
-          "m1": "m1",
-          "m2": "m2",
-          "m3": "Green Points",
-          "m4": "Blue Points",
-          "m5": "StartEnd",
-          "m6": "Routes",
           "m7": "Red Points",
-          "m8": "Current Blue Points",
-          "m9": "Point Type"
+          "m2": "m2",
+          "m4": "Orange Points",
+          "m8": "Destination Points",
+          "m1": "m1",
+          "m9": "Point Type",
+          "m6": "Routes",
+          "m3": "Green Points",
+          "m5": "StartEnd"
         },
-        "messageCounter": 9,
+        "messageCounter": 10,
         "nodeCounter": 1246558
       },
       "routings": []
     },
     "isCase": false,
-    "id": 22
+    "id": 5
   }
 }

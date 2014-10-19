@@ -1,5 +1,0 @@
-<references>
-        <reference service="Company" path="de.tkip.servicehost.serviceactor.stubgen.CompanyServiceActor" json=".\src\main\resources\service_JSONs\service_export_Companies.json"/>
-<reference service="Firm" path="de.tkip.servicehost.serviceactor.stubgen.FirmServiceActor" json=".\src\main\resources\service_JSONs\service_export_Firm.json"/>
-
-      </references>

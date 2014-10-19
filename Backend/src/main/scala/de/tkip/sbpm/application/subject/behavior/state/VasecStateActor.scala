@@ -60,29 +60,30 @@ trait VPoint {
   def y: Double
 }
 
+trait VCircle extends VPoint {
+  def x: Double
+  def y: Double
+  def r: Double
+}
+
 case class VSinglePoint(x: Double, y: Double) extends VPoint
+
 case class VStartEnd(start: VSinglePoint, end: VSinglePoint)
+
 case class VRoute(points: Seq[VSinglePoint], metric: Double)
-case class VRoutes(routes: Seq[VRoute])
 
-case class VGreenPoint(x: Double, y: Double) extends VPoint
-case class VRedPoint(x: Double, y: Double, r: Double) extends VPoint
-
-case class VBluePoint(x: Double, y: Double) extends VPoint
-case class VBlueGroup(num: Int, points: Seq[VBluePoint])
+case class VGreenGroup(num: Int, points: Seq[VSinglePoint])
+case class VOrangePoint(x: Double, y: Double, r: Double, metricFactor: Double = 1.0) extends VCircle
+case class VRedPoint(x: Double, y: Double, r: Double) extends VCircle
 
 object VasecJsonProtocol extends DefaultJsonProtocol {
-  implicit def vPointToVSinglePointConversion(p: VPoint): VSinglePoint = VSinglePoint(p.x, p.y)
-  implicit def vPointToVGreenPointConversion(p: VPoint): VGreenPoint = VGreenPoint(p.x, p.y)
-  
   implicit val vSinglePointFormat = jsonFormat2(VSinglePoint)
   implicit val vStartEndFormat = jsonFormat2(VStartEnd)
   implicit val vRouteFormat = jsonFormat2(VRoute)
 
-  implicit val vGreenPointFormat = jsonFormat2(VGreenPoint)
+  implicit val vGreenGroupFormat = jsonFormat2(VGreenGroup)
+  implicit val vOrangePointFormat = jsonFormat4(VOrangePoint)
   implicit val vRedPointFormat = jsonFormat3(VRedPoint)
-  implicit val vBluePointFormat = jsonFormat2(VBluePoint)
-  implicit val vBlueGroupFormat = jsonFormat2(VBlueGroup)
 }
 
 case class VasecStateActor(data: StateData)

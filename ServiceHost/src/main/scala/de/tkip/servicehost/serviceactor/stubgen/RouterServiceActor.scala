@@ -31,14 +31,14 @@ class RouterServiceActor extends ServiceActor {
   
   
   override protected def states: List[State] = List(
-      ReceiveState(0,"exitcondition",Map("m3" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m3" -> 6),"Router: receive green points"),
-      storestart_end(5,"exitcondition",Map(),Map("5" -> 0),"store start_end"),
-      generateroute(1,"exitcondition",Map(),Map("1" -> 2),"generate route"),
-      storegreenpoints(6,"exitcondition",Map(),Map("6" -> 1),"store green points"),
-      SendState(2,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 3),"send route"),
+      ReceiveState(0,"exitcondition",Map("m8" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m8" -> 6),"Router: receive Destination Points"),
+      storeStartEnd(5,"exitcondition",Map(),Map("5" -> 0),"store StartEnd"),
+      CalculateRoutes(1,"exitcondition",Map(),Map("1" -> 2),"Calculate Routes"),
+      storeDestinationPoints(6,"exitcondition",Map(),Map("6" -> 1),"store Destination Points"),
+      SendState(2,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 3),"VAR:m6"),
       ExitState(3,null,Map(),Map(),null),
-      ReceiveState(4,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 5),"Router: receive start_end")
-      )
+      ReceiveState(4,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 5),"Router: receive StartEnd")
+    )
 
   // start with first state
   // TODO: that is not always the start state!
@@ -48,13 +48,21 @@ class RouterServiceActor extends ServiceActor {
 
   
   private val messages: Map[MessageType, MessageText] = Map(
-      "start_end" -> "m5","green" -> "m3","route" -> "m6"
-      )
+      "Red Points" -> "m7",
+      "m2" -> "m2",
+      "Orange Points" -> "m4",
+      "Destination Points" -> "m8",
+      "m1" -> "m1",
+      "Point Type" -> "m9",
+      "Routes" -> "m6",
+      "Green Points" -> "m3",
+      "StartEnd" -> "m5"
+    )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
 
   private var start_end: VStartEnd = null
-  private var green: Array[VGreenPoint] = Array()
+  private var destinations: List[VSinglePoint] = List()
 
   // Subject default values
   private var target = -1
@@ -62,7 +70,7 @@ class RouterServiceActor extends ServiceActor {
 
   override def reset = {
     start_end = null
-    green = Array()
+    destinations = List()
 
     super.reset
   }
@@ -193,9 +201,9 @@ class RouterServiceActor extends ServiceActor {
   }
 
 
-  case class storestart_end(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
+  case class storeStartEnd(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
 
-    val stateName = "storestart_end" //TODO state name
+    val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
       if (Array("", "[]", "[empty message]").contains(messageContent)) {
@@ -209,25 +217,25 @@ class RouterServiceActor extends ServiceActor {
     }
   }
 
-  case class storegreenpoints(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
+  case class storeDestinationPoints(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
 
-    val stateName = "storegreenpoints" //TODO state name
+    val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
       if (Array("", "[]", "[empty message]").contains(messageContent)) {
-        log.warning("green is empty")
-        green = Array()
+        log.warning("destinations is empty")
+        destinations = List()
       }
       else
-        green = messageContent.parseJson.convertTo[Array[VGreenPoint]]
+        destinations = messageContent.parseJson.convertTo[List[VSinglePoint]]
 
       actor.changeState()
     }
   }
 
-  case class generateroute(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
+  case class CalculateRoutes(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
 
-    val stateName = "generateroute" //TODO state name
+    val stateName = "" //TODO state name
 
     def compare(a: VPoint, b: VPoint): Int = {
       import scala.math.Ordered.orderingToOrdered
@@ -240,13 +248,13 @@ class RouterServiceActor extends ServiceActor {
       math.sqrt(aa*aa + bb*bb)
     }
 
-    def distance(points: Array[VSinglePoint]): Double = {
+    def distance(points: List[VPoint]): Double = {
       points.sliding(2).foldLeft(0.0) {
         (sum, pair) => sum + distance(pair(0), pair(1))
       }
     }
 
-    def getMin(from: VPoint, a: VPoint, b: VPoint): VPoint = {
+    def getMin[T <: VPoint](from: VPoint, a: T, b: T): T = {
       val da = distance(from, a)
       val db = distance(from, b)
 
@@ -258,7 +266,7 @@ class RouterServiceActor extends ServiceActor {
       }
     }
 
-    def tsp(start: VSinglePoint, end: VSinglePoint, points: Array[VSinglePoint]): Array[VSinglePoint] = {
+    def tsp(start: VSinglePoint, end: VSinglePoint, points: List[VSinglePoint]): List[VSinglePoint] = {
       val remaining = points.toBuffer
       val forwards = scala.collection.mutable.ArrayBuffer[VSinglePoint]()
       val backwards = scala.collection.mutable.ArrayBuffer[VSinglePoint]()
@@ -270,16 +278,16 @@ class RouterServiceActor extends ServiceActor {
         val curF = forwards.last
         val curB = backwards.last
 
-        def opF(a: VPoint, b: VPoint): VPoint = {
+        def opF[T <: VPoint](a: T, b: T): T = {
           getMin(curF, a, b)
         }
 
-        def opB(a: VPoint, b: VPoint): VPoint = {
+        def opB[T <: VPoint](a: T, b: T): T = {
           getMin(curB, a, b)
         }
 
-        val nextF = remaining.reduce(opF)
-        val nextB = remaining.reduce(opB)
+        val nextF = remaining.reduce(opF[VSinglePoint])
+        val nextB = remaining.reduce(opB[VSinglePoint])
 
         val dF = distance(curF, nextF)
         val dB = distance(curB, nextB)
@@ -294,22 +302,17 @@ class RouterServiceActor extends ServiceActor {
         }
       }
 
-      (forwards ++ backwards.reverse).toArray
+      (forwards ++ backwards.reverse).toList
     }
 
     def process()(implicit actor: ServiceActor) {
-      // currently just sorting the points. TODO: generate a real route
-      def convert(l: Array[VGreenPoint]): Array[VSinglePoint] = l map { a => a: VSinglePoint }
-
-      val points: Array[VSinglePoint] = convert(green)
-
-      val sorted: Array[VSinglePoint] = tsp(start_end.start, start_end.end, points)
+      val sorted: List[VSinglePoint] = tsp(start_end.start, start_end.end, destinations)
 
       val metric = distance(sorted)
 
       val route: VRoute = VRoute(sorted, metric)
 
-      actor.setMessage(Array(route).toJson.compactPrint)
+      actor.setMessage(List(route).toJson.compactPrint)
 
       actor.changeState()
     }

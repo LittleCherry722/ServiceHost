@@ -115,11 +115,9 @@ object Entities {
 //    (Process(None, None, false, """Service Host Three""", false) -> loadJson("service_host_three")),
 //    (Process(None, None, false, """Service Host Four""", false) -> loadJson("service_host_four")),
 
-//    (Process(None, None, false, """VASEC Router Stub""", false) -> loadJson("vasec_router_stub")),
     (Process(None, None, false, """VASEC""", false) -> loadJson("vasec")),
     (Process(None, None, false, """VASEC Bundle""", false) -> loadJson("vasec_bundle")),
-    (Process(None, None, false, """VASEC Bundle Image Loader""", false) -> loadJson("vasec_bundle_imageloader")),
-    (Process(None, None, false, """VASEC without Blue Points""", false) -> loadJson("vasec_without_blue"))
+    (Process(None, None, false, """VASEC Bundle Image Loader""", false) -> loadJson("vasec_bundle_imageloader"))
 
 //  variables processes
 //    (Process(None, None, false, """Variables to subjects local""", false) -> loadJson("variables_to_subjects_local")),

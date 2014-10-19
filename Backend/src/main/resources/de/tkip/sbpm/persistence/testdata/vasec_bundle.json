@@ -32,34 +32,6 @@
 					"name" : "internal behavior",
 					"nodeCounter" : 4,
 					"nodes" : [{
-							"id" : 0,
-							"text" : "new",
-							"start" : false,
-							"end" : false,
-							"type" : "$blackbox",
-							"manualPositionOffsetX" : 0,
-							"manualPositionOffsetY" : 0,
-							"autoExecute" : false,
-							"deactivated" : false,
-							"majorStartNode" : false,
-							"conversation" : "",
-							"variable" : "",
-							"options" : {
-								"message" : "*",
-								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
-								"state" : null
-							},
-							"macro" : "",
-							"blackboxname" : "vasec_gasstation",
-							"varMan" : {
-								"var1" : "",
-								"var2" : "",
-								"operation" : "and",
-								"storevar" : ""
-							}
-						}, {
 							"id" : 1,
 							"text" : "end",
 							"start" : false,
@@ -146,35 +118,6 @@
 						}
 					],
 					"edges" : [{
-							"start" : 0,
-							"end" : 2,
-							"text" : "",
-							"type" : "exitcondition",
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0,
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"]
-						}, {
-							"start" : 2,
-							"end" : 0,
-							"text" : "Gas Station",
-							"type" : "exitcondition",
-							"manualPositionOffsetLabelX" : 0,
-							"manualPositionOffsetLabelY" : 0,
-							"deactivated" : false,
-							"optional" : false,
-							"priority" : 1,
-							"manualTimeout" : false,
-							"variable" : "",
-							"correlationId" : "",
-							"comment" : "",
-							"transportMethod" : ["internal"]
-						}, {
 							"start" : 2,
 							"end" : 3,
 							"text" : "Image Loader",
@@ -228,16 +171,16 @@
 	"conversations" : {},
 	"conversationCounter" : 1,
 	"messages" : {
-		"m1": "m1",
-		"m2": "m2",
-		"m3": "Green Points",
-		"m4": "Blue Points",
-		"m5": "StartEnd",
-		"m6": "Routes",
-		"m7": "Red Points",
-		"m8": "Current Blue Points",
-		"m9": "Point Type"
+		"m7" : "Red Points",
+		"m2" : "m2",
+		"m4" : "Blue Points",
+		"m8" : "Current Blue Points",
+		"m1" : "m1",
+		"m9" : "Point Type",
+		"m6" : "Routes",
+		"m3" : "Green Points",
+		"m5" : "StartEnd"
 	},
-	"messageCounter" : 9,
+	"messageCounter" : 10,
 	"nodeCounter" : 1
 }

@@ -36,7 +36,7 @@ class ImageLoaderServiceActor extends ServiceActor {
       SendState(5,"exitcondition",Map("m3" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m3" -> 0),""),
       ReceiveState(1,"exitcondition",Map("m9" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m9" -> 3),""),
       SendState(2,"exitcondition",Map("m7" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m7" -> 0),""),
-      loaddataandpreparesend(3,"exitcondition",Map(),Map("green" -> 5, "red" -> 2, "blue" -> 4),"load data and prepare send"),
+      loaddataandpreparesend(3,"exitcondition",Map(),Map("green" -> 5, "red" -> 2, "orange" -> 4),"load data and prepare send"),
       SendState(4,"exitcondition",Map("m4" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m4" -> 0),"")
     )
 
@@ -48,14 +48,15 @@ class ImageLoaderServiceActor extends ServiceActor {
 
   
   private val messages: Map[MessageType, MessageText] = Map(
-      "m7 (red)" -> "m7",
-      "m2 (pong)" -> "m2",
-      "m4 (blue)" -> "m4",
-      "m8 (type)" -> "m8",
-      "m1 (ping)" -> "m1",
-      "m6 (route)" -> "m6",
-      "m3 (green)" -> "m3",
-      "m5 (startziel)" -> "m5"
+      "Red Points" -> "m7",
+      "m2" -> "m2",
+      "Orange Points" -> "m4",
+      "Destination Points" -> "m8",
+      "m1" -> "m1",
+      "Point Type" -> "m9",
+      "Routes" -> "m6",
+      "Green Points" -> "m3",
+      "StartEnd" -> "m5"
     )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
@@ -202,9 +203,18 @@ class ImageLoaderServiceActor extends ServiceActor {
       if (args(0) == "green") {
         branchCondition = "green"
         
-        val g1 = List(VGreenPoint(2.0, 9.0), VGreenPoint(3.0, 3.0))
+        val list1 = List(VSinglePoint(1.0, 8.0))
+        val group1 = VGreenGroup(1, list1)
+
+        val list2 = List(VSinglePoint(2.0, 9.0), VSinglePoint(3.0, 3.0))
+        val group2 = VGreenGroup(1, list2)
+
+        val list3 = List(VSinglePoint(7.0, 3.0), VSinglePoint(6.0, 9.0), VSinglePoint(5.0, 3.0))
+        val group3 = VGreenGroup(2, list3)
+
+        val gg = List(group1, group2, group3)
   
-        actor.setMessage(g1.toJson.compactPrint)
+        actor.setMessage(gg.toJson.compactPrint)
       }
       else if (args(0) == "red") {
         branchCondition = "red"
@@ -213,19 +223,17 @@ class ImageLoaderServiceActor extends ServiceActor {
   
         actor.setMessage(r1.toJson.compactPrint)
       }
-      else if (args(0) == "blue") {
-        branchCondition = "blue"
+      else if (args(0) == "orange") {
+        branchCondition = "orange"
         
-        val b1 = List(VBluePoint(2.0, 9.0), VBluePoint(3.0, 3.0))
-        val group1 = VBlueGroup(1, b1.asInstanceOf[List[VBluePoint]])
-        val bg = Array(group1)
+        val o1 = List(VOrangePoint(2.0, 7.0, 1.0), VOrangePoint(3.0, 5.0, 1.0))
   
-        actor.setMessage(bg.toJson.compactPrint)
+        actor.setMessage(o1.toJson.compactPrint)
       }
       else {
         log.error("unknown: '" + messageContent + "'")
         log.error("args: '" + args.mkString(",") + "'")
-        log.info("falling back to green")
+        log.info("falling back to green branch")
         branchCondition = "green"
       }
       

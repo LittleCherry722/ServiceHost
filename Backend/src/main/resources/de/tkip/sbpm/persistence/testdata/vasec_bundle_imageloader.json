@@ -176,7 +176,7 @@
 					"edges" : [{
 							"start" : 0,
 							"end" : 1,
-							"text" : "m8",
+							"text" : "m9",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -282,7 +282,7 @@
 			"relatedSubject" : "",
 			"relatedInterface" : null,
 			"isImplementation" : false,
-			"externalType" : "interface",
+			"externalType" : "external",
 			"role" : "default",
 			"url" : null,
 			"implementations" : [],
@@ -324,21 +324,21 @@
 						}, {
 							"id" : 5,
 							"text" : "",
-							"start" : false,
+							"start" : true,
 							"end" : false,
-							"type" : "send",
+							"type" : "receive",
 							"manualPositionOffsetX" : 0,
 							"manualPositionOffsetY" : 0,
-							"autoExecute" : false,
+							"autoExecute" : true,
 							"deactivated" : false,
-							"majorStartNode" : false,
+							"majorStartNode" : true,
 							"conversation" : "",
 							"variable" : "",
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
-								"correlationId" : "*",
-								"conversation" : "*",
+								"correlationId" : "",
+								"conversation" : "",
 								"state" : null
 							},
 							"macro" : "",
@@ -379,15 +379,15 @@
 							}
 						}, {
 							"id" : 2,
-							"text" : "",
-							"start" : true,
+							"text" : "load data and prepare send",
+							"start" : false,
 							"end" : false,
-							"type" : "receive",
+							"type" : "action",
 							"manualPositionOffsetX" : 0,
 							"manualPositionOffsetY" : 0,
-							"autoExecute" : true,
+							"autoExecute" : false,
 							"deactivated" : false,
-							"majorStartNode" : true,
+							"majorStartNode" : false,
 							"conversation" : "",
 							"variable" : "",
 							"options" : {
@@ -435,10 +435,10 @@
 							}
 						}, {
 							"id" : 4,
-							"text" : "load data and prepare send",
+							"text" : "",
 							"start" : false,
 							"end" : false,
-							"type" : "action",
+							"type" : "send",
 							"manualPositionOffsetX" : 0,
 							"manualPositionOffsetY" : 0,
 							"autoExecute" : false,
@@ -449,8 +449,8 @@
 							"options" : {
 								"message" : "*",
 								"subject" : "*",
-								"correlationId" : "",
-								"conversation" : "",
+								"correlationId" : "*",
+								"conversation" : "*",
 								"state" : null
 							},
 							"macro" : "",
@@ -464,9 +464,9 @@
 						}
 					],
 					"edges" : [{
-							"start" : 2,
-							"end" : 4,
-							"text" : "m8",
+							"start" : 5,
+							"end" : 2,
+							"text" : "m9",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -486,8 +486,8 @@
 							"comment" : "",
 							"transportMethod" : ["internal"]
 						}, {
-							"start" : 4,
-							"end" : 1,
+							"start" : 2,
+							"end" : 4,
 							"text" : "green",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
@@ -501,7 +501,7 @@
 							"comment" : "",
 							"transportMethod" : ["internal"]
 						}, {
-							"start" : 1,
+							"start" : 4,
 							"end" : 0,
 							"text" : "m3",
 							"type" : "exitcondition",
@@ -523,8 +523,8 @@
 							"comment" : "",
 							"transportMethod" : ["internal"]
 						}, {
-							"start" : 4,
-							"end" : 3,
+							"start" : 2,
+							"end" : 1,
 							"text" : "red",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
@@ -538,9 +538,9 @@
 							"comment" : "",
 							"transportMethod" : ["internal"]
 						}, {
-							"start" : 4,
-							"end" : 5,
-							"text" : "blue",
+							"start" : 2,
+							"end" : 3,
+							"text" : "orange",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
@@ -553,7 +553,7 @@
 							"comment" : "",
 							"transportMethod" : ["internal"]
 						}, {
-							"start" : 3,
+							"start" : 1,
 							"end" : 0,
 							"text" : "m7",
 							"type" : "exitcondition",
@@ -575,7 +575,7 @@
 							"comment" : "",
 							"transportMethod" : ["internal"]
 						}, {
-							"start" : 5,
+							"start" : 3,
 							"end" : 0,
 							"text" : "m4",
 							"type" : "exitcondition",
@@ -606,16 +606,16 @@
 	"conversations" : {},
 	"conversationCounter" : 1,
 	"messages" : {
-		"m1": "m1",
-		"m2": "m2",
-		"m3": "Green Points",
-		"m4": "Blue Points",
-		"m5": "StartEnd",
-		"m6": "Routes",
-		"m7": "Red Points",
-		"m8": "Current Blue Points",
-		"m9": "Point Type"
+		"m7" : "Red Points",
+		"m2" : "m2",
+		"m4" : "Orange Points",
+		"m8" : "Destination Points",
+		"m1" : "m1",
+		"m9" : "Point Type",
+		"m6" : "Routes",
+		"m3" : "Green Points",
+		"m5" : "StartEnd"
 	},
-	"messageCounter" : 9,
+	"messageCounter" : 10,
 	"nodeCounter" : 1246558
 }
