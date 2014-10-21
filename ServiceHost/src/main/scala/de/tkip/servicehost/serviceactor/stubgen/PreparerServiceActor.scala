@@ -370,31 +370,67 @@ class PreparerServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     // based on http://keith-hair.net/blog/2008/08/05/line-to-circle-intersection-data/
-    def intersects(A: VPoint, B: VPoint, C: VRedPoint): Boolean = {
-      var result = false
-
+    def intersectLength(A: VPoint, B: VPoint, C: VCircle): Double = {
       val aa: Double = (B.x - A.x) * (B.x - A.x) + (B.y - A.y) * (B.y - A.y)
       val bb: Double = 2 * ((B.x - A.x) * (A.x - C.x) + (B.y - A.y) * (A.y - C.y))
       val cc: Double = C.x * C.x + C.y * C.y + A.x * A.x + A.y * A.y - 2 * (C.x * A.x + C.y * A.y) - C.r * C.r
       val deter: Double = bb * bb - 4 * aa * cc
 
-      if (deter > 0) {
+      if (deter <= 0) {
+        0.0
+      }
+      else {
         val e: Double = math.sqrt(deter);
         val u1: Double = ( - bb + e) / (2 * aa);
         val u2: Double = ( - bb - e) / (2 * aa);
-        if (!((u1 < 0 || u1 > 1) && (u2 < 0 || u2 > 1))) {
-          result = true
+        if ((u1 < 0 || u1 > 1) && (u2 < 0 || u2 > 1)) {
+          if ((u1 < 0 && u2 < 0) || (u1 > 1 && u2 > 1)) {
+            0.0
+          }
+          else {
+            distance(A, B)
+          }
+        }
+        else {
+
+          val A2: VPoint = if ( 0 <= u2 && u2 <= 1) {
+            interpolate(A, B, u2)
+          }
+          else {
+            A
+          }
+
+          val B2: VPoint = if ( 0 <= u1 && u1 <= 1) {
+            interpolate(A, B, u1)
+          }
+          else {
+            B
+          }
+
+          distance(A2, B2)
         }
       }
-
-      result
     }
+
+
+    def distance(a: VPoint, b: VPoint): Double = {
+      val aa = math.abs(a.x - b.x)
+      val bb = math.abs(a.y - b.y)
+      math.sqrt(aa*aa + bb*bb)
+    }
+
+    def interpolate(A: VPoint, B: VPoint, l: Double): VPoint = {
+      VSinglePoint((B.x - A.x)*l+A.x, (B.y - A.y)*l+A.y)
+    }
+
+
+
 
     def intersects(pair: Seq[VSinglePoint], reds: Array[VRedPoint]): Boolean = {
       val a: VPoint = pair(0)
       val b: VPoint = pair(1)
 
-      reds.exists( r => intersects(a, b, r))
+      reds.exists( r => (intersectLength(a, b, r) > 0.0))
     }
 
     def filterRed(rs: Array[VRoute], reds: Array[VRedPoint]): Array[VRoute] = rs.filterNot( r => {
