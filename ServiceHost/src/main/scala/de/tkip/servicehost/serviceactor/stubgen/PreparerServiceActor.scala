@@ -424,6 +424,21 @@ class PreparerServiceActor extends ServiceActor {
     }
 
 
+    def additionalMetric(pair: Seq[VSinglePoint], oranges: Array[VOrangePoint]): Double = {
+      val a: VPoint = pair(0)
+      val b: VPoint = pair(1)
+
+      oranges.foldLeft(0.0)( (diff, o) => diff + (o.metricFactor - 1.0) * intersectLength(a, b, o))
+    }
+
+    def addAdditionalMetric(rs: Array[VRoute], oranges: Array[VOrangePoint]): Array[VRoute] = rs.map( r =>
+      r.copy(
+        metric = r.metric + r.points.sliding(2).foldLeft(0.0)( (sum, pair) => {
+            sum + additionalMetric(pair, oranges)
+          }
+        )
+      )
+    )
 
 
     def intersects(pair: Seq[VSinglePoint], reds: Array[VRedPoint]): Boolean = {
@@ -441,7 +456,10 @@ class PreparerServiceActor extends ServiceActor {
 
     def process()(implicit actor: ServiceActor) {
       val filtered = filterRed(routetmp, red)
-      route ++= filtered
+
+      val addedMetric = addAdditionalMetric(filtered, orange)
+
+      route ++= addedMetric
 
       actor.changeState()
     }
