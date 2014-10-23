@@ -24,6 +24,14 @@ import de.tkip.sbpm.application.subject.behavior.state._
 import de.tkip.sbpm.application.subject.behavior.state.VasecJsonProtocol._
 import spray.json._
 
+import java.io.File
+
+import java.awt.image.BufferedImage
+
+import javax.imageio
+import javax.imageio.ImageIO
+
+
 class ImageLoaderServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
   
@@ -191,6 +199,35 @@ class ImageLoaderServiceActor extends ServiceActor {
     msg
   }
 
+
+
+  def parseFile(typ: String): List[VSinglePoint] = {
+    val path = "./src/main/resources/images/" + typ + ".bmp"
+    log.info("loading file: " + path)
+    var data: List[VSinglePoint] = Nil
+
+    val imagefile = new File(path)
+
+    if (imagefile.exists) {
+      val image: BufferedImage = ImageIO.read(imagefile)
+
+      val width = image.getWidth
+      val height = image.getHeight
+
+      for (x <- 0 until width; y <- 0 until height) {
+        val rgb = image.getRGB(x, y)
+        if (rgb == -16777216) {
+          data = VSinglePoint(x, y) :: data
+        }
+      }
+    }
+    else {
+      log.warning("file does not exist! absolute path: " + imagefile.getAbsolutePath)
+    }
+
+    data
+  }
+
   
 
   case class loaddataandpreparesend(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
@@ -203,32 +240,27 @@ class ImageLoaderServiceActor extends ServiceActor {
       if (args(0) == "green") {
         branchCondition = "green"
         
-        val list1 = List(VSinglePoint(1.0, 8.0))
-        val group1 = VGreenGroup(1, list1)
+        val data: List[VSinglePoint] = parseFile("green_" + args(1).toInt)
+        val g = VGreenGroup(args(2).toInt, data)
+        val gg = g :: Nil
 
-        val list2 = List(VSinglePoint(2.0, 9.0), VSinglePoint(3.0, 3.0))
-        val group2 = VGreenGroup(1, list2)
-
-        val list3 = List(VSinglePoint(7.0, 3.0), VSinglePoint(6.0, 9.0), VSinglePoint(5.0, 3.0))
-        val group3 = VGreenGroup(2, list3)
-
-        val gg = List(group1, group2, group3)
-  
         actor.setMessage(gg.toJson.compactPrint)
       }
       else if (args(0) == "red") {
         branchCondition = "red"
         
-        val r1 = List(VRedPoint(2.0, 9.0, 1.0), VRedPoint(3.0, 3.0, 1.0))
+        val data: List[VSinglePoint] = parseFile("red_" + args(1).toInt)
+        val r: List[VRedPoint] = data.map(p => VRedPoint(p.x, p.y, args(2).toDouble))
   
-        actor.setMessage(r1.toJson.compactPrint)
+        actor.setMessage(r.toJson.compactPrint)
       }
       else if (args(0) == "orange") {
         branchCondition = "orange"
         
-        val o1 = List(VOrangePoint(2.0, 7.0, 1.0), VOrangePoint(3.0, 5.0, 1.0))
+        val data: List[VSinglePoint] = parseFile("orange_" + args(1).toInt)
+        val o: List[VOrangePoint] = data.map(p => VOrangePoint(p.x, p.y, args(2).toDouble, args(3).toDouble))
   
-        actor.setMessage(o1.toJson.compactPrint)
+        actor.setMessage(o.toJson.compactPrint)
       }
       else {
         log.error("unknown: '" + messageContent + "'")
