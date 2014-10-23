@@ -85,7 +85,7 @@ class PreparerServiceActor extends ServiceActor {
   private var route: Array[VRoute] = Array()
   private var routetmp: Array[VRoute] = Array()
 
-  private var remainingDestinations: Queue[Set[VSinglePoint]] = Queue()
+  private var remainingDestinations: List[List[VSinglePoint]] = Nil
 
   def debug(): Unit = {
     log.debug("#### DEBUG ####")
@@ -111,7 +111,7 @@ class PreparerServiceActor extends ServiceActor {
     route = Array()
     routetmp = Array()
 
-    remainingDestinations = Queue()
+    remainingDestinations = Nil
 
     super.reset
   }
@@ -262,33 +262,38 @@ class PreparerServiceActor extends ServiceActor {
 
     val stateName = "" //TODO state name
 
-    def cartesianProduct[T](xss: List[List[T]]): Set[Set[T]] = xss match {
-      case Nil => Set(Set())
-      case h :: t => (for(xh <- h; xt <- cartesianProduct(t)) yield (xt + xh)).toSet
-    }
-
-    def filterShorted[T](s: Set[Set[T]], size: Int): Set[Set[T]] = {
-      s.filter(_.size == size)
-    }
-
-    def cartesianProductFiltered[T](ll: List[List[T]]): Set[Set[T]] = {
-      filterShorted(cartesianProduct(ll), ll.length)
-    }
-
     def listTimes[T](x: T, times: Int): List[T] = {
       var l: List[T] = Nil
       for (i <- 0 until times) l = x :: l
       l
     }
 
-    def process()(implicit actor: ServiceActor) {
-      val lists: List[List[VSinglePoint]] = green.foldLeft(List[List[VSinglePoint]]()) {
-        (l: List[List[VSinglePoint]], group: VGreenGroup) => {
-          l ++ listTimes(group.points.toList, group.num)
-        }
-      }
+    def cartesianProduct[T](xss: List[List[T]]): List[List[T]] = xss match {
+      case Nil => List(Nil)
+      case h :: t => (for(xh <- h; xt <- cartesianProduct(t)) yield (xh :: xt))
+    }
 
-      remainingDestinations = cartesianProductFiltered(lists).to[Queue]
+
+    def cartesianProductTimesFiltered[T](x: List[T], times: Int): Set[Set[T]] = {
+      val a: List[List[T]] = listTimes(x, times)
+      val b: List[List[T]] = cartesianProduct(a)
+      // eliminate inner duplicates; filter only without duplicates
+      val c: List[Set[T]] = b.map(_.toSet).filter(_.size == times)
+      // eliminate outer duplicates and return
+      c.toSet
+    }
+
+
+    def cartesianProductWithTimes[T](xss: List[(Int, List[T])]): List[List[T]] = xss match {
+      case Nil => List(Nil)
+      case (times, h) :: t => (for(xh <- cartesianProductTimesFiltered(h, times).toList; xt <- cartesianProductWithTimes(t)) yield (xh.toList ++ xt))
+    }
+
+
+    def process()(implicit actor: ServiceActor) {
+      val lists: List[(Int,List[VSinglePoint])] = green.map(group => (group.num, group.points.toList)).toList
+
+      remainingDestinations = cartesianProductWithTimes(lists)
 
       actor.changeState()
     }
@@ -316,13 +321,10 @@ class PreparerServiceActor extends ServiceActor {
 
     def process()(implicit actor: ServiceActor) {
       log.info("SelectnextDestinationPoints..")
-      val tmp: Set[VSinglePoint] =
-        if (remainingDestinations.isEmpty) {
-          Set()
-        }
-        else {
-          remainingDestinations.dequeue
-        }
+      val tmp: List[VSinglePoint] = remainingDestinations match {
+        case Nil => Nil
+        case h :: t => { remainingDestinations = t; h }
+      }
 
       log.info("SelectnextDestinationPoints. tmp = " + tmp.mkString(", "))
 
@@ -436,7 +438,8 @@ class PreparerServiceActor extends ServiceActor {
     def process()(implicit actor: ServiceActor) {
       log.info("remainingDestinations.length: " + remainingDestinations.length)
       Thread.sleep(1000)
-      if (remainingDestinations.length == 0) {
+
+      if (remainingDestinations.isEmpty) {
         branchCondition = "no"
       }
       else {
