@@ -83,41 +83,27 @@ define([
           og   = self.graph(),
           ng   = JSON.parse(JSON.stringify(og)),
           ps   = ng.process,
-          // concatTau = function(n, s, last) {
-          //   s.macros.forEach(function(m) {
-          //     // adjust remove outgoing edges
-          //     m.edges = _(m.edges.map(function(e) {
-          //       if (e.start === n.id) {
-          //         e.start = last;
-          //       } else if (e.end === n.id) {
-          //         return null;
-          //       }
-          //       return e;
-          //     })).compact();
-          //     // adjust remove node
-          //   });
-          // },
           makeTau = function(node, s) {
-            if (s.id === sid) {
-              return;
-            }
-            node.type = node.nodeType = "tau";
-            node.text = "tau";
-            s.macros.forEach(function(m) {
-              m.edges.forEach(function(e) {
-                if (e.start === node.id) {
-                  e.target = "";
-                }
-              });
-            });
+            // if (s.id === sid) {
+            //   return;
+            // }
+            // node.type = node.nodeType = "tau";
+            // // node.text = "tau";
+            // s.macros.forEach(function(m) {
+            //   m.edges.forEach(function(e) {
+            //     if (e.start === node.id) {
+            //       e.target = "";
+            //     }
+            //   });
+            // });
           },
           makeTauID = function(nid, s) {
-            var n;
-            s.macros.forEach(function(m) {
-              n = _(m.nodes).findWhere({id: nid});
-            });
-            makeTau(n, s);
-            return n;
+            // var n;
+            // s.macros.forEach(function(m) {
+            //   n = _(m.nodes).findWhere({id: nid});
+            // });
+            // makeTau(n, s);
+            // return n;
           };
 
       // Make current subject a normal subj. and all others Interface subjects
@@ -144,63 +130,63 @@ define([
 
       // anonymize messages.
       var messages = [];
-      ps.forEach(function (s) {
-        if (s.id == sid) {
-          s.macros.forEach(function(m) {
-            m.edges.forEach(function(e) {
-              if( e.text ) {
-                messages.push(e.text);
-              }
-            });
-          });
-        }
-      });
-      messages = _(messages).uniq();
-      _(ng.messages).each(function(v, k) {
-        if (!_(messages).contains(k)) {
-          ng.messages[k] = "Anonymized";
-        }
-      });
-      ng.messageCounter = messages.length;
+      // ps.forEach(function (s) {
+      //   if (s.id == sid) {
+      //     s.macros.forEach(function(m) {
+      //       m.edges.forEach(function(e) {
+      //         if( e.text ) {
+      //           messages.push(e.text);
+      //         }
+      //       });
+      //     });
+      //   }
+      // });
+      // messages = _(messages).uniq();
+      // _(ng.messages).each(function(v, k) {
+      //   if (!_(messages).contains(k)) {
+      //     ng.messages[k] = "Anonymized";
+      //   }
+      // });
+      // ng.messageCounter = messages.length;
 
       // remove all subjects that are not conncected to our sel. subject
-      ng.process = _(ps.map(function(p) {
-        if (p.id === sid) return p;
-        var hasEdge = false;
-        p.macros.forEach(function(m) {
-          m.edges.forEach(function(e) {
-            if (e.target && e.target.id === sid) {
-              hasEdge = true;
-            }
-          });
-        });
-        return hasEdge? p : null;
-      })).compact();
+      // ng.process = _(ps.map(function(p) {
+      //   if (p.id === sid) return p;
+      //   var hasEdge = false;
+      //   p.macros.forEach(function(m) {
+      //     m.edges.forEach(function(e) {
+      //       if (e.target && e.target.id === sid) {
+      //         hasEdge = true;
+      //       }
+      //     });
+      //   });
+      //   return hasEdge? p : null;
+      // })).compact();
 
       // set all send or receive to / from deleted nodes to tau
       var remainingSubjects = ng.process.map(function(p) { return p.id; });
-      ps.forEach(function(s) {
-        s.macros.forEach(function(m) {
-          m.edges.forEach(function(e) {
-            if (e.target && !_(remainingSubjects).contains(e.target.id)) {
-              makeTauID(e.start, s);
-              e.target = "";
-              e.text = "tau";
-            }
-          });
-        });
-      });
+      // ps.forEach(function(s) {
+      //   s.macros.forEach(function(m) {
+      //     m.edges.forEach(function(e) {
+      //       if (e.target && !_(remainingSubjects).contains(e.target.id)) {
+      //         makeTauID(e.start, s);
+      //         e.target = "";
+      //         // e.text = "tau";
+      //       }
+      //     });
+      //   });
+      // });
 
       // set all non send / receive nodes and edges to tau
-      ps.forEach(function(s) {
-        s.macros.forEach(function(m) {
-          m.nodes.forEach(function(n) {
-            if (n.type !== "send" && n.type !== "receive") {
-              makeTau(n, s);
-            }
-          });
-        });
-      });
+      // ps.forEach(function(s) {
+      //   s.macros.forEach(function(m) {
+      //     m.nodes.forEach(function(n) {
+      //       if (n.type !== "send" && n.type !== "receive") {
+      //         makeTau(n, s);
+      //       }
+      //     });
+      //   });
+      // });
 
       // Concatenate Tau nodes and edges
       // ps.forEach(function(s) {
@@ -223,18 +209,20 @@ define([
       // });
 
       // set all edges not related to our subject to tau
-
-      console.log("sid: " + sid);
-      ps.forEach(function(s) {
-        if ( s.id === sid) return;
-        s.macros.forEach(function(m) {
-          m.edges.forEach(function(e) {
-            if (! e.target) {
-              e.text = "tau";
-            }
-          });
-        });
-      });
+      // ps.forEach(function(s) {
+      //   if ( s.id === sid) return;
+      //   s.macros.forEach(function(m) {
+      //     m.edges.forEach(function(e) {
+      //       if (! e.target) {
+      //         if (m.nodes[e.start].nodeType === "tau") {
+      //           e.text = "";
+      //         } else {
+      //           e.text = "tau";
+      //         }
+      //       }
+      //     });
+      //   });
+      // });
       var interfaceSubjects = remainingSubjects.filter(function(id) { return sid !== id; });
 
       return {

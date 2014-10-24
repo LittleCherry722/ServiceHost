@@ -892,8 +892,14 @@ function GCedge (parentMacro, parentBehavior, start, end, text, relatedSubject, 
 			// messages
 			if (gt_startNode && gt_startNode.getType() == "$chooseagent")
 			{
+        var agent = gt_startNode.getChooseAgentSubject();
         if (this.getVariable()) {
-          return "Agent channel saved in:\n" + this.getVariable("name");
+          if (agent) {
+            var agentName = gv_graph.subjects[agent] ? gv_graph.subjects[agent].text : "subject not available";
+            return "'" + agentName + "' channel:\n→ " + this.getVariable("name");
+          } else {
+            return "Please select Subject to\nchoose agent for";
+          }
         } else {
           return "Please select variable\nto save agent channel to";
         }
