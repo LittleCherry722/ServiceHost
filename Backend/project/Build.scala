@@ -3,6 +3,11 @@ import sbt.Keys._
 
 object ProjectBuild extends Build {
 
+
+  lazy val verification = project.in(file("verification")).settings(
+    name := "S-BPM Verification",
+    scalaVersion := "2.11.1"
+  )
   lazy val root = Project(
     id = "root",
     base = file("."),
@@ -12,7 +17,6 @@ object ProjectBuild extends Build {
       organization := "TU Darmstadt Telecooperation Group",
       version := "1.2",
       scalaVersion := "2.11.1",
-      javaOptions += "-Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005",
       resolvers ++= Seq(
         "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
         "spray repo" at "http://repo.spray.io",
@@ -54,5 +58,5 @@ object ProjectBuild extends Build {
         // "com.google.oauth-client" % "google-oauth-client-java6" % "1.15.0-rc"
       )
     )
-  )
+  ).aggregate().dependsOn(verification)
 }
