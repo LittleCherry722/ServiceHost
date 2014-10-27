@@ -1,6 +1,8 @@
 package de.tkip.servicehost
 
 import akka.actor.ActorRef
+import de.tkip.sbpm.application.ProcessInstanceActor._
+import de.tkip.sbpm.application.miscellaneous.CreateServiceInstance
 import scala.reflect.ClassTag
 
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
@@ -17,11 +19,12 @@ object Messages {
   case class GetClassReferenceMessage(subjectId: SubjectID)
   case class ClassReferenceMessage(subjectId: SubjectID, classReference: Class[_<: ServiceActor])
   case class ServiceResultMessage(result: Any)
-  case class UpdateProcessData(processInstanceID: ProcessInstanceID, remoteProcessID: ProcessInstanceID, manager: Option[ActorRef])
+  case class UpdateProcessData(processInstanceID: ProcessInstanceID, remoteProcessID: ProcessInstanceID, manager: ActorRef)
+  case class UpdateServiceInstanceDate(agentsMap: AgentsMap, processInstanceIdentical: String, managerUrl: String)
   case class KillProcess(serviceID: ServiceID, processInstanceID: ProcessInstanceID)
   // Service Messages
   case class AddService(id: String, className: String, packagePath: String)
-  case class AskForProcessInstanceidentical(key: ProcessInstanceKey)
+  case class AskForProcessInstanceidentical(processInstanceID: ProcessInstanceID)
 
   
   case class UpdateRepository(host: String, port: String)

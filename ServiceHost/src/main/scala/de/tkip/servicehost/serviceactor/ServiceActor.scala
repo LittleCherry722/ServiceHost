@@ -24,8 +24,9 @@ abstract class ServiceActor extends InstrumentedActor {
 
   protected var processID: ProcessID = -1
   protected var processInstanceID: ProcessInstanceID = -1
-  protected var remoteProcessID: ProcessInstanceID = -1;
-  protected var manager: Option[ActorRef] = null
+  protected var remoteProcessID: ProcessInstanceID = -1
+  protected var manager: ActorRef = null
+  protected var managerUrl: String = ""
 
   var branchCondition: String = null
   var returnMessageContent: String = "received message"

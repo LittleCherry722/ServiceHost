@@ -11,7 +11,7 @@ import de.tkip.servicehost.ActorLocator
 
 import akka.actor.{Props, ActorRef, PoisonPill}
 import akka.event.LoggingAdapter
-
+import scala.collection.mutable.{Queue, Map}
 import de.tkip.sbpm.application.miscellaneous.ProcessAttributes._
 import de.tkip.sbpm.application.subject.behavior.Transition
 import de.tkip.sbpm.application.subject.behavior.state.StateData

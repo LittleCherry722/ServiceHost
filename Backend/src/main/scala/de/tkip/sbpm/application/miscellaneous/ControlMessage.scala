@@ -15,7 +15,7 @@ package de.tkip.sbpm.application.miscellaneous
 
 import ProcessAttributes._
 import akka.actor._
-import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, Agent }
+import de.tkip.sbpm.application.ProcessInstanceActor.{AgentAddress, AgentsMap, Agent}
 import de.tkip.sbpm.application.history._
 import de.tkip.sbpm.model.Graph
 import de.tkip.sbpm.application.subject.misc.AvailableAction
@@ -96,7 +96,9 @@ case class CreateServiceInstance(userID: UserID,
                                   target: List[SubjectID],
                                   processInstanceidentical: String,
 //TODO: get the whole agents.
-                                  agentsMap: Option[AgentsMap] = None) extends AnswerAbleControlMessage
+                                  agentsMap: AgentsMap,
+                                  manager: Option[ActorRef] = None,
+                                  managerUrl: String) extends AnswerAbleControlMessage
 
 case class ServiceInstanceCreated(request: CreateServiceInstance,
                                    ServiceInstanceActorMap: Map[SubjectID, SubjectRef],

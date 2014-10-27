@@ -102,23 +102,6 @@ class SubjectContainer(
           GetProcessInstanceProxy(agent.get))
           .mapTo[ActorRef]
 
-      val processInstanceIdenticalFuture = (processInstanceManager ??
-        GetProcessInstanceIdentical(processInstanceID)).mapTo[String]
-
-      processInstanceIdenticalFuture onComplete {
-        case id =>
-          if(id.isSuccess){
-            serviceMessageIdentical += processInstanceID -> id.get
-          }else {
-            // TODO exception or log?
-            throw new Exception("Get ProcessInstanceIdentical failed for " +
-              processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + id)
-          }
-      }
-
-
-
-
       log.debug("CREATE: processInstanceRef = {}", processInstanceRef)
 
       // TODO we need this unblock!
@@ -159,14 +142,15 @@ class SubjectContainer(
    */
   def send(message: SubjectToSubjectMessage) {
     val target = message.target
-
     if (target.toVariable) {
       // TODO why not targetUsers = var subjects?
       sendTo(target.varSubjects.map(_._2), message)
     } else if (target.toExternal && target.toUnknownUsers) {
       sendToExternal(message)
+
     } else {
       sendTo(target.targetUsers, message)
+
     }
   }
 
@@ -191,17 +175,28 @@ class SubjectContainer(
       }
 
       log.debug("SEND: {}", message)
-
       val newMessage = if (external) {
         // exchange the target subject id
-        val newMessage = message.copy(target = message.target.copy(subjectID = agent.get.subjectId))
-          .copy(processInstanceidentical = Some(serviceMessageIdentical(processInstanceID)))
-        log.debug("SEND (target exchanged): {}", newMessage)
+        var processInstanceidentical: String = ""
+        val processInstanceIdenticalFuture = (processInstanceManager ??
+          GetProcessInstanceIdentical(processInstanceID)).mapTo[String]
+
+        processInstanceIdenticalFuture onComplete {
+          case id =>
+            if(id.isSuccess){
+              processInstanceidentical = id.get
+            }else {
+              // TODO exception or log?
+              throw new Exception("Got ProcessInstanceIdentical failed for " +
+                processInstanceID + "/" + subject.id + "@" + userID + "\nreason" + id)
+            }
+        }
+        var newMessage1 = message.copy(target = message.target.copy(subjectID = agent.get.subjectId))
+        newMessage1 = newMessage1.copy(processInstanceidentical = Some(processInstanceidentical))
+        log.debug("SEND (target exchanged): {}", newMessage1)
         // TODO we need this unblock! Why?
         blockingHandlerActor !! UnBlockUser(userID)
-        newMessage
-        println("----------------------------------------------test new message type--------")
-        println(newMessage)
+        newMessage1
       } else {
         message
       }

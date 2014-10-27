@@ -17,11 +17,8 @@ import scala.concurrent.ExecutionContext
 import ExecutionContext.Implicits.global
 import akka.pattern.pipe
 import de.tkip.sbpm.logging.DefaultLogging
-import de.tkip.sbpm.application.miscellaneous.ProcessInstanceCreated
 import scala.Some
-import de.tkip.sbpm.application.miscellaneous.GetAgentsList
-import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
-import de.tkip.sbpm.application.ProcessInstanceActor.{ AgentsMap, Agent }
+import de.tkip.sbpm.application.ProcessInstanceActor.{AgentAddress, AgentsMap, Agent}
 import scala.util.{Success, Failure}
 import scala.collection.mutable.{ Map => MutableMap }
 
@@ -57,6 +54,7 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, proces
       val agentProcessId = agent.processId
 
       val (newProcessInstanceMap, processInstanceInfo: Future[ProcessInstanceProxy]) =
+
         processInstanceMap.get((agentProcessId, address)) match {
           case Some(x) => {
             log.info("PROCESS INSTANCE PROXY MANAGER: Found mapping for {}, returning {}", (agentProcessId, address), x)
@@ -83,6 +81,10 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, proces
       actor.forward(message)
     }
 
+    case pid: GetProcessInstanceIdentical => {
+      sender !! processInstanceIDMap(pid.processInstanceId)
+    }
+
     case s => {
       log.error("got, but cant use {}", s)
     }
@@ -95,26 +97,30 @@ class ProcessInstanceProxyManagerActor(processId: ProcessID, url: String, proces
     val newProcessInstanceName = "Unnamed"
 
     val getMappingMsg = GetAgentsList(processId, targetAddress)
-
     val processInstanceFuture = processInstanceMap((processId, url))
     val mappingFuture = for {
       pi <- processInstanceFuture
       response <- (pi.proxy ?? getMappingMsg).mapTo[GetAgentsListResponse]
     } yield response
+
     val mapping = Await.result(mappingFuture, timeout.duration).agentsMap
     log.info("PROCESS INSTANCE PROXY MANAGER: Received Mapping info! {}", mapping)
 
+
     // create the message which is used to create a process instance
+    implicit val config = context.system.settings.config
     val createMessage = CreateServiceInstance(
       userID = ExternalUser,
       processID = targetProcessId,
       name = newProcessInstanceName,
       target = targetSubjectIDs,
       processInstanceidentical = targetProcessId + "_" + UUID.randomUUID().toString(),
-      agentsMap = Some(mapping))
+      agentsMap = mapping,
+      manager = Some(self),
+      managerUrl = SystemProperties.akkaRemoteUrl
+    )
 
     processInstanceIDMap += processInstanceId -> createMessage.processInstanceidentical
-
     val instanceProxy = for {
       // createma the processinstance
       created <- (targetManagerSelection ?? createMessage).mapTo[ProcessInstanceCreated]

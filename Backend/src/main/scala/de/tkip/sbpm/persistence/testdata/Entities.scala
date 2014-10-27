@@ -91,8 +91,7 @@ object Entities {
 //    (Process(None, None, false, "Grossunternehmen Dreieck", false) -> loadJson("grossunternehmen_dreieck")),
 //    (Process(None, None, false, """Staples Dreieck""", false) -> loadJson("staples_dreieck")),
 //    (Process(None, None, false, """Transportdienstleister Dreieck""", false) -> loadJson("lieferant_dreieck")),
-//
-    (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
+ //   (Process(None, None, false, """Travel Request""", false) -> loadJson("travel_request")), //only process to use roles Supervisor and HR_Data_Access
 //    (Process(None, None, false, """Order""", false) -> loadJson("order")), //only process to use roles Cost_Center_Manager, Purchase_Requisitions and Warehouse
 //    (Process(None, None, false, """IP Test""", false) -> loadJson("ip_test")),
 //    (Process(None, None, false, """IP Test Open Close Wildcard""", false) -> loadJson("ip_test_open_close_wildcard")),
@@ -120,7 +119,7 @@ object Entities {
 
     (Process(None, None, false, """test8080""", false) -> loadJson("test8080")),
     (Process(None, None, false, """RatioDrink""", false) -> loadJson("ratiodrink")),
-    (Process(None, None, false, """MultiServiceTest""", false) -> loadJson("multi_service_test"))
+    (Process(None, None, false, """MultiService""", false) -> loadJson("multi_service"))
    )
 
 

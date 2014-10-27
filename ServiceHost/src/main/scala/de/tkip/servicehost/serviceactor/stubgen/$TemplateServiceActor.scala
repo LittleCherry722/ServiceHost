@@ -1,6 +1,7 @@
 package de.tkip.servicehost.serviceactor.stubgen
 
 import akka.actor.Actor
+import de.tkip.sbpm.application.ProcessInstanceActor
 import de.tkip.sbpm.{ActorLocator => BackendActorLocator}
 import de.tkip.sbpm.repository.RepositoryPersistenceActor.{AgentsMappingResponse, GetAgentsMapMessage}
 import de.tkip.servicehost.ActorLocator._
@@ -29,15 +30,18 @@ import scala.concurrent.Await
 
 class $TemplateServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
-  
+
   override protected val serviceID: ServiceID = "$SERVICEID"
   override protected val subjectID: SubjectID = "$SERVICEID"
   protected val serviceInstanceMap = Map[SubjectID, ServiceActorRef]()
-  
-  
+  val tempAgentsMap = collection.mutable.Map[String, ProcessInstanceActor.Agent]()
+  var from: SubjectID = null
+  var processInstanceIdentical: String = ""
+  var managerURL:String = ""
+
   override protected def states: List[State] = List(
-      //$EMPTYSTATE$//
-      )
+    //$EMPTYSTATE$//
+  )
 
   // start with first state
   // TODO: that is not always the start state!
@@ -45,13 +49,11 @@ class $TemplateServiceActor extends ServiceActor {
     getState(0)
   }
 
-  
   private val messages: Map[MessageType, MessageText] = Map(
-      //$EMPTYMESSAGE$//
-      )
+    //$EMPTYMESSAGE$//
+  )
 
   private val inputPool: scala.collection.mutable.Map[Tuple2[MessageType, SubjectID], Queue[SubjectToSubjectMessage]] = scala.collection.mutable.Map()
-
   // Subject default values
   private var target = -1
   private var messageContent: String = "" // will be used in getResult
@@ -67,7 +69,6 @@ class $TemplateServiceActor extends ServiceActor {
     state match {
       case rs: ReceiveState => {
         var message: SubjectToSubjectMessage = null
-
         for ((branch, target) <- state.targets) {
           val messageType: MessageType = branch
           val fromSubjectID: SubjectID = target.target.subjectID
@@ -97,59 +98,18 @@ class $TemplateServiceActor extends ServiceActor {
 
   def processSendState() {
     //find or create the target service actor
-    val sTarget = if(state.targets.size > 1){
+    log.debug("processSendState")
+    val sTarget = if (state.targets.size > 1) {
       state.targets(branchCondition).target
-    }else state.targets.head._2.target
+    } else state.targets.head._2.target
     val targetSubjectID = sTarget.subjectID
     var serviceInstance: ServiceActorRef = null
-
-    if(!serviceInstanceMap.contains(targetSubjectID)){
-      lazy val repositoryPersistenceActor = ActorLocator.repositoryPersistenceActor
-      val getAgentsMapMessage = GetAgentsMapMessage(Seq(targetSubjectID))
-      val newAgentsMapFuture = (repositoryPersistenceActor ?? getAgentsMapMessage).mapTo[AgentsMappingResponse]
-      val newAgentsMap = Await.result(newAgentsMapFuture, (4 seconds))
-      if (newAgentsMap.possibleAgents.contains(targetSubjectID)) {
-        val newProcessInstanceName = "Unnamed"
-        val agent = newAgentsMap.possibleAgents(targetSubjectID).head
-        val agentAddr = agent.address.toUrl
-        val path = "akka.tcp" + "://sbpm" + agentAddr + "/user/" + BackendActorLocator.subjectProviderManagerActorName
-        val agentManagerSelection = context.actorSelection(path)
-        val processInstanceidenticalFuture = (ActorLocator.serviceActorManager ?? AskForProcessInstanceidentical((serviceID, getProcessInstanceID()))).mapTo[String]
-        val processInstanceidentical = Await.result(processInstanceidenticalFuture, (4 seconds))
-        val createMessage = CreateServiceInstance(
-          userID = ExternalUser,
-          processID = getProcessID(),
-          name = newProcessInstanceName,
-          target = List().::(targetSubjectID),// TODO: multi subjects
-          processInstanceidentical,
-          None)
-        val processInstanceCreatedAnswer = (agentManagerSelection ?? createMessage).mapTo[ProcessInstanceCreated]
-
-        processInstanceCreatedAnswer onComplete{
-          case processInstanceCreated =>
-            log.debug("processInstanceCreated.onComplete: processInstanceCreated = {}", processInstanceCreated)
-            if(processInstanceCreated.isSuccess){
-              serviceInstanceMap += targetSubjectID -> processInstanceCreated.get.processInstanceActor
-              serviceInstance = processInstanceCreated.get.processInstanceActor
-            }else {
-              // TODO exception or log?
-              throw new Exception("processInstance Created failed for " +
-                targetSubjectID + "\nreason" + processInstanceCreated)
-            }
-        }
-
-      }
-    }else{
-      serviceInstance = serviceInstanceMap(targetSubjectID)
-    }
-
-    //send message
     val messageID = 100 //TODO change if needed
     val messageType = state.targetIds.head._1
     val userID = 1
     val processID = getProcessID()
     val subjectID = getSubjectID()
-    val sender = getDestination()
+    val manager = getDestination()
     val fileInfo = None
     val target = sTarget
     target.insertTargetUsers(Array(1))
@@ -157,12 +117,76 @@ class $TemplateServiceActor extends ServiceActor {
       messageID,
       processID,
       1,
-      subjectID,
+      subjectID, //from
       target,
       messageType,
       getMessage(),
-      fileInfo)
-    serviceInstance !! message
+      None, //fileID
+      fileInfo,
+      Some(processInstanceIdentical) //processInstanceIdentical
+    )
+
+    if (targetSubjectID.contains(from)) {
+      sender !! message
+    } else {
+      if (!serviceInstanceMap.contains(targetSubjectID)) {
+        if (tempAgentsMap.contains(targetSubjectID)) {
+          if (tempAgentsMap(targetSubjectID) == managerURL) {
+            manager !! message // return to Backend
+          } else {
+            // if targetSubjectID is in tempAgentsMap, this means the service has been created. The SubjectToSubject can be sent to serviceActorManager
+            val agentsAddr = tempAgentsMap(targetSubjectID).address.toUrl
+            val path = "akka.tcp" + "://sbpm" + agentsAddr + "/user/" + BackendActorLocator.subjectProviderManagerActorName //>>>>
+            val agentManagerSelection = context.actorSelection(path)
+            agentManagerSelection !! message // serviceActorManager will forward message to correspond service.
+          }
+        } else {
+          // targetSubjectId isn't in tempAgentsMap.The service need to ask repository about targetAgent.
+          lazy val repositoryPersistenceActor = ActorLocator.repositoryPersistenceActor
+          val getAgentsMapMessage = GetAgentsMapMessage(Seq(targetSubjectID))
+          val newAgentsMapFuture = (repositoryPersistenceActor ?? getAgentsMapMessage).mapTo[AgentsMappingResponse]
+          val newAgentsMap = Await.result(newAgentsMapFuture, (4 seconds))
+          for ((subjectId, agents) <- newAgentsMap.possibleAgents) {
+            tempAgentsMap += subjectId -> agents.head
+          }
+
+          val newProcessInstanceName = "Unnamed"
+          val agent = newAgentsMap.possibleAgents(targetSubjectID).head
+          val agentAddr = agent.address.toUrl
+          val remoteProcessID = agent.processId
+          val path = "akka.tcp" + "://sbpm" + agentAddr + "/user/" + BackendActorLocator.subjectProviderManagerActorName
+          val agentManagerSelection = context.actorSelection(path)
+
+          val createMessage = CreateServiceInstance(
+            userID = ExternalUser,
+            remoteProcessID,
+            name = newProcessInstanceName,
+            target = List().::(targetSubjectID), // TODO: multi subjects
+            processInstanceIdentical,
+            tempAgentsMap.toMap,
+            Some(manager),
+            managerURL)
+          val future = agentManagerSelection ?? createMessage
+          val processInstanceCreatedAnswer = Await.result(future, (5 seconds)).asInstanceOf[ProcessInstanceCreated]
+          future onComplete {
+            case processInstanceCreated =>
+              log.debug("processInstanceCreated.onComplete: processInstanceCreated = {}", processInstanceCreated)
+              if (processInstanceCreated.isSuccess) {
+                serviceInstanceMap += targetSubjectID -> processInstanceCreatedAnswer.processInstanceActor
+                serviceInstance = processInstanceCreatedAnswer.processInstanceActor
+                serviceInstance !! message
+              } else {
+                // TODO exception or log?
+                throw new Exception("processInstance Created failed for " +
+                  targetSubjectID + "\nreason" + processInstanceCreated)
+              }
+          }
+        }
+      } else {
+        serviceInstance = serviceInstanceMap(targetSubjectID)
+        serviceInstance !! message
+      }
+    }
   }
 
   def stateReceive = {
@@ -177,6 +201,18 @@ class $TemplateServiceActor extends ServiceActor {
         case _ =>
           log.info("message will be handled when state changes to ReceiveState. Current state is: " + state)
       }
+    }
+
+    case msg: UpdateServiceInstanceDate => {
+      for ((subjectId, agents) <- msg.agentsMap) {
+        tempAgentsMap += subjectId -> agents
+      }
+      processInstanceIdentical = msg.processInstanceIdentical
+      managerURL = msg.managerUrl
+    }
+
+    case x: Stored => {
+      log.debug(" message has been stored.")
     }
   }
 
@@ -237,7 +273,7 @@ class $TemplateServiceActor extends ServiceActor {
   }
 
   def getDestination(): ActorRef = {
-    manager.get
+    manager
   }
 
   def terminate() {
@@ -256,7 +292,8 @@ class $TemplateServiceActor extends ServiceActor {
     processInstanceID
   }
 
-  def getResult(msg: String): String = {   // handle the messageContent
+  def getResult(msg: String): String = {
+    // handle the messageContent
     msg
   }
 

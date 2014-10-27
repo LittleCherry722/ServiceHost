@@ -14,7 +14,7 @@ import akka.util.Timeout
 
 import de.tkip.servicehost.Messages._
 import de.tkip.servicehost.ReferenceXMLActor.Reference
-import de.tkip.sbpm.application.miscellaneous.CreateProcessInstance
+import de.tkip.sbpm.application.miscellaneous.{CreateServiceInstance, CreateProcessInstance}
 import de.tkip.sbpm.application.subject.misc.GetProxyActor
 import de.tkip.sbpm.application.subject.misc.SubjectToSubjectMessage
 import de.tkip.sbpm.application.subject.misc.Stored
@@ -36,7 +36,11 @@ class ServiceHostActor extends InstrumentedActor {
     }
     case request: CreateProcessInstance => {
       log.debug("received CreateProcessInstance: " + request)
-      println("received CreateProcessInstance: " + request)
+      serviceManager forward request
+    }
+
+    case request: CreateServiceInstance => {
+      log.debug("received CreateServiceInstance"  + request)
       serviceManager forward request
     }
     case GetProxyActor => {

@@ -136,6 +136,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
     request.manager.getOrElse(context.actorOf(
       Props(new ProcessInstanceProxyManagerActor(request.processID, url, id, self)), "ProcessInstanceProxyManagerActor____" + UUID.randomUUID().toString()))
 
+
   // this actor handles the blocking for answer to the user
   private val blockingHandlerActor = context.actorOf(Props[BlockingActor], "BlockingActor____" + UUID.randomUUID().toString)
 
@@ -151,7 +152,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
       // get the process
       val processFuture = (persistenceActor ?? Processes.Read.ById(processID)).mapTo[Option[Process]]
 
-      val process = Await.result(processFuture, timeout.duration);
+      val process = Await.result(processFuture, timeout.duration)
 
       // save this process instance in the persistence
       val processInstanceIDFuture = (persistenceActor ?? ProcessInstances.Save(ProcessInstance(None, processID, process.get.activeGraphId.get, None))).mapTo[Option[Int]]
@@ -205,6 +206,7 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
   def wrappedReceive = {
 
     case GetProxyActor => {
+      println("proxyActor   "  + proxyActor)
       sender !! proxyActor
     }
 
@@ -346,7 +348,6 @@ class ProcessInstanceActor(request: CreateProcessInstance) extends InstrumentedA
 
   private def externalSubjectAgent(subject: ExternalSubject): Agent = {
     log.info("externalSubjectAgent: " + subject)
-    println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^" )
     // If an agents list for this subject exists, use it.
     // Otherwise update the list and return agents for this external subject.
     // May still be an empty set if no agents exist.
