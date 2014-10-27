@@ -55,41 +55,9 @@ import de.tkip.sbpm.application.subject.misc.MacroTerminated
 import de.tkip.sbpm.application.miscellaneous.UnBlockUser
 import akka.event.Logging
 
-trait VPoint {
-  def x: Double
-  def y: Double
-}
-
-trait VCircle extends VPoint {
-  def x: Double
-  def y: Double
-  def r: Double
-}
-
-case class VSinglePoint(x: Double, y: Double) extends VPoint
-
-case class VStartEnd(start: VSinglePoint, end: VSinglePoint)
-
-case class VRoute(points: Seq[VSinglePoint], metric: Double)
-
-case class VGreenGroup(num: Int, points: Seq[VSinglePoint])
-case class VOrangePoint(x: Double, y: Double, r: Double, metricFactor: Double = 1.0) extends VCircle
-case class VRedPoint(x: Double, y: Double, r: Double) extends VCircle
-
-object VasecJsonProtocol extends DefaultJsonProtocol {
-  implicit val vSinglePointFormat = jsonFormat2(VSinglePoint)
-  implicit val vStartEndFormat = jsonFormat2(VStartEnd)
-  implicit val vRouteFormat = jsonFormat2(VRoute)
-
-  implicit val vGreenGroupFormat = jsonFormat2(VGreenGroup)
-  implicit val vOrangePointFormat = jsonFormat4(VOrangePoint)
-  implicit val vRedPointFormat = jsonFormat3(VRedPoint)
-}
-
+// TODO: rename? This has nothing to do with vasec anymore
 case class VasecStateActor(data: StateData)
   extends BehaviorStateActor(data) {
-
-  import VasecJsonProtocol._
 
   val args: Array[String] = data.stateModel.text.split(":")
 
