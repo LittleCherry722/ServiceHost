@@ -19,8 +19,8 @@ import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc.Rejected
 
-import de.tkip.sbpm.application.subject.behavior.state._
-import de.tkip.sbpm.application.subject.behavior.state.VasecJsonProtocol._
+import de.tkip.vasec._
+import de.tkip.vasec.VasecJsonProtocol._
 import spray.json._
 
 class RouterServiceActor extends ServiceActor {

@@ -10,7 +10,7 @@ trait VPoint {
 }
 
 trait VROI {
-  def metricFactor: Double
+  def metricFactor: Double // TODO: enum / discrete interval [1,2,3,4,5]
 
   def intersectLength(a: VPoint, b: VPoint): Double
   def getBoundary: Seq[VPoint] = Nil // TODO: just an idea, not yet used

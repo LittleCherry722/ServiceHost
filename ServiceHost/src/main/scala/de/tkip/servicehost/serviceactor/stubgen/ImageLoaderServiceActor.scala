@@ -20,8 +20,8 @@ import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc.Rejected
 
 
-import de.tkip.sbpm.application.subject.behavior.state._
-import de.tkip.sbpm.application.subject.behavior.state.VasecJsonProtocol._
+import de.tkip.vasec._
+import de.tkip.vasec.VasecJsonProtocol._
 import spray.json._
 
 import java.io.File
@@ -43,8 +43,7 @@ class ImageLoaderServiceActor extends ServiceActor {
       ExitState(0,null,Map(),Map(),null),
       SendState(5,"exitcondition",Map("m3" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m3" -> 0),""),
       ReceiveState(1,"exitcondition",Map("m9" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m9" -> 3),""),
-      SendState(2,"exitcondition",Map("m7" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m7" -> 0),""),
-      loaddataandpreparesend(3,"exitcondition",Map(),Map("green" -> 5, "red" -> 2, "orange" -> 4),"load data and prepare send"),
+      loaddataandpreparesend(3,"exitcondition",Map(),Map("POI" -> 5, "ROI" -> 4),"load data and prepare send"),
       SendState(4,"exitcondition",Map("m4" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m4" -> 0),"")
     )
 
@@ -56,14 +55,14 @@ class ImageLoaderServiceActor extends ServiceActor {
 
   
   private val messages: Map[MessageType, MessageText] = Map(
-      "Red Points" -> "m7",
+      "m7" -> "m7",
       "m2" -> "m2",
-      "Orange Points" -> "m4",
+      "ROIs" -> "m4",
       "Destination Points" -> "m8",
       "m1" -> "m1",
       "Point Type" -> "m9",
       "Routes" -> "m6",
-      "Green Points" -> "m3",
+      "POIs" -> "m3",
       "StartEnd" -> "m5"
     )
 
@@ -237,36 +236,28 @@ class ImageLoaderServiceActor extends ServiceActor {
     def process()(implicit actor: ServiceActor) {
       val args = messageContent.split("\\|")
       
-      if (args(0) == "green") {
-        branchCondition = "green"
+      if (args(0) == "POI") {
+        branchCondition = "POI"
         
-        val data: List[VSinglePoint] = parseFile("green_" + args(1).toInt)
-        val g = VGreenGroup(args(2).toInt, data)
+        val data: List[VSinglePoint] = parseFile("poi_" + args(1).toInt)
+        val g = VPOIGroup(args(2).toInt, data)
         val gg = g :: Nil
 
         actor.setMessage(gg.toJson.compactPrint)
       }
-      else if (args(0) == "red") {
-        branchCondition = "red"
+      else if (args(0) == "ROI") {
+        branchCondition = "ROI"
         
-        val data: List[VSinglePoint] = parseFile("red_" + args(1).toInt)
-        val r: List[VRedPoint] = data.map(p => VRedPoint(p.x, p.y, args(2).toDouble))
-  
-        actor.setMessage(r.toJson.compactPrint)
-      }
-      else if (args(0) == "orange") {
-        branchCondition = "orange"
-        
-        val data: List[VSinglePoint] = parseFile("orange_" + args(1).toInt)
-        val o: List[VOrangePoint] = data.map(p => VOrangePoint(p.x, p.y, args(2).toDouble, args(3).toDouble))
+        val data: List[VSinglePoint] = parseFile("roi_" + args(1).toInt)
+        val o: List[VROI] = data.map(p => VCircle(p.x, p.y, args(2).toDouble, args(3).toDouble))
   
         actor.setMessage(o.toJson.compactPrint)
       }
       else {
         log.error("unknown: '" + messageContent + "'")
         log.error("args: '" + args.mkString(",") + "'")
-        log.info("falling back to green branch")
-        branchCondition = "green"
+        log.info("falling back to POI branch")
+        branchCondition = "POI"
       }
       
       actor.changeState()

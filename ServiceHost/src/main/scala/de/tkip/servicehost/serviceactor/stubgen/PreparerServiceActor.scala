@@ -19,8 +19,8 @@ import scala.collection.immutable.Map
 import scala.collection.mutable.{ Queue }
 import de.tkip.sbpm.application.subject.misc.Rejected
 
-import de.tkip.sbpm.application.subject.behavior.state._
-import de.tkip.sbpm.application.subject.behavior.state.VasecJsonProtocol._
+import de.tkip.vasec._
+import de.tkip.vasec.VasecJsonProtocol._
 import spray.json._
 
 class PreparerServiceActor extends ServiceActor {
@@ -31,25 +31,23 @@ class PreparerServiceActor extends ServiceActor {
   
   
   override protected def states: List[State] = List(
-      ReceiveState(0,"exitcondition",Map("m7" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m7" -> 12),"Preparer: receive Red Points"),
-      SendState(5,"exitcondition",Map("m8" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m8" -> 8),"VAR:m8"),
-      ExitState(10,null,Map(),Map(),null),
-      storeGreenPointGroups(14,"exitcondition",Map(),Map("14" -> 0),"store Green Point Groups"),
-      ReceiveState(1,"exitcondition",Map("m4" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m4" -> 15),"Preparer: receive Orange Points"),
-      prepareDestinationPointcombinations(6,"exitcondition",Map(),Map("6" -> 2),"prepare Destination Point combinations"),
-      SendState(9,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 7),"VAR:m5"),
-      storeRoutes(13,"exitcondition",Map(),Map("13" -> 18),"store Routes"),
+      ReceiveState(1,"exitcondition",Map("m4" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m4" -> 15),"Preparer: receive ROIs"),
       SelectnextDestinationPoints(2,"exitcondition",Map(),Map("2" -> 5),"Select next Destination Points"),
-      SendState(17,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 10),"VAR:m6"),
-      storered(12,"exitcondition",Map(),Map("12" -> 1),"store red"),
-      ReceiveState(7,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 13),"Preparer: receive Routes"),
       storeStartEnd(3,"exitcondition",Map(),Map("3" -> 11),"store StartEnd"),
-      RemoveRoutesintersectingRedPointsAndIncreaseMetricForOrangePoints(18,"exitcondition",Map(),Map("18" -> 4),"Remove Routes intersecting Red Points"),
-      ReceiveState(16,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 3),"Preparer: receive StartEnd"),
-      ReceiveState(11,"exitcondition",Map("m3" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m3" -> 14),"Preparer: receive Green Points"),
-      loadStartEnd(8,"exitcondition",Map(),Map("8" -> 9),"load StartEnd"),
       alternativeDestinationPointcombinationavailable(4,"exitcondition",Map(),Map("no" -> 19, "yes" -> 2),"alternative Destination Point combination available?"),
-      storeOrangePoints(15,"exitcondition",Map(),Map("15" -> 6),"store Orange Points"),
+      SendState(5,"exitcondition",Map("m8" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m8" -> 8),"VAR:m8"),
+      prepareDestinationPointcombinations(6,"exitcondition",Map(),Map("6" -> 2),"prepare Destination Point combinations"),
+      ReceiveState(7,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 13),"Preparer: receive Routes"),
+      loadStartEnd(8,"exitcondition",Map(),Map("8" -> 9),"load StartEnd"),
+      SendState(9,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 7),"VAR:m5"),
+      ExitState(10,null,Map(),Map(),null),
+      ReceiveState(11,"exitcondition",Map("m3" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m3" -> 14),"Preparer: receive POIs"),
+      storeRoutes(13,"exitcondition",Map(),Map("13" -> 18),"store Routes"),
+      storeGreenPointGroups(14,"exitcondition",Map(),Map("14" -> 1),"store POIs"),
+      storeOrangePoints(15,"exitcondition",Map(),Map("15" -> 6),"store ROIs"),
+      ReceiveState(16,"exitcondition",Map("m5" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m5" -> 3),"Preparer: receive StartEnd"),
+      SendState(17,"exitcondition",Map("m6" -> Target("Subj5435:11c66071-867c-4dae-8fa0-640a4e5a22f9",-1,-1,false,"")),Map("m6" -> 10),"VAR:m6"),
+      RemoveRoutesintersectingRedPointsAndIncreaseMetricForOrangePoints(18,"exitcondition",Map(),Map("18" -> 4),"Remove Routes intersecting Red Points"),
       loadroutes(19,"exitcondition",Map(),Map("19" -> 17),"load routes")
     )
 
@@ -59,14 +57,14 @@ class PreparerServiceActor extends ServiceActor {
 
   
   private val messages: Map[MessageType, MessageText] = Map(
-      "Red Points" -> "m7",
+      "m7" -> "m7",
       "m2" -> "m2",
-      "Orange Points" -> "m4",
+      "ROIs" -> "m4",
       "Destination Points" -> "m8",
       "m1" -> "m1",
       "Point Type" -> "m9",
       "Routes" -> "m6",
-      "Green Points" -> "m3",
+      "POIs" -> "m3",
       "StartEnd" -> "m5"
     )
 
@@ -78,22 +76,20 @@ class PreparerServiceActor extends ServiceActor {
 
 
   private var start_end: VStartEnd = null
-  private var green: Array[VGreenGroup] = Array()
-  private var destinations: Array[VSinglePoint] = Array()
-  private var red: Array[VRedPoint] = Array()
-  private var orange: Array[VOrangePoint] = Array()
-  private var route: Array[VRoute] = Array()
-  private var routetmp: Array[VRoute] = Array()
+  private var pois: Seq[VPOIGroup] = Nil
+  private var rois: Seq[VROIGroup] = Nil
+  private var destinations: Seq[VSinglePoint] = Nil
+  private var route: Seq[VRoute] = Nil
+  private var routetmp: Seq[VRoute] = Nil
 
   private var remainingDestinations: List[List[VSinglePoint]] = Nil
 
   def debug(): Unit = {
     log.debug("#### DEBUG ####")
     log.debug("#### start_end: {}", start_end)
-    log.debug("#### green: {}", green)
+    log.debug("#### POIs: {}", pois)
+    log.debug("#### ROIs: {}", rois)
     log.debug("#### destinations: {}", destinations)
-    log.debug("#### red: {}", red)
-    log.debug("#### orange: {}", orange)
     log.debug("#### route: {}", route)
     log.debug("#### routetmp: {}", routetmp)
     log.debug("#### remainingDestinations: {}", remainingDestinations)
@@ -104,12 +100,11 @@ class PreparerServiceActor extends ServiceActor {
 
   override def reset = {
     start_end = null
-    green = Array()
-    destinations = Array()
-    red = Array()
-    orange = Array()
-    route = Array()
-    routetmp = Array()
+    pois = Nil
+    rois = Nil
+    destinations = Nil
+    route = Nil
+    routetmp = Nil
 
     remainingDestinations = Nil
 
@@ -247,12 +242,12 @@ class PreparerServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      if (Array("", "[]", "[empty message]").contains(messageContent)) {
-        log.warning("green is empty")
-        green = Array()
+      if (Seq("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("POIs are empty")
+        pois = Nil
       }
       else
-        green = messageContent.parseJson.convertTo[Array[VGreenGroup]]
+        pois = messageContent.parseJson.convertTo[Seq[VPOIGroup]]
 
       actor.changeState()
     }
@@ -291,7 +286,8 @@ class PreparerServiceActor extends ServiceActor {
 
 
     def process()(implicit actor: ServiceActor) {
-      val lists: List[(Int,List[VSinglePoint])] = green.map(group => (group.num, group.points.toList)).toList
+      // TODO: add ROI.boundary if metric >= 3
+      val lists: List[(Int,List[VSinglePoint])] = pois.map(group => (group.num, group.points.toList)).toList
 
       remainingDestinations = cartesianProductWithTimes(lists)
 
@@ -304,12 +300,12 @@ class PreparerServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+      if (Seq("", "[]", "[empty message]").contains(messageContent)) {
         log.warning("route is empty")
-        routetmp = Array()
+        routetmp = Nil
       }
       else
-        routetmp = messageContent.parseJson.convertTo[Array[VRoute]]
+        routetmp = messageContent.parseJson.convertTo[Seq[VRoute]]
 
       actor.changeState()
     }
@@ -333,28 +329,12 @@ class PreparerServiceActor extends ServiceActor {
     }
   }
 
-  case class storered(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
-
-    val stateName = "" //TODO state name
-
-    def process()(implicit actor: ServiceActor) {
-      if (Array("", "[]", "[empty message]").contains(messageContent)) {
-        log.warning("red is empty")
-        red = Array()
-      }
-      else
-        red = messageContent.parseJson.convertTo[Array[VRedPoint]]
-
-      actor.changeState()
-    }
-  }
-
   case class storeStartEnd(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
 
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      if (Array("", "[]", "[empty message]").contains(messageContent)) {
+      if (Seq("", "[]", "[empty message]").contains(messageContent)) {
         log.warning("startend is empty")
         start_end = VStartEnd(VSinglePoint(0.0, 0.0), VSinglePoint(1.0, 1.0))
       }
@@ -424,23 +404,25 @@ class PreparerServiceActor extends ServiceActor {
     }
 
 
-    def additionalMetric(pair: Seq[VSinglePoint], oranges: Array[VOrangePoint]): Double = {
+    def additionalMetric(pair: Seq[VSinglePoint], gs: Seq[VROIGroup]): Double = {
       val a: VPoint = pair(0)
       val b: VPoint = pair(1)
 
-      oranges.foldLeft(0.0)( (diff, o) => diff + (o.metricFactor - 1.0) * intersectLength(a, b, o))
+      gs.foldLeft(0.0)( (diff, g) => diff + g.points.foldLeft(0.0)( (diff2, point) => (point.metricFactor - 1.0) * intersectLength(a, b, point.asInstanceOf[VCircle])))
+      // TODO: asInstanceOf
+      // TODO: filter metric
     }
 
-    def addAdditionalMetric(rs: Array[VRoute], oranges: Array[VOrangePoint]): Array[VRoute] = rs.map( r =>
+    def addAdditionalMetric(rs: Seq[VRoute], gs: Seq[VROIGroup]): Seq[VRoute] = rs.map( r =>
       r.copy(
         metric = r.metric + r.points.sliding(2).foldLeft(0.0)( (sum, pair) => {
-            sum + additionalMetric(pair, oranges)
+            sum + additionalMetric(pair, gs)
           }
         )
       )
     )
 
-
+    /*
     def intersects(pair: Seq[VSinglePoint], reds: Array[VRedPoint]): Boolean = {
       val a: VPoint = pair(0)
       val b: VPoint = pair(1)
@@ -453,11 +435,13 @@ class PreparerServiceActor extends ServiceActor {
         intersects(pair, reds)
       })
     })
+    */
 
     def process()(implicit actor: ServiceActor) {
-      val filtered = filterRed(routetmp, red)
+      //val filtered = filterRed(routetmp, red)
+      val filtered = routetmp
 
-      val addedMetric = addAdditionalMetric(filtered, orange)
+      val addedMetric = addAdditionalMetric(filtered, rois)
 
       route ++= addedMetric
 
@@ -509,12 +493,12 @@ class PreparerServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      if (Array("", "[]", "[empty message]").contains(messageContent)) {
-        log.warning("orange is empty")
-        orange = Array()
+      if (Seq("", "[]", "[empty message]").contains(messageContent)) {
+        log.warning("ROIs is empty")
+        rois = Nil
       }
       else
-        orange = messageContent.parseJson.convertTo[Array[VOrangePoint]]
+        rois = messageContent.parseJson.convertTo[Seq[VROIGroup]]
 
       actor.changeState()
     }
