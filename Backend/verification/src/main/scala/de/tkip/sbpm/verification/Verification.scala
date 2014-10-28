@@ -1,10 +1,6 @@
 package de.tkip.sbpm.verification
 
-import scala.collection.mutable
 import de.tkip.sbpm.newmodel._
-import de.tkip.sbpm.newmodel.StateTypes._
-import de.tkip.sbpm.newmodel.ProcessModelTypes._
-import de.tkip.sbpm.newmodel.Operation._
 import de.tkip.sbpm.verification.lts._
 import de.tkip.sbpm.verification.subject._
 import de.tkip.sbpm.verification.succ._
@@ -34,19 +30,19 @@ object Verification {
     while (workSet.nonEmpty) {
       val (nextWorkSet: Set[LtsState], newTransitions: Set[LtsTransition]) =
         (for {
-          // iteriere über die aktuelle Arbeitsmenge
+          // iteriere Ã¼ber die aktuelle Arbeitsmenge
           ltsState <- workSet
           // und erstelle berechne die Nachfolger
-          // iteriere anschließend über die Nachfolger
+          // iteriere anschlieÃŸend Ã¼ber die Nachfolger
           (successor, label) <- successors(ltsState)
         } yield (successor, LtsTransition(ltsState, label, successor))).unzip
 
       // das die naechste Arbeitsmenge ist die neu Erstellte
       // ohne die LTS Zustaende, die schon bekannte sind
       workSet = nextWorkSet diff nodes
-      // füge die neuen LTS Zustaende zu der Knotenmenge hinzu
+      // fÃ¼ge die neuen LTS Zustaende zu der Knotenmenge hinzu
       nodes ++= workSet
-      // füge die neuen LTS Transitionen zu der Kantenmenge hinzu
+      // fÃ¼ge die neuen LTS Transitionen zu der Kantenmenge hinzu
       edges ++= newTransitions
     }
 

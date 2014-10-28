@@ -4,8 +4,9 @@ import scala.io.Source
 import de.tkip.sbpm.rest.GraphJsonProtocol._
 import spray.json._
 import de.tkip.sbpm.model.{Subject, StateType, Graph}
-import org.scalatest.FunSuite
 import ProcessAttributes._
+import org.scalatest.FunSuite
+
 
 class ProcessMarshallingTest extends FunSuite {
 

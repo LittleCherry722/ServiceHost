@@ -1,12 +1,8 @@
 package de.tkip.sbpm.verification.succ.state.srv
 
-import de.tkip.sbpm.newmodel._
-import de.tkip.sbpm.newmodel.StateTypes._
-import de.tkip.sbpm.newmodel.ProcessModelTypes._
-import de.tkip.sbpm.newmodel.Operation._
+import de.tkip.sbpm.verification.lts.LtsState
 import de.tkip.sbpm.verification.subject._
 import de.tkip.sbpm.verification.succ._
-import de.tkip.sbpm.verification.lts.LtsState
 
 object macroSuccessors extends ServiceSuccessorFunction[String] {
   def apply(global: GlobalFunctions,
@@ -15,7 +11,7 @@ object macroSuccessors extends ServiceSuccessorFunction[String] {
             state: ExtendedState,
             macroName: String): Set[Successor] = {
 
-    val macro = global.model.subject(subject.id).macro(macroName)
+    val sMacro = global.model.subject(subject.id).sMacro(macroName)
 
     ltsState.successorSet(
       if (state.data == Some(MacroDone)) subject.fireTransitionOf(state)

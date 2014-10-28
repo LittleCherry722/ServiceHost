@@ -1,12 +1,10 @@
 package de.tkip.sbpm.verification.succ.state.srv
 
-import de.tkip.sbpm.newmodel._
-import de.tkip.sbpm.newmodel.StateTypes._
-import de.tkip.sbpm.newmodel.ProcessModelTypes._
 import de.tkip.sbpm.newmodel.Operation._
+import de.tkip.sbpm.newmodel._
+import de.tkip.sbpm.verification.lts.LtsState
 import de.tkip.sbpm.verification.subject._
 import de.tkip.sbpm.verification.succ._
-import de.tkip.sbpm.verification.lts.LtsState
 
 object variableManipulationSuccessors extends ServiceSuccessorFunction[VariableManipulation] {
   def apply(global: GlobalFunctions,
@@ -45,6 +43,22 @@ object variableManipulationSuccessors extends ServiceSuccessorFunction[VariableM
 
             val messages =
               m1.filterNot(m2 contains _.channel)
+
+            val successorSubj =
+              subject.fireTransitionOf(state).addVar(target, MessageList(messages))
+
+            ltsState.successorSet(successorSubj, state.singleTransition)
+          }
+
+          case (ExtractMessageContent, None) => {
+            val m1 = subject.variables.getMessageList(v1).messages
+
+            val messages = m1.flatMap { m =>
+              m.content match {
+                case mc: MessageList => mc.messages
+                case _ => List(m)
+              }
+            }
 
             val successorSubj =
               subject.fireTransitionOf(state).addVar(target, MessageList(messages))

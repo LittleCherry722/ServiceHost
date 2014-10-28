@@ -46,7 +46,7 @@ case class Lts(states: Set[LtsState],
           w <- workSet;
           n <- toStatesMap(w)
         ) {
-          nextWorkSet += n.from
+          nextWorkSet += n.fromState
         }
 
         workSet = nextWorkSet &~ validNodes
@@ -77,21 +77,21 @@ case class Lts(states: Set[LtsState],
 
     val irrelevant = singleTauStartNodes map (fromStatesMap(_).head)
 
-    val miniFromMap = irrelevant map (t => (t.from, t)) toMap
+    val miniFromMap = irrelevant map (t => (t.fromState, t)) toMap
 
     def latestPathElem(s: LtsState): LtsState =
       if (!miniFromMap.contains(s)) s
-      else latestPathElem(miniFromMap(s).to)
+      else latestPathElem(miniFromMap(s).toState)
 
     val tauPaths = for {
       trans <- irrelevant
-      from = trans.from
+      from = trans.fromState
       stepTrans <- toStatesMap(from)
-    } yield stepTrans.copy(to = latestPathElem(trans.to))
+    } yield stepTrans.copy(toState = latestPathElem(trans.toState))
 
-    val delete = for (t <- irrelevant; s <- toStatesMap(t.from)) yield s
+    val delete = for (t <- irrelevant; s <- toStatesMap(t.fromState)) yield s
 
-    val overStepTransitions = tauPaths.filterNot(singleTauStartNodes contains _.from)
+    val overStepTransitions = tauPaths.filterNot(singleTauStartNodes contains _.fromState)
 
     Lts(
       states -- singleTauStartNodes,
@@ -120,10 +120,10 @@ case class Lts(states: Set[LtsState],
     val singleTransitions = singleTransitionsStartNodes map (fromStatesMap(_).head)
     val doubleSteps = for {
       trans <- singleTransitions
-      middle = trans.from
+      middle = trans.fromState
       first <- toStatesMap(middle)
       if (first.label == Tau)
-    } yield trans.copy(from = first.from)
+    } yield trans.copy(fromState = first.fromState)
 
     copy(transitions = transitions -- doubleSteps)
   }
@@ -140,14 +140,14 @@ case class Lts(states: Set[LtsState],
         // get all Tau-transitions
         trans <- transitions
         if (trans.label == Tau)
-        from = trans.from
-        to = trans.to
+        from = trans.fromState
+        to = trans.toState
         // get all outgoing Transitions from the both states
         // T
-        predTransitions = fromStatesMap(from) filterNot (_.to == to)
-        fTrans = predTransitions map (t => (t.label, t.to))
+        predTransitions = fromStatesMap(from) filterNot (_.toState == to)
+        fTrans = predTransitions map (t => (t.label, t.toState))
         // t.T'
-        tTrans = fromStatesMap(to) map (t => (t.label, t.to))
+        tTrans = fromStatesMap(to) map (t => (t.label, t.toState))
         // check if T = T'
         if (tTrans == fTrans)
         // if yes remove the first Transitions
@@ -165,9 +165,9 @@ case class Lts(states: Set[LtsState],
   private def removeT3: Lts = {
     val removeTrans = {
       transitions filter { t =>
-        fromStatesMap(t.from) exists { r =>
-          fromStatesMap(r.to) exists { s =>
-            s.label == t.label && s.to == t.to
+        fromStatesMap(t.fromState) exists { r =>
+          fromStatesMap(r.toState) exists { s =>
+            s.label == t.label && s.toState == t.toState
           }
         }
       }
@@ -184,12 +184,12 @@ case class Lts(states: Set[LtsState],
     val remove =
       for {
         center <- states
-        targets = fromStatesMap(center) map (_.to)
+        targets = fromStatesMap(center) map (_.toState)
 
         // if there is one tau Transitions to this state
         preds = toStatesMap(center)
         if (preds.size == 1 && preds.head.label == Tau)
-        pred = preds.head.from
+        pred = preds.head.fromState
         predTransitions = fromStatesMap(pred)
 
         // if there is one tau transition to the predecessorState
@@ -200,7 +200,7 @@ case class Lts(states: Set[LtsState],
 
         // it is possible to remove the Transitions, the predecessor has to the successor
         removeAble <- fromStatesMap(center)
-        r = removeAble.copy(from = pred)
+        r = removeAble.copy(fromState = pred)
       } yield r
 
     copy(transitions = transitions -- remove)
@@ -210,10 +210,10 @@ case class Lts(states: Set[LtsState],
    * Removes the States, which are not connected in the LTS
    */
   private def removeUnusedStates: Lts = {
-    val targetStates = transitions.map(_.to) + startState
+    val targetStates = transitions.map(_.toState) + startState
 
     val unusedStates = states -- targetStates
-    val usedTransitions = transitions filterNot (t => unusedStates contains (t.from))
+    val usedTransitions = transitions filterNot (t => unusedStates contains (t.fromState))
 
     Lts(
       targetStates,
@@ -234,7 +234,7 @@ case class Lts(states: Set[LtsState],
       val mapMaker =
         for {
           (s, ts) <- fromStatesMap.toSet
-          t = ts map (t => (t.label, t.to))
+          t = ts map (t => (t.label, t.toState))
         } yield (t, s)
       // Filter the map to get the FromStates with equal transitions
       for {
@@ -262,7 +262,7 @@ case class Lts(states: Set[LtsState],
             e <- eqs
             if (e != eq1)
             t <- toStatesMap(e)
-          } yield (t, t copy (to = eq1))
+          } yield (t, t copy (toState = eq1))
 
         // Also remove the outgoing transitions!
         val outgoing =

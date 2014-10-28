@@ -76,5 +76,5 @@ case class Subject(id: SubjectId,
   def state(id: StateId) = stateMap(id)
 
   private val macroMap = macros map (m => (m.name, m)) toMap
-  def macro(name: String) = macroMap(name)
+  def sMacro(name: String) = macroMap(name)
 }

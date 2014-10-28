@@ -1,10 +1,9 @@
 package de.tkip.sbpm.verification.subject
 
-import scala.collection.immutable.Queue
-import de.tkip.sbpm.newmodel._
-import de.tkip.sbpm.newmodel.StateTypes._
-import de.tkip.sbpm.newmodel.ProcessModelTypes._
 import de.tkip.sbpm.misc.HashCodeCache
+import de.tkip.sbpm.newmodel.ProcessModelTypes._
+import de.tkip.sbpm.newmodel.StateTypes._
+import de.tkip.sbpm.newmodel._
 
 case class SubjectStatus(subject: Subject,
                          channel: Channel,
@@ -64,9 +63,9 @@ case class SubjectStatus(subject: Subject,
   }
 
   private def successorState(stateId: StateId, pred: ExtendedState): State = {
-    val macro = pred.currentMacro
+    val sMacro = pred.currentMacro
     val state =
-      if (macro.isDefined) subject.macro(macro.get).state(stateId)
+      if (sMacro.isDefined) subject.sMacro(sMacro.get).state(stateId)
       else subject.state(stateId)
     state
   }
@@ -98,9 +97,9 @@ case class SubjectStatus(subject: Subject,
   }
 
   private def extend(stateId: StateId, pred: ExtendedState): ExtendedState = {
-    val macro = pred.currentMacro
+    val sMacro = pred.currentMacro
     val state =
-      if (macro.isDefined) subject.macro(macro.get).state(stateId)
+      if (sMacro.isDefined) subject.sMacro(sMacro.get).state(stateId)
       else subject.state(stateId)
     // ModalJoins musst count incoming transitions
 
@@ -225,12 +224,12 @@ case class SubjectStatus(subject: Subject,
    * Enters a macro
    */
   def enterMacro(state: ExtendedState, macroName: String): SubjectStatus = {
-    val macro = subject.macro(macroName)
-    val s = macro.state(macro.startState)
+    val sMacro = subject.sMacro(macroName)
+    val s = sMacro.state(sMacro.startState)
 
     // create the first macro state
     val newState =
-      state.setState(s).appendMacro(MacroEntry(macro.startState, macroName))
+      state.setState(s).appendMacro(MacroEntry(sMacro.startState, macroName))
 
     copy(activeStates = activeStates - state + newState)
   }
@@ -248,7 +247,7 @@ case class SubjectStatus(subject: Subject,
     val entryState = state.macroStates.head.entryState
     val s =
       if (newMacroStates.size > 0)
-        subject.macro(newMacroStates.head.name).state(entryState)
+        subject.sMacro(newMacroStates.head.name).state(entryState)
       else subject.state(entryState)
 
     val newState =
@@ -320,7 +319,7 @@ case class SubjectStatus(subject: Subject,
           e => {
             val s = e.id
             val state =
-              if (e.currentMacro.isDefined) subject.macro(e.currentMacro.get).state(s)
+              if (e.currentMacro.isDefined) subject.sMacro(e.currentMacro.get).state(s)
               else subject.state(s)
             "%s%s%s%s".format(
               s,

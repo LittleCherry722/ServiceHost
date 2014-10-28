@@ -1,14 +1,9 @@
 package de.tkip.sbpm.verification.succ.state
 
 import de.tkip.sbpm.newmodel._
-import de.tkip.sbpm.newmodel.StateTypes._
-import de.tkip.sbpm.newmodel.ProcessModelTypes._
-import de.tkip.sbpm.newmodel.Operation._
+import de.tkip.sbpm.verification.lts.{LtsState, SendLabel}
 import de.tkip.sbpm.verification.subject._
 import de.tkip.sbpm.verification.succ._
-import de.tkip.sbpm.verification.lts.LtsState
-import de.tkip.sbpm.verification.lts.SendLabel
-import de.tkip.sbpm.verification.lts.ReceiveLabel
 
 /**
  * Creates the Successors for SendStates
@@ -31,7 +26,9 @@ object sendSuccessors extends StateSuccessorFunction {
         channelVar = params.channelVar
         messageType = params.messageType
 
-        messageContent = NoContent
+        messageContent: MessageContent = params.contentVarName.map(
+          subject.variables.getMessageList
+        ).getOrElse(NoContent)
 
       } yield {
 

@@ -5,8 +5,8 @@ import scala.xml.XML
 
 abstract class GraphWriter[A] {
   type GraphEdge[A] = {
-    val from: A
-    val to: A
+    val fromState: A
+    val toState: A
   }
 
   /**
@@ -34,7 +34,7 @@ abstract class GraphWriter[A] {
     }
 
     for (edge <- edges) {
-      val (from, to) = (edge.from, edge.to)
+      val (from, to) = (edge.fromState, edge.toState)
       val data = getEdgeInfo(edge)
       graph.addEdge(getNodeId(from), getNodeId(to), data)
     }
