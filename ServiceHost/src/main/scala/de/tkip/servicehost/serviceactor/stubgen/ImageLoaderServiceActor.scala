@@ -42,7 +42,7 @@ class ImageLoaderServiceActor extends ServiceActor {
   override protected def states: List[State] = List(
       ExitState(0,null,Map(),Map(),null),
       SendState(5,"exitcondition",Map("m3" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m3" -> 0),""),
-      ReceiveState(1,"exitcondition",Map("m9" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m9" -> 3),""),
+      ReceiveState(1,"exitcondition",Map("m10" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m10" -> 3),""),
       loaddataandpreparesend(3,"exitcondition",Map(),Map("POI" -> 5, "ROI" -> 4),"load data and prepare send"),
       SendState(4,"exitcondition",Map("m4" -> Target("Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",-1,-1,false,"")),Map("m4" -> 0),"")
     )
@@ -61,6 +61,7 @@ class ImageLoaderServiceActor extends ServiceActor {
       "Destination Points" -> "m8",
       "m1" -> "m1",
       "Point Type" -> "m9",
+      "configuration" -> "m10",
       "Routes" -> "m6",
       "POIs" -> "m3",
       "StartEnd" -> "m5"
@@ -234,7 +235,8 @@ class ImageLoaderServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      val args = messageContent.split("\\|")
+      val argj = messageContent.parseJson.asInstanceOf[JsObject].fields("imageloader").asInstanceOf[JsObject].fields("args")
+      val args = argj.toString.split("\\|")
       
       if (args(0) == "POI") {
         branchCondition = "POI"

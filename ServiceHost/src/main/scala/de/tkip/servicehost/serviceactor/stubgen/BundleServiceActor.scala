@@ -196,9 +196,8 @@ class BundleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage("") //TODO set message
+      actor.setMessage("{'imageloader':{'args':'POI|1|1'}}")
       actor.changeState()
-
     }
   }
 }
