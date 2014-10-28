@@ -201,7 +201,7 @@ class BundleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      val msg = Map("dummy" -> Map("args" -> "POI|1|1"))
+      val msg = Map("dummy" -> Map("args" -> "POI|1|1;ROI|1|1|1.0|1.0;ROI|2|0|1.0|2.0;ROI|3|0|1.0|100.0"))
       actor.setMessage(msg.toJson.compactPrint)
       actor.changeState()
     }

@@ -245,14 +245,17 @@ class DummyServiceActor extends ServiceActor {
 
     def process()(implicit actor: ServiceActor) {
       val argj = messageContent.parseJson.asInstanceOf[JsObject].fields("dummy").asInstanceOf[JsObject].fields("args")
-      val args = argj.convertTo[String].split("\\|")
+      val arr = argj.convertTo[String].split(";")
+
+      for (el <- arr) {
+      val args = el.split("\\|")
 
       if (args(0) == "POI") {
         val data: List[VSinglePoint] = parseFile("poi_" + args(1).toInt)
         val g = VPOIGroup(args(2).toInt, data)
         val gg = g :: Nil
 
-        pois = gg
+        pois = gg ++ pois
       }
       else if (args(0) == "ROI") {
         val data: List[VSinglePoint] = parseFile("roi_" + args(1).toInt)
@@ -261,11 +264,12 @@ class DummyServiceActor extends ServiceActor {
         val g = VROIGroup(args(2).toInt, o)
         val gg = g :: Nil
 
-        rois = gg
+        rois = gg ++ rois
       }
       else {
         log.error("unknown: '" + messageContent + "'")
         log.error("args: '" + args.mkString(",") + "'")
+      }
       }
 
       actor.changeState()
