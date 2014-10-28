@@ -14,7 +14,7 @@ object Messages {
   case class ExecuteServiceMessage(processID: ProcessID, serviceID: ServiceID, payload: Any)
   case class CreateXMLReferenceMessage(subjectId: SubjectID, classPath: String, jsonPath: String)
   case class GetAllClassReferencesMessage()
-  case class GetClassReferenceMessage(subjectId: SubjectID)
+  case class GetClassReferenceMessage(processId: ProcessID)
   case class ClassReferenceMessage(subjectId: SubjectID, classReference: Class[_<: ServiceActor])
   case class ServiceResultMessage(result: Any)
   case class UpdateProcessData(processInstanceID: ProcessInstanceID, remoteProcessID: ProcessInstanceID, manager: Option[ActorRef])

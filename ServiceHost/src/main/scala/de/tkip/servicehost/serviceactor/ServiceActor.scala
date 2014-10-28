@@ -13,9 +13,14 @@ import de.tkip.servicehost.ServiceAttributes._
 import de.tkip.servicehost.serviceactor.stubgen.State
 
 abstract class ServiceActor extends InstrumentedActor {
+  protected implicit val service = this
+
   protected def INPUT_POOL_SIZE: Int = 100
   protected def serviceID: ServiceID
   protected def subjectID: SubjectID
+
+  protected def states: List[State]
+  protected var state: State = getStartState
 
   protected var processID: ProcessID = -1
   protected var processInstanceID: ProcessInstanceID = -1
@@ -24,11 +29,17 @@ abstract class ServiceActor extends InstrumentedActor {
 
   var branchCondition: String = null
   var returnMessageContent: String = "received message"
+
+  def reset(): Unit = {
+    state = getStartState
+  }
     
   def processMsg(): Unit
   
   def changeState() 
   
+  def getStartState(): State
+
   def getState(id: Int): State
   
   def storeMsg(message: Any, tosender : ActorRef): Unit
