@@ -19,6 +19,11 @@ import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc.Rejected
 
+import de.tkip.vasec._
+import de.tkip.vasec.VasecJsonProtocol._
+import spray.json._
+
+
 class BundleServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
   
@@ -196,7 +201,8 @@ class BundleServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage("{'imageloader':{'args':'POI|1|1'}}")
+      val msg = Map("dummy" -> Map("args" -> "POI|1|1"))
+      actor.setMessage(msg.toJson.compactPrint)
       actor.changeState()
     }
   }

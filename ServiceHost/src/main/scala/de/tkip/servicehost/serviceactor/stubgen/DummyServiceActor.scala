@@ -19,6 +19,19 @@ import scala.collection.immutable.Map
 import scala.collection.mutable.Queue
 import de.tkip.sbpm.application.subject.misc.Rejected
 
+
+import de.tkip.vasec._
+import de.tkip.vasec.VasecJsonProtocol._
+import spray.json._
+
+import java.io.File
+
+import java.awt.image.BufferedImage
+
+import javax.imageio
+import javax.imageio.ImageIO
+
+
 class DummyServiceActor extends ServiceActor {
   override protected val INPUT_POOL_SIZE: Int = 20
   
@@ -39,7 +52,7 @@ class DummyServiceActor extends ServiceActor {
   // start with first state
   // TODO: that is not always the start state!
   def getStartState(): State = {
-    getState(0)
+    getState(2)
   }
 
   
@@ -62,8 +75,13 @@ class DummyServiceActor extends ServiceActor {
   private var target = -1
   private var messageContent: String = "" // will be used in getResult
 
+  var pois: Seq[VPOIGroup] = Nil
+  var rois: Seq[VROIGroup] = Nil
+
   override def reset = {
-    // TODO: reset custom properties
+    pois = Nil
+    rois = Nil
+
     super.reset
   }
 
@@ -192,27 +210,65 @@ class DummyServiceActor extends ServiceActor {
     msg
   }
 
-  
+  def parseFile(typ: String): List[VSinglePoint] = {
+    val path = "./src/main/resources/images/" + typ + ".bmp"
+    log.info("loading file: " + path)
+    var data: List[VSinglePoint] = Nil
 
-  case class fetchROIs(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
+    val imagefile = new File(path)
 
-    val stateName = "" //TODO state name
+    if (imagefile.exists) {
+      val image: BufferedImage = ImageIO.read(imagefile)
 
-    def process()(implicit actor: ServiceActor) {
-      actor.setMessage("") //TODO set message
-      actor.changeState()
+      val width = image.getWidth
+      val height = image.getHeight
 
+      for (x <- 0 until width; y <- 0 until height) {
+        val rgb = image.getRGB(x, y)
+        if (rgb == -16777216) {
+          data = VSinglePoint(x, y) :: data
+        }
+      }
     }
+    else {
+      log.warning("file does not exist! absolute path: " + imagefile.getAbsolutePath)
+    }
+
+    data
   }
+
+
 
   case class internalaction(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
 
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage("") //TODO set message
-      actor.changeState()
+      val argj = messageContent.parseJson.asInstanceOf[JsObject].fields("dummy").asInstanceOf[JsObject].fields("args")
+      val args = argj.convertTo[String].split("\\|")
 
+      if (args(0) == "POI") {
+        val data: List[VSinglePoint] = parseFile("poi_" + args(1).toInt)
+        val g = VPOIGroup(args(2).toInt, data)
+        val gg = g :: Nil
+
+        pois = gg
+      }
+      else if (args(0) == "ROI") {
+        val data: List[VSinglePoint] = parseFile("roi_" + args(1).toInt)
+        val o: List[VROI] = data.map(p => VCircle(p.x, p.y, args(3).toDouble, args(4).toDouble))
+
+        val g = VROIGroup(args(2).toInt, o)
+        val gg = g :: Nil
+
+        rois = gg
+      }
+      else {
+        log.error("unknown: '" + messageContent + "'")
+        log.error("args: '" + args.mkString(",") + "'")
+      }
+
+      actor.changeState()
     }
   }
 
@@ -221,9 +277,18 @@ class DummyServiceActor extends ServiceActor {
     val stateName = "" //TODO state name
 
     def process()(implicit actor: ServiceActor) {
-      actor.setMessage("") //TODO set message
+      actor.setMessage(pois.toJson.compactPrint)
       actor.changeState()
+    }
+  }
 
+  case class fetchROIs(override val id: Int, override val exitType: String, override val targets: Map[BranchID, Target], override val targetIds: Map[BranchID, Int], override val text: String) extends State("action", id, exitType, targets, targetIds, text) {
+
+    val stateName = "" //TODO state name
+
+    def process()(implicit actor: ServiceActor) {
+      actor.setMessage(rois.toJson.compactPrint)
+      actor.changeState()
     }
   }
 }
