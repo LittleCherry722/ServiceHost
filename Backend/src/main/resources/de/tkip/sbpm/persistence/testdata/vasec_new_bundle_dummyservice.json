@@ -11,7 +11,7 @@
 			"deactivated" : false,
 			"startSubject" : false,
 			"inputPool" : 100,
-			"blackboxname" : "vasec_bundle_imageloader",
+			"blackboxname" : "vasec_bundle_dummy",
 			"relatedSubject" : "Subj2:6ade7af8-d3c2-4608-a3d0-c7f328e9afeb",
 			"relatedInterface" : null,
 			"isImplementation" : false,

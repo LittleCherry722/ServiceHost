@@ -108,7 +108,7 @@
 								"state" : null
 							},
 							"macro" : "",
-							"blackboxname" : "vasec_bundle_imageloader",
+							"blackboxname" : "vasec_bundle_dummy",
 							"varMan" : {
 								"var1" : "",
 								"var2" : "",
@@ -204,7 +204,7 @@
 					"edges" : [{
 							"start" : 4,
 							"end" : 1,
-							"text" : "Image Loader",
+							"text" : "Dummy Service",
 							"type" : "exitcondition",
 							"manualPositionOffsetLabelX" : 0,
 							"manualPositionOffsetLabelY" : 0,
